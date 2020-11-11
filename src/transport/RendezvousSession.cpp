@@ -88,24 +88,27 @@ CHIP_ERROR RendezvousSession::SendPairingMessage(const PacketHeader & header, He
 
 CHIP_ERROR RendezvousSession::SendSecureMessage(Protocols::CHIPProtocolId protocol, uint8_t msgType, System::PacketBuffer * msgIn)
 {
-    PacketHeader packetHeader;
-    PayloadHeader payloadHeader;
     System::AutoFreePacketBuffer msgBuf(msgIn);
-
-    const uint16_t headerSize = payloadHeader.EncodeSizeBytes();
 
     VerifyOrReturnError(msgIn != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
     VerifyOrReturnError(msgBuf->Next() == nullptr, CHIP_ERROR_INVALID_MESSAGE_LENGTH);
     VerifyOrReturnError(msgBuf->TotalLength() < kMax_SecureSDU_Length, CHIP_ERROR_INVALID_MESSAGE_LENGTH);
-    VerifyOrReturnError(CanCastTo<uint16_t>(headerSize + msgBuf->TotalLength()), CHIP_ERROR_INVALID_MESSAGE_LENGTH);
 
+    PacketHeader packetHeader;
     packetHeader
-        .SetSourceNodeId(mParams.GetLocalNodeId())           //
-        .SetMessageId(mSecureMessageIndex)                   //
-        .SetEncryptionKeyID(mPairingSession.GetLocalKeyId()) //
-        .SetPayloadLength(static_cast<uint16_t>(headerSize + msgBuf->TotalLength()));
+        .SetSourceNodeId(mParams.GetLocalNodeId()) //
+        .SetMessageId(mSecureMessageIndex)         //
+        .SetEncryptionKeyID(mPairingSession.GetLocalKeyId());
 
-    payloadHeader.SetProtocolID(static_cast<uint16_t>(protocol)).SetMessageType(msgType);
+    PayloadHeader payloadHeader;
+    payloadHeader
+        .SetProtocolID(static_cast<uint16_t>(protocol)) //
+        .SetMessageType(msgType);
+
+    const uint16_t headerSize = payloadHeader.EncodeSizeBytes();
+
+    VerifyOrReturnError(CanCastTo<uint16_t>(headerSize + msgBuf->TotalLength()), CHIP_ERROR_INVALID_MESSAGE_LENGTH);
+    packetHeader.SetPayloadLength(static_cast<uint16_t>(headerSize + msgBuf->TotalLength()));
 
     VerifyOrReturnError(msgBuf->EnsureReservedSize(headerSize), CHIP_ERROR_NO_MEMORY);
 
