@@ -105,14 +105,14 @@ CHIP_ERROR RendezvousSession::SendSecureMessage(Protocols::CHIPProtocolId protoc
         .SetProtocolID(static_cast<uint16_t>(protocol)) //
         .SetMessageType(msgType);
 
-    const uint16_t headerSize = payloadHeader.EncodeSizeBytes();
+    const uint16_t payloadHeaderSize = payloadHeader.EncodeSizeBytes();
 
-    VerifyOrReturnError(CanCastTo<uint16_t>(headerSize + msgBuf->TotalLength()), CHIP_ERROR_INVALID_MESSAGE_LENGTH);
-    packetHeader.SetPayloadLength(static_cast<uint16_t>(headerSize + msgBuf->TotalLength()));
+    VerifyOrReturnError(CanCastTo<uint16_t>(payloadHeaderSize + msgBuf->TotalLength()), CHIP_ERROR_INVALID_MESSAGE_LENGTH);
+    packetHeader.SetPayloadLength(static_cast<uint16_t>(payloadHeaderSize + msgBuf->TotalLength()));
 
-    VerifyOrReturnError(msgBuf->EnsureReservedSize(headerSize), CHIP_ERROR_NO_MEMORY);
+    VerifyOrReturnError(msgBuf->EnsureReservedSize(payloadHeaderSize), CHIP_ERROR_NO_MEMORY);
 
-    msgBuf->SetStart(msgBuf->Start() - headerSize);
+    msgBuf->SetStart(msgBuf->Start() - payloadHeaderSize);
     uint8_t * data    = msgBuf->Start();
     uint16_t totalLen = msgBuf->TotalLength();
     uint16_t actualEncodedHeaderSize;
