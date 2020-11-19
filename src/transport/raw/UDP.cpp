@@ -91,7 +91,7 @@ void UDP::Close()
 CHIP_ERROR UDP::SendMessage(const PacketHeader & header, Header::Flags payloadFlags, const Transport::PeerAddress & address,
                             System::PacketBuffer * msgIn)
 {
-    System::AutoFreePacketBuffer msgBuf(msgIn);
+    System::PacketBufferHandle msgBuf;
     const uint16_t headerSize = header.EncodeSizeBytes();
     uint16_t actualEncodedHeaderSize;
     CHIP_ERROR err = CHIP_NO_ERROR;
@@ -107,6 +107,7 @@ CHIP_ERROR UDP::SendMessage(const PacketHeader & header, Header::Flags payloadFl
     addrInfo.DestPort    = address.GetPort();
     addrInfo.Interface   = address.GetInterface();
 
+    msgBuf.Adopt(msgIn);
     VerifyOrExit(msgBuf->EnsureReservedSize(headerSize), err = CHIP_ERROR_NO_MEMORY);
 
     msgBuf->SetStart(msgBuf->Start() - headerSize);
@@ -116,7 +117,7 @@ CHIP_ERROR UDP::SendMessage(const PacketHeader & header, Header::Flags payloadFl
     // This is unexpected and means header changed while encoding
     VerifyOrExit(headerSize == actualEncodedHeaderSize, err = CHIP_ERROR_INTERNAL);
 
-    err = mUDPEndPoint->SendMsg(&addrInfo, msgBuf.Release());
+    err = mUDPEndPoint->SendMsg(&addrInfo, msgBuf.Release_ForNow());
     SuccessOrExit(err);
 
 exit:

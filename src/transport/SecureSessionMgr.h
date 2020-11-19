@@ -90,6 +90,15 @@ public:
 
     /**
      * @brief
+     *   Called when a new connection is closing
+     *
+     * @param state   connection state
+     * @param mgr     A pointer to the SecureSessionMgr
+     */
+    virtual void OnConnectionExpired(const Transport::PeerConnectionState * state, SecureSessionMgrBase * mgr) {}
+
+    /**
+     * @brief
      *   Called when the peer address is resolved from NodeID.
      *
      * @param error   The resolution resolve error code
@@ -135,7 +144,7 @@ public:
      *   establishes the security keys for secure communication with the
      *   peer node.
      */
-    CHIP_ERROR NewPairing(const Optional<Transport::PeerAddress> & peerAddr, SecurePairingSession * pairing);
+    CHIP_ERROR NewPairing(const Optional<Transport::PeerAddress> & peerAddr, NodeId peerNodeId, SecurePairingSession * pairing);
 
     /**
      * @brief

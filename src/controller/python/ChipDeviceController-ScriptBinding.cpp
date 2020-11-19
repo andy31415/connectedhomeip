@@ -129,8 +129,8 @@ static chip::Inet::InetLayer sInetLayer;
 // NOTE: Remote device ID is in sync with the echo server device id
 // At some point, we may want to add an option to connect to a device without
 // knowing its id, because the ID can be learned on the first response that is received.
-chip::NodeId kLocalDeviceId  = 112233;
-chip::NodeId kRemoteDeviceId = 12344321;
+chip::NodeId kLocalDeviceId  = chip::kTestControllerNodeId;
+chip::NodeId kRemoteDeviceId = chip::kTestDeviceNodeId;
 
 #if CONFIG_NETWORK_LAYER_BLE
 static BleLayer sBle;
@@ -305,7 +305,7 @@ CHIP_ERROR nl_Chip_DeviceController_DriveIO(uint32_t sleepTimeMS)
                     {
                     case kBleEventType_Rx:
                         // build a packet buffer from the rxEv and send to blelayer.
-                        msgBuf = chip::System::PacketBuffer::New();
+                        msgBuf = chip::System::PacketBuffer::New().Release_ForNow();
                         VerifyOrExit(msgBuf != NULL, err = CHIP_ERROR_NO_MEMORY);
 
                         memcpy(msgBuf->Start(), evu.rxEv->buffer, evu.rxEv->length);
