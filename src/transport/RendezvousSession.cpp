@@ -295,10 +295,10 @@ CHIP_ERROR RendezvousSession::HandleSecureMessage(PacketBuffer * msgIn)
 {
     PacketHeader packetHeader;
     PayloadHeader payloadHeader;
-<<<<<<< HEAD
     uint16_t headerSize = 0;
 
-    System::AutoFreePacketBuffer msgBuf(msgIn);
+    System::PacketBufferHandle msgBuf;
+    msgBuf.Adopt(msgIn);
 
     ReturnErrorCodeIf(msgBuf.IsNull(), CHIP_ERROR_INVALID_ARGUMENT);
 
@@ -309,56 +309,13 @@ CHIP_ERROR RendezvousSession::HandleSecureMessage(PacketBuffer * msgIn)
     headerSize     = payloadHeader.EncodeSizeBytes();
     uint8_t * data = msgBuf->Start();
     uint16_t len   = msgBuf->TotalLength();
-=======
-    MessageAuthenticationCode mac;
-    uint16_t headerSize  = 0;
-    uint8_t * data       = nullptr;
-    uint8_t * plainText  = nullptr;
-    uint16_t len         = 0;
-    uint16_t decodedSize = 0;
-    uint16_t taglen      = 0;
-    uint16_t payloadlen  = 0;
-
-    System::PacketBufferHandle msgBuf;
-    System::PacketBufferHandle origMsg;
-
-    msgBuf.Adopt(msgIn);
-    VerifyOrExit(!msgBuf.IsNull(), err = CHIP_ERROR_INVALID_ARGUMENT);
-
-    err = packetHeader.Decode(msgBuf->Start(), msgBuf->DataLength(), &headerSize);
-    SuccessOrExit(err);
-    msgBuf->ConsumeHead(headerSize);
-
-    // Check if the source and destination node IDs match with what we already know
-    if (packetHeader.GetDestinationNodeId().HasValue() && mParams.HasLocalNodeId())
-    {
-        VerifyOrExit(packetHeader.GetDestinationNodeId().Value() == mParams.GetLocalNodeId().Value(),
-                     err = CHIP_ERROR_WRONG_NODE_ID);
-    }
-
-    if (packetHeader.GetSourceNodeId().HasValue() && mParams.HasRemoteNodeId())
-    {
-        VerifyOrExit(packetHeader.GetSourceNodeId().Value() == mParams.GetRemoteNodeId().Value(), err = CHIP_ERROR_WRONG_NODE_ID);
-    }
-
-    headerSize = payloadHeader.EncodeSizeBytes();
-    data       = msgBuf->Start();
-    len        = msgBuf->TotalLength();
->>>>>>> master
 
 #if CHIP_SYSTEM_CONFIG_USE_LWIP
     /* This is a workaround for the case where PacketBuffer payload is not
        allocated as an inline buffer to PacketBuffer structure */
-<<<<<<< HEAD
-    System::AutoFreePacketBuffer origMsg(msgBuf.Release());
-
-    msgBuf.Adopt(PacketBuffer::NewWithAvailableSize(len));
-    ReturnErrorCodeIf(msgBuf.IsNull(), CHIP_ERROR_NO_MEMORY);
-=======
     origMsg = std::move(msgBuf);
     msgBuf  = PacketBuffer::NewWithAvailableSize(len);
-    VerifyOrExit(!msgBuf.IsNull(), err = CHIP_ERROR_NO_MEMORY);
->>>>>>> master
+    RetunrErrorCodeIf(!msgBuf.IsNull(), CHIP_ERROR_NO_MEMORY);
 
     msgBuf->SetDataLength(len);
 #endif
@@ -376,48 +333,20 @@ CHIP_ERROR RendezvousSession::HandleSecureMessage(PacketBuffer * msgIn)
     uint8_t * plainText = msgBuf->Start();
     ReturnErrorOnFailure(mSecureSession.Decrypt(data, len, plainText, packetHeader, payloadHeader.GetEncodePacketFlags(), mac));
 
-<<<<<<< HEAD
     uint16_t decodedSize = 0;
     ReturnErrorOnFailure(payloadHeader.Decode(packetHeader.GetFlags(), plainText, len, &decodedSize));
 
     VerifyOrReturnError(headerSize == decodedSize, CHIP_ERROR_INCORRECT_STATE);
-=======
-    // Use the node IDs from the packet header only after it's successfully decrypted
-    if (packetHeader.GetDestinationNodeId().HasValue() && !mParams.HasLocalNodeId())
-    {
-        ChipLogProgress(Ble, "Received rendezvous message for %llu", packetHeader.GetDestinationNodeId().Value());
-        mParams.SetLocalNodeId(packetHeader.GetDestinationNodeId().Value());
-    }
-
-    if (packetHeader.GetSourceNodeId().HasValue() && !mParams.HasRemoteNodeId())
-    {
-        ChipLogProgress(Ble, "Received rendezvous message from %llu", packetHeader.GetSourceNodeId().Value());
-        mParams.SetRemoteNodeId(packetHeader.GetSourceNodeId().Value());
-    }
-
-    err = payloadHeader.Decode(packetHeader.GetFlags(), plainText, len, &decodedSize);
-    SuccessOrExit(err);
-    VerifyOrExit(headerSize == decodedSize, err = CHIP_ERROR_INCORRECT_STATE);
->>>>>>> master
 
     msgBuf->ConsumeHead(headerSize);
 
     if (payloadHeader.GetProtocolID() == Protocols::kProtocol_NetworkProvisioning)
     {
-<<<<<<< HEAD
         ReturnErrorOnFailure(
-            mNetworkProvision.HandleNetworkProvisioningMessage(payloadHeader.GetMessageType(), msgBuf.Get_NoRelease()));
+            mNetworkProvision.HandleNetworkProvisioningMessage(payloadHeader.GetMessageType(), msgBuf.Get_ForNow()));
     }
 
     return CHIP_NO_ERROR;
-=======
-        err = mNetworkProvision.HandleNetworkProvisioningMessage(payloadHeader.GetMessageType(), msgBuf.Get_ForNow());
-        SuccessOrExit(err);
-    }
-
-exit:
-    return err;
->>>>>>> master
 }
 
 CHIP_ERROR RendezvousSession::WaitForPairing(Optional<NodeId> nodeId, uint32_t setupPINCode)
