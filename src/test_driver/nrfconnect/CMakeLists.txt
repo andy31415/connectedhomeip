@@ -105,7 +105,7 @@ target_compile_definitions(app PUBLIC CHIP_HAVE_CONFIG_H)
 
 
 set(SHARED_CHIP_LIBS
-    -lCHIP 
+    -lCHIP
     -lInetLayerTests # helpers should be here!
 )
 
@@ -122,6 +122,5 @@ foreach(TEST_LIB ${CHIP_TESTS})
 
     add_dependencies(${TEST_LIB_NAME} ChipLib)
 endforeach()
-
 
 add_test(AllChipTests zephyr/zephyr.exe)

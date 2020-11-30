@@ -23,14 +23,19 @@
 #include <logging/log.h>
 #include <settings/settings.h>
 
+#include <cmdline.h>
 #include <dlfcn.h>
+
+void native_get_test_cmd_line_args(int * argc, char *** argv);
 
 using namespace ::chip;
 using namespace ::chip::DeviceLayer;
 
 LOG_MODULE_REGISTER(runner);
 
-static int RunTests(const char * libname)
+namespace {
+
+int RunTests(const char * libname)
 {
     void * handle = dlopen(libname, RTLD_NOW);
     if (handle == nullptr)
@@ -53,26 +58,32 @@ static int RunTests(const char * libname)
     return status;
 }
 
-void main(int argc, const char ** argv)
+} // namespace
+
+void zephyr_app_main()
 {
     int status;
     VerifyOrDie(settings_subsys_init() == 0);
 
-    LOG_INF("Starting CHIP tests!");
+    int argc;
+    char ** argv;
+    native_get_test_cmd_line_args(&argc, &argv);
+
+    LOG_INF("Starting CHIP tests: arguments!");
     for (int i = 0; i < argc; i++)
     {
-        LOG_INF("Argument %d: %s\n", i, argv[i]);
+        LOG_INF("Test Argument %d: %s\n", i, argv[i]);
     }
 
-    // if (argc != 1)
-    // {
-    //     printf("First argument: %s", argv[1]);
-    //     status = RunTests(argv[1]);
-    // }
-    // else
-    // {
-    status = RunRegisteredUnitTests();
-    //  }
+    if (argc == 1)
+    {
+        printf("First argument: %s", argv[0]);
+        status = RunTests(argv[0]);
+    }
+    else
+    {
+        status = RunRegisteredUnitTests();
+    }
 
     LOG_INF("CHIP test status: %d", status);
     exit(status);
