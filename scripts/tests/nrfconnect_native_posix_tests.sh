@@ -17,7 +17,7 @@
 #
 
 CHIP_ROOT="$(dirname "$0")/../.."
-BOARD=native_posix
+BOARD=native_posix_64
 [[ -n $1 ]] && BOARD="$1"
 
 set -x

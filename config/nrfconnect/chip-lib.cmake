@@ -108,7 +108,7 @@ endfunction()
 
 function(chip_configure TARGET_NAME)
     cmake_parse_arguments(CHIP
-                          "BUILD_TESTS"
+                          "BUILD_TESTS;FORCE_PIC"
                           "PROJECT_CONFIG"
                           "CFLAGS;CXXFLAGS"
                           ${ARGN})
@@ -129,6 +129,10 @@ function(chip_configure TARGET_NAME)
     chip_gn_arg_string(GN_ARGS "zephyr_ar = \"${CMAKE_AR}\"")
     chip_gn_arg_string(GN_ARGS "zephyr_cc = \"${CMAKE_C_COMPILER}\"")
     chip_gn_arg_string(GN_ARGS "zephyr_cxx = \"${CMAKE_CXX_COMPILER}\"")
+
+    if (CHIP_FORCE_PIC)
+      chip_gn_arg_string(GN_ARGS "enable_pic = true")
+    endif()
 
     if (CHIP_PROJECT_CONFIG)
         chip_gn_arg_string(GN_ARGS "chip_project_config_include = \"<${CHIP_PROJECT_CONFIG}>\"")

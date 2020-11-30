@@ -228,7 +228,7 @@ static void HandleSignal(int aSignal)
         break;
     }
 }
-
+/*
 int main(int argc, char * argv[])
 {
     bool lSuccessful = true;
@@ -313,6 +313,7 @@ shutdown:
 exit:
     return (lSuccessful ? EXIT_SUCCESS : EXIT_FAILURE);
 }
+*/
 
 static bool HandleOption(const char * aProgram, OptionSet * aOptions, int aIdentifier, const char * aName, const char * aValue)
 {
@@ -900,7 +901,7 @@ void DriveSend()
             sTestState.mStats.mTransmit.mActual += lSendSize;
 
             printf("%u/%u transmitted to %s\n", sTestState.mStats.mTransmit.mActual, sTestState.mStats.mTransmit.mExpected,
-                   sDestinationString);
+                   sDestinationString == nullptr ? "???" : sDestinationString);
         }
     }
 

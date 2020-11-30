@@ -23,18 +23,57 @@
 #include <logging/log.h>
 #include <settings/settings.h>
 
+#include <dlfcn.h>
+
 using namespace ::chip;
 using namespace ::chip::DeviceLayer;
 
 LOG_MODULE_REGISTER(runner);
 
-void main(void)
+static int RunTests(const char * libname)
 {
+    void * handle = dlopen(libname, RTLD_NOW);
+    if (handle == nullptr)
+    {
+        LOG_INF("Open failed");
+        return 1;
+    }
+
+    void * sym = dlsym(handle, "RunTests");
+    if (sym == nullptr)
+    {
+        LOG_INF("Function not found");
+        dlclose(handle);
+        return 1;
+    }
+    int (*func)() = (int (*)()) sym;
+    int status    = func();
+
+    dlclose(handle);
+    return status;
+}
+
+void main(int argc, const char ** argv)
+{
+    int status;
     VerifyOrDie(settings_subsys_init() == 0);
 
     LOG_INF("Starting CHIP tests!");
-    int status = RunRegisteredUnitTests();
-    LOG_INF("CHIP test status: %d", status);
+    for (int i = 0; i < argc; i++)
+    {
+        LOG_INF("Argument %d: %s\n", i, argv[i]);
+    }
 
+    // if (argc != 1)
+    // {
+    //     printf("First argument: %s", argv[1]);
+    //     status = RunTests(argv[1]);
+    // }
+    // else
+    // {
+    status = RunRegisteredUnitTests();
+    //  }
+
+    LOG_INF("CHIP test status: %d", status);
     exit(status);
 }
