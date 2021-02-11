@@ -70,11 +70,20 @@ struct BLEAdvConfig
 
 struct BLEScanConfig
 {
-    // Discriminator of seeked device (encoded in its BLE advertising payload)
-    uint16_t mDiscriminator = 0;
+    static constexpr uint16_t kInvalidDiscriminator = 0;
 
-    // Optional argument to be passed to callback functions provided by the BLE scan/connect requestor
-    void * mAppState = nullptr;
+    bool scanRequested = false;
+
+    // connects to the specified device as soon as it is discovered
+    struct
+    {
+        // Discriminator of seeked device (encoded in its BLE advertising payload)
+        uint16_t discriminator = kInvalidDiscriminator;
+
+        // Optional argument to be passed to callback functions provided by the BLE scan/connect requestor
+        void * appState = nullptr;
+
+    } connectToDevice;
 };
 
 /**

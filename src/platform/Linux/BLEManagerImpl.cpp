@@ -262,7 +262,7 @@ void BLEManagerImpl::HandlePlatformSpecificBLEEvent(const ChipDeviceEvent * apEv
     {
     case DeviceEventType::kPlatformLinuxBLECentralConnected:
         if (OnConnectionComplete != nullptr)
-            OnConnectionComplete(mBLEScanConfig.mAppState, apEvent->Platform.BLECentralConnected.mConnection);
+            OnConnectionComplete(mBLEScanConfig.connectToDevice.appState, apEvent->Platform.BLECentralConnected.mConnection);
         break;
     case DeviceEventType::kPlatformLinuxBLEWriteComplete:
         HandleWriteConfirmation(apEvent->Platform.BLEWriteComplete.mConnection, &CHIP_BLE_SVC_ID, &ChipUUID_CHIPoBLEChar_RX);
@@ -613,13 +613,22 @@ void BLEManagerImpl::DriveBLEState()
     }
 
     // Configure BLE scanning
-    if (mBLEScanConfig.mDiscriminator && !GetFlag(mFlags, kFlag_Scanning))
+    if (mBLEScanConfig.scanRequested && !GetFlag(mFlags, kFlag_Scanning))
     {
-        err = StartDiscovery(static_cast<BluezEndpoint *>(mpAppState), { mBLEScanConfig.mDiscriminator });
+        if (mBLEScanConfig.connectToDevice.discriminator != BLEScanConfig::kInvalidDiscriminator)
+        {
+            err = StartConnectToDeviceByDiscriminator(static_cast<BluezEndpoint *>(mpAppState),
+                                                      mBLEScanConfig.connectToDevice.discriminator);
+        }
+        else
+        {
+            err = StartBleScan(static_cast<BluezEndpoint *>(mpAppState), nullptr /*  FIXME: delegate  ?*/
+            );
+        }
         SuccessOrExit(err);
         SetFlag(mFlags, kFlag_Scanning);
     }
-    else if (!mBLEScanConfig.mDiscriminator && GetFlag(mFlags, kFlag_Scanning))
+    else if (!mBLEScanConfig.scanRequested && GetFlag(mFlags, kFlag_Scanning))
     {
         err = StopDiscovery(static_cast<BluezEndpoint *>(mpAppState));
         SuccessOrExit(err);
@@ -646,8 +655,10 @@ void BLEManagerImpl::NotifyChipConnectionClosed(BLE_CONNECTION_OBJECT conId)
 
 void BLEManagerImpl::NewConnection(BleLayer * bleLayer, void * appState, const uint16_t connDiscriminator)
 {
-    mBLEScanConfig.mDiscriminator = connDiscriminator;
-    mBLEScanConfig.mAppState      = appState;
+    mBLEScanConfig.scanRequested                 = true;
+    mBLEScanConfig.connectToDevice.discriminator = connDiscriminator;
+    mBLEScanConfig.connectToDevice.appState      = appState;
+
     PlatformMgr().ScheduleWork(DriveBLEState, 0);
 }
 

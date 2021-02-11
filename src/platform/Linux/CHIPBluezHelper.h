@@ -114,9 +114,27 @@ struct IOChannel
     guint mWatch;
 };
 
-struct BluezDiscoveryRequest
+class BluezScanDelegate
 {
-    uint16_t mDiscriminator;
+public:
+    virtual ~BluezScanDelegate() {}
+    virtual void DeviceScanned(const chip::Ble::ChipBLEDeviceIdentificationInfo & info) = 0;
+};
+
+struct BluezDiscoverySettings
+{
+    BluezScanDelegate * scanDelegate = nullptr;
+
+    // settings to automatically connect on discovery
+    bool autoConnect                  = false;
+    uint16_t autoConnectDiscriminator = 0;
+
+    void Clear()
+    {
+        scanDelegate             = nullptr;
+        autoConnect              = false;
+        autoConnectDiscriminator = 0;
+    }
 };
 
 struct BluezEndpoint
@@ -157,7 +175,7 @@ struct BluezEndpoint
     char * mpPeerDevicePath;
 
     // Discovery settings
-    BluezDiscoveryRequest mDiscoveryRequest = {};
+    BluezDiscoverySettings mDiscoverySettings;
 };
 
 struct BluezConnection
@@ -199,8 +217,10 @@ bool BluezSubscribeCharacteristic(BLE_CONNECTION_OBJECT apConn);
 /// Unsubscribe from the CHIP TX characteristic on the remote peripheral device
 bool BluezUnsubscribeCharacteristic(BLE_CONNECTION_OBJECT apConn);
 
-CHIP_ERROR
-StartDiscovery(BluezEndpoint * apEndpoint, BluezDiscoveryRequest aRequest = {});
+CHIP_ERROR StartConnectToDeviceByDiscriminator(BluezEndpoint * apEndpoint, uint16_t discriminator);
+
+CHIP_ERROR StartBleScan(BluezEndpoint * apEndpoint, BluezScanDelegate * delegate);
+
 CHIP_ERROR StopDiscovery(BluezEndpoint * apEndpoint);
 
 CHIP_ERROR ConnectDevice(BluezDevice1 * apDevice);

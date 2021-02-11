@@ -53,6 +53,7 @@
 #include <ble/CHIPBleServiceData.h>
 #include <platform/CHIPDeviceLayer.h>
 #include <protocols/Protocols.h>
+#include <support/ReturnMacros.h>
 
 #if CHIP_DEVICE_CONFIG_ENABLE_CHIPOBLE
 #include <errno.h>
@@ -919,8 +920,16 @@ static void BluezHandleAdvertisementFromDevice(BluezDevice1 * aDevice, BluezEndp
     VerifyOrExit(BluezGetChipDeviceInfo(*aDevice, deviceInfo), );
     ChipLogDetail(DeviceLayer, "TRACE: Found CHIP BLE Device: %" PRIu16, deviceInfo.GetDeviceDiscriminator());
 
-    if (aEndpoint->mDiscoveryRequest.mDiscriminator == deviceInfo.GetDeviceDiscriminator())
+    if (aEndpoint->mDiscoverySettings.scanDelegate != nullptr)
+    {
+        aEndpoint->mDiscoverySettings.scanDelegate->DeviceScanned(deviceInfo);
+    }
+
+    if (aEndpoint->mDiscoverySettings.autoConnect &&
+        (aEndpoint->mDiscoverySettings.autoConnectDiscriminator == deviceInfo.GetDeviceDiscriminator()))
+    {
         ConnectDevice(aDevice);
+    }
 exit:
     g_free(debugStr);
 }
@@ -1838,7 +1847,13 @@ bool BluezUnsubscribeCharacteristic(BLE_CONNECTION_OBJECT apConn)
 
 // StartDiscovery callbacks
 
-using DiscoveryTaskArg = std::pair<BluezEndpoint *, BluezDiscoveryRequest>;
+struct DiscoveryTaskArg
+{
+    BluezEndpoint * endpoint;
+    BluezDiscoverySettings settings;
+
+    DiscoveryTaskArg(BluezEndpoint * ep, BluezDiscoverySettings s) : endpoint(ep), settings(s) {}
+};
 
 void StartDiscoveryDone(GObject * aObject, GAsyncResult * aResult, gpointer apEndpoint)
 {
@@ -1867,7 +1882,7 @@ static bool CheckIfAlreadyDiscovered(BluezEndpoint & aEndpoint)
         if (!BluezGetChipDeviceInfo(*device, deviceInfo))
             continue;
 
-        if (deviceInfo.GetDeviceDiscriminator() != aEndpoint.mDiscoveryRequest.mDiscriminator)
+        if (deviceInfo.GetDeviceDiscriminator() != aEndpoint.mDiscoverySettings.autoConnectDiscriminator)
             continue;
 
         UpdateConnectionTable(device, aEndpoint);
@@ -1883,18 +1898,18 @@ static gboolean StartDiscoveryImpl(void * apDiscoveryTaskArg)
     BluezEndpoint * endpoint;
 
     VerifyOrExit(taskArg != nullptr, ChipLogError(DeviceLayer, "taskArg is NULL in %s", __func__));
-    endpoint = taskArg->first;
+    endpoint = taskArg->endpoint;
 
     VerifyOrExit(endpoint != nullptr, ChipLogError(DeviceLayer, "endpoint is NULL in %s", __func__));
     VerifyOrExit(endpoint->mpAdapter != nullptr, ChipLogError(DeviceLayer, "mpAdapter is NULL in %s", __func__));
 
     // Bluez may already know the device in which case there's no need to discover it
-    endpoint->mDiscoveryRequest = taskArg->second;
+    endpoint->mDiscoverySettings = taskArg->settings;
 
     if (CheckIfAlreadyDiscovered(*endpoint))
     {
         ChipLogProgress(DeviceLayer, "Device already discovered");
-        endpoint->mDiscoveryRequest = {};
+        endpoint->mDiscoverySettings.autoConnect = false;
         ExitNow();
     }
 
@@ -1906,9 +1921,14 @@ exit:
     return G_SOURCE_REMOVE;
 }
 
-CHIP_ERROR StartDiscovery(BluezEndpoint * apEndpoint, const BluezDiscoveryRequest aRequest)
+CHIP_ERROR StartConnectToDeviceByDiscriminator(BluezEndpoint * apEndpoint, uint16_t discriminator)
 {
-    DiscoveryTaskArg * const taskArg = new DiscoveryTaskArg(apEndpoint, aRequest);
+    BluezDiscoverySettings settings;
+
+    settings.autoConnect              = true;
+    settings.autoConnectDiscriminator = discriminator;
+
+    DiscoveryTaskArg * const taskArg = new DiscoveryTaskArg(apEndpoint, settings);
     CHIP_ERROR error                 = CHIP_NO_ERROR;
 
     if (!BluezRunOnBluezThread(StartDiscoveryImpl, taskArg))
@@ -1921,6 +1941,113 @@ CHIP_ERROR StartDiscovery(BluezEndpoint * apEndpoint, const BluezDiscoveryReques
     return error;
 }
 
+struct StartScanArgument
+{
+    BluezEndpoint * endPoint     = nullptr;
+    BluezScanDelegate * delegate = nullptr;
+
+    StartScanArgument(BluezEndpoint * ep, BluezScanDelegate * cb) : endPoint(ep), delegate(cb) {}
+};
+
+class AutoDeleteStartScanArgument
+{
+public:
+    AutoDeleteStartScanArgument(StartScanArgument * arg) : mArgument(arg) {}
+    ~AutoDeleteStartScanArgument() { delete mArgument; }
+
+private:
+    StartScanArgument * mArgument;
+};
+
+static void ScanDone(GObject * aObject, GAsyncResult * aResult, gpointer arg)
+{
+    BluezAdapter1 * adapter = BLUEZ_ADAPTER1(aObject);
+    GError * error          = nullptr;
+
+    if (bluez_adapter1_call_start_discovery_finish(adapter, aResult, &error))
+    {
+        ChipLogError(DeviceLayer, "BLE Scan completed");
+    }
+    else
+    {
+        ChipLogError(DeviceLayer, "BLE Scan finish error: %s", error->message);
+    }
+    if (error != nullptr)
+    {
+        g_error_free(error);
+    }
+}
+
+static gboolean StartScanImpl(void * argument)
+{
+    StartScanArgument * taskArg = static_cast<StartScanArgument *>(argument);
+    if (taskArg == nullptr)
+    {
+        ChipLogError(DeviceLayer, "NULL argument in StartScanImpl.");
+        return G_SOURCE_REMOVE;
+    }
+
+    AutoDeleteStartScanArgument autoDelete(taskArg);
+    if (taskArg->endPoint == nullptr)
+    {
+        ChipLogError(DeviceLayer, "Missing start scanning endpoint.");
+        return G_SOURCE_REMOVE;
+    }
+
+    if (taskArg->endPoint->mpAdapter == nullptr)
+    {
+        ChipLogError(DeviceLayer, "Missing adapter on endpoint during scan start.");
+        return G_SOURCE_REMOVE;
+    }
+
+    if (taskArg->delegate == nullptr)
+    {
+        ChipLogError(DeviceLayer, "Missing scanning delegate.");
+        return G_SOURCE_REMOVE;
+    }
+
+    // Go over existing bluez devices.
+    {
+
+        for (BluezObject & object : BluezObjectList(taskArg->endPoint))
+        {
+            BluezDevice1 * device = bluez_object_get_device1(&object);
+            if (device == nullptr || !BluezIsDeviceOnAdapter(device, taskArg->endPoint->mpAdapter))
+            {
+                continue;
+            }
+
+            chip::Ble::ChipBLEDeviceIdentificationInfo deviceInfo;
+            if (BluezGetChipDeviceInfo(*device, deviceInfo))
+            {
+                taskArg->delegate->DeviceScanned(deviceInfo);
+            }
+        }
+    }
+
+    // Do actual discovery as well.
+    bluez_adapter1_call_start_discovery(taskArg->endPoint->mpAdapter, nullptr, ScanDone, nullptr /* argument */);
+
+    return G_SOURCE_REMOVE;
+}
+
+CHIP_ERROR StartBleScan(BluezEndpoint * apEndpoint, BluezScanDelegate * delegate)
+{
+    ReturnErrorCodeIf(apEndpoint == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+    ReturnErrorCodeIf(delegate == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+
+    StartScanArgument * const taskArg = new StartScanArgument(apEndpoint, delegate);
+
+    if (!BluezRunOnBluezThread(StartScanImpl, taskArg))
+    {
+        delete taskArg;
+        ChipLogError(Ble, "Failed to schedule StartScanImpl() on CHIPoBluez thread");
+        return CHIP_ERROR_INTERNAL;
+    }
+
+    return CHIP_NO_ERROR;
+}
+
 // StopDiscovery callbacks
 
 static void StopDiscoveryDone(GObject * aObject, GAsyncResult * aResult, gpointer apEndpoint)
@@ -1931,7 +2058,7 @@ static void StopDiscoveryDone(GObject * aObject, GAsyncResult * aResult, gpointe
     gboolean success         = bluez_adapter1_call_stop_discovery_finish(adapter, aResult, &error);
 
     VerifyOrExit(endpoint != nullptr, ChipLogError(DeviceLayer, "endpoint is NULL in %s", __func__));
-    endpoint->mDiscoveryRequest = {};
+    endpoint->mDiscoverySettings.Clear();
 
     VerifyOrExit(success == TRUE, ChipLogError(DeviceLayer, "FAIL: StopDiscovery : %s", error->message));
     ChipLogDetail(DeviceLayer, "StopDiscovery complete");
