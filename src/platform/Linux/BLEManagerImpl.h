@@ -32,9 +32,9 @@ namespace chip {
 namespace DeviceLayer {
 namespace Internal {
 
-struct BluezEndpoint;
-
 void HandleIncomingBleConnection(Ble::BLEEndPoint * bleEP);
+
+struct BluezEndpoint;
 
 enum ChipAdvType
 {
@@ -204,7 +204,7 @@ private:
     uint16_t mFlags;
     char mDeviceName[kMaxDeviceNameLength + 1];
     bool mIsCentral = false;
-    void * mpAppState;
+    BluezEndpoint * mpBluezEndPoint;
 };
 
 /**

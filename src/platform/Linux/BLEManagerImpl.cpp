@@ -65,9 +65,9 @@ CHIP_ERROR BLEManagerImpl::_Init()
     err = BleLayer::Init(this, this, this, &SystemLayer);
     SuccessOrExit(err);
 
-    mServiceMode = ConnectivityManager::kCHIPoBLEServiceMode_Enabled;
-    mFlags       = (CHIP_DEVICE_CONFIG_CHIPOBLE_ENABLE_ADVERTISING_AUTOSTART && !mIsCentral) ? kFlag_AdvertisingEnabled : 0;
-    mAppState    = nullptr;
+    mServiceMode    = ConnectivityManager::kCHIPoBLEServiceMode_Enabled;
+    mFlags          = (CHIP_DEVICE_CONFIG_CHIPOBLE_ENABLE_ADVERTISING_AUTOSTART && !mIsCentral) ? kFlag_AdvertisingEnabled : 0;
+    mpBluezEndPoint = nullptr;
 
     memset(mDeviceName, 0, sizeof(mDeviceName));
 
@@ -190,12 +190,12 @@ CHIP_ERROR BLEManagerImpl::ConfigureBle(uint32_t aNodeId, bool aIsCentral)
 
 CHIP_ERROR BLEManagerImpl::StartBLEAdvertising()
 {
-    return StartBluezAdv(static_cast<BluezEndpoint *>(mpAppState));
+    return StartBluezAdv(mpBluezEndPoint);
 }
 
 CHIP_ERROR BLEManagerImpl::StopBLEAdvertising()
 {
-    return StopBluezAdv(static_cast<BluezEndpoint *>(mpAppState));
+    return StopBluezAdv(mpBluezEndPoint);
 }
 
 void BLEManagerImpl::_OnPlatformEvent(const ChipDeviceEvent * event)
@@ -561,7 +561,7 @@ void BLEManagerImpl::DriveBLEState()
     // Initializes the Bluez BLE layer if needed.
     if (mServiceMode == ConnectivityManager::kCHIPoBLEServiceMode_Enabled && !GetFlag(mFlags, kFlag_BluezBLELayerInitialized))
     {
-        err = InitBluezBleLayer(mIsCentral, nullptr, mBLEAdvConfig, mpAppState);
+        err = InitBluezBleLayer(mIsCentral, nullptr, mBLEAdvConfig, mpBluezEndPoint);
         SuccessOrExit(err);
         SetFlag(mFlags, kFlag_BluezBLELayerInitialized);
     }
@@ -569,7 +569,7 @@ void BLEManagerImpl::DriveBLEState()
     // Register the CHIPoBLE application with the Bluez BLE layer if needed.
     if (!mIsCentral && mServiceMode == ConnectivityManager::kCHIPoBLEServiceMode_Enabled && !GetFlag(mFlags, kFlag_AppRegistered))
     {
-        err = BluezGattsAppRegister(static_cast<BluezEndpoint *>(mpAppState));
+        err = BluezGattsAppRegister(mpBluezEndPoint);
         SetFlag(mFlags, kFlag_ControlOpInProgress);
         ExitNow();
     }
@@ -586,7 +586,7 @@ void BLEManagerImpl::DriveBLEState()
             // be called again, and execution will proceed to the code below.
             if (!GetFlag(mFlags, kFlag_AdvertisingConfigured))
             {
-                err = BluezAdvertisementSetup(static_cast<BluezEndpoint *>(mpAppState));
+                err = BluezAdvertisementSetup(mpBluezEndPoint);
                 ExitNow();
             }
 
@@ -617,12 +617,11 @@ void BLEManagerImpl::DriveBLEState()
     {
         if (mBLEScanConfig.connectToDevice.discriminator != BLEScanConfig::kInvalidDiscriminator)
         {
-            err = StartConnectToDeviceByDiscriminator(static_cast<BluezEndpoint *>(mpAppState),
-                                                      mBLEScanConfig.connectToDevice.discriminator);
+            err = StartConnectToDeviceByDiscriminator(mpBluezEndPoint, mBLEScanConfig.connectToDevice.discriminator);
         }
         else
         {
-            err = StartBleScan(static_cast<BluezEndpoint *>(mpAppState), nullptr /*  FIXME: delegate  ?*/
+            err = StartBleScan(mpBluezEndPoint, nullptr /*  FIXME: delegate  ?*/
             );
         }
         SuccessOrExit(err);
@@ -630,7 +629,7 @@ void BLEManagerImpl::DriveBLEState()
     }
     else if (!mBLEScanConfig.scanRequested && GetFlag(mFlags, kFlag_Scanning))
     {
-        err = StopDiscovery(static_cast<BluezEndpoint *>(mpAppState));
+        err = StopDiscovery(mpBluezEndPoint);
         SuccessOrExit(err);
         ClearFlag(mFlags, kFlag_Scanning);
     }

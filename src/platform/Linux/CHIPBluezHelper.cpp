@@ -1655,7 +1655,7 @@ exit:
     return err;
 }
 
-CHIP_ERROR InitBluezBleLayer(bool aIsCentral, char * apBleAddr, BLEAdvConfig & aBleAdvConfig, void *& apEndpoint)
+CHIP_ERROR InitBluezBleLayer(bool aIsCentral, char * apBleAddr, BLEAdvConfig & aBleAdvConfig, BluezEndpoint *& apEndpoint)
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
     bool retval    = false;
@@ -1701,6 +1701,7 @@ exit:
     }
     else
     {
+        apEndpoint = nullptr;
         EndpointCleanup(endpoint);
     }
 
