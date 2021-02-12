@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace chip {
 namespace DeviceLayer {
 namespace DeviceEventType {

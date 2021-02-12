@@ -68,11 +68,20 @@ struct BLEAdvConfig
     const char * mpAdvertisingUUID;
 };
 
+class BleScanDelegate
+{
+public:
+    virtual ~BleScanDelegate() {}
+    virtual void DeviceScanned(const chip::Ble::ChipBLEDeviceIdentificationInfo & info) = 0;
+};
+
 struct BLEScanConfig
 {
     static constexpr uint16_t kInvalidDiscriminator = 0;
 
     bool scanRequested = false;
+
+    BleScanDelegate * delegate = nullptr;
 
     // connects to the specified device as soon as it is discovered
     struct
@@ -101,6 +110,12 @@ class BLEManagerImpl final : public BLEManager,
 
 public:
     CHIP_ERROR ConfigureBle(uint32_t aNodeId, bool aIsCentral);
+
+    /// Initiate BLE scanning for all CHIP devices
+    ///
+    /// A callback will be called for every discovered device.
+    /// Delegate must remain valid for the duration of the scan.
+    void StartScanning(BleScanDelegate * delegate);
 
     // Driven by BlueZ IO
     static void HandleNewConnection(BLE_CONNECTION_OBJECT conId);

@@ -140,6 +140,7 @@ try:
             'chip',
             'chip.ble',
             'chip.exceptions',
+            'chip.native',
             'chip.tlv',
         ],
         package_dir={

@@ -617,12 +617,13 @@ void BLEManagerImpl::DriveBLEState()
     {
         if (mBLEScanConfig.connectToDevice.discriminator != BLEScanConfig::kInvalidDiscriminator)
         {
+            ChipLogProgress(DeviceLayer, "Starting BLE scan to connect by discriminator");
             err = StartConnectToDeviceByDiscriminator(mpBluezEndPoint, mBLEScanConfig.connectToDevice.discriminator);
         }
         else
         {
-            err = StartBleScan(mpBluezEndPoint, nullptr /*  FIXME: delegate  ?*/
-            );
+            ChipLogProgress(DeviceLayer, "Starting general BLE scan");
+            err = StartBleScan(mpBluezEndPoint, mBLEScanConfig.delegate);
         }
         SuccessOrExit(err);
         SetFlag(mFlags, kFlag_Scanning);
@@ -650,6 +651,14 @@ void BLEManagerImpl::DriveBLEState(intptr_t arg)
 void BLEManagerImpl::NotifyChipConnectionClosed(BLE_CONNECTION_OBJECT conId)
 {
     ChipLogProgress(Ble, "Got notification regarding chip connection closure");
+}
+
+void BLEManagerImpl::StartScanning(BleScanDelegate * delegate)
+{
+    mBLEScanConfig.scanRequested = true;
+    mBLEScanConfig.delegate      = delegate;
+
+    PlatformMgr().ScheduleWork(DriveBLEState, 0);
 }
 
 void BLEManagerImpl::NewConnection(BleLayer * bleLayer, void * appState, const uint16_t connDiscriminator)

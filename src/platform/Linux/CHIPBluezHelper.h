@@ -114,16 +114,9 @@ struct IOChannel
     guint mWatch;
 };
 
-class BluezScanDelegate
-{
-public:
-    virtual ~BluezScanDelegate() {}
-    virtual void DeviceScanned(const chip::Ble::ChipBLEDeviceIdentificationInfo & info) = 0;
-};
-
 struct BluezDiscoverySettings
 {
-    BluezScanDelegate * scanDelegate = nullptr;
+    BleScanDelegate * scanDelegate = nullptr;
 
     // settings to automatically connect on discovery
     bool autoConnect                  = false;
@@ -219,7 +212,7 @@ bool BluezUnsubscribeCharacteristic(BLE_CONNECTION_OBJECT apConn);
 
 CHIP_ERROR StartConnectToDeviceByDiscriminator(BluezEndpoint * apEndpoint, uint16_t discriminator);
 
-CHIP_ERROR StartBleScan(BluezEndpoint * apEndpoint, BluezScanDelegate * delegate);
+CHIP_ERROR StartBleScan(BluezEndpoint * apEndpoint, BleScanDelegate * delegate);
 
 CHIP_ERROR StopDiscovery(BluezEndpoint * apEndpoint);
 

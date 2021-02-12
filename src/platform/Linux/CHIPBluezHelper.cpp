@@ -1944,10 +1944,10 @@ CHIP_ERROR StartConnectToDeviceByDiscriminator(BluezEndpoint * apEndpoint, uint1
 
 struct StartScanArgument
 {
-    BluezEndpoint * endPoint     = nullptr;
-    BluezScanDelegate * delegate = nullptr;
+    BluezEndpoint * endPoint   = nullptr;
+    BleScanDelegate * delegate = nullptr;
 
-    StartScanArgument(BluezEndpoint * ep, BluezScanDelegate * cb) : endPoint(ep), delegate(cb) {}
+    StartScanArgument(BluezEndpoint * ep, BleScanDelegate * cb) : endPoint(ep), delegate(cb) {}
 };
 
 class AutoDeleteStartScanArgument
@@ -1960,18 +1960,18 @@ private:
     StartScanArgument * mArgument;
 };
 
-static void ScanDone(GObject * aObject, GAsyncResult * aResult, gpointer arg)
+static void ScanStartCompleteed(GObject * aObject, GAsyncResult * aResult, gpointer arg)
 {
     BluezAdapter1 * adapter = BLUEZ_ADAPTER1(aObject);
     GError * error          = nullptr;
 
     if (bluez_adapter1_call_start_discovery_finish(adapter, aResult, &error))
     {
-        ChipLogError(DeviceLayer, "BLE Scan completed");
+        ChipLogError(DeviceLayer, "Discovery start completed");
     }
     else
     {
-        ChipLogError(DeviceLayer, "BLE Scan finish error: %s", error->message);
+        ChipLogError(DeviceLayer, "BLE Scan start finalization error: %s", error->message);
     }
     if (error != nullptr)
     {
@@ -2027,12 +2027,12 @@ static gboolean StartScanImpl(void * argument)
     }
 
     // Do actual discovery as well.
-    bluez_adapter1_call_start_discovery(taskArg->endPoint->mpAdapter, nullptr, ScanDone, nullptr /* argument */);
+    bluez_adapter1_call_start_discovery(taskArg->endPoint->mpAdapter, nullptr, ScanStartCompleted, nullptr /* argument */);
 
     return G_SOURCE_REMOVE;
 }
 
-CHIP_ERROR StartBleScan(BluezEndpoint * apEndpoint, BluezScanDelegate * delegate)
+CHIP_ERROR StartBleScan(BluezEndpoint * apEndpoint, BleScanDelegate * delegate)
 {
     ReturnErrorCodeIf(apEndpoint == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
     ReturnErrorCodeIf(delegate == nullptr, CHIP_ERROR_INVALID_ARGUMENT);

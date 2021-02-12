@@ -20,6 +20,7 @@ import("$dir_pw_build/python.gni")
 
 import("${build_root}/chip/tools.gni")
 import("${dir_pw_unit_test}/test.gni")
+import("${chip_root}/src/platform/device.gni")
 
 config("controller_wno_deprecate") {
   cflags = [ "-Wno-deprecated-declarations" ]
@@ -44,6 +45,10 @@ shared_library("ChipDeviceCtrl") {
     "ChipDeviceController-StorageDelegate.h",
   ]
 
+  if (current_os == "linux" && chip_enable_ble) {
+    sources += [ "chip/ble/LinuxImpl.cpp" ]
+  }
+
   public_deps = [
     "${chip_root}/src/app",
     "${chip_root}/src/controller",
@@ -59,11 +64,7 @@ shared_library("ChipDeviceCtrl") {
 
 pw_python_action("python") {
   script = "build-chip-wheel.py"
-
-  _py_manifest_files = [
-    {
-      src_dir = "."
-      sources = [
+  pysources = [
         "chip-device-ctrl.py",
         "chip-repl.py",
         "chip/ChipBleBase.py",
@@ -75,10 +76,21 @@ pw_python_action("python") {
         "chip/ChipStack.py",
         "chip/ChipUtility.py",
         "chip/__init__.py",
-        "chip/ble/__init__.py",
         "chip/exceptions/__init__.py",
+        "chip/native/__init__.py",
         "chip/tlv/__init__.py",
-      ]
+  ]
+
+  if (chip_enable_ble) {
+    pysources += [
+        "chip/ble/__init__.py"
+    ]
+  }
+
+  _py_manifest_files = [
+    {
+      src_dir = "."
+      sources = pysources
     },
     {
       src_dir = target_out_dir
