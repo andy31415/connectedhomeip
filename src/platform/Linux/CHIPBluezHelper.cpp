@@ -2244,7 +2244,7 @@ void AdapterIterator::Initialize()
                                                              nullptr /* unused user data in the Proxy Type Func */,
                                                              nullptr /*destroy notify */, nullptr /* cancellable */, &error);
 
-    VerifyOrExit(mManager == nullptr, ChipLogError(DeviceLayer, "Failed to get DBUS object manager for listing adapters."));
+    VerifyOrExit(mManager != nullptr, ChipLogError(DeviceLayer, "Failed to get DBUS object manager for listing adapters."));
 
     mObjectList      = g_dbus_object_manager_get_objects(mManager);
     mCurrentListItem = mObjectList;
