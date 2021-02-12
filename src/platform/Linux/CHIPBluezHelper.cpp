@@ -2233,12 +2233,6 @@ void AdapterIterator::Initialize()
 {
     GError * error = nullptr;
 
-    if (sMainLoop.EnsureStarted() != CHIP_NO_ERROR)
-    {
-        ChipLogError(DeviceLayer, "Error starting GBus main loop");
-        ExitNow();
-    }
-
     mManager = g_dbus_object_manager_client_new_for_bus_sync(G_BUS_TYPE_SYSTEM, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
                                                              BLUEZ_INTERFACE, "/", bluez_object_manager_client_get_proxy_type,
                                                              nullptr /* unused user data in the Proxy Type Func */,
