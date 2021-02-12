@@ -39,6 +39,7 @@ extern "C" void listAdapters()
     while (iterator.Next())
     {
         printf("Found device:\n");
+        printf("   Index:   %d\n", iterator.GetIndex());
         printf("   Address: %s\n", iterator.GetAddress());
         printf("   Alias:   %s\n", iterator.GetAlias());
         printf("   Name:    %s\n", iterator.GetName());

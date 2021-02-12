@@ -250,6 +250,9 @@ private:
     /// Loads the next value in the list
     void Advance();
 
+    static constexpr size_t kMaxAddressLength = 19; // xx:xx:xx:xx:xx:xx
+    static constexpr size_t kMaxNameLength    = 64;
+
     GDBusObjectManager * mManager = nullptr; // DBus connection
     GList * mObjectList           = nullptr; // listing of objects on the bus
     GList * mCurrentListItem      = nullptr; // current item viewed in the list
@@ -260,9 +263,9 @@ private:
     struct
     {
         uint32_t index;
-        char address[32];
-        char alias[32];
-        char name[32];
+        char address[kMaxAddressLength];
+        char alias[kMaxNameLength];
+        char name[kMaxNameLength];
         bool powered;
     } mCurrent = { 0 };
 };
