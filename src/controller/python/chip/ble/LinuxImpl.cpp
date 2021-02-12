@@ -1,5 +1,6 @@
 
 #include <platform/CHIPDeviceLayer.h>
+#include <platform/Linux/CHIPBluezHelper.h>
 #include <platform/internal/BLEManager.h>
 #include <support/CHIPMem.h>
 #include <support/ReturnMacros.h>
@@ -30,6 +31,19 @@ extern "C" void test()
 {
     auto & impl = BLEMgrImpl();
     impl.StartScanning(&testDelegate);
+}
+
+extern "C" void listAdapters()
+{
+    chip::DeviceLayer::Internal::AdapterIterator iterator;
+    while (iterator.Next())
+    {
+        printf("Found device:\n");
+        printf("   Address: %s\n", iterator.GetAddress());
+        printf("   Alias:   %s\n", iterator.GetAlias());
+        printf("   Name:    %s\n", iterator.GetName());
+        printf("   Powered: %s\n", iterator.IsPowered() ? "YES" : "NO");
+    }
 }
 
 extern "C" CHIP_ERROR pychip_ble_init()

@@ -218,6 +218,55 @@ CHIP_ERROR StopDiscovery(BluezEndpoint * apEndpoint);
 
 CHIP_ERROR ConnectDevice(BluezDevice1 * apDevice);
 
+/// Iterates over available BlueZ adapters
+///
+/// Usage example:
+///
+///  AdapterIterator iterator;
+///  while (iteerator.Next()) {
+///      std::cout << iterator.GetAddress() << std::endl;
+///  }
+class AdapterIterator
+{
+public:
+    ~AdapterIterator();
+
+    /// Moves to the next DBUS interface.
+    ///
+    /// MUST be called at least once
+    bool Next();
+
+    // information about the current value
+    uint32_t GetIndex() const { return mCurrent.index; }
+    const char * GetAddress() const { return mCurrent.address; }
+    const char * GetAlias() const { return mCurrent.alias; }
+    const char * GetName() const { return mCurrent.name; }
+    bool IsPowered() const { return mCurrent.powered; }
+
+private:
+    /// Sets up the DBUS manager and loads the list
+    void Initialize();
+
+    /// Loads the next value in the list
+    void Advance();
+
+    GDBusObjectManager * mManager = nullptr; // DBus connection
+    GList * mObjectList           = nullptr; // listing of objects on the bus
+    GList * mCurrentListItem      = nullptr; // current item viewed in the list
+
+    bool mHasCurrentValue = false;
+
+    // data valid only if Next() returns true
+    struct
+    {
+        uint32_t index;
+        char address[32];
+        char alias[32];
+        char name[32];
+        bool powered;
+    } mCurrent = { 0 };
+};
+
 } // namespace Internal
 } // namespace DeviceLayer
 } // namespace chip
