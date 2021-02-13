@@ -40,13 +40,47 @@ public:
     /// Executes a callback on the underlying main loop.
     ///
     /// The main loop MUST have been started already.
-    bool RunOnBluezThread(int (*aCallback)(void *), void * apClosure);
+    bool RunOnBluezThread(GSourceFunc closure, void * arg);
+
+    /// Convenience method to require less castst to void*
+    template <class T>
+    bool Schedule(int (*callback)(T *), T * value)
+    {
+        return RunOnBluezThread(G_SOURCE_FUNC(callback), value);
+    }
+
+    /// Schedules a method to be executed after the main loop has finished
+    ///
+    /// A single cleanup method can exist and the main loop has to be running
+    /// to set a cleanup method.
+    template <class T>
+    bool SetCleanupFunction(int (*callback)(T *), T * value)
+    {
+        if (mCleanup != nullptr)
+        {
+            return false;
+        }
+
+        if ((mBluezMainLoop == nullptr) || !g_main_loop_is_running(mBluezMainLoop))
+        {
+            return false;
+        }
+
+        mCleanup         = G_SOURCE_FUNC(callback);
+        mCleanupArgument = static_cast<void *>(value);
+
+        return true;
+    }
 
 private:
     static void * Thread(void * self);
 
     GMainLoop * mBluezMainLoop = nullptr;
     pthread_t mThread;
+
+    // allow a single cleanup method
+    GSourceFunc mCleanup    = nullptr;
+    void * mCleanupArgument = nullptr;
 };
 
 } // namespace Internal

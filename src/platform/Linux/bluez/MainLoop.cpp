@@ -35,6 +35,12 @@ void * MainLoop::Thread(void * self)
     g_main_loop_run(loop->mBluezMainLoop);
     ChipLogDetail(DeviceLayer, "TRACE: Bluez mainloop stopping %s", __func__);
 
+    if (loop->mCleanup != nullptr)
+    {
+        ChipLogDetail(DeviceLayer, "TRACE: Executing cleanup %s", __func__);
+        loop->mCleanup(loop->mCleanupArgument);
+    }
+
     return nullptr;
 }
 
@@ -75,7 +81,7 @@ exit:
     return err;
 }
 
-bool MainLoop::RunOnBluezThread(int (*aCallback)(void *), void * apClosure)
+bool MainLoop::RunOnBluezThread(GSourceFunc callback, void * argument)
 {
     GMainContext * context = nullptr;
     const char * msg       = nullptr;
@@ -85,7 +91,7 @@ bool MainLoop::RunOnBluezThread(int (*aCallback)(void *), void * apClosure)
 
     context = g_main_loop_get_context(mBluezMainLoop);
     VerifyOrExit(context != nullptr, msg = "FAIL: NULL main context");
-    g_main_context_invoke(context, aCallback, apClosure);
+    g_main_context_invoke(context, callback, argument);
 
 exit:
     if (msg != nullptr)
