@@ -72,7 +72,11 @@ public:
         return true;
     }
 
+    static MainLoop & Instance();
+
 private:
+    MainLoop();
+
     static void * Thread(void * self);
 
     GMainLoop * mBluezMainLoop = nullptr;

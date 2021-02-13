@@ -27,6 +27,12 @@ namespace chip {
 namespace DeviceLayer {
 namespace Internal {
 
+MainLoop & MainLoop::Instance()
+{
+    static MainLoop sMainLoop;
+    return sMainLoop;
+}
+
 void * MainLoop::Thread(void * self)
 {
     MainLoop * loop = reinterpret_cast<MainLoop *>(self);

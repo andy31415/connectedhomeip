@@ -85,8 +85,6 @@ static BluezConnection * GetBluezConnectionViaDevice(BluezEndpoint * apEndpoint)
 
 namespace {
 
-chip::DeviceLayer::Internal::MainLoop sMainLoop;
-
 /**    @class BluezObjectIterator
  *
  *     @brief Helper class to iterate over a list of Bluez objects
@@ -1442,7 +1440,7 @@ static int StartupEndpointBindings(BluezEndpoint * endpoint)
     g_signal_connect(manager, "object-removed", G_CALLBACK(BluezSignalOnObjectRemoved), endpoint);
     g_signal_connect(manager, "interface-proxy-properties-changed", G_CALLBACK(BluezSignalInterfacePropertiesChanged), endpoint);
 
-    if (!sMainLoop.SetCleanupFunction(BluezObjectsCleanup, endpoint))
+    if (!MainLoop::Instance().SetCleanupFunction(BluezObjectsCleanup, endpoint))
     {
         ChipLogError(DeviceLayer, "Failed to schedule cleanup function");
     }
@@ -1515,7 +1513,7 @@ bool SendBluezIndication(BLE_CONNECTION_OBJECT apConn, chip::System::PacketBuffe
 
     VerifyOrExit(!apBuf.IsNull(), ChipLogError(DeviceLayer, "apBuf is NULL in %s", __func__));
 
-    success = sMainLoop.Schedule(BluezC2Indicate, MakeConnectionDataBundle(apConn, apBuf));
+    success = MainLoop::Instance().Schedule(BluezC2Indicate, MakeConnectionDataBundle(apConn, apBuf));
 
 exit:
     return success;
@@ -1549,13 +1547,13 @@ static int CloseBleconnectionCB(void * apAppState)
 
 bool CloseBluezConnection(BLE_CONNECTION_OBJECT apConn)
 {
-    return sMainLoop.RunOnBluezThread(CloseBleconnectionCB, apConn);
+    return MainLoop::Instance().RunOnBluezThread(CloseBleconnectionCB, apConn);
 }
 
 CHIP_ERROR StartBluezAdv(BluezEndpoint * apEndpoint)
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
-    if (!sMainLoop.Schedule(BluezAdvStart, apEndpoint))
+    if (!MainLoop::Instance().Schedule(BluezAdvStart, apEndpoint))
     {
         err = CHIP_ERROR_INCORRECT_STATE;
         ChipLogError(Ble, "Failed to schedule BluezAdvStart() on CHIPoBluez thread");
@@ -1566,7 +1564,7 @@ CHIP_ERROR StartBluezAdv(BluezEndpoint * apEndpoint)
 CHIP_ERROR StopBluezAdv(BluezEndpoint * apEndpoint)
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
-    if (!sMainLoop.Schedule(BluezAdvStop, apEndpoint))
+    if (!MainLoop::Instance().Schedule(BluezAdvStop, apEndpoint))
     {
         err = CHIP_ERROR_INCORRECT_STATE;
         ChipLogError(Ble, "Failed to schedule BluezAdvStop() on CHIPoBluez thread");
@@ -1577,7 +1575,7 @@ CHIP_ERROR StopBluezAdv(BluezEndpoint * apEndpoint)
 CHIP_ERROR BluezAdvertisementSetup(BluezEndpoint * apEndpoint)
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
-    if (!sMainLoop.Schedule(BluezAdvSetup, apEndpoint))
+    if (!MainLoop::Instance().Schedule(BluezAdvSetup, apEndpoint))
     {
         err = CHIP_ERROR_INCORRECT_STATE;
         ChipLogError(Ble, "Failed to schedule BluezAdvertisementSetup() on CHIPoBluez thread");
@@ -1588,7 +1586,7 @@ CHIP_ERROR BluezAdvertisementSetup(BluezEndpoint * apEndpoint)
 CHIP_ERROR BluezGattsAppRegister(BluezEndpoint * apEndpoint)
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
-    if (!sMainLoop.Schedule(BluezPeripheralRegisterApp, apEndpoint))
+    if (!MainLoop::Instance().Schedule(BluezPeripheralRegisterApp, apEndpoint))
     {
         err = CHIP_ERROR_INCORRECT_STATE;
         ChipLogError(Ble, "Failed to schedule BluezPeripheralRegisterApp() on CHIPoBluez thread");
@@ -1648,10 +1646,10 @@ CHIP_ERROR InitBluezBleLayer(bool aIsCentral, char * apBleAddr, BLEAdvConfig & a
         SuccessOrExit(err);
     }
 
-    err = sMainLoop.EnsureStarted();
+    err = MainLoop::Instance().EnsureStarted();
     VerifyOrExit(err == CHIP_NO_ERROR, ChipLogError(DeviceLayer, "Failed to start BLE main loop"));
 
-    if (!sMainLoop.Schedule(StartupEndpointBindings, endpoint))
+    if (!MainLoop::Instance().Schedule(StartupEndpointBindings, endpoint))
     {
         ChipLogError(DeviceLayer, "Failed to schedule endpoint initialization");
         ExitNow();
@@ -1717,7 +1715,7 @@ bool BluezSendWriteRequest(BLE_CONNECTION_OBJECT apConn, chip::System::PacketBuf
 
     VerifyOrExit(!apBuf.IsNull(), ChipLogError(DeviceLayer, "apBuf is NULL in %s", __func__));
 
-    success = sMainLoop.RunOnBluezThread(SendWriteRequestImpl, MakeConnectionDataBundle(apConn, apBuf));
+    success = MainLoop::Instance().RunOnBluezThread(SendWriteRequestImpl, MakeConnectionDataBundle(apConn, apBuf));
 
 exit:
     return success;
@@ -1769,7 +1767,7 @@ exit:
 
 bool BluezSubscribeCharacteristic(BLE_CONNECTION_OBJECT apConn)
 {
-    return sMainLoop.Schedule(SubscribeCharacteristicImpl, static_cast<BluezConnection *>(apConn));
+    return MainLoop::Instance().Schedule(SubscribeCharacteristicImpl, static_cast<BluezConnection *>(apConn));
 }
 
 // BluezUnsubscribeCharacteristic callbacks
@@ -1804,7 +1802,7 @@ exit:
 
 bool BluezUnsubscribeCharacteristic(BLE_CONNECTION_OBJECT apConn)
 {
-    return sMainLoop.Schedule(UnsubscribeCharacteristicImpl, static_cast<BluezConnection *>(apConn));
+    return MainLoop::Instance().Schedule(UnsubscribeCharacteristicImpl, static_cast<BluezConnection *>(apConn));
 }
 
 // StartDiscovery callbacks
@@ -1881,7 +1879,7 @@ CHIP_ERROR StartDiscovery(BluezEndpoint * apEndpoint, const BluezDiscoveryReques
     DiscoveryTaskArg * const taskArg = new DiscoveryTaskArg(apEndpoint, aRequest);
     CHIP_ERROR error                 = CHIP_NO_ERROR;
 
-    if (!sMainLoop.Schedule(StartDiscoveryImpl, taskArg))
+    if (!MainLoop::Instance().Schedule(StartDiscoveryImpl, taskArg))
     {
         ChipLogError(Ble, "Failed to schedule StartDiscoveryImpl() on CHIPoBluez thread");
         delete taskArg;
@@ -1926,7 +1924,7 @@ CHIP_ERROR StopDiscovery(BluezEndpoint * apEndpoint)
 {
     CHIP_ERROR error = CHIP_NO_ERROR;
 
-    if (!sMainLoop.Schedule(StopDiscoveryImpl, apEndpoint))
+    if (!MainLoop::Instance().Schedule(StopDiscoveryImpl, apEndpoint))
     {
         ChipLogError(Ble, "Failed to schedule StopDiscoveryImpl() on CHIPoBluez thread");
         error = CHIP_ERROR_INCORRECT_STATE;
@@ -1965,7 +1963,7 @@ CHIP_ERROR ConnectDevice(BluezDevice1 * apDevice)
 {
     CHIP_ERROR error = CHIP_NO_ERROR;
 
-    if (!sMainLoop.Schedule(ConnectDeviceImpl, apDevice))
+    if (!MainLoop::Instance().Schedule(ConnectDeviceImpl, apDevice))
     {
         ChipLogError(Ble, "Failed to schedule ConnectDeviceImpl() on CHIPoBluez thread");
         error = CHIP_ERROR_INCORRECT_STATE;
