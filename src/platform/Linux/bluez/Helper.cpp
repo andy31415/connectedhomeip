@@ -1622,10 +1622,8 @@ exit:
 
 CHIP_ERROR InitBluezBleLayer(bool aIsCentral, char * apBleAddr, BLEAdvConfig & aBleAdvConfig, void *& apEndpoint)
 {
-    CHIP_ERROR err = CHIP_NO_ERROR;
-    bool retval    = false;
-    int pthreadErr = 0;
-    int tmpErrno;
+    CHIP_ERROR err           = CHIP_NO_ERROR;
+    bool retval              = false;
     BluezEndpoint * endpoint = nullptr;
 
     // initialize server endpoint
