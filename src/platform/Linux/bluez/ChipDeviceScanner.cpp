@@ -79,9 +79,9 @@ ChipDeviceScanner::~ChipDeviceScanner()
 {
     StopScan();
 
-    g_object_unref(mAdapter);
     g_object_unref(mManager);
     g_object_unref(mCancellable);
+    g_object_unref(mAdapter);
 }
 
 ChipDeviceScanner::Ptr ChipDeviceScanner::Create(BluezAdapter1 * adapter, ChipDeviceScannerDelegate * delegate)
@@ -153,12 +153,14 @@ int ChipDeviceScanner::MainLoopStopScan(ChipDeviceScanner * self)
         g_error_free(error);
     }
     self->mIsScanning = false; // assume stopped in any case
+    self->mDelegate->OnScanComplete();
 
     return 0;
 }
 
 void ChipDeviceScanner::SignalObjectAdded(GDBusObjectManager * manager, GDBusObject * object, ChipDeviceScanner * self)
 {
+    ChipLogDetail(Ble, "Device scanner detected a new DBus object");
     self->ReportDevice(bluez_object_get_device1(BLUEZ_OBJECT(object)));
 }
 
@@ -178,6 +180,7 @@ void ChipDeviceScanner::ReportDevice(BluezDevice1 * device)
 
     if (!BluezGetChipDeviceInfo(*device, deviceInfo))
     {
+        ChipLogDetail(Ble, "Device does not report a CHIP device info.");
         return;
     }
 
@@ -190,16 +193,20 @@ int ChipDeviceScanner::MainLoopStartScan(ChipDeviceScanner * self)
 
     self->mDeviceUpdateSignal = g_signal_connect(self->mManager, "object-added", G_CALLBACK(SignalObjectAdded), self);
 
+    ChipLogProgress(Ble, "BLE scanning through known devices.");
     for (BluezObject & object : BluezObjectList(self->mManager))
     {
         self->ReportDevice(bluez_object_get_device1(&object));
     }
 
+    ChipLogProgress(Ble, "BLE initiating scan.");
     if (!bluez_adapter1_call_start_discovery_sync(self->mAdapter, self->mCancellable, &error))
     {
-        // FIXME: stop
         ChipLogError(Ble, "Failed to start discovery: %s", error->message);
         g_error_free(error);
+
+        self->mIsScanning = false;
+        self->mDelegate->OnScanComplete();
     }
 
     return 0;
