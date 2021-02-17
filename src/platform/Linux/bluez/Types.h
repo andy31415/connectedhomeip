@@ -147,9 +147,9 @@ struct BluezEndpoint
     char * mpServicePath;
 
     // Objects (interfaces) subscibed to by this service
-    GDBusObjectManager * mpObjMgr;
-    BluezAdapter1 * mpAdapter;
-    BluezDevice1 * mpDevice;
+    GDBusObjectManager * mpObjMgr = nullptr;
+    BluezAdapter1 * mpAdapter     = nullptr;
+    BluezDevice1 * mpDevice       = nullptr;
 
     // Objects (interfaces) published by this service
     GDBusObjectManagerServer * mpRoot;

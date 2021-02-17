@@ -187,7 +187,7 @@ private:
     uint16_t mFlags;
     char mDeviceName[kMaxDeviceNameLength + 1];
     bool mIsCentral = false;
-    BluezEndpoint * mpEndpoint;
+    BluezEndpoint * mpEndpoint = nullptr;
     ChipDeviceScanner::Ptr mDeviceScanner;
 };
 

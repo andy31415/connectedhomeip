@@ -636,15 +636,21 @@ void BLEManagerImpl::NotifyChipConnectionClosed(BLE_CONNECTION_OBJECT conId)
 void BLEManagerImpl::NewConnection(BleLayer * bleLayer, void * appState, const uint16_t connDiscriminator)
 {
 
-    BluezEndpoint * endpoint = static_cast<BluezEndpoint *>(mAppState);
-    if (endpoint->mpAdapter == nullptr)
+    if (mpEndpoint == nullptr)
+    {
+        OnConnectionError(appState, CHIP_ERROR_INCORRECT_STATE);
+        ChipLogError(Ble, "BLE Layer is not yet initialized");
+        return;
+    }
+
+    if (mpEndpoint->mpAdapter == nullptr)
     {
         OnConnectionError(appState, CHIP_ERROR_INCORRECT_STATE);
         ChipLogError(Ble, "No adapter available for new connection establishment");
         return;
     }
 
-    mDeviceScanner = Internal::ChipDeviceScanner::Create(endpoint->mpAdapter, this);
+    mDeviceScanner = Internal::ChipDeviceScanner::Create(mpEndpoint->mpAdapter, this);
 
     mBLEScanConfig.scanningToConnect = true;
     mBLEScanConfig.mDiscriminator    = connDiscriminator;
