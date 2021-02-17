@@ -45,7 +45,7 @@ namespace Internal {
 
 namespace {
 
-static constexpr unsigned kNewConnectionScanTimeoutMs = 30000;
+static constexpr unsigned kNewConnectionScanTimeoutMs = 10000;
 
 const ChipBleUUID ChipUUID_CHIPoBLEChar_RX = { { 0x18, 0xEE, 0x2E, 0xF5, 0x26, 0x3D, 0x45, 0x59, 0x95, 0x9F, 0x4F, 0x9C, 0x42, 0x9F,
                                                  0x9D, 0x11 } };
@@ -732,10 +732,9 @@ void BLEManagerImpl::NotifyBLEPeripheralAdvStopComplete(bool aIsSuccess, void * 
     PlatformMgr().PostEvent(&event);
 }
 
-void BLEManagerImpl::OnDeviceScanned(const char * device_path, const char * address,
-                                     const chip::Ble::ChipBLEDeviceIdentificationInfo & info)
+void BLEManagerImpl::OnDeviceScanned(BluezDevice1 * device, const chip::Ble::ChipBLEDeviceIdentificationInfo & info)
 {
-    ChipLogProgress(Ble, "New device %s found at %s", address, device_path);
+    ChipLogProgress(Ble, "New device scanned: %s", bluez_device1_get_address(device));
 
     if (info.GetDeviceDiscriminator() != mBLEScanConfig.mDiscriminator)
     {
@@ -746,9 +745,7 @@ void BLEManagerImpl::OnDeviceScanned(const char * device_path, const char * addr
     mBLEScanConfig.scanningToConnect = false; // done with scanning
     mDeviceScanner->StopScan();
 
-    /// TODO: figure out how to actually connect to the given device_path
-
-    /// FIXME: implement
+    ConnectDevice(device);
 }
 
 void BLEManagerImpl::OnScanComplete()

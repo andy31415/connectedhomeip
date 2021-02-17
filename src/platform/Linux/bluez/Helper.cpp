@@ -1726,6 +1726,7 @@ static gboolean ConnectDeviceImpl(BluezDevice1 * device)
     VerifyOrExit(device != nullptr, ChipLogError(DeviceLayer, "device is NULL in %s", __func__));
 
     bluez_device1_call_connect(device, nullptr, ConnectDeviceDone, nullptr);
+    g_object_unref(device);
 
 exit:
     return G_SOURCE_REMOVE;
@@ -1734,10 +1735,12 @@ exit:
 CHIP_ERROR ConnectDevice(BluezDevice1 * apDevice)
 {
     CHIP_ERROR error = CHIP_NO_ERROR;
+    g_object_ref(apDevice);
 
     if (!MainLoop::Instance().Schedule(ConnectDeviceImpl, apDevice))
     {
         ChipLogError(Ble, "Failed to schedule ConnectDeviceImpl() on CHIPoBluez thread");
+        g_object_unref(apDevice);
         error = CHIP_ERROR_INCORRECT_STATE;
     }
 

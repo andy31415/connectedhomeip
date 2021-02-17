@@ -63,11 +63,10 @@ class TestDelegate : public ChipDeviceScannerDelegate
 public:
     virtual ~TestDelegate() { test_ptr.reset(); }
 
-    void OnDeviceScanned(const char * path, const char * address, const chip::Ble::ChipBLEDeviceIdentificationInfo & info) override
+    void OnDeviceScanned(BluezDevice1 * device, const chip::Ble::ChipBLEDeviceIdentificationInfo & info) override
     {
         printf("CHIP device was scanned:\n");
-        printf("   DBus Path:     %s\n", path);
-        printf("   Address:       %s\n", address);
+        printf("   Address:       %s\n", bluez_device1_get_address(device));
         printf("   Discriminator: %d\n", info.GetDeviceDiscriminator());
         printf("   ProductId:     %d\n", info.GetProductId());
         printf("   VendorId:      %d\n", info.GetVendorId());

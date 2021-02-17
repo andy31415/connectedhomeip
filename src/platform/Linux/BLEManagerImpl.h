@@ -142,8 +142,7 @@ private:
     void NewConnection(BleLayer * bleLayer, void * appState, uint16_t connDiscriminator) override;
 
     // ===== Members that implement virtual methods on ChipDeviceScannerDelegate
-    void OnDeviceScanned(const char * device_path, const char * address,
-                         const chip::Ble::ChipBLEDeviceIdentificationInfo & info) override;
+    void OnDeviceScanned(BluezDevice1 * device, const chip::Ble::ChipBLEDeviceIdentificationInfo & info) override;
     void OnScanComplete() override;
 
     // ===== Members for internal use by the following friends.

@@ -229,7 +229,7 @@ void ChipDeviceScanner::ReportDevice(BluezDevice1 * device)
         return;
     }
 
-    mDelegate->OnDeviceScanned(g_dbus_proxy_get_object_path(G_DBUS_PROXY(device)), bluez_device1_get_address(device), deviceInfo);
+    mDelegate->OnDeviceScanned(device, deviceInfo);
 }
 
 int ChipDeviceScanner::MainLoopStartScan(ChipDeviceScanner * self)
