@@ -75,7 +75,7 @@ public:
     static MainLoop & Instance();
 
 private:
-    MainLoop();
+    MainLoop() {}
 
     static void * Thread(void * self);
 
