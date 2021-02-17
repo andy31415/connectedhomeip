@@ -86,3 +86,8 @@ extern "C" void pychip_ble_test()
         test_ptr->StartScan(10000);
     }
 }
+
+extern "C" void pychip_ble_test_stop()
+{
+    test_ptr->StopScan();
+}

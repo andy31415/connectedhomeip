@@ -53,6 +53,7 @@ def _GetBleLibraryHandle() -> ctypes.CDLL:
     setter.Set('pychip_ble_adapter_list_delete', None, [c_void_p])
 
     setter.Set('pychip_ble_test', None, [c_void_p])
+    setter.Set('pychip_ble_test_stop', None, [])
 
   return handle
 

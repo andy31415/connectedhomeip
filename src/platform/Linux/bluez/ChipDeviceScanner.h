@@ -78,6 +78,7 @@ private:
     static int MainLoopStartScan(ChipDeviceScanner * self);
     static int MainLoopStopScan(ChipDeviceScanner * self);
     static void SignalObjectAdded(GDBusObjectManager * manager, GDBusObject * object, ChipDeviceScanner * self);
+    static void SignalInterfaceChanged(GDBusObjectManager * manager, GDBusObject * object, ChipDeviceScanner * self);
 
     /// Check if a given device is a CHIP device and if yes, report it as discovered
     void ReportDevice(BluezDevice1 * device);
@@ -86,8 +87,9 @@ private:
     BluezAdapter1 * mAdapter              = nullptr;
     GCancellable * mCancellable           = nullptr;
     ChipDeviceScannerDelegate * mDelegate = nullptr;
-    gulong mDeviceUpdateSignal            = 0;
-    bool mIsScanning                      = false;
+    gulong mObjectAddedSignal             = 0;
+    gulong mInterfaceChangedSignal        = 0;
+    volatile bool mIsScanning             = false;
 };
 
 } // namespace Internal

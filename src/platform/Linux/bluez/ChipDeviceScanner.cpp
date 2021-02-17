@@ -79,6 +79,22 @@ ChipDeviceScanner::~ChipDeviceScanner()
 {
     StopScan();
 
+    // ensures that the stop callback has executed in the main loop thread
+    while (mIsScanning)
+    {
+        g_thread_yield();
+    }
+
+    if (mObjectAddedSignal)
+    {
+        g_signal_handler_disconnect(mManager, mObjectAddedSignal);
+    }
+
+    if (mInterfaceChangedSignal)
+    {
+        g_signal_handler_disconnect(mManager, mInterfaceChangedSignal);
+    }
+
     g_object_unref(mManager);
     g_object_unref(mCancellable);
     g_object_unref(mAdapter);
@@ -122,7 +138,6 @@ CHIP_ERROR ChipDeviceScanner::StartScan(unsigned timeoutMs)
     {
         ChipLogError(Ble, "Failed to schedule BLE scan start.");
         mIsScanning = false;
-
         return CHIP_ERROR_INTERNAL;
     }
 
@@ -152,8 +167,8 @@ int ChipDeviceScanner::MainLoopStopScan(ChipDeviceScanner * self)
         ChipLogError(Ble, "Failed to stop discovery %s", error->message);
         g_error_free(error);
     }
-    self->mIsScanning = false; // assume stopped in any case
     self->mDelegate->OnScanComplete();
+    self->mIsScanning = false; // assume stopped in any case
 
     return 0;
 }
@@ -161,6 +176,12 @@ int ChipDeviceScanner::MainLoopStopScan(ChipDeviceScanner * self)
 void ChipDeviceScanner::SignalObjectAdded(GDBusObjectManager * manager, GDBusObject * object, ChipDeviceScanner * self)
 {
     ChipLogDetail(Ble, "Device scanner detected a new DBus object");
+    self->ReportDevice(bluez_object_get_device1(BLUEZ_OBJECT(object)));
+}
+
+void ChipDeviceScanner::SignalInterfaceChanged(GDBusObjectManager * manager, GDBusObject * object, ChipDeviceScanner * self)
+{
+    ChipLogDetail(Ble, "Device scanner detected a interface change");
     self->ReportDevice(bluez_object_get_device1(BLUEZ_OBJECT(object)));
 }
 
@@ -191,7 +212,9 @@ int ChipDeviceScanner::MainLoopStartScan(ChipDeviceScanner * self)
 {
     GError * error = nullptr;
 
-    self->mDeviceUpdateSignal = g_signal_connect(self->mManager, "object-added", G_CALLBACK(SignalObjectAdded), self);
+    self->mObjectAddedSignal = g_signal_connect(self->mManager, "object-added", G_CALLBACK(SignalObjectAdded), self);
+    self->mInterfaceChangedSignal =
+        g_signal_connect(self->mManager, "interface-proxy-properties-changed", G_CALLBACK(SignalInterfaceChanged), self);
 
     ChipLogProgress(Ble, "BLE scanning through known devices.");
     for (BluezObject & object : BluezObjectList(self->mManager))
