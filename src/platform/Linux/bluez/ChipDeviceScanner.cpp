@@ -79,20 +79,13 @@ ChipDeviceScanner::~ChipDeviceScanner()
 {
     StopScan();
 
+    // In case the timeout timer is still active
+    chip::DeviceLayer::SystemLayer.CancelTimer(TimerExpiredCallback, this);
+
     // ensures that the stop callback has executed in the main loop thread
     while (mIsScanning)
     {
         g_thread_yield();
-    }
-
-    if (mObjectAddedSignal)
-    {
-        g_signal_handler_disconnect(mManager, mObjectAddedSignal);
-    }
-
-    if (mInterfaceChangedSignal)
-    {
-        g_signal_handler_disconnect(mManager, mInterfaceChangedSignal);
     }
 
     g_object_unref(mManager);
@@ -146,13 +139,39 @@ CHIP_ERROR ChipDeviceScanner::StartScan(unsigned timeoutMs)
         return CHIP_ERROR_INTERNAL;
     }
 
+    CHIP_ERROR err = chip::DeviceLayer::SystemLayer.StartTimer(timeoutMs, TimerExpiredCallback, static_cast<void *>(this));
+
+    if (err != CHIP_NO_ERROR)
+    {
+        ChipLogError(Ble, "Failed to schedule scan timeout.");
+        StopScan();
+        return err;
+    }
+
     return CHIP_NO_ERROR;
+}
+
+void ChipDeviceScanner::TimerExpiredCallback(chip::System::Layer * layer, void * appState, chip::System::Error error)
+{
+    static_cast<ChipDeviceScanner *>(appState)->StopScan();
 }
 
 CHIP_ERROR ChipDeviceScanner::StopScan()
 {
     ReturnErrorCodeIf(!mIsScanning, CHIP_NO_ERROR);
     g_cancellable_cancel(mCancellable); // in case we are currently running a scan
+
+    if (mObjectAddedSignal)
+    {
+        g_signal_handler_disconnect(mManager, mObjectAddedSignal);
+        mObjectAddedSignal = 0;
+    }
+
+    if (mInterfaceChangedSignal)
+    {
+        g_signal_handler_disconnect(mManager, mInterfaceChangedSignal);
+        mInterfaceChangedSignal = 0;
+    }
 
     if (!MainLoop::Instance().Schedule(MainLoopStopScan, this))
     {

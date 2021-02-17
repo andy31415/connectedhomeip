@@ -74,6 +74,7 @@ public:
     static Ptr Create(BluezAdapter1 * adapter, ChipDeviceScannerDelegate * delegate);
 
 private:
+    static void TimerExpiredCallback(chip::System::Layer * layer, void * appState, chip::System::Error error);
     static int MainLoopStartScan(ChipDeviceScanner * self);
     static int MainLoopStopScan(ChipDeviceScanner * self);
     static void SignalObjectAdded(GDBusObjectManager * manager, GDBusObject * object, ChipDeviceScanner * self);

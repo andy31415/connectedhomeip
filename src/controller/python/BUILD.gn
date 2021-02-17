@@ -43,6 +43,7 @@ shared_library("ChipDeviceCtrl") {
     "ChipDeviceController-ScriptDevicePairingDelegate.h",
     "ChipDeviceController-StorageDelegate.cpp",
     "ChipDeviceController-StorageDelegate.h",
+    "chip/native/StackInit.cpp",
   ]
 
   if (current_os == "linux" && chip_enable_ble) {
