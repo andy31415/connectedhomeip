@@ -59,7 +59,12 @@ namespace {
 class TestDelegate : public chip::DeviceLayer::Internal::ChipDeviceScannerDelegate
 {
 public:
-    void OnDeviceScanned(const chip::Ble::ChipBLEDeviceIdentificationInfo & info) override { printf("CHIP device was scanned\n"); }
+    void OnDeviceScanned(const char * address, const char * name, const chip::Ble::ChipBLEDeviceIdentificationInfo & info) override
+    {
+        printf("CHIP device was scanned:\n");
+        printf("   ADDRESS: %s\n", address);
+        printf("   NAME: %s\n", name);
+    }
 
     void OnScanComplete() override { printf("SCAN COMPLETED\n"); }
 };

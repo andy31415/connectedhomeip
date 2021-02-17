@@ -159,38 +159,41 @@ int ChipDeviceScanner::MainLoopStopScan(ChipDeviceScanner * self)
 
 void ChipDeviceScanner::SignalObjectAdded(GDBusObjectManager * manager, GDBusObject * object, ChipDeviceScanner * self)
 {
-    ChipLogDetail(Ble, "Detected object added on the DBus");
+    self->ReportDevice(bluez_object_get_device1(BLUEZ_OBJECT(object)));
+}
 
-    // FIXME: implement
+void ChipDeviceScanner::ReportDevice(BluezDevice1 * device)
+{
+    if (device == nullptr)
+    {
+        return;
+    }
+
+    if (strcmp(bluez_device1_get_adapter(device), g_dbus_proxy_get_object_path(G_DBUS_PROXY(mAdapter))) != 0)
+    {
+        return;
+    }
+
+    chip::Ble::ChipBLEDeviceIdentificationInfo deviceInfo;
+
+    if (!BluezGetChipDeviceInfo(*device, deviceInfo))
+    {
+        return;
+    }
+
+    mDelegate->OnDeviceScanned(bluez_device1_get_address(device), bluez_device1_get_name(device), deviceInfo);
 }
 
 int ChipDeviceScanner::MainLoopStartScan(ChipDeviceScanner * self)
 {
     GError * error = nullptr;
-    chip::Ble::ChipBLEDeviceIdentificationInfo deviceInfo;
 
     self->mDeviceUpdateSignal = g_signal_connect(self->mManager, "object-added", G_CALLBACK(SignalObjectAdded), self);
 
     for (BluezObject & object : BluezObjectList(self->mManager))
     {
-        BluezDevice1 * device = bluez_object_get_device1(&object);
-        if (device == nullptr)
-        {
-            continue;
-        }
-        if (strcmp(bluez_device1_get_adapter(device), g_dbus_proxy_get_object_path(G_DBUS_PROXY(self->mAdapter))) != 0)
-        {
-            continue; // not on the same adapter
-        }
-
-        if (!BluezGetChipDeviceInfo(*device, deviceInfo))
-            continue;
-
-        self->mDelegate->OnDeviceScanned(deviceInfo);
+        self->ReportDevice(bluez_object_get_device1(&object));
     }
-
-    // TODO:
-    //  - bind new connections
 
     if (!bluez_adapter1_call_start_discovery_sync(self->mAdapter, self->mCancellable, &error))
     {
