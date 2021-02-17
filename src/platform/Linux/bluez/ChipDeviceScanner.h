@@ -79,6 +79,9 @@ private:
     static int MainLoopStopScan(ChipDeviceScanner * self);
     static void SignalObjectAdded(GDBusObjectManager * manager, GDBusObject * object, ChipDeviceScanner * self);
     static void SignalInterfaceChanged(GDBusObjectManager * manager, GDBusObject * object, ChipDeviceScanner * self);
+    static void SignalInterfaceChanged(GDBusObjectManagerClient * manager, GDBusObjectProxy * object, GDBusProxy * aInterface,
+                                       GVariant * aChangedProperties, const gchar * const * aInvalidatedProps,
+                                       ChipDeviceScanner * self);
 
     /// Check if a given device is a CHIP device and if yes, report it as discovered
     void ReportDevice(BluezDevice1 * device);

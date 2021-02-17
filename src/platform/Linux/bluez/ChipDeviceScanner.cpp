@@ -179,7 +179,9 @@ void ChipDeviceScanner::SignalObjectAdded(GDBusObjectManager * manager, GDBusObj
     self->ReportDevice(bluez_object_get_device1(BLUEZ_OBJECT(object)));
 }
 
-void ChipDeviceScanner::SignalInterfaceChanged(GDBusObjectManager * manager, GDBusObject * object, ChipDeviceScanner * self)
+void ChipDeviceScanner::SignalInterfaceChanged(GDBusObjectManagerClient * manager, GDBusObjectProxy * object,
+                                               GDBusProxy * aInterface, GVariant * aChangedProperties,
+                                               const gchar * const * aInvalidatedProps, ChipDeviceScanner * self)
 {
     ChipLogDetail(Ble, "Device scanner detected a interface change");
     self->ReportDevice(bluez_object_get_device1(BLUEZ_OBJECT(object)));
