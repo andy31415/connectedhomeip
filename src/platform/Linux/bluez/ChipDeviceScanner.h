@@ -78,7 +78,6 @@ private:
     static int MainLoopStartScan(ChipDeviceScanner * self);
     static int MainLoopStopScan(ChipDeviceScanner * self);
     static void SignalObjectAdded(GDBusObjectManager * manager, GDBusObject * object, ChipDeviceScanner * self);
-    static void SignalInterfaceChanged(GDBusObjectManager * manager, GDBusObject * object, ChipDeviceScanner * self);
     static void SignalInterfaceChanged(GDBusObjectManagerClient * manager, GDBusObjectProxy * object, GDBusProxy * aInterface,
                                        GVariant * aChangedProperties, const gchar * const * aInvalidatedProps,
                                        ChipDeviceScanner * self);
