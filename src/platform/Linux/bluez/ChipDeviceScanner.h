@@ -17,14 +17,17 @@
 
 #pragma once
 
-#include <core/CHIPError.h>
-#include <platform/CHIPDeviceLayer.h>
+#include <platform/CHIPDeviceConfig.h>
 
 #if CHIP_DEVICE_CONFIG_ENABLE_CHIPOBLE
 
 #include <glib.h>
+#include <memory>
 
+#include <ble/CHIPBleServiceData.h>
+#include <core/CHIPError.h>
 #include <platform/Linux/dbus/bluez/DbusBluez.h>
+#include <system/SystemLayer.h>
 
 namespace chip {
 namespace DeviceLayer {
@@ -37,7 +40,8 @@ public:
     virtual ~ChipDeviceScannerDelegate() {}
 
     // Called when a CHIP device was found
-    virtual void OnDeviceScanned(const char * address, const chip::Ble::ChipBLEDeviceIdentificationInfo & info) = 0;
+    virtual void OnDeviceScanned(const char * device_path, const char * address,
+                                 const chip::Ble::ChipBLEDeviceIdentificationInfo & info) = 0;
 
     // Called when a scan was completed (stopped or timed out)
     virtual void OnScanComplete() = 0;

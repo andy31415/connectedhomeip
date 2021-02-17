@@ -1571,7 +1571,7 @@ exit:
     return err;
 }
 
-CHIP_ERROR InitBluezBleLayer(bool aIsCentral, char * apBleAddr, BLEAdvConfig & aBleAdvConfig, void *& apEndpoint)
+CHIP_ERROR InitBluezBleLayer(bool aIsCentral, char * apBleAddr, BLEAdvConfig & aBleAdvConfig, BluezEndpoint *& apEndpoint)
 {
     CHIP_ERROR err           = CHIP_NO_ERROR;
     bool retval              = false;
@@ -1752,134 +1752,6 @@ exit:
 bool BluezUnsubscribeCharacteristic(BLE_CONNECTION_OBJECT apConn)
 {
     return MainLoop::Instance().Schedule(UnsubscribeCharacteristicImpl, static_cast<BluezConnection *>(apConn));
-}
-
-// StartDiscovery callbacks
-
-using DiscoveryTaskArg = std::pair<BluezEndpoint *, BluezDiscoveryRequest>;
-
-void StartDiscoveryDone(GObject * aObject, GAsyncResult * aResult, gpointer apEndpoint)
-{
-    BluezAdapter1 * adapter = BLUEZ_ADAPTER1(aObject);
-    GError * error          = nullptr;
-    gboolean success        = bluez_adapter1_call_start_discovery_finish(adapter, aResult, &error);
-
-    VerifyOrExit(success == TRUE, ChipLogError(DeviceLayer, "FAIL: StartDiscovery : %s", error->message));
-    ChipLogDetail(DeviceLayer, "StartDiscovery complete");
-
-exit:
-    if (error != nullptr)
-        g_error_free(error);
-}
-
-static bool CheckIfAlreadyDiscovered(BluezEndpoint & aEndpoint)
-{
-    chip::Ble::ChipBLEDeviceIdentificationInfo deviceInfo;
-
-    for (BluezObject & object : BluezEndpointObjectList(&aEndpoint))
-    {
-        BluezDevice1 * device = bluez_object_get_device1(&object);
-        if (device == nullptr || !BluezIsDeviceOnAdapter(device, aEndpoint.mpAdapter))
-            continue;
-
-        if (!BluezGetChipDeviceInfo(*device, deviceInfo))
-            continue;
-
-        if (deviceInfo.GetDeviceDiscriminator() != aEndpoint.mDiscoveryRequest.mDiscriminator)
-            continue;
-
-        UpdateConnectionTable(device, aEndpoint);
-        return true;
-    }
-
-    return false;
-}
-
-static gboolean StartDiscoveryImpl(DiscoveryTaskArg * taskArg)
-{
-    BluezEndpoint * endpoint;
-
-    VerifyOrExit(taskArg != nullptr, ChipLogError(DeviceLayer, "taskArg is NULL in %s", __func__));
-    endpoint = taskArg->first;
-
-    VerifyOrExit(endpoint != nullptr, ChipLogError(DeviceLayer, "endpoint is NULL in %s", __func__));
-    VerifyOrExit(endpoint->mpAdapter != nullptr, ChipLogError(DeviceLayer, "mpAdapter is NULL in %s", __func__));
-
-    // Bluez may already know the device in which case there's no need to discover it
-    endpoint->mDiscoveryRequest = taskArg->second;
-
-    if (CheckIfAlreadyDiscovered(*endpoint))
-    {
-        ChipLogProgress(DeviceLayer, "Device already discovered");
-        endpoint->mDiscoveryRequest = {};
-        ExitNow();
-    }
-
-    bluez_adapter1_call_start_discovery(endpoint->mpAdapter, nullptr, StartDiscoveryDone, endpoint);
-
-exit:
-    if (taskArg)
-        delete taskArg;
-    return G_SOURCE_REMOVE;
-}
-
-CHIP_ERROR StartDiscovery(BluezEndpoint * apEndpoint, const BluezDiscoveryRequest aRequest)
-{
-    DiscoveryTaskArg * const taskArg = new DiscoveryTaskArg(apEndpoint, aRequest);
-    CHIP_ERROR error                 = CHIP_NO_ERROR;
-
-    if (!MainLoop::Instance().Schedule(StartDiscoveryImpl, taskArg))
-    {
-        ChipLogError(Ble, "Failed to schedule StartDiscoveryImpl() on CHIPoBluez thread");
-        delete taskArg;
-        error = CHIP_ERROR_INCORRECT_STATE;
-    }
-
-    return error;
-}
-
-// StopDiscovery callbacks
-
-static void StopDiscoveryDone(GObject * aObject, GAsyncResult * aResult, gpointer apEndpoint)
-{
-    BluezEndpoint * endpoint = static_cast<BluezEndpoint *>(apEndpoint);
-    BluezAdapter1 * adapter  = BLUEZ_ADAPTER1(aObject);
-    GError * error           = nullptr;
-    gboolean success         = bluez_adapter1_call_stop_discovery_finish(adapter, aResult, &error);
-
-    VerifyOrExit(endpoint != nullptr, ChipLogError(DeviceLayer, "endpoint is NULL in %s", __func__));
-    endpoint->mDiscoveryRequest = {};
-
-    VerifyOrExit(success == TRUE, ChipLogError(DeviceLayer, "FAIL: StopDiscovery : %s", error->message));
-    ChipLogDetail(DeviceLayer, "StopDiscovery complete");
-
-exit:
-    if (error != nullptr)
-        g_error_free(error);
-}
-
-static gboolean StopDiscoveryImpl(BluezEndpoint * endpoint)
-{
-    VerifyOrExit(endpoint != nullptr, ChipLogError(DeviceLayer, "endpoint is NULL in %s", __func__));
-    VerifyOrExit(endpoint->mpAdapter != nullptr, ChipLogError(DeviceLayer, "mpAdapter is NULL in %s", __func__));
-
-    bluez_adapter1_call_stop_discovery(endpoint->mpAdapter, nullptr, StopDiscoveryDone, endpoint);
-
-exit:
-    return G_SOURCE_REMOVE;
-}
-
-CHIP_ERROR StopDiscovery(BluezEndpoint * apEndpoint)
-{
-    CHIP_ERROR error = CHIP_NO_ERROR;
-
-    if (!MainLoop::Instance().Schedule(StopDiscoveryImpl, apEndpoint))
-    {
-        ChipLogError(Ble, "Failed to schedule StopDiscoveryImpl() on CHIPoBluez thread");
-        error = CHIP_ERROR_INCORRECT_STATE;
-    }
-
-    return error;
 }
 
 // ConnectDevice callbacks

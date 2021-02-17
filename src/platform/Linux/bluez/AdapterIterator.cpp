@@ -19,6 +19,9 @@
 
 #if CHIP_DEVICE_CONFIG_ENABLE_CHIPOBLE
 
+#include <support/CodeUtils.h>
+#include <support/logging/CHIPLogging.h>
+
 namespace chip {
 namespace DeviceLayer {
 namespace Internal {
