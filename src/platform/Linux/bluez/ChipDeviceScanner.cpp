@@ -98,6 +98,11 @@ ChipDeviceScanner::~ChipDeviceScanner()
     g_object_unref(mManager);
     g_object_unref(mCancellable);
     g_object_unref(mAdapter);
+
+    mManager     = nullptr;
+    mAdapter     = nullptr;
+    mCancellable = nullptr;
+    mDelegate    = nullptr;
 }
 
 ChipDeviceScanner::Ptr ChipDeviceScanner::Create(BluezAdapter1 * adapter, ChipDeviceScannerDelegate * delegate)
