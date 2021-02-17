@@ -924,23 +924,22 @@ exit:
     return;
 }
 
-static void BluezSignalOnObjectAdded(GDBusObjectManager * aManager, GDBusObject * aObject, gpointer apClosure)
+static void BluezSignalOnObjectAdded(GDBusObjectManager * aManager, GDBusObject * aObject, BluezEndpoint * endpoint)
 {
     // TODO: right now we do not handle addition/removal of adapters
     // Primary focus here is to handle addition of a device
-
-    BluezObject * o          = BLUEZ_OBJECT(aObject);
-    BluezDevice1 * device    = bluez_object_get_device1(o);
-    BluezEndpoint * endpoint = static_cast<BluezEndpoint *>(apClosure);
-    if (device != nullptr)
+    BluezDevice1 * device = bluez_object_get_device1(BLUEZ_OBJECT(aObject));
+    if (device == nullptr)
     {
-        if (BluezIsDeviceOnAdapter(device, endpoint->mpAdapter) == TRUE)
-        {
-            BluezHandleNewDevice(device, endpoint);
-        }
-
-        g_object_unref(device);
+        return;
     }
+
+    if (BluezIsDeviceOnAdapter(device, endpoint->mpAdapter) == TRUE)
+    {
+        BluezHandleNewDevice(device, endpoint);
+    }
+
+    g_object_unref(device);
 }
 
 static void BluezSignalOnObjectRemoved(GDBusObjectManager * aManager, GDBusObject * aObject, gpointer apClosure)
