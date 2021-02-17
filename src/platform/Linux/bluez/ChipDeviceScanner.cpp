@@ -70,6 +70,7 @@ ChipDeviceScanner::ChipDeviceScanner(GDBusObjectManager * manager, BluezAdapter1
     mManager(manager),
     mAdapter(adapter), mCancellable(cancellable), mDelegate(delegate)
 {
+    g_object_ref(mAdapter);
     g_object_ref(mCancellable);
     g_object_ref(mManager);
 }
@@ -78,6 +79,7 @@ ChipDeviceScanner::~ChipDeviceScanner()
 {
     StopScan();
 
+    g_object_unref(mAdapter);
     g_object_unref(mManager);
     g_object_unref(mCancellable);
 }

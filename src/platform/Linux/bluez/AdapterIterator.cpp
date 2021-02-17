@@ -34,6 +34,12 @@ AdapterIterator::~AdapterIterator()
     {
         g_list_free_full(mObjectList, g_object_unref);
     }
+
+    if (mCurrent.adapter != nullptr)
+    {
+        g_object_unref(mCurrent.adapter);
+        mCurrent.adapter = nullptr;
+    }
 }
 
 void AdapterIterator::Initialize()
@@ -86,13 +92,18 @@ bool AdapterIterator::Advance()
             index = 0;
         }
 
+        if (mCurrent.adapter != nullptr)
+        {
+            g_object_unref(mCurrent.adapter);
+            mCurrent.adapter = nullptr;
+        }
+
         mCurrent.index   = index;
         mCurrent.address = bluez_adapter1_get_address(adapter);
         mCurrent.alias   = bluez_adapter1_get_alias(adapter);
         mCurrent.name    = bluez_adapter1_get_name(adapter);
         mCurrent.powered = bluez_adapter1_get_powered(adapter);
-
-        g_object_unref(adapter);
+        mCurrent.adapter = adapter;
 
         mCurrentListItem = mCurrentListItem->next;
 

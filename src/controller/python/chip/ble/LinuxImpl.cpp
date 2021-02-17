@@ -49,3 +49,35 @@ extern "C" bool pychip_ble_adapter_list_is_powered(void * adapter)
 {
     return static_cast<chip::DeviceLayer::Internal::AdapterIterator *>(adapter)->IsPowered();
 }
+
+///////////// Test only
+
+#include <platform/Linux/bluez/ChipDeviceScanner.h>
+
+namespace {
+
+class TestDelegate : public chip::DeviceLayer::Internal::ChipDeviceScannerDelegate
+{
+public:
+    void OnDeviceScanned(const chip::Ble::ChipBLEDeviceIdentificationInfo & info) override { printf("CHIP device was scanned\n"); }
+
+    void OnScanComplete() override { printf("SCAN COMPLETED\n"); }
+};
+
+ChipDeviceScanner::Ptr test_ptr;
+
+TestDelegate test_delegate;
+
+} // namespace
+
+extern "C" void pychip_ble_test()
+{
+    chip::DeviceLayer::Internal::AdapterIterator iterator;
+
+    if (iterator.Next())
+    {
+        printf("Found an adapter: %s\nStarting scan...\n", iterator.GetName());
+        test_ptr = ChipDeviceScanner::Create(iterator.GetAdapter(), &test_delegate);
+        test_ptr->StartScan(10000);
+    }
+}

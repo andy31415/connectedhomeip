@@ -69,7 +69,8 @@ public:
 
     /// Create a new device scanner
     ///
-    /// Convenience method to allocate any required variables
+    /// Convenience method to allocate any required variables.
+    /// On success, maintains a reference to the provided adapter.
     static Ptr Create(BluezAdapter1 * adapter, ChipDeviceScannerDelegate * delegate);
 
 private:
