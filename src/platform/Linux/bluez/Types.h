@@ -128,11 +128,6 @@ struct IOChannel
     guint mWatch;
 };
 
-struct BluezDiscoveryRequest
-{
-    uint16_t mDiscriminator;
-};
-
 struct BluezEndpoint
 {
     char * mpOwningName; // Bus owning name
@@ -169,9 +164,6 @@ struct BluezEndpoint
     uint16_t mDuration; ///< Advertisement interval (in ms).
     bool mIsAdvertising;
     char * mpPeerDevicePath;
-
-    // Discovery settings
-    BluezDiscoveryRequest mDiscoveryRequest = {};
 };
 
 struct BluezConnection

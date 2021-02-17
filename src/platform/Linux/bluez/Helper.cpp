@@ -835,44 +835,6 @@ exit:
     return G_SOURCE_REMOVE;
 }
 
-/// Retrieve CHIP device identification info from the device advertising data
-static bool BluezGetChipDeviceInfo(BluezDevice1 & aDevice, chip::Ble::ChipBLEDeviceIdentificationInfo & aDeviceInfo)
-{
-    GVariant * serviceData = bluez_device1_get_service_data(&aDevice);
-    VerifyOrReturnError(serviceData != nullptr, false);
-
-    GVariant * dataValue = g_variant_lookup_value(serviceData, CHIP_BLE_UUID_SERVICE_STRING, nullptr);
-    VerifyOrReturnError(dataValue != nullptr, false);
-
-    size_t dataLen         = 0;
-    const void * dataBytes = g_variant_get_fixed_array(dataValue, &dataLen, sizeof(uint8_t));
-    VerifyOrReturnError(dataBytes != nullptr && dataLen >= sizeof(aDeviceInfo), false);
-
-    memcpy(&aDeviceInfo, dataBytes, sizeof(aDeviceInfo));
-    return true;
-}
-
-/// Handle advertisement from a device and connect to it if its discriminator is the requested one.
-static void BluezHandleAdvertisementFromDevice(BluezDevice1 * aDevice, BluezEndpoint * aEndpoint)
-{
-    GVariant * serviceData = bluez_device1_get_service_data(aDevice);
-    char * debugStr        = nullptr;
-    chip::Ble::ChipBLEDeviceIdentificationInfo deviceInfo;
-
-    VerifyOrExit(serviceData != nullptr, );
-
-    debugStr = g_variant_print(serviceData, TRUE);
-    ChipLogDetail(DeviceLayer, "TRACE: Device %s Service data: %s", bluez_device1_get_address(aDevice), debugStr);
-
-    VerifyOrExit(BluezGetChipDeviceInfo(*aDevice, deviceInfo), );
-    ChipLogDetail(DeviceLayer, "TRACE: Found CHIP BLE Device: %" PRIu16, deviceInfo.GetDeviceDiscriminator());
-
-    if (aEndpoint->mDiscoveryRequest.mDiscriminator == deviceInfo.GetDeviceDiscriminator())
-        ConnectDevice(aDevice);
-exit:
-    g_free(debugStr);
-}
-
 /// Update the table of open BLE connections whevener a new device is spotted or its attributes have changed.
 static void UpdateConnectionTable(BluezDevice1 * apDevice, BluezEndpoint & aEndpoint)
 {
@@ -892,8 +854,6 @@ static void UpdateConnectionTable(BluezDevice1 * apDevice, BluezEndpoint & aEndp
 
     if (connection == nullptr && !bluez_device1_get_connected(apDevice) && aEndpoint.mIsCentral)
     {
-        // Check if the new device is the one that the central is trying to connect to.
-        BluezHandleAdvertisementFromDevice(apDevice, &aEndpoint);
         return;
     }
 
@@ -935,32 +895,30 @@ static void BluezHandleNewDevice(BluezDevice1 * device, BluezEndpoint * apEndpoi
     VerifyOrExit(apEndpoint != nullptr, ChipLogError(DeviceLayer, "endpoint is NULL in %s", __func__));
     if (apEndpoint->mIsCentral)
     {
-        BluezHandleAdvertisementFromDevice(device, apEndpoint);
+        return;
     }
-    else
-    {
-        // We need to handle device connection both this function and BluezSignalInterfacePropertiesChanged
-        // When a device is connected for first time, this function will be triggerred.
-        // The future connections for the same device will trigger ``Connect'' property change.
-        // TODO: Factor common code in the two function.
-        BluezConnection * conn;
-        VerifyOrExit(bluez_device1_get_connected(device), ChipLogError(DeviceLayer, "FAIL: device is not connected"));
 
-        conn = static_cast<BluezConnection *>(
-            g_hash_table_lookup(apEndpoint->mpConnMap, g_dbus_proxy_get_object_path(G_DBUS_PROXY(device))));
-        VerifyOrExit(conn == nullptr,
-                     ChipLogError(DeviceLayer, "FAIL: connection already tracked: conn: %x new device: %s", conn,
-                                  g_dbus_proxy_get_object_path(G_DBUS_PROXY(device))));
+    // We need to handle device connection both this function and BluezSignalInterfacePropertiesChanged
+    // When a device is connected for first time, this function will be triggerred.
+    // The future connections for the same device will trigger ``Connect'' property change.
+    // TODO: Factor common code in the two function.
+    BluezConnection * conn;
+    VerifyOrExit(bluez_device1_get_connected(device), ChipLogError(DeviceLayer, "FAIL: device is not connected"));
 
-        conn                = g_new0(BluezConnection, 1);
-        conn->mpPeerAddress = g_strdup(bluez_device1_get_address(device));
-        conn->mpDevice      = static_cast<BluezDevice1 *>(g_object_ref(device));
-        conn->mpEndpoint    = apEndpoint;
-        BluezConnectionInit(conn);
-        apEndpoint->mpPeerDevicePath = g_strdup(g_dbus_proxy_get_object_path(G_DBUS_PROXY(device)));
-        ChipLogDetail(DeviceLayer, "Device %s (Path: %s) Connected", conn->mpPeerAddress, apEndpoint->mpPeerDevicePath);
-        g_hash_table_insert(apEndpoint->mpConnMap, g_strdup(g_dbus_proxy_get_object_path(G_DBUS_PROXY(device))), conn);
-    }
+    conn = static_cast<BluezConnection *>(
+        g_hash_table_lookup(apEndpoint->mpConnMap, g_dbus_proxy_get_object_path(G_DBUS_PROXY(device))));
+    VerifyOrExit(conn == nullptr,
+                 ChipLogError(DeviceLayer, "FAIL: connection already tracked: conn: %x new device: %s", conn,
+                              g_dbus_proxy_get_object_path(G_DBUS_PROXY(device))));
+
+    conn                = g_new0(BluezConnection, 1);
+    conn->mpPeerAddress = g_strdup(bluez_device1_get_address(device));
+    conn->mpDevice      = static_cast<BluezDevice1 *>(g_object_ref(device));
+    conn->mpEndpoint    = apEndpoint;
+    BluezConnectionInit(conn);
+    apEndpoint->mpPeerDevicePath = g_strdup(g_dbus_proxy_get_object_path(G_DBUS_PROXY(device)));
+    ChipLogDetail(DeviceLayer, "Device %s (Path: %s) Connected", conn->mpPeerAddress, apEndpoint->mpPeerDevicePath);
+    g_hash_table_insert(apEndpoint->mpConnMap, g_strdup(g_dbus_proxy_get_object_path(G_DBUS_PROXY(device))), conn);
 
 exit:
     return;

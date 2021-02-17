@@ -199,7 +199,6 @@ int ChipDeviceScanner::MainLoopStopScan(ChipDeviceScanner * self)
 
 void ChipDeviceScanner::SignalObjectAdded(GDBusObjectManager * manager, GDBusObject * object, ChipDeviceScanner * self)
 {
-    ChipLogDetail(Ble, "Device scanner detected a new DBus object");
     self->ReportDevice(bluez_object_get_device1(BLUEZ_OBJECT(object)));
 }
 
@@ -207,7 +206,6 @@ void ChipDeviceScanner::SignalInterfaceChanged(GDBusObjectManagerClient * manage
                                                GDBusProxy * aInterface, GVariant * aChangedProperties,
                                                const gchar * const * aInvalidatedProps, ChipDeviceScanner * self)
 {
-    ChipLogDetail(Ble, "Device scanner detected a interface change");
     self->ReportDevice(bluez_object_get_device1(BLUEZ_OBJECT(object)));
 }
 
@@ -227,7 +225,7 @@ void ChipDeviceScanner::ReportDevice(BluezDevice1 * device)
 
     if (!BluezGetChipDeviceInfo(*device, deviceInfo))
     {
-        ChipLogDetail(Ble, "Device does not report a CHIP device info.");
+        ChipLogDetail(Ble, "Device %s does not look like a CHIP device.", bluez_device1_get_address(device));
         return;
     }
 
