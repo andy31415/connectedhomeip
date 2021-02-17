@@ -181,12 +181,15 @@ private:
     void DriveBLEState();
     static void DriveBLEState(intptr_t arg);
 
+    void InitiateScan();
+    static void InitiateScan(intptr_t arg);
+
     CHIPoBLEServiceMode mServiceMode;
     BLEAdvConfig mBLEAdvConfig;
     BLEScanConfig mBLEScanConfig;
     uint16_t mFlags;
     char mDeviceName[kMaxDeviceNameLength + 1];
-    bool mIsCentral = false;
+    bool mIsCentral            = false;
     BluezEndpoint * mpEndpoint = nullptr;
     ChipDeviceScanner::Ptr mDeviceScanner;
 };

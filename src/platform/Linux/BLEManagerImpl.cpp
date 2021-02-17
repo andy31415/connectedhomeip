@@ -633,19 +633,29 @@ void BLEManagerImpl::NotifyChipConnectionClosed(BLE_CONNECTION_OBJECT conId)
     ChipLogProgress(Ble, "Got notification regarding chip connection closure");
 }
 
-void BLEManagerImpl::NewConnection(BleLayer * bleLayer, void * appState, const uint16_t connDiscriminator)
+void BLEManagerImpl::InitiateScan()
 {
+    DriveBLEState();
 
     if (mpEndpoint == nullptr)
     {
-        OnConnectionError(appState, CHIP_ERROR_INCORRECT_STATE);
+        OnConnectionError(mBLEScanConfig.mAppState, CHIP_ERROR_INCORRECT_STATE);
         ChipLogError(Ble, "BLE Layer is not yet initialized");
         return;
     }
 
+    // Bluez BLE state will asynchronously schedule an initialization of the
+    // BLE adapters on the glib MainLoop.
+
+    // TODO: this wait is error prone. Find a better way.
+    while (mpEndpoint->mpAdapter == nullptr)
+    {
+        pthread_yield();
+    }
+
     if (mpEndpoint->mpAdapter == nullptr)
     {
-        OnConnectionError(appState, CHIP_ERROR_INCORRECT_STATE);
+        OnConnectionError(mBLEScanConfig.mAppState, CHIP_ERROR_INCORRECT_STATE);
         ChipLogError(Ble, "No adapter available for new connection establishment");
         return;
     }
@@ -653,13 +663,11 @@ void BLEManagerImpl::NewConnection(BleLayer * bleLayer, void * appState, const u
     mDeviceScanner = Internal::ChipDeviceScanner::Create(mpEndpoint->mpAdapter, this);
 
     mBLEScanConfig.scanningToConnect = true;
-    mBLEScanConfig.mDiscriminator    = connDiscriminator;
-    mBLEScanConfig.mAppState         = appState;
 
     if (!mDeviceScanner)
     {
         mBLEScanConfig.scanningToConnect = false;
-        OnConnectionError(appState, CHIP_ERROR_INTERNAL);
+        OnConnectionError(mBLEScanConfig.mAppState, CHIP_ERROR_INTERNAL);
         ChipLogError(Ble, "Failed to create a BLE device scanner");
         return;
     }
@@ -669,9 +677,23 @@ void BLEManagerImpl::NewConnection(BleLayer * bleLayer, void * appState, const u
     {
         mBLEScanConfig.scanningToConnect = false;
         ChipLogError(Ble, "Failed to start a BLE can: %s", chip::ErrorStr(err));
-        OnConnectionError(appState, err);
+        OnConnectionError(mBLEScanConfig.mAppState, err);
         return;
     }
+}
+
+void BLEManagerImpl::InitiateScan(intptr_t arg)
+{
+    sInstance.InitiateScan();
+}
+
+void BLEManagerImpl::NewConnection(BleLayer * bleLayer, void * appState, const uint16_t connDiscriminator)
+{
+    mBLEScanConfig.mDiscriminator = connDiscriminator;
+    mBLEScanConfig.mAppState      = appState;
+
+    // Scan initiation performed async, to ensure that the BLE subsystem is initialized.
+    PlatformMgr().ScheduleWork(InitiateScan, 0);
 }
 
 void BLEManagerImpl::NotifyBLEPeripheralRegisterAppComplete(bool aIsSuccess, void * apAppstate)

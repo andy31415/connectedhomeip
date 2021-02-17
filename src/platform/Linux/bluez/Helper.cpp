@@ -1380,13 +1380,6 @@ static int StartupEndpointBindings(BluezEndpoint * endpoint)
 
     bluezObjectsSetup(endpoint);
 
-#if 0
-    // reenable if we want to handle the bluetoothd restart
-    g_signal_connect (manager,
-                      "notify::name-owner",
-                      G_CALLBACK (on_notify_name_owner),
-                      NULL);
-#endif
     g_signal_connect(manager, "object-added", G_CALLBACK(BluezSignalOnObjectAdded), endpoint);
     g_signal_connect(manager, "object-removed", G_CALLBACK(BluezSignalOnObjectRemoved), endpoint);
     g_signal_connect(manager, "interface-proxy-properties-changed", G_CALLBACK(BluezSignalInterfacePropertiesChanged), endpoint);
