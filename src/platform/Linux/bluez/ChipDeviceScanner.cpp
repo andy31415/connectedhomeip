@@ -212,7 +212,7 @@ void ChipDeviceScanner::ReportDevice(BluezDevice1 * device)
         return;
     }
 
-    mDelegate->OnDeviceScanned(bluez_device1_get_address(device), bluez_device1_get_name(device), deviceInfo);
+    mDelegate->OnDeviceScanned(bluez_device1_get_address(device), deviceInfo);
 }
 
 int ChipDeviceScanner::MainLoopStartScan(ChipDeviceScanner * self)
