@@ -69,6 +69,8 @@
 #include <support/ReturnMacros.h>
 #include <system/TLVPacketBufferBackingStore.h>
 
+#include "BluezObjectIterator.h"
+#include "BluezObjectList.h"
 #include "Helper.h"
 #include "MainLoop.h"
 
@@ -85,65 +87,14 @@ static BluezConnection * GetBluezConnectionViaDevice(BluezEndpoint * apEndpoint)
 
 namespace {
 
-/**    @class BluezObjectIterator
- *
- *     @brief Helper class to iterate over a list of Bluez objects
- */
-class BluezObjectIterator
+class BluezEndpointObjectList : public BluezObjectList
 {
 public:
-    using iterator_category = std::forward_iterator_tag;
-    using difference_type   = std::ptrdiff_t;
-    using value_type        = BluezObject;
-    using pointer           = BluezObject *;
-    using reference         = BluezObject &;
-
-    BluezObjectIterator() = default;
-    explicit BluezObjectIterator(GList * position) : mPosition(position) {}
-
-    reference operator*() const { return *BLUEZ_OBJECT(mPosition->data); }
-    pointer operator->() const { return BLUEZ_OBJECT(mPosition->data); }
-    bool operator==(const BluezObjectIterator & other) const { return mPosition == other.mPosition; }
-    bool operator!=(const BluezObjectIterator & other) const { return mPosition != other.mPosition; }
-
-    BluezObjectIterator & operator++()
-    {
-        mPosition = mPosition->next;
-        return *this;
-    }
-
-    BluezObjectIterator operator++(int)
-    {
-        const auto currentPosition = mPosition;
-        mPosition                  = mPosition->next;
-        return BluezObjectIterator(currentPosition);
-    }
-
-private:
-    GList * mPosition = nullptr;
-};
-
-/**    @class BluezObjectList
- *
- *     @brief C++ wrapper for a Bluez object list
- */
-class BluezObjectList
-{
-public:
-    explicit BluezObjectList(BluezEndpoint * apEndpoint)
+    explicit BluezEndpointObjectList(BluezEndpoint * apEndpoint)
     {
         VerifyOrReturn(apEndpoint != nullptr, ChipLogError(DeviceLayer, "apEndpoint is NULL in %s", __func__));
-        VerifyOrReturn(apEndpoint->mpObjMgr != nullptr, ChipLogError(DeviceLayer, "mpObjMgr is NULL in %s", __func__));
-        mObjectList = g_dbus_object_manager_get_objects(apEndpoint->mpObjMgr);
+        Initialize(apEndpoint->mpObjMgr);
     }
-
-    ~BluezObjectList() { g_list_free_full(mObjectList, g_object_unref); }
-
-    BluezObjectIterator begin() const { return BluezObjectIterator(mObjectList); }
-    BluezObjectIterator end() const { return BluezObjectIterator(); }
-
-private:
-    GList * mObjectList = nullptr;
 };
 
 } // namespace
@@ -1825,7 +1776,7 @@ static bool CheckIfAlreadyDiscovered(BluezEndpoint & aEndpoint)
 {
     chip::Ble::ChipBLEDeviceIdentificationInfo deviceInfo;
 
-    for (BluezObject & object : BluezObjectList(&aEndpoint))
+    for (BluezObject & object : BluezEndpointObjectList(&aEndpoint))
     {
         BluezDevice1 * device = bluez_object_get_device1(&object);
         if (device == nullptr || !BluezIsDeviceOnAdapter(device, aEndpoint.mpAdapter))

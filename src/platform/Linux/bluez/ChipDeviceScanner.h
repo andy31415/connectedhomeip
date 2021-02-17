@@ -1,0 +1,92 @@
+/*
+ *
+ *    Copyright (c) 2021 Project CHIP Authors
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+#pragma once
+
+#include <core/CHIPError.h>
+#include <platform/CHIPDeviceLayer.h>
+
+#if CHIP_DEVICE_CONFIG_ENABLE_CHIPOBLE
+
+#include <glib.h>
+
+#include <platform/Linux/dbus/bluez/DbusBluez.h>
+
+namespace chip {
+namespace DeviceLayer {
+namespace Internal {
+
+/// Receives callbacks when chip devices are being scanned
+class ChipDeviceScannerDelegate
+{
+public:
+    virtual ~ChipDeviceScannerDelegate() {}
+
+    // Called when a CHIP device was found
+    virtual void OnDeviceScanned(const chip::Ble::ChipBLEDeviceIdentificationInfo & info) = 0;
+
+    // Called when a scan was completed (stopped or timed out)
+    virtual void OnScanComplete() = 0;
+};
+
+/// Allows scanning for CHIP devices
+///
+/// Will perform scan operations and call back whenever a device is discovered.
+class ChipDeviceScanner
+{
+public:
+    using Ptr = std::unique_ptr<ChipDeviceScanner>;
+
+    /// NOTE: prefer to use the  ::Create method instead direct constructor calling.
+    ChipDeviceScanner(GDBusObjectManager * manager, BluezAdapter1 * adapter, GCancellable * cancellable,
+                      ChipDeviceScannerDelegate * delegate);
+
+    ChipDeviceScanner(ChipDeviceScanner &&)      = default;
+    ChipDeviceScanner(const ChipDeviceScanner &) = delete;
+    ChipDeviceScanner & operator=(const ChipDeviceScanner &) = delete;
+
+    ~ChipDeviceScanner();
+
+    /// Initiate a scan for devices, with the given timeout
+    CHIP_ERROR StartScan(unsigned timeoutMs);
+
+    /// Stop any currently running scan
+    CHIP_ERROR StopScan();
+
+    /// Create a new device scanner
+    ///
+    /// Convenience method to allocate any required variables
+    static Ptr Create(BluezAdapter1 * adapter, ChipDeviceScannerDelegate * delegate);
+
+private:
+    static int MainLoopStartScan(ChipDeviceScanner * self);
+    static int MainLoopStopScan(ChipDeviceScanner * self);
+    static void SignalObjectAdded(GDBusObjectManager * manager, GDBusObject * object, ChipDeviceScanner * self);
+
+    GDBusObjectManager * mManager         = nullptr;
+    BluezAdapter1 * mAdapter              = nullptr;
+    GCancellable * mCancellable           = nullptr;
+    ChipDeviceScannerDelegate * mDelegate = nullptr;
+    gulong mDeviceUpdateSignal            = 0;
+    bool mIsScanning                      = false;
+};
+
+} // namespace Internal
+} // namespace DeviceLayer
+} // namespace chip
+
+#endif // CHIP_DEVICE_CONFIG_ENABLE_CHIPOBLE
