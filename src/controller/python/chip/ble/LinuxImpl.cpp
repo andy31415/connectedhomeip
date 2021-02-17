@@ -56,20 +56,25 @@ extern "C" bool pychip_ble_adapter_list_is_powered(void * adapter)
 
 namespace {
 
+ChipDeviceScanner::Ptr test_ptr;
+
 class TestDelegate : public chip::DeviceLayer::Internal::ChipDeviceScannerDelegate
 {
 public:
+    virtual ~TestDelegate() { test_ptr.reset(); }
+
     void OnDeviceScanned(const char * address, const char * name, const chip::Ble::ChipBLEDeviceIdentificationInfo & info) override
     {
         printf("CHIP device was scanned:\n");
         printf("   ADDRESS: %s\n", address);
         printf("   NAME: %s\n", name);
+        printf("   Discriminator: %d\n", info.GetDeviceDiscriminator());
+        printf("   ProductId:     %d\n", info.GetProductId());
+        printf("   VendorId:      %d\n", info.GetVendorId());
     }
 
     void OnScanComplete() override { printf("SCAN COMPLETED\n"); }
 };
-
-ChipDeviceScanner::Ptr test_ptr;
 
 TestDelegate test_delegate;
 
