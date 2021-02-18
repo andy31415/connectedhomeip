@@ -15,9 +15,11 @@
 #
 
 import ctypes
+from typing import Generator
+from dataclasses import dataclass
 from chip.ble.library_handle import _GetBleLibraryHandle
+from queue import Queue
 from chip.ble.types import DeviceScannedCallback_t, ScanDoneCallback_t
-
 
 @DeviceScannedCallback_t
 def ScanFoundCallback(closure, address: str, discriminator: int, vendor: int,
@@ -30,7 +32,7 @@ def ScanDoneCallback(closure):
   closure.ScanCompleted()
 
 
-def Discover(timeoutMs: int, scanCallback, doneCallback, adapter=None):
+def DiscoverAsync(timeoutMs: int, scanCallback, doneCallback, adapter=None):
   """Initiate a BLE discovery of devices with the given timeout.
 
   :param timeoutMs    - scan will complete after this time
@@ -77,3 +79,49 @@ def Discover(timeoutMs: int, scanCallback, doneCallback, adapter=None):
       break
   finally:
     handle.pychip_ble_adapter_list_delete(nativeList)
+
+
+@dataclass
+class DeviceInfo:
+    address: str
+    discriminator: int
+    vendor: int
+    product: int
+
+class _DeviceInfoReceiver:
+    """Uses a queue to notify of objects received asynchronously
+       from a ble scan.
+
+       Internal queue gets filled on DeviceFound and ends with None when
+       ScanCompleted.
+    """
+    def __init__(self):
+        self.queue = Queue()
+
+    def DeviceFound(self, address, discriminator, vendor, product):
+        self.queue.put(DeviceInfo(address, discriminator, vendor, product))
+
+    def ScanCompleted(self):
+        self.queue.put(None)
+
+
+
+def DiscoverSync(timeoutMs: int, adapter = None) -> Generator[DeviceInfo, None, None]:
+  """Discover BLE devices over the specified period of time. 
+
+  :param timeoutMs    - scan will complete after this time
+  :param scanCallback - callback when a device is found
+  :param doneCallback - callback when the scan is complete
+  :param adapter      - what adapter to choose. Either an AdapterInfo object or
+                        a string with the adapter address. If None, the first
+                        adapter on the system is used.
+  """
+
+  receiver = _DeviceInfoReceiver()
+  DiscoverAsync(timeoutMs, receiver.DeviceFound, receiver.ScanCompleted, adapter)
+
+  while True:
+      data = receiver.queue.get()
+      if not data:
+          break
+      yield data

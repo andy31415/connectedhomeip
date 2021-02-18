@@ -11,10 +11,11 @@
 #    limitations under the License.
 """BLE-related functionality within CHIP"""
 
-from chip.ble.scan_devices import Discover
+from chip.ble.scan_devices import DiscoverAsync, DiscoverSync
 from chip.ble.get_adapters import GetAdapters
 
 __all__ = [
     'GetAdapters',
-    'Discover',
+    'DiscoverAsync',
+    'DiscoverSync',
 ]

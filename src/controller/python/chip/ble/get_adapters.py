@@ -1,6 +1,5 @@
 from typing import List
 from dataclasses import dataclass
-from chip.ble.scan_devices import Discover
 from chip.ble.library_handle import _GetBleLibraryHandle
 
 
