@@ -35,6 +35,9 @@ def ScanDoneCallback(closure):
 def DiscoverAsync(timeoutMs: int, scanCallback, doneCallback, adapter=None):
   """Initiate a BLE discovery of devices with the given timeout.
 
+  NOTE: devices are not guaranteed to be unique. New entries are returned
+  as soon as the underlying BLE manager detects changes.
+
   :param timeoutMs    - scan will complete after this time
   :param scanCallback - callback when a device is found
   :param doneCallback - callback when the scan is complete
@@ -108,6 +111,9 @@ class _DeviceInfoReceiver:
 
 def DiscoverSync(timeoutMs: int, adapter = None) -> Generator[DeviceInfo, None, None]:
   """Discover BLE devices over the specified period of time. 
+
+  NOTE: devices are not guaranteed to be unique. New entries are returned
+  as soon as the underlying BLE manager detects changes.
 
   :param timeoutMs    - scan will complete after this time
   :param scanCallback - callback when a device is found
