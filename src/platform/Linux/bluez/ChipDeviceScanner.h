@@ -95,6 +95,7 @@ private:
     gulong mObjectAddedSignal             = 0;
     gulong mInterfaceChangedSignal        = 0;
     volatile bool mIsScanning             = false;
+    volatile bool mIsStopping             = false;
 };
 
 } // namespace Internal

@@ -159,6 +159,8 @@ void ChipDeviceScanner::TimerExpiredCallback(chip::System::Layer * layer, void *
 CHIP_ERROR ChipDeviceScanner::StopScan()
 {
     ReturnErrorCodeIf(!mIsScanning, CHIP_NO_ERROR);
+    ReturnErrorCodeIf(mIsStopping, CHIP_NO_ERROR);
+    mIsStopping = true;
     g_cancellable_cancel(mCancellable); // in case we are currently running a scan
 
     if (mObjectAddedSignal)

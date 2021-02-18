@@ -22,6 +22,22 @@ import("${build_root}/chip/tools.gni")
 import("${chip_root}/src/platform/device.gni")
 import("${dir_pw_unit_test}/test.gni")
 
+import("${build_root}/config/linux/pkg_config.gni")
+
+declare_args() {
+  chip_native_python_version = "3.8"
+}
+
+declare_args() {
+  chip_native_python_include_dir =
+      "/usr/include/python${chip_native_python_version}"
+}
+
+config("python_native") {
+  include_dirs = [ chip_native_python_include_dir ]
+  libs = [ "python${chip_native_python_version}" ]
+}
+
 config("controller_wno_deprecate") {
   cflags = [ "-Wno-deprecated-declarations" ]
 }
@@ -60,7 +76,10 @@ shared_library("ChipDeviceCtrl") {
     "${chip_root}/src/transport",
   ]
   allow_circular_includes_from = [ "${chip_root}/src/controller" ]
-  configs += [ ":controller_wno_deprecate" ]
+  configs += [
+    ":controller_wno_deprecate",
+    ":python_native",
+  ]
 }
 
 pw_python_action("python") {
@@ -100,7 +119,13 @@ pw_python_action("python") {
     _py_manifest_files += [
       {
         src_dir = "."
-        sources = [ "chip/ble/__init__.py" ]
+        sources = [
+          "chip/ble/__init__.py",
+          "chip/ble/get_adapters.py",
+          "chip/ble/library_handle.py",
+          "chip/ble/scan_devices.py",
+          "chip/ble/types.py",
+        ]
       },
     ]
   }
