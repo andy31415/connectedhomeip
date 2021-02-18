@@ -42,7 +42,7 @@ public:
     /// The main loop MUST have been started already.
     bool RunOnBluezThread(GSourceFunc closure, void * arg);
 
-    /// Convenience method to require less castst to void*
+    /// Convenience method to require less casts to void*
     template <class T>
     bool Schedule(int (*callback)(T *), T * value)
     {
@@ -80,7 +80,7 @@ private:
     static void * Thread(void * self);
 
     GMainLoop * mBluezMainLoop = nullptr;
-    pthread_t mThread;
+    pthread_t mThread          = 0;
 
     // allow a single cleanup method
     GSourceFunc mCleanup    = nullptr;

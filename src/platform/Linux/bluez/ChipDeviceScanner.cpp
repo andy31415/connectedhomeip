@@ -82,7 +82,6 @@ ChipDeviceScanner::~ChipDeviceScanner()
     // In case the timeout timer is still active
     chip::DeviceLayer::SystemLayer.CancelTimer(TimerExpiredCallback, this);
 
-    // ensures that the stop callback has executed in the main loop thread
     while (mIsScanning)
     {
         g_thread_yield();
@@ -193,8 +192,12 @@ int ChipDeviceScanner::MainLoopStopScan(ChipDeviceScanner * self)
         ChipLogError(Ble, "Failed to stop discovery %s", error->message);
         g_error_free(error);
     }
-    self->mDelegate->OnScanComplete();
-    self->mIsScanning = false; // assume stopped in any case
+    ChipDeviceScannerDelegate * delegate = self->mDelegate;
+    self->mIsScanning                    = false;
+
+    // callback is explicitly allowed to delete the scanner (hence no more
+    // references to 'self' here)
+    delegate->OnScanComplete();
 
     return 0;
 }
