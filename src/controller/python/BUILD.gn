@@ -22,22 +22,6 @@ import("${build_root}/chip/tools.gni")
 import("${chip_root}/src/platform/device.gni")
 import("${dir_pw_unit_test}/test.gni")
 
-import("${build_root}/config/linux/pkg_config.gni")
-
-declare_args() {
-  chip_native_python_version = "3.8"
-}
-
-declare_args() {
-  chip_native_python_include_dir =
-      "/usr/include/python${chip_native_python_version}"
-}
-
-config("python_native") {
-  include_dirs = [ chip_native_python_include_dir ]
-  libs = [ "python${chip_native_python_version}" ]
-}
-
 config("controller_wno_deprecate") {
   cflags = [ "-Wno-deprecated-declarations" ]
 }
@@ -78,7 +62,6 @@ shared_library("ChipDeviceCtrl") {
   allow_circular_includes_from = [ "${chip_root}/src/controller" ]
   configs += [
     ":controller_wno_deprecate",
-    ":python_native",
   ]
 }
 

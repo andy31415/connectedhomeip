@@ -62,9 +62,13 @@ def Discover(timeoutMs: int, scanCallback, doneCallback, adapter=None):
 
         def ScanCompleted(self, *args):
           doneCallback(*args)
+          ctypes.pythonapi.Py_DecRef(ctypes.py_object(self))
+
+      closure = ScannerClosure()
+      ctypes.pythonapi.Py_IncRef(ctypes.py_object(closure))
 
       scanner = handle.pychip_ble_start_scanning(
-          ctypes.py_object(ScannerClosure()),
+          ctypes.py_object(closure),
           handle.pychip_ble_adapter_list_get_raw_adapter(nativeList), timeoutMs,
           ScanFoundCallback, ScanDoneCallback)
 

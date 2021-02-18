@@ -5,8 +5,6 @@
 #include <support/CHIPMem.h>
 #include <support/ReturnMacros.h>
 
-#include <Python.h>
-
 using namespace chip::DeviceLayer::Internal;
 
 /////////// Listing adapters implementation //////////
@@ -61,6 +59,11 @@ extern "C" void * pychip_ble_adapter_list_get_raw_adapter(void * adapterIterator
 
 namespace {
 
+// To avoid pythoon compatibility issues on inc/dec references,
+// code assumes an abstract type and leaves it up to python to keep track of
+// reference counts
+struct PyObject;
+
 class ScannerDelegateImpl : public ChipDeviceScannerDelegate
 {
 public:
@@ -70,13 +73,10 @@ public:
 
     ScannerDelegateImpl(PyObject * context, DeviceScannedCallback scanCallback, ScanCompleteCallback completeCallback) :
         mContext(context), mScanCallback(scanCallback), mCompleteCallback(completeCallback)
-    {
-        Py_INCREF(mContext);
-    }
+    {}
 
     ~ScannerDelegateImpl()
     {
-        // Py_DECREF(mContext);
         mContext          = nullptr;
         mScanCallback     = nullptr;
         mCompleteCallback = nullptr;
