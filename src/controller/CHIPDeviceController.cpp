@@ -127,14 +127,8 @@ CHIP_ERROR DeviceController::Init(NodeId localDeviceId, PersistentStorageDelegat
     VerifyOrExit(mInetLayer != nullptr, err = CHIP_ERROR_INVALID_ARGUMENT);
 
     mStorageDelegate = storageDelegate;
-
-    if (mStorageDelegate != nullptr)
-    {
-        mStorageDelegate->SetStorageDelegate(this);
-    }
-
-    mTransportMgr   = chip::Platform::New<DeviceTransportMgr>();
-    mSessionManager = chip::Platform::New<SecureSessionMgr>();
+    mTransportMgr    = chip::Platform::New<DeviceTransportMgr>();
+    mSessionManager  = chip::Platform::New<SecureSessionMgr>();
 
 #ifdef CHIP_APP_USE_INTERACTION_MODEL
     mExchangeManager = chip::Platform::New<Messaging::ExchangeManager>();
@@ -192,14 +186,9 @@ CHIP_ERROR DeviceController::Shutdown()
     chip::Platform::Delete(mInetLayer);
 #endif // CONFIG_DEVICE_LAYER
 
-    mSystemLayer = nullptr;
-    mInetLayer   = nullptr;
-
-    if (mStorageDelegate != nullptr)
-    {
-        mStorageDelegate->SetStorageDelegate(nullptr);
-        mStorageDelegate = nullptr;
-    }
+    mSystemLayer     = nullptr;
+    mInetLayer       = nullptr;
+    mStorageDelegate = nullptr;
 
     if (mSessionManager != nullptr)
     {
@@ -509,8 +498,6 @@ exit:
     return err;
 }
 
-void DeviceController::OnPersistentStorageStatus(const char * key, Operation op, CHIP_ERROR err) {}
-
 DeviceCommissioner::DeviceCommissioner()
 {
     mPairingDelegate      = nullptr;
@@ -707,7 +694,7 @@ CHIP_ERROR DeviceCommissioner::UnpairDevice(NodeId remoteDeviceId)
 
     if (mStorageDelegate != nullptr)
     {
-        PERSISTENT_KEY_OP(remoteDeviceId, kPairedDeviceKeyPrefix, key, mStorageDelegate->AsyncDeleteKeyValue(key));
+        PERSISTENT_KEY_OP(remoteDeviceId, kPairedDeviceKeyPrefix, key, mStorageDelegate->SyncDeleteKeyValue(key));
     }
 
     mPairedDevices.Remove(remoteDeviceId);
@@ -774,8 +761,11 @@ void DeviceCommissioner::OnRendezvousComplete()
     {
         SerializedDevice serialized;
         device->Serialize(serialized);
+
+        // TODO: binary data
         PERSISTENT_KEY_OP(device->GetDeviceId(), kPairedDeviceKeyPrefix, key,
-                          mStorageDelegate->AsyncSetKeyValue(key, Uint8::to_const_char(serialized.inner)));
+                          mStorageDelegate->SyncSetKeyValue(key, serialized.inner,
+                                                            static_cast<uint16_t>(strlen(Uint8::to_const_char(serialized.inner)))));
     }
 
     RendezvousCleanup(CHIP_NO_ERROR);
@@ -838,7 +828,7 @@ void DeviceCommissioner::PersistDeviceList()
             if (value != nullptr && requiredSize <= size)
             {
                 PERSISTENT_KEY_OP(static_cast<uint64_t>(0), kPairedDeviceListKeyPrefix, key,
-                                  mStorageDelegate->AsyncSetKeyValue(key, value));
+                                  mStorageDelegate->SyncSetKeyValue(key, value, static_cast<uint16_t>(strlen(value))));
                 mPairedDevicesUpdated = false;
             }
             chip::Platform::MemoryFree(serialized);
@@ -847,7 +837,11 @@ void DeviceCommissioner::PersistDeviceList()
         // TODO: Consider storing value in binary representation instead of converting to string
         char keyIDStr[kMaxKeyIDStringSize];
         snprintf(keyIDStr, sizeof(keyIDStr), "%d", mNextKeyId);
-        mStorageDelegate->AsyncSetKeyValue(kNextAvailableKeyID, keyIDStr);
+        if (mStorageDelegate->SyncSetKeyValue(kNextAvailableKeyID, keyIDStr, static_cast<uint16_t>(strlen(keyIDStr))) !=
+            CHIP_NO_ERROR)
+        {
+            ChipLogError(Controller, "Error storing max key id");
+        }
     }
 }
 

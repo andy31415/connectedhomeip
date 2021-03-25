@@ -20,7 +20,6 @@
 
 #include <memory>
 
-using chip::PersistentStorageResultDelegate;
 using chip::Controller::DeviceCommissioner;
 
 namespace {
@@ -286,11 +285,6 @@ void AndroidDeviceControllerWrapper::OnMessage(chip::System::PacketBufferHandle 
 
 void AndroidDeviceControllerWrapper::OnStatusChange(void) {}
 
-void AndroidDeviceControllerWrapper::SetStorageDelegate(PersistentStorageResultDelegate * delegate)
-{
-    mStorageResultDelegate = delegate;
-}
-
 CHIP_ERROR AndroidDeviceControllerWrapper::SyncGetKeyValue(const char * key, char * value, uint16_t & size)
 {
     jstring keyString       = NULL;
@@ -337,7 +331,7 @@ exit:
     return err;
 }
 
-void AndroidDeviceControllerWrapper::AsyncSetKeyValue(const char * key, const char * value)
+void AndroidDeviceControllerWrapper::SyncSetKeyValue(const char * key, const void * value, size_t size)
 {
     jclass storageCls = GetPersistentStorageClass();
     jmethodID method  = GetJavaEnv()->GetStaticMethodID(storageCls, "setKeyValue", "(Ljava/lang/String;Ljava/lang/String;)V");
@@ -350,15 +344,12 @@ void AndroidDeviceControllerWrapper::AsyncSetKeyValue(const char * key, const ch
 
     err = N2J_NewStringUTF(GetJavaEnv(), key, keyString);
     SuccessOrExit(err);
+
+    // FIXME: use binary value here!
     err = N2J_NewStringUTF(GetJavaEnv(), value, valueString);
     SuccessOrExit(err);
 
     GetJavaEnv()->CallStaticVoidMethod(storageCls, method, keyString, valueString);
-
-    if (mStorageResultDelegate)
-    {
-        mStorageResultDelegate->OnPersistentStorageStatus(key, PersistentStorageResultDelegate::Operation::kSET, CHIP_NO_ERROR);
-    }
 
 exit:
     GetJavaEnv()->ExceptionClear();
@@ -366,7 +357,7 @@ exit:
     GetJavaEnv()->DeleteLocalRef(valueString);
 }
 
-void AndroidDeviceControllerWrapper::AsyncDeleteKeyValue(const char * key)
+void AndroidDeviceControllerWrapper::SyncDeleteKeyValue(const char * key)
 {
     jclass storageCls = GetPersistentStorageClass();
     jmethodID method  = GetJavaEnv()->GetStaticMethodID(storageCls, "deleteKeyValue", "(Ljava/lang/String;)V");
@@ -380,11 +371,6 @@ void AndroidDeviceControllerWrapper::AsyncDeleteKeyValue(const char * key)
     SuccessOrExit(err);
 
     GetJavaEnv()->CallStaticVoidMethod(storageCls, method, keyString);
-
-    if (mStorageResultDelegate)
-    {
-        mStorageResultDelegate->OnPersistentStorageStatus(key, PersistentStorageResultDelegate::Operation::kDELETE, CHIP_NO_ERROR);
-    }
 
 exit:
     GetJavaEnv()->ExceptionClear();

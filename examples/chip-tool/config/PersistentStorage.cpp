@@ -53,40 +53,37 @@ exit:
     return err;
 }
 
-void PersistentStorage::SetStorageDelegate(PersistentStorageResultDelegate * delegate) {}
-
 CHIP_ERROR PersistentStorage::SyncGetKeyValue(const char * key, char * value, uint16_t & size)
 {
-    CHIP_ERROR err = CHIP_NO_ERROR;
     std::string iniValue;
     size_t iniValueLength = 0;
 
     auto section = mConfig.sections[kDefaultSectionName];
     auto it      = section.find(key);
-    VerifyOrExit(it != section.end(), err = CHIP_ERROR_KEY_NOT_FOUND);
+    VerifyOrReturnError(it != section.end(), CHIP_ERROR_KEY_NOT_FOUND);
 
-    VerifyOrExit(inipp::extract(section[key], iniValue), err = CHIP_ERROR_INVALID_ARGUMENT);
+    VerifyOrReturnError(inipp::extract(section[key], iniValue), CHIP_ERROR_INVALID_ARGUMENT);
 
     iniValueLength = iniValue.size();
-    VerifyOrExit(iniValueLength <= static_cast<size_t>(size) - 1, err = CHIP_ERROR_BUFFER_TOO_SMALL);
+    VerifyOrReturnError(iniValueLength <= static_cast<size_t>(size) - 1, CHIP_ERROR_BUFFER_TOO_SMALL);
 
     iniValueLength        = iniValue.copy(value, iniValueLength);
     value[iniValueLength] = '\0';
 
-exit:
-    return err;
+    return CHIP_NO_ERROR;
 }
 
-void PersistentStorage::AsyncSetKeyValue(const char * key, const char * value)
+CHIP_ERROR PersistentStorage::SyncSetKeyValue(const char * key, const void * value, size_t size)
 {
+    // TODO: this is NOT OK - need binary data representation
     auto section = mConfig.sections[kDefaultSectionName];
-    section[key] = std::string(value);
+    section[key] = std::string(static_cast<const char *>(value), size);
 
     mConfig.sections[kDefaultSectionName] = section;
-    CommitConfig();
+    return CommitConfig();
 }
 
-void PersistentStorage::AsyncDeleteKeyValue(const char * key)
+void PersistentStorage::SyncDeleteKeyValue(const char * key)
 {
     auto section = mConfig.sections[kDefaultSectionName];
     section.erase(key);

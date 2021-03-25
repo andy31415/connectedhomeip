@@ -61,8 +61,7 @@ CHIP_ERROR AdminPairingInfo::DeleteFromKVS(PersistentStorageDelegate & kvs, Admi
     char key[KeySize()];
     ReturnErrorOnFailure(GenerateKey(id, key, sizeof(key)));
 
-    kvs.AsyncDeleteKeyValue(key);
-    return CHIP_NO_ERROR;
+    return kvs.SyncDeleteKeyValue(key);
 }
 
 constexpr size_t AdminPairingInfo::KeySize()

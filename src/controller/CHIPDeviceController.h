@@ -106,7 +106,7 @@ public:
  *   and device pairing information for individual devices). Alternatively, this class can retrieve the
  *   relevant information when the application tries to communicate with the device
  */
-class DLL_EXPORT DeviceController : public SecureSessionMgrDelegate, public PersistentStorageResultDelegate
+class DLL_EXPORT DeviceController : public SecureSessionMgrDelegate
 {
 public:
     DeviceController();
@@ -212,9 +212,6 @@ private:
 
     void OnNewConnection(SecureSessionHandle session, SecureSessionMgr * mgr) override;
     void OnConnectionExpired(SecureSessionHandle session, SecureSessionMgr * mgr) override;
-
-    //////////// PersistentStorageResultDelegate Implementation ///////////////
-    void OnPersistentStorageStatus(const char * key, Operation op, CHIP_ERROR err) override;
 
     void ReleaseAllDevices();
 

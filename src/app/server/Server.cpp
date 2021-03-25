@@ -71,18 +71,6 @@ constexpr bool useTestPairing()
 
 class ServerStorageDelegate : public PersistentStorageDelegate
 {
-    void SetStorageDelegate(PersistentStorageResultDelegate * delegate) override
-    {
-        ChipLogError(AppServer, "ServerStorageDelegate does not support async operations");
-        chipDie();
-    }
-
-    void AsyncSetKeyValue(const char * key, const char * value) override
-    {
-        ChipLogError(AppServer, "ServerStorageDelegate does not support async operations");
-        chipDie();
-    }
-
     CHIP_ERROR SyncGetKeyValue(const char * key, void * buffer, uint16_t & size) override
     {
         return PersistedStorage::KeyValueStoreMgr().Get(key, buffer, size);
@@ -93,7 +81,7 @@ class ServerStorageDelegate : public PersistentStorageDelegate
         return PersistedStorage::KeyValueStoreMgr().Put(key, value, size);
     }
 
-    void AsyncDeleteKeyValue(const char * key) override { PersistedStorage::KeyValueStoreMgr().Delete(key); }
+    CHIP_ERROR SyncDeleteKeyValue(const char * key) override { return PersistedStorage::KeyValueStoreMgr().Delete(key); }
 };
 
 ServerStorageDelegate gServerStorage;

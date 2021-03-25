@@ -133,7 +133,6 @@ static NSString * const kInfoStackShutdown = @"Shutting down the CHIP Stack";
 
         CHIP_ERROR errorCode = CHIP_ERROR_INCORRECT_STATE;
 
-        _persistentStorageDelegateBridge->setFrameworkDelegate(storageDelegate, queue);
         // initialize NodeID if needed
         [self _getControllerNodeId];
 
@@ -170,7 +169,7 @@ static NSString * const kInfoStackShutdown = @"Shutting down the CHIP Stack";
         _localDeviceId = arc4random();
         _localDeviceId = _localDeviceId << 32 | arc4random();
         CHIP_LOG_ERROR("Assigned %llx node ID to the controller", _localDeviceId);
-        _persistentStorageDelegateBridge->AsyncSetKeyValue(
+        _persistentStorageDelegateBridge->SyncSetKeyValue(
             CHIP_COMMISSIONER_DEVICE_ID_KEY, [[NSString stringWithFormat:@"%llx", _localDeviceId] UTF8String]);
     } else {
         NSScanner * scanner = [NSScanner scannerWithString:[NSString stringWithUTF8String:deviceIdString]];
