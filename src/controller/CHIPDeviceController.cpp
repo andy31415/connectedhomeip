@@ -279,7 +279,7 @@ CHIP_ERROR DeviceController::GetDevice(NodeId deviceId, Device ** out_device)
 
         {
             SerializedDevice deviceInfo;
-            uint16_t size = sizeof(deviceInfo.inner);
+            size_t size = sizeof(deviceInfo.inner);
 
             PERSISTENT_KEY_OP(deviceId, kPairedDeviceKeyPrefix, key,
                               err = mStorageDelegate->SyncGetKeyValue(key, Uint8::to_char(deviceInfo.inner), size));
@@ -445,9 +445,9 @@ CHIP_ERROR DeviceController::InitializePairedDeviceList()
 
     if (!mPairedDevicesInitialized)
     {
-        constexpr uint16_t max_size = CHIP_MAX_SERIALIZED_SIZE_U64(kNumMaxPairedDevices);
-        buffer                      = static_cast<char *>(chip::Platform::MemoryAlloc(max_size));
-        uint16_t size               = max_size;
+        constexpr size_t max_size = CHIP_MAX_SERIALIZED_SIZE_U64(kNumMaxPairedDevices);
+        buffer                    = static_cast<char *>(chip::Platform::MemoryAlloc(max_size));
+        size_t size               = max_size;
 
         VerifyOrExit(buffer != nullptr, err = CHIP_ERROR_INVALID_ARGUMENT);
 
@@ -512,7 +512,8 @@ CHIP_ERROR DeviceCommissioner::LoadKeyId(PersistentStorageDelegate * delegate, u
 
     // TODO: Consider storing value in binary representation instead of converting to string
     char keyIDStr[kMaxKeyIDStringSize];
-    uint16_t size = sizeof(keyIDStr);
+    size_t size = sizeof(keyIDStr);
+
     ReturnErrorOnFailure(delegate->SyncGetKeyValue(kNextAvailableKeyID, keyIDStr, size));
 
     ReturnErrorCodeIf(!ArgParser::ParseInt(keyIDStr, out), CHIP_ERROR_INTERNAL);
@@ -764,8 +765,7 @@ void DeviceCommissioner::OnRendezvousComplete()
 
         // TODO: binary data
         PERSISTENT_KEY_OP(device->GetDeviceId(), kPairedDeviceKeyPrefix, key,
-                          mStorageDelegate->SyncSetKeyValue(key, serialized.inner,
-                                                            static_cast<uint16_t>(strlen(Uint8::to_const_char(serialized.inner)))));
+                          mStorageDelegate->SyncSetKeyValue(key, serialized.inner, strlen(Uint8::to_const_char(serialized.inner))));
     }
 
     RendezvousCleanup(CHIP_NO_ERROR);
@@ -828,7 +828,7 @@ void DeviceCommissioner::PersistDeviceList()
             if (value != nullptr && requiredSize <= size)
             {
                 PERSISTENT_KEY_OP(static_cast<uint64_t>(0), kPairedDeviceListKeyPrefix, key,
-                                  mStorageDelegate->SyncSetKeyValue(key, value, static_cast<uint16_t>(strlen(value))));
+                                  mStorageDelegate->SyncSetKeyValue(key, value, strlen(value)));
                 mPairedDevicesUpdated = false;
             }
             chip::Platform::MemoryFree(serialized);
@@ -837,8 +837,7 @@ void DeviceCommissioner::PersistDeviceList()
         // TODO: Consider storing value in binary representation instead of converting to string
         char keyIDStr[kMaxKeyIDStringSize];
         snprintf(keyIDStr, sizeof(keyIDStr), "%d", mNextKeyId);
-        if (mStorageDelegate->SyncSetKeyValue(kNextAvailableKeyID, keyIDStr, static_cast<uint16_t>(strlen(keyIDStr))) !=
-            CHIP_NO_ERROR)
+        if (mStorageDelegate->SyncSetKeyValue(kNextAvailableKeyID, keyIDStr, strlen(keyIDStr)) != CHIP_NO_ERROR)
         {
             ChipLogError(Controller, "Error storing max key id");
         }

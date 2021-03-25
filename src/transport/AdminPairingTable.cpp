@@ -46,7 +46,7 @@ CHIP_ERROR AdminPairingInfo::FetchFromKVS(PersistentStorageDelegate & kvs)
 
     StorableAdminPairingInfo info;
 
-    uint16_t size = sizeof(info);
+    size_t size = sizeof(info);
     ReturnErrorOnFailure(kvs.SyncGetKeyValue(key, &info, size));
 
     mNodeId    = Encoding::LittleEndian::HostSwap64(info.mNodeId);

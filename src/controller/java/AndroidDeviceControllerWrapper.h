@@ -56,8 +56,8 @@ public:
     void OnStatusChange(void) override;
 
     // PersistentStorageDelegate implementation
-    CHIP_ERROR SyncGetKeyValue(const char * key, char * value, uint16_t & size) override;
-    CHIP_ERROR SyncSetKeyValue(const char * key, const void * value, uint16_t size) override;
+    CHIP_ERROR SyncGetKeyValue(const char * key, char * value, size_t & size) override;
+    CHIP_ERROR SyncSetKeyValue(const char * key, const void * value, size_t size) override;
     CHIP_ERROR SyncDeleteKeyValue(const char * key) override;
 
     jlong ToJNIHandle()

@@ -54,7 +54,7 @@ public:
      * @return CHIP_ERROR_NO_MEMORY if the input buffer is not big enough for
      *                              the value.
      */
-    virtual CHIP_ERROR SyncGetKeyValue(const char * key, void * value, uint16_t & size) = 0;
+    virtual CHIP_ERROR SyncGetKeyValue(const char * key, void * value, size_t & size) = 0;
 
     /**
      * @brief
@@ -64,7 +64,7 @@ public:
      * @param[in] value Value to be set
      * @param[in] size Size of the Value
      */
-    virtual CHIP_ERROR SyncSetKeyValue(const char * key, const void * value, uint16_t size) = 0;
+    virtual CHIP_ERROR SyncSetKeyValue(const char * key, const void * value, size_t size) = 0;
 
     /**
      * @brief

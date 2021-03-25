@@ -30,9 +30,9 @@ public:
 
     void setFrameworkDelegate(id<CHIPPersistentStorageDelegate> delegate, dispatch_queue_t queue);
 
-    CHIP_ERROR SyncGetKeyValue(const char * key, void * value, uint16_t & size) override;
+    CHIP_ERROR SyncGetKeyValue(const char * key, void * value, size_t & size) override;
 
-    CHIP_ERROR SyncSetKeyValue(const char * key, const void * value, uint16_t size) override;
+    CHIP_ERROR SyncSetKeyValue(const char * key, const void * value, size_t size) override;
 
     CHIP_ERROR SyncDeleteKeyValue(const char * key) override;
 

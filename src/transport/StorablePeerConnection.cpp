@@ -41,7 +41,7 @@ CHIP_ERROR StorablePeerConnection::FetchFromKVS(PersistentStorageDelegate & kvs,
     char key[KeySize()];
     ReturnErrorOnFailure(GenerateKey(keyId, key, sizeof(key)));
 
-    uint16_t size = sizeof(mSession);
+    size_t size = sizeof(mSession);
     return kvs.SyncGetKeyValue(key, &mSession, size);
 }
 

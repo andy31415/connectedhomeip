@@ -27,12 +27,12 @@ constexpr const char kPortKey[]            = "ListenPort";
 constexpr const char kLoggingKey[]         = "LoggingLevel";
 constexpr LogCategory kDefaultLoggingLevel = kLogCategory_Detail;
 
-CHIP_ERROR PersistentStorage::SyncGetKeyValue(const char * key, void * value, uint16_t & size)
+CHIP_ERROR PersistentStorage::SyncGetKeyValue(const char * key, void * value, size_t & size)
 {
-    return KeyValueStoreMgr().Get(key, value, size);
+    return KeyValueStoreMgr().Get(key, value, size, &size);
 }
 
-CHIP_ERROR PersistentStorage::SyncSetKeyValue(const char * key, const void * value, uint16_t size)
+CHIP_ERROR PersistentStorage::SyncSetKeyValue(const char * key, const void * value, size_t size)
 {
     return KeyValueStoreMgr().Put(key, value, size);
 }
@@ -45,7 +45,9 @@ CHIP_ERROR PersistentStorage::SyncDeleteKeyValue(const char * key)
 uint16_t PersistentStorage::GetListenPort()
 {
     uint16_t chipListenPort;
-    if (SyncGetKeyValue(kPortKey, &chipListenPort, static_cast<uint16_t>(sizeof(chipListenPort))) == CHIP_NO_ERROR)
+    size_t dataSize = sizeof(chipListenPort);
+
+    if ((SyncGetKeyValue(kPortKey, &chipListenPort, dataSize) == CHIP_NO_ERROR) && (dataSize == sizeof(chipListenPort)))
     {
         return chipListenPort;
     }
@@ -59,7 +61,7 @@ LogCategory PersistentStorage::GetLoggingLevel()
 {
 
     char value[9];
-    uint16_t size = static_cast<uint16_t>(sizeof(value));
+    size_t size = sizeof(value);
 
     if (SyncGetKeyValue(kLoggingKey, value, size) == CHIP_NO_ERROR)
     {
