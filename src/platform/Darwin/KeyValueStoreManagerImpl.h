@@ -34,18 +34,10 @@ class KeyValueStoreManagerImpl final : public KeyValueStoreManager
     friend class KeyValueStoreManager;
 
 public:
-    CHIP_ERROR Init(const char *fileName) {
-        return CHIP_NO_ERROR;
-    }
-
-    CHIP_ERROR _Get(const char * key, void * value, size_t value_size, size_t * read_bytes_size = nullptr, size_t offset = 0)
-    {
-        return CHIP_ERROR_NOT_IMPLEMENTED;
-    }
-
-    CHIP_ERROR _Delete(const char * key) { return CHIP_ERROR_NOT_IMPLEMENTED; }
-
-    CHIP_ERROR _Put(const char * key, const void * value, size_t value_size) { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR Init(const char *fileName);
+    CHIP_ERROR _Get(const char * key, void * value, size_t value_size, size_t * read_bytes_size = nullptr, size_t offset = 0);
+    CHIP_ERROR _Delete(const char * key);
+    CHIP_ERROR _Put(const char * key, const void * value, size_t value_size);
 
 private:
     // ===== Members for internal use by the following friends.

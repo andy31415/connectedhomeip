@@ -23,11 +23,36 @@
 
 #include <platform/KeyValueStoreManager.h>
 
+#include <support/CodeUtils.h>
+
 namespace chip {
 namespace DeviceLayer {
 namespace PersistedStorage {
 
 KeyValueStoreManagerImpl KeyValueStoreManagerImpl::sInstance;
+
+CHIP_ERROR KeyValueStoreManagerImpl::Init(const char *fileName){
+    return CHIP_NO_ERROR;
+}
+
+CHIP_ERROR KeyValueStoreManagerImpl::_Get(const char * key, void * value, size_t value_size, size_t * read_bytes_size, size_t offset)
+{
+    ReturnErrorCodeIf(key == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+
+    return CHIP_ERROR_NOT_IMPLEMENTED;
+}
+
+CHIP_ERROR KeyValueStoreManagerImpl::_Delete(const char * key) {
+    ReturnErrorCodeIf(key == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+    return CHIP_ERROR_NOT_IMPLEMENTED; 
+}
+
+CHIP_ERROR KeyValueStoreManagerImpl::_Put(const char * key, const void * value, size_t value_size) {
+    ReturnErrorCodeIf(key == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+    ReturnErrorCodeIf(value == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+
+    return CHIP_ERROR_NOT_IMPLEMENTED; 
+}
 
 } // namespace PersistedStorage
 } // namespace DeviceLayer
