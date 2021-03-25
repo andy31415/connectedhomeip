@@ -29,7 +29,7 @@
 #include <support/CHIPMem.h>
 #include <support/CodeUtils.h>
 
-constexpr const char * kKvsFileName = "/tmp/chip_kvs";
+constexpr const char * kKvsFileName = "/tmp/chip_kvs.ini";
 
 void Commands::Register(const char * clusterName, commands_list commandsList)
 {
