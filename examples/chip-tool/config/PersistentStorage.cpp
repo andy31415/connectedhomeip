@@ -29,7 +29,8 @@ constexpr LogCategory kDefaultLoggingLevel = kLogCategory_Detail;
 
 CHIP_ERROR PersistentStorage::SyncGetKeyValue(const char * key, void * value, size_t & size)
 {
-    return KeyValueStoreMgr().Get(key, value, size, &size);
+    size_t maxSize = size;
+    return KeyValueStoreMgr().Get(key, value, maxSize, &size);
 }
 
 CHIP_ERROR PersistentStorage::SyncSetKeyValue(const char * key, const void * value, size_t size)
