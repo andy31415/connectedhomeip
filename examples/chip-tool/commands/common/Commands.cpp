@@ -23,12 +23,13 @@
 #include <algorithm>
 #include <string>
 
-#if CONFIG_DEVICE_LAYER
 #include <platform/CHIPDeviceLayer.h>
-#endif
+#include <platform/KeyValueStoreManager.h>
 
 #include <support/CHIPMem.h>
 #include <support/CodeUtils.h>
+
+constexpr const char * kKvsFileName = "/tmp/chip_kvs";
 
 void Commands::Register(const char * clusterName, commands_list commandsList)
 {
@@ -46,10 +47,12 @@ int Commands::Run(NodeId localId, NodeId remoteId, int argc, char ** argv)
     err = chip::Platform::MemoryInit();
     VerifyOrExit(err == CHIP_NO_ERROR, ChipLogError(Controller, "Init Memory failure: %s", chip::ErrorStr(err)));
 
-#if CHIP_DEVICE_LAYER_TARGET_LINUX && CHIP_DEVICE_CONFIG_ENABLE_CHIPOBLE
+#if CHIP_DEVICE_CONFIG_ENABLE_CHIPOBLE
     // By default, Linux device is configured as a BLE peripheral while the controller needs a BLE central.
     SuccessOrExit(err = chip::DeviceLayer::Internal::BLEMgrImpl().ConfigureBle(/* BLE adapter ID */ 0, /* BLE central */ true));
 #endif
+    err = chip::DeviceLayer::PersistedStorage::KeyValueStoreMgrImpl().Init(kKvsFileName);
+    VerifyOrExit(err == CHIP_NO_ERROR, ChipLogError(Controller, "Init Storage failure: %s", chip::ErrorStr(err)));
 
     chip::Logging::SetLogFilter(storage.GetLoggingLevel());
 
