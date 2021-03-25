@@ -51,9 +51,6 @@ int Commands::Run(NodeId localId, NodeId remoteId, int argc, char ** argv)
     SuccessOrExit(err = chip::DeviceLayer::Internal::BLEMgrImpl().ConfigureBle(/* BLE adapter ID */ 0, /* BLE central */ true));
 #endif
 
-    err = storage.Init();
-    VerifyOrExit(err == CHIP_NO_ERROR, ChipLogError(Controller, "Init Storage failure: %s", chip::ErrorStr(err)));
-
     chip::Logging::SetLogFilter(storage.GetLoggingLevel());
 
     err = RunCommand(storage, localId, remoteId, argc, argv);

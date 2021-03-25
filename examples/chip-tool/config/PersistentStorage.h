@@ -25,17 +25,11 @@
 class PersistentStorage : public chip::PersistentStorageDelegate
 {
 public:
-    CHIP_ERROR Init();
+    uint16_t GetListenPort();
+    chip::Logging::LogCategory GetLoggingLevel();
 
     /////////// PersistentStorageDelegate Interface /////////
     CHIP_ERROR SyncGetKeyValue(const char * key, void * value, uint16_t & size) override;
     CHIP_ERROR SyncSetKeyValue(const char * key, const void * value, uint16_t size) override;
     CHIP_ERROR SyncDeleteKeyValue(const char * key) override;
-
-    uint16_t GetListenPort();
-    chip::Logging::LogCategory GetLoggingLevel();
-
-private:
-    CHIP_ERROR CommitConfig();
-    inipp::Ini<char> mConfig;
 };
