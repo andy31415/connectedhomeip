@@ -22,7 +22,6 @@
 using namespace chip::Logging;
 using namespace chip::DeviceLayer::PersistedStorage;
 
-constexpr const char kDefaultSectionName[] = "Default";
 constexpr const char kPortKey[]            = "ListenPort";
 constexpr const char kLoggingKey[]         = "LoggingLevel";
 constexpr LogCategory kDefaultLoggingLevel = kLogCategory_Detail;
