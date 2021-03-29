@@ -151,8 +151,6 @@ namespace DeviceLayer {
             NSManagedObjectModel * model = CreateManagedObjectModel();
             ReturnErrorCodeIf(model == nullptr, CHIP_ERROR_NO_MEMORY);
 
-            ChipLogError(DeviceLayer, "MODEL CREATED");
-
             // setup persistent store coordinator
 
             NSPersistentStoreCoordinator * coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model];
@@ -191,8 +189,6 @@ namespace DeviceLayer {
             if (!item) {
                 return CHIP_ERROR_KEY_NOT_FOUND;
             }
-            
-            ChipLogError(DeviceLayer, "Found item for %s", key);
             
             if (read_bytes_size != nullptr) {
                 *read_bytes_size = item.value.length;
