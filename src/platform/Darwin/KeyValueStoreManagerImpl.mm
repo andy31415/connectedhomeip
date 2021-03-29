@@ -23,6 +23,8 @@
 
 #include <platform/KeyValueStoreManager.h>
 
+#include <algorithm>
+
 #include <support/CodeUtils.h>
 
 #import <CoreData/CoreData.h>
@@ -99,6 +101,21 @@ namespace DeviceLayer {
 
                 return model;
             }
+        
+        KeyValueItem *FindItemForKey(NSString *key, NSError **error){
+            NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName: @"KeyValue"];
+            request.predicate = [NSPredicate predicateWithFormat: @"key = %@", key];
+            
+            NSArray *result = [gContext executeFetchRequest: request error: error];
+            if (result == nil) {
+                return nullptr;
+            }
+            
+            if (result.count == 0) {
+                return nullptr;
+            }
+            return (KeyValueItem *)[result objectAtIndex:0];
+        }
 
         }
 
@@ -167,29 +184,70 @@ namespace DeviceLayer {
         CHIP_ERROR KeyValueStoreManagerImpl::_Get(
             const char * key, void * value, size_t value_size, size_t * read_bytes_size, size_t offset)
         {
-            ChipLogError(DeviceLayer, "!!! KVS GET: %s", key);
-
             ReturnErrorCodeIf(key == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+            ReturnErrorCodeIf(offset != 0, CHIP_ERROR_INVALID_ARGUMENT);
 
-            return CHIP_ERROR_NOT_IMPLEMENTED;
+            KeyValueItem *item = FindItemForKey([[NSString alloc] initWithUTF8String: key], nil);
+            if (!item) {
+                return CHIP_ERROR_KEY_NOT_FOUND;
+            }
+            
+            ChipLogError(DeviceLayer, "Found item for %s", key);
+            
+            if (read_bytes_size != nullptr) {
+                *read_bytes_size = item.value.length;
+            }
+            
+            if (value != nullptr) {
+                memcpy(value, item.value.bytes, std::min(item.value.length, value_size));
+            }
+
+            return CHIP_NO_ERROR;
         }
 
         CHIP_ERROR KeyValueStoreManagerImpl::_Delete(const char * key)
         {
-            ChipLogError(DeviceLayer, "!!! KVS DELETE: %s", key);
-
             ReturnErrorCodeIf(key == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
-            return CHIP_ERROR_NOT_IMPLEMENTED;
+ 
+
+            KeyValueItem *item = FindItemForKey([[NSString alloc] initWithUTF8String: key], nil);
+            if (!item) {
+                return CHIP_NO_ERROR;
+            }
+            
+            [gContext deleteObject: item];
+            
+            NSError *error = nil;
+            if (![gContext save: &error]) {
+                ChipLogError(DeviceLayer, "Error saving context: %s", error.localizedDescription.UTF8String);
+                return CHIP_ERROR_INTERNAL;
+            }
+            
+            return CHIP_NO_ERROR;
         }
 
         CHIP_ERROR KeyValueStoreManagerImpl::_Put(const char * key, const void * value, size_t value_size)
         {
-            ChipLogError(DeviceLayer, "!!! KVS PUT: %s", key);
-
             ReturnErrorCodeIf(key == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
-            ReturnErrorCodeIf(value == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+            
+            NSData *data = [[NSData alloc] initWithBytes: value length: value_size];
+ 
 
-            return CHIP_ERROR_NOT_IMPLEMENTED;
+            KeyValueItem *item = FindItemForKey([[NSString alloc] initWithUTF8String: key], nil);
+            if (!item) {
+                item = [[KeyValueItem alloc] initWithContext: gContext key: [[NSString alloc] initWithUTF8String: key] value: data];
+                [gContext insertObject: item];
+            } else {
+                item.value = data;
+            }
+            
+            NSError *error = nil;
+            if (![gContext save: &error]) {
+                ChipLogError(DeviceLayer, "Error saving context: %s", error.localizedDescription.UTF8String);
+                return CHIP_ERROR_INTERNAL;
+            }
+            
+            return CHIP_NO_ERROR;
         }
 
     } // namespace PersistedStorage
