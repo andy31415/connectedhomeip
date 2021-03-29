@@ -29,7 +29,11 @@
 #include <support/CHIPMem.h>
 #include <support/CodeUtils.h>
 
+#if CHIP_DEVICE_LAYER_TARGET_LINUX
 constexpr const char * kKvsFileName = "/tmp/chip_kvs.ini";
+#else
+constexpr const char * kKvsFileName = "chip_kvs.sqlite";
+#endif
 
 void Commands::Register(const char * clusterName, commands_list commandsList)
 {

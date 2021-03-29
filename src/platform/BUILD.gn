@@ -167,6 +167,7 @@ if (chip_device_platform != "none" && chip_device_platform != "external") {
   config("platform_config") {
     if (chip_device_platform == "darwin") {
       frameworks = [
+        "CoreData.framework",
         "CoreFoundation.framework",
         "CoreBluetooth.framework",
         "Foundation.framework",

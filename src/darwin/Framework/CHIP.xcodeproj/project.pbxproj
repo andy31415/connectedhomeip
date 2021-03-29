@@ -39,6 +39,8 @@
 		2CB7163B252E8A7B0026E2BB /* CHIPDevicePairingDelegateBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB71638252E8A7B0026E2BB /* CHIPDevicePairingDelegateBridge.h */; };
 		2CB7163C252E8A7C0026E2BB /* CHIPDevicePairingDelegateBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2CB71639252E8A7B0026E2BB /* CHIPDevicePairingDelegateBridge.mm */; };
 		2CB7163F252F731E0026E2BB /* CHIPDevicePairingDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB7163E252F731E0026E2BB /* CHIPDevicePairingDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		759CAB00260D2FA100F9ED4F /* KeyValueStoreManagerImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 759CAAFE260D2FA100F9ED4F /* KeyValueStoreManagerImpl.mm */; };
+		759CAB01260D2FA100F9ED4F /* KeyValueStoreManagerImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 759CAAFF260D2FA100F9ED4F /* KeyValueStoreManagerImpl.h */; };
 		991DC0842475F45400C13860 /* CHIPDeviceController.h in Headers */ = {isa = PBXBuildFile; fileRef = 991DC0822475F45400C13860 /* CHIPDeviceController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		991DC0892475F47D00C13860 /* CHIPDeviceController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 991DC0872475F47D00C13860 /* CHIPDeviceController.mm */; };
 		991DC08B247704DC00C13860 /* CHIPLogging.h in Headers */ = {isa = PBXBuildFile; fileRef = 991DC08A247704DC00C13860 /* CHIPLogging.h */; };
@@ -99,6 +101,8 @@
 		2CB71638252E8A7B0026E2BB /* CHIPDevicePairingDelegateBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHIPDevicePairingDelegateBridge.h; sourceTree = "<group>"; };
 		2CB71639252E8A7B0026E2BB /* CHIPDevicePairingDelegateBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CHIPDevicePairingDelegateBridge.mm; sourceTree = "<group>"; };
 		2CB7163E252F731E0026E2BB /* CHIPDevicePairingDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHIPDevicePairingDelegate.h; sourceTree = "<group>"; };
+		759CAAFE260D2FA100F9ED4F /* KeyValueStoreManagerImpl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = KeyValueStoreManagerImpl.mm; path = ../../../platform/Darwin/KeyValueStoreManagerImpl.mm; sourceTree = "<group>"; };
+		759CAAFF260D2FA100F9ED4F /* KeyValueStoreManagerImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeyValueStoreManagerImpl.h; path = ../../../platform/Darwin/KeyValueStoreManagerImpl.h; sourceTree = "<group>"; };
 		991DC0822475F45400C13860 /* CHIPDeviceController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CHIPDeviceController.h; sourceTree = "<group>"; };
 		991DC0872475F47D00C13860 /* CHIPDeviceController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CHIPDeviceController.mm; sourceTree = "<group>"; };
 		991DC08A247704DC00C13860 /* CHIPLogging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CHIPLogging.h; sourceTree = "<group>"; };
@@ -201,6 +205,8 @@
 		B202528F2459E34F00F97062 /* CHIP */ = {
 			isa = PBXGroup;
 			children = (
+				759CAAFF260D2FA100F9ED4F /* KeyValueStoreManagerImpl.h */,
+				759CAAFE260D2FA100F9ED4F /* KeyValueStoreManagerImpl.mm */,
 				1EC4CE5825CC26AB00D7304F /* CHIPGeneratedFiles */,
 				1EC4CE3525CC259700D7304F /* CHIPApp */,
 				2C222ADE255C811800E446B9 /* CHIPDevice_Internal.h */,
@@ -262,6 +268,7 @@
 				B2E0D7B1245B0B5C003C5B48 /* CHIP.h in Headers */,
 				B2E0D7B8245B0B5C003C5B48 /* CHIPSetupPayload.h in Headers */,
 				2C8C8FC1253E0C2100797F05 /* CHIPPersistentStorageDelegate.h in Headers */,
+				759CAB01260D2FA100F9ED4F /* KeyValueStoreManagerImpl.h in Headers */,
 				B2E0D7B5245B0B5C003C5B48 /* CHIPQRCodeSetupPayloadParser.h in Headers */,
 				1EC4CE6425CC276600D7304F /* CHIPClustersObjc.h in Headers */,
 				2C8C8FC0253E0C2100797F05 /* CHIPPersistentStorageDelegateBridge.h in Headers */,
@@ -412,6 +419,7 @@
 				1EC4CE5D25CC26E900D7304F /* CHIPClustersObjc.mm in Sources */,
 				B2E0D7B3245B0B5C003C5B48 /* CHIPError.mm in Sources */,
 				1EC4CE5E25CC26E900D7304F /* call-command-handler.cpp in Sources */,
+				759CAB00260D2FA100F9ED4F /* KeyValueStoreManagerImpl.mm in Sources */,
 				1EC4CE3B25CC263E00D7304F /* reporting-default-configuration.cpp in Sources */,
 				1EC4CE4F25CC267700D7304F /* process-cluster-message.cpp in Sources */,
 				1EC4CE3D25CC265200D7304F /* DataModelHandler.cpp in Sources */,

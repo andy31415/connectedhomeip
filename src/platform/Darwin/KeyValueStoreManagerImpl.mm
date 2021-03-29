@@ -25,35 +25,173 @@
 
 #include <support/CodeUtils.h>
 
+#import <CoreData/CoreData.h>
+#import <CoreFoundation/CoreFoundation.h>
+
+@interface KeyValueItem : NSManagedObject
+
+@property (nonatomic, retain) NSString * key;
+@property (nonatomic, retain) NSData * value;
+
+@end
+
+@implementation KeyValueItem
+
+@synthesize key;
+@synthesize value;
+
+-(instancetype)initWithContext: (nonnull NSManagedObjectContext *)context  key:(nonnull NSString *)key_ value:(nonnull NSData *)value_ {
+    if (self = [super initWithContext: context]) {
+      key = key_;
+      value = value_;
+    }
+    return self;
+}
+
+@end
+
 namespace chip {
 namespace DeviceLayer {
-namespace PersistedStorage {
+    namespace PersistedStorage {
+        namespace {
 
-KeyValueStoreManagerImpl KeyValueStoreManagerImpl::sInstance;
+            NSManagedObjectContext * gContext = nullptr;
 
-CHIP_ERROR KeyValueStoreManagerImpl::Init(const char *fileName){
-    return CHIP_NO_ERROR;
-}
+            NSManagedObjectModel * CreateManagedObjectModel()
+            {
+                NSManagedObjectModel * model = [[NSManagedObjectModel alloc] init];
 
-CHIP_ERROR KeyValueStoreManagerImpl::_Get(const char * key, void * value, size_t value_size, size_t * read_bytes_size, size_t offset)
-{
-    ReturnErrorCodeIf(key == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+                // create the entity
+                NSEntityDescription * entity = [[NSEntityDescription alloc] init];
+                [entity setName:@"KeyValue"];
+                [entity setManagedObjectClassName:@"KeyValueItem"];
 
-    return CHIP_ERROR_NOT_IMPLEMENTED;
-}
+                // create the attributes
+                NSMutableArray * properties = [NSMutableArray array];
 
-CHIP_ERROR KeyValueStoreManagerImpl::_Delete(const char * key) {
-    ReturnErrorCodeIf(key == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
-    return CHIP_ERROR_NOT_IMPLEMENTED; 
-}
+                NSAttributeDescription * keyAttribute = [[NSAttributeDescription alloc] init];
+                [keyAttribute setName:@"key"];
+                [keyAttribute setAttributeType:NSStringAttributeType];
+                [keyAttribute setOptional:NO];
+                // [keyAttribute setIndexed:YES];
+                [properties addObject:keyAttribute];
 
-CHIP_ERROR KeyValueStoreManagerImpl::_Put(const char * key, const void * value, size_t value_size) {
-    ReturnErrorCodeIf(key == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
-    ReturnErrorCodeIf(value == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+                NSAttributeDescription * valueAttribute = [[NSAttributeDescription alloc] init];
+                [valueAttribute setName:@"value"];
+                [valueAttribute setAttributeType:NSBinaryDataAttributeType];
+                [valueAttribute setOptional:NO];
+                // [valueAttribute setIndexed:NO];
+                [properties addObject:valueAttribute];
+                
+                NSFetchIndexElementDescription *elementIndex = [[NSFetchIndexElementDescription alloc] initWithProperty: keyAttribute collationType: NSFetchIndexElementTypeBinary];
+                elementIndex.ascending = true;
+                
+                NSFetchIndexDescription *keyIndexDescription = [[NSFetchIndexDescription alloc] initWithName: @"kv_item_key" elements:
+                                                [[NSArray alloc] initWithObjects: elementIndex, nil]];
+                                                
 
-    return CHIP_ERROR_NOT_IMPLEMENTED; 
-}
+                // add attributes to entity
+                [entity setProperties:properties];
+                [entity setIndexes: [[NSArray alloc] initWithObjects: keyIndexDescription, nil]];
 
-} // namespace PersistedStorage
+                // add entity to model
+                [model setEntities:[NSArray arrayWithObject:entity]];
+
+                return model;
+            }
+
+        }
+
+        KeyValueStoreManagerImpl KeyValueStoreManagerImpl::sInstance;
+
+        CHIP_ERROR KeyValueStoreManagerImpl::Init(const char * fileName)
+        {
+            ReturnErrorCodeIf(gContext != nullptr, CHIP_ERROR_INCORRECT_STATE);
+            ReturnErrorCodeIf(fileName == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+
+            // make sure the path is relative
+            while (fileName[0] == '/') {
+                fileName++;
+            }
+            ReturnErrorCodeIf(fileName[0] == '\0', CHIP_ERROR_INVALID_ARGUMENT);
+
+            NSURL * documentsDirectory = [NSFileManager.defaultManager URLForDirectory:NSDocumentDirectory
+                                                                              inDomain:NSUserDomainMask
+                                                                     appropriateForURL:nil
+                                                                                create:YES
+                                                                                 error:nil];
+            if (documentsDirectory == nullptr) {
+                ChipLogError(DeviceLayer, "Failed to get documents directory.");
+                return CHIP_ERROR_INTERNAL;
+            }
+            ChipLogProgress(DeviceLayer, "Found user documents directory: %s", [[documentsDirectory absoluteString] UTF8String]);
+
+            NSURL * url = [NSURL URLWithString:[NSString stringWithUTF8String:fileName] relativeToURL:documentsDirectory];
+            ReturnErrorCodeIf(url == nullptr, CHIP_ERROR_NO_MEMORY);
+
+            ChipLogProgress(DeviceLayer, "KVS will be written to: %s", [[url absoluteString] UTF8String]);
+
+            NSManagedObjectModel * model = CreateManagedObjectModel();
+            ReturnErrorCodeIf(model == nullptr, CHIP_ERROR_NO_MEMORY);
+
+            ChipLogError(DeviceLayer, "MODEL CREATED");
+
+            // setup persistent store coordinator
+
+            NSPersistentStoreCoordinator * coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model];
+
+            NSError *error = nil;
+            if (![coordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:url options:nil error: &error]) {
+                ChipLogError(DeviceLayer, "Invalid store. Attempting to clear: %s", error.localizedDescription.UTF8String);
+                if (![[NSFileManager defaultManager] removeItemAtURL:url error:&error]) {
+                    ChipLogError(DeviceLayer, "Failed to delete item: %s", error.localizedDescription.UTF8String);
+                }
+
+                if (![coordinator addPersistentStoreWithType:NSSQLiteStoreType
+                                               configuration:nil
+                                                         URL:url
+                                                     options:nil
+                                                       error:&error]) {
+                    ChipLogError(DeviceLayer, "Failed to initialize clear KVS storage: %s", error.localizedDescription.UTF8String);
+                    chipDie();
+                }
+            }
+            
+            // create Managed Object context
+            gContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+            [gContext setPersistentStoreCoordinator:coordinator];
+
+            return CHIP_NO_ERROR;
+        }
+
+        CHIP_ERROR KeyValueStoreManagerImpl::_Get(
+            const char * key, void * value, size_t value_size, size_t * read_bytes_size, size_t offset)
+        {
+            ChipLogError(DeviceLayer, "!!! KVS GET: %s", key);
+
+            ReturnErrorCodeIf(key == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+
+            return CHIP_ERROR_NOT_IMPLEMENTED;
+        }
+
+        CHIP_ERROR KeyValueStoreManagerImpl::_Delete(const char * key)
+        {
+            ChipLogError(DeviceLayer, "!!! KVS DELETE: %s", key);
+
+            ReturnErrorCodeIf(key == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+            return CHIP_ERROR_NOT_IMPLEMENTED;
+        }
+
+        CHIP_ERROR KeyValueStoreManagerImpl::_Put(const char * key, const void * value, size_t value_size)
+        {
+            ChipLogError(DeviceLayer, "!!! KVS PUT: %s", key);
+
+            ReturnErrorCodeIf(key == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+            ReturnErrorCodeIf(value == nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+
+            return CHIP_ERROR_NOT_IMPLEMENTED;
+        }
+
+    } // namespace PersistedStorage
 } // namespace DeviceLayer
 } // namespace chip
