@@ -26,8 +26,48 @@
 
 using namespace chip;
 using namespace chip::Dnssd;
+using namespace mdns::Minimal;
 
 namespace {
+
+// Operational names must be <compressed-fabric>-<node>._matter._tcp.local
+constexpr uint8_t kTestOperationalName[] = "\0411234567898765432-ABCDEFEDCBAABCDE\07_matter\04_tcp\05local\00";
+
+void PreloadSrvRecord(nlTestSuite * inSuite, SrvRecord & record)
+{
+    const uint8_t data[] = {
+        0,    12,                       // Priority
+        0,    3,                        // weight
+        0x12, 0x34,                     // port
+        4,    's',  'o', 'm', 'e',      // QNAME part: some
+        4,    't',  'e', 's', 't',      // QNAME part: test
+        5,    'l',  'o', 'c', 'a', 'l', // QNAME part: local
+        0,                              // QNAME ends
+    };
+
+    BytesRange packet(data, data + sizeof(data));
+    BytesRange srv_data(data, data + sizeof(data));
+
+    NL_TEST_ASSERT(inSuite, record.Parse(srv_data, packet));
+}
+
+/// Convenience method to have a  serialized QName:
+///
+/// static const uint8_t kData[] = "datahere\00";
+///  AsSerializedQName(kData);
+///
+/// NOTE: this MUST be using the string "" format to add an extra NULL
+/// terminator that this method discards.
+template <size_t N>
+static SerializedQNameIterator AsSerializedQName(const uint8_t (&v)[N])
+{
+    // NOTE: the -1 is because we format these items as STRINGS and that
+    // appends an extra NULL terminator
+    return SerializedQNameIterator(BytesRange(v, v + N - 1), v);
+}
+
+// TODO: serializedqnameparsing
+// TODO: SRV
 
 void TestCreation(nlTestSuite * inSuite, void * inContext)
 {
@@ -38,9 +78,26 @@ void TestCreation(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, !resolver.IsActiveOperationalParse());
 }
 
+void TestStartOperational(nlTestSuite * inSuite, void * inContext)
+{
+    IncrementalResolver resolver;
+
+    NL_TEST_ASSERT(inSuite, !resolver.IsActive());
+
+    SrvRecord srvRecord;
+    PreloadSrvRecord(inSuite, srvRecord);
+
+    NL_TEST_ASSERT(inSuite, resolver.InitializeParsing(AsSerializedQName(kTestOperationalName), srvRecord) == CHIP_NO_ERROR);
+
+    NL_TEST_ASSERT(inSuite, !resolver.IsActiveCommissionParse());
+    NL_TEST_ASSERT(inSuite, resolver.IsActive());
+    NL_TEST_ASSERT(inSuite, resolver.IsActiveOperationalParse());
+}
+
 const nlTest sTests[] = {
-    NL_TEST_DEF("Creation", TestCreation), //
-    NL_TEST_SENTINEL()                     //
+    NL_TEST_DEF("Creation", TestCreation),                 //
+    NL_TEST_DEF("StartOperational", TestStartOperational), //
+    NL_TEST_SENTINEL()                                     //
 };
 
 } // namespace

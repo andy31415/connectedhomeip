@@ -45,7 +45,7 @@ public:
     bool IsActive() const { return mSpecificResolutionData.Valid(); }
 
     bool IsActiveCommissionParse() const { return mSpecificResolutionData.Is<CommissionNodeData>(); }
-    bool IsActiveOperationalParse() const { return mSpecificResolutionData.Is<CommissionNodeData>(); }
+    bool IsActiveOperationalParse() const { return mSpecificResolutionData.Is<OperationalNodeData>(); }
 
     /// Start parsing a new record. SRV records are the records CHIP is mainly
     /// interested on, after which TXT and A/AAAA are looked for.
@@ -80,9 +80,10 @@ private:
     /// addresses.
     CHIP_ERROR OnIpAddress(mdns::Minimal::SerializedQNameIterator name, const Inet::IPAddress & addr);
 
-    bool mIsActive = false;
+    using SpecificParseData = Variant<OperationalNodeData, CommissionNodeData>;
+
     CommonResolutionData mCommonResolutionData;
-    Variant<OperationalNodeData, CommissionNodeData> mSpecificResolutionData;
+    SpecificParseData mSpecificResolutionData;
 };
 
 } // namespace Dnssd
