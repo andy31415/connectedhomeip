@@ -21,7 +21,6 @@
 #include <limits>
 #include <utility>
 
-#include "lib/support/logging/CHIPLogging.h"
 #include <inet/IPAddress.h>
 #include <inet/InetInterface.h>
 #include <inet/UDPEndPoint.h>
@@ -30,6 +29,7 @@
 #include <lib/core/PeerId.h>
 #include <lib/dnssd/Constants.h>
 #include <lib/support/BytesToHex.h>
+#include <lib/support/logging/CHIPLogging.h>
 #include <messaging/ReliableMessageProtocolConfig.h>
 
 namespace chip {
@@ -43,8 +43,8 @@ struct CommonResolutionData
 
     Inet::InterfaceId interfaceId;
 
-    size_t numIPs = 0; // number of valid IP addresses
-    Inet::IPAddress ipAddress[kMaxIPAddresses];
+    size_t numIPs                              = 0; // number of valid IP addresses
+    Inet::IPAddress ipAddress[kMaxIPAddresses] = {};
 
     uint16_t port                         = 0;
     char hostName[kHostNameMaxLength + 1] = {};
@@ -52,7 +52,7 @@ struct CommonResolutionData
     Optional<System::Clock::Milliseconds32> mrpRetryIntervalIdle;
     Optional<System::Clock::Milliseconds32> mrpRetryIntervalActive;
 
-    CommonResolutionData() { Reset(); }
+    CommonResolutionData() {}
 
     bool IsValid() const { return !IsHost("") && (numIPs > 0) && (ipAddress[0] != chip::Inet::IPAddress::Any); }
 
@@ -144,25 +144,26 @@ constexpr size_t kMaxPairingInstructionLen = 128;
 /// Data that is specific to commisionable/commissioning node discovery
 struct CommissionNodeData
 {
-    char instanceName[Commission::kInstanceNameMaxLength + 1];
-    uint16_t longDiscriminator;
-    uint16_t vendorId;
-    uint16_t productId;
-    uint8_t commissioningMode;
+    char instanceName[Commission::kInstanceNameMaxLength + 1] = {};
+    uint16_t longDiscriminator                                = 0;
+    uint16_t vendorId                                         = 0;
+    uint16_t productId                                        = 0;
+    uint8_t commissioningMode                                 = 0;
     // TODO: possibly 32-bit - see spec issue #3226
-    uint16_t deviceType;
-    char deviceName[kMaxDeviceNameLen + 1];
-    uint8_t rotatingId[kMaxRotatingIdLen];
-    size_t rotatingIdLen;
-    uint16_t pairingHint;
-    char pairingInstruction[kMaxPairingInstructionLen + 1];
+    uint16_t deviceType                                    = 0;
+    char deviceName[kMaxDeviceNameLen + 1]                 = {};
+    uint8_t rotatingId[kMaxRotatingIdLen]                  = {};
+    size_t rotatingIdLen                                   = 0;
+    uint16_t pairingHint                                   = 0;
+    char pairingInstruction[kMaxPairingInstructionLen + 1] = {};
+
+    CommissionNodeData() {}
 
     void Reset()
     {
         // NOTE that this assumes 0-fill is ok for this class
         memset(this, 0, sizeof(*this));
     }
-    CommissionNodeData() { Reset(); }
 
     bool IsInstanceName(const char * instance) const { return strcmp(instance, instanceName) == 0; }
 
