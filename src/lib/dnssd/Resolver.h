@@ -85,9 +85,9 @@ struct CommonResolutionData
         port                   = 0;
         supportsTcp            = false;
         interfaceId            = Inet::InterfaceId::Null();
-        for (unsigned i = 0; i < kMaxIPAddresses; ++i)
+        for (auto & addr : ipAddress)
         {
-            ipAddress[i] = chip::Inet::IPAddress::Any;
+            addr = chip::Inet::IPAddress::Any;
         }
     }
 
@@ -103,7 +103,6 @@ struct CommonResolutionData
             char buf[Inet::IPAddress::kMaxStringLength];
             char * ipAddressOut = ipAddress[j].ToString(buf);
             ChipLogDetail(Discovery, "\tIP Address #%d: %s", j + 1, ipAddressOut);
-            (void) ipAddressOut;
         }
 #endif // CHIP_DETAIL_LOGGING
         if (port > 0)
@@ -161,8 +160,9 @@ struct CommissionNodeData
 
     void Reset()
     {
-        // NOTE that this assumes 0-fill is ok for this class
-        memset(this, 0, sizeof(*this));
+        // Let constructor clear things as default
+        this->~CommissionNodeData();
+        new (this) CommissionNodeData();
     }
 
     bool IsInstanceName(const char * instance) const { return strcmp(instance, instanceName) == 0; }
@@ -220,7 +220,7 @@ struct ResolvedNodeData
     {
 #if CHIP_PROGRESS_LOGGING
         // Would be nice to log the interface id, but sorting out how to do so
-        // across our differnet InterfaceId implementations is a pain.
+        // across our different InterfaceId implementations is a pain.
         ChipLogProgress(Discovery, "Node ID resolved for " ChipLogFormatX64 ":" ChipLogFormatX64,
                         ChipLogValueX64(operationalData.peerId.GetCompressedFabricId()),
                         ChipLogValueX64(operationalData.peerId.GetNodeId()));
