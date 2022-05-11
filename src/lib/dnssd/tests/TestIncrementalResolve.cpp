@@ -191,6 +191,79 @@ void TestStartCommissioner(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, resolver.GetServerName() == AsSerializedQName(kTestServerName));
 }
 
+void TestParseOperational(nlTestSuite * inSuite, void * inContext)
+{
+    IncrementalResolver resolver;
+
+    NL_TEST_ASSERT(inSuite, !resolver.IsActive());
+
+    SrvRecord srvRecord;
+    PreloadSrvRecord(inSuite, srvRecord);
+
+    NL_TEST_ASSERT(inSuite, resolver.InitializeParsing(AsSerializedQName(kTestOperationalName), srvRecord) == CHIP_NO_ERROR);
+
+    // once initialized, parsing should be ready however no IP address is available
+    NL_TEST_ASSERT(inSuite, resolver.IsActiveOperationalParse());
+    NL_TEST_ASSERT(inSuite, resolver.GetRequiredInformation().HasOnly(IncrementalResolver::RequiredInformation::kIpAddress));
+    NL_TEST_ASSERT(inSuite, resolver.GetServerName() == AsSerializedQName(kTestServerName));
+
+    // Send an irellevant IP address here
+    {
+        const uint8_t packetAAAA[] = {                                   //
+                                       4,    'x',  'y',  'x',  't',      // QNAME part: xyzt
+                                       5,    'l',  'o',  'c',  'a', 'l', // QNAME part: local
+                                       0,                                // QNAME ends
+                                       0,    28,                         // QType AAAA
+                                       0,    1,                          // QClass IN
+                                       0x12, 0x34, 0x56, 0x78,           // TTL
+                                       0,    16,                         // data size - size for IPv4
+                                       0xfe, 0x80, 0x00, 0x00,           // IPv6
+                                       0x00, 0x00, 0x00, 0x00,           //
+                                       0x02, 0x24, 0x32, 0xff,           //
+                                       0xfe, 0x19, 0x35, 0x9b
+        };
+        BytesRange packet(packetAAAA, packetAAAA + sizeof(packetAAAA));
+        BytesRange aaaa_data(packetAAAA, packetAAAA + sizeof(packetAAAA));
+
+        ResourceData data;
+        const uint8_t * ptr = packetAAAA;
+        NL_TEST_ASSERT(inSuite, data.Parse(aaaa_data, &ptr));
+
+        // Parsing irellevant IP does not take effect
+        NL_TEST_ASSERT(inSuite, resolver.OnRecord(data, packet) == CHIP_NO_ERROR);
+        NL_TEST_ASSERT(inSuite, resolver.GetRequiredInformation().HasOnly(IncrementalResolver::RequiredInformation::kIpAddress));
+    }
+
+    // Send a useful IP address here
+    {
+        const uint8_t packetAAAA[] = {                                   //
+                                       4,    'a',  'b',  'c',  'd',      // QNAME part: abcd
+                                       5,    'l',  'o',  'c',  'a', 'l', // QNAME part: local
+                                       0,                                // QNAME ends
+                                       0,    28,                         // QType AAAA
+                                       0,    1,                          // QClass IN
+                                       0x12, 0x34, 0x56, 0x78,           // TTL
+                                       0,    16,                         // data size - size for IPv4
+                                       0xfe, 0x80, 0x00, 0x00,           // IPv6
+                                       0x00, 0x00, 0x00, 0x00,           //
+                                       0x02, 0x24, 0x32, 0xff,           //
+                                       0xfe, 0x19, 0x35, 0x9b
+        };
+        BytesRange packet(packetAAAA, packetAAAA + sizeof(packetAAAA));
+        BytesRange aaaa_data(packetAAAA, packetAAAA + sizeof(packetAAAA));
+
+        ResourceData data;
+        const uint8_t * ptr = packetAAAA;
+        NL_TEST_ASSERT(inSuite, data.Parse(aaaa_data, &ptr));
+
+        // Parsing valid data makes requirement for IP addresses go away
+        NL_TEST_ASSERT(inSuite, resolver.OnRecord(data, packet) == CHIP_NO_ERROR);
+        NL_TEST_ASSERT(inSuite, !resolver.GetRequiredInformation().HasAny());
+    }
+
+    // at this point taking value shoul work
+}
+
 const nlTest sTests[] = {
     // Tests for helper class
     NL_TEST_DEF("StoredServerName", TestStoredServerName), //
@@ -200,6 +273,7 @@ const nlTest sTests[] = {
     NL_TEST_DEF("StartOperational", TestStartOperational),       //
     NL_TEST_DEF("StartCommissionable", TestStartCommissionable), //
     NL_TEST_DEF("StartCommissioner", TestStartCommissioner),     //
+    NL_TEST_DEF("ParseOperational", TestParseOperational),       //
     NL_TEST_SENTINEL()                                           //
 };
 

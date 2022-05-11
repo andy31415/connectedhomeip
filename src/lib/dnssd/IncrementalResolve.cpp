@@ -223,7 +223,7 @@ CHIP_ERROR IncrementalResolver::OnRecord(const ResourceData & data, BytesRange p
         }
         return OnTxtRecord(data, packetRange);
     case QType::A: {
-        if (data.GetName() != mRecordName.Get())
+        if (data.GetName() != mServerName.Get())
         {
             ChipLogDetail(Discovery, "IP address received for a different host name.");
             return CHIP_NO_ERROR;
@@ -238,7 +238,7 @@ CHIP_ERROR IncrementalResolver::OnRecord(const ResourceData & data, BytesRange p
         return OnIpAddress(addr);
     }
     case QType::AAAA: {
-        if (data.GetName() != mRecordName.Get())
+        if (data.GetName() != mServerName.Get())
         {
             ChipLogDetail(Discovery, "IP address received for a different host name.");
             return CHIP_NO_ERROR;
