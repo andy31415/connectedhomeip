@@ -332,10 +332,11 @@ void TestParseOperational(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, !resolver.IsActive());
 
     // validate data as it was passed in
-    NL_TEST_ASSERT(inSuite, nodeData.resolutionData.numIPs == 1);
     NL_TEST_ASSERT(inSuite,
                    nodeData.operationalData.peerId ==
                        PeerId().SetCompressedFabricId(0x1234567898765432LL).SetNodeId(0xABCDEFEDCBAABCDELL));
+    NL_TEST_ASSERT(inSuite, nodeData.resolutionData.numIPs == 1);
+    NL_TEST_ASSERT(inSuite, nodeData.resolutionData.port == 0x1234);
     NL_TEST_ASSERT(inSuite, !nodeData.resolutionData.supportsTcp);
     NL_TEST_ASSERT(inSuite, !nodeData.resolutionData.GetMrpRetryIntervalActive().HasValue());
     NL_TEST_ASSERT(inSuite, nodeData.resolutionData.GetMrpRetryIntervalIdle().HasValue());
