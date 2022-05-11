@@ -73,6 +73,56 @@ static SerializedQNameIterator AsSerializedQName(const uint8_t (&v)[N])
     return SerializedQNameIterator(BytesRange(v, v + N - 1), v);
 }
 
+void TestStoredServerName(nlTestSuite * inSuite, void * inContext)
+{
+
+    StoredServerName name;
+
+    // name should start of as cleared
+    NL_TEST_ASSERT(inSuite, !name.Get().Next());
+
+    // Data should be storable in server name
+    NL_TEST_ASSERT(inSuite, name.Set(AsSerializedQName(kTestOperationalName)) == CHIP_NO_ERROR);
+    NL_TEST_ASSERT(inSuite, name.Get() == AsSerializedQName(kTestOperationalName));
+    NL_TEST_ASSERT(inSuite, name.Get() != AsSerializedQName(kTestCommissionerNode));
+    NL_TEST_ASSERT(inSuite, name.Get() != AsSerializedQName(kTestCommissionableNode));
+
+    NL_TEST_ASSERT(inSuite, name.Set(AsSerializedQName(kTestCommissionerNode)) == CHIP_NO_ERROR);
+    NL_TEST_ASSERT(inSuite, name.Get() != AsSerializedQName(kTestOperationalName));
+    NL_TEST_ASSERT(inSuite, name.Get() == AsSerializedQName(kTestCommissionerNode));
+    NL_TEST_ASSERT(inSuite, name.Get() != AsSerializedQName(kTestCommissionableNode));
+
+    NL_TEST_ASSERT(inSuite, name.Set(AsSerializedQName(kTestCommissionableNode)) == CHIP_NO_ERROR);
+    NL_TEST_ASSERT(inSuite, name.Get() != AsSerializedQName(kTestOperationalName));
+    NL_TEST_ASSERT(inSuite, name.Get() != AsSerializedQName(kTestCommissionerNode));
+    NL_TEST_ASSERT(inSuite, name.Get() == AsSerializedQName(kTestCommissionableNode));
+
+    {
+        // setting to a too long value should reset it
+        uint8_t largeBuffer[256];
+        for (unsigned i = 0; i < 20; i++)
+        {
+            memcpy(largeBuffer + i * 8, "\07abcd123", 8);
+            largeBuffer[(i + 1) * 8] = 0;
+
+            // Up to 64 bytes supported to copy
+            if (i < 7)
+            {
+                NL_TEST_ASSERT_LOOP(inSuite, i, name.Set(AsSerializedQName(largeBuffer)) == CHIP_NO_ERROR);
+                NL_TEST_ASSERT_LOOP(inSuite, i, name.Get() == AsSerializedQName(largeBuffer));
+                NL_TEST_ASSERT_LOOP(inSuite, i, name.Get() != AsSerializedQName(kTestOperationalName));
+            }
+            else
+            {
+                NL_TEST_ASSERT_LOOP(inSuite, i, name.Set(AsSerializedQName(largeBuffer)) == CHIP_ERROR_NO_MEMORY);
+                NL_TEST_ASSERT_LOOP(inSuite, i, !name.Get().Next());
+            }
+        }
+        NL_TEST_ASSERT(inSuite, name.Set(AsSerializedQName(largeBuffer)) == CHIP_ERROR_NO_MEMORY);
+        NL_TEST_ASSERT(inSuite, !name.Get().Next());
+    }
+}
+
 void TestCreation(nlTestSuite * inSuite, void * inContext)
 {
     IncrementalResolver resolver;
@@ -136,6 +186,10 @@ void TestStartCommissioner(nlTestSuite * inSuite, void * inContext)
 }
 
 const nlTest sTests[] = {
+    // Tests for helper class
+    NL_TEST_DEF("StoredServerName", TestStoredServerName), //
+
+    // Actual resolver tests
     NL_TEST_DEF("Creation", TestCreation),                       //
     NL_TEST_DEF("StartOperational", TestStartOperational),       //
     NL_TEST_DEF("StartCommissionable", TestStartCommissionable), //
