@@ -96,12 +96,16 @@ public:
     /// interested on, after which TXT and A/AAAA are looked for.
     CHIP_ERROR InitializeParsing(mdns::Minimal::SerializedQNameIterator name, const mdns::Minimal::SrvRecord & srv);
 
-    /// Notify that a new record is being processed
-    /// Will handle filtering and processing of data to determine
-    /// if the entry is relevant for the current resolver.
+    /// Notify that a new record is being processed.
+    /// Will handle filtering and processing of data to determine if the entry is relevant for
+    /// the current resolver.
+    ///
+    /// Providing a data that is not relevant to the current parser is not considered and error,
+    /// however if the resource fails parsing completely an error will be returned.
     ///
     /// [data] represents the record and [packetRange] represents the range of valid bytes within
     /// the packet for the purpose of QName parsing
+
     CHIP_ERROR OnRecord(const mdns::Minimal::ResourceData & data, mdns::Minimal::BytesRange packetRange);
 
     /// Return what additional data is required until the object can be extracted
