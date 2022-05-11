@@ -41,7 +41,9 @@ constexpr uint8_t kTestCommissionerNode[] = "\020C5038835313B8B98\10_matterd\04_
 
 void PreloadSrvRecord(nlTestSuite * inSuite, SrvRecord & record)
 {
-    const uint8_t data[] = {
+    // NOTE: record pointers persist beyond  this function, so
+    // this data MUST be static
+    static const uint8_t data[] = {
         0,    12,                       // Priority
         0,    3,                        // weight
         0x12, 0x34,                     // port

@@ -26,6 +26,42 @@
 namespace chip {
 namespace Dnssd {
 
+/// Allows storing and retrieving of a SerializedQName for later recall.
+///
+/// This is a convenience storage as MDNS generally provides data as QNames
+/// and comparisons between QNames is more convenient than replacing them with
+/// null-terminated character strings.
+class StoredServerName
+{
+public:
+    StoredServerName() {}
+
+    void Clear() { memset(mBuffer, 0, sizeof(mBuffer)); }
+
+    /// Set the underlying value. Will return CHIP_ERROR_NO_MEMORY
+    /// on insufficient storage space.
+    ///
+    /// If insufficient space, buffer will be cleared.
+    CHIP_ERROR Set(mdns::Minimal::SerializedQNameIterator value);
+
+    /// Return the underlying value in this object.
+    ///
+    /// Value valid as long as this object is valid and underlying Set() is
+    /// not called.
+    mdns::Minimal::SerializedQNameIterator Get() const;
+
+private:
+    // kHostNameMaxLength
+
+    // Try to have space for at least:
+    //  L1234._sub._matterc._udp.local       => 30 chars
+    //  <fabric>-<node>._mattrer._tcp.local  => 52 chars
+    //  <hostname>.local (where hostname is kHostNameMaxLength == 16)
+    static constexpr size_t kMaxStoredServerNameLength = 64;
+
+    uint8_t mBuffer[kMaxStoredServerNameLength] = {};
+};
+
 /// Incrementally accumulates data from DNSSD packets. It is generally geared
 /// towards processing minmdns records.
 ///

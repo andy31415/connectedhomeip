@@ -1,5 +1,7 @@
 #include <lib/dnssd/IncrementalResolve.h>
+
 #include <lib/dnssd/ServiceNaming.h>
+#include <lib/dnssd/minimal_mdns/core/RecordWriter.h>
 #include <lib/support/CHIPMemString.h>
 
 namespace chip {
@@ -74,6 +76,27 @@ bool IsCommissionSubtype(SerializedQNameIterator name)
 }
 
 } // namespace
+
+CHIP_ERROR StoredServerName::Set(SerializedQNameIterator value)
+{
+    chip::Encoding::BigEndian::BufferWriter output(mBuffer, sizeof(mBuffer));
+    RecordWriter writer(&output);
+
+    writer.WriteQName(value);
+
+    if (!writer.Fit())
+    {
+        Clear();
+        return CHIP_ERROR_NO_MEMORY;
+    }
+
+    return CHIP_NO_ERROR;
+}
+
+SerializedQNameIterator StoredServerName::Get() const
+{
+    return SerializedQNameIterator(BytesRange(mBuffer, mBuffer + sizeof(mBuffer)), mBuffer);
+}
 
 CHIP_ERROR IncrementalResolver::InitializeParsing(mdns::Minimal::SerializedQNameIterator name, const mdns::Minimal::SrvRecord & srv)
 {
