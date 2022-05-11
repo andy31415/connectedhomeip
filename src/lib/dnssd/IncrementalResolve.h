@@ -134,12 +134,9 @@ private:
     /// Prerequisite: IP address belongs to the right nost name
     CHIP_ERROR OnIpAddress(const Inet::IPAddress & addr);
 
-    /// Check if the given name is the server host name that we are looking for
-    /// addresses for.
-    bool IsSrvHostName(mdns::Minimal::SerializedQNameIterator name);
-
     using SpecificParseData = Variant<OperationalNodeData, CommissionNodeData>;
 
+    StoredServerName mServerName;
     CommonResolutionData mCommonResolutionData;
     SpecificParseData mSpecificResolutionData;
 };

@@ -100,6 +100,24 @@ SerializedQNameIterator StoredServerName::Get() const
 
 CHIP_ERROR IncrementalResolver::InitializeParsing(mdns::Minimal::SerializedQNameIterator name, const mdns::Minimal::SrvRecord & srv)
 {
+    mSpecificResolutionData = SpecificParseData();
+
+    ReturnErrorOnFailure(mServerName.Set(name));
+    mCommonResolutionData.port = srv.GetPort();
+
+    {
+        // TODO: Chip code historically seems to assume that the host name is of the
+        // form "<MAC or 802.15.4 Extended Address in hex>.local" and only saves the first part.
+        //
+        // This should not be needed as server name should not be relevant once parsed.
+        SerializedQNameIterator serverName = srv.GetName();
+
+        VerifyOrReturnError(serverName.Next() && serverName.IsValid(), CHIP_ERROR_INVALID_ARGUMENT);
+
+        // only save the first part: the MAC or 802.15.4 Extended Address in hex
+        Platform::CopyString(mCommonResolutionData.hostName, serverName.Value());
+    }
+
     switch (ComputeServiceNameType(name))
     {
     case ServiceNameType::kOperational:
@@ -131,25 +149,6 @@ CHIP_ERROR IncrementalResolver::InitializeParsing(mdns::Minimal::SerializedQName
         return CHIP_ERROR_INVALID_ARGUMENT;
     }
 
-    mCommonResolutionData.port = srv.GetPort();
-
-    //
-    SerializedQNameIterator serverName = srv.GetName();
-
-    // TODO: Chip code historically seems to assume that the host name is of the
-    // form "<MAC or 802.15.4 Extended Address in hex>.local" and only saves the first part.
-    //
-    // This may not be true in the general case, however it does save some storage
-    // space by only considering the prefix as the distinguishing server name
-    if (!serverName.Next() || !serverName.IsValid())
-    {
-        mSpecificResolutionData = SpecificParseData();
-        return CHIP_ERROR_INVALID_ARGUMENT;
-    }
-
-    // only save the first part: the MAC or 802.15.4 Extended Address in hex
-    Platform::CopyString(mCommonResolutionData.hostName, serverName.Value());
-
     return CHIP_NO_ERROR;
 }
 
@@ -172,12 +171,6 @@ IncrementalResolver::RequiredInformationFlags IncrementalResolver::GetRequiredIn
     return flags;
 }
 
-bool IncrementalResolver::IsSrvHostName(SerializedQNameIterator name)
-{
-    // FIXME: implement
-    return true;
-}
-
 CHIP_ERROR IncrementalResolver::OnRecord(const ResourceData & data, BytesRange packetRange)
 {
     if (!IsActive())
@@ -189,14 +182,17 @@ CHIP_ERROR IncrementalResolver::OnRecord(const ResourceData & data, BytesRange p
     {
     case QType::PTR:
         return OnPtrRecord(data, packetRange);
-    case QType::TXT: {
-        // TODO: find if this packet belongs to the current server
-        break;
-    }
-    case QType::A: {
-        if (!IsSrvHostName(data.GetName()))
+    case QType::TXT:
+        if (data.GetName() != mServerName.Get())
         {
-            ChipLogDetail(Discovery, "IP address received for different host name.");
+            ChipLogDetail(Discovery, "TXT record received for a different host name.");
+            return CHIP_NO_ERROR;
+        }
+        return OnTxtRecord(data, packetRange);
+    case QType::A: {
+        if (data.GetName() != mServerName.Get())
+        {
+            ChipLogDetail(Discovery, "IP address received for a different host name.");
             return CHIP_NO_ERROR;
         }
 
@@ -209,9 +205,9 @@ CHIP_ERROR IncrementalResolver::OnRecord(const ResourceData & data, BytesRange p
         return OnIpAddress(addr);
     }
     case QType::AAAA: {
-        if (!IsSrvHostName(data.GetName()))
+        if (data.GetName() != mServerName.Get())
         {
-            ChipLogDetail(Discovery, "IP address received for different host name.");
+            ChipLogDetail(Discovery, "IP address received for a different host name.");
             return CHIP_NO_ERROR;
         }
 
@@ -260,12 +256,18 @@ CHIP_ERROR IncrementalResolver::OnPtrRecord(const ResourceData & data, BytesRang
         return CHIP_ERROR_INVALID_ARGUMENT;
     }
 
+    if (qname != mServerName.Get())
+    {
+        ChipLogDetail(Discovery, "PTR record that is not pointing to the current commission server.");
+        return CHIP_NO_ERROR;
+    }
+
     // TODO: why are we not validating the string here? what is the purpose
     // of copying and preserving the instance name here?
     Platform::CopyString(mSpecificResolutionData.Get<CommissionNodeData>().instanceName, qname.Value());
 
-    // TODO:
-    //    - can we attach sub data information to the packet? Is it parseable?
+    // TODO: nothing is done with the sub name here. The instance name could be
+    //       fetched from the SRV record, so why are we processing PTR records?
 
     return CHIP_NO_ERROR;
 }
