@@ -33,6 +33,12 @@ namespace {
 // Operational names must be <compressed-fabric>-<node>._matter._tcp.local
 constexpr uint8_t kTestOperationalName[] = "\0411234567898765432-ABCDEFEDCBAABCDE\07_matter\04_tcp\05local\00";
 
+// Commissionable names must be <instance>._matterc._udp.local
+constexpr uint8_t kTestCommissionableNode[] = "\020C5038835313B8B98\10_matterc\04_udp\05local\00";
+
+// Commissioner names must be <instance>._matterd._udp.local
+constexpr uint8_t kTestCommissionerNode[] = "\020C5038835313B8B98\10_matterd\04_udp\05local\00";
+
 void PreloadSrvRecord(nlTestSuite * inSuite, SrvRecord & record)
 {
     const uint8_t data[] = {
@@ -89,15 +95,49 @@ void TestStartOperational(nlTestSuite * inSuite, void * inContext)
 
     NL_TEST_ASSERT(inSuite, resolver.InitializeParsing(AsSerializedQName(kTestOperationalName), srvRecord) == CHIP_NO_ERROR);
 
-    NL_TEST_ASSERT(inSuite, !resolver.IsActiveCommissionParse());
     NL_TEST_ASSERT(inSuite, resolver.IsActive());
+    NL_TEST_ASSERT(inSuite, !resolver.IsActiveCommissionParse());
     NL_TEST_ASSERT(inSuite, resolver.IsActiveOperationalParse());
 }
 
+void TestStartCommissionable(nlTestSuite * inSuite, void * inContext)
+{
+    IncrementalResolver resolver;
+
+    NL_TEST_ASSERT(inSuite, !resolver.IsActive());
+
+    SrvRecord srvRecord;
+    PreloadSrvRecord(inSuite, srvRecord);
+
+    NL_TEST_ASSERT(inSuite, resolver.InitializeParsing(AsSerializedQName(kTestCommissionableNode), srvRecord) == CHIP_NO_ERROR);
+
+    NL_TEST_ASSERT(inSuite, resolver.IsActive());
+    NL_TEST_ASSERT(inSuite, resolver.IsActiveCommissionParse());
+    NL_TEST_ASSERT(inSuite, !resolver.IsActiveOperationalParse());
+}
+
+void TestStartCommissioner(nlTestSuite * inSuite, void * inContext)
+{
+    IncrementalResolver resolver;
+
+    NL_TEST_ASSERT(inSuite, !resolver.IsActive());
+
+    SrvRecord srvRecord;
+    PreloadSrvRecord(inSuite, srvRecord);
+
+    NL_TEST_ASSERT(inSuite, resolver.InitializeParsing(AsSerializedQName(kTestCommissionerNode), srvRecord) == CHIP_NO_ERROR);
+
+    NL_TEST_ASSERT(inSuite, resolver.IsActive());
+    NL_TEST_ASSERT(inSuite, resolver.IsActiveCommissionParse());
+    NL_TEST_ASSERT(inSuite, !resolver.IsActiveOperationalParse());
+}
+
 const nlTest sTests[] = {
-    NL_TEST_DEF("Creation", TestCreation),                 //
-    NL_TEST_DEF("StartOperational", TestStartOperational), //
-    NL_TEST_SENTINEL()                                     //
+    NL_TEST_DEF("Creation", TestCreation),                       //
+    NL_TEST_DEF("StartOperational", TestStartOperational),       //
+    NL_TEST_DEF("StartCommissionable", TestStartCommissionable), //
+    NL_TEST_DEF("StartCommissioner", TestStartCommissioner),     //
+    NL_TEST_SENTINEL()                                           //
 };
 
 } // namespace
