@@ -269,6 +269,9 @@ void TestParseOperational(nlTestSuite * inSuite, void * inContext)
 
     // validate data as it was passed in
     NL_TEST_ASSERT(inSuite, nodeData.resolutionData.numIPs == 1);
+    NL_TEST_ASSERT(inSuite,
+                   nodeData.operationalData.peerId ==
+                       PeerId().SetCompressedFabricId(0x1234567898765432LL).SetNodeId(0xABCDEFEDCBAABCDELL));
 }
 
 const nlTest sTests[] = {
