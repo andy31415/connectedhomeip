@@ -261,7 +261,14 @@ void TestParseOperational(nlTestSuite * inSuite, void * inContext)
         NL_TEST_ASSERT(inSuite, !resolver.GetRequiredInformation().HasAny());
     }
 
-    // at this point taking value shoul work
+    // At this point taking value should work. Once take, resolver
+    // is reset.
+    ResolvedNodeData nodeData;
+    NL_TEST_ASSERT(inSuite, resolver.Take(nodeData) == CHIP_NO_ERROR);
+    NL_TEST_ASSERT(inSuite, !resolver.IsActive());
+
+    // validate data as it was passed in
+    NL_TEST_ASSERT(inSuite, nodeData.resolutionData.numIPs == 1);
 }
 
 const nlTest sTests[] = {
