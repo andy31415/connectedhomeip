@@ -1,6 +1,7 @@
 #include <lib/dnssd/IncrementalResolve.h>
 
 #include <lib/dnssd/ServiceNaming.h>
+#include <lib/dnssd/TxtFields.h>
 #include <lib/dnssd/minimal_mdns/core/RecordWriter.h>
 #include <lib/support/CHIPMemString.h>
 
@@ -11,10 +12,15 @@ using namespace mdns::Minimal;
 
 namespace {
 
+const ByteSpan GetSpan(const mdns::Minimal::BytesRange & range)
+{
+    return ByteSpan(range.Start(), range.Size());
+}
+
 class CommonResolutionDataTxtRecordDelegateImpl : public mdns::Minimal::TxtRecordDelegate
 {
 public:
-    explicit TxtRecordDelegateImpl(CommonResolutionData & data) : mData(data) {}
+    explicit CommonResolutionDataTxtRecordDelegateImpl(CommonResolutionData & data) : mData(data) {}
     void OnRecord(const mdns::Minimal::BytesRange & name, const mdns::Minimal::BytesRange & value) override
     {
         FillNodeDataFromTxt(GetSpan(name), GetSpan(value), mData);
@@ -27,7 +33,7 @@ private:
 class CommissionResolutionDataTxtRecordDelegateImpl : public mdns::Minimal::TxtRecordDelegate
 {
 public:
-    explicit TxtRecordDelegateImpl(CommissionNodeData & data) : mData(data) {}
+    explicit CommissionResolutionDataTxtRecordDelegateImpl(CommissionNodeData & data) : mData(data) {}
     void OnRecord(const mdns::Minimal::BytesRange & name, const mdns::Minimal::BytesRange & value) override
     {
         FillNodeDataFromTxt(GetSpan(name), GetSpan(value), mData);
@@ -310,7 +316,7 @@ CHIP_ERROR IncrementalResolver::OnTxtRecord(const ResourceData & data, BytesRang
 
     if (IsActiveCommissionParse())
     {
-        CommissionResolutionDataTxtRecordDelegateImpl delegate(&mSpecificResolutionData.Get<CommissionNodeData>());
+        CommissionResolutionDataTxtRecordDelegateImpl delegate(mSpecificResolutionData.Get<CommissionNodeData>());
         if (!ParseTxtRecord(data.GetData(), &delegate))
         {
             return CHIP_ERROR_INVALID_ARGUMENT;
