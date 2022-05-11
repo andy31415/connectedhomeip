@@ -110,10 +110,27 @@ public:
     /// to be processed.
     RequiredInformationFlags GetRequiredInformation() const;
 
-    // TODO:
-    //   - clear current state and extract actual commission
-    //     data result
-    //   - have some for of timeout for processing (here? can we separate?)
+    /// Fetch the server name set by `InitializeParsing`
+    ///
+    /// Data references internal storage of this object and is valid as long
+    /// as this object is valid and InitializeParsing is not called again.
+    mdns::Minimal::SerializedQNameIterator GetServerName() const { return mServerName.Get(); }
+
+    /// Take the current value of the object and clear it once returned.
+    ///
+    /// Object must be in `IsActiveCommissionParse()` for this to succeed.
+    /// Data will be returned (and cleared) even if not yet complete based
+    /// on `GetRequiredInformation()`. This method takes as much data as
+    /// it was parsed so far.
+    CHIP_ERROR Take(DiscoveredNodeData & data);
+
+    /// Take the current value of the object and clear it once returned.
+    ///
+    /// Object must be in `IsActiveOperationalParse()` for this to succeed.
+    /// Data will be returned (and cleared) even if not yet complete based
+    /// on `GetRequiredInformation()`. This method takes as much data as
+    /// it was parsed so far.
+    CHIP_ERROR Take(ResolvedNodeData & data);
 
 private:
     /// Notify that a PTR record can be parsed.

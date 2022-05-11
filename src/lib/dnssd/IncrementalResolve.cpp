@@ -337,5 +337,27 @@ CHIP_ERROR IncrementalResolver::OnIpAddress(const Inet::IPAddress & addr)
     return CHIP_NO_ERROR;
 }
 
+CHIP_ERROR IncrementalResolver::Take(DiscoveredNodeData & data)
+{
+    VerifyOrReturnError(IsActiveCommissionParse(), CHIP_ERROR_INCORRECT_STATE);
+
+    data.resolutionData     = mCommonResolutionData;
+    data.commissionData     = mSpecificResolutionData.Get<CommissionNodeData>();
+    mSpecificResolutionData = SpecificParseData();
+
+    return CHIP_NO_ERROR;
+}
+
+CHIP_ERROR IncrementalResolver::Take(ResolvedNodeData & data)
+{
+    VerifyOrReturnError(IsActiveOperationalParse(), CHIP_ERROR_INCORRECT_STATE);
+
+    data.resolutionData     = mCommonResolutionData;
+    data.operationalData    = mSpecificResolutionData.Get<OperationalNodeData>();
+    mSpecificResolutionData = SpecificParseData();
+
+    return CHIP_NO_ERROR;
+}
+
 } // namespace Dnssd
 } // namespace chip
