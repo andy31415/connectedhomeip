@@ -63,7 +63,10 @@ public:
     /// Notify that a new record is being processed
     /// Will handle filtering and processing of data to determine
     /// if the entry is relevant for the current resolver.
-    CHIP_ERROR OnRecord(const mdns::Minimal::ResourceData & data);
+    ///
+    /// [data] represents the record and [packetRange] represents the range of valid bytes within
+    /// the packet for the purpose of QName parsing
+    CHIP_ERROR OnRecord(const mdns::Minimal::ResourceData & data, mdns::Minimal::BytesRange packetRange);
 
     /// Return what additional data is required until the object can be extracted
     ///
@@ -80,17 +83,24 @@ private:
     /// Notify that a PTR record can be parsed.
     ///
     /// Input data MUST have GetType() == QType::PTR
-    CHIP_ERROR OnPtrRecord(const mdns::Minimal::ResourceData & data);
+    CHIP_ERROR OnPtrRecord(const mdns::Minimal::ResourceData & data, mdns::Minimal::BytesRange packetRange);
 
     /// Notify that a PTR record can be parsed.
     ///
     /// Input data MUST have GetType() == QType::TXT
-    CHIP_ERROR OnTxtRecord(const mdns::Minimal::ResourceData & data);
+    CHIP_ERROR OnTxtRecord(const mdns::Minimal::ResourceData & data, mdns::Minimal::BytesRange packetRange);
 
-    /// Notify that a new IP addres has been found for the given name.
+    /// Notify that a new IP addres has been found.
+    ///
     /// This is to be called on both A (if IPv4 support is enabled) and AAAA
     /// addresses.
-    CHIP_ERROR OnIpAddress(mdns::Minimal::SerializedQNameIterator name, const Inet::IPAddress & addr);
+    ///
+    /// Prerequisite: IP address belongs to the right nost name
+    CHIP_ERROR OnIpAddress(const Inet::IPAddress & addr);
+
+    /// Check if the given name is the server host name that we are looking for
+    /// addresses for.
+    bool IsSrvHostName(mdns::Minimal::SerializedQNameIterator name);
 
     using SpecificParseData = Variant<OperationalNodeData, CommissionNodeData>;
 

@@ -45,8 +45,7 @@ void PreloadSrvRecord(nlTestSuite * inSuite, SrvRecord & record)
         0,    12,                       // Priority
         0,    3,                        // weight
         0x12, 0x34,                     // port
-        4,    's',  'o', 'm', 'e',      // QNAME part: some
-        4,    't',  'e', 's', 't',      // QNAME part: test
+        4,    'a',  'b', 'c', 'd',      // QNAME part: abcd
         5,    'l',  'o', 'c', 'a', 'l', // QNAME part: local
         0,                              // QNAME ends
     };
