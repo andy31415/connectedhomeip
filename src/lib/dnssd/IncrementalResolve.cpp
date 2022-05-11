@@ -11,6 +11,32 @@ using namespace mdns::Minimal;
 
 namespace {
 
+class CommonResolutionDataTxtRecordDelegateImpl : public mdns::Minimal::TxtRecordDelegate
+{
+public:
+    explicit TxtRecordDelegateImpl(CommonResolutionData & data) : mData(data) {}
+    void OnRecord(const mdns::Minimal::BytesRange & name, const mdns::Minimal::BytesRange & value) override
+    {
+        FillNodeDataFromTxt(GetSpan(name), GetSpan(value), mData);
+    }
+
+private:
+    CommonResolutionData & mData;
+};
+
+class CommissionResolutionDataTxtRecordDelegateImpl : public mdns::Minimal::TxtRecordDelegate
+{
+public:
+    explicit TxtRecordDelegateImpl(CommissionNodeData & data) : mData(data) {}
+    void OnRecord(const mdns::Minimal::BytesRange & name, const mdns::Minimal::BytesRange & value) override
+    {
+        FillNodeDataFromTxt(GetSpan(name), GetSpan(value), mData);
+    }
+
+private:
+    CommissionNodeData & mData;
+};
+
 enum class ServiceNameType
 {
     kInvalid, // not a matter service name
@@ -274,8 +300,24 @@ CHIP_ERROR IncrementalResolver::OnPtrRecord(const ResourceData & data, BytesRang
 
 CHIP_ERROR IncrementalResolver::OnTxtRecord(const ResourceData & data, BytesRange packetRange)
 {
-    // FIXME: Implement
-    return CHIP_ERROR_NOT_IMPLEMENTED;
+    {
+        CommonResolutionDataTxtRecordDelegateImpl delegate(mCommonResolutionData);
+        if (!ParseTxtRecord(data.GetData(), &delegate))
+        {
+            return CHIP_ERROR_INVALID_ARGUMENT;
+        }
+    }
+
+    if (IsActiveCommissionParse())
+    {
+        CommissionResolutionDataTxtRecordDelegateImpl delegate(&mSpecificResolutionData.Get<CommissionNodeData>());
+        if (!ParseTxtRecord(data.GetData(), &delegate))
+        {
+            return CHIP_ERROR_INVALID_ARGUMENT;
+        }
+    }
+
+    return CHIP_NO_ERROR;
 }
 
 CHIP_ERROR IncrementalResolver::OnIpAddress(const Inet::IPAddress & addr)
