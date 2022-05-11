@@ -20,6 +20,7 @@
 #include <lib/dnssd/minimal_mdns/Parser.h>
 #include <lib/dnssd/minimal_mdns/RecordData.h>
 #include <lib/dnssd/minimal_mdns/core/QName.h>
+#include <lib/support/BitFlags.h>
 #include <lib/support/Variant.h>
 
 namespace chip {
@@ -38,6 +39,14 @@ namespace Dnssd {
 class IncrementalResolver
 {
 public:
+    // Elements that the incremental resolve still needs
+    enum class RequiredInformation : uint8_t
+    {
+        kSrvInitialization = 0x01, // server being initialized
+        kIpAddress         = 0x02, // IP address missing
+    };
+    using RequiredInformationFlags = BitFlags<RequiredInformation>;
+
     IncrementalResolver() {}
 
     /// Checks if object has been initialized using the `InitializeParsing`
@@ -56,12 +65,15 @@ public:
     /// if the entry is relevant for the current resolver.
     CHIP_ERROR OnRecord(const mdns::Minimal::ResourceData & data);
 
+    /// Return what additional data is required until the object can be extracted
+    ///
+    /// If `!GetREquiredInformation().HasAny()` the parsed information is ready
+    /// to be processed.
+    RequiredInformationFlags GetRequiredInformation() const;
+
     // TODO:
     //   - clear current state and extract actual commission
     //     data result
-    //   - ability to query state:
-    //     - IDLE means can parse more data
-    //     - NEED_IP means need IP address (can query)
     //   - have some for of timeout for processing (here? can we separate?)
 
 private:

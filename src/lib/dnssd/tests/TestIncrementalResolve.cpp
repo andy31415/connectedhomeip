@@ -72,9 +72,6 @@ static SerializedQNameIterator AsSerializedQName(const uint8_t (&v)[N])
     return SerializedQNameIterator(BytesRange(v, v + N - 1), v);
 }
 
-// TODO: serializedqnameparsing
-// TODO: SRV
-
 void TestCreation(nlTestSuite * inSuite, void * inContext)
 {
     IncrementalResolver resolver;
@@ -82,6 +79,8 @@ void TestCreation(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, !resolver.IsActive());
     NL_TEST_ASSERT(inSuite, !resolver.IsActiveCommissionParse());
     NL_TEST_ASSERT(inSuite, !resolver.IsActiveOperationalParse());
+    NL_TEST_ASSERT(inSuite,
+                   resolver.GetRequiredInformation().HasOnly(IncrementalResolver::RequiredInformation::kSrvInitialization));
 }
 
 void TestStartOperational(nlTestSuite * inSuite, void * inContext)
@@ -98,6 +97,7 @@ void TestStartOperational(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, resolver.IsActive());
     NL_TEST_ASSERT(inSuite, !resolver.IsActiveCommissionParse());
     NL_TEST_ASSERT(inSuite, resolver.IsActiveOperationalParse());
+    NL_TEST_ASSERT(inSuite, resolver.GetRequiredInformation().HasOnly(IncrementalResolver::RequiredInformation::kIpAddress));
 }
 
 void TestStartCommissionable(nlTestSuite * inSuite, void * inContext)
@@ -114,6 +114,7 @@ void TestStartCommissionable(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, resolver.IsActive());
     NL_TEST_ASSERT(inSuite, resolver.IsActiveCommissionParse());
     NL_TEST_ASSERT(inSuite, !resolver.IsActiveOperationalParse());
+    NL_TEST_ASSERT(inSuite, resolver.GetRequiredInformation().HasOnly(IncrementalResolver::RequiredInformation::kIpAddress));
 }
 
 void TestStartCommissioner(nlTestSuite * inSuite, void * inContext)
@@ -130,6 +131,7 @@ void TestStartCommissioner(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, resolver.IsActive());
     NL_TEST_ASSERT(inSuite, resolver.IsActiveCommissionParse());
     NL_TEST_ASSERT(inSuite, !resolver.IsActiveOperationalParse());
+    NL_TEST_ASSERT(inSuite, resolver.GetRequiredInformation().HasOnly(IncrementalResolver::RequiredInformation::kIpAddress));
 }
 
 const nlTest sTests[] = {

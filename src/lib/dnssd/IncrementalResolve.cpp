@@ -84,6 +84,25 @@ CHIP_ERROR IncrementalResolver::InitializeParsing(mdns::Minimal::SerializedQName
     return CHIP_NO_ERROR;
 }
 
+IncrementalResolver::RequiredInformationFlags IncrementalResolver::GetRequiredInformation() const
+{
+    RequiredInformationFlags flags;
+
+    if (!mSpecificResolutionData.Valid())
+    {
+        flags.Set(RequiredInformation::kSrvInitialization);
+    }
+    else
+    {
+        if (mCommonResolutionData.numIPs == 0)
+        {
+            flags.Set(RequiredInformation::kIpAddress);
+        }
+    }
+
+    return flags;
+}
+
 CHIP_ERROR IncrementalResolver::OnRecord(const mdns::Minimal::ResourceData & data)
 {
     // FIXME: Implement
