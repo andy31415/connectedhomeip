@@ -39,6 +39,9 @@ constexpr uint8_t kTestCommissionableNode[] = "\020C5038835313B8B98\10_matterc\0
 // Commissioner names must be <instance>._matterd._udp.local
 constexpr uint8_t kTestCommissionerNode[] = "\020C5038835313B8B98\10_matterd\04_udp\05local\00";
 
+// Server name that is preloaded by the `PreloadSrvRecord`
+constexpr uint8_t kTestServerName[] = "\04abcd\05local\00";
+
 void PreloadSrvRecord(nlTestSuite * inSuite, SrvRecord & record)
 {
     // NOTE: record pointers persist beyond  this function, so
@@ -149,6 +152,7 @@ void TestStartOperational(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, !resolver.IsActiveCommissionParse());
     NL_TEST_ASSERT(inSuite, resolver.IsActiveOperationalParse());
     NL_TEST_ASSERT(inSuite, resolver.GetRequiredInformation().HasOnly(IncrementalResolver::RequiredInformation::kIpAddress));
+    NL_TEST_ASSERT(inSuite, resolver.GetServerName() == AsSerializedQName(kTestServerName));
 }
 
 void TestStartCommissionable(nlTestSuite * inSuite, void * inContext)
@@ -166,6 +170,7 @@ void TestStartCommissionable(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, resolver.IsActiveCommissionParse());
     NL_TEST_ASSERT(inSuite, !resolver.IsActiveOperationalParse());
     NL_TEST_ASSERT(inSuite, resolver.GetRequiredInformation().HasOnly(IncrementalResolver::RequiredInformation::kIpAddress));
+    NL_TEST_ASSERT(inSuite, resolver.GetServerName() == AsSerializedQName(kTestServerName));
 }
 
 void TestStartCommissioner(nlTestSuite * inSuite, void * inContext)
@@ -183,6 +188,7 @@ void TestStartCommissioner(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, resolver.IsActiveCommissionParse());
     NL_TEST_ASSERT(inSuite, !resolver.IsActiveOperationalParse());
     NL_TEST_ASSERT(inSuite, resolver.GetRequiredInformation().HasOnly(IncrementalResolver::RequiredInformation::kIpAddress));
+    NL_TEST_ASSERT(inSuite, resolver.GetServerName() == AsSerializedQName(kTestServerName));
 }
 
 const nlTest sTests[] = {

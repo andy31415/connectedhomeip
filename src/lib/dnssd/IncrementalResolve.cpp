@@ -134,7 +134,8 @@ CHIP_ERROR IncrementalResolver::InitializeParsing(mdns::Minimal::SerializedQName
 {
     mSpecificResolutionData = SpecificParseData();
 
-    ReturnErrorOnFailure(mServerName.Set(name));
+    ReturnErrorOnFailure(mRecordName.Set(name));
+    ReturnErrorOnFailure(mServerName.Set(srv.GetName()));
     mCommonResolutionData.port = srv.GetPort();
 
     {
@@ -215,14 +216,14 @@ CHIP_ERROR IncrementalResolver::OnRecord(const ResourceData & data, BytesRange p
     case QType::PTR:
         return OnPtrRecord(data, packetRange);
     case QType::TXT:
-        if (data.GetName() != mServerName.Get())
+        if (data.GetName() != mRecordName.Get())
         {
             ChipLogDetail(Discovery, "TXT record received for a different host name.");
             return CHIP_NO_ERROR;
         }
         return OnTxtRecord(data, packetRange);
     case QType::A: {
-        if (data.GetName() != mServerName.Get())
+        if (data.GetName() != mRecordName.Get())
         {
             ChipLogDetail(Discovery, "IP address received for a different host name.");
             return CHIP_NO_ERROR;
@@ -237,7 +238,7 @@ CHIP_ERROR IncrementalResolver::OnRecord(const ResourceData & data, BytesRange p
         return OnIpAddress(addr);
     }
     case QType::AAAA: {
-        if (data.GetName() != mServerName.Get())
+        if (data.GetName() != mRecordName.Get())
         {
             ChipLogDetail(Discovery, "IP address received for a different host name.");
             return CHIP_NO_ERROR;
@@ -288,7 +289,7 @@ CHIP_ERROR IncrementalResolver::OnPtrRecord(const ResourceData & data, BytesRang
         return CHIP_ERROR_INVALID_ARGUMENT;
     }
 
-    if (qname != mServerName.Get())
+    if (qname != mRecordName.Get())
     {
         ChipLogDetail(Discovery, "PTR record that is not pointing to the current commission server.");
         return CHIP_NO_ERROR;

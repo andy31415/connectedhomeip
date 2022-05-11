@@ -153,7 +153,8 @@ private:
 
     using SpecificParseData = Variant<OperationalNodeData, CommissionNodeData>;
 
-    StoredServerName mServerName;
+    StoredServerName mRecordName; // Record name for what is parsed (SRV/PTR/TXT)
+    StoredServerName mServerName; // Server name for A/AAAA addresses
     CommonResolutionData mCommonResolutionData;
     SpecificParseData mSpecificResolutionData;
 };
