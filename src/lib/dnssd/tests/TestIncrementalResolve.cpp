@@ -246,8 +246,8 @@ void TestParseOperational(nlTestSuite * inSuite, void * inContext)
                                        0,    16,                         // data size - size for IPv4
                                        0xfe, 0x80, 0x00, 0x00,           // IPv6
                                        0x00, 0x00, 0x00, 0x00,           //
-                                       0x02, 0x24, 0x32, 0xff,           //
-                                       0xfe, 0x19, 0x35, 0x9b
+                                       0xab, 0xcd, 0xef, 0x11,           //
+                                       0x22, 0x33, 0x44, 0x55
         };
         BytesRange packet(packetAAAA, packetAAAA + sizeof(packetAAAA));
         BytesRange aaaa_data(packetAAAA, packetAAAA + sizeof(packetAAAA));
@@ -341,6 +341,10 @@ void TestParseOperational(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, !nodeData.resolutionData.GetMrpRetryIntervalActive().HasValue());
     NL_TEST_ASSERT(inSuite, nodeData.resolutionData.GetMrpRetryIntervalIdle().HasValue());
     NL_TEST_ASSERT(inSuite, nodeData.resolutionData.GetMrpRetryIntervalIdle().Value() == chip::System::Clock::Milliseconds32(23));
+
+    Inet::IPAddress addr;
+    NL_TEST_ASSERT(inSuite, Inet::IPAddress::FromString("fe80::abcd:ef11:2233:4455", addr));
+    NL_TEST_ASSERT(inSuite, nodeData.resolutionData.ipAddress[0] == addr);
 }
 
 const nlTest sTests[] = {
