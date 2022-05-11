@@ -261,7 +261,71 @@ void TestParseOperational(nlTestSuite * inSuite, void * inContext)
         NL_TEST_ASSERT(inSuite, !resolver.GetRequiredInformation().HasAny());
     }
 
-    // At this point taking value should work. Once take, resolver
+    // Adding an irrelevant text entry
+    // Note that TXT entries should be addressed to the Record address and
+    // NOT to the server name for A/AAAA records
+    {
+        const uint8_t packetTxt[] = {
+            //
+            4,    'a',  'b',  'c',  'd',                // QNAME part: abcd
+            5,    'l',  'o',  'c',  'a', 'l',           // QNAME part: local
+            0,                                          // QNAME ends
+            0,    16,                                   // QType TXT
+            0,    1,                                    // QClass IN
+            0x12, 0x34, 0x56, 0x78,                     // TTL
+            0,    26,                                   // data size - sum of entires
+            4,    's',  'o',  'm',  'e',                // some
+            7,    'f',  'o',  'o',  '=', 'b', 'a', 'r', // foo=bar
+            5,    'x',  '=',  'y',  '=', 'z',           // x=y=z
+            2,    'a',  '=',                            // a=
+            3,    'T',  '=',  '1'                       // TCP supported = 1
+        };
+        BytesRange packet(packetTxt, packetTxt + sizeof(packetTxt));
+        BytesRange txt_data(packetTxt, packetTxt + sizeof(packetTxt));
+
+        ResourceData data;
+        const uint8_t * ptr = packetTxt;
+        NL_TEST_ASSERT(inSuite, data.Parse(txt_data, &ptr));
+
+        // Parsing valid data makes requirement for IP addresses go away
+        NL_TEST_ASSERT(inSuite, resolver.OnRecord(data, packet) == CHIP_NO_ERROR);
+        NL_TEST_ASSERT(inSuite, !resolver.GetRequiredInformation().HasAny());
+    }
+
+    // Adding actual text entries that are useful
+    // Note that TXT entries should be addressed to the Record address and
+    // NOT to the server name for A/AAAA records
+    {
+        const uint8_t packetTxt[] = {
+            // below is the same as `kTestOperationalname`:
+            33,   '1',  '2',  '3',  '4', '5', '6', '7', '8', '9', // QNAME part:
+            '8',  '7',  '6',  '5',  '4', '3', '2', '-', 'A', 'B', //    1234567898765432-ABCDEFEDCBAABCDE
+            'C',  'D',  'E',  'F',  'E', 'D', 'C', 'B', 'A', 'A', //
+            'B',  'C',  'D',  'E',                                //
+            7,    '_',  'm',  'a',  't', 't', 'e', 'r',           // QNAME part: _matter
+            4,    '_',  't',  'c',  'p',                          // QNAME part: _tcp
+            5,    'l',  'o',  'c',  'a', 'l',                     // QNAME part: local
+            0,                                                    // QNAME ends
+            0,    16,                                             // QType TXT
+            0,    1,                                              // QClass IN
+            0x12, 0x34, 0x56, 0x78,                               // TTL
+            0,    15,                                             // data size - sum of entires
+            7,    'f',  'o',  'o',  '=', 'b', 'a', 'r',           // foo=bar
+            6,    'S',  'I',  'I',  '=', '2', '3',                // SII=23 (sleepy idle interval)
+        };
+        BytesRange packet(packetTxt, packetTxt + sizeof(packetTxt));
+        BytesRange txt_data(packetTxt, packetTxt + sizeof(packetTxt));
+
+        ResourceData data;
+        const uint8_t * ptr = packetTxt;
+        NL_TEST_ASSERT(inSuite, data.Parse(txt_data, &ptr));
+
+        // Parsing valid data makes requirement for IP addresses go away
+        NL_TEST_ASSERT(inSuite, resolver.OnRecord(data, packet) == CHIP_NO_ERROR);
+        NL_TEST_ASSERT(inSuite, !resolver.GetRequiredInformation().HasAny());
+    }
+
+    // At this point taking value should work. Once taken, the resolver
     // is reset.
     ResolvedNodeData nodeData;
     NL_TEST_ASSERT(inSuite, resolver.Take(nodeData) == CHIP_NO_ERROR);
@@ -272,6 +336,10 @@ void TestParseOperational(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite,
                    nodeData.operationalData.peerId ==
                        PeerId().SetCompressedFabricId(0x1234567898765432LL).SetNodeId(0xABCDEFEDCBAABCDELL));
+    NL_TEST_ASSERT(inSuite, !nodeData.resolutionData.supportsTcp);
+    NL_TEST_ASSERT(inSuite, !nodeData.resolutionData.GetMrpRetryIntervalActive().HasValue());
+    NL_TEST_ASSERT(inSuite, nodeData.resolutionData.GetMrpRetryIntervalIdle().HasValue());
+    NL_TEST_ASSERT(inSuite, nodeData.resolutionData.GetMrpRetryIntervalIdle().Value() == chip::System::Clock::Milliseconds32(23));
 }
 
 const nlTest sTests[] = {
