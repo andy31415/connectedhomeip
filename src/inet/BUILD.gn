@@ -22,10 +22,22 @@ import("${chip_root}/build/chip/buildconfig_header.gni")
 import("${chip_root}/build/chip/tests.gni")
 import("${chip_root}/src/lwip/lwip.gni")
 import("${chip_root}/src/platform/device.gni")
+import("${chip_root}/src/system/system.gni")
 import("inet.gni")
 
 if (chip_system_config_use_open_thread_inet_endpoints) {
   import("//build_overrides/openthread.gni")
+}
+
+if (chip_system_config_use_libnl) {
+  import("${build_root}/config/linux/pkg_config.gni")
+
+  pkg_config("libnl_config") {
+    packages = [
+      "libnl-3.0",
+      "libnl-route-3.0",
+    ]
+  }
 }
 
 declare_args() {
@@ -62,6 +74,10 @@ source_set("inet_config_header") {
   sources = [ "InetConfig.h" ]
 
   public_configs = [ "${chip_root}/src:includes" ]
+
+  if (chip_system_config_use_libnl) {
+    public_configs += [ ":libnl_config" ]
+  }
 
   public_deps = [
     ":inet_buildconfig",

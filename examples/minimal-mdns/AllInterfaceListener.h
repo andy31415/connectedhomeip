@@ -113,8 +113,6 @@ private:
             return true;
         }
 
-        printf("Usable interface: %s\n", name);
-
         return false;
     }
 };

@@ -23,6 +23,9 @@ declare_args() {
   # Use BSD/POSIX socket API.
   chip_system_config_use_sockets = current_os != "freertos"
 
+  # Use libnl for Inet query operations
+  chip_system_config_use_libnl = current_os == "linux"
+
   # Mutex implementation: posix, freertos, none.
   chip_system_config_locking = ""
 

@@ -30,11 +30,17 @@
 
 #include <inet/IPAddress.h>
 #include <inet/InetError.h>
+#include <lib/support/BitFlags.h>
 #include <lib/support/DLLUtil.h>
 
 #if CHIP_SYSTEM_CONFIG_USE_LWIP && !CHIP_SYSTEM_CONFIG_USE_OPEN_THREAD_ENDPOINT
 #include <lwip/netif.h>
 #endif // CHIP_SYSTEM_CONFIG_USE_LWIP
+
+#if CHIP_SYSTEM_CONFIG_USE_LIBNL
+#include <netlink/route/addr.h>
+#include <netlink/socket.h>
+#endif
 
 #if CHIP_SYSTEM_CONFIG_USE_BSD_IFADDRS
 struct if_nameindex;
@@ -390,6 +396,13 @@ protected:
 class DLL_EXPORT InterfaceAddressIterator
 {
 public:
+    enum class Flags : uint8_t
+    {
+        kNotFinal   = (1 << 0), // Not yet valid: Optimistic/DAD failed/tentative
+        kTemporary  = (1 << 1), // IFA_F_TEMPORARY on linux
+        kDeprecated = (1 << 2), // IFA_F_DEPRECATED on linux
+    };
+
     /**
      * Constructs an InterfaceAddressIterator object.
      *
@@ -520,6 +533,13 @@ public:
      */
     bool HasBroadcastAddress();
 
+    /**
+     * Fetch the flags for the given interface address.
+     *
+     * Note: not all implementations may support all flags.
+     */
+    BitFlags<Flags> GetFlags();
+
 private:
 #if CHIP_SYSTEM_CONFIG_USE_LWIP && !CHIP_SYSTEM_CONFIG_USE_OPEN_THREAD_ENDPOINT
     enum
@@ -531,9 +551,16 @@ private:
     int mCurAddrIndex;
 #endif // CHIP_SYSTEM_CONFIG_USE_LWIP
 
-#if CHIP_SYSTEM_CONFIG_USE_BSD_IFADDRS
-    struct ifaddrs * mAddrsList;
-    struct ifaddrs * mCurAddr;
+// LibNL overrides BSD IFADDRS
+#if CHIP_SYSTEM_CONFIG_USE_LIBNL
+    nl_sock * mNlSocket         = nullptr;
+    nl_cache * mNlCache         = nullptr;
+    nl_object * mCurrentAddress = nullptr;
+
+    rtnl_addr * CurrentAddress() { return reinterpret_cast<rtnl_addr *>(mCurrentAddress); }
+#elif CHIP_SYSTEM_CONFIG_USE_BSD_IFADDRS
+    struct ifaddrs * mAddrsList = nullptr;
+    struct ifaddrs * mCurAddr   = nullptr;
 #endif // CHIP_SYSTEM_CONFIG_USE_BSD_IFADDRS
 
 #if CHIP_SYSTEM_CONFIG_USE_ZEPHYR_NET_IF

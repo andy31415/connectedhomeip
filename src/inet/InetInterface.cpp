@@ -154,6 +154,11 @@ uint8_t InterfaceAddressIterator::GetPrefixLength()
     return 64;
 }
 
+BitFlags<InterfaceAddressIterator::Flags> InterfaceAddressIterator::GetFlags()
+{
+    return BitFlags<InterfaceAddressIterator::Flags>();
+}
+
 #endif
 
 #if CHIP_SYSTEM_CONFIG_USE_LWIP && !CHIP_SYSTEM_CONFIG_USE_OPEN_THREAD_ENDPOINT
@@ -348,6 +353,11 @@ uint8_t InterfaceAddressIterator::GetPrefixLength()
 #endif // INET_CONFIG_ENABLE_IPV4 && LWIP_IPV4
     }
     return 0;
+}
+
+BitFlags<InterfaceAddressIterator::Flags> InterfaceAddressIterator::GetFlags()
+{
+    return BitFlags<InterfaceAddressIterator::Flags>();
 }
 
 InterfaceId InterfaceAddressIterator::GetInterfaceId()
@@ -750,11 +760,199 @@ CHIP_ERROR InterfaceIterator::GetHardwareAddress(uint8_t * addressBuffer, uint8_
     return CHIP_ERROR_NOT_IMPLEMENTED;
 }
 
-InterfaceAddressIterator::InterfaceAddressIterator()
+InterfaceAddressIterator::InterfaceAddressIterator() {}
+
+#if CHIP_SYSTEM_CONFIG_USE_LIBNL
+
+InterfaceAddressIterator::~InterfaceAddressIterator()
 {
-    mAddrsList = nullptr;
-    mCurAddr   = nullptr;
+    if (mNlCache != nullptr)
+    {
+        nl_cache_free(mNlCache);
+        mNlCache = nullptr;
+    }
+
+    if (mNlSocket != nullptr)
+    {
+        nl_socket_free(mNlSocket);
+        mNlSocket = nullptr;
+    }
 }
+
+bool InterfaceAddressIterator::HasCurrent()
+{
+    return (mNlCache != nullptr) ? (mCurrentAddress != nullptr) : Next();
+}
+
+bool InterfaceAddressIterator::Next()
+{
+    if (mNlCache != nullptr)
+    {
+        if (mCurrentAddress != nullptr)
+        {
+            mCurrentAddress = nl_cache_get_next(mCurrentAddress);
+        }
+    }
+    else
+    {
+        if (mNlSocket == nullptr)
+        {
+            mNlSocket = nl_socket_alloc();
+
+            if (mNlSocket == nullptr)
+            {
+                ChipLogError(Inet, "Failed to allocate nl socket");
+                return false;
+            }
+
+            int result = nl_connect(mNlSocket, NETLINK_ROUTE);
+            if (result != 0)
+            {
+                ChipLogError(Inet, "Failed to connect NL socket: %s", nl_geterror(result));
+                return false;
+            }
+        }
+
+        int result = rtnl_addr_alloc_cache(mNlSocket, &mNlCache);
+        if (result != 0)
+        {
+            ChipLogError(Inet, "Failed to cache addresses");
+            return false;
+        }
+
+        mCurrentAddress = nl_cache_get_first(mNlCache);
+    }
+
+    return (mCurrentAddress != nullptr);
+}
+
+CHIP_ERROR InterfaceAddressIterator::GetAddress(IPAddress & outIPAddress)
+{
+    VerifyOrReturnError(HasCurrent(), CHIP_ERROR_INCORRECT_STATE);
+
+    nl_addr * local = rtnl_addr_get_local(CurrentAddress());
+    if (local == nullptr)
+    {
+        ChipLogError(Inet, "Failed to get local IP address");
+        return CHIP_ERROR_INTERNAL;
+    }
+
+    switch (nl_addr_get_family(local))
+    {
+    case AF_INET6: {
+        struct sockaddr_in6 sa;
+        memset(&sa, 0, sizeof(sa));
+        socklen_t len = sizeof(sa);
+
+        int result = nl_addr_fill_sockaddr(local, reinterpret_cast<sockaddr *>(&sa), &len);
+        if (result != 0)
+        {
+            ChipLogError(Inet, "Failed to process address: %s", nl_geterror(result));
+            return CHIP_ERROR_INVALID_ADDRESS;
+        }
+
+        outIPAddress = IPAddress::FromSockAddr(sa);
+        return CHIP_NO_ERROR;
+    }
+    case AF_INET: {
+#if INET_CONFIG_ENABLE_IPV4
+        struct sockaddr_in sa;
+        memset(&sa, 0, sizeof(sa));
+        socklen_t len = sizeof(sa);
+
+        int result = nl_addr_fill_sockaddr(local, reinterpret_cast<sockaddr *>(&sa), &len);
+        if (result != 0)
+        {
+            ChipLogError(Inet, "Failed to process address: %s", nl_geterror(result));
+            return CHIP_ERROR_INVALID_ADDRESS;
+        }
+
+        outIPAddress = IPAddress::FromSockAddr(sa);
+        return CHIP_NO_ERROR;
+#else
+        return CHIP_ERROR_INVALID_ADDRESS;
+#endif
+    }
+    default:
+        ChipLogError(Inet, "Unsupported/unknown local address");
+        return CHIP_ERROR_INVALID_ADDRESS;
+    }
+}
+
+uint8_t InterfaceAddressIterator::GetPrefixLength()
+{
+    VerifyOrReturnError(HasCurrent(), 0);
+    return static_cast<uint8_t>(rtnl_addr_get_prefixlen(CurrentAddress()));
+}
+
+BitFlags<InterfaceAddressIterator::Flags> InterfaceAddressIterator::GetFlags()
+{
+    BitFlags<InterfaceAddressIterator::Flags> flags;
+
+    VerifyOrReturnError(HasCurrent(), flags);
+
+    int ifa_flags = rtnl_addr_get_flags(CurrentAddress());
+
+    if (ifa_flags & IFA_F_OPTIMISTIC)
+    {
+        flags.Set(InterfaceAddressIterator::Flags::kNotFinal);
+    }
+
+    if (ifa_flags & IFA_F_DADFAILED)
+    {
+        flags.Set(InterfaceAddressIterator::Flags::kNotFinal);
+    }
+
+    if (ifa_flags & IFA_F_TENTATIVE)
+    {
+        flags.Set(InterfaceAddressIterator::Flags::kNotFinal);
+    }
+
+    if (ifa_flags & IFA_F_TEMPORARY)
+    {
+        flags.Set(InterfaceAddressIterator::Flags::kTemporary);
+    }
+
+    if (ifa_flags & IFA_F_DEPRECATED)
+    {
+        flags.Set(InterfaceAddressIterator::Flags::kDeprecated);
+    }
+
+    return flags;
+}
+
+InterfaceId InterfaceAddressIterator::GetInterfaceId()
+{
+    VerifyOrReturnError(HasCurrent(), InterfaceId::Null());
+    return InterfaceId(rtnl_addr_get_ifindex(CurrentAddress()));
+}
+
+CHIP_ERROR InterfaceAddressIterator::GetInterfaceName(char * nameBuf, size_t nameBufSize)
+{
+    VerifyOrReturnError(HasCurrent(), CHIP_ERROR_INCORRECT_STATE);
+
+    return GetInterfaceId().GetInterfaceName(nameBuf, nameBufSize);
+}
+
+bool InterfaceAddressIterator::IsUp()
+{
+    VerifyOrReturnError(HasCurrent(), false);
+    return rtnl_addr_get_local(CurrentAddress()) != nullptr;
+}
+
+bool InterfaceAddressIterator::SupportsMulticast()
+{
+    VerifyOrReturnError(HasCurrent(), false);
+    return rtnl_addr_get_multicast(CurrentAddress()) != nullptr;
+}
+
+bool InterfaceAddressIterator::HasBroadcastAddress()
+{
+    VerifyOrReturnError(HasCurrent(), false);
+    return rtnl_addr_get_broadcast(CurrentAddress()) != nullptr;
+}
+
+#else // CHIP_SYSTEM_CONFIG_USE_LIBNL
 
 InterfaceAddressIterator::~InterfaceAddressIterator()
 {
@@ -834,6 +1032,11 @@ uint8_t InterfaceAddressIterator::GetPrefixLength()
     return 0;
 }
 
+BitFlags<InterfaceAddressIterator::Flags> InterfaceAddressIterator::GetFlags()
+{
+    return BitFlags<InterfaceAddressIterator::Flags>();
+}
+
 InterfaceId InterfaceAddressIterator::GetInterfaceId()
 {
     return HasCurrent() ? InterfaceId(if_nametoindex(mCurAddr->ifa_name)) : InterfaceId::Null();
@@ -861,6 +1064,8 @@ bool InterfaceAddressIterator::HasBroadcastAddress()
 {
     return HasCurrent() && (mCurAddr->ifa_flags & IFF_BROADCAST) != 0;
 }
+
+#endif // CHIP_SYSTEM_CONFIG_USE_LIBNL
 
 CHIP_ERROR InterfaceId::GetLinkLocalAddr(IPAddress * llAddr) const
 {
@@ -1078,6 +1283,11 @@ uint8_t InterfaceAddressIterator::GetPrefixLength()
         return prefix ? prefix->len : 128;
     }
     return 0;
+}
+
+BitFlags<InterfaceAddressIterator::Flags> InterfaceAddressIterator::GetFlags()
+{
+    return BitFlags<InterfaceAddressIterator::Flags>();
 }
 
 InterfaceId InterfaceAddressIterator::GetInterfaceId()

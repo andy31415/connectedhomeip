@@ -21,12 +21,21 @@
 namespace mdns {
 namespace Minimal {
 
+using namespace chip::Inet;
+
 void IPv4Responder::AddAllResponses(const chip::Inet::IPPacketInfo * source, ResponderDelegate * delegate,
                                     const ResponseConfiguration & configuration)
 {
     chip::Inet::IPAddress addr;
     for (chip::Inet::InterfaceAddressIterator it; it.HasCurrent(); it.Next())
     {
+
+        if (it.GetFlags().HasAny(InterfaceAddressIterator::Flags::kNotFinal, InterfaceAddressIterator::Flags::kTemporary,
+                                 InterfaceAddressIterator::Flags::kDeprecated))
+        {
+            continue;
+        }
+
         if ((it.GetInterfaceId() == source->Interface) && (it.GetAddress(addr) == CHIP_NO_ERROR) && addr.IsIPv4())
         {
             IPResourceRecord record(GetQName(), addr);
@@ -42,6 +51,12 @@ void IPv6Responder::AddAllResponses(const chip::Inet::IPPacketInfo * source, Res
     for (chip::Inet::InterfaceAddressIterator it; it.HasCurrent(); it.Next())
     {
         if (it.GetInterfaceId() != source->Interface)
+        {
+            continue;
+        }
+
+        if (it.GetFlags().HasAny(InterfaceAddressIterator::Flags::kNotFinal, InterfaceAddressIterator::Flags::kTemporary,
+                                 InterfaceAddressIterator::Flags::kDeprecated))
         {
             continue;
         }

@@ -882,6 +882,13 @@ void AdvertiserMinMdns::AdvertiseRecords(BroadcastAdvertiseType type)
             continue;
         }
 
+        if (interfaceAddress.GetFlags().HasAny(chip::Inet::InterfaceAddressIterator::Flags::kNotFinal,
+                                               chip::Inet::InterfaceAddressIterator::Flags::kTemporary,
+                                               chip::Inet::InterfaceAddressIterator::Flags::kDeprecated))
+        {
+            continue;
+        }
+
         Inet::IPAddress ipAddress;
         if (interfaceAddress.GetAddress(ipAddress) != CHIP_NO_ERROR)
         {
