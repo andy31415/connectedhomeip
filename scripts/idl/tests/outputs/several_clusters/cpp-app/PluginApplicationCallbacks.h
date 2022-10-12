@@ -6,3 +6,4 @@
     MatterFirstPluginClientInitCallback(); \
     MatterSecondPluginClientInitCallback(); \
     MatterThirdPluginClientInitCallback();
+

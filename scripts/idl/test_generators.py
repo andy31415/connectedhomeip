@@ -81,7 +81,7 @@ class TestCaseStorage(GeneratorStorage):
 
         # This will display actual diffs in the output files
         self.checker.assertEqual(
-            self.get_existing_data(relative_path), content)
+            self.get_existing_data(relative_path), content, "Content of %s" % relative_path)
 
         # Even if no diff, to be build system friendly, we do NOT expect any
         # actual data writes.

@@ -54,7 +54,7 @@ class CppApplicationGenerator(CodeGenerator):
         # Header containing a macro to initialize all cluster plugins
         self.internal_render_one_output(
             template_path="cpp/application/PluginApplicationCallbacksHeader.jinja",
-            output_file_name="app/PluginApplicationCallbacks.h",
+            output_file_name="PluginApplicationCallbacks.h",
             vars={
                 'clusters': self.idl.clusters,
             }
