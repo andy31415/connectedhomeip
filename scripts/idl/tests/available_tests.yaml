@@ -60,5 +60,5 @@ bridge:
 
 cpp-app:
    inputs/several_clusters.matter:
-        PluginApplicationCallbacks.h: outputs/several_clusters/cpp-app/PluginApplicationCallbacks.h
+        app/PluginApplicationCallbacks.h: outputs/several_clusters/cpp-app/PluginApplicationCallbacks.h
 
