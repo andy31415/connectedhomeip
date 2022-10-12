@@ -33,6 +33,7 @@ except:
 from idl.matter_idl_types import Idl
 from idl.generators.java import JavaGenerator
 from idl.generators.bridge import BridgeGenerator
+from idl.generators.cpp.application import CppApplicationGenerator
 from idl.generators import GeneratorStorage
 
 
@@ -103,6 +104,8 @@ class GeneratorTest:
             return JavaGenerator(storage, idl)
         if self.generator_name.lower() == 'bridge':
             return BridgeGenerator(storage, idl)
+        if self.generator_name.lower() == 'cpp-app':
+            return CppApplicationGenerator(storage, idl)
         else:
             raise Exception("Unknown generator for testing: %s",
                             self.generator_name.lower())
