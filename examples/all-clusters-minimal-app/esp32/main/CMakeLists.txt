@@ -14,10 +14,23 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
+get_filename_component(CHIP_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../.." REALPATH)
+
+include("${CHIP_ROOT}/build/chip/chip_codegen.cmake")
+
+chip_codegen(app-codegen
+  INPUT     "${CHIP_ROOT}/examples/all-clusters-minimal-app/all-clusters-common/all-clusters-minimal-app.matter"
+  GENERATOR "cpp-app"
+  OUTPUTS
+        "app/PluginApplicationCallbacks.h"
+  OUTPUT_PATH   APP_GEN_DIR
+  OUTPUT_FILES  APP_GEN_FILES
+)
 
 # (Uses default behaviour of compiling all source files in directory, adding 'include' to include path.)
 # The list of src and include dirs must be in sync with that in all-clusters-minimal-app/esp32/main/component.mk
 set(PRIV_INCLUDE_DIRS_LIST
+                      "${APP_GEN_DIR}"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/zzz_generated/all-clusters-minimal-app"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/examples/all-clusters-app/all-clusters-common/include"
                       "${CMAKE_CURRENT_LIST_DIR}/include"
@@ -25,6 +38,7 @@ set(PRIV_INCLUDE_DIRS_LIST
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/examples/platform/esp32"
 )
 set(SRC_DIRS_LIST
+                      "${APP_GEN_DIR}"
                       "${CMAKE_CURRENT_LIST_DIR}"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/zzz_generated/all-clusters-minimal-app/zap-generated"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/zzz_generated/app-common/app-common/zap-generated/attributes"
@@ -127,6 +141,7 @@ endif()
 idf_component_register(PRIV_INCLUDE_DIRS ${PRIV_INCLUDE_DIRS_LIST}
                        SRC_DIRS ${SRC_DIRS_LIST}
                        PRIV_REQUIRES ${PRIV_REQUIRES_LIST})
+add_dependencies(${COMPONENT_LIB} app-codegen)
 
 set_property(TARGET ${COMPONENT_LIB} PROPERTY CXX_STANDARD 17)
 target_compile_options(${COMPONENT_LIB} PRIVATE "-DCHIP_HAVE_CONFIG_H")

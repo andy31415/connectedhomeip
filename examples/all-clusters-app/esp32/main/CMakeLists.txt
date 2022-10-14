@@ -151,7 +151,6 @@ idf_component_register(PRIV_INCLUDE_DIRS ${PRIV_INCLUDE_DIRS_LIST}
                        SRC_DIRS ${SRC_DIRS_LIST}
                        EXCLUDE_SRCS ${EXCLUDE_SRCS_LIST}
                        PRIV_REQUIRES ${PRIV_REQUIRES_LIST})
-
 add_dependencies(${COMPONENT_LIB} app-codegen)
 
 set_property(TARGET ${COMPONENT_LIB} PROPERTY CXX_STANDARD 17)
