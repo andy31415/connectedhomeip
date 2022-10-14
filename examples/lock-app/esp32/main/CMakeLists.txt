@@ -15,9 +15,23 @@
 #    limitations under the License.
 #
 # (Uses default behaviour of compiling all source files in directory, adding 'include' to include path.)
+get_filename_component(CHIP_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../.." REALPATH)
+
+include("${CHIP_ROOT}/build/chip/chip_codegen.cmake")
+
+chip_codegen(app-codegen
+  INPUT     "${CHIP_ROOT}/examples/lock-app/lock-common/lock-app.matter"
+  GENERATOR "cpp-app"
+  OUTPUTS
+        "app/PluginApplicationCallbacks.h"
+  OUTPUT_PATH   APP_GEN_DIR
+  OUTPUT_FILES  APP_GEN_FILES
+)
+
 
 if (CONFIG_ENABLE_PW_RPC)
 idf_component_register(INCLUDE_DIRS
+                     "${APP_GEN_DIR}"
                      "${CMAKE_CURRENT_LIST_DIR}"
                      "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/examples/platform/esp32/pw_sys_io/public"
                      "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/examples/platform/esp32"
@@ -67,6 +81,7 @@ idf_component_register(INCLUDE_DIRS
                      "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/src/app/clusters/identify-server"
                      "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/src/app/clusters/groups-server"
                      PRIV_REQUIRES bt chip QRCode)
+add_dependencies(${COMPONENT_LIB} app-codegen)
 
 get_filename_component(CHIP_ROOT ${CMAKE_SOURCE_DIR}/third_party/connectedhomeip REALPATH)
 
@@ -142,6 +157,7 @@ target_compile_options(${COMPONENT_LIB} PRIVATE
 
 else (CONFIG_ENABLE_PW_RPC)
 idf_component_register(PRIV_INCLUDE_DIRS
+                      "${APP_GEN_DIR}"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/zzz_generated/lock-app/"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/examples/providers"                      
                       "${CMAKE_CURRENT_LIST_DIR}/include"
@@ -185,6 +201,8 @@ idf_component_register(PRIV_INCLUDE_DIRS
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/src/app/clusters/identify-server"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/src/app/clusters/groups-server"
                       PRIV_REQUIRES chip QRCode bt)
+
+add_dependencies(${COMPONENT_LIB} app-codegen)
 
 set_property(TARGET ${COMPONENT_LIB} PROPERTY CXX_STANDARD 17)
 target_compile_options(${COMPONENT_LIB} PRIVATE "-DCHIP_HAVE_CONFIG_H")
