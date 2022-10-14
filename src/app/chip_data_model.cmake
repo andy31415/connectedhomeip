@@ -81,7 +81,7 @@ function(chip_configure_data_model APP_TARGET)
     endif()
 
     if (ARG_IDL)
-        chip_codegen(app-codegen
+        chip_codegen(${APP_TARGET}-codegen
           INPUT     "${ARG_IDL}"
           GENERATOR "cpp-app"
           OUTPUTS
@@ -90,8 +90,8 @@ function(chip_configure_data_model APP_TARGET)
           OUTPUT_FILES  APP_GEN_FILES
         )
 
-        target_include_directories(app PRIVATE "${APP_GEN_DIR}")
-        add_dependencies(app app-codegen)
+        target_include_directories(${APP_TARGET} PRIVATE "${APP_GEN_DIR}")
+        add_dependencies(${APP_TARGET} ${APP_TARGET}-codegen)
     endif()
 
     target_sources(${APP_TARGET} PRIVATE
