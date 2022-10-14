@@ -52,27 +52,19 @@ function(chip_codegen TARGET_NAME)
     # Python is expected to be in the path
     #
     # find_package(Python3 REQUIRED)
-    if(NOT CMAKE_BUILD_EARLY_EXPANSION) 
-        add_custom_command(
-            OUTPUT "${OUT_NAMES}"
-            COMMAND "${CHIP_ROOT}/scripts/codegen.py"
-            ARGS "--generator" "${ARG_GENERATOR}"
-                 "--output-dir" "${GEN_FOLDER}"
-                 "--expected-outputs" "${GEN_FOLDER}/expected.outputs"
-                 "${ARG_INPUT}"
-            DEPENDS
-                "${ARG_INPUT}"
-            VERBATIM
-        )
+    add_custom_command(
+        OUTPUT "${OUT_NAMES}"
+        COMMAND "${CHIP_ROOT}/scripts/codegen.py"
+        ARGS "--generator" "${ARG_GENERATOR}"
+             "--output-dir" "${GEN_FOLDER}"
+             "--expected-outputs" "${GEN_FOLDER}/expected.outputs"
+             "${ARG_INPUT}"
+        DEPENDS
+            "${ARG_INPUT}"
+        VERBATIM
+    )
 
-        add_custom_target(${TARGET_NAME} DEPENDS "${OUT_NAMES}")
-    endif()
-
-
-    message("WILL FORWARD: ")
-    message("NAMES: ${OUT_NAMES}")
-    message("FOLDER: ${GEN_FOLDER}")
-
+    add_custom_target(${TARGET_NAME} DEPENDS "${OUT_NAMES}")
 
     # Forward outputs to the parent
     set(${ARG_OUTPUT_FILES} "${OUT_NAMES}" PARENT_SCOPE)

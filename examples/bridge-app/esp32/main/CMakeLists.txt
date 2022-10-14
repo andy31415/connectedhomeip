@@ -14,18 +14,19 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-get_filename_component(CHIP_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../.." REALPATH)
+if (NOT CMAKE_BUILD_EARLY_EXPANSION)
+  get_filename_component(CHIP_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/connectedhomeip REALPATH)
+  include("${CHIP_ROOT}/build/chip/chip_codegen.cmake")
 
-include("${CHIP_ROOT}/build/chip/chip_codegen.cmake")
-
-chip_codegen(app-codegen
-  INPUT     "${CHIP_ROOT}/examples/bridge-app/bridge-common/bridge-app.matter"
-  GENERATOR "cpp-app"
-  OUTPUTS
-        "app/PluginApplicationCallbacks.h"
-  OUTPUT_PATH   APP_GEN_DIR
-  OUTPUT_FILES  APP_GEN_FILES
-)
+  chip_codegen(app-codegen
+    INPUT     "${CHIP_ROOT}/examples/bridge-app/bridge-common/bridge-app.matter"
+    GENERATOR "cpp-app"
+    OUTPUTS
+          "app/PluginApplicationCallbacks.h"
+    OUTPUT_PATH   APP_GEN_DIR
+    OUTPUT_FILES  APP_GEN_FILES
+  )
+endif()
 
 idf_component_register(PRIV_INCLUDE_DIRS
                       "${APP_GEN_DIR}"

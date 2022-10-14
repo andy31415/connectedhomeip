@@ -15,18 +15,20 @@
 #    limitations under the License.
 #
 # (Uses default behaviour of compiling all source files in directory, adding 'include' to include path.)
-get_filename_component(CHIP_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../.." REALPATH)
+if (NOT CMAKE_BUILD_EARLY_EXPANSION)
+  get_filename_component(CHIP_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/connectedhomeip REALPATH)
 
-include("${CHIP_ROOT}/build/chip/chip_codegen.cmake")
+  include("${CHIP_ROOT}/build/chip/chip_codegen.cmake")
 
-chip_codegen(app-codegen
-  INPUT     "${CHIP_ROOT}/examples/lock-app/lock-common/lock-app.matter"
-  GENERATOR "cpp-app"
-  OUTPUTS
-        "app/PluginApplicationCallbacks.h"
-  OUTPUT_PATH   APP_GEN_DIR
-  OUTPUT_FILES  APP_GEN_FILES
-)
+  chip_codegen(app-codegen
+    INPUT     "${CHIP_ROOT}/examples/lock-app/lock-common/lock-app.matter"
+    GENERATOR "cpp-app"
+    OUTPUTS
+          "app/PluginApplicationCallbacks.h"
+    OUTPUT_PATH   APP_GEN_DIR
+    OUTPUT_FILES  APP_GEN_FILES
+  )
+endif()
 
 
 if (CONFIG_ENABLE_PW_RPC)
