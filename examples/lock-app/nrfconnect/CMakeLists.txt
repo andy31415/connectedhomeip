@@ -19,6 +19,17 @@ get_filename_component(CHIP_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/third_party/connect
 get_filename_component(NRFCONNECT_COMMON ${CHIP_ROOT}/examples/platform/nrfconnect REALPATH)
 get_filename_component(GEN_DIR ${CHIP_ROOT}/zzz_generated/ REALPATH)
 
+include("${CHIP_ROOT}/build/chip/chip_codegen.cmake")
+
+chip_codegen(app-codegen
+  INPUT     "${CHIP_ROOT}/examples/lock-app/lock-common/lock-app.matter"
+  GENERATOR "cpp-app"
+  OUTPUTS
+        "app/PluginApplicationCallbacks.h"
+  OUTPUT_PATH   APP_GEN_DIR
+  OUTPUT_FILES  APP_GEN_FILES
+)
+
 include(${CHIP_ROOT}/config/nrfconnect/app/check-nrfconnect-version.cmake)
 
 # Set Kconfig root files that will be processed as a first Kconfig for used child images.
@@ -46,6 +57,7 @@ include(${CHIP_ROOT}/src/app/chip_data_model.cmake)
 
 target_include_directories(app PRIVATE
                            main/include
+                           ${APP_GEN_DIR}
                            ${GEN_DIR}/app-common
                            ${GEN_DIR}/lock-app
                            ${NRFCONNECT_COMMON}/util/include
@@ -59,6 +71,8 @@ target_sources(app PRIVATE
                ${GEN_DIR}/lock-app/zap-generated/callback-stub.cpp
                ${GEN_DIR}/lock-app/zap-generated/IMClusterCommandHandler.cpp
                ${NRFCONNECT_COMMON}/util/LEDWidget.cpp)
+
+add_dependencies(app app-codegen)
 
 chip_configure_data_model(app
     INCLUDE_SERVER
