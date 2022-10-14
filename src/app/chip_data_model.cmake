@@ -16,7 +16,6 @@
 
 set(CHIP_APP_BASE_DIR ${CMAKE_CURRENT_LIST_DIR})
 
-#
 # Configure ${APP_TARGET} with source files associated with ${CLUSTER} cluster
 #
 function(chip_configure_cluster APP_TARGET CLUSTER)

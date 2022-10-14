@@ -15,9 +15,23 @@
 #    limitations under the License.
 #
 
+get_filename_component(CHIP_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../.." REALPATH)
+
+include("${CHIP_ROOT}/build/chip/chip_codegen.cmake")
+
+chip_codegen(app-codegen
+  INPUT     "${CHIP_ROOT}/examples/all-clusters-app/all-clusters-common/all-clusters-app.matter"
+  GENERATOR "cpp-app"
+  OUTPUTS
+        "app/PluginApplicationCallbacks.h"
+  OUTPUT_PATH   APP_GEN_DIR
+  OUTPUT_FILES  APP_GEN_FILES
+)
+
 # (Uses default behaviour of compiling all source files in directory, adding 'include' to include path.)
 # The list of src and include dirs must be in sync with that in all-clusters-app/esp32/main/component.mk
 set(PRIV_INCLUDE_DIRS_LIST
+                      "${APP_GEN_DIR}"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/zzz_generated/all-clusters-app"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/examples/all-clusters-app/all-clusters-common/include"
                       "${CMAKE_CURRENT_LIST_DIR}/include"
@@ -27,6 +41,7 @@ set(PRIV_INCLUDE_DIRS_LIST
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/third_party/nlfaultinjection/repo/include"                      
 )
 set(SRC_DIRS_LIST
+                      "${APP_GEN_DIR}"
                       "${CMAKE_CURRENT_LIST_DIR}"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/zzz_generated/all-clusters-app/zap-generated"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/zzz_generated/app-common/app-common/zap-generated/attributes"
@@ -136,6 +151,8 @@ idf_component_register(PRIV_INCLUDE_DIRS ${PRIV_INCLUDE_DIRS_LIST}
                        SRC_DIRS ${SRC_DIRS_LIST}
                        EXCLUDE_SRCS ${EXCLUDE_SRCS_LIST}
                        PRIV_REQUIRES ${PRIV_REQUIRES_LIST})
+
+add_dependencies(${COMPONENT_LIB} app-codegen)
 
 set_property(TARGET ${COMPONENT_LIB} PROPERTY CXX_STANDARD 17)
 target_compile_options(${COMPONENT_LIB} PRIVATE "-DCHIP_HAVE_CONFIG_H")
