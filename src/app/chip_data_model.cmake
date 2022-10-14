@@ -16,6 +16,8 @@
 
 set(CHIP_APP_BASE_DIR ${CMAKE_CURRENT_LIST_DIR})
 
+include("${CHIP_ROOT}/build/chip/chip_codegen.cmake")
+
 # Configure ${APP_TARGET} with source files associated with ${CLUSTER} cluster
 #
 function(chip_configure_cluster APP_TARGET CLUSTER)
@@ -51,9 +53,11 @@ endfunction()
 #   INCLUDE_SERVER  Include source files from src/app/server directory
 #   ZAP_FILE        Path to the ZAP file, used to determine the list of clusters
 #                   supported by the application.
+#   IDL             .matter IDL file to use for codegen. Inferred from ZAP_FILE
+#                   if not provided
 #
 function(chip_configure_data_model APP_TARGET)
-    cmake_parse_arguments(ARG "INCLUDE_SERVER" "ZAP_FILE;GEN_DIR" "" ${ARGN})
+    cmake_parse_arguments(ARG "INCLUDE_SERVER" "ZAP_FILE;GEN_DIR;IDL" "" ${ARGN})
 
     if (ARG_INCLUDE_SERVER)
         target_sources(${APP_TARGET} PRIVATE
@@ -71,6 +75,23 @@ function(chip_configure_data_model APP_TARGET)
 
     if (ARG_ZAP_FILE)
         chip_configure_zap_file(${APP_TARGET} ${ARG_ZAP_FILE})
+        if (NOT ARG_IDL)
+            string(REPLACE ".zap" ".matter" ARG_IDL ${ARG_ZAP_FILE})
+        endif()
+    endif()
+
+    if (ARG_IDL)
+        chip_codegen(app-codegen
+          INPUT     "${ARG_IDL}"
+          GENERATOR "cpp-app"
+          OUTPUTS
+                "app/PluginApplicationCallbacks.h"
+          OUTPUT_PATH   APP_GEN_DIR
+          OUTPUT_FILES  APP_GEN_FILES
+        )
+
+        target_include_directories(app PRIVATE "${APP_GEN_DIR}")
+        add_dependencies(app app-codegen)
     endif()
 
     target_sources(${APP_TARGET} PRIVATE
