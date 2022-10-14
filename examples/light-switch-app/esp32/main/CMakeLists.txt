@@ -15,8 +15,21 @@
 #    limitations under the License.
 #
 # (Uses default behaviour of compiling all source files in directory, adding 'include' to include path.)
+get_filename_component(CHIP_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../.." REALPATH)
+
+include("${CHIP_ROOT}/build/chip/chip_codegen.cmake")
+
+chip_codegen(app-codegen
+  INPUT     "${CHIP_ROOT}/examples/light-switch-app/light-switch-common/light-switch-app.matter"
+  GENERATOR "cpp-app"
+  OUTPUTS
+        "app/PluginApplicationCallbacks.h"
+  OUTPUT_PATH   APP_GEN_DIR
+  OUTPUT_FILES  APP_GEN_FILES
+)
 
 idf_component_register(PRIV_INCLUDE_DIRS
+                      "${APP_GEN_DIR}"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/zzz_generated/light-switch-app"
                       "${CMAKE_CURRENT_LIST_DIR}/include"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/examples/providers"
@@ -61,6 +74,7 @@ idf_component_register(PRIV_INCLUDE_DIRS
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/src/app/clusters/groups-server"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/src/app/clusters/group-key-mgmt-server"
                       PRIV_REQUIRES chip QRCode bt app_update)
+add_dependencies(${COMPONENT_LIB} app-codegen)
 
 set_property(TARGET ${COMPONENT_LIB} PROPERTY CXX_STANDARD 17)
 target_compile_options(${COMPONENT_LIB} PRIVATE "-DCHIP_HAVE_CONFIG_H")
