@@ -16,23 +16,9 @@
 #
 #
 # (Uses default behaviour of compiling all source files in directory, adding 'include' to include path.)
-if (NOT CMAKE_BUILD_EARLY_EXPANSION)
-  get_filename_component(CHIP_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/connectedhomeip REALPATH)
-
-  include("${CHIP_ROOT}/build/chip/chip_codegen.cmake")
-
-  chip_codegen(app-codegen
-    INPUT     "${CHIP_ROOT}/examples/ota-requestor-app/ota-requestor-common/ota-requestor-app.matter"
-    GENERATOR "cpp-app"
-    OUTPUTS
-          "app/PluginApplicationCallbacks.h"
-    OUTPUT_PATH   APP_GEN_DIR
-    OUTPUT_FILES  APP_GEN_FILES
-  )
-endif()
+get_filename_component(CHIP_ROOT ${CMAKE_SOURCE_DIR}/third_party/connectedhomeip REALPATH)
 
 set(PRIV_INCLUDE_DIRS_LIST
-                      "${APP_GEN_DIR}"
                       "${CMAKE_CURRENT_LIST_DIR}/include"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/src"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/zzz_generated/ota-requestor-app/"
@@ -101,7 +87,9 @@ endif (CONFIG_ENABLE_PW_RPC)
 idf_component_register(PRIV_INCLUDE_DIRS ${PRIV_INCLUDE_DIRS_LIST}
                        SRC_DIRS ${SRC_DIRS_LIST}
                        PRIV_REQUIRES ${PRIV_REQUIRES_LIST})
-add_dependencies(${COMPONENT_LIB} app-codegen)
+
+include("${CHIP_ROOT}/build/chip/esp32/esp32_codegen.cmake")
+chip_app_component_codegen("${CHIP_ROOT}/examples/ota-requestor-app/ota-requestor-common/ota-requestor-app.matter")
 
 set_property(TARGET ${COMPONENT_LIB} PROPERTY CXX_STANDARD 17)
 target_compile_options(${COMPONENT_LIB} PRIVATE "-DCHIP_HAVE_CONFIG_H")
@@ -111,9 +99,8 @@ target_compile_options(${COMPONENT_LIB} PUBLIC
 
 if (CONFIG_ENABLE_PW_RPC)
 
-get_filename_component(CHIP_ROOT ${CMAKE_SOURCE_DIR}/third_party/connectedhomeip REALPATH)
 
-set(PIGWEED_ROOT "${CHIP_ROOT}/third_party/pigweed/repo")
+set(PIGWEED_ROOT "${cHIP_ROOT}/third_party/pigweed/repo")
 include(${PIGWEED_ROOT}/pw_build/pigweed.cmake)
 include(${PIGWEED_ROOT}/pw_protobuf_compiler/proto.cmake)
 set(dir_pw_third_party_nanopb "${CHIP_ROOT}/third_party/nanopb/repo" CACHE STRING "" FORCE)
