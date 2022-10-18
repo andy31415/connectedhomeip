@@ -14,22 +14,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-if (NOT CMAKE_BUILD_EARLY_EXPANSION)
-  get_filename_component(CHIP_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/connectedhomeip REALPATH)
-  include("${CHIP_ROOT}/build/chip/chip_codegen.cmake")
-
-  chip_codegen(app-codegen
-    INPUT     "${CHIP_ROOT}/examples/bridge-app/bridge-common/bridge-app.matter"
-    GENERATOR "cpp-app"
-    OUTPUTS
-          "app/PluginApplicationCallbacks.h"
-    OUTPUT_PATH   APP_GEN_DIR
-    OUTPUT_FILES  APP_GEN_FILES
-  )
-endif()
-
 idf_component_register(PRIV_INCLUDE_DIRS
-                      "${APP_GEN_DIR}"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/zzz_generated/bridge-app"
                       "${CMAKE_CURRENT_LIST_DIR}/include"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/examples/providers"
@@ -69,7 +54,11 @@ idf_component_register(PRIV_INCLUDE_DIRS
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/examples/providers"
                       PRIV_REQUIRES chip QRCode bt)
 
-add_dependencies(${COMPONENT_LIB} app-codegen)
+get_filename_component(CHIP_ROOT ${CMAKE_SOURCE_DIR}/third_party/connectedhomeip REALPATH)
+
+include("${CHIP_ROOT}/build/chip/esp32/esp32_codegen.cmake")
+
+chip_app_component_codegen("${CHIP_ROOT}/examples/bridge-app/bridge-common/bridge-app.matter")
 
 set_property(TARGET ${COMPONENT_LIB} PROPERTY CXX_STANDARD 14)
 target_compile_options(${COMPONENT_LIB} PRIVATE "-DCHIP_HAVE_CONFIG_H")
