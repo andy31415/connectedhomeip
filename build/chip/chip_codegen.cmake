@@ -1,5 +1,3 @@
-# TODO: implement
-
 # Run chip code generation. 
 #
 # Example usage:

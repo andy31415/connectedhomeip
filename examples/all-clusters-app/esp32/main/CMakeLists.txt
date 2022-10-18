@@ -14,26 +14,9 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-
-if (NOT CMAKE_BUILD_EARLY_EXPANSION)
-  get_filename_component(CHIP_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/connectedhomeip REALPATH)
-
-  include("${CHIP_ROOT}/build/chip/chip_codegen.cmake")
-
-  chip_codegen(app-codegen
-    INPUT     "${CHIP_ROOT}/examples/all-clusters-app/all-clusters-common/all-clusters-app.matter"
-    GENERATOR "cpp-app"
-    OUTPUTS
-          "app/PluginApplicationCallbacks.h"
-    OUTPUT_PATH   APP_GEN_DIR
-    OUTPUT_FILES  APP_GEN_FILES
-  )
-endif()
-
 # (Uses default behaviour of compiling all source files in directory, adding 'include' to include path.)
 # The list of src and include dirs must be in sync with that in all-clusters-app/esp32/main/component.mk
 set(PRIV_INCLUDE_DIRS_LIST
-                      "${APP_GEN_DIR}"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/zzz_generated/all-clusters-app"
                       "${CMAKE_SOURCE_DIR}/third_party/connectedhomeip/examples/all-clusters-app/all-clusters-common/include"
                       "${CMAKE_CURRENT_LIST_DIR}/include"
@@ -152,7 +135,12 @@ idf_component_register(PRIV_INCLUDE_DIRS ${PRIV_INCLUDE_DIRS_LIST}
                        SRC_DIRS ${SRC_DIRS_LIST}
                        EXCLUDE_SRCS ${EXCLUDE_SRCS_LIST}
                        PRIV_REQUIRES ${PRIV_REQUIRES_LIST})
-add_dependencies(${COMPONENT_LIB} app-codegen)
+
+get_filename_component(CHIP_ROOT ${CMAKE_SOURCE_DIR}/third_party/connectedhomeip REALPATH)
+
+include("${CHIP_ROOT}/build/chip/esp32/esp32_codegen.cmake")
+
+chip_app_component_codegen("${CHIP_ROOT}/examples/all-clusters-app/all-clusters-common/all-clusters-app.matter")
 
 set_property(TARGET ${COMPONENT_LIB} PROPERTY CXX_STANDARD 17)
 target_compile_options(${COMPONENT_LIB} PRIVATE "-DCHIP_HAVE_CONFIG_H")
@@ -162,7 +150,6 @@ target_compile_options(${COMPONENT_LIB} PUBLIC
 
 if (CONFIG_ENABLE_PW_RPC)
 
-get_filename_component(CHIP_ROOT ${CMAKE_SOURCE_DIR}/third_party/connectedhomeip REALPATH)
 
 set(PIGWEED_ROOT "${CHIP_ROOT}/third_party/pigweed/repo")
 include(${PIGWEED_ROOT}/pw_build/pigweed.cmake)
