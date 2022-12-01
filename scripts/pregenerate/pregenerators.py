@@ -17,18 +17,22 @@ import os
 import shlex
 import subprocess
 
+from enum import Enum, auto
+
 from .types import InputIdlFile, IdlFileType
 
-CODEGEN_PY_PATH = os.path.join(os.path.dirname(__file__), '..', 'codegen.py')
+CODEGEN_PY_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'codegen.py'))
+ZAP_GENERATE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'tools', 'zap', 'generate.py'))
 
 
 class CodegenTarget:
     """A target that uses `scripts/codegen.py` to generate files."""
 
-    def __init__(self, idl: InputIdlFile, generator: str, sdk_root: str):
+    def __init__(self, idl: InputIdlFile, generator: str, sdk_root: str, runner):
         self.idl = idl
         self.generator = generator
         self.sdk_root = sdk_root
+        self.runner = runner
 
         if idl.file_type != IdlFileType.MATTER:
             raise Exception(f"Can only code generate for `*.matter` input files, not for {idl}")
@@ -49,7 +53,7 @@ class CodegenTarget:
         ]
 
         logging.debug(f"Executing {cmd}")
-        subprocess.check_call(cmd)
+        self.runner.run(cmd)
 
 
 class CodegenBridgePregenerator:
@@ -63,8 +67,8 @@ class CodegenBridgePregenerator:
         # bridge codegen
         return idl.relative_path == "examples/dynamic-bridge-app/bridge-common/bridge-app.matter"
 
-    def CreateTarget(self, idl: InputIdlFile):
-        return CodegenTarget(sdk_root=self.sdk_root, idl=idl, generator="bridge")
+    def CreateTarget(self, idl: InputIdlFile, runner):
+        return CodegenTarget(sdk_root=self.sdk_root, idl=idl, generator="bridge", runner=runner)
 
 
 class CodegenJavaPregenerator:
@@ -78,8 +82,8 @@ class CodegenJavaPregenerator:
         # bridge codegen
         return idl.relative_path == "src/controller/data_model/controller-clusters.matter"
 
-    def CreateTarget(self, idl: InputIdlFile):
-        return CodegenTarget(sdk_root=self.sdk_root, idl=idl, generator="java")
+    def CreateTarget(self, idl: InputIdlFile, runner):
+        return CodegenTarget(sdk_root=self.sdk_root, idl=idl, generator="java", runner=runner)
 
 
 class CodegenCppAppPregenerator:
@@ -98,5 +102,74 @@ class CodegenCppAppPregenerator:
 
         return True
 
-    def CreateTarget(self, idl: InputIdlFile):
-        return CodegenTarget(sdk_root=self.sdk_root, idl=idl, generator="cpp-app")
+    def CreateTarget(self, idl: InputIdlFile, runner):
+        return CodegenTarget(sdk_root=self.sdk_root, idl=idl, generator="cpp-app", runner=runner)
+
+
+class ZapGeneratorType(Enum):
+    APPLICATION_TEMPLATES = auto()
+
+    @property
+    def generation_template(self):
+        if self == ZapGeneratorType.APPLICATION_TEMPLATES:
+            return 'src/app/zap-templates/app-templates.json'
+        else:
+            raise Exception("Missing ZAP Generation type implementation")
+
+    @property
+    def subdir(self):
+        if self == ZapGeneratorType.APPLICATION_TEMPLATES:
+            return 'app-templates/zap-generated'
+        else:
+            raise Exception("Missing ZAP Generation type implementation")
+
+
+
+class ZapTarget:
+    def __init__(self, idl: InputIdlFile, generation_type: ZapGeneratorType, sdk_root: str, runner):
+        self.idl = idl
+        self.sdk_root = sdk_root
+        self.generation_type = generation_type
+        self.runner = runner
+
+        if idl.file_type != IdlFileType.ZAP:
+            raise Exception(f"Can only code generate for `*.zap` input files, not for {idl}")
+
+    def Generate(self, output_root: str):
+        '''Runs generate.py to generate in the specified directory root'''
+
+        output_dir = os.path.join(output_root, self.idl.pregen_subdir, self.generation_type.subdir)
+
+        logging.info(f"Generating: {self.generation_type}:{self.idl.relative_path} into {output_dir}")
+
+        self.runner.ensure_directory_exists(output_dir)
+
+        cmd = [
+            ZAP_GENERATE_PATH,
+            '--templates', self.generation_type.generation_template,
+            '--output-dir', output_dir,
+            '--parallel',
+            self.idl.relative_path
+        ]
+        logging.debug(f"Executing {cmd}")
+        self.runner.run(cmd, cwd=self.sdk_root)
+
+
+class ZapApplicationPregenerator:
+    """Pregeneration logic for `src/app/zap-templates/app-templates.json` """
+
+    def __init__(self, sdk_root):
+        self.sdk_root = sdk_root
+
+    def Accept(self, idl: InputIdlFile):
+        if idl.file_type != IdlFileType.ZAP:
+            return False
+
+        # FIXME: implement a proper check
+        if 'test_files' in idl.relative_path:
+            return False
+        return True
+
+    def CreateTarget(self, idl: InputIdlFile, runner):
+        # TODO: add additional arguments: tell how to invoke zap/codegen
+        return ZapTarget(sdk_root=self.sdk_root, generation_type=ZapGeneratorType.APPLICATION_TEMPLATES, idl=idl, runner=runner)

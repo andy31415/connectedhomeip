@@ -24,6 +24,7 @@ from .types import InputIdlFile, IdlFileType
 from .pregenerators import CodegenJavaPregenerator
 from .pregenerators import CodegenBridgePregenerator
 from .pregenerators import CodegenCppAppPregenerator
+from .pregenerators import ZapApplicationPregenerator
 
 
 def FindAllIdls(sdk_root: str) -> Iterator[InputIdlFile]:
@@ -49,7 +50,7 @@ def FindAllIdls(sdk_root: str) -> Iterator[InputIdlFile]:
                                        relative_path=os.path.join(root[sdk_root_length+1:], file))
 
 
-def FindPregenerationTargets(sdk_root: str):
+def FindPregenerationTargets(sdk_root: str, runner):
     """Finds all relevand pre-generation targets in the given
        SDK root.
 
@@ -58,12 +59,16 @@ def FindPregenerationTargets(sdk_root: str):
     """
 
     generators = [
+        # Jinja-based codegen
         CodegenBridgePregenerator(sdk_root),
         CodegenJavaPregenerator(sdk_root),
         CodegenCppAppPregenerator(sdk_root),
+
+        # ZAP codegen
+        ZapApplicationPregenerator(sdk_root),
     ]
 
     for idl in FindAllIdls(sdk_root):
         for generator in generators:
             if generator.Accept(idl):
-                yield generator.CreateTarget(idl)
+                yield generator.CreateTarget(idl, runner=runner)
