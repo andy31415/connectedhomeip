@@ -124,7 +124,6 @@ class ZapGeneratorType(Enum):
             raise Exception("Missing ZAP Generation type implementation")
 
 
-
 class ZapTarget:
     def __init__(self, idl: InputIdlFile, generation_type: ZapGeneratorType, sdk_root: str, runner):
         self.idl = idl
