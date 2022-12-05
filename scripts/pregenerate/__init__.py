@@ -21,10 +21,10 @@ from typing import Iterator
 from .types import InputIdlFile, IdlFileType
 
 
-from .pregenerators import CodegenJavaPregenerator
-from .pregenerators import CodegenBridgePregenerator
-from .pregenerators import CodegenCppAppPregenerator
-from .pregenerators import ZapApplicationPregenerator
+from .using_codegen import CodegenJavaPregenerator
+from .using_codegen import CodegenBridgePregenerator
+from .using_codegen import CodegenCppAppPregenerator
+from .using_zap import ZapApplicationPregenerator
 
 
 def FindAllIdls(sdk_root: str) -> Iterator[InputIdlFile]:
