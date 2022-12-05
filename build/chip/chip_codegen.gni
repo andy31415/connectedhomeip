@@ -147,6 +147,8 @@ template("_chip_build_time_zapgen") {
       "${chip_root}/src/app/zap-templates/templates/app/im-cluster-command-handler.zapt",
       "${chip_root}/src/app/zap-templates/templates/app/MatterIDL.zapt",
     ]
+
+    _output_subdir = "zap-generated"
   }
 
   pw_python_action("${_name}_zapgen") {
@@ -161,7 +163,7 @@ template("_chip_build_time_zapgen") {
       "--templates",
       _template_path,
       "--output-dir",
-      rebase_path(target_gen_dir),
+      rebase_path(target_gen_dir) + "/" + _output_subdir,
       "--parallel",
       _idl_file,
     ]
