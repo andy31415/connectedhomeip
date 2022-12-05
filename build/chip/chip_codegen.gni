@@ -161,7 +161,7 @@ template("_chip_build_time_zapgen") {
       "--templates",
       _template_path,
       "--output-dir",
-      rebase_path(target_gen_dir, root_build_dir),
+      rebase_path(target_gen_dir),
       "--parallel",
       _idl_file,
     ]
