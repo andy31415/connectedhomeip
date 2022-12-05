@@ -77,8 +77,27 @@ template("chip_data_model") {
     deps += [ "${chip_root}/src/app/common:cluster-objects" ]
   }
 
-  _use_default_im_dispatch = !defined(invoker.use_default_im_dispatch) ||
-                             invoker.use_default_im_dispatch
+  chip_zapgen("${_data_model_name}_zapgen") {
+    input = invoker.zap_file
+    generator = "app-templates"
+
+    outputs = [
+      "zap-generated/access.h",
+      "zap-generated/CHIPClientCallbacks.h",
+      "zap-generated/CHIPClusters.h",
+      "zap-generated/endpoint_config.h",
+      "zap-generated/gen_config.h",
+      "zap-generated/IMClusterCommandHandler.cpp",
+    ]
+
+    public_configs = [ ":${_data_model_name}_config" ]
+
+    if (!defined(deps)) {
+      deps = []
+    }
+
+    deps += [ "${chip_root}/src/app/common:cluster-objects" ]
+  }
 
   source_set(_data_model_name) {
     forward_variables_from(invoker,
@@ -97,6 +116,7 @@ template("chip_data_model") {
       deps = []
     }
     deps += [ ":${_data_model_name}_codegen" ]
+    deps += [ ":${_data_model_name}_zapgen" ]
 
     sources += [
       "${_app_root}/clusters/barrier-control-server/barrier-control-server.h",
@@ -184,23 +204,13 @@ template("chip_data_model") {
       }
     }
 
-    if (defined(invoker.zap_pregenerated_dir)) {
-      if (chip_controller) {
-        sources += [ "${invoker.zap_pregenerated_dir}/CHIPClusters.h" ]
-      }
-
-      if (_use_default_im_dispatch) {
-        sources +=
-            [ "${invoker.zap_pregenerated_dir}/IMClusterCommandHandler.cpp" ]
-      }
-    }
-
     if (!defined(public_deps)) {
       public_deps = []
     }
 
     public_deps += [
       ":${_data_model_name}_codegen",
+      ":${_data_model_name}_zapgen",
       "${chip_root}/src/app",
       "${chip_root}/src/app/common:cluster-objects",
       "${chip_root}/src/controller",
