@@ -122,7 +122,8 @@ template("_chip_build_time_zapgen") {
 
   if (_generator == "app-templates") {
     # FIXME: dependencies, template_path
-    _template_path = rebase_path("${chip_root}/src/app/zap-templates/app-templates.json")
+    _template_path =
+        rebase_path("${chip_root}/src/app/zap-templates/app-templates.json")
 
     # TODO: unclear how to maintain these: there is no parser that can figure
     #       out links of template files and zap files and such
@@ -155,9 +156,6 @@ template("_chip_build_time_zapgen") {
     _pw_internal_run_in_venv = false
 
     _idl_file = invoker.input
-    _expected_outputs = "${target_gen_dir}/${_name}.expected.outputs"
-
-    write_file(_expected_outputs, invoker.outputs, "list lines")
 
     args = [
       "--templates",
@@ -165,13 +163,14 @@ template("_chip_build_time_zapgen") {
       "--output-dir",
       rebase_path(target_gen_dir, root_build_dir),
       "--parallel",
-      _idl_file
+      _idl_file,
     ]
 
     inputs = [
-               _idl_file,
-               _template_path,
-             ] + _extra_dependencies
+      _idl_file,
+      _template_path,
+    ]
+    inputs += _extra_dependencies
 
     # ensure any change in codegen files will result in a rebuild
     inputs += matter_idl_generator_files
