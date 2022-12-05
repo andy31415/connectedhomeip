@@ -96,9 +96,7 @@ template("chip_data_model") {
       deps = []
     }
 
-    deps += [
-      "${chip_root}/src/app",
-    ]
+    deps += [ "${chip_root}/src/app" ]
   }
 
   source_set(_data_model_name) {
