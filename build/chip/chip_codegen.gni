@@ -229,7 +229,7 @@ template("_chip_build_time_zapgen") {
   source_set(_name) {
     sources = []
     foreach(name, invoker.outputs) {
-      sources += [ "${target_gen_dir}/${name}" ]
+      sources += [ "${target_gen_dir}/zapgen/${name}" ]
     }
 
     public_configs = [ ":${_name}_config" ]
