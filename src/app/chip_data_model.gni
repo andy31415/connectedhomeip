@@ -78,7 +78,7 @@ template("chip_data_model") {
   }
 
   chip_zapgen("${_data_model_name}_zapgen") {
-    input = invoker.zap_file
+    input = rebase_path(invoker.zap_file)
     generator = "app-templates"
 
     outputs = [
