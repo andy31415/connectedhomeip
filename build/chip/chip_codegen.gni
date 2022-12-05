@@ -107,7 +107,7 @@ template("_chip_build_time_codegen") {
 #
 #   deps, public_configs
 #     Forwarded to the resulting source set
-# 
+#
 #
 # uses `zap` for code generation.
 template("_chip_build_time_zapgen") {
@@ -117,7 +117,6 @@ template("_chip_build_time_zapgen") {
   config("${_name}_config") {
     include_dirs = [ target_gen_dir ]
   }
-
 
   assert(_generator == "app-templates")
 
@@ -147,7 +146,7 @@ template("_chip_build_time_zapgen") {
       "${chip_root}/src/app/zap-templates/templates/app/im-cluster-command-handler.zapt",
       "${chip_root}/src/app/zap-templates/templates/app/MatterIDL.zapt",
     ]
-  } 
+  }
 
   pw_python_action("${_name}_zapgen") {
     script = "${chip_root}/scripts/tools/zap/generate.py"
@@ -161,18 +160,18 @@ template("_chip_build_time_zapgen") {
     write_file(_expected_outputs, invoker.outputs, "list lines")
 
     args = [
-      "--templates", 
+      "--templates",
       _template_path,
-      "--output-dir", 
+      "--output-dir",
       rebase_path(target_gen_dir, root_build_dir),
       "--parallel",
       rebase_path(_idl_file, root_build_dir),
     ]
 
     inputs = [
-      _idl_file,
-      _template_path
-    ] + _extra_dependencies
+               _idl_file,
+               _template_path,
+             ] + _extra_dependencies
 
     # ensure any change in codegen files will result in a rebuild
     inputs += matter_idl_generator_files
