@@ -19,7 +19,7 @@
 #include <controller/AutoCommissioner.h>
 
 #include <app/InteractionModelTimeout.h>
-#include <controller-clusters/zap-generated/CHIPClusters.h>
+#include <zap-generated/CHIPClusters.h>
 #include <controller/CHIPDeviceController.h>
 #include <credentials/CHIPCert.h>
 #include <lib/support/SafeInt.h>

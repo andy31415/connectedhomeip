@@ -72,7 +72,10 @@ static_library("controller") {
     "${chip_root}/src/transport",
   ]
 
-  deps = [ "${chip_root}/src/lib/address_resolve" ]
+  deps = [ 
+    "${chip_root}/src/lib/address_resolve",
+    "${chip_root}/src/controller/data_model:data_model_zapgen",
+  ]
 
   public_configs = [ ":config" ]
 
