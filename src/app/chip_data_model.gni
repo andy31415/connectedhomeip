@@ -59,24 +59,6 @@ template("chip_data_model") {
     }
   }
 
-  chip_codegen("${_data_model_name}_codegen") {
-    input = _idl
-    generator = "cpp-app"
-
-    outputs = [
-      "app/PluginApplicationCallbacks.h",
-      "app/callback-stub.cpp",
-    ]
-
-    public_configs = [ ":${_data_model_name}_config" ]
-
-    if (!defined(deps)) {
-      deps = []
-    }
-
-    deps += [ "${chip_root}/src/app/common:cluster-objects" ]
-  }
-
   chip_zapgen("${_data_model_name}_zapgen") {
     input = rebase_path(invoker.zap_file)
     generator = "app-templates"
@@ -98,6 +80,28 @@ template("chip_data_model") {
 
     deps += [ "${chip_root}/src/app" ]
   }
+
+  chip_codegen("${_data_model_name}_codegen") {
+    input = _idl
+    generator = "cpp-app"
+
+    outputs = [
+      "app/PluginApplicationCallbacks.h",
+      "app/callback-stub.cpp",
+    ]
+
+    public_configs = [ ":${_data_model_name}_config" ]
+
+    if (!defined(deps)) {
+      deps = []
+    }
+
+    deps += [ 
+      ":${_data_model_name}_zapgen",
+      "${chip_root}/src/app/common:cluster-objects",
+    ]
+  }
+
 
   source_set(_data_model_name) {
     forward_variables_from(invoker,
