@@ -64,26 +64,31 @@ template("chip_data_model") {
     generator = "app-templates"
 
     outputs = [
+      "zap-generated/access.h",
+      "zap-generated/gen_config.h",
+      "zap-generated/endpoint_config.h",
       "zap-generated/CHIPClientCallbacks.h",
       "zap-generated/CHIPClusters.h",
     ]
 
-    forward_variables_from(invoker, ["is_server"])
+    forward_variables_from(invoker, [ "is_server" ])
     if (!defined(is_server)) {
       is_server = false
     }
 
-    # TODO: this is very odd: codegen WILL generate this for both common 
+    _server_outputs = [
+      "zap-generated/IMClusterCommandHandler.cpp",
+    ]
+
+    # TODO: this is very odd: codegen WILL generate this for both common
     #       AND app-specific code, however we are supposed to use a subset of
-    #       files only for apps. 
+    #       files only for apps.
     #
     if (is_server) {
-      outputs += [
-          "zap-generated/IMClusterCommandHandler.cpp",
-          "zap-generated/access.h",
-          "zap-generated/endpoint_config.h",
-          "zap-generated/gen_config.h",
-      ]
+      outputs += _server_outputs
+      prune_outputs = []
+    } else {
+      prune_outputs = _server_outputs
     }
 
     public_configs = [ ":${_data_model_name}_config" ]
@@ -110,12 +115,11 @@ template("chip_data_model") {
       deps = []
     }
 
-    deps += [ 
+    deps += [
       ":${_data_model_name}_zapgen",
       "${chip_root}/src/app/common:cluster-objects",
     ]
   }
-
 
   source_set(_data_model_name) {
     forward_variables_from(invoker,
@@ -129,12 +133,6 @@ template("chip_data_model") {
     if (!defined(sources)) {
       sources = []
     }
-
-    if (!defined(deps)) {
-      deps = []
-    }
-    deps += [ ":${_data_model_name}_codegen" ]
-    deps += [ ":${_data_model_name}_zapgen" ]
 
     sources += [
       "${_app_root}/clusters/barrier-control-server/barrier-control-server.h",
