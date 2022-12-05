@@ -150,27 +150,23 @@ template("chip_data_model") {
       "${_app_root}/clusters/on-off-server/on-off-server.h",
       "${_app_root}/clusters/scenes/scenes-tokens.h",
       "${_app_root}/clusters/scenes/scenes.h",
-      "${_app_root}/util/DataModelHandler.cpp",
       "${_app_root}/util/af-event.cpp",
       "${_app_root}/util/attribute-size-util.cpp",
+      "${_app_root}/util/attribute-storage.cpp",
+      "${_app_root}/util/attribute-table.cpp",
       "${_app_root}/util/binding-table.cpp",
       "${_app_root}/util/binding-table.h",
+      "${_app_root}/util/DataModelHandler.cpp",
       "${_app_root}/util/ember-compatibility-functions.cpp",
       "${_app_root}/util/ember-print.cpp",
       "${_app_root}/util/error-mapping.cpp",
       "${_app_root}/util/generic-callback-stubs.cpp",
       "${_app_root}/util/message.cpp",
+      "${_app_root}/util/privilege-storage.cpp",
       "${_app_root}/util/util.cpp",
+      "${chip_root}/zzz_generated/app-common/app-common/zap-generated/attributes/Accessors.cpp",
     ]
 
-    if (is_server) {
-      sources += [
-        "${_app_root}/util/attribute-storage.cpp",
-        "${_app_root}/util/attribute-table.cpp",
-        "${_app_root}/util/privilege-storage.cpp",
-        "${chip_root}/zzz_generated/app-common/app-common/zap-generated/attributes/Accessors.cpp",
-      ]
-    }
 
 
     if (defined(invoker.zap_file)) {
