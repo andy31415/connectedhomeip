@@ -24,13 +24,14 @@ import sys
 
 
 try:
-    from pregenerate import FindPregenerationTargets
+    from pregenerate import FindPregenerationTargets, TargetFilter
 except:
     import os
     sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-    from pregenerate import FindPregenerationTargets
+    from pregenerate import FindPregenerationTargets, TargetFilter
 
 from pregenerate.executors import DryRunner, ShellRunner
+from pregenerate.types import IdlFileType
 
 try:
     import coloredlogs
@@ -71,11 +72,21 @@ def _ParallelGenerateOne(arg):
     default=False,
     help='Do not actually execute commands, just log')
 @click.option(
+    '--generator',
+    default='all',
+    type=click.Choice(['all', 'zap', 'codegen']),
+    help='To what code generator to restrict the generation.')
+@click.option(
+    '--input-glob',
+    default=None,
+    multiple=True,
+    help='Restrict file generation inputs to the specified glob patterns.')
+@click.option(
     '--sdk-root',
     default=None,
     help='Path to the SDK root (where .zap/.matter files exist).')
 @click.argument('output_dir')
-def main(log_level, parallel, dry_run, sdk_root, output_dir):
+def main(log_level, parallel, dry_run, generator, input_glob, sdk_root, output_dir):
     if _has_coloredlogs:
         coloredlogs.install(level=__LOG_LEVELS__[
                             log_level], fmt='%(asctime)s %(levelname)-7s %(message)s')
@@ -104,7 +115,14 @@ def main(log_level, parallel, dry_run, sdk_root, output_dir):
     else:
         runner = DryRunner()
 
-    targets = FindPregenerationTargets(sdk_root, runner)
+    filter = TargetFilter(path_glob = input_glob)
+
+    if generator == 'zap':
+        filter.file_type = IdlFileType.ZAP
+    elif generator == 'codegen':
+        filter.file_type = IdlFileType.MATTER
+
+    targets = FindPregenerationTargets(sdk_root, filter, runner)
 
     runner.ensure_directory_exists(output_dir)
     if parallel:
