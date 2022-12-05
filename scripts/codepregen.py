@@ -115,7 +115,7 @@ def main(log_level, parallel, dry_run, generator, input_glob, sdk_root, output_d
     else:
         runner = DryRunner()
 
-    filter = TargetFilter(path_glob = input_glob)
+    filter = TargetFilter(path_glob=input_glob)
 
     if generator == 'zap':
         filter.file_type = IdlFileType.ZAP

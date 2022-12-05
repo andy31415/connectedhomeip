@@ -103,5 +103,3 @@ class CodegenCppAppPregenerator:
 
     def CreateTarget(self, idl: InputIdlFile, runner):
         return CodegenTarget(sdk_root=self.sdk_root, idl=idl, generator="cpp-app", runner=runner)
-
-
