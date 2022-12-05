@@ -208,9 +208,12 @@ template("_chip_build_time_zapgen") {
     write_file(_keep_file, invoker.outputs, "list lines")
 
     args = [
-      "--keep", _keep_file,
-      "--input-dir", rebase_path("${target_gen_dir}/zap_pregen/"),
-      "--output-dir", rebase_path("${target_gen_dir}/zapgen/"),
+      "--keep",
+      _keep_file,
+      "--input-dir",
+      rebase_path("${target_gen_dir}/zap_pregen/"),
+      "--output-dir",
+      rebase_path("${target_gen_dir}/zapgen/"),
     ]
 
     inputs = []
@@ -223,7 +226,7 @@ template("_chip_build_time_zapgen") {
       outputs += [ "${target_gen_dir}/zapgen/${name}" ]
     }
 
-    deps = [":${_name}_zap_pregen"]
+    deps = [ ":${_name}_zap_pregen" ]
   }
 
   source_set(_name) {
@@ -243,9 +246,9 @@ template("_chip_build_time_zapgen") {
     if (!defined(public_deps)) {
       public_deps = []
     }
-    public_deps += [ 
-      ":${_name}_zapgen",
+    public_deps += [
       ":${_name}_zap_pregen",
+      ":${_name}_zapgen",
     ]
   }
 }

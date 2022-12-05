@@ -76,9 +76,7 @@ template("chip_data_model") {
       is_server = false
     }
 
-    _server_outputs = [
-      "zap-generated/IMClusterCommandHandler.cpp",
-    ]
+    _server_outputs = [ "zap-generated/IMClusterCommandHandler.cpp" ]
 
     # TODO: this is very odd: codegen WILL generate this for both common
     #       AND app-specific code, however we are supposed to use a subset of
@@ -150,13 +148,13 @@ template("chip_data_model") {
       "${_app_root}/clusters/on-off-server/on-off-server.h",
       "${_app_root}/clusters/scenes/scenes-tokens.h",
       "${_app_root}/clusters/scenes/scenes.h",
+      "${_app_root}/util/DataModelHandler.cpp",
       "${_app_root}/util/af-event.cpp",
       "${_app_root}/util/attribute-size-util.cpp",
       "${_app_root}/util/attribute-storage.cpp",
       "${_app_root}/util/attribute-table.cpp",
       "${_app_root}/util/binding-table.cpp",
       "${_app_root}/util/binding-table.h",
-      "${_app_root}/util/DataModelHandler.cpp",
       "${_app_root}/util/ember-compatibility-functions.cpp",
       "${_app_root}/util/ember-print.cpp",
       "${_app_root}/util/error-mapping.cpp",
@@ -166,8 +164,6 @@ template("chip_data_model") {
       "${_app_root}/util/util.cpp",
       "${chip_root}/zzz_generated/app-common/app-common/zap-generated/attributes/Accessors.cpp",
     ]
-
-
 
     if (defined(invoker.zap_file)) {
       _zap_path = rebase_path(invoker.zap_file, root_build_dir)

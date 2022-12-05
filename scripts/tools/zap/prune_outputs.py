@@ -18,6 +18,7 @@ import os
 import shutil
 import sys
 
+
 def main():
     parser = argparse.ArgumentParser(
         description='Delete files based on an input file listing files to be removed')
@@ -34,7 +35,7 @@ def main():
             if not source:
                 continue
             target = os.path.join(args.output_dir, source)
-            os.makedirs(os.path.dirname(target), exist_ok = True)
+            os.makedirs(os.path.dirname(target), exist_ok=True)
             shutil.copyfile(os.path.join(args.input_dir, source), target)
 
 
