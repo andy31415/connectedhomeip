@@ -174,6 +174,7 @@ def getGlobalTemplatesTargets():
 
     targets.append(ZAPGenerateTarget(
         'src/controller/data_model/controller-clusters.zap',
+        template="src/app/zap-templates/matter-idl.json",
         output_dir=os.path.join('zzz_generated/controller-clusters/zap-generated')))
 
     return targets
