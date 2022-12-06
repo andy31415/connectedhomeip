@@ -242,8 +242,8 @@ template("_chip_build_time_zapgen") {
       public_deps = []
     }
     public_deps += [
-      ":${_name}_zap_pregen",
       ":${_name}_files",
+      ":${_name}_zap_pregen",
     ]
   }
 }

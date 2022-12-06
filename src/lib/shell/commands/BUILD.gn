@@ -60,13 +60,10 @@ source_set("commands") {
     # Awkward dependencies below say:
     #   - codegen via zap the CHIPClusters.h (which is the CLIENT SIDE)
     #   - ensure include path can see zap-generated/CHIPClusters.h
-    deps = [
-      "${chip_root}/src/controller/data_model:data_model_zapgen_files",
-    ]
+    deps = [ "${chip_root}/src/controller/data_model:data_model_zapgen_files" ]
 
-    configs += [
-      "${chip_root}/src/controller/data_model:data_model_zapgen_config",
-    ]
+    configs +=
+        [ "${chip_root}/src/controller/data_model:data_model_zapgen_config" ]
   }
 
   if (chip_device_platform != "none") {

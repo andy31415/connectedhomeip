@@ -31,7 +31,7 @@ CHIP_ROOT_DIR = os.path.realpath(
 
 @dataclass(eq=True, frozen=True)
 class ZapDistinctOutput:
-    """Defines the properties that determine if some output seems unique or 
+    """Defines the properties that determine if some output seems unique or
        not, for the purposes of detecting codegen overlap.
 
        Not perfect, since separate templates may use the same file names, but
@@ -43,7 +43,7 @@ class ZapDistinctOutput:
 
 
 class ZAPGenerateTarget:
-    def __init__(self, zap_config, template=None, output_dir=None):
+    def __init__(self, zap_config, template, output_dir=None):
         self.script = './scripts/tools/zap/generate.py'
         self.zap_config = str(zap_config)
         self.template = template
@@ -146,7 +146,7 @@ def getGlobalTemplatesTargets():
                 'zzz_generated', 'placeholder', example_name, 'zap-generated')
             template = 'examples/placeholder/templates/templates.json'
 
-            targets.append(ZAPGenerateTarget(filepath, output_dir=output_dir))
+            targets.append(ZAPGenerateTarget(filepath, output_dir=output_dir, template="src/app/zap-templates/matter-idl.json"))
             targets.append(
                 ZAPGenerateTarget(filepath, output_dir=output_dir, template=template))
             continue
@@ -170,17 +170,17 @@ def getGlobalTemplatesTargets():
         # a name like <zap-generated/foo.h>
         output_dir = os.path.join(
             'zzz_generated', generate_subdir, 'zap-generated')
-        targets.append(ZAPGenerateTarget(filepath, output_dir=output_dir))
+        targets.append(ZAPGenerateTarget(filepath, output_dir=output_dir, template="src/app/zap-templates/matter-idl.json"))))
 
     targets.append(ZAPGenerateTarget(
         'src/controller/data_model/controller-clusters.zap',
-        output_dir=os.path.join('zzz_generated/controller-clusters/zap-generated')))
+        output_dir = os.path.join('zzz_generated/controller-clusters/zap-generated')))
 
     return targets
 
 
 def getTestsTemplatesTargets(test_target):
-    templates = {
+    templates={
         'chip-tool': {
             'zap': 'src/controller/data_model/controller-clusters.zap',
             'template': 'examples/chip-tool/templates/tests/templates.json',
@@ -199,16 +199,16 @@ def getTestsTemplatesTargets(test_target):
             logging.info("Found test target %s (via %s)" %
                          (key, target['template']))
             targets.append(ZAPGenerateTarget(
-                target['zap'], template=target['template'], output_dir=target['output_dir']))
+                target['zap'], template = target['template'], output_dir = target['output_dir']))
 
     return targets
 
 
 def getSpecificTemplatesTargets():
-    zap_filepath = 'src/controller/data_model/controller-clusters.zap'
+    zap_filepath='src/controller/data_model/controller-clusters.zap'
 
     # Mapping of required template and output directory
-    templates = {
+    templates={
         'src/app/common/templates/templates.json': 'zzz_generated/app-common/app-common/zap-generated',
         'src/app/tests/suites/templates/templates.json': 'zzz_generated/app-common/app-common/zap-generated',
         'examples/chip-tool/templates/templates.json': 'zzz_generated/chip-tool/zap-generated',
@@ -218,7 +218,7 @@ def getSpecificTemplatesTargets():
         'src/controller/java/templates/templates.json': None,
     }
 
-    targets = []
+    targets=[]
     for template, output_dir in templates.items():
         logging.info("Found specific template %s" % template)
         targets.append(ZAPGenerateTarget(
