@@ -164,7 +164,7 @@ def BuildEsp32Target():
     target.AppendFixedTargets([
         TargetPart('all-clusters', app=Esp32App.ALL_CLUSTERS),
         TargetPart('all-clusters-minimal', app=Esp32App.ALL_CLUSTERS_MINIMAL),
-        TargetPart('ota-requestor', app=Esp32App.OTA_REQUESTOR),
+        TargetPart('ota-provider', app=Esp32App.OTA_PROVIDER),
         TargetPart('ota-requestor', app=Esp32App.OTA_REQUESTOR),
         TargetPart('shell', app=Esp32App.SHELL),
         TargetPart('light', app=Esp32App.LIGHT),
