@@ -199,7 +199,7 @@ template("_chip_build_time_zapgen") {
 
     script = "${chip_root}/scripts/tools/zap/prune_outputs.py"
 
-    _keep_file = "${target_gen_dir}/${_name}.keep.outputs"
+    _keep_file = rebase_path("${target_gen_dir}/${_name}.keep.outputs")
     write_file(_keep_file, invoker.outputs, "list lines")
 
     args = [
