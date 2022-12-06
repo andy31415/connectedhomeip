@@ -257,6 +257,7 @@ def BuildNrfTarget():
         TargetPart('shell', app=NrfApp.SHELL),
         TargetPart('pump', app=NrfApp.PUMP),
         TargetPart('pump-controller', app=NrfApp.PUMP_CONTROLLER),
+        TargetPart('window-covering', app=NrfApp.WINDOW_COVERING),
     ])
 
     target.AppendModifier('rpc', enable_rpcs=True)

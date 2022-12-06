@@ -64,7 +64,7 @@ endfunction()
 #                   if not provided
 #
 function(chip_configure_data_model APP_TARGET)
-    cmake_parse_arguments(ARG "INCLUDE_SERVER" "ZAP_FILE;GEN_DIR;IDL" "" ${ARGN})
+    cmake_parse_arguments(ARG "INCLUDE_SERVER" "ZAP_FILE;IDL" "" ${ARGN})
 
     if (ARG_INCLUDE_SERVER)
         target_sources(${APP_TARGET} PRIVATE
