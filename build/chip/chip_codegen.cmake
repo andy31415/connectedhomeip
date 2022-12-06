@@ -189,7 +189,7 @@ function(chip_zapgen TARGET_NAME)
             COMMAND "${CHIP_ROOT}/scripts/tools/zap/generate.py"
             ARGS
                 "--templates" "${TEMPLATE_PATH}"
-                "--output-dir" "${GEN_FOLDER}"
+                "--output-dir" "${GEN_FOLDER}/${OUTPUT_SUBDIR}"
                 "--parallel"
                 "${ARG_INPUT}"
             DEPENDS
