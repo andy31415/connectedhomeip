@@ -68,25 +68,20 @@ template("chip_data_model") {
       "zap-generated/gen_config.h",
       "zap-generated/endpoint_config.h",
       "zap-generated/CHIPClientCallbacks.h",
-      "zap-generated/CHIPClusters.h",
     ]
+    prune_outputs = []
 
-    forward_variables_from(invoker, [ "is_server" ])
-    if (!defined(is_server)) {
-      is_server = false
+    if (chip_controller) {
+       outputs += [ "zap-generated/CHIPClusters.h" ] 
+    } else {
+       prune_outputs += [ "zap-generated/CHIPClusters.h" ] 
     }
 
-    _server_outputs = [ "zap-generated/IMClusterCommandHandler.cpp" ]
-
-    # TODO: this is very odd: codegen WILL generate this for both common
-    #       AND app-specific code, however we are supposed to use a subset of
-    #       files only for apps.
-    #
-    if (is_server) {
-      outputs += _server_outputs
-      prune_outputs = []
+    # TODO: this logic seems wrong ...
+    if (defined(invoker.zap_pregenerated_dir)) {
+       outputs += [ "zap-generated/IMClusterCommandHandler.cpp" ]
     } else {
-      prune_outputs = _server_outputs
+       prune_outputs += [ "zap-generated/IMClusterCommandHandler.cpp" ]
     }
 
     public_configs = [ ":${_data_model_name}_config" ]
