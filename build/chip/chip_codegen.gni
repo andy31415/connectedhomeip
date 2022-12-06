@@ -121,16 +121,11 @@ template("_chip_build_time_zapgen") {
   assert(_generator == "app-templates")
 
   if (_generator == "app-templates") {
-    # FIXME: dependencies, template_path
     _template_path =
         rebase_path("${chip_root}/src/app/zap-templates/app-templates.json")
 
     # TODO: unclear how to maintain these: there is no parser that can figure
     #       out links of template files and zap files and such
-    #
-    # We should probably place these inside the invocation, however if pre-generated
-    # data exists, these dependencies do not matter.
-    #
     _extra_dependencies = [
       "${chip_root}/src/app/zap-templates/partials/header.zapt",
       "${chip_root}/src/app/zap-templates/partials/idl/command_request_response.zapt",
@@ -198,7 +193,7 @@ template("_chip_build_time_zapgen") {
   # This is to avoid double-codegen of configurations like endpoint config
   # or access credentials being generated for both "controller client" and
   # application-specific
-  pw_python_action("${_name}_zapgen") {
+  pw_python_action("${_name}_files") {
     # TODO: this seems to touch internals. Is this ok? speeds up builds!
     _pw_internal_run_in_venv = false
 
@@ -248,7 +243,7 @@ template("_chip_build_time_zapgen") {
     }
     public_deps += [
       ":${_name}_zap_pregen",
-      ":${_name}_zapgen",
+      ":${_name}_files",
     ]
   }
 }
