@@ -214,7 +214,7 @@ function(chip_zapgen TARGET_NAME)
 
 
         # Build the final location within the pregen directory
-        set(GEN_FOLDER "${CHIP_CODEGEN_PREGEN_DIR}/${CODEGEN_DIR_PATH}/zapgen/${ARG_GENERATOR}")
+        set(GEN_FOLDER "${CHIP_CODEGEN_PREGEN_DIR}/${CODEGEN_DIR_PATH}/zap/${ARG_GENERATOR}")
 
         # TODO: build a fake target of ${TARGET_NAME}
 
