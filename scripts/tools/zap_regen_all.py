@@ -319,8 +319,8 @@ def main():
         for timing in timings:
             print(" %8d | %40s | %40s" % (
                 timing.generate_time,
-                ".." + timing.config[len(timing.config) - 38:] if len(timing.config) > 38 else timing.config,
-                ".." + timing.template[len(timing.template) - 38:] if len(timing.template) > 38 else timing.template,
+                ".." + timing.config[len(timing.config) - 38:] if len(timing.config) > 40 else timing.config,
+                ".." + timing.template[len(timing.template) - 38:] if len(timing.template) > 40 else timing.template,
             ))
 
 
