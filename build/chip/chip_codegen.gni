@@ -454,7 +454,6 @@ template("chip_zapgen") {
       public_deps = [":${_name}_headers"]
     }
 
-    # TODO: prune_outputs usage?
     source_set(_name) {
       forward_variables_from(invoker,
                              [
@@ -471,7 +470,7 @@ template("chip_zapgen") {
       foreach(name, invoker.outputs) {
         sources += [ "${_generation_dir}/${name}" ]
       }
-      
+
       # Ugly, but references WILL reference back into main code.
       check_includes = false
     }
