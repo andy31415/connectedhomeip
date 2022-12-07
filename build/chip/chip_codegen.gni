@@ -443,15 +443,21 @@ template("chip_zapgen") {
 
       _output_name = "${target_gen_dir}/${_name}_files_checked.stamp"
 
-      args = ["--touch", rebase_path(_output_name)]
-      outputs = [_output_name]
+      args = [
+        "--touch",
+        rebase_path(_output_name),
+      ]
+      outputs = [ _output_name ]
 
       foreach(name, invoker.outputs) {
-        args += ["--exists", rebase_path("${_generation_dir}/${name}")]
+        args += [
+          "--exists",
+          rebase_path("${_generation_dir}/${name}"),
+        ]
       }
 
       # Depending on the files gets access to the headers
-      public_deps = [":${_name}_headers"]
+      public_deps = [ ":${_name}_headers" ]
     }
 
     source_set(_name) {
