@@ -69,19 +69,26 @@ template("chip_data_model") {
       "zap-generated/endpoint_config.h",
       "zap-generated/CHIPClientCallbacks.h",
     ]
-    prune_outputs = []
+
+    if (chip_code_pre_generated_directory == "") {
+      prune_outputs = []
+    }
 
     if (chip_controller) {
       outputs += [ "zap-generated/CHIPClusters.h" ]
     } else {
-      prune_outputs += [ "zap-generated/CHIPClusters.h" ]
+      if (defined(prune_outputs)) {
+        prune_outputs += [ "zap-generated/CHIPClusters.h" ]
+      }
     }
 
     # TODO: this logic seems wrong ...
     if (defined(invoker.zap_pregenerated_dir)) {
       outputs += [ "zap-generated/IMClusterCommandHandler.cpp" ]
     } else {
-      prune_outputs += [ "zap-generated/IMClusterCommandHandler.cpp" ]
+      if (defined(prune_outputs)) {
+        prune_outputs += [ "zap-generated/IMClusterCommandHandler.cpp" ]
+      }
     }
 
     public_configs = [ ":${_data_model_name}_config" ]
