@@ -320,9 +320,9 @@ def main():
             tmpl = timing.template
 
             if len(tmpl) > 50:
-              # easier to distinguish paths ... shorten common in-fixes
-              tmpl = tmpl.replace("/zap-templates/", "/../")
-              tmpl = tmpl.replace("/templates/", "/../")
+                # easier to distinguish paths ... shorten common in-fixes
+                tmpl = tmpl.replace("/zap-templates/", "/../")
+                tmpl = tmpl.replace("/templates/", "/../")
 
             print(" %8d | %50s | %50s" % (
                 timing.generate_time,
