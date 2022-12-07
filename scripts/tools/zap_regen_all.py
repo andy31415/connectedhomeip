@@ -315,12 +315,19 @@ def main():
 
         timings.sort(key=lambda t: t.generate_time)
 
-        print(" Time (s) | {:^40} | {:^40}".format("Config", "Template"))
+        print(" Time (s) | {:^50} | {:^50}".format("Config", "Template"))
         for timing in timings:
-            print(" %8d | %40s | %40s" % (
+            tmpl = timing.template
+
+            if len(tmpl) > 50:
+              # easier to distinguish paths ... shorten common in-fixes
+              tmpl = tmpl.replace("/zap-templates/", "/../")
+              tmpl = tmpl.replace("/templates/", "/../")
+
+            print(" %8d | %50s | %50s" % (
                 timing.generate_time,
-                ".." + timing.config[len(timing.config) - 38:] if len(timing.config) > 40 else timing.config,
-                ".." + timing.template[len(timing.template) - 38:] if len(timing.template) > 40 else timing.template,
+                ".." + timing.config[len(timing.config) - 48:] if len(timing.config) > 50 else timing.config,
+                ".." + tmpl[len(tmpl) - 48:] if len(tmpl) > 50 else tmpl,
             ))
 
 
