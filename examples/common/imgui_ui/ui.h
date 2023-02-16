@@ -14,9 +14,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "ui_window.h"
 
 #include <AppMain.h>
-#include <semaphore.h>
+
+#include <list>
+#include <memory>
 
 namespace example {
 namespace Ui {
@@ -29,12 +32,11 @@ namespace Ui {
 class ImguiUi : public AppMainLoopImplementation
 {
 public:
-    ImguiUi() { sem_init(&mChipLoopWaitSemaphore, 0 /* shared */, 0); }
-    virtual ~ImguiUi() { sem_destroy(&mChipLoopWaitSemaphore); }
+    virtual ~ImguiUi() = default;
 
-    // FIXME: add windows
+    void AddWindow(std::unique_ptr<Window> window) { mWindows.push_back(std::move(window)); }
 
-    void UpdateState(); // schedules a state update from ember/app
+    void UpdateState(); // runs a state update from ember/app
     void Render();      // render windows to screen
 
     // AppMainLoopImplementation
@@ -42,8 +44,6 @@ public:
     void SignalSafeStopMainLoop() override;
 
 private:
-    sem_t mChipLoopWaitSemaphore; // lock to wait for app state update
-
     // First initial state load
     void ChipLoopLoadInitialState();
 
@@ -51,8 +51,7 @@ private:
     // to CHIP API calls)
     void ChipLoopStateUpdate();
 
-    // Run in CHIPMainLoop to allow access of ember variables
-    static void ChipLoopUpdateCallback(intptr_t self);
+    std::list<std::unique_ptr<Window>> mWindows;
 };
 
 } // namespace Ui

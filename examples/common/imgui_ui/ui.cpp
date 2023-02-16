@@ -25,7 +25,6 @@
 #include <lib/support/logging/CHIPLogging.h>
 
 #include <atomic>
-#include <thread>
 
 namespace example {
 namespace Ui {
@@ -166,34 +165,33 @@ void ImguiUi::SignalSafeStopMainLoop()
 
 void ImguiUi::ChipLoopStateUpdate()
 {
-    // FIXME
+    assertChipStackLockedByCurrentThread();
+    for (auto it = mWindows.begin(); it != mWindows.end(); it++)
+    {
+        (*it)->UpdateState();
+    }
 }
 
 void ImguiUi::ChipLoopLoadInitialState()
 {
-    // FIXME
+    for (auto it = mWindows.begin(); it != mWindows.end(); it++)
+    {
+        (*it)->LoadInitialState();
+    }
 }
 
-void ImguiUi::ChipLoopUpdateCallback(intptr_t self)
+void ImguiUi::Render()
 {
-    ImguiUi * _this = reinterpret_cast<ImguiUi *>(self);
-    _this->ChipLoopStateUpdate();
-    sem_post(&_this->mChipLoopWaitSemaphore); // notify complete
+    for (auto it = mWindows.begin(); it != mWindows.end(); it++)
+    {
+        (*it)->Render();
+    }
 }
 
 void ImguiUi::UpdateState()
 {
-    chip::DeviceLayer::PlatformMgr().ScheduleWork(&ChipLoopUpdateCallback, reinterpret_cast<intptr_t>(this));
-    // ensure update is done when existing
-    if (sem_trywait(&mChipLoopWaitSemaphore) != 0)
-    {
-        if (!gUiRunning.load())
-        {
-            // UI should stop, no need to wait, probably chip main loop is stopped
-            return;
-        }
-        std::this_thread::yield();
-    }
+    chip::DeviceLayer::StackLock lock;
+    ChipLoopStateUpdate();
 }
 
 } // namespace Ui

@@ -16,23 +16,50 @@ import("//build_overrides/chip.gni")
 import("${chip_root}/build/chip/tools.gni")
 import("${chip_root}/third_party/imgui/imgui.gni")
 
+config("imgui_ui_config") {
+  # allow including via 'imgui_ui/....'
+  include_dirs = [ "../" ]
+}
+
+source_set("ui_window") {
+  sources = [ "ui_window.h" ]
+}
+
 static_library("imgui_ui") {
   sources = [
-    "ui.h",
     "ui.cpp",
+    "ui.h",
   ]
 
-  deps =   [
-    "${chip_root}/examples/common/QRCode",
+  deps = [
+    ":ui_window",
     "${chip_root}/examples/platform/linux:app-main",
     "${chip_root}/src/lib/support",
     "${chip_root}/third_party/imgui",
   ]
+
+  public_configs = [ ":imgui_ui_config" ]
+}
+
+static_library("qrcode") {
+  sources = [
+    "window_qrcode.cpp",
+    "window_qrcode.h",
+  ]
+
+  deps = [
+    ":ui_window",
+    "${chip_root}/examples/common/QRCode",
+    "${chip_root}/examples/platform/linux:app-main",
+    "${chip_root}/src/app/server",
+    "${chip_root}/src/setup_payload",
+    "${chip_root}/third_party/imgui",
+  ]
+
+  public_configs = [ ":imgui_ui_config" ]
 }
 
 # TODO:
 #   - UI windows:
-#       - QR code
 #       - Light app (define endpoint id)
-#   - Integration
 
