@@ -79,41 +79,6 @@ void ApplicationInit()
 #endif
 }
 
-#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
-
-class UiAppMainLoopImplementation : public AppMainLoopImplementation
-{
-public:
-    void RunMainLoop() override;
-    void SignalSafeStopMainLoop() override;
-};
-
-void UiAppMainLoopImplementation::RunMainLoop()
-{
-    // Guaranteed to be on the main task (no chip event loop started yet)
-    example::Ui::Init();
-
-    // Platform event loop will be on a separate thread,
-    // while the event UI loop will be on the main thread.
-    chip::DeviceLayer::PlatformMgr().StartEventLoopTask();
-
-    // StopEventLoop will stop the loop below. It is called
-    // from within SignalSafeStopMainLoop below and
-    // UI knows how to stop itself if windows are closed.
-    example::Ui::EventLoop();
-
-    // Stop the chip main loop as well. This is expected to
-    // wait for the task to finish.
-    chip::DeviceLayer::PlatformMgr().StopEventLoopTask();
-}
-
-void UiAppMainLoopImplementation::SignalSafeStopMainLoop()
-{
-    example::Ui::StopEventLoop();
-}
-
-#endif
-
 int main(int argc, char * argv[])
 {
     if (ChipLinuxAppInit(argc, argv) != 0)
