@@ -38,7 +38,10 @@ static_library("imgui_ui") {
     "${chip_root}/third_party/imgui",
   ]
 
-  public_configs = [ ":imgui_ui_config" ]
+  public_configs = [ 
+    ":imgui_ui_config",
+    "${chip_root}/third_party/imgui:imgui_config", # propagate enabling flag
+  ]
 }
 
 static_library("qrcode") {
@@ -56,10 +59,27 @@ static_library("qrcode") {
     "${chip_root}/third_party/imgui",
   ]
 
-  public_configs = [ ":imgui_ui_config" ]
+  public_configs = [ 
+    ":imgui_ui_config", 
+    "${chip_root}/examples/common/QRCode:qrcode-common_config",
+  ]
 }
 
-# TODO:
-#   - UI windows:
-#       - Light app (define endpoint id)
+static_library("light") {
+  sources = [
+    "window_light.cpp",
+    "window_light.h",
+  ]
+
+  deps = [
+    ":ui_window",
+    "${chip_root}/third_party/imgui",
+    "${chip_root}/src/app/common:cluster-objects",
+  ]
+
+  public_configs = [ 
+    ":imgui_ui_config", 
+    "${chip_root}/src:includes",
+  ]
+}
 

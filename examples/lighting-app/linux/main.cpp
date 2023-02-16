@@ -28,6 +28,7 @@
 
 #if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
 #include <imgui_ui/ui.h>
+#include <imgui_ui/window_light.h>
 #include <imgui_ui/window_qrcode.h>
 #endif
 
@@ -91,6 +92,7 @@ int main(int argc, char * argv[])
     example::Ui::ImguiUi ui;
 
     ui.AddWindow(std::make_unique<example::Ui::QRCodeWindow>());
+    ui.AddWindow(std::make_unique<example::Ui::LightWindow>(chip::EndpointId(1)));
 
     ChipLinuxAppMainLoop(&ui);
 #else
