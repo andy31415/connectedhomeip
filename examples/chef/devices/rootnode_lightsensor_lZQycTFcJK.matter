@@ -139,16 +139,16 @@ client cluster Groups = 4 {
     CHAR_STRING groupName = 1;
   }
 
-  fabric command access(invoke: manage) AddGroup(GroupIDRequest): AddGroupResponse = 0;
-  command AddGroupResponse(StatusRequest): DefaultSuccess = 0;
-  fabric command ViewGroup(GroupIDRequest): ViewGroupResponse = 1;
-  command ViewGroupResponse(StatusRequest): DefaultSuccess = 1;
-  fabric command GetGroupMembership(GroupListRequest): GetGroupMembershipResponse = 2;
-  command GetGroupMembershipResponse(CapacityRequest): DefaultSuccess = 2;
-  fabric command access(invoke: manage) RemoveGroup(GroupIDRequest): RemoveGroupResponse = 3;
-  command RemoveGroupResponse(StatusRequest): DefaultSuccess = 3;
+  fabric command access(invoke: manage) AddGroup(AddGroupRequest): AddGroupResponse = 0;
+  command AddGroupResponse(AddGroupResponseRequest): DefaultSuccess = 0;
+  fabric command ViewGroup(ViewGroupRequest): ViewGroupResponse = 1;
+  command ViewGroupResponse(ViewGroupResponseRequest): DefaultSuccess = 1;
+  fabric command GetGroupMembership(GetGroupMembershipRequest): GetGroupMembershipResponse = 2;
+  command GetGroupMembershipResponse(GetGroupMembershipResponseRequest): DefaultSuccess = 2;
+  fabric command access(invoke: manage) RemoveGroup(RemoveGroupRequest): RemoveGroupResponse = 3;
+  command RemoveGroupResponse(RemoveGroupResponseRequest): DefaultSuccess = 3;
   fabric command access(invoke: manage) RemoveAllGroups(): DefaultSuccess = 4;
-  fabric command access(invoke: manage) AddGroupIfIdentifying(GroupIDRequest): DefaultSuccess = 5;
+  fabric command access(invoke: manage) AddGroupIfIdentifying(AddGroupIfIdentifyingRequest): DefaultSuccess = 5;
 }
 
 server cluster Groups = 4 {
@@ -462,11 +462,11 @@ client cluster OtaSoftwareUpdateProvider = 41 {
     INT32U softwareVersion = 1;
   }
 
-  command QueryImage(VendorIDRequest): QueryImageResponse = 0;
-  command QueryImageResponse(StatusRequest): DefaultSuccess = 1;
-  command ApplyUpdateRequest(UpdateTokenRequest): ApplyUpdateResponse = 2;
-  command ApplyUpdateResponse(ActionRequest): DefaultSuccess = 3;
-  command NotifyUpdateApplied(UpdateTokenRequest): DefaultSuccess = 4;
+  command QueryImage(QueryImageRequest): QueryImageResponse = 0;
+  command QueryImageResponse(QueryImageResponseRequest): DefaultSuccess = 1;
+  command ApplyUpdateRequest(ApplyUpdateRequestRequest): ApplyUpdateResponse = 2;
+  command ApplyUpdateResponse(ApplyUpdateResponseRequest): DefaultSuccess = 3;
+  command NotifyUpdateApplied(NotifyUpdateAppliedRequest): DefaultSuccess = 4;
 }
 
 server cluster OtaSoftwareUpdateRequestor = 42 {

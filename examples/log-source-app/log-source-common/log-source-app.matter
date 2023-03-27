@@ -309,8 +309,8 @@ client cluster DiagnosticLogs = 50 {
     optional systime_us timeSinceBoot = 3;
   }
 
-  command RetrieveLogsRequest(IntentRequest): RetrieveLogsResponse = 0;
-  command RetrieveLogsResponse(StatusRequest): DefaultSuccess = 1;
+  command RetrieveLogsRequest(RetrieveLogsRequestRequest): RetrieveLogsResponse = 0;
+  command RetrieveLogsResponse(RetrieveLogsResponseRequest): DefaultSuccess = 1;
 }
 
 server cluster DiagnosticLogs = 50 {

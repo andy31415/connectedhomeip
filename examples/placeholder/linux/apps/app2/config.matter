@@ -298,9 +298,9 @@ client cluster OnOff = 6 {
   command Off(): DefaultSuccess = 0;
   command On(): DefaultSuccess = 1;
   command Toggle(): DefaultSuccess = 2;
-  command OffWithEffect(EffectIdentifierRequest): DefaultSuccess = 64;
+  command OffWithEffect(OffWithEffectRequest): DefaultSuccess = 64;
   command OnWithRecallGlobalScene(): DefaultSuccess = 65;
-  command OnWithTimedOff(OnOffControlRequest): DefaultSuccess = 66;
+  command OnWithTimedOff(OnWithTimedOffRequest): DefaultSuccess = 66;
 }
 
 server cluster OnOff = 6 {
@@ -1073,12 +1073,12 @@ client cluster GeneralCommissioning = 48 {
     CHAR_STRING debugText = 1;
   }
 
-  command access(invoke: administer) ArmFailSafe(ExpiryLengthSecondsRequest): ArmFailSafeResponse = 0;
-  command ArmFailSafeResponse(ErrorCodeRequest): DefaultSuccess = 1;
-  command access(invoke: administer) SetRegulatoryConfig(NewRegulatoryConfigRequest): SetRegulatoryConfigResponse = 2;
-  command SetRegulatoryConfigResponse(ErrorCodeRequest): DefaultSuccess = 3;
+  command access(invoke: administer) ArmFailSafe(ArmFailSafeRequest): ArmFailSafeResponse = 0;
+  command ArmFailSafeResponse(ArmFailSafeResponseRequest): DefaultSuccess = 1;
+  command access(invoke: administer) SetRegulatoryConfig(SetRegulatoryConfigRequest): SetRegulatoryConfigResponse = 2;
+  command SetRegulatoryConfigResponse(SetRegulatoryConfigResponseRequest): DefaultSuccess = 3;
   fabric command access(invoke: administer) CommissioningComplete(): CommissioningCompleteResponse = 4;
-  command CommissioningCompleteResponse(ErrorCodeRequest): DefaultSuccess = 5;
+  command CommissioningCompleteResponse(CommissioningCompleteResponseRequest): DefaultSuccess = 5;
 }
 
 server cluster GeneralCommissioning = 48 {
@@ -1832,18 +1832,18 @@ client cluster OperationalCredentials = 62 {
     OCTET_STRING rootCACertificate = 0;
   }
 
-  command access(invoke: administer) AttestationRequest(AttestationNonceRequest): AttestationResponse = 0;
-  command AttestationResponse(AttestationElementsRequest): DefaultSuccess = 1;
-  command access(invoke: administer) CertificateChainRequest(CertificateTypeRequest): CertificateChainResponse = 2;
-  command CertificateChainResponse(CertificateRequest): DefaultSuccess = 3;
-  command access(invoke: administer) CSRRequest(CSRNonceRequest): CSRResponse = 4;
-  command CSRResponse(NOCSRElementsRequest): DefaultSuccess = 5;
-  command access(invoke: administer) AddNOC(NOCValueRequest): NOCResponse = 6;
-  fabric command access(invoke: administer) UpdateNOC(NOCValueRequest): NOCResponse = 7;
-  command NOCResponse(StatusCodeRequest): DefaultSuccess = 8;
-  fabric command access(invoke: administer) UpdateFabricLabel(LabelRequest): NOCResponse = 9;
-  command access(invoke: administer) RemoveFabric(FabricIndexRequest): NOCResponse = 10;
-  command access(invoke: administer) AddTrustedRootCertificate(RootCACertificateRequest): DefaultSuccess = 11;
+  command access(invoke: administer) AttestationRequest(AttestationRequestRequest): AttestationResponse = 0;
+  command AttestationResponse(AttestationResponseRequest): DefaultSuccess = 1;
+  command access(invoke: administer) CertificateChainRequest(CertificateChainRequestRequest): CertificateChainResponse = 2;
+  command CertificateChainResponse(CertificateChainResponseRequest): DefaultSuccess = 3;
+  command access(invoke: administer) CSRRequest(CSRRequestRequest): CSRResponse = 4;
+  command CSRResponse(CSRResponseRequest): DefaultSuccess = 5;
+  command access(invoke: administer) AddNOC(AddNOCRequest): NOCResponse = 6;
+  fabric command access(invoke: administer) UpdateNOC(UpdateNOCRequest): NOCResponse = 7;
+  command NOCResponse(NOCResponseRequest): DefaultSuccess = 8;
+  fabric command access(invoke: administer) UpdateFabricLabel(UpdateFabricLabelRequest): NOCResponse = 9;
+  command access(invoke: administer) RemoveFabric(RemoveFabricRequest): NOCResponse = 10;
+  command access(invoke: administer) AddTrustedRootCertificate(AddTrustedRootCertificateRequest): DefaultSuccess = 11;
 }
 
 server cluster OperationalCredentials = 62 {
@@ -2040,7 +2040,7 @@ client cluster ModeSelect = 80 {
     INT8U newMode = 0;
   }
 
-  command ChangeToMode(NewModeRequest): DefaultSuccess = 0;
+  command ChangeToMode(ChangeToModeRequest): DefaultSuccess = 0;
 }
 
 server cluster ModeSelect = 80 {
@@ -2746,8 +2746,8 @@ client cluster TargetNavigator = 1285 {
     optional CHAR_STRING data = 1;
   }
 
-  command NavigateTarget(TargetRequest): NavigateTargetResponse = 0;
-  command NavigateTargetResponse(StatusRequest): DefaultSuccess = 1;
+  command NavigateTarget(NavigateTargetRequest): NavigateTargetResponse = 0;
+  command NavigateTargetResponse(NavigateTargetResponseRequest): DefaultSuccess = 1;
 }
 
 server cluster TargetNavigator = 1285 {
@@ -2909,8 +2909,8 @@ client cluster KeypadInput = 1289 {
     KeypadInputStatusEnum status = 0;
   }
 
-  command SendKey(KeyCodeRequest): SendKeyResponse = 0;
-  command SendKeyResponse(StatusRequest): DefaultSuccess = 1;
+  command SendKey(SendKeyRequest): SendKeyResponse = 0;
+  command SendKeyResponse(SendKeyResponseRequest): DefaultSuccess = 1;
 }
 
 server cluster KeypadInput = 1289 {
@@ -3151,9 +3151,9 @@ client cluster ContentLauncher = 1290 {
     optional CHAR_STRING data = 1;
   }
 
-  command LaunchContent(SearchRequest): LauncherResponse = 0;
-  command LaunchURL(ContentURLRequest): LauncherResponse = 1;
-  command LauncherResponse(StatusRequest): DefaultSuccess = 2;
+  command LaunchContent(LaunchContentRequest): LauncherResponse = 0;
+  command LaunchURL(LaunchURLRequest): LauncherResponse = 1;
+  command LauncherResponse(LauncherResponseRequest): DefaultSuccess = 2;
 }
 
 server cluster ContentLauncher = 1290 {

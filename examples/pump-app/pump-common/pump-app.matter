@@ -434,11 +434,11 @@ client cluster OtaSoftwareUpdateProvider = 41 {
     INT32U softwareVersion = 1;
   }
 
-  command QueryImage(VendorIDRequest): QueryImageResponse = 0;
-  command QueryImageResponse(StatusRequest): DefaultSuccess = 1;
-  command ApplyUpdateRequest(UpdateTokenRequest): ApplyUpdateResponse = 2;
-  command ApplyUpdateResponse(ActionRequest): DefaultSuccess = 3;
-  command NotifyUpdateApplied(UpdateTokenRequest): DefaultSuccess = 4;
+  command QueryImage(QueryImageRequest): QueryImageResponse = 0;
+  command QueryImageResponse(QueryImageResponseRequest): DefaultSuccess = 1;
+  command ApplyUpdateRequest(ApplyUpdateRequestRequest): ApplyUpdateResponse = 2;
+  command ApplyUpdateResponse(ApplyUpdateResponseRequest): DefaultSuccess = 3;
+  command NotifyUpdateApplied(NotifyUpdateAppliedRequest): DefaultSuccess = 4;
 }
 
 server cluster OtaSoftwareUpdateRequestor = 42 {

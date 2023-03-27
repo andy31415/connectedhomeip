@@ -171,9 +171,9 @@ client cluster OnOff = 6 {
   command Off(): DefaultSuccess = 0;
   command On(): DefaultSuccess = 1;
   command Toggle(): DefaultSuccess = 2;
-  command OffWithEffect(EffectIdentifierRequest): DefaultSuccess = 64;
+  command OffWithEffect(OffWithEffectRequest): DefaultSuccess = 64;
   command OnWithRecallGlobalScene(): DefaultSuccess = 65;
-  command OnWithTimedOff(OnOffControlRequest): DefaultSuccess = 66;
+  command OnWithTimedOff(OnWithTimedOffRequest): DefaultSuccess = 66;
 }
 
 server cluster OnOff = 6 {
@@ -466,11 +466,11 @@ client cluster OtaSoftwareUpdateProvider = 41 {
     INT32U softwareVersion = 1;
   }
 
-  command QueryImage(VendorIDRequest): QueryImageResponse = 0;
-  command QueryImageResponse(StatusRequest): DefaultSuccess = 1;
-  command ApplyUpdateRequest(UpdateTokenRequest): ApplyUpdateResponse = 2;
-  command ApplyUpdateResponse(ActionRequest): DefaultSuccess = 3;
-  command NotifyUpdateApplied(UpdateTokenRequest): DefaultSuccess = 4;
+  command QueryImage(QueryImageRequest): QueryImageResponse = 0;
+  command QueryImageResponse(QueryImageResponseRequest): DefaultSuccess = 1;
+  command ApplyUpdateRequest(ApplyUpdateRequestRequest): ApplyUpdateResponse = 2;
+  command ApplyUpdateResponse(ApplyUpdateResponseRequest): DefaultSuccess = 3;
+  command NotifyUpdateApplied(NotifyUpdateAppliedRequest): DefaultSuccess = 4;
 }
 
 server cluster OtaSoftwareUpdateRequestor = 42 {

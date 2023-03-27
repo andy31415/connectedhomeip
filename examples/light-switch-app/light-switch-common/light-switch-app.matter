@@ -56,8 +56,8 @@ client cluster Identify = 3 {
     IdentifyEffectVariant effectVariant = 1;
   }
 
-  command access(invoke: manage) Identify(IdentifyTimeRequest): DefaultSuccess = 0;
-  command access(invoke: manage) TriggerEffect(EffectIdentifierRequest): DefaultSuccess = 64;
+  command access(invoke: manage) Identify(IdentifyRequest): DefaultSuccess = 0;
+  command access(invoke: manage) TriggerEffect(TriggerEffectRequest): DefaultSuccess = 64;
 }
 
 server cluster Identify = 3 {
@@ -437,25 +437,25 @@ client cluster Scenes = 5 {
     INT8U sceneIdentifierFrom = 2;
   }
 
-  fabric command access(invoke: manage) AddScene(GroupIDRequest): AddSceneResponse = 0;
-  command AddSceneResponse(StatusRequest): DefaultSuccess = 0;
-  fabric command ViewScene(GroupIDRequest): ViewSceneResponse = 1;
-  command ViewSceneResponse(StatusRequest): DefaultSuccess = 1;
-  fabric command access(invoke: manage) RemoveScene(GroupIDRequest): RemoveSceneResponse = 2;
-  command RemoveSceneResponse(StatusRequest): DefaultSuccess = 2;
-  fabric command access(invoke: manage) RemoveAllScenes(GroupIDRequest): RemoveAllScenesResponse = 3;
-  command RemoveAllScenesResponse(StatusRequest): DefaultSuccess = 3;
-  fabric command access(invoke: manage) StoreScene(GroupIDRequest): StoreSceneResponse = 4;
-  command StoreSceneResponse(StatusRequest): DefaultSuccess = 4;
-  fabric command RecallScene(GroupIDRequest): DefaultSuccess = 5;
-  fabric command GetSceneMembership(GroupIDRequest): GetSceneMembershipResponse = 6;
-  command GetSceneMembershipResponse(StatusRequest): DefaultSuccess = 6;
-  fabric command EnhancedAddScene(GroupIDRequest): EnhancedAddSceneResponse = 64;
-  command EnhancedAddSceneResponse(StatusRequest): DefaultSuccess = 64;
-  fabric command EnhancedViewScene(GroupIDRequest): EnhancedViewSceneResponse = 65;
-  command EnhancedViewSceneResponse(StatusRequest): DefaultSuccess = 65;
-  fabric command CopyScene(ModeRequest): CopySceneResponse = 66;
-  command CopySceneResponse(StatusRequest): DefaultSuccess = 66;
+  fabric command access(invoke: manage) AddScene(AddSceneRequest): AddSceneResponse = 0;
+  command AddSceneResponse(AddSceneResponseRequest): DefaultSuccess = 0;
+  fabric command ViewScene(ViewSceneRequest): ViewSceneResponse = 1;
+  command ViewSceneResponse(ViewSceneResponseRequest): DefaultSuccess = 1;
+  fabric command access(invoke: manage) RemoveScene(RemoveSceneRequest): RemoveSceneResponse = 2;
+  command RemoveSceneResponse(RemoveSceneResponseRequest): DefaultSuccess = 2;
+  fabric command access(invoke: manage) RemoveAllScenes(RemoveAllScenesRequest): RemoveAllScenesResponse = 3;
+  command RemoveAllScenesResponse(RemoveAllScenesResponseRequest): DefaultSuccess = 3;
+  fabric command access(invoke: manage) StoreScene(StoreSceneRequest): StoreSceneResponse = 4;
+  command StoreSceneResponse(StoreSceneResponseRequest): DefaultSuccess = 4;
+  fabric command RecallScene(RecallSceneRequest): DefaultSuccess = 5;
+  fabric command GetSceneMembership(GetSceneMembershipRequest): GetSceneMembershipResponse = 6;
+  command GetSceneMembershipResponse(GetSceneMembershipResponseRequest): DefaultSuccess = 6;
+  fabric command EnhancedAddScene(EnhancedAddSceneRequest): EnhancedAddSceneResponse = 64;
+  command EnhancedAddSceneResponse(EnhancedAddSceneResponseRequest): DefaultSuccess = 64;
+  fabric command EnhancedViewScene(EnhancedViewSceneRequest): EnhancedViewSceneResponse = 65;
+  command EnhancedViewSceneResponse(EnhancedViewSceneResponseRequest): DefaultSuccess = 65;
+  fabric command CopyScene(CopySceneRequest): CopySceneResponse = 66;
+  command CopySceneResponse(CopySceneResponseRequest): DefaultSuccess = 66;
 }
 
 client cluster OnOff = 6 {
@@ -525,9 +525,9 @@ client cluster OnOff = 6 {
   command Off(): DefaultSuccess = 0;
   command On(): DefaultSuccess = 1;
   command Toggle(): DefaultSuccess = 2;
-  command OffWithEffect(EffectIdentifierRequest): DefaultSuccess = 64;
+  command OffWithEffect(OffWithEffectRequest): DefaultSuccess = 64;
   command OnWithRecallGlobalScene(): DefaultSuccess = 65;
-  command OnWithTimedOff(OnOffControlRequest): DefaultSuccess = 66;
+  command OnWithTimedOff(OnWithTimedOffRequest): DefaultSuccess = 66;
 }
 
 server cluster Descriptor = 29 {
@@ -786,11 +786,11 @@ client cluster OtaSoftwareUpdateProvider = 41 {
     INT32U softwareVersion = 1;
   }
 
-  command QueryImage(VendorIDRequest): QueryImageResponse = 0;
-  command QueryImageResponse(StatusRequest): DefaultSuccess = 1;
-  command ApplyUpdateRequest(UpdateTokenRequest): ApplyUpdateResponse = 2;
-  command ApplyUpdateResponse(ActionRequest): DefaultSuccess = 3;
-  command NotifyUpdateApplied(UpdateTokenRequest): DefaultSuccess = 4;
+  command QueryImage(QueryImageRequest): QueryImageResponse = 0;
+  command QueryImageResponse(QueryImageResponseRequest): DefaultSuccess = 1;
+  command ApplyUpdateRequest(ApplyUpdateRequestRequest): ApplyUpdateResponse = 2;
+  command ApplyUpdateResponse(ApplyUpdateResponseRequest): DefaultSuccess = 3;
+  command NotifyUpdateApplied(NotifyUpdateAppliedRequest): DefaultSuccess = 4;
 }
 
 server cluster OtaSoftwareUpdateRequestor = 42 {
@@ -2276,25 +2276,25 @@ client cluster ColorControl = 768 {
     BITMAP8 optionsOverride = 6;
   }
 
-  command MoveToHue(HueRequest): DefaultSuccess = 0;
-  command MoveHue(MoveModeRequest): DefaultSuccess = 1;
-  command StepHue(StepModeRequest): DefaultSuccess = 2;
-  command MoveToSaturation(SaturationRequest): DefaultSuccess = 3;
-  command MoveSaturation(MoveModeRequest): DefaultSuccess = 4;
-  command StepSaturation(StepModeRequest): DefaultSuccess = 5;
-  command MoveToHueAndSaturation(HueRequest): DefaultSuccess = 6;
-  command MoveToColor(ColorXRequest): DefaultSuccess = 7;
-  command MoveColor(RateXRequest): DefaultSuccess = 8;
-  command StepColor(StepXRequest): DefaultSuccess = 9;
-  command MoveToColorTemperature(ColorTemperatureMiredsRequest): DefaultSuccess = 10;
-  command EnhancedMoveToHue(EnhancedHueRequest): DefaultSuccess = 64;
-  command EnhancedMoveHue(MoveModeRequest): DefaultSuccess = 65;
-  command EnhancedStepHue(StepModeRequest): DefaultSuccess = 66;
-  command EnhancedMoveToHueAndSaturation(EnhancedHueRequest): DefaultSuccess = 67;
-  command ColorLoopSet(UpdateFlagsRequest): DefaultSuccess = 68;
-  command StopMoveStep(OptionsMaskRequest): DefaultSuccess = 71;
-  command MoveColorTemperature(MoveModeRequest): DefaultSuccess = 75;
-  command StepColorTemperature(StepModeRequest): DefaultSuccess = 76;
+  command MoveToHue(MoveToHueRequest): DefaultSuccess = 0;
+  command MoveHue(MoveHueRequest): DefaultSuccess = 1;
+  command StepHue(StepHueRequest): DefaultSuccess = 2;
+  command MoveToSaturation(MoveToSaturationRequest): DefaultSuccess = 3;
+  command MoveSaturation(MoveSaturationRequest): DefaultSuccess = 4;
+  command StepSaturation(StepSaturationRequest): DefaultSuccess = 5;
+  command MoveToHueAndSaturation(MoveToHueAndSaturationRequest): DefaultSuccess = 6;
+  command MoveToColor(MoveToColorRequest): DefaultSuccess = 7;
+  command MoveColor(MoveColorRequest): DefaultSuccess = 8;
+  command StepColor(StepColorRequest): DefaultSuccess = 9;
+  command MoveToColorTemperature(MoveToColorTemperatureRequest): DefaultSuccess = 10;
+  command EnhancedMoveToHue(EnhancedMoveToHueRequest): DefaultSuccess = 64;
+  command EnhancedMoveHue(EnhancedMoveHueRequest): DefaultSuccess = 65;
+  command EnhancedStepHue(EnhancedStepHueRequest): DefaultSuccess = 66;
+  command EnhancedMoveToHueAndSaturation(EnhancedMoveToHueAndSaturationRequest): DefaultSuccess = 67;
+  command ColorLoopSet(ColorLoopSetRequest): DefaultSuccess = 68;
+  command StopMoveStep(StopMoveStepRequest): DefaultSuccess = 71;
+  command MoveColorTemperature(MoveColorTemperatureRequest): DefaultSuccess = 75;
+  command StepColorTemperature(StepColorTemperatureRequest): DefaultSuccess = 76;
 }
 
 endpoint 0 {
