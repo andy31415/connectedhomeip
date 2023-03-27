@@ -107,9 +107,9 @@
     {{/all_incoming_commands_for_cluster}}
   {{/if}}
   {{#if (is_client side)}}
-    {{#zcl_commands}}
+    {{#zcl_commands_source_client}}
       {{~>idl_command_request_response}}{{~new_line 1~}}
-    {{/zcl_commands}}
+    {{/zcl_commands_source_client}}
   {{/if}}
 }
 
