@@ -503,15 +503,41 @@ client cluster GeneralCommissioning = 48 {
     INT64U breadcrumb = 1;
   }
 
+  request struct ArmFailSafeResponseRequest {
+    CommissioningError errorCode = 0;
+    CHAR_STRING debugText = 1;
+  }
+
   request struct SetRegulatoryConfigRequest {
     RegulatoryLocationType newRegulatoryConfig = 0;
     CHAR_STRING countryCode = 1;
     INT64U breadcrumb = 2;
   }
 
+  request struct SetRegulatoryConfigResponseRequest {
+    CommissioningError errorCode = 0;
+    CHAR_STRING debugText = 1;
+  }
+
+  request struct CommissioningCompleteResponseRequest {
+    CommissioningError errorCode = 0;
+    CHAR_STRING debugText = 1;
+  }
+
+  response struct ArmFailSafe = 0 {
+    INT16U expiryLengthSeconds = 0;
+    INT64U breadcrumb = 1;
+  }
+
   response struct ArmFailSafeResponse = 1 {
     CommissioningError errorCode = 0;
     CHAR_STRING debugText = 1;
+  }
+
+  response struct SetRegulatoryConfig = 2 {
+    RegulatoryLocationType newRegulatoryConfig = 0;
+    CHAR_STRING countryCode = 1;
+    INT64U breadcrumb = 2;
   }
 
   response struct SetRegulatoryConfigResponse = 3 {
@@ -524,9 +550,12 @@ client cluster GeneralCommissioning = 48 {
     CHAR_STRING debugText = 1;
   }
 
-  command access(invoke: administer) ArmFailSafe(ArmFailSafeRequest): ArmFailSafeResponse = 0;
-  command access(invoke: administer) SetRegulatoryConfig(SetRegulatoryConfigRequest): SetRegulatoryConfigResponse = 2;
+  command access(invoke: administer) ArmFailSafe(ExpiryLengthSecondsRequest): ArmFailSafeResponse = 0;
+  command ArmFailSafeResponse(ErrorCodeRequest): DefaultSuccess = 1;
+  command access(invoke: administer) SetRegulatoryConfig(NewRegulatoryConfigRequest): SetRegulatoryConfigResponse = 2;
+  command SetRegulatoryConfigResponse(ErrorCodeRequest): DefaultSuccess = 3;
   fabric command access(invoke: administer) CommissioningComplete(): CommissioningCompleteResponse = 4;
+  command CommissioningCompleteResponse(ErrorCodeRequest): DefaultSuccess = 5;
 }
 
 server cluster GeneralCommissioning = 48 {
@@ -676,6 +705,13 @@ client cluster NetworkCommissioning = 49 {
     optional INT64U breadcrumb = 1;
   }
 
+  request struct ScanNetworksResponseRequest {
+    NetworkCommissioningStatus networkingStatus = 0;
+    optional CHAR_STRING debugText = 1;
+    optional WiFiInterfaceScanResult wiFiScanResults[] = 2;
+    optional ThreadInterfaceScanResult threadScanResults[] = 3;
+  }
+
   request struct AddOrUpdateWiFiNetworkRequest {
     OCTET_STRING<32> ssid = 0;
     OCTET_STRING<64> credentials = 1;
@@ -692,15 +728,32 @@ client cluster NetworkCommissioning = 49 {
     optional INT64U breadcrumb = 1;
   }
 
+  request struct NetworkConfigResponseRequest {
+    NetworkCommissioningStatus networkingStatus = 0;
+    optional CHAR_STRING<512> debugText = 1;
+    optional INT8U networkIndex = 2;
+  }
+
   request struct ConnectNetworkRequest {
     OCTET_STRING<32> networkID = 0;
     optional INT64U breadcrumb = 1;
+  }
+
+  request struct ConnectNetworkResponseRequest {
+    NetworkCommissioningStatus networkingStatus = 0;
+    optional CHAR_STRING debugText = 1;
+    nullable INT32S errorValue = 2;
   }
 
   request struct ReorderNetworkRequest {
     OCTET_STRING<32> networkID = 0;
     INT8U networkIndex = 1;
     optional INT64U breadcrumb = 2;
+  }
+
+  response struct ScanNetworks = 0 {
+    optional nullable OCTET_STRING<32> ssid = 0;
+    optional INT64U breadcrumb = 1;
   }
 
   response struct ScanNetworksResponse = 1 {
@@ -710,10 +763,31 @@ client cluster NetworkCommissioning = 49 {
     optional ThreadInterfaceScanResult threadScanResults[] = 3;
   }
 
+  response struct AddOrUpdateWiFiNetwork = 2 {
+    OCTET_STRING<32> ssid = 0;
+    OCTET_STRING<64> credentials = 1;
+    optional INT64U breadcrumb = 2;
+  }
+
+  response struct AddOrUpdateThreadNetwork = 3 {
+    OCTET_STRING<254> operationalDataset = 0;
+    optional INT64U breadcrumb = 1;
+  }
+
+  response struct RemoveNetwork = 4 {
+    OCTET_STRING<32> networkID = 0;
+    optional INT64U breadcrumb = 1;
+  }
+
   response struct NetworkConfigResponse = 5 {
     NetworkCommissioningStatus networkingStatus = 0;
     optional CHAR_STRING<512> debugText = 1;
     optional INT8U networkIndex = 2;
+  }
+
+  response struct ConnectNetwork = 6 {
+    OCTET_STRING<32> networkID = 0;
+    optional INT64U breadcrumb = 1;
   }
 
   response struct ConnectNetworkResponse = 7 {
@@ -722,12 +796,21 @@ client cluster NetworkCommissioning = 49 {
     nullable INT32S errorValue = 2;
   }
 
-  command access(invoke: administer) ScanNetworks(ScanNetworksRequest): ScanNetworksResponse = 0;
-  command access(invoke: administer) AddOrUpdateWiFiNetwork(AddOrUpdateWiFiNetworkRequest): NetworkConfigResponse = 2;
-  command access(invoke: administer) AddOrUpdateThreadNetwork(AddOrUpdateThreadNetworkRequest): NetworkConfigResponse = 3;
-  command access(invoke: administer) RemoveNetwork(RemoveNetworkRequest): NetworkConfigResponse = 4;
-  command access(invoke: administer) ConnectNetwork(ConnectNetworkRequest): ConnectNetworkResponse = 6;
-  command access(invoke: administer) ReorderNetwork(ReorderNetworkRequest): NetworkConfigResponse = 8;
+  response struct ReorderNetwork = 8 {
+    OCTET_STRING<32> networkID = 0;
+    INT8U networkIndex = 1;
+    optional INT64U breadcrumb = 2;
+  }
+
+  command access(invoke: administer) ScanNetworks(SsidRequest): ScanNetworksResponse = 0;
+  command ScanNetworksResponse(NetworkingStatusRequest): DefaultSuccess = 1;
+  command access(invoke: administer) AddOrUpdateWiFiNetwork(SsidRequest): NetworkConfigResponse = 2;
+  command access(invoke: administer) AddOrUpdateThreadNetwork(OperationalDatasetRequest): NetworkConfigResponse = 3;
+  command access(invoke: administer) RemoveNetwork(NetworkIDRequest): NetworkConfigResponse = 4;
+  command NetworkConfigResponse(NetworkingStatusRequest): DefaultSuccess = 5;
+  command access(invoke: administer) ConnectNetwork(NetworkIDRequest): ConnectNetworkResponse = 6;
+  command ConnectNetworkResponse(NetworkingStatusRequest): DefaultSuccess = 7;
+  command access(invoke: administer) ReorderNetwork(NetworkIDRequest): NetworkConfigResponse = 8;
 }
 
 server cluster NetworkCommissioning = 49 {
@@ -1398,13 +1481,27 @@ client cluster OperationalCredentials = 62 {
     OCTET_STRING attestationNonce = 0;
   }
 
+  request struct AttestationResponseRequest {
+    OCTET_STRING attestationElements = 0;
+    OCTET_STRING attestationSignature = 1;
+  }
+
   request struct CertificateChainRequestRequest {
     CertificateChainTypeEnum certificateType = 0;
+  }
+
+  request struct CertificateChainResponseRequest {
+    OCTET_STRING certificate = 0;
   }
 
   request struct CSRRequestRequest {
     OCTET_STRING CSRNonce = 0;
     optional boolean isForUpdateNOC = 1;
+  }
+
+  request struct CSRResponseRequest {
+    OCTET_STRING NOCSRElements = 0;
+    OCTET_STRING attestationSignature = 1;
   }
 
   request struct AddNOCRequest {
@@ -1413,6 +1510,17 @@ client cluster OperationalCredentials = 62 {
     OCTET_STRING IPKValue = 2;
     Int64u caseAdminSubject = 3;
     VENDOR_ID adminVendorId = 4;
+  }
+
+  request struct UpdateNOCRequest {
+    OCTET_STRING NOCValue = 0;
+    optional OCTET_STRING ICACValue = 1;
+  }
+
+  request struct NOCResponseRequest {
+    NodeOperationalCertStatusEnum statusCode = 0;
+    optional fabric_idx fabricIndex = 1;
+    optional CHAR_STRING debugText = 2;
   }
 
   request struct UpdateFabricLabelRequest {
@@ -1427,18 +1535,44 @@ client cluster OperationalCredentials = 62 {
     OCTET_STRING rootCACertificate = 0;
   }
 
+  response struct AttestationRequest = 0 {
+    OCTET_STRING attestationNonce = 0;
+  }
+
   response struct AttestationResponse = 1 {
     OCTET_STRING attestationElements = 0;
     OCTET_STRING attestationSignature = 1;
+  }
+
+  response struct CertificateChainRequest = 2 {
+    CertificateChainTypeEnum certificateType = 0;
   }
 
   response struct CertificateChainResponse = 3 {
     OCTET_STRING certificate = 0;
   }
 
+  response struct CSRRequest = 4 {
+    OCTET_STRING CSRNonce = 0;
+    optional boolean isForUpdateNOC = 1;
+  }
+
   response struct CSRResponse = 5 {
     OCTET_STRING NOCSRElements = 0;
     OCTET_STRING attestationSignature = 1;
+  }
+
+  response struct AddNOC = 6 {
+    OCTET_STRING NOCValue = 0;
+    optional OCTET_STRING ICACValue = 1;
+    OCTET_STRING IPKValue = 2;
+    Int64u caseAdminSubject = 3;
+    VENDOR_ID adminVendorId = 4;
+  }
+
+  response struct UpdateNOC = 7 {
+    OCTET_STRING NOCValue = 0;
+    optional OCTET_STRING ICACValue = 1;
   }
 
   response struct NOCResponse = 8 {
@@ -1447,13 +1581,30 @@ client cluster OperationalCredentials = 62 {
     optional CHAR_STRING debugText = 2;
   }
 
-  command access(invoke: administer) AttestationRequest(AttestationRequestRequest): AttestationResponse = 0;
-  command access(invoke: administer) CertificateChainRequest(CertificateChainRequestRequest): CertificateChainResponse = 2;
-  command access(invoke: administer) CSRRequest(CSRRequestRequest): CSRResponse = 4;
-  command access(invoke: administer) AddNOC(AddNOCRequest): NOCResponse = 6;
-  fabric command access(invoke: administer) UpdateFabricLabel(UpdateFabricLabelRequest): NOCResponse = 9;
-  command access(invoke: administer) RemoveFabric(RemoveFabricRequest): NOCResponse = 10;
-  command access(invoke: administer) AddTrustedRootCertificate(AddTrustedRootCertificateRequest): DefaultSuccess = 11;
+  response struct UpdateFabricLabel = 9 {
+    CHAR_STRING<32> label = 0;
+  }
+
+  response struct RemoveFabric = 10 {
+    fabric_idx fabricIndex = 0;
+  }
+
+  response struct AddTrustedRootCertificate = 11 {
+    OCTET_STRING rootCACertificate = 0;
+  }
+
+  command access(invoke: administer) AttestationRequest(AttestationNonceRequest): AttestationResponse = 0;
+  command AttestationResponse(AttestationElementsRequest): DefaultSuccess = 1;
+  command access(invoke: administer) CertificateChainRequest(CertificateTypeRequest): CertificateChainResponse = 2;
+  command CertificateChainResponse(CertificateRequest): DefaultSuccess = 3;
+  command access(invoke: administer) CSRRequest(CSRNonceRequest): CSRResponse = 4;
+  command CSRResponse(NOCSRElementsRequest): DefaultSuccess = 5;
+  command access(invoke: administer) AddNOC(NOCValueRequest): NOCResponse = 6;
+  fabric command access(invoke: administer) UpdateNOC(NOCValueRequest): NOCResponse = 7;
+  command NOCResponse(StatusCodeRequest): DefaultSuccess = 8;
+  fabric command access(invoke: administer) UpdateFabricLabel(LabelRequest): NOCResponse = 9;
+  command access(invoke: administer) RemoveFabric(FabricIndexRequest): NOCResponse = 10;
+  command access(invoke: administer) AddTrustedRootCertificate(RootCACertificateRequest): DefaultSuccess = 11;
 }
 
 server cluster OperationalCredentials = 62 {

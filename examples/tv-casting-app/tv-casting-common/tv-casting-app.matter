@@ -267,9 +267,34 @@ client cluster OnOff = 6 {
   readonly attribute bitmap32 featureMap = 65532;
   readonly attribute int16u clusterRevision = 65533;
 
+  request struct OffWithEffectRequest {
+    OnOffEffectIdentifier effectIdentifier = 0;
+    int8u effectVariant = 1;
+  }
+
+  request struct OnWithTimedOffRequest {
+    OnOffControl onOffControl = 0;
+    int16u onTime = 1;
+    int16u offWaitTime = 2;
+  }
+
+  response struct OffWithEffect = 64 {
+    OnOffEffectIdentifier effectIdentifier = 0;
+    int8u effectVariant = 1;
+  }
+
+  response struct OnWithTimedOff = 66 {
+    OnOffControl onOffControl = 0;
+    int16u onTime = 1;
+    int16u offWaitTime = 2;
+  }
+
   command Off(): DefaultSuccess = 0;
   command On(): DefaultSuccess = 1;
   command Toggle(): DefaultSuccess = 2;
+  command OffWithEffect(EffectIdentifierRequest): DefaultSuccess = 64;
+  command OnWithRecallGlobalScene(): DefaultSuccess = 65;
+  command OnWithTimedOff(OnOffControlRequest): DefaultSuccess = 66;
 }
 
 server cluster OnOff = 6 {
@@ -416,14 +441,77 @@ client cluster LevelControl = 8 {
     LevelControlOptions optionsOverride = 1;
   }
 
-  command MoveToLevel(MoveToLevelRequest): DefaultSuccess = 0;
-  command Move(MoveRequest): DefaultSuccess = 1;
-  command Step(StepRequest): DefaultSuccess = 2;
-  command Stop(StopRequest): DefaultSuccess = 3;
-  command MoveToLevelWithOnOff(MoveToLevelWithOnOffRequest): DefaultSuccess = 4;
-  command MoveWithOnOff(MoveWithOnOffRequest): DefaultSuccess = 5;
-  command StepWithOnOff(StepWithOnOffRequest): DefaultSuccess = 6;
-  command StopWithOnOff(StopWithOnOffRequest): DefaultSuccess = 7;
+  request struct MoveToClosestFrequencyRequest {
+    INT16U frequency = 0;
+  }
+
+  response struct MoveToLevel = 0 {
+    INT8U level = 0;
+    nullable INT16U transitionTime = 1;
+    LevelControlOptions optionsMask = 2;
+    LevelControlOptions optionsOverride = 3;
+  }
+
+  response struct Move = 1 {
+    MoveMode moveMode = 0;
+    nullable INT8U rate = 1;
+    LevelControlOptions optionsMask = 2;
+    LevelControlOptions optionsOverride = 3;
+  }
+
+  response struct Step = 2 {
+    StepMode stepMode = 0;
+    INT8U stepSize = 1;
+    nullable INT16U transitionTime = 2;
+    LevelControlOptions optionsMask = 3;
+    LevelControlOptions optionsOverride = 4;
+  }
+
+  response struct Stop = 3 {
+    LevelControlOptions optionsMask = 0;
+    LevelControlOptions optionsOverride = 1;
+  }
+
+  response struct MoveToLevelWithOnOff = 4 {
+    INT8U level = 0;
+    nullable INT16U transitionTime = 1;
+    LevelControlOptions optionsMask = 2;
+    LevelControlOptions optionsOverride = 3;
+  }
+
+  response struct MoveWithOnOff = 5 {
+    MoveMode moveMode = 0;
+    nullable INT8U rate = 1;
+    LevelControlOptions optionsMask = 2;
+    LevelControlOptions optionsOverride = 3;
+  }
+
+  response struct StepWithOnOff = 6 {
+    StepMode stepMode = 0;
+    INT8U stepSize = 1;
+    nullable INT16U transitionTime = 2;
+    LevelControlOptions optionsMask = 3;
+    LevelControlOptions optionsOverride = 4;
+  }
+
+  response struct StopWithOnOff = 7 {
+    LevelControlOptions optionsMask = 0;
+    LevelControlOptions optionsOverride = 1;
+  }
+
+  response struct MoveToClosestFrequency = 8 {
+    INT16U frequency = 0;
+  }
+
+  command MoveToLevel(LevelRequest): DefaultSuccess = 0;
+  command Move(MoveModeRequest): DefaultSuccess = 1;
+  command Step(StepModeRequest): DefaultSuccess = 2;
+  command Stop(OptionsMaskRequest): DefaultSuccess = 3;
+  command MoveToLevelWithOnOff(LevelRequest): DefaultSuccess = 4;
+  command MoveWithOnOff(MoveModeRequest): DefaultSuccess = 5;
+  command StepWithOnOff(StepModeRequest): DefaultSuccess = 6;
+  command StopWithOnOff(OptionsMaskRequest): DefaultSuccess = 7;
+  command MoveToClosestFrequency(FrequencyRequest): DefaultSuccess = 8;
 }
 
 server cluster LevelControl = 8 {
@@ -1852,6 +1940,11 @@ client cluster Channel = 1284 {
     CHAR_STRING match = 0;
   }
 
+  request struct ChangeChannelResponseRequest {
+    ChannelStatusEnum status = 0;
+    optional CHAR_STRING data = 1;
+  }
+
   request struct ChangeChannelByNumberRequest {
     INT16U majorNumber = 0;
     INT16U minorNumber = 1;
@@ -1861,9 +1954,28 @@ client cluster Channel = 1284 {
     INT16U count = 0;
   }
 
-  command ChangeChannel(ChangeChannelRequest): ChangeChannelResponse = 0;
-  command ChangeChannelByNumber(ChangeChannelByNumberRequest): DefaultSuccess = 2;
-  command SkipChannel(SkipChannelRequest): DefaultSuccess = 3;
+  response struct ChangeChannel = 0 {
+    CHAR_STRING match = 0;
+  }
+
+  response struct ChangeChannelResponse = 1 {
+    ChannelStatusEnum status = 0;
+    optional CHAR_STRING data = 1;
+  }
+
+  response struct ChangeChannelByNumber = 2 {
+    INT16U majorNumber = 0;
+    INT16U minorNumber = 1;
+  }
+
+  response struct SkipChannel = 3 {
+    INT16U count = 0;
+  }
+
+  command ChangeChannel(MatchRequest): ChangeChannelResponse = 0;
+  command ChangeChannelResponse(StatusRequest): DefaultSuccess = 1;
+  command ChangeChannelByNumber(MajorNumberRequest): DefaultSuccess = 2;
+  command SkipChannel(CountRequest): DefaultSuccess = 3;
 }
 
 client cluster TargetNavigator = 1285 {
@@ -1892,7 +2004,23 @@ client cluster TargetNavigator = 1285 {
     optional CHAR_STRING data = 1;
   }
 
-  command NavigateTarget(NavigateTargetRequest): NavigateTargetResponse = 0;
+  request struct NavigateTargetResponseRequest {
+    TargetNavigatorStatusEnum status = 0;
+    optional CHAR_STRING data = 1;
+  }
+
+  response struct NavigateTarget = 0 {
+    INT8U target = 0;
+    optional CHAR_STRING data = 1;
+  }
+
+  response struct NavigateTargetResponse = 1 {
+    TargetNavigatorStatusEnum status = 0;
+    optional CHAR_STRING data = 1;
+  }
+
+  command NavigateTarget(TargetRequest): NavigateTargetResponse = 0;
+  command NavigateTargetResponse(StatusRequest): DefaultSuccess = 1;
 }
 
 client cluster MediaPlayback = 1286 {
@@ -1944,7 +2072,29 @@ client cluster MediaPlayback = 1286 {
     INT64U deltaPositionMilliseconds = 0;
   }
 
+  request struct PlaybackResponseRequest {
+    MediaPlaybackStatusEnum status = 0;
+    optional CHAR_STRING data = 1;
+  }
+
   request struct SeekRequest {
+    INT64U position = 0;
+  }
+
+  response struct SkipForward = 8 {
+    INT64U deltaPositionMilliseconds = 0;
+  }
+
+  response struct SkipBackward = 9 {
+    INT64U deltaPositionMilliseconds = 0;
+  }
+
+  response struct PlaybackResponse = 10 {
+    MediaPlaybackStatusEnum status = 0;
+    optional CHAR_STRING data = 1;
+  }
+
+  response struct Seek = 11 {
     INT64U position = 0;
   }
 
@@ -1956,9 +2106,10 @@ client cluster MediaPlayback = 1286 {
   command Next(): PlaybackResponse = 5;
   command Rewind(): PlaybackResponse = 6;
   command FastForward(): PlaybackResponse = 7;
-  command SkipForward(SkipForwardRequest): PlaybackResponse = 8;
-  command SkipBackward(SkipBackwardRequest): PlaybackResponse = 9;
-  command Seek(SeekRequest): PlaybackResponse = 11;
+  command SkipForward(DeltaPositionMillisecondsRequest): PlaybackResponse = 8;
+  command SkipBackward(DeltaPositionMillisecondsRequest): PlaybackResponse = 9;
+  command PlaybackResponse(StatusRequest): DefaultSuccess = 10;
+  command Seek(PositionRequest): PlaybackResponse = 11;
 }
 
 client cluster MediaInput = 1287 {
@@ -2006,10 +2157,19 @@ client cluster MediaInput = 1287 {
     CHAR_STRING name = 1;
   }
 
-  command SelectInput(SelectInputRequest): DefaultSuccess = 0;
+  response struct SelectInput = 0 {
+    INT8U index = 0;
+  }
+
+  response struct RenameInput = 3 {
+    INT8U index = 0;
+    CHAR_STRING name = 1;
+  }
+
+  command SelectInput(IndexRequest): DefaultSuccess = 0;
   command ShowInputStatus(): DefaultSuccess = 1;
   command HideInputStatus(): DefaultSuccess = 2;
-  command RenameInput(RenameInputRequest): DefaultSuccess = 3;
+  command RenameInput(IndexRequest): DefaultSuccess = 3;
 }
 
 client cluster KeypadInput = 1289 {
@@ -2125,7 +2285,20 @@ client cluster KeypadInput = 1289 {
     CecKeyCode keyCode = 0;
   }
 
-  command SendKey(SendKeyRequest): SendKeyResponse = 0;
+  request struct SendKeyResponseRequest {
+    KeypadInputStatusEnum status = 0;
+  }
+
+  response struct SendKey = 0 {
+    CecKeyCode keyCode = 0;
+  }
+
+  response struct SendKeyResponse = 1 {
+    KeypadInputStatusEnum status = 0;
+  }
+
+  command SendKey(KeyCodeRequest): SendKeyResponse = 0;
+  command SendKeyResponse(StatusRequest): DefaultSuccess = 1;
 }
 
 client cluster ContentLauncher = 1290 {
@@ -2224,8 +2397,31 @@ client cluster ContentLauncher = 1290 {
     optional BrandingInformationStruct brandingInformation = 2;
   }
 
-  command LaunchContent(LaunchContentRequest): LauncherResponse = 0;
-  command LaunchURL(LaunchURLRequest): LauncherResponse = 1;
+  request struct LauncherResponseRequest {
+    ContentLaunchStatusEnum status = 0;
+    optional CHAR_STRING data = 1;
+  }
+
+  response struct LaunchContent = 0 {
+    ContentSearchStruct search = 0;
+    BOOLEAN autoPlay = 1;
+    optional CHAR_STRING data = 2;
+  }
+
+  response struct LaunchURL = 1 {
+    CHAR_STRING contentURL = 0;
+    optional CHAR_STRING displayString = 1;
+    optional BrandingInformationStruct brandingInformation = 2;
+  }
+
+  response struct LauncherResponse = 2 {
+    ContentLaunchStatusEnum status = 0;
+    optional CHAR_STRING data = 1;
+  }
+
+  command LaunchContent(SearchRequest): LauncherResponse = 0;
+  command LaunchURL(ContentURLRequest): LauncherResponse = 1;
+  command LauncherResponse(StatusRequest): DefaultSuccess = 2;
 }
 
 client cluster AudioOutput = 1291 {
@@ -2266,8 +2462,17 @@ client cluster AudioOutput = 1291 {
     CHAR_STRING name = 1;
   }
 
-  command SelectOutput(SelectOutputRequest): DefaultSuccess = 0;
-  command RenameOutput(RenameOutputRequest): DefaultSuccess = 1;
+  response struct SelectOutput = 0 {
+    INT8U index = 0;
+  }
+
+  response struct RenameOutput = 1 {
+    INT8U index = 0;
+    CHAR_STRING name = 1;
+  }
+
+  command SelectOutput(IndexRequest): DefaultSuccess = 0;
+  command RenameOutput(IndexRequest): DefaultSuccess = 1;
 }
 
 client cluster ApplicationLauncher = 1292 {
@@ -2313,9 +2518,33 @@ client cluster ApplicationLauncher = 1292 {
     optional ApplicationStruct application = 0;
   }
 
-  command LaunchApp(LaunchAppRequest): LauncherResponse = 0;
-  command StopApp(StopAppRequest): LauncherResponse = 1;
-  command HideApp(HideAppRequest): LauncherResponse = 2;
+  request struct LauncherResponseRequest {
+    ApplicationLauncherStatusEnum status = 0;
+    optional OCTET_STRING data = 1;
+  }
+
+  response struct LaunchApp = 0 {
+    optional ApplicationStruct application = 0;
+    optional OCTET_STRING data = 1;
+  }
+
+  response struct StopApp = 1 {
+    optional ApplicationStruct application = 0;
+  }
+
+  response struct HideApp = 2 {
+    optional ApplicationStruct application = 0;
+  }
+
+  response struct LauncherResponse = 3 {
+    ApplicationLauncherStatusEnum status = 0;
+    optional OCTET_STRING data = 1;
+  }
+
+  command LaunchApp(ApplicationRequest): LauncherResponse = 0;
+  command StopApp(ApplicationRequest): LauncherResponse = 1;
+  command HideApp(ApplicationRequest): LauncherResponse = 2;
+  command LauncherResponse(StatusRequest): DefaultSuccess = 3;
 }
 
 client cluster ApplicationBasic = 1293 {
@@ -2359,13 +2588,31 @@ client cluster AccountLogin = 1294 {
     CHAR_STRING<100> tempAccountIdentifier = 0;
   }
 
+  request struct GetSetupPINResponseRequest {
+    CHAR_STRING setupPIN = 0;
+  }
+
   request struct LoginRequest {
     CHAR_STRING<100> tempAccountIdentifier = 0;
     CHAR_STRING setupPIN = 1;
   }
 
-  timed command GetSetupPIN(GetSetupPINRequest): GetSetupPINResponse = 0;
-  timed command Login(LoginRequest): DefaultSuccess = 2;
+  response struct GetSetupPIN = 0 {
+    CHAR_STRING<100> tempAccountIdentifier = 0;
+  }
+
+  response struct GetSetupPINResponse = 1 {
+    CHAR_STRING setupPIN = 0;
+  }
+
+  response struct Login = 2 {
+    CHAR_STRING<100> tempAccountIdentifier = 0;
+    CHAR_STRING setupPIN = 1;
+  }
+
+  timed command GetSetupPIN(TempAccountIdentifierRequest): GetSetupPINResponse = 0;
+  command GetSetupPINResponse(SetupPINRequest): DefaultSuccess = 1;
+  timed command Login(TempAccountIdentifierRequest): DefaultSuccess = 2;
   timed command Logout(): DefaultSuccess = 3;
 }
 

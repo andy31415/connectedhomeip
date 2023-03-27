@@ -52,8 +52,17 @@ client cluster Identify = 3 {
     IdentifyEffectVariant effectVariant = 1;
   }
 
-  command access(invoke: manage) Identify(IdentifyRequest): DefaultSuccess = 0;
-  command access(invoke: manage) TriggerEffect(TriggerEffectRequest): DefaultSuccess = 64;
+  response struct Identify = 0 {
+    INT16U identifyTime = 0;
+  }
+
+  response struct TriggerEffect = 64 {
+    IdentifyEffectIdentifier effectIdentifier = 0;
+    IdentifyEffectVariant effectVariant = 1;
+  }
+
+  command access(invoke: manage) Identify(IdentifyTimeRequest): DefaultSuccess = 0;
+  command access(invoke: manage) TriggerEffect(EffectIdentifierRequest): DefaultSuccess = 64;
 }
 
 client cluster Groups = 4 {
@@ -74,19 +83,45 @@ client cluster Groups = 4 {
     CHAR_STRING groupName = 1;
   }
 
+  request struct AddGroupResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+  }
+
   request struct ViewGroupRequest {
     group_id groupID = 0;
+  }
+
+  request struct ViewGroupResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+    CHAR_STRING groupName = 2;
   }
 
   request struct GetGroupMembershipRequest {
     group_id groupList[] = 0;
   }
 
+  request struct GetGroupMembershipResponseRequest {
+    nullable INT8U capacity = 0;
+    group_id groupList[] = 1;
+  }
+
   request struct RemoveGroupRequest {
     group_id groupID = 0;
   }
 
+  request struct RemoveGroupResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+  }
+
   request struct AddGroupIfIdentifyingRequest {
+    group_id groupID = 0;
+    CHAR_STRING groupName = 1;
+  }
+
+  response struct AddGroup = 0 {
     group_id groupID = 0;
     CHAR_STRING groupName = 1;
   }
@@ -96,10 +131,18 @@ client cluster Groups = 4 {
     group_id groupID = 1;
   }
 
+  response struct ViewGroup = 1 {
+    group_id groupID = 0;
+  }
+
   response struct ViewGroupResponse = 1 {
     ENUM8 status = 0;
     group_id groupID = 1;
     CHAR_STRING groupName = 2;
+  }
+
+  response struct GetGroupMembership = 2 {
+    group_id groupList[] = 0;
   }
 
   response struct GetGroupMembershipResponse = 2 {
@@ -107,17 +150,30 @@ client cluster Groups = 4 {
     group_id groupList[] = 1;
   }
 
+  response struct RemoveGroup = 3 {
+    group_id groupID = 0;
+  }
+
   response struct RemoveGroupResponse = 3 {
     ENUM8 status = 0;
     group_id groupID = 1;
   }
 
-  fabric command access(invoke: manage) AddGroup(AddGroupRequest): AddGroupResponse = 0;
-  fabric command ViewGroup(ViewGroupRequest): ViewGroupResponse = 1;
-  fabric command GetGroupMembership(GetGroupMembershipRequest): GetGroupMembershipResponse = 2;
-  fabric command access(invoke: manage) RemoveGroup(RemoveGroupRequest): RemoveGroupResponse = 3;
+  response struct AddGroupIfIdentifying = 5 {
+    group_id groupID = 0;
+    CHAR_STRING groupName = 1;
+  }
+
+  fabric command access(invoke: manage) AddGroup(GroupIDRequest): AddGroupResponse = 0;
+  command AddGroupResponse(StatusRequest): DefaultSuccess = 0;
+  fabric command ViewGroup(GroupIDRequest): ViewGroupResponse = 1;
+  command ViewGroupResponse(StatusRequest): DefaultSuccess = 1;
+  fabric command GetGroupMembership(GroupListRequest): GetGroupMembershipResponse = 2;
+  command GetGroupMembershipResponse(CapacityRequest): DefaultSuccess = 2;
+  fabric command access(invoke: manage) RemoveGroup(GroupIDRequest): RemoveGroupResponse = 3;
+  command RemoveGroupResponse(StatusRequest): DefaultSuccess = 3;
   fabric command access(invoke: manage) RemoveAllGroups(): DefaultSuccess = 4;
-  fabric command access(invoke: manage) AddGroupIfIdentifying(AddGroupIfIdentifyingRequest): DefaultSuccess = 5;
+  fabric command access(invoke: manage) AddGroupIfIdentifying(GroupIDRequest): DefaultSuccess = 5;
 }
 
 client cluster Scenes = 5 {
@@ -160,9 +216,24 @@ client cluster Scenes = 5 {
     ExtensionFieldSet extensionFieldSets[] = 4;
   }
 
+  request struct AddSceneResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+    INT8U sceneID = 2;
+  }
+
   request struct ViewSceneRequest {
     group_id groupID = 0;
     INT8U sceneID = 1;
+  }
+
+  request struct ViewSceneResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+    INT8U sceneID = 2;
+    optional INT16U transitionTime = 3;
+    optional CHAR_STRING sceneName = 4;
+    optional ExtensionFieldSet extensionFieldSets[] = 5;
   }
 
   request struct RemoveSceneRequest {
@@ -170,13 +241,30 @@ client cluster Scenes = 5 {
     INT8U sceneID = 1;
   }
 
+  request struct RemoveSceneResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+    INT8U sceneID = 2;
+  }
+
   request struct RemoveAllScenesRequest {
     group_id groupID = 0;
+  }
+
+  request struct RemoveAllScenesResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
   }
 
   request struct StoreSceneRequest {
     group_id groupID = 0;
     INT8U sceneID = 1;
+  }
+
+  request struct StoreSceneResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+    INT8U sceneID = 2;
   }
 
   request struct RecallSceneRequest {
@@ -189,10 +277,72 @@ client cluster Scenes = 5 {
     group_id groupID = 0;
   }
 
+  request struct GetSceneMembershipResponseRequest {
+    ENUM8 status = 0;
+    nullable INT8U capacity = 1;
+    group_id groupID = 2;
+    optional INT8U sceneList[] = 3;
+  }
+
+  request struct EnhancedAddSceneRequest {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+    INT16U transitionTime = 2;
+    CHAR_STRING sceneName = 3;
+    ExtensionFieldSet extensionFieldSets[] = 4;
+  }
+
+  request struct EnhancedAddSceneResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+    INT8U sceneID = 2;
+  }
+
+  request struct EnhancedViewSceneRequest {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+  }
+
+  request struct EnhancedViewSceneResponseRequest {
+    ENUM8 status = 0;
+    group_Id groupID = 1;
+    INT8U sceneID = 2;
+    optional INT16U transitionTime = 3;
+    optional CHAR_STRING sceneName = 4;
+    optional ExtensionFieldSet extensionFieldSets[] = 5;
+  }
+
+  request struct CopySceneRequest {
+    ScenesCopyMode mode = 0;
+    group_id groupIdentifierFrom = 1;
+    INT8U sceneIdentifierFrom = 2;
+    group_id groupIdentifierTo = 3;
+    INT8U sceneIdentifierTo = 4;
+  }
+
+  request struct CopySceneResponseRequest {
+    ENUM8 status = 0;
+    group_Id groupIdentifierFrom = 1;
+    INT8U sceneIdentifierFrom = 2;
+  }
+
+  response struct AddScene = 0 {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+    INT16U transitionTime = 2;
+    CHAR_STRING sceneName = 3;
+    ExtensionFieldSet extensionFieldSets[] = 4;
+  }
+
   response struct AddSceneResponse = 0 {
     ENUM8 status = 0;
     group_id groupID = 1;
     INT8U sceneID = 2;
+  }
+
+  response struct ViewScene = 1 {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
   }
 
   response struct ViewSceneResponse = 1 {
@@ -204,10 +354,19 @@ client cluster Scenes = 5 {
     optional ExtensionFieldSet extensionFieldSets[] = 5;
   }
 
+  response struct RemoveScene = 2 {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+  }
+
   response struct RemoveSceneResponse = 2 {
     ENUM8 status = 0;
     group_id groupID = 1;
     INT8U sceneID = 2;
+  }
+
+  response struct RemoveAllScenes = 3 {
+    group_id groupID = 0;
   }
 
   response struct RemoveAllScenesResponse = 3 {
@@ -215,10 +374,25 @@ client cluster Scenes = 5 {
     group_id groupID = 1;
   }
 
+  response struct StoreScene = 4 {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+  }
+
   response struct StoreSceneResponse = 4 {
     ENUM8 status = 0;
     group_id groupID = 1;
     INT8U sceneID = 2;
+  }
+
+  response struct RecallScene = 5 {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+    optional nullable INT16U transitionTime = 2;
+  }
+
+  response struct GetSceneMembership = 6 {
+    group_id groupID = 0;
   }
 
   response struct GetSceneMembershipResponse = 6 {
@@ -228,13 +402,67 @@ client cluster Scenes = 5 {
     optional INT8U sceneList[] = 3;
   }
 
-  fabric command access(invoke: manage) AddScene(AddSceneRequest): AddSceneResponse = 0;
-  fabric command ViewScene(ViewSceneRequest): ViewSceneResponse = 1;
-  fabric command access(invoke: manage) RemoveScene(RemoveSceneRequest): RemoveSceneResponse = 2;
-  fabric command access(invoke: manage) RemoveAllScenes(RemoveAllScenesRequest): RemoveAllScenesResponse = 3;
-  fabric command access(invoke: manage) StoreScene(StoreSceneRequest): StoreSceneResponse = 4;
-  fabric command RecallScene(RecallSceneRequest): DefaultSuccess = 5;
-  fabric command GetSceneMembership(GetSceneMembershipRequest): GetSceneMembershipResponse = 6;
+  response struct EnhancedAddScene = 64 {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+    INT16U transitionTime = 2;
+    CHAR_STRING sceneName = 3;
+    ExtensionFieldSet extensionFieldSets[] = 4;
+  }
+
+  response struct EnhancedAddSceneResponse = 64 {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+    INT8U sceneID = 2;
+  }
+
+  response struct EnhancedViewScene = 65 {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+  }
+
+  response struct EnhancedViewSceneResponse = 65 {
+    ENUM8 status = 0;
+    group_Id groupID = 1;
+    INT8U sceneID = 2;
+    optional INT16U transitionTime = 3;
+    optional CHAR_STRING sceneName = 4;
+    optional ExtensionFieldSet extensionFieldSets[] = 5;
+  }
+
+  response struct CopyScene = 66 {
+    ScenesCopyMode mode = 0;
+    group_id groupIdentifierFrom = 1;
+    INT8U sceneIdentifierFrom = 2;
+    group_id groupIdentifierTo = 3;
+    INT8U sceneIdentifierTo = 4;
+  }
+
+  response struct CopySceneResponse = 66 {
+    ENUM8 status = 0;
+    group_Id groupIdentifierFrom = 1;
+    INT8U sceneIdentifierFrom = 2;
+  }
+
+  fabric command access(invoke: manage) AddScene(GroupIDRequest): AddSceneResponse = 0;
+  command AddSceneResponse(StatusRequest): DefaultSuccess = 0;
+  fabric command ViewScene(GroupIDRequest): ViewSceneResponse = 1;
+  command ViewSceneResponse(StatusRequest): DefaultSuccess = 1;
+  fabric command access(invoke: manage) RemoveScene(GroupIDRequest): RemoveSceneResponse = 2;
+  command RemoveSceneResponse(StatusRequest): DefaultSuccess = 2;
+  fabric command access(invoke: manage) RemoveAllScenes(GroupIDRequest): RemoveAllScenesResponse = 3;
+  command RemoveAllScenesResponse(StatusRequest): DefaultSuccess = 3;
+  fabric command access(invoke: manage) StoreScene(GroupIDRequest): StoreSceneResponse = 4;
+  command StoreSceneResponse(StatusRequest): DefaultSuccess = 4;
+  fabric command RecallScene(GroupIDRequest): DefaultSuccess = 5;
+  fabric command GetSceneMembership(GroupIDRequest): GetSceneMembershipResponse = 6;
+  command GetSceneMembershipResponse(StatusRequest): DefaultSuccess = 6;
+  fabric command EnhancedAddScene(GroupIDRequest): EnhancedAddSceneResponse = 64;
+  command EnhancedAddSceneResponse(StatusRequest): DefaultSuccess = 64;
+  fabric command EnhancedViewScene(GroupIDRequest): EnhancedViewSceneResponse = 65;
+  command EnhancedViewSceneResponse(StatusRequest): DefaultSuccess = 65;
+  fabric command CopyScene(ModeRequest): CopySceneResponse = 66;
+  command CopySceneResponse(StatusRequest): DefaultSuccess = 66;
 }
 
 client cluster OnOff = 6 {
@@ -290,12 +518,23 @@ client cluster OnOff = 6 {
     int16u offWaitTime = 2;
   }
 
+  response struct OffWithEffect = 64 {
+    OnOffEffectIdentifier effectIdentifier = 0;
+    int8u effectVariant = 1;
+  }
+
+  response struct OnWithTimedOff = 66 {
+    OnOffControl onOffControl = 0;
+    int16u onTime = 1;
+    int16u offWaitTime = 2;
+  }
+
   command Off(): DefaultSuccess = 0;
   command On(): DefaultSuccess = 1;
   command Toggle(): DefaultSuccess = 2;
-  command OffWithEffect(OffWithEffectRequest): DefaultSuccess = 64;
+  command OffWithEffect(EffectIdentifierRequest): DefaultSuccess = 64;
   command OnWithRecallGlobalScene(): DefaultSuccess = 65;
-  command OnWithTimedOff(OnWithTimedOffRequest): DefaultSuccess = 66;
+  command OnWithTimedOff(OnOffControlRequest): DefaultSuccess = 66;
 }
 
 client cluster OnOffSwitchConfiguration = 7 {
@@ -406,14 +645,77 @@ client cluster LevelControl = 8 {
     LevelControlOptions optionsOverride = 1;
   }
 
-  command MoveToLevel(MoveToLevelRequest): DefaultSuccess = 0;
-  command Move(MoveRequest): DefaultSuccess = 1;
-  command Step(StepRequest): DefaultSuccess = 2;
-  command Stop(StopRequest): DefaultSuccess = 3;
-  command MoveToLevelWithOnOff(MoveToLevelWithOnOffRequest): DefaultSuccess = 4;
-  command MoveWithOnOff(MoveWithOnOffRequest): DefaultSuccess = 5;
-  command StepWithOnOff(StepWithOnOffRequest): DefaultSuccess = 6;
-  command StopWithOnOff(StopWithOnOffRequest): DefaultSuccess = 7;
+  request struct MoveToClosestFrequencyRequest {
+    INT16U frequency = 0;
+  }
+
+  response struct MoveToLevel = 0 {
+    INT8U level = 0;
+    nullable INT16U transitionTime = 1;
+    LevelControlOptions optionsMask = 2;
+    LevelControlOptions optionsOverride = 3;
+  }
+
+  response struct Move = 1 {
+    MoveMode moveMode = 0;
+    nullable INT8U rate = 1;
+    LevelControlOptions optionsMask = 2;
+    LevelControlOptions optionsOverride = 3;
+  }
+
+  response struct Step = 2 {
+    StepMode stepMode = 0;
+    INT8U stepSize = 1;
+    nullable INT16U transitionTime = 2;
+    LevelControlOptions optionsMask = 3;
+    LevelControlOptions optionsOverride = 4;
+  }
+
+  response struct Stop = 3 {
+    LevelControlOptions optionsMask = 0;
+    LevelControlOptions optionsOverride = 1;
+  }
+
+  response struct MoveToLevelWithOnOff = 4 {
+    INT8U level = 0;
+    nullable INT16U transitionTime = 1;
+    LevelControlOptions optionsMask = 2;
+    LevelControlOptions optionsOverride = 3;
+  }
+
+  response struct MoveWithOnOff = 5 {
+    MoveMode moveMode = 0;
+    nullable INT8U rate = 1;
+    LevelControlOptions optionsMask = 2;
+    LevelControlOptions optionsOverride = 3;
+  }
+
+  response struct StepWithOnOff = 6 {
+    StepMode stepMode = 0;
+    INT8U stepSize = 1;
+    nullable INT16U transitionTime = 2;
+    LevelControlOptions optionsMask = 3;
+    LevelControlOptions optionsOverride = 4;
+  }
+
+  response struct StopWithOnOff = 7 {
+    LevelControlOptions optionsMask = 0;
+    LevelControlOptions optionsOverride = 1;
+  }
+
+  response struct MoveToClosestFrequency = 8 {
+    INT16U frequency = 0;
+  }
+
+  command MoveToLevel(LevelRequest): DefaultSuccess = 0;
+  command Move(MoveModeRequest): DefaultSuccess = 1;
+  command Step(StepModeRequest): DefaultSuccess = 2;
+  command Stop(OptionsMaskRequest): DefaultSuccess = 3;
+  command MoveToLevelWithOnOff(LevelRequest): DefaultSuccess = 4;
+  command MoveWithOnOff(MoveModeRequest): DefaultSuccess = 5;
+  command StepWithOnOff(StepModeRequest): DefaultSuccess = 6;
+  command StopWithOnOff(OptionsMaskRequest): DefaultSuccess = 7;
+  command MoveToClosestFrequency(FrequencyRequest): DefaultSuccess = 8;
 }
 
 client cluster BinaryInputBasic = 15 {
@@ -687,18 +989,83 @@ client cluster Actions = 37 {
     INT32U duration = 2;
   }
 
-  command InstantAction(InstantActionRequest): DefaultSuccess = 0;
-  command InstantActionWithTransition(InstantActionWithTransitionRequest): DefaultSuccess = 1;
-  command StartAction(StartActionRequest): DefaultSuccess = 2;
-  command StartActionWithDuration(StartActionWithDurationRequest): DefaultSuccess = 3;
-  command StopAction(StopActionRequest): DefaultSuccess = 4;
-  command PauseAction(PauseActionRequest): DefaultSuccess = 5;
-  command PauseActionWithDuration(PauseActionWithDurationRequest): DefaultSuccess = 6;
-  command ResumeAction(ResumeActionRequest): DefaultSuccess = 7;
-  command EnableAction(EnableActionRequest): DefaultSuccess = 8;
-  command EnableActionWithDuration(EnableActionWithDurationRequest): DefaultSuccess = 9;
-  command DisableAction(DisableActionRequest): DefaultSuccess = 10;
-  command DisableActionWithDuration(DisableActionWithDurationRequest): DefaultSuccess = 11;
+  response struct InstantAction = 0 {
+    INT16U actionID = 0;
+    optional INT32U invokeID = 1;
+  }
+
+  response struct InstantActionWithTransition = 1 {
+    INT16U actionID = 0;
+    optional INT32U invokeID = 1;
+    INT16U transitionTime = 2;
+  }
+
+  response struct StartAction = 2 {
+    INT16U actionID = 0;
+    optional INT32U invokeID = 1;
+  }
+
+  response struct StartActionWithDuration = 3 {
+    INT16U actionID = 0;
+    optional INT32U invokeID = 1;
+    INT32U duration = 2;
+  }
+
+  response struct StopAction = 4 {
+    INT16U actionID = 0;
+    optional INT32U invokeID = 1;
+  }
+
+  response struct PauseAction = 5 {
+    INT16U actionID = 0;
+    optional INT32U invokeID = 1;
+  }
+
+  response struct PauseActionWithDuration = 6 {
+    INT16U actionID = 0;
+    optional INT32U invokeID = 1;
+    INT32U duration = 2;
+  }
+
+  response struct ResumeAction = 7 {
+    INT16U actionID = 0;
+    optional INT32U invokeID = 1;
+  }
+
+  response struct EnableAction = 8 {
+    INT16U actionID = 0;
+    optional INT32U invokeID = 1;
+  }
+
+  response struct EnableActionWithDuration = 9 {
+    INT16U actionID = 0;
+    optional INT32U invokeID = 1;
+    INT32U duration = 2;
+  }
+
+  response struct DisableAction = 10 {
+    INT16U actionID = 0;
+    optional INT32U invokeID = 1;
+  }
+
+  response struct DisableActionWithDuration = 11 {
+    INT16U actionID = 0;
+    optional INT32U invokeID = 1;
+    INT32U duration = 2;
+  }
+
+  command InstantAction(ActionIDRequest): DefaultSuccess = 0;
+  command InstantActionWithTransition(ActionIDRequest): DefaultSuccess = 1;
+  command StartAction(ActionIDRequest): DefaultSuccess = 2;
+  command StartActionWithDuration(ActionIDRequest): DefaultSuccess = 3;
+  command StopAction(ActionIDRequest): DefaultSuccess = 4;
+  command PauseAction(ActionIDRequest): DefaultSuccess = 5;
+  command PauseActionWithDuration(ActionIDRequest): DefaultSuccess = 6;
+  command ResumeAction(ActionIDRequest): DefaultSuccess = 7;
+  command EnableAction(ActionIDRequest): DefaultSuccess = 8;
+  command EnableActionWithDuration(ActionIDRequest): DefaultSuccess = 9;
+  command DisableAction(ActionIDRequest): DefaultSuccess = 10;
+  command DisableActionWithDuration(ActionIDRequest): DefaultSuccess = 11;
 }
 
 client cluster BasicInformation = 40 {
@@ -748,6 +1115,8 @@ client cluster BasicInformation = 40 {
   readonly attribute attrib_id attributeList[] = 65531;
   readonly attribute bitmap32 featureMap = 65532;
   readonly attribute int16u clusterRevision = 65533;
+
+  command MfgSpecificPing(): DefaultSuccess = 0;
 }
 
 client cluster OtaSoftwareUpdateProvider = 41 {
@@ -789,14 +1158,41 @@ client cluster OtaSoftwareUpdateProvider = 41 {
     optional OCTET_STRING<512> metadataForProvider = 7;
   }
 
+  request struct QueryImageResponseRequest {
+    OTAQueryStatus status = 0;
+    optional INT32U delayedActionTime = 1;
+    optional CHAR_STRING<256> imageURI = 2;
+    optional INT32U softwareVersion = 3;
+    optional CHAR_STRING<64> softwareVersionString = 4;
+    optional OCTET_STRING<32> updateToken = 5;
+    optional BOOLEAN userConsentNeeded = 6;
+    optional OCTET_STRING<512> metadataForRequestor = 7;
+  }
+
   request struct ApplyUpdateRequestRequest {
     OCTET_STRING<32> updateToken = 0;
     INT32U newVersion = 1;
   }
 
+  request struct ApplyUpdateResponseRequest {
+    OTAApplyUpdateAction action = 0;
+    INT32U delayedActionTime = 1;
+  }
+
   request struct NotifyUpdateAppliedRequest {
     OCTET_STRING<32> updateToken = 0;
     INT32U softwareVersion = 1;
+  }
+
+  response struct QueryImage = 0 {
+    vendor_id vendorID = 0;
+    INT16U productID = 1;
+    INT32U softwareVersion = 2;
+    OTADownloadProtocol protocolsSupported[] = 3;
+    optional INT16U hardwareVersion = 4;
+    optional CHAR_STRING<2> location = 5;
+    optional BOOLEAN requestorCanConsent = 6;
+    optional OCTET_STRING<512> metadataForProvider = 7;
   }
 
   response struct QueryImageResponse = 1 {
@@ -810,14 +1206,26 @@ client cluster OtaSoftwareUpdateProvider = 41 {
     optional OCTET_STRING<512> metadataForRequestor = 7;
   }
 
+  response struct ApplyUpdateRequest = 2 {
+    OCTET_STRING<32> updateToken = 0;
+    INT32U newVersion = 1;
+  }
+
   response struct ApplyUpdateResponse = 3 {
     OTAApplyUpdateAction action = 0;
     INT32U delayedActionTime = 1;
   }
 
-  command QueryImage(QueryImageRequest): QueryImageResponse = 0;
-  command ApplyUpdateRequest(ApplyUpdateRequestRequest): ApplyUpdateResponse = 2;
-  command NotifyUpdateApplied(NotifyUpdateAppliedRequest): DefaultSuccess = 4;
+  response struct NotifyUpdateApplied = 4 {
+    OCTET_STRING<32> updateToken = 0;
+    INT32U softwareVersion = 1;
+  }
+
+  command QueryImage(VendorIDRequest): QueryImageResponse = 0;
+  command QueryImageResponse(StatusRequest): DefaultSuccess = 1;
+  command ApplyUpdateRequest(UpdateTokenRequest): ApplyUpdateResponse = 2;
+  command ApplyUpdateResponse(ActionRequest): DefaultSuccess = 3;
+  command NotifyUpdateApplied(UpdateTokenRequest): DefaultSuccess = 4;
 }
 
 client cluster OtaSoftwareUpdateRequestor = 42 {
@@ -891,7 +1299,15 @@ client cluster OtaSoftwareUpdateRequestor = 42 {
     endpoint_no endpoint = 4;
   }
 
-  command AnnounceOTAProvider(AnnounceOTAProviderRequest): DefaultSuccess = 0;
+  response struct AnnounceOTAProvider = 0 {
+    node_id providerNodeID = 0;
+    vendor_id vendorID = 1;
+    OTAAnnouncementReason announcementReason = 2;
+    optional OCTET_STRING<512> metadataForNode = 3;
+    endpoint_no endpoint = 4;
+  }
+
+  command AnnounceOTAProvider(ProviderNodeIDRequest): DefaultSuccess = 0;
 }
 
 client cluster LocalizationConfiguration = 43 {
@@ -1259,15 +1675,41 @@ client cluster GeneralCommissioning = 48 {
     INT64U breadcrumb = 1;
   }
 
+  request struct ArmFailSafeResponseRequest {
+    CommissioningError errorCode = 0;
+    CHAR_STRING debugText = 1;
+  }
+
   request struct SetRegulatoryConfigRequest {
     RegulatoryLocationType newRegulatoryConfig = 0;
     CHAR_STRING countryCode = 1;
     INT64U breadcrumb = 2;
   }
 
+  request struct SetRegulatoryConfigResponseRequest {
+    CommissioningError errorCode = 0;
+    CHAR_STRING debugText = 1;
+  }
+
+  request struct CommissioningCompleteResponseRequest {
+    CommissioningError errorCode = 0;
+    CHAR_STRING debugText = 1;
+  }
+
+  response struct ArmFailSafe = 0 {
+    INT16U expiryLengthSeconds = 0;
+    INT64U breadcrumb = 1;
+  }
+
   response struct ArmFailSafeResponse = 1 {
     CommissioningError errorCode = 0;
     CHAR_STRING debugText = 1;
+  }
+
+  response struct SetRegulatoryConfig = 2 {
+    RegulatoryLocationType newRegulatoryConfig = 0;
+    CHAR_STRING countryCode = 1;
+    INT64U breadcrumb = 2;
   }
 
   response struct SetRegulatoryConfigResponse = 3 {
@@ -1280,9 +1722,12 @@ client cluster GeneralCommissioning = 48 {
     CHAR_STRING debugText = 1;
   }
 
-  command access(invoke: administer) ArmFailSafe(ArmFailSafeRequest): ArmFailSafeResponse = 0;
-  command access(invoke: administer) SetRegulatoryConfig(SetRegulatoryConfigRequest): SetRegulatoryConfigResponse = 2;
+  command access(invoke: administer) ArmFailSafe(ExpiryLengthSecondsRequest): ArmFailSafeResponse = 0;
+  command ArmFailSafeResponse(ErrorCodeRequest): DefaultSuccess = 1;
+  command access(invoke: administer) SetRegulatoryConfig(NewRegulatoryConfigRequest): SetRegulatoryConfigResponse = 2;
+  command SetRegulatoryConfigResponse(ErrorCodeRequest): DefaultSuccess = 3;
   fabric command access(invoke: administer) CommissioningComplete(): CommissioningCompleteResponse = 4;
+  command CommissioningCompleteResponse(ErrorCodeRequest): DefaultSuccess = 5;
 }
 
 client cluster NetworkCommissioning = 49 {
@@ -1369,6 +1814,13 @@ client cluster NetworkCommissioning = 49 {
     optional INT64U breadcrumb = 1;
   }
 
+  request struct ScanNetworksResponseRequest {
+    NetworkCommissioningStatus networkingStatus = 0;
+    optional CHAR_STRING debugText = 1;
+    optional WiFiInterfaceScanResult wiFiScanResults[] = 2;
+    optional ThreadInterfaceScanResult threadScanResults[] = 3;
+  }
+
   request struct AddOrUpdateWiFiNetworkRequest {
     OCTET_STRING<32> ssid = 0;
     OCTET_STRING<64> credentials = 1;
@@ -1385,15 +1837,32 @@ client cluster NetworkCommissioning = 49 {
     optional INT64U breadcrumb = 1;
   }
 
+  request struct NetworkConfigResponseRequest {
+    NetworkCommissioningStatus networkingStatus = 0;
+    optional CHAR_STRING<512> debugText = 1;
+    optional INT8U networkIndex = 2;
+  }
+
   request struct ConnectNetworkRequest {
     OCTET_STRING<32> networkID = 0;
     optional INT64U breadcrumb = 1;
+  }
+
+  request struct ConnectNetworkResponseRequest {
+    NetworkCommissioningStatus networkingStatus = 0;
+    optional CHAR_STRING debugText = 1;
+    nullable INT32S errorValue = 2;
   }
 
   request struct ReorderNetworkRequest {
     OCTET_STRING<32> networkID = 0;
     INT8U networkIndex = 1;
     optional INT64U breadcrumb = 2;
+  }
+
+  response struct ScanNetworks = 0 {
+    optional nullable OCTET_STRING<32> ssid = 0;
+    optional INT64U breadcrumb = 1;
   }
 
   response struct ScanNetworksResponse = 1 {
@@ -1403,10 +1872,31 @@ client cluster NetworkCommissioning = 49 {
     optional ThreadInterfaceScanResult threadScanResults[] = 3;
   }
 
+  response struct AddOrUpdateWiFiNetwork = 2 {
+    OCTET_STRING<32> ssid = 0;
+    OCTET_STRING<64> credentials = 1;
+    optional INT64U breadcrumb = 2;
+  }
+
+  response struct AddOrUpdateThreadNetwork = 3 {
+    OCTET_STRING<254> operationalDataset = 0;
+    optional INT64U breadcrumb = 1;
+  }
+
+  response struct RemoveNetwork = 4 {
+    OCTET_STRING<32> networkID = 0;
+    optional INT64U breadcrumb = 1;
+  }
+
   response struct NetworkConfigResponse = 5 {
     NetworkCommissioningStatus networkingStatus = 0;
     optional CHAR_STRING<512> debugText = 1;
     optional INT8U networkIndex = 2;
+  }
+
+  response struct ConnectNetwork = 6 {
+    OCTET_STRING<32> networkID = 0;
+    optional INT64U breadcrumb = 1;
   }
 
   response struct ConnectNetworkResponse = 7 {
@@ -1415,12 +1905,21 @@ client cluster NetworkCommissioning = 49 {
     nullable INT32S errorValue = 2;
   }
 
-  command access(invoke: administer) ScanNetworks(ScanNetworksRequest): ScanNetworksResponse = 0;
-  command access(invoke: administer) AddOrUpdateWiFiNetwork(AddOrUpdateWiFiNetworkRequest): NetworkConfigResponse = 2;
-  command access(invoke: administer) AddOrUpdateThreadNetwork(AddOrUpdateThreadNetworkRequest): NetworkConfigResponse = 3;
-  command access(invoke: administer) RemoveNetwork(RemoveNetworkRequest): NetworkConfigResponse = 4;
-  command access(invoke: administer) ConnectNetwork(ConnectNetworkRequest): ConnectNetworkResponse = 6;
-  command access(invoke: administer) ReorderNetwork(ReorderNetworkRequest): NetworkConfigResponse = 8;
+  response struct ReorderNetwork = 8 {
+    OCTET_STRING<32> networkID = 0;
+    INT8U networkIndex = 1;
+    optional INT64U breadcrumb = 2;
+  }
+
+  command access(invoke: administer) ScanNetworks(SsidRequest): ScanNetworksResponse = 0;
+  command ScanNetworksResponse(NetworkingStatusRequest): DefaultSuccess = 1;
+  command access(invoke: administer) AddOrUpdateWiFiNetwork(SsidRequest): NetworkConfigResponse = 2;
+  command access(invoke: administer) AddOrUpdateThreadNetwork(OperationalDatasetRequest): NetworkConfigResponse = 3;
+  command access(invoke: administer) RemoveNetwork(NetworkIDRequest): NetworkConfigResponse = 4;
+  command NetworkConfigResponse(NetworkingStatusRequest): DefaultSuccess = 5;
+  command access(invoke: administer) ConnectNetwork(NetworkIDRequest): ConnectNetworkResponse = 6;
+  command ConnectNetworkResponse(NetworkingStatusRequest): DefaultSuccess = 7;
+  command access(invoke: administer) ReorderNetwork(NetworkIDRequest): NetworkConfigResponse = 8;
 }
 
 client cluster DiagnosticLogs = 50 {
@@ -1456,6 +1955,19 @@ client cluster DiagnosticLogs = 50 {
     optional CHAR_STRING<32> transferFileDesignator = 2;
   }
 
+  request struct RetrieveLogsResponseRequest {
+    StatusEnum status = 0;
+    LONG_OCTET_STRING logContent = 1;
+    optional epoch_us UTCTimeStamp = 2;
+    optional systime_us timeSinceBoot = 3;
+  }
+
+  response struct RetrieveLogsRequest = 0 {
+    IntentEnum intent = 0;
+    TransferProtocolEnum requestedProtocol = 1;
+    optional CHAR_STRING<32> transferFileDesignator = 2;
+  }
+
   response struct RetrieveLogsResponse = 1 {
     StatusEnum status = 0;
     LONG_OCTET_STRING logContent = 1;
@@ -1463,7 +1975,8 @@ client cluster DiagnosticLogs = 50 {
     optional systime_us timeSinceBoot = 3;
   }
 
-  command RetrieveLogsRequest(RetrieveLogsRequestRequest): RetrieveLogsResponse = 0;
+  command RetrieveLogsRequest(IntentRequest): RetrieveLogsResponse = 0;
+  command RetrieveLogsResponse(StatusRequest): DefaultSuccess = 1;
 }
 
 client cluster GeneralDiagnostics = 51 {
@@ -1567,7 +2080,12 @@ client cluster GeneralDiagnostics = 51 {
     INT64U eventTrigger = 1;
   }
 
-  command access(invoke: manage) TestEventTrigger(TestEventTriggerRequest): DefaultSuccess = 0;
+  response struct TestEventTrigger = 0 {
+    OCTET_STRING<16> enableKey = 0;
+    INT64U eventTrigger = 1;
+  }
+
+  command access(invoke: manage) TestEventTrigger(EnableKeyRequest): DefaultSuccess = 0;
 }
 
 client cluster SoftwareDiagnostics = 52 {
@@ -1998,8 +2516,20 @@ client cluster AdministratorCommissioning = 60 {
     INT16U commissioningTimeout = 0;
   }
 
-  timed command access(invoke: administer) OpenCommissioningWindow(OpenCommissioningWindowRequest): DefaultSuccess = 0;
-  timed command access(invoke: administer) OpenBasicCommissioningWindow(OpenBasicCommissioningWindowRequest): DefaultSuccess = 1;
+  response struct OpenCommissioningWindow = 0 {
+    INT16U commissioningTimeout = 0;
+    OCTET_STRING PAKEPasscodeVerifier = 1;
+    INT16U discriminator = 2;
+    INT32U iterations = 3;
+    OCTET_STRING salt = 4;
+  }
+
+  response struct OpenBasicCommissioningWindow = 1 {
+    INT16U commissioningTimeout = 0;
+  }
+
+  timed command access(invoke: administer) OpenCommissioningWindow(CommissioningTimeoutRequest): DefaultSuccess = 0;
+  timed command access(invoke: administer) OpenBasicCommissioningWindow(CommissioningTimeoutRequest): DefaultSuccess = 1;
   timed command access(invoke: administer) RevokeCommissioning(): DefaultSuccess = 2;
 }
 
@@ -2054,13 +2584,27 @@ client cluster OperationalCredentials = 62 {
     OCTET_STRING attestationNonce = 0;
   }
 
+  request struct AttestationResponseRequest {
+    OCTET_STRING attestationElements = 0;
+    OCTET_STRING attestationSignature = 1;
+  }
+
   request struct CertificateChainRequestRequest {
     CertificateChainTypeEnum certificateType = 0;
+  }
+
+  request struct CertificateChainResponseRequest {
+    OCTET_STRING certificate = 0;
   }
 
   request struct CSRRequestRequest {
     OCTET_STRING CSRNonce = 0;
     optional boolean isForUpdateNOC = 1;
+  }
+
+  request struct CSRResponseRequest {
+    OCTET_STRING NOCSRElements = 0;
+    OCTET_STRING attestationSignature = 1;
   }
 
   request struct AddNOCRequest {
@@ -2076,6 +2620,12 @@ client cluster OperationalCredentials = 62 {
     optional OCTET_STRING ICACValue = 1;
   }
 
+  request struct NOCResponseRequest {
+    NodeOperationalCertStatusEnum statusCode = 0;
+    optional fabric_idx fabricIndex = 1;
+    optional CHAR_STRING debugText = 2;
+  }
+
   request struct UpdateFabricLabelRequest {
     CHAR_STRING<32> label = 0;
   }
@@ -2088,18 +2638,44 @@ client cluster OperationalCredentials = 62 {
     OCTET_STRING rootCACertificate = 0;
   }
 
+  response struct AttestationRequest = 0 {
+    OCTET_STRING attestationNonce = 0;
+  }
+
   response struct AttestationResponse = 1 {
     OCTET_STRING attestationElements = 0;
     OCTET_STRING attestationSignature = 1;
+  }
+
+  response struct CertificateChainRequest = 2 {
+    CertificateChainTypeEnum certificateType = 0;
   }
 
   response struct CertificateChainResponse = 3 {
     OCTET_STRING certificate = 0;
   }
 
+  response struct CSRRequest = 4 {
+    OCTET_STRING CSRNonce = 0;
+    optional boolean isForUpdateNOC = 1;
+  }
+
   response struct CSRResponse = 5 {
     OCTET_STRING NOCSRElements = 0;
     OCTET_STRING attestationSignature = 1;
+  }
+
+  response struct AddNOC = 6 {
+    OCTET_STRING NOCValue = 0;
+    optional OCTET_STRING ICACValue = 1;
+    OCTET_STRING IPKValue = 2;
+    Int64u caseAdminSubject = 3;
+    VENDOR_ID adminVendorId = 4;
+  }
+
+  response struct UpdateNOC = 7 {
+    OCTET_STRING NOCValue = 0;
+    optional OCTET_STRING ICACValue = 1;
   }
 
   response struct NOCResponse = 8 {
@@ -2108,14 +2684,30 @@ client cluster OperationalCredentials = 62 {
     optional CHAR_STRING debugText = 2;
   }
 
-  command access(invoke: administer) AttestationRequest(AttestationRequestRequest): AttestationResponse = 0;
-  command access(invoke: administer) CertificateChainRequest(CertificateChainRequestRequest): CertificateChainResponse = 2;
-  command access(invoke: administer) CSRRequest(CSRRequestRequest): CSRResponse = 4;
-  command access(invoke: administer) AddNOC(AddNOCRequest): NOCResponse = 6;
-  fabric command access(invoke: administer) UpdateNOC(UpdateNOCRequest): NOCResponse = 7;
-  fabric command access(invoke: administer) UpdateFabricLabel(UpdateFabricLabelRequest): NOCResponse = 9;
-  command access(invoke: administer) RemoveFabric(RemoveFabricRequest): NOCResponse = 10;
-  command access(invoke: administer) AddTrustedRootCertificate(AddTrustedRootCertificateRequest): DefaultSuccess = 11;
+  response struct UpdateFabricLabel = 9 {
+    CHAR_STRING<32> label = 0;
+  }
+
+  response struct RemoveFabric = 10 {
+    fabric_idx fabricIndex = 0;
+  }
+
+  response struct AddTrustedRootCertificate = 11 {
+    OCTET_STRING rootCACertificate = 0;
+  }
+
+  command access(invoke: administer) AttestationRequest(AttestationNonceRequest): AttestationResponse = 0;
+  command AttestationResponse(AttestationElementsRequest): DefaultSuccess = 1;
+  command access(invoke: administer) CertificateChainRequest(CertificateTypeRequest): CertificateChainResponse = 2;
+  command CertificateChainResponse(CertificateRequest): DefaultSuccess = 3;
+  command access(invoke: administer) CSRRequest(CSRNonceRequest): CSRResponse = 4;
+  command CSRResponse(NOCSRElementsRequest): DefaultSuccess = 5;
+  command access(invoke: administer) AddNOC(NOCValueRequest): NOCResponse = 6;
+  fabric command access(invoke: administer) UpdateNOC(NOCValueRequest): NOCResponse = 7;
+  command NOCResponse(StatusCodeRequest): DefaultSuccess = 8;
+  fabric command access(invoke: administer) UpdateFabricLabel(LabelRequest): NOCResponse = 9;
+  command access(invoke: administer) RemoveFabric(FabricIndexRequest): NOCResponse = 10;
+  command access(invoke: administer) AddTrustedRootCertificate(RootCACertificateRequest): DefaultSuccess = 11;
 }
 
 client cluster GroupKeyManagement = 63 {
@@ -2167,6 +2759,10 @@ client cluster GroupKeyManagement = 63 {
     INT16U groupKeySetID = 0;
   }
 
+  request struct KeySetReadResponseRequest {
+    GroupKeySetStruct groupKeySet = 0;
+  }
+
   request struct KeySetRemoveRequest {
     INT16U groupKeySetID = 0;
   }
@@ -2175,18 +2771,40 @@ client cluster GroupKeyManagement = 63 {
     INT16U groupKeySetIDs[] = 0;
   }
 
+  request struct KeySetReadAllIndicesResponseRequest {
+    INT16U groupKeySetIDs[] = 0;
+  }
+
+  response struct KeySetWrite = 0 {
+    GroupKeySetStruct groupKeySet = 0;
+  }
+
+  response struct KeySetRead = 1 {
+    INT16U groupKeySetID = 0;
+  }
+
   response struct KeySetReadResponse = 2 {
     GroupKeySetStruct groupKeySet = 0;
+  }
+
+  response struct KeySetRemove = 3 {
+    INT16U groupKeySetID = 0;
+  }
+
+  response struct KeySetReadAllIndices = 4 {
+    INT16U groupKeySetIDs[] = 0;
   }
 
   response struct KeySetReadAllIndicesResponse = 5 {
     INT16U groupKeySetIDs[] = 0;
   }
 
-  fabric command access(invoke: administer) KeySetWrite(KeySetWriteRequest): DefaultSuccess = 0;
-  fabric command access(invoke: administer) KeySetRead(KeySetReadRequest): KeySetReadResponse = 1;
-  fabric command access(invoke: administer) KeySetRemove(KeySetRemoveRequest): DefaultSuccess = 3;
-  fabric command access(invoke: administer) KeySetReadAllIndices(KeySetReadAllIndicesRequest): KeySetReadAllIndicesResponse = 4;
+  fabric command access(invoke: administer) KeySetWrite(GroupKeySetRequest): DefaultSuccess = 0;
+  fabric command access(invoke: administer) KeySetRead(GroupKeySetIDRequest): KeySetReadResponse = 1;
+  command KeySetReadResponse(GroupKeySetRequest): DefaultSuccess = 2;
+  fabric command access(invoke: administer) KeySetRemove(GroupKeySetIDRequest): DefaultSuccess = 3;
+  fabric command access(invoke: administer) KeySetReadAllIndices(GroupKeySetIDsRequest): KeySetReadAllIndicesResponse = 4;
+  command KeySetReadAllIndicesResponse(GroupKeySetIDsRequest): DefaultSuccess = 5;
 }
 
 client cluster FixedLabel = 64 {
@@ -2266,7 +2884,11 @@ client cluster ModeSelect = 80 {
     INT8U newMode = 0;
   }
 
-  command ChangeToMode(ChangeToModeRequest): DefaultSuccess = 0;
+  response struct ChangeToMode = 0 {
+    INT8U newMode = 0;
+  }
+
+  command ChangeToMode(NewModeRequest): DefaultSuccess = 0;
 }
 
 client cluster DoorLock = 257 {
@@ -2714,6 +3336,17 @@ client cluster DoorLock = 257 {
     INT16U userIndex = 1;
   }
 
+  request struct GetWeekDayScheduleResponseRequest {
+    INT8U weekDayIndex = 0;
+    INT16U userIndex = 1;
+    DlStatus status = 2;
+    optional DaysMaskMap daysMask = 3;
+    optional INT8U startHour = 4;
+    optional INT8U startMinute = 5;
+    optional INT8U endHour = 6;
+    optional INT8U endMinute = 7;
+  }
+
   request struct ClearWeekDayScheduleRequest {
     INT8U weekDayIndex = 0;
     INT16U userIndex = 1;
@@ -2731,6 +3364,14 @@ client cluster DoorLock = 257 {
     INT16U userIndex = 1;
   }
 
+  request struct GetYearDayScheduleResponseRequest {
+    INT8U yearDayIndex = 0;
+    INT16U userIndex = 1;
+    DlStatus status = 2;
+    optional epoch_s localStartTime = 3;
+    optional epoch_s localEndTime = 4;
+  }
+
   request struct ClearYearDayScheduleRequest {
     INT8U yearDayIndex = 0;
     INT16U userIndex = 1;
@@ -2745,6 +3386,14 @@ client cluster DoorLock = 257 {
 
   request struct GetHolidayScheduleRequest {
     INT8U holidayIndex = 0;
+  }
+
+  request struct GetHolidayScheduleResponseRequest {
+    INT8U holidayIndex = 0;
+    DlStatus status = 1;
+    optional epoch_s localStartTime = 2;
+    optional epoch_s localEndTime = 3;
+    optional OperatingModeEnum operatingMode = 4;
   }
 
   request struct ClearHolidayScheduleRequest {
@@ -2765,6 +3414,19 @@ client cluster DoorLock = 257 {
     INT16U userIndex = 0;
   }
 
+  request struct GetUserResponseRequest {
+    INT16U userIndex = 0;
+    nullable CHAR_STRING userName = 1;
+    nullable INT32U userUniqueID = 2;
+    nullable UserStatusEnum userStatus = 3;
+    nullable UserTypeEnum userType = 4;
+    nullable CredentialRuleEnum credentialRule = 5;
+    nullable CredentialStruct credentials[] = 6;
+    nullable fabric_idx creatorFabricIndex = 7;
+    nullable fabric_idx lastModifiedFabricIndex = 8;
+    nullable INT16U nextUserIndex = 9;
+  }
+
   request struct ClearUserRequest {
     INT16U userIndex = 0;
   }
@@ -2778,12 +3440,54 @@ client cluster DoorLock = 257 {
     nullable UserTypeEnum userType = 5;
   }
 
+  request struct SetCredentialResponseRequest {
+    DlStatus status = 0;
+    nullable INT16U userIndex = 1;
+    nullable INT16U nextCredentialIndex = 2;
+  }
+
   request struct GetCredentialStatusRequest {
     CredentialStruct credential = 0;
   }
 
+  request struct GetCredentialStatusResponseRequest {
+    boolean credentialExists = 0;
+    nullable INT16U userIndex = 1;
+    nullable fabric_idx creatorFabricIndex = 2;
+    nullable fabric_idx lastModifiedFabricIndex = 3;
+    nullable INT16U nextCredentialIndex = 4;
+  }
+
   request struct ClearCredentialRequest {
     nullable CredentialStruct credential = 0;
+  }
+
+  response struct LockDoor = 0 {
+    optional OCTET_STRING PINCode = 0;
+  }
+
+  response struct UnlockDoor = 1 {
+    optional OCTET_STRING PINCode = 0;
+  }
+
+  response struct UnlockWithTimeout = 3 {
+    INT16U timeout = 0;
+    optional OCTET_STRING PINCode = 1;
+  }
+
+  response struct SetWeekDaySchedule = 11 {
+    INT8U weekDayIndex = 0;
+    INT16U userIndex = 1;
+    DaysMaskMap daysMask = 2;
+    INT8U startHour = 3;
+    INT8U startMinute = 4;
+    INT8U endHour = 5;
+    INT8U endMinute = 6;
+  }
+
+  response struct GetWeekDaySchedule = 12 {
+    INT8U weekDayIndex = 0;
+    INT16U userIndex = 1;
   }
 
   response struct GetWeekDayScheduleResponse = 12 {
@@ -2797,6 +3501,23 @@ client cluster DoorLock = 257 {
     optional INT8U endMinute = 7;
   }
 
+  response struct ClearWeekDaySchedule = 13 {
+    INT8U weekDayIndex = 0;
+    INT16U userIndex = 1;
+  }
+
+  response struct SetYearDaySchedule = 14 {
+    INT8U yearDayIndex = 0;
+    INT16U userIndex = 1;
+    epoch_s localStartTime = 2;
+    epoch_s localEndTime = 3;
+  }
+
+  response struct GetYearDaySchedule = 15 {
+    INT8U yearDayIndex = 0;
+    INT16U userIndex = 1;
+  }
+
   response struct GetYearDayScheduleResponse = 15 {
     INT8U yearDayIndex = 0;
     INT16U userIndex = 1;
@@ -2805,12 +3526,46 @@ client cluster DoorLock = 257 {
     optional epoch_s localEndTime = 4;
   }
 
+  response struct ClearYearDaySchedule = 16 {
+    INT8U yearDayIndex = 0;
+    INT16U userIndex = 1;
+  }
+
+  response struct SetHolidaySchedule = 17 {
+    INT8U holidayIndex = 0;
+    epoch_s localStartTime = 1;
+    epoch_s localEndTime = 2;
+    OperatingModeEnum operatingMode = 3;
+  }
+
+  response struct GetHolidaySchedule = 18 {
+    INT8U holidayIndex = 0;
+  }
+
   response struct GetHolidayScheduleResponse = 18 {
     INT8U holidayIndex = 0;
     DlStatus status = 1;
     optional epoch_s localStartTime = 2;
     optional epoch_s localEndTime = 3;
     optional OperatingModeEnum operatingMode = 4;
+  }
+
+  response struct ClearHolidaySchedule = 19 {
+    INT8U holidayIndex = 0;
+  }
+
+  response struct SetUser = 26 {
+    DataOperationTypeEnum operationType = 0;
+    INT16U userIndex = 1;
+    nullable CHAR_STRING userName = 2;
+    nullable INT32U userUniqueID = 3;
+    nullable UserStatusEnum userStatus = 4;
+    nullable UserTypeEnum userType = 5;
+    nullable CredentialRuleEnum credentialRule = 6;
+  }
+
+  response struct GetUser = 27 {
+    INT16U userIndex = 0;
   }
 
   response struct GetUserResponse = 28 {
@@ -2826,10 +3581,27 @@ client cluster DoorLock = 257 {
     nullable INT16U nextUserIndex = 9;
   }
 
+  response struct ClearUser = 29 {
+    INT16U userIndex = 0;
+  }
+
+  response struct SetCredential = 34 {
+    DataOperationTypeEnum operationType = 0;
+    CredentialStruct credential = 1;
+    LONG_OCTET_STRING credentialData = 2;
+    nullable INT16U userIndex = 3;
+    nullable UserStatusEnum userStatus = 4;
+    nullable UserTypeEnum userType = 5;
+  }
+
   response struct SetCredentialResponse = 35 {
     DlStatus status = 0;
     nullable INT16U userIndex = 1;
     nullable INT16U nextCredentialIndex = 2;
+  }
+
+  response struct GetCredentialStatus = 36 {
+    CredentialStruct credential = 0;
   }
 
   response struct GetCredentialStatusResponse = 37 {
@@ -2840,24 +3612,34 @@ client cluster DoorLock = 257 {
     nullable INT16U nextCredentialIndex = 4;
   }
 
-  timed command LockDoor(LockDoorRequest): DefaultSuccess = 0;
-  timed command UnlockDoor(UnlockDoorRequest): DefaultSuccess = 1;
-  timed command UnlockWithTimeout(UnlockWithTimeoutRequest): DefaultSuccess = 3;
-  command access(invoke: administer) SetWeekDaySchedule(SetWeekDayScheduleRequest): DefaultSuccess = 11;
-  command access(invoke: administer) GetWeekDaySchedule(GetWeekDayScheduleRequest): GetWeekDayScheduleResponse = 12;
-  command access(invoke: administer) ClearWeekDaySchedule(ClearWeekDayScheduleRequest): DefaultSuccess = 13;
-  command access(invoke: administer) SetYearDaySchedule(SetYearDayScheduleRequest): DefaultSuccess = 14;
-  command access(invoke: administer) GetYearDaySchedule(GetYearDayScheduleRequest): GetYearDayScheduleResponse = 15;
-  command access(invoke: administer) ClearYearDaySchedule(ClearYearDayScheduleRequest): DefaultSuccess = 16;
-  command access(invoke: administer) SetHolidaySchedule(SetHolidayScheduleRequest): DefaultSuccess = 17;
-  command access(invoke: administer) GetHolidaySchedule(GetHolidayScheduleRequest): GetHolidayScheduleResponse = 18;
-  command access(invoke: administer) ClearHolidaySchedule(ClearHolidayScheduleRequest): DefaultSuccess = 19;
-  timed command access(invoke: administer) SetUser(SetUserRequest): DefaultSuccess = 26;
-  command access(invoke: administer) GetUser(GetUserRequest): GetUserResponse = 27;
-  timed command access(invoke: administer) ClearUser(ClearUserRequest): DefaultSuccess = 29;
-  timed command access(invoke: administer) SetCredential(SetCredentialRequest): SetCredentialResponse = 34;
-  command access(invoke: administer) GetCredentialStatus(GetCredentialStatusRequest): GetCredentialStatusResponse = 36;
-  timed command access(invoke: administer) ClearCredential(ClearCredentialRequest): DefaultSuccess = 38;
+  response struct ClearCredential = 38 {
+    nullable CredentialStruct credential = 0;
+  }
+
+  timed command LockDoor(PINCodeRequest): DefaultSuccess = 0;
+  timed command UnlockDoor(PINCodeRequest): DefaultSuccess = 1;
+  timed command UnlockWithTimeout(TimeoutRequest): DefaultSuccess = 3;
+  command access(invoke: administer) SetWeekDaySchedule(WeekDayIndexRequest): DefaultSuccess = 11;
+  command access(invoke: administer) GetWeekDaySchedule(WeekDayIndexRequest): GetWeekDayScheduleResponse = 12;
+  command GetWeekDayScheduleResponse(WeekDayIndexRequest): DefaultSuccess = 12;
+  command access(invoke: administer) ClearWeekDaySchedule(WeekDayIndexRequest): DefaultSuccess = 13;
+  command access(invoke: administer) SetYearDaySchedule(YearDayIndexRequest): DefaultSuccess = 14;
+  command access(invoke: administer) GetYearDaySchedule(YearDayIndexRequest): GetYearDayScheduleResponse = 15;
+  command GetYearDayScheduleResponse(YearDayIndexRequest): DefaultSuccess = 15;
+  command access(invoke: administer) ClearYearDaySchedule(YearDayIndexRequest): DefaultSuccess = 16;
+  command access(invoke: administer) SetHolidaySchedule(HolidayIndexRequest): DefaultSuccess = 17;
+  command access(invoke: administer) GetHolidaySchedule(HolidayIndexRequest): GetHolidayScheduleResponse = 18;
+  command GetHolidayScheduleResponse(HolidayIndexRequest): DefaultSuccess = 18;
+  command access(invoke: administer) ClearHolidaySchedule(HolidayIndexRequest): DefaultSuccess = 19;
+  timed command access(invoke: administer) SetUser(OperationTypeRequest): DefaultSuccess = 26;
+  command access(invoke: administer) GetUser(UserIndexRequest): GetUserResponse = 27;
+  command GetUserResponse(UserIndexRequest): DefaultSuccess = 28;
+  timed command access(invoke: administer) ClearUser(UserIndexRequest): DefaultSuccess = 29;
+  timed command access(invoke: administer) SetCredential(OperationTypeRequest): SetCredentialResponse = 34;
+  command SetCredentialResponse(StatusRequest): DefaultSuccess = 35;
+  command access(invoke: administer) GetCredentialStatus(CredentialRequest): GetCredentialStatusResponse = 36;
+  command GetCredentialStatusResponse(CredentialExistsRequest): DefaultSuccess = 37;
+  timed command access(invoke: administer) ClearCredential(CredentialRequest): DefaultSuccess = 38;
 }
 
 client cluster WindowCovering = 258 {
@@ -2994,13 +3776,29 @@ client cluster WindowCovering = 258 {
     Percent100ths tiltPercent100thsValue = 0;
   }
 
+  response struct GoToLiftValue = 4 {
+    INT16U liftValue = 0;
+  }
+
+  response struct GoToLiftPercentage = 5 {
+    Percent100ths liftPercent100thsValue = 0;
+  }
+
+  response struct GoToTiltValue = 7 {
+    INT16U tiltValue = 0;
+  }
+
+  response struct GoToTiltPercentage = 8 {
+    Percent100ths tiltPercent100thsValue = 0;
+  }
+
   command UpOrOpen(): DefaultSuccess = 0;
   command DownOrClose(): DefaultSuccess = 1;
   command StopMotion(): DefaultSuccess = 2;
-  command GoToLiftValue(GoToLiftValueRequest): DefaultSuccess = 4;
-  command GoToLiftPercentage(GoToLiftPercentageRequest): DefaultSuccess = 5;
-  command GoToTiltValue(GoToTiltValueRequest): DefaultSuccess = 7;
-  command GoToTiltPercentage(GoToTiltPercentageRequest): DefaultSuccess = 8;
+  command GoToLiftValue(LiftValueRequest): DefaultSuccess = 4;
+  command GoToLiftPercentage(LiftPercent100thsValueRequest): DefaultSuccess = 5;
+  command GoToTiltValue(TiltValueRequest): DefaultSuccess = 7;
+  command GoToTiltPercentage(TiltPercent100thsValueRequest): DefaultSuccess = 8;
 }
 
 client cluster BarrierControl = 259 {
@@ -3025,7 +3823,11 @@ client cluster BarrierControl = 259 {
     INT8U percentOpen = 0;
   }
 
-  command BarrierControlGoToPercent(BarrierControlGoToPercentRequest): DefaultSuccess = 0;
+  response struct BarrierControlGoToPercent = 0 {
+    INT8U percentOpen = 0;
+  }
+
+  command BarrierControlGoToPercent(PercentOpenRequest): DefaultSuccess = 0;
   command BarrierControlStop(): DefaultSuccess = 1;
 }
 
@@ -3276,6 +4078,13 @@ client cluster Thermostat = 513 {
     INT8S amount = 1;
   }
 
+  request struct GetWeeklyScheduleResponseRequest {
+    INT8U numberOfTransitionsForSequence = 0;
+    DayOfWeek dayOfWeekForSequence = 1;
+    ModeForSequence modeForSequence = 2;
+    ThermostatScheduleTransition transitions[] = 3;
+  }
+
   request struct SetWeeklyScheduleRequest {
     INT8U numberOfTransitionsForSequence = 0;
     DayOfWeek dayOfWeekForSequence = 1;
@@ -3288,6 +4097,11 @@ client cluster Thermostat = 513 {
     ModeForSequence modeToReturn = 1;
   }
 
+  response struct SetpointRaiseLower = 0 {
+    SetpointAdjustMode mode = 0;
+    INT8S amount = 1;
+  }
+
   response struct GetWeeklyScheduleResponse = 0 {
     INT8U numberOfTransitionsForSequence = 0;
     DayOfWeek dayOfWeekForSequence = 1;
@@ -3295,9 +4109,22 @@ client cluster Thermostat = 513 {
     ThermostatScheduleTransition transitions[] = 3;
   }
 
-  command SetpointRaiseLower(SetpointRaiseLowerRequest): DefaultSuccess = 0;
-  command access(invoke: manage) SetWeeklySchedule(SetWeeklyScheduleRequest): DefaultSuccess = 1;
-  command GetWeeklySchedule(GetWeeklyScheduleRequest): GetWeeklyScheduleResponse = 2;
+  response struct SetWeeklySchedule = 1 {
+    INT8U numberOfTransitionsForSequence = 0;
+    DayOfWeek dayOfWeekForSequence = 1;
+    ModeForSequence modeForSequence = 2;
+    ThermostatScheduleTransition transitions[] = 3;
+  }
+
+  response struct GetWeeklySchedule = 2 {
+    DayOfWeek daysToReturn = 0;
+    ModeForSequence modeToReturn = 1;
+  }
+
+  command SetpointRaiseLower(ModeRequest): DefaultSuccess = 0;
+  command GetWeeklyScheduleResponse(NumberOfTransitionsForSequenceRequest): DefaultSuccess = 0;
+  command access(invoke: manage) SetWeeklySchedule(NumberOfTransitionsForSequenceRequest): DefaultSuccess = 1;
+  command GetWeeklySchedule(DaysToReturnRequest): GetWeeklyScheduleResponse = 2;
   command access(invoke: manage) ClearWeeklySchedule(): DefaultSuccess = 3;
 }
 
@@ -3652,25 +4479,173 @@ client cluster ColorControl = 768 {
     BITMAP8 optionsOverride = 6;
   }
 
-  command MoveToHue(MoveToHueRequest): DefaultSuccess = 0;
-  command MoveHue(MoveHueRequest): DefaultSuccess = 1;
-  command StepHue(StepHueRequest): DefaultSuccess = 2;
-  command MoveToSaturation(MoveToSaturationRequest): DefaultSuccess = 3;
-  command MoveSaturation(MoveSaturationRequest): DefaultSuccess = 4;
-  command StepSaturation(StepSaturationRequest): DefaultSuccess = 5;
-  command MoveToHueAndSaturation(MoveToHueAndSaturationRequest): DefaultSuccess = 6;
-  command MoveToColor(MoveToColorRequest): DefaultSuccess = 7;
-  command MoveColor(MoveColorRequest): DefaultSuccess = 8;
-  command StepColor(StepColorRequest): DefaultSuccess = 9;
-  command MoveToColorTemperature(MoveToColorTemperatureRequest): DefaultSuccess = 10;
-  command EnhancedMoveToHue(EnhancedMoveToHueRequest): DefaultSuccess = 64;
-  command EnhancedMoveHue(EnhancedMoveHueRequest): DefaultSuccess = 65;
-  command EnhancedStepHue(EnhancedStepHueRequest): DefaultSuccess = 66;
-  command EnhancedMoveToHueAndSaturation(EnhancedMoveToHueAndSaturationRequest): DefaultSuccess = 67;
-  command ColorLoopSet(ColorLoopSetRequest): DefaultSuccess = 68;
-  command StopMoveStep(StopMoveStepRequest): DefaultSuccess = 71;
-  command MoveColorTemperature(MoveColorTemperatureRequest): DefaultSuccess = 75;
-  command StepColorTemperature(StepColorTemperatureRequest): DefaultSuccess = 76;
+  response struct MoveToHue = 0 {
+    INT8U hue = 0;
+    HueDirection direction = 1;
+    INT16U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct MoveHue = 1 {
+    HueMoveMode moveMode = 0;
+    INT8U rate = 1;
+    BITMAP8 optionsMask = 2;
+    BITMAP8 optionsOverride = 3;
+  }
+
+  response struct StepHue = 2 {
+    HueStepMode stepMode = 0;
+    INT8U stepSize = 1;
+    INT8U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct MoveToSaturation = 3 {
+    INT8U saturation = 0;
+    INT16U transitionTime = 1;
+    BITMAP8 optionsMask = 2;
+    BITMAP8 optionsOverride = 3;
+  }
+
+  response struct MoveSaturation = 4 {
+    SaturationMoveMode moveMode = 0;
+    INT8U rate = 1;
+    BITMAP8 optionsMask = 2;
+    BITMAP8 optionsOverride = 3;
+  }
+
+  response struct StepSaturation = 5 {
+    SaturationStepMode stepMode = 0;
+    INT8U stepSize = 1;
+    INT8U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct MoveToHueAndSaturation = 6 {
+    INT8U hue = 0;
+    INT8U saturation = 1;
+    INT16U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct MoveToColor = 7 {
+    INT16U colorX = 0;
+    INT16U colorY = 1;
+    INT16U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct MoveColor = 8 {
+    INT16S rateX = 0;
+    INT16S rateY = 1;
+    BITMAP8 optionsMask = 2;
+    BITMAP8 optionsOverride = 3;
+  }
+
+  response struct StepColor = 9 {
+    INT16S stepX = 0;
+    INT16S stepY = 1;
+    INT16U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct MoveToColorTemperature = 10 {
+    INT16U colorTemperatureMireds = 0;
+    INT16U transitionTime = 1;
+    BITMAP8 optionsMask = 2;
+    BITMAP8 optionsOverride = 3;
+  }
+
+  response struct EnhancedMoveToHue = 64 {
+    INT16U enhancedHue = 0;
+    HueDirection direction = 1;
+    INT16U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct EnhancedMoveHue = 65 {
+    HueMoveMode moveMode = 0;
+    INT16U rate = 1;
+    BITMAP8 optionsMask = 2;
+    BITMAP8 optionsOverride = 3;
+  }
+
+  response struct EnhancedStepHue = 66 {
+    HueStepMode stepMode = 0;
+    INT16U stepSize = 1;
+    INT16U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct EnhancedMoveToHueAndSaturation = 67 {
+    INT16U enhancedHue = 0;
+    INT8U saturation = 1;
+    INT16U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct ColorLoopSet = 68 {
+    ColorLoopUpdateFlags updateFlags = 0;
+    ColorLoopAction action = 1;
+    ColorLoopDirection direction = 2;
+    INT16U time = 3;
+    INT16U startHue = 4;
+    BITMAP8 optionsMask = 5;
+    BITMAP8 optionsOverride = 6;
+  }
+
+  response struct StopMoveStep = 71 {
+    BITMAP8 optionsMask = 0;
+    BITMAP8 optionsOverride = 1;
+  }
+
+  response struct MoveColorTemperature = 75 {
+    HueMoveMode moveMode = 0;
+    INT16U rate = 1;
+    INT16U colorTemperatureMinimumMireds = 2;
+    INT16U colorTemperatureMaximumMireds = 3;
+    BITMAP8 optionsMask = 4;
+    BITMAP8 optionsOverride = 5;
+  }
+
+  response struct StepColorTemperature = 76 {
+    HueStepMode stepMode = 0;
+    INT16U stepSize = 1;
+    INT16U transitionTime = 2;
+    INT16U colorTemperatureMinimumMireds = 3;
+    INT16U colorTemperatureMaximumMireds = 4;
+    BITMAP8 optionsMask = 5;
+    BITMAP8 optionsOverride = 6;
+  }
+
+  command MoveToHue(HueRequest): DefaultSuccess = 0;
+  command MoveHue(MoveModeRequest): DefaultSuccess = 1;
+  command StepHue(StepModeRequest): DefaultSuccess = 2;
+  command MoveToSaturation(SaturationRequest): DefaultSuccess = 3;
+  command MoveSaturation(MoveModeRequest): DefaultSuccess = 4;
+  command StepSaturation(StepModeRequest): DefaultSuccess = 5;
+  command MoveToHueAndSaturation(HueRequest): DefaultSuccess = 6;
+  command MoveToColor(ColorXRequest): DefaultSuccess = 7;
+  command MoveColor(RateXRequest): DefaultSuccess = 8;
+  command StepColor(StepXRequest): DefaultSuccess = 9;
+  command MoveToColorTemperature(ColorTemperatureMiredsRequest): DefaultSuccess = 10;
+  command EnhancedMoveToHue(EnhancedHueRequest): DefaultSuccess = 64;
+  command EnhancedMoveHue(MoveModeRequest): DefaultSuccess = 65;
+  command EnhancedStepHue(StepModeRequest): DefaultSuccess = 66;
+  command EnhancedMoveToHueAndSaturation(EnhancedHueRequest): DefaultSuccess = 67;
+  command ColorLoopSet(UpdateFlagsRequest): DefaultSuccess = 68;
+  command StopMoveStep(OptionsMaskRequest): DefaultSuccess = 71;
+  command MoveColorTemperature(MoveModeRequest): DefaultSuccess = 75;
+  command StepColorTemperature(StepModeRequest): DefaultSuccess = 76;
 }
 
 client cluster BallastConfiguration = 769 {
@@ -3869,6 +4844,11 @@ client cluster Channel = 1284 {
     CHAR_STRING match = 0;
   }
 
+  request struct ChangeChannelResponseRequest {
+    ChannelStatusEnum status = 0;
+    optional CHAR_STRING data = 1;
+  }
+
   request struct ChangeChannelByNumberRequest {
     INT16U majorNumber = 0;
     INT16U minorNumber = 1;
@@ -3878,14 +4858,28 @@ client cluster Channel = 1284 {
     INT16U count = 0;
   }
 
+  response struct ChangeChannel = 0 {
+    CHAR_STRING match = 0;
+  }
+
   response struct ChangeChannelResponse = 1 {
     ChannelStatusEnum status = 0;
     optional CHAR_STRING data = 1;
   }
 
-  command ChangeChannel(ChangeChannelRequest): ChangeChannelResponse = 0;
-  command ChangeChannelByNumber(ChangeChannelByNumberRequest): DefaultSuccess = 2;
-  command SkipChannel(SkipChannelRequest): DefaultSuccess = 3;
+  response struct ChangeChannelByNumber = 2 {
+    INT16U majorNumber = 0;
+    INT16U minorNumber = 1;
+  }
+
+  response struct SkipChannel = 3 {
+    INT16U count = 0;
+  }
+
+  command ChangeChannel(MatchRequest): ChangeChannelResponse = 0;
+  command ChangeChannelResponse(StatusRequest): DefaultSuccess = 1;
+  command ChangeChannelByNumber(MajorNumberRequest): DefaultSuccess = 2;
+  command SkipChannel(CountRequest): DefaultSuccess = 3;
 }
 
 client cluster TargetNavigator = 1285 {
@@ -3914,12 +4908,23 @@ client cluster TargetNavigator = 1285 {
     optional CHAR_STRING data = 1;
   }
 
+  request struct NavigateTargetResponseRequest {
+    TargetNavigatorStatusEnum status = 0;
+    optional CHAR_STRING data = 1;
+  }
+
+  response struct NavigateTarget = 0 {
+    INT8U target = 0;
+    optional CHAR_STRING data = 1;
+  }
+
   response struct NavigateTargetResponse = 1 {
     TargetNavigatorStatusEnum status = 0;
     optional CHAR_STRING data = 1;
   }
 
-  command NavigateTarget(NavigateTargetRequest): NavigateTargetResponse = 0;
+  command NavigateTarget(TargetRequest): NavigateTargetResponse = 0;
+  command NavigateTargetResponse(StatusRequest): DefaultSuccess = 1;
 }
 
 client cluster MediaPlayback = 1286 {
@@ -3971,13 +4976,30 @@ client cluster MediaPlayback = 1286 {
     INT64U deltaPositionMilliseconds = 0;
   }
 
+  request struct PlaybackResponseRequest {
+    MediaPlaybackStatusEnum status = 0;
+    optional CHAR_STRING data = 1;
+  }
+
   request struct SeekRequest {
     INT64U position = 0;
+  }
+
+  response struct SkipForward = 8 {
+    INT64U deltaPositionMilliseconds = 0;
+  }
+
+  response struct SkipBackward = 9 {
+    INT64U deltaPositionMilliseconds = 0;
   }
 
   response struct PlaybackResponse = 10 {
     MediaPlaybackStatusEnum status = 0;
     optional CHAR_STRING data = 1;
+  }
+
+  response struct Seek = 11 {
+    INT64U position = 0;
   }
 
   command Play(): PlaybackResponse = 0;
@@ -3988,9 +5010,10 @@ client cluster MediaPlayback = 1286 {
   command Next(): PlaybackResponse = 5;
   command Rewind(): PlaybackResponse = 6;
   command FastForward(): PlaybackResponse = 7;
-  command SkipForward(SkipForwardRequest): PlaybackResponse = 8;
-  command SkipBackward(SkipBackwardRequest): PlaybackResponse = 9;
-  command Seek(SeekRequest): PlaybackResponse = 11;
+  command SkipForward(DeltaPositionMillisecondsRequest): PlaybackResponse = 8;
+  command SkipBackward(DeltaPositionMillisecondsRequest): PlaybackResponse = 9;
+  command PlaybackResponse(StatusRequest): DefaultSuccess = 10;
+  command Seek(PositionRequest): PlaybackResponse = 11;
 }
 
 client cluster MediaInput = 1287 {
@@ -4038,10 +5061,19 @@ client cluster MediaInput = 1287 {
     CHAR_STRING name = 1;
   }
 
-  command SelectInput(SelectInputRequest): DefaultSuccess = 0;
+  response struct SelectInput = 0 {
+    INT8U index = 0;
+  }
+
+  response struct RenameInput = 3 {
+    INT8U index = 0;
+    CHAR_STRING name = 1;
+  }
+
+  command SelectInput(IndexRequest): DefaultSuccess = 0;
   command ShowInputStatus(): DefaultSuccess = 1;
   command HideInputStatus(): DefaultSuccess = 2;
-  command RenameInput(RenameInputRequest): DefaultSuccess = 3;
+  command RenameInput(IndexRequest): DefaultSuccess = 3;
 }
 
 client cluster LowPower = 1288 {
@@ -4168,11 +5200,20 @@ client cluster KeypadInput = 1289 {
     CecKeyCode keyCode = 0;
   }
 
+  request struct SendKeyResponseRequest {
+    KeypadInputStatusEnum status = 0;
+  }
+
+  response struct SendKey = 0 {
+    CecKeyCode keyCode = 0;
+  }
+
   response struct SendKeyResponse = 1 {
     KeypadInputStatusEnum status = 0;
   }
 
-  command SendKey(SendKeyRequest): SendKeyResponse = 0;
+  command SendKey(KeyCodeRequest): SendKeyResponse = 0;
+  command SendKeyResponse(StatusRequest): DefaultSuccess = 1;
 }
 
 client cluster ContentLauncher = 1290 {
@@ -4271,13 +5312,31 @@ client cluster ContentLauncher = 1290 {
     optional BrandingInformationStruct brandingInformation = 2;
   }
 
+  request struct LauncherResponseRequest {
+    ContentLaunchStatusEnum status = 0;
+    optional CHAR_STRING data = 1;
+  }
+
+  response struct LaunchContent = 0 {
+    ContentSearchStruct search = 0;
+    BOOLEAN autoPlay = 1;
+    optional CHAR_STRING data = 2;
+  }
+
+  response struct LaunchURL = 1 {
+    CHAR_STRING contentURL = 0;
+    optional CHAR_STRING displayString = 1;
+    optional BrandingInformationStruct brandingInformation = 2;
+  }
+
   response struct LauncherResponse = 2 {
     ContentLaunchStatusEnum status = 0;
     optional CHAR_STRING data = 1;
   }
 
-  command LaunchContent(LaunchContentRequest): LauncherResponse = 0;
-  command LaunchURL(LaunchURLRequest): LauncherResponse = 1;
+  command LaunchContent(SearchRequest): LauncherResponse = 0;
+  command LaunchURL(ContentURLRequest): LauncherResponse = 1;
+  command LauncherResponse(StatusRequest): DefaultSuccess = 2;
 }
 
 client cluster AudioOutput = 1291 {
@@ -4318,8 +5377,17 @@ client cluster AudioOutput = 1291 {
     CHAR_STRING name = 1;
   }
 
-  command SelectOutput(SelectOutputRequest): DefaultSuccess = 0;
-  command RenameOutput(RenameOutputRequest): DefaultSuccess = 1;
+  response struct SelectOutput = 0 {
+    INT8U index = 0;
+  }
+
+  response struct RenameOutput = 1 {
+    INT8U index = 0;
+    CHAR_STRING name = 1;
+  }
+
+  command SelectOutput(IndexRequest): DefaultSuccess = 0;
+  command RenameOutput(IndexRequest): DefaultSuccess = 1;
 }
 
 client cluster ApplicationLauncher = 1292 {
@@ -4365,14 +5433,33 @@ client cluster ApplicationLauncher = 1292 {
     optional ApplicationStruct application = 0;
   }
 
+  request struct LauncherResponseRequest {
+    ApplicationLauncherStatusEnum status = 0;
+    optional OCTET_STRING data = 1;
+  }
+
+  response struct LaunchApp = 0 {
+    optional ApplicationStruct application = 0;
+    optional OCTET_STRING data = 1;
+  }
+
+  response struct StopApp = 1 {
+    optional ApplicationStruct application = 0;
+  }
+
+  response struct HideApp = 2 {
+    optional ApplicationStruct application = 0;
+  }
+
   response struct LauncherResponse = 3 {
     ApplicationLauncherStatusEnum status = 0;
     optional OCTET_STRING data = 1;
   }
 
-  command LaunchApp(LaunchAppRequest): LauncherResponse = 0;
-  command StopApp(StopAppRequest): LauncherResponse = 1;
-  command HideApp(HideAppRequest): LauncherResponse = 2;
+  command LaunchApp(ApplicationRequest): LauncherResponse = 0;
+  command StopApp(ApplicationRequest): LauncherResponse = 1;
+  command HideApp(ApplicationRequest): LauncherResponse = 2;
+  command LauncherResponse(StatusRequest): DefaultSuccess = 3;
 }
 
 client cluster ApplicationBasic = 1293 {
@@ -4416,17 +5503,31 @@ client cluster AccountLogin = 1294 {
     CHAR_STRING<100> tempAccountIdentifier = 0;
   }
 
+  request struct GetSetupPINResponseRequest {
+    CHAR_STRING setupPIN = 0;
+  }
+
   request struct LoginRequest {
     CHAR_STRING<100> tempAccountIdentifier = 0;
     CHAR_STRING setupPIN = 1;
+  }
+
+  response struct GetSetupPIN = 0 {
+    CHAR_STRING<100> tempAccountIdentifier = 0;
   }
 
   response struct GetSetupPINResponse = 1 {
     CHAR_STRING setupPIN = 0;
   }
 
-  timed command GetSetupPIN(GetSetupPINRequest): GetSetupPINResponse = 0;
-  timed command Login(LoginRequest): DefaultSuccess = 2;
+  response struct Login = 2 {
+    CHAR_STRING<100> tempAccountIdentifier = 0;
+    CHAR_STRING setupPIN = 1;
+  }
+
+  timed command GetSetupPIN(TempAccountIdentifierRequest): GetSetupPINResponse = 0;
+  command GetSetupPINResponse(SetupPINRequest): DefaultSuccess = 1;
+  timed command Login(TempAccountIdentifierRequest): DefaultSuccess = 2;
   timed command Logout(): DefaultSuccess = 3;
 }
 
@@ -4565,6 +5666,55 @@ client cluster ElectricalMeasurement = 2820 {
   readonly attribute attrib_id attributeList[] = 65531;
   readonly attribute bitmap32 featureMap = 65532;
   readonly attribute int16u clusterRevision = 65533;
+
+  request struct GetProfileInfoResponseCommandRequest {
+    INT8U profileCount = 0;
+    ENUM8 profileIntervalPeriod = 1;
+    INT8U maxNumberOfIntervals = 2;
+    INT16U listOfAttributes[] = 3;
+  }
+
+  request struct GetMeasurementProfileResponseCommandRequest {
+    INT32U startTime = 0;
+    ENUM8 status = 1;
+    ENUM8 profileIntervalPeriod = 2;
+    INT8U numberOfIntervalsDelivered = 3;
+    INT16U attributeId = 4;
+    INT8U intervals[] = 5;
+  }
+
+  request struct GetMeasurementProfileCommandRequest {
+    INT16U attributeId = 0;
+    INT32U startTime = 1;
+    ENUM8 numberOfIntervals = 2;
+  }
+
+  response struct GetProfileInfoResponseCommand = 0 {
+    INT8U profileCount = 0;
+    ENUM8 profileIntervalPeriod = 1;
+    INT8U maxNumberOfIntervals = 2;
+    INT16U listOfAttributes[] = 3;
+  }
+
+  response struct GetMeasurementProfileResponseCommand = 1 {
+    INT32U startTime = 0;
+    ENUM8 status = 1;
+    ENUM8 profileIntervalPeriod = 2;
+    INT8U numberOfIntervalsDelivered = 3;
+    INT16U attributeId = 4;
+    INT8U intervals[] = 5;
+  }
+
+  response struct GetMeasurementProfileCommand = 1 {
+    INT16U attributeId = 0;
+    INT32U startTime = 1;
+    ENUM8 numberOfIntervals = 2;
+  }
+
+  command GetProfileInfoResponseCommand(ProfileCountRequest): DefaultSuccess = 0;
+  command GetProfileInfoCommand(): DefaultSuccess = 0;
+  command GetMeasurementProfileResponseCommand(StartTimeRequest): DefaultSuccess = 1;
+  command GetMeasurementProfileCommand(AttributeIdRequest): DefaultSuccess = 1;
 }
 
 client cluster ClientMonitoring = 4166 {
@@ -4595,8 +5745,19 @@ client cluster ClientMonitoring = 4166 {
     INT64U ICid = 1;
   }
 
-  command access(invoke: manage) RegisterClientMonitoring(RegisterClientMonitoringRequest): DefaultSuccess = 0;
-  command access(invoke: manage) UnregisterClientMonitoring(UnregisterClientMonitoringRequest): DefaultSuccess = 1;
+  response struct RegisterClientMonitoring = 0 {
+    node_id clientNodeId = 0;
+    INT64U ICid = 1;
+  }
+
+  response struct UnregisterClientMonitoring = 1 {
+    node_id clientNodeId = 0;
+    INT64U ICid = 1;
+  }
+
+  command access(invoke: manage) RegisterClientMonitoring(ClientNodeIdRequest): DefaultSuccess = 0;
+  command access(invoke: manage) UnregisterClientMonitoring(ClientNodeIdRequest): DefaultSuccess = 1;
+  command access(invoke: manage) StayAwakeRequest(): DefaultSuccess = 2;
 }
 
 client cluster UnitTesting = 4294048773 {
@@ -4805,29 +5966,126 @@ client cluster UnitTesting = 4294048773 {
   readonly attribute bitmap32 featureMap = 65532;
   readonly attribute int16u clusterRevision = 65533;
 
+  request struct TestSpecificResponseRequest {
+    INT8U returnValue = 0;
+  }
+
+  request struct TestAddArgumentsResponseRequest {
+    INT8U returnValue = 0;
+  }
+
+  request struct TestSimpleArgumentResponseRequest {
+    BOOLEAN returnValue = 0;
+  }
+
+  request struct TestStructArrayArgumentResponseRequest {
+    NestedStructList arg1[] = 0;
+    SimpleStruct arg2[] = 1;
+    SimpleEnum arg3[] = 2;
+    BOOLEAN arg4[] = 3;
+    SimpleEnum arg5 = 4;
+    BOOLEAN arg6 = 5;
+  }
+
   request struct TestAddArgumentsRequest {
     INT8U arg1 = 0;
     INT8U arg2 = 1;
+  }
+
+  request struct TestListInt8UReverseResponseRequest {
+    INT8U arg1[] = 0;
+  }
+
+  request struct TestSimpleArgumentRequestRequest {
+    BOOLEAN arg1 = 0;
+  }
+
+  request struct TestEnumsResponseRequest {
+    vendor_id arg1 = 0;
+    SimpleEnum arg2 = 1;
+  }
+
+  request struct TestStructArrayArgumentRequestRequest {
+    NestedStructList arg1[] = 0;
+    SimpleStruct arg2[] = 1;
+    SimpleEnum arg3[] = 2;
+    BOOLEAN arg4[] = 3;
+    SimpleEnum arg5 = 4;
+    BOOLEAN arg6 = 5;
+  }
+
+  request struct TestNullableOptionalResponseRequest {
+    BOOLEAN wasPresent = 0;
+    optional BOOLEAN wasNull = 1;
+    optional INT8U value = 2;
+    optional nullable INT8U originalValue = 3;
   }
 
   request struct TestStructArgumentRequestRequest {
     SimpleStruct arg1 = 0;
   }
 
+  request struct TestComplexNullableOptionalResponseRequest {
+    BOOLEAN nullableIntWasNull = 0;
+    optional INT16U nullableIntValue = 1;
+    BOOLEAN optionalIntWasPresent = 2;
+    optional INT16U optionalIntValue = 3;
+    BOOLEAN nullableOptionalIntWasPresent = 4;
+    optional BOOLEAN nullableOptionalIntWasNull = 5;
+    optional INT16U nullableOptionalIntValue = 6;
+    BOOLEAN nullableStringWasNull = 7;
+    optional CHAR_STRING nullableStringValue = 8;
+    BOOLEAN optionalStringWasPresent = 9;
+    optional CHAR_STRING optionalStringValue = 10;
+    BOOLEAN nullableOptionalStringWasPresent = 11;
+    optional BOOLEAN nullableOptionalStringWasNull = 12;
+    optional CHAR_STRING nullableOptionalStringValue = 13;
+    BOOLEAN nullableStructWasNull = 14;
+    optional SimpleStruct nullableStructValue = 15;
+    BOOLEAN optionalStructWasPresent = 16;
+    optional SimpleStruct optionalStructValue = 17;
+    BOOLEAN nullableOptionalStructWasPresent = 18;
+    optional BOOLEAN nullableOptionalStructWasNull = 19;
+    optional SimpleStruct nullableOptionalStructValue = 20;
+    BOOLEAN nullableListWasNull = 21;
+    optional SimpleEnum nullableListValue[] = 22;
+    BOOLEAN optionalListWasPresent = 23;
+    optional SimpleEnum optionalListValue[] = 24;
+    BOOLEAN nullableOptionalListWasPresent = 25;
+    optional BOOLEAN nullableOptionalListWasNull = 26;
+    optional SimpleEnum nullableOptionalListValue[] = 27;
+  }
+
   request struct TestNestedStructArgumentRequestRequest {
     NestedStruct arg1 = 0;
+  }
+
+  request struct BooleanResponseRequest {
+    BOOLEAN value = 0;
   }
 
   request struct TestListStructArgumentRequestRequest {
     SimpleStruct arg1[] = 0;
   }
 
+  request struct SimpleStructResponseRequest {
+    SimpleStruct arg1 = 0;
+  }
+
   request struct TestListInt8UArgumentRequestRequest {
     INT8U arg1[] = 0;
   }
 
+  request struct TestEmitTestEventResponseRequest {
+    INT64U value = 0;
+  }
+
   request struct TestNestedStructListArgumentRequestRequest {
     NestedStructList arg1 = 0;
+  }
+
+  request struct TestEmitTestFabricScopedEventResponseRequest {
+    INT64U value = 0;
   }
 
   request struct TestListNestedStructListArgumentRequestRequest {
@@ -4847,6 +6105,21 @@ client cluster UnitTesting = 4294048773 {
     optional nullable INT8U arg1 = 0;
   }
 
+  request struct TestComplexNullableOptionalRequestRequest {
+    nullable INT16U nullableInt = 0;
+    optional INT16U optionalInt = 1;
+    optional nullable INT16U nullableOptionalInt = 2;
+    nullable CHAR_STRING nullableString = 3;
+    optional CHAR_STRING optionalString = 4;
+    optional nullable CHAR_STRING nullableOptionalString = 5;
+    nullable SimpleStruct nullableStruct = 6;
+    optional SimpleStruct optionalStruct = 7;
+    optional nullable SimpleStruct nullableOptionalStruct = 8;
+    nullable SimpleEnum nullableList[] = 9;
+    optional SimpleEnum optionalList[] = 10;
+    optional nullable SimpleEnum nullableOptionalList[] = 11;
+  }
+
   request struct SimpleStructEchoRequestRequest {
     SimpleStruct arg1 = 0;
   }
@@ -4861,6 +6134,10 @@ client cluster UnitTesting = 4294048773 {
     BOOLEAN arg3 = 2;
   }
 
+  request struct TestEmitTestFabricScopedEventRequestRequest {
+    INT8U arg1 = 0;
+  }
+
   response struct TestSpecificResponse = 0 {
     INT8U returnValue = 0;
   }
@@ -4869,13 +6146,44 @@ client cluster UnitTesting = 4294048773 {
     INT8U returnValue = 0;
   }
 
+  response struct TestSimpleArgumentResponse = 2 {
+    BOOLEAN returnValue = 0;
+  }
+
+  response struct TestStructArrayArgumentResponse = 3 {
+    NestedStructList arg1[] = 0;
+    SimpleStruct arg2[] = 1;
+    SimpleEnum arg3[] = 2;
+    BOOLEAN arg4[] = 3;
+    SimpleEnum arg5 = 4;
+    BOOLEAN arg6 = 5;
+  }
+
+  response struct TestAddArguments = 4 {
+    INT8U arg1 = 0;
+    INT8U arg2 = 1;
+  }
+
   response struct TestListInt8UReverseResponse = 4 {
     INT8U arg1[] = 0;
+  }
+
+  response struct TestSimpleArgumentRequest = 5 {
+    BOOLEAN arg1 = 0;
   }
 
   response struct TestEnumsResponse = 5 {
     vendor_id arg1 = 0;
     SimpleEnum arg2 = 1;
+  }
+
+  response struct TestStructArrayArgumentRequest = 6 {
+    NestedStructList arg1[] = 0;
+    SimpleStruct arg2[] = 1;
+    SimpleEnum arg3[] = 2;
+    BOOLEAN arg4[] = 3;
+    SimpleEnum arg5 = 4;
+    BOOLEAN arg6 = 5;
   }
 
   response struct TestNullableOptionalResponse = 6 {
@@ -4885,36 +6193,157 @@ client cluster UnitTesting = 4294048773 {
     optional nullable INT8U originalValue = 3;
   }
 
+  response struct TestStructArgumentRequest = 7 {
+    SimpleStruct arg1 = 0;
+  }
+
+  response struct TestComplexNullableOptionalResponse = 7 {
+    BOOLEAN nullableIntWasNull = 0;
+    optional INT16U nullableIntValue = 1;
+    BOOLEAN optionalIntWasPresent = 2;
+    optional INT16U optionalIntValue = 3;
+    BOOLEAN nullableOptionalIntWasPresent = 4;
+    optional BOOLEAN nullableOptionalIntWasNull = 5;
+    optional INT16U nullableOptionalIntValue = 6;
+    BOOLEAN nullableStringWasNull = 7;
+    optional CHAR_STRING nullableStringValue = 8;
+    BOOLEAN optionalStringWasPresent = 9;
+    optional CHAR_STRING optionalStringValue = 10;
+    BOOLEAN nullableOptionalStringWasPresent = 11;
+    optional BOOLEAN nullableOptionalStringWasNull = 12;
+    optional CHAR_STRING nullableOptionalStringValue = 13;
+    BOOLEAN nullableStructWasNull = 14;
+    optional SimpleStruct nullableStructValue = 15;
+    BOOLEAN optionalStructWasPresent = 16;
+    optional SimpleStruct optionalStructValue = 17;
+    BOOLEAN nullableOptionalStructWasPresent = 18;
+    optional BOOLEAN nullableOptionalStructWasNull = 19;
+    optional SimpleStruct nullableOptionalStructValue = 20;
+    BOOLEAN nullableListWasNull = 21;
+    optional SimpleEnum nullableListValue[] = 22;
+    BOOLEAN optionalListWasPresent = 23;
+    optional SimpleEnum optionalListValue[] = 24;
+    BOOLEAN nullableOptionalListWasPresent = 25;
+    optional BOOLEAN nullableOptionalListWasNull = 26;
+    optional SimpleEnum nullableOptionalListValue[] = 27;
+  }
+
+  response struct TestNestedStructArgumentRequest = 8 {
+    NestedStruct arg1 = 0;
+  }
+
   response struct BooleanResponse = 8 {
     BOOLEAN value = 0;
+  }
+
+  response struct TestListStructArgumentRequest = 9 {
+    SimpleStruct arg1[] = 0;
   }
 
   response struct SimpleStructResponse = 9 {
     SimpleStruct arg1 = 0;
   }
 
+  response struct TestListInt8UArgumentRequest = 10 {
+    INT8U arg1[] = 0;
+  }
+
   response struct TestEmitTestEventResponse = 10 {
     INT64U value = 0;
   }
 
+  response struct TestNestedStructListArgumentRequest = 11 {
+    NestedStructList arg1 = 0;
+  }
+
+  response struct TestEmitTestFabricScopedEventResponse = 11 {
+    INT64U value = 0;
+  }
+
+  response struct TestListNestedStructListArgumentRequest = 12 {
+    NestedStructList arg1[] = 0;
+  }
+
+  response struct TestListInt8UReverseRequest = 13 {
+    INT8U arg1[] = 0;
+  }
+
+  response struct TestEnumsRequest = 14 {
+    vendor_id arg1 = 0;
+    SimpleEnum arg2 = 1;
+  }
+
+  response struct TestNullableOptionalRequest = 15 {
+    optional nullable INT8U arg1 = 0;
+  }
+
+  response struct TestComplexNullableOptionalRequest = 16 {
+    nullable INT16U nullableInt = 0;
+    optional INT16U optionalInt = 1;
+    optional nullable INT16U nullableOptionalInt = 2;
+    nullable CHAR_STRING nullableString = 3;
+    optional CHAR_STRING optionalString = 4;
+    optional nullable CHAR_STRING nullableOptionalString = 5;
+    nullable SimpleStruct nullableStruct = 6;
+    optional SimpleStruct optionalStruct = 7;
+    optional nullable SimpleStruct nullableOptionalStruct = 8;
+    nullable SimpleEnum nullableList[] = 9;
+    optional SimpleEnum optionalList[] = 10;
+    optional nullable SimpleEnum nullableOptionalList[] = 11;
+  }
+
+  response struct SimpleStructEchoRequest = 17 {
+    SimpleStruct arg1 = 0;
+  }
+
+  response struct TestSimpleOptionalArgumentRequest = 19 {
+    optional BOOLEAN arg1 = 0;
+  }
+
+  response struct TestEmitTestEventRequest = 20 {
+    INT8U arg1 = 0;
+    SimpleEnum arg2 = 1;
+    BOOLEAN arg3 = 2;
+  }
+
+  response struct TestEmitTestFabricScopedEventRequest = 21 {
+    INT8U arg1 = 0;
+  }
+
   command Test(): DefaultSuccess = 0;
+  command TestSpecificResponse(ReturnValueRequest): DefaultSuccess = 0;
   command TestNotHandled(): DefaultSuccess = 1;
+  command TestAddArgumentsResponse(ReturnValueRequest): DefaultSuccess = 1;
   command TestSpecific(): TestSpecificResponse = 2;
+  command TestSimpleArgumentResponse(ReturnValueRequest): DefaultSuccess = 2;
   command TestUnknownCommand(): DefaultSuccess = 3;
-  command TestAddArguments(TestAddArgumentsRequest): TestAddArgumentsResponse = 4;
-  command TestStructArgumentRequest(TestStructArgumentRequestRequest): BooleanResponse = 7;
-  command TestNestedStructArgumentRequest(TestNestedStructArgumentRequestRequest): BooleanResponse = 8;
-  command TestListStructArgumentRequest(TestListStructArgumentRequestRequest): BooleanResponse = 9;
-  command TestListInt8UArgumentRequest(TestListInt8UArgumentRequestRequest): BooleanResponse = 10;
-  command TestNestedStructListArgumentRequest(TestNestedStructListArgumentRequestRequest): BooleanResponse = 11;
-  command TestListNestedStructListArgumentRequest(TestListNestedStructListArgumentRequestRequest): BooleanResponse = 12;
-  command TestListInt8UReverseRequest(TestListInt8UReverseRequestRequest): TestListInt8UReverseResponse = 13;
-  command TestEnumsRequest(TestEnumsRequestRequest): TestEnumsResponse = 14;
-  command TestNullableOptionalRequest(TestNullableOptionalRequestRequest): TestNullableOptionalResponse = 15;
-  command SimpleStructEchoRequest(SimpleStructEchoRequestRequest): SimpleStructResponse = 17;
+  command TestStructArrayArgumentResponse(Arg1Request): DefaultSuccess = 3;
+  command TestAddArguments(Arg1Request): TestAddArgumentsResponse = 4;
+  command TestListInt8UReverseResponse(Arg1Request): DefaultSuccess = 4;
+  command TestSimpleArgumentRequest(Arg1Request): TestSimpleArgumentResponse = 5;
+  command TestEnumsResponse(Arg1Request): DefaultSuccess = 5;
+  command TestStructArrayArgumentRequest(Arg1Request): TestStructArrayArgumentResponse = 6;
+  command TestNullableOptionalResponse(WasPresentRequest): DefaultSuccess = 6;
+  command TestStructArgumentRequest(Arg1Request): BooleanResponse = 7;
+  command TestComplexNullableOptionalResponse(NullableIntWasNullRequest): DefaultSuccess = 7;
+  command TestNestedStructArgumentRequest(Arg1Request): BooleanResponse = 8;
+  command BooleanResponse(ValueRequest): DefaultSuccess = 8;
+  command TestListStructArgumentRequest(Arg1Request): BooleanResponse = 9;
+  command SimpleStructResponse(Arg1Request): DefaultSuccess = 9;
+  command TestListInt8UArgumentRequest(Arg1Request): BooleanResponse = 10;
+  command TestEmitTestEventResponse(ValueRequest): DefaultSuccess = 10;
+  command TestNestedStructListArgumentRequest(Arg1Request): BooleanResponse = 11;
+  command TestEmitTestFabricScopedEventResponse(ValueRequest): DefaultSuccess = 11;
+  command TestListNestedStructListArgumentRequest(Arg1Request): BooleanResponse = 12;
+  command TestListInt8UReverseRequest(Arg1Request): TestListInt8UReverseResponse = 13;
+  command TestEnumsRequest(Arg1Request): TestEnumsResponse = 14;
+  command TestNullableOptionalRequest(Arg1Request): TestNullableOptionalResponse = 15;
+  command TestComplexNullableOptionalRequest(NullableIntRequest): TestComplexNullableOptionalResponse = 16;
+  command SimpleStructEchoRequest(Arg1Request): SimpleStructResponse = 17;
   timed command TimedInvokeRequest(): DefaultSuccess = 18;
-  command TestSimpleOptionalArgumentRequest(TestSimpleOptionalArgumentRequestRequest): DefaultSuccess = 19;
-  command TestEmitTestEventRequest(TestEmitTestEventRequestRequest): TestEmitTestEventResponse = 20;
+  command TestSimpleOptionalArgumentRequest(Arg1Request): DefaultSuccess = 19;
+  command TestEmitTestEventRequest(Arg1Request): TestEmitTestEventResponse = 20;
+  command TestEmitTestFabricScopedEventRequest(Arg1Request): TestEmitTestFabricScopedEventResponse = 21;
 }
 
 endpoint 1 {

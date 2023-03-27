@@ -37,6 +37,27 @@ client cluster Identify = 3 {
   readonly attribute attrib_id attributeList[] = 65531;
   readonly attribute bitmap32 featureMap = 65532;
   readonly attribute int16u clusterRevision = 65533;
+
+  request struct IdentifyRequest {
+    INT16U identifyTime = 0;
+  }
+
+  request struct TriggerEffectRequest {
+    IdentifyEffectIdentifier effectIdentifier = 0;
+    IdentifyEffectVariant effectVariant = 1;
+  }
+
+  response struct Identify = 0 {
+    INT16U identifyTime = 0;
+  }
+
+  response struct TriggerEffect = 64 {
+    IdentifyEffectIdentifier effectIdentifier = 0;
+    IdentifyEffectVariant effectVariant = 1;
+  }
+
+  command access(invoke: manage) Identify(IdentifyTimeRequest): DefaultSuccess = 0;
+  command access(invoke: manage) TriggerEffect(EffectIdentifierRequest): DefaultSuccess = 64;
 }
 
 server cluster Identify = 3 {
@@ -188,9 +209,24 @@ client cluster Scenes = 5 {
     ExtensionFieldSet extensionFieldSets[] = 4;
   }
 
+  request struct AddSceneResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+    INT8U sceneID = 2;
+  }
+
   request struct ViewSceneRequest {
     group_id groupID = 0;
     INT8U sceneID = 1;
+  }
+
+  request struct ViewSceneResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+    INT8U sceneID = 2;
+    optional INT16U transitionTime = 3;
+    optional CHAR_STRING sceneName = 4;
+    optional ExtensionFieldSet extensionFieldSets[] = 5;
   }
 
   request struct RemoveSceneRequest {
@@ -198,13 +234,30 @@ client cluster Scenes = 5 {
     INT8U sceneID = 1;
   }
 
+  request struct RemoveSceneResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+    INT8U sceneID = 2;
+  }
+
   request struct RemoveAllScenesRequest {
     group_id groupID = 0;
+  }
+
+  request struct RemoveAllScenesResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
   }
 
   request struct StoreSceneRequest {
     group_id groupID = 0;
     INT8U sceneID = 1;
+  }
+
+  request struct StoreSceneResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+    INT8U sceneID = 2;
   }
 
   request struct RecallSceneRequest {
@@ -217,10 +270,72 @@ client cluster Scenes = 5 {
     group_id groupID = 0;
   }
 
+  request struct GetSceneMembershipResponseRequest {
+    ENUM8 status = 0;
+    nullable INT8U capacity = 1;
+    group_id groupID = 2;
+    optional INT8U sceneList[] = 3;
+  }
+
+  request struct EnhancedAddSceneRequest {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+    INT16U transitionTime = 2;
+    CHAR_STRING sceneName = 3;
+    ExtensionFieldSet extensionFieldSets[] = 4;
+  }
+
+  request struct EnhancedAddSceneResponseRequest {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+    INT8U sceneID = 2;
+  }
+
+  request struct EnhancedViewSceneRequest {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+  }
+
+  request struct EnhancedViewSceneResponseRequest {
+    ENUM8 status = 0;
+    group_Id groupID = 1;
+    INT8U sceneID = 2;
+    optional INT16U transitionTime = 3;
+    optional CHAR_STRING sceneName = 4;
+    optional ExtensionFieldSet extensionFieldSets[] = 5;
+  }
+
+  request struct CopySceneRequest {
+    ScenesCopyMode mode = 0;
+    group_id groupIdentifierFrom = 1;
+    INT8U sceneIdentifierFrom = 2;
+    group_id groupIdentifierTo = 3;
+    INT8U sceneIdentifierTo = 4;
+  }
+
+  request struct CopySceneResponseRequest {
+    ENUM8 status = 0;
+    group_Id groupIdentifierFrom = 1;
+    INT8U sceneIdentifierFrom = 2;
+  }
+
+  response struct AddScene = 0 {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+    INT16U transitionTime = 2;
+    CHAR_STRING sceneName = 3;
+    ExtensionFieldSet extensionFieldSets[] = 4;
+  }
+
   response struct AddSceneResponse = 0 {
     ENUM8 status = 0;
     group_id groupID = 1;
     INT8U sceneID = 2;
+  }
+
+  response struct ViewScene = 1 {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
   }
 
   response struct ViewSceneResponse = 1 {
@@ -232,10 +347,19 @@ client cluster Scenes = 5 {
     optional ExtensionFieldSet extensionFieldSets[] = 5;
   }
 
+  response struct RemoveScene = 2 {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+  }
+
   response struct RemoveSceneResponse = 2 {
     ENUM8 status = 0;
     group_id groupID = 1;
     INT8U sceneID = 2;
+  }
+
+  response struct RemoveAllScenes = 3 {
+    group_id groupID = 0;
   }
 
   response struct RemoveAllScenesResponse = 3 {
@@ -243,10 +367,25 @@ client cluster Scenes = 5 {
     group_id groupID = 1;
   }
 
+  response struct StoreScene = 4 {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+  }
+
   response struct StoreSceneResponse = 4 {
     ENUM8 status = 0;
     group_id groupID = 1;
     INT8U sceneID = 2;
+  }
+
+  response struct RecallScene = 5 {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+    optional nullable INT16U transitionTime = 2;
+  }
+
+  response struct GetSceneMembership = 6 {
+    group_id groupID = 0;
   }
 
   response struct GetSceneMembershipResponse = 6 {
@@ -256,13 +395,67 @@ client cluster Scenes = 5 {
     optional INT8U sceneList[] = 3;
   }
 
-  fabric command access(invoke: manage) AddScene(AddSceneRequest): AddSceneResponse = 0;
-  fabric command ViewScene(ViewSceneRequest): ViewSceneResponse = 1;
-  fabric command access(invoke: manage) RemoveScene(RemoveSceneRequest): RemoveSceneResponse = 2;
-  fabric command access(invoke: manage) RemoveAllScenes(RemoveAllScenesRequest): RemoveAllScenesResponse = 3;
-  fabric command access(invoke: manage) StoreScene(StoreSceneRequest): StoreSceneResponse = 4;
-  fabric command RecallScene(RecallSceneRequest): DefaultSuccess = 5;
-  fabric command GetSceneMembership(GetSceneMembershipRequest): GetSceneMembershipResponse = 6;
+  response struct EnhancedAddScene = 64 {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+    INT16U transitionTime = 2;
+    CHAR_STRING sceneName = 3;
+    ExtensionFieldSet extensionFieldSets[] = 4;
+  }
+
+  response struct EnhancedAddSceneResponse = 64 {
+    ENUM8 status = 0;
+    group_id groupID = 1;
+    INT8U sceneID = 2;
+  }
+
+  response struct EnhancedViewScene = 65 {
+    group_id groupID = 0;
+    INT8U sceneID = 1;
+  }
+
+  response struct EnhancedViewSceneResponse = 65 {
+    ENUM8 status = 0;
+    group_Id groupID = 1;
+    INT8U sceneID = 2;
+    optional INT16U transitionTime = 3;
+    optional CHAR_STRING sceneName = 4;
+    optional ExtensionFieldSet extensionFieldSets[] = 5;
+  }
+
+  response struct CopyScene = 66 {
+    ScenesCopyMode mode = 0;
+    group_id groupIdentifierFrom = 1;
+    INT8U sceneIdentifierFrom = 2;
+    group_id groupIdentifierTo = 3;
+    INT8U sceneIdentifierTo = 4;
+  }
+
+  response struct CopySceneResponse = 66 {
+    ENUM8 status = 0;
+    group_Id groupIdentifierFrom = 1;
+    INT8U sceneIdentifierFrom = 2;
+  }
+
+  fabric command access(invoke: manage) AddScene(GroupIDRequest): AddSceneResponse = 0;
+  command AddSceneResponse(StatusRequest): DefaultSuccess = 0;
+  fabric command ViewScene(GroupIDRequest): ViewSceneResponse = 1;
+  command ViewSceneResponse(StatusRequest): DefaultSuccess = 1;
+  fabric command access(invoke: manage) RemoveScene(GroupIDRequest): RemoveSceneResponse = 2;
+  command RemoveSceneResponse(StatusRequest): DefaultSuccess = 2;
+  fabric command access(invoke: manage) RemoveAllScenes(GroupIDRequest): RemoveAllScenesResponse = 3;
+  command RemoveAllScenesResponse(StatusRequest): DefaultSuccess = 3;
+  fabric command access(invoke: manage) StoreScene(GroupIDRequest): StoreSceneResponse = 4;
+  command StoreSceneResponse(StatusRequest): DefaultSuccess = 4;
+  fabric command RecallScene(GroupIDRequest): DefaultSuccess = 5;
+  fabric command GetSceneMembership(GroupIDRequest): GetSceneMembershipResponse = 6;
+  command GetSceneMembershipResponse(StatusRequest): DefaultSuccess = 6;
+  fabric command EnhancedAddScene(GroupIDRequest): EnhancedAddSceneResponse = 64;
+  command EnhancedAddSceneResponse(StatusRequest): DefaultSuccess = 64;
+  fabric command EnhancedViewScene(GroupIDRequest): EnhancedViewSceneResponse = 65;
+  command EnhancedViewSceneResponse(StatusRequest): DefaultSuccess = 65;
+  fabric command CopyScene(ModeRequest): CopySceneResponse = 66;
+  command CopySceneResponse(StatusRequest): DefaultSuccess = 66;
 }
 
 client cluster OnOff = 6 {
@@ -307,9 +500,34 @@ client cluster OnOff = 6 {
   readonly attribute bitmap32 featureMap = 65532;
   readonly attribute int16u clusterRevision = 65533;
 
+  request struct OffWithEffectRequest {
+    OnOffEffectIdentifier effectIdentifier = 0;
+    int8u effectVariant = 1;
+  }
+
+  request struct OnWithTimedOffRequest {
+    OnOffControl onOffControl = 0;
+    int16u onTime = 1;
+    int16u offWaitTime = 2;
+  }
+
+  response struct OffWithEffect = 64 {
+    OnOffEffectIdentifier effectIdentifier = 0;
+    int8u effectVariant = 1;
+  }
+
+  response struct OnWithTimedOff = 66 {
+    OnOffControl onOffControl = 0;
+    int16u onTime = 1;
+    int16u offWaitTime = 2;
+  }
+
   command Off(): DefaultSuccess = 0;
   command On(): DefaultSuccess = 1;
   command Toggle(): DefaultSuccess = 2;
+  command OffWithEffect(EffectIdentifierRequest): DefaultSuccess = 64;
+  command OnWithRecallGlobalScene(): DefaultSuccess = 65;
+  command OnWithTimedOff(OnOffControlRequest): DefaultSuccess = 66;
 }
 
 server cluster Descriptor = 29 {
@@ -505,14 +723,41 @@ client cluster OtaSoftwareUpdateProvider = 41 {
     optional OCTET_STRING<512> metadataForProvider = 7;
   }
 
+  request struct QueryImageResponseRequest {
+    OTAQueryStatus status = 0;
+    optional INT32U delayedActionTime = 1;
+    optional CHAR_STRING<256> imageURI = 2;
+    optional INT32U softwareVersion = 3;
+    optional CHAR_STRING<64> softwareVersionString = 4;
+    optional OCTET_STRING<32> updateToken = 5;
+    optional BOOLEAN userConsentNeeded = 6;
+    optional OCTET_STRING<512> metadataForRequestor = 7;
+  }
+
   request struct ApplyUpdateRequestRequest {
     OCTET_STRING<32> updateToken = 0;
     INT32U newVersion = 1;
   }
 
+  request struct ApplyUpdateResponseRequest {
+    OTAApplyUpdateAction action = 0;
+    INT32U delayedActionTime = 1;
+  }
+
   request struct NotifyUpdateAppliedRequest {
     OCTET_STRING<32> updateToken = 0;
     INT32U softwareVersion = 1;
+  }
+
+  response struct QueryImage = 0 {
+    vendor_id vendorID = 0;
+    INT16U productID = 1;
+    INT32U softwareVersion = 2;
+    OTADownloadProtocol protocolsSupported[] = 3;
+    optional INT16U hardwareVersion = 4;
+    optional CHAR_STRING<2> location = 5;
+    optional BOOLEAN requestorCanConsent = 6;
+    optional OCTET_STRING<512> metadataForProvider = 7;
   }
 
   response struct QueryImageResponse = 1 {
@@ -526,14 +771,26 @@ client cluster OtaSoftwareUpdateProvider = 41 {
     optional OCTET_STRING<512> metadataForRequestor = 7;
   }
 
+  response struct ApplyUpdateRequest = 2 {
+    OCTET_STRING<32> updateToken = 0;
+    INT32U newVersion = 1;
+  }
+
   response struct ApplyUpdateResponse = 3 {
     OTAApplyUpdateAction action = 0;
     INT32U delayedActionTime = 1;
   }
 
-  command QueryImage(QueryImageRequest): QueryImageResponse = 0;
-  command ApplyUpdateRequest(ApplyUpdateRequestRequest): ApplyUpdateResponse = 2;
-  command NotifyUpdateApplied(NotifyUpdateAppliedRequest): DefaultSuccess = 4;
+  response struct NotifyUpdateApplied = 4 {
+    OCTET_STRING<32> updateToken = 0;
+    INT32U softwareVersion = 1;
+  }
+
+  command QueryImage(VendorIDRequest): QueryImageResponse = 0;
+  command QueryImageResponse(StatusRequest): DefaultSuccess = 1;
+  command ApplyUpdateRequest(UpdateTokenRequest): ApplyUpdateResponse = 2;
+  command ApplyUpdateResponse(ActionRequest): DefaultSuccess = 3;
+  command NotifyUpdateApplied(UpdateTokenRequest): DefaultSuccess = 4;
 }
 
 server cluster OtaSoftwareUpdateRequestor = 42 {
@@ -1847,22 +2104,197 @@ client cluster ColorControl = 768 {
     BITMAP8 optionsOverride = 6;
   }
 
-  command MoveToHue(MoveToHueRequest): DefaultSuccess = 0;
-  command MoveHue(MoveHueRequest): DefaultSuccess = 1;
-  command StepHue(StepHueRequest): DefaultSuccess = 2;
-  command MoveToSaturation(MoveToSaturationRequest): DefaultSuccess = 3;
-  command MoveSaturation(MoveSaturationRequest): DefaultSuccess = 4;
-  command StepSaturation(StepSaturationRequest): DefaultSuccess = 5;
-  command MoveToHueAndSaturation(MoveToHueAndSaturationRequest): DefaultSuccess = 6;
-  command MoveToColor(MoveToColorRequest): DefaultSuccess = 7;
-  command MoveColor(MoveColorRequest): DefaultSuccess = 8;
-  command StepColor(StepColorRequest): DefaultSuccess = 9;
-  command MoveToColorTemperature(MoveToColorTemperatureRequest): DefaultSuccess = 10;
-  command EnhancedMoveToHue(EnhancedMoveToHueRequest): DefaultSuccess = 64;
-  command EnhancedMoveHue(EnhancedMoveHueRequest): DefaultSuccess = 65;
-  command EnhancedStepHue(EnhancedStepHueRequest): DefaultSuccess = 66;
-  command EnhancedMoveToHueAndSaturation(EnhancedMoveToHueAndSaturationRequest): DefaultSuccess = 67;
-  command ColorLoopSet(ColorLoopSetRequest): DefaultSuccess = 68;
+  request struct StopMoveStepRequest {
+    BITMAP8 optionsMask = 0;
+    BITMAP8 optionsOverride = 1;
+  }
+
+  request struct MoveColorTemperatureRequest {
+    HueMoveMode moveMode = 0;
+    INT16U rate = 1;
+    INT16U colorTemperatureMinimumMireds = 2;
+    INT16U colorTemperatureMaximumMireds = 3;
+    BITMAP8 optionsMask = 4;
+    BITMAP8 optionsOverride = 5;
+  }
+
+  request struct StepColorTemperatureRequest {
+    HueStepMode stepMode = 0;
+    INT16U stepSize = 1;
+    INT16U transitionTime = 2;
+    INT16U colorTemperatureMinimumMireds = 3;
+    INT16U colorTemperatureMaximumMireds = 4;
+    BITMAP8 optionsMask = 5;
+    BITMAP8 optionsOverride = 6;
+  }
+
+  response struct MoveToHue = 0 {
+    INT8U hue = 0;
+    HueDirection direction = 1;
+    INT16U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct MoveHue = 1 {
+    HueMoveMode moveMode = 0;
+    INT8U rate = 1;
+    BITMAP8 optionsMask = 2;
+    BITMAP8 optionsOverride = 3;
+  }
+
+  response struct StepHue = 2 {
+    HueStepMode stepMode = 0;
+    INT8U stepSize = 1;
+    INT8U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct MoveToSaturation = 3 {
+    INT8U saturation = 0;
+    INT16U transitionTime = 1;
+    BITMAP8 optionsMask = 2;
+    BITMAP8 optionsOverride = 3;
+  }
+
+  response struct MoveSaturation = 4 {
+    SaturationMoveMode moveMode = 0;
+    INT8U rate = 1;
+    BITMAP8 optionsMask = 2;
+    BITMAP8 optionsOverride = 3;
+  }
+
+  response struct StepSaturation = 5 {
+    SaturationStepMode stepMode = 0;
+    INT8U stepSize = 1;
+    INT8U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct MoveToHueAndSaturation = 6 {
+    INT8U hue = 0;
+    INT8U saturation = 1;
+    INT16U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct MoveToColor = 7 {
+    INT16U colorX = 0;
+    INT16U colorY = 1;
+    INT16U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct MoveColor = 8 {
+    INT16S rateX = 0;
+    INT16S rateY = 1;
+    BITMAP8 optionsMask = 2;
+    BITMAP8 optionsOverride = 3;
+  }
+
+  response struct StepColor = 9 {
+    INT16S stepX = 0;
+    INT16S stepY = 1;
+    INT16U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct MoveToColorTemperature = 10 {
+    INT16U colorTemperatureMireds = 0;
+    INT16U transitionTime = 1;
+    BITMAP8 optionsMask = 2;
+    BITMAP8 optionsOverride = 3;
+  }
+
+  response struct EnhancedMoveToHue = 64 {
+    INT16U enhancedHue = 0;
+    HueDirection direction = 1;
+    INT16U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct EnhancedMoveHue = 65 {
+    HueMoveMode moveMode = 0;
+    INT16U rate = 1;
+    BITMAP8 optionsMask = 2;
+    BITMAP8 optionsOverride = 3;
+  }
+
+  response struct EnhancedStepHue = 66 {
+    HueStepMode stepMode = 0;
+    INT16U stepSize = 1;
+    INT16U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct EnhancedMoveToHueAndSaturation = 67 {
+    INT16U enhancedHue = 0;
+    INT8U saturation = 1;
+    INT16U transitionTime = 2;
+    BITMAP8 optionsMask = 3;
+    BITMAP8 optionsOverride = 4;
+  }
+
+  response struct ColorLoopSet = 68 {
+    ColorLoopUpdateFlags updateFlags = 0;
+    ColorLoopAction action = 1;
+    ColorLoopDirection direction = 2;
+    INT16U time = 3;
+    INT16U startHue = 4;
+    BITMAP8 optionsMask = 5;
+    BITMAP8 optionsOverride = 6;
+  }
+
+  response struct StopMoveStep = 71 {
+    BITMAP8 optionsMask = 0;
+    BITMAP8 optionsOverride = 1;
+  }
+
+  response struct MoveColorTemperature = 75 {
+    HueMoveMode moveMode = 0;
+    INT16U rate = 1;
+    INT16U colorTemperatureMinimumMireds = 2;
+    INT16U colorTemperatureMaximumMireds = 3;
+    BITMAP8 optionsMask = 4;
+    BITMAP8 optionsOverride = 5;
+  }
+
+  response struct StepColorTemperature = 76 {
+    HueStepMode stepMode = 0;
+    INT16U stepSize = 1;
+    INT16U transitionTime = 2;
+    INT16U colorTemperatureMinimumMireds = 3;
+    INT16U colorTemperatureMaximumMireds = 4;
+    BITMAP8 optionsMask = 5;
+    BITMAP8 optionsOverride = 6;
+  }
+
+  command MoveToHue(HueRequest): DefaultSuccess = 0;
+  command MoveHue(MoveModeRequest): DefaultSuccess = 1;
+  command StepHue(StepModeRequest): DefaultSuccess = 2;
+  command MoveToSaturation(SaturationRequest): DefaultSuccess = 3;
+  command MoveSaturation(MoveModeRequest): DefaultSuccess = 4;
+  command StepSaturation(StepModeRequest): DefaultSuccess = 5;
+  command MoveToHueAndSaturation(HueRequest): DefaultSuccess = 6;
+  command MoveToColor(ColorXRequest): DefaultSuccess = 7;
+  command MoveColor(RateXRequest): DefaultSuccess = 8;
+  command StepColor(StepXRequest): DefaultSuccess = 9;
+  command MoveToColorTemperature(ColorTemperatureMiredsRequest): DefaultSuccess = 10;
+  command EnhancedMoveToHue(EnhancedHueRequest): DefaultSuccess = 64;
+  command EnhancedMoveHue(MoveModeRequest): DefaultSuccess = 65;
+  command EnhancedStepHue(StepModeRequest): DefaultSuccess = 66;
+  command EnhancedMoveToHueAndSaturation(EnhancedHueRequest): DefaultSuccess = 67;
+  command ColorLoopSet(UpdateFlagsRequest): DefaultSuccess = 68;
+  command StopMoveStep(OptionsMaskRequest): DefaultSuccess = 71;
+  command MoveColorTemperature(MoveModeRequest): DefaultSuccess = 75;
+  command StepColorTemperature(StepModeRequest): DefaultSuccess = 76;
 }
 
 endpoint 0 {

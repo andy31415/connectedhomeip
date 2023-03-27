@@ -631,9 +631,25 @@ client cluster OtaSoftwareUpdateProvider = 41 {
     optional OCTET_STRING<512> metadataForProvider = 7;
   }
 
+  request struct QueryImageResponseRequest {
+    OTAQueryStatus status = 0;
+    optional INT32U delayedActionTime = 1;
+    optional CHAR_STRING<256> imageURI = 2;
+    optional INT32U softwareVersion = 3;
+    optional CHAR_STRING<64> softwareVersionString = 4;
+    optional OCTET_STRING<32> updateToken = 5;
+    optional BOOLEAN userConsentNeeded = 6;
+    optional OCTET_STRING<512> metadataForRequestor = 7;
+  }
+
   request struct ApplyUpdateRequestRequest {
     OCTET_STRING<32> updateToken = 0;
     INT32U newVersion = 1;
+  }
+
+  request struct ApplyUpdateResponseRequest {
+    OTAApplyUpdateAction action = 0;
+    INT32U delayedActionTime = 1;
   }
 
   request struct NotifyUpdateAppliedRequest {
@@ -641,14 +657,48 @@ client cluster OtaSoftwareUpdateProvider = 41 {
     INT32U softwareVersion = 1;
   }
 
+  response struct QueryImage = 0 {
+    vendor_id vendorID = 0;
+    INT16U productID = 1;
+    INT32U softwareVersion = 2;
+    OTADownloadProtocol protocolsSupported[] = 3;
+    optional INT16U hardwareVersion = 4;
+    optional CHAR_STRING<2> location = 5;
+    optional BOOLEAN requestorCanConsent = 6;
+    optional OCTET_STRING<512> metadataForProvider = 7;
+  }
+
+  response struct QueryImageResponse = 1 {
+    OTAQueryStatus status = 0;
+    optional INT32U delayedActionTime = 1;
+    optional CHAR_STRING<256> imageURI = 2;
+    optional INT32U softwareVersion = 3;
+    optional CHAR_STRING<64> softwareVersionString = 4;
+    optional OCTET_STRING<32> updateToken = 5;
+    optional BOOLEAN userConsentNeeded = 6;
+    optional OCTET_STRING<512> metadataForRequestor = 7;
+  }
+
+  response struct ApplyUpdateRequest = 2 {
+    OCTET_STRING<32> updateToken = 0;
+    INT32U newVersion = 1;
+  }
+
   response struct ApplyUpdateResponse = 3 {
     OTAApplyUpdateAction action = 0;
     INT32U delayedActionTime = 1;
   }
 
-  command QueryImage(QueryImageRequest): QueryImageResponse = 0;
-  command ApplyUpdateRequest(ApplyUpdateRequestRequest): ApplyUpdateResponse = 2;
-  command NotifyUpdateApplied(NotifyUpdateAppliedRequest): DefaultSuccess = 4;
+  response struct NotifyUpdateApplied = 4 {
+    OCTET_STRING<32> updateToken = 0;
+    INT32U softwareVersion = 1;
+  }
+
+  command QueryImage(VendorIDRequest): QueryImageResponse = 0;
+  command QueryImageResponse(StatusRequest): DefaultSuccess = 1;
+  command ApplyUpdateRequest(UpdateTokenRequest): ApplyUpdateResponse = 2;
+  command ApplyUpdateResponse(ActionRequest): DefaultSuccess = 3;
+  command NotifyUpdateApplied(UpdateTokenRequest): DefaultSuccess = 4;
 }
 
 server cluster OtaSoftwareUpdateRequestor = 42 {
