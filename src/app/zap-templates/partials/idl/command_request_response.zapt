@@ -21,7 +21,7 @@
        {{#if parent.commandName~}}
          {{asUpperCamelCase parent.commandName}}
        {{~else~}}
-         {{asUpperCamelCase name}}
+         {{asUpperCamelCase parent.name}}
        {{~/if}}Request
      {{~/first~}}
     {{~/zcl_command_arguments~}}
