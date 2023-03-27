@@ -1,6 +1,10 @@
 {{#zcl_command_arguments}}
     {{#first}}
-        {{~new_line 1~}}{{~indent 1~}}request struct {{asUpperCamelCase parent.commandName}}Request {
+        {{~new_line 1~}}{{~indent 1~}}request struct {{#if parent.commandName~}}
+          {{asUpperCamelCase parent.commandName}}
+        {{~else~}}
+          {{asUpperCamelCase parent.name}}
+        {{~/if}}Request {
     {{/first}}    
     {{~indent 2~}}{{> idl_structure_member}}
     {{#last}}
