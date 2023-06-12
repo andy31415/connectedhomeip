@@ -283,79 +283,14 @@ CHIP_ERROR ServerBase::Listen(chip::Inet::EndPointManager<chip::Inet::UDPEndPoin
         }
     }
 
-    /* TODO: uncomment when old code goes away
-        if (!mIsInitialized)
-        {
-    #if !CHIP_DEVICE_LAYER_NONE
-            chip::DeviceLayer::ChipDeviceEvent event{};
-            event.Type = chip::DeviceLayer::DeviceEventType::kDnssdInitialized;
-            chip::DeviceLayer::PlatformMgr().PostEventOrDie(&event);
-    #endif
-            mIsInitialized = true;
-        }
-    */
-
-    // TODO: send "initialized" messages
-
-    while (it->Next(&interfaceId, &addressType))
+    if (!mIsInitialized)
     {
-        chip::Inet::UDPEndPoint * listenUdp;
-        ReturnErrorOnFailure(udpEndPointManager->NewEndPoint(&listenUdp));
-        std::unique_ptr<chip::Inet::UDPEndPoint, EndpointInfo::EndPointDeletor> endPointHolder(listenUdp, {});
-
-        ReturnErrorOnFailure(listenUdp->Bind(addressType, chip::Inet::IPAddress::Any, port, interfaceId));
-
-        ReturnErrorOnFailure(listenUdp->Listen(OnUdpPacketReceived, nullptr /*OnReceiveError*/, this));
-
-        CHIP_ERROR err = JoinMulticastGroup(interfaceId, listenUdp, addressType);
-        if (err != CHIP_NO_ERROR)
-        {
-            char interfaceName[chip::Inet::InterfaceId::kMaxIfNameLength];
-            interfaceId.GetInterfaceName(interfaceName, sizeof(interfaceName));
-
-            // Log only as non-fatal error. Failure to join will mean we reply to unicast queries only.
-            ChipLogError(DeviceLayer, "MDNS failed to join multicast group on %s for address type %s: %" CHIP_ERROR_FORMAT,
-                         interfaceName, AddressTypeStr(addressType), err.Format());
-
-            endPointHolder.reset();
-        }
-
-#if CHIP_MINMDNS_USE_EPHEMERAL_UNICAST_PORT
-        // Separate UDP endpoint for unicast queries, bound to 0 (i.e. pick random ephemeral port)
-        //   - helps in not having conflicts on port 5353, will receive unicast replies directly
-        //   - has a *DRAWBACK* of unicast queries being considered LEGACY by mdns since they do
-        //     not originate from 5353 and the answers will include a query section.
-        chip::Inet::UDPEndPoint * unicastQueryUdp;
-        ReturnErrorOnFailure(udpEndPointManager->NewEndPoint(&unicastQueryUdp));
-        std::unique_ptr<chip::Inet::UDPEndPoint, EndpointInfo::EndPointDeletor> endPointHolderUnicast(unicastQueryUdp, {});
-        ReturnErrorOnFailure(unicastQueryUdp->Bind(addressType, chip::Inet::IPAddress::Any, 0, interfaceId));
-        ReturnErrorOnFailure(unicastQueryUdp->Listen(OnUdpPacketReceived, nullptr /*OnReceiveError*/, this));
-#endif
-
-#if CHIP_MINMDNS_USE_EPHEMERAL_UNICAST_PORT
-        if (endPointHolder || endPointHolderUnicast)
-        {
-            // If allocation fails, the rref will not be consumed, so that the endpoint will also be freed correctly
-            mEndpoints.CreateObject(interfaceId, addressType, std::move(endPointHolder), std::move(endPointHolderUnicast));
-        }
-#else
-        if (endPointHolder)
-        {
-            // If allocation fails, the rref will not be consumed, so that the endpoint will also be freed correctly
-            mEndpoints.CreateObject(interfaceId, addressType, std::move(endPointHolder));
-        }
-#endif
-
-        // If at least one IPv6 interface is used by the mDNS server, notify the application that DNS-SD is ready.
-        if (!mIsInitialized && addressType == chip::Inet::IPAddressType::kIPv6)
-        {
 #if !CHIP_DEVICE_LAYER_NONE
-            chip::DeviceLayer::ChipDeviceEvent event{};
-            event.Type = chip::DeviceLayer::DeviceEventType::kDnssdInitialized;
-            chip::DeviceLayer::PlatformMgr().PostEventOrDie(&event);
+        chip::DeviceLayer::ChipDeviceEvent event{};
+        event.Type = chip::DeviceLayer::DeviceEventType::kDnssdInitialized;
+        chip::DeviceLayer::PlatformMgr().PostEventOrDie(&event);
 #endif
-            mIsInitialized = true;
-        }
+        mIsInitialized = true;
     }
 
     return autoShutdown.ReturnSuccess();
