@@ -199,6 +199,20 @@ void ServerBase::Shutdown()
 void ServerBase::ShutdownEndpoints()
 {
     mEndpoints.ReleaseAll();
+
+    if (mIpv6Endpoint != nullptr)
+    {
+        mIpv6Endpoint->Free();
+        mIpv6Endpoint = nullptr;
+    }
+
+#if INET_CONFIG_ENABLE_IPV4
+    if (mIpv4Endpoint != nullptr)
+    {
+        mIpv4Endpoint->Free();
+        mIpv4Endpoint = nullptr;
+    }
+#endif
 }
 
 void ServerBase::ShutdownEndpoint(EndpointInfo & aEndpoint)
@@ -263,6 +277,18 @@ CHIP_ERROR ServerBase::Listen(chip::Inet::EndPointManager<chip::Inet::UDPEndPoin
                          interfaceName, AddressTypeStr(addressType), err.Format());
         }
     }
+
+    /* TODO: uncomment when old code goes away
+        if (!mIsInitialized)
+        {
+    #if !CHIP_DEVICE_LAYER_NONE
+            chip::DeviceLayer::ChipDeviceEvent event{};
+            event.Type = chip::DeviceLayer::DeviceEventType::kDnssdInitialized;
+            chip::DeviceLayer::PlatformMgr().PostEventOrDie(&event);
+    #endif
+            mIsInitialized = true;
+        }
+    */
 
     // TODO: send "initialized" messages
 
@@ -333,30 +359,15 @@ CHIP_ERROR ServerBase::Listen(chip::Inet::EndPointManager<chip::Inet::UDPEndPoin
 CHIP_ERROR ServerBase::DirectSend(chip::System::PacketBufferHandle && data, const chip::Inet::IPAddress & addr, uint16_t port,
                                   chip::Inet::InterfaceId interface)
 {
-    CHIP_ERROR err = CHIP_ERROR_NOT_CONNECTED;
-    mEndpoints.ForEachActiveObject([&](auto * info) {
-        if (info->mListenUdp == nullptr)
-        {
-            return chip::Loop::Continue;
-        }
+#if INET_CONFIG_ENABLE_IPV4
+    if (addr.Type() == chip::Inet::IPAddressType::kIPv4) {
+        VerifyOrReturnError(mIpv4Endpoint != nullptr, CHIP_ERROR_NOT_CONNECTED);
+        return mIpv4Endpoint->SendTo(addr, port, std::move(data));
+    }
+#endif
 
-        if (info->mAddressType != addr.Type())
-        {
-            return chip::Loop::Continue;
-        }
-
-        chip::Inet::InterfaceId boundIf = info->mListenUdp->GetBoundInterface();
-
-        if ((boundIf.IsPresent()) && (boundIf != interface))
-        {
-            return chip::Loop::Continue;
-        }
-
-        err = info->mListenUdp->SendTo(addr, port, std::move(data));
-        return chip::Loop::Break;
-    });
-
-    return err;
+    VerifyOrReturnError(mIpv6Endpoint != nullptr, CHIP_ERROR_NOT_CONNECTED);
+    return mIpv6Endpoint->SendTo(addr, port, std::move(data));
 }
 
 CHIP_ERROR ServerBase::BroadcastUnicastQuery(chip::System::PacketBufferHandle && data, uint16_t port)
