@@ -178,7 +178,7 @@ private:
     uint16_t mMessageId                       = 0;
 };
 
-mdns::Minimal::Server<10 /* endpoints */> gMdnsServer;
+mdns::Minimal::Server gMdnsServer;
 
 void StopSignalHandler(int signal)
 {

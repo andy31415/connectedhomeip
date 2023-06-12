@@ -30,7 +30,7 @@ namespace {
 class ShutdownOnError
 {
 public:
-    ShutdownOnError(ServerBase * s) : mServer(s) {}
+    ShutdownOnError(Server * s) : mServer(s) {}
     ~ShutdownOnError()
     {
         if (mServer != nullptr)
@@ -46,74 +46,7 @@ public:
     }
 
 private:
-    ServerBase * mServer;
-};
-
-/**
- * Extracts the Listening UDP Endpoint from an underlying ServerBase::EndpointInfo
- */
-class ListenSocketPickerDelegate : public ServerBase::BroadcastSendDelegate
-{
-public:
-    chip::Inet::UDPEndPoint * Accept(ServerBase::EndpointInfo * info) override { return info->mListenUdp; }
-};
-
-#if CHIP_MINMDNS_USE_EPHEMERAL_UNICAST_PORT
-
-/**
- * Extracts the Querying UDP Endpoint from an underlying ServerBase::EndpointInfo
- */
-class QuerySocketPickerDelegate : public ServerBase::BroadcastSendDelegate
-{
-public:
-    chip::Inet::UDPEndPoint * Accept(ServerBase::EndpointInfo * info) override { return info->mUnicastQueryUdp; }
-};
-
-#else
-
-using QuerySocketPickerDelegate = ListenSocketPickerDelegate;
-
-#endif
-
-/**
- * Validates that an endpoint belongs to a specific interface/ip address type before forwarding the
- * endpoint accept logic to another BroadcastSendDelegate.
- *
- * Usage like:
- *
- * SomeDelegate *child = ....;
- * InterfaceTypeFilterDelegate filter(interfaceId, IPAddressType::IPv6, child);
- *
- * UDPEndPoint *udp = filter.Accept(endpointInfo);
- */
-class InterfaceTypeFilterDelegate : public ServerBase::BroadcastSendDelegate
-{
-public:
-    InterfaceTypeFilterDelegate(chip::Inet::InterfaceId interface, chip::Inet::IPAddressType type,
-                                ServerBase::BroadcastSendDelegate * child) :
-        mInterface(interface),
-        mAddressType(type), mChild(child)
-    {}
-
-    chip::Inet::UDPEndPoint * Accept(ServerBase::EndpointInfo * info) override
-    {
-        if ((info->mInterfaceId != mInterface) && (info->mInterfaceId != chip::Inet::InterfaceId::Null()))
-        {
-            return nullptr;
-        }
-
-        if ((mAddressType != chip::Inet::IPAddressType::kAny) && (info->mAddressType != mAddressType))
-        {
-            return nullptr;
-        }
-
-        return mChild->Accept(info);
-    }
-
-private:
-    chip::Inet::InterfaceId mInterface;
-    chip::Inet::IPAddressType mAddressType;
-    ServerBase::BroadcastSendDelegate * mChild = nullptr;
+    Server * mServer;
 };
 
 } // namespace
@@ -185,18 +118,18 @@ const char * AddressTypeStr(chip::Inet::IPAddressType addressType)
 
 } // namespace
 
-ServerBase::~ServerBase()
+Server::~Server()
 {
     Shutdown();
 }
 
-void ServerBase::Shutdown()
+void Server::Shutdown()
 {
     ShutdownEndpoints();
     mIsInitialized = false;
 }
 
-void ServerBase::ShutdownEndpoints()
+void Server::ShutdownEndpoints()
 {
     if (mIpv6Endpoint != nullptr)
     {
@@ -213,15 +146,15 @@ void ServerBase::ShutdownEndpoints()
 #endif
 }
 
-bool ServerBase::IsListening() const
+bool Server::IsListening() const
 {
     // technically we have a IPv4 endpoint as well, however that
     // is only optional. The IPv6 endpoint is what we care about.
     return (mIpv6Endpoint != nullptr);
 }
 
-CHIP_ERROR ServerBase::Listen(chip::Inet::EndPointManager<chip::Inet::UDPEndPoint> * udpEndPointManager, ListenIterator * it,
-                              uint16_t port)
+CHIP_ERROR Server::Listen(chip::Inet::EndPointManager<chip::Inet::UDPEndPoint> * udpEndPointManager, ListenIterator * it,
+                          uint16_t port)
 {
     ShutdownEndpoints(); // ensure everything starts fresh
 
@@ -294,8 +227,8 @@ CHIP_ERROR ServerBase::Listen(chip::Inet::EndPointManager<chip::Inet::UDPEndPoin
     return autoShutdown.ReturnSuccess();
 }
 
-CHIP_ERROR ServerBase::DirectSend(chip::System::PacketBufferHandle && data, const chip::Inet::IPAddress & addr, uint16_t port,
-                                  chip::Inet::InterfaceId interface)
+CHIP_ERROR Server::DirectSend(chip::System::PacketBufferHandle && data, const chip::Inet::IPAddress & addr, uint16_t port,
+                              chip::Inet::InterfaceId interface)
 {
 #if INET_CONFIG_ENABLE_IPV4
     if (addr.Type() == chip::Inet::IPAddressType::kIPv4)
@@ -309,37 +242,47 @@ CHIP_ERROR ServerBase::DirectSend(chip::System::PacketBufferHandle && data, cons
     return mIpv6Endpoint->SendTo(addr, port, std::move(data));
 }
 
-CHIP_ERROR ServerBase::BroadcastUnicastQuery(chip::System::PacketBufferHandle && data, uint16_t port)
+CHIP_ERROR Server::BroadcastUnicastQuery(chip::System::PacketBufferHandle && data, uint16_t port)
 {
-    QuerySocketPickerDelegate socketPicker;
-    return BroadcastImpl(std::move(data), port, &socketPicker);
+    return BroadcastImpl(std::move(data), port);
 }
 
-CHIP_ERROR ServerBase::BroadcastUnicastQuery(chip::System::PacketBufferHandle && data, uint16_t port,
-                                             chip::Inet::InterfaceId interface, chip::Inet::IPAddressType addressType)
+CHIP_ERROR Server::BroadcastUnicastQuery(chip::System::PacketBufferHandle && data, uint16_t port, chip::Inet::InterfaceId interface,
+                                         chip::Inet::IPAddressType addressType)
 {
-    QuerySocketPickerDelegate socketPicker;
-    InterfaceTypeFilterDelegate filter(interface, addressType, &socketPicker);
-
-    return BroadcastImpl(std::move(data), port, &filter);
+    // FIXME: send to specific interface and address type ONLY!
+    return BroadcastImpl(std::move(data), port);
 }
 
-CHIP_ERROR ServerBase::BroadcastSend(chip::System::PacketBufferHandle && data, uint16_t port, chip::Inet::InterfaceId interface,
-                                     chip::Inet::IPAddressType addressType)
+CHIP_ERROR Server::BroadcastSend(chip::System::PacketBufferHandle && data, uint16_t port, chip::Inet::InterfaceId interface,
+                                 chip::Inet::IPAddressType addressType)
 {
-    ListenSocketPickerDelegate socketPicker;
-    InterfaceTypeFilterDelegate filter(interface, addressType, &socketPicker);
-
-    return BroadcastImpl(std::move(data), port, &filter);
+    // FIXME: send to specific interface and address type ONLY!
+    return BroadcastImpl(std::move(data), port);
 }
 
-CHIP_ERROR ServerBase::BroadcastSend(chip::System::PacketBufferHandle && data, uint16_t port)
+CHIP_ERROR Server::BroadcastSend(chip::System::PacketBufferHandle && data, uint16_t port)
 {
-    ListenSocketPickerDelegate socketPicker;
-    return BroadcastImpl(std::move(data), port, &socketPicker);
+    return BroadcastImpl(std::move(data), port);
 }
 
-CHIP_ERROR ServerBase::BroadcastImpl(chip::System::PacketBufferHandle && data, uint16_t port, BroadcastSendDelegate * delegate)
+bool Server::IsListeningOn(const chip::Inet::InterfaceId interfaceId, chip::Inet::IPAddressType addressType)
+{
+
+    for (size_t i = 0; i < mListenInterfacesCount; i++)
+    {
+        const ListenInterfaceInfo info = mListenInterfaces[i];
+
+        if ((info.interfaceId == interfaceId) && (info.addressType == addressType))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+CHIP_ERROR Server::BroadcastImpl(chip::System::PacketBufferHandle && data, uint16_t port)
 {
     // Broadcast requires sending data multiple times, each of which may error
     // out, yet broadcast only has a single error code.
@@ -354,8 +297,8 @@ CHIP_ERROR ServerBase::BroadcastImpl(chip::System::PacketBufferHandle && data, u
 
     for (size_t i = 0; i < mListenInterfacesCount; i++)
     {
-        const DnsSdInterface info = mListenInterfaces[i];
-        CHIP_ERROR err            = CHIP_NO_ERROR;
+        const ListenInterfaceInfo info = mListenInterfaces[i];
+        CHIP_ERROR err                 = CHIP_NO_ERROR;
 
         /// The same packet needs to be sent over potentially multiple interfaces.
         /// LWIP does not like having a pbuf sent over serparate interfaces, hence we create a copy
@@ -426,10 +369,10 @@ CHIP_ERROR ServerBase::BroadcastImpl(chip::System::PacketBufferHandle && data, u
     return CHIP_NO_ERROR;
 }
 
-void ServerBase::OnUdpPacketReceived(chip::Inet::UDPEndPoint * endPoint, chip::System::PacketBufferHandle && buffer,
-                                     const chip::Inet::IPPacketInfo * info)
+void Server::OnUdpPacketReceived(chip::Inet::UDPEndPoint * endPoint, chip::System::PacketBufferHandle && buffer,
+                                 const chip::Inet::IPPacketInfo * info)
 {
-    ServerBase * srv = static_cast<ServerBase *>(endPoint->mAppState);
+    Server * srv = static_cast<Server *>(endPoint->mAppState);
     if (!srv->mDelegate)
     {
         return;

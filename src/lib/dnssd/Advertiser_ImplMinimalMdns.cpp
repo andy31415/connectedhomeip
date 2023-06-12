@@ -858,31 +858,7 @@ FullQName AdvertiserMinMdns::GetCommissioningTxtEntries(const CommissionAdvertis
 
 bool AdvertiserMinMdns::ShouldAdvertiseOn(const chip::Inet::InterfaceId id, const chip::Inet::IPAddress & addr)
 {
-    auto & server = GlobalMinimalMdnsServer::Server();
-
-    bool result = false;
-
-    server.ForEachEndPoints([&](auto * info) {
-        if (info->mListenUdp == nullptr)
-        {
-            return chip::Loop::Continue;
-        }
-
-        if (info->mInterfaceId != id)
-        {
-            return chip::Loop::Continue;
-        }
-
-        if (info->mAddressType != addr.Type())
-        {
-            return chip::Loop::Continue;
-        }
-
-        result = true;
-        return chip::Loop::Break;
-    });
-
-    return result;
+    return GlobalMinimalMdnsServer::Server().IsListeningOn(id, addr.Type());
 }
 
 void AdvertiserMinMdns::AdvertiseRecords(BroadcastAdvertiseType type)
