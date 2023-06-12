@@ -142,7 +142,6 @@ public:
     void Shutdown();
 
     void ShutdownEndpoints();
-    void ShutdownEndpoint(EndpointInfo & aEndpoint);
 
     /// Listen on the given interfaces/address types.
     ///

@@ -215,23 +215,11 @@ void ServerBase::ShutdownEndpoints()
 #endif
 }
 
-void ServerBase::ShutdownEndpoint(EndpointInfo & aEndpoint)
-{
-    mEndpoints.ReleaseObject(&aEndpoint);
-}
-
 bool ServerBase::IsListening() const
 {
-    bool listening = false;
-    mEndpoints.ForEachActiveObject([&](auto * endpoint) {
-        if (endpoint->mListenUdp != nullptr)
-        {
-            listening = true;
-            return chip::Loop::Break;
-        }
-        return chip::Loop::Continue;
-    });
-    return listening;
+    // technically we have a IPv4 endpoint as well, however that
+    // is only optional. The IPv6 endpoint is what we care about.
+    return (mIpv6Endpoint != nullptr);
 }
 
 CHIP_ERROR ServerBase::Listen(chip::Inet::EndPointManager<chip::Inet::UDPEndPoint> * udpEndPointManager, ListenIterator * it,
