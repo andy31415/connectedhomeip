@@ -206,6 +206,17 @@ private:
     chip::Inet::UDPEndPoint * mIpv4Endpoint = nullptr; // listen on port 5353
 #endif
 
+    // What interfaces are available for listening
+    struct DnsSdInterface {
+        chip::Inet::InterfaceId interfaceId;
+        chip::Inet::IPAddressType addressType;
+    };
+
+
+    static constexpr size_t kMaxInterfaces = 10;
+    DnsSdInterface mListenInterfaces[kMaxInterfaces];
+    size_t mListenInterfacesCount = 0;
+
     // Broadcast IP addresses are cached to not require a string parse every time
     // Ideally we should be able to constexpr these
     chip::Inet::IPAddress mIpv6BroadcastAddress;

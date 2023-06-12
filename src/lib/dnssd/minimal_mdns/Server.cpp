@@ -256,6 +256,8 @@ CHIP_ERROR ServerBase::Listen(chip::Inet::EndPointManager<chip::Inet::UDPEndPoin
     ReturnErrorOnFailure(mIpv4Endpoint->Listen(OnUdpPacketReceived, nullptr /*OnReceiveError*/, this));
 #endif
 
+    mListenInterfacesCount = 0;
+
     // ensure we are in the multicast groups required
     while (it->Next(&interfaceId, &addressType))
     {
@@ -275,6 +277,21 @@ CHIP_ERROR ServerBase::Listen(chip::Inet::EndPointManager<chip::Inet::UDPEndPoin
             // not fatal
             ChipLogError(DeviceLayer, "MDNS failed to join multicast group on %s for address type %s: %" CHIP_ERROR_FORMAT,
                          interfaceName, AddressTypeStr(addressType), err.Format());
+            continue;
+        }
+        if (mListenInterfacesCount < sizeof(mListenInterfaces) / sizeof(mListenInterfaces[0]))
+        {
+            mListenInterfaces[mListenInterfacesCount].interfaceId = interfaceId;
+            mListenInterfaces[mListenInterfacesCount].addressType = addressType;
+            mListenInterfacesCount++;
+        }
+        else
+        {
+            char interfaceName[chip::Inet::InterfaceId::kMaxIfNameLength];
+            interfaceId.GetInterfaceName(interfaceName, sizeof(interfaceName));
+
+            ChipLogError(DeviceLayer, "Insufficient resources to keep track of listen interfaces on %s / %s", interfaceName,
+                         AddressTypeStr(addressType));
         }
     }
 
@@ -360,7 +377,8 @@ CHIP_ERROR ServerBase::DirectSend(chip::System::PacketBufferHandle && data, cons
                                   chip::Inet::InterfaceId interface)
 {
 #if INET_CONFIG_ENABLE_IPV4
-    if (addr.Type() == chip::Inet::IPAddressType::kIPv4) {
+    if (addr.Type() == chip::Inet::IPAddressType::kIPv4)
+    {
         VerifyOrReturnError(mIpv4Endpoint != nullptr, CHIP_ERROR_NOT_CONNECTED);
         return mIpv4Endpoint->SendTo(addr, port, std::move(data));
     }
@@ -409,69 +427,60 @@ CHIP_ERROR ServerBase::BroadcastImpl(chip::System::PacketBufferHandle && data, u
     //   - if no send done at all, return error
     //   - if at least one broadcast succeeds, assume success overall
     //   + some internal consistency validations for state error.
-
     unsigned successes   = 0;
     unsigned failures    = 0;
     CHIP_ERROR lastError = CHIP_ERROR_NO_ENDPOINT;
 
-    if (chip::Loop::Break == mEndpoints.ForEachActiveObject([&](auto * info) {
-            chip::Inet::UDPEndPoint * udp = delegate->Accept(info);
-
-            if (udp == nullptr)
-            {
-                return chip::Loop::Continue;
-            }
-
-            CHIP_ERROR err = CHIP_NO_ERROR;
-
-            /// The same packet needs to be sent over potentially multiple interfaces.
-            /// LWIP does not like having a pbuf sent over serparate interfaces, hence we create a copy
-            /// for sending via `CloneData`
-            ///
-            /// TODO: this wastes one copy of the data and that could be optimized away
-            chip::System::PacketBufferHandle tempBuf = data.CloneData();
-            if (tempBuf.IsNull())
-            {
-                // Not enough memory available to clone pbuf
-                err = CHIP_ERROR_NO_MEMORY;
-            }
-            else if (info->mAddressType == chip::Inet::IPAddressType::kIPv6)
-            {
-                err = udp->SendTo(mIpv6BroadcastAddress, port, std::move(tempBuf), udp->GetBoundInterface());
-            }
-#if INET_CONFIG_ENABLE_IPV4
-            else if (info->mAddressType == chip::Inet::IPAddressType::kIPv4)
-            {
-                err = udp->SendTo(mIpv4BroadcastAddress, port, std::move(tempBuf), udp->GetBoundInterface());
-            }
-#endif
-            else
-            {
-                // This is a general error of internal consistency: every address has a known type. Fail completely otherwise.
-                lastError = CHIP_ERROR_INCORRECT_STATE;
-                return chip::Loop::Break;
-            }
-
-            if (err == CHIP_NO_ERROR)
-            {
-                successes++;
-            }
-            else
-            {
-                failures++;
-                lastError = err;
-#if CHIP_DETAIL_LOGGING
-                char ifaceName[chip::Inet::InterfaceId::kMaxIfNameLength];
-                err = info->mInterfaceId.GetInterfaceName(ifaceName, sizeof(ifaceName));
-                if (err != CHIP_NO_ERROR)
-                    strcpy(ifaceName, "???");
-                ChipLogDetail(Discovery, "Warning: Attempt to mDNS broadcast failed on %s:  %s", ifaceName, lastError.AsString());
-#endif
-            }
-            return chip::Loop::Continue;
-        }))
+    for (size_t i = 0; i < mListenInterfacesCount; i++)
     {
-        return lastError;
+        const DnsSdInterface info = mListenInterfaces[i];
+        CHIP_ERROR err            = CHIP_NO_ERROR;
+
+        /// The same packet needs to be sent over potentially multiple interfaces.
+        /// LWIP does not like having a pbuf sent over serparate interfaces, hence we create a copy
+        /// for sending via `CloneData`
+        ///
+        /// TODO: this wastes one copy of the data and that could be optimized away
+        chip::System::PacketBufferHandle tempBuf = data.CloneData();
+        if (tempBuf.IsNull())
+        {
+            // Not enough memory available to clone pbuf
+            err = CHIP_ERROR_NO_MEMORY;
+        }
+        else if (info.addressType == chip::Inet::IPAddressType::kIPv6)
+        {
+            err = mIpv6Endpoint->SendTo(mIpv6BroadcastAddress, port, std::move(tempBuf), info.interfaceId);
+        }
+#if INET_CONFIG_ENABLE_IPV4
+        else if (info.addressType == chip::Inet::IPAddressType::kIPv4)
+        {
+            err = mIpv4Endpoint->SendTo(mIpv4BroadcastAddress, port, std::move(tempBuf), info.interfaceId);
+        }
+#endif
+        else
+        {
+            // This is a general error of internal consistency: every address has a known type. Fail completely otherwise.
+            return CHIP_ERROR_INCORRECT_STATE;
+        }
+
+        if (err == CHIP_NO_ERROR)
+        {
+            successes++;
+        }
+        else
+        {
+            failures++;
+            lastError = err;
+#if CHIP_DETAIL_LOGGING
+            char ifaceName[chip::Inet::InterfaceId::kMaxIfNameLength];
+            err = info.interfaceId.GetInterfaceName(ifaceName, sizeof(ifaceName));
+            if (err != CHIP_NO_ERROR)
+            {
+                strcpy(ifaceName, "???");
+            }
+            ChipLogDetail(Discovery, "Warning: Attempt to mDNS broadcast failed on %s: %s", ifaceName, lastError.AsString());
+#endif
+        }
     }
 
     if (failures != 0)
