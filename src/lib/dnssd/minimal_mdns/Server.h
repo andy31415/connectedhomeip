@@ -201,6 +201,11 @@ private:
     EndpointInfoPoolType & mEndpoints; // possible endpoints, to listen on multiple interfaces
     ServerDelegate * mDelegate = nullptr;
 
+    chip::Inet::UDPEndPoint *mIpv6Endpoint = nullptr; // listen on port 5353
+#if INET_CONFIG_ENABLE_IPV4
+    chip::Inet::UDPEndPoint *mIpv4Endpoint = nullptr; // listen on port 5353
+#endif
+
     // Broadcast IP addresses are cached to not require a string parse every time
     // Ideally we should be able to constexpr these
     chip::Inet::IPAddress mIpv6BroadcastAddress;

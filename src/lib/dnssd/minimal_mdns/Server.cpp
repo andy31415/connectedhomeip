@@ -230,6 +230,42 @@ CHIP_ERROR ServerBase::Listen(chip::Inet::EndPointManager<chip::Inet::UDPEndPoin
 
     ShutdownOnError autoShutdown(this);
 
+    // Listen for IPv6 (always)
+    ReturnErrorOnFailure(udpEndPointManager->NewEndPoint(&mIpv6Endpoint));
+    ReturnErrorOnFailure(mIpv6Endpoint->Bind(chip::Inet::IPAddressType::kIPv6, chip::Inet::IPAddress::Any, port));
+    ReturnErrorOnFailure(mIpv6Endpoint->Listen(OnUdpPacketReceived, nullptr /*OnReceiveError*/, this));
+
+#if INET_CONFIG_ENABLE_IPV4
+    // Also listen for IPv4 (if IPv4 is enabled)
+    ReturnErrorOnFailure(udpEndPointManager->NewEndPoint(&mIpv4Endpoint));
+    ReturnErrorOnFailure(mIpv4Endpoint->Bind(chip::Inet::IPAddressType::kIPv4, chip::Inet::IPAddress::Any, port));
+    ReturnErrorOnFailure(mIpv4Endpoint->Listen(OnUdpPacketReceived, nullptr /*OnReceiveError*/, this));
+#endif
+
+    // ensure we are in the multicast groups required
+    while (it->Next(&interfaceId, &addressType))
+    {
+        CHIP_ERROR err = JoinMulticastGroup(interfaceId,
+#if INET_CONFIG_ENABLE_IPV4
+                                            (addressType == chip::Inet::IPAddressType::kIPv4) ? mIpv4Endpoint :
+#endif
+                                                                                              mIpv6Endpoint,
+                                            addressType);
+
+        if (err != CHIP_NO_ERROR)
+        {
+            char interfaceName[chip::Inet::InterfaceId::kMaxIfNameLength];
+            interfaceId.GetInterfaceName(interfaceName, sizeof(interfaceName));
+
+            // Log only as non-fatal error. We may be able to join to different multicast groups, so this error is
+            // not fatal
+            ChipLogError(DeviceLayer, "MDNS failed to join multicast group on %s for address type %s: %" CHIP_ERROR_FORMAT,
+                         interfaceName, AddressTypeStr(addressType), err.Format());
+        }
+    }
+
+    // TODO: send "initialized" messages
+
     while (it->Next(&interfaceId, &addressType))
     {
         chip::Inet::UDPEndPoint * listenUdp;
