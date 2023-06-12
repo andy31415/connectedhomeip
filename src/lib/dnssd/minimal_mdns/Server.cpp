@@ -198,8 +198,6 @@ void ServerBase::Shutdown()
 
 void ServerBase::ShutdownEndpoints()
 {
-    mEndpoints.ReleaseAll();
-
     if (mIpv6Endpoint != nullptr)
     {
         mIpv6Endpoint->Free();
