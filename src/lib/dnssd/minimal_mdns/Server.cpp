@@ -225,6 +225,17 @@ CHIP_ERROR Server::Listen(chip::Inet::EndPointManager<chip::Inet::UDPEndPoint> *
 CHIP_ERROR Server::DirectSend(chip::System::PacketBufferHandle && data, const chip::Inet::IPAddress & addr, uint16_t port,
                               chip::Inet::InterfaceId interface)
 {
+    ChipLogProgress(Discovery, "**** DirectSend to specific");
+
+    {
+      char ifaceName[chip::Inet::InterfaceId::kMaxIfNameLength];
+      interface.GetInterfaceName(ifaceName, sizeof(ifaceName));
+
+      char sAddr[64];
+      addr.ToString(sAddr);
+
+      ChipLogProgress(Discovery, "   Specifially to %s / %s", sAddr, ifaceName);
+    }
 #if INET_CONFIG_ENABLE_IPV4
     if (addr.Type() == chip::Inet::IPAddressType::kIPv4)
     {
@@ -239,23 +250,27 @@ CHIP_ERROR Server::DirectSend(chip::System::PacketBufferHandle && data, const ch
 
 CHIP_ERROR Server::BroadcastUnicastQuery(chip::System::PacketBufferHandle && data, uint16_t port)
 {
+    ChipLogProgress(Discovery, "**** BroadcastQuery to all");
     return BroadcastImpl(std::move(data), port);
 }
 
 CHIP_ERROR Server::BroadcastUnicastQuery(chip::System::PacketBufferHandle && data, uint16_t port, chip::Inet::InterfaceId interface,
                                          chip::Inet::IPAddressType addressType)
 {
+    ChipLogProgress(Discovery, "**** BroadcastQuery to specific");
     return BroadcastImpl(std::move(data), port, interface, addressType);
 }
 
 CHIP_ERROR Server::BroadcastSend(chip::System::PacketBufferHandle && data, uint16_t port, chip::Inet::InterfaceId interface,
                                  chip::Inet::IPAddressType addressType)
 {
+    ChipLogProgress(Discovery, "**** BroadcastSend to specific");
     return BroadcastImpl(std::move(data), port, interface, addressType);
 }
 
 CHIP_ERROR Server::BroadcastSend(chip::System::PacketBufferHandle && data, uint16_t port)
 {
+    ChipLogProgress(Discovery, "**** BroadcastSend to all");
     return BroadcastImpl(std::move(data), port);
 }
 
@@ -264,6 +279,7 @@ CHIP_ERROR Server::BroadcastImpl(chip::System::PacketBufferHandle && data, uint1
 {
     if (interfaceId != chip::Inet::InterfaceId::Null())
     {
+        ChipLogProgress(Discovery, "**** Broadcastimpl to non null");
         return SingleBroadcastImpl(std::move(data), port, interfaceId, addressType);
     }
 

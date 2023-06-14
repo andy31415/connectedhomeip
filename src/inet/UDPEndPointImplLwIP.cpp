@@ -224,6 +224,7 @@ CHIP_ERROR UDPEndPointImplLwIP::SendMsgImpl(const IPPacketInfo * pktInfo, System
 
     if (lwipErr != ERR_OK)
     {
+        ChipLogError(Inet, "udp_sendto FAILED");
         res = chip::System::MapErrorLwIP(lwipErr);
     }
 

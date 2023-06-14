@@ -21,6 +21,9 @@
 
 #include <system/SystemClock.h>
 
+#undef CHIP_MINMDNS_HIGH_VERBOSITY
+#define CHIP_MINMDNS_HIGH_VERBOSITY 1
+
 namespace mdns {
 namespace Minimal {
 
