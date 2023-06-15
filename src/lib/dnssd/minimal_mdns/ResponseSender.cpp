@@ -200,7 +200,7 @@ CHIP_ERROR ResponseSender::FlushReply()
         if (mSendState.SendUnicast())
         {
 #if CHIP_MINMDNS_HIGH_VERBOSITY
-            ChipLogDetail(Discovery, "Directly sending mDns reply to peer %s on port %d", srcAddressString,
+            ChipLogProgress(Discovery, "Directly sending mDns reply to peer %s on port %d", srcAddressString,
                           mSendState.GetSourcePort());
 #endif
             ReturnErrorOnFailure(mServer->DirectSend(mResponseBuilder.ReleasePacket(), mSendState.GetSourceAddress(),
@@ -220,12 +220,14 @@ CHIP_ERROR ResponseSender::FlushReply()
 #endif // INET_CONFIG_ENABLE_IPV4
                 (mSendState.GetSourceAddress().Type() == chip::Inet::IPAddressType::kIPv6 ? "IPv6" : "???");
 
-            ChipLogDetail(Discovery, "Broadcasting mDns reply for query from %s to %s / %s", srcAddressString, interfaceName,
+            ChipLogProgress(Discovery, "Broadcasting mDns reply for query from %s to %s / %s", srcAddressString, interfaceName,
                           interfaceType);
 #endif
             ReturnErrorOnFailure(mServer->BroadcastSend(mResponseBuilder.ReleasePacket(), kMdnsStandardPort,
                                                         mSendState.GetSourceInterfaceId(), mSendState.GetSourceAddress().Type()));
         }
+
+        ChipLogProgress(Discovery, "   ...Broadcast send was a success");
     }
 
     return CHIP_NO_ERROR;

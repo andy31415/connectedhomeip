@@ -95,7 +95,7 @@ void LogQuery(const QueryData & data)
         logString.Add(name.Value()).Add(".");
     }
 
-    ChipLogDetail(Discovery, "%s", logString.c_str());
+    ChipLogProgress(Discovery, "%s", logString.c_str());
 }
 #else
 void LogQuery(const QueryData & data) {}
@@ -352,15 +352,25 @@ void AdvertiserMinMdns::OnQuery(const QueryData & data)
     }
 
     LogQuery(data);
+    {
+    char ifaceName[chip::Inet::InterfaceId::kMaxIfNameLength];
+    mCurrentSource->Interface.GetInterfaceName(ifaceName, sizeof(ifaceName));
+
+    char sAddr[64];
+    mCurrentSource->SrcAddress.ToString(sAddr);
+
+    char dAddr[64];
+    mCurrentSource->DestAddress.ToString(dAddr);
+    ChipLogError(Discovery, "   FROM %s / %s (to %s)", sAddr, ifaceName, dAddr);
+    }
+    
 
     const ResponseConfiguration defaultResponseConfiguration;
     CHIP_ERROR err = mResponseSender.Respond(mMessageId, data, mCurrentSource, defaultResponseConfiguration);
     if (err != CHIP_NO_ERROR)
     {
         ChipLogError(Discovery, "Failed to reply to query: %" CHIP_ERROR_FORMAT, err.Format());
-    } else {
-        ChipLogError(Discovery, "Reply to query sent");
-    }
+    } 
 }
 
 CHIP_ERROR AdvertiserMinMdns::Init(chip::Inet::EndPointManager<chip::Inet::UDPEndPoint> * udpEndPointManager)
