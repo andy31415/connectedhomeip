@@ -243,6 +243,7 @@
         "TestIdentifyCluster",
         "TestOperationalCredentialsCluster",
         "TestModeSelectCluster",
+        "TestTemperatureControl",
         "TestSelfFabricRemoval",
         "TestSystemCommands",
         "TestBinding",
