@@ -21,6 +21,7 @@ matter_trace_config = "${chip_root}/src/tracing/pwtrace:pwtrace_tracing"
 matter_commandline_enable_pwtrace_tracing = true
 matter_commandline_enable_perfetto_tracing = false
 
+pw_trace_BACKEND = "$dir_pw_trace_tokenized"
 pw_assert_BACKEND = "$dir_pw_assert_tokenized"
 pw_log_BACKEND = "$dir_pw_log_tokenized"
 

@@ -26,6 +26,7 @@ import("//build_overrides/pigweed.gni")
 # ...
 pw_assert_BACKEND = "$dir_pw_assert_tokenized"
 pw_log_BACKEND = "$dir_pw_log_tokenized"
+pw_trace_BACKEND = "$dir_pw_trace_tokenized"
 ```
 
 For tokenization to take effect, the following has to be added
