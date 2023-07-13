@@ -11,11 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# CHIPProjectConfig.h
-
 import("//build_overrides/chip.gni")
 import("//build_overrides/pigweed.gni")
+import("//build_overrides/tracing.gni")
 
 import("${chip_root}/config/standalone/args.gni")
 
@@ -26,19 +24,3 @@ chip_system_project_config_include = "<SystemProjectConfig.h>"
 chip_project_config_include_dirs =
     [ "${chip_root}/examples/lighting-app/linux/include" ]
 chip_project_config_include_dirs += [ "${chip_root}/config/standalone" ]
-
-matter_enable_tracing_support = true
-
-# Perfetto requires C++17
-cpp_standard = "gnu++17"
-
-# test pwtrace
-matter_trace_config = "${chip_root}/src/tracing/pwtrace:pwtrace_tracing"
-
-pw_assert_BACKEND = "$dir_pw_assert_tokenized"
-pw_log_BACKEND = "$dir_pw_log_tokenized"
-
-pw_build_LINK_DEPS = [
-  "$dir_pw_assert:impl",
-  "$dir_pw_log:impl",
-]

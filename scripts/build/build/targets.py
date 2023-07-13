@@ -21,7 +21,7 @@ from builders.cyw30739 import Cyw30739App, Cyw30739Board, Cyw30739Builder
 from builders.efr32 import Efr32App, Efr32Board, Efr32Builder
 from builders.esp32 import Esp32App, Esp32Board, Esp32Builder
 from builders.genio import GenioApp, GenioBuilder
-from builders.host import HostApp, HostBoard, HostBuilder, HostCryptoLibrary, HostFuzzingType
+from builders.host import HostApp, HostBoard, HostBuilder, HostCryptoLibrary, HostFuzzingType, HostTracingDestination
 from builders.imx import IMXApp, IMXBuilder
 from builders.infineon import InfineonApp, InfineonBoard, InfineonBuilder
 from builders.k32w import K32WApp, K32WBuilder
@@ -169,6 +169,7 @@ def BuildHostTarget():
     target.AppendModifier('test', extra_tests=True)
     target.AppendModifier('rpc', enable_rpcs=True)
     target.AppendModifier('with-ui', imgui_ui=True)
+    target.AppendModifier('pwtrace', tracing_destination=HostTracingDestination.PW_TRACE)
 
     return target
 
