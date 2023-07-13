@@ -96,6 +96,12 @@ void TracingSetup::EnableTracingFor(const char * cliArg)
             chip::Tracing::Register(mPerfettoBackend);
         }
 #endif // ENABLE_PERFETTO_TRACING
+#if ENABLE_PWTRACE_TRACING
+        else if (value.data_equal(CharSpan::fromCharString("perfetto")))
+        {
+            chip::Tracing::Register(mPwTraceBackend);
+        }
+#endif // ENABLE_PWTRACE_TRACING
         else
         {
             ChipLogError(AppServer, "Unknown trace destination: '%s'", std::string(value.data(), value.size()).c_str());
@@ -109,7 +115,10 @@ void TracingSetup::StopTracing()
     chip::Tracing::Perfetto::FlushEventTrackingStorage();
     mPerfettoFileOutput.Close();
     chip::Tracing::Unregister(mPerfettoBackend);
+#endif
 
+#if ENABLE_PWTRACE_TRACING
+    chip::Tracing::Unregister(mPwTraceBackend);
 #endif
 
     chip::Tracing::Unregister(mJsonBackend);

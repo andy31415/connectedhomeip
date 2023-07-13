@@ -23,6 +23,7 @@ declare_args() {
   #       however for now this is what we use in compilations
   matter_commandline_enable_perfetto_tracing =
       current_os == "linux" && cpp_standard == "gnu++17"
+  matter_commandline_enable_pwtrace_tracing = false
 }
 
 config("default_config") {
@@ -35,6 +36,7 @@ buildconfig_header("tracing_features") {
 
   defines = [
     "ENABLE_PERFETTO_TRACING=${matter_commandline_enable_perfetto_tracing}",
+    "ENABLE_PWTRACE_TRACING=${matter_commandline_enable_pwtrace_tracing}",
   ]
 }
 
@@ -64,6 +66,10 @@ source_set("commandline") {
       "${chip_root}/src/tracing/perfetto:event_storage",
       "${chip_root}/src/tracing/perfetto:simple_initialization",
     ]
+  }
+
+  if (matter_commandline_enable_pwtrace_tracing) {
+    public_deps += ["${chip_root}/src/tracing/pwtrace" ]
   }
 
   cflags = [ "-Wconversion" ]

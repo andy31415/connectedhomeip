@@ -24,15 +24,23 @@
 #if ENABLE_PERFETTO_TRACING
 #include <tracing/perfetto/file_output.h>      // nogncheck
 #include <tracing/perfetto/perfetto_tracing.h> // nogncheck
+
+#define _PERFETTO_CMDLINE_ARGS ", perfetto, perfetto:<path>"
+#else
+#define _PERFETTO_CMDLINE_ARGS ""
+#endif
+
+#if ENABLE_PWTRACE_TRACING
+#include <tracing/pwtrace/pwtrace_tracing.h> // nogncheck
+
+#define _PWTRACE_CMDLINE_ARGS ", pwtrace"
+#else
+#define _PWTRACE_CMDLINE_ARGS ""
 #endif
 
 /// A string with supported command line tracing targets
 /// to be pretty-printed in help strings if needed
-#if ENABLE_PERFETTO_TRACING
-#define SUPPORTED_COMMAND_LINE_TRACING_TARGETS "json:log, json:<path>, perfetto, perfetto:<path>"
-#else
-#define SUPPORTED_COMMAND_LINE_TRACING_TARGETS "json:log, json:<path>"
-#endif
+#define SUPPORTED_COMMAND_LINE_TRACING_TARGETS "json:log, json:<path>" _PERFETTO_CMDLINE_ARGS _PWTRACE_CMDLINE_ARGS
 
 namespace chip {
 namespace CommandLineApp {
@@ -62,6 +70,10 @@ private:
 #if ENABLE_PERFETTO_TRACING
     chip::Tracing::Perfetto::FileTraceOutput mPerfettoFileOutput;
     chip::Tracing::Perfetto::PerfettoBackend mPerfettoBackend;
+#endif
+
+#if ENABLE_PWTRACE_TRACING
+    chip::Tracing::PwTrace::PwTraceBackend mPwTraceBackend;
 #endif
 };
 

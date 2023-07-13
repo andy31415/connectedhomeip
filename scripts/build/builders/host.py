@@ -19,20 +19,15 @@ from platform import uname
 from .gn import GnBuilder
 
 class HostTracingDestination(Enum):
-    NONE=auto()
     PERFETTO=auto()
     PW_TRACE=auto()
 
     @property
     def gn_argument(self):
-        if self == HostTracingDestination.NONE:
-            return 'matter_app_trace="none"'
-        elif self == HostTracingDestination.PERFETTO:
-            return 'matter_app_trace="perfetto"'
-            return 'chip_crypto="mbedtls"'
+        if self == HostTracingDestination.PERFETTO:
+            return 'import("//build_overrides/perfetto.gni")'
         elif self == HostTracingDestination.PW_TRACE:
-            return 'matter_app_trace="pw_trace"'
-            return 'chip_crypto="boringssl"'
+            return 'import("//build_overrides/pw_trace.gni")'
 
 
 class HostCryptoLibrary(Enum):

@@ -71,8 +71,7 @@ void PwTraceBackend::LogMessageSend(MessageSendInfo & info)
 void PwTraceBackend::LogNodeLookup(NodeLookupInfo & info)
 {
     // TODO: use pw_py_struct formatting to see data
-    auto nodeId = nodeId info.request->GetPeerId().GetNodeId();
-    PW_TRACE_INSTANT_DATA("NodeLookup", "DNSSD", "0x%" PRIX64, &nodeId, sizeof(nodeId));
+    PW_TRACE_INSTANT("NodeLookup", "DNSSD");
 }
 
 void PwTraceBackend::LogNodeDiscovered(NodeDiscoveredInfo & info)
