@@ -25,6 +25,17 @@
 
 #include <matter/tracing/macros_impl.h>
 
+// Define trace time for pw_trace
+PW_TRACE_TIME_TYPE pw_trace_GetTraceTime()
+{
+    return (PW_TRACE_TIME_TYPE) chip::System::SystemClock().GetMonotonicMicroseconds64().count();
+}
+// Microsecond time source
+size_t pw_trace_GetTraceTimeTicksPerSecond()
+{
+    return 1000000;
+}
+
 namespace chip {
 namespace Tracing {
 namespace PwTrace {
