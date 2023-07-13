@@ -51,7 +51,8 @@ void TraceSinkStartBlock(void * user_data, size_t size)
     int fileId = *reinterpret_cast<int *>(user_data);
     if (fileId >= 0) {
         // Each block is prefixed by size
-        write(fileId, reinterpret_cast<const char*>(&size), sizeof(size));
+        uint8_t block_size = static_cast<uint8_t>(size);
+        write(fileId, &block_size, sizeof(block_size));
     }
 }
 

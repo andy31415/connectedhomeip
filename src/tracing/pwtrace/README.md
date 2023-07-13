@@ -39,3 +39,13 @@ pw_build_LINK_DEPS = [
 ]
 ```
 
+### Usage
+
+Pigweed tracing sends trace data as blocks of data using callbacks.
+
+This data can then be written to files or a RPC service is provided.
+
+TODO: implement a RPC service, make use of it, add actual tracing.
+
+`third_party/pigweed/repo/pw_trace_tokenized/py/pw_trace_tokenized/trace_tokenized.py` can be used for binary data
+`third_party/pigweed/repo/pw_trace_tokenized/py/pw_trace_tokenized/get_trace.py` can be used for RPC data
