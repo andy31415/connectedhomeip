@@ -33,7 +33,7 @@
 #if ENABLE_PWTRACE_TRACING
 #include <tracing/pwtrace/pwtrace_tracing.h> // nogncheck
 
-#define _PWTRACE_CMDLINE_ARGS ", pwtrace"
+#define _PWTRACE_CMDLINE_ARGS ", pwtrace:<path>"
 #else
 #define _PWTRACE_CMDLINE_ARGS ""
 #endif

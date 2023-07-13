@@ -20,6 +20,8 @@
 #include <tracing/backend.h>
 #include <memory>
 
+#include <pw_trace_tokenized/trace_callback.h>
+
 namespace chip {
 namespace Tracing {
 namespace PwTrace {
@@ -32,6 +34,11 @@ class PwTraceBackend : public ::chip::Tracing::Backend
 public:
     PwTraceBackend() = default;
 
+    void Open() override;
+    void Close() override;
+
+    CHIP_ERROR SetOutputFile(const char *fileName);
+
     // TraceBegin/End/Instant are EXPLICITLY not provided
     // as they would be slower than expected. PwTrace trace macros
     // are expected to be set exclusively (via matter_trace_config)
@@ -42,6 +49,11 @@ public:
     void LogNodeLookup(NodeLookupInfo &) override;
     void LogNodeDiscovered(NodeDiscoveredInfo &) override;
     void LogNodeDiscoveryFailed(NodeDiscoveryFailedInfo &) override;
+private:
+    static constexpr int kInvalidFileId = -1;
+
+    int mTraceFileId = kInvalidFileId;
+    pw::trace::CallbacksImpl::SinkHandle mSinkHandle;
 };
 
 } // namespace PwTrace

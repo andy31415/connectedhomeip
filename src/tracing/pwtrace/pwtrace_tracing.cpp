@@ -25,6 +25,9 @@
 
 #include <matter/tracing/macros_impl.h>
 
+#include <fcntl.h>
+#include <unistd.h>
+
 // Define trace time for pw_trace
 PW_TRACE_TIME_TYPE pw_trace_GetTraceTime()
 {
@@ -40,6 +43,75 @@ size_t pw_trace_GetTraceTimeTicksPerSecond()
 namespace chip {
 namespace Tracing {
 namespace PwTrace {
+
+namespace {
+
+void TraceSinkStartBlock(void * user_data, size_t size)
+{
+    int fileId = *reinterpret_cast<int *>(user_data);
+    if (fileId >= 0) {
+        // Each block is prefixed by size
+        write(fileId, reinterpret_cast<const char*>(&size), sizeof(size));
+    }
+}
+
+void TraceSinkAddBytes(void * user_data, const void * bytes, size_t size)
+{
+    int fileId = *reinterpret_cast<int *>(user_data);
+    if (fileId >= 0) {
+        write(fileId, bytes, size);
+    }
+}
+
+void TraceSinkEndBlock(void * user_data)
+{
+    // int fileId = *reinterpret_cast<int *>(user_data);
+    // We could fsync here, however for performance purposes we do not
+    // bother.
+}
+
+} // namespace
+
+void PwTraceBackend::Open()
+{
+    pw::trace::Callbacks::Instance()
+        .RegisterSink(TraceSinkStartBlock, TraceSinkAddBytes, TraceSinkEndBlock, &mTraceFileId, &mSinkHandle)
+        .IgnoreError();
+
+    PW_TRACE_SET_ENABLED(true);
+}
+
+void PwTraceBackend::Close()
+{
+    PW_TRACE_SET_ENABLED(false);
+
+    pw::trace::Callbacks::Instance().UnregisterSink(mSinkHandle).IgnoreError();
+
+    if (mTraceFileId != kInvalidFileId)
+    {
+        close(mTraceFileId);
+        mTraceFileId = kInvalidFileId;
+    }
+}
+
+CHIP_ERROR PwTraceBackend::SetOutputFile(const char * file_name)
+{
+    if (mTraceFileId != kInvalidFileId)
+    {
+        close(mTraceFileId);
+        mTraceFileId = kInvalidFileId;
+    }
+
+    // Create a trace file and start sending data to it
+    mTraceFileId = open(file_name, O_RDWR | O_CREAT | O_TRUNC, 0640);
+    if (mTraceFileId < 0)
+    {
+        mTraceFileId = kInvalidFileId;
+        return CHIP_ERROR_POSIX(errno);
+    }
+
+    return CHIP_NO_ERROR;
+}
 
 void PwTraceBackend::LogMessageReceived(MessageReceivedInfo & info)
 {
@@ -77,7 +149,6 @@ void PwTraceBackend::LogMessageSend(MessageSendInfo & info)
         PW_TRACE_INSTANT("Unknown", "Message Send");
         break;
     }
-
 }
 
 void PwTraceBackend::LogNodeLookup(NodeLookupInfo & info)

@@ -97,8 +97,15 @@ void TracingSetup::EnableTracingFor(const char * cliArg)
         }
 #endif // ENABLE_PERFETTO_TRACING
 #if ENABLE_PWTRACE_TRACING
-        else if (value.data_equal(CharSpan::fromCharString("perfetto")))
+        else if (StartsWith(value, "pwtrace:"))
         {
+            std::string fileName(value.data() + 8, value.size() - 8);
+
+            CHIP_ERROR err = mPwTraceBackend.SetOutputFile(fileName.c_str());
+            if (err != CHIP_NO_ERROR)
+            {
+                ChipLogError(AppServer, "Failed to open pw trace output: %" CHIP_ERROR_FORMAT, err.Format());
+            }
             chip::Tracing::Register(mPwTraceBackend);
         }
 #endif // ENABLE_PWTRACE_TRACING
