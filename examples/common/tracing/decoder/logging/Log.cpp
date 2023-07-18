@@ -29,12 +29,14 @@ namespace logging {
 
 namespace {
 
+constexpr size_t kMaxLogSize = 4096;
+
 constexpr uint8_t kSpacePerIndent = 4;
 uint8_t gIndentLevel              = 0;
 
 void ENFORCE_FORMAT(1, 2) LogFormatted(const char * format, ...)
 {
-    char buffer[CHIP_CONFIG_LOG_MESSAGE_MAX_SIZE] = {};
+    char buffer[kMaxLogSize] = {};
 
     int indentation = gIndentLevel * kSpacePerIndent;
     snprintf(buffer, sizeof(buffer), "%*s", indentation, "");
@@ -76,7 +78,7 @@ void Log(const char * name, ByteSpan & data)
         return;
     }
 
-    char buffer[CHIP_CONFIG_LOG_MESSAGE_MAX_SIZE];
+    char buffer[kMaxLogSize];
     chip::MutableCharSpan destination(buffer);
 
     CanCastTo<uint16_t>(data.size())
@@ -128,7 +130,7 @@ void LogAsHex(const char * name, uint64_t value)
 
 void LogCertificate(const char * name, const ByteSpan & data)
 {
-    char buffer[CHIP_CONFIG_LOG_MESSAGE_MAX_SIZE] = {};
+    char buffer[kMaxLogSize] = {};
     chip::MutableCharSpan destination(buffer);
 
     CanCastTo<uint16_t>(data.size()) ? LogFormatted("%s (%u) =", name, static_cast<uint16_t>(data.size()))
@@ -140,7 +142,7 @@ void LogCertificate(const char * name, const ByteSpan & data)
 
 void LogCertificateRequest(const char * name, const ByteSpan & data)
 {
-    char buffer[CHIP_CONFIG_LOG_MESSAGE_MAX_SIZE] = {};
+    char buffer[kMaxLogSize] = {};
     chip::MutableCharSpan destination(buffer);
 
     CanCastTo<uint16_t>(data.size()) ? LogFormatted("%s (%u) =", name, static_cast<uint16_t>(data.size()))
