@@ -49,6 +49,10 @@
 #include <protocols/interaction_model/Constants.h>
 #include <type_traits>
 
+#include <lib/format/protocol_decoder.h>
+#include <tlv/meta/clusters_meta.h>
+#include <tlv/meta/protocols_meta.h>
+
 namespace {
 uint8_t gDebugEventBuffer[128];
 uint8_t gInfoEventBuffer[128];
@@ -66,6 +70,60 @@ chip::TLV::Tag kTestEventTag            = chip::TLV::ContextTag(1);
 chip::EndpointId kInvalidTestEndpointId = 3;
 chip::DataVersion kTestDataVersion1     = 3;
 chip::DataVersion kTestDataVersion2     = 5;
+
+bool gStartReporting = false;
+
+using namespace chip::Decoders;
+using PayloadDecoderType = chip::Decoders::PayloadDecoder<64, 256>;
+
+void Dump(PayloadDecoderType & decoder)
+{
+    PayloadEntry entry;
+    chip::StringBuilder<4096> output_builder;
+    int nesting = 0;
+
+    while (decoder.Next(entry))
+    {
+        switch (entry.GetType())
+        {
+        case PayloadEntry::IMPayloadType::kNestingExit:
+            nesting--;
+            continue;
+        case PayloadEntry::IMPayloadType::kAttribute:
+            output_builder.AddFormat("%*sATTRIBUTE: %" PRIi32 "/%" PRIi32 "\n", nesting * 2, "", entry.GetClusterId(),
+                                     entry.GetAttributeId());
+            continue;
+        case PayloadEntry::IMPayloadType::kCommand:
+            output_builder.AddFormat("%*sCOMMAND: %" PRIi32 "/%" PRIi32 "\n", nesting * 2, "", entry.GetClusterId(),
+                                     entry.GetCommandId());
+            continue;
+        case PayloadEntry::IMPayloadType::kEvent:
+            output_builder.AddFormat("%*sEVENT: %" PRIi32 "/%" PRIi32 "\n", nesting * 2, "", entry.GetClusterId(),
+                                     entry.GetEventId());
+            continue;
+        default:
+            break;
+        }
+
+        output_builder.AddFormat("%*s%s", nesting * 2, "", entry.GetName());
+
+        if (entry.GetType() == PayloadEntry::IMPayloadType::kNestingEnter)
+        {
+            nesting++;
+        }
+        else if (entry.GetValueText()[0] != '\0')
+        {
+            output_builder.AddFormat(": %s", entry.GetValueText());
+        }
+        else
+        {
+            output_builder.Add(": EMPTY");
+        }
+        output_builder.AddMarkerIfOverflow();
+        ChipLogError(Automation, "%s", output_builder.c_str());
+        output_builder.Reset();
+    }
+}
 
 class TestContext : public chip::Test::AppContext
 {
@@ -168,9 +226,31 @@ public:
         }
     }
 
+    void RawData(const chip::TLV::TLVReader & reader) override
+    {
+        if (!gStartReporting)
+        {
+            return;
+        }
+
+        PayloadDecoderType decoder(PayloadDecoderInitParams()
+                                       .SetProtocolDecodeTree(chip::TLVMeta::protocols_meta)
+                                       .SetClusterDecodeTree(chip::TLVMeta::clusters_meta)
+                                       .SetProtocol(chip::Protocols::Id(chip::VendorId::Common, 1))
+                                       .SetMessageType(5) // FIXME
+        );
+
+        ChipLogProgress(Automation, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! BEGIN");
+        ChipLogProgress(Automation, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Payload size: %d", (int) reader.GetTotalLength());
+        decoder.StartDecoding(reader);
+        Dump(decoder);
+        ChipLogProgress(Automation, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! END");
+    }
+
     void OnAttributeData(const chip::app::ConcreteDataAttributePath & aPath, chip::TLV::TLVReader * apData,
                          const chip::app::StatusIB & status) override
     {
+
         if (status.mStatus == chip::Protocols::InteractionModel::Status::Success)
         {
             mReceivedAttributePaths.push_back(aPath);
@@ -1925,6 +2005,8 @@ void TestReadInteraction::TestSubscribeWildcard(nlTestSuite * apSuite, void * ap
     printf("\nSend subscribe request message to Node: %" PRIu64 "\n", chip::kTestDeviceNodeId);
 
     {
+        gStartReporting = true;
+
         app::ReadClient readClient(chip::app::InteractionModelEngine::GetInstance(), &ctx.GetExchangeManager(), delegate,
                                    chip::app::ReadClient::InteractionType::Subscribe);
 
@@ -1999,11 +2081,36 @@ void TestReadInteraction::TestSubscribeWildcard(nlTestSuite * apSuite, void * ap
                 last = delegate.mNumAttributeResponse;
                 ctx.DrainAndServiceIO();
             } while (last != delegate.mNumAttributeResponse);
+            gStartReporting = false;
 
             NL_TEST_ASSERT(
                 apSuite,
                 !reportScheduler->CheckFlagsForHandler(delegate.mpReadHandler, ReadHandlerNode::TestFlags::MinIntervalElapsed));
             NL_TEST_ASSERT(apSuite, delegate.mGotReport);
+
+            // Mock attributes defined in
+            //   src/app/util/mock/attribute-storage.cpp
+            // Generally we have:
+            //   - 3 endpoints (0xFFFE, 0xFFFD, 0xFFFC)
+            //   - 4 clusters (0xFFF1'FC01 to 0xFFF1'FC04)
+            //   - Cluster attributes:
+            //     - each cluster has 2 global attributes 0xFFFC, 0xFFFD
+            //     - Some clusters have attributes with 0xFFF1 prefix
+            //
+            // Endpoint 3 which we try  has all 4 clusters
+            //   - 0xFFF10001 has 3 attributes
+            //   - 0xFFF10002 has 6 attributes
+            //   - 0xFFF10003 has 2 attributes
+            //   - 0xFFF10004 has 2 attributes
+            //
+            //   - Attribute 0xFFF10002::0xFFFF10004 is a list of 6 entries of
+            //     256 bytes each. Due to its size, list chunking is applied to it
+            //
+            // End result of this is that we have:
+            //   - All regular attributes reported once (13 attributes * 2 subscriptions)
+            //   - TODO: understand the other split ???
+            //           why 4 + 3
+            //
             // Mock endpoint3 has 13 attributes in total, and we subscribed twice.
             // And attribute 3/2/4 is a list with 6 elements and list chunking
             // is applied to it, but the way the packet boundaries fall we get two of
@@ -2021,6 +2128,7 @@ void TestReadInteraction::TestSubscribeWildcard(nlTestSuite * apSuite, void * ap
     NL_TEST_ASSERT(apSuite, engine->GetNumActiveReadClients() == 0);
     engine->Shutdown();
     NL_TEST_ASSERT(apSuite, ctx.GetExchangeManager().GetNumActiveExchanges() == 0);
+
 }
 
 // Subscribe (wildcard, C3, A1), then setDirty (E2, C3, wildcard), receive one attribute after setDirty

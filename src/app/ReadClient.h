@@ -73,6 +73,8 @@ public:
     public:
         virtual ~Callback() = default;
 
+        virtual void RawData(const chip::TLV::TLVReader &reader) {}
+
         /**
          * Used to signal the commencement of processing of the first attribute or event report received in a given exchange.
          *

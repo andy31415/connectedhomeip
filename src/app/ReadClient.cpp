@@ -513,6 +513,9 @@ CHIP_ERROR ReadClient::ProcessReportData(System::PacketBufferHandle && aPayload,
     AttributeReportIBs::Parser attributeReportIBs;
     System::PacketBufferTLVReader reader;
     reader.Init(std::move(aPayload));
+
+    mpCallback.RawData(reader);
+
     err = report.Init(reader);
     SuccessOrExit(err);
 
@@ -897,6 +900,8 @@ CHIP_ERROR ReadClient::ProcessSubscribeResponse(System::PacketBufferHandle && aP
 {
     System::PacketBufferTLVReader reader;
     reader.Init(std::move(aPayload));
+
+    mpCallback.RawData(reader);
 
     SubscribeResponseMessage::Parser subscribeResponse;
     ReturnErrorOnFailure(subscribeResponse.Init(reader));
