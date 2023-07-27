@@ -481,6 +481,16 @@
 @property (nonatomic, readonly) MTRDevice * device;
 @end
 
+@interface MTRClusterCustomOnOffOne ()
+@property (nonatomic, readonly) uint16_t endpoint;
+@property (nonatomic, readonly) MTRDevice * device;
+@end
+
+@interface MTRClusterCustomOnOffTwo ()
+@property (nonatomic, readonly) uint16_t endpoint;
+@property (nonatomic, readonly) MTRDevice * device;
+@end
+
 @interface MTRClusterUnitTesting ()
 @property (nonatomic, readonly) uint16_t endpoint;
 @property (nonatomic, readonly) MTRDevice * device;

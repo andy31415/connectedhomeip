@@ -793,6 +793,22 @@ void emberAfAccountLoginClusterInitCallback(chip::EndpointId endpoint);
  */
 void emberAfElectricalMeasurementClusterInitCallback(chip::EndpointId endpoint);
 
+/** @brief Custom On/Off One Cluster Init
+ *
+ * Cluster Init
+ *
+ * @param endpoint    Endpoint that is being initialized
+ */
+void emberAfCustomOnOffOneClusterInitCallback(chip::EndpointId endpoint);
+
+/** @brief Custom On/Off Two Cluster Init
+ *
+ * Cluster Init
+ *
+ * @param endpoint    Endpoint that is being initialized
+ */
+void emberAfCustomOnOffTwoClusterInitCallback(chip::EndpointId endpoint);
+
 /** @brief Unit Testing Cluster Init
  *
  * Cluster Init
@@ -8147,6 +8163,162 @@ void emberAfElectricalMeasurementClusterServerTickCallback(chip::EndpointId endp
  * @param endpoint  Endpoint that is being served
  */
 void emberAfElectricalMeasurementClusterClientTickCallback(chip::EndpointId endpoint);
+
+//
+// Custom On/Off One Cluster
+//
+
+/** @brief Custom On/Off One Cluster Server Init
+ *
+ * Server Init
+ *
+ * @param endpoint    Endpoint that is being initialized
+ */
+void emberAfCustomOnOffOneClusterServerInitCallback(chip::EndpointId endpoint);
+
+/** @brief Custom On/Off One Cluster Server Shutdown
+ *
+ * Server Shutdown
+ *
+ * @param endpoint    Endpoint that is being shutdown
+ */
+void MatterCustomOnOffOneClusterServerShutdownCallback(chip::EndpointId endpoint);
+
+/** @brief Custom On/Off One Cluster Client Init
+ *
+ * Client Init
+ *
+ * @param endpoint    Endpoint that is being initialized
+ */
+void emberAfCustomOnOffOneClusterClientInitCallback(chip::EndpointId endpoint);
+
+/** @brief Custom On/Off One Cluster Server Attribute Changed
+ *
+ * Server Attribute Changed
+ *
+ * @param attributePath Concrete attribute path that changed
+ */
+void MatterCustomOnOffOneClusterServerAttributeChangedCallback(const chip::app::ConcreteAttributePath & attributePath);
+
+/** @brief Custom On/Off One Cluster Server Pre Attribute Changed
+ *
+ * Server Pre Attribute Changed
+ *
+ * @param attributePath Concrete attribute path to be changed
+ * @param attributeType Attribute type
+ * @param size          Attribute size
+ * @param value         Attribute value
+ */
+chip::Protocols::InteractionModel::Status
+MatterCustomOnOffOneClusterServerPreAttributeChangedCallback(const chip::app::ConcreteAttributePath & attributePath,
+                                                             EmberAfAttributeType attributeType, uint16_t size, uint8_t * value);
+
+/** @brief Custom On/Off One Cluster Client Pre Attribute Changed
+ *
+ * Client Pre Attribute Changed
+ *
+ * @param attributePath Concrete attribute path to be changed
+ * @param attributeType Attribute type
+ * @param size          Attribute size
+ * @param value         Attribute value
+ */
+chip::Protocols::InteractionModel::Status
+MatterCustomOnOffOneClusterClientPreAttributeChangedCallback(const chip::app::ConcreteAttributePath & attributePath,
+                                                             EmberAfAttributeType attributeType, uint16_t size, uint8_t * value);
+
+/** @brief Custom On/Off One Cluster Server Tick
+ *
+ * Server Tick
+ *
+ * @param endpoint  Endpoint that is being served
+ */
+void emberAfCustomOnOffOneClusterServerTickCallback(chip::EndpointId endpoint);
+
+/** @brief Custom On/Off One Cluster Client Tick
+ *
+ * Client Tick
+ *
+ * @param endpoint  Endpoint that is being served
+ */
+void emberAfCustomOnOffOneClusterClientTickCallback(chip::EndpointId endpoint);
+
+//
+// Custom On/Off Two Cluster
+//
+
+/** @brief Custom On/Off Two Cluster Server Init
+ *
+ * Server Init
+ *
+ * @param endpoint    Endpoint that is being initialized
+ */
+void emberAfCustomOnOffTwoClusterServerInitCallback(chip::EndpointId endpoint);
+
+/** @brief Custom On/Off Two Cluster Server Shutdown
+ *
+ * Server Shutdown
+ *
+ * @param endpoint    Endpoint that is being shutdown
+ */
+void MatterCustomOnOffTwoClusterServerShutdownCallback(chip::EndpointId endpoint);
+
+/** @brief Custom On/Off Two Cluster Client Init
+ *
+ * Client Init
+ *
+ * @param endpoint    Endpoint that is being initialized
+ */
+void emberAfCustomOnOffTwoClusterClientInitCallback(chip::EndpointId endpoint);
+
+/** @brief Custom On/Off Two Cluster Server Attribute Changed
+ *
+ * Server Attribute Changed
+ *
+ * @param attributePath Concrete attribute path that changed
+ */
+void MatterCustomOnOffTwoClusterServerAttributeChangedCallback(const chip::app::ConcreteAttributePath & attributePath);
+
+/** @brief Custom On/Off Two Cluster Server Pre Attribute Changed
+ *
+ * Server Pre Attribute Changed
+ *
+ * @param attributePath Concrete attribute path to be changed
+ * @param attributeType Attribute type
+ * @param size          Attribute size
+ * @param value         Attribute value
+ */
+chip::Protocols::InteractionModel::Status
+MatterCustomOnOffTwoClusterServerPreAttributeChangedCallback(const chip::app::ConcreteAttributePath & attributePath,
+                                                             EmberAfAttributeType attributeType, uint16_t size, uint8_t * value);
+
+/** @brief Custom On/Off Two Cluster Client Pre Attribute Changed
+ *
+ * Client Pre Attribute Changed
+ *
+ * @param attributePath Concrete attribute path to be changed
+ * @param attributeType Attribute type
+ * @param size          Attribute size
+ * @param value         Attribute value
+ */
+chip::Protocols::InteractionModel::Status
+MatterCustomOnOffTwoClusterClientPreAttributeChangedCallback(const chip::app::ConcreteAttributePath & attributePath,
+                                                             EmberAfAttributeType attributeType, uint16_t size, uint8_t * value);
+
+/** @brief Custom On/Off Two Cluster Server Tick
+ *
+ * Server Tick
+ *
+ * @param endpoint  Endpoint that is being served
+ */
+void emberAfCustomOnOffTwoClusterServerTickCallback(chip::EndpointId endpoint);
+
+/** @brief Custom On/Off Two Cluster Client Tick
+ *
+ * Client Tick
+ *
+ * @param endpoint  Endpoint that is being served
+ */
+void emberAfCustomOnOffTwoClusterClientTickCallback(chip::EndpointId endpoint);
 
 //
 // Unit Testing Cluster

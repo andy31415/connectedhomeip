@@ -5180,6 +5180,72 @@ static BOOL AttributeIsSpecifiedInElectricalMeasurementCluster(AttributeId aAttr
     }
     }
 }
+static BOOL AttributeIsSpecifiedInCustomOnOffOneCluster(AttributeId aAttributeId)
+{
+    using namespace Clusters::CustomOnOffOne;
+    switch (aAttributeId) {
+    case Attributes::OnOff::Id: {
+        return YES;
+    }
+    case Attributes::UpDown::Id: {
+        return YES;
+    }
+    case Attributes::GeneratedCommandList::Id: {
+        return YES;
+    }
+    case Attributes::AcceptedCommandList::Id: {
+        return YES;
+    }
+    case Attributes::EventList::Id: {
+        return YES;
+    }
+    case Attributes::AttributeList::Id: {
+        return YES;
+    }
+    case Attributes::FeatureMap::Id: {
+        return YES;
+    }
+    case Attributes::ClusterRevision::Id: {
+        return YES;
+    }
+    default: {
+        return NO;
+    }
+    }
+}
+static BOOL AttributeIsSpecifiedInCustomOnOffTwoCluster(AttributeId aAttributeId)
+{
+    using namespace Clusters::CustomOnOffTwo;
+    switch (aAttributeId) {
+    case Attributes::GeneratedCommandList::Id: {
+        return YES;
+    }
+    case Attributes::AcceptedCommandList::Id: {
+        return YES;
+    }
+    case Attributes::EventList::Id: {
+        return YES;
+    }
+    case Attributes::AttributeList::Id: {
+        return YES;
+    }
+    case Attributes::FeatureMap::Id: {
+        return YES;
+    }
+    case Attributes::ClusterRevision::Id: {
+        return YES;
+    }
+    case Attributes::OnOff::Id: {
+        return YES;
+    }
+    case Attributes::UpDown::Id: {
+        return YES;
+    }
+    default: {
+        return NO;
+    }
+    }
+}
 static BOOL AttributeIsSpecifiedInUnitTestingCluster(AttributeId aAttributeId)
 {
     using namespace Clusters::UnitTesting;
@@ -5732,6 +5798,12 @@ BOOL MTRAttributeIsSpecified(ClusterId aClusterId, AttributeId aAttributeId)
     }
     case Clusters::ElectricalMeasurement::Id: {
         return AttributeIsSpecifiedInElectricalMeasurementCluster(aAttributeId);
+    }
+    case Clusters::CustomOnOffOne::Id: {
+        return AttributeIsSpecifiedInCustomOnOffOneCluster(aAttributeId);
+    }
+    case Clusters::CustomOnOffTwo::Id: {
+        return AttributeIsSpecifiedInCustomOnOffTwoCluster(aAttributeId);
     }
     case Clusters::UnitTesting::Id: {
         return AttributeIsSpecifiedInUnitTestingCluster(aAttributeId);

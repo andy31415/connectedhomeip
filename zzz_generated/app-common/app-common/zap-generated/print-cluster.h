@@ -647,6 +647,18 @@
 #define CHIP_PRINTCLUSTER_ELECTRICAL_MEASUREMENT_CLUSTER
 #endif
 
+#if defined(ZCL_USING_CUSTOM_ON_OFF_CLUSTER_ONE_SERVER) || defined(ZCL_USING_CUSTOM_ON_OFF_CLUSTER_ONE_CLIENT)
+#define CHIP_PRINTCLUSTER_CUSTOM_ON_OFF_CLUSTER_ONE { chip::app::Clusters::CustomOnOffOne::Id, "Custom On/Off One" },
+#else
+#define CHIP_PRINTCLUSTER_CUSTOM_ON_OFF_CLUSTER_ONE
+#endif
+
+#if defined(ZCL_USING_CUSTOM_ON_OFF_CLUSTER_TWO_SERVER) || defined(ZCL_USING_CUSTOM_ON_OFF_CLUSTER_TWO_CLIENT)
+#define CHIP_PRINTCLUSTER_CUSTOM_ON_OFF_CLUSTER_TWO { chip::app::Clusters::CustomOnOffTwo::Id, "Custom On/Off Two" },
+#else
+#define CHIP_PRINTCLUSTER_CUSTOM_ON_OFF_CLUSTER_TWO
+#endif
+
 #if defined(ZCL_USING_UNIT_TESTING_CLUSTER_SERVER) || defined(ZCL_USING_UNIT_TESTING_CLUSTER_CLIENT)
 #define CHIP_PRINTCLUSTER_UNIT_TESTING_CLUSTER { chip::app::Clusters::UnitTesting::Id, "Unit Testing" },
 #else
@@ -755,6 +767,8 @@
     CHIP_PRINTCLUSTER_APPLICATION_BASIC_CLUSTER                                                                                    \
     CHIP_PRINTCLUSTER_ACCOUNT_LOGIN_CLUSTER                                                                                        \
     CHIP_PRINTCLUSTER_ELECTRICAL_MEASUREMENT_CLUSTER                                                                               \
+    CHIP_PRINTCLUSTER_CUSTOM_ON_OFF_CLUSTER_ONE                                                                                    \
+    CHIP_PRINTCLUSTER_CUSTOM_ON_OFF_CLUSTER_TWO                                                                                    \
     CHIP_PRINTCLUSTER_UNIT_TESTING_CLUSTER                                                                                         \
     CHIP_PRINTCLUSTER_FAULT_INJECTION_CLUSTER
 

@@ -310,6 +310,12 @@ static constexpr ClusterId Id = 0x0000050E;
 namespace ElectricalMeasurement {
 static constexpr ClusterId Id = 0x00000B04;
 } // namespace ElectricalMeasurement
+namespace CustomOnOffOne {
+static constexpr ClusterId Id = 0x130A0001;
+} // namespace CustomOnOffOne
+namespace CustomOnOffTwo {
+static constexpr ClusterId Id = 0x130A0002;
+} // namespace CustomOnOffTwo
 namespace UnitTesting {
 static constexpr ClusterId Id = 0xFFF1FC05;
 } // namespace UnitTesting

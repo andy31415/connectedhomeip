@@ -4012,6 +4012,10 @@ namespace AccountLogin {} // namespace AccountLogin
 
 namespace ElectricalMeasurement {} // namespace ElectricalMeasurement
 
+namespace CustomOnOffOne {} // namespace CustomOnOffOne
+
+namespace CustomOnOffTwo {} // namespace CustomOnOffTwo
+
 namespace UnitTesting {
 
 // Enum for SimpleEnum

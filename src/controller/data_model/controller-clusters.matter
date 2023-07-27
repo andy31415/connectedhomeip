@@ -6564,6 +6564,30 @@ client cluster ElectricalMeasurement = 2820 {
   command GetMeasurementProfileCommand(GetMeasurementProfileCommandRequest): DefaultSuccess = 1;
 }
 
+/** Attributes and commands for switching devices between 'On' and 'Off' states. */
+client cluster CustomOnOffOne = 319422465 {
+  readonly attribute boolean onOff = 0;
+  readonly attribute boolean upDown = 1;
+  readonly attribute command_id generatedCommandList[] = 65528;
+  readonly attribute command_id acceptedCommandList[] = 65529;
+  readonly attribute event_id eventList[] = 65530;
+  readonly attribute attrib_id attributeList[] = 65531;
+  readonly attribute bitmap32 featureMap = 65532;
+  readonly attribute int16u clusterRevision = 65533;
+}
+
+/** Attributes and commands for switching devices between 'On' and 'Off' states. */
+client cluster CustomOnOffTwo = 319422466 {
+  readonly attribute boolean onOff = 319422464;
+  readonly attribute boolean upDown = 319422465;
+  readonly attribute command_id generatedCommandList[] = 65528;
+  readonly attribute command_id acceptedCommandList[] = 65529;
+  readonly attribute event_id eventList[] = 65530;
+  readonly attribute attrib_id attributeList[] = 65531;
+  readonly attribute bitmap32 featureMap = 65532;
+  readonly attribute int16u clusterRevision = 65533;
+}
+
 /** The Test Cluster is meant to validate the generated code */
 client cluster UnitTesting = 4294048773 {
   enum SimpleEnum : ENUM8 {

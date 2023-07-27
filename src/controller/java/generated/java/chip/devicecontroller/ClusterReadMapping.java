@@ -16322,6 +16322,190 @@ public class ClusterReadMapping {
      
        return result;
     }
+    private static Map<String, InteractionInfo> readCustomOnOffOneInteractionInfo() {
+       Map<String, InteractionInfo> result = new LinkedHashMap<>();Map<String, CommandParameterInfo> readCustomOnOffOneOnOffCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffOneOnOffAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffOneCluster) cluster).readOnOffAttribute(
+              (ChipClusters.BooleanAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedBooleanAttributeCallback(),
+          readCustomOnOffOneOnOffCommandParams
+        );
+        result.put("readOnOffAttribute", readCustomOnOffOneOnOffAttributeInteractionInfo);
+     Map<String, CommandParameterInfo> readCustomOnOffOneUpDownCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffOneUpDownAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffOneCluster) cluster).readUpDownAttribute(
+              (ChipClusters.BooleanAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedBooleanAttributeCallback(),
+          readCustomOnOffOneUpDownCommandParams
+        );
+        result.put("readUpDownAttribute", readCustomOnOffOneUpDownAttributeInteractionInfo);
+     Map<String, CommandParameterInfo> readCustomOnOffOneGeneratedCommandListCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffOneGeneratedCommandListAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffOneCluster) cluster).readGeneratedCommandListAttribute(
+              (ChipClusters.CustomOnOffOneCluster.GeneratedCommandListAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedCustomOnOffOneClusterGeneratedCommandListAttributeCallback(),
+          readCustomOnOffOneGeneratedCommandListCommandParams
+        );
+        result.put("readGeneratedCommandListAttribute", readCustomOnOffOneGeneratedCommandListAttributeInteractionInfo);
+     Map<String, CommandParameterInfo> readCustomOnOffOneAcceptedCommandListCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffOneAcceptedCommandListAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffOneCluster) cluster).readAcceptedCommandListAttribute(
+              (ChipClusters.CustomOnOffOneCluster.AcceptedCommandListAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedCustomOnOffOneClusterAcceptedCommandListAttributeCallback(),
+          readCustomOnOffOneAcceptedCommandListCommandParams
+        );
+        result.put("readAcceptedCommandListAttribute", readCustomOnOffOneAcceptedCommandListAttributeInteractionInfo);
+     Map<String, CommandParameterInfo> readCustomOnOffOneEventListCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffOneEventListAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffOneCluster) cluster).readEventListAttribute(
+              (ChipClusters.CustomOnOffOneCluster.EventListAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedCustomOnOffOneClusterEventListAttributeCallback(),
+          readCustomOnOffOneEventListCommandParams
+        );
+        result.put("readEventListAttribute", readCustomOnOffOneEventListAttributeInteractionInfo);
+     Map<String, CommandParameterInfo> readCustomOnOffOneAttributeListCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffOneAttributeListAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffOneCluster) cluster).readAttributeListAttribute(
+              (ChipClusters.CustomOnOffOneCluster.AttributeListAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedCustomOnOffOneClusterAttributeListAttributeCallback(),
+          readCustomOnOffOneAttributeListCommandParams
+        );
+        result.put("readAttributeListAttribute", readCustomOnOffOneAttributeListAttributeInteractionInfo);
+     Map<String, CommandParameterInfo> readCustomOnOffOneFeatureMapCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffOneFeatureMapAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffOneCluster) cluster).readFeatureMapAttribute(
+              (ChipClusters.LongAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedLongAttributeCallback(),
+          readCustomOnOffOneFeatureMapCommandParams
+        );
+        result.put("readFeatureMapAttribute", readCustomOnOffOneFeatureMapAttributeInteractionInfo);
+     Map<String, CommandParameterInfo> readCustomOnOffOneClusterRevisionCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffOneClusterRevisionAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffOneCluster) cluster).readClusterRevisionAttribute(
+              (ChipClusters.IntegerAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedIntegerAttributeCallback(),
+          readCustomOnOffOneClusterRevisionCommandParams
+        );
+        result.put("readClusterRevisionAttribute", readCustomOnOffOneClusterRevisionAttributeInteractionInfo);
+     
+       return result;
+    }
+    private static Map<String, InteractionInfo> readCustomOnOffTwoInteractionInfo() {
+       Map<String, InteractionInfo> result = new LinkedHashMap<>();Map<String, CommandParameterInfo> readCustomOnOffTwoOnOffCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffTwoOnOffAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffTwoCluster) cluster).readOnOffAttribute(
+              (ChipClusters.BooleanAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedBooleanAttributeCallback(),
+          readCustomOnOffTwoOnOffCommandParams
+        );
+        result.put("readOnOffAttribute", readCustomOnOffTwoOnOffAttributeInteractionInfo);
+     Map<String, CommandParameterInfo> readCustomOnOffTwoUpDownCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffTwoUpDownAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffTwoCluster) cluster).readUpDownAttribute(
+              (ChipClusters.BooleanAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedBooleanAttributeCallback(),
+          readCustomOnOffTwoUpDownCommandParams
+        );
+        result.put("readUpDownAttribute", readCustomOnOffTwoUpDownAttributeInteractionInfo);
+     Map<String, CommandParameterInfo> readCustomOnOffTwoGeneratedCommandListCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffTwoGeneratedCommandListAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffTwoCluster) cluster).readGeneratedCommandListAttribute(
+              (ChipClusters.CustomOnOffTwoCluster.GeneratedCommandListAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedCustomOnOffTwoClusterGeneratedCommandListAttributeCallback(),
+          readCustomOnOffTwoGeneratedCommandListCommandParams
+        );
+        result.put("readGeneratedCommandListAttribute", readCustomOnOffTwoGeneratedCommandListAttributeInteractionInfo);
+     Map<String, CommandParameterInfo> readCustomOnOffTwoAcceptedCommandListCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffTwoAcceptedCommandListAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffTwoCluster) cluster).readAcceptedCommandListAttribute(
+              (ChipClusters.CustomOnOffTwoCluster.AcceptedCommandListAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedCustomOnOffTwoClusterAcceptedCommandListAttributeCallback(),
+          readCustomOnOffTwoAcceptedCommandListCommandParams
+        );
+        result.put("readAcceptedCommandListAttribute", readCustomOnOffTwoAcceptedCommandListAttributeInteractionInfo);
+     Map<String, CommandParameterInfo> readCustomOnOffTwoEventListCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffTwoEventListAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffTwoCluster) cluster).readEventListAttribute(
+              (ChipClusters.CustomOnOffTwoCluster.EventListAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedCustomOnOffTwoClusterEventListAttributeCallback(),
+          readCustomOnOffTwoEventListCommandParams
+        );
+        result.put("readEventListAttribute", readCustomOnOffTwoEventListAttributeInteractionInfo);
+     Map<String, CommandParameterInfo> readCustomOnOffTwoAttributeListCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffTwoAttributeListAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffTwoCluster) cluster).readAttributeListAttribute(
+              (ChipClusters.CustomOnOffTwoCluster.AttributeListAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedCustomOnOffTwoClusterAttributeListAttributeCallback(),
+          readCustomOnOffTwoAttributeListCommandParams
+        );
+        result.put("readAttributeListAttribute", readCustomOnOffTwoAttributeListAttributeInteractionInfo);
+     Map<String, CommandParameterInfo> readCustomOnOffTwoFeatureMapCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffTwoFeatureMapAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffTwoCluster) cluster).readFeatureMapAttribute(
+              (ChipClusters.LongAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedLongAttributeCallback(),
+          readCustomOnOffTwoFeatureMapCommandParams
+        );
+        result.put("readFeatureMapAttribute", readCustomOnOffTwoFeatureMapAttributeInteractionInfo);
+     Map<String, CommandParameterInfo> readCustomOnOffTwoClusterRevisionCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+        InteractionInfo readCustomOnOffTwoClusterRevisionAttributeInteractionInfo = new InteractionInfo(
+          (cluster, callback, commandArguments) -> {
+            ((ChipClusters.CustomOnOffTwoCluster) cluster).readClusterRevisionAttribute(
+              (ChipClusters.IntegerAttributeCallback) callback
+            );
+          },
+          () -> new ClusterInfoMapping.DelegatedIntegerAttributeCallback(),
+          readCustomOnOffTwoClusterRevisionCommandParams
+        );
+        result.put("readClusterRevisionAttribute", readCustomOnOffTwoClusterRevisionAttributeInteractionInfo);
+     
+       return result;
+    }
     private static Map<String, InteractionInfo> readUnitTestingInteractionInfo() {
        Map<String, InteractionInfo> result = new LinkedHashMap<>();Map<String, CommandParameterInfo> readUnitTestingBooleanCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
         InteractionInfo readUnitTestingBooleanAttributeInteractionInfo = new InteractionInfo(
@@ -17441,6 +17625,8 @@ public class ClusterReadMapping {
             put("applicationBasic", readApplicationBasicInteractionInfo());
             put("accountLogin", readAccountLoginInteractionInfo());
             put("electricalMeasurement", readElectricalMeasurementInteractionInfo());
+            put("customOnOffOne", readCustomOnOffOneInteractionInfo());
+            put("customOnOffTwo", readCustomOnOffTwoInteractionInfo());
             put("unitTesting", readUnitTestingInteractionInfo());
             put("faultInjection", readFaultInjectionInteractionInfo());}};
     }

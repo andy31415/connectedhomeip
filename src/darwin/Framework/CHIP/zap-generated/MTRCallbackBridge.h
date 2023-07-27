@@ -1804,6 +1804,22 @@ typedef void (*ElectricalMeasurementEventListListAttributeCallback)(
     void * context, const chip::app::DataModel::DecodableList<chip::EventId> & data);
 typedef void (*ElectricalMeasurementAttributeListListAttributeCallback)(
     void * context, const chip::app::DataModel::DecodableList<chip::AttributeId> & data);
+typedef void (*CustomOnOffOneGeneratedCommandListListAttributeCallback)(
+    void * context, const chip::app::DataModel::DecodableList<chip::CommandId> & data);
+typedef void (*CustomOnOffOneAcceptedCommandListListAttributeCallback)(
+    void * context, const chip::app::DataModel::DecodableList<chip::CommandId> & data);
+typedef void (*CustomOnOffOneEventListListAttributeCallback)(void * context,
+                                                             const chip::app::DataModel::DecodableList<chip::EventId> & data);
+typedef void (*CustomOnOffOneAttributeListListAttributeCallback)(
+    void * context, const chip::app::DataModel::DecodableList<chip::AttributeId> & data);
+typedef void (*CustomOnOffTwoGeneratedCommandListListAttributeCallback)(
+    void * context, const chip::app::DataModel::DecodableList<chip::CommandId> & data);
+typedef void (*CustomOnOffTwoAcceptedCommandListListAttributeCallback)(
+    void * context, const chip::app::DataModel::DecodableList<chip::CommandId> & data);
+typedef void (*CustomOnOffTwoEventListListAttributeCallback)(void * context,
+                                                             const chip::app::DataModel::DecodableList<chip::EventId> & data);
+typedef void (*CustomOnOffTwoAttributeListListAttributeCallback)(
+    void * context, const chip::app::DataModel::DecodableList<chip::AttributeId> & data);
 typedef void (*UnitTestingBitmap8AttributeCallback)(void *, chip::BitMask<chip::app::Clusters::UnitTesting::Bitmap8MaskMap>);
 typedef void (*UnitTestingBitmap16AttributeCallback)(void *, chip::BitMask<chip::app::Clusters::UnitTesting::Bitmap16MaskMap>);
 typedef void (*UnitTestingBitmap32AttributeCallback)(void *, chip::BitMask<chip::app::Clusters::UnitTesting::Bitmap32MaskMap>);
@@ -18134,6 +18150,266 @@ public:
     void OnSubscriptionEstablished();
     using MTRElectricalMeasurementAttributeListListAttributeCallbackBridge::KeepAliveOnCallback;
     using MTRElectricalMeasurementAttributeListListAttributeCallbackBridge::OnDone;
+
+private:
+    MTRSubscriptionEstablishedHandler mEstablishedHandler;
+};
+
+class MTRCustomOnOffOneGeneratedCommandListListAttributeCallbackBridge
+    : public MTRCallbackBridge<CustomOnOffOneGeneratedCommandListListAttributeCallback>
+{
+public:
+    MTRCustomOnOffOneGeneratedCommandListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler) :
+        MTRCallbackBridge<CustomOnOffOneGeneratedCommandListListAttributeCallback>(queue, handler, OnSuccessFn){};
+
+    MTRCustomOnOffOneGeneratedCommandListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler,
+                                                                     MTRActionBlock action) :
+        MTRCallbackBridge<CustomOnOffOneGeneratedCommandListListAttributeCallback>(queue, handler, action, OnSuccessFn){};
+
+    static void OnSuccessFn(void * context, const chip::app::DataModel::DecodableList<chip::CommandId> & value);
+};
+
+class MTRCustomOnOffOneGeneratedCommandListListAttributeCallbackSubscriptionBridge
+    : public MTRCustomOnOffOneGeneratedCommandListListAttributeCallbackBridge
+{
+public:
+    MTRCustomOnOffOneGeneratedCommandListListAttributeCallbackSubscriptionBridge(
+        dispatch_queue_t queue, ResponseHandler handler, MTRActionBlock action,
+        MTRSubscriptionEstablishedHandler establishedHandler) :
+        MTRCustomOnOffOneGeneratedCommandListListAttributeCallbackBridge(queue, handler, action),
+        mEstablishedHandler(establishedHandler)
+    {}
+
+    void OnSubscriptionEstablished();
+    using MTRCustomOnOffOneGeneratedCommandListListAttributeCallbackBridge::KeepAliveOnCallback;
+    using MTRCustomOnOffOneGeneratedCommandListListAttributeCallbackBridge::OnDone;
+
+private:
+    MTRSubscriptionEstablishedHandler mEstablishedHandler;
+};
+
+class MTRCustomOnOffOneAcceptedCommandListListAttributeCallbackBridge
+    : public MTRCallbackBridge<CustomOnOffOneAcceptedCommandListListAttributeCallback>
+{
+public:
+    MTRCustomOnOffOneAcceptedCommandListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler) :
+        MTRCallbackBridge<CustomOnOffOneAcceptedCommandListListAttributeCallback>(queue, handler, OnSuccessFn){};
+
+    MTRCustomOnOffOneAcceptedCommandListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler,
+                                                                    MTRActionBlock action) :
+        MTRCallbackBridge<CustomOnOffOneAcceptedCommandListListAttributeCallback>(queue, handler, action, OnSuccessFn){};
+
+    static void OnSuccessFn(void * context, const chip::app::DataModel::DecodableList<chip::CommandId> & value);
+};
+
+class MTRCustomOnOffOneAcceptedCommandListListAttributeCallbackSubscriptionBridge
+    : public MTRCustomOnOffOneAcceptedCommandListListAttributeCallbackBridge
+{
+public:
+    MTRCustomOnOffOneAcceptedCommandListListAttributeCallbackSubscriptionBridge(
+        dispatch_queue_t queue, ResponseHandler handler, MTRActionBlock action,
+        MTRSubscriptionEstablishedHandler establishedHandler) :
+        MTRCustomOnOffOneAcceptedCommandListListAttributeCallbackBridge(queue, handler, action),
+        mEstablishedHandler(establishedHandler)
+    {}
+
+    void OnSubscriptionEstablished();
+    using MTRCustomOnOffOneAcceptedCommandListListAttributeCallbackBridge::KeepAliveOnCallback;
+    using MTRCustomOnOffOneAcceptedCommandListListAttributeCallbackBridge::OnDone;
+
+private:
+    MTRSubscriptionEstablishedHandler mEstablishedHandler;
+};
+
+class MTRCustomOnOffOneEventListListAttributeCallbackBridge : public MTRCallbackBridge<CustomOnOffOneEventListListAttributeCallback>
+{
+public:
+    MTRCustomOnOffOneEventListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler) :
+        MTRCallbackBridge<CustomOnOffOneEventListListAttributeCallback>(queue, handler, OnSuccessFn){};
+
+    MTRCustomOnOffOneEventListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler, MTRActionBlock action) :
+        MTRCallbackBridge<CustomOnOffOneEventListListAttributeCallback>(queue, handler, action, OnSuccessFn){};
+
+    static void OnSuccessFn(void * context, const chip::app::DataModel::DecodableList<chip::EventId> & value);
+};
+
+class MTRCustomOnOffOneEventListListAttributeCallbackSubscriptionBridge
+    : public MTRCustomOnOffOneEventListListAttributeCallbackBridge
+{
+public:
+    MTRCustomOnOffOneEventListListAttributeCallbackSubscriptionBridge(dispatch_queue_t queue, ResponseHandler handler,
+                                                                      MTRActionBlock action,
+                                                                      MTRSubscriptionEstablishedHandler establishedHandler) :
+        MTRCustomOnOffOneEventListListAttributeCallbackBridge(queue, handler, action),
+        mEstablishedHandler(establishedHandler)
+    {}
+
+    void OnSubscriptionEstablished();
+    using MTRCustomOnOffOneEventListListAttributeCallbackBridge::KeepAliveOnCallback;
+    using MTRCustomOnOffOneEventListListAttributeCallbackBridge::OnDone;
+
+private:
+    MTRSubscriptionEstablishedHandler mEstablishedHandler;
+};
+
+class MTRCustomOnOffOneAttributeListListAttributeCallbackBridge
+    : public MTRCallbackBridge<CustomOnOffOneAttributeListListAttributeCallback>
+{
+public:
+    MTRCustomOnOffOneAttributeListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler) :
+        MTRCallbackBridge<CustomOnOffOneAttributeListListAttributeCallback>(queue, handler, OnSuccessFn){};
+
+    MTRCustomOnOffOneAttributeListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler,
+                                                              MTRActionBlock action) :
+        MTRCallbackBridge<CustomOnOffOneAttributeListListAttributeCallback>(queue, handler, action, OnSuccessFn){};
+
+    static void OnSuccessFn(void * context, const chip::app::DataModel::DecodableList<chip::AttributeId> & value);
+};
+
+class MTRCustomOnOffOneAttributeListListAttributeCallbackSubscriptionBridge
+    : public MTRCustomOnOffOneAttributeListListAttributeCallbackBridge
+{
+public:
+    MTRCustomOnOffOneAttributeListListAttributeCallbackSubscriptionBridge(dispatch_queue_t queue, ResponseHandler handler,
+                                                                          MTRActionBlock action,
+                                                                          MTRSubscriptionEstablishedHandler establishedHandler) :
+        MTRCustomOnOffOneAttributeListListAttributeCallbackBridge(queue, handler, action),
+        mEstablishedHandler(establishedHandler)
+    {}
+
+    void OnSubscriptionEstablished();
+    using MTRCustomOnOffOneAttributeListListAttributeCallbackBridge::KeepAliveOnCallback;
+    using MTRCustomOnOffOneAttributeListListAttributeCallbackBridge::OnDone;
+
+private:
+    MTRSubscriptionEstablishedHandler mEstablishedHandler;
+};
+
+class MTRCustomOnOffTwoGeneratedCommandListListAttributeCallbackBridge
+    : public MTRCallbackBridge<CustomOnOffTwoGeneratedCommandListListAttributeCallback>
+{
+public:
+    MTRCustomOnOffTwoGeneratedCommandListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler) :
+        MTRCallbackBridge<CustomOnOffTwoGeneratedCommandListListAttributeCallback>(queue, handler, OnSuccessFn){};
+
+    MTRCustomOnOffTwoGeneratedCommandListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler,
+                                                                     MTRActionBlock action) :
+        MTRCallbackBridge<CustomOnOffTwoGeneratedCommandListListAttributeCallback>(queue, handler, action, OnSuccessFn){};
+
+    static void OnSuccessFn(void * context, const chip::app::DataModel::DecodableList<chip::CommandId> & value);
+};
+
+class MTRCustomOnOffTwoGeneratedCommandListListAttributeCallbackSubscriptionBridge
+    : public MTRCustomOnOffTwoGeneratedCommandListListAttributeCallbackBridge
+{
+public:
+    MTRCustomOnOffTwoGeneratedCommandListListAttributeCallbackSubscriptionBridge(
+        dispatch_queue_t queue, ResponseHandler handler, MTRActionBlock action,
+        MTRSubscriptionEstablishedHandler establishedHandler) :
+        MTRCustomOnOffTwoGeneratedCommandListListAttributeCallbackBridge(queue, handler, action),
+        mEstablishedHandler(establishedHandler)
+    {}
+
+    void OnSubscriptionEstablished();
+    using MTRCustomOnOffTwoGeneratedCommandListListAttributeCallbackBridge::KeepAliveOnCallback;
+    using MTRCustomOnOffTwoGeneratedCommandListListAttributeCallbackBridge::OnDone;
+
+private:
+    MTRSubscriptionEstablishedHandler mEstablishedHandler;
+};
+
+class MTRCustomOnOffTwoAcceptedCommandListListAttributeCallbackBridge
+    : public MTRCallbackBridge<CustomOnOffTwoAcceptedCommandListListAttributeCallback>
+{
+public:
+    MTRCustomOnOffTwoAcceptedCommandListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler) :
+        MTRCallbackBridge<CustomOnOffTwoAcceptedCommandListListAttributeCallback>(queue, handler, OnSuccessFn){};
+
+    MTRCustomOnOffTwoAcceptedCommandListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler,
+                                                                    MTRActionBlock action) :
+        MTRCallbackBridge<CustomOnOffTwoAcceptedCommandListListAttributeCallback>(queue, handler, action, OnSuccessFn){};
+
+    static void OnSuccessFn(void * context, const chip::app::DataModel::DecodableList<chip::CommandId> & value);
+};
+
+class MTRCustomOnOffTwoAcceptedCommandListListAttributeCallbackSubscriptionBridge
+    : public MTRCustomOnOffTwoAcceptedCommandListListAttributeCallbackBridge
+{
+public:
+    MTRCustomOnOffTwoAcceptedCommandListListAttributeCallbackSubscriptionBridge(
+        dispatch_queue_t queue, ResponseHandler handler, MTRActionBlock action,
+        MTRSubscriptionEstablishedHandler establishedHandler) :
+        MTRCustomOnOffTwoAcceptedCommandListListAttributeCallbackBridge(queue, handler, action),
+        mEstablishedHandler(establishedHandler)
+    {}
+
+    void OnSubscriptionEstablished();
+    using MTRCustomOnOffTwoAcceptedCommandListListAttributeCallbackBridge::KeepAliveOnCallback;
+    using MTRCustomOnOffTwoAcceptedCommandListListAttributeCallbackBridge::OnDone;
+
+private:
+    MTRSubscriptionEstablishedHandler mEstablishedHandler;
+};
+
+class MTRCustomOnOffTwoEventListListAttributeCallbackBridge : public MTRCallbackBridge<CustomOnOffTwoEventListListAttributeCallback>
+{
+public:
+    MTRCustomOnOffTwoEventListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler) :
+        MTRCallbackBridge<CustomOnOffTwoEventListListAttributeCallback>(queue, handler, OnSuccessFn){};
+
+    MTRCustomOnOffTwoEventListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler, MTRActionBlock action) :
+        MTRCallbackBridge<CustomOnOffTwoEventListListAttributeCallback>(queue, handler, action, OnSuccessFn){};
+
+    static void OnSuccessFn(void * context, const chip::app::DataModel::DecodableList<chip::EventId> & value);
+};
+
+class MTRCustomOnOffTwoEventListListAttributeCallbackSubscriptionBridge
+    : public MTRCustomOnOffTwoEventListListAttributeCallbackBridge
+{
+public:
+    MTRCustomOnOffTwoEventListListAttributeCallbackSubscriptionBridge(dispatch_queue_t queue, ResponseHandler handler,
+                                                                      MTRActionBlock action,
+                                                                      MTRSubscriptionEstablishedHandler establishedHandler) :
+        MTRCustomOnOffTwoEventListListAttributeCallbackBridge(queue, handler, action),
+        mEstablishedHandler(establishedHandler)
+    {}
+
+    void OnSubscriptionEstablished();
+    using MTRCustomOnOffTwoEventListListAttributeCallbackBridge::KeepAliveOnCallback;
+    using MTRCustomOnOffTwoEventListListAttributeCallbackBridge::OnDone;
+
+private:
+    MTRSubscriptionEstablishedHandler mEstablishedHandler;
+};
+
+class MTRCustomOnOffTwoAttributeListListAttributeCallbackBridge
+    : public MTRCallbackBridge<CustomOnOffTwoAttributeListListAttributeCallback>
+{
+public:
+    MTRCustomOnOffTwoAttributeListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler) :
+        MTRCallbackBridge<CustomOnOffTwoAttributeListListAttributeCallback>(queue, handler, OnSuccessFn){};
+
+    MTRCustomOnOffTwoAttributeListListAttributeCallbackBridge(dispatch_queue_t queue, ResponseHandler handler,
+                                                              MTRActionBlock action) :
+        MTRCallbackBridge<CustomOnOffTwoAttributeListListAttributeCallback>(queue, handler, action, OnSuccessFn){};
+
+    static void OnSuccessFn(void * context, const chip::app::DataModel::DecodableList<chip::AttributeId> & value);
+};
+
+class MTRCustomOnOffTwoAttributeListListAttributeCallbackSubscriptionBridge
+    : public MTRCustomOnOffTwoAttributeListListAttributeCallbackBridge
+{
+public:
+    MTRCustomOnOffTwoAttributeListListAttributeCallbackSubscriptionBridge(dispatch_queue_t queue, ResponseHandler handler,
+                                                                          MTRActionBlock action,
+                                                                          MTRSubscriptionEstablishedHandler establishedHandler) :
+        MTRCustomOnOffTwoAttributeListListAttributeCallbackBridge(queue, handler, action),
+        mEstablishedHandler(establishedHandler)
+    {}
+
+    void OnSubscriptionEstablished();
+    using MTRCustomOnOffTwoAttributeListListAttributeCallbackBridge::KeepAliveOnCallback;
+    using MTRCustomOnOffTwoAttributeListListAttributeCallbackBridge::OnDone;
 
 private:
     MTRSubscriptionEstablishedHandler mEstablishedHandler;

@@ -3560,6 +3560,10 @@ public class ClusterWriteMapping {
     );
     writeElectricalMeasurementInteractionInfo.put("writeAcOverloadAlarmsMaskAttribute", writeElectricalMeasurementAcOverloadAlarmsMaskAttributeInteractionInfo);
     writeAttributeMap.put("electricalMeasurement", writeElectricalMeasurementInteractionInfo);
+    Map<String, InteractionInfo> writeCustomOnOffOneInteractionInfo = new LinkedHashMap<>();
+    writeAttributeMap.put("customOnOffOne", writeCustomOnOffOneInteractionInfo);
+    Map<String, InteractionInfo> writeCustomOnOffTwoInteractionInfo = new LinkedHashMap<>();
+    writeAttributeMap.put("customOnOffTwo", writeCustomOnOffTwoInteractionInfo);
     Map<String, InteractionInfo> writeUnitTestingInteractionInfo = new LinkedHashMap<>();
     Map<String, CommandParameterInfo> writeUnitTestingBooleanCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
     CommandParameterInfo unitTestingbooleanCommandParameterInfo =
