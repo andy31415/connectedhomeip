@@ -1079,3 +1079,5 @@ void onOffWaitTimeOffEventHandler(chip::EndpointId endpoint)
 void emberAfPluginOnOffClusterServerPostInitCallback(EndpointId endpoint) {}
 
 void MatterOnOffPluginServerInitCallback() {}
+void MatterCustomOnOffOnePluginServerInitCallback() {}
+void MatterCustomOnOffTwoPluginServerInitCallback() {}
