@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<configurator>
+  <domain name="General"/>
+  <cluster>
+    <name>Custom On/Off Two</name>
+    <domain>General</domain>
+    <code>0x130A0002</code>
+    <define>CUSTOM_ON_OFF_CLUSTER_TWO</define>
+    <description>Attributes and commands for switching devices between 'On' and 'Off' states.</description>
+    <attribute side="server" code="0x130a0000" define="CUSTOM_ON_OFF" type="boolean" default="0" reportable="true">OnOff</attribute>
+    <attribute side="server" code="0x130a0001" define="CUSTOM_UP_DOWN" type="boolean" default="0" reportable="true">UpDown</attribute>
+  </cluster>
+</configurator>
