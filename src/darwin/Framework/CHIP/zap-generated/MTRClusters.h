@@ -7985,8 +7985,18 @@ MTR_NEWLY_AVAILABLE
                                    queue:(dispatch_queue_t)queue NS_DESIGNATED_INITIALIZER MTR_NEWLY_AVAILABLE;
 
 - (NSDictionary<NSString *, id> *)readAttributeOnOffWithParams:(MTRReadParams * _Nullable)params MTR_NEWLY_AVAILABLE;
+- (void)writeAttributeOnOffWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+               expectedValueInterval:(NSNumber *)expectedValueIntervalMs MTR_NEWLY_AVAILABLE;
+- (void)writeAttributeOnOffWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+               expectedValueInterval:(NSNumber *)expectedValueIntervalMs
+                              params:(MTRWriteParams * _Nullable)params MTR_NEWLY_AVAILABLE;
 
 - (NSDictionary<NSString *, id> *)readAttributeUpDownWithParams:(MTRReadParams * _Nullable)params MTR_NEWLY_AVAILABLE;
+- (void)writeAttributeUpDownWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+                expectedValueInterval:(NSNumber *)expectedValueIntervalMs MTR_NEWLY_AVAILABLE;
+- (void)writeAttributeUpDownWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+                expectedValueInterval:(NSNumber *)expectedValueIntervalMs
+                               params:(MTRWriteParams * _Nullable)params MTR_NEWLY_AVAILABLE;
 
 - (NSDictionary<NSString *, id> *)readAttributeGeneratedCommandListWithParams:(MTRReadParams * _Nullable)params MTR_NEWLY_AVAILABLE;
 
@@ -8029,8 +8039,18 @@ MTR_NEWLY_AVAILABLE
 - (NSDictionary<NSString *, id> *)readAttributeClusterRevisionWithParams:(MTRReadParams * _Nullable)params MTR_NEWLY_AVAILABLE;
 
 - (NSDictionary<NSString *, id> *)readAttributeOnOffWithParams:(MTRReadParams * _Nullable)params MTR_NEWLY_AVAILABLE;
+- (void)writeAttributeOnOffWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+               expectedValueInterval:(NSNumber *)expectedValueIntervalMs MTR_NEWLY_AVAILABLE;
+- (void)writeAttributeOnOffWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+               expectedValueInterval:(NSNumber *)expectedValueIntervalMs
+                              params:(MTRWriteParams * _Nullable)params MTR_NEWLY_AVAILABLE;
 
 - (NSDictionary<NSString *, id> *)readAttributeUpDownWithParams:(MTRReadParams * _Nullable)params MTR_NEWLY_AVAILABLE;
+- (void)writeAttributeUpDownWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+                expectedValueInterval:(NSNumber *)expectedValueIntervalMs MTR_NEWLY_AVAILABLE;
+- (void)writeAttributeUpDownWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+                expectedValueInterval:(NSNumber *)expectedValueIntervalMs
+                               params:(MTRWriteParams * _Nullable)params MTR_NEWLY_AVAILABLE;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;

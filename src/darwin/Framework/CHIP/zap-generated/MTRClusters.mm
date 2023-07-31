@@ -34175,12 +34175,50 @@ static void MTRClustersLogCompletion(NSString * logPrefix, id value, NSError * e
                                              params:params];
 }
 
+- (void)writeAttributeOnOffWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+               expectedValueInterval:(NSNumber *)expectedValueIntervalMs
+{
+    [self writeAttributeOnOffWithValue:dataValueDictionary expectedValueInterval:expectedValueIntervalMs params:nil];
+}
+- (void)writeAttributeOnOffWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+               expectedValueInterval:(NSNumber *)expectedValueIntervalMs
+                              params:(MTRWriteParams * _Nullable)params
+{
+    NSNumber * timedWriteTimeout = params.timedWriteTimeout;
+
+    [self.device writeAttributeWithEndpointID:@(_endpoint)
+                                    clusterID:@(MTRClusterIDTypeCustomOnOffOneID)
+                                  attributeID:@(MTRAttributeIDTypeClusterCustomOnOffOneAttributeOnOffID)
+                                        value:dataValueDictionary
+                        expectedValueInterval:expectedValueIntervalMs
+                            timedWriteTimeout:timedWriteTimeout];
+}
+
 - (NSDictionary<NSString *, id> *)readAttributeUpDownWithParams:(MTRReadParams * _Nullable)params
 {
     return [self.device readAttributeWithEndpointID:@(_endpoint)
                                           clusterID:@(MTRClusterIDTypeCustomOnOffOneID)
                                         attributeID:@(MTRAttributeIDTypeClusterCustomOnOffOneAttributeUpDownID)
                                              params:params];
+}
+
+- (void)writeAttributeUpDownWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+                expectedValueInterval:(NSNumber *)expectedValueIntervalMs
+{
+    [self writeAttributeUpDownWithValue:dataValueDictionary expectedValueInterval:expectedValueIntervalMs params:nil];
+}
+- (void)writeAttributeUpDownWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+                expectedValueInterval:(NSNumber *)expectedValueIntervalMs
+                               params:(MTRWriteParams * _Nullable)params
+{
+    NSNumber * timedWriteTimeout = params.timedWriteTimeout;
+
+    [self.device writeAttributeWithEndpointID:@(_endpoint)
+                                    clusterID:@(MTRClusterIDTypeCustomOnOffOneID)
+                                  attributeID:@(MTRAttributeIDTypeClusterCustomOnOffOneAttributeUpDownID)
+                                        value:dataValueDictionary
+                        expectedValueInterval:expectedValueIntervalMs
+                            timedWriteTimeout:timedWriteTimeout];
 }
 
 - (NSDictionary<NSString *, id> *)readAttributeGeneratedCommandListWithParams:(MTRReadParams * _Nullable)params
@@ -34304,12 +34342,50 @@ static void MTRClustersLogCompletion(NSString * logPrefix, id value, NSError * e
                                              params:params];
 }
 
+- (void)writeAttributeOnOffWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+               expectedValueInterval:(NSNumber *)expectedValueIntervalMs
+{
+    [self writeAttributeOnOffWithValue:dataValueDictionary expectedValueInterval:expectedValueIntervalMs params:nil];
+}
+- (void)writeAttributeOnOffWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+               expectedValueInterval:(NSNumber *)expectedValueIntervalMs
+                              params:(MTRWriteParams * _Nullable)params
+{
+    NSNumber * timedWriteTimeout = params.timedWriteTimeout;
+
+    [self.device writeAttributeWithEndpointID:@(_endpoint)
+                                    clusterID:@(MTRClusterIDTypeCustomOnOffTwoID)
+                                  attributeID:@(MTRAttributeIDTypeClusterCustomOnOffTwoAttributeOnOffID)
+                                        value:dataValueDictionary
+                        expectedValueInterval:expectedValueIntervalMs
+                            timedWriteTimeout:timedWriteTimeout];
+}
+
 - (NSDictionary<NSString *, id> *)readAttributeUpDownWithParams:(MTRReadParams * _Nullable)params
 {
     return [self.device readAttributeWithEndpointID:@(_endpoint)
                                           clusterID:@(MTRClusterIDTypeCustomOnOffTwoID)
                                         attributeID:@(MTRAttributeIDTypeClusterCustomOnOffTwoAttributeUpDownID)
                                              params:params];
+}
+
+- (void)writeAttributeUpDownWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+                expectedValueInterval:(NSNumber *)expectedValueIntervalMs
+{
+    [self writeAttributeUpDownWithValue:dataValueDictionary expectedValueInterval:expectedValueIntervalMs params:nil];
+}
+- (void)writeAttributeUpDownWithValue:(NSDictionary<NSString *, id> *)dataValueDictionary
+                expectedValueInterval:(NSNumber *)expectedValueIntervalMs
+                               params:(MTRWriteParams * _Nullable)params
+{
+    NSNumber * timedWriteTimeout = params.timedWriteTimeout;
+
+    [self.device writeAttributeWithEndpointID:@(_endpoint)
+                                    clusterID:@(MTRClusterIDTypeCustomOnOffTwoID)
+                                  attributeID:@(MTRAttributeIDTypeClusterCustomOnOffTwoAttributeUpDownID)
+                                        value:dataValueDictionary
+                        expectedValueInterval:expectedValueIntervalMs
+                            timedWriteTimeout:timedWriteTimeout];
 }
 
 @end

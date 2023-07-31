@@ -11260,12 +11260,14 @@ class ChipClusters:
                 "attributeId": 0x00000000,
                 "type": "bool",
                 "reportable": True,
+                "writable": True,
             },
             0x00000001: {
                 "attributeName": "UpDown",
                 "attributeId": 0x00000001,
                 "type": "bool",
                 "reportable": True,
+                "writable": True,
             },
             0x0000FFF8: {
                 "attributeName": "GeneratedCommandList",
@@ -11352,12 +11354,14 @@ class ChipClusters:
                 "attributeId": 0x130A0000,
                 "type": "bool",
                 "reportable": True,
+                "writable": True,
             },
             0x130A0001: {
                 "attributeName": "UpDown",
                 "attributeId": 0x130A0001,
                 "type": "bool",
                 "reportable": True,
+                "writable": True,
             },
         },
     }

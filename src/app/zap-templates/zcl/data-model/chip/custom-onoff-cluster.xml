@@ -7,7 +7,7 @@
     <code>0x130A0001</code>
     <define>CUSTOM_ON_OFF_CLUSTER_ONE</define>
     <description>Attributes and commands for switching devices between 'On' and 'Off' states.</description>
-    <attribute side="server" code="0x0000" define="CUSTOM_ON_OFF" type="boolean" default="0" reportable="true">OnOff</attribute>
-    <attribute side="server" code="0x0001" define="CUSTOM_UP_DOWN" type="boolean" default="0" reportable="true">UpDown</attribute>
+    <attribute side="server" code="0x0000" define="CUSTOM_ON_OFF" type="boolean" default="0" reportable="true" writable="true">OnOff</attribute>
+    <attribute side="server" code="0x0001" define="CUSTOM_UP_DOWN" type="boolean" default="0" reportable="true" writable="true">UpDown</attribute>
   </cluster>
 </configurator>

@@ -2117,8 +2117,8 @@ server cluster OccupancySensing = 1030 {
 
 /** Attributes and commands for switching devices between 'On' and 'Off' states. */
 server cluster CustomOnOffOne = 319422465 {
-  readonly attribute boolean onOff = 0;
-  readonly attribute boolean upDown = 1;
+  attribute boolean onOff = 0;
+  attribute boolean upDown = 1;
   readonly attribute command_id generatedCommandList[] = 65528;
   readonly attribute command_id acceptedCommandList[] = 65529;
   readonly attribute event_id eventList[] = 65530;
@@ -2129,8 +2129,8 @@ server cluster CustomOnOffOne = 319422465 {
 
 /** Attributes and commands for switching devices between 'On' and 'Off' states. */
 server cluster CustomOnOffTwo = 319422466 {
-  readonly attribute boolean onOff = 319422464;
-  readonly attribute boolean upDown = 319422465;
+  attribute boolean onOff = 319422464;
+  attribute boolean upDown = 319422465;
   readonly attribute command_id generatedCommandList[] = 65528;
   readonly attribute command_id acceptedCommandList[] = 65529;
   readonly attribute event_id eventList[] = 65530;

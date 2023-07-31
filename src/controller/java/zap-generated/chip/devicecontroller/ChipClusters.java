@@ -36396,6 +36396,13 @@ public class ChipClusters {
     ) {
       readOnOffAttribute(chipClusterPtr, callback);
     }
+    public void writeOnOffAttribute(DefaultClusterCallback callback, Boolean value) {
+      writeOnOffAttribute(chipClusterPtr, callback, value, null);
+    }
+
+    public void writeOnOffAttribute(DefaultClusterCallback callback, Boolean value, int timedWriteTimeoutMs) {
+      writeOnOffAttribute(chipClusterPtr, callback, value, timedWriteTimeoutMs);
+    }
     public void subscribeOnOffAttribute(
         BooleanAttributeCallback callback
 ,
@@ -36407,6 +36414,13 @@ public class ChipClusters {
       BooleanAttributeCallback callback
     ) {
       readUpDownAttribute(chipClusterPtr, callback);
+    }
+    public void writeUpDownAttribute(DefaultClusterCallback callback, Boolean value) {
+      writeUpDownAttribute(chipClusterPtr, callback, value, null);
+    }
+
+    public void writeUpDownAttribute(DefaultClusterCallback callback, Boolean value, int timedWriteTimeoutMs) {
+      writeUpDownAttribute(chipClusterPtr, callback, value, timedWriteTimeoutMs);
     }
     public void subscribeUpDownAttribute(
         BooleanAttributeCallback callback
@@ -36490,6 +36504,8 @@ public class ChipClusters {
     private native void readOnOffAttribute(long chipClusterPtr,
         BooleanAttributeCallback callback
     );
+
+    private native void writeOnOffAttribute(long chipClusterPtr, DefaultClusterCallback callback, Boolean value, @Nullable Integer timedWriteTimeoutMs);
     private native void subscribeOnOffAttribute(long chipClusterPtr,
         BooleanAttributeCallback callback
 , int minInterval, int maxInterval);
@@ -36497,6 +36513,8 @@ public class ChipClusters {
     private native void readUpDownAttribute(long chipClusterPtr,
         BooleanAttributeCallback callback
     );
+
+    private native void writeUpDownAttribute(long chipClusterPtr, DefaultClusterCallback callback, Boolean value, @Nullable Integer timedWriteTimeoutMs);
     private native void subscribeUpDownAttribute(long chipClusterPtr,
         BooleanAttributeCallback callback
 , int minInterval, int maxInterval);
@@ -36652,6 +36670,13 @@ public class ChipClusters {
     ) {
       readOnOffAttribute(chipClusterPtr, callback);
     }
+    public void writeOnOffAttribute(DefaultClusterCallback callback, Boolean value) {
+      writeOnOffAttribute(chipClusterPtr, callback, value, null);
+    }
+
+    public void writeOnOffAttribute(DefaultClusterCallback callback, Boolean value, int timedWriteTimeoutMs) {
+      writeOnOffAttribute(chipClusterPtr, callback, value, timedWriteTimeoutMs);
+    }
     public void subscribeOnOffAttribute(
         BooleanAttributeCallback callback
 ,
@@ -36663,6 +36688,13 @@ public class ChipClusters {
       BooleanAttributeCallback callback
     ) {
       readUpDownAttribute(chipClusterPtr, callback);
+    }
+    public void writeUpDownAttribute(DefaultClusterCallback callback, Boolean value) {
+      writeUpDownAttribute(chipClusterPtr, callback, value, null);
+    }
+
+    public void writeUpDownAttribute(DefaultClusterCallback callback, Boolean value, int timedWriteTimeoutMs) {
+      writeUpDownAttribute(chipClusterPtr, callback, value, timedWriteTimeoutMs);
     }
     public void subscribeUpDownAttribute(
         BooleanAttributeCallback callback
@@ -36716,6 +36748,8 @@ public class ChipClusters {
     private native void readOnOffAttribute(long chipClusterPtr,
         BooleanAttributeCallback callback
     );
+
+    private native void writeOnOffAttribute(long chipClusterPtr, DefaultClusterCallback callback, Boolean value, @Nullable Integer timedWriteTimeoutMs);
     private native void subscribeOnOffAttribute(long chipClusterPtr,
         BooleanAttributeCallback callback
 , int minInterval, int maxInterval);
@@ -36723,6 +36757,8 @@ public class ChipClusters {
     private native void readUpDownAttribute(long chipClusterPtr,
         BooleanAttributeCallback callback
     );
+
+    private native void writeUpDownAttribute(long chipClusterPtr, DefaultClusterCallback callback, Boolean value, @Nullable Integer timedWriteTimeoutMs);
     private native void subscribeUpDownAttribute(long chipClusterPtr,
         BooleanAttributeCallback callback
 , int minInterval, int maxInterval);

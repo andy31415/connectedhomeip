@@ -19393,9 +19393,9 @@ void registerClusterCustomOnOffOne(Commands & commands, CredentialIssuerCommands
         make_unique<ReadAttribute>(Id, "feature-map", Attributes::FeatureMap::Id, credsIssuerConfig),                      //
         make_unique<ReadAttribute>(Id, "cluster-revision", Attributes::ClusterRevision::Id, credsIssuerConfig),            //
         make_unique<WriteAttribute<>>(Id, credsIssuerConfig),                                                              //
-        make_unique<WriteAttribute<bool>>(Id, "on-off", 0, 1, Attributes::OnOff::Id, WriteCommandType::kForceWrite,
+        make_unique<WriteAttribute<bool>>(Id, "on-off", 0, 1, Attributes::OnOff::Id, WriteCommandType::kWrite,
                                           credsIssuerConfig), //
-        make_unique<WriteAttribute<bool>>(Id, "up-down", 0, 1, Attributes::UpDown::Id, WriteCommandType::kForceWrite,
+        make_unique<WriteAttribute<bool>>(Id, "up-down", 0, 1, Attributes::UpDown::Id, WriteCommandType::kWrite,
                                           credsIssuerConfig), //
         make_unique<WriteAttributeAsComplex<chip::app::DataModel::List<const chip::CommandId>>>(
             Id, "generated-command-list", Attributes::GeneratedCommandList::Id, WriteCommandType::kForceWrite,
@@ -19465,9 +19465,9 @@ void registerClusterCustomOnOffTwo(Commands & commands, CredentialIssuerCommands
                                               WriteCommandType::kForceWrite, credsIssuerConfig), //
         make_unique<WriteAttribute<uint16_t>>(Id, "cluster-revision", 0, UINT16_MAX, Attributes::ClusterRevision::Id,
                                               WriteCommandType::kForceWrite, credsIssuerConfig), //
-        make_unique<WriteAttribute<bool>>(Id, "on-off", 0, 1, Attributes::OnOff::Id, WriteCommandType::kForceWrite,
+        make_unique<WriteAttribute<bool>>(Id, "on-off", 0, 1, Attributes::OnOff::Id, WriteCommandType::kWrite,
                                           credsIssuerConfig), //
-        make_unique<WriteAttribute<bool>>(Id, "up-down", 0, 1, Attributes::UpDown::Id, WriteCommandType::kForceWrite,
+        make_unique<WriteAttribute<bool>>(Id, "up-down", 0, 1, Attributes::UpDown::Id, WriteCommandType::kWrite,
                                           credsIssuerConfig),                                                                   //
         make_unique<SubscribeAttribute>(Id, credsIssuerConfig),                                                                 //
         make_unique<SubscribeAttribute>(Id, "generated-command-list", Attributes::GeneratedCommandList::Id, credsIssuerConfig), //

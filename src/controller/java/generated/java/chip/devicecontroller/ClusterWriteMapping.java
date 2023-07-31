@@ -3561,8 +3561,96 @@ public class ClusterWriteMapping {
     writeElectricalMeasurementInteractionInfo.put("writeAcOverloadAlarmsMaskAttribute", writeElectricalMeasurementAcOverloadAlarmsMaskAttributeInteractionInfo);
     writeAttributeMap.put("electricalMeasurement", writeElectricalMeasurementInteractionInfo);
     Map<String, InteractionInfo> writeCustomOnOffOneInteractionInfo = new LinkedHashMap<>();
+    Map<String, CommandParameterInfo> writeCustomOnOffOneOnOffCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+    CommandParameterInfo customOnOffOneonOffCommandParameterInfo =
+        new CommandParameterInfo(
+            "value", 
+            Boolean.class, 
+            Boolean.class 
+        );
+    writeCustomOnOffOneOnOffCommandParams.put(
+        "value",
+        customOnOffOneonOffCommandParameterInfo
+    );
+    InteractionInfo writeCustomOnOffOneOnOffAttributeInteractionInfo = new InteractionInfo(
+      (cluster, callback, commandArguments) -> {
+        ((ChipClusters.CustomOnOffOneCluster) cluster).writeOnOffAttribute(
+          (DefaultClusterCallback) callback,
+          (Boolean) commandArguments.get("value")
+        );
+      },
+      () -> new ClusterInfoMapping.DelegatedDefaultClusterCallback(),
+      writeCustomOnOffOneOnOffCommandParams
+    );
+    writeCustomOnOffOneInteractionInfo.put("writeOnOffAttribute", writeCustomOnOffOneOnOffAttributeInteractionInfo);
+    Map<String, CommandParameterInfo> writeCustomOnOffOneUpDownCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+    CommandParameterInfo customOnOffOneupDownCommandParameterInfo =
+        new CommandParameterInfo(
+            "value", 
+            Boolean.class, 
+            Boolean.class 
+        );
+    writeCustomOnOffOneUpDownCommandParams.put(
+        "value",
+        customOnOffOneupDownCommandParameterInfo
+    );
+    InteractionInfo writeCustomOnOffOneUpDownAttributeInteractionInfo = new InteractionInfo(
+      (cluster, callback, commandArguments) -> {
+        ((ChipClusters.CustomOnOffOneCluster) cluster).writeUpDownAttribute(
+          (DefaultClusterCallback) callback,
+          (Boolean) commandArguments.get("value")
+        );
+      },
+      () -> new ClusterInfoMapping.DelegatedDefaultClusterCallback(),
+      writeCustomOnOffOneUpDownCommandParams
+    );
+    writeCustomOnOffOneInteractionInfo.put("writeUpDownAttribute", writeCustomOnOffOneUpDownAttributeInteractionInfo);
     writeAttributeMap.put("customOnOffOne", writeCustomOnOffOneInteractionInfo);
     Map<String, InteractionInfo> writeCustomOnOffTwoInteractionInfo = new LinkedHashMap<>();
+    Map<String, CommandParameterInfo> writeCustomOnOffTwoOnOffCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+    CommandParameterInfo customOnOffTwoonOffCommandParameterInfo =
+        new CommandParameterInfo(
+            "value", 
+            Boolean.class, 
+            Boolean.class 
+        );
+    writeCustomOnOffTwoOnOffCommandParams.put(
+        "value",
+        customOnOffTwoonOffCommandParameterInfo
+    );
+    InteractionInfo writeCustomOnOffTwoOnOffAttributeInteractionInfo = new InteractionInfo(
+      (cluster, callback, commandArguments) -> {
+        ((ChipClusters.CustomOnOffTwoCluster) cluster).writeOnOffAttribute(
+          (DefaultClusterCallback) callback,
+          (Boolean) commandArguments.get("value")
+        );
+      },
+      () -> new ClusterInfoMapping.DelegatedDefaultClusterCallback(),
+      writeCustomOnOffTwoOnOffCommandParams
+    );
+    writeCustomOnOffTwoInteractionInfo.put("writeOnOffAttribute", writeCustomOnOffTwoOnOffAttributeInteractionInfo);
+    Map<String, CommandParameterInfo> writeCustomOnOffTwoUpDownCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+    CommandParameterInfo customOnOffTwoupDownCommandParameterInfo =
+        new CommandParameterInfo(
+            "value", 
+            Boolean.class, 
+            Boolean.class 
+        );
+    writeCustomOnOffTwoUpDownCommandParams.put(
+        "value",
+        customOnOffTwoupDownCommandParameterInfo
+    );
+    InteractionInfo writeCustomOnOffTwoUpDownAttributeInteractionInfo = new InteractionInfo(
+      (cluster, callback, commandArguments) -> {
+        ((ChipClusters.CustomOnOffTwoCluster) cluster).writeUpDownAttribute(
+          (DefaultClusterCallback) callback,
+          (Boolean) commandArguments.get("value")
+        );
+      },
+      () -> new ClusterInfoMapping.DelegatedDefaultClusterCallback(),
+      writeCustomOnOffTwoUpDownCommandParams
+    );
+    writeCustomOnOffTwoInteractionInfo.put("writeUpDownAttribute", writeCustomOnOffTwoUpDownAttributeInteractionInfo);
     writeAttributeMap.put("customOnOffTwo", writeCustomOnOffTwoInteractionInfo);
     Map<String, InteractionInfo> writeUnitTestingInteractionInfo = new LinkedHashMap<>();
     Map<String, CommandParameterInfo> writeUnitTestingBooleanCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
