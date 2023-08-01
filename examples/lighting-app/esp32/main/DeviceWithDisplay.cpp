@@ -36,6 +36,26 @@ static const char * TAG = "DeviceWithDisplay";
 
 Button gButtons[BUTTON_NUMBER] = { Button(BUTTON_1_GPIO_NUM), Button(BUTTON_2_GPIO_NUM), Button(BUTTON_3_GPIO_NUM) };
 
+static int gVLedLight1 = 0;
+static int gVLedLight2 = 0;
+static int gVLedLight3 = 0;
+static int gVLedLight4 = 0;
+
+static void LightLedUpdate() {
+    bool value = false;
+    (void) chip::app::Clusters::CustomOnOffOne::Attributes::OnOff::Get(1, &value);
+    ScreenManager::SetVLED(gVLedLight1, value);
+
+    (void) chip::app::Clusters::CustomOnOffOne::Attributes::UpDown::Get(1, &value);
+    ScreenManager::SetVLED(gVLedLight2, value);
+
+    (void) chip::app::Clusters::CustomOnOffTwo::Attributes::OnOff::Get(1, &value);
+    ScreenManager::SetVLED(gVLedLight3, value);
+    
+    (void) chip::app::Clusters::CustomOnOffTwo::Attributes::UpDown::Get(1, &value);
+    ScreenManager::SetVLED(gVLedLight4, value);
+}
+
 class ActionListModel : public ListScreen::Model
 {
     int GetItemCount() override { return static_cast<int>(mActions.size()); }
@@ -105,6 +125,73 @@ class TouchesMatterStackModel : public ListScreen::Model
     }
 
     virtual void DoAction(int i) = 0;
+};
+
+class ClustersListModel : public TouchesMatterStackModel
+{
+public:
+    ClustersListModel()
+    {
+        std::string toggleLight   = "Toggle LIGHT";
+        std::string toggleCustom1_on_off  = "Toggle Custom1 On/Off";
+        std::string toggleCustom1_up_down = "Toggle Custom1 Up/Down";
+        std::string toggleCustom2_on_off  = "Toggle Custom1 On/Off";
+        std::string toggleCustom2_up_down = "Toggle Custom1 Up/Down";
+
+        options.emplace_back(toggleLight);
+        options.emplace_back(toggleCustom1_on_off);
+        options.emplace_back(toggleCustom1_up_down);
+        options.emplace_back(toggleCustom2_on_off);
+        options.emplace_back(toggleCustom2_up_down);
+    }
+    virtual std::string GetTitle() { return "Toggles"; }
+    virtual int GetItemCount() { return options.size(); }
+    virtual std::string GetItemText(int i) { return options.at(i); }
+
+    void DoAction(int i) override
+    {
+        ESP_LOGI(TAG, "Opening options %d: %s", i, GetItemText(i).c_str());
+        bool value = false;
+        switch (i) {
+            case 0:
+                if (chip::app::Clusters::OnOff::Attributes::OnOff::Get(1, &value) == EMBER_ZCL_STATUS_SUCCESS) {
+                    ESP_LOGI(TAG, "Toggle ON/OFF");
+                    chip::app::Clusters::OnOff::Attributes::OnOff::Set(1, !value);
+                }
+                break;
+            case 1:
+                if (chip::app::Clusters::CustomOnOffOne::Attributes::OnOff::Get(1, &value) == EMBER_ZCL_STATUS_SUCCESS) {
+                    ESP_LOGI(TAG, "Toggle CUSTOM ON/OFF");
+                    chip::app::Clusters::CustomOnOffOne::Attributes::OnOff::Set(1, !value);
+                }
+                break;
+            case 2:
+                if (chip::app::Clusters::CustomOnOffOne::Attributes::UpDown::Get(1, &value) == EMBER_ZCL_STATUS_SUCCESS) {
+                    ESP_LOGI(TAG, "Toggle CUSTOM UP/DOWN");
+                    chip::app::Clusters::CustomOnOffOne::Attributes::UpDown::Set(1, !value);
+                }
+                break;
+            case 3:
+                if (chip::app::Clusters::CustomOnOffTwo::Attributes::OnOff::Get(1, &value) == EMBER_ZCL_STATUS_SUCCESS) {
+                    ESP_LOGI(TAG, "Toggle CUSTOM TWO ON/OFF");
+                    chip::app::Clusters::CustomOnOffTwo::Attributes::OnOff::Set(1, !value);
+                }
+                break;
+            case 4:
+                if (chip::app::Clusters::CustomOnOffTwo::Attributes::UpDown::Get(1, &value) == EMBER_ZCL_STATUS_SUCCESS) {
+                    ESP_LOGI(TAG, "Toggle CUSTOM TWO UP/DOWN");
+                    chip::app::Clusters::CustomOnOffTwo::Attributes::UpDown::Set(1, !value);
+                }
+                break;
+            default:
+                break;
+        }
+        ESP_LOGI(TAG, "Updating LEDs");
+        LightLedUpdate();
+    }
+
+private:
+    std::vector<std::string> options;
 };
 
 class SetupListModel : public TouchesMatterStackModel
@@ -180,6 +267,11 @@ esp_err_t InitM5Stack(std::string qrCodeText)
                        ESP_LOGI(TAG, "Opening Setup list");
                        ScreenManager::PushScreen(chip::Platform::New<ListScreen>(chip::Platform::New<SetupListModel>()));
                    })
+            ->Item("Clusters",
+               [=]() {
+                   ESP_LOGI(TAG, "Opening Clusters list");
+                   ScreenManager::PushScreen(chip::Platform::New<ListScreen>(chip::Platform::New<ClustersListModel>()));
+               })
             ->Item("Status", [=]() {
                 ESP_LOGI(TAG, "Opening Status screen");
                 ScreenManager::PushScreen(chip::Platform::New<StatusScreen>());
@@ -208,6 +300,15 @@ void InitDeviceDisplay()
     // Initialize the screen manager
     ScreenManager::Init();
     wifiLED.SetVLED(ScreenManager::AddVLED(TFT_GREEN));
+
+    gVLedLight1 = ScreenManager::AddVLED(TFT_CYAN);
+    gVLedLight2 = ScreenManager::AddVLED(TFT_ORANGE);
+    gVLedLight3 = ScreenManager::AddVLED(TFT_BLUE);
+    gVLedLight4 = ScreenManager::AddVLED(TFT_YELLOW);
+
+    chip::DeviceLayer::PlatformMgr().LockChipStack();
+    LightLedUpdate();
+    chip::DeviceLayer::PlatformMgr().UnlockChipStack();
 
 #if CONFIG_DEVICE_TYPE_M5STACK
 
