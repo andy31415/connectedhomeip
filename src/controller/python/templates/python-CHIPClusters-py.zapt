@@ -16,7 +16,7 @@ class ChipClusters:
 {{#zcl_clusters}}
     _{{asDelimitedMacro name}}_CLUSTER_INFO = {
         "clusterName": "{{asUpperCamelCase name}}",
-        "clusterId": {{asHex code 8}},
+        "clusterId": {{asMEI manufacturerCode code}},
         "commands": {
 {{#zcl_commands_source_client}}
             {{asHex code 8}}: {
