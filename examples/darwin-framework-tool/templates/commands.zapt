@@ -52,8 +52,8 @@ public:
 
     CHIP_ERROR SendCommand(MTRBaseDevice * device, chip::EndpointId endpointId) override
     {
-        constexpr ClusterId clusterId = Clusters::{{asUpperCamelCase parent.name}}::Id;
-        constexpr CommandId commandId = Commands::{{asUpperCamelCase name}}::Id;
+        constexpr ClusterId clusterId = chip::app::Clusters::{{asUpperCamelCase parent.name}}::Id;
+        constexpr CommandId commandId = chip::app::Commands::{{asUpperCamelCase name}}::Id;
 
         ChipLogProgress(chipTool, "Sending cluster (0x%08lX) command (0x%08lx) on endpoint %u", clusterId, commandId, endpointId);
 
@@ -130,8 +130,8 @@ public:
 
     CHIP_ERROR SendCommand(MTRBaseDevice * device, chip::EndpointId endpointId) override
     {
-        constexpr ClusterId clusterId = Clusters::{{asUpperCamelCase parent.name}}::Id;
-        constexpr CommandId commandId = Commands::{{asUpperCamelCase name}}::Id;
+        constexpr ClusterId clusterId = chip::app::Clusters::{{asUpperCamelCase parent.name}}::Id;
+        constexpr CommandId commandId = chip::app::Commands::{{asUpperCamelCase name}}::Id;
 
         ChipLogProgress(chipTool, "Sending cluster (0x%08lX) ReadAttribute (0x%08lX) on endpoint %u", endpointId, clusterId, commandId);
 
@@ -186,8 +186,8 @@ public:
 
     CHIP_ERROR SendCommand(MTRBaseDevice * device, chip::EndpointId endpointId) override
     {
-        constexpr ClusterId clusterId = Clusters::{{asUpperCamelCase parent.name}}::Id;
-        constexpr CommandId commandId = Commands::{{asUpperCamelCase name}}::Id;
+        constexpr ClusterId clusterId = chip::app::Clusters::{{asUpperCamelCase parent.name}}::Id;
+        constexpr CommandId commandId = chip::app::Commands::{{asUpperCamelCase name}}::Id;
 
         ChipLogProgress(chipTool, "Sending cluster (0x%08lX) WriteAttribute (0x%08lX) on endpoint %u", clusterId, commandId, endpointId);
         dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL);
@@ -243,8 +243,8 @@ public:
 
     CHIP_ERROR SendCommand(MTRBaseDevice * device, chip::EndpointId endpointId) override
     {
-        constexpr ClusterId clusterId = Clusters::{{asUpperCamelCase parent.name}}::Id;
-        constexpr CommandId commandId = Commands::{{asUpperCamelCase name}}::Id;
+        constexpr ClusterId clusterId = chip::app::Clusters::{{asUpperCamelCase parent.name}}::Id;
+        constexpr CommandId commandId = chip::app::Commands::{{asUpperCamelCase name}}::Id;
 
         ChipLogProgress(chipTool, "Sending cluster (0x%08lX) ReportAttribute (0x%08lX) on endpoint %u", clusterId, commandId, endpointId);
         dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL);
