@@ -54,11 +54,7 @@ public:
 
         ChipLogProgress(chipTool, "Sending cluster (0x%08lX) command (0x%08X) on Group %u", clusterId, commandId, groupId);
 
-        return ClusterCommand::SendGroupCommand(groupId, fabricIndex, clusterId, commandId, mRequest);
-    }
-
-private:
-    chip::app::Clusters::{{asUpperCamelCase parent.name}}::Commands::{{asUpperCamelCase name}}::Type mRequest;
+        return ClusterCommand::SendGroupCommand(groupId, fabricIndex, clusterId, commandIdcommandId,pp::Clusters::{{asUpperCamelCase parent.name}}::Commands::{{asUpperCamelCase name}}::Type mRequest;
     {{#zcl_command_arguments}}
     {{#if_chip_complex}}
     TypedComplexArgument<{{zapTypeToEncodableClusterObjectType type ns=parent.parent.name}}> mComplex_{{asUpperCamelCase label}};
