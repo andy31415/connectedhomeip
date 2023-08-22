@@ -52,7 +52,7 @@ public:
 
     CHIP_ERROR SendCommand(MTRBaseDevice * device, chip::EndpointId endpointId) override
     {
-        ChipLogProgress(chipTool, "Sending cluster ({{asHex parent.code 8}}) command ({{asHex code 8}}) on endpoint %u", endpointId);
+        ChipLogProgress(chipTool, "Sending cluster ({{asMEI parent.manufacturerCode parent.code}}) command ({{asHex code 8}}) on endpoint %u", endpointId);
 
         dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL);
         __auto_type * cluster = [[MTRBaseCluster{{asUpperCamelCase parent.name preserveAcronyms=true}} alloc] initWithDevice:device endpointID:@(endpointId) queue:callbackQueue];
@@ -127,7 +127,7 @@ public:
 
     CHIP_ERROR SendCommand(MTRBaseDevice * device, chip::EndpointId endpointId) override
     {
-        ChipLogProgress(chipTool, "Sending cluster ({{asHex parent.code 8}}) ReadAttribute ({{asHex code 8}}) on endpoint %u", endpointId);
+        ChipLogProgress(chipTool, "Sending cluster ({{asMEI parent.manufacturerCode parent.code}}) ReadAttribute ({{asHex code 8}}) on endpoint %u", endpointId);
 
         dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL);
         __auto_type * cluster = [[MTRBase{{>cluster}} alloc] initWithDevice:device endpointID:@(endpointId) queue:callbackQueue];
@@ -180,7 +180,7 @@ public:
 
     CHIP_ERROR SendCommand(MTRBaseDevice * device, chip::EndpointId endpointId) override
     {
-        ChipLogProgress(chipTool, "Sending cluster ({{asHex parent.code 8}}) WriteAttribute ({{asHex code 8}}) on endpoint %u", endpointId);
+        ChipLogProgress(chipTool, "Sending cluster ({{asMEI parent.manufacturerCode parent.code}}) WriteAttribute ({{asHex code 8}}) on endpoint %u", endpointId);
         dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL);
         __auto_type * cluster = [[MTRBase{{>cluster}} alloc] initWithDevice:device endpointID:@(endpointId) queue:callbackQueue];
         __auto_type * params = [[MTRWriteParams alloc] init];
@@ -234,7 +234,7 @@ public:
 
     CHIP_ERROR SendCommand(MTRBaseDevice * device, chip::EndpointId endpointId) override
     {
-        ChipLogProgress(chipTool, "Sending cluster ({{asHex parent.code 8}}) ReportAttribute ({{asHex code 8}}) on endpoint %u", endpointId);
+        ChipLogProgress(chipTool, "Sending cluster ({{asMEI parent.manufacturerCode parent.code}}) ReportAttribute ({{asHex code 8}}) on endpoint %u", endpointId);
         dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL);
         __auto_type * cluster = [[MTRBase{{>cluster}} alloc] initWithDevice:device endpointID:@(endpointId) queue:callbackQueue];
         __auto_type * params = [[MTRSubscribeParams alloc] initWithMinInterval:@(mMinInterval) maxInterval:@(mMaxInterval)];
