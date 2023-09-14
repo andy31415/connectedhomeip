@@ -96,7 +96,29 @@ void Shutdown()
 }
 
 bool Cmd_Check(int argc, const char ** argv) {
+    AddressResolve::NodeLookupRequest request(PeerId().SetNodeId(0x1234).SetCompressedFabricId(0xabcd));
+
+    CHIP_ERROR err = AddressResolve::Resolver::Instance().LookupNode(request, gListener.Handle());
+    if (err != CHIP_NO_ERROR)
+    {
+        ChipLogError(Discovery, "Lookup request failed: %s", err.AsString());
+        Shutdown();
+        return false;
+    }
+
     ChipLogError(Discovery, "NOT YET IMPLEMENTED!!!");
+
+
+    // Logic needed seems to be:
+    //  - Resolver::LookupNode
+    //  - Resolver::CancelLookup
+
+    // TODO: set a timeout for Resolver::CancelLookup
+    //       TBD: what failure method will be used?
+
+    DeviceLayer::PlatformMgr().RunEventLoop();
+    Shutdown();
+    return true;
 }
 
 bool Cmd_Node(int argc, const char ** argv)
