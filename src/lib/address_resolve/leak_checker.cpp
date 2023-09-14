@@ -30,6 +30,8 @@
 namespace {
 
 using namespace chip;
+using namespace chip::DeviceLayer;
+
 using chip::Inet::InterfaceId;
 using chip::Transport::PeerAddress;
 
@@ -95,27 +97,51 @@ void Shutdown()
     DeviceLayer::PlatformMgr().Shutdown();
 }
 
-bool Cmd_Check(int argc, const char ** argv) {
+namespace leakcheck {
+
+void SendRequest()
+{
     AddressResolve::NodeLookupRequest request(PeerId().SetNodeId(0x1234).SetCompressedFabricId(0xabcd));
 
     CHIP_ERROR err = AddressResolve::Resolver::Instance().LookupNode(request, gListener.Handle());
     if (err != CHIP_NO_ERROR)
     {
-        ChipLogError(Discovery, "Lookup request failed: %s", err.AsString());
-        Shutdown();
-        return false;
+        ChipLogError(Discovery, "Lookup request failed: %" CHIP_ERROR_FORMAT, err.Format());
     }
+}
 
-    ChipLogError(Discovery, "NOT YET IMPLEMENTED!!!");
+/*
+void CancelRequest()
+{
+    CHIP_ERROR err =
+        AddressResolve::Resolver::Instance().CancelLookup(gListener.Handle(), AddressResolve::Resolver::FailureCallback::Call);
+    if (err != CHIP_NO_ERROR)
+    {
+        ChipLogError(Discovery, "Cancel lookup request failed: %" CHIP_ERROR_FORMAT, err.Format());
+    }
+}
+*/
 
+void PlatformEventHandler(const DeviceLayer::ChipDeviceEvent * aEvent, intptr_t /* arg */)
+{
+    switch (aEvent->Type)
+    {
+    case DeviceLayer::DeviceEventType::kDnssdInitialized:
+        ChipLogProgress(Discovery, "DNSSD is initialized!");
+        SendRequest();
+        // FIXME: set a timer to cancel?
+        //        Realistically ctrl+C should be fine...
+        break;
+    default:
+        break;
+    }
+}
 
-    // Logic needed seems to be:
-    //  - Resolver::LookupNode
-    //  - Resolver::CancelLookup
+} // namespace leakcheck
 
-    // TODO: set a timeout for Resolver::CancelLookup
-    //       TBD: what failure method will be used?
-
+bool Cmd_Check(int argc, const char ** argv)
+{
+    PlatformMgr().AddEventHandler(leakcheck::PlatformEventHandler, 0);
     DeviceLayer::PlatformMgr().RunEventLoop();
     Shutdown();
     return true;
