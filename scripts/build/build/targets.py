@@ -133,6 +133,7 @@ def BuildHostTarget():
         TargetPart('dishwasher', app=HostApp.DISHWASHER),
         TargetPart('refrigerator', app=HostApp.REFRIGERATOR),
         TargetPart('rvc', app=HostApp.RVC),
+        TargetPart('leak-checker', app=HostApp.LEAK_CHECK),
     ]
 
     if (HostBoard.NATIVE.PlatformName() == 'darwin'):

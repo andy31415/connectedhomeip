@@ -71,6 +71,7 @@ class HostApp(Enum):
     DISHWASHER = auto()
     REFRIGERATOR = auto()
     RVC = auto()
+    LEAK_CHECK = auto()
 
     def ExamplePath(self):
         if self == HostApp.ALL_CLUSTERS:
@@ -103,7 +104,7 @@ class HostApp(Enum):
             return 'placeholder/linux/'
         elif self == HostApp.OTA_REQUESTOR:
             return 'ota-requestor-app/linux'
-        elif self in [HostApp.ADDRESS_RESOLVE, HostApp.TESTS, HostApp.PYTHON_BINDINGS, HostApp.CERT_TOOL]:
+        elif self in [HostApp.ADDRESS_RESOLVE, HostApp.TESTS, HostApp.PYTHON_BINDINGS, HostApp.CERT_TOOL, HostApp.LEAK_CHECK]:
             return '../'
         elif self == HostApp.EFR32_TEST_RUNNER:
             return '../src/test_driver/efr32'
@@ -152,6 +153,9 @@ class HostApp(Enum):
         elif self == HostApp.ADDRESS_RESOLVE:
             yield 'address-resolve-tool'
             yield 'address-resolve-tool.map'
+        elif self == HostApp.LEAK_CHECK:
+            yield 'leak-checker'
+            yield 'leak-checker.map'
         elif self == HostApp.TV_APP:
             yield 'chip-tv-app'
             yield 'chip-tv-app.map'
@@ -373,6 +377,8 @@ class HostBuilder(GnBuilder):
             self.build_command = 'src/tools/chip-cert'
         elif app == HostApp.ADDRESS_RESOLVE:
             self.build_command = 'src/lib/address_resolve:address-resolve-tool'
+        elif app == HostApp.LEAK_CHECK:
+            self.build_command = 'src/lib/address_resolve:leak-checker'
         elif app == HostApp.PYTHON_BINDINGS:
             self.extra_gn_options.append('enable_rtti=false')
             self.extra_gn_options.append('chip_project_config_include_dirs=["//config/python"]')
