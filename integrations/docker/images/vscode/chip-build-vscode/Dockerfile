@@ -31,7 +31,7 @@ COPY --from=nrf /opt/NordicSemiconductor/nRF5_tools /opt/NordicSemiconductor/nRF
 COPY --from=nrf /opt/NordicSemiconductor/nrfconnect /opt/NordicSemiconductor/nrfconnect
 
 COPY --from=android /opt/android/sdk /opt/android/sdk
-COPY --from=android /opt/android/android-ndk-r23c /opt/android/android-ndk-r23c
+COPY --from=android /opt/android/android-ndk-r26 /opt/android/android-ndk-r26
 COPY --from=android /usr/lib/kotlinc /usr/lib/kotlinc
 
 # FIXME: OpenOCD was removed during the move to infineon's repo
@@ -99,7 +99,7 @@ RUN set -x \
 ENV PATH $PATH:/usr/lib/kotlinc/bin
 ENV AMEBA_PATH=/opt/ameba/ambd_sdk_with_chip_non_NDA
 ENV ANDROID_HOME=/opt/android/sdk
-ENV ANDROID_NDK_HOME=/opt/android/android-ndk-r23c
+ENV ANDROID_NDK_HOME=/opt/android/android-ndk-r26
 ENV CY_TOOLS_PATHS="/opt/ModusToolbox/tools_2.4"
 ENV SILABS_BOARD=BRD4161A
 ENV GSDK_ROOT=/opt/silabs/gecko_sdk/

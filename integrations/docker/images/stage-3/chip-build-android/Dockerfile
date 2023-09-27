@@ -38,11 +38,11 @@ RUN set -x \
 # Download and install android NDK
 RUN set -x \
     && cd /tmp \
-    && wget https://dl.google.com/android/repository/android-ndk-r23c-linux.zip \
+    && wget -O /tmp/android-ndk-linux.zip https://dl.google.com/android/repository/android-ndk-r26-linux.zip \
     && mkdir -p /opt/android \
     && cd /opt/android \
-    && unzip /tmp/android-ndk-r23c-linux.zip \
-    && rm -f /tmp/android-ndk-r23c-linux.zip \
+    && unzip /tmp/android-ndk-linux.zip \
+    && rm -f /tmp/android-ndk-linux.zip \
     && : # last line
 
 # Install specific release of openssl and compile for x86/armv7-a
@@ -55,15 +55,15 @@ RUN set -x \
 RUN set -x \
     && export OPENSSL_ARMV7=/usr/local/src/armeabi-v7a \
     && export OPENSSL_X86=/usr/local/src/x86 \
-    && export ANDROID_NDK_HOME=/opt/android/android-ndk-r23c \
+    && export ANDROID_NDK_HOME=/opt/android/android-ndk-r26 \
     && export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH \
     && cd /tmp && wget https://www.openssl.org/source/openssl-1.1.1t.tar.gz \
     && mkdir -p $OPENSSL_ARMV7 && cd $OPENSSL_ARMV7 && tar xfz /tmp/openssl-1.1.1t.tar.gz \
-    && cd $OPENSSL_ARMV7/openssl-1.1.1t && CC=clang ANDROID_API=26 ./Configure android-arm -U__ANDROID_API__ -D__ANDROID_API__=26 && make SHLIB_VERSION_NUMBER= SHLIB_EXT=.so \
+    && cd $OPENSSL_ARMV7/openssl-1.1.1t && CC=clang ANDROID_API=31 ./Configure android-arm -U__ANDROID_API__ -D__ANDROID_API__=31 && make SHLIB_VERSION_NUMBER= SHLIB_EXT=.so \
     && mkdir -p $OPENSSL_X86 && cd $OPENSSL_X86 && tar xfz /tmp/openssl-1.1.1t.tar.gz \
-    && cd $OPENSSL_X86/openssl-1.1.1t && CC=clang ANDROID_API=26 ./Configure android-x86 -U__ANDROID_API__ -D__ANDROID_API__=26 && make SHLIB_VERSION_NUMBER= SHLIB_EXT=.so \
+    && cd $OPENSSL_X86/openssl-1.1.1t && CC=clang ANDROID_API=31 ./Configure android-x86 -U__ANDROID_API__ -D__ANDROID_API__=31 && make SHLIB_VERSION_NUMBER= SHLIB_EXT=.so \
     && rm -rf /tmp/openssl-1.1.1t.tar.gz \
     && : # last line
 
 ENV ANDROID_HOME=/opt/android/sdk
-ENV ANDROID_NDK_HOME=/opt/android/android-ndk-r23c
+ENV ANDROID_NDK_HOME=/opt/android/android-ndk-r26
