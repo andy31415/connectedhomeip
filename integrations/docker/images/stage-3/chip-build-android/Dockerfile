@@ -16,14 +16,14 @@ RUN set -x \
 
 # Download and install android SDK
 RUN set -x \
-    && wget -O /tmp/android-26.zip https://dl.google.com/android/repository/platform-26_r02.zip \
+    && wget -O /tmp/android-31.zip https://dl.google.com/android/repository/platform-31_r01.zip \
     && mkdir -p /opt/android/sdk/platforms \
     && cd /opt/android/sdk/platforms \
-    && unzip /tmp/android-26.zip \
-    && mv android-8.0.0 android-26 \
-    && rm -f /tmp/android-26.zip \
+    && unzip /tmp/android-31.zip \
+    && mv android-12 android-31 \
+    && rm -f /tmp/android-31.zip \
     && chmod -R a+rX /opt/android/sdk \
-    && test -d /opt/android/sdk/platforms/android-26 \
+    && test -d /opt/android/sdk/platforms/android-31 \
     && : # last line
 
 # Download and install android command line tool (for installing `sdkmanager`)
