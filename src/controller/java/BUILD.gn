@@ -543,6 +543,6 @@ if (chip_link_tests) {
 
 if (!matter_enable_java_compilation) {
   java_prebuilt("android") {
-    jar_path = "${android_sdk_root}/platforms/android-26/android.jar"
+    jar_path = "${android_sdk_root}/platforms/android-${android_sdk_version}/android.jar"
   }
 }
