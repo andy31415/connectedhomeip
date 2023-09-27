@@ -43,13 +43,13 @@ class AndroidBoard(Enum):
 
     def AbiName(self):
         if self.TargetCpuName() == "arm":
-            return "armeabi-v7a"
+            return "arm-linux-androideabi"
         elif self.TargetCpuName() == "arm64":
-            return "arm64-v8a"
+            return "aarch64-linux-android"
         elif self.TargetCpuName() == "x64":
-            return "x86_64"
+            return "x86_64-linux-android"
         elif self.TargetCpuName() == "x86":
-            return "x86"
+            return "i686-linux-android"
         else:
             raise Exception("Unknown board type: %r" % self)
 
