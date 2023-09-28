@@ -20,7 +20,7 @@ class ParseMetaData:
                 line=getattr(meta, 'line', None),
                 column=getattr(meta, 'column', None),
                 start_pos=getattr(meta, 'start_pos', None))
-        return ParseMetaData(line=line,column=column,start_pos=start_pos)
+        return ParseMetaData(line=line, column=column, start_pos=start_pos)
 
 
 class StructQuality(enum.Flag):

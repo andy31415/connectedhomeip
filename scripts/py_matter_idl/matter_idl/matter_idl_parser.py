@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from dataclasses import replace
 import functools
 import logging
-from typing import Optional, List
+from dataclasses import replace
+from typing import Optional
 
 from lark import Lark
 from lark.lexer import Token
@@ -53,21 +53,20 @@ class PrefixCppDocComment:
     def apply_to_cluster(self, cluster: Cluster, actual_pos) -> Cluster:
         meta = cluster.parse_meta
         if meta and meta.start_pos == actual_pos:
-           return replace(cluster, description=self.value)
+            return replace(cluster, description=self.value)
 
         # if nothing to change, don't do any changes
         if any([not c.parse_meta or c.parse_meta.start_pos != actual_pos for c in cluster.commands]):
-          commands = []
-          for command in cluster.commands:
-            meta = command.parse_meta
-            if meta and meta.start_pos == actual_pos:
-              commands.append(replace(command, description=self.value))
-            else:
-              commands.append(command)
-          cluster = replace(cluster, commands=commands)
+            commands = []
+            for command in cluster.commands:
+                meta = command.parse_meta
+                if meta and meta.start_pos == actual_pos:
+                    commands.append(replace(command, description=self.value))
+                else:
+                    commands.append(command)
+            cluster = replace(cluster, commands=commands)
 
         return cluster
-
 
     def supported_types(self, idl: Idl):
         """List all types supported by doc comments."""
@@ -419,7 +418,7 @@ class MatterIdlTransformer(Transformer):
 
     @v_args(inline=True)
     def request_struct(self, value):
-        return replace(value, tag = StructTag.REQUEST)
+        return replace(value, tag=StructTag.REQUEST)
 
     @v_args(inline=True)
     def response_struct(self, id, code, *fields):
@@ -465,7 +464,8 @@ class MatterIdlTransformer(Transformer):
 
             # shift actual starting position where the doc comment would start
             if self._cluster_start_pos:
-                parse_meta=replace(parse_meta, start_pos = self._cluster_start_pos)
+                parse_meta = replace(
+                    parse_meta, start_pos=self._cluster_start_pos)
 
         for item in content:
             if type(item) not in {Enum, Bitmap, Event, Attribute, Struct, Command}:
@@ -522,7 +522,7 @@ class ParserWithLines:
 
     def parse(self, file: str, file_name: Optional[str] = None):
         idl = self.transformer.transform(self.parser.parse(file))
-        idl = replace(idl, parse_file_name = file_name)
+        idl = replace(idl, parse_file_name=file_name)
         for comment in self.transformer.doc_comments:
             idl = comment.appply_to_idl(idl, file)
 
