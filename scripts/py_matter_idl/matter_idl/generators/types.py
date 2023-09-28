@@ -303,8 +303,6 @@ class TypeLookupContext:
         if self.cluster:
             for e in self.cluster.enums:
                 yield e
-        for e in self.idl.enums:
-            yield e
 
     @property
     def all_bitmaps(self):
@@ -328,8 +326,6 @@ class TypeLookupContext:
         if self.cluster:
             for e in self.cluster.structs:
                 yield e
-        for e in self.idl.structs:
-            yield e
 
     def is_enum_type(self, name: str):
         """
