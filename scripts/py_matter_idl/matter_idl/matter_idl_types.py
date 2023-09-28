@@ -7,21 +7,20 @@ from lark.tree import Meta
 
 # Information about parsing location for specific items
 # Helpful when referencing data items in logs when processing
-@dataclass
+@dataclass(frozen=True)
 class ParseMetaData:
     line: Optional[int]
     column: Optional[int]
     start_pos: Optional[int]
 
-    def __init__(self, meta: Optional[Meta] = None, line: Optional[int] = None, column: Optional[int] = None, start_pos: Optional[int] = None):
+    @classmethod
+    def create_from( meta: Optional[Meta] = None, line: Optional[int] = None, column: Optional[int] = None, start_pos: Optional[int] = None):
         if meta:
-            self.line = getattr(meta, 'line', None)
-            self.column = getattr(meta, 'column', None)
-            self.start_pos = getattr(meta, 'start_pos', None)
-        else:
-            self.line = line
-            self.column = column
-            self.start_pos = start_pos
+            return ParseMetaData(
+                line=getattr(meta, 'line', None),
+                column=getattr(meta, 'column', None),
+                start_pos=getattr(meta, 'start_pos', None))
+        return ParseMetaData(line=line,column=column,start_pos=start_pos)
 
 
 class StructQuality(enum.Flag):
@@ -94,7 +93,7 @@ class AttributeOperation(enum.Enum):
     WRITE = enum.auto()
 
 
-@dataclass
+@dataclass(frozen=True)
 class DataType:
     name: str
 
@@ -107,7 +106,7 @@ class DataType:
     max_value: Optional[int] = None
 
 
-@dataclass
+@dataclass(frozen=True)
 class Field:
     data_type: DataType
     code: int
@@ -124,7 +123,7 @@ class Field:
         return FieldQuality.NULLABLE & self.qualities
 
 
-@dataclass
+@dataclass(frozen=True)
 class Attribute:
     definition: Field
     qualities: AttributeQuality = AttributeQuality.NONE
@@ -149,7 +148,7 @@ class Attribute:
         return AttributeQuality.TIMED_WRITE & self.qualities
 
 
-@dataclass
+@dataclass(frozen=True)
 class Struct:
     name: str
     fields: List[Field]
@@ -158,7 +157,7 @@ class Struct:
     qualities: StructQuality = StructQuality.NONE
 
 
-@dataclass
+@dataclass(frozen=True)
 class Event:
     priority: EventPriority
     name: str
@@ -173,27 +172,27 @@ class Event:
         return EventQuality.FABRIC_SENSITIVE & self.qualities
 
 
-@dataclass
+@dataclass(frozen=True)
 class ConstantEntry:
     name: str
     code: int
 
 
-@dataclass
+@dataclass(frozen=True)
 class Enum:
     name: str
     base_type: str
     entries: List[ConstantEntry]
 
 
-@dataclass
+@dataclass(frozen=True)
 class Bitmap:
     name: str
     base_type: str
     entries: List[ConstantEntry]
 
 
-@dataclass
+@dataclass(frozen=True)
 class Command:
     name: str
     code: int
@@ -211,7 +210,7 @@ class Command:
         return CommandQuality.TIMED_INVOKE & self.qualities
 
 
-@dataclass
+@dataclass(frozen=True)
 class Cluster:
     side: ClusterSide
     name: str
@@ -228,7 +227,7 @@ class Cluster:
     parse_meta: Optional[ParseMetaData] = field(default=None)
 
 
-@dataclass
+@dataclass(frozen=True)
 class AttributeInstantiation:
     name: str
     storage: AttributeStorage
@@ -238,7 +237,7 @@ class AttributeInstantiation:
     parse_meta: Optional[ParseMetaData] = field(default=None)
 
 
-@dataclass
+@dataclass(frozen=True)
 class ServerClusterInstantiation:
     name: str
     attributes: List[AttributeInstantiation] = field(default_factory=list)
@@ -248,14 +247,14 @@ class ServerClusterInstantiation:
     parse_meta: Optional[ParseMetaData] = field(default=None)
 
 
-@dataclass
+@dataclass(frozen=True)
 class DeviceType:
     name: str
     code: int
     version: int
 
 
-@dataclass
+@dataclass(frozen=True)
 class Endpoint:
     number: int
     device_types: List[DeviceType] = field(default_factory=list)
@@ -264,11 +263,9 @@ class Endpoint:
     client_bindings: List[str] = field(default_factory=list)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Idl:
     # Enums and structs represent globally used items
-    enums: List[Enum] = field(default_factory=list)
-    structs: List[Struct] = field(default_factory=list)
     clusters: List[Cluster] = field(default_factory=list)
     endpoints: List[Endpoint] = field(default_factory=list)
 

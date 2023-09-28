@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from dataclasses import replace
 import functools
 import logging
 from typing import Optional
@@ -251,11 +252,8 @@ class MatterIdlTransformer(Transformer):
         return UnionOfAllFlags(attrs) or CommandQuality.NONE
 
     def struct_field(self, args):
-        # Last argument is the named_member, the rest
-        # are qualities
-        field = args[-1]
-        field.qualities = UnionOfAllFlags(args[:-1]) or FieldQuality.NONE
-        return field
+        # Last argument is the named_member, the rest are qualities
+        return replace(args[-1], qualities=UnionOfAllFlags(args[:-1]) or FieldQuality.NONE)
 
     @v_args(meta=True)
     def server_cluster(self, meta, unused_args):
@@ -292,7 +290,7 @@ class MatterIdlTransformer(Transformer):
         if len(args) != 5:
             args.insert(2, None)
 
-        meta = None if self.skip_meta else ParseMetaData(meta)
+        meta = None if self.skip_meta else ParseMetaData.create_from(meta)
 
         cmd = Command(
             parse_meta=meta,
@@ -375,12 +373,12 @@ class MatterIdlTransformer(Transformer):
 
     @v_args(meta=True, inline=True)
     def endpoint_attribute_instantiation(self, meta, storage, id, default=None):
-        meta = None if self.skip_meta else ParseMetaData(meta)
+        meta = None if self.skip_meta else ParseMetaData.create_from(meta)
         return AttributeInstantiation(parse_meta=meta, name=id, storage=storage, default=default)
 
     @v_args(meta=True, inline=True)
     def endpoint_emitted_event(self, meta, id):
-        meta = None if self.skip_meta else ParseMetaData(meta)
+        meta = None if self.skip_meta else ParseMetaData.create_from(meta)
         return id
 
     def ESCAPED_STRING(self, s):
@@ -406,8 +404,7 @@ class MatterIdlTransformer(Transformer):
 
     @v_args(inline=True)
     def request_struct(self, value):
-        value.tag = StructTag.REQUEST
-        return value
+        return replace(value, tag = StructTag.REQUEST)
 
     @v_args(inline=True)
     def response_struct(self, id, code, *fields):
@@ -432,7 +429,7 @@ class MatterIdlTransformer(Transformer):
 
     @v_args(meta=True, inline=True)
     def endpoint_server_cluster(self, meta, id, *content):
-        meta = None if self.skip_meta else ParseMetaData(meta)
+        meta = None if self.skip_meta else ParseMetaData.create_from(meta)
 
         attributes = []
         events = set()
@@ -447,48 +444,37 @@ class MatterIdlTransformer(Transformer):
 
     @v_args(inline=True, meta=True)
     def cluster(self, meta, side, name, code, *content):
-        meta = None if self.skip_meta else ParseMetaData(meta)
+        meta = None if self.skip_meta else ParseMetaData.create_from(meta)
 
         # shift actual starting position where the doc comment would start
         if meta and self._cluster_start_pos:
-            meta.start_pos = self._cluster_start_pos
-
-        result = Cluster(parse_meta=meta, side=side, name=name, code=code)
+            meta = replace(meta, start_pos = self._cluster_start_pos)
 
         for item in content:
-            if type(item) == Enum:
-                result.enums.append(item)
-            elif type(item) == Bitmap:
-                result.bitmaps.append(item)
-            elif type(item) == Event:
-                result.events.append(item)
-            elif type(item) == Attribute:
-                result.attributes.append(item)
-            elif type(item) == Struct:
-                result.structs.append(item)
-            elif type(item) == Command:
-                result.commands.append(item)
-            else:
+            if type(item) not in {Enum, Bitmap, Event, Attribute, Struct, Command}:
                 raise Exception("UNKNOWN cluster content item: %r" % item)
 
-        return result
+
+        return Cluster(
+            parse_meta=meta, side=side, name=name, code=code,
+            enums=[item for item in content if type(item) == Enum],
+            bitmaps=[item for item in content if type(item) == Bitmap],
+            events=[item for item in content if type(item) == Event],
+            attributes=[item for item in content if type(item) == Attribute],
+            structs=[item for item in content if type(item) == Struct],
+            commands=[item for item in content if type(item) == Command],
+        )
 
     def idl(self, items):
-        idl = Idl()
 
         for item in items:
-            if type(item) == Enum:
-                idl.enums.append(item)
-            elif type(item) == Struct:
-                idl.structs.append(item)
-            elif type(item) == Cluster:
-                idl.clusters.append(item)
-            elif type(item) == Endpoint:
-                idl.endpoints.append(item)
-            else:
+            if type(item) not in {Cluster, Endpoint}:
                 raise Exception("UNKNOWN idl content item: %r" % item)
 
-        return idl
+        return Idl(
+            clusters=[item for item in items if type(item) == Cluster],
+            endpoints=[item for item in items if type(item) == Endpoint],
+        )
 
     def prefix_doc_comment(self):
         print("TODO: prefix")
@@ -520,10 +506,9 @@ class ParserWithLines:
 
     def parse(self, file: str, file_name: Optional[str] = None):
         idl = self.transformer.transform(self.parser.parse(file))
-        idl.parse_file_name = file_name
-
+        idl = replace(idl, parse_file_name = file_name)
         for comment in self.transformer.doc_comments:
-            comment.appply_to_idl(idl, file)
+            idl = comment.appply_to_idl(idl, file)
 
         return idl
 
