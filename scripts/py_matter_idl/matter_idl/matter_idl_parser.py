@@ -48,27 +48,25 @@ class PrefixCppDocComment:
 
         # A doc comment will apply to any supported element assuming it immediately
         # preceeds id (skipping whitespace)
-        return replace(idl, clusters=self.apply_to_cluster_list(idl.clusters, actual_pos))
-
-    def apply_to_cluster_list(self, items: List[Cluster], actual_pos) -> List[Cluster]:
-        result = []
-        for item in items:
-            meta = item.parse_meta
-            if meta and meta.start_pos == actual_pos:
-                result.append(replace(item,description=self.value))
-            else:
-                result.append(self.apply_to_cluster(item, actual_pos))
-        return result
+        return replace(idl, clusters=[self.apply_to_cluster(c, actual_pos) for c in idl.clusters])
 
     def apply_to_cluster(self, cluster: Cluster, actual_pos) -> Cluster:
-        commands = []
-        for command in cluster.commands:
+        meta = cluster.parse_meta
+        if meta and meta.start_pos == actual_pos:
+           return replace(cluster, description=self.value)
+
+        # if nothing to change, don't do any changes
+        if any([not c.parse_meta or c.parse_meta.start_pos != actual_pos for c in cluster.commands]):
+          commands = []
+          for command in cluster.commands:
             meta = command.parse_meta
             if meta and meta.start_pos == actual_pos:
-                commands.append(replace(command, description=self.value))
+              commands.append(replace(command, description=self.value))
             else:
-                commands.append(command)
-        return replace(cluster, commands=commands)
+              commands.append(command)
+          cluster = replace(cluster, commands=commands)
+
+        return cluster
 
 
     def supported_types(self, idl: Idl):
