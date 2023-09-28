@@ -3,7 +3,7 @@
 from dataclasses import replace
 import functools
 import logging
-from typing import Optional
+from typing import Optional, List
 
 from lark import Lark
 from lark.lexer import Token
@@ -48,11 +48,28 @@ class PrefixCppDocComment:
 
         # A doc comment will apply to any supported element assuming it immediately
         # preceeds id (skipping whitespace)
-        for item in self.supported_types(idl):
+        return replace(idl, clusters=self.apply_to_cluster_list(idl.clusters, actual_pos))
+
+    def apply_to_cluster_list(self, items: List[Cluster], actual_pos) -> List[Cluster]:
+        result = []
+        for item in items:
             meta = item.parse_meta
             if meta and meta.start_pos == actual_pos:
-                item.description = self.value
-                return
+                result.append(replace(item,description=self.value))
+            else:
+                result.append(self.apply_to_cluster(item, actual_pos))
+        return result
+
+    def apply_to_cluster(self, cluster: Cluster, actual_pos) -> Cluster:
+        commands = []
+        for command in cluster.commands:
+            meta = command.parse_meta
+            if meta and meta.start_pos == actual_pos:
+                commands.append(replace(command, description=self.value))
+            else:
+                commands.append(command)
+        return replace(cluster, commands=commands)
+
 
     def supported_types(self, idl: Idl):
         """List all types supported by doc comments."""
@@ -444,19 +461,20 @@ class MatterIdlTransformer(Transformer):
 
     @v_args(inline=True, meta=True)
     def cluster(self, meta, side, name, code, *content):
-        meta = None if self.skip_meta else ParseMetaData.create_from(meta)
+        parse_meta = None
+        if not self.skip_meta:
+            parse_meta = ParseMetaData.create_from(meta)
 
-        # shift actual starting position where the doc comment would start
-        if meta and self._cluster_start_pos:
-            meta = replace(meta, start_pos = self._cluster_start_pos)
+            # shift actual starting position where the doc comment would start
+            if self._cluster_start_pos:
+                parse_meta=replace(parse_meta, start_pos = self._cluster_start_pos)
 
         for item in content:
             if type(item) not in {Enum, Bitmap, Event, Attribute, Struct, Command}:
                 raise Exception("UNKNOWN cluster content item: %r" % item)
 
-
         return Cluster(
-            parse_meta=meta, side=side, name=name, code=code,
+            parse_meta=parse_meta, side=side, name=name, code=code,
             enums=[item for item in content if type(item) == Enum],
             bitmaps=[item for item in content if type(item) == Bitmap],
             events=[item for item in content if type(item) == Event],

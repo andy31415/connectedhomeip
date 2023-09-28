@@ -14,8 +14,8 @@ class ParseMetaData:
     start_pos: Optional[int]
 
     @classmethod
-    def create_from( meta: Optional[Meta] = None, line: Optional[int] = None, column: Optional[int] = None, start_pos: Optional[int] = None):
-        if meta:
+    def create_from(cls, meta: Optional[Meta] = None):
+        if meta is not None:
             return ParseMetaData(
                 line=getattr(meta, 'line', None),
                 column=getattr(meta, 'column', None),
