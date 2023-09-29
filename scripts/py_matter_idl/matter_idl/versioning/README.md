@@ -26,90 +26,104 @@ data:
 
 ### Key formats
 
-| Key                                 | Unambiguous        | Description                    | Example                          |
-|-------------------------------------|--------------------|--------------------------------|----------------------------------|
-| `[cluster]`                         | :heavy_check_mark: | specifies a cluster            | `BasicInformation`               |
-| `[cluster].[member]`                | :heavy_minus_sign: | a member within a cluster      | `OnOff.Feature`                  |
-| `[cluster].[member]/[type]`         | :heavy_check_mark: | a member with known type       | `OnOff.Feature/enum`             |
-| `[cluster].[member].[field]`        | :heavy_minus_sign: | a field with a cluster member  | `LevelControl.MoveMode.kUp`      |
-| `[cluster].[member]/[type].[field]` | :heavy_check_mark: | a field with a cluster member  | `LevelControl.MoveMode/enum.kUp` |
-| `*.[name]`                          | :heavy_check_mark: | represents a global attribute  | `*.eventList`                    |
+| Key                                 | Unambiguous        | Description                   | Example                          |
+| ----------------------------------- | ------------------ | ----------------------------- | -------------------------------- |
+| `[cluster]`                         | :heavy_check_mark: | specifies a cluster           | `BasicInformation`               |
+| `[cluster].[member]`                | :heavy_minus_sign: | a member within a cluster     | `OnOff.Feature`                  |
+| `[cluster].[member]/[type]`         | :heavy_check_mark: | a member with known type      | `OnOff.Feature/enum`             |
+| `[cluster].[member].[field]`        | :heavy_minus_sign: | a field with a cluster member | `LevelControl.MoveMode.kUp`      |
+| `[cluster].[member]/[type].[field]` | :heavy_check_mark: | a field with a cluster member | `LevelControl.MoveMode/enum.kUp` |
+| `*.[name]`                          | :heavy_check_mark: | represents a global attribute | `*.eventList`                    |
 
-- **type** in the above format must be one of:
-  - **attribute**
-  - **bitmap**
-  - **command**
-  - **enum**
-  - **event**
-  - **struct**
+-   **type** in the above format must be one of:
 
-- **fields** may be:
-  - constant names for **bitmap** or **enum**
-  - field member names for **struct** (including request and response structures for commands) or *event*
+    -   **attribute**
+    -   **bitmap**
+    -   **command**
+    -   **enum**
+    -   **event**
+    -   **struct**
 
+-   **fields** may be:
+    -   constant names for **bitmap** or **enum**
+    -   field member names for **struct** (including request and response
+        structures for commands) or _event_
 
 ## Release file format details
 
 Release files are `yaml` files with the following top level keys:
 
+-   **versions** contains information about what API metadata is contained in
+    the file:
 
-- **versions** contains information about what API metadata is contained in the file:
+    -   the key relates to some API version (e.g. "ios", "kotlin", "java", ...)
+    -   the value represents the actual release version (e.g. "1.0", "1.2.3",
+        ...)
+    -   multiple version entries may exist for APIs that get released in
+        parallel
 
-  - the key relates to some API version (e.g. "ios", "kotlin", "java", ...)
-  - the value represents the actual release version (e.g. "1.0", "1.2.3", ...)
-  - multiple version entries may exist for APIs that get released in parallel
+-   **data** contains versioning version information where:
 
-- **data** contains versioning version information where:
+    -   the key represents the element to which the metadata applies.
+    -   the value is a _list_ containing various metadata entries for this
+        particular key, specifically
 
-  - the key represents the element to which the metadata applies.
-  - the value is a _list_ containing various metadata entries for this particular key, specifically
-
-      - **new** marks this key as introduced/new in this release
-      - **hide** marks this key as not to be generated as part of API generation
-      - **provisional** marks this key as temporary/provisional for this API generation
-      - **alias=&lt;name&gt;** marks that this particular key should be aliased with a separate
-        name. This is typically to provide a backwards compatibility layer to for users of
-        previous API releases
-
+        -   **new** marks this key as introduced/new in this release
+        -   **hide** marks this key as not to be generated as part of API
+            generation
+        -   **provisional** marks this key as temporary/provisional for this API
+            generation
+        -   **alias=&lt;name&gt;** marks that this particular key should be
+            aliased with a separate name. This is typically to provide a
+            backwards compatibility layer to for users of previous API releases
 
 ### Data key format
 
-The general format is to use `"."` as a separator between elements within a hierarchy of elements
-that are used in APIs, specifically `ClusterName > MemberName > FieldName`.
+The general format is to use `"."` as a separator between elements within a
+hierarchy of elements that are used in APIs, specifically
+`ClusterName > MemberName > FieldName`.
 
-For type-specification to remove fuzzyness, a `"/"` is used as a separator between name and type.
+For type-specification to remove fuzzyness, a `"/"` is used as a separator
+between name and type.
 
-The data key format describes both a fuzzy/potentially-ambiguous key naming scheme and a fully
-expanded and unambiguous format. The ambiguity arises because member names within `ClusterName.MemberName` may share the same naming within the matter specification: for example `ThreadNetworkDiagnostics::SecurityPolicy` is both the name of a structure and the name of the attribute containing this structure.
+The data key format describes both a fuzzy/potentially-ambiguous key naming
+scheme and a fully expanded and unambiguous format. The ambiguity arises because
+member names within `ClusterName.MemberName` may share the same naming within
+the matter specification: for example `ThreadNetworkDiagnostics::SecurityPolicy`
+is both the name of a structure and the name of the attribute containing this
+structure.
 
-In the current specification, ambiguity is restricted to only attribute names potentially
-sharing the same name with data types and there are no occurrences where data types collide (like
-the same name being shared between enumerations, bitmaps or structures). 
+In the current specification, ambiguity is restricted to only attribute names
+potentially sharing the same name with data types and there are no occurrences
+where data types collide (like the same name being shared between enumerations,
+bitmaps or structures).
 
-For future specification updates, it seems the norm to have a type suffix like `Enum`, `Bitmap` or `Struct` for most
-cases (except `Feature` which has no suffix), so this should minimize name collisions if applied.
+For future specification updates, it seems the norm to have a type suffix like
+`Enum`, `Bitmap` or `Struct` for most cases (except `Feature` which has no
+suffix), so this should minimize name collisions if applied.
 
-Given that ambiguity is only between attributes and data types, the expected release format matches
-`.matter` code generation rules:
+Given that ambiguity is only between attributes and data types, the expected
+release format matches `.matter` code generation rules:
 
-  - `UpperCamelCase` is used for:
-    - bitmaps
-    - commands
-    - enumerations
-    - events
-    - structures
+-   `UpperCamelCase` is used for:
 
-  - `lowerCamelCase` is used for:
-    - attributes
-    - event members
-    - structure members
-    
-  - `kUpperCamelCase` is used for naming constants within:
-    - bitmaps
-    - enumerations
+    -   bitmaps
+    -   commands
+    -   enumerations
+    -   events
+    -   structures
 
-  - commands that have request/response structures declare them separately as:
-    - `[CommandName]Request` if request is non-empty
-    - `[CommandName]Response` if response is non-empty
+-   `lowerCamelCase` is used for:
 
+    -   attributes
+    -   event members
+    -   structure members
 
+-   `kUpperCamelCase` is used for naming constants within:
+
+    -   bitmaps
+    -   enumerations
+
+-   commands that have request/response structures declare them separately as:
+    -   `[CommandName]Request` if request is non-empty
+    -   `[CommandName]Response` if response is non-empty
