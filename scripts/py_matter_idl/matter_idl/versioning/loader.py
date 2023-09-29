@@ -18,7 +18,7 @@
 import enum
 import logging
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Iterable
 
 from yaml import safe_load
 
@@ -91,6 +91,11 @@ class Key:
         return Key(cluster=cluster, member=member, member_type=member_type, field=field)
 
 
+@dataclass(frozen=True)
+class MetaData:
+    value: str                # "new", "hidden", "provisional", "alias=Xyz", ...
+    versions: Dict[str, str]  # actual versions applied to this value
+
 # TODO:
 #   - alias-info: has aliases and versions when they got added
 
@@ -110,17 +115,39 @@ class VersionInformation:
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+        self.data: Dict[Key, List[MetaData]] = {}
 
-    def load_file(self, path: str):
+    def load_file(self, path: str, only_tags: Optional[Iterable[str]]=None):
+        """Load the given YAML file.
+
+        Args:
+           path - the file to load
+           only_keys - if set, only load the tags with the given PREFIXES
+        """
         self.logger.info("Loading %s", path)
 
         with open(path, 'r') as stream:
             data = safe_load(stream)
 
-            for k, v in data['data'].items():
-                self.logger.info("Loaded: %r -> %r", Key.from_string(k), v)
+            versions = data['versions']
 
-        # FIXME: process the data ...
+            for k, values in data['data'].items():
+                key = Key.from_string(k)
+                if key in self.data:
+                    metadata = self.data[key]
+                else:
+                    metadata = []
+
+                if only_tags:
+                    # filter out values
+                    values = [v for v in values
+                                if any([v.startswith(prefix) for prefix in only_tags])]
+                    if not values:
+                        continue
+
+                metadata.extend([MetaData(versions=versions, value=value) for value in values])
+                self.logger.info("Loaded more data for %r", key)
+                self.data[key] = metadata
 
         self.logger.info("Done loading %s", path)
 
@@ -152,8 +179,11 @@ if __name__ == '__main__':
 
         info = VersionInformation()
 
+        # First file load everything, subsequent only new 
+        only_tags = None
         for name in files:
-            info.load_file(name)
+            info.load_file(name, only_tags)
+            only_tags = ['new']
 
         # TODO: print out or do something useful here,
         #       like some form of query on info
