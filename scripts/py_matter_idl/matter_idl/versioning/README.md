@@ -69,7 +69,7 @@ Release files are `yaml` files with the following top level keys:
         particular key, specifically
 
         -   **new** marks this key as introduced/new in this release
-        -   **hide** marks this key as not to be generated as part of API
+        -   **hidden** marks this key as not to be generated as part of API
             generation
         -   **provisional** marks this key as temporary/provisional for this API
             generation
