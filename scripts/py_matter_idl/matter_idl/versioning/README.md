@@ -10,7 +10,7 @@ data:
     BasicInformation.productAppearance: [new]
     BasicInformation.ProductAppearanceStruct: [new]
     BasicInformation.ColorEnum: [provisional]
-    Identify.IdentifyTypeEnum.LightOutput: [new, alias=VisibleLight]
+    Identify.IdentifyTypeEnum.kLightOutput: [new, alias=kVisibleLight]
     FanControl.FanModeEnum: [new, alias=FanModeType]
     *.eventList: [hidden]
 
@@ -19,7 +19,7 @@ data:
     BasicInformation.productAppearance/attribute: [new]
     BasicInformation.ProductAppearanceStruct/struct: [new]
     BasicInformation.ColorEnum/enum: [provisional]
-    Identify.IdentifyTypeEnum/enum.LightOutput: [new, alias=VisibleLight]
+    Identify.IdentifyTypeEnum/enum.kLightOutput: [new, alias=kVisibleLight]
     FanControl.FanModeEnum/enum: [new, alias=FanModeType]
     *.eventList: [hidden]
 ```
@@ -90,10 +90,11 @@ Given that ambiguity is only between attributes and data types, the expected rel
 `.matter` code generation rules:
 
   - `UpperCamelCase` is used for:
-    - events
     - bitmaps
-    - enumerations
     - commands
+    - enumerations
+    - events
+    - structures
 
   - `lowerCamelCase` is used for:
     - attributes
