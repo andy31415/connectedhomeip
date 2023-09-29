@@ -33,7 +33,7 @@ class MemberType(enum.Enum):
     STRUCT = enum.auto()
 
     @classmethod
-    def extract_type(cls, value: str) -> Tuple[str, 'MemberType']:
+    def extract_type(cls, value: str) -> Tuple[str, Optional['MemberType']]:
         """Split out a string of the form <name/type> into actual parts. """
         parts = value.split('/')
         if len(parts) == 1:
