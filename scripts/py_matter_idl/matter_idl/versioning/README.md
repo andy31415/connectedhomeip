@@ -8,7 +8,7 @@ data:
     # This format is fuzzy, however unique given matter idl generation rules
     OnOff: [new]
     BasicInformation.productAppearance: [new]        # notice lowerCamelCase for attribute
-    BasicInformation.ProductAppearanceStruct: [new]  # notice upperCamelCase for struct
+    BasicInformation.ProductAppearanceStruct: [new]  # notice UpperCamelCase for struct
     BasicInformation.ColorEnum: [provisional]
     Identify.IdentifyTypeEnum.kLightOutput: [new, alias=kVisibleLight]
     FanControl.FanModeEnum: [new, alias=FanModeType]
