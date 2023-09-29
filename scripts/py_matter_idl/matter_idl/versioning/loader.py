@@ -15,11 +15,12 @@
 #    limitations under the License.
 #
 
-import logging
 import enum
-from yaml import safe_load
+import logging
 from dataclasses import dataclass
 from typing import Optional, Tuple
+
+from yaml import safe_load
 
 
 class MemberType(enum.Enum):
@@ -37,7 +38,7 @@ class MemberType(enum.Enum):
         parts = value.split('/')
         if len(parts) == 1:
             return value, None
-        assert(len(parts) == 2)
+        assert (len(parts) == 2)
 
         # somewhat lenient here: just uppercase everything
         return parts[0], MemberType[parts[1].upper()]
@@ -47,8 +48,10 @@ class MemberType(enum.Enum):
 class Key:
     """Represents a unique key within a version information data section."""
 
-    cluster: Optional[str] = None             # cluster name. None ONLY for global attributes
-    member: Optional[str] = None              # name of member within the cluster
+    # cluster name. None ONLY for global attributes
+    cluster: Optional[str] = None
+    # name of member within the cluster
+    member: Optional[str] = None
     member_type: Optional[MemberType] = None  # type if non-fuzzy member name
     field: Optional[str] = None               # Field name
 
@@ -56,17 +59,17 @@ class Key:
         """Validates correct formatting of the key."""
         if self.cluster is None:
             # This is "*.<name>" representing global attributes
-            assert(self.field is None)
-            assert(self.member_type is None)
+            assert (self.field is None)
+            assert (self.member_type is None)
             return
 
         if self.field is not None:
             # fields can only be defined on members
-            assert(self.member is not None)
+            assert (self.member is not None)
 
         if self.member_type is not None:
             # if we have a member type, we should have a member name
-            assert(self.member is not None)
+            assert (self.member is not None)
 
     @classmethod
     def from_string(cls, s: str) -> 'Key':
@@ -76,10 +79,10 @@ class Key:
             return Key(cluster=s)
         elif len(parts) == 2:
             if parts[0] == '*':
-                return Key(member=parts[1]) # global attribute
+                return Key(member=parts[1])  # global attribute
 
-        assert(len(parts) > 0)
-        assert(len(parts) <= 3)
+        assert (len(parts) > 0)
+        assert (len(parts) <= 3)
 
         cluster = parts[0]
         member, member_type = MemberType.extract_type(parts[1])
@@ -112,14 +115,15 @@ class VersionInformation:
         self.logger.info("Loading %s", path)
 
         with open(path, 'r') as stream:
-           data = safe_load(stream)
+            data = safe_load(stream)
 
-           for k, v in data['data'].items():
-               self.logger.info("Loaded: %r -> %r", Key.from_string(k), v)
+            for k, v in data['data'].items():
+                self.logger.info("Loaded: %r -> %r", Key.from_string(k), v)
 
         # FIXME: process the data ...
 
         self.logger.info("Done loading %s", path)
+
 
 if __name__ == '__main__':
     import click
@@ -155,4 +159,3 @@ if __name__ == '__main__':
         #       like some form of query on info
 
     main(auto_envvar_prefix='CHIP')
-
