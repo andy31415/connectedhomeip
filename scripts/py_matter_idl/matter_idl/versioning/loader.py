@@ -16,7 +16,59 @@
 #
 
 import logging
+import enum
 from yaml import safe_load
+from dataclasses import dataclass
+from typing import Optional
+
+
+class MemberType(enum.Enum):
+    """Supported member types for unambiguous key definitions."""
+    ATTRIBUTE = enum.auto()
+    BITMAP = enum.auto()
+    COMMAND = enum.auto()
+    ENUM = enum.auto()
+    EVENT = enum.auto()
+    STRUCT = enum.auto()
+
+
+@dataclass(eq=True, frozen=True)
+class Key:
+    """Represents a unique key within a version information data section."""
+
+    cluster: Optional[str]                    # cluster name. None ONLY for global attributes
+    member: Optional[str] = None              # name of member within the cluster
+    member_type: Optional[MemberType] = None  # type if non-fuzzy member name
+    field: Optional[str] = None               # Field name
+
+    def __post_init__(self):
+        """Validates correct formatting of the key."""
+        if self.cluster is None:
+            # This is "*.<name>" representing global attributes
+            assert(self.field is None)
+            assert(self.member_type is None)
+            return
+
+        if self.field is not None:
+            # fields can only be defined on members
+            assert(self.member is not None)
+
+        if self.member_type is not None:
+            # if we have a member type, we should have a member name
+            assert(self.member is not None)
+
+    @classmethod
+    def from_string(cls, s: str) -> 'Key':
+        # FIXME: implement
+        return Key(cluster=s)
+
+
+# TODO:
+#   - alias-info: has aliases and versions when they got added
+
+# Loading logic:
+#   - load everything required if needed
+#   - new could be inherited (if none of provisional/hidden exist)
 
 class VersionInformation:
     """
@@ -36,6 +88,9 @@ class VersionInformation:
 
         with open(path, 'r') as stream:
            data = safe_load(stream)
+
+           for k, v in data['data'].items():
+               self.logger.info("Loaded: %r -> %r", Key.from_string(k), v)
 
         # FIXME: process the data ...
 
