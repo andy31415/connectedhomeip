@@ -5,10 +5,10 @@ versions:
     java: "17.0"
     kotlin: "11.22"
 data:
-    # This format is fuzzy, but unambiguous given matter IDL structure
+    # This format is fuzzy, however unique given matter idl generation rules
     OnOff: [new]
-    BasicInformation.productAppearance: [new]
-    BasicInformation.ProductAppearanceStruct: [new]
+    BasicInformation.productAppearance: [new]        # notice lowerCamelCase for attribute
+    BasicInformation.ProductAppearanceStruct: [new]  # notice upperCamelCase for struct
     BasicInformation.ColorEnum: [provisional]
     Identify.IdentifyTypeEnum.kLightOutput: [new, alias=kVisibleLight]
     FanControl.FanModeEnum: [new, alias=FanModeType]
