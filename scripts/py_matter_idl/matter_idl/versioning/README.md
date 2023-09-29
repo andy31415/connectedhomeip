@@ -44,7 +44,7 @@ data:
   - **struct**
 
 - **fields** may be:
-  - constant values for **bitmap** or **enum**
+  - constant names for **bitmap** or **enum**
   - field member names for **struct** (including request and response structures for commands) or *event*
 
 
