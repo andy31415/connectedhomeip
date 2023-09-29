@@ -18,7 +18,7 @@
 import enum
 import logging
 from dataclasses import dataclass
-from typing import Optional, Tuple, Dict, Iterable
+from typing import Dict, Iterable, Optional, Tuple
 
 from yaml import safe_load
 
@@ -93,7 +93,8 @@ class Key:
 
 @dataclass(frozen=True)
 class MetaData:
-    value: str                # "new", "hidden", "provisional", "alias=Xyz", ...
+    # "new", "hidden", "provisional", "alias=Xyz", ...
+    value: str
     versions: Dict[str, str]  # actual versions applied to this value
 
 # TODO:
@@ -102,6 +103,7 @@ class MetaData:
 # Loading logic:
 #   - load everything required if needed
 #   - new could be inherited (if none of provisional/hidden exist)
+
 
 class VersionInformation:
     """
@@ -117,7 +119,7 @@ class VersionInformation:
         self.logger = logging.getLogger(__name__)
         self.data: Dict[Key, List[MetaData]] = {}
 
-    def load_file(self, path: str, only_tags: Optional[Iterable[str]]=None):
+    def load_file(self, path: str, only_tags: Optional[Iterable[str]] = None):
         """Load the given YAML file.
 
         Args:
@@ -141,11 +143,12 @@ class VersionInformation:
                 if only_tags:
                     # filter out values
                     values = [v for v in values
-                                if any([v.startswith(prefix) for prefix in only_tags])]
+                              if any([v.startswith(prefix) for prefix in only_tags])]
                     if not values:
                         continue
 
-                metadata.extend([MetaData(versions=versions, value=value) for value in values])
+                metadata.extend(
+                    [MetaData(versions=versions, value=value) for value in values])
                 self.logger.info("Loaded more data for %r", key)
                 self.data[key] = metadata
 
@@ -179,7 +182,7 @@ if __name__ == '__main__':
 
         info = VersionInformation()
 
-        # First file load everything, subsequent only new 
+        # First file load everything, subsequent only new
         only_tags = None
         for name in files:
             info.load_file(name, only_tags)
