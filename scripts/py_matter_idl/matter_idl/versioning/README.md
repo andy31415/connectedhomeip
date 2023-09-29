@@ -94,6 +94,7 @@ versions:
     kotlin: "11.22"
 data:
     # This format is fuzzy, but unambiguous given matter IDL structure
+    OnOff: [new]
     BasicInformation.productAppearance: [new]
     BasicInformation.ProductAppearanceStruct: [new]
     BasicInformation.ColorEnum: [provisional]
@@ -101,7 +102,8 @@ data:
     FanControl.FanModeEnum: [new, alias=FanModeType]
     *.eventList: [hidden]
 
-    # The same as above, in non-fuzzy format
+    # The same as above, in a never-ambiguous format
+    OnOff: [new]
     BasicInformation.productAppearance/attribute: [new]
     BasicInformation.ProductAppearanceStruct/struct: [new]
     BasicInformation.ColorEnum/enum: [provisional]
