@@ -19,7 +19,7 @@ import logging
 import enum
 from yaml import safe_load
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Tuple
 
 
 class MemberType(enum.Enum):
@@ -31,12 +31,23 @@ class MemberType(enum.Enum):
     EVENT = enum.auto()
     STRUCT = enum.auto()
 
+    @classmethod
+    def extract_type(cls, value: str) -> Tuple[str, 'MemberType']:
+        """Split out a string of the form <name/type> into actual parts. """
+        parts = value.split('/')
+        if len(parts) == 1:
+            return value, None
+        assert(len(parts) == 2)
+
+        # somewhat lenient here: just uppercase everything
+        return parts[0], MemberType[parts[1].upper()]
+
 
 @dataclass(eq=True, frozen=True)
 class Key:
     """Represents a unique key within a version information data section."""
 
-    cluster: Optional[str]                    # cluster name. None ONLY for global attributes
+    cluster: Optional[str] = None             # cluster name. None ONLY for global attributes
     member: Optional[str] = None              # name of member within the cluster
     member_type: Optional[MemberType] = None  # type if non-fuzzy member name
     field: Optional[str] = None               # Field name
@@ -59,8 +70,22 @@ class Key:
 
     @classmethod
     def from_string(cls, s: str) -> 'Key':
-        # FIXME: implement
-        return Key(cluster=s)
+        parts = s.split('.')
+        if len(parts) == 1:
+            # just cluster
+            return Key(cluster=s)
+        elif len(parts) == 2:
+            if parts[0] == '*':
+                return Key(member=parts[1]) # global attribute
+
+        assert(len(parts) > 0)
+        assert(len(parts) <= 3)
+
+        cluster = parts[0]
+        member, member_type = MemberType.extract_type(parts[1])
+        field = parts[2] if len(parts) > 2 else None
+
+        return Key(cluster=cluster, member=member, member_type=member_type, field=field)
 
 
 # TODO:
