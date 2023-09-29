@@ -65,14 +65,14 @@ Commands that have request/response structures declare them separately as `[Comm
 
 #### Key formats
 
-| Key                               | Fuzzy | Description                    | Example                          |
-|-----------------------------------|-------|--------------------------------|----------------------------------|
-| [cluster]                         | NO    | specifies a cluster            | `BasicInformation`               |
-| [cluster].[member]                | YES   | a member within a cluster      | `OnOff.Feature`                  |
-| [cluster].[member]/[type]         | NO    | a member with known type       | `OnOff.Feature/enum`             |
-| [cluster].[member].[field]        | YES   | a field with a cluster member  | `LevelControl.MoveMode.kUp`      |
-| [cluster].[member]/[type].[field] | YES   | a field with a cluster member  | `LevelControl.MoveMode/enum.kUp` |
-| `*.[name]`                        | NO    | represents a global attribute  | `*.eventList`                    |
+| Key                                 | Unambiguous        | Description                    | Example                          |
+|-------------------------------------|--------------------|--------------------------------|----------------------------------|
+| `[cluster]`                         | :heavy_check_mark: | specifies a cluster            | `BasicInformation`               |
+| `[cluster].[member]`                | :heavy_minus_sign: | a member within a cluster      | `OnOff.Feature`                  |
+| `[cluster].[member]/[type]`         | :heavy_check_mark: | a member with known type       | `OnOff.Feature/enum`             |
+| `[cluster].[member].[field]`        | :heavy_minus_sign: | a field with a cluster member  | `LevelControl.MoveMode.kUp`      |
+| `[cluster].[member]/[type].[field]` | :heavy_check_mark: | a field with a cluster member  | `LevelControl.MoveMode/enum.kUp` |
+| `*.[name]`                          | :heavy_check_mark: | represents a global attribute  | `*.eventList`                    |
 
 - **type** in the above format must be one of:
   - **attribute**
