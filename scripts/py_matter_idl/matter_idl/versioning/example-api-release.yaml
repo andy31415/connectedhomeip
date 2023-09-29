@@ -1,0 +1,11 @@
+versions:
+    java: "17.0"
+    kotlin: "11.22"
+data:
+    OnOff: [new]
+    BasicInformation.productAppearance: [new]
+    BasicInformation.ProductAppearanceStruct: [new]
+    BasicInformation.ColorEnum: [provisional]
+    Identify.IdentifyTypeEnum/enum.kLightOutput: [new, alias=kVisibleLight]
+    FanControl.FanModeEnum: [new, alias=FanModeType]
+    "*.eventList": [hidden]
