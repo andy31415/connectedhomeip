@@ -101,7 +101,15 @@ Given that ambiguity is only between attributes and data types, the expected rel
 
   - `lowerCamelCase` is used for:
     - attributes
+    - event members
+    - structure members
+    
+  - `kUpperCamelCase` is used for naming constants within:
+    - bitmaps
+    - enumerations
 
-Commands that have request/response structures declare them separately as `[CommandName]Request` and `[CommandName]Response`
+  - commands that have request/response structures declare them separately as:
+    - `[CommandName]Request` if request is non-empty
+    - `[CommandName]Response` if response is non-empty
 
 
