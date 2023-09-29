@@ -18,7 +18,7 @@
 import enum
 import logging
 from dataclasses import dataclass
-from typing import Dict, Iterable, Optional, Tuple
+from typing import Dict, Iterable, Optional, Tuple, NewType
 
 from yaml import safe_load
 
@@ -90,19 +90,9 @@ class Key:
 
         return Key(cluster=cluster, member=member, member_type=member_type, field=field)
 
-
-@dataclass(frozen=True)
-class MetaData:
-    # "new", "hidden", "provisional", "alias=Xyz", ...
-    value: str
-    versions: Dict[str, str]  # actual versions applied to this value
-
-# TODO:
-#   - alias-info: has aliases and versions when they got added
-
-# Loading logic:
-#   - load everything required if needed
-#   - new could be inherited (if none of provisional/hidden exist)
+Tag = NewType('Tag', str)
+VersionName = NewType('VersionName', str)
+VersionValue = NewType('VersionValue', str)
 
 
 class VersionInformation:
@@ -117,7 +107,8 @@ class VersionInformation:
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.data: Dict[Key, List[MetaData]] = {}
+        # 
+        self.data: Dict[Key, Dict[Tag, Dict[VersionName, VersionValue]]] = {}
 
     def load_file(self, path: str, only_tags: Optional[Iterable[str]] = None):
         """Load the given YAML file.
@@ -138,17 +129,25 @@ class VersionInformation:
                 if key in self.data:
                     metadata = self.data[key]
                 else:
-                    metadata = []
+                    metadata = {}
 
-                if only_tags:
-                    # filter out values
-                    values = [v for v in values
-                              if any([v.startswith(prefix) for prefix in only_tags])]
-                    if not values:
+                for tag in values:
+                    if only_tags and not any([tag.startswith(prefix) for prefix in only_tags]):
                         continue
 
-                metadata.extend(
-                    [MetaData(versions=versions, value=value) for value in values])
+                    if tag in metadata:
+                        tag_versions = metadata[tag]
+                    else:
+                        tag_versions = {}
+
+                    for version_name, version_value in versions.items():
+                        # only one item per version for the same tag (i.e. only set in a
+                        # single way in a version). We may decide at some point to define overrides
+                        assert (version_name not in tag_versions) 
+                        tag_versions[version_name] = version_value
+
+                    metadata[tag] = tag_versions
+
                 self.logger.info("Loaded more data for %r", key)
                 self.data[key] = metadata
 
@@ -157,6 +156,7 @@ class VersionInformation:
 
 if __name__ == '__main__':
     import click
+    import pprint
 
     # Supported log levels, mapping string values required for argument
     # parsing into logging constants
@@ -188,7 +188,6 @@ if __name__ == '__main__':
             info.load_file(name, only_tags)
             only_tags = ['new']
 
-        # TODO: print out or do something useful here,
-        #       like some form of query on info
+        pprint.pp(info.data)
 
     main(auto_envvar_prefix='CHIP')
