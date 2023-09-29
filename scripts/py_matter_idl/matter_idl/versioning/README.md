@@ -12,7 +12,7 @@ data:
     BasicInformation.ColorEnum: [provisional]
     Identify.IdentifyTypeEnum.kLightOutput: [new, alias=kVisibleLight]
     FanControl.FanModeEnum: [new, alias=FanModeType]
-    *.eventList: [hidden]
+    GLOBAL.eventList: [hidden]
 
     # The same as above, in a never-ambiguous format
     OnOff: [new]
@@ -21,7 +21,7 @@ data:
     BasicInformation.ColorEnum/enum: [provisional]
     Identify.IdentifyTypeEnum/enum.kLightOutput: [new, alias=kVisibleLight]
     FanControl.FanModeEnum/enum: [new, alias=FanModeType]
-    *.eventList: [hidden]
+    GLOBAL.eventList: [hidden]
 ```
 
 ### Key formats
@@ -33,7 +33,7 @@ data:
 | `[cluster].[member]/[type]`         | :heavy_check_mark: | a member with known type       | `OnOff.Feature/enum`             |
 | `[cluster].[member].[field]`        | :heavy_minus_sign: | a field with a cluster member  | `LevelControl.MoveMode.kUp`      |
 | `[cluster].[member]/[type].[field]` | :heavy_check_mark: | a field with a cluster member  | `LevelControl.MoveMode/enum.kUp` |
-| `*.[name]`                          | :heavy_check_mark: | represents a global attribute  | `*.eventList`                    |
+| `GLOBAL.[name]`                     | :heavy_check_mark: | represents a global attribute  | `GLOBAL.eventList`                |
 
 - **type** in the above format must be one of:
   - **attribute**
