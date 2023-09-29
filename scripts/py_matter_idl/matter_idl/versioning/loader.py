@@ -18,7 +18,7 @@
 import enum
 import logging
 from dataclasses import dataclass
-from typing import Dict, Iterable, Optional, Tuple, NewType
+from typing import Dict, Iterable, NewType, Optional, Tuple
 
 from yaml import safe_load
 
@@ -90,6 +90,7 @@ class Key:
 
         return Key(cluster=cluster, member=member, member_type=member_type, field=field)
 
+
 Tag = NewType('Tag', str)
 VersionName = NewType('VersionName', str)
 VersionValue = NewType('VersionValue', str)
@@ -107,7 +108,7 @@ class VersionInformation:
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        # 
+        #
         self.data: Dict[Key, Dict[Tag, Dict[VersionName, VersionValue]]] = {}
 
     def load_file(self, path: str, only_tags: Optional[Iterable[str]] = None):
@@ -143,7 +144,7 @@ class VersionInformation:
                     for version_name, version_value in versions.items():
                         # only one item per version for the same tag (i.e. only set in a
                         # single way in a version). We may decide at some point to define overrides
-                        assert (version_name not in tag_versions) 
+                        assert (version_name not in tag_versions)
                         tag_versions[version_name] = version_value
 
                     metadata[tag] = tag_versions
@@ -155,8 +156,9 @@ class VersionInformation:
 
 
 if __name__ == '__main__':
-    import click
     import pprint
+
+    import click
 
     # Supported log levels, mapping string values required for argument
     # parsing into logging constants
