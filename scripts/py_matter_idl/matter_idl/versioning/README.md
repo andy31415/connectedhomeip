@@ -86,6 +86,9 @@ In the current specification, ambiguity is restricted to only attribute names po
 sharing the same name with data types and there are no occurrences where data types collide (like
 the same name being shared between enumerations, bitmaps or structures). 
 
+For future specification updates, it seems the norm to have a type suffix like `Enum`, `Bitmap` or `Struct` for most
+cases (except `Feature` which has no suffix), so this should minimize name collisions if applied.
+
 Given that ambiguity is only between attributes and data types, the expected release format matches
 `.matter` code generation rules:
 
@@ -100,4 +103,5 @@ Given that ambiguity is only between attributes and data types, the expected rel
     - attributes
 
 Commands that have request/response structures declare them separately as `[CommandName]Request` and `[CommandName]Response`
+
 
