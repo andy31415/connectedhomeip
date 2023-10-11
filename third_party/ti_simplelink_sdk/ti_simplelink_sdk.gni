@@ -195,7 +195,6 @@ template("ti_simplelink_sdk") {
              "ti_simplelink_device_family must be specified")
 
       libs += [
-        "${ti_simplelink_sdk_root}/source/ti/drivers/lib/gcc/${ti_simplelink_isa}/drivers_${ti_simplelink_soc_family}.a",
         "${ti_simplelink_sdk_root}/source/ti/drivers/rf/lib/gcc/${ti_simplelink_isa}/rf_multiMode_${ti_simplelink_soc_family}.a",
       ]
     } else if (ti_simplelink_device_family == "cc32xx") {

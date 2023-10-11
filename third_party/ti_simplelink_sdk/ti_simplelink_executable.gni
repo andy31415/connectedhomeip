@@ -35,18 +35,29 @@ assert(matter_software_ver_str != "",
        "matter_software_ver_str must be specified")
 
 template("ti_simplelink_executable") {
-  simplelink_target_name = target_name
-
-  # Run prebuild SDK driver generation
   if (ti_simplelink_device_family == "cc13x2x7_26x2x7" ||
       ti_simplelink_device_family == "cc13x4_26x4") {
-    exec_script("${ti_simplelink_sdk_build_root}/run_sdk_drivers_gen.py",
-                [
-                  rebase_path(ti_simplelink_sdk_root),
-                  rebase_path(chip_root),
-                ],
-                "")
+    action("ti_prebuilts") {
+      script = "${ti_simplelink_sdk_build_root}/run_sdk_drivers_gen.py"
+
+      args = [
+        "--sdk",
+        rebase_path(ti_simplelink_sdk_root),
+        "--chip-root",
+        rebase_path(chip_root),
+        "--lib",
+        "source/ti/drivers/lib/gcc/${ti_simplelink_isa}/drivers_${ti_simplelink_soc_family}.a",
+        "--out-dir",
+        rebase_path("${root_out_dir}/ti_prebuilts/")
+      ]
+
+      outputs = [
+        "${root_out_dir}/ti_prebuilts/drivers_${ti_simplelink_soc_family}.a"
+      ]
+    }
   }
+
+  simplelink_target_name = target_name
 
   if (chip_enable_ota_requestor) {
     # Generating the ota binary image
@@ -70,6 +81,7 @@ template("ti_simplelink_executable") {
 
   config("${simplelink_target_name}_config") {
     defines = []
+    libs = []
 
     if (defined(invoker.defines)) {
       defines += invoker.defines
@@ -88,6 +100,13 @@ template("ti_simplelink_executable") {
     forward_variables_from(invoker, "*")
 
     public_configs = [ ":${simplelink_target_name}_config" ]
+
+    if (ti_simplelink_device_family == "cc13x2_26x2" ||
+        ti_simplelink_device_family == "cc13x2x7_26x2x7" ||
+        ti_simplelink_device_family == "cc13x4_26x4") {
+      deps += [":ti_prebuilts"]
+    }
+
 
     if (ti_simplelink_device_family == "cc13x2x7_26x2x7") {
       if (chip_enable_ota_requestor) {
@@ -111,7 +130,9 @@ template("ti_simplelink_executable") {
 
     inputs = [ ldscript ]
 
-    ldflags = [
+    ldflags = []
+
+    ldflags += [
       "-L" + rebase_path(ti_simplelink_sdk_root + "/source", root_build_dir),
       rebase_path(
           "${target_gen_dir}/sysconfig/ti_utils_build_linker.cmd.genlibs",
