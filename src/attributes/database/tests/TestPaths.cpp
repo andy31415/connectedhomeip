@@ -22,7 +22,7 @@ using namespace chip::Attributes;
 
 namespace {
 
-void TestEquality(nlTestSuite * inSuite, void * inContext)
+void TestIdPathEquality(nlTestSuite * inSuite, void * inContext)
 {
 
     Cluster::Path c1(Endpoint::Id(1), Cluster::Id(2));
@@ -43,9 +43,31 @@ void TestEquality(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, a3 == a4);
 }
 
+void TestIndexPathEquality(nlTestSuite * inSuite, void * inContext)
+{
+
+    Cluster::IndexPath c1(Endpoint::Index(1), Cluster::Index(2));
+    Cluster::IndexPath c2(Endpoint::Index(1), Cluster::Index(2));
+    Cluster::IndexPath c3(Endpoint::Index(1), Cluster::Index(3));
+
+    NL_TEST_ASSERT(inSuite, c1 == c2);
+    NL_TEST_ASSERT(inSuite, c1 != c3);
+    NL_TEST_ASSERT(inSuite, c2 != c3);
+
+    Attribute::IndexPath a1(c1, Attribute::Index(100));
+    Attribute::IndexPath a2(Endpoint::Index(1), Cluster::Index(2), Attribute::Index(100));
+    Attribute::IndexPath a3(c3, Attribute::Index(100));
+    Attribute::IndexPath a4(Endpoint::Index(1), Cluster::Index(3), Attribute::Index(100));
+
+    NL_TEST_ASSERT(inSuite, a1 == a2);
+    NL_TEST_ASSERT(inSuite, a2 != a3);
+    NL_TEST_ASSERT(inSuite, a3 == a4);
+}
+
 const nlTest sTests[] = {
-    NL_TEST_DEF("TestEquality", TestEquality), //
-    NL_TEST_SENTINEL()                         //
+    NL_TEST_DEF("TestIdPathEquality", TestIdPathEquality),       //
+    NL_TEST_DEF("TestIndexPathEquality", TestIndexPathEquality), //
+    NL_TEST_SENTINEL()                                           //
 };
 
 } // namespace

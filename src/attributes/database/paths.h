@@ -44,6 +44,26 @@ private:
     Cluster::Id mCluster;
 };
 
+/// Represents a path to a cluster by Indexes into some array-backed storage
+class IndexPath {
+public:
+    IndexPath(Endpoint::Index endpoint, Cluster::Index cluster) : mEndpoint(endpoint), mCluster(cluster) {}
+
+    bool operator==(const IndexPath & other) const
+    {
+        return (mEndpoint == other.mEndpoint) //
+            && (mCluster == other.mCluster);  //
+    }
+    bool operator!=(const IndexPath & other) const { return !(*this == other); }
+
+    Endpoint::Index GetEndpoint() const { return mEndpoint; }
+    Cluster::Index GetCluster() const { return mCluster; }
+
+private:
+    Endpoint::Index mEndpoint;
+    Cluster::Index mCluster;
+};
+
 } // namespace Cluster
 
 namespace Attribute {
@@ -77,6 +97,37 @@ private:
     Endpoint::Id mEndpoint;
     Cluster::Id mCluster;
     Attribute::Id mAttribute;
+};
+
+/// Represents a path to an attribute, by Indexes
+class IndexPath
+{
+public:
+    IndexPath(Endpoint::Index endpoint, Cluster::Index cluster, Attribute::Index attribute) :
+        mEndpoint(endpoint), mCluster(cluster), mAttribute(attribute)
+    {}
+
+    IndexPath(const Cluster::IndexPath clusterPath, Attribute::Index attribute) :
+        mEndpoint(clusterPath.GetEndpoint()), mCluster(clusterPath.GetCluster()), mAttribute(attribute)
+    {}
+
+    bool operator==(const IndexPath & other) const
+    {
+        return (mEndpoint == other.mEndpoint)    //
+            && (mCluster == other.mCluster)      //
+            && (mAttribute == other.mAttribute); //
+    }
+
+    bool operator!=(const IndexPath & other) const { return !(*this == other); }
+
+    Endpoint::Index GetEndpoint() const { return mEndpoint; }
+    Cluster::Index GetCluster() const { return mCluster; }
+    Attribute::Index GetAttribute() const { return mAttribute; }
+
+private:
+    Endpoint::Index mEndpoint;
+    Cluster::Index mCluster;
+    Attribute::Index mAttribute;
 };
 
 } // namespace Attribute
