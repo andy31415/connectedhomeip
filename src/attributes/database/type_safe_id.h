@@ -98,11 +98,12 @@ protected:
 
 } // namespace Impl
 
-#define TYPESAFE_WRAP(_NAME, _TYPE)                                                                                                \
+#define TYPESAFE_WRAP(_NAME, _TYPE, _INVALID_VALUE)                                                                                \
     struct _NAME : public chip::Attributes::Impl::RawWrapper<const _TYPE>                                                          \
     {                                                                                                                              \
         using Base = chip::Attributes::Impl::RawWrapper<const _TYPE>;                                                              \
-        _NAME() : Base(0) {}                                                                                                       \
+                                                                                                                                   \
+        _NAME() : Base(_INVALID_VALUE) {}                                                                                          \
         explicit _NAME(_TYPE _x) : Base(_x) {}                                                                                     \
         bool operator==(const _NAME & other) const                                                                                 \
         {                                                                                                                          \
@@ -150,17 +151,17 @@ protected:
 // `Id` and `Index` are typesafe wrappers around the integer types of
 // id and index. This is to prevent mixing of various ids and indices at compile time.
 namespace Endpoint {
-TYPESAFE_WRAP(Id, chip::EndpointId);
+TYPESAFE_WRAP(Id, chip::EndpointId, chip::kInvalidEndpointId);
 TYPESAFE_WRAP_INDEX(Index);
 } // namespace Endpoint
 
 namespace Cluster {
-TYPESAFE_WRAP(Id, chip::ClusterId);
+TYPESAFE_WRAP(Id, chip::ClusterId, chip::kInvalidClusterId);
 TYPESAFE_WRAP_INDEX(Index);
 } // namespace Cluster
 
 namespace Attribute {
-TYPESAFE_WRAP(Id, chip::AttributeId);
+TYPESAFE_WRAP(Id, chip::AttributeId, chip::kInvalidAttributeId);
 TYPESAFE_WRAP_INDEX(Index);
 } // namespace Attribute
 

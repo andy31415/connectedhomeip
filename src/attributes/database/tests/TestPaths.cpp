@@ -18,6 +18,7 @@
 
 #include <nlunit-test.h>
 
+using namespace chip;
 using namespace chip::Attributes;
 
 namespace {
@@ -64,18 +65,21 @@ void TestIndexPathEquality(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, a3 == a4);
 }
 
-void TestIndexIncrements(nlTestSuite * inSuite, void * inContext) {
+void TestIndexIncrements(nlTestSuite * inSuite, void * inContext)
+{
     unsigned cnt = 0;
 
-    // postfix increment. 
-    for (Cluster::Index i = Cluster::Index(0); i < Cluster::Index(10); i++) {
+    // postfix increment.
+    for (Cluster::Index i = Cluster::Index(0); i < Cluster::Index(10); i++)
+    {
         cnt++;
     }
     NL_TEST_ASSERT(inSuite, cnt == 10);
 
     // prefix increment. LE compare
-    cnt=0;
-    for (Attribute::Index i = Attribute::Index(0); i <= Attribute::Index(10); ++i) {
+    cnt = 0;
+    for (Attribute::Index i = Attribute::Index(0); i <= Attribute::Index(10); ++i)
+    {
         cnt++;
     }
     NL_TEST_ASSERT(inSuite, cnt == 11);
@@ -91,10 +95,21 @@ void TestIndexIncrements(nlTestSuite * inSuite, void * inContext) {
     // Attribute::Id(0)++;
 }
 
+void TestDefaults(nlTestSuite * inSuite, void * inContext) {
+    NL_TEST_ASSERT(inSuite, Endpoint::Id() == Endpoint::Id(kInvalidEndpointId));
+    NL_TEST_ASSERT(inSuite, Cluster::Id() == Cluster::Id(kInvalidClusterId));
+    NL_TEST_ASSERT(inSuite, Attribute::Id() == Attribute::Id(kInvalidAttributeId));
+
+    NL_TEST_ASSERT(inSuite, Endpoint::Index().Raw() == 0);
+    NL_TEST_ASSERT(inSuite, Cluster::Index().Raw() == 0);
+    NL_TEST_ASSERT(inSuite, Attribute::Index().Raw() == 0);
+}
+
 const nlTest sTests[] = {
     NL_TEST_DEF("TestIdPathEquality", TestIdPathEquality),       //
     NL_TEST_DEF("TestIndexPathEquality", TestIndexPathEquality), //
-    NL_TEST_DEF("TestIndexIncrements", TestIndexIncrements), //
+    NL_TEST_DEF("TestIndexIncrements", TestIndexIncrements),     //
+    NL_TEST_DEF("TestDefaults", TestDefaults),                   //
     NL_TEST_SENTINEL()                                           //
 };
 
