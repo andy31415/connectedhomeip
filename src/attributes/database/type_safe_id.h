@@ -24,7 +24,6 @@
 namespace chip {
 namespace Attributes {
 
-
 // General rules for Id and Index types:
 //
 // - Only assign and compare of the same type is allowed.
@@ -34,7 +33,6 @@ namespace Attributes {
 //
 // - ::Index - COMPARE (==, !=), ORDER (<,>,<=, >=),
 //             INCREMENT (++), DECREMENT (--)
-
 
 namespace Impl {
 
@@ -104,6 +102,7 @@ protected:
     struct _NAME : public chip::Attributes::Impl::RawWrapper<const _TYPE>                                                          \
     {                                                                                                                              \
         using Base = chip::Attributes::Impl::RawWrapper<const _TYPE>;                                                              \
+        _NAME() : Base(0) {}                                                                                                       \
         explicit _NAME(_TYPE _x) : Base(_x) {}                                                                                     \
         bool operator==(const _NAME & other) const                                                                                 \
         {                                                                                                                          \
@@ -120,6 +119,7 @@ protected:
 #define TYPESAFE_WRAP_INDEX(_NAME)                                                                                                 \
     struct _NAME : public chip::Attributes::Impl::RawIndex                                                                         \
     {                                                                                                                              \
+        explicit _NAME() : chip::Attributes::Impl::RawIndex(0) {}                                                                  \
         explicit _NAME(size_t _x) : chip::Attributes::Impl::RawIndex(_x) {}                                                        \
         bool operator==(const _NAME & other) const                                                                                 \
         {                                                                                                                          \
