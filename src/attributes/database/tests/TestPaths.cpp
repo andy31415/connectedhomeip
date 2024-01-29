@@ -83,7 +83,8 @@ void TestIndexIncrements(nlTestSuite * inSuite, void * inContext) {
     // Not able to compile-test things, however the following bits should NOT compile
     //
     // Attribute::Index(0) < Cluster::Index(1);
-    // Attribute::Id(0) < Cluster::Index(1);
+    // Attribute::Id(0) < Attribute::Id(1);
+    // Attribute::Index(0) < Cluster::Index(1);
     // Attribute::Id(0) == Cluster::Index(1);
     // Attribute::Id(0) == Attribute::Index(1);
     // Attribute::Id(0) != Cluster::Id(1);
