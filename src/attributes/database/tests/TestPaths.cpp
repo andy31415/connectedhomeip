@@ -79,6 +79,15 @@ void TestIndexIncrements(nlTestSuite * inSuite, void * inContext) {
         cnt++;
     }
     NL_TEST_ASSERT(inSuite, cnt == 11);
+
+    // Not able to compile-test things, however the following bits should NOT compile
+    //
+    // Attribute::Index(0) < Cluster::Index(1);
+    // Attribute::Id(0) < Cluster::Index(1);
+    // Attribute::Id(0) == Cluster::Index(1);
+    // Attribute::Id(0) == Attribute::Index(1);
+    // Attribute::Id(0) != Cluster::Id(1);
+    // Attribute::Id(0)++;
 }
 
 const nlTest sTests[] = {

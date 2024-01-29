@@ -24,6 +24,18 @@
 namespace chip {
 namespace Attributes {
 
+
+// General rules for Id and Index types:
+//
+// - Only assign and compare of the same type is allowed.
+//   I.e. Endpoint::Id is NOT compatible Attribute::Id
+//
+// - ::Id - COMPARE (==, !=)
+//
+// - ::Index - COMPARE (==, !=), ORDER (<,>,<=, >=),
+//             INCREMENT (++), DECREMENT (--)
+
+
 namespace Impl {
 
 /// Wraps a specific type to force type consistency
