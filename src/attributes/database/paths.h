@@ -17,7 +17,7 @@
  */
 #pragma once
 
-#include <attributes/typesafe.h>
+#include <attributes/type_safe_id.h>
 
 namespace chip {
 namespace Attributes {
