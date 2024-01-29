@@ -22,19 +22,55 @@
 namespace chip {
 namespace Attributes {
 
+namespace Cluster {
 /// Represents a path to a cluster, by IDs
-class ClusterPath {
+class Path
+{
 public:
-    ClusterPath(Endpoint::Id endpoint,
-                Cluster::Id cluster) : mEndpoint(endpoint), mCluster(cluster){}
+    Path(Endpoint::Id endpoint, Cluster::Id cluster) : mEndpoint(endpoint), mCluster(cluster) {}
+
+    bool operator==(const ClusterPath & other) { return (mEndpoint == other.mEndpoint) && (mCluster == other.mCluster); }
 
     Endpoint::Id GetEndpoint() const { return mEndpoint; }
     Cluster::Id GetCluster() const { return mCluster; }
+
 private:
     Endpoint::Id mEndpoint;
     Cluster::Id mCluster;
-}
+};
 
+} // namespace Cluster
+
+namespace Attribute {
+
+/// Represents a path to an attribute, by IDs
+class Path
+{
+public:
+    Path(Endpoint::Id endpoint, Cluster::Id cluster, Attribute::Id attribute) :
+        mEndpoint(endpoint), mCluster(cluster), mAttribute(attribute)
+    {}
+
+    Path(const Cluster::Path clusterPath, Attribute::Id attribute) :
+        mEndpoint(clusterPath.GetEndpoint()), mCluster(clusterPath.GetCluster()), mAttribute(attribute)
+    {}
+
+    bool operator==(const AttributePath & other)
+    {
+        return (mEndpoint == other.mEndpoint) && (mCluster == other.mCluster) && (mAttribute == other.mAttribute);
+    }
+
+    Endpoint::Id GetEndpoint() const { return mEndpoint; }
+    Cluster::Id GetCluster() const { return mCluster; }
+    Attribute::Id GetAttribute() const { return mAttribute; }
+
+private:
+    Endpoint::Id mEndpoint;
+    Cluster::Id mCluster;
+    Attribute::Id mAttribute;
+};
+
+} // namespace Attribute
 
 } // namespace Attributes
 } // namespace chip
