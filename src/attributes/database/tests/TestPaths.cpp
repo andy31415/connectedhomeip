@@ -25,8 +25,22 @@ namespace {
 void TestEquality(nlTestSuite * inSuite, void * inContext)
 {
 
-    // NL_TEST_ASSERT(inSuite, backend.traces().size() == expected.size());
-    // NL_TEST_ASSERT(inSuite, std::equal(backend.traces().begin(), backend.traces().end(), expected.begin(), expected.end()));
+    Cluster::Path c1(Endpoint::Id(1), Cluster::Id(2));
+    Cluster::Path c2(Endpoint::Id(1), Cluster::Id(2));
+    Cluster::Path c3(Endpoint::Id(1), Cluster::Id(3));
+
+    NL_TEST_ASSERT(inSuite, c1 == c2);
+    NL_TEST_ASSERT(inSuite, c1 != c3);
+    NL_TEST_ASSERT(inSuite, c2 != c3);
+
+    Attribute::Path a1(c1, Attribute::Id(100));
+    Attribute::Path a2(Endpoint::Id(1), Cluster::Id(2), Attribute::Id(100));
+    Attribute::Path a3(c3, Attribute::Id(100));
+    Attribute::Path a4(Endpoint::Id(1), Cluster::Id(3), Attribute::Id(100));
+
+    NL_TEST_ASSERT(inSuite, a1 == a2);
+    NL_TEST_ASSERT(inSuite, a2 != a3);
+    NL_TEST_ASSERT(inSuite, a3 == a4);
 }
 
 const nlTest sTests[] = {

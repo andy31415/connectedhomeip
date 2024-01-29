@@ -20,4 +20,8 @@ source_set("database") {
     "paths.h",
     "type_safe_id.h",
   ]
+
+  public_deps = [ "${chip_root}/src/lib/core" ]
+
+  public_configs = [ "${chip_root}/src:includes" ]
 }

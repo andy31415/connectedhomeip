@@ -17,6 +17,8 @@
  */
 #pragma once
 
+#include <cstddef>
+
 #include <lib/core/DataModelTypes.h>
 
 namespace chip {
@@ -29,8 +31,8 @@ template <typename T>
 class RawWrapper
 {
 public:
-    explicit RawWrapper(T t) : mValue(t) {}
-    explicit RawWrapper(const T & t) : mValue(t) {}
+    RawWrapper(T t) : mValue(t) {}
+    RawWrapper(const T &t) : mValue(t) {}
     T Raw() const { return mValue; }
 
     bool operator==(const RawWrapper & other) const { return mValue == other.mValue; }
@@ -51,17 +53,17 @@ private:
 // id and index. This is to prevent mixing of various ids and indices at compile time.
 namespace Endpoint {
 TYPESAFE_WRAP(Id, chip::EndpointId);
-TYPESAFE_WRAP(Index, size_t);
+TYPESAFE_WRAP(Index, std::size_t);
 } // namespace Endpoint
 
 namespace Cluster {
 TYPESAFE_WRAP(Id, chip::ClusterId);
-TYPESAFE_WRAP(Index, size_t);
+TYPESAFE_WRAP(Index, std::size_t);
 } // namespace Cluster
 
 namespace Attribute {
 TYPESAFE_WRAP(Id, chip::AttributeId);
-TYPESAFE_WRAP(Index, size_t);
+TYPESAFE_WRAP(Index, std::size_t);
 } // namespace Attribute
 
 } // namespace Attributes

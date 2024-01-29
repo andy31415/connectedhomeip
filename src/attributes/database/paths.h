@@ -17,7 +17,7 @@
  */
 #pragma once
 
-#include <attributes/type_safe_id.h>
+#include <attributes/database/type_safe_id.h>
 
 namespace chip {
 namespace Attributes {
@@ -29,7 +29,12 @@ class Path
 public:
     Path(Endpoint::Id endpoint, Cluster::Id cluster) : mEndpoint(endpoint), mCluster(cluster) {}
 
-    bool operator==(const ClusterPath & other) { return (mEndpoint == other.mEndpoint) && (mCluster == other.mCluster); }
+    bool operator==(const Path & other) const
+    {
+        return (mEndpoint == other.mEndpoint) //
+            && (mCluster == other.mCluster);  //
+    }
+    bool operator!=(const Path & other) const { return !(*this == other); }
 
     Endpoint::Id GetEndpoint() const { return mEndpoint; }
     Cluster::Id GetCluster() const { return mCluster; }
@@ -55,10 +60,14 @@ public:
         mEndpoint(clusterPath.GetEndpoint()), mCluster(clusterPath.GetCluster()), mAttribute(attribute)
     {}
 
-    bool operator==(const AttributePath & other)
+    bool operator==(const Path & other) const
     {
-        return (mEndpoint == other.mEndpoint) && (mCluster == other.mCluster) && (mAttribute == other.mAttribute);
+        return (mEndpoint == other.mEndpoint)    //
+            && (mCluster == other.mCluster)      //
+            && (mAttribute == other.mAttribute); //
     }
+
+    bool operator!=(const Path & other) const { return !(*this == other); }
 
     Endpoint::Id GetEndpoint() const { return mEndpoint; }
     Cluster::Id GetCluster() const { return mCluster; }

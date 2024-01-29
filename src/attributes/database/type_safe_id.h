@@ -17,6 +17,8 @@
  */
 #pragma once
 
+#include <stddef.h>
+
 #include <lib/core/DataModelTypes.h>
 
 namespace chip {
@@ -30,7 +32,6 @@ class RawWrapper
 {
 public:
     explicit RawWrapper(T t) : mValue(t) {}
-    explicit RawWrapper(const T & t) : mValue(t) {}
     T Raw() const { return mValue; }
 
     bool operator==(const RawWrapper & other) const { return mValue == other.mValue; }
