@@ -32,7 +32,7 @@ class RawWrapper
 {
 public:
     RawWrapper(T t) : mValue(t) {}
-    RawWrapper(const T &t) : mValue(t) {}
+    RawWrapper(const T & t) : mValue(t) {}
     T Raw() const { return mValue; }
 
     bool operator==(const RawWrapper & other) const { return mValue == other.mValue; }

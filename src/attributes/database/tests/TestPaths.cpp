@@ -95,7 +95,8 @@ void TestIndexIncrements(nlTestSuite * inSuite, void * inContext)
     // Attribute::Id(0)++;
 }
 
-void TestDefaults(nlTestSuite * inSuite, void * inContext) {
+void TestDefaults(nlTestSuite * inSuite, void * inContext)
+{
     NL_TEST_ASSERT(inSuite, Endpoint::Id() == Endpoint::Id(kInvalidEndpointId));
     NL_TEST_ASSERT(inSuite, Cluster::Id() == Cluster::Id(kInvalidClusterId));
     NL_TEST_ASSERT(inSuite, Attribute::Id() == Attribute::Id(kInvalidAttributeId));

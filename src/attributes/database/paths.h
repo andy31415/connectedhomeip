@@ -45,7 +45,8 @@ private:
 };
 
 /// Represents a path to a cluster by Indexes into some array-backed storage
-class IndexPath {
+class IndexPath
+{
 public:
     IndexPath(Endpoint::Index endpoint, Cluster::Index cluster) : mEndpoint(endpoint), mCluster(cluster) {}
 
