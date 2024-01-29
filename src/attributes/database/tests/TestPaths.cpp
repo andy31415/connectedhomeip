@@ -64,9 +64,27 @@ void TestIndexPathEquality(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, a3 == a4);
 }
 
+void TestIndexIncrements(nlTestSuite * inSuite, void * inContext) {
+    unsigned cnt = 0;
+
+    // postfix increment. 
+    for (Cluster::Index i = Cluster::Index(0); i < Cluster::Index(10); i++) {
+        cnt++;
+    }
+    NL_TEST_ASSERT(inSuite, cnt == 10);
+
+    // prefix increment. LE compare
+    cnt=0;
+    for (Attribute::Index i = Attribute::Index(0); i <= Attribute::Index(10); ++i) {
+        cnt++;
+    }
+    NL_TEST_ASSERT(inSuite, cnt == 11);
+}
+
 const nlTest sTests[] = {
     NL_TEST_DEF("TestIdPathEquality", TestIdPathEquality),       //
     NL_TEST_DEF("TestIndexPathEquality", TestIndexPathEquality), //
+    NL_TEST_DEF("TestIndexIncrements", TestIndexIncrements), //
     NL_TEST_SENTINEL()                                           //
 };
 

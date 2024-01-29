@@ -27,6 +27,9 @@ namespace Attributes {
 namespace Impl {
 
 /// Wraps a specific type to force type consistency
+///
+/// Comparison methods are protected so only subclasses can use them, to explicitly deny
+/// comparisons with incompatible types.
 template <typename T>
 class RawWrapper
 {
@@ -34,36 +37,120 @@ public:
     explicit RawWrapper(T t) : mValue(t) {}
     T Raw() const { return mValue; }
 
-    bool operator==(const RawWrapper & other) const { return mValue == other.mValue; }
+protected:
+    bool eq(const RawWrapper & other) const { return mValue == other.mValue; }
+    bool ne(const RawWrapper & other) const { return mValue != other.mValue; }
 
-private:
-    const T mValue;
+    T mValue;
+};
+
+// A wrapper around an index. Adds ability to compare and increment as those
+// have meaning for indices
+///
+/// Comparison methods are protected so only subclasses can use them, to explicitly deny
+/// comparisons with incompatible types.
+struct RawIndex : public RawWrapper<size_t>
+{
+    explicit RawIndex(size_t t) : RawWrapper<size_t>(t) {}
+
+    RawIndex & operator++()
+    {
+        ++mValue;
+        return *this;
+    }
+
+    RawIndex & operator--()
+    {
+        --mValue;
+        return *this;
+    }
+
+    RawIndex operator++(int)
+    {
+        RawIndex temp = *this;
+        ++*this;
+        return temp;
+    }
+
+    RawIndex operator--(int)
+    {
+        RawIndex temp = *this;
+        --*this;
+        return temp;
+    }
+
+protected:
+    bool lt(const RawIndex & other) const { return Raw() < other.Raw(); }
+    bool le(const RawIndex & other) const { return Raw() <= other.Raw(); }
+    bool gt(const RawIndex & other) const { return Raw() > other.Raw(); }
+    bool ge(const RawIndex & other) const { return Raw() >= other.Raw(); }
 };
 
 } // namespace Impl
 
 #define TYPESAFE_WRAP(_NAME, _TYPE)                                                                                                \
-    struct _NAME : public chip::Attributes::Impl::RawWrapper<_TYPE>     \
+    struct _NAME : public chip::Attributes::Impl::RawWrapper<const _TYPE>                                                          \
     {                                                                                                                              \
-        explicit _NAME(_TYPE _x) : chip::Attributes::Impl::RawWrapper<_TYPE>(_x) {} \
+        using Base = chip::Attributes::Impl::RawWrapper<const _TYPE>;                                                              \
+        explicit _NAME(_TYPE _x) : Base(_x) {}                                                                                     \
+        bool operator==(const _NAME & other) const                                                                                 \
+        {                                                                                                                          \
+            return eq(other);                                                                                                      \
+        }                                                                                                                          \
+        bool operator!=(const _NAME & other) const                                                                                 \
+        {                                                                                                                          \
+            return ne(other);                                                                                                      \
+        }                                                                                                                          \
+    } // namespace Attributes
+
+// Note: comparison operations are in here on purpose, to not allow
+//       comparing of different index types
+#define TYPESAFE_WRAP_INDEX(_NAME)                                                                                                 \
+    struct _NAME : public chip::Attributes::Impl::RawIndex                                                                         \
+    {                                                                                                                              \
+        explicit _NAME(size_t _x) : chip::Attributes::Impl::RawIndex(_x) {}                                                        \
+        bool operator==(const _NAME & other) const                                                                                 \
+        {                                                                                                                          \
+            return eq(other);                                                                                                      \
+        }                                                                                                                          \
+        bool operator!=(const _NAME & other) const                                                                                 \
+        {                                                                                                                          \
+            return ne(other);                                                                                                      \
+        }                                                                                                                          \
+        bool operator<(const _NAME & other) const                                                                                  \
+        {                                                                                                                          \
+            return lt(other);                                                                                                      \
+        }                                                                                                                          \
+        bool operator<=(const _NAME & other) const                                                                                 \
+        {                                                                                                                          \
+            return le(other);                                                                                                      \
+        }                                                                                                                          \
+        bool operator>(const _NAME & other) const                                                                                  \
+        {                                                                                                                          \
+            return gt(other);                                                                                                      \
+        }                                                                                                                          \
+        bool operator>=(const _NAME & other) const                                                                                 \
+        {                                                                                                                          \
+            return ge(other);                                                                                                      \
+        }                                                                                                                          \
     }
 
 // `Id` and `Index` are typesafe wrappers around the integer types of
 // id and index. This is to prevent mixing of various ids and indices at compile time.
 namespace Endpoint {
 TYPESAFE_WRAP(Id, chip::EndpointId);
-TYPESAFE_WRAP(Index, size_t);
+TYPESAFE_WRAP_INDEX(Index);
 } // namespace Endpoint
 
 namespace Cluster {
 TYPESAFE_WRAP(Id, chip::ClusterId);
-TYPESAFE_WRAP(Index, size_t);
+TYPESAFE_WRAP_INDEX(Index);
 } // namespace Cluster
 
 namespace Attribute {
 TYPESAFE_WRAP(Id, chip::AttributeId);
-TYPESAFE_WRAP(Index, size_t);
-} // namespace Cluster
+TYPESAFE_WRAP_INDEX(Index);
+} // namespace Attribute
 
 } // namespace Attributes
 } // namespace chip
