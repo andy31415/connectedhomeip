@@ -29,8 +29,9 @@ namespace Attributes {
 /// Generally this is auto-generated from ember attribute types.
 /// `zcl/data-model/chip/chip-types.xml` or from the spec.
 ///
-/// TODO: can this be omitted/be abstract in some way? it seems internal encoding
-///       only IF we could use readers/writers.
+/// TODO: Actual values in this array are generally expected to be abstracted away
+///       as these seem hard-coded implementation specvific types without strong
+///       backing from the specification (e.g. no reason to have char and long_char)
 enum class DataType : uint8_t
 {
     kNoDataAttributeType          = 0x00, // No data
