@@ -29,7 +29,7 @@ static void StopApp(chip::System::Layer *, void *) {
     chip::DeviceLayer::PlatformMgr().StopEventLoopTask();
 }
 
-void ApplicationInit() {
+static void RunTests(chip::System::Layer *layer, void *) {
     // chip::Attributes::Database *db = chip::Attributes::GetDatabase();
     static chip::Attributes::EmberDatabase ember_database;
 
@@ -43,8 +43,11 @@ void ApplicationInit() {
         ChipLogProgress(NotSpecified, "Index %d -> Id    %d", i, (int)db->IdForPath(Endpoint::Index(i)).Raw());
     }
 
-    ChipLogProgress(NotSpecified, "--------------------------- Test DONE ---------------------------");
-    chip::DeviceLayer::SystemLayer().StartTimer(chip::System::Clock::Seconds32(1), StopApp, nullptr);
+    layer->StartTimer(chip::System::Clock::Milliseconds32(10), StopApp, nullptr);
+}
+
+void ApplicationInit() {
+    chip::DeviceLayer::SystemLayer().StartTimer(chip::System::Clock::Milliseconds32(1010), RunTests, nullptr);
 }
 
 void ApplicationShutdown() {}
