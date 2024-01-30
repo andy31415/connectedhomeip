@@ -17,12 +17,10 @@
  */
 
 #include "AppMain.h"
-#include "AppOptions.h"
 
 int main(int argc, char * argv[])
 {
-    VerifyOrDie(ChipLinuxAppInit(argc, argv, AppOptions::GetOptions()) == 0);
-    LinuxDeviceOptions::GetInstance().dacProvider = AppOptions::GetDACProvider();
+    VerifyOrDie(ChipLinuxAppInit(argc, argv) == 0);
 
     // TODO: schedule test operations? How to trigger it?
     //       we may want some RPC support for this or some shell.
