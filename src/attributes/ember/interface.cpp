@@ -18,10 +18,11 @@
 #include <attributes/ember/interface.h>
 #include <lib/support/CodeUtils.h>
 
+#include <app/GlobalAttributes.h>
+
 // TODO: we SHOULD use includes from ember and dependencies,
 //       however EMBER depends on zap-generated bits and as such three are
 //       no valid include paths.
-
 #include <app/util/af-types.h>
 #include <app/util/attribute-metadata.h>
 
@@ -145,10 +146,15 @@ Cluster::Index EmberDatabase::ClusterEnd(Endpoint::Index idx)
     return Cluster::Index(count);
 }
 
-Attribute::Index EmberDatabase::AttributeEnd(Cluster::IndexPath)
+Attribute::Index EmberDatabase::AttributeEnd(Cluster::IndexPath idx)
 {
-    // TODO
-    return Attribute::Index(0);
+    Endpoint::Id endpoint_id = IdForPath(idx.GetEndpoint());
+    VerifyOrReturnValue(endpoint_id.IsValid(), Attribute::Index(0));
+
+    const EmberAfCluster * cluster = emberAfGetNthCluster(endpoint_id.Raw(), idx.GetCluster().Raw(), /* server = */ true);
+    VerifyOrReturnValue(cluster != nullptr, Attribute::Index(0));
+
+    return Attribute::Index(cluster->attributeCount + ArraySize(chip::app::GlobalAttributesNotInMetadata) + 1);
 }
 
 bool EmberDatabase::IsEnabled(Endpoint::Id id)
