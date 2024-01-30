@@ -16,19 +16,40 @@ import("//build_overrides/build.gni")
 import("//build_overrides/chip.gni")
 import("${build_root}/config/compiler/compiler.gni")
 
+import("${chip_root}/config/standalone/args.gni")
 import("${chip_root}/src/lib/lib.gni")
 import("${chip_root}/src/platform/device.gni")
+
+source_set("extra-dependencies") {
+  sources = [
+    "${chip_root}/examples/all-clusters-app/all-clusters-common/src/bridged-actions-stub.cpp",
+    "${chip_root}/examples/all-clusters-app/all-clusters-common/src/static-supported-modes-manager.cpp",
+  ]
+
+  deps = [
+    "${chip_root}/examples/all-clusters-minimal-app/all-clusters-common",
+    "${chip_root}/src/app/tests/suites/credentials:dac_provider",
+    "${chip_root}/src/lib",
+    "${chip_root}/src/lib/support",
+  ]
+
+  include_dirs =
+      [ "${chip_root}/examples/all-clusters-app/all-clusters-common/include" ]
+
+  public_configs = [
+    "${chip_root}/src:includes",
+    "${chip_root}/src/system:system_config",
+  ]
+}
 
 executable("attribute-database-test") {
   sources = [ "main.cpp" ]
 
   deps = [
+    ":extra-dependencies",
     "${chip_root}/examples/platform/linux:app-main",
     "${chip_root}/src/attributes/database",
     "${chip_root}/src/attributes/ember",
-
-    # This grabs the ember database for all-clusters
-    "${chip_root}/examples/all-clusters-app/all-clusters-common",
   ]
   output_dir = root_out_dir
 }

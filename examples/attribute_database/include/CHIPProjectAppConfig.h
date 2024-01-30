@@ -1,6 +1,6 @@
 /*
  *
- *    Copyright (c) 2020 Project CHIP Authors
+ *    Copyright (c) 2022 Project CHIP Authors
  *    All rights reserved.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,19 +16,19 @@
  *    limitations under the License.
  */
 
-#include "AppMain.h"
+/**
+ *    @file
+ *          Example project configuration file for CHIP.
+ *
+ *          This is a place to put application or project-specific overrides
+ *          to the default configuration values for general CHIP features.
+ *
+ */
 
-void ApplicationInit() {}
+#pragma once
 
-void ApplicationShutdown() {}
+// include the CHIPProjectConfig from config/standalone
+#include <CHIPProjectConfig.h>
 
-int main(int argc, char * argv[])
-{
-    VerifyOrDie(ChipLinuxAppInit(argc, argv) == 0);
-
-    // TODO: schedule test operations? How to trigger it?
-    //       we may want some RPC support for this or some shell.
-    ChipLinuxAppMainLoop();
-
-    return 0;
-}
+// Allows app options (ports) to be configured on launch of app
+#define CHIP_DEVICE_ENABLE_PORT_PARAMS 1
