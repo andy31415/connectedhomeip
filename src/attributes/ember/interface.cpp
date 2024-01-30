@@ -210,18 +210,18 @@ CHIP_ERROR EmberDatabase::Read(Attribute::Path path, MutableByteSpan & data, Dat
     return CHIP_ERROR_NOT_IMPLEMENTED;
 }
 
-CHIP_ERROR EmberDatabase::Write(Attribute::Path path, MutableByteSpan data, DataType type)
+CHIP_ERROR EmberDatabase::Write(Attribute::Path path, WriteType write_type, MutableByteSpan data, DataType type)
 {
     VerifyOrReturnError(path.IsValid(), CHIP_ERROR_INVALID_ARGUMENT);
 
     // TODO: data.size() is never used, so we do not seem to validate data
-    EmberAfStatus ember_status = emAfWriteAttribute( //
-        path.GetEndpoint().Raw(),                    //
-        path.GetCluster().Raw(),                     //
-        path.GetAttribute().Raw(),                   //
-        data.data(),                                 //
-        to_underlying(type),                         //
-        /* overrideReadOnlyAndDataType = */ false    // TODO: abstract this away?
+    EmberAfStatus ember_status = emAfWriteAttribute(                             //
+        path.GetEndpoint().Raw(),                                                //
+        path.GetCluster().Raw(),                                                 //
+        path.GetAttribute().Raw(),                                               //
+        data.data(),                                                             //
+        to_underlying(type),                                                     //
+        write_type == WriteType::kNoValidation /* overrideReadOnlyAndDataType */ //
     );
 
     Protocols::InteractionModel::Status im_status = app::ToInteractionModelStatus(ember_status);

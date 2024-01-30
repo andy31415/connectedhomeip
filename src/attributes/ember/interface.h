@@ -26,7 +26,6 @@ namespace Attributes {
 /// ember processing functions
 class EmberDatabase : public Database
 {
-
 public:
     virtual ~EmberDatabase() = default;
 
@@ -46,7 +45,7 @@ public:
     bool IsEnabled(Endpoint::Index) override;
 
     CHIP_ERROR Read(Attribute::Path path, MutableByteSpan & data, DataType & type) override;
-    CHIP_ERROR Write(Attribute::Path path, MutableByteSpan data, DataType type) override;
+    CHIP_ERROR Write(Attribute::Path path, WriteType write_type, MutableByteSpan data, DataType type) override;
 };
 
 } // namespace Attributes

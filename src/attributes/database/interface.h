@@ -127,6 +127,11 @@ enum class DataType : uint8_t
 class Database
 {
 public:
+    enum class WriteType {
+        kNormal,       // validates data types and read-only restrictions
+        kNoValidation, // allows writing of data even if exposed externally as read-only.
+    };
+
     virtual ~Database() = default;
 
     virtual Endpoint::Index IndexOf(Endpoint::Id)         = 0;
@@ -157,7 +162,7 @@ public:
     ///
     /// The `data` contains the binary data to write while `type` contains what type of data is stored
     /// within the byte buffer.
-    virtual CHIP_ERROR Write(Attribute::Path path, MutableByteSpan data, DataType type) = 0;
+    virtual CHIP_ERROR Write(Attribute::Path path, WriteType write_type, MutableByteSpan data, DataType type) = 0;
 };
 
 /// Singleton implementation for fetching the instances of the active attribute database
