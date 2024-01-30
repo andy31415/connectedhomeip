@@ -178,8 +178,11 @@ public:
     ///       Equivalent: ember-compatibility-functions.cpp::WriteSingleClusterData
     ///          - SubjectDescriptor - NO (outside scope, check should be somwhere else)
     ///          - path              - OK
-    ///          - tlv-reader        - unclear (maybe yes?)
-    ///          - WriteHandler      - unclear
+    ///          - tlv-reader        - unclear (maybe yes if we figure out sizes from it)
+    ///                                however less convenient for Accessors.h
+    ///                                Alternative: RAW write (but still need size checks)
+    ///          - WriteHandler      - NO if returning IMStatus instead of CHIP_ERROR
+    ///                                ACLs should be taken out so should TimedWrite
     ///
     /// And legacy:
     ///     - data_type should be dropped
