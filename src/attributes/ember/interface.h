@@ -43,10 +43,7 @@ public:
     Attribute::Index AttributeEnd(Cluster::IndexPath) override;
 
     bool IsEnabled(Endpoint::Id) override;
-    bool IsEnabled(Cluster::Path) override;
-
     bool IsEnabled(Endpoint::Index) override;
-    bool IsEnabled(Cluster::IndexPath) override;
 
     CHIP_ERROR WriteAttribute(Attribute::IndexPath attribute, ByteSpan data, DataType type) override;
     CHIP_ERROR ReadAttribute(Attribute::IndexPath attribute, MutableByteSpan & data, DataType & type) override;

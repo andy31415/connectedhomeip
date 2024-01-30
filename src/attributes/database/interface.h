@@ -144,11 +144,8 @@ public:
     virtual Attribute::Index AttributeEnd(Cluster::IndexPath) = 0;
 
     /// When iterating over items, one can check if a specific item is enabled
-    virtual bool IsEnabled(Endpoint::Id)  = 0;
-    virtual bool IsEnabled(Cluster::Path) = 0;
-
-    virtual bool IsEnabled(Endpoint::Index)    = 0;
-    virtual bool IsEnabled(Cluster::IndexPath) = 0;
+    virtual bool IsEnabled(Endpoint::Id)    = 0;
+    virtual bool IsEnabled(Endpoint::Index) = 0;
 
     /// Write the attribute at the specified `attribute` path.
     ///

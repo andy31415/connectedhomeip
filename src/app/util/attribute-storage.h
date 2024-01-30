@@ -237,3 +237,4 @@ uint16_t emberAfIndexFromEndpointIncludingDisabledEndpoints(chip::EndpointId end
 chip::EndpointId emberAfEndpointFromIndex(uint16_t index);
 uint16_t emberAfEndpointCount();
 uint8_t emberAfClusterCountByIndex(uint16_t endpointIndex, bool server);
+bool emberAfEndpointIndexIsEnabled(uint16_t index);

@@ -157,22 +157,10 @@ bool EmberDatabase::IsEnabled(Endpoint::Id id)
     return IsEnabled(IndexOf(id));
 }
 
-bool EmberDatabase::IsEnabled(Cluster::Path)
-{
-    // TODO
-    return false;
-}
-
 bool EmberDatabase::IsEnabled(Endpoint::Index idx)
 {
     VerifyOrReturnValue(idx.IsValid(), false);
     return emberAfEndpointIndexIsEnabled(idx.Raw());
-}
-
-bool EmberDatabase::IsEnabled(Cluster::IndexPath)
-{
-    // TODO
-    return false;
 }
 
 CHIP_ERROR EmberDatabase::WriteAttribute(Attribute::IndexPath attribute, ByteSpan data, DataType type)

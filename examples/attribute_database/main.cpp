@@ -65,6 +65,7 @@ static void RunTests(chip::System::Layer * layer, void *)
         Endpoint::Id endpoint_id = db->IdForPath(endpoint_idx);
         ChipLogProgress(NotSpecified, "  Endpoint %ld has ID %ld%s", (long) endpoint_idx.Raw(), (long) endpoint_id.Raw(),
                         endpoint_id.IsValid() ? "" : " (INVALID)");
+        ChipLogProgress(NotSpecified, "  Endpoint is %s", db->IsEnabled(endpoint_idx) ? "ENABLED" : "DISABLED");
 
         const Cluster::Index end_cluster_index = db->ClusterEnd(endpoint_idx);
         ChipLogProgress(NotSpecified, "  Cluster count: %ld", (long) end_cluster_index.Raw());
