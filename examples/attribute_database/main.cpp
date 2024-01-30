@@ -96,7 +96,32 @@ static void RunTests(chip::System::Layer * layer, void *)
             const Attribute::Index end_attribute_index = db->AttributeEnd(cluster_index_path);
             ChipLogProgress(NotSpecified, "    Attribute count: %ld", (long) end_attribute_index.Raw());
 
-            // TODO: loop through attributes
+            for (Attribute::Index attr_idx; attr_idx < end_attribute_index; attr_idx++)
+            {
+                Attribute::IndexPath attribute_index_path(cluster_index_path, attr_idx);
+                Attribute::Path attribute_path = db->IdForPath(attribute_index_path);
+
+                ChipLogProgress(NotSpecified, "      IDX %ld/%ld/%ld -> ID %ld%s/%ld%s/%ld%s", //
+                                (long) attribute_index_path.GetEndpoint().Raw(),               //
+                                (long) attribute_index_path.GetCluster().Raw(),                //
+                                (long) attribute_index_path.GetAttribute().Raw(),              //
+                                (long) attribute_path.GetEndpoint().Raw(),                     //
+                                attribute_path.GetEndpoint().IsValid() ? "" : "(INVALID)",     //
+                                (long) attribute_path.GetCluster().Raw(),                      //
+                                attribute_path.GetCluster().IsValid() ? "" : "(INVALID)",      //
+                                (long) attribute_path.GetAttribute().Raw(),                    //
+                                attribute_path.GetAttribute().IsValid() ? "" : "(INVALID)"     //
+                );
+
+                if (attribute_index_path == db->IndexOf(attribute_path))
+                {
+                    ChipLogProgress(NotSpecified, "      Attr Path invert check OK");
+                }
+                else
+                {
+                    ChipLogError(NotSpecified, "      Attr Path invert check FAILED for this path !!!");
+                }
+            }
         }
     }
 

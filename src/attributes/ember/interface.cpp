@@ -106,6 +106,15 @@ Attribute::IndexPath EmberDatabase::IndexOf(Attribute::Path path)
         return Attribute::IndexPath(cluster_index, Attribute::Index(i));
     }
 
+    // if the attribute is not inside the cluster, it may be a global one
+    for (size_t i = 0; i < ArraySize(chip::app::GlobalAttributesNotInMetadata); i++)
+    {
+        if (chip::app::GlobalAttributesNotInMetadata[i] == path.GetAttribute().Raw())
+        {
+            return Attribute::IndexPath(cluster_index, Attribute::Index(cluster->attributeCount + i));
+        }
+    }
+
     return Attribute::IndexPath::Invalid();
 }
 
@@ -127,10 +136,28 @@ Cluster::Path EmberDatabase::IdForPath(Cluster::IndexPath idx)
     return Cluster::Path(endpoint_id, Cluster::Id(cluster->clusterId));
 }
 
-Attribute::Path EmberDatabase::IdForPath(Attribute::IndexPath)
+Attribute::Path EmberDatabase::IdForPath(Attribute::IndexPath idx)
 {
-    // TODO
-    return Attribute::Path::Invalid();
+    Endpoint::Id endpoint_id = IdForPath(idx.GetEndpoint());
+    VerifyOrReturnValue(endpoint_id.IsValid(), Attribute::Path::Invalid());
+
+    const EmberAfCluster * cluster = emberAfGetNthCluster(endpoint_id.Raw(), idx.GetCluster().Raw(), /* server = */ true);
+    VerifyOrReturnValue(cluster != nullptr, Attribute::Path::Invalid());
+
+    // Ordering for returns:
+    //   - Cluster metadata attributes first
+    //   - global attributes next
+    if (idx.GetAttribute().Raw() < cluster->attributeCount)
+    {
+        return Attribute::Path(endpoint_id, Cluster::Id(cluster->clusterId),
+                               Attribute::Id(cluster->attributes[idx.GetAttribute().Raw()].attributeId));
+    }
+
+    size_t globalIndex = idx.GetAttribute().Raw() - cluster->attributeCount;
+    VerifyOrReturnValue(globalIndex < ArraySize(chip::app::GlobalAttributesNotInMetadata), Attribute::Path::Invalid());
+
+    return Attribute::Path(endpoint_id, Cluster::Id(cluster->clusterId),
+                           Attribute::Id(chip::app::GlobalAttributesNotInMetadata[globalIndex]));
 }
 
 Endpoint::Index EmberDatabase::EndpointEnd()
@@ -154,7 +181,7 @@ Attribute::Index EmberDatabase::AttributeEnd(Cluster::IndexPath idx)
     const EmberAfCluster * cluster = emberAfGetNthCluster(endpoint_id.Raw(), idx.GetCluster().Raw(), /* server = */ true);
     VerifyOrReturnValue(cluster != nullptr, Attribute::Index(0));
 
-    return Attribute::Index(cluster->attributeCount + ArraySize(chip::app::GlobalAttributesNotInMetadata) + 1);
+    return Attribute::Index(cluster->attributeCount + ArraySize(chip::app::GlobalAttributesNotInMetadata));
 }
 
 bool EmberDatabase::IsEnabled(Endpoint::Id id)
