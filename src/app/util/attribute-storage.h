@@ -231,7 +231,6 @@ bool registerAttributeAccessOverride(chip::app::AttributeAccessInterface * attrO
  */
 void unregisterAttributeAccessOverride(chip::app::AttributeAccessInterface * attrOverride);
 
-
 ///// Database interface compatibility functions
 
 uint16_t emberAfIndexFromEndpointIncludingDisabledEndpoints(chip::EndpointId endpoint);

@@ -121,7 +121,6 @@ void TestValidity(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, Cluster::Id(1).IsValid());
     NL_TEST_ASSERT(inSuite, Attribute::Id(2).IsValid());
 
-
     NL_TEST_ASSERT(inSuite, !Cluster::Path::Invalid().IsValid());
     NL_TEST_ASSERT(inSuite, !Cluster::IndexPath::Invalid().IsValid());
     NL_TEST_ASSERT(inSuite, !Attribute::Path::Invalid().IsValid());

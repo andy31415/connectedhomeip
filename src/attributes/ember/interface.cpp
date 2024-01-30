@@ -22,8 +22,8 @@
 //       however EMBER depends on zap-generated bits and as such three are
 //       no valid include paths.
 
-#include <app/util/attribute-metadata.h>
 #include <app/util/af-types.h>
+#include <app/util/attribute-metadata.h>
 
 // Extern declarations because includes cannot be fixed. We could not include items
 // such as:
@@ -84,15 +84,17 @@ Attribute::IndexPath EmberDatabase::IndexOf(Attribute::Path path)
     VerifyOrReturnValue(cluster_index.IsValid(), Attribute::IndexPath::Invalid());
 
     const EmberAfCluster * cluster =
-            emberAfGetNthCluster(path.GetEndpoint().Raw(), cluster_index.GetCluster().Raw(), /* server = */ true);
+        emberAfGetNthCluster(path.GetEndpoint().Raw(), cluster_index.GetCluster().Raw(), /* server = */ true);
 
     VerifyOrDie(cluster != nullptr);
     VerifyOrDie(cluster->clusterId == path.GetCluster().Raw());
 
     const uint16_t attribute_count = cluster->attributeCount;
-    for (uint16_t i = 0; i < attribute_count; i++) {
-        const EmberAfAttributeMetadata &attribute = cluster->attributes[i];
-        if (attribute.attributeId != path.GetAttribute().Raw()) {
+    for (uint16_t i = 0; i < attribute_count; i++)
+    {
+        const EmberAfAttributeMetadata & attribute = cluster->attributes[i];
+        if (attribute.attributeId != path.GetAttribute().Raw())
+        {
             continue;
         }
 

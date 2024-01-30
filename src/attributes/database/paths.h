@@ -104,7 +104,7 @@ public:
     Cluster::Id GetCluster() const { return mCluster; }
     Attribute::Id GetAttribute() const { return mAttribute; }
 
-    Cluster::Path GetClusterPath() const {return Cluster::Path(mEndpoint, mCluster);}
+    Cluster::Path GetClusterPath() const { return Cluster::Path(mEndpoint, mCluster); }
 
 private:
     Endpoint::Id mEndpoint;
@@ -144,7 +144,8 @@ public:
     Cluster::Index GetCluster() const { return mCluster; }
     Attribute::Index GetAttribute() const { return mAttribute; }
 
-    Cluster::IndexPath GetClusterPath() const {return Cluster::IndexPath(mEndpoint, mCluster);}
+    Cluster::IndexPath GetClusterPath() const { return Cluster::IndexPath(mEndpoint, mCluster); }
+
 private:
     Endpoint::Index mEndpoint;
     Cluster::Index mCluster;
