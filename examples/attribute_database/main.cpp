@@ -68,8 +68,6 @@ static void RunTests(chip::System::Layer * layer, void *)
         ChipLogProgress(NotSpecified, "  Endpoint is %s", db->IsEnabled(endpoint_idx) ? "ENABLED" : "DISABLED");
 
         const Cluster::Index end_cluster_index = db->ClusterEnd(endpoint_idx);
-        ChipLogProgress(NotSpecified, "  Cluster count: %ld", (long) end_cluster_index.Raw());
-
         for (Cluster::Index cluster_idx; cluster_idx < end_cluster_index; cluster_idx++)
         {
             Cluster::IndexPath cluster_index_path(endpoint_idx, cluster_idx);
@@ -84,18 +82,12 @@ static void RunTests(chip::System::Layer * layer, void *)
                             cluster_path.GetCluster().IsValid() ? "" : "(INVALID)"   //
             );
 
-            if (cluster_index_path == db->IndexOf(cluster_path))
-            {
-                ChipLogProgress(NotSpecified, "    Path invert check OK");
-            }
-            else
+            if (cluster_index_path != db->IndexOf(cluster_path))
             {
                 ChipLogError(NotSpecified, "    Path invert check FAILED for this path !!!");
             }
 
             const Attribute::Index end_attribute_index = db->AttributeEnd(cluster_index_path);
-            ChipLogProgress(NotSpecified, "    Attribute count: %ld", (long) end_attribute_index.Raw());
-
             for (Attribute::Index attr_idx; attr_idx < end_attribute_index; attr_idx++)
             {
                 Attribute::IndexPath attribute_index_path(cluster_index_path, attr_idx);
@@ -113,11 +105,7 @@ static void RunTests(chip::System::Layer * layer, void *)
                                 attribute_path.GetAttribute().IsValid() ? "" : "(INVALID)"     //
                 );
 
-                if (attribute_index_path == db->IndexOf(attribute_path))
-                {
-                    ChipLogProgress(NotSpecified, "      Attr Path invert check OK");
-                }
-                else
+                if (attribute_index_path != db->IndexOf(attribute_path))
                 {
                     ChipLogError(NotSpecified, "      Attr Path invert check FAILED for this path !!!");
                 }
