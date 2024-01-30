@@ -123,7 +123,7 @@ const nlTest sTests[] = {
 
 int TestAttributesDatabase()
 {
-    nlTestSuite theSuite = { "Attributes database tests", &sTests[0], nullptr, nullptr };
+    nlTestSuite theSuite = { "Attributes database paths tests", &sTests[0], nullptr, nullptr };
 
     // Run test suite against one context.
     nlTestRunner(&theSuite, nullptr);
