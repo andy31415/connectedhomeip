@@ -37,6 +37,7 @@ const EmberAfCluster * emberAfGetNthCluster(chip::EndpointId endpoint, uint8_t n
 bool emberAfEndpointIndexIsEnabled(uint16_t index);
 chip::EndpointId emberAfEndpointFromIndex(uint16_t index);
 uint16_t emberAfEndpointCount();
+uint8_t emberAfClusterCountByIndex(uint16_t endpointIndex, bool server);
 
 // Even constants declared in headers we cannot include
 static constexpr uint16_t kEmberInvalidEndpointIndex = 0xFFFF;
@@ -131,10 +132,12 @@ Endpoint::Index EmberDatabase::EndpointEnd()
     return Endpoint::Index(emberAfEndpointCount());
 }
 
-Cluster::Index EmberDatabase::ClusterEnd(Endpoint::Index)
+Cluster::Index EmberDatabase::ClusterEnd(Endpoint::Index idx)
 {
-    // TODO
-    return Cluster::Index(0);
+    VerifyOrReturnValue(idx.IsValid(), Cluster::Index(0));
+
+    uint8_t count = emberAfClusterCountByIndex(idx.Raw(), /* server = */ true);
+    return Cluster::Index(count);
 }
 
 Attribute::Index EmberDatabase::AttributeEnd(Cluster::IndexPath)

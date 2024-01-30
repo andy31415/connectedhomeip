@@ -53,17 +53,21 @@ static void RunTests(chip::System::Layer * layer, void *)
         // Endpoint 65534 is a thing in all-clusters app :(
         constexpr size_t kTestId = 0xFFFE;
         auto id                  = db->IndexOf(Endpoint::Id(kTestId));
-        ChipLogProgress(NotSpecified, "  Id    %5d -> Index %5d%s", (int) kTestId, (int) id.Raw(), id.IsValid() ? "" : " (INVALID)");
+        ChipLogProgress(NotSpecified, "  Id    %5d -> Index %5d%s", (int) kTestId, (int) id.Raw(),
+                        id.IsValid() ? "" : " (INVALID)");
     }
 
-    const Endpoint::Index end_index = db->EndpointEnd();
+    const Endpoint::Index end_endpoint_index = db->EndpointEnd();
 
-    ChipLogProgress(NotSpecified, "Endpoint count: %d", (int) end_index.Raw());
-    for (Endpoint::Index idx; idx < end_index; idx++)
+    ChipLogProgress(NotSpecified, "Endpoint count: %d", (int) end_endpoint_index.Raw());
+    for (Endpoint::Index cluster_idx; cluster_idx < end_endpoint_index; cluster_idx++)
     {
-        Endpoint::Id endpoint_id = db->IdForPath(idx);
-        ChipLogProgress(NotSpecified, "  Endpoint %d has ID %d%s", (int) idx.Raw(), (int) endpoint_id.Raw(),
+        Endpoint::Id endpoint_id = db->IdForPath(cluster_idx);
+        ChipLogProgress(NotSpecified, "  Endpoint %d has ID %d%s", (int) cluster_idx.Raw(), (int) endpoint_id.Raw(),
                         endpoint_id.IsValid() ? "" : " (INVALID)");
+
+        const Cluster::Index end_cluster_index = db->ClusterEnd(cluster_idx);
+        ChipLogProgress(NotSpecified, "  Cluster count: %d", (int) end_cluster_index.Raw());
 
         // TODO: loop through clusters and attributes
     }

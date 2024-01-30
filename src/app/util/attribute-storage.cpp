@@ -69,10 +69,6 @@ static bool emAfMatchAttribute(const EmberAfCluster * cluster, const EmberAfAttr
 // otherwise number of client clusters on the endpoint at the given index.
 static uint8_t emberAfClusterCountForEndpointType(const EmberAfEndpointType * endpointType, bool server);
 
-// If server == true, returns the number of server clusters,
-// otherwise number of client clusters on the endpoint at the given index.
-static uint8_t emberAfClusterCountByIndex(uint16_t endpointIndex, bool server);
-
 // Check whether there is an endpoint defined with the given endpoint id that is
 // enabled.
 static bool emberAfEndpointIsEnabled(chip::EndpointId endpoint);
