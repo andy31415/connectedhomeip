@@ -19,6 +19,7 @@
 
 #include <attributes/database/paths.h>
 #include <attributes/database/type_safe_id.h>
+#include <lib/core/CHIPError.h>
 #include <lib/support/Span.h>
 
 namespace chip {
@@ -159,8 +160,16 @@ public:
     ///
     /// Returns the value inside `data` (which will be resized to the right size) and provides
     /// the `type` that was used to encode as binary data into `data`.
-    virtual CHIP_ERROR ReadAttribute(Attribute::IndexPath attribute, MutableByteSpan & data, DataType &type) = 0;
+    virtual CHIP_ERROR ReadAttribute(Attribute::IndexPath attribute, MutableByteSpan & data, DataType & type) = 0;
 };
+
+/// Singleton implementation for fetching the instances of the active attribute database
+Database * GetDatabase();
+
+/// Sets the attribute database to a new value.
+///
+/// Returns the old value if one had been set before (or nullptr if the database has not been initialized)
+Database * SetDatabase(Database * new_value);
 
 } // namespace Attributes
 } // namespace chip

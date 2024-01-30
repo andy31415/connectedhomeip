@@ -104,6 +104,11 @@ void TestDefaults(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, Endpoint::Index().Raw() == 0);
     NL_TEST_ASSERT(inSuite, Cluster::Index().Raw() == 0);
     NL_TEST_ASSERT(inSuite, Attribute::Index().Raw() == 0);
+
+    NL_TEST_ASSERT(inSuite, Attribute::Index::Invalid().Raw() == kInvalidIndexValue);
+    NL_TEST_ASSERT(inSuite, !Attribute::Index::Invalid().IsValid());
+    NL_TEST_ASSERT(inSuite, Attribute::Index().IsValid());
+    NL_TEST_ASSERT(inSuite, Attribute::Index(123).IsValid());
 }
 
 const nlTest sTests[] = {

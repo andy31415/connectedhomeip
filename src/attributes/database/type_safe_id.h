@@ -17,12 +17,15 @@
  */
 #pragma once
 
+#include <limits>
 #include <stddef.h>
 
 #include <lib/core/DataModelTypes.h>
 
 namespace chip {
 namespace Attributes {
+
+static constexpr size_t kInvalidIndexValue = std::numeric_limits<size_t>::max();
 
 // General rules for Id and Index types:
 //
@@ -62,6 +65,8 @@ protected:
 struct RawIndex : public RawWrapper<size_t>
 {
     explicit RawIndex(size_t t) : RawWrapper<size_t>(t) {}
+
+    bool IsValid() const { return Raw() != kInvalidIndexValue; }
 
     RawIndex & operator++()
     {
@@ -122,6 +127,12 @@ protected:
     {                                                                                                                              \
         explicit _NAME() : chip::Attributes::Impl::RawIndex(0) {}                                                                  \
         explicit _NAME(size_t _x) : chip::Attributes::Impl::RawIndex(_x) {}                                                        \
+                                                                                                                                   \
+        static _NAME Invalid()                                                                                                     \
+        {                                                                                                                          \
+            return _NAME(kInvalidIndexValue);                                                                                      \
+        }                                                                                                                          \
+                                                                                                                                   \
         bool operator==(const _NAME & other) const                                                                                 \
         {                                                                                                                          \
             return eq(other);                                                                                                      \
