@@ -127,7 +127,8 @@ enum class DataType : uint8_t
 class Database
 {
 public:
-    enum class WriteType {
+    enum class WriteType
+    {
         kNormal,       // validates data types and read-only restrictions
         kNoValidation, // allows writing of data even if exposed externally as read-only.
     };
@@ -156,12 +157,33 @@ public:
     ///
     /// Returns the value inside `data` (which will be resized to the right size) and provides
     /// the `type` that was used to encode as binary data into `data`.
+    ///
+    /// TODO: IM read uses a AttributeValueEncoder
+    ///       Equivalent: ember-compatibility-functions.cpp::ReadSingleClusterData
+    ///          - SubjectDescriptior - NO (outside scope, check should be somewhere else)
+    ///          - fabricFilterd      - unclear
+    ///          - path               - OK
+    ///          - builder, state     - unclear (may want to use the BUILDER or ENCODER)
+    /// And legacy:
+    ///     - data_type should be dropped
+    ///     - MutableByteSpan/data should be reconsidered
     virtual CHIP_ERROR Read(Attribute::Path path, MutableByteSpan & data, DataType & type) = 0;
 
     /// Write the attribute at the specified `path`.
     ///
     /// The `data` contains the binary data to write while `type` contains what type of data is stored
     /// within the byte buffer.
+    ///
+    /// TODO: IM write uses a AttributeValueDecoder
+    ///       Equivalent: ember-compatibility-functions.cpp::WriteSingleClusterData
+    ///          - SubjectDescriptor - NO (outside scope, check should be somwhere else)
+    ///          - path              - OK
+    ///          - tlv-reader        - unclear (maybe yes?)
+    ///          - WriteHandler      - unclear
+    ///
+    /// And legacy:
+    ///     - data_type should be dropped
+    ///     - MutableByteSpan/data should be reconsidered
     virtual CHIP_ERROR Write(Attribute::Path path, WriteType write_type, MutableByteSpan data, DataType type) = 0;
 };
 
