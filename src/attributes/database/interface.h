@@ -147,7 +147,6 @@ public:
     virtual bool IsEnabled(Endpoint::Id)    = 0;
     virtual bool IsEnabled(Endpoint::Index) = 0;
 
-
     /// Read the attribute at the given `path`.
     ///
     /// Returns the value inside `data` (which will be resized to the right size) and provides

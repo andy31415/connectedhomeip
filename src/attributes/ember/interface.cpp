@@ -43,8 +43,8 @@ uint16_t emberAfEndpointCount();
 uint8_t emberAfClusterCountByIndex(uint16_t endpointIndex, bool server);
 
 // actual writes
-EmberAfStatus emAfWriteAttribute(chip::EndpointId endpoint, chip::ClusterId cluster, chip::AttributeId attributeID,
-                                 uint8_t * data, EmberAfAttributeType dataType, bool overrideReadOnlyAndDataType);
+EmberAfStatus emAfWriteAttribute(chip::EndpointId endpoint, chip::ClusterId cluster, chip::AttributeId attributeID, uint8_t * data,
+                                 EmberAfAttributeType dataType, bool overrideReadOnlyAndDataType);
 
 // Even constants declared in headers we cannot include
 static constexpr uint16_t kEmberInvalidEndpointIndex = 0xFFFF;
@@ -215,13 +215,13 @@ CHIP_ERROR EmberDatabase::Write(Attribute::Path path, MutableByteSpan data, Data
     VerifyOrReturnError(path.IsValid(), CHIP_ERROR_INVALID_ARGUMENT);
 
     // TODO: data.size() is never used, so we do not seem to validate data
-    EmberAfStatus ember_status = emAfWriteAttribute(    //
-        path.GetEndpoint().Raw(),                 //
-        path.GetCluster().Raw(),                  //
-        path.GetAttribute().Raw(),                //
-        data.data(),                              //
-        to_underlying(type),                      //
-        /* overrideReadOnlyAndDataType = */ false // TODO: abstract this away?
+    EmberAfStatus ember_status = emAfWriteAttribute( //
+        path.GetEndpoint().Raw(),                    //
+        path.GetCluster().Raw(),                     //
+        path.GetAttribute().Raw(),                   //
+        data.data(),                                 //
+        to_underlying(type),                         //
+        /* overrideReadOnlyAndDataType = */ false    // TODO: abstract this away?
     );
 
     Protocols::InteractionModel::Status im_status = app::ToInteractionModelStatus(ember_status);
