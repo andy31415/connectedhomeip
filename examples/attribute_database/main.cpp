@@ -18,7 +18,34 @@
 
 #include "AppMain.h"
 
-void ApplicationInit() {}
+#include <platform/CHIPDeviceLayer.h>
+
+#include <attributes/database/interface.h>
+#include <attributes/ember/interface.h>
+
+using namespace chip::Attributes;
+
+static void StopApp(chip::System::Layer *, void *) {
+    chip::DeviceLayer::PlatformMgr().StopEventLoopTask();
+}
+
+void ApplicationInit() {
+    // chip::Attributes::Database *db = chip::Attributes::GetDatabase();
+    static chip::Attributes::EmberDatabase ember_database;
+
+    chip::Attributes::Database *db = &ember_database;
+
+
+    ChipLogProgress(NotSpecified, "--------------------------- Starting Test ---------------------------");
+
+    for (int i = 0; i < 5; i++) {
+        ChipLogProgress(NotSpecified, "Id    %d -> Index %d", i, (int)db->IndexOf(Endpoint::Id(i)).Raw());
+        ChipLogProgress(NotSpecified, "Index %d -> Id    %d", i, (int)db->IdForPath(Endpoint::Index(i)).Raw());
+    }
+
+    ChipLogProgress(NotSpecified, "--------------------------- Test DONE ---------------------------");
+    chip::DeviceLayer::SystemLayer().StartTimer(chip::System::Clock::Seconds32(1), StopApp, nullptr);
+}
 
 void ApplicationShutdown() {}
 
