@@ -43,33 +43,60 @@ static void RunTests(chip::System::Layer * layer, void *)
     for (int i = 0; i < 5; i++)
     {
         auto id = db->IndexOf(Endpoint::Id(i));
-        ChipLogProgress(NotSpecified, "  Id    %5d -> Index %5d%s", i, (int) id.Raw(), id.IsValid() ? "" : " (INVALID)");
+        ChipLogProgress(NotSpecified, "  Id    %5d -> Index %5ld%s", i, (long) id.Raw(), id.IsValid() ? "" : " (INVALID)");
 
         auto idx = db->IdForPath(Endpoint::Index(i));
-        ChipLogProgress(NotSpecified, "  Index %5d -> Id    %5d%s", i, (int) idx.Raw(), idx.IsValid() ? "" : " (INVALID)");
+        ChipLogProgress(NotSpecified, "  Index %5d -> Id    %5ld%s", i, (long) idx.Raw(), idx.IsValid() ? "" : " (INVALID)");
     }
 
     {
         // Endpoint 65534 is a thing in all-clusters app :(
         constexpr size_t kTestId = 0xFFFE;
         auto id                  = db->IndexOf(Endpoint::Id(kTestId));
-        ChipLogProgress(NotSpecified, "  Id    %5d -> Index %5d%s", (int) kTestId, (int) id.Raw(),
+        ChipLogProgress(NotSpecified, "  Id    %5ld -> Index %5ld%s", (long) kTestId, (long) id.Raw(),
                         id.IsValid() ? "" : " (INVALID)");
     }
 
     const Endpoint::Index end_endpoint_index = db->EndpointEnd();
 
-    ChipLogProgress(NotSpecified, "Endpoint count: %d", (int) end_endpoint_index.Raw());
-    for (Endpoint::Index cluster_idx; cluster_idx < end_endpoint_index; cluster_idx++)
+    ChipLogProgress(NotSpecified, "Endpoint count: %ld", (long) end_endpoint_index.Raw());
+    for (Endpoint::Index endpoint_idx; endpoint_idx < end_endpoint_index; endpoint_idx++)
     {
-        Endpoint::Id endpoint_id = db->IdForPath(cluster_idx);
-        ChipLogProgress(NotSpecified, "  Endpoint %d has ID %d%s", (int) cluster_idx.Raw(), (int) endpoint_id.Raw(),
+        Endpoint::Id endpoint_id = db->IdForPath(endpoint_idx);
+        ChipLogProgress(NotSpecified, "  Endpoint %ld has ID %ld%s", (long) endpoint_idx.Raw(), (long) endpoint_id.Raw(),
                         endpoint_id.IsValid() ? "" : " (INVALID)");
 
-        const Cluster::Index end_cluster_index = db->ClusterEnd(cluster_idx);
-        ChipLogProgress(NotSpecified, "  Cluster count: %d", (int) end_cluster_index.Raw());
+        const Cluster::Index end_cluster_index = db->ClusterEnd(endpoint_idx);
+        ChipLogProgress(NotSpecified, "  Cluster count: %ld", (long) end_cluster_index.Raw());
 
-        // TODO: loop through clusters and attributes
+        for (Cluster::Index cluster_idx; cluster_idx < end_cluster_index; cluster_idx++)
+        {
+            Cluster::IndexPath cluster_index_path(endpoint_idx, cluster_idx);
+            Cluster::Path cluster_path = db->IdForPath(cluster_index_path);
+
+            ChipLogProgress(NotSpecified, "    IDX %ld/%ld -> ID %ld%s/%ld%s",       //
+                            (long) cluster_index_path.GetEndpoint().Raw(),           //
+                            (long) cluster_index_path.GetCluster().Raw(),            //
+                            (long) cluster_path.GetEndpoint().Raw(),                 //
+                            cluster_path.GetEndpoint().IsValid() ? "" : "(INVALID)", //
+                            (long) cluster_path.GetCluster().Raw(),                  //
+                            cluster_path.GetCluster().IsValid() ? "" : "(INVALID)"   //
+            );
+
+            if (cluster_index_path == db->IndexOf(cluster_path))
+            {
+                ChipLogProgress(NotSpecified, "    Path invert check OK");
+            }
+            else
+            {
+                ChipLogError(NotSpecified, "    Path invert check FAILED for this path !!!");
+            }
+
+            const Attribute::Index end_attribute_index = db->AttributeEnd(cluster_index_path);
+            ChipLogProgress(NotSpecified, "    Attribute count: %ld", (long) end_attribute_index.Raw());
+
+            // TODO: loop through attributes
+        }
     }
 
     ChipLogProgress(NotSpecified, "--------------------------- Test DONE -------------------------------");

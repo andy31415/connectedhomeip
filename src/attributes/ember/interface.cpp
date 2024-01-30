@@ -115,10 +115,15 @@ Endpoint::Id EmberDatabase::IdForPath(Endpoint::Index idx)
     return Endpoint::Id(emberAfEndpointFromIndex(idx.Raw()));
 }
 
-Cluster::Path EmberDatabase::IdForPath(Cluster::IndexPath)
+Cluster::Path EmberDatabase::IdForPath(Cluster::IndexPath idx)
 {
-    // TODO
-    return Cluster::Path::Invalid();
+    Endpoint::Id endpoint_id = IdForPath(idx.GetEndpoint());
+    VerifyOrReturnValue(endpoint_id.IsValid(), Cluster::Path::Invalid());
+
+    const EmberAfCluster * cluster = emberAfGetNthCluster(endpoint_id.Raw(), idx.GetCluster().Raw(), /* server = */ true);
+    VerifyOrReturnValue(cluster != nullptr, Cluster::Path::Invalid());
+
+    return Cluster::Path(endpoint_id, Cluster::Id(cluster->clusterId));
 }
 
 Attribute::Path EmberDatabase::IdForPath(Attribute::IndexPath)
