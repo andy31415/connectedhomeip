@@ -21,8 +21,6 @@
 #include <app/GlobalAttributes.h>
 
 // TODO: we SHOULD use includes from ember and dependencies,
-//       however EMBER depends on zap-generated bits and as such three are
-//       no valid include paths.
 #include <app/util/af-types.h>
 #include <app/util/attribute-metadata.h>
 
@@ -31,6 +29,9 @@
 //     #include <app/util/af.h>
 //     #include <app/util/attribute-storage.h>
 //     #include <app/util/attribute-table.h>
+// Due to their dependencies on zap-generated bits (even though most things should
+// NOT depend on them)
+//
 // TODO: proper includes should be fixed
 uint16_t emberAfIndexFromEndpointIncludingDisabledEndpoints(chip::EndpointId endpoint);
 uint8_t emberAfClusterCount(chip::EndpointId endpoint, bool server);
