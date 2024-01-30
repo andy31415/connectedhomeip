@@ -82,6 +82,16 @@ static void RunTests(chip::System::Layer * layer, void *)
                             cluster_path.GetCluster().IsValid() ? "" : "(INVALID)"   //
             );
 
+            if (db->IndexOf(Cluster::Path(endpoint_id, Cluster::Id(9876543))).IsValid())
+            {
+                ChipLogError(NotSpecified, "    Invalid cluster ID wrongly accepted !!!");
+            }
+
+            if (db->IdForPath(Cluster::IndexPath(endpoint_idx, Cluster::Index(200))).IsValid())
+            {
+                ChipLogError(NotSpecified, "    Invalid cluster index wrongly accepted !!!");
+            }
+
             if (cluster_index_path != db->IndexOf(cluster_path))
             {
                 ChipLogError(NotSpecified, "    Path invert check FAILED for this path !!!");
@@ -104,6 +114,16 @@ static void RunTests(chip::System::Layer * layer, void *)
                                 (long) attribute_path.GetAttribute().Raw(),                    //
                                 attribute_path.GetAttribute().IsValid() ? "" : "(INVALID)"     //
                 );
+
+                if (db->IndexOf(Attribute::Path(cluster_path, Attribute::Id(9876543))).IsValid())
+                {
+                    ChipLogError(NotSpecified, "      Invalid attribute ID wrongly accepted !!!");
+                }
+
+                if (db->IdForPath(Attribute::IndexPath(cluster_index_path, Attribute::Index(250))).IsValid())
+                {
+                    ChipLogError(NotSpecified, "      Invalid attribute index wrongly accepted !!!");
+                }
 
                 if (attribute_index_path != db->IndexOf(attribute_path))
                 {
