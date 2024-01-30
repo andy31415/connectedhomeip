@@ -39,22 +39,36 @@ static void RunTests(chip::System::Layer * layer, void *)
 
     ChipLogProgress(NotSpecified, "--------------------------- Starting Test ---------------------------");
 
+    ChipLogProgress(NotSpecified, "Hardcoded endpoint loop test:");
     for (int i = 0; i < 5; i++)
     {
         auto id = db->IndexOf(Endpoint::Id(i));
-        ChipLogProgress(NotSpecified, "Id    %5d -> Index %5d%s", i, (int) id.Raw(), id.IsValid() ? "" : " (INVALID)");
+        ChipLogProgress(NotSpecified, "  Id    %5d -> Index %5d%s", i, (int) id.Raw(), id.IsValid() ? "" : " (INVALID)");
 
         auto idx = db->IdForPath(Endpoint::Index(i));
-        ChipLogProgress(NotSpecified, "Index %5d -> Id    %5d%s", i, (int) idx.Raw(), idx.IsValid() ? "" : " (INVALID)");
+        ChipLogProgress(NotSpecified, "  Index %5d -> Id    %5d%s", i, (int) idx.Raw(), idx.IsValid() ? "" : " (INVALID)");
     }
 
     {
         // Endpoint 65534 is a thing in all-clusters app :(
         constexpr size_t kTestId = 0xFFFE;
         auto id                  = db->IndexOf(Endpoint::Id(kTestId));
-        ChipLogProgress(NotSpecified, "Id    %5d -> Index %5d (%s)", (int) kTestId, (int) id.Raw(),
-                        id.IsValid() ? "VALID" : "INVALID");
+        ChipLogProgress(NotSpecified, "  Id    %5d -> Index %5d%s", (int) kTestId, (int) id.Raw(), id.IsValid() ? "" : " (INVALID)");
     }
+
+    const Endpoint::Index end_index = db->EndpointEnd();
+
+    ChipLogProgress(NotSpecified, "Endpoint count: %d", (int) end_index.Raw());
+    for (Endpoint::Index idx; idx < end_index; idx++)
+    {
+        Endpoint::Id endpoint_id = db->IdForPath(idx);
+        ChipLogProgress(NotSpecified, "  Endpoint %d has ID %d%s", (int) idx.Raw(), (int) endpoint_id.Raw(),
+                        endpoint_id.IsValid() ? "" : " (INVALID)");
+
+        // TODO: loop through clusters and attributes
+    }
+
+    ChipLogProgress(NotSpecified, "--------------------------- Test DONE -------------------------------");
 
     layer->StartTimer(chip::System::Clock::Milliseconds32(10), StopApp, nullptr);
 }
