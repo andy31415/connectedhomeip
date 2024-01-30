@@ -34,6 +34,8 @@
 uint16_t emberAfIndexFromEndpointIncludingDisabledEndpoints(chip::EndpointId endpoint);
 uint8_t emberAfClusterCount(chip::EndpointId endpoint, bool server);
 const EmberAfCluster * emberAfGetNthCluster(chip::EndpointId endpoint, uint8_t n, bool server);
+bool emberAfEndpointIndexIsEnabled(uint16_t index);
+chip::EndpointId emberAfEndpointFromIndex(uint16_t index);
 
 // Even constants declared in headers we cannot include
 static constexpr uint16_t kEmberInvalidEndpointIndex = 0xFFFF;
@@ -104,10 +106,11 @@ Attribute::IndexPath EmberDatabase::IndexOf(Attribute::Path path)
     return Attribute::IndexPath::Invalid();
 }
 
-Endpoint::Id EmberDatabase::IdForPath(Endpoint::Index)
+Endpoint::Id EmberDatabase::IdForPath(Endpoint::Index idx)
 {
-    // TODO
-    return Endpoint::Id::Invalid();
+    VerifyOrReturnValue(idx.IsValid(), Endpoint::Id::Invalid());
+
+    return Endpoint::Id(emberAfEndpointFromIndex(idx.Raw()));
 }
 
 Cluster::Path EmberDatabase::IdForPath(Cluster::IndexPath)
@@ -140,22 +143,24 @@ Attribute::Index EmberDatabase::AttributeEnd(Cluster::IndexPath)
     return Attribute::Index(0);
 }
 
-bool EmberDatabase::IsEnabled(Endpoint::Id)
+bool EmberDatabase::IsEnabled(Endpoint::Id id)
 {
-    // TODO
-    return false;
+    VerifyOrReturnValue(id.IsValid(), false);
+    return IsEnabled(IndexOf(id));
 }
+
 bool EmberDatabase::IsEnabled(Cluster::Path)
 {
     // TODO
     return false;
 }
 
-bool EmberDatabase::IsEnabled(Endpoint::Index)
+bool EmberDatabase::IsEnabled(Endpoint::Index idx)
 {
-    // TODO
-    return false;
+    VerifyOrReturnValue(idx.IsValid(), false);
+    return emberAfEndpointIndexIsEnabled(idx.Raw());
 }
+
 bool EmberDatabase::IsEnabled(Cluster::IndexPath)
 {
     // TODO

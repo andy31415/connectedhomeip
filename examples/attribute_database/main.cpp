@@ -25,28 +25,42 @@
 
 using namespace chip::Attributes;
 
-static void StopApp(chip::System::Layer *, void *) {
+static void StopApp(chip::System::Layer *, void *)
+{
     chip::DeviceLayer::PlatformMgr().StopEventLoopTask();
 }
 
-static void RunTests(chip::System::Layer *layer, void *) {
+static void RunTests(chip::System::Layer * layer, void *)
+{
     // chip::Attributes::Database *db = chip::Attributes::GetDatabase();
     static chip::Attributes::EmberDatabase ember_database;
 
-    chip::Attributes::Database *db = &ember_database;
-
+    chip::Attributes::Database * db = &ember_database;
 
     ChipLogProgress(NotSpecified, "--------------------------- Starting Test ---------------------------");
 
-    for (int i = 0; i < 5; i++) {
-        ChipLogProgress(NotSpecified, "Id    %d -> Index %d", i, (int)db->IndexOf(Endpoint::Id(i)).Raw());
-        ChipLogProgress(NotSpecified, "Index %d -> Id    %d", i, (int)db->IdForPath(Endpoint::Index(i)).Raw());
+    for (int i = 0; i < 5; i++)
+    {
+        auto id = db->IndexOf(Endpoint::Id(i));
+        ChipLogProgress(NotSpecified, "Id    %5d -> Index %5d%s", i, (int) id.Raw(), id.IsValid() ? "" : " (INVALID)");
+
+        auto idx = db->IdForPath(Endpoint::Index(i));
+        ChipLogProgress(NotSpecified, "Index %5d -> Id    %5d%s", i, (int) idx.Raw(), idx.IsValid() ? "" : " (INVALID)");
+    }
+
+    {
+        // Endpoint 65534 is a thing in all-clusters app :(
+        constexpr size_t kTestId = 0xFFFE;
+        auto id                  = db->IndexOf(Endpoint::Id(kTestId));
+        ChipLogProgress(NotSpecified, "Id    %5d -> Index %5d (%s)", (int) kTestId, (int) id.Raw(),
+                        id.IsValid() ? "VALID" : "INVALID");
     }
 
     layer->StartTimer(chip::System::Clock::Milliseconds32(10), StopApp, nullptr);
 }
 
-void ApplicationInit() {
+void ApplicationInit()
+{
     chip::DeviceLayer::SystemLayer().StartTimer(chip::System::Clock::Milliseconds32(10), RunTests, nullptr);
 }
 

@@ -986,6 +986,7 @@ uint16_t emberAfIndexFromEndpointIncludingDisabledEndpoints(EndpointId endpoint)
 
 EndpointId emberAfEndpointFromIndex(uint16_t index)
 {
+    VerifyOrReturnValue(index < MAX_ENDPOINT_COUNT, kInvalidEndpointId);
     return emAfEndpoints[index].endpoint;
 }
 
