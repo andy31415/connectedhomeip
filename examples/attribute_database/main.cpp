@@ -47,7 +47,7 @@ static void RunTests(chip::System::Layer *layer, void *) {
 }
 
 void ApplicationInit() {
-    chip::DeviceLayer::SystemLayer().StartTimer(chip::System::Clock::Milliseconds32(1010), RunTests, nullptr);
+    chip::DeviceLayer::SystemLayer().StartTimer(chip::System::Clock::Milliseconds32(10), RunTests, nullptr);
 }
 
 void ApplicationShutdown() {}
