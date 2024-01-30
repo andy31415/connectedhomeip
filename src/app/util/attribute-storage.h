@@ -230,3 +230,8 @@ bool registerAttributeAccessOverride(chip::app::AttributeAccessInterface * attrO
  * implementing AttributeAccessInterface is being destroyed).
  */
 void unregisterAttributeAccessOverride(chip::app::AttributeAccessInterface * attrOverride);
+
+
+///// Database interface compatibility functions
+
+uint16_t emberAfIndexFromEndpointIncludingDisabledEndpoints(chip::EndpointId endpoint);
