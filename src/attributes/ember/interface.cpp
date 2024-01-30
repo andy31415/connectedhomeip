@@ -214,6 +214,26 @@ CHIP_ERROR EmberDatabase::Write(Attribute::Path path, WriteType write_type, Muta
 {
     VerifyOrReturnError(path.IsValid(), CHIP_ERROR_INVALID_ARGUMENT);
 
+    // TODO: this probably should contain the "write" part of
+    //       ember-compatibility-functions.
+    //
+    //       Specifically:
+    //         - GetAttributeAccessOverride() should be used
+    //           - which implies AttributeValueDecoder which NEEDS a subjectDescriptor
+    //             and a TLVReader
+    // TODO:
+    //    - should we place the overrides OUTSIDE ember? otherwise we seem to inherit
+    //      significant complexity and these seem to be a "bypass ember" intent.
+    //
+    // TEMPORARY DECISION:
+    //    - overrides are OUTSIDE ember. We can create a separate interface with
+    //      overrides if desirable
+    //    - as a result, we CAN get raw data pointers to write.
+    //
+    // OPEN QUESTION:
+    //    - attribute data sizes need management. This probably needs to be pulled in
+    //      the interface
+
     // TODO: data.size() is never used, so we do not seem to validate data
     EmberAfStatus ember_status = emAfWriteAttribute(                             //
         path.GetEndpoint().Raw(),                                                //
