@@ -147,17 +147,18 @@ public:
     virtual bool IsEnabled(Endpoint::Id)    = 0;
     virtual bool IsEnabled(Endpoint::Index) = 0;
 
-    /// Write the attribute at the specified `attribute` path.
-    ///
-    /// The `data` contains the binary data to write while `type` contains what type of data is stored
-    /// within the byte buffer.
-    virtual CHIP_ERROR WriteAttribute(Attribute::IndexPath attribute, ByteSpan data, DataType type) = 0;
 
-    /// Read the attribute at the given `attribute` location.
+    /// Read the attribute at the given `path`.
     ///
     /// Returns the value inside `data` (which will be resized to the right size) and provides
     /// the `type` that was used to encode as binary data into `data`.
-    virtual CHIP_ERROR ReadAttribute(Attribute::IndexPath attribute, MutableByteSpan & data, DataType & type) = 0;
+    virtual CHIP_ERROR Read(Attribute::Path path, MutableByteSpan & data, DataType & type) = 0;
+
+    /// Write the attribute at the specified `path`.
+    ///
+    /// The `data` contains the binary data to write while `type` contains what type of data is stored
+    /// within the byte buffer.
+    virtual CHIP_ERROR Write(Attribute::Path path, MutableByteSpan data, DataType type) = 0;
 };
 
 /// Singleton implementation for fetching the instances of the active attribute database

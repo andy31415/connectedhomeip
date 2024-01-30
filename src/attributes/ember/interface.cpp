@@ -23,6 +23,7 @@
 // TODO: we SHOULD use includes from ember and dependencies,
 #include <app/util/af-types.h>
 #include <app/util/attribute-metadata.h>
+#include <app/util/error-mapping.h>
 
 // Extern declarations because includes cannot be fixed. We could not include items
 // such as:
@@ -40,6 +41,10 @@ bool emberAfEndpointIndexIsEnabled(uint16_t index);
 chip::EndpointId emberAfEndpointFromIndex(uint16_t index);
 uint16_t emberAfEndpointCount();
 uint8_t emberAfClusterCountByIndex(uint16_t endpointIndex, bool server);
+
+// actual writes
+EmberAfStatus emAfWriteAttribute(chip::EndpointId endpoint, chip::ClusterId cluster, chip::AttributeId attributeID,
+                                 uint8_t * data, EmberAfAttributeType dataType, bool overrideReadOnlyAndDataType);
 
 // Even constants declared in headers we cannot include
 static constexpr uint16_t kEmberInvalidEndpointIndex = 0xFFFF;
@@ -108,9 +113,9 @@ Attribute::IndexPath EmberDatabase::IndexOf(Attribute::Path path)
     }
 
     // if the attribute is not inside the cluster, it may be a global one
-    for (size_t i = 0; i < ArraySize(chip::app::GlobalAttributesNotInMetadata); i++)
+    for (size_t i = 0; i < ArraySize(app::GlobalAttributesNotInMetadata); i++)
     {
-        if (chip::app::GlobalAttributesNotInMetadata[i] == path.GetAttribute().Raw())
+        if (app::GlobalAttributesNotInMetadata[i] == path.GetAttribute().Raw())
         {
             return Attribute::IndexPath(cluster_index, Attribute::Index(cluster->attributeCount + i));
         }
@@ -155,10 +160,10 @@ Attribute::Path EmberDatabase::IdForPath(Attribute::IndexPath idx)
     }
 
     size_t globalIndex = idx.GetAttribute().Raw() - cluster->attributeCount;
-    VerifyOrReturnValue(globalIndex < ArraySize(chip::app::GlobalAttributesNotInMetadata), Attribute::Path::Invalid());
+    VerifyOrReturnValue(globalIndex < ArraySize(app::GlobalAttributesNotInMetadata), Attribute::Path::Invalid());
 
     return Attribute::Path(endpoint_id, Cluster::Id(cluster->clusterId),
-                           Attribute::Id(chip::app::GlobalAttributesNotInMetadata[globalIndex]));
+                           Attribute::Id(app::GlobalAttributesNotInMetadata[globalIndex]));
 }
 
 Endpoint::Index EmberDatabase::EndpointEnd()
@@ -182,7 +187,7 @@ Attribute::Index EmberDatabase::AttributeEnd(Cluster::IndexPath idx)
     const EmberAfCluster * cluster = emberAfGetNthCluster(endpoint_id.Raw(), idx.GetCluster().Raw(), /* server = */ true);
     VerifyOrReturnValue(cluster != nullptr, Attribute::Index(0));
 
-    return Attribute::Index(cluster->attributeCount + ArraySize(chip::app::GlobalAttributesNotInMetadata));
+    return Attribute::Index(cluster->attributeCount + ArraySize(app::GlobalAttributesNotInMetadata));
 }
 
 bool EmberDatabase::IsEnabled(Endpoint::Id id)
@@ -197,15 +202,39 @@ bool EmberDatabase::IsEnabled(Endpoint::Index idx)
     return emberAfEndpointIndexIsEnabled(idx.Raw());
 }
 
-CHIP_ERROR EmberDatabase::WriteAttribute(Attribute::IndexPath attribute, ByteSpan data, DataType type)
+CHIP_ERROR EmberDatabase::Read(Attribute::Path path, MutableByteSpan & data, DataType & type)
 {
+    VerifyOrReturnError(path.IsValid(), CHIP_ERROR_INVALID_ARGUMENT);
+
     // TODO
     return CHIP_ERROR_NOT_IMPLEMENTED;
 }
-CHIP_ERROR EmberDatabase::ReadAttribute(Attribute::IndexPath attribute, MutableByteSpan & data, DataType & type)
+
+CHIP_ERROR EmberDatabase::Write(Attribute::Path path, MutableByteSpan data, DataType type)
 {
-    // TODO
-    return CHIP_ERROR_NOT_IMPLEMENTED;
+    VerifyOrReturnError(path.IsValid(), CHIP_ERROR_INVALID_ARGUMENT);
+
+    // TODO: data.size() is never used, so we do not seem to validate data
+    EmberAfStatus ember_status = emAfWriteAttribute(    //
+        path.GetEndpoint().Raw(),                 //
+        path.GetCluster().Raw(),                  //
+        path.GetAttribute().Raw(),                //
+        data.data(),                              //
+        to_underlying(type),                      //
+        /* overrideReadOnlyAndDataType = */ false // TODO: abstract this away?
+    );
+
+    Protocols::InteractionModel::Status im_status = app::ToInteractionModelStatus(ember_status);
+    if (im_status == Protocols::InteractionModel::Status::Success)
+    {
+        return CHIP_NO_ERROR;
+    }
+
+#if CHIP_CONFIG_ERROR_SOURCE
+    return ChipError(ChipError::SdkPart::kIMGlobalStatus, to_underlying(im_status), __FILE__, __LINE__);
+#else
+    return ChipError(ChipError::SdkPart::kIMGlobalStatus, to_underlying(im_status));
+#endif
 }
 
 } // namespace Attributes

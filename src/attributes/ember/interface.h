@@ -45,8 +45,8 @@ public:
     bool IsEnabled(Endpoint::Id) override;
     bool IsEnabled(Endpoint::Index) override;
 
-    CHIP_ERROR WriteAttribute(Attribute::IndexPath attribute, ByteSpan data, DataType type) override;
-    CHIP_ERROR ReadAttribute(Attribute::IndexPath attribute, MutableByteSpan & data, DataType & type) override;
+    CHIP_ERROR Read(Attribute::Path path, MutableByteSpan & data, DataType & type) override;
+    CHIP_ERROR Write(Attribute::Path path, MutableByteSpan data, DataType type) override;
 };
 
 } // namespace Attributes
