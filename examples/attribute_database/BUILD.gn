@@ -33,7 +33,6 @@ executable("attribute-database-test") {
   output_dir = root_out_dir
 }
 
-
 group("linux") {
   deps = [ ":attribute-database-test" ]
 }

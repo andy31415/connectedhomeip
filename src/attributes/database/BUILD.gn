@@ -30,8 +30,6 @@ source_set("database") {
 }
 
 source_set("testing") {
-  sources = [
-    "testing.h",
-  ]
+  sources = [ "testing.h" ]
   public_deps = [ ":database" ]
 }

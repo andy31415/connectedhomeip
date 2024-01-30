@@ -24,6 +24,7 @@ source_set("ember") {
   public_deps = [
     "${chip_root}/src/attributes/database",
     "${chip_root}/src/lib/support",
+
     # TODO:
     #   dependencies Would contain attribute-database, ember-compat-functions
     #   or similar, however those depend on code generation and are included in
@@ -34,4 +35,3 @@ source_set("ember") {
     #   are not properly tracked either
   ]
 }
-
