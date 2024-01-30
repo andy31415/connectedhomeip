@@ -95,7 +95,7 @@ if (chip_device_platform == "darwin") {
       rebase_path("${root_build_dir}/codesign_log.txt", root_build_dir),
     ]
 
-    output_name = "codesign_log.txt"
+    output_name = "codesign_log.txt"Z
     outputs = [ "${root_build_dir}/${output_name}" ]
   }
 }

@@ -18,10 +18,25 @@
 #include <attributes/ember/interface.h>
 #include <lib/support/CodeUtils.h>
 
-// TODO: the includes below should be from dependencies. currently they are not.
-#include <app/util/af.h>
-#include <app/util/attribute-storage.h>
-#include <app/util/attribute-table.h>
+// TODO: we SHOULD use includes from ember and dependencies,
+//       however EMBER depends on zap-generated bits and as such three are
+//       no valid include paths.
+
+#include <app/util/attribute-metadata.h>
+#include <app/util/af-types.h>
+
+// Extern declarations because includes cannot be fixed. We could not include items
+// such as:
+//     #include <app/util/af.h>
+//     #include <app/util/attribute-storage.h>
+//     #include <app/util/attribute-table.h>
+// TODO: proper includes should be fixed
+uint16_t emberAfIndexFromEndpointIncludingDisabledEndpoints(chip::EndpointId endpoint);
+uint8_t emberAfClusterCount(chip::EndpointId endpoint, bool server);
+const EmberAfCluster * emberAfGetNthCluster(chip::EndpointId endpoint, uint8_t n, bool server);
+
+// Even constants declared in headers we cannot include
+static constexpr uint16_t kEmberInvalidEndpointIndex = 0xFFFF;
 
 namespace chip {
 namespace Attributes {
@@ -61,12 +76,12 @@ Cluster::IndexPath EmberDatabase::IndexOf(Cluster::Path path)
     return Cluster::IndexPath::Invalid();
 }
 
-Attribute::IndexPath EmberDatabase::IndexOf(Attribute::Path)
+Attribute::IndexPath EmberDatabase::IndexOf(Attribute::Path path)
 {
     VerifyOrReturnValue(path.IsValid(), Attribute::IndexPath::Invalid());
 
     Cluster::IndexPath cluster_index = IndexOf(path.GetClusterPath());
-    VerifyOrReturnValue(endpoint_index.IsValid(), Attribute::IndexPath::Invalid());
+    VerifyOrReturnValue(cluster_index.IsValid(), Attribute::IndexPath::Invalid());
 
     const EmberAfCluster * cluster =
             emberAfGetNthCluster(path.GetEndpoint().Raw(), cluster_index.GetCluster().Raw(), /* server = */ true);
@@ -76,8 +91,8 @@ Attribute::IndexPath EmberDatabase::IndexOf(Attribute::Path)
 
     const uint16_t attribute_count = cluster->attributeCount;
     for (uint16_t i = 0; i < attribute_count; i++) {
-        const EmberAfAttributeMetadata *attribute = cluster->attributes[i];
-        if (attribute->attributeId != path.GetAttribute().Raw()) {
+        const EmberAfAttributeMetadata &attribute = cluster->attributes[i];
+        if (attribute.attributeId != path.GetAttribute().Raw()) {
             continue;
         }
 

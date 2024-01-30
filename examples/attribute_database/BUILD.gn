@@ -26,6 +26,8 @@ executable("attribute-database-test") {
     "${chip_root}/examples/platform/linux:app-main",
     "${chip_root}/src/attributes/database",
     "${chip_root}/src/attributes/ember",
+    # This grabs the ember database for all-clusters
+    "${chip_root}/examples/all-clusters-app/all-clusters-common",
   ]
   output_dir = root_out_dir
 }

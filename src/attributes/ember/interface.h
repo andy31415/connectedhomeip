@@ -28,7 +28,7 @@ class EmberDatabase : public Database
 {
 
 public:
-    virtual ~Database() = default;
+    virtual ~EmberDatabase() = default;
 
     Endpoint::Index IndexOf(Endpoint::Id) override;
     Cluster::IndexPath IndexOf(Cluster::Path) override;
