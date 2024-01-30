@@ -110,6 +110,14 @@ protected:
                                                                                                                                    \
         _NAME() : Base(_INVALID_VALUE) {}                                                                                          \
         explicit _NAME(_TYPE _x) : Base(_x) {}                                                                                     \
+        static _NAME Invalid()                                                                                                     \
+        {                                                                                                                          \
+            return _NAME();                                                                                                        \
+        }                                                                                                                          \
+        bool IsValid() const                                                                                                       \
+        {                                                                                                                          \
+            return Raw() != _INVALID_VALUE;                                                                                        \
+        }                                                                                                                          \
         bool operator==(const _NAME & other) const                                                                                 \
         {                                                                                                                          \
             return eq(other);                                                                                                      \

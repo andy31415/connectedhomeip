@@ -29,12 +29,16 @@ class Path
 public:
     Path(Endpoint::Id endpoint, Cluster::Id cluster) : mEndpoint(endpoint), mCluster(cluster) {}
 
+    static Path Invalid() { return Path(Endpoint::Id::Invalid(), Cluster::Id::Invalid()); }
+
     bool operator==(const Path & other) const
     {
         return (mEndpoint == other.mEndpoint) //
             && (mCluster == other.mCluster);  //
     }
     bool operator!=(const Path & other) const { return !(*this == other); }
+
+    bool IsValid() const { return mEndpoint.IsValid() && mCluster.IsValid(); }
 
     Endpoint::Id GetEndpoint() const { return mEndpoint; }
     Cluster::Id GetCluster() const { return mCluster; }
@@ -49,6 +53,8 @@ class IndexPath
 {
 public:
     IndexPath(Endpoint::Index endpoint, Cluster::Index cluster) : mEndpoint(endpoint), mCluster(cluster) {}
+    static IndexPath Invalid() { return IndexPath(Endpoint::Index::Invalid(), Cluster::Index::Invalid()); }
+    bool IsValid() const { return mEndpoint.IsValid() && mCluster.IsValid(); }
 
     bool operator==(const IndexPath & other) const
     {
@@ -81,6 +87,10 @@ public:
         mEndpoint(clusterPath.GetEndpoint()), mCluster(clusterPath.GetCluster()), mAttribute(attribute)
     {}
 
+    static Path Invalid() { return Path(Endpoint::Id::Invalid(), Cluster::Id::Invalid(), Attribute::Id::Invalid()); }
+
+    bool IsValid() const { return mEndpoint.IsValid() && mCluster.IsValid() && mAttribute.IsValid(); }
+
     bool operator==(const Path & other) const
     {
         return (mEndpoint == other.mEndpoint)    //
@@ -111,6 +121,13 @@ public:
     IndexPath(const Cluster::IndexPath clusterPath, Attribute::Index attribute) :
         mEndpoint(clusterPath.GetEndpoint()), mCluster(clusterPath.GetCluster()), mAttribute(attribute)
     {}
+
+    static IndexPath Invalid()
+    {
+        return IndexPath(Endpoint::Index::Invalid(), Cluster::Index::Invalid(), Attribute::Index::Invalid());
+    }
+
+    bool IsValid() const { return mEndpoint.IsValid() && mCluster.IsValid() && mAttribute.IsValid(); }
 
     bool operator==(const IndexPath & other) const
     {

@@ -111,11 +111,32 @@ void TestDefaults(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, Attribute::Index(123).IsValid());
 }
 
+void TestValidity(nlTestSuite * inSuite, void * inContext)
+{
+    NL_TEST_ASSERT(inSuite, !Endpoint::Id().IsValid());
+    NL_TEST_ASSERT(inSuite, !Cluster::Id().IsValid());
+    NL_TEST_ASSERT(inSuite, !Attribute::Id().IsValid());
+
+    NL_TEST_ASSERT(inSuite, Endpoint::Id(0).IsValid());
+    NL_TEST_ASSERT(inSuite, Cluster::Id(1).IsValid());
+    NL_TEST_ASSERT(inSuite, Attribute::Id(2).IsValid());
+
+
+    NL_TEST_ASSERT(inSuite, !Cluster::Path::Invalid().IsValid());
+    NL_TEST_ASSERT(inSuite, !Cluster::IndexPath::Invalid().IsValid());
+    NL_TEST_ASSERT(inSuite, !Attribute::Path::Invalid().IsValid());
+    NL_TEST_ASSERT(inSuite, !Attribute::IndexPath::Invalid().IsValid());
+
+    NL_TEST_ASSERT(inSuite, Cluster::Path(Endpoint::Id(123), Cluster::Id(234)).IsValid());
+    NL_TEST_ASSERT(inSuite, Attribute::Path(Endpoint::Id(123), Cluster::Id(234), Attribute::Id(345)).IsValid());
+}
+
 const nlTest sTests[] = {
     NL_TEST_DEF("TestIdPathEquality", TestIdPathEquality),       //
     NL_TEST_DEF("TestIndexPathEquality", TestIndexPathEquality), //
     NL_TEST_DEF("TestIndexIncrements", TestIndexIncrements),     //
     NL_TEST_DEF("TestDefaults", TestDefaults),                   //
+    NL_TEST_DEF("TestValidity", TestValidity),                   //
     NL_TEST_SENTINEL()                                           //
 };
 
