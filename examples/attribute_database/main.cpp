@@ -23,6 +23,10 @@
 #include <attributes/database/interface.h>
 #include <attributes/ember/interface.h>
 
+// for other tests
+#include <lib/core/TLVReader.h>
+#include <lib/core/TLVWriter.h>
+
 using namespace chip::Attributes;
 
 static void StopApp(chip::System::Layer *, void *)
@@ -134,6 +138,9 @@ static void RunTests(chip::System::Layer * layer, void *)
     }
 
     ChipLogProgress(NotSpecified, "--------------------------- Test DONE -------------------------------");
+
+    ChipLogProgress(NotSpecified, "TLVReader size: %lu", sizeof(chip::TLV::TLVReader)); // 72
+    ChipLogProgress(NotSpecified, "TLVWriter size: %lu", sizeof(chip::TLV::TLVWriter)); // 64
 
     layer->StartTimer(chip::System::Clock::Milliseconds32(10), StopApp, nullptr);
 }
