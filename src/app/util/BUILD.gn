@@ -22,3 +22,26 @@ source_set("types") {
     "types_stub.h",
   ]
 }
+
+source_set("constants") {
+  sources = [
+    "privilege-constants.h"
+  ]
+
+  public_deps = [
+    "${chip_root}/src/lib/core",
+  ]
+}
+
+source_set("privilege-storage") {
+  sources = [
+    "privilege-storage.cpp",
+    "privilege-storage.h",
+  ]
+
+  public_deps = [
+    ":constants"
+    "${chip_root}/src/lib/core",
+    "${chip_root}/src/lib/support",
+  ]
+}
