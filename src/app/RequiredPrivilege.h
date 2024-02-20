@@ -22,10 +22,9 @@
 #include "ConcreteCommandPath.h"
 #include "ConcreteEventPath.h"
 
-#include <app/util/privilege-storage.h>
-
 #include <access/Privilege.h>
-
+#include <app/util/privilege-constants.h>
+#include <app/util/privilege-storage.h>
 #include <lib/core/CHIPCore.h>
 #include <lib/core/DataModelTypes.h>
 

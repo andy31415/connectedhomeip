@@ -20,9 +20,9 @@
 #include <zap-generated/access.h>
 #endif // !CHIP_CONFIG_SKIP_APP_SPECIFIC_GENERATED_HEADER_INCLUDES
 
+#include <app/util/privilege-constants.h>
 #include <lib/core/CHIPConfig.h>
 #include <lib/support/CodeUtils.h>
-#include <src/app/util/privilege-constants.h>
 
 #include <cstdint>
 
