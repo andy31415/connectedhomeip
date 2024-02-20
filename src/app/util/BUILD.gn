@@ -39,6 +39,8 @@ source_set("privilege-storage") {
     "privilege-storage.h",
   ]
 
+  public_configs = [ "${chip_root}/src:includes" ]
+
   public_deps = [
     ":constants",
     "${chip_root}/src/lib/core",
