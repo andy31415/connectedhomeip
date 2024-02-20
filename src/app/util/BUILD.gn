@@ -40,7 +40,7 @@ source_set("privilege-storage") {
   ]
 
   public_deps = [
-    ":constants"
+    ":constants",
     "${chip_root}/src/lib/core",
     "${chip_root}/src/lib/support",
   ]
