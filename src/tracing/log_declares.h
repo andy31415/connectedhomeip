@@ -56,7 +56,7 @@ public:
     int32_t ValueInt32() const
     {
         VerifyOrDie(mType == Type::kInt32);
-        return mStore.uint32_value;
+        return mStore.int32_value;
     }
 
     uint32_t ValueErrorCode() const

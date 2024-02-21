@@ -63,10 +63,10 @@ namespace Tracing {
         public:
             DarwinTracingBackend();
 
-            typedef void (^MetricEventHandler)(MetricEvent event);
+            typedef void (^MetricEventHandler)(const char *label, const Metric &metric);
 
             void SetMetricEventHandler(MetricEventHandler callback);
-            void LogMetricEvent(MetricEvent & event) override;
+            void LogMetric(const char *label, const Metric& metric) override;
 
         private:
             MetricEventHandler mClientCallback;
