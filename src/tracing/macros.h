@@ -71,7 +71,7 @@
 
 #define MATTER_TRACE_METRIC(label, metric) ::chip::Tracing::Internal::LogMetric((label), (metric))
 
-#define MATTER_TRACE_IF_ERROR(error, label)                                                                                        \
+#define MATTER_TRACE_IF_ERROR(label, error)                                   \
     do                                                                                                                             \
     {                                                                                                                              \
         ::chip::ChipError _err = (error);                                                                                          \
@@ -101,7 +101,6 @@
 #define MATTER_LOG_NODE_DISCOVERED(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
 #define MATTER_LOG_NODE_DISCOVERY_FAILED(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
 
-#define MATTER_LOG_NODE_DISCOVERY_FAILED(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
 #define MATTER_TRACE_IF_ERROR(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
 #define MATTER_TRACE_METRIC(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
 

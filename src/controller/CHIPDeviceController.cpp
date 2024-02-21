@@ -756,7 +756,7 @@ CHIP_ERROR DeviceCommissioner::EstablishPASEConnection(NodeId remoteDeviceId, Re
     SuccessOrExit(err);
 
 exit:
-    MATTER_TRACE_IF_ERROR(err, operationState);
+    MATTER_TRACE_IF_ERROR(operationState, err);
     if (err != CHIP_NO_ERROR)
     {
         if (device != nullptr)
