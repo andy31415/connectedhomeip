@@ -18,7 +18,7 @@
 #pragma once
 
 #include <matter/tracing/build_config.h>
-#include <tracing/metric_macros.h>
+#include <tracing/metric_keys.h>
 
 #if MATTER_TRACING_ENABLED
 
@@ -69,6 +69,18 @@
         ::chip::Tracing::Internal::LogNodeDiscoveryFailed(_trace_data);                                                            \
     } while (false)
 
+#define MATTER_TRACE_METRIC(label, metric) ::chip::Tracing::Internal::LogMetric((label), (metric))
+
+#define MATTER_TRACE_IF_ERROR(error, label)                                                                                        \
+    do                                                                                                                             \
+    {                                                                                                                              \
+        ::chip::ChipError _err = (error);                                                                                          \
+        if (!::chip::ChipError::IsSuccess(_err))                                                                                   \
+        {                                                                                                                          \
+            ::chip::Tracing::Internal::LogMetric(label, ::chip::Tracing::Metric::ErrorCode(_err.AsInteger()));                     \
+        }                                                                                                                          \
+    } while (0)
+
 #else // MATTER_TRACING_ENABLED
 
 #define _MATTER_TRACE_DISABLE(...)                                                                                                 \
@@ -88,5 +100,8 @@
 #define MATTER_LOG_NODE_LOOKUP(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
 #define MATTER_LOG_NODE_DISCOVERED(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
 #define MATTER_LOG_NODE_DISCOVERY_FAILED(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
+
+#define MATTER_LOG_NODE_DISCOVERY_FAILED(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
+#define MATTER_TRACE_IF_ERROR(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
 
 #endif // MATTER_TRACING_ENABLED

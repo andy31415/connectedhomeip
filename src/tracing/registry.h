@@ -18,6 +18,7 @@
 
 #include <matter/tracing/build_config.h>
 #include <tracing/backend.h>
+#include <tracing/log_declares.h>
 
 namespace chip {
 namespace Tracing {
@@ -78,12 +79,12 @@ void End(const char * label, const char * group);
 void Instant(const char * label, const char * group);
 void Counter(const char * label);
 
-void LogMessageSend(::chip::Tracing::MessageSendInfo & info);
-void LogMessageReceived(::chip::Tracing::MessageReceivedInfo & info);
-void LogNodeLookup(::chip::Tracing::NodeLookupInfo & info);
-void LogNodeDiscovered(::chip::Tracing::NodeDiscoveredInfo & info);
-void LogNodeDiscoveryFailed(::chip::Tracing::NodeDiscoveryFailedInfo & info);
-void LogMetricEvent(::chip::Tracing::MetricEvent & event);
+void LogMessageSend(const ::chip::Tracing::MessageSendInfo & info);
+void LogMessageReceived(const ::chip::Tracing::MessageReceivedInfo & info);
+void LogNodeLookup(const ::chip::Tracing::NodeLookupInfo & info);
+void LogNodeDiscovered(const ::chip::Tracing::NodeDiscoveredInfo & info);
+void LogNodeDiscoveryFailed(const ::chip::Tracing::NodeDiscoveryFailedInfo & info);
+void LogMetric(const char *label, const ::chip::Tracing::Metric &metric);
 
 } // namespace Internal
 

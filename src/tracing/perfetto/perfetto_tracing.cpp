@@ -16,7 +16,6 @@
  *    limitations under the License.
  */
 
-#include <tracing/metric_event.h>
 #include <tracing/perfetto/perfetto_tracing.h>
 
 #include <lib/address_resolve/TracingStructs.h>
@@ -30,7 +29,7 @@ namespace chip {
 namespace Tracing {
 namespace Perfetto {
 
-void PerfettoBackend::LogMessageReceived(MessageReceivedInfo & info)
+void PerfettoBackend::LogMessageReceived(const MessageReceivedInfo & info)
 {
     const char * messageType = "UNKNOWN";
     switch (info.messageType)
@@ -52,7 +51,7 @@ void PerfettoBackend::LogMessageReceived(MessageReceivedInfo & info)
     );
 }
 
-void PerfettoBackend::LogMessageSend(MessageSendInfo & info)
+void PerfettoBackend::LogMessageSend(const MessageSendInfo & info)
 {
     const char * messageType = "UNKNOWN";
     switch (info.messageType)
@@ -74,7 +73,7 @@ void PerfettoBackend::LogMessageSend(MessageSendInfo & info)
     );
 }
 
-void PerfettoBackend::LogNodeLookup(NodeLookupInfo & info)
+void PerfettoBackend::LogNodeLookup(const NodeLookupInfo & info)
 {
     TRACE_EVENT_INSTANT(                                                          //
         "Matter", "NodeLookup",                                                   //
@@ -83,7 +82,7 @@ void PerfettoBackend::LogNodeLookup(NodeLookupInfo & info)
     );
 }
 
-void PerfettoBackend::LogNodeDiscovered(NodeDiscoveredInfo & info)
+void PerfettoBackend::LogNodeDiscovered(const NodeDiscoveredInfo & info)
 {
     char address_buff[chip::Transport::PeerAddress::kMaxToStringSize];
     info.result->address.ToString(address_buff);
@@ -117,7 +116,7 @@ void PerfettoBackend::LogNodeDiscovered(NodeDiscoveredInfo & info)
     }
 }
 
-void PerfettoBackend::LogNodeDiscoveryFailed(NodeDiscoveryFailedInfo & info)
+void PerfettoBackend::LogNodeDiscoveryFailed(const NodeDiscoveryFailedInfo & info)
 {
     TRACE_EVENT_INSTANT(                                              //
         "Matter", "Discovery Failed",                                 //
@@ -127,9 +126,22 @@ void PerfettoBackend::LogNodeDiscoveryFailed(NodeDiscoveryFailedInfo & info)
     );
 }
 
-void PerfettoBackend::LogMetricEvent(MetricEvent & event)
+void PerfettoBackend::LogMetric(const char *label, const Metric & metric)
 {
-    TRACE_COUNTER("Matter", event.key, event.value.store.int32_value);
+    switch (metric.GetType()) {
+    case Metric::Type::kInt32:
+        TRACE_EVENT_INSTANT("Matter", label, "value", metric.ValueInt32());
+        break;
+    case Metric::Type::kUInt32:
+        TRACE_EVENT_INSTANT("Matter", label, "value", metric.ValueUInt32());
+        break;
+    case Metric::Type::kErrorCode:
+        TRACE_EVENT_INSTANT("Matter", label, "error", metric.ValueErrorCode());
+        break;
+    default:
+        TRACE_EVENT_INSTANT("Matter", label, "type", "UNKNOWN");
+        break;
+    }
 }
 
 } // namespace Perfetto

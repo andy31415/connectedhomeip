@@ -24,7 +24,6 @@
 #include <lib/support/StringBuilder.h>
 #include <lib/support/StringSplitter.h>
 #include <log_json/log_json_build_config.h>
-#include <tracing/metric_event.h>
 #include <transport/TracingStructs.h>
 
 #include <json/json.h>
@@ -296,16 +295,29 @@ void JsonBackend::TraceCounter(const char * label)
     OutputValue(value);
 }
 
-void JsonBackend::LogMetricEvent(MetricEvent & event)
+void JsonBackend::LogMetric(const char *label, const Metric & event)
 {
     ::Json::Value value;
-    value["label"] = event.key;
-    value["value"] = event.value.store.int32_value;
+    value["label"] = label;
+    switch (event.GetType()) {
+    case Metric::Type::kInt32:
+        value["value"] = event.ValueInt32();
+        break;
+    case Metric::Type::kUInt32:
+        value["value"] = event.ValueUInt32();
+        break;
+    case Metric::Type::kErrorCode:
+        value["error_code"] = event.ValueErrorCode();
+        break;
+    default:
+        value["type"] = "UNKNOWN";
+        break;
+    }
 
     OutputValue(value);
 }
 
-void JsonBackend::LogMessageSend(MessageSendInfo & info)
+void JsonBackend::LogMessageSend(const MessageSendInfo & info)
 {
     ::Json::Value value;
 
@@ -331,7 +343,7 @@ void JsonBackend::LogMessageSend(MessageSendInfo & info)
     OutputValue(value);
 }
 
-void JsonBackend::LogMessageReceived(MessageReceivedInfo & info)
+void JsonBackend::LogMessageReceived(const MessageReceivedInfo & info)
 {
     ::Json::Value value;
 
@@ -357,7 +369,7 @@ void JsonBackend::LogMessageReceived(MessageReceivedInfo & info)
     OutputValue(value);
 }
 
-void JsonBackend::LogNodeLookup(NodeLookupInfo & info)
+void JsonBackend::LogNodeLookup(const NodeLookupInfo & info)
 {
     ::Json::Value value;
 
@@ -370,7 +382,7 @@ void JsonBackend::LogNodeLookup(NodeLookupInfo & info)
     OutputValue(value);
 }
 
-void JsonBackend::LogNodeDiscovered(NodeDiscoveredInfo & info)
+void JsonBackend::LogNodeDiscovered(const NodeDiscoveredInfo & info)
 {
     ::Json::Value value;
     value["event"] = "LogNodeDiscovered";
@@ -413,7 +425,7 @@ void JsonBackend::LogNodeDiscovered(NodeDiscoveredInfo & info)
     OutputValue(value);
 }
 
-void JsonBackend::LogNodeDiscoveryFailed(NodeDiscoveryFailedInfo & info)
+void JsonBackend::LogNodeDiscoveryFailed(const NodeDiscoveryFailedInfo & info)
 {
     ::Json::Value value;
 

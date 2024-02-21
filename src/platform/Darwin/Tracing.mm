@@ -17,7 +17,6 @@
  */
 #import <Foundation/Foundation.h>
 #include <platform/Darwin/Tracing.h>
-#include <tracing/metric_event.h>
 
 namespace chip {
 namespace Tracing {

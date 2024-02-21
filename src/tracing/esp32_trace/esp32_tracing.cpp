@@ -24,7 +24,6 @@
 #include <tracing/backend.h>
 #include <tracing/esp32_trace/counter.h>
 #include <tracing/esp32_trace/esp32_tracing.h>
-#include <tracing/metric_event.h>
 
 namespace chip {
 namespace Tracing {
@@ -140,32 +139,39 @@ void RemoveHashFromPermitlist(const char * str)
                        heap_caps_get_free_size(MALLOC_CAP_8BIT));                                                                  \
     } while (0)
 
-void ESP32Backend::LogMessageReceived(MessageReceivedInfo & info) {}
-
-void ESP32Backend::LogMessageSend(MessageSendInfo & info) {}
-
-void ESP32Backend::LogNodeLookup(NodeLookupInfo & info) {}
-
-void ESP32Backend::LogNodeDiscovered(NodeDiscoveredInfo & info) {}
-
-void ESP32Backend::LogNodeDiscoveryFailed(NodeDiscoveryFailedInfo & info) {}
-
 void ESP32Backend::TraceCounter(const char * label)
 {
     ::Insights::ESPInsightsCounter::GetInstance(label)->ReportMetrics();
 }
 
-void ESP32Backend::LogMetricEvent(MetricEvent & event)
+void ESP32Backend::LogMetricEvent(const char *label, const Metric &event)
 {
     if (!mRegistered)
-    {
-        esp_diag_metrics_register("SYS_MTR" /*Tag of metrics */, event.key /* Unique key 8 */,
-                                  event.key /* label displayed on dashboard */, "insights.mtr" /* hierarchical path */,
-                                  ESP_DIAG_DATA_TYPE_INT /* data_type */);
-        mRegistered = true;
+        {
+            esp_diag_metrics_register("SYS_MTR" /*Tag of metrics */, label /* Unique key 8 */,
+                                      label /* label displayed on dashboard */, "insights.mtr" /* hierarchical path */,
+                                      ESP_DIAG_DATA_TYPE_INT /* data_type */);
+            mRegistered = true;
+        }
+    switch (event.GetType()) {
+    case Metric::Type::kInt32:
+        ESP_LOGI("mtr", "The value of %s is %ld", label, (long)event.ValueInt32());
+        esp_diag_metrics_add_int(label, event.ValueInt32());
+        break;
+    case Metric::Type::kUInt32:
+        ESP_LOGI("mtr", "The value of %s is %lu", label, (unsigned)event.ValueUInt32());
+        esp_diag_metrics_add_uint(label, event.ValueUInt32());
+        break;
+    case Metric::Type::kErrorCode:
+        // TODO: there is no difference between a code and a uint32 value here
+        //       is this what we want?
+        ESP_LOGI("mtr", "The value of %s is ERROR %lu", label, (unsigned)event.ValueUInt32());
+        esp_diag_metrics_add_uint(label, event.ValueUInt32());
+        break;
+    default:
+        ESP_LOGI("mtr", "The value of %s is of an UNKNOWN TYPE", label);
+        break;
     }
-    ESP_LOGI("mtr", "The value of %s is %ld ", event.key, event.value.store.int32_value);
-    esp_diag_metrics_add_int(event.key, event.value.store.int32_value);
 }
 
 void ESP32Backend::TraceBegin(const char * label, const char * group)

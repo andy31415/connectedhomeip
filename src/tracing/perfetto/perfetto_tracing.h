@@ -38,13 +38,13 @@ public:
     // as they would be slower than expected. Perfetto trace macros
     // are expected to be set exclusively (via matter_trace_config)
 
-    void LogMessageSend(MessageSendInfo &) override;
-    void LogMessageReceived(MessageReceivedInfo &) override;
+    void LogMessageSend(const MessageSendInfo &) override;
+    void LogMessageReceived(const MessageReceivedInfo &) override;
 
-    void LogNodeLookup(NodeLookupInfo &) override;
-    void LogNodeDiscovered(NodeDiscoveredInfo &) override;
-    void LogNodeDiscoveryFailed(NodeDiscoveryFailedInfo &) override;
-    void LogMetricEvent(MetricEvent &) override;
+    void LogNodeLookup(const NodeLookupInfo &) override;
+    void LogNodeDiscovered(const NodeDiscoveredInfo &) override;
+    void LogNodeDiscoveryFailed(const NodeDiscoveryFailedInfo &) override;
+    void LogMetric(const char *label, const  Metric &) override;
 };
 
 } // namespace Perfetto

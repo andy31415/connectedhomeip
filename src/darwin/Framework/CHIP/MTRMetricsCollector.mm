@@ -20,7 +20,6 @@
 #include "MTRMetrics_Internal.h"
 #import <MTRUnfairLock.h>
 #include <platform/Darwin/Tracing.h>
-#include <tracing/metric_event.h>
 #include <tracing/registry.h>
 
 using MetricEvent = chip::Tracing::MetricEvent;
@@ -52,7 +51,7 @@ void InitializeMetricsCollection()
     } else {
         _value = [NSNumber numberWithUnsignedInteger:event.value.store.uint32_value];
     }
-    _timePoint = event.timePoint;
+    _timePoint = System::SystemClock().GetMonotonicMicroseconds64();
     _duration = chip::System::Clock::Microseconds64(0);
     return self;
 }

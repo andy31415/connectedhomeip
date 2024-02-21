@@ -64,13 +64,13 @@ public:
     virtual void TraceInstant(const char * label, const char * group) {}
 
     virtual void TraceCounter(const char * label) {}
-    virtual void LogMessageSend(MessageSendInfo &) { TraceInstant("MessageSent", "Messaging"); }
-    virtual void LogMessageReceived(MessageReceivedInfo &) { TraceInstant("MessageReceived", "Messaging"); }
+    virtual void LogMessageSend(const MessageSendInfo &) { TraceInstant("MessageSent", "Messaging"); }
+    virtual void LogMessageReceived(const MessageReceivedInfo &) { TraceInstant("MessageReceived", "Messaging"); }
 
-    virtual void LogNodeLookup(NodeLookupInfo &) { TraceInstant("Lookup", "DNSSD"); }
-    virtual void LogNodeDiscovered(NodeDiscoveredInfo &) { TraceInstant("Node Discovered", "DNSSD"); }
-    virtual void LogNodeDiscoveryFailed(NodeDiscoveryFailedInfo &) { TraceInstant("Discovery Failed", "DNSSD"); }
-    virtual void LogMetricEvent(MetricEvent &) { TraceInstant("Metric Event", "Metric"); }
+    virtual void LogNodeLookup(const NodeLookupInfo &) { TraceInstant("Lookup", "DNSSD"); }
+    virtual void LogNodeDiscovered(const NodeDiscoveredInfo &) { TraceInstant("Node Discovered", "DNSSD"); }
+    virtual void LogNodeDiscoveryFailed(const NodeDiscoveryFailedInfo &) { TraceInstant("Discovery Failed", "DNSSD"); }
+    virtual void LogMetric(const char *label, const Metric &) { }
 };
 
 } // namespace Tracing
