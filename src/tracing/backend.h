@@ -70,7 +70,7 @@ public:
     virtual void LogNodeLookup(const NodeLookupInfo &) { TraceInstant("Lookup", "DNSSD"); }
     virtual void LogNodeDiscovered(const NodeDiscoveredInfo &) { TraceInstant("Node Discovered", "DNSSD"); }
     virtual void LogNodeDiscoveryFailed(const NodeDiscoveryFailedInfo &) { TraceInstant("Discovery Failed", "DNSSD"); }
-    virtual void LogMetric(const char *label, const Metric &) { }
+    virtual void LogMetric(const char * label, const Metric &) {}
 };
 
 } // namespace Tracing

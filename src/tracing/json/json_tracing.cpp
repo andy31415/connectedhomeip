@@ -295,11 +295,12 @@ void JsonBackend::TraceCounter(const char * label)
     OutputValue(value);
 }
 
-void JsonBackend::LogMetric(const char *label, const Metric & event)
+void JsonBackend::LogMetric(const char * label, const Metric & event)
 {
     ::Json::Value value;
     value["label"] = label;
-    switch (event.GetType()) {
+    switch (event.GetType())
+    {
     case Metric::Type::kInt32:
         value["value"] = event.ValueInt32();
         break;
@@ -308,6 +309,23 @@ void JsonBackend::LogMetric(const char *label, const Metric & event)
         break;
     case Metric::Type::kErrorCode:
         value["error_code"] = event.ValueErrorCode();
+        break;
+    case Metric::Type::kProcessExecution:
+        switch (event.ValueProcessExecution())
+        {
+        case ProcessExecution::kStart:
+            value["state"] = "Start";
+            break;
+        case ProcessExecution::kHeartbeat:
+            value["state"] = "Heartbeat";
+            break;
+        case ProcessExecution::kEnd:
+            value["state"] = "End";
+            break;
+        default:
+            value["state"] = "UNKNOWN";
+            break;
+        }
         break;
     default:
         value["type"] = "UNKNOWN";

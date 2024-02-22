@@ -144,30 +144,36 @@ void ESP32Backend::TraceCounter(const char * label)
     ::Insights::ESPInsightsCounter::GetInstance(label)->ReportMetrics();
 }
 
-void ESP32Backend::LogMetricEvent(const char *label, const Metric &event)
+void ESP32Backend::LogMetric(const char * label, const Metric & event)
 {
     if (!mRegistered)
-        {
-            esp_diag_metrics_register("SYS_MTR" /*Tag of metrics */, label /* Unique key 8 */,
-                                      label /* label displayed on dashboard */, "insights.mtr" /* hierarchical path */,
-                                      ESP_DIAG_DATA_TYPE_INT /* data_type */);
-            mRegistered = true;
-        }
-    switch (event.GetType()) {
+    {
+        esp_diag_metrics_register("SYS_MTR" /*Tag of metrics */, label /* Unique key 8 */, label /* label displayed on dashboard */,
+                                  "insights.mtr" /* hierarchical path */, ESP_DIAG_DATA_TYPE_INT /* data_type */);
+        mRegistered = true;
+    }
+    switch (event.GetType())
+    {
     case Metric::Type::kInt32:
-        ESP_LOGI("mtr", "The value of %s is %ld", label, (long)event.ValueInt32());
+        ESP_LOGI("mtr", "The value of %s is %ld", label, (long) event.ValueInt32());
         esp_diag_metrics_add_int(label, event.ValueInt32());
         break;
     case Metric::Type::kUInt32:
-        ESP_LOGI("mtr", "The value of %s is %lu", label, (unsigned)event.ValueUInt32());
+        ESP_LOGI("mtr", "The value of %s is %lu", label, (unsigned) event.ValueUInt32());
         esp_diag_metrics_add_uint(label, event.ValueUInt32());
         break;
     case Metric::Type::kErrorCode:
         // TODO: there is no difference between a code and a uint32 value here
         //       is this what we want?
-        ESP_LOGI("mtr", "The value of %s is ERROR %lu", label, (unsigned)event.ValueUInt32());
+        ESP_LOGI("mtr", "The value of %s is ERROR %lu", label, (unsigned) event.ValueUInt32());
         esp_diag_metrics_add_uint(label, event.ValueUInt32());
         break;
+    case Metric::Type::kProcessExecution: {
+        int value = static_cast<int>(event.ValueProcessExecution());
+        ESP_LOGI("mtr", "The value of %s is EXECUTION %d", label, value);
+        esp_diag_metrics_add_int(label, event.ValueUInt32());
+        break;
+    }
     default:
         ESP_LOGI("mtr", "The value of %s is of an UNKNOWN TYPE", label);
         break;

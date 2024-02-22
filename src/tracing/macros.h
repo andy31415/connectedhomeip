@@ -27,6 +27,7 @@
 //    MATTER_TRACE_END(label, group)
 //    MATTER_TRACE_INSTANT(label, group)
 //    MATTER_TRACE_SCOPE(label, group)
+//    MATTER_TRACE_COUNTER(label)
 
 #include <matter/tracing/macros_impl.h>
 #include <tracing/log_declares.h>
@@ -71,7 +72,14 @@
 
 #define MATTER_TRACE_METRIC(label, metric) ::chip::Tracing::Internal::LogMetric((label), (metric))
 
-#define MATTER_TRACE_IF_ERROR(label, error)                                   \
+#define MATTER_TRACE_ASYNC_BEGIN(label)                                                                                            \
+    MATTER_TRACE_METRIC(label, ::chip::Tracing::Metric::State(::chip::Tracing::ProcessExecution::kStart))
+#define MATTER_TRACE_ASYNC_HEARTBEAT(label)                                                                                        \
+    MATTER_TRACE_METRIC(label, ::chip::Tracing::Metric::State(::chip::Tracing::ProcessExecution::kHeartbeat))
+#define MATTER_TRACE_ASYNC_END(label)                                                                                              \
+    MATTER_TRACE_METRIC(label, ::chip::Tracing::Metric::State(::chip::Tracing::ProcessExecution::kEnd))
+
+#define MATTER_TRACE_IF_ERROR(label, error)                                                                                        \
     do                                                                                                                             \
     {                                                                                                                              \
         ::chip::ChipError _err = (error);                                                                                          \
@@ -103,5 +111,9 @@
 
 #define MATTER_TRACE_IF_ERROR(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
 #define MATTER_TRACE_METRIC(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
+
+#define MATTER_TRACE_ASYNC_BEGIN(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
+#define MATTER_TRACE_ASYNC_HEARTBEAT(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
+#define MATTER_TRACE_ASYNC_END(...) _MATTER_TRACE_DISABLE(__VA_ARGS__)
 
 #endif // MATTER_TRACING_ENABLED

@@ -124,7 +124,7 @@ void LogNodeDiscoveryFailed(const ::chip::Tracing::NodeDiscoveryFailedInfo & inf
     }
 }
 
-void LogMetric(const char *label, const ::chip::Tracing::Metric& event)
+void LogMetric(const char * label, const ::chip::Tracing::Metric & event)
 {
     for (auto & backend : gTracingBackends)
     {

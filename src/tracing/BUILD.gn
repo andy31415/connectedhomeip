@@ -36,9 +36,9 @@ static_library("tracing") {
   sources = [
     "backend.h",
     "log_declares.h",
+    "metric_keys.h",
     "registry.cpp",
     "registry.h",
-    "metric_keys.h",
   ]
 
   public_deps = [

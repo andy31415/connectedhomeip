@@ -126,9 +126,10 @@ void PerfettoBackend::LogNodeDiscoveryFailed(const NodeDiscoveryFailedInfo & inf
     );
 }
 
-void PerfettoBackend::LogMetric(const char *label, const Metric & metric)
+void PerfettoBackend::LogMetric(const char * label, const Metric & metric)
 {
-    switch (metric.GetType()) {
+    switch (metric.GetType())
+    {
     case Metric::Type::kInt32:
         TRACE_EVENT_INSTANT("Matter", label, "value", metric.ValueInt32());
         break;
@@ -137,6 +138,23 @@ void PerfettoBackend::LogMetric(const char *label, const Metric & metric)
         break;
     case Metric::Type::kErrorCode:
         TRACE_EVENT_INSTANT("Matter", label, "error", metric.ValueErrorCode());
+        break;
+    case Metric::Type::kProcessExecution:
+        switch (metric.ValueProcessExecution())
+        {
+        case ProcessExecution::kStart:
+            TRACE_EVENT_INSTANT("Matter", label, "state", "START");
+            break;
+        case ProcessExecution::kHeartbeat:
+            TRACE_EVENT_INSTANT("Matter", label, "state", "HEARTBEAT");
+            break;
+        case ProcessExecution::kEnd:
+            TRACE_EVENT_INSTANT("Matter", label, "state", "END");
+            break;
+        default:
+            TRACE_EVENT_INSTANT("Matter", label, "state", "UNKNOWN");
+            break;
+        }
         break;
     default:
         TRACE_EVENT_INSTANT("Matter", label, "type", "UNKNOWN");

@@ -36,7 +36,7 @@ public:
     void LogNodeLookup(const NodeLookupInfo &) override {}
     void LogNodeDiscovered(const NodeDiscoveredInfo &) override {}
     void LogNodeDiscoveryFailed(const NodeDiscoveryFailedInfo &) override {}
-    void LogMetric(const char *label, const Metric&) override;
+    void LogMetric(const char * label, const Metric &) override;
 
 private:
     bool mRegistered = false;

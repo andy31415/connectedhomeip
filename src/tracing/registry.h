@@ -84,7 +84,7 @@ void LogMessageReceived(const ::chip::Tracing::MessageReceivedInfo & info);
 void LogNodeLookup(const ::chip::Tracing::NodeLookupInfo & info);
 void LogNodeDiscovered(const ::chip::Tracing::NodeDiscoveredInfo & info);
 void LogNodeDiscoveryFailed(const ::chip::Tracing::NodeDiscoveryFailedInfo & info);
-void LogMetric(const char *label, const ::chip::Tracing::Metric &metric);
+void LogMetric(const char * label, const ::chip::Tracing::Metric & metric);
 
 } // namespace Internal
 

@@ -29,21 +29,40 @@ struct NodeLookupInfo;
 struct NodeDiscoveredInfo;
 struct NodeDiscoveryFailedInfo;
 
+/// Defines a metric for the state of a long-running operation.
+///
+/// This is used as an asynchronous alternative to begin/end
+/// nested tracing (which require perfect nesting without
+/// interleaving).
+///
+/// Execution states begin/end may be interleaved like:
+///   BEGIN-A
+///   BEGIN-B
+///   END-A
+///   END-B
+enum class ProcessExecution
+{
+    kStart,     // execution started.
+    kHeartbeat, // still in progress at some particular point
+    kEnd,       // execution finished
+};
+
 // In particular events MUST NOT have any specific dependencies
 class Metric
 {
 public:
     enum class Type : uint8_t
     {
-        kInt32,     // int32_t
-        kUInt32,    // uint32_t
-        kErrorCode, // CHIPError code (asInteger) stored as a UInt32
+        kInt32,            // int32_t
+        kUInt32,           // uint32_t
+        kErrorCode,        // CHIPError code (asInteger) stored as a UInt32
+        kProcessExecution, // a ProcessExecution value
     };
 
-    Metric(const Metric&) = default;
-    Metric(Metric &&) = default;
-    Metric &operator=(const Metric&) = default;
-    Metric &operator=(Metric &&) = default;
+    Metric(const Metric &)             = default;
+    Metric(Metric &&)                  = default;
+    Metric & operator=(const Metric &) = default;
+    Metric & operator=(Metric &&)      = default;
 
     Type GetType() const { return mType; }
 
@@ -65,18 +84,27 @@ public:
         return mStore.uint32_value;
     }
 
+    ProcessExecution ValueProcessExecution() const
+    {
+        VerifyOrDie(mType == Type::kProcessExecution);
+        return mStore.execution_value;
+    }
+
     inline static Metric Int32(int32_t v) { return Metric(v); }
     inline static Metric UInt32(uint32_t v) { return Metric(v, Type::kUInt32); }
     inline static Metric ErrorCode(uint32_t v) { return Metric(v, Type::kErrorCode); }
+    inline static Metric State(ProcessExecution v) { return Metric(v); }
 
 private:
     union Store
     {
         int32_t int32_value;
         uint32_t uint32_value;
+        ProcessExecution execution_value;
 
         Store(int32_t v) : int32_value(v) {}
         Store(uint32_t v) : uint32_value(v) {}
+        Store(ProcessExecution v) : execution_value(v) {}
     };
 
     Store mStore;
@@ -84,6 +112,7 @@ private:
 
     Metric(uint32_t value, Type type) : mStore(value), mType(type) {}
     Metric(int32_t value) : mStore(value), mType(Type::kInt32) {}
+    Metric(ProcessExecution value) : mStore(value), mType(Type::kProcessExecution) {}
 };
 
 } // namespace Tracing
