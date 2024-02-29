@@ -147,7 +147,7 @@ template("chip_data_model") {
     source_set("${_data_model_name}-command-dispatch") {
       sources = filter_include(
               get_target_outputs(":${_data_model_name}_zapgen_generate"),
-              [ "\bIMClusterCommandHandler.cpp" ])
+              [ "*/IMClusterCommandHandler.cpp" ])
 
       deps = [
         ":${_data_model_name}_zapgen_generate",
