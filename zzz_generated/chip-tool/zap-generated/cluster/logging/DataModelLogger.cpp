@@ -8000,7 +8000,7 @@ CHIP_ERROR DataModelLogger::LogAttribute(const chip::app::ConcreteDataAttributeP
 {
     ChipLogProgress(chipTool, "Endpoint: %u Cluster: " ChipLogFormatMEI " Attribute " ChipLogFormatMEI " DataVersion: %" PRIu32,
                     path.mEndpointId, ChipLogValueMEI(path.mClusterId), ChipLogValueMEI(path.mAttributeId),
-                    path.mDataVersion.ValueOr(0));
+                    path.mDataVersion.value_or(0));
 
     switch (path.mClusterId)
     {
