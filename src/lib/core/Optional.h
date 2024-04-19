@@ -20,6 +20,8 @@
 
 namespace chip {
 
+inline constexpr NullLegacyOptionalType NullOptional{};
+
 template <class T>
 using Optional = LegacyOptional<T>;
 

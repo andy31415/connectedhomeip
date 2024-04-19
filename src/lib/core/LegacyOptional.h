@@ -30,7 +30,7 @@ struct NullLegacyOptionalType
 {
     explicit NullLegacyOptionalType() = default;
 };
-inline constexpr NullLegacyOptionalType NullOptional{};
+inline constexpr NullLegacyOptionalType LegacyNullOptional{};
 
 /**
  * Pairs an object with a boolean value to determine if the object value
