@@ -2580,7 +2580,7 @@ void DeviceCommissioner::OnScanNetworksResponse(void * context,
     ChipLogProgress(Controller, "Received ScanNetwork response, networkingStatus=%u debugText=%s",
                     to_underlying(data.networkingStatus),
                     (data.debugText.has_value() ? std::string(data.debugText.Value().data(), data.debugText.Value().size()).c_str()
-                                               : "none provided"));
+                                                : "none provided"));
     DeviceCommissioner * commissioner = static_cast<DeviceCommissioner *>(context);
 
     // advance to the kNeedsNetworkCreds waiting step
@@ -3078,7 +3078,8 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
         break;
     }
     case CommissioningStage::kValidateCSR: {
-        if (!params.GetNOCChainGenerationParameters().has_value() || !params.GetDAC().has_value() || !params.GetCSRNonce().has_value())
+        if (!params.GetNOCChainGenerationParameters().has_value() || !params.GetDAC().has_value() ||
+            !params.GetCSRNonce().has_value())
         {
             ChipLogError(Controller, "Unable to validate CSR");
             return CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);

@@ -1053,7 +1053,7 @@ bool emberAfUnitTestingClusterTestSimpleOptionalArgumentRequestCallback(
     const Commands::TestSimpleOptionalArgumentRequest::DecodableType & commandData)
 {
     Protocols::InteractionModel::Status status = commandData.arg1.has_value() ? Protocols::InteractionModel::Status::Success
-                                                                             : Protocols::InteractionModel::Status::InvalidValue;
+                                                                              : Protocols::InteractionModel::Status::InvalidValue;
     commandObj->AddStatus(commandPath, status);
     return true;
 }

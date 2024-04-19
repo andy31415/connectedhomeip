@@ -650,9 +650,9 @@ void SessionManager::UnauthenticatedMessageDispatch(const PacketHeader & partial
 
     if ((source.has_value() && destination.has_value()) || (!source.has_value() && !destination.has_value()))
     {
-        ChipLogProgress(Inet,
-                        "Received malformed unsecure packet with source 0x" ChipLogFormatX64 " destination 0x" ChipLogFormatX64,
-                        ChipLogValueX64(source.value_or(kUndefinedNodeId)), ChipLogValueX64(destination.value_or(kUndefinedNodeId)));
+        ChipLogProgress(
+            Inet, "Received malformed unsecure packet with source 0x" ChipLogFormatX64 " destination 0x" ChipLogFormatX64,
+            ChipLogValueX64(source.value_or(kUndefinedNodeId)), ChipLogValueX64(destination.value_or(kUndefinedNodeId)));
         return; // ephemeral node id is only assigned to the initiator, there should be one and only one node id exists.
     }
 

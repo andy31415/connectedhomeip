@@ -240,7 +240,8 @@ void TestLRU(nlTestSuite * inSuite, void * inContext)
     attempts.MarkPending(MakePeerId(mdns::Minimal::ActiveResolveAttempts::kRetryQueueSize));
     mockClock.AdvanceMonotonic(32_s16);
 
-    for (Optional<ActiveResolveAttempts::ScheduledAttempt> s = attempts.NextScheduled(); s.has_value(); s = attempts.NextScheduled())
+    for (Optional<ActiveResolveAttempts::ScheduledAttempt> s = attempts.NextScheduled(); s.has_value();
+         s                                                   = attempts.NextScheduled())
     {
         NL_TEST_ASSERT(inSuite, s.Value().ResolveData().peerId.GetNodeId() != 9999);
     }

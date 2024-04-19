@@ -246,5 +246,4 @@ constexpr LegacyOptional<T> MakeLegacyOptional(Args &&... args)
     return LegacyOptional<T>(InPlace, std::forward<Args>(args)...);
 }
 
-
 } // namespace chip

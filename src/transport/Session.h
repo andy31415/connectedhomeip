@@ -106,7 +106,7 @@ public:
         // So, construct a new Optional<SessionHandle> from the underlying Transport::Session reference.
         //
         return mSession.has_value() ? chip::MakeOptional<SessionHandle>(mSession.Value().Get())
-                                   : chip::Optional<SessionHandle>::Missing();
+                                    : chip::Optional<SessionHandle>::Missing();
     }
 
     Transport::Session * operator->() const { return &mSession.Value().Get(); }

@@ -171,7 +171,7 @@ CHIP_ERROR CopyTextRecordValue(char * buffer, size_t bufferLen, chip::Optional<u
 {
     VerifyOrReturnError(value1.has_value(), CHIP_ERROR_UNINITIALIZED);
     return value2.has_value() ? CopyTextRecordValue(buffer, bufferLen, value1.Value(), value2.Value())
-                             : CopyTextRecordValue(buffer, bufferLen, value1.Value());
+                              : CopyTextRecordValue(buffer, bufferLen, value1.Value());
 }
 
 CHIP_ERROR CopyTextRecordValue(char * buffer, size_t bufferLen, const chip::Optional<ReliableMessageProtocolConfig> optional,

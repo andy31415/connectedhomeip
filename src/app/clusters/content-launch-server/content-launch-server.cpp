@@ -263,7 +263,7 @@ bool emberAfContentLauncherClusterLaunchURLCallback(CommandHandler * commandObj,
     {
         delegate->HandleLaunchUrl(responder, contentUrl, displayString.has_value() ? displayString.Value() : CharSpan(),
                                   brandingInformation.has_value() ? brandingInformation.Value()
-                                                                 : chip::app::Clusters::ContentLauncher::BrandingInformation());
+                                                                  : chip::app::Clusters::ContentLauncher::BrandingInformation());
     }
 
 exit:
