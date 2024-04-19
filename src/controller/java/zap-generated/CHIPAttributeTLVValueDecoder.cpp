@@ -1776,7 +1776,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                            newElement_0_tagCtorSignature.c_str(),
                                                                            jninewElement_0_tag, newElement_0_tag);
                 jobject newElement_0_label;
-                if (!entry_0.label.HasValue())
+                if (!entry_0.label.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_label);
                 }
@@ -1980,7 +1980,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 auto & entry_0 = iter_value_0.GetValue();
                 jobject newElement_0;
                 jobject newElement_0_node;
-                if (!entry_0.node.HasValue())
+                if (!entry_0.node.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_node);
                 }
@@ -1996,7 +1996,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(newElement_0_nodeInsideOptional, newElement_0_node);
                 }
                 jobject newElement_0_group;
-                if (!entry_0.group.HasValue())
+                if (!entry_0.group.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_group);
                 }
@@ -2012,7 +2012,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(newElement_0_groupInsideOptional, newElement_0_group);
                 }
                 jobject newElement_0_endpoint;
-                if (!entry_0.endpoint.HasValue())
+                if (!entry_0.endpoint.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_endpoint);
                 }
@@ -2029,7 +2029,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(newElement_0_endpointInsideOptional, newElement_0_endpoint);
                 }
                 jobject newElement_0_cluster;
-                if (!entry_0.cluster.HasValue())
+                if (!entry_0.cluster.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_cluster);
                 }
@@ -5612,7 +5612,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                                newElement_0_connectedCtorSignature.c_str(),
                                                                                jninewElement_0_connected, newElement_0_connected);
                 jobject newElement_0_networkIdentifier;
-                if (!entry_0.networkIdentifier.HasValue())
+                if (!entry_0.networkIdentifier.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_networkIdentifier);
                 }
@@ -5636,7 +5636,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_networkIdentifier);
                 }
                 jobject newElement_0_clientIdentifier;
-                if (!entry_0.clientIdentifier.HasValue())
+                if (!entry_0.clientIdentifier.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_clientIdentifier);
                 }
@@ -6594,7 +6594,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 chip::JniReferences::GetInstance().CreateBoxedObject<jlong>(
                     newElement_0_idClassName.c_str(), newElement_0_idCtorSignature.c_str(), jninewElement_0_id, newElement_0_id);
                 jobject newElement_0_name;
-                if (!entry_0.name.HasValue())
+                if (!entry_0.name.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_name);
                 }
@@ -6606,7 +6606,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(newElement_0_nameInsideOptional, newElement_0_name);
                 }
                 jobject newElement_0_stackFreeCurrent;
-                if (!entry_0.stackFreeCurrent.HasValue())
+                if (!entry_0.stackFreeCurrent.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_stackFreeCurrent);
                 }
@@ -6624,7 +6624,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_stackFreeCurrent);
                 }
                 jobject newElement_0_stackFreeMinimum;
-                if (!entry_0.stackFreeMinimum.HasValue())
+                if (!entry_0.stackFreeMinimum.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_stackFreeMinimum);
                 }
@@ -6642,7 +6642,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_stackFreeMinimum);
                 }
                 jobject newElement_0_stackSize;
-                if (!entry_0.stackSize.HasValue())
+                if (!entry_0.stackSize.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_stackSize);
                 }
@@ -9447,7 +9447,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                             newElement_0_validAtCtorSignature.c_str(),
                                                                             jninewElement_0_validAt, newElement_0_validAt);
                 jobject newElement_0_name;
-                if (!entry_0.name.HasValue())
+                if (!entry_0.name.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_name);
                 }
@@ -11050,7 +11050,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().AddToList(newElement_0_endpoints, newElement_2);
                 }
                 jobject newElement_0_groupName;
-                if (!entry_0.groupName.HasValue())
+                if (!entry_0.groupName.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_groupName);
                 }
@@ -12846,7 +12846,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     newElement_0_operationalStateIDClassName.c_str(), newElement_0_operationalStateIDCtorSignature.c_str(),
                     jninewElement_0_operationalStateID, newElement_0_operationalStateID);
                 jobject newElement_0_operationalStateLabel;
-                if (!entry_0.operationalStateLabel.HasValue())
+                if (!entry_0.operationalStateLabel.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_operationalStateLabel);
                 }
@@ -12919,7 +12919,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                        value_errorStateIDCtorSignature.c_str(),
                                                                        jnivalue_errorStateID, value_errorStateID);
             jobject value_errorStateLabel;
-            if (!cppValue.errorStateLabel.HasValue())
+            if (!cppValue.errorStateLabel.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_errorStateLabel);
             }
@@ -12931,7 +12931,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 chip::JniReferences::GetInstance().CreateOptional(value_errorStateLabelInsideOptional, value_errorStateLabel);
             }
             jobject value_errorStateDetails;
-            if (!cppValue.errorStateDetails.HasValue())
+            if (!cppValue.errorStateDetails.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_errorStateDetails);
             }
@@ -13143,7 +13143,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     auto & entry_2 = iter_newElement_0_modeTags_2.GetValue();
                     jobject newElement_2;
                     jobject newElement_2_mfgCode;
-                    if (!entry_2.mfgCode.HasValue())
+                    if (!entry_2.mfgCode.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_mfgCode);
                     }
@@ -13981,7 +13981,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     auto & entry_2 = iter_newElement_0_modeTags_2.GetValue();
                     jobject newElement_2;
                     jobject newElement_2_mfgCode;
-                    if (!entry_2.mfgCode.HasValue())
+                    if (!entry_2.mfgCode.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_mfgCode);
                     }
@@ -14293,7 +14293,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     auto & entry_2 = iter_newElement_0_modeTags_2.GetValue();
                     jobject newElement_2;
                     jobject newElement_2_mfgCode;
-                    if (!entry_2.mfgCode.HasValue())
+                    if (!entry_2.mfgCode.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_mfgCode);
                     }
@@ -14842,7 +14842,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     auto & entry_2 = iter_newElement_0_modeTags_2.GetValue();
                     jobject newElement_2;
                     jobject newElement_2_mfgCode;
-                    if (!entry_2.mfgCode.HasValue())
+                    if (!entry_2.mfgCode.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_mfgCode);
                     }
@@ -15107,7 +15107,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     auto & entry_2 = iter_newElement_0_modeTags_2.GetValue();
                     jobject newElement_2;
                     jobject newElement_2_mfgCode;
-                    if (!entry_2.mfgCode.HasValue())
+                    if (!entry_2.mfgCode.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_mfgCode);
                     }
@@ -15805,7 +15805,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     auto & entry_2 = iter_newElement_0_modeTags_2.GetValue();
                     jobject newElement_2;
                     jobject newElement_2_mfgCode;
-                    if (!entry_2.mfgCode.HasValue())
+                    if (!entry_2.mfgCode.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_mfgCode);
                     }
@@ -16830,7 +16830,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     auto & entry_2 = iter_newElement_0_modeTags_2.GetValue();
                     jobject newElement_2;
                     jobject newElement_2_mfgCode;
-                    if (!entry_2.mfgCode.HasValue())
+                    if (!entry_2.mfgCode.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_mfgCode);
                     }
@@ -17455,7 +17455,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     newElement_0_operationalStateIDClassName.c_str(), newElement_0_operationalStateIDCtorSignature.c_str(),
                     jninewElement_0_operationalStateID, newElement_0_operationalStateID);
                 jobject newElement_0_operationalStateLabel;
-                if (!entry_0.operationalStateLabel.HasValue())
+                if (!entry_0.operationalStateLabel.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_operationalStateLabel);
                 }
@@ -17527,7 +17527,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                        value_errorStateIDCtorSignature.c_str(),
                                                                        jnivalue_errorStateID, value_errorStateID);
             jobject value_errorStateLabel;
-            if (!cppValue.errorStateLabel.HasValue())
+            if (!cppValue.errorStateLabel.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_errorStateLabel);
             }
@@ -17539,7 +17539,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 chip::JniReferences::GetInstance().CreateOptional(value_errorStateLabelInsideOptional, value_errorStateLabel);
             }
             jobject value_errorStateDetails;
-            if (!cppValue.errorStateDetails.HasValue())
+            if (!cppValue.errorStateDetails.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_errorStateDetails);
             }
@@ -17814,7 +17814,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     newElement_0_operationalStateIDClassName.c_str(), newElement_0_operationalStateIDCtorSignature.c_str(),
                     jninewElement_0_operationalStateID, newElement_0_operationalStateID);
                 jobject newElement_0_operationalStateLabel;
-                if (!entry_0.operationalStateLabel.HasValue())
+                if (!entry_0.operationalStateLabel.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_operationalStateLabel);
                 }
@@ -17886,7 +17886,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                        value_errorStateIDCtorSignature.c_str(),
                                                                        jnivalue_errorStateID, value_errorStateID);
             jobject value_errorStateLabel;
-            if (!cppValue.errorStateLabel.HasValue())
+            if (!cppValue.errorStateLabel.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_errorStateLabel);
             }
@@ -17898,7 +17898,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 chip::JniReferences::GetInstance().CreateOptional(value_errorStateLabelInsideOptional, value_errorStateLabel);
             }
             jobject value_errorStateDetails;
-            if (!cppValue.errorStateDetails.HasValue())
+            if (!cppValue.errorStateDetails.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_errorStateDetails);
             }
@@ -19653,7 +19653,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                                 newElement_2_rangeMaxCtorSignature.c_str(),
                                                                                 jninewElement_2_rangeMax, newElement_2_rangeMax);
                     jobject newElement_2_percentMax;
-                    if (!entry_2.percentMax.HasValue())
+                    if (!entry_2.percentMax.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_percentMax);
                     }
@@ -19671,7 +19671,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_percentMax);
                     }
                     jobject newElement_2_percentMin;
-                    if (!entry_2.percentMin.HasValue())
+                    if (!entry_2.percentMin.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_percentMin);
                     }
@@ -19689,7 +19689,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_percentMin);
                     }
                     jobject newElement_2_percentTypical;
-                    if (!entry_2.percentTypical.HasValue())
+                    if (!entry_2.percentTypical.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_percentTypical);
                     }
@@ -19707,7 +19707,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_percentTypical);
                     }
                     jobject newElement_2_fixedMax;
-                    if (!entry_2.fixedMax.HasValue())
+                    if (!entry_2.fixedMax.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_fixedMax);
                     }
@@ -19725,7 +19725,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_fixedMax);
                     }
                     jobject newElement_2_fixedMin;
-                    if (!entry_2.fixedMin.HasValue())
+                    if (!entry_2.fixedMin.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_fixedMin);
                     }
@@ -19743,7 +19743,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_fixedMin);
                     }
                     jobject newElement_2_fixedTypical;
-                    if (!entry_2.fixedTypical.HasValue())
+                    if (!entry_2.fixedTypical.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_fixedTypical);
                     }
@@ -19862,7 +19862,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                             newElement_0_maxCtorSignature.c_str(),
                                                                             jninewElement_0_max, newElement_0_max);
                 jobject newElement_0_startTimestamp;
-                if (!entry_0.startTimestamp.HasValue())
+                if (!entry_0.startTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_startTimestamp);
                 }
@@ -19880,7 +19880,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_startTimestamp);
                 }
                 jobject newElement_0_endTimestamp;
-                if (!entry_0.endTimestamp.HasValue())
+                if (!entry_0.endTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_endTimestamp);
                 }
@@ -19898,7 +19898,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_endTimestamp);
                 }
                 jobject newElement_0_minTimestamp;
-                if (!entry_0.minTimestamp.HasValue())
+                if (!entry_0.minTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_minTimestamp);
                 }
@@ -19916,7 +19916,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_minTimestamp);
                 }
                 jobject newElement_0_maxTimestamp;
-                if (!entry_0.maxTimestamp.HasValue())
+                if (!entry_0.maxTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_maxTimestamp);
                 }
@@ -19934,7 +19934,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_maxTimestamp);
                 }
                 jobject newElement_0_startSystime;
-                if (!entry_0.startSystime.HasValue())
+                if (!entry_0.startSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_startSystime);
                 }
@@ -19952,7 +19952,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_startSystime);
                 }
                 jobject newElement_0_endSystime;
-                if (!entry_0.endSystime.HasValue())
+                if (!entry_0.endSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_endSystime);
                 }
@@ -19970,7 +19970,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_endSystime);
                 }
                 jobject newElement_0_minSystime;
-                if (!entry_0.minSystime.HasValue())
+                if (!entry_0.minSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_minSystime);
                 }
@@ -19988,7 +19988,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_minSystime);
                 }
                 jobject newElement_0_maxSystime;
-                if (!entry_0.maxSystime.HasValue())
+                if (!entry_0.maxSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_maxSystime);
                 }
@@ -20687,7 +20687,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                             newElement_1_rangeMaxCtorSignature.c_str(),
                                                                             jninewElement_1_rangeMax, newElement_1_rangeMax);
                 jobject newElement_1_percentMax;
-                if (!entry_1.percentMax.HasValue())
+                if (!entry_1.percentMax.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_1_percentMax);
                 }
@@ -20705,7 +20705,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_1_percentMax);
                 }
                 jobject newElement_1_percentMin;
-                if (!entry_1.percentMin.HasValue())
+                if (!entry_1.percentMin.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_1_percentMin);
                 }
@@ -20723,7 +20723,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_1_percentMin);
                 }
                 jobject newElement_1_percentTypical;
-                if (!entry_1.percentTypical.HasValue())
+                if (!entry_1.percentTypical.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_1_percentTypical);
                 }
@@ -20741,7 +20741,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_1_percentTypical);
                 }
                 jobject newElement_1_fixedMax;
-                if (!entry_1.fixedMax.HasValue())
+                if (!entry_1.fixedMax.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_1_fixedMax);
                 }
@@ -20758,7 +20758,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(newElement_1_fixedMaxInsideOptional, newElement_1_fixedMax);
                 }
                 jobject newElement_1_fixedMin;
-                if (!entry_1.fixedMin.HasValue())
+                if (!entry_1.fixedMin.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_1_fixedMin);
                 }
@@ -20775,7 +20775,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(newElement_1_fixedMinInsideOptional, newElement_1_fixedMin);
                 }
                 jobject newElement_1_fixedTypical;
-                if (!entry_1.fixedTypical.HasValue())
+                if (!entry_1.fixedTypical.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_1_fixedTypical);
                 }
@@ -20874,7 +20874,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 chip::JniReferences::GetInstance().CreateBoxedObject<jlong>(
                     value_energyClassName.c_str(), value_energyCtorSignature.c_str(), jnivalue_energy, value_energy);
                 jobject value_startTimestamp;
-                if (!cppValue.Value().startTimestamp.HasValue())
+                if (!cppValue.Value().startTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_startTimestamp);
                 }
@@ -20891,7 +20891,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_startTimestampInsideOptional, value_startTimestamp);
                 }
                 jobject value_endTimestamp;
-                if (!cppValue.Value().endTimestamp.HasValue())
+                if (!cppValue.Value().endTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_endTimestamp);
                 }
@@ -20907,7 +20907,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_endTimestampInsideOptional, value_endTimestamp);
                 }
                 jobject value_startSystime;
-                if (!cppValue.Value().startSystime.HasValue())
+                if (!cppValue.Value().startSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_startSystime);
                 }
@@ -20923,7 +20923,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_startSystimeInsideOptional, value_startSystime);
                 }
                 jobject value_endSystime;
-                if (!cppValue.Value().endSystime.HasValue())
+                if (!cppValue.Value().endSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_endSystime);
                 }
@@ -20988,7 +20988,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 chip::JniReferences::GetInstance().CreateBoxedObject<jlong>(
                     value_energyClassName.c_str(), value_energyCtorSignature.c_str(), jnivalue_energy, value_energy);
                 jobject value_startTimestamp;
-                if (!cppValue.Value().startTimestamp.HasValue())
+                if (!cppValue.Value().startTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_startTimestamp);
                 }
@@ -21005,7 +21005,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_startTimestampInsideOptional, value_startTimestamp);
                 }
                 jobject value_endTimestamp;
-                if (!cppValue.Value().endTimestamp.HasValue())
+                if (!cppValue.Value().endTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_endTimestamp);
                 }
@@ -21021,7 +21021,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_endTimestampInsideOptional, value_endTimestamp);
                 }
                 jobject value_startSystime;
-                if (!cppValue.Value().startSystime.HasValue())
+                if (!cppValue.Value().startSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_startSystime);
                 }
@@ -21037,7 +21037,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_startSystimeInsideOptional, value_startSystime);
                 }
                 jobject value_endSystime;
-                if (!cppValue.Value().endSystime.HasValue())
+                if (!cppValue.Value().endSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_endSystime);
                 }
@@ -21102,7 +21102,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 chip::JniReferences::GetInstance().CreateBoxedObject<jlong>(
                     value_energyClassName.c_str(), value_energyCtorSignature.c_str(), jnivalue_energy, value_energy);
                 jobject value_startTimestamp;
-                if (!cppValue.Value().startTimestamp.HasValue())
+                if (!cppValue.Value().startTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_startTimestamp);
                 }
@@ -21119,7 +21119,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_startTimestampInsideOptional, value_startTimestamp);
                 }
                 jobject value_endTimestamp;
-                if (!cppValue.Value().endTimestamp.HasValue())
+                if (!cppValue.Value().endTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_endTimestamp);
                 }
@@ -21135,7 +21135,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_endTimestampInsideOptional, value_endTimestamp);
                 }
                 jobject value_startSystime;
-                if (!cppValue.Value().startSystime.HasValue())
+                if (!cppValue.Value().startSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_startSystime);
                 }
@@ -21151,7 +21151,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_startSystimeInsideOptional, value_startSystime);
                 }
                 jobject value_endSystime;
-                if (!cppValue.Value().endSystime.HasValue())
+                if (!cppValue.Value().endSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_endSystime);
                 }
@@ -21216,7 +21216,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 chip::JniReferences::GetInstance().CreateBoxedObject<jlong>(
                     value_energyClassName.c_str(), value_energyCtorSignature.c_str(), jnivalue_energy, value_energy);
                 jobject value_startTimestamp;
-                if (!cppValue.Value().startTimestamp.HasValue())
+                if (!cppValue.Value().startTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_startTimestamp);
                 }
@@ -21233,7 +21233,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_startTimestampInsideOptional, value_startTimestamp);
                 }
                 jobject value_endTimestamp;
-                if (!cppValue.Value().endTimestamp.HasValue())
+                if (!cppValue.Value().endTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_endTimestamp);
                 }
@@ -21249,7 +21249,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_endTimestampInsideOptional, value_endTimestamp);
                 }
                 jobject value_startSystime;
-                if (!cppValue.Value().startSystime.HasValue())
+                if (!cppValue.Value().startSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_startSystime);
                 }
@@ -21265,7 +21265,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_startSystimeInsideOptional, value_startSystime);
                 }
                 jobject value_endSystime;
-                if (!cppValue.Value().endSystime.HasValue())
+                if (!cppValue.Value().endSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_endSystime);
                 }
@@ -21324,7 +21324,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
             else
             {
                 jobject value_importedResetTimestamp;
-                if (!cppValue.Value().importedResetTimestamp.HasValue())
+                if (!cppValue.Value().importedResetTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_importedResetTimestamp);
                 }
@@ -21350,7 +21350,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       value_importedResetTimestamp);
                 }
                 jobject value_exportedResetTimestamp;
-                if (!cppValue.Value().exportedResetTimestamp.HasValue())
+                if (!cppValue.Value().exportedResetTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_exportedResetTimestamp);
                 }
@@ -21376,7 +21376,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       value_exportedResetTimestamp);
                 }
                 jobject value_importedResetSystime;
-                if (!cppValue.Value().importedResetSystime.HasValue())
+                if (!cppValue.Value().importedResetSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_importedResetSystime);
                 }
@@ -21402,7 +21402,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       value_importedResetSystime);
                 }
                 jobject value_exportedResetSystime;
-                if (!cppValue.Value().exportedResetSystime.HasValue())
+                if (!cppValue.Value().exportedResetSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_exportedResetSystime);
                 }
@@ -21762,7 +21762,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                             newElement_0_deviceClassCtorSignature.c_str(),
                                                                             jninewElement_0_deviceClass, newElement_0_deviceClass);
                 jobject newElement_0_enrollmentGroup;
-                if (!entry_0.enrollmentGroup.HasValue())
+                if (!entry_0.enrollmentGroup.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_enrollmentGroup);
                 }
@@ -21823,7 +21823,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                                newElement_2_controlCtorSignature.c_str(),
                                                                                jninewElement_2_control, newElement_2_control);
                     jobject newElement_2_temperatureControl;
-                    if (!entry_2.temperatureControl.HasValue())
+                    if (!entry_2.temperatureControl.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_temperatureControl);
                     }
@@ -21831,7 +21831,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     {
                         jobject newElement_2_temperatureControlInsideOptional;
                         jobject newElement_2_temperatureControlInsideOptional_coolingTempOffset;
-                        if (!entry_2.temperatureControl.Value().coolingTempOffset.HasValue())
+                        if (!entry_2.temperatureControl.Value().coolingTempOffset.has_value())
                         {
                             chip::JniReferences::GetInstance().CreateOptional(
                                 nullptr, newElement_2_temperatureControlInsideOptional_coolingTempOffset);
@@ -21864,7 +21864,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                 newElement_2_temperatureControlInsideOptional_coolingTempOffset);
                         }
                         jobject newElement_2_temperatureControlInsideOptional_heatingtTempOffset;
-                        if (!entry_2.temperatureControl.Value().heatingtTempOffset.HasValue())
+                        if (!entry_2.temperatureControl.Value().heatingtTempOffset.has_value())
                         {
                             chip::JniReferences::GetInstance().CreateOptional(
                                 nullptr, newElement_2_temperatureControlInsideOptional_heatingtTempOffset);
@@ -21898,7 +21898,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                 newElement_2_temperatureControlInsideOptional_heatingtTempOffset);
                         }
                         jobject newElement_2_temperatureControlInsideOptional_coolingTempSetpoint;
-                        if (!entry_2.temperatureControl.Value().coolingTempSetpoint.HasValue())
+                        if (!entry_2.temperatureControl.Value().coolingTempSetpoint.has_value())
                         {
                             chip::JniReferences::GetInstance().CreateOptional(
                                 nullptr, newElement_2_temperatureControlInsideOptional_coolingTempSetpoint);
@@ -21933,7 +21933,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                 newElement_2_temperatureControlInsideOptional_coolingTempSetpoint);
                         }
                         jobject newElement_2_temperatureControlInsideOptional_heatingTempSetpoint;
-                        if (!entry_2.temperatureControl.Value().heatingTempSetpoint.HasValue())
+                        if (!entry_2.temperatureControl.Value().heatingTempSetpoint.has_value())
                         {
                             chip::JniReferences::GetInstance().CreateOptional(
                                 nullptr, newElement_2_temperatureControlInsideOptional_heatingTempSetpoint);
@@ -22002,7 +22002,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_temperatureControl);
                     }
                     jobject newElement_2_averageLoadControl;
-                    if (!entry_2.averageLoadControl.HasValue())
+                    if (!entry_2.averageLoadControl.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_averageLoadControl);
                     }
@@ -22050,7 +22050,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_averageLoadControl);
                     }
                     jobject newElement_2_dutyCycleControl;
-                    if (!entry_2.dutyCycleControl.HasValue())
+                    if (!entry_2.dutyCycleControl.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_dutyCycleControl);
                     }
@@ -22098,7 +22098,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_dutyCycleControl);
                     }
                     jobject newElement_2_powerSavingsControl;
-                    if (!entry_2.powerSavingsControl.HasValue())
+                    if (!entry_2.powerSavingsControl.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_powerSavingsControl);
                     }
@@ -22146,7 +22146,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_powerSavingsControl);
                     }
                     jobject newElement_2_heatingSourceControl;
-                    if (!entry_2.heatingSourceControl.HasValue())
+                    if (!entry_2.heatingSourceControl.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_heatingSourceControl);
                     }
@@ -22309,7 +22309,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                             newElement_0_deviceClassCtorSignature.c_str(),
                                                                             jninewElement_0_deviceClass, newElement_0_deviceClass);
                 jobject newElement_0_enrollmentGroup;
-                if (!entry_0.enrollmentGroup.HasValue())
+                if (!entry_0.enrollmentGroup.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_enrollmentGroup);
                 }
@@ -22370,7 +22370,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                                newElement_2_controlCtorSignature.c_str(),
                                                                                jninewElement_2_control, newElement_2_control);
                     jobject newElement_2_temperatureControl;
-                    if (!entry_2.temperatureControl.HasValue())
+                    if (!entry_2.temperatureControl.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_temperatureControl);
                     }
@@ -22378,7 +22378,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     {
                         jobject newElement_2_temperatureControlInsideOptional;
                         jobject newElement_2_temperatureControlInsideOptional_coolingTempOffset;
-                        if (!entry_2.temperatureControl.Value().coolingTempOffset.HasValue())
+                        if (!entry_2.temperatureControl.Value().coolingTempOffset.has_value())
                         {
                             chip::JniReferences::GetInstance().CreateOptional(
                                 nullptr, newElement_2_temperatureControlInsideOptional_coolingTempOffset);
@@ -22411,7 +22411,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                 newElement_2_temperatureControlInsideOptional_coolingTempOffset);
                         }
                         jobject newElement_2_temperatureControlInsideOptional_heatingtTempOffset;
-                        if (!entry_2.temperatureControl.Value().heatingtTempOffset.HasValue())
+                        if (!entry_2.temperatureControl.Value().heatingtTempOffset.has_value())
                         {
                             chip::JniReferences::GetInstance().CreateOptional(
                                 nullptr, newElement_2_temperatureControlInsideOptional_heatingtTempOffset);
@@ -22445,7 +22445,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                 newElement_2_temperatureControlInsideOptional_heatingtTempOffset);
                         }
                         jobject newElement_2_temperatureControlInsideOptional_coolingTempSetpoint;
-                        if (!entry_2.temperatureControl.Value().coolingTempSetpoint.HasValue())
+                        if (!entry_2.temperatureControl.Value().coolingTempSetpoint.has_value())
                         {
                             chip::JniReferences::GetInstance().CreateOptional(
                                 nullptr, newElement_2_temperatureControlInsideOptional_coolingTempSetpoint);
@@ -22480,7 +22480,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                 newElement_2_temperatureControlInsideOptional_coolingTempSetpoint);
                         }
                         jobject newElement_2_temperatureControlInsideOptional_heatingTempSetpoint;
-                        if (!entry_2.temperatureControl.Value().heatingTempSetpoint.HasValue())
+                        if (!entry_2.temperatureControl.Value().heatingTempSetpoint.has_value())
                         {
                             chip::JniReferences::GetInstance().CreateOptional(
                                 nullptr, newElement_2_temperatureControlInsideOptional_heatingTempSetpoint);
@@ -22549,7 +22549,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_temperatureControl);
                     }
                     jobject newElement_2_averageLoadControl;
-                    if (!entry_2.averageLoadControl.HasValue())
+                    if (!entry_2.averageLoadControl.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_averageLoadControl);
                     }
@@ -22597,7 +22597,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_averageLoadControl);
                     }
                     jobject newElement_2_dutyCycleControl;
-                    if (!entry_2.dutyCycleControl.HasValue())
+                    if (!entry_2.dutyCycleControl.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_dutyCycleControl);
                     }
@@ -22645,7 +22645,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_dutyCycleControl);
                     }
                     jobject newElement_2_powerSavingsControl;
-                    if (!entry_2.powerSavingsControl.HasValue())
+                    if (!entry_2.powerSavingsControl.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_powerSavingsControl);
                     }
@@ -22693,7 +22693,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_powerSavingsControl);
                     }
                     jobject newElement_2_heatingSourceControl;
-                    if (!entry_2.heatingSourceControl.HasValue())
+                    if (!entry_2.heatingSourceControl.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_heatingSourceControl);
                     }
@@ -23079,7 +23079,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 LogErrorOnFailure(
                     chip::JniReferences::GetInstance().CharToStringUTF(entry_0.messageText, newElement_0_messageText));
                 jobject newElement_0_responses;
-                if (!entry_0.responses.HasValue())
+                if (!entry_0.responses.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_responses);
                 }
@@ -23094,7 +23094,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                         auto & entry_3 = iter_newElement_0_responsesInsideOptional_3.GetValue();
                         jobject newElement_3;
                         jobject newElement_3_messageResponseID;
-                        if (!entry_3.messageResponseID.HasValue())
+                        if (!entry_3.messageResponseID.has_value())
                         {
                             chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_3_messageResponseID);
                         }
@@ -23113,7 +23113,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                               newElement_3_messageResponseID);
                         }
                         jobject newElement_3_label;
-                        if (!entry_3.label.HasValue())
+                        if (!entry_3.label.has_value())
                         {
                             chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_3_label);
                         }
@@ -23554,7 +23554,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 chip::JniReferences::GetInstance().CreateBoxedObject<jlong>(
                     value_endTimeClassName.c_str(), value_endTimeCtorSignature.c_str(), jnivalue_endTime, value_endTime);
                 jobject value_earliestStartTime;
-                if (!cppValue.Value().earliestStartTime.HasValue())
+                if (!cppValue.Value().earliestStartTime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_earliestStartTime);
                 }
@@ -23580,7 +23580,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       value_earliestStartTime);
                 }
                 jobject value_latestEndTime;
-                if (!cppValue.Value().latestEndTime.HasValue())
+                if (!cppValue.Value().latestEndTime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_latestEndTime);
                 }
@@ -23646,7 +23646,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                         newElement_2_remainingSlotTimeClassName.c_str(), newElement_2_remainingSlotTimeCtorSignature.c_str(),
                         jninewElement_2_remainingSlotTime, newElement_2_remainingSlotTime);
                     jobject newElement_2_slotIsPauseable;
-                    if (!entry_2.slotIsPauseable.HasValue())
+                    if (!entry_2.slotIsPauseable.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_slotIsPauseable);
                     }
@@ -23665,7 +23665,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_slotIsPauseable);
                     }
                     jobject newElement_2_minPauseDuration;
-                    if (!entry_2.minPauseDuration.HasValue())
+                    if (!entry_2.minPauseDuration.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_minPauseDuration);
                     }
@@ -23683,7 +23683,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_minPauseDuration);
                     }
                     jobject newElement_2_maxPauseDuration;
-                    if (!entry_2.maxPauseDuration.HasValue())
+                    if (!entry_2.maxPauseDuration.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_maxPauseDuration);
                     }
@@ -23701,7 +23701,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_maxPauseDuration);
                     }
                     jobject newElement_2_manufacturerESAState;
-                    if (!entry_2.manufacturerESAState.HasValue())
+                    if (!entry_2.manufacturerESAState.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_manufacturerESAState);
                     }
@@ -23720,7 +23720,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_manufacturerESAState);
                     }
                     jobject newElement_2_nominalPower;
-                    if (!entry_2.nominalPower.HasValue())
+                    if (!entry_2.nominalPower.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_nominalPower);
                     }
@@ -23738,7 +23738,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_nominalPower);
                     }
                     jobject newElement_2_minPower;
-                    if (!entry_2.minPower.HasValue())
+                    if (!entry_2.minPower.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_minPower);
                     }
@@ -23756,7 +23756,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_minPower);
                     }
                     jobject newElement_2_maxPower;
-                    if (!entry_2.maxPower.HasValue())
+                    if (!entry_2.maxPower.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_maxPower);
                     }
@@ -23774,7 +23774,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_maxPower);
                     }
                     jobject newElement_2_nominalEnergy;
-                    if (!entry_2.nominalEnergy.HasValue())
+                    if (!entry_2.nominalEnergy.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_nominalEnergy);
                     }
@@ -23792,7 +23792,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_nominalEnergy);
                     }
                     jobject newElement_2_costs;
-                    if (!entry_2.costs.HasValue())
+                    if (!entry_2.costs.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_costs);
                     }
@@ -23828,7 +23828,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                 newElement_5_decimalPointsClassName.c_str(), newElement_5_decimalPointsCtorSignature.c_str(),
                                 jninewElement_5_decimalPoints, newElement_5_decimalPoints);
                             jobject newElement_5_currency;
-                            if (!entry_5.currency.HasValue())
+                            if (!entry_5.currency.has_value())
                             {
                                 chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_5_currency);
                             }
@@ -23874,7 +23874,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                         chip::JniReferences::GetInstance().CreateOptional(newElement_2_costsInsideOptional, newElement_2_costs);
                     }
                     jobject newElement_2_minPowerAdjustment;
-                    if (!entry_2.minPowerAdjustment.HasValue())
+                    if (!entry_2.minPowerAdjustment.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_minPowerAdjustment);
                     }
@@ -23893,7 +23893,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_minPowerAdjustment);
                     }
                     jobject newElement_2_maxPowerAdjustment;
-                    if (!entry_2.maxPowerAdjustment.HasValue())
+                    if (!entry_2.maxPowerAdjustment.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_maxPowerAdjustment);
                     }
@@ -23912,7 +23912,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_maxPowerAdjustment);
                     }
                     jobject newElement_2_minDurationAdjustment;
-                    if (!entry_2.minDurationAdjustment.HasValue())
+                    if (!entry_2.minDurationAdjustment.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_minDurationAdjustment);
                     }
@@ -23931,7 +23931,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_minDurationAdjustment);
                     }
                     jobject newElement_2_maxDurationAdjustment;
-                    if (!entry_2.maxDurationAdjustment.HasValue())
+                    if (!entry_2.maxDurationAdjustment.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_maxDurationAdjustment);
                     }
@@ -24811,7 +24811,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                            newElement_0_stepCtorSignature.c_str(),
                                                                            jninewElement_0_step, newElement_0_step);
                 jobject newElement_0_label;
-                if (!entry_0.label.HasValue())
+                if (!entry_0.label.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_label);
                 }
@@ -24913,7 +24913,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                            newElement_0_stepCtorSignature.c_str(),
                                                                            jninewElement_0_step, newElement_0_step);
                 jobject newElement_0_label;
-                if (!entry_0.label.HasValue())
+                if (!entry_0.label.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_label);
                 }
@@ -25334,7 +25334,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     auto & entry_2 = iter_newElement_0_modeTags_2.GetValue();
                     jobject newElement_2;
                     jobject newElement_2_mfgCode;
-                    if (!entry_2.mfgCode.HasValue())
+                    if (!entry_2.mfgCode.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_mfgCode);
                     }
@@ -25645,7 +25645,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     auto & entry_2 = iter_newElement_0_modeTags_2.GetValue();
                     jobject newElement_2;
                     jobject newElement_2_mfgCode;
-                    if (!entry_2.mfgCode.HasValue())
+                    if (!entry_2.mfgCode.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_mfgCode);
                     }
@@ -29459,7 +29459,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     newElement_0_presetScenarioClassName.c_str(), newElement_0_presetScenarioCtorSignature.c_str(),
                     jninewElement_0_presetScenario, newElement_0_presetScenario);
                 jobject newElement_0_name;
-                if (!entry_0.name.HasValue())
+                if (!entry_0.name.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_name);
                 }
@@ -29478,7 +29478,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(newElement_0_nameInsideOptional, newElement_0_name);
                 }
                 jobject newElement_0_coolingSetpoint;
-                if (!entry_0.coolingSetpoint.HasValue())
+                if (!entry_0.coolingSetpoint.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_coolingSetpoint);
                 }
@@ -29496,7 +29496,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_coolingSetpoint);
                 }
                 jobject newElement_0_heatingSetpoint;
-                if (!entry_0.heatingSetpoint.HasValue())
+                if (!entry_0.heatingSetpoint.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_heatingSetpoint);
                 }
@@ -29593,7 +29593,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                            newElement_0_systemModeCtorSignature.c_str(),
                                                                            jninewElement_0_systemMode, newElement_0_systemMode);
                 jobject newElement_0_name;
-                if (!entry_0.name.HasValue())
+                if (!entry_0.name.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_name);
                 }
@@ -29605,7 +29605,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(newElement_0_nameInsideOptional, newElement_0_name);
                 }
                 jobject newElement_0_presetHandle;
-                if (!entry_0.presetHandle.HasValue())
+                if (!entry_0.presetHandle.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_presetHandle);
                 }
@@ -29644,7 +29644,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                         newElement_2_transitionTimeClassName.c_str(), newElement_2_transitionTimeCtorSignature.c_str(),
                         jninewElement_2_transitionTime, newElement_2_transitionTime);
                     jobject newElement_2_presetHandle;
-                    if (!entry_2.presetHandle.HasValue())
+                    if (!entry_2.presetHandle.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_presetHandle);
                     }
@@ -29661,7 +29661,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_presetHandle);
                     }
                     jobject newElement_2_systemMode;
-                    if (!entry_2.systemMode.HasValue())
+                    if (!entry_2.systemMode.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_systemMode);
                     }
@@ -29679,7 +29679,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_systemMode);
                     }
                     jobject newElement_2_coolingSetpoint;
-                    if (!entry_2.coolingSetpoint.HasValue())
+                    if (!entry_2.coolingSetpoint.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_coolingSetpoint);
                     }
@@ -29697,7 +29697,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                           newElement_2_coolingSetpoint);
                     }
                     jobject newElement_2_heatingSetpoint;
-                    if (!entry_2.heatingSetpoint.HasValue())
+                    if (!entry_2.heatingSetpoint.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_2_heatingSetpoint);
                     }
@@ -29744,7 +29744,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().AddToList(newElement_0_transitions, newElement_2);
                 }
                 jobject newElement_0_builtIn;
-                if (!entry_0.builtIn.HasValue())
+                if (!entry_0.builtIn.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_builtIn);
                 }
@@ -37360,7 +37360,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                            newElement_0_minorNumberCtorSignature.c_str(),
                                                                            jninewElement_0_minorNumber, newElement_0_minorNumber);
                 jobject newElement_0_name;
-                if (!entry_0.name.HasValue())
+                if (!entry_0.name.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_name);
                 }
@@ -37372,7 +37372,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(newElement_0_nameInsideOptional, newElement_0_name);
                 }
                 jobject newElement_0_callSign;
-                if (!entry_0.callSign.HasValue())
+                if (!entry_0.callSign.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_callSign);
                 }
@@ -37384,7 +37384,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(newElement_0_callSignInsideOptional, newElement_0_callSign);
                 }
                 jobject newElement_0_affiliateCallSign;
-                if (!entry_0.affiliateCallSign.HasValue())
+                if (!entry_0.affiliateCallSign.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_affiliateCallSign);
                 }
@@ -37397,7 +37397,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_affiliateCallSign);
                 }
                 jobject newElement_0_identifier;
-                if (!entry_0.identifier.HasValue())
+                if (!entry_0.identifier.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_identifier);
                 }
@@ -37410,7 +37410,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_identifier);
                 }
                 jobject newElement_0_type;
-                if (!entry_0.type.HasValue())
+                if (!entry_0.type.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_type);
                 }
@@ -37474,7 +37474,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 LogErrorOnFailure(
                     chip::JniReferences::GetInstance().CharToStringUTF(cppValue.Value().operatorName, value_operatorName));
                 jobject value_lineupName;
-                if (!cppValue.Value().lineupName.HasValue())
+                if (!cppValue.Value().lineupName.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_lineupName);
                 }
@@ -37486,7 +37486,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_lineupNameInsideOptional, value_lineupName);
                 }
                 jobject value_postalCode;
-                if (!cppValue.Value().postalCode.HasValue())
+                if (!cppValue.Value().postalCode.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_postalCode);
                 }
@@ -37560,7 +37560,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                            value_minorNumberCtorSignature.c_str(),
                                                                            jnivalue_minorNumber, value_minorNumber);
                 jobject value_name;
-                if (!cppValue.Value().name.HasValue())
+                if (!cppValue.Value().name.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_name);
                 }
@@ -37572,7 +37572,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_nameInsideOptional, value_name);
                 }
                 jobject value_callSign;
-                if (!cppValue.Value().callSign.HasValue())
+                if (!cppValue.Value().callSign.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_callSign);
                 }
@@ -37584,7 +37584,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_callSignInsideOptional, value_callSign);
                 }
                 jobject value_affiliateCallSign;
-                if (!cppValue.Value().affiliateCallSign.HasValue())
+                if (!cppValue.Value().affiliateCallSign.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_affiliateCallSign);
                 }
@@ -37597,7 +37597,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       value_affiliateCallSign);
                 }
                 jobject value_identifier;
-                if (!cppValue.Value().identifier.HasValue())
+                if (!cppValue.Value().identifier.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_identifier);
                 }
@@ -37609,7 +37609,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     chip::JniReferences::GetInstance().CreateOptional(value_identifierInsideOptional, value_identifier);
                 }
                 jobject value_type;
-                if (!cppValue.Value().type.HasValue())
+                if (!cppValue.Value().type.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_type);
                 }
@@ -38215,7 +38215,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     LogErrorOnFailure(chip::JniReferences::GetInstance().CharToStringUTF(
                         cppValue.Value().trackAttributes.Value().languageCode, value_trackAttributes_languageCode));
                     jobject value_trackAttributes_displayName;
-                    if (!cppValue.Value().trackAttributes.Value().displayName.HasValue())
+                    if (!cppValue.Value().trackAttributes.Value().displayName.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, value_trackAttributes_displayName);
                     }
@@ -38319,7 +38319,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                         LogErrorOnFailure(chip::JniReferences::GetInstance().CharToStringUTF(
                             entry_1.trackAttributes.Value().languageCode, newElement_1_trackAttributes_languageCode));
                         jobject newElement_1_trackAttributes_displayName;
-                        if (!entry_1.trackAttributes.Value().displayName.HasValue())
+                        if (!entry_1.trackAttributes.Value().displayName.has_value())
                         {
                             chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_1_trackAttributes_displayName);
                         }
@@ -38420,7 +38420,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     LogErrorOnFailure(chip::JniReferences::GetInstance().CharToStringUTF(
                         cppValue.Value().trackAttributes.Value().languageCode, value_trackAttributes_languageCode));
                     jobject value_trackAttributes_displayName;
-                    if (!cppValue.Value().trackAttributes.Value().displayName.HasValue())
+                    if (!cppValue.Value().trackAttributes.Value().displayName.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr, value_trackAttributes_displayName);
                     }
@@ -38524,7 +38524,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                         LogErrorOnFailure(chip::JniReferences::GetInstance().CharToStringUTF(
                             entry_1.trackAttributes.Value().languageCode, newElement_1_trackAttributes_languageCode));
                         jobject newElement_1_trackAttributes_displayName;
-                        if (!entry_1.trackAttributes.Value().displayName.HasValue())
+                        if (!entry_1.trackAttributes.Value().displayName.has_value())
                         {
                             chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_1_trackAttributes_displayName);
                         }
@@ -39712,7 +39712,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 value_application = env->NewObject(applicationStructStructClass_2, applicationStructStructCtor_2,
                                                    value_application_catalogVendorID, value_application_applicationID);
                 jobject value_endpoint;
-                if (!cppValue.Value().endpoint.HasValue())
+                if (!cppValue.Value().endpoint.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_endpoint);
                 }
@@ -40366,7 +40366,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 jobject newElement_0_ratingName;
                 LogErrorOnFailure(chip::JniReferences::GetInstance().CharToStringUTF(entry_0.ratingName, newElement_0_ratingName));
                 jobject newElement_0_ratingNameDesc;
-                if (!entry_0.ratingNameDesc.HasValue())
+                if (!entry_0.ratingNameDesc.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_ratingNameDesc);
                 }
@@ -40435,7 +40435,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 jobject newElement_0_ratingName;
                 LogErrorOnFailure(chip::JniReferences::GetInstance().CharToStringUTF(entry_0.ratingName, newElement_0_ratingName));
                 jobject newElement_0_ratingNameDesc;
-                if (!entry_0.ratingNameDesc.HasValue())
+                if (!entry_0.ratingNameDesc.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_ratingNameDesc);
                 }
@@ -43643,7 +43643,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                         jninewElement_0_nullableInt, newElement_0_nullableInt);
                 }
                 jobject newElement_0_optionalInt;
-                if (!entry_0.optionalInt.HasValue())
+                if (!entry_0.optionalInt.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_optionalInt);
                 }
@@ -43661,7 +43661,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_optionalInt);
                 }
                 jobject newElement_0_nullableOptionalInt;
-                if (!entry_0.nullableOptionalInt.HasValue())
+                if (!entry_0.nullableOptionalInt.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_nullableOptionalInt);
                 }
@@ -43697,7 +43697,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                                          newElement_0_nullableString));
                 }
                 jobject newElement_0_optionalString;
-                if (!entry_0.optionalString.HasValue())
+                if (!entry_0.optionalString.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_optionalString);
                 }
@@ -43710,7 +43710,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_optionalString);
                 }
                 jobject newElement_0_nullableOptionalString;
-                if (!entry_0.nullableOptionalString.HasValue())
+                if (!entry_0.nullableOptionalString.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_nullableOptionalString);
                 }
@@ -43817,7 +43817,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                        newElement_0_nullableStruct_h);
                 }
                 jobject newElement_0_optionalStruct;
-                if (!entry_0.optionalStruct.HasValue())
+                if (!entry_0.optionalStruct.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_optionalStruct);
                 }
@@ -43915,7 +43915,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_optionalStruct);
                 }
                 jobject newElement_0_nullableOptionalStruct;
-                if (!entry_0.nullableOptionalStruct.HasValue())
+                if (!entry_0.nullableOptionalStruct.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_nullableOptionalStruct);
                 }
@@ -44059,7 +44059,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     }
                 }
                 jobject newElement_0_optionalList;
-                if (!entry_0.optionalList.HasValue())
+                if (!entry_0.optionalList.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_optionalList);
                 }
@@ -44084,7 +44084,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                                                                       newElement_0_optionalList);
                 }
                 jobject newElement_0_nullableOptionalList;
-                if (!entry_0.nullableOptionalList.HasValue())
+                if (!entry_0.nullableOptionalList.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_nullableOptionalList);
                 }
@@ -44357,7 +44357,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     newElement_0_fabricSensitiveInt8uClassName.c_str(), newElement_0_fabricSensitiveInt8uCtorSignature.c_str(),
                     jninewElement_0_fabricSensitiveInt8u, newElement_0_fabricSensitiveInt8u);
                 jobject newElement_0_optionalFabricSensitiveInt8u;
-                if (!entry_0.optionalFabricSensitiveInt8u.HasValue())
+                if (!entry_0.optionalFabricSensitiveInt8u.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_optionalFabricSensitiveInt8u);
                 }
@@ -44393,7 +44393,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                         jninewElement_0_nullableFabricSensitiveInt8u, newElement_0_nullableFabricSensitiveInt8u);
                 }
                 jobject newElement_0_nullableOptionalFabricSensitiveInt8u;
-                if (!entry_0.nullableOptionalFabricSensitiveInt8u.HasValue())
+                if (!entry_0.nullableOptionalFabricSensitiveInt8u.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_nullableOptionalFabricSensitiveInt8u);
                 }

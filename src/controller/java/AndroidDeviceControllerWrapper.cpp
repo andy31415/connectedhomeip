@@ -824,7 +824,7 @@ void AndroidDeviceControllerWrapper::OnScanNetworksSuccess(
     chip::JniReferences::GetInstance().CreateBoxedObject<jint>(NetworkingStatusClassName, NetworkingStatusCtorSignature,
                                                                jniNetworkingStatus, NetworkingStatus);
     jobject DebugText;
-    if (!dataResponse.debugText.HasValue())
+    if (!dataResponse.debugText.has_value())
     {
         chip::JniReferences::GetInstance().CreateOptional(nullptr, DebugText);
     }
@@ -836,7 +836,7 @@ void AndroidDeviceControllerWrapper::OnScanNetworksSuccess(
         chip::JniReferences::GetInstance().CreateOptional(DebugTextInsideOptional, DebugText);
     }
     jobject WiFiScanResults;
-    if (!dataResponse.wiFiScanResults.HasValue())
+    if (!dataResponse.wiFiScanResults.has_value())
     {
         chip::JniReferences::GetInstance().CreateOptional(nullptr, WiFiScanResults);
     }
@@ -902,7 +902,7 @@ void AndroidDeviceControllerWrapper::OnScanNetworksSuccess(
         chip::JniReferences::GetInstance().CreateOptional(WiFiScanResultsInsideOptional, WiFiScanResults);
     }
     jobject ThreadScanResults;
-    if (!dataResponse.threadScanResults.HasValue())
+    if (!dataResponse.threadScanResults.has_value())
     {
         chip::JniReferences::GetInstance().CreateOptional(nullptr, ThreadScanResults);
     }

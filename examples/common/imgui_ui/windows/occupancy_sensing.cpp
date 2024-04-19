@@ -31,7 +31,7 @@ using chip::app::Clusters::OccupancySensing::OccupancyBitmap;
 
 void OccupancySensing::UpdateState()
 {
-    if (mTargetOccupancy.HasValue())
+    if (mTargetOccupancy.has_value())
     {
         chip::app::Clusters::OccupancySensing::Attributes::Occupancy::Set(mEndpointId, mTargetOccupancy.Value());
         mTargetOccupancy.ClearValue();

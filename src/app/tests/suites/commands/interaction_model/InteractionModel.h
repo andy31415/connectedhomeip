@@ -252,7 +252,7 @@ protected:
             chip::app::CommandPathParams commandPath = { endpointId, clusterId, commandId,
                                                          (chip::app::CommandPathFlags::kEndpointIdValid) };
             auto commandSender                       = std::make_unique<chip::app::CommandSender>(
-                mCallback, device->GetExchangeManager(), mTimedInteractionTimeoutMs.HasValue(), mSuppressResponse.ValueOr(false));
+                mCallback, device->GetExchangeManager(), mTimedInteractionTimeoutMs.has_value(), mSuppressResponse.ValueOr(false));
             VerifyOrReturnError(commandSender != nullptr, CHIP_ERROR_NO_MEMORY);
 
             chip::app::CommandSender::AddRequestDataParameters addRequestDataParams(mTimedInteractionTimeoutMs);
@@ -261,12 +261,12 @@ protected:
             ReturnErrorOnFailure(commandSender->SendCommandRequest(device->GetSecureSession().Value()));
             mCommandSender.push_back(std::move(commandSender));
 
-            if (mBusyWaitForMs.HasValue())
+            if (mBusyWaitForMs.has_value())
             {
                 chip::test_utils::BusyWaitMillis(mBusyWaitForMs.Value());
             }
 
-            if (mRepeatDelayInMs.HasValue())
+            if (mRepeatDelayInMs.has_value())
             {
                 chip::test_utils::SleepMillis(mRepeatDelayInMs.Value());
             }
@@ -415,12 +415,12 @@ protected:
 
             ReturnErrorOnFailure(mWriteClient->SendWriteRequest(device->GetSecureSession().Value()));
 
-            if (mBusyWaitForMs.HasValue())
+            if (mBusyWaitForMs.has_value())
             {
                 chip::test_utils::BusyWaitMillis(mBusyWaitForMs.Value());
             }
 
-            if (mRepeatDelayInMs.HasValue())
+            if (mRepeatDelayInMs.has_value())
             {
                 chip::test_utils::SleepMillis(mRepeatDelayInMs.Value());
             }
@@ -631,7 +631,7 @@ public:
         std::vector<chip::AttributeId> attributeIds = { attributeId };
 
         chip::Optional<std::vector<chip::DataVersion>> optionalDataVersions;
-        if (dataVersion.HasValue())
+        if (dataVersion.has_value())
         {
             std::vector<chip::DataVersion> dataVersions = { dataVersion.Value() };
             optionalDataVersions.SetValue(dataVersions);

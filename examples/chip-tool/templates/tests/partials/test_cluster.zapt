@@ -36,7 +36,7 @@ private:
     chip::EndpointId GetEndpoint(chip::EndpointId endpoint)
     {
         {{#if (chip_tests_config_has "endpoint")}}
-        return mEndpoint.HasValue() ? mEndpoint.Value() : endpoint;
+        return mEndpoint.has_value() ? mEndpoint.Value() : endpoint;
         {{else}}
         return endpoint;
         {{/if}}

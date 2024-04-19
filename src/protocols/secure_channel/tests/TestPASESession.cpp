@@ -329,7 +329,7 @@ void SecurePairingHandshakeTestCommon(nlTestSuite * inSuite, void * inContext, S
     NL_TEST_ASSERT(inSuite, delegateCommissioner.mNumPairingErrors == 0);
     NL_TEST_ASSERT(inSuite, delegateCommissioner.mNumPairingComplete == 1);
 
-    if (mrpCommissionerConfig.HasValue())
+    if (mrpCommissionerConfig.has_value())
     {
         NL_TEST_ASSERT(inSuite,
                        pairingAccessory.GetRemoteMRPConfig().mIdleRetransTimeout ==
@@ -339,7 +339,7 @@ void SecurePairingHandshakeTestCommon(nlTestSuite * inSuite, void * inContext, S
                            mrpCommissionerConfig.Value().mActiveRetransTimeout);
     }
 
-    if (mrpAccessoryConfig.HasValue())
+    if (mrpAccessoryConfig.has_value())
     {
         NL_TEST_ASSERT(inSuite,
                        pairingCommissioner.GetRemoteMRPConfig().mIdleRetransTimeout ==
@@ -351,11 +351,11 @@ void SecurePairingHandshakeTestCommon(nlTestSuite * inSuite, void * inContext, S
 
     // Now evict the PASE sessions.
     auto session = pairingCommissioner.CopySecureSession();
-    NL_TEST_ASSERT(inSuite, session.HasValue());
+    NL_TEST_ASSERT(inSuite, session.has_value());
     session.Value()->AsSecureSession()->MarkForEviction();
 
     session = pairingAccessory.CopySecureSession();
-    NL_TEST_ASSERT(inSuite, session.HasValue());
+    NL_TEST_ASSERT(inSuite, session.has_value());
     session.Value()->AsSecureSession()->MarkForEviction();
 
     // Evicting a session async notifies the PASESession's delegate.  Normally

@@ -123,7 +123,7 @@ StatusIB::Builder & StatusIB::Builder::EncodeStatusIB(const StatusIB & aStatusIB
     mError = mpWriter->Put(TLV::ContextTag(Tag::kStatus), aStatusIB.mStatus);
     SuccessOrExit(mError);
 
-    if (aStatusIB.mClusterStatus.HasValue())
+    if (aStatusIB.mClusterStatus.has_value())
     {
         mError = mpWriter->Put(TLV::ContextTag(Tag::kClusterStatus), aStatusIB.mClusterStatus.Value());
         SuccessOrExit(mError);
@@ -141,7 +141,7 @@ CHIP_ERROR StatusIB::ToChipError() const
         return CHIP_NO_ERROR;
     }
 
-    if (mClusterStatus.HasValue())
+    if (mClusterStatus.has_value())
     {
         return ChipError(ChipError::SdkPart::kIMClusterStatus, mClusterStatus.Value());
     }
@@ -206,7 +206,7 @@ bool FormatStatusIBError(char * buf, uint16_t bufSize, CHIP_ERROR err)
 
     StatusIB status;
     status.InitFromChipError(err);
-    if (status.mClusterStatus.HasValue())
+    if (status.mClusterStatus.has_value())
     {
         snprintf(formattedString, formattedSize, clusterFormat, status.mClusterStatus.Value());
     }

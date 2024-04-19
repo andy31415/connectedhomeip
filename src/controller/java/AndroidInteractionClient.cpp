@@ -302,7 +302,7 @@ CHIP_ERROR write(JNIEnv * env, jlong handle, jlong callbackHandle, jlong deviceP
 
     DeviceProxy * device = reinterpret_cast<DeviceProxy *>(devicePtr);
     VerifyOrExit(device != nullptr, err = CHIP_ERROR_INCORRECT_STATE);
-    VerifyOrExit(device->GetSecureSession().HasValue(), err = CHIP_ERROR_MISSING_SECURE_SESSION);
+    VerifyOrExit(device->GetSecureSession().has_value(), err = CHIP_ERROR_MISSING_SECURE_SESSION);
     VerifyOrExit(attributeList != nullptr, err = CHIP_ERROR_INVALID_ARGUMENT);
     SuccessOrExit(err = JniReferences::GetInstance().GetListSize(attributeList, listSize));
 
@@ -475,7 +475,7 @@ CHIP_ERROR extendableInvoke(JNIEnv * env, jlong handle, jlong callbackHandle, jl
 
     DeviceProxy * device = reinterpret_cast<DeviceProxy *>(devicePtr);
     VerifyOrExit(device != nullptr, err = CHIP_ERROR_INCORRECT_STATE);
-    VerifyOrExit(device->GetSecureSession().HasValue(), err = CHIP_ERROR_MISSING_SECURE_SESSION);
+    VerifyOrExit(device->GetSecureSession().has_value(), err = CHIP_ERROR_MISSING_SECURE_SESSION);
 
     VerifyOrExit(invokeElementList != nullptr, err = CHIP_ERROR_INVALID_ARGUMENT);
     SuccessOrExit(err = JniReferences::GetInstance().GetListSize(invokeElementList, listSize));
@@ -695,7 +695,7 @@ CHIP_ERROR invoke(JNIEnv * env, jlong handle, jlong callbackHandle, jlong device
 
     DeviceProxy * device = reinterpret_cast<DeviceProxy *>(devicePtr);
     VerifyOrExit(device != nullptr, err = CHIP_ERROR_INCORRECT_STATE);
-    VerifyOrExit(device->GetSecureSession().HasValue(), err = CHIP_ERROR_MISSING_SECURE_SESSION);
+    VerifyOrExit(device->GetSecureSession().has_value(), err = CHIP_ERROR_MISSING_SECURE_SESSION);
 
     commandSender = Platform::New<app::CommandSender>(callback, device->GetExchangeManager(), timedRequestTimeoutMs != 0);
 

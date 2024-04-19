@@ -10,7 +10,7 @@ switch(mTestSubStepIndex)
 
 {{~#*inline "maybeCheckClusterError"}}
 {{#if clusterError}}
-    VerifyOrReturn(CheckValue("clusterStatus", status.mClusterStatus.HasValue(), true));
+    VerifyOrReturn(CheckValue("clusterStatus", status.mClusterStatus.has_value(), true));
     VerifyOrReturn(CheckValue("clusterStatus", status.mClusterStatus.Value(), {{clusterError}}));
 {{/if}}
 {{/inline~}}

@@ -47,7 +47,7 @@ CHIP_ERROR InteractionModel::ReadAttribute(const char * identity, EndpointId end
     std::vector<AttributeId> attributeIds = { attributeId };
 
     Optional<std::vector<DataVersion>> dataVersions = Optional<std::vector<DataVersion>>();
-    if (dataVersion.HasValue())
+    if (dataVersion.has_value())
     {
         dataVersions.Value().push_back(dataVersion.Value());
     }
@@ -89,7 +89,7 @@ CHIP_ERROR InteractionModel::SubscribeAttribute(const char * identity, EndpointI
     std::vector<AttributeId> attributeIds = { attributeId };
 
     Optional<std::vector<DataVersion>> dataVersions = Optional<std::vector<DataVersion>>();
-    if (dataVersion.HasValue())
+    if (dataVersion.has_value())
     {
         dataVersions.Value().push_back(dataVersion.Value());
     }
@@ -223,7 +223,7 @@ CHIP_ERROR InteractionModelConfig::GetAttributePaths(std::vector<EndpointId> end
     const size_t endpointCount     = endpointIds.size();
     const size_t clusterCount      = clusterIds.size();
     const size_t attributeCount    = attributeIds.size();
-    const size_t dataVersionsCount = dataVersions.HasValue() ? dataVersions.Value().size() : 0;
+    const size_t dataVersionsCount = dataVersions.has_value() ? dataVersions.Value().size() : 0;
 
     VerifyOrReturnError(clusterCount > 0 && clusterCount <= kMaxAllowedPaths, CHIP_ERROR_INVALID_ARGUMENT);
     VerifyOrReturnError(attributeCount > 0 && attributeCount <= kMaxAllowedPaths, CHIP_ERROR_INVALID_ARGUMENT);
@@ -302,7 +302,7 @@ CHIP_ERROR InteractionModelConfig::GetAttributePaths(std::vector<EndpointId> end
             pathsConfig.attributePathParams[i].mEndpointId = endpointId;
         }
 
-        if (dataVersions.HasValue())
+        if (dataVersions.has_value())
         {
             DataVersion dataVersion = dataVersions.Value().at((hasSameIdsCount || multipleDataVersions) ? i : 0);
             pathsConfig.dataVersionFilter[i].mEndpointId = endpointId;
@@ -331,12 +331,12 @@ CHIP_ERROR InteractionModelReports::ReportAttribute(DeviceProxy * device, std::v
     params.mpAttributePathParamsList    = pathsConfig.attributePathParams.get();
     params.mAttributePathParamsListSize = pathsConfig.count;
 
-    if (mFabricFiltered.HasValue())
+    if (mFabricFiltered.has_value())
     {
         params.mIsFabricFiltered = mFabricFiltered.Value();
     }
 
-    if (mDataVersions.HasValue())
+    if (mDataVersions.has_value())
     {
         params.mpDataVersionFilterList    = pathsConfig.dataVersionFilter.get();
         params.mDataVersionFilterListSize = pathsConfig.count;
@@ -346,7 +346,7 @@ CHIP_ERROR InteractionModelReports::ReportAttribute(DeviceProxy * device, std::v
     {
         params.mMinIntervalFloorSeconds   = mMinInterval;
         params.mMaxIntervalCeilingSeconds = mMaxInterval;
-        if (mKeepSubscriptions.HasValue())
+        if (mKeepSubscriptions.has_value())
         {
             params.mKeepSubscriptions = mKeepSubscriptions.Value();
         }
@@ -362,7 +362,7 @@ CHIP_ERROR InteractionModelReports::ReportAttribute(DeviceProxy * device, std::v
     else if (mAutoResubscribe.ValueOr(false))
     {
         pathsConfig.attributePathParams.release();
-        if (mDataVersions.HasValue())
+        if (mDataVersions.has_value())
         {
             pathsConfig.dataVersionFilter.release();
         }
@@ -385,7 +385,7 @@ CHIP_ERROR InteractionModelReports::ReportEvent(DeviceProxy * device, std::vecto
     const size_t clusterCount  = clusterIds.size();
     const size_t eventCount    = eventIds.size();
     const size_t endpointCount = endpointIds.size();
-    const size_t isUrgentCount = mIsUrgents.HasValue() ? mIsUrgents.Value().size() : 0;
+    const size_t isUrgentCount = mIsUrgents.has_value() ? mIsUrgents.Value().size() : 0;
 
     VerifyOrReturnError(clusterCount > 0 && clusterCount <= kMaxAllowedPaths, CHIP_ERROR_INVALID_ARGUMENT);
     VerifyOrReturnError(eventCount > 0 && eventCount <= kMaxAllowedPaths, CHIP_ERROR_INVALID_ARGUMENT);
@@ -454,7 +454,7 @@ CHIP_ERROR InteractionModelReports::ReportEvent(DeviceProxy * device, std::vecto
             eventPathParams[i].mEndpointId = endpointId;
         }
 
-        if (mIsUrgents.HasValue() && mIsUrgents.Value().size() > i)
+        if (mIsUrgents.has_value() && mIsUrgents.Value().size() > i)
         {
             eventPathParams[i].mIsUrgentEvent = mIsUrgents.Value().at(i);
         }
@@ -467,7 +467,7 @@ CHIP_ERROR InteractionModelReports::ReportEvent(DeviceProxy * device, std::vecto
     params.mpAttributePathParamsList    = nullptr;
     params.mAttributePathParamsListSize = 0;
 
-    if (mFabricFiltered.HasValue())
+    if (mFabricFiltered.has_value())
     {
         params.mIsFabricFiltered = mFabricFiltered.Value();
     }
@@ -476,7 +476,7 @@ CHIP_ERROR InteractionModelReports::ReportEvent(DeviceProxy * device, std::vecto
     {
         params.mMinIntervalFloorSeconds   = mMinInterval;
         params.mMaxIntervalCeilingSeconds = mMaxInterval;
-        if (mKeepSubscriptions.HasValue())
+        if (mKeepSubscriptions.has_value())
         {
             params.mKeepSubscriptions = mKeepSubscriptions.Value();
         }
@@ -517,7 +517,7 @@ CHIP_ERROR InteractionModelReports::ReportNone(chip::DeviceProxy * device, chip:
     params.mpAttributePathParamsList    = attributePathParams;
     params.mAttributePathParamsListSize = 0;
 
-    if (mFabricFiltered.HasValue())
+    if (mFabricFiltered.has_value())
     {
         params.mIsFabricFiltered = mFabricFiltered.Value();
     }
@@ -526,7 +526,7 @@ CHIP_ERROR InteractionModelReports::ReportNone(chip::DeviceProxy * device, chip:
     {
         params.mMinIntervalFloorSeconds   = mMinInterval;
         params.mMaxIntervalCeilingSeconds = mMaxInterval;
-        if (mKeepSubscriptions.HasValue())
+        if (mKeepSubscriptions.has_value())
         {
             params.mKeepSubscriptions = mKeepSubscriptions.Value();
         }
@@ -641,7 +641,7 @@ CHIP_ERROR InteractionModelReports::ReportAll(chip::DeviceProxy * device, std::v
     params.mpAttributePathParamsList    = attributePathParams;
     params.mAttributePathParamsListSize = attributeCount;
 
-    if (mFabricFiltered.HasValue())
+    if (mFabricFiltered.has_value())
     {
         params.mIsFabricFiltered = mFabricFiltered.Value();
     }
@@ -650,7 +650,7 @@ CHIP_ERROR InteractionModelReports::ReportAll(chip::DeviceProxy * device, std::v
     {
         params.mMinIntervalFloorSeconds   = mMinInterval;
         params.mMaxIntervalCeilingSeconds = mMaxInterval;
-        if (mKeepSubscriptions.HasValue())
+        if (mKeepSubscriptions.has_value())
         {
             params.mKeepSubscriptions = mKeepSubscriptions.Value();
         }

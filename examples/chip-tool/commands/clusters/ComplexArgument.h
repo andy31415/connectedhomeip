@@ -333,7 +333,7 @@ public:
     template <typename T>
     static void Finalize(chip::Optional<T> & request)
     {
-        VerifyOrReturn(request.HasValue());
+        VerifyOrReturn(request.has_value());
         ComplexArgumentParser::Finalize(request.Value());
     }
 

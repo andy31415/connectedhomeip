@@ -219,7 +219,7 @@ public:
         ++mSequence;
         auto prev     = mSequence;
         auto newState = mTransitions(mCurrentState, evt);
-        if (newState.HasValue())
+        if (newState.has_value())
         {
             auto oldState = mCurrentState.GetName();
             mCurrentState.Exit();

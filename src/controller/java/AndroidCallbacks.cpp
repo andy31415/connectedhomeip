@@ -295,7 +295,7 @@ void ReportCallback::OnAttributeData(const app::ConcreteDataAttributePath & aPat
             ChipLogError(Controller, "Could not find addAttributeStatus method with error %" CHIP_ERROR_FORMAT, err.Format()));
 
         jobject jClusterState = nullptr;
-        if (aStatus.mClusterStatus.HasValue())
+        if (aStatus.mClusterStatus.has_value())
         {
             err = JniReferences::GetInstance().CreateBoxedObject<jint>(
                 "java/lang/Integer", "(I)V", static_cast<jint>(aStatus.mClusterStatus.Value()), jClusterState);
@@ -394,7 +394,7 @@ void ReportCallback::UpdateClusterDataVersion()
     {
         return;
     }
-    if (!committedDataVersion.HasValue())
+    if (!committedDataVersion.has_value())
     {
         return;
     }
@@ -435,7 +435,7 @@ void ReportCallback::OnEventData(const app::EventHeader & aEventHeader, TLV::TLV
             ChipLogError(Controller, "Could not find addEventStatus method with error %" CHIP_ERROR_FORMAT, err.Format()));
 
         jobject jClusterState = nullptr;
-        if (apStatus->mClusterStatus.HasValue())
+        if (apStatus->mClusterStatus.has_value())
         {
             err = JniReferences::GetInstance().CreateBoxedObject<jint>(
                 "java/lang/Integer", "(I)V", static_cast<jint>(apStatus->mClusterStatus.Value()), jClusterState);
@@ -690,7 +690,7 @@ void WriteAttributesCallback::OnResponse(const app::WriteClient * apWriteClient,
     VerifyOrReturn(err == CHIP_NO_ERROR, ChipLogError(Controller, "Unable to find onError method: %s", ErrorStr(err)));
 
     jobject jClusterState = nullptr;
-    if (aStatus.mClusterStatus.HasValue())
+    if (aStatus.mClusterStatus.has_value())
     {
         err = JniReferences::GetInstance().CreateBoxedObject<jint>(
             "java/lang/Integer", "(I)V", static_cast<jint>(aStatus.mClusterStatus.Value()), jClusterState);
@@ -845,14 +845,14 @@ void InvokeCallback::OnResponse(app::CommandSender * apCommandSender, const app:
         env->CallVoidMethod(wrapperCallbackRef, onResponseMethod, static_cast<jint>(aPath.mEndpointId),
                             static_cast<jlong>(aPath.mClusterId), static_cast<jlong>(aPath.mCommandId), jniByteArray.jniValue(),
                             jsonString.jniValue(),
-                            aStatusIB.mClusterStatus.HasValue() ? static_cast<jlong>(aStatusIB.mClusterStatus.Value())
+                            aStatusIB.mClusterStatus.has_value() ? static_cast<jlong>(aStatusIB.mClusterStatus.Value())
                                                                 : static_cast<jlong>(Protocols::InteractionModel::Status::Success));
     }
     else
     {
         env->CallVoidMethod(wrapperCallbackRef, onResponseMethod, static_cast<jint>(aPath.mEndpointId),
                             static_cast<jlong>(aPath.mClusterId), static_cast<jlong>(aPath.mCommandId), nullptr, nullptr,
-                            aStatusIB.mClusterStatus.HasValue() ? static_cast<jlong>(aStatusIB.mClusterStatus.Value())
+                            aStatusIB.mClusterStatus.has_value() ? static_cast<jlong>(aStatusIB.mClusterStatus.Value())
                                                                 : static_cast<jlong>(Protocols::InteractionModel::Status::Success));
     }
 
@@ -1053,7 +1053,7 @@ void ExtendableInvokeCallback::OnResponse(app::CommandSender * apCommandSender,
     DeviceLayer::StackUnlock unlock;
 
     jobject jCommandRef = nullptr;
-    if (aResponseData.commandRef.HasValue())
+    if (aResponseData.commandRef.has_value())
     {
         err = JniReferences::GetInstance().CreateBoxedObject<jint>(
             "java/lang/Integer", "(I)V", static_cast<jint>(aResponseData.commandRef.Value()), jCommandRef);
@@ -1105,7 +1105,7 @@ void ExtendableInvokeCallback::OnResponse(app::CommandSender * apCommandSender,
         VerifyOrReturn(err == CHIP_NO_ERROR, ChipLogError(Controller, "Unable to find onResponse method: %s", ErrorStr(err)));
 
         jobject jClusterState = nullptr;
-        if (aResponseData.statusIB.mClusterStatus.HasValue())
+        if (aResponseData.statusIB.mClusterStatus.has_value())
         {
             err = JniReferences::GetInstance().CreateBoxedObject<jint>(
                 "java/lang/Integer", "(I)V", static_cast<jint>(aResponseData.statusIB.mClusterStatus.Value()), jClusterState);

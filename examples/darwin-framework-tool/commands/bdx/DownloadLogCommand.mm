@@ -36,7 +36,7 @@ CHIP_ERROR DownloadLogCommand::RunCommand()
     bool shouldWaitForDownload = !mIsAsyncCommand.ValueOr(false);
     mIsAsyncCommand.ClearValue();
 
-    bool dumpToFile = mFilePath.HasValue();
+    bool dumpToFile = mFilePath.has_value();
     auto * dumpFilePath = dumpToFile ? [NSString stringWithUTF8String:mFilePath.Value()] : nil;
     mFilePath.ClearValue();
 

@@ -389,7 +389,7 @@ using namespace chip::Tracing::DarwinFramework;
         }
 
         if (startupParams.operationalCertificate != nil && startupParams.operationalKeypair == nil
-            && (!startupParams.fabricIndex.HasValue()
+            && (!startupParams.fabricIndex.has_value()
                 || !startupParams.keystore->HasOpKeypairForFabric(startupParams.fabricIndex.Value()))) {
             MTR_LOG_ERROR("Have no operational keypair for our operational certificate");
             return;
@@ -683,7 +683,7 @@ static inline void emitMetricForSetupPayload(MTRSetupPayload * payload)
 
         errorCode = CHIP_ERROR_INVALID_ARGUMENT;
         chip::Optional<chip::Controller::SetUpCodePairerParameters> params = discoveredDevice.params;
-        if (params.HasValue()) {
+        if (params.has_value()) {
             auto pinCode = static_cast<uint32_t>(payload.setupPasscode.unsignedLongValue);
             params.Value().SetSetupPINCode(pinCode);
 
@@ -704,7 +704,7 @@ static inline void emitMetricForSetupPayload(MTRSetupPayload * payload)
 
             for (id key in discoveredDevice.interfaces) {
                 auto resolutionData = discoveredDevice.interfaces[key].resolutionData;
-                if (!resolutionData.HasValue()) {
+                if (!resolutionData.has_value()) {
                     continue;
                 }
 
@@ -1250,7 +1250,7 @@ static inline void emitMetricForSetupPayload(MTRSetupPayload * payload)
             }
 
             chip::Optional<chip::SessionHandle> session = deviceProxy->GetSecureSession();
-            if (!session.HasValue() || !session.Value()->AsSecureSession()->IsPASESession()) {
+            if (!session.has_value() || !session.Value()->AsSecureSession()->IsPASESession()) {
                 completion(nullptr, chip::NullOptional, [MTRError errorForCHIPErrorCode:CHIP_ERROR_INCORRECT_STATE], nil);
                 return;
             }
@@ -1277,7 +1277,7 @@ static inline void emitMetricForSetupPayload(MTRSetupPayload * payload)
         } else {
             auto scopedNodeID = self->_cppCommissioner->GetPeerScopedId(device.nodeID);
             auto sessionHandle = self->_cppCommissioner->SessionMgr()->FindSecureSessionForNode(scopedNodeID);
-            VerifyOrReturn(sessionHandle.HasValue());
+            VerifyOrReturn(sessionHandle.has_value());
             result = MTRMakeTransportType(sessionHandle.Value()->AsSecureSession()->GetPeerAddress().GetTransportType());
         }
     });

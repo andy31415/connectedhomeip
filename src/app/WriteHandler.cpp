@@ -208,7 +208,7 @@ void WriteHandler::DeliverListWriteEnd(const ConcreteAttributePath & aPath, bool
 
 void WriteHandler::DeliverFinalListWriteEnd(bool writeWasSuccessful)
 {
-    if (mProcessingAttributePath.HasValue() && mProcessingAttributeIsList)
+    if (mProcessingAttributePath.has_value() && mProcessingAttributeIsList)
     {
         DeliverListWriteEnd(mProcessingAttributePath.Value(), writeWasSuccessful);
     }
@@ -217,7 +217,7 @@ void WriteHandler::DeliverFinalListWriteEnd(bool writeWasSuccessful)
 
 CHIP_ERROR WriteHandler::DeliverFinalListWriteEndForGroupWrite(bool writeWasSuccessful)
 {
-    VerifyOrReturnError(mProcessingAttributePath.HasValue() && mProcessingAttributeIsList, CHIP_NO_ERROR);
+    VerifyOrReturnError(mProcessingAttributePath.has_value() && mProcessingAttributeIsList, CHIP_NO_ERROR);
 
     Credentials::GroupDataProvider::GroupEndpoint mapping;
     Credentials::GroupDataProvider * groupDataProvider = Credentials::GetGroupDataProvider();
@@ -251,16 +251,16 @@ CHIP_ERROR WriteHandler::DeliverFinalListWriteEndForGroupWrite(bool writeWasSucc
 }
 namespace {
 
-// To reduce the various use of previousProcessed.HasValue() && previousProcessed.Value() == nextAttribute to save code size.
+// To reduce the various use of previousProcessed.has_value() && previousProcessed.Value() == nextAttribute to save code size.
 bool IsSameAttribute(const Optional<ConcreteAttributePath> & previousProcessed, const ConcreteDataAttributePath & nextAttribute)
 {
-    return previousProcessed.HasValue() && previousProcessed.Value() == nextAttribute;
+    return previousProcessed.has_value() && previousProcessed.Value() == nextAttribute;
 }
 
 bool ShouldReportListWriteEnd(const Optional<ConcreteAttributePath> & previousProcessed, bool previousProcessedAttributeIsList,
                               const ConcreteDataAttributePath & nextAttribute)
 {
-    return previousProcessedAttributeIsList && !IsSameAttribute(previousProcessed, nextAttribute) && previousProcessed.HasValue();
+    return previousProcessedAttributeIsList && !IsSameAttribute(previousProcessed, nextAttribute) && previousProcessed.has_value();
 }
 
 bool ShouldReportListWriteBegin(const Optional<ConcreteAttributePath> & previousProcessed, bool previousProcessedAttributeIsList,

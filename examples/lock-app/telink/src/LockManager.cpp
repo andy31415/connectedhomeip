@@ -1146,7 +1146,7 @@ bool LockManager::setLockState(chip::EndpointId endpointId, DlLockState lockStat
     chip::app::Clusters::DoorLock::Attributes::RequirePINforRemoteOperation::Get(endpointId, &requirePin);
 
     // If a pin code is not given
-    if (!pin.HasValue())
+    if (!pin.has_value())
     {
         ChipLogProgress(Zcl, "Door Lock App: PIN code is not specified [endpointId=%d]", endpointId);
 

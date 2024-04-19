@@ -190,7 +190,7 @@ Protocols::InteractionModel::Status MatterTimeFormatLocalizationClusterServerPre
         VerifyOrReturnValue(sizeof(uint8_t) == size, Protocols::InteractionModel::Status::InvalidValue);
 
         auto calendarType = SafeCast<CalendarTypeEnum>(*value);
-        VerifyOrReturnValue(calendarType.HasValue(), Protocols::InteractionModel::Status::ConstraintError);
+        VerifyOrReturnValue(calendarType.has_value(), Protocols::InteractionModel::Status::ConstraintError);
 
         return emberAfPluginTimeFormatLocalizationOnCalendarTypeChange(attributePath.mEndpointId, calendarType.Value());
     }
@@ -198,7 +198,7 @@ Protocols::InteractionModel::Status MatterTimeFormatLocalizationClusterServerPre
         VerifyOrReturnValue(sizeof(uint8_t) == size, Protocols::InteractionModel::Status::InvalidValue);
 
         auto hourFormat = SafeCast<HourFormatEnum>(*value);
-        VerifyOrReturnValue(hourFormat.HasValue(), Protocols::InteractionModel::Status::ConstraintError);
+        VerifyOrReturnValue(hourFormat.has_value(), Protocols::InteractionModel::Status::ConstraintError);
 
         return Protocols::InteractionModel::Status::Success;
     }

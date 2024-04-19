@@ -991,23 +991,23 @@ void TestDataModelSerialization::NullablesOptionalsEncodeDecodeCheck(nlTestSuite
         if (encodeNulls)
         {
             NL_TEST_ASSERT(apSuite, decodable.nullableInt.IsNull());
-            NL_TEST_ASSERT(apSuite, !decodable.optionalInt.HasValue());
-            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalInt.HasValue());
+            NL_TEST_ASSERT(apSuite, !decodable.optionalInt.has_value());
+            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalInt.has_value());
             NL_TEST_ASSERT(apSuite, decodable.nullableOptionalInt.Value().IsNull());
 
             NL_TEST_ASSERT(apSuite, decodable.nullableString.IsNull());
-            NL_TEST_ASSERT(apSuite, !decodable.optionalString.HasValue());
-            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalString.HasValue());
+            NL_TEST_ASSERT(apSuite, !decodable.optionalString.has_value());
+            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalString.has_value());
             NL_TEST_ASSERT(apSuite, decodable.nullableOptionalString.Value().IsNull());
 
             NL_TEST_ASSERT(apSuite, decodable.nullableStruct.IsNull());
-            NL_TEST_ASSERT(apSuite, !decodable.optionalStruct.HasValue());
-            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalStruct.HasValue());
+            NL_TEST_ASSERT(apSuite, !decodable.optionalStruct.has_value());
+            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalStruct.has_value());
             NL_TEST_ASSERT(apSuite, decodable.nullableOptionalStruct.Value().IsNull());
 
             NL_TEST_ASSERT(apSuite, decodable.nullableList.IsNull());
-            NL_TEST_ASSERT(apSuite, !decodable.optionalList.HasValue());
-            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalList.HasValue());
+            NL_TEST_ASSERT(apSuite, !decodable.optionalList.has_value());
+            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalList.has_value());
             NL_TEST_ASSERT(apSuite, decodable.nullableOptionalList.Value().IsNull());
         }
         else if (encodeValues)
@@ -1017,53 +1017,53 @@ void TestDataModelSerialization::NullablesOptionalsEncodeDecodeCheck(nlTestSuite
 
             NL_TEST_ASSERT(apSuite, !decodable.nullableInt.IsNull());
             NL_TEST_ASSERT(apSuite, decodable.nullableInt.Value() == 5);
-            NL_TEST_ASSERT(apSuite, decodable.optionalInt.HasValue());
+            NL_TEST_ASSERT(apSuite, decodable.optionalInt.has_value());
             NL_TEST_ASSERT(apSuite, decodable.optionalInt.Value() == 6);
-            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalInt.HasValue());
+            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalInt.has_value());
             NL_TEST_ASSERT(apSuite, !decodable.nullableOptionalInt.Value().IsNull());
             NL_TEST_ASSERT(apSuite, decodable.nullableOptionalInt.Value().Value() == 7);
 
             NL_TEST_ASSERT(apSuite, !decodable.nullableString.IsNull());
             NL_TEST_ASSERT(apSuite, decodable.nullableString.Value().data_equal(strSpan));
-            NL_TEST_ASSERT(apSuite, decodable.optionalString.HasValue());
+            NL_TEST_ASSERT(apSuite, decodable.optionalString.has_value());
             NL_TEST_ASSERT(apSuite, decodable.optionalString.Value().data_equal(strSpan));
-            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalString.HasValue());
+            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalString.has_value());
             NL_TEST_ASSERT(apSuite, !decodable.nullableOptionalString.Value().IsNull());
             NL_TEST_ASSERT(apSuite, decodable.nullableOptionalString.Value().Value().data_equal(strSpan));
 
             NL_TEST_ASSERT(apSuite, !decodable.nullableStruct.IsNull());
             NL_TEST_ASSERT(apSuite, SimpleStructsEqual(decodable.nullableStruct.Value(), myStruct));
-            NL_TEST_ASSERT(apSuite, decodable.optionalStruct.HasValue());
+            NL_TEST_ASSERT(apSuite, decodable.optionalStruct.has_value());
             NL_TEST_ASSERT(apSuite, SimpleStructsEqual(decodable.optionalStruct.Value(), myStruct));
-            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalStruct.HasValue());
+            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalStruct.has_value());
             NL_TEST_ASSERT(apSuite, !decodable.nullableOptionalStruct.Value().IsNull());
             NL_TEST_ASSERT(apSuite, SimpleStructsEqual(decodable.nullableOptionalStruct.Value().Value(), myStruct));
 
             NL_TEST_ASSERT(apSuite, !decodable.nullableList.IsNull());
             NL_TEST_ASSERT(apSuite, ListsEqual(decodable.nullableList.Value(), enumList));
-            NL_TEST_ASSERT(apSuite, decodable.optionalList.HasValue());
+            NL_TEST_ASSERT(apSuite, decodable.optionalList.has_value());
             NL_TEST_ASSERT(apSuite, ListsEqual(decodable.optionalList.Value(), enumList));
-            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalList.HasValue());
+            NL_TEST_ASSERT(apSuite, decodable.nullableOptionalList.has_value());
             NL_TEST_ASSERT(apSuite, !decodable.nullableOptionalList.Value().IsNull());
             NL_TEST_ASSERT(apSuite, ListsEqual(decodable.nullableOptionalList.Value().Value(), enumList));
         }
         else
         {
             NL_TEST_ASSERT(apSuite, decodable.nullableInt.IsNull());
-            NL_TEST_ASSERT(apSuite, !decodable.optionalInt.HasValue());
-            NL_TEST_ASSERT(apSuite, !decodable.nullableOptionalInt.HasValue());
+            NL_TEST_ASSERT(apSuite, !decodable.optionalInt.has_value());
+            NL_TEST_ASSERT(apSuite, !decodable.nullableOptionalInt.has_value());
 
             NL_TEST_ASSERT(apSuite, decodable.nullableString.IsNull());
-            NL_TEST_ASSERT(apSuite, !decodable.optionalString.HasValue());
-            NL_TEST_ASSERT(apSuite, !decodable.nullableOptionalString.HasValue());
+            NL_TEST_ASSERT(apSuite, !decodable.optionalString.has_value());
+            NL_TEST_ASSERT(apSuite, !decodable.nullableOptionalString.has_value());
 
             NL_TEST_ASSERT(apSuite, decodable.nullableStruct.IsNull());
-            NL_TEST_ASSERT(apSuite, !decodable.optionalStruct.HasValue());
-            NL_TEST_ASSERT(apSuite, !decodable.nullableOptionalStruct.HasValue());
+            NL_TEST_ASSERT(apSuite, !decodable.optionalStruct.has_value());
+            NL_TEST_ASSERT(apSuite, !decodable.nullableOptionalStruct.has_value());
 
             NL_TEST_ASSERT(apSuite, decodable.nullableList.IsNull());
-            NL_TEST_ASSERT(apSuite, !decodable.optionalList.HasValue());
-            NL_TEST_ASSERT(apSuite, !decodable.nullableOptionalList.HasValue());
+            NL_TEST_ASSERT(apSuite, !decodable.optionalList.has_value());
+            NL_TEST_ASSERT(apSuite, !decodable.nullableOptionalList.has_value());
         }
     }
 }

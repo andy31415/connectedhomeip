@@ -64,7 +64,7 @@ Optional<SessionHandle> SecureSessionTable::CreateNewSecureSession(SecureSession
     SecureSession * allocated  = nullptr;
 
     auto sessionId = FindUnusedSessionId();
-    VerifyOrReturnValue(sessionId.HasValue(), Optional<SessionHandle>::Missing());
+    VerifyOrReturnValue(sessionId.has_value(), Optional<SessionHandle>::Missing());
 
     //
     // We allocate a new session out of the pool if we have space in it. If we don't, we need

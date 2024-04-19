@@ -235,7 +235,7 @@ bool emberAfApplicationLauncherClusterLaunchAppCallback(app::CommandHandler * co
 
     // TODO: We should be able to not have an `application` if the AP feature is
     // off: https://github.com/project-chip/connectedhomeip/issues/24595
-    if (!application.HasValue())
+    if (!application.has_value())
     {
         command->AddStatus(commandPath, Protocols::InteractionModel::Status::InvalidCommand);
         return true;
@@ -269,7 +269,7 @@ bool emberAfApplicationLauncherClusterLaunchAppCallback(app::CommandHandler * co
             ContentAppPlatform::GetInstance().SetCurrentApp(app);
 
             ChipLogError(Zcl, "ApplicationLauncher handling launch on ContentApp");
-            app->GetApplicationLauncherDelegate()->HandleLaunchApp(responder, data.HasValue() ? data.Value() : ByteSpan(),
+            app->GetApplicationLauncherDelegate()->HandleLaunchApp(responder, data.has_value() ? data.Value() : ByteSpan(),
                                                                    application.Value());
             return true;
         }
@@ -303,7 +303,7 @@ bool emberAfApplicationLauncherClusterLaunchAppCallback(app::CommandHandler * co
 #endif // CHIP_DEVICE_CONFIG_APP_PLATFORM_ENABLED
 
         ChipLogError(Zcl, "ApplicationLauncher handling launch");
-        delegate->HandleLaunchApp(responder, data.HasValue() ? data.Value() : ByteSpan(), application.Value());
+        delegate->HandleLaunchApp(responder, data.has_value() ? data.Value() : ByteSpan(), application.Value());
     }
 
 exit:
@@ -329,7 +329,7 @@ bool emberAfApplicationLauncherClusterStopAppCallback(app::CommandHandler * comm
 
     // TODO: We should be able to not have an `application` if the AP feature is
     // off: https://github.com/project-chip/connectedhomeip/issues/24595
-    if (!application.HasValue())
+    if (!application.has_value())
     {
         command->AddStatus(commandPath, Protocols::InteractionModel::Status::InvalidCommand);
         return true;
@@ -418,7 +418,7 @@ bool emberAfApplicationLauncherClusterHideAppCallback(app::CommandHandler * comm
 
     // TODO: We should be able to not have an `application` if the AP feature is
     // off: https://github.com/project-chip/connectedhomeip/issues/24595
-    if (!application.HasValue())
+    if (!application.has_value())
     {
         command->AddStatus(commandPath, Protocols::InteractionModel::Status::InvalidCommand);
         return true;

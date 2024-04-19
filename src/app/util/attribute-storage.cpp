@@ -1158,7 +1158,7 @@ void emAfLoadAttributeDefaults(EndpointId endpoint, Optional<ClusterId> clusterI
         for (clusterI = 0; clusterI < de->endpointType->clusterCount; clusterI++)
         {
             const EmberAfCluster * cluster = &(de->endpointType->cluster[clusterI]);
-            if (clusterId.HasValue())
+            if (clusterId.has_value())
             {
                 if (clusterId.Value() != cluster->clusterId)
                 {

@@ -149,7 +149,7 @@ private:
     template <typename T>
     static CHIP_ERROR LogValue(const char * label, size_t indent, const chip::Optional<T> & value)
     {
-        if (value.HasValue())
+        if (value.has_value())
         {
             return DataModelLogger::LogValue(label, indent, value.Value());
         }

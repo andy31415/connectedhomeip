@@ -48,7 +48,7 @@ public:
     /// to some form of reply.
     void Adjust(ResourceRecord & record) const
     {
-        if (mTtlSecondsOverride.HasValue())
+        if (mTtlSecondsOverride.has_value())
         {
             record.SetTtl(mTtlSecondsOverride.Value());
         }

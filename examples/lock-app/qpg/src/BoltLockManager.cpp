@@ -163,7 +163,7 @@ bool BoltLockManager::SetCredential(uint16_t credentialIndex, FabricIndex creato
 bool BoltLockManager::ValidatePIN(const Optional<ByteSpan> & pinCode, OperationErrorEnum & err) const
 {
     // Optionality of the PIN code is validated by the caller, so assume it is OK not to provide the PIN code.
-    if (!pinCode.HasValue())
+    if (!pinCode.has_value())
     {
         return true;
     }

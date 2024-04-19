@@ -1,5 +1,5 @@
 {{#if isOptional}}
-  if ({{source}}.HasValue()) {
+  if ({{source}}.has_value()) {
     {{>decodable_value target=target source=(concat source ".Value()") cluster=cluster depth=(incrementDepth depth) isOptional=false}}
   } else {
     {{target}} = nil;

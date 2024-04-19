@@ -1664,7 +1664,7 @@ CHIP_ERROR BLEManagerImpl::StartAdvertising(void)
             }
         }
 #endif
-        if (mScanResponse.HasValue())
+        if (mScanResponse.has_value())
         {
             err = MapBLEError(ble_gap_adv_rsp_set_data(mScanResponse.Value().data(), mScanResponse.Value().size()));
             if (err != CHIP_NO_ERROR)

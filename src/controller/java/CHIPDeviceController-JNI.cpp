@@ -235,7 +235,7 @@ JNI_METHOD(jlong, onNOCChainGeneration)
 
         ipkOptional.SetValue(ipkTempSpan);
     }
-    else if (commissioningParams.GetIpk().HasValue())
+    else if (commissioningParams.GetIpk().has_value())
     {
         // if no value pass in ControllerParams, use value from CommissioningParameters
         ipkOptional.SetValue(commissioningParams.GetIpk().Value());

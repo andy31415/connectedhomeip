@@ -709,7 +709,7 @@ bool BoltLockManager::setLockState(chip::EndpointId endpointId, DlLockState lock
     chip::app::Clusters::DoorLock::Attributes::RequirePINforRemoteOperation::Get(endpointId, &requirePin);
 
     // If a pin code is not given
-    if (!pin.HasValue())
+    if (!pin.has_value())
     {
         ESP_LOGI(TAG, "Door Lock App: PIN code is not specified [endpointId=%d]", endpointId);
 

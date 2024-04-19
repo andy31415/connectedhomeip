@@ -88,8 +88,8 @@ exit:
     {
         pychip_DeviceController_IssueNOCChainCallbackPythonCallbackFunct(
             context, ToPyChipError(err), chipNocSpan.data(), chipNocSpan.size(), chipIcacSpan.data(), chipIcacSpan.size(),
-            chipRcacSpan.data(), chipRcacSpan.size(), ipk.HasValue() ? ipk.Value().data() : nullptr,
-            ipk.HasValue() ? ipk.Value().size() : 0, adminSubject.ValueOr(kUndefinedNodeId));
+            chipRcacSpan.data(), chipRcacSpan.size(), ipk.has_value() ? ipk.Value().data() : nullptr,
+            ipk.has_value() ? ipk.Value().size() : 0, adminSubject.ValueOr(kUndefinedNodeId));
     }
     else
     {

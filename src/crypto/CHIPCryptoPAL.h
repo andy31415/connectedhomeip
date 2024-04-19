@@ -1768,7 +1768,7 @@ struct AttestationCertVidPid
     Optional<VendorId> mVendorId;
     Optional<uint16_t> mProductId;
 
-    bool Initialized() const { return (mVendorId.HasValue() || mProductId.HasValue()); }
+    bool Initialized() const { return (mVendorId.has_value() || mProductId.has_value()); }
 };
 
 /**

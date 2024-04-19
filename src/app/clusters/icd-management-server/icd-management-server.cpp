@@ -270,7 +270,7 @@ Status ICDManagementServer::RegisterClient(CommandHandler * commandObj, const Co
         // Existing entry: Validate Key if, and only if, the ISD does NOT have administrator permissions
         if (!isClientAdmin)
         {
-            VerifyOrReturnError(verificationKey.HasValue(), InteractionModel::Status::Failure);
+            VerifyOrReturnError(verificationKey.has_value(), InteractionModel::Status::Failure);
             VerifyOrReturnError(entry.IsKeyEquivalent(verificationKey.Value()), InteractionModel::Status::Failure);
         }
     }
@@ -342,7 +342,7 @@ Status ICDManagementServer::UnregisterClient(CommandHandler * commandObj, const 
     // Existing entry: Validate Key if, and only if, the ISD has NOT administrator permissions
     if (!isClientAdmin)
     {
-        VerifyOrReturnError(verificationKey.HasValue(), InteractionModel::Status::Failure);
+        VerifyOrReturnError(verificationKey.has_value(), InteractionModel::Status::Failure);
         VerifyOrReturnError(entry.IsKeyEquivalent(verificationKey.Value()), InteractionModel::Status::Failure);
     }
 

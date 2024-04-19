@@ -2,7 +2,7 @@
     {{~#if isOptional}}
         {{~#if (hasProperty expectedConstraints "hasValue")}}VerifyOrReturn(CheckConstraintHasValue("{{asPropertyValue dontUnwrapValue=true}}", {{asPropertyValue dontUnwrapValue=true}}, {{expectedConstraints.hasValue}}));
         {{else}}
-        if ({{asPropertyValue dontUnwrapValue=true}}.HasValue()) {
+        if ({{asPropertyValue dontUnwrapValue=true}}.has_value()) {
         {{/if}}
     {{/if}}
 

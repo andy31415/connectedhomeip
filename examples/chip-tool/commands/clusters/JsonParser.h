@@ -108,7 +108,7 @@ private:
             else
             {
                 ChipLogError(chipTool, "  %s", error.c_str());
-                if (error == "  Missing ',' or '}' in object declaration" && errorColumn.HasValue() && errorColumn.Value() > 0 &&
+                if (error == "  Missing ',' or '}' in object declaration" && errorColumn.has_value() && errorColumn.Value() > 0 &&
                     json[errorColumn.Value() - 1] == '0' && (json[errorColumn.Value()] == 'x' || json[errorColumn.Value()] == 'X'))
                 {
                     // Log the error location marker before showing the NOTE
@@ -131,7 +131,7 @@ private:
     static void LogErrorLocation(chip::Optional<unsigned> & errorColumn, const char * json)
     {
 #if CHIP_ERROR_LOGGING
-        if (!errorColumn.HasValue())
+        if (!errorColumn.has_value())
         {
             return;
         }

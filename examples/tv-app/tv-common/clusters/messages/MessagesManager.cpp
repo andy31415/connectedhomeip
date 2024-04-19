@@ -38,7 +38,7 @@ CHIP_ERROR MessagesManager::HandlePresentMessagesRequest(
 
     auto cachedMessage = CachedMessage(messageId, priority, messageControl, startTime, duration,
                                        std::string(messageText.data(), messageText.size()));
-    if (responses.HasValue())
+    if (responses.has_value())
     {
         auto iter = responses.Value().begin();
         while (iter.Next())

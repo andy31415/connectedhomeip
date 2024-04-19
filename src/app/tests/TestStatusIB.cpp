@@ -87,7 +87,7 @@ void TestStatusIBToFromChipError(nlTestSuite * aSuite, void * aContext)
         StatusIB newStatus;
         newStatus.InitFromChipError(err);
         NL_TEST_ASSERT(aSuite, newStatus.mStatus == Status::Failure);
-        NL_TEST_ASSERT(aSuite, !newStatus.mClusterStatus.HasValue());
+        NL_TEST_ASSERT(aSuite, !newStatus.mClusterStatus.has_value());
     }
 }
 

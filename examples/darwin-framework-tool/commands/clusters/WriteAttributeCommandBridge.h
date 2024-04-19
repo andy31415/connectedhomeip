@@ -78,7 +78,7 @@ public:
                                clusterID:[NSNumber numberWithUnsignedInteger:clusterId]
                              attributeID:[NSNumber numberWithUnsignedInteger:attributeId]
                                    value:value
-                       timedWriteTimeout:mTimedInteractionTimeoutMs.HasValue()
+                       timedWriteTimeout:mTimedInteractionTimeoutMs.has_value()
                            ? [NSNumber numberWithUnsignedShort:mTimedInteractionTimeoutMs.Value()]
                            : nil
                                    queue:callbackQueue

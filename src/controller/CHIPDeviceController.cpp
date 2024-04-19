@@ -118,7 +118,7 @@ CHIP_ERROR DeviceController::Init(ControllerInitParams params)
     {
         ReturnErrorOnFailure(InitControllerNOCChain(params));
     }
-    else if (params.fabricIndex.HasValue())
+    else if (params.fabricIndex.has_value())
     {
         VerifyOrReturnError(params.systemState->Fabrics()->FabricCount() > 0, CHIP_ERROR_INVALID_ARGUMENT);
         if (params.systemState->Fabrics()->FindFabricWithIndex(params.fabricIndex.Value()) != nullptr)
@@ -797,7 +797,7 @@ CHIP_ERROR DeviceCommissioner::EstablishPASEConnection(NodeId remoteDeviceId, Re
     }
 #endif
     session = mSystemState->SessionMgr()->CreateUnauthenticatedSession(params.GetPeerAddress(), params.GetMRPConfig());
-    VerifyOrExit(session.HasValue(), err = CHIP_ERROR_NO_MEMORY);
+    VerifyOrExit(session.has_value(), err = CHIP_ERROR_NO_MEMORY);
 
     // Allocate the exchange immediately before calling PASESession::Pair.
     //
@@ -1363,7 +1363,7 @@ void DeviceCommissioner::ExtendArmFailSafeForDeviceAttestation(const Credentials
     mAttestationDeviceInfo = Platform::MakeUnique<Credentials::DeviceAttestationVerifier::AttestationDeviceInfo>(info);
 
     auto expiryLengthSeconds      = deviceAttestationDelegate->FailSafeExpiryTimeoutSecs();
-    bool waitForFailsafeExtension = expiryLengthSeconds.HasValue();
+    bool waitForFailsafeExtension = expiryLengthSeconds.has_value();
     if (waitForFailsafeExtension)
     {
         ChipLogProgress(Controller, "Changing fail-safe timer to %u seconds to handle DA failure", expiryLengthSeconds.Value());
@@ -1463,7 +1463,7 @@ void DeviceCommissioner::OnDeviceNOCChainGeneration(void * context, CHIP_ERROR s
     // The placeholder IPK is not satisfactory, but is there to fill the NocChain struct on error. It will still fail.
     const uint8_t placeHolderIpk[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    if (status == CHIP_NO_ERROR && !ipk.HasValue())
+    if (status == CHIP_NO_ERROR && !ipk.has_value())
     {
         ChipLogError(Controller, "Did not have an IPK from the OperationalCredentialsIssuer! Cannot commission.");
         status = CHIP_ERROR_INVALID_ARGUMENT;
@@ -1481,8 +1481,8 @@ void DeviceCommissioner::OnDeviceNOCChainGeneration(void * context, CHIP_ERROR s
 
     // TODO - Verify that the generated root cert matches with commissioner's root cert
     CommissioningDelegate::CommissioningReport report;
-    report.Set<NocChain>(NocChain(noc, icac, rcac, ipk.HasValue() ? ipk.Value() : IdentityProtectionKeySpan(placeHolderIpk),
-                                  adminSubject.HasValue() ? adminSubject.Value() : commissioner->GetNodeId()));
+    report.Set<NocChain>(NocChain(noc, icac, rcac, ipk.has_value() ? ipk.Value() : IdentityProtectionKeySpan(placeHolderIpk),
+                                  adminSubject.has_value() ? adminSubject.Value() : commissioner->GetNodeId()));
     commissioner->CommissioningStageComplete(status, report);
 }
 
@@ -1767,7 +1767,7 @@ static GeneralCommissioning::Commands::ArmFailSafe::Type DisarmFailsafeRequest()
 
 static void MarkForEviction(const Optional<SessionHandle> & session)
 {
-    if (session.HasValue())
+    if (session.has_value())
     {
         session.Value()->AsSecureSession()->MarkForEviction();
     }
@@ -1819,7 +1819,7 @@ void DeviceCommissioner::CleanupCommissioning(DeviceProxy * proxy, NodeId nodeId
 
         CleanupDoneAfterError();
     }
-    else if (completionStatus.failedStage.HasValue() && completionStatus.failedStage.Value() >= kWiFiNetworkSetup)
+    else if (completionStatus.failedStage.has_value() && completionStatus.failedStage.Value() >= kWiFiNetworkSetup)
     {
         // If we were already doing network setup, we need to retain the pase session and start again from network setup stage.
         // We do not need to reset the failsafe here because we want to keep everything on the device up to this point, so just
@@ -2579,7 +2579,7 @@ void DeviceCommissioner::OnScanNetworksResponse(void * context,
 
     ChipLogProgress(Controller, "Received ScanNetwork response, networkingStatus=%u debugText=%s",
                     to_underlying(data.networkingStatus),
-                    (data.debugText.HasValue() ? std::string(data.debugText.Value().data(), data.debugText.Value().size()).c_str()
+                    (data.debugText.has_value() ? std::string(data.debugText.Value().data(), data.debugText.Value().size()).c_str()
                                                : "none provided"));
     DeviceCommissioner * commissioner = static_cast<DeviceCommissioner *>(context);
 
@@ -2691,7 +2691,7 @@ void DeviceCommissioner::SendCommissioningReadRequest(DeviceProxy * proxy, Optio
     app::InteractionModelEngine * engine = app::InteractionModelEngine::GetInstance();
     app::ReadPrepareParams readParams(proxy->GetSecureSession().Value());
     readParams.mIsFabricFiltered = false;
-    if (timeout.HasValue())
+    if (timeout.has_value())
     {
         readParams.mTimeout = timeout.Value();
     }
@@ -2851,7 +2851,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
         break;
     }
     case CommissioningStage::kConfigureTimeZone: {
-        if (!params.GetTimeZone().HasValue())
+        if (!params.GetTimeZone().has_value())
         {
             ChipLogError(Controller, "ConfigureTimeZone stage called with no time zone data");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
@@ -2870,7 +2870,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
         break;
     }
     case CommissioningStage::kConfigureDSTOffset: {
-        if (!params.GetDSTOffsets().HasValue())
+        if (!params.GetDSTOffsets().has_value())
         {
             ChipLogError(Controller, "ConfigureDSTOffset stage called with no DST data");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
@@ -2889,7 +2889,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
         break;
     }
     case CommissioningStage::kConfigureDefaultNTP: {
-        if (!params.GetDefaultNTP().HasValue())
+        if (!params.GetDefaultNTP().has_value())
         {
             ChipLogError(Controller, "ConfigureDefaultNTP stage called with no default NTP data");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
@@ -2909,7 +2909,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
     }
     case CommissioningStage::kScanNetworks: {
         NetworkCommissioning::Commands::ScanNetworks::Type request;
-        if (params.GetWiFiCredentials().HasValue())
+        if (params.GetWiFiCredentials().has_value())
         {
             request.ssid.Emplace(params.GetWiFiCredentials().Value().ssid);
         }
@@ -2941,13 +2941,13 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
         {
             // If the device supports indoor and outdoor configs, use the setting from the commissioner, otherwise fall back to
             // the current device setting then to outdoor (most restrictive)
-            if (params.GetDeviceRegulatoryLocation().HasValue())
+            if (params.GetDeviceRegulatoryLocation().has_value())
             {
                 regulatoryConfig = params.GetDeviceRegulatoryLocation().Value();
                 ChipLogProgress(Controller, "Setting regulatory config to %u from commissioner override",
                                 static_cast<uint8_t>(regulatoryConfig));
             }
-            else if (params.GetDefaultRegulatoryLocation().HasValue())
+            else if (params.GetDefaultRegulatoryLocation().has_value())
             {
                 regulatoryConfig = params.GetDefaultRegulatoryLocation().Value();
                 ChipLogProgress(Controller, "No regulatory config supplied by controller, leaving as device default (%u)",
@@ -2967,7 +2967,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
 
         CharSpan countryCode;
         const auto & providedCountryCode = params.GetCountryCode();
-        if (providedCountryCode.HasValue())
+        if (providedCountryCode.has_value())
         {
             countryCode = providedCountryCode.Value();
         }
@@ -3019,7 +3019,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
     }
     case CommissioningStage::kSendAttestationRequest: {
         ChipLogProgress(Controller, "Sending Attestation Request to the device.");
-        if (!params.GetAttestationNonce().HasValue())
+        if (!params.GetAttestationNonce().has_value())
         {
             ChipLogError(Controller, "No attestation nonce found");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
@@ -3037,9 +3037,9 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
     }
     case CommissioningStage::kAttestationVerification: {
         ChipLogProgress(Controller, "Verifying attestation");
-        if (!params.GetAttestationElements().HasValue() || !params.GetAttestationSignature().HasValue() ||
-            !params.GetAttestationNonce().HasValue() || !params.GetDAC().HasValue() || !params.GetPAI().HasValue() ||
-            !params.GetRemoteVendorId().HasValue() || !params.GetRemoteProductId().HasValue())
+        if (!params.GetAttestationElements().has_value() || !params.GetAttestationSignature().has_value() ||
+            !params.GetAttestationNonce().has_value() || !params.GetDAC().has_value() || !params.GetPAI().has_value() ||
+            !params.GetRemoteVendorId().has_value() || !params.GetRemoteProductId().has_value())
         {
             ChipLogError(Controller, "Missing attestation information");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
@@ -3061,7 +3061,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
     }
     break;
     case CommissioningStage::kSendOpCertSigningRequest: {
-        if (!params.GetCSRNonce().HasValue())
+        if (!params.GetCSRNonce().has_value())
         {
             ChipLogError(Controller, "No CSR nonce found");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
@@ -3078,7 +3078,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
         break;
     }
     case CommissioningStage::kValidateCSR: {
-        if (!params.GetNOCChainGenerationParameters().HasValue() || !params.GetDAC().HasValue() || !params.GetCSRNonce().HasValue())
+        if (!params.GetNOCChainGenerationParameters().has_value() || !params.GetDAC().has_value() || !params.GetCSRNonce().has_value())
         {
             ChipLogError(Controller, "Unable to validate CSR");
             return CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
@@ -3096,8 +3096,8 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
     }
     break;
     case CommissioningStage::kGenerateNOCChain: {
-        if (!params.GetNOCChainGenerationParameters().HasValue() || !params.GetDAC().HasValue() || !params.GetPAI().HasValue() ||
-            !params.GetCSRNonce().HasValue())
+        if (!params.GetNOCChainGenerationParameters().has_value() || !params.GetDAC().has_value() || !params.GetPAI().has_value() ||
+            !params.GetCSRNonce().has_value())
         {
             ChipLogError(Controller, "Unable to generate NOC chain parameters");
             return CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
@@ -3117,7 +3117,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
     }
     break;
     case CommissioningStage::kSendTrustedRootCert: {
-        if (!params.GetRootCert().HasValue() || !params.GetNoc().HasValue())
+        if (!params.GetRootCert().has_value() || !params.GetNoc().has_value())
         {
             ChipLogError(Controller, "No trusted root cert or NOC specified");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
@@ -3147,7 +3147,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
     }
     break;
     case CommissioningStage::kSendNOC: {
-        if (!params.GetNoc().HasValue() || !params.GetIpk().HasValue() || !params.GetAdminSubject().HasValue())
+        if (!params.GetNoc().has_value() || !params.GetIpk().has_value() || !params.GetAdminSubject().has_value())
         {
             ChipLogError(Controller, "AddNOC contents not specified");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
@@ -3165,7 +3165,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
         break;
     }
     case CommissioningStage::kConfigureTrustedTimeSource: {
-        if (!params.GetTrustedTimeSource().HasValue())
+        if (!params.GetTrustedTimeSource().has_value())
         {
             ChipLogError(Controller, "ConfigureTrustedTimeSource stage called with no trusted time source data");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
@@ -3184,7 +3184,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
         break;
     }
     case CommissioningStage::kWiFiNetworkSetup: {
-        if (!params.GetWiFiCredentials().HasValue())
+        if (!params.GetWiFiCredentials().has_value())
         {
             ChipLogError(Controller, "No wifi credentials specified");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
@@ -3206,7 +3206,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
     }
     break;
     case CommissioningStage::kThreadNetworkSetup: {
-        if (!params.GetThreadOperationalDataset().HasValue())
+        if (!params.GetThreadOperationalDataset().has_value())
         {
             ChipLogError(Controller, "No thread credentials specified");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
@@ -3234,7 +3234,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
         ExtendFailsafeBeforeNetworkEnable(proxy, params, step);
         break;
     case CommissioningStage::kWiFiNetworkEnable: {
-        if (!params.GetWiFiCredentials().HasValue())
+        if (!params.GetWiFiCredentials().has_value())
         {
             ChipLogError(Controller, "No wifi credentials specified");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
@@ -3246,7 +3246,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
 
         CHIP_ERROR err = CHIP_NO_ERROR;
         ChipLogProgress(Controller, "SendCommand kWiFiNetworkEnable, supportsConcurrentConnection=%s",
-                        params.GetSupportsConcurrentConnection().HasValue()
+                        params.GetSupportsConcurrentConnection().has_value()
                             ? (params.GetSupportsConcurrentConnection().Value() ? "true" : "false")
                             : "missing");
         err = SendCommissioningCommand(proxy, request, OnConnectNetworkResponse, OnBasicFailure, endpoint, timeout);
@@ -3263,7 +3263,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
     case CommissioningStage::kThreadNetworkEnable: {
         ByteSpan extendedPanId;
         chip::Thread::OperationalDataset operationalDataset;
-        if (!params.GetThreadOperationalDataset().HasValue() ||
+        if (!params.GetThreadOperationalDataset().has_value() ||
             operationalDataset.Init(params.GetThreadOperationalDataset().Value()) != CHIP_NO_ERROR ||
             operationalDataset.GetExtendedPanIdAsByteSpan(extendedPanId) != CHIP_NO_ERROR)
         {
@@ -3292,8 +3292,8 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
     case CommissioningStage::kICDRegistration: {
         IcdManagement::Commands::RegisterClient::Type request;
 
-        if (!(params.GetICDCheckInNodeId().HasValue() && params.GetICDMonitoredSubject().HasValue() &&
-              params.GetICDSymmetricKey().HasValue()))
+        if (!(params.GetICDCheckInNodeId().has_value() && params.GetICDMonitoredSubject().has_value() &&
+              params.GetICDSymmetricKey().has_value()))
         {
             ChipLogError(Controller, "No ICD Registration information provided!");
             CommissioningStageComplete(CHIP_ERROR_INCORRECT_STATE);
@@ -3342,7 +3342,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
     }
     break;
     case CommissioningStage::kICDSendStayActive: {
-        if (!(params.GetICDStayActiveDurationMsec().HasValue()))
+        if (!(params.GetICDStayActiveDurationMsec().has_value()))
         {
             ChipLogProgress(Controller, "Skipping kICDSendStayActive");
             CommissioningStageComplete(CHIP_NO_ERROR);

@@ -115,8 +115,8 @@ struct CommonResolutionData
         // If either session interval (Idle - SII, Active - SAI) has a value and that value is greater
         // than the value passed to this function, then the peer device will be treated as if it is
         // a Sleepy End Device (SED)
-        return (mrpRetryIntervalIdle.HasValue() && (mrpRetryIntervalIdle.Value() > defaultMRPConfig->mIdleRetransTimeout)) ||
-            (mrpRetryIntervalActive.HasValue() && (mrpRetryIntervalActive.Value() > defaultMRPConfig->mActiveRetransTimeout));
+        return (mrpRetryIntervalIdle.has_value() && (mrpRetryIntervalIdle.Value() > defaultMRPConfig->mIdleRetransTimeout)) ||
+            (mrpRetryIntervalActive.has_value() && (mrpRetryIntervalActive.Value() > defaultMRPConfig->mActiveRetransTimeout));
     }
 
     bool IsHost(const char * host) const { return strcmp(host, hostName) == 0; }
@@ -156,7 +156,7 @@ struct CommonResolutionData
         {
             ChipLogDetail(Discovery, "\tPort: %u", port);
         }
-        if (mrpRetryIntervalIdle.HasValue())
+        if (mrpRetryIntervalIdle.has_value())
         {
             ChipLogDetail(Discovery, "\tMrp Interval idle: %" PRIu32 " ms", mrpRetryIntervalIdle.Value().count());
         }
@@ -164,7 +164,7 @@ struct CommonResolutionData
         {
             ChipLogDetail(Discovery, "\tMrp Interval idle: not present");
         }
-        if (mrpRetryIntervalActive.HasValue())
+        if (mrpRetryIntervalActive.has_value())
         {
             ChipLogDetail(Discovery, "\tMrp Interval active: %" PRIu32 " ms", mrpRetryIntervalActive.Value().count());
         }
@@ -172,7 +172,7 @@ struct CommonResolutionData
         {
             ChipLogDetail(Discovery, "\tMrp Interval active: not present");
         }
-        if (mrpRetryActiveThreshold.HasValue())
+        if (mrpRetryActiveThreshold.has_value())
         {
             ChipLogDetail(Discovery, "\tMrp Active Threshold: %u ms", mrpRetryActiveThreshold.Value().count());
         }
@@ -181,7 +181,7 @@ struct CommonResolutionData
             ChipLogDetail(Discovery, "\tMrp Active Threshold: not present");
         }
         ChipLogDetail(Discovery, "\tTCP Supported: %d", supportsTcp);
-        if (isICDOperatingAsLIT.HasValue())
+        if (isICDOperatingAsLIT.has_value())
         {
             ChipLogDetail(Discovery, "\tThe ICD operates in %s", isICDOperatingAsLIT.Value() ? "LIT" : "SIT");
         }

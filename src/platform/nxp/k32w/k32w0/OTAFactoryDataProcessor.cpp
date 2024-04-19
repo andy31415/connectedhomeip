@@ -159,7 +159,7 @@ CHIP_ERROR OTAFactoryDataProcessor::DecodeTlv()
 CHIP_ERROR OTAFactoryDataProcessor::Update(uint8_t tag, Optional<ByteSpan> & optional)
 {
     CHIP_ERROR error = CHIP_NO_ERROR;
-    if (optional.HasValue())
+    if (optional.has_value())
     {
         error = UpdateValue(tag, optional.Value());
     }

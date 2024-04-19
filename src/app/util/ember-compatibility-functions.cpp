@@ -999,7 +999,7 @@ CHIP_ERROR WriteSingleClusterData(const SubjectDescriptor & aSubjectDescriptor, 
         return apWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::NeedsTimedInteraction);
     }
 
-    if (aPath.mDataVersion.HasValue() && !IsClusterDataVersionEqual(aPath, aPath.mDataVersion.Value()))
+    if (aPath.mDataVersion.has_value() && !IsClusterDataVersionEqual(aPath, aPath.mDataVersion.Value()))
     {
         ChipLogError(DataManagement, "Write Version mismatch for Endpoint %x, Cluster " ChipLogFormatMEI, aPath.mEndpointId,
                      ChipLogValueMEI(aPath.mClusterId));

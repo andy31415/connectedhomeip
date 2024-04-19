@@ -90,7 +90,7 @@ CHIP_ERROR WriteClient::PrepareAttributeIB(const ConcreteDataAttributePath & aPa
     AttributeDataIBs::Builder & writeRequests  = mWriteRequestBuilder.GetWriteRequests();
     AttributeDataIB::Builder & attributeDataIB = writeRequests.CreateAttributeDataIBBuilder();
     ReturnErrorOnFailure(writeRequests.GetError());
-    if (aPath.mDataVersion.HasValue())
+    if (aPath.mDataVersion.has_value())
     {
         attributeDataIB.DataVersion(aPath.mDataVersion.Value());
         mHasDataVersion = true;
@@ -172,7 +172,7 @@ CHIP_ERROR WriteClient::StartNewMessage()
     }
 
     // Do not allow timed request with chunks.
-    VerifyOrReturnError(!(mTimedWriteTimeoutMs.HasValue() && !mChunks.IsNull()), CHIP_ERROR_NO_MEMORY);
+    VerifyOrReturnError(!(mTimedWriteTimeoutMs.has_value() && !mChunks.IsNull()), CHIP_ERROR_NO_MEMORY);
 
     System::PacketBufferHandle packet = System::PacketBufferHandle::New(kMaxSecureSduLengthBytes);
     VerifyOrReturnError(!packet.IsNull(), CHIP_ERROR_NO_MEMORY);
@@ -201,7 +201,7 @@ CHIP_ERROR WriteClient::StartNewMessage()
 
     ReturnErrorOnFailure(mWriteRequestBuilder.Init(&mMessageWriter));
     mWriteRequestBuilder.SuppressResponse(mSuppressResponse);
-    mWriteRequestBuilder.TimedRequest(mTimedWriteTimeoutMs.HasValue());
+    mWriteRequestBuilder.TimedRequest(mTimedWriteTimeoutMs.has_value());
     ReturnErrorOnFailure(mWriteRequestBuilder.GetError());
     mWriteRequestBuilder.CreateWriteRequests();
     ReturnErrorOnFailure(mWriteRequestBuilder.GetError());
@@ -346,7 +346,7 @@ CHIP_ERROR WriteClient::SendWriteRequest(const SessionHandle & session, System::
         mExchangeCtx->SetResponseTimeout(timeout);
     }
 
-    if (mTimedWriteTimeoutMs.HasValue())
+    if (mTimedWriteTimeoutMs.has_value())
     {
         err = TimedRequest::Send(mExchangeCtx.Get(), mTimedWriteTimeoutMs.Value());
         SuccessOrExit(err);

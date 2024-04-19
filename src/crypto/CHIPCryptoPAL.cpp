@@ -939,13 +939,13 @@ CHIP_ERROR ExtractVIDPIDFromAttributeString(DNAttrType attrType, const ByteSpan 
         if (attrType == DNAttrType::kMatterVID)
         {
             // Not more than one VID attribute can be present.
-            ReturnErrorCodeIf(vidpidFromMatterAttr.mVendorId.HasValue(), CHIP_ERROR_WRONG_CERT_DN);
+            ReturnErrorCodeIf(vidpidFromMatterAttr.mVendorId.has_value(), CHIP_ERROR_WRONG_CERT_DN);
             vidpidFromMatterAttr.mVendorId.SetValue(static_cast<VendorId>(matterAttr));
         }
         else
         {
             // Not more than one PID attribute can be present.
-            ReturnErrorCodeIf(vidpidFromMatterAttr.mProductId.HasValue(), CHIP_ERROR_WRONG_CERT_DN);
+            ReturnErrorCodeIf(vidpidFromMatterAttr.mProductId.has_value(), CHIP_ERROR_WRONG_CERT_DN);
             vidpidFromMatterAttr.mProductId.SetValue(matterAttr);
         }
     }

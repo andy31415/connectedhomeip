@@ -245,7 +245,7 @@ void Instance::HandleSetCookingParameters(HandlerContext & ctx, const Commands::
     opState = mOpStateInstance.GetCurrentOperationalState();
     VerifyOrExit(opState == to_underlying(OperationalStateEnum::kStopped), status = Status::InvalidInState);
 
-    if (startAfterSetting.HasValue())
+    if (startAfterSetting.has_value())
     {
         VerifyOrExit(
             ServerClusterCommandExists(
@@ -278,11 +278,11 @@ void Instance::HandleSetCookingParameters(HandlerContext & ctx, const Commands::
         uint8_t maxPowerNum  = kDefaultMaxPowerNum;
         uint8_t minPowerNum  = kDefaultMinPowerNum;
         uint8_t powerStepNum = kDefaultPowerStepNum;
-        VerifyOrExit(!wattSettingIndex.HasValue(), status = Status::InvalidCommand; ChipLogError(
+        VerifyOrExit(!wattSettingIndex.has_value(), status = Status::InvalidCommand; ChipLogError(
             Zcl, "Microwave Oven Control: Failed to set cooking parameters, should have no value for wattSettingIndex"));
 
         VerifyOrExit(
-            cookMode.HasValue() || cookTimeSec.HasValue() || powerSetting.HasValue(), status = Status::InvalidCommand;
+            cookMode.has_value() || cookTimeSec.has_value() || powerSetting.has_value(), status = Status::InvalidCommand;
             ChipLogError(Zcl, "Microwave Oven Control: Failed to set cooking parameters, all command fields are missing "));
 
         if (HasFeature(MicrowaveOvenControl::Feature::kPowerNumberLimits))
@@ -307,11 +307,11 @@ void Instance::HandleSetCookingParameters(HandlerContext & ctx, const Commands::
     {
         // if using power in watt, check if the param is invalid and set wattSettingIndex number.
         uint8_t reqWattSettingIndex;
-        VerifyOrExit(!powerSetting.HasValue(), status = Status::InvalidCommand; ChipLogError(
+        VerifyOrExit(!powerSetting.has_value(), status = Status::InvalidCommand; ChipLogError(
             Zcl, "Microwave Oven Control: Failed to set cooking parameters, should have no value for powerSetting "));
 
         VerifyOrExit(
-            cookMode.HasValue() || cookTimeSec.HasValue() || wattSettingIndex.HasValue(), status = Status::InvalidCommand;
+            cookMode.has_value() || cookTimeSec.has_value() || wattSettingIndex.has_value(), status = Status::InvalidCommand;
             ChipLogError(Zcl, "Microwave Oven Control: Failed to set cooking parameters, all command fields are missing "));
 
         // count of supported watt levels must greater than 0

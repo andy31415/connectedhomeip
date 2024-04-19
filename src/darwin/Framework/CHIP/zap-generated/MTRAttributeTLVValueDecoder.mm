@@ -793,7 +793,7 @@ static id _Nullable DecodeAttributeValueForDescriptorCluster(AttributeId aAttrib
                 }
                 newElement_0.namespaceID = [NSNumber numberWithUnsignedChar:entry_0.namespaceID];
                 newElement_0.tag = [NSNumber numberWithUnsignedChar:entry_0.tag];
-                if (entry_0.label.HasValue()) {
+                if (entry_0.label.has_value()) {
                     if (entry_0.label.Value().IsNull()) {
                         newElement_0.label = nil;
                     } else {
@@ -845,22 +845,22 @@ static id _Nullable DecodeAttributeValueForBindingCluster(AttributeId aAttribute
                 auto & entry_0 = iter_0.GetValue();
                 MTRBindingClusterTargetStruct * newElement_0;
                 newElement_0 = [MTRBindingClusterTargetStruct new];
-                if (entry_0.node.HasValue()) {
+                if (entry_0.node.has_value()) {
                     newElement_0.node = [NSNumber numberWithUnsignedLongLong:entry_0.node.Value()];
                 } else {
                     newElement_0.node = nil;
                 }
-                if (entry_0.group.HasValue()) {
+                if (entry_0.group.has_value()) {
                     newElement_0.group = [NSNumber numberWithUnsignedShort:entry_0.group.Value()];
                 } else {
                     newElement_0.group = nil;
                 }
-                if (entry_0.endpoint.HasValue()) {
+                if (entry_0.endpoint.has_value()) {
                     newElement_0.endpoint = [NSNumber numberWithUnsignedShort:entry_0.endpoint.Value()];
                 } else {
                     newElement_0.endpoint = nil;
                 }
-                if (entry_0.cluster.HasValue()) {
+                if (entry_0.cluster.has_value()) {
                     newElement_0.cluster = [NSNumber numberWithUnsignedInt:entry_0.cluster.Value()];
                 } else {
                     newElement_0.cluster = nil;
@@ -2337,7 +2337,7 @@ static id _Nullable DecodeAttributeValueForNetworkCommissioningCluster(Attribute
                 newElement_0 = [MTRNetworkCommissioningClusterNetworkInfoStruct new];
                 newElement_0.networkID = AsData(entry_0.networkID);
                 newElement_0.connected = [NSNumber numberWithBool:entry_0.connected];
-                if (entry_0.networkIdentifier.HasValue()) {
+                if (entry_0.networkIdentifier.has_value()) {
                     if (entry_0.networkIdentifier.Value().IsNull()) {
                         newElement_0.networkIdentifier = nil;
                     } else {
@@ -2346,7 +2346,7 @@ static id _Nullable DecodeAttributeValueForNetworkCommissioningCluster(Attribute
                 } else {
                     newElement_0.networkIdentifier = nil;
                 }
-                if (entry_0.clientIdentifier.HasValue()) {
+                if (entry_0.clientIdentifier.has_value()) {
                     if (entry_0.clientIdentifier.Value().IsNull()) {
                         newElement_0.clientIdentifier = nil;
                     } else {
@@ -2754,7 +2754,7 @@ static id _Nullable DecodeAttributeValueForSoftwareDiagnosticsCluster(AttributeI
                 MTRSoftwareDiagnosticsClusterThreadMetricsStruct * newElement_0;
                 newElement_0 = [MTRSoftwareDiagnosticsClusterThreadMetricsStruct new];
                 newElement_0.id = [NSNumber numberWithUnsignedLongLong:entry_0.id];
-                if (entry_0.name.HasValue()) {
+                if (entry_0.name.has_value()) {
                     newElement_0.name = AsString(entry_0.name.Value());
                     if (newElement_0.name == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -2764,17 +2764,17 @@ static id _Nullable DecodeAttributeValueForSoftwareDiagnosticsCluster(AttributeI
                 } else {
                     newElement_0.name = nil;
                 }
-                if (entry_0.stackFreeCurrent.HasValue()) {
+                if (entry_0.stackFreeCurrent.has_value()) {
                     newElement_0.stackFreeCurrent = [NSNumber numberWithUnsignedInt:entry_0.stackFreeCurrent.Value()];
                 } else {
                     newElement_0.stackFreeCurrent = nil;
                 }
-                if (entry_0.stackFreeMinimum.HasValue()) {
+                if (entry_0.stackFreeMinimum.has_value()) {
                     newElement_0.stackFreeMinimum = [NSNumber numberWithUnsignedInt:entry_0.stackFreeMinimum.Value()];
                 } else {
                     newElement_0.stackFreeMinimum = nil;
                 }
-                if (entry_0.stackSize.HasValue()) {
+                if (entry_0.stackSize.has_value()) {
                     newElement_0.stackSize = [NSNumber numberWithUnsignedInt:entry_0.stackSize.Value()];
                 } else {
                     newElement_0.stackSize = nil;
@@ -4126,7 +4126,7 @@ static id _Nullable DecodeAttributeValueForTimeSynchronizationCluster(AttributeI
                 newElement_0 = [MTRTimeSynchronizationClusterTimeZoneStruct new];
                 newElement_0.offset = [NSNumber numberWithInt:entry_0.offset];
                 newElement_0.validAt = [NSNumber numberWithUnsignedLongLong:entry_0.validAt];
-                if (entry_0.name.HasValue()) {
+                if (entry_0.name.has_value()) {
                     newElement_0.name = AsString(entry_0.name.Value());
                     if (newElement_0.name == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -4811,7 +4811,7 @@ static id _Nullable DecodeAttributeValueForGroupKeyManagementCluster(AttributeId
                     }
                     newElement_0.endpoints = array_2;
                 }
-                if (entry_0.groupName.HasValue()) {
+                if (entry_0.groupName.has_value()) {
                     newElement_0.groupName = AsString(entry_0.groupName.Value());
                     if (newElement_0.groupName == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -5250,7 +5250,7 @@ static id _Nullable DecodeAttributeValueForOvenCavityOperationalStateCluster(Att
                 MTROvenCavityOperationalStateClusterOperationalStateStruct * newElement_0;
                 newElement_0 = [MTROvenCavityOperationalStateClusterOperationalStateStruct new];
                 newElement_0.operationalStateID = [NSNumber numberWithUnsignedChar:entry_0.operationalStateID];
-                if (entry_0.operationalStateLabel.HasValue()) {
+                if (entry_0.operationalStateLabel.has_value()) {
                     newElement_0.operationalStateLabel = AsString(entry_0.operationalStateLabel.Value());
                     if (newElement_0.operationalStateLabel == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -5292,7 +5292,7 @@ static id _Nullable DecodeAttributeValueForOvenCavityOperationalStateCluster(Att
         MTROvenCavityOperationalStateClusterErrorStateStruct * _Nonnull value;
         value = [MTROvenCavityOperationalStateClusterErrorStateStruct new];
         value.errorStateID = [NSNumber numberWithUnsignedChar:cppValue.errorStateID];
-        if (cppValue.errorStateLabel.HasValue()) {
+        if (cppValue.errorStateLabel.has_value()) {
             value.errorStateLabel = AsString(cppValue.errorStateLabel.Value());
             if (value.errorStateLabel == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -5302,7 +5302,7 @@ static id _Nullable DecodeAttributeValueForOvenCavityOperationalStateCluster(Att
         } else {
             value.errorStateLabel = nil;
         }
-        if (cppValue.errorStateDetails.HasValue()) {
+        if (cppValue.errorStateDetails.has_value()) {
             value.errorStateDetails = AsString(cppValue.errorStateDetails.Value());
             if (value.errorStateDetails == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -5355,7 +5355,7 @@ static id _Nullable DecodeAttributeValueForOvenModeCluster(AttributeId aAttribut
                         auto & entry_2 = iter_2.GetValue();
                         MTROvenModeClusterModeTagStruct * newElement_2;
                         newElement_2 = [MTROvenModeClusterModeTagStruct new];
-                        if (entry_2.mfgCode.HasValue()) {
+                        if (entry_2.mfgCode.has_value()) {
                             newElement_2.mfgCode = [NSNumber numberWithUnsignedShort:chip::to_underlying(entry_2.mfgCode.Value())];
                         } else {
                             newElement_2.mfgCode = nil;
@@ -5651,7 +5651,7 @@ static id _Nullable DecodeAttributeValueForLaundryWasherModeCluster(AttributeId 
                         auto & entry_2 = iter_2.GetValue();
                         MTRLaundryWasherModeClusterModeTagStruct * newElement_2;
                         newElement_2 = [MTRLaundryWasherModeClusterModeTagStruct new];
-                        if (entry_2.mfgCode.HasValue()) {
+                        if (entry_2.mfgCode.has_value()) {
                             newElement_2.mfgCode = [NSNumber numberWithUnsignedShort:chip::to_underlying(entry_2.mfgCode.Value())];
                         } else {
                             newElement_2.mfgCode = nil;
@@ -5759,7 +5759,7 @@ static id _Nullable DecodeAttributeValueForRefrigeratorAndTemperatureControlledC
                         auto & entry_2 = iter_2.GetValue();
                         MTRRefrigeratorAndTemperatureControlledCabinetModeClusterModeTagStruct * newElement_2;
                         newElement_2 = [MTRRefrigeratorAndTemperatureControlledCabinetModeClusterModeTagStruct new];
-                        if (entry_2.mfgCode.HasValue()) {
+                        if (entry_2.mfgCode.has_value()) {
                             newElement_2.mfgCode = [NSNumber numberWithUnsignedShort:chip::to_underlying(entry_2.mfgCode.Value())];
                         } else {
                             newElement_2.mfgCode = nil;
@@ -5962,7 +5962,7 @@ static id _Nullable DecodeAttributeValueForRVCRunModeCluster(AttributeId aAttrib
                         auto & entry_2 = iter_2.GetValue();
                         MTRRVCRunModeClusterModeTagStruct * newElement_2;
                         newElement_2 = [MTRRVCRunModeClusterModeTagStruct new];
-                        if (entry_2.mfgCode.HasValue()) {
+                        if (entry_2.mfgCode.has_value()) {
                             newElement_2.mfgCode = [NSNumber numberWithUnsignedShort:chip::to_underlying(entry_2.mfgCode.Value())];
                         } else {
                             newElement_2.mfgCode = nil;
@@ -6040,7 +6040,7 @@ static id _Nullable DecodeAttributeValueForRVCCleanModeCluster(AttributeId aAttr
                         auto & entry_2 = iter_2.GetValue();
                         MTRRVCCleanModeClusterModeTagStruct * newElement_2;
                         newElement_2 = [MTRRVCCleanModeClusterModeTagStruct new];
-                        if (entry_2.mfgCode.HasValue()) {
+                        if (entry_2.mfgCode.has_value()) {
                             newElement_2.mfgCode = [NSNumber numberWithUnsignedShort:chip::to_underlying(entry_2.mfgCode.Value())];
                         } else {
                             newElement_2.mfgCode = nil;
@@ -6261,7 +6261,7 @@ static id _Nullable DecodeAttributeValueForDishwasherModeCluster(AttributeId aAt
                         auto & entry_2 = iter_2.GetValue();
                         MTRDishwasherModeClusterModeTagStruct * newElement_2;
                         newElement_2 = [MTRDishwasherModeClusterModeTagStruct new];
-                        if (entry_2.mfgCode.HasValue()) {
+                        if (entry_2.mfgCode.has_value()) {
                             newElement_2.mfgCode = [NSNumber numberWithUnsignedShort:chip::to_underlying(entry_2.mfgCode.Value())];
                         } else {
                             newElement_2.mfgCode = nil;
@@ -6603,7 +6603,7 @@ static id _Nullable DecodeAttributeValueForMicrowaveOvenModeCluster(AttributeId 
                         auto & entry_2 = iter_2.GetValue();
                         MTRMicrowaveOvenModeClusterModeTagStruct * newElement_2;
                         newElement_2 = [MTRMicrowaveOvenModeClusterModeTagStruct new];
-                        if (entry_2.mfgCode.HasValue()) {
+                        if (entry_2.mfgCode.has_value()) {
                             newElement_2.mfgCode = [NSNumber numberWithUnsignedShort:chip::to_underlying(entry_2.mfgCode.Value())];
                         } else {
                             newElement_2.mfgCode = nil;
@@ -6859,7 +6859,7 @@ static id _Nullable DecodeAttributeValueForOperationalStateCluster(AttributeId a
                 MTROperationalStateClusterOperationalStateStruct * newElement_0;
                 newElement_0 = [MTROperationalStateClusterOperationalStateStruct new];
                 newElement_0.operationalStateID = [NSNumber numberWithUnsignedChar:entry_0.operationalStateID];
-                if (entry_0.operationalStateLabel.HasValue()) {
+                if (entry_0.operationalStateLabel.has_value()) {
                     newElement_0.operationalStateLabel = AsString(entry_0.operationalStateLabel.Value());
                     if (newElement_0.operationalStateLabel == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -6901,7 +6901,7 @@ static id _Nullable DecodeAttributeValueForOperationalStateCluster(AttributeId a
         MTROperationalStateClusterErrorStateStruct * _Nonnull value;
         value = [MTROperationalStateClusterErrorStateStruct new];
         value.errorStateID = [NSNumber numberWithUnsignedChar:cppValue.errorStateID];
-        if (cppValue.errorStateLabel.HasValue()) {
+        if (cppValue.errorStateLabel.has_value()) {
             value.errorStateLabel = AsString(cppValue.errorStateLabel.Value());
             if (value.errorStateLabel == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -6911,7 +6911,7 @@ static id _Nullable DecodeAttributeValueForOperationalStateCluster(AttributeId a
         } else {
             value.errorStateLabel = nil;
         }
-        if (cppValue.errorStateDetails.HasValue()) {
+        if (cppValue.errorStateDetails.has_value()) {
             value.errorStateDetails = AsString(cppValue.errorStateDetails.Value());
             if (value.errorStateDetails == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -7016,7 +7016,7 @@ static id _Nullable DecodeAttributeValueForRVCOperationalStateCluster(AttributeI
                 MTRRVCOperationalStateClusterOperationalStateStruct * newElement_0;
                 newElement_0 = [MTRRVCOperationalStateClusterOperationalStateStruct new];
                 newElement_0.operationalStateID = [NSNumber numberWithUnsignedChar:entry_0.operationalStateID];
-                if (entry_0.operationalStateLabel.HasValue()) {
+                if (entry_0.operationalStateLabel.has_value()) {
                     newElement_0.operationalStateLabel = AsString(entry_0.operationalStateLabel.Value());
                     if (newElement_0.operationalStateLabel == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -7058,7 +7058,7 @@ static id _Nullable DecodeAttributeValueForRVCOperationalStateCluster(AttributeI
         MTRRVCOperationalStateClusterErrorStateStruct * _Nonnull value;
         value = [MTRRVCOperationalStateClusterErrorStateStruct new];
         value.errorStateID = [NSNumber numberWithUnsignedChar:cppValue.errorStateID];
-        if (cppValue.errorStateLabel.HasValue()) {
+        if (cppValue.errorStateLabel.has_value()) {
             value.errorStateLabel = AsString(cppValue.errorStateLabel.Value());
             if (value.errorStateLabel == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -7068,7 +7068,7 @@ static id _Nullable DecodeAttributeValueForRVCOperationalStateCluster(AttributeI
         } else {
             value.errorStateLabel = nil;
         }
-        if (cppValue.errorStateDetails.HasValue()) {
+        if (cppValue.errorStateDetails.has_value()) {
             value.errorStateDetails = AsString(cppValue.errorStateDetails.Value());
             if (value.errorStateDetails == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -7685,32 +7685,32 @@ static id _Nullable DecodeAttributeValueForElectricalPowerMeasurementCluster(Att
                         newElement_2 = [MTRElectricalPowerMeasurementClusterMeasurementAccuracyRangeStruct new];
                         newElement_2.rangeMin = [NSNumber numberWithLongLong:entry_2.rangeMin];
                         newElement_2.rangeMax = [NSNumber numberWithLongLong:entry_2.rangeMax];
-                        if (entry_2.percentMax.HasValue()) {
+                        if (entry_2.percentMax.has_value()) {
                             newElement_2.percentMax = [NSNumber numberWithUnsignedShort:entry_2.percentMax.Value()];
                         } else {
                             newElement_2.percentMax = nil;
                         }
-                        if (entry_2.percentMin.HasValue()) {
+                        if (entry_2.percentMin.has_value()) {
                             newElement_2.percentMin = [NSNumber numberWithUnsignedShort:entry_2.percentMin.Value()];
                         } else {
                             newElement_2.percentMin = nil;
                         }
-                        if (entry_2.percentTypical.HasValue()) {
+                        if (entry_2.percentTypical.has_value()) {
                             newElement_2.percentTypical = [NSNumber numberWithUnsignedShort:entry_2.percentTypical.Value()];
                         } else {
                             newElement_2.percentTypical = nil;
                         }
-                        if (entry_2.fixedMax.HasValue()) {
+                        if (entry_2.fixedMax.has_value()) {
                             newElement_2.fixedMax = [NSNumber numberWithUnsignedLongLong:entry_2.fixedMax.Value()];
                         } else {
                             newElement_2.fixedMax = nil;
                         }
-                        if (entry_2.fixedMin.HasValue()) {
+                        if (entry_2.fixedMin.has_value()) {
                             newElement_2.fixedMin = [NSNumber numberWithUnsignedLongLong:entry_2.fixedMin.Value()];
                         } else {
                             newElement_2.fixedMin = nil;
                         }
-                        if (entry_2.fixedTypical.HasValue()) {
+                        if (entry_2.fixedTypical.has_value()) {
                             newElement_2.fixedTypical = [NSNumber numberWithUnsignedLongLong:entry_2.fixedTypical.Value()];
                         } else {
                             newElement_2.fixedTypical = nil;
@@ -7753,42 +7753,42 @@ static id _Nullable DecodeAttributeValueForElectricalPowerMeasurementCluster(Att
                 newElement_0.measurementType = [NSNumber numberWithUnsignedShort:chip::to_underlying(entry_0.measurementType)];
                 newElement_0.min = [NSNumber numberWithLongLong:entry_0.min];
                 newElement_0.max = [NSNumber numberWithLongLong:entry_0.max];
-                if (entry_0.startTimestamp.HasValue()) {
+                if (entry_0.startTimestamp.has_value()) {
                     newElement_0.startTimestamp = [NSNumber numberWithUnsignedInt:entry_0.startTimestamp.Value()];
                 } else {
                     newElement_0.startTimestamp = nil;
                 }
-                if (entry_0.endTimestamp.HasValue()) {
+                if (entry_0.endTimestamp.has_value()) {
                     newElement_0.endTimestamp = [NSNumber numberWithUnsignedInt:entry_0.endTimestamp.Value()];
                 } else {
                     newElement_0.endTimestamp = nil;
                 }
-                if (entry_0.minTimestamp.HasValue()) {
+                if (entry_0.minTimestamp.has_value()) {
                     newElement_0.minTimestamp = [NSNumber numberWithUnsignedInt:entry_0.minTimestamp.Value()];
                 } else {
                     newElement_0.minTimestamp = nil;
                 }
-                if (entry_0.maxTimestamp.HasValue()) {
+                if (entry_0.maxTimestamp.has_value()) {
                     newElement_0.maxTimestamp = [NSNumber numberWithUnsignedInt:entry_0.maxTimestamp.Value()];
                 } else {
                     newElement_0.maxTimestamp = nil;
                 }
-                if (entry_0.startSystime.HasValue()) {
+                if (entry_0.startSystime.has_value()) {
                     newElement_0.startSystime = [NSNumber numberWithUnsignedLongLong:entry_0.startSystime.Value()];
                 } else {
                     newElement_0.startSystime = nil;
                 }
-                if (entry_0.endSystime.HasValue()) {
+                if (entry_0.endSystime.has_value()) {
                     newElement_0.endSystime = [NSNumber numberWithUnsignedLongLong:entry_0.endSystime.Value()];
                 } else {
                     newElement_0.endSystime = nil;
                 }
-                if (entry_0.minSystime.HasValue()) {
+                if (entry_0.minSystime.has_value()) {
                     newElement_0.minSystime = [NSNumber numberWithUnsignedLongLong:entry_0.minSystime.Value()];
                 } else {
                     newElement_0.minSystime = nil;
                 }
-                if (entry_0.maxSystime.HasValue()) {
+                if (entry_0.maxSystime.has_value()) {
                     newElement_0.maxSystime = [NSNumber numberWithUnsignedLongLong:entry_0.maxSystime.Value()];
                 } else {
                     newElement_0.maxSystime = nil;
@@ -8105,32 +8105,32 @@ static id _Nullable DecodeAttributeValueForElectricalEnergyMeasurementCluster(At
                 newElement_1 = [MTRElectricalEnergyMeasurementClusterMeasurementAccuracyRangeStruct new];
                 newElement_1.rangeMin = [NSNumber numberWithLongLong:entry_1.rangeMin];
                 newElement_1.rangeMax = [NSNumber numberWithLongLong:entry_1.rangeMax];
-                if (entry_1.percentMax.HasValue()) {
+                if (entry_1.percentMax.has_value()) {
                     newElement_1.percentMax = [NSNumber numberWithUnsignedShort:entry_1.percentMax.Value()];
                 } else {
                     newElement_1.percentMax = nil;
                 }
-                if (entry_1.percentMin.HasValue()) {
+                if (entry_1.percentMin.has_value()) {
                     newElement_1.percentMin = [NSNumber numberWithUnsignedShort:entry_1.percentMin.Value()];
                 } else {
                     newElement_1.percentMin = nil;
                 }
-                if (entry_1.percentTypical.HasValue()) {
+                if (entry_1.percentTypical.has_value()) {
                     newElement_1.percentTypical = [NSNumber numberWithUnsignedShort:entry_1.percentTypical.Value()];
                 } else {
                     newElement_1.percentTypical = nil;
                 }
-                if (entry_1.fixedMax.HasValue()) {
+                if (entry_1.fixedMax.has_value()) {
                     newElement_1.fixedMax = [NSNumber numberWithUnsignedLongLong:entry_1.fixedMax.Value()];
                 } else {
                     newElement_1.fixedMax = nil;
                 }
-                if (entry_1.fixedMin.HasValue()) {
+                if (entry_1.fixedMin.has_value()) {
                     newElement_1.fixedMin = [NSNumber numberWithUnsignedLongLong:entry_1.fixedMin.Value()];
                 } else {
                     newElement_1.fixedMin = nil;
                 }
-                if (entry_1.fixedTypical.HasValue()) {
+                if (entry_1.fixedTypical.has_value()) {
                     newElement_1.fixedTypical = [NSNumber numberWithUnsignedLongLong:entry_1.fixedTypical.Value()];
                 } else {
                     newElement_1.fixedTypical = nil;
@@ -8159,22 +8159,22 @@ static id _Nullable DecodeAttributeValueForElectricalEnergyMeasurementCluster(At
         } else {
             value = [MTRElectricalEnergyMeasurementClusterEnergyMeasurementStruct new];
             value.energy = [NSNumber numberWithLongLong:cppValue.Value().energy];
-            if (cppValue.Value().startTimestamp.HasValue()) {
+            if (cppValue.Value().startTimestamp.has_value()) {
                 value.startTimestamp = [NSNumber numberWithUnsignedInt:cppValue.Value().startTimestamp.Value()];
             } else {
                 value.startTimestamp = nil;
             }
-            if (cppValue.Value().endTimestamp.HasValue()) {
+            if (cppValue.Value().endTimestamp.has_value()) {
                 value.endTimestamp = [NSNumber numberWithUnsignedInt:cppValue.Value().endTimestamp.Value()];
             } else {
                 value.endTimestamp = nil;
             }
-            if (cppValue.Value().startSystime.HasValue()) {
+            if (cppValue.Value().startSystime.has_value()) {
                 value.startSystime = [NSNumber numberWithUnsignedLongLong:cppValue.Value().startSystime.Value()];
             } else {
                 value.startSystime = nil;
             }
-            if (cppValue.Value().endSystime.HasValue()) {
+            if (cppValue.Value().endSystime.has_value()) {
                 value.endSystime = [NSNumber numberWithUnsignedLongLong:cppValue.Value().endSystime.Value()];
             } else {
                 value.endSystime = nil;
@@ -8195,22 +8195,22 @@ static id _Nullable DecodeAttributeValueForElectricalEnergyMeasurementCluster(At
         } else {
             value = [MTRElectricalEnergyMeasurementClusterEnergyMeasurementStruct new];
             value.energy = [NSNumber numberWithLongLong:cppValue.Value().energy];
-            if (cppValue.Value().startTimestamp.HasValue()) {
+            if (cppValue.Value().startTimestamp.has_value()) {
                 value.startTimestamp = [NSNumber numberWithUnsignedInt:cppValue.Value().startTimestamp.Value()];
             } else {
                 value.startTimestamp = nil;
             }
-            if (cppValue.Value().endTimestamp.HasValue()) {
+            if (cppValue.Value().endTimestamp.has_value()) {
                 value.endTimestamp = [NSNumber numberWithUnsignedInt:cppValue.Value().endTimestamp.Value()];
             } else {
                 value.endTimestamp = nil;
             }
-            if (cppValue.Value().startSystime.HasValue()) {
+            if (cppValue.Value().startSystime.has_value()) {
                 value.startSystime = [NSNumber numberWithUnsignedLongLong:cppValue.Value().startSystime.Value()];
             } else {
                 value.startSystime = nil;
             }
-            if (cppValue.Value().endSystime.HasValue()) {
+            if (cppValue.Value().endSystime.has_value()) {
                 value.endSystime = [NSNumber numberWithUnsignedLongLong:cppValue.Value().endSystime.Value()];
             } else {
                 value.endSystime = nil;
@@ -8231,22 +8231,22 @@ static id _Nullable DecodeAttributeValueForElectricalEnergyMeasurementCluster(At
         } else {
             value = [MTRElectricalEnergyMeasurementClusterEnergyMeasurementStruct new];
             value.energy = [NSNumber numberWithLongLong:cppValue.Value().energy];
-            if (cppValue.Value().startTimestamp.HasValue()) {
+            if (cppValue.Value().startTimestamp.has_value()) {
                 value.startTimestamp = [NSNumber numberWithUnsignedInt:cppValue.Value().startTimestamp.Value()];
             } else {
                 value.startTimestamp = nil;
             }
-            if (cppValue.Value().endTimestamp.HasValue()) {
+            if (cppValue.Value().endTimestamp.has_value()) {
                 value.endTimestamp = [NSNumber numberWithUnsignedInt:cppValue.Value().endTimestamp.Value()];
             } else {
                 value.endTimestamp = nil;
             }
-            if (cppValue.Value().startSystime.HasValue()) {
+            if (cppValue.Value().startSystime.has_value()) {
                 value.startSystime = [NSNumber numberWithUnsignedLongLong:cppValue.Value().startSystime.Value()];
             } else {
                 value.startSystime = nil;
             }
-            if (cppValue.Value().endSystime.HasValue()) {
+            if (cppValue.Value().endSystime.has_value()) {
                 value.endSystime = [NSNumber numberWithUnsignedLongLong:cppValue.Value().endSystime.Value()];
             } else {
                 value.endSystime = nil;
@@ -8267,22 +8267,22 @@ static id _Nullable DecodeAttributeValueForElectricalEnergyMeasurementCluster(At
         } else {
             value = [MTRElectricalEnergyMeasurementClusterEnergyMeasurementStruct new];
             value.energy = [NSNumber numberWithLongLong:cppValue.Value().energy];
-            if (cppValue.Value().startTimestamp.HasValue()) {
+            if (cppValue.Value().startTimestamp.has_value()) {
                 value.startTimestamp = [NSNumber numberWithUnsignedInt:cppValue.Value().startTimestamp.Value()];
             } else {
                 value.startTimestamp = nil;
             }
-            if (cppValue.Value().endTimestamp.HasValue()) {
+            if (cppValue.Value().endTimestamp.has_value()) {
                 value.endTimestamp = [NSNumber numberWithUnsignedInt:cppValue.Value().endTimestamp.Value()];
             } else {
                 value.endTimestamp = nil;
             }
-            if (cppValue.Value().startSystime.HasValue()) {
+            if (cppValue.Value().startSystime.has_value()) {
                 value.startSystime = [NSNumber numberWithUnsignedLongLong:cppValue.Value().startSystime.Value()];
             } else {
                 value.startSystime = nil;
             }
-            if (cppValue.Value().endSystime.HasValue()) {
+            if (cppValue.Value().endSystime.has_value()) {
                 value.endSystime = [NSNumber numberWithUnsignedLongLong:cppValue.Value().endSystime.Value()];
             } else {
                 value.endSystime = nil;
@@ -8302,7 +8302,7 @@ static id _Nullable DecodeAttributeValueForElectricalEnergyMeasurementCluster(At
             value = nil;
         } else {
             value = [MTRElectricalEnergyMeasurementClusterCumulativeEnergyResetStruct new];
-            if (cppValue.Value().importedResetTimestamp.HasValue()) {
+            if (cppValue.Value().importedResetTimestamp.has_value()) {
                 if (cppValue.Value().importedResetTimestamp.Value().IsNull()) {
                     value.importedResetTimestamp = nil;
                 } else {
@@ -8311,7 +8311,7 @@ static id _Nullable DecodeAttributeValueForElectricalEnergyMeasurementCluster(At
             } else {
                 value.importedResetTimestamp = nil;
             }
-            if (cppValue.Value().exportedResetTimestamp.HasValue()) {
+            if (cppValue.Value().exportedResetTimestamp.has_value()) {
                 if (cppValue.Value().exportedResetTimestamp.Value().IsNull()) {
                     value.exportedResetTimestamp = nil;
                 } else {
@@ -8320,7 +8320,7 @@ static id _Nullable DecodeAttributeValueForElectricalEnergyMeasurementCluster(At
             } else {
                 value.exportedResetTimestamp = nil;
             }
-            if (cppValue.Value().importedResetSystime.HasValue()) {
+            if (cppValue.Value().importedResetSystime.has_value()) {
                 if (cppValue.Value().importedResetSystime.Value().IsNull()) {
                     value.importedResetSystime = nil;
                 } else {
@@ -8329,7 +8329,7 @@ static id _Nullable DecodeAttributeValueForElectricalEnergyMeasurementCluster(At
             } else {
                 value.importedResetSystime = nil;
             }
-            if (cppValue.Value().exportedResetSystime.HasValue()) {
+            if (cppValue.Value().exportedResetSystime.has_value()) {
                 if (cppValue.Value().exportedResetSystime.Value().IsNull()) {
                     value.exportedResetSystime = nil;
                 } else {
@@ -8435,7 +8435,7 @@ static id _Nullable DecodeAttributeValueForDemandResponseLoadControlCluster(Attr
                 }
                 newElement_0.control = [NSNumber numberWithUnsignedShort:entry_0.control.Raw()];
                 newElement_0.deviceClass = [NSNumber numberWithUnsignedInt:entry_0.deviceClass.Raw()];
-                if (entry_0.enrollmentGroup.HasValue()) {
+                if (entry_0.enrollmentGroup.has_value()) {
                     newElement_0.enrollmentGroup = [NSNumber numberWithUnsignedChar:entry_0.enrollmentGroup.Value()];
                 } else {
                     newElement_0.enrollmentGroup = nil;
@@ -8455,9 +8455,9 @@ static id _Nullable DecodeAttributeValueForDemandResponseLoadControlCluster(Attr
                         newElement_2 = [MTRDemandResponseLoadControlClusterLoadControlEventTransitionStruct new];
                         newElement_2.duration = [NSNumber numberWithUnsignedShort:entry_2.duration];
                         newElement_2.control = [NSNumber numberWithUnsignedShort:entry_2.control.Raw()];
-                        if (entry_2.temperatureControl.HasValue()) {
+                        if (entry_2.temperatureControl.has_value()) {
                             newElement_2.temperatureControl = [MTRDemandResponseLoadControlClusterTemperatureControlStruct new];
-                            if (entry_2.temperatureControl.Value().coolingTempOffset.HasValue()) {
+                            if (entry_2.temperatureControl.Value().coolingTempOffset.has_value()) {
                                 if (entry_2.temperatureControl.Value().coolingTempOffset.Value().IsNull()) {
                                     newElement_2.temperatureControl.coolingTempOffset = nil;
                                 } else {
@@ -8466,7 +8466,7 @@ static id _Nullable DecodeAttributeValueForDemandResponseLoadControlCluster(Attr
                             } else {
                                 newElement_2.temperatureControl.coolingTempOffset = nil;
                             }
-                            if (entry_2.temperatureControl.Value().heatingtTempOffset.HasValue()) {
+                            if (entry_2.temperatureControl.Value().heatingtTempOffset.has_value()) {
                                 if (entry_2.temperatureControl.Value().heatingtTempOffset.Value().IsNull()) {
                                     newElement_2.temperatureControl.heatingtTempOffset = nil;
                                 } else {
@@ -8475,7 +8475,7 @@ static id _Nullable DecodeAttributeValueForDemandResponseLoadControlCluster(Attr
                             } else {
                                 newElement_2.temperatureControl.heatingtTempOffset = nil;
                             }
-                            if (entry_2.temperatureControl.Value().coolingTempSetpoint.HasValue()) {
+                            if (entry_2.temperatureControl.Value().coolingTempSetpoint.has_value()) {
                                 if (entry_2.temperatureControl.Value().coolingTempSetpoint.Value().IsNull()) {
                                     newElement_2.temperatureControl.coolingTempSetpoint = nil;
                                 } else {
@@ -8484,7 +8484,7 @@ static id _Nullable DecodeAttributeValueForDemandResponseLoadControlCluster(Attr
                             } else {
                                 newElement_2.temperatureControl.coolingTempSetpoint = nil;
                             }
-                            if (entry_2.temperatureControl.Value().heatingTempSetpoint.HasValue()) {
+                            if (entry_2.temperatureControl.Value().heatingTempSetpoint.has_value()) {
                                 if (entry_2.temperatureControl.Value().heatingTempSetpoint.Value().IsNull()) {
                                     newElement_2.temperatureControl.heatingTempSetpoint = nil;
                                 } else {
@@ -8496,25 +8496,25 @@ static id _Nullable DecodeAttributeValueForDemandResponseLoadControlCluster(Attr
                         } else {
                             newElement_2.temperatureControl = nil;
                         }
-                        if (entry_2.averageLoadControl.HasValue()) {
+                        if (entry_2.averageLoadControl.has_value()) {
                             newElement_2.averageLoadControl = [MTRDemandResponseLoadControlClusterAverageLoadControlStruct new];
                             newElement_2.averageLoadControl.loadAdjustment = [NSNumber numberWithChar:entry_2.averageLoadControl.Value().loadAdjustment];
                         } else {
                             newElement_2.averageLoadControl = nil;
                         }
-                        if (entry_2.dutyCycleControl.HasValue()) {
+                        if (entry_2.dutyCycleControl.has_value()) {
                             newElement_2.dutyCycleControl = [MTRDemandResponseLoadControlClusterDutyCycleControlStruct new];
                             newElement_2.dutyCycleControl.dutyCycle = [NSNumber numberWithUnsignedChar:entry_2.dutyCycleControl.Value().dutyCycle];
                         } else {
                             newElement_2.dutyCycleControl = nil;
                         }
-                        if (entry_2.powerSavingsControl.HasValue()) {
+                        if (entry_2.powerSavingsControl.has_value()) {
                             newElement_2.powerSavingsControl = [MTRDemandResponseLoadControlClusterPowerSavingsControlStruct new];
                             newElement_2.powerSavingsControl.powerSavings = [NSNumber numberWithUnsignedChar:entry_2.powerSavingsControl.Value().powerSavings];
                         } else {
                             newElement_2.powerSavingsControl = nil;
                         }
-                        if (entry_2.heatingSourceControl.HasValue()) {
+                        if (entry_2.heatingSourceControl.has_value()) {
                             newElement_2.heatingSourceControl = [MTRDemandResponseLoadControlClusterHeatingSourceControlStruct new];
                             newElement_2.heatingSourceControl.heatingSource = [NSNumber numberWithUnsignedChar:chip::to_underlying(entry_2.heatingSourceControl.Value().heatingSource)];
                         } else {
@@ -8563,7 +8563,7 @@ static id _Nullable DecodeAttributeValueForDemandResponseLoadControlCluster(Attr
                 }
                 newElement_0.control = [NSNumber numberWithUnsignedShort:entry_0.control.Raw()];
                 newElement_0.deviceClass = [NSNumber numberWithUnsignedInt:entry_0.deviceClass.Raw()];
-                if (entry_0.enrollmentGroup.HasValue()) {
+                if (entry_0.enrollmentGroup.has_value()) {
                     newElement_0.enrollmentGroup = [NSNumber numberWithUnsignedChar:entry_0.enrollmentGroup.Value()];
                 } else {
                     newElement_0.enrollmentGroup = nil;
@@ -8583,9 +8583,9 @@ static id _Nullable DecodeAttributeValueForDemandResponseLoadControlCluster(Attr
                         newElement_2 = [MTRDemandResponseLoadControlClusterLoadControlEventTransitionStruct new];
                         newElement_2.duration = [NSNumber numberWithUnsignedShort:entry_2.duration];
                         newElement_2.control = [NSNumber numberWithUnsignedShort:entry_2.control.Raw()];
-                        if (entry_2.temperatureControl.HasValue()) {
+                        if (entry_2.temperatureControl.has_value()) {
                             newElement_2.temperatureControl = [MTRDemandResponseLoadControlClusterTemperatureControlStruct new];
-                            if (entry_2.temperatureControl.Value().coolingTempOffset.HasValue()) {
+                            if (entry_2.temperatureControl.Value().coolingTempOffset.has_value()) {
                                 if (entry_2.temperatureControl.Value().coolingTempOffset.Value().IsNull()) {
                                     newElement_2.temperatureControl.coolingTempOffset = nil;
                                 } else {
@@ -8594,7 +8594,7 @@ static id _Nullable DecodeAttributeValueForDemandResponseLoadControlCluster(Attr
                             } else {
                                 newElement_2.temperatureControl.coolingTempOffset = nil;
                             }
-                            if (entry_2.temperatureControl.Value().heatingtTempOffset.HasValue()) {
+                            if (entry_2.temperatureControl.Value().heatingtTempOffset.has_value()) {
                                 if (entry_2.temperatureControl.Value().heatingtTempOffset.Value().IsNull()) {
                                     newElement_2.temperatureControl.heatingtTempOffset = nil;
                                 } else {
@@ -8603,7 +8603,7 @@ static id _Nullable DecodeAttributeValueForDemandResponseLoadControlCluster(Attr
                             } else {
                                 newElement_2.temperatureControl.heatingtTempOffset = nil;
                             }
-                            if (entry_2.temperatureControl.Value().coolingTempSetpoint.HasValue()) {
+                            if (entry_2.temperatureControl.Value().coolingTempSetpoint.has_value()) {
                                 if (entry_2.temperatureControl.Value().coolingTempSetpoint.Value().IsNull()) {
                                     newElement_2.temperatureControl.coolingTempSetpoint = nil;
                                 } else {
@@ -8612,7 +8612,7 @@ static id _Nullable DecodeAttributeValueForDemandResponseLoadControlCluster(Attr
                             } else {
                                 newElement_2.temperatureControl.coolingTempSetpoint = nil;
                             }
-                            if (entry_2.temperatureControl.Value().heatingTempSetpoint.HasValue()) {
+                            if (entry_2.temperatureControl.Value().heatingTempSetpoint.has_value()) {
                                 if (entry_2.temperatureControl.Value().heatingTempSetpoint.Value().IsNull()) {
                                     newElement_2.temperatureControl.heatingTempSetpoint = nil;
                                 } else {
@@ -8624,25 +8624,25 @@ static id _Nullable DecodeAttributeValueForDemandResponseLoadControlCluster(Attr
                         } else {
                             newElement_2.temperatureControl = nil;
                         }
-                        if (entry_2.averageLoadControl.HasValue()) {
+                        if (entry_2.averageLoadControl.has_value()) {
                             newElement_2.averageLoadControl = [MTRDemandResponseLoadControlClusterAverageLoadControlStruct new];
                             newElement_2.averageLoadControl.loadAdjustment = [NSNumber numberWithChar:entry_2.averageLoadControl.Value().loadAdjustment];
                         } else {
                             newElement_2.averageLoadControl = nil;
                         }
-                        if (entry_2.dutyCycleControl.HasValue()) {
+                        if (entry_2.dutyCycleControl.has_value()) {
                             newElement_2.dutyCycleControl = [MTRDemandResponseLoadControlClusterDutyCycleControlStruct new];
                             newElement_2.dutyCycleControl.dutyCycle = [NSNumber numberWithUnsignedChar:entry_2.dutyCycleControl.Value().dutyCycle];
                         } else {
                             newElement_2.dutyCycleControl = nil;
                         }
-                        if (entry_2.powerSavingsControl.HasValue()) {
+                        if (entry_2.powerSavingsControl.has_value()) {
                             newElement_2.powerSavingsControl = [MTRDemandResponseLoadControlClusterPowerSavingsControlStruct new];
                             newElement_2.powerSavingsControl.powerSavings = [NSNumber numberWithUnsignedChar:entry_2.powerSavingsControl.Value().powerSavings];
                         } else {
                             newElement_2.powerSavingsControl = nil;
                         }
-                        if (entry_2.heatingSourceControl.HasValue()) {
+                        if (entry_2.heatingSourceControl.has_value()) {
                             newElement_2.heatingSourceControl = [MTRDemandResponseLoadControlClusterHeatingSourceControlStruct new];
                             newElement_2.heatingSourceControl.heatingSource = [NSNumber numberWithUnsignedChar:chip::to_underlying(entry_2.heatingSourceControl.Value().heatingSource)];
                         } else {
@@ -8758,7 +8758,7 @@ static id _Nullable DecodeAttributeValueForMessagesCluster(AttributeId aAttribut
                     *aError = err;
                     return nil;
                 }
-                if (entry_0.responses.HasValue()) {
+                if (entry_0.responses.has_value()) {
                     { // Scope for our temporary variables
                         auto * array_3 = [NSMutableArray new];
                         auto iter_3 = entry_0.responses.Value().begin();
@@ -8766,12 +8766,12 @@ static id _Nullable DecodeAttributeValueForMessagesCluster(AttributeId aAttribut
                             auto & entry_3 = iter_3.GetValue();
                             MTRMessagesClusterMessageResponseOptionStruct * newElement_3;
                             newElement_3 = [MTRMessagesClusterMessageResponseOptionStruct new];
-                            if (entry_3.messageResponseID.HasValue()) {
+                            if (entry_3.messageResponseID.has_value()) {
                                 newElement_3.messageResponseID = [NSNumber numberWithUnsignedInt:entry_3.messageResponseID.Value()];
                             } else {
                                 newElement_3.messageResponseID = nil;
                             }
-                            if (entry_3.label.HasValue()) {
+                            if (entry_3.label.has_value()) {
                                 newElement_3.label = AsString(entry_3.label.Value());
                                 if (newElement_3.label == nil) {
                                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -8951,7 +8951,7 @@ static id _Nullable DecodeAttributeValueForDeviceEnergyManagementCluster(Attribu
             }
             value.startTime = [NSNumber numberWithUnsignedInt:cppValue.Value().startTime];
             value.endTime = [NSNumber numberWithUnsignedInt:cppValue.Value().endTime];
-            if (cppValue.Value().earliestStartTime.HasValue()) {
+            if (cppValue.Value().earliestStartTime.has_value()) {
                 if (cppValue.Value().earliestStartTime.Value().IsNull()) {
                     value.earliestStartTime = nil;
                 } else {
@@ -8960,7 +8960,7 @@ static id _Nullable DecodeAttributeValueForDeviceEnergyManagementCluster(Attribu
             } else {
                 value.earliestStartTime = nil;
             }
-            if (cppValue.Value().latestEndTime.HasValue()) {
+            if (cppValue.Value().latestEndTime.has_value()) {
                 value.latestEndTime = [NSNumber numberWithUnsignedInt:cppValue.Value().latestEndTime.Value()];
             } else {
                 value.latestEndTime = nil;
@@ -8978,47 +8978,47 @@ static id _Nullable DecodeAttributeValueForDeviceEnergyManagementCluster(Attribu
                     newElement_2.defaultDuration = [NSNumber numberWithUnsignedInt:entry_2.defaultDuration];
                     newElement_2.elapsedSlotTime = [NSNumber numberWithUnsignedInt:entry_2.elapsedSlotTime];
                     newElement_2.remainingSlotTime = [NSNumber numberWithUnsignedInt:entry_2.remainingSlotTime];
-                    if (entry_2.slotIsPauseable.HasValue()) {
+                    if (entry_2.slotIsPauseable.has_value()) {
                         newElement_2.slotIsPauseable = [NSNumber numberWithBool:entry_2.slotIsPauseable.Value()];
                     } else {
                         newElement_2.slotIsPauseable = nil;
                     }
-                    if (entry_2.minPauseDuration.HasValue()) {
+                    if (entry_2.minPauseDuration.has_value()) {
                         newElement_2.minPauseDuration = [NSNumber numberWithUnsignedInt:entry_2.minPauseDuration.Value()];
                     } else {
                         newElement_2.minPauseDuration = nil;
                     }
-                    if (entry_2.maxPauseDuration.HasValue()) {
+                    if (entry_2.maxPauseDuration.has_value()) {
                         newElement_2.maxPauseDuration = [NSNumber numberWithUnsignedInt:entry_2.maxPauseDuration.Value()];
                     } else {
                         newElement_2.maxPauseDuration = nil;
                     }
-                    if (entry_2.manufacturerESAState.HasValue()) {
+                    if (entry_2.manufacturerESAState.has_value()) {
                         newElement_2.manufacturerESAState = [NSNumber numberWithUnsignedShort:entry_2.manufacturerESAState.Value()];
                     } else {
                         newElement_2.manufacturerESAState = nil;
                     }
-                    if (entry_2.nominalPower.HasValue()) {
+                    if (entry_2.nominalPower.has_value()) {
                         newElement_2.nominalPower = [NSNumber numberWithLongLong:entry_2.nominalPower.Value()];
                     } else {
                         newElement_2.nominalPower = nil;
                     }
-                    if (entry_2.minPower.HasValue()) {
+                    if (entry_2.minPower.has_value()) {
                         newElement_2.minPower = [NSNumber numberWithLongLong:entry_2.minPower.Value()];
                     } else {
                         newElement_2.minPower = nil;
                     }
-                    if (entry_2.maxPower.HasValue()) {
+                    if (entry_2.maxPower.has_value()) {
                         newElement_2.maxPower = [NSNumber numberWithLongLong:entry_2.maxPower.Value()];
                     } else {
                         newElement_2.maxPower = nil;
                     }
-                    if (entry_2.nominalEnergy.HasValue()) {
+                    if (entry_2.nominalEnergy.has_value()) {
                         newElement_2.nominalEnergy = [NSNumber numberWithLongLong:entry_2.nominalEnergy.Value()];
                     } else {
                         newElement_2.nominalEnergy = nil;
                     }
-                    if (entry_2.costs.HasValue()) {
+                    if (entry_2.costs.has_value()) {
                         { // Scope for our temporary variables
                             auto * array_5 = [NSMutableArray new];
                             auto iter_5 = entry_2.costs.Value().begin();
@@ -9029,7 +9029,7 @@ static id _Nullable DecodeAttributeValueForDeviceEnergyManagementCluster(Attribu
                                 newElement_5.costType = [NSNumber numberWithUnsignedChar:chip::to_underlying(entry_5.costType)];
                                 newElement_5.value = [NSNumber numberWithInt:entry_5.value];
                                 newElement_5.decimalPoints = [NSNumber numberWithUnsignedChar:entry_5.decimalPoints];
-                                if (entry_5.currency.HasValue()) {
+                                if (entry_5.currency.has_value()) {
                                     newElement_5.currency = [NSNumber numberWithUnsignedShort:entry_5.currency.Value()];
                                 } else {
                                     newElement_5.currency = nil;
@@ -9046,22 +9046,22 @@ static id _Nullable DecodeAttributeValueForDeviceEnergyManagementCluster(Attribu
                     } else {
                         newElement_2.costs = nil;
                     }
-                    if (entry_2.minPowerAdjustment.HasValue()) {
+                    if (entry_2.minPowerAdjustment.has_value()) {
                         newElement_2.minPowerAdjustment = [NSNumber numberWithLongLong:entry_2.minPowerAdjustment.Value()];
                     } else {
                         newElement_2.minPowerAdjustment = nil;
                     }
-                    if (entry_2.maxPowerAdjustment.HasValue()) {
+                    if (entry_2.maxPowerAdjustment.has_value()) {
                         newElement_2.maxPowerAdjustment = [NSNumber numberWithLongLong:entry_2.maxPowerAdjustment.Value()];
                     } else {
                         newElement_2.maxPowerAdjustment = nil;
                     }
-                    if (entry_2.minDurationAdjustment.HasValue()) {
+                    if (entry_2.minDurationAdjustment.has_value()) {
                         newElement_2.minDurationAdjustment = [NSNumber numberWithUnsignedInt:entry_2.minDurationAdjustment.Value()];
                     } else {
                         newElement_2.minDurationAdjustment = nil;
                     }
-                    if (entry_2.maxDurationAdjustment.HasValue()) {
+                    if (entry_2.maxDurationAdjustment.has_value()) {
                         newElement_2.maxDurationAdjustment = [NSNumber numberWithUnsignedInt:entry_2.maxDurationAdjustment.Value()];
                     } else {
                         newElement_2.maxDurationAdjustment = nil;
@@ -9448,7 +9448,7 @@ static id _Nullable DecodeAttributeValueForEnergyPreferenceCluster(AttributeId a
                 MTREnergyPreferenceClusterBalanceStruct * newElement_0;
                 newElement_0 = [MTREnergyPreferenceClusterBalanceStruct new];
                 newElement_0.step = [NSNumber numberWithUnsignedChar:entry_0.step];
-                if (entry_0.label.HasValue()) {
+                if (entry_0.label.has_value()) {
                     newElement_0.label = AsString(entry_0.label.Value());
                     if (newElement_0.label == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -9522,7 +9522,7 @@ static id _Nullable DecodeAttributeValueForEnergyPreferenceCluster(AttributeId a
                 MTREnergyPreferenceClusterBalanceStruct * newElement_0;
                 newElement_0 = [MTREnergyPreferenceClusterBalanceStruct new];
                 newElement_0.step = [NSNumber numberWithUnsignedChar:entry_0.step];
-                if (entry_0.label.HasValue()) {
+                if (entry_0.label.has_value()) {
                     newElement_0.label = AsString(entry_0.label.Value());
                     if (newElement_0.label == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -9659,7 +9659,7 @@ static id _Nullable DecodeAttributeValueForEnergyEVSEModeCluster(AttributeId aAt
                         auto & entry_2 = iter_2.GetValue();
                         MTREnergyEVSEModeClusterModeTagStruct * newElement_2;
                         newElement_2 = [MTREnergyEVSEModeClusterModeTagStruct new];
-                        if (entry_2.mfgCode.HasValue()) {
+                        if (entry_2.mfgCode.has_value()) {
                             newElement_2.mfgCode = [NSNumber numberWithUnsignedShort:chip::to_underlying(entry_2.mfgCode.Value())];
                         } else {
                             newElement_2.mfgCode = nil;
@@ -9767,7 +9767,7 @@ static id _Nullable DecodeAttributeValueForDeviceEnergyManagementModeCluster(Att
                         auto & entry_2 = iter_2.GetValue();
                         MTRDeviceEnergyManagementModeClusterModeTagStruct * newElement_2;
                         newElement_2 = [MTRDeviceEnergyManagementModeClusterModeTagStruct new];
-                        if (entry_2.mfgCode.HasValue()) {
+                        if (entry_2.mfgCode.has_value()) {
                             newElement_2.mfgCode = [NSNumber numberWithUnsignedShort:chip::to_underlying(entry_2.mfgCode.Value())];
                         } else {
                             newElement_2.mfgCode = nil;
@@ -11893,7 +11893,7 @@ static id _Nullable DecodeAttributeValueForThermostatCluster(AttributeId aAttrib
                     newElement_0.presetHandle = AsData(entry_0.presetHandle.Value());
                 }
                 newElement_0.presetScenario = [NSNumber numberWithUnsignedChar:chip::to_underlying(entry_0.presetScenario)];
-                if (entry_0.name.HasValue()) {
+                if (entry_0.name.has_value()) {
                     if (entry_0.name.Value().IsNull()) {
                         newElement_0.name = nil;
                     } else {
@@ -11907,12 +11907,12 @@ static id _Nullable DecodeAttributeValueForThermostatCluster(AttributeId aAttrib
                 } else {
                     newElement_0.name = nil;
                 }
-                if (entry_0.coolingSetpoint.HasValue()) {
+                if (entry_0.coolingSetpoint.has_value()) {
                     newElement_0.coolingSetpoint = [NSNumber numberWithShort:entry_0.coolingSetpoint.Value()];
                 } else {
                     newElement_0.coolingSetpoint = nil;
                 }
-                if (entry_0.heatingSetpoint.HasValue()) {
+                if (entry_0.heatingSetpoint.has_value()) {
                     newElement_0.heatingSetpoint = [NSNumber numberWithShort:entry_0.heatingSetpoint.Value()];
                 } else {
                     newElement_0.heatingSetpoint = nil;
@@ -11954,7 +11954,7 @@ static id _Nullable DecodeAttributeValueForThermostatCluster(AttributeId aAttrib
                     newElement_0.scheduleHandle = AsData(entry_0.scheduleHandle.Value());
                 }
                 newElement_0.systemMode = [NSNumber numberWithUnsignedChar:chip::to_underlying(entry_0.systemMode)];
-                if (entry_0.name.HasValue()) {
+                if (entry_0.name.has_value()) {
                     newElement_0.name = AsString(entry_0.name.Value());
                     if (newElement_0.name == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -11964,7 +11964,7 @@ static id _Nullable DecodeAttributeValueForThermostatCluster(AttributeId aAttrib
                 } else {
                     newElement_0.name = nil;
                 }
-                if (entry_0.presetHandle.HasValue()) {
+                if (entry_0.presetHandle.has_value()) {
                     newElement_0.presetHandle = AsData(entry_0.presetHandle.Value());
                 } else {
                     newElement_0.presetHandle = nil;
@@ -11978,22 +11978,22 @@ static id _Nullable DecodeAttributeValueForThermostatCluster(AttributeId aAttrib
                         newElement_2 = [MTRThermostatClusterScheduleTransitionStruct new];
                         newElement_2.dayOfWeek = [NSNumber numberWithUnsignedChar:entry_2.dayOfWeek.Raw()];
                         newElement_2.transitionTime = [NSNumber numberWithUnsignedShort:entry_2.transitionTime];
-                        if (entry_2.presetHandle.HasValue()) {
+                        if (entry_2.presetHandle.has_value()) {
                             newElement_2.presetHandle = AsData(entry_2.presetHandle.Value());
                         } else {
                             newElement_2.presetHandle = nil;
                         }
-                        if (entry_2.systemMode.HasValue()) {
+                        if (entry_2.systemMode.has_value()) {
                             newElement_2.systemMode = [NSNumber numberWithUnsignedChar:chip::to_underlying(entry_2.systemMode.Value())];
                         } else {
                             newElement_2.systemMode = nil;
                         }
-                        if (entry_2.coolingSetpoint.HasValue()) {
+                        if (entry_2.coolingSetpoint.has_value()) {
                             newElement_2.coolingSetpoint = [NSNumber numberWithShort:entry_2.coolingSetpoint.Value()];
                         } else {
                             newElement_2.coolingSetpoint = nil;
                         }
-                        if (entry_2.heatingSetpoint.HasValue()) {
+                        if (entry_2.heatingSetpoint.has_value()) {
                             newElement_2.heatingSetpoint = [NSNumber numberWithShort:entry_2.heatingSetpoint.Value()];
                         } else {
                             newElement_2.heatingSetpoint = nil;
@@ -12007,7 +12007,7 @@ static id _Nullable DecodeAttributeValueForThermostatCluster(AttributeId aAttrib
                     }
                     newElement_0.transitions = array_2;
                 }
-                if (entry_0.builtIn.HasValue()) {
+                if (entry_0.builtIn.has_value()) {
                     if (entry_0.builtIn.Value().IsNull()) {
                         newElement_0.builtIn = nil;
                     } else {
@@ -15279,7 +15279,7 @@ static id _Nullable DecodeAttributeValueForChannelCluster(AttributeId aAttribute
                 newElement_0 = [MTRChannelClusterChannelInfoStruct new];
                 newElement_0.majorNumber = [NSNumber numberWithUnsignedShort:entry_0.majorNumber];
                 newElement_0.minorNumber = [NSNumber numberWithUnsignedShort:entry_0.minorNumber];
-                if (entry_0.name.HasValue()) {
+                if (entry_0.name.has_value()) {
                     newElement_0.name = AsString(entry_0.name.Value());
                     if (newElement_0.name == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -15289,7 +15289,7 @@ static id _Nullable DecodeAttributeValueForChannelCluster(AttributeId aAttribute
                 } else {
                     newElement_0.name = nil;
                 }
-                if (entry_0.callSign.HasValue()) {
+                if (entry_0.callSign.has_value()) {
                     newElement_0.callSign = AsString(entry_0.callSign.Value());
                     if (newElement_0.callSign == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -15299,7 +15299,7 @@ static id _Nullable DecodeAttributeValueForChannelCluster(AttributeId aAttribute
                 } else {
                     newElement_0.callSign = nil;
                 }
-                if (entry_0.affiliateCallSign.HasValue()) {
+                if (entry_0.affiliateCallSign.has_value()) {
                     newElement_0.affiliateCallSign = AsString(entry_0.affiliateCallSign.Value());
                     if (newElement_0.affiliateCallSign == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -15309,7 +15309,7 @@ static id _Nullable DecodeAttributeValueForChannelCluster(AttributeId aAttribute
                 } else {
                     newElement_0.affiliateCallSign = nil;
                 }
-                if (entry_0.identifier.HasValue()) {
+                if (entry_0.identifier.has_value()) {
                     newElement_0.identifier = AsString(entry_0.identifier.Value());
                     if (newElement_0.identifier == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -15319,7 +15319,7 @@ static id _Nullable DecodeAttributeValueForChannelCluster(AttributeId aAttribute
                 } else {
                     newElement_0.identifier = nil;
                 }
-                if (entry_0.type.HasValue()) {
+                if (entry_0.type.has_value()) {
                     newElement_0.type = [NSNumber numberWithUnsignedChar:chip::to_underlying(entry_0.type.Value())];
                 } else {
                     newElement_0.type = nil;
@@ -15353,7 +15353,7 @@ static id _Nullable DecodeAttributeValueForChannelCluster(AttributeId aAttribute
                 *aError = err;
                 return nil;
             }
-            if (cppValue.Value().lineupName.HasValue()) {
+            if (cppValue.Value().lineupName.has_value()) {
                 value.lineupName = AsString(cppValue.Value().lineupName.Value());
                 if (value.lineupName == nil) {
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -15363,7 +15363,7 @@ static id _Nullable DecodeAttributeValueForChannelCluster(AttributeId aAttribute
             } else {
                 value.lineupName = nil;
             }
-            if (cppValue.Value().postalCode.HasValue()) {
+            if (cppValue.Value().postalCode.has_value()) {
                 value.postalCode = AsString(cppValue.Value().postalCode.Value());
                 if (value.postalCode == nil) {
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -15391,7 +15391,7 @@ static id _Nullable DecodeAttributeValueForChannelCluster(AttributeId aAttribute
             value = [MTRChannelClusterChannelInfoStruct new];
             value.majorNumber = [NSNumber numberWithUnsignedShort:cppValue.Value().majorNumber];
             value.minorNumber = [NSNumber numberWithUnsignedShort:cppValue.Value().minorNumber];
-            if (cppValue.Value().name.HasValue()) {
+            if (cppValue.Value().name.has_value()) {
                 value.name = AsString(cppValue.Value().name.Value());
                 if (value.name == nil) {
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -15401,7 +15401,7 @@ static id _Nullable DecodeAttributeValueForChannelCluster(AttributeId aAttribute
             } else {
                 value.name = nil;
             }
-            if (cppValue.Value().callSign.HasValue()) {
+            if (cppValue.Value().callSign.has_value()) {
                 value.callSign = AsString(cppValue.Value().callSign.Value());
                 if (value.callSign == nil) {
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -15411,7 +15411,7 @@ static id _Nullable DecodeAttributeValueForChannelCluster(AttributeId aAttribute
             } else {
                 value.callSign = nil;
             }
-            if (cppValue.Value().affiliateCallSign.HasValue()) {
+            if (cppValue.Value().affiliateCallSign.has_value()) {
                 value.affiliateCallSign = AsString(cppValue.Value().affiliateCallSign.Value());
                 if (value.affiliateCallSign == nil) {
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -15421,7 +15421,7 @@ static id _Nullable DecodeAttributeValueForChannelCluster(AttributeId aAttribute
             } else {
                 value.affiliateCallSign = nil;
             }
-            if (cppValue.Value().identifier.HasValue()) {
+            if (cppValue.Value().identifier.has_value()) {
                 value.identifier = AsString(cppValue.Value().identifier.Value());
                 if (value.identifier == nil) {
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -15431,7 +15431,7 @@ static id _Nullable DecodeAttributeValueForChannelCluster(AttributeId aAttribute
             } else {
                 value.identifier = nil;
             }
-            if (cppValue.Value().type.HasValue()) {
+            if (cppValue.Value().type.has_value()) {
                 value.type = [NSNumber numberWithUnsignedChar:chip::to_underlying(cppValue.Value().type.Value())];
             } else {
                 value.type = nil;
@@ -15638,7 +15638,7 @@ static id _Nullable DecodeAttributeValueForMediaPlaybackCluster(AttributeId aAtt
                     *aError = err;
                     return nil;
                 }
-                if (cppValue.Value().trackAttributes.Value().displayName.HasValue()) {
+                if (cppValue.Value().trackAttributes.Value().displayName.has_value()) {
                     if (cppValue.Value().trackAttributes.Value().displayName.Value().IsNull()) {
                         value.trackAttributes.displayName = nil;
                     } else {
@@ -15690,7 +15690,7 @@ static id _Nullable DecodeAttributeValueForMediaPlaybackCluster(AttributeId aAtt
                             *aError = err;
                             return nil;
                         }
-                        if (entry_1.trackAttributes.Value().displayName.HasValue()) {
+                        if (entry_1.trackAttributes.Value().displayName.has_value()) {
                             if (entry_1.trackAttributes.Value().displayName.Value().IsNull()) {
                                 newElement_1.trackAttributes.displayName = nil;
                             } else {
@@ -15745,7 +15745,7 @@ static id _Nullable DecodeAttributeValueForMediaPlaybackCluster(AttributeId aAtt
                     *aError = err;
                     return nil;
                 }
-                if (cppValue.Value().trackAttributes.Value().displayName.HasValue()) {
+                if (cppValue.Value().trackAttributes.Value().displayName.has_value()) {
                     if (cppValue.Value().trackAttributes.Value().displayName.Value().IsNull()) {
                         value.trackAttributes.displayName = nil;
                     } else {
@@ -15797,7 +15797,7 @@ static id _Nullable DecodeAttributeValueForMediaPlaybackCluster(AttributeId aAtt
                             *aError = err;
                             return nil;
                         }
-                        if (entry_1.trackAttributes.Value().displayName.HasValue()) {
+                        if (entry_1.trackAttributes.Value().displayName.has_value()) {
                             if (entry_1.trackAttributes.Value().displayName.Value().IsNull()) {
                                 newElement_1.trackAttributes.displayName = nil;
                             } else {
@@ -16080,7 +16080,7 @@ static id _Nullable DecodeAttributeValueForApplicationLauncherCluster(AttributeI
                 *aError = err;
                 return nil;
             }
-            if (cppValue.Value().endpoint.HasValue()) {
+            if (cppValue.Value().endpoint.has_value()) {
                 value.endpoint = [NSNumber numberWithUnsignedShort:cppValue.Value().endpoint.Value()];
             } else {
                 value.endpoint = nil;
@@ -16281,7 +16281,7 @@ static id _Nullable DecodeAttributeValueForContentControlCluster(AttributeId aAt
                     *aError = err;
                     return nil;
                 }
-                if (entry_0.ratingNameDesc.HasValue()) {
+                if (entry_0.ratingNameDesc.has_value()) {
                     newElement_0.ratingNameDesc = AsString(entry_0.ratingNameDesc.Value());
                     if (newElement_0.ratingNameDesc == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -16339,7 +16339,7 @@ static id _Nullable DecodeAttributeValueForContentControlCluster(AttributeId aAt
                     *aError = err;
                     return nil;
                 }
-                if (entry_0.ratingNameDesc.HasValue()) {
+                if (entry_0.ratingNameDesc.has_value()) {
                     newElement_0.ratingNameDesc = AsString(entry_0.ratingNameDesc.Value());
                     if (newElement_0.ratingNameDesc == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -18315,12 +18315,12 @@ static id _Nullable DecodeAttributeValueForUnitTestingCluster(AttributeId aAttri
                 } else {
                     newElement_0.nullableInt = [NSNumber numberWithUnsignedShort:entry_0.nullableInt.Value()];
                 }
-                if (entry_0.optionalInt.HasValue()) {
+                if (entry_0.optionalInt.has_value()) {
                     newElement_0.optionalInt = [NSNumber numberWithUnsignedShort:entry_0.optionalInt.Value()];
                 } else {
                     newElement_0.optionalInt = nil;
                 }
-                if (entry_0.nullableOptionalInt.HasValue()) {
+                if (entry_0.nullableOptionalInt.has_value()) {
                     if (entry_0.nullableOptionalInt.Value().IsNull()) {
                         newElement_0.nullableOptionalInt = nil;
                     } else {
@@ -18339,7 +18339,7 @@ static id _Nullable DecodeAttributeValueForUnitTestingCluster(AttributeId aAttri
                         return nil;
                     }
                 }
-                if (entry_0.optionalString.HasValue()) {
+                if (entry_0.optionalString.has_value()) {
                     newElement_0.optionalString = AsString(entry_0.optionalString.Value());
                     if (newElement_0.optionalString == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -18349,7 +18349,7 @@ static id _Nullable DecodeAttributeValueForUnitTestingCluster(AttributeId aAttri
                 } else {
                     newElement_0.optionalString = nil;
                 }
-                if (entry_0.nullableOptionalString.HasValue()) {
+                if (entry_0.nullableOptionalString.has_value()) {
                     if (entry_0.nullableOptionalString.Value().IsNull()) {
                         newElement_0.nullableOptionalString = nil;
                     } else {
@@ -18381,7 +18381,7 @@ static id _Nullable DecodeAttributeValueForUnitTestingCluster(AttributeId aAttri
                     newElement_0.nullableStruct.g = [NSNumber numberWithFloat:entry_0.nullableStruct.Value().g];
                     newElement_0.nullableStruct.h = [NSNumber numberWithDouble:entry_0.nullableStruct.Value().h];
                 }
-                if (entry_0.optionalStruct.HasValue()) {
+                if (entry_0.optionalStruct.has_value()) {
                     newElement_0.optionalStruct = [MTRUnitTestingClusterSimpleStruct new];
                     newElement_0.optionalStruct.a = [NSNumber numberWithUnsignedChar:entry_0.optionalStruct.Value().a];
                     newElement_0.optionalStruct.b = [NSNumber numberWithBool:entry_0.optionalStruct.Value().b];
@@ -18399,7 +18399,7 @@ static id _Nullable DecodeAttributeValueForUnitTestingCluster(AttributeId aAttri
                 } else {
                     newElement_0.optionalStruct = nil;
                 }
-                if (entry_0.nullableOptionalStruct.HasValue()) {
+                if (entry_0.nullableOptionalStruct.has_value()) {
                     if (entry_0.nullableOptionalStruct.Value().IsNull()) {
                         newElement_0.nullableOptionalStruct = nil;
                     } else {
@@ -18441,7 +18441,7 @@ static id _Nullable DecodeAttributeValueForUnitTestingCluster(AttributeId aAttri
                         newElement_0.nullableList = array_3;
                     }
                 }
-                if (entry_0.optionalList.HasValue()) {
+                if (entry_0.optionalList.has_value()) {
                     { // Scope for our temporary variables
                         auto * array_3 = [NSMutableArray new];
                         auto iter_3 = entry_0.optionalList.Value().begin();
@@ -18461,7 +18461,7 @@ static id _Nullable DecodeAttributeValueForUnitTestingCluster(AttributeId aAttri
                 } else {
                     newElement_0.optionalList = nil;
                 }
-                if (entry_0.nullableOptionalList.HasValue()) {
+                if (entry_0.nullableOptionalList.has_value()) {
                     if (entry_0.nullableOptionalList.Value().IsNull()) {
                         newElement_0.nullableOptionalList = nil;
                     } else {
@@ -18617,7 +18617,7 @@ static id _Nullable DecodeAttributeValueForUnitTestingCluster(AttributeId aAttri
                 MTRUnitTestingClusterTestFabricScoped * newElement_0;
                 newElement_0 = [MTRUnitTestingClusterTestFabricScoped new];
                 newElement_0.fabricSensitiveInt8u = [NSNumber numberWithUnsignedChar:entry_0.fabricSensitiveInt8u];
-                if (entry_0.optionalFabricSensitiveInt8u.HasValue()) {
+                if (entry_0.optionalFabricSensitiveInt8u.has_value()) {
                     newElement_0.optionalFabricSensitiveInt8u = [NSNumber numberWithUnsignedChar:entry_0.optionalFabricSensitiveInt8u.Value()];
                 } else {
                     newElement_0.optionalFabricSensitiveInt8u = nil;
@@ -18627,7 +18627,7 @@ static id _Nullable DecodeAttributeValueForUnitTestingCluster(AttributeId aAttri
                 } else {
                     newElement_0.nullableFabricSensitiveInt8u = [NSNumber numberWithUnsignedChar:entry_0.nullableFabricSensitiveInt8u.Value()];
                 }
-                if (entry_0.nullableOptionalFabricSensitiveInt8u.HasValue()) {
+                if (entry_0.nullableOptionalFabricSensitiveInt8u.has_value()) {
                     if (entry_0.nullableOptionalFabricSensitiveInt8u.Value().IsNull()) {
                         newElement_0.nullableOptionalFabricSensitiveInt8u = nil;
                     } else {

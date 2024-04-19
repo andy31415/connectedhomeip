@@ -549,7 +549,7 @@ void CASESession::OnResponseTimeout(ExchangeContext * ec)
 {
     MATTER_TRACE_SCOPE("OnResponseTimeout", "CASESession");
     VerifyOrReturn(ec != nullptr, ChipLogError(SecureChannel, "CASESession::OnResponseTimeout was called by null exchange"));
-    VerifyOrReturn(mExchangeCtxt.HasValue() && (&mExchangeCtxt.Value().Get() == ec),
+    VerifyOrReturn(mExchangeCtxt.has_value() && (&mExchangeCtxt.Value().Get() == ec),
                    ChipLogError(SecureChannel, "CASESession::OnResponseTimeout exchange doesn't match"));
     ChipLogError(SecureChannel,
                  "CASESession timed out while waiting for a response from peer " ChipLogFormatScopedNodeId ". Current state was %u",
@@ -668,7 +668,7 @@ CHIP_ERROR CASESession::SendSigma1()
     ReturnErrorCodeIf(fabricInfo == nullptr, CHIP_ERROR_INCORRECT_STATE);
 
     // Validate that we have a session ID allocated.
-    VerifyOrReturnError(GetLocalSessionId().HasValue(), CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrReturnError(GetLocalSessionId().has_value(), CHIP_ERROR_INCORRECT_STATE);
 
     // Generate an ephemeral keypair
     mEphemeralKey = mFabricsTable->AllocateEphemeralKeypairForCASE();
@@ -933,7 +933,7 @@ CHIP_ERROR CASESession::SendSigma2Resume()
     TLV::TLVType outerContainerType = TLV::kTLVType_NotSpecified;
 
     // Validate that we have a session ID allocated.
-    VerifyOrReturnError(GetLocalSessionId().HasValue(), CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrReturnError(GetLocalSessionId().has_value(), CHIP_ERROR_INCORRECT_STATE);
 
     msg_R2_resume = System::PacketBufferHandle::New(max_sigma2_resume_data_len);
     VerifyOrReturnError(!msg_R2_resume.IsNull(), CHIP_ERROR_NO_MEMORY);
@@ -976,7 +976,7 @@ CHIP_ERROR CASESession::SendSigma2()
 {
     MATTER_TRACE_SCOPE("SendSigma2", "CASESession");
 
-    VerifyOrReturnError(GetLocalSessionId().HasValue(), CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrReturnError(GetLocalSessionId().has_value(), CHIP_ERROR_INCORRECT_STATE);
     VerifyOrReturnError(mFabricsTable != nullptr, CHIP_ERROR_INCORRECT_STATE);
 
     chip::Platform::ScopedMemoryBuffer<uint8_t> icacBuf;
@@ -1987,7 +1987,7 @@ CHIP_ERROR CASESession::OnFailureStatusReport(Protocols::SecureChannel::GeneralS
 
     case kProtocolCodeBusy:
         err = CHIP_ERROR_BUSY;
-        if (protocolData.HasValue())
+        if (protocolData.has_value())
         {
             mDelegate->OnResponderBusy(System::Clock::Milliseconds16(static_cast<uint16_t>(protocolData.Value())));
         }
@@ -2098,7 +2098,7 @@ CHIP_ERROR CASESession::ValidateReceivedMessage(ExchangeContext * ec, const Payl
     // mExchangeCtxt can be nullptr if this is the first message (CASE_Sigma1) received by CASESession
     // via UnsolicitedMessageHandler. The exchange context is allocated by exchange manager and provided
     // to the handler (CASESession object).
-    if (mExchangeCtxt.HasValue())
+    if (mExchangeCtxt.has_value())
     {
         if (&mExchangeCtxt.Value().Get() != ec)
         {
@@ -2124,7 +2124,7 @@ CHIP_ERROR CASESession::OnMessageReceived(ExchangeContext * ec, const PayloadHea
     SuccessOrExit(err);
 
 #if CONFIG_BUILD_FOR_HOST_UNIT_TEST
-    if (mStopHandshakeAtState.HasValue() && mState == mStopHandshakeAtState.Value())
+    if (mStopHandshakeAtState.has_value() && mState == mStopHandshakeAtState.Value())
     {
         mStopHandshakeAtState = Optional<State>::Missing();
         // For testing purposes we are trying to stop a successful CASESession from happening by dropping part of the

@@ -163,7 +163,7 @@ CHIP_ERROR EncodeForRead(TLV::TLVWriter & writer, TLV::Tag tag, FabricIndex acce
 template <typename X>
 CHIP_ERROR Encode(TLV::TLVWriter & writer, TLV::Tag tag, const Optional<X> & x)
 {
-    if (x.HasValue())
+    if (x.has_value())
     {
         return Encode(writer, tag, x.Value());
     }

@@ -277,7 +277,7 @@ bool emberAfOtaSoftwareUpdateRequestorClusterAnnounceOTAProviderCallback(
         return true;
     }
 
-    if (metadataForNode.HasValue() && metadataForNode.Value().size() > kMaxMetadataLen)
+    if (metadataForNode.has_value() && metadataForNode.Value().size() > kMaxMetadataLen)
     {
         ChipLogError(Zcl, "Metadata size %u exceeds max %u", static_cast<unsigned>(metadataForNode.Value().size()),
                      static_cast<unsigned>(kMaxMetadataLen));

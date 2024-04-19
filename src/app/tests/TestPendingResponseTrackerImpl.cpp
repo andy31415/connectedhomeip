@@ -101,13 +101,13 @@ void TestPendingResponseTracker_PopFindsAllPendingRequests(nlTestSuite * inSuite
     for (size_t i = 0; i < requestsToAdd.size(); i++)
     {
         auto commandRef = pendingResponseTracker.PopPendingResponse();
-        NL_TEST_ASSERT(inSuite, true == commandRef.HasValue());
+        NL_TEST_ASSERT(inSuite, true == commandRef.has_value());
         bool expectedCommandRef = std::find(requestsToAdd.begin(), requestsToAdd.end(), commandRef.Value()) != requestsToAdd.end();
         NL_TEST_ASSERT(inSuite, true == expectedCommandRef);
     }
     NL_TEST_ASSERT(inSuite, 0 == pendingResponseTracker.Count());
     auto commandRef = pendingResponseTracker.PopPendingResponse();
-    NL_TEST_ASSERT(inSuite, false == commandRef.HasValue());
+    NL_TEST_ASSERT(inSuite, false == commandRef.has_value());
 }
 
 } // namespace

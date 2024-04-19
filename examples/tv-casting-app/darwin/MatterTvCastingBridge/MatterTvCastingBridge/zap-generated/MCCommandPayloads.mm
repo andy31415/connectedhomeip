@@ -949,7 +949,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:chip::to_underlying(cppDecodableStruct.status)];
     }
     {
-        if (cppDecodableStruct.data.HasValue()) {
+        if (cppDecodableStruct.data.has_value()) {
             self.data = AsString(cppDecodableStruct.data.Value());
             if (self.data == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -1402,7 +1402,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:chip::to_underlying(cppDecodableStruct.status)];
     }
     {
-        if (cppDecodableStruct.data.HasValue()) {
+        if (cppDecodableStruct.data.has_value()) {
             self.data = AsString(cppDecodableStruct.data.Value());
             if (self.data == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -2068,7 +2068,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:chip::to_underlying(cppDecodableStruct.status)];
     }
     {
-        if (cppDecodableStruct.data.HasValue()) {
+        if (cppDecodableStruct.data.has_value()) {
             self.data = AsString(cppDecodableStruct.data.Value());
             if (self.data == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -2277,7 +2277,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:chip::to_underlying(cppDecodableStruct.status)];
     }
     {
-        if (cppDecodableStruct.data.HasValue()) {
+        if (cppDecodableStruct.data.has_value()) {
             self.data = AsData(cppDecodableStruct.data.Value());
         } else {
             self.data = nil;

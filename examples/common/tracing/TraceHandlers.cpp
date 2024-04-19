@@ -161,7 +161,7 @@ std::string PacketHeaderToJson(const PacketHeader * packetHeader)
     jsonBody += AsFirstJsonKey("msg_counter", std::to_string(messageCounter));
 
     const Optional<NodeId> & sourceNodeId = packetHeader->GetSourceNodeId();
-    if (sourceNodeId.HasValue())
+    if (sourceNodeId.has_value())
     {
         jsonBody += AsNextJsonKey("source_node_id", std::to_string(sourceNodeId.Value()));
     }
@@ -171,14 +171,14 @@ std::string PacketHeaderToJson(const PacketHeader * packetHeader)
     const Optional<NodeId> & destNodeId = packetHeader->GetDestinationNodeId();
     if (packetHeader->IsValidGroupMsg())
     {
-        if (groupId.HasValue())
+        if (groupId.has_value())
         {
             jsonBody += AsNextJsonKey("group_id", std::to_string(groupId.Value()));
         }
 
         jsonBody += AsNextJsonKey("group_key_hash", std::to_string(sessionId));
     }
-    else if (destNodeId.HasValue())
+    else if (destNodeId.has_value())
     {
         jsonBody += AsNextJsonKey("dest_node_id", std::to_string(destNodeId.Value()));
     }
@@ -218,7 +218,7 @@ std::string PayloadHeaderToJson(const PayloadHeader * payloadHeader)
     jsonBody += AsNextJsonKey("is_ack_requested", AsJsonBool(needsAck));
 
     const Optional<uint32_t> & acknowledgedMessageCounter = payloadHeader->GetAckMessageCounter();
-    if (acknowledgedMessageCounter.HasValue())
+    if (acknowledgedMessageCounter.has_value())
     {
         jsonBody += AsNextJsonKey("acknowledged_msg_counter", std::to_string(acknowledgedMessageCounter.Value()));
     }

@@ -153,7 +153,7 @@ public:
         ChipLogDetail(chipTool, "Sending Write Attribute to Group %u, on Fabric %x, for cluster %u with attributeId %u", groupId,
                       fabricIndex, clusterIds.at(0), attributeIds.at(0));
         chip::Optional<chip::DataVersion> dataVersion = chip::NullOptional;
-        if (mDataVersions.HasValue())
+        if (mDataVersions.has_value())
         {
             dataVersion.SetValue(mDataVersions.Value().at(0));
         }

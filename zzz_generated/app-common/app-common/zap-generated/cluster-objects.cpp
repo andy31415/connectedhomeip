@@ -1915,7 +1915,7 @@ CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optiona
     encoder.Encode(to_underlying(Fields::kGroup), group);
     encoder.Encode(to_underlying(Fields::kEndpoint), endpoint);
     encoder.Encode(to_underlying(Fields::kCluster), cluster);
-    if (aAccessingFabricIndex.HasValue())
+    if (aAccessingFabricIndex.has_value())
     {
         encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
     }
@@ -2060,7 +2060,7 @@ CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIn
 
 CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
 {
-    bool includeSensitive = !aAccessingFabricIndex.HasValue() || (aAccessingFabricIndex.Value() == fabricIndex);
+    bool includeSensitive = !aAccessingFabricIndex.has_value() || (aAccessingFabricIndex.Value() == fabricIndex);
 
     DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
 
@@ -2080,7 +2080,7 @@ CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optiona
     {
         encoder.Encode(to_underlying(Fields::kTargets), targets);
     }
-    if (aAccessingFabricIndex.HasValue())
+    if (aAccessingFabricIndex.has_value())
     {
         encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
     }
@@ -2145,7 +2145,7 @@ CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIn
 
 CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
 {
-    bool includeSensitive = !aAccessingFabricIndex.HasValue() || (aAccessingFabricIndex.Value() == fabricIndex);
+    bool includeSensitive = !aAccessingFabricIndex.has_value() || (aAccessingFabricIndex.Value() == fabricIndex);
 
     DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
 
@@ -2153,7 +2153,7 @@ CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optiona
     {
         encoder.Encode(to_underlying(Fields::kData), data);
     }
-    if (aAccessingFabricIndex.HasValue())
+    if (aAccessingFabricIndex.has_value())
     {
         encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
     }
@@ -3698,7 +3698,7 @@ CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optiona
 
     encoder.Encode(to_underlying(Fields::kProviderNodeID), providerNodeID);
     encoder.Encode(to_underlying(Fields::kEndpoint), endpoint);
-    if (aAccessingFabricIndex.HasValue())
+    if (aAccessingFabricIndex.has_value())
     {
         encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
     }
@@ -8314,7 +8314,7 @@ CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optiona
     encoder.Encode(to_underlying(Fields::kFabricID), fabricID);
     encoder.Encode(to_underlying(Fields::kNodeID), nodeID);
     encoder.Encode(to_underlying(Fields::kLabel), label);
-    if (aAccessingFabricIndex.HasValue())
+    if (aAccessingFabricIndex.has_value())
     {
         encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
     }
@@ -8383,7 +8383,7 @@ CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIn
 
 CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
 {
-    bool includeSensitive = !aAccessingFabricIndex.HasValue() || (aAccessingFabricIndex.Value() == fabricIndex);
+    bool includeSensitive = !aAccessingFabricIndex.has_value() || (aAccessingFabricIndex.Value() == fabricIndex);
 
     DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
 
@@ -8395,7 +8395,7 @@ CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optiona
     {
         encoder.Encode(to_underlying(Fields::kIcac), icac);
     }
-    if (aAccessingFabricIndex.HasValue())
+    if (aAccessingFabricIndex.has_value())
     {
         encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
     }
@@ -8961,7 +8961,7 @@ CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optiona
     encoder.Encode(to_underlying(Fields::kGroupId), groupId);
     encoder.Encode(to_underlying(Fields::kEndpoints), endpoints);
     encoder.Encode(to_underlying(Fields::kGroupName), groupName);
-    if (aAccessingFabricIndex.HasValue())
+    if (aAccessingFabricIndex.has_value())
     {
         encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
     }
@@ -9027,7 +9027,7 @@ CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optiona
 
     encoder.Encode(to_underlying(Fields::kGroupId), groupId);
     encoder.Encode(to_underlying(Fields::kGroupKeySetID), groupKeySetID);
-    if (aAccessingFabricIndex.HasValue())
+    if (aAccessingFabricIndex.has_value())
     {
         encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
     }
@@ -9610,7 +9610,7 @@ CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIn
 
 CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
 {
-    bool includeSensitive = !aAccessingFabricIndex.HasValue() || (aAccessingFabricIndex.Value() == fabricIndex);
+    bool includeSensitive = !aAccessingFabricIndex.has_value() || (aAccessingFabricIndex.Value() == fabricIndex);
 
     DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
 
@@ -9622,7 +9622,7 @@ CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optiona
     {
         encoder.Encode(to_underlying(Fields::kMonitoredSubject), monitoredSubject);
     }
-    if (aAccessingFabricIndex.HasValue())
+    if (aAccessingFabricIndex.has_value())
     {
         encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
     }
@@ -12676,7 +12676,7 @@ CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIn
 
 CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
 {
-    bool includeSensitive = !aAccessingFabricIndex.HasValue() || (aAccessingFabricIndex.Value() == fabricIndex);
+    bool includeSensitive = !aAccessingFabricIndex.has_value() || (aAccessingFabricIndex.Value() == fabricIndex);
 
     DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
 
@@ -12694,7 +12694,7 @@ CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optiona
         encoder.Encode(to_underlying(Fields::kSceneValid), sceneValid);
     }
     encoder.Encode(to_underlying(Fields::kRemainingCapacity), remainingCapacity);
-    if (aAccessingFabricIndex.HasValue())
+    if (aAccessingFabricIndex.has_value())
     {
         encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
     }
@@ -27276,7 +27276,7 @@ CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIn
 
 CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
 {
-    bool includeSensitive = !aAccessingFabricIndex.HasValue() || (aAccessingFabricIndex.Value() == fabricIndex);
+    bool includeSensitive = !aAccessingFabricIndex.has_value() || (aAccessingFabricIndex.Value() == fabricIndex);
 
     DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
 
@@ -27308,7 +27308,7 @@ CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optiona
     {
         encoder.Encode(to_underlying(Fields::kFabricSensitiveInt8uList), fabricSensitiveInt8uList);
     }
-    if (aAccessingFabricIndex.HasValue())
+    if (aAccessingFabricIndex.has_value())
     {
         encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
     }

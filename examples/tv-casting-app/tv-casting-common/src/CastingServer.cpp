@@ -85,7 +85,7 @@ CHIP_ERROR CastingServer::SetRotatingDeviceIdUniqueId(chip::Optional<chip::ByteS
 {
 #if CHIP_ENABLE_ROTATING_DEVICE_ID
     // if this class's client provided a RotatingDeviceIdUniqueId, use that
-    if (rotatingDeviceIdUniqueIdOptional.HasValue())
+    if (rotatingDeviceIdUniqueIdOptional.has_value())
     {
         ChipLogProgress(AppServer, "Setting rotatingDeviceIdUniqueId received from client app");
         return chip::DeviceLayer::ConfigurationMgr().SetRotatingDeviceIdUniqueId(rotatingDeviceIdUniqueIdOptional.Value());

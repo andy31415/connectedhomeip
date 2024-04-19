@@ -33,7 +33,7 @@ struct DataVersionFilter
 
     bool IsValidDataVersionFilter() const
     {
-        return (mEndpointId != kInvalidEndpointId) && (mClusterId != kInvalidClusterId) && (mDataVersion.HasValue());
+        return (mEndpointId != kInvalidEndpointId) && (mClusterId != kInvalidClusterId) && (mDataVersion.has_value());
     }
 
     bool operator==(const DataVersionFilter & aOther) const

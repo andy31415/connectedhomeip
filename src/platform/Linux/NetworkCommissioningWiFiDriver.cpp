@@ -296,7 +296,7 @@ CHIP_ERROR LinuxWiFiDriver::AddOrUpdateNetworkWithPDC(ByteSpan ssid, ByteSpan ne
     VerifyOrExit(!ssid.empty() && ssid.size() <= sizeof(WiFiNetwork::ssid), outStatus = Status::kOutOfRange);
     VerifyOrExit(!networkIdentity.empty() && networkIdentity.size() <= sizeof(WiFiNetwork::networkIdentity),
                  outStatus = Status::kOutOfRange);
-    VerifyOrExit(!clientIdentityNetworkIndex.HasValue() || (clientIdentityNetworkIndex.Value() == 0 && mStagingNetwork.UsingPDC()),
+    VerifyOrExit(!clientIdentityNetworkIndex.has_value() || (clientIdentityNetworkIndex.Value() == 0 && mStagingNetwork.UsingPDC()),
                  outStatus = Status::kOutOfRange);
 
     {
@@ -307,7 +307,7 @@ CHIP_ERROR LinuxWiFiDriver::AddOrUpdateNetworkWithPDC(ByteSpan ssid, ByteSpan ne
 
         // If an existing client identity is being reused, we would need to copy it here,
         // but since we're only supporting a single network we simply don't overwrite it.
-        if (!clientIdentityNetworkIndex.HasValue())
+        if (!clientIdentityNetworkIndex.has_value())
         {
             network.clientIdentityKeypair = Platform::MakeShared<P256Keypair>();
             SuccessOrExit(err = network.clientIdentityKeypair->Initialize(ECPKeyTarget::ECDSA));

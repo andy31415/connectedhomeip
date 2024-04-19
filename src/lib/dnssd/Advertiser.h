@@ -206,7 +206,7 @@ public:
 
     CommissionAdvertisingParameters & SetDeviceName(Optional<const char *> deviceName)
     {
-        if (deviceName.HasValue())
+        if (deviceName.has_value())
         {
             Platform::CopyString(mDeviceName, sizeof(mDeviceName), deviceName.Value());
             mDeviceNameHasValue = true;
@@ -224,7 +224,7 @@ public:
 
     CommissionAdvertisingParameters & SetRotatingDeviceId(Optional<const char *> rotatingId)
     {
-        if (rotatingId.HasValue())
+        if (rotatingId.has_value())
         {
             Platform::CopyString(mRotatingId, sizeof(mRotatingId), rotatingId.Value());
             mRotatingIdHasValue = true;
@@ -242,7 +242,7 @@ public:
 
     CommissionAdvertisingParameters & SetPairingInstruction(Optional<const char *> pairingInstr)
     {
-        if (pairingInstr.HasValue())
+        if (pairingInstr.has_value())
         {
             Platform::CopyString(mPairingInstr, sizeof(mPairingInstr), pairingInstr.Value());
             mPairingInstrHasValue = true;

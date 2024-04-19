@@ -40,7 +40,7 @@ void MTRDeviceAttestationDelegateBridge::OnDeviceAttestationCompleted(chip::Cont
             if (strongController) {
                 NSData * dacData = AsData(info.dacDerBuffer());
                 NSData * paiData = AsData(info.paiDerBuffer());
-                NSData * cdData = info.cdBuffer().HasValue() ? AsData(info.cdBuffer().Value()) : nil;
+                NSData * cdData = info.cdBuffer().has_value() ? AsData(info.cdBuffer().Value()) : nil;
                 MTRDeviceAttestationDeviceInfo * deviceInfo =
                     [[MTRDeviceAttestationDeviceInfo alloc] initWithDACCertificate:dacData
                                                                  dacPAICertificate:paiData

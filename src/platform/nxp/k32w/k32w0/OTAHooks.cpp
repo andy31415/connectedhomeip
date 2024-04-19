@@ -97,7 +97,7 @@ extern "C" WEAK void OtaHookAbort()
     auto & imageProcessor   = chip::OTAImageProcessorImpl::GetDefaultInstance();
     auto & providerLocation = imageProcessor.GetBackupProvider();
 
-    if (providerLocation.HasValue())
+    if (providerLocation.has_value())
     {
         auto * requestor = chip::GetRequestorInstance();
         requestor->SetCurrentProviderLocation(providerLocation.Value());

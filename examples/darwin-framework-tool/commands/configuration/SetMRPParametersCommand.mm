@@ -24,7 +24,7 @@ namespace {
 template <typename T>
 NSNumber * _Nullable AsNumber(const Optional<T> & value)
 {
-    if (!value.HasValue()) {
+    if (!value.has_value()) {
         return nil;
     }
 
@@ -35,7 +35,7 @@ NSNumber * _Nullable AsNumber(const Optional<T> & value)
 
 CHIP_ERROR SetMRPParametersCommand::RunCommand()
 {
-    if (!mIdleRetransmitMs.HasValue() && !mActiveRetransmitMs.HasValue() && !mActiveThresholdMs.HasValue() && !mAdditionalRetransmitDelayMs.HasValue()) {
+    if (!mIdleRetransmitMs.has_value() && !mActiveRetransmitMs.has_value() && !mActiveThresholdMs.has_value() && !mAdditionalRetransmitDelayMs.has_value()) {
         ChipLogError(chipTool, "set-mrp-parameters needs to have at least one argument provided");
         return CHIP_ERROR_INVALID_ARGUMENT;
     }

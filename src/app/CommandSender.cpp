@@ -118,7 +118,7 @@ CHIP_ERROR CommandSender::SendCommandRequestInternal(const SessionHandle & sessi
 
     mExchangeCtx->SetResponseTimeout(timeout.ValueOr(session->ComputeRoundTripTimeout(app::kExpectedIMProcessingTime)));
 
-    if (mTimedInvokeTimeoutMs.HasValue())
+    if (mTimedInvokeTimeoutMs.has_value())
     {
         ReturnErrorOnFailure(TimedRequest::Send(mExchangeCtx.Get(), mTimedInvokeTimeoutMs.Value()));
         MoveToState(State::AwaitingTimedStatus);
@@ -140,12 +140,12 @@ CHIP_ERROR CommandSender::TestOnlyCommandSenderTimedRequestFlagWithNoTimedInvoke
 CHIP_ERROR CommandSender::SendCommandRequest(const SessionHandle & session, Optional<System::Clock::Timeout> timeout)
 {
 
-    if (mTimedRequest != mTimedInvokeTimeoutMs.HasValue())
+    if (mTimedRequest != mTimedInvokeTimeoutMs.has_value())
     {
         ChipLogError(
             DataManagement,
-            "Inconsistent timed request state in CommandSender: mTimedRequest (%d) != mTimedInvokeTimeoutMs.HasValue() (%d)",
-            mTimedRequest, mTimedInvokeTimeoutMs.HasValue());
+            "Inconsistent timed request state in CommandSender: mTimedRequest (%d) != mTimedInvokeTimeoutMs.has_value() (%d)",
+            mTimedRequest, mTimedInvokeTimeoutMs.has_value());
         return CHIP_ERROR_INCORRECT_STATE;
     }
     return SendCommandRequestInternal(session, timeout);
@@ -334,7 +334,7 @@ void CommandSender::FlushNoCommandResponse()
     if (mpPendingResponseTracker && mUseExtendableCallback && mCallbackHandle.extendableCallback)
     {
         Optional<uint16_t> commandRef = mpPendingResponseTracker->PopPendingResponse();
-        while (commandRef.HasValue())
+        while (commandRef.has_value())
         {
             NoResponseData noResponseData = { commandRef.Value() };
             mCallbackHandle.extendableCallback->OnNoResponse(this, noResponseData);
@@ -420,7 +420,7 @@ CHIP_ERROR CommandSender::ProcessInvokeResponseIB(InvokeResponseIB::Parser & aIn
         }
         ReturnErrorOnFailure(err);
 
-        if (commandRef.HasValue() && mpPendingResponseTracker != nullptr)
+        if (commandRef.has_value() && mpPendingResponseTracker != nullptr)
         {
             err = mpPendingResponseTracker->Remove(commandRef.Value());
             if (err != CHIP_NO_ERROR)
@@ -441,7 +441,7 @@ CHIP_ERROR CommandSender::ProcessInvokeResponseIB(InvokeResponseIB::Parser & aIn
             }
         }
 
-        if (!commandRef.HasValue() && !commandRefRequired && mpPendingResponseTracker != nullptr &&
+        if (!commandRef.has_value() && !commandRefRequired && mpPendingResponseTracker != nullptr &&
             mpPendingResponseTracker->Count() == 1)
         {
             // We have sent out a single invoke request. As per spec, server in this case doesn't need to provide the CommandRef
@@ -502,7 +502,7 @@ CHIP_ERROR CommandSender::PrepareCommand(const CommandPathParams & aCommandPathP
     if (mBatchCommandsEnabled)
     {
         VerifyOrReturnError(mpPendingResponseTracker != nullptr, CHIP_ERROR_INCORRECT_STATE);
-        VerifyOrReturnError(aPrepareCommandParams.commandRef.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
+        VerifyOrReturnError(aPrepareCommandParams.commandRef.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
         uint16_t commandRef = aPrepareCommandParams.commandRef.Value();
         VerifyOrReturnError(!mpPendingResponseTracker->IsTracked(commandRef), CHIP_ERROR_INVALID_ARGUMENT);
     }
@@ -529,7 +529,7 @@ CHIP_ERROR CommandSender::FinishCommand(FinishCommandParameters & aFinishCommand
     if (mBatchCommandsEnabled)
     {
         VerifyOrReturnError(mpPendingResponseTracker != nullptr, CHIP_ERROR_INCORRECT_STATE);
-        VerifyOrReturnError(aFinishCommandParams.commandRef.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
+        VerifyOrReturnError(aFinishCommandParams.commandRef.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
         uint16_t commandRef = aFinishCommandParams.commandRef.Value();
         VerifyOrReturnError(!mpPendingResponseTracker->IsTracked(commandRef), CHIP_ERROR_INVALID_ARGUMENT);
     }
@@ -550,7 +550,7 @@ CHIP_ERROR CommandSender::FinishCommandInternal(FinishCommandParameters & aFinis
         ReturnErrorOnFailure(commandData.GetWriter()->EndContainer(mDataElementContainerType));
     }
 
-    if (aFinishCommandParams.commandRef.HasValue())
+    if (aFinishCommandParams.commandRef.has_value())
     {
         ReturnErrorOnFailure(commandData.Ref(aFinishCommandParams.commandRef.Value()));
     }
@@ -560,12 +560,12 @@ CHIP_ERROR CommandSender::FinishCommandInternal(FinishCommandParameters & aFinis
     MoveToState(State::AddedCommand);
     mFinishedCommandCount++;
 
-    if (mpPendingResponseTracker && aFinishCommandParams.commandRef.HasValue())
+    if (mpPendingResponseTracker && aFinishCommandParams.commandRef.has_value())
     {
         mpPendingResponseTracker->Add(aFinishCommandParams.commandRef.Value());
     }
 
-    if (aFinishCommandParams.timedInvokeTimeoutMs.HasValue())
+    if (aFinishCommandParams.timedInvokeTimeoutMs.has_value())
     {
         SetTimedInvokeTimeoutMs(aFinishCommandParams.timedInvokeTimeoutMs);
     }
@@ -585,11 +585,11 @@ TLV::TLVWriter * CommandSender::GetCommandDataIBTLVWriter()
 
 void CommandSender::SetTimedInvokeTimeoutMs(const Optional<uint16_t> & aTimedInvokeTimeoutMs)
 {
-    if (!mTimedInvokeTimeoutMs.HasValue())
+    if (!mTimedInvokeTimeoutMs.has_value())
     {
         mTimedInvokeTimeoutMs = aTimedInvokeTimeoutMs;
     }
-    else if (aTimedInvokeTimeoutMs.HasValue())
+    else if (aTimedInvokeTimeoutMs.has_value())
     {
         uint16_t newValue = std::min(mTimedInvokeTimeoutMs.Value(), aTimedInvokeTimeoutMs.Value());
         mTimedInvokeTimeoutMs.SetValue(newValue);

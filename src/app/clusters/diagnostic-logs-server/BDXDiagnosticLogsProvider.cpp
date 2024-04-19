@@ -251,12 +251,12 @@ void BDXDiagnosticLogsProvider::SendCommandResponse(StatusEnum status)
     response.status = status;
     if (status == StatusEnum::kSuccess)
     {
-        if (mTimeStamp.HasValue())
+        if (mTimeStamp.has_value())
         {
             response.UTCTimeStamp = mTimeStamp;
         }
 
-        if (mTimeSinceBoot.HasValue())
+        if (mTimeSinceBoot.has_value())
         {
             response.timeSinceBoot = mTimeSinceBoot;
         }

@@ -223,7 +223,7 @@ CHIP_ERROR EncodeFutureExtension(const Optional<FutureExtension> & futureExt, AS
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
 
-    VerifyOrReturnError(futureExt.HasValue(), CHIP_NO_ERROR);
+    VerifyOrReturnError(futureExt.has_value(), CHIP_NO_ERROR);
 
     ASN1_START_SEQUENCE
     {

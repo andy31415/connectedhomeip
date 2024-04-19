@@ -346,7 +346,7 @@ void PairingCommand::OnCommissioningStatusUpdate(PeerId peerId, CommissioningSta
     // if we have successfully finished attestation AND this device already has a NodeId on our fabric
     // then stop commissioning and attempt to connect to it.
     if (stageCompleted == CommissioningStage::kAttestationVerification && error == CHIP_NO_ERROR &&
-        gAutoCommissioner.GetCommissioningParameters().GetRemoteNodeId().HasValue())
+        gAutoCommissioner.GetCommissioningParameters().GetRemoteNodeId().has_value())
     {
         gAutoCommissioner.StopCommissioning();
     }

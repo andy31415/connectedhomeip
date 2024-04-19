@@ -91,7 +91,7 @@ CHIP_ERROR LogProvider::StartLogCollection(IntentEnum intent, LogSessionHandle &
     VerifyOrReturnValue(IsValidIntent(intent), CHIP_ERROR_INVALID_ARGUMENT);
 
     auto filePath = GetFilePathForIntent(intent);
-    VerifyOrReturnValue(filePath.HasValue(), CHIP_ERROR_NOT_FOUND);
+    VerifyOrReturnValue(filePath.has_value(), CHIP_ERROR_NOT_FOUND);
 
     auto fp = fopen(filePath.Value().c_str(), "rb");
     VerifyOrReturnValue(!(nullptr == fp && errno == ENOENT), CHIP_ERROR_NOT_FOUND);
@@ -144,7 +144,7 @@ size_t LogProvider::GetSizeForIntent(IntentEnum intent)
     VerifyOrReturnValue(IsValidIntent(intent), 0);
 
     auto filePath = GetFilePathForIntent(intent);
-    VerifyOrReturnValue(filePath.HasValue(), 0);
+    VerifyOrReturnValue(filePath.has_value(), 0);
 
     auto fp = fopen(filePath.Value().c_str(), "rb");
     VerifyOrReturnValue(nullptr != fp, 0);

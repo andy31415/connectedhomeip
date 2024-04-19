@@ -464,7 +464,7 @@ void TestMutableReadCallback::OnAttributeData(const app::ConcreteDataAttributePa
         }
     }
 
-    if (aPath.mDataVersion.HasValue())
+    if (aPath.mDataVersion.has_value())
     {
         mDataVersions[std::make_pair(aPath.mEndpointId, aPath.mAttributeId)] = aPath.mDataVersion.Value();
     }

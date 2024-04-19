@@ -437,8 +437,8 @@ bool emberAfValveConfigurationAndControlClusterOpenCallback(
     }
 
     // verify min 1 requirement
-    VerifyOrExit(targetLevel.HasValue() ? targetLevel.Value() > 0 : true, status.Emplace(Status::ConstraintError));
-    if (openDuration.HasValue())
+    VerifyOrExit(targetLevel.has_value() ? targetLevel.Value() > 0 : true, status.Emplace(Status::ConstraintError));
+    if (openDuration.has_value())
     {
         bool validOpenDuration = openDuration.Value().IsNull() ? true : openDuration.Value().Value() > 0;
         // verify min 1 requirement
@@ -454,7 +454,7 @@ bool emberAfValveConfigurationAndControlClusterOpenCallback(
     if (HasFeature(ep, ValveConfigurationAndControl::Feature::kLevel))
     {
         Percent defOpenLevel;
-        if (targetLevel.HasValue())
+        if (targetLevel.has_value())
         {
             level.SetNonNull(targetLevel.Value());
         }
@@ -472,7 +472,7 @@ bool emberAfValveConfigurationAndControlClusterOpenCallback(
                  status.Emplace(Status::Failure));
 
 exit:
-    if (status.HasValue())
+    if (status.has_value())
     {
         BitMask<ValveConfigurationAndControl::ValveFaultBitmap> gFault(
             ValveConfigurationAndControl::ValveFaultBitmap::kGeneralFault);

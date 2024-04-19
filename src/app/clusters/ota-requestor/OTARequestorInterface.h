@@ -64,7 +64,7 @@ public:
         {
             for (size_t i = mNextIndex; i < mListSize; i++)
             {
-                if (mList[i].HasValue())
+                if (mList[i].has_value())
                 {
                     mCurrentIndex = i;
                     mNextIndex    = mCurrentIndex + 1;
@@ -102,7 +102,7 @@ public:
     {
         for (size_t i = 0; i < mMaxSize; i++)
         {
-            if (!mList[i].HasValue())
+            if (!mList[i].has_value())
             {
                 mList[i].SetValue(providerLocation);
                 mListSize++;
@@ -120,7 +120,7 @@ public:
     {
         for (size_t i = 0; i < mMaxSize; i++)
         {
-            if (mList[i].HasValue() && mList[i].Value().GetFabricIndex() == fabricIndex)
+            if (mList[i].has_value() && mList[i].Value().GetFabricIndex() == fabricIndex)
             {
                 mList[i].ClearValue();
                 mListSize--;

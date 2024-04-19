@@ -41,7 +41,7 @@ CHIP_ERROR PairingCommand::RunCommand()
 
     mDeviceIsICD = false;
 
-    if (mCASEAuthTags.HasValue() && mCASEAuthTags.Value().size() <= kMaxSubjectCATAttributeCount)
+    if (mCASEAuthTags.has_value() && mCASEAuthTags.Value().size() <= kMaxSubjectCATAttributeCount)
     {
         CATValues cats = kUndefinedCATs;
         for (size_t index = 0; index < mCASEAuthTags.Value().size(); ++index)
@@ -115,7 +115,7 @@ CommissioningParameters PairingCommand::GetCommissioningParameters()
         break;
     }
 
-    if (mCountryCode.HasValue())
+    if (mCountryCode.has_value())
     {
         params.SetCountryCode(CharSpan::fromCharString(mCountryCode.Value()));
     }
@@ -140,23 +140,23 @@ CommissioningParameters PairingCommand::GetCommissioningParameters()
     {
         params.SetICDRegistrationStrategy(ICDRegistrationStrategy::kBeforeComplete);
 
-        if (!mICDSymmetricKey.HasValue())
+        if (!mICDSymmetricKey.has_value())
         {
             chip::Crypto::DRBG_get_bytes(mRandomGeneratedICDSymmetricKey, sizeof(mRandomGeneratedICDSymmetricKey));
             mICDSymmetricKey.SetValue(ByteSpan(mRandomGeneratedICDSymmetricKey));
         }
-        if (!mICDCheckInNodeId.HasValue())
+        if (!mICDCheckInNodeId.has_value())
         {
             mICDCheckInNodeId.SetValue(CurrentCommissioner().GetNodeId());
         }
-        if (!mICDMonitoredSubject.HasValue())
+        if (!mICDMonitoredSubject.has_value())
         {
             mICDMonitoredSubject.SetValue(mICDCheckInNodeId.Value());
         }
         // These Optionals must have values now.
         // The commissioner will verify these values.
         params.SetICDSymmetricKey(mICDSymmetricKey.Value());
-        if (mICDStayActiveDurationMsec.HasValue())
+        if (mICDStayActiveDurationMsec.has_value())
         {
             params.SetICDStayActiveDurationMsec(mICDStayActiveDurationMsec.Value());
         }
@@ -189,11 +189,11 @@ CHIP_ERROR PairingCommand::PairWithCode(NodeId remoteId)
 
     // If no network discovery behavior and no network credentials are provided, assume that the pairing command is trying to pair
     // with an on-network device.
-    if (!mUseOnlyOnNetworkDiscovery.HasValue())
+    if (!mUseOnlyOnNetworkDiscovery.has_value())
     {
         auto threadCredentials = commissioningParams.GetThreadOperationalDataset();
         auto wiFiCredentials   = commissioningParams.GetWiFiCredentials();
-        mUseOnlyOnNetworkDiscovery.SetValue(!threadCredentials.HasValue() && !wiFiCredentials.HasValue());
+        mUseOnlyOnNetworkDiscovery.SetValue(!threadCredentials.has_value() && !wiFiCredentials.has_value());
     }
 
     auto discoveryType = DiscoveryType::kAll;

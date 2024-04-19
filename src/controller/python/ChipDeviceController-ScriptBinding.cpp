@@ -792,7 +792,7 @@ PyChipError pychip_FreeOperationalDeviceProxy(chip::OperationalDeviceProxy * dev
 
 PyChipError pychip_GetLocalSessionId(chip::OperationalDeviceProxy * deviceProxy, uint16_t * localSessionId)
 {
-    VerifyOrReturnError(deviceProxy->GetSecureSession().HasValue(), ToPyChipError(CHIP_ERROR_MISSING_SECURE_SESSION));
+    VerifyOrReturnError(deviceProxy->GetSecureSession().has_value(), ToPyChipError(CHIP_ERROR_MISSING_SECURE_SESSION));
     VerifyOrReturnError(localSessionId != nullptr, ToPyChipError(CHIP_ERROR_INVALID_ARGUMENT));
 
     *localSessionId = deviceProxy->GetSecureSession().Value()->AsSecureSession()->GetLocalSessionId();
@@ -801,7 +801,7 @@ PyChipError pychip_GetLocalSessionId(chip::OperationalDeviceProxy * deviceProxy,
 
 PyChipError pychip_GetNumSessionsToPeer(chip::OperationalDeviceProxy * deviceProxy, uint32_t * numSessions)
 {
-    VerifyOrReturnError(deviceProxy->GetSecureSession().HasValue(), ToPyChipError(CHIP_ERROR_MISSING_SECURE_SESSION));
+    VerifyOrReturnError(deviceProxy->GetSecureSession().has_value(), ToPyChipError(CHIP_ERROR_MISSING_SECURE_SESSION));
     VerifyOrReturnError(numSessions != nullptr, ToPyChipError(CHIP_ERROR_INVALID_ARGUMENT));
 
     *numSessions = 0;
@@ -813,7 +813,7 @@ PyChipError pychip_GetNumSessionsToPeer(chip::OperationalDeviceProxy * devicePro
 
 PyChipError pychip_GetAttestationChallenge(chip::OperationalDeviceProxy * deviceProxy, uint8_t * buf, size_t * size)
 {
-    VerifyOrReturnError(deviceProxy->GetSecureSession().HasValue(), ToPyChipError(CHIP_ERROR_MISSING_SECURE_SESSION));
+    VerifyOrReturnError(deviceProxy->GetSecureSession().has_value(), ToPyChipError(CHIP_ERROR_MISSING_SECURE_SESSION));
     VerifyOrReturnError(buf != nullptr, ToPyChipError(CHIP_ERROR_INVALID_ARGUMENT));
 
     ByteSpan challenge = deviceProxy->GetSecureSession().Value()->AsSecureSession()->GetCryptoContext().GetAttestationChallenge();

@@ -239,7 +239,7 @@ exit:
         status = Status::Failure;
     }
 
-    if (nodeId.HasValue())
+    if (nodeId.has_value())
     {
         // NodeId nodeId = getNodeId(commandObj);
         EventNumber eventNumber;

@@ -1180,7 +1180,7 @@ void TestCASESession::Sigma1BadDestinationIdTest(nlTestSuite * inSuite, void * i
     data->SetDataLength(static_cast<uint16_t>(buf.size()));
 
     Optional<SessionHandle> session = sessionManager.CreateUnauthenticatedSession(ctx.GetAliceAddress(), GetDefaultMRPConfig());
-    NL_TEST_ASSERT(inSuite, session.HasValue());
+    NL_TEST_ASSERT(inSuite, session.has_value());
 
     TestCASESecurePairingDelegate caseDelegate;
     CASESession caseSession;

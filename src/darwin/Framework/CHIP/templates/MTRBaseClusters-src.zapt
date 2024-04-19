@@ -166,7 +166,7 @@ MTR{{cluster}}Cluster{{command}}Params
           }
         }
         {{#if mustUseTimedWrite}}
-        if (!timedWriteTimeout.HasValue()) {
+        if (!timedWriteTimeout.has_value()) {
           timedWriteTimeout.SetValue(MTR_DEFAULT_TIMED_INTERACTION_TIMEOUT_MS);
         }
         {{/if}}

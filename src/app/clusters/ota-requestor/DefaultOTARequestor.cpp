@@ -55,34 +55,34 @@ static void LogQueryImageResponse(const QueryImageResponse::DecodableType & resp
 {
     ChipLogDetail(SoftwareUpdate, "QueryImageResponse:");
     ChipLogDetail(SoftwareUpdate, "  status: %u", to_underlying(response.status));
-    if (response.delayedActionTime.HasValue())
+    if (response.delayedActionTime.has_value())
     {
         ChipLogDetail(SoftwareUpdate, "  delayedActionTime: %" PRIu32 " seconds", response.delayedActionTime.Value());
     }
-    if (response.imageURI.HasValue())
+    if (response.imageURI.has_value())
     {
         ChipLogDetail(SoftwareUpdate, "  imageURI: %.*s", static_cast<int>(response.imageURI.Value().size()),
                       response.imageURI.Value().data());
     }
-    if (response.softwareVersion.HasValue())
+    if (response.softwareVersion.has_value())
     {
         ChipLogDetail(SoftwareUpdate, "  softwareVersion: %" PRIu32 "", response.softwareVersion.Value());
     }
-    if (response.softwareVersionString.HasValue())
+    if (response.softwareVersionString.has_value())
     {
         ChipLogDetail(SoftwareUpdate, "  softwareVersionString: %.*s",
                       static_cast<int>(response.softwareVersionString.Value().size()),
                       response.softwareVersionString.Value().data());
     }
-    if (response.updateToken.HasValue())
+    if (response.updateToken.has_value())
     {
         ChipLogDetail(SoftwareUpdate, "  updateToken: %u", static_cast<unsigned int>(response.updateToken.Value().size()));
     }
-    if (response.userConsentNeeded.HasValue())
+    if (response.userConsentNeeded.has_value())
     {
         ChipLogDetail(SoftwareUpdate, "  userConsentNeeded: %d", response.userConsentNeeded.Value());
     }
-    if (response.metadataForRequestor.HasValue())
+    if (response.metadataForRequestor.has_value())
     {
         ChipLogDetail(SoftwareUpdate, "  metadataForRequestor: %u",
                       static_cast<unsigned int>(response.metadataForRequestor.Value().size()));
@@ -162,7 +162,7 @@ void DefaultOTARequestor::OnQueryImageResponse(void * context, const QueryImageR
 
         // This should never happen since receiving a response implies that a CASE session had previously been established with a
         // valid provider
-        if (!requestorCore->mProviderLocation.HasValue())
+        if (!requestorCore->mProviderLocation.has_value())
         {
             ChipLogError(SoftwareUpdate, "No provider location set");
             requestorCore->RecordErrorUpdateState(CHIP_ERROR_INCORRECT_STATE);
@@ -343,7 +343,7 @@ void DefaultOTARequestor::HandleAnnounceOTAProvider(app::CommandHandler * comman
     ChipLogDetail(SoftwareUpdate, "  ProviderNodeID: 0x" ChipLogFormatX64, ChipLogValueX64(providerLocation.providerNodeID));
     ChipLogDetail(SoftwareUpdate, "  VendorID: 0x%x", commandData.vendorID);
     ChipLogDetail(SoftwareUpdate, "  AnnouncementReason: %u", to_underlying(announcementReason));
-    if (commandData.metadataForNode.HasValue())
+    if (commandData.metadataForNode.has_value())
     {
         ChipLogDetail(SoftwareUpdate, "  MetadataForNode: %u",
                       static_cast<unsigned int>(commandData.metadataForNode.Value().size()));
@@ -359,7 +359,7 @@ void DefaultOTARequestor::ConnectToProvider(OnConnectedAction onConnectedAction)
 {
     VerifyOrDie(mServer != nullptr);
 
-    if (!mProviderLocation.HasValue())
+    if (!mProviderLocation.has_value())
     {
         ChipLogError(SoftwareUpdate, "Provider location not set");
         RecordErrorUpdateState(CHIP_ERROR_INCORRECT_STATE);
@@ -379,7 +379,7 @@ void DefaultOTARequestor::DisconnectFromProvider()
 {
     VerifyOrDie(mServer != nullptr);
 
-    if (!mProviderLocation.HasValue())
+    if (!mProviderLocation.has_value())
     {
         ChipLogError(SoftwareUpdate, "Provider location not set");
         RecordErrorUpdateState(CHIP_ERROR_INCORRECT_STATE);
@@ -387,7 +387,7 @@ void DefaultOTARequestor::DisconnectFromProvider()
     }
 
     auto optionalSessionHandle = mSessionHolder.Get();
-    if (optionalSessionHandle.HasValue())
+    if (optionalSessionHandle.has_value())
     {
         if (optionalSessionHandle.Value()->IsActiveSession())
         {
@@ -714,7 +714,7 @@ CHIP_ERROR DefaultOTARequestor::GenerateUpdateToken()
     if (mUpdateToken.empty())
     {
         VerifyOrReturnError(mServer != nullptr, CHIP_ERROR_INCORRECT_STATE);
-        VerifyOrReturnError(mProviderLocation.HasValue(), CHIP_ERROR_INCORRECT_STATE);
+        VerifyOrReturnError(mProviderLocation.has_value(), CHIP_ERROR_INCORRECT_STATE);
 
         const FabricInfo * fabricInfo = mServer->GetFabricTable().FindFabricWithIndex(mProviderLocation.Value().fabricIndex);
         VerifyOrReturnError(fabricInfo != nullptr, CHIP_ERROR_INCORRECT_STATE);
@@ -729,7 +729,7 @@ CHIP_ERROR DefaultOTARequestor::GenerateUpdateToken()
 
 CHIP_ERROR DefaultOTARequestor::SendQueryImageRequest(Messaging::ExchangeManager & exchangeMgr, const SessionHandle & sessionHandle)
 {
-    VerifyOrReturnError(mProviderLocation.HasValue(), CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrReturnError(mProviderLocation.has_value(), CHIP_ERROR_INCORRECT_STATE);
 
     constexpr OTADownloadProtocol kProtocolsSupported[] = { OTADownloadProtocol::kBDXSynchronous };
     QueryImage::Type args;
@@ -775,18 +775,18 @@ CHIP_ERROR DefaultOTARequestor::ExtractUpdateDescription(const QueryImageRespons
     NodeId nodeId;
     CharSpan fileDesignator;
 
-    VerifyOrReturnError(response.imageURI.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
+    VerifyOrReturnError(response.imageURI.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
     ReturnErrorOnFailure(bdx::ParseURI(response.imageURI.Value(), nodeId, fileDesignator));
     VerifyOrReturnError(!fileDesignator.empty(), CHIP_ERROR_INVALID_ARGUMENT);
     update.nodeId         = nodeId;
     update.fileDesignator = fileDesignator;
 
-    VerifyOrReturnError(response.softwareVersion.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
-    VerifyOrReturnError(response.softwareVersionString.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
+    VerifyOrReturnError(response.softwareVersion.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
+    VerifyOrReturnError(response.softwareVersionString.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
     update.softwareVersion    = response.softwareVersion.Value();
     update.softwareVersionStr = response.softwareVersionString.Value();
 
-    VerifyOrReturnError(response.updateToken.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
+    VerifyOrReturnError(response.updateToken.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
     update.updateToken = response.updateToken.Value();
 
     update.userConsentNeeded    = response.userConsentNeeded.ValueOr(false);
@@ -831,7 +831,7 @@ CHIP_ERROR DefaultOTARequestor::StartDownload(Messaging::ExchangeManager & excha
 CHIP_ERROR DefaultOTARequestor::SendApplyUpdateRequest(Messaging::ExchangeManager & exchangeMgr,
                                                        const SessionHandle & sessionHandle)
 {
-    VerifyOrReturnError(mProviderLocation.HasValue(), CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrReturnError(mProviderLocation.has_value(), CHIP_ERROR_INCORRECT_STATE);
     ReturnErrorOnFailure(GenerateUpdateToken());
 
     ApplyUpdateRequest::Type args;
@@ -846,7 +846,7 @@ CHIP_ERROR DefaultOTARequestor::SendApplyUpdateRequest(Messaging::ExchangeManage
 CHIP_ERROR DefaultOTARequestor::SendNotifyUpdateAppliedRequest(Messaging::ExchangeManager & exchangeMgr,
                                                                const SessionHandle & sessionHandle)
 {
-    VerifyOrReturnError(mProviderLocation.HasValue(), CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrReturnError(mProviderLocation.has_value(), CHIP_ERROR_INCORRECT_STATE);
     ReturnErrorOnFailure(GenerateUpdateToken());
 
     NotifyUpdateApplied::Type args;
@@ -866,7 +866,7 @@ void DefaultOTARequestor::StoreCurrentUpdateInfo()
 {
     // TODO: change OTA requestor storage interface to store both values at once
     CHIP_ERROR error = CHIP_NO_ERROR;
-    if (mProviderLocation.HasValue())
+    if (mProviderLocation.has_value())
     {
         error = mStorage->StoreCurrentProviderLocation(mProviderLocation.Value());
     }

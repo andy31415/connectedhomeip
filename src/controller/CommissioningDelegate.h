@@ -235,7 +235,7 @@ public:
     // This value must be set before calling PerformCommissioningStep for the kSendNOC step.
     const Optional<Crypto::IdentityProtectionKeySpan> GetIpk() const
     {
-        return mIpk.HasValue() ? MakeOptional(mIpk.Value().Span()) : NullOptional;
+        return mIpk.has_value() ? MakeOptional(mIpk.Value().Span()) : NullOptional;
     }
 
     // Admin subject id used for the case access control entry created if the AddNOC command succeeds. In the AutoCommissioner, this
@@ -495,7 +495,7 @@ public:
     Optional<bool> GetAttemptThreadNetworkScan() const { return mAttemptThreadNetworkScan; }
     CommissioningParameters & SetAttemptThreadNetworkScan(bool attemptThreadNetworkScan)
     {
-        if (!mThreadOperationalDataset.HasValue())
+        if (!mThreadOperationalDataset.has_value())
         {
             mAttemptThreadNetworkScan = MakeOptional(attemptThreadNetworkScan);
         }

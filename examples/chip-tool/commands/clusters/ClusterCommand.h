@@ -61,7 +61,7 @@ public:
     {
         ReturnErrorOnFailure(InteractionModelCommands::SendCommand(device, endpointId, clusterId, commandId, value));
 
-        if (value.transferFileDesignator.HasValue() &&
+        if (value.transferFileDesignator.has_value() &&
             value.requestedProtocol == chip::app::Clusters::DiagnosticLogs::TransferProtocolEnum::kBdx)
         {
             auto sender         = mCommandSender.back().get();
@@ -130,7 +130,7 @@ public:
         // If the command is repeated N times, wait for all the responses to comes in
         // before exiting.
         bool shouldStop = true;
-        if (mRepeatCount.HasValue())
+        if (mRepeatCount.has_value())
         {
             mRepeatCount.SetValue(static_cast<uint16_t>(mRepeatCount.Value() - 1));
             shouldStop = mRepeatCount.Value() == 0;

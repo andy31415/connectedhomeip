@@ -61,7 +61,7 @@ public:
                 [clientQueue, completion, this](void * context, chip::Optional<typename TypeInfo::DecodableType> before, typename TypeInfo::DecodableArgType after) {
                     NSNumber *objCBefore = nil, *objCAfter = nil;
                     CHIP_ERROR errBefore = CHIP_NO_ERROR, errAfter = CHIP_NO_ERROR;
-                    if (before.HasValue()) {
+                    if (before.has_value()) {
                         ChipLogProgress(AppServer, "<MCAttributeTemplate> converting 'before' value from Cpp to ObjC");
                         std::any anyBefore = std::any(std::make_shared<typename TypeInfo::DecodableType>(before.Value()));
                         objCBefore = mGetObjCTypeFromCppFn(anyBefore, &errBefore);
@@ -97,7 +97,7 @@ public:
                 [clientQueue, completion, this](void * context, chip::Optional<typename TypeInfo::DecodableType> before, typename TypeInfo::DecodableArgType after) {
                     NSNumber *objCBefore = nil, *objCAfter = nil;
                     CHIP_ERROR errBefore = CHIP_NO_ERROR, errAfter = CHIP_NO_ERROR;
-                    if (before.HasValue()) {
+                    if (before.has_value()) {
                         ChipLogProgress(AppServer, "<MCAttributeTemplate> converting 'before' value from Cpp to ObjC");
                         std::any anyBefore = std::any(std::make_shared<typename TypeInfo::DecodableType>(before.Value()));
                         objCBefore = mGetObjCTypeFromCppFn(anyBefore, &errBefore);

@@ -93,16 +93,16 @@ uint16_t PacketHeader::EncodeSizeBytes() const
 {
     size_t size = kFixedUnencryptedHeaderSizeBytes;
 
-    if (mSourceNodeId.HasValue())
+    if (mSourceNodeId.has_value())
     {
         size += kNodeIdSizeBytes;
     }
 
-    if (mDestinationNodeId.HasValue())
+    if (mDestinationNodeId.has_value())
     {
         size += kNodeIdSizeBytes;
     }
-    else if (mDestinationGroupId.HasValue())
+    else if (mDestinationGroupId.has_value())
     {
         size += kGroupIdSizeBytes;
     }
@@ -121,7 +121,7 @@ uint16_t PayloadHeader::EncodeSizeBytes() const
         size += kVendorIdSizeBytes;
     }
 
-    if (mAckMessageCounter.HasValue())
+    if (mAckMessageCounter.has_value())
     {
         size += kAckMessageCounterSizeBytes;
     }
@@ -315,14 +315,14 @@ CHIP_ERROR PayloadHeader::DecodeAndConsume(const System::PacketBufferHandle & bu
 CHIP_ERROR PacketHeader::Encode(uint8_t * data, uint16_t size, uint16_t * encode_size) const
 {
     VerifyOrReturnError(size >= EncodeSizeBytes(), CHIP_ERROR_INVALID_ARGUMENT);
-    VerifyOrReturnError(!(mDestinationNodeId.HasValue() && mDestinationGroupId.HasValue()), CHIP_ERROR_INTERNAL);
+    VerifyOrReturnError(!(mDestinationNodeId.has_value() && mDestinationGroupId.has_value()), CHIP_ERROR_INTERNAL);
     VerifyOrReturnError(encode_size != nullptr, CHIP_ERROR_INTERNAL);
     VerifyOrReturnError(IsSessionTypeValid(), CHIP_ERROR_INTERNAL);
 
     Header::MsgFlags messageFlags = mMsgFlags;
-    messageFlags.Set(Header::MsgFlagValues::kSourceNodeIdPresent, mSourceNodeId.HasValue())
-        .Set(Header::MsgFlagValues::kDestinationNodeIdPresent, mDestinationNodeId.HasValue())
-        .Set(Header::MsgFlagValues::kDestinationGroupIdPresent, mDestinationGroupId.HasValue());
+    messageFlags.Set(Header::MsgFlagValues::kSourceNodeIdPresent, mSourceNodeId.has_value())
+        .Set(Header::MsgFlagValues::kDestinationNodeIdPresent, mDestinationNodeId.has_value())
+        .Set(Header::MsgFlagValues::kDestinationGroupIdPresent, mDestinationGroupId.has_value());
 
     uint8_t msgFlags = (kMsgHeaderVersion << kVersionShift) | (messageFlags.Raw() & kMsgFlagsMask);
 
@@ -331,15 +331,15 @@ CHIP_ERROR PacketHeader::Encode(uint8_t * data, uint16_t size, uint16_t * encode
     LittleEndian::Write16(p, mSessionId);
     Write8(p, mSecFlags.Raw());
     LittleEndian::Write32(p, mMessageCounter);
-    if (mSourceNodeId.HasValue())
+    if (mSourceNodeId.has_value())
     {
         LittleEndian::Write64(p, mSourceNodeId.Value());
     }
-    if (mDestinationNodeId.HasValue())
+    if (mDestinationNodeId.has_value())
     {
         LittleEndian::Write64(p, mDestinationNodeId.Value());
     }
-    else if (mDestinationGroupId.HasValue())
+    else if (mDestinationGroupId.has_value())
     {
         LittleEndian::Write16(p, mDestinationGroupId.Value());
     }
@@ -379,7 +379,7 @@ CHIP_ERROR PayloadHeader::Encode(uint8_t * data, uint16_t size, uint16_t * encod
         LittleEndian::Write16(p, to_underlying(mProtocolID.GetVendorId()));
     }
     LittleEndian::Write16(p, mProtocolID.GetProtocolId());
-    if (mAckMessageCounter.HasValue())
+    if (mAckMessageCounter.has_value())
     {
         LittleEndian::Write32(p, mAckMessageCounter.Value());
     }

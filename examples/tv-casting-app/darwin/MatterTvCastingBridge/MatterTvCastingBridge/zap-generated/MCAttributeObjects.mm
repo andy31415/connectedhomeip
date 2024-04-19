@@ -2903,7 +2903,7 @@
                     *aError = err;
                     return nil;
                 }
-                if (_cppValue.Value().trackAttributes.Value().displayName.HasValue()) {
+                if (_cppValue.Value().trackAttributes.Value().displayName.has_value()) {
                     if (_cppValue.Value().trackAttributes.Value().displayName.Value().IsNull()) {
                         value.trackAttributes.displayName = nil;
                     } else {
@@ -2990,7 +2990,7 @@
                             *aError = err;
                             return nil;
                         }
-                        if (entry_1.trackAttributes.Value().displayName.HasValue()) {
+                        if (entry_1.trackAttributes.Value().displayName.has_value()) {
                             if (entry_1.trackAttributes.Value().displayName.Value().IsNull()) {
                                 newElement_1.trackAttributes.displayName = nil;
                             } else {
@@ -3080,7 +3080,7 @@
                     *aError = err;
                     return nil;
                 }
-                if (_cppValue.Value().trackAttributes.Value().displayName.HasValue()) {
+                if (_cppValue.Value().trackAttributes.Value().displayName.has_value()) {
                     if (_cppValue.Value().trackAttributes.Value().displayName.Value().IsNull()) {
                         value.trackAttributes.displayName = nil;
                     } else {
@@ -3167,7 +3167,7 @@
                             *aError = err;
                             return nil;
                         }
-                        if (entry_1.trackAttributes.Value().displayName.HasValue()) {
+                        if (entry_1.trackAttributes.Value().displayName.has_value()) {
                             if (entry_1.trackAttributes.Value().displayName.Value().IsNull()) {
                                 newElement_1.trackAttributes.displayName = nil;
                             } else {
@@ -4436,7 +4436,7 @@
                 *aError = err;
                 return nil;
             }
-            if (_cppValue.Value().endpoint.HasValue()) {
+            if (_cppValue.Value().endpoint.has_value()) {
                 value.endpoint = [NSNumber numberWithUnsignedShort:_cppValue.Value().endpoint.Value()];
             } else {
                 value.endpoint = nil;

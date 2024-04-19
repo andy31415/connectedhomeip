@@ -56,7 +56,7 @@ CHIP_ERROR LinuxCommissionableDataProvider::Init(chip::Optional<std::vector<uint
         return CHIP_ERROR_INVALID_ARGUMENT;
     }
 
-    bool havePaseVerifier = serializedSpake2pVerifier.HasValue();
+    bool havePaseVerifier = serializedSpake2pVerifier.has_value();
     Spake2pVerifier providedVerifier;
     CHIP_ERROR err;
     std::vector<uint8_t> finalSerializedVerifier(kSpake2p_VerifierSerialized_Length);
@@ -80,7 +80,7 @@ CHIP_ERROR LinuxCommissionableDataProvider::Init(chip::Optional<std::vector<uint
         ChipLogProgress(Support, "Got externally provided verifier, using it.");
     }
 
-    bool havePaseSalt = spake2pSalt.HasValue();
+    bool havePaseSalt = spake2pSalt.has_value();
     if (havePaseVerifier && !havePaseSalt)
     {
         ChipLogError(Support, "LinuxCommissionableDataProvider didn't get a PASE salt, but got a verifier: ambiguous data");
@@ -107,7 +107,7 @@ CHIP_ERROR LinuxCommissionableDataProvider::Init(chip::Optional<std::vector<uint
         spake2pSalt.SetValue(std::move(spake2pSaltVector));
     }
 
-    bool havePasscode = setupPasscode.HasValue();
+    bool havePasscode = setupPasscode.has_value();
     Spake2pVerifier passcodeVerifier;
     std::vector<uint8_t> serializedPasscodeVerifier(kSpake2p_VerifierSerialized_Length);
     chip::MutableByteSpan saltSpan{ spake2pSalt.Value().data(), spake2pSalt.Value().size() };
@@ -217,7 +217,7 @@ CHIP_ERROR LinuxCommissionableDataProvider::GetSetupPasscode(uint32_t & setupPas
     VerifyOrReturnError(mIsInitialized == true, CHIP_ERROR_UNINITIALIZED);
 
     // Pretend not implemented if we don't have a passcode value externally set
-    if (!mSetupPasscode.HasValue())
+    if (!mSetupPasscode.has_value())
     {
         return CHIP_ERROR_NOT_IMPLEMENTED;
     }

@@ -126,7 +126,7 @@ bool emberAfTemperatureControlClusterSetTemperatureCallback(app::CommandHandler 
     }
     if (TemperatureControlHasFeature(endpoint, TemperatureControl::Feature::kTemperatureNumber))
     {
-        if (targetTemperature.HasValue())
+        if (targetTemperature.has_value())
         {
             int16_t minTemperature = 0;
             int16_t maxTemperature = 0;
@@ -181,7 +181,7 @@ bool emberAfTemperatureControlClusterSetTemperatureCallback(app::CommandHandler 
     }
     if (TemperatureControlHasFeature(endpoint, TemperatureControl::Feature::kTemperatureLevel))
     {
-        if (targetTemperatureLevel.HasValue())
+        if (targetTemperatureLevel.has_value())
         {
             TemperatureControl::SupportedTemperatureLevelsIteratorDelegate * instance = TemperatureControl::GetInstance();
             if (instance == nullptr)

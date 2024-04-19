@@ -201,7 +201,7 @@ void CASEServer::PrepareForSessionEstablishment(const ScopedNodeId & previouslyE
     // If we've gotten this far, it means we have successfully allocated a SecureSession to back our next attempt. If we haven't,
     // there is a bug somewhere and we should raise attention to it by dying.
     //
-    VerifyOrDie(mPinnedSecureSession.HasValue());
+    VerifyOrDie(mPinnedSecureSession.has_value());
 }
 
 void CASEServer::OnSessionEstablishmentError(CHIP_ERROR err)

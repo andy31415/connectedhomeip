@@ -416,7 +416,7 @@ void Instance::HandleStartTimeAdjustRequest(HandlerContext & ctx,
      * in other failure scenarios the command SHALL be rejected with FAILURE
      */
     /* earliestStartTime is optional based on the StartTimeAdjust (STA) feature AND is nullable */
-    if (!(forecast.earliestStartTime.HasValue()) || !(forecast.latestEndTime.HasValue()))
+    if (!(forecast.earliestStartTime.has_value()) || !(forecast.latestEndTime.has_value()))
     {
         /* These should have values, since this command requires STA feature and these are mandatory for that */
         ChipLogError(Zcl, "DEM: EarliestStartTime / LatestEndTime do not have values");
@@ -531,21 +531,21 @@ void Instance::HandlePauseRequest(HandlerContext & ctx, const Commands::PauseReq
     }
 
     /* We expect that there should be a slotIsPauseable entry (but it is optional) */
-    if (!forecast.Value().slots[activeSlotNumber].slotIsPauseable.HasValue())
+    if (!forecast.Value().slots[activeSlotNumber].slotIsPauseable.has_value())
     {
         ChipLogError(Zcl, "DEM: activeSlotNumber %d does not include slotIsPauseable.", activeSlotNumber);
         ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Failure);
         return;
     }
 
-    if (!forecast.Value().slots[activeSlotNumber].minPauseDuration.HasValue())
+    if (!forecast.Value().slots[activeSlotNumber].minPauseDuration.has_value())
     {
         ChipLogError(Zcl, "DEM: activeSlotNumber %d does not include minPauseDuration.", activeSlotNumber);
         ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Failure);
         return;
     }
 
-    if (!forecast.Value().slots[activeSlotNumber].maxPauseDuration.HasValue())
+    if (!forecast.Value().slots[activeSlotNumber].maxPauseDuration.has_value())
     {
         ChipLogError(Zcl, "DEM: activeSlotNumber %d does not include minPauseDuration.", activeSlotNumber);
         ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Failure);

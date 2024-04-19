@@ -133,17 +133,17 @@ CHIP_ERROR UpdateFabricSceneInfo(EndpointId endpoint, FabricIndex fabric, Option
     Structs::SceneInfoStruct::Type * sceneInfo = ScenesServer::Instance().GetSceneInfoStruct(endpoint, fabric);
     if (nullptr != sceneInfo)
     {
-        if (group.HasValue())
+        if (group.has_value())
         {
             sceneInfo->currentGroup = group.Value();
         }
 
-        if (scene.HasValue())
+        if (scene.has_value())
         {
             sceneInfo->currentScene = scene.Value();
         }
 
-        if (sceneValid.HasValue())
+        if (sceneValid.has_value())
         {
             sceneInfo->sceneValid = sceneValid.Value();
         }
@@ -619,7 +619,7 @@ CHIP_ERROR RecallSceneParse(const FabricIndex & fabricIdx, const EndpointId & en
     ReturnErrorOnFailure(sceneTable->GetSceneTableEntry(fabricIdx, scene.mStorageId, scene));
 
     // Check for optional
-    if (transitionTime.HasValue())
+    if (transitionTime.has_value())
     {
         // Check for nullable
         if (!transitionTime.Value().IsNull())

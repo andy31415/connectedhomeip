@@ -146,7 +146,7 @@ CHIP_ERROR MTROperationalCredentialsDelegate::ExternalGenerateNOCChain(const chi
 
     chip::Optional<chip::Controller::CommissioningParameters> commissioningParameters
         = mCppCommissioner->GetCommissioningParameters();
-    VerifyOrReturnError(commissioningParameters.HasValue(), CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrReturnError(commissioningParameters.has_value(), CHIP_ERROR_INCORRECT_STATE);
 
     // Attestation Elements, nonce and signature will have a value in Commissioning Params as the CSR needs a signature or else we
     // cannot trust it
@@ -215,7 +215,7 @@ void MTROperationalCredentialsDelegate::ExternalNOCChainGenerated(
             }
 
             auto commissioningParameters = commissioner->GetCommissioningParameters();
-            if (!commissioningParameters.HasValue()) {
+            if (!commissioningParameters.has_value()) {
                 return;
             }
 

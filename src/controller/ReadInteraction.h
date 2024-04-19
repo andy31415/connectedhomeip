@@ -61,7 +61,7 @@ CHIP_ERROR ReportAttribute(Messaging::ExchangeManager * exchangeMgr, EndpointId 
     readParams.mpAttributePathParamsList    = readPaths.get();
     readParams.mAttributePathParamsListSize = 1;
     chip::Platform::UniquePtr<chip::app::DataVersionFilter> dataVersionFilters;
-    if (aDataVersion.HasValue())
+    if (aDataVersion.has_value())
     {
         dataVersionFilters = Platform::MakeUnique<app::DataVersionFilter>(endpointId, clusterId, aDataVersion.Value());
         VerifyOrReturnError(dataVersionFilters != nullptr, CHIP_ERROR_NO_MEMORY);

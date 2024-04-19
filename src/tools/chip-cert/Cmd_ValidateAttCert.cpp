@@ -230,22 +230,22 @@ bool Cmd_ValidateAttCert(int argc, char * argv[])
         VerifyOrExit(ExtractVIDPIDFromX509Cert(paa, paaVidPid) == CHIP_NO_ERROR,
                      attestationError = AttestationVerificationResult::kPaaFormatInvalid);
 
-        VerifyOrExit(dacVidPid.mVendorId.HasValue() && dacVidPid.mVendorId == paiVidPid.mVendorId,
+        VerifyOrExit(dacVidPid.mVendorId.has_value() && dacVidPid.mVendorId == paiVidPid.mVendorId,
                      attestationError = AttestationVerificationResult::kDacVendorIdMismatch);
 
-        if (paaVidPid.mVendorId.HasValue())
+        if (paaVidPid.mVendorId.has_value())
         {
             VerifyOrExit(dacVidPid.mVendorId == paaVidPid.mVendorId,
                          attestationError = AttestationVerificationResult::kPaiVendorIdMismatch);
         }
 
-        if (paiVidPid.mProductId.HasValue())
+        if (paiVidPid.mProductId.has_value())
         {
             VerifyOrExit(dacVidPid.mProductId == paiVidPid.mProductId,
                          attestationError = AttestationVerificationResult::kDacProductIdMismatch);
         }
 
-        VerifyOrExit(!paaVidPid.mProductId.HasValue(), attestationError = AttestationVerificationResult::kPaaFormatInvalid);
+        VerifyOrExit(!paaVidPid.mProductId.has_value(), attestationError = AttestationVerificationResult::kPaaFormatInvalid);
     }
 
     // Validate certificate chain.

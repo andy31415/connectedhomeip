@@ -16,26 +16,17 @@
  */
 #pragma once
 
-#include <lib/core/LegacyOptional.h>
+#include <optional>
 
 namespace chip {
 
-inline constexpr NullLegacyOptionalType NullOptional{};
-
 template <class T>
-using Optional = LegacyOptional<T>;
+using Optional = std::optional<T>;
 
-template <class T>
-constexpr Optional<std::decay_t<T>> MakeOptional(T && value)
-{
-    return Optional<std::decay_t<T>>(InPlace, std::forward<T>(value));
-}
+// TODO: all the items below should be replaced with std::optional replacements
+inline constexpr std::nullopt_t NullOptional = std::nullopt;
 
-template <class T, class... Args>
-
-constexpr Optional<T> MakeOptional(Args &&... args)
-{
-    return Optional<T>(InPlace, std::forward<Args>(args)...);
-}
+template <class... Args>
+auto MakeOptional = std::make_optional<Args...>;
 
 } // namespace chip

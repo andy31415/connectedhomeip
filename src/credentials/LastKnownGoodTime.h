@@ -51,7 +51,7 @@ public:
      */
     CHIP_ERROR GetLastKnownGoodChipEpochTime(System::Clock::Seconds32 & lastKnownGoodChipEpochTime) const
     {
-        VerifyOrReturnError(mLastKnownGoodChipEpochTime.HasValue(), CHIP_ERROR_INCORRECT_STATE);
+        VerifyOrReturnError(mLastKnownGoodChipEpochTime.has_value(), CHIP_ERROR_INCORRECT_STATE);
         lastKnownGoodChipEpochTime = mLastKnownGoodChipEpochTime.Value();
         return CHIP_NO_ERROR;
     }

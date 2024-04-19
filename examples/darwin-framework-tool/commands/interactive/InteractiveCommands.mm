@@ -272,7 +272,7 @@ char * GetCommand(const chip::Optional<char *> & mAdditionalPrompt, char * comma
         command = nullptr;
     }
 
-    if (mAdditionalPrompt.HasValue()) {
+    if (mAdditionalPrompt.has_value()) {
         ClearLine();
         printf("%s\n", mAdditionalPrompt.Value());
         ClearLine();

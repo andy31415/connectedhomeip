@@ -1036,7 +1036,7 @@ static id _Nullable DecodeEventPayloadForSoftwareDiagnosticsCluster(EventId aEve
         } while (0);
         do {
             NSString * _Nullable memberValue;
-            if (cppValue.name.HasValue()) {
+            if (cppValue.name.has_value()) {
                 memberValue = AsString(cppValue.name.Value());
                 if (memberValue == nil) {
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -1050,7 +1050,7 @@ static id _Nullable DecodeEventPayloadForSoftwareDiagnosticsCluster(EventId aEve
         } while (0);
         do {
             NSData * _Nullable memberValue;
-            if (cppValue.faultRecording.HasValue()) {
+            if (cppValue.faultRecording.has_value()) {
                 memberValue = AsData(cppValue.faultRecording.Value());
             } else {
                 memberValue = nil;
@@ -1277,7 +1277,7 @@ static id _Nullable DecodeEventPayloadForTimeSynchronizationCluster(EventId aEve
         } while (0);
         do {
             NSString * _Nullable memberValue;
-            if (cppValue.name.HasValue()) {
+            if (cppValue.name.has_value()) {
                 memberValue = AsString(cppValue.name.Value());
                 if (memberValue == nil) {
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -1661,7 +1661,7 @@ static id _Nullable DecodeEventPayloadForOvenCavityOperationalStateCluster(Event
             MTROvenCavityOperationalStateClusterErrorStateStruct * _Nonnull memberValue;
             memberValue = [MTROvenCavityOperationalStateClusterErrorStateStruct new];
             memberValue.errorStateID = [NSNumber numberWithUnsignedChar:cppValue.errorState.errorStateID];
-            if (cppValue.errorState.errorStateLabel.HasValue()) {
+            if (cppValue.errorState.errorStateLabel.has_value()) {
                 memberValue.errorStateLabel = AsString(cppValue.errorState.errorStateLabel.Value());
                 if (memberValue.errorStateLabel == nil) {
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -1671,7 +1671,7 @@ static id _Nullable DecodeEventPayloadForOvenCavityOperationalStateCluster(Event
             } else {
                 memberValue.errorStateLabel = nil;
             }
-            if (cppValue.errorState.errorStateDetails.HasValue()) {
+            if (cppValue.errorState.errorStateDetails.has_value()) {
                 memberValue.errorStateDetails = AsString(cppValue.errorState.errorStateDetails.Value());
                 if (memberValue.errorStateDetails == nil) {
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -1702,7 +1702,7 @@ static id _Nullable DecodeEventPayloadForOvenCavityOperationalStateCluster(Event
         } while (0);
         do {
             NSNumber * _Nullable memberValue;
-            if (cppValue.totalOperationalTime.HasValue()) {
+            if (cppValue.totalOperationalTime.has_value()) {
                 if (cppValue.totalOperationalTime.Value().IsNull()) {
                     memberValue = nil;
                 } else {
@@ -1715,7 +1715,7 @@ static id _Nullable DecodeEventPayloadForOvenCavityOperationalStateCluster(Event
         } while (0);
         do {
             NSNumber * _Nullable memberValue;
-            if (cppValue.pausedTime.HasValue()) {
+            if (cppValue.pausedTime.has_value()) {
                 if (cppValue.pausedTime.Value().IsNull()) {
                     memberValue = nil;
                 } else {
@@ -2161,7 +2161,7 @@ static id _Nullable DecodeEventPayloadForOperationalStateCluster(EventId aEventI
             MTROperationalStateClusterErrorStateStruct * _Nonnull memberValue;
             memberValue = [MTROperationalStateClusterErrorStateStruct new];
             memberValue.errorStateID = [NSNumber numberWithUnsignedChar:cppValue.errorState.errorStateID];
-            if (cppValue.errorState.errorStateLabel.HasValue()) {
+            if (cppValue.errorState.errorStateLabel.has_value()) {
                 memberValue.errorStateLabel = AsString(cppValue.errorState.errorStateLabel.Value());
                 if (memberValue.errorStateLabel == nil) {
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -2171,7 +2171,7 @@ static id _Nullable DecodeEventPayloadForOperationalStateCluster(EventId aEventI
             } else {
                 memberValue.errorStateLabel = nil;
             }
-            if (cppValue.errorState.errorStateDetails.HasValue()) {
+            if (cppValue.errorState.errorStateDetails.has_value()) {
                 memberValue.errorStateDetails = AsString(cppValue.errorState.errorStateDetails.Value());
                 if (memberValue.errorStateDetails == nil) {
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -2202,7 +2202,7 @@ static id _Nullable DecodeEventPayloadForOperationalStateCluster(EventId aEventI
         } while (0);
         do {
             NSNumber * _Nullable memberValue;
-            if (cppValue.totalOperationalTime.HasValue()) {
+            if (cppValue.totalOperationalTime.has_value()) {
                 if (cppValue.totalOperationalTime.Value().IsNull()) {
                     memberValue = nil;
                 } else {
@@ -2215,7 +2215,7 @@ static id _Nullable DecodeEventPayloadForOperationalStateCluster(EventId aEventI
         } while (0);
         do {
             NSNumber * _Nullable memberValue;
-            if (cppValue.pausedTime.HasValue()) {
+            if (cppValue.pausedTime.has_value()) {
                 if (cppValue.pausedTime.Value().IsNull()) {
                     memberValue = nil;
                 } else {
@@ -2254,7 +2254,7 @@ static id _Nullable DecodeEventPayloadForRVCOperationalStateCluster(EventId aEve
             MTRRVCOperationalStateClusterErrorStateStruct * _Nonnull memberValue;
             memberValue = [MTRRVCOperationalStateClusterErrorStateStruct new];
             memberValue.errorStateID = [NSNumber numberWithUnsignedChar:cppValue.errorState.errorStateID];
-            if (cppValue.errorState.errorStateLabel.HasValue()) {
+            if (cppValue.errorState.errorStateLabel.has_value()) {
                 memberValue.errorStateLabel = AsString(cppValue.errorState.errorStateLabel.Value());
                 if (memberValue.errorStateLabel == nil) {
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -2264,7 +2264,7 @@ static id _Nullable DecodeEventPayloadForRVCOperationalStateCluster(EventId aEve
             } else {
                 memberValue.errorStateLabel = nil;
             }
-            if (cppValue.errorState.errorStateDetails.HasValue()) {
+            if (cppValue.errorState.errorStateDetails.has_value()) {
                 memberValue.errorStateDetails = AsString(cppValue.errorState.errorStateDetails.Value());
                 if (memberValue.errorStateDetails == nil) {
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -2295,7 +2295,7 @@ static id _Nullable DecodeEventPayloadForRVCOperationalStateCluster(EventId aEve
         } while (0);
         do {
             NSNumber * _Nullable memberValue;
-            if (cppValue.totalOperationalTime.HasValue()) {
+            if (cppValue.totalOperationalTime.has_value()) {
                 if (cppValue.totalOperationalTime.Value().IsNull()) {
                     memberValue = nil;
                 } else {
@@ -2308,7 +2308,7 @@ static id _Nullable DecodeEventPayloadForRVCOperationalStateCluster(EventId aEve
         } while (0);
         do {
             NSNumber * _Nullable memberValue;
-            if (cppValue.pausedTime.HasValue()) {
+            if (cppValue.pausedTime.has_value()) {
                 if (cppValue.pausedTime.Value().IsNull()) {
                     memberValue = nil;
                 } else {
@@ -2386,7 +2386,7 @@ static id _Nullable DecodeEventPayloadForBooleanStateConfigurationCluster(EventI
         } while (0);
         do {
             NSNumber * _Nullable memberValue;
-            if (cppValue.alarmsSuppressed.HasValue()) {
+            if (cppValue.alarmsSuppressed.has_value()) {
                 memberValue = [NSNumber numberWithUnsignedChar:cppValue.alarmsSuppressed.Value().Raw()];
             } else {
                 memberValue = nil;
@@ -2441,7 +2441,7 @@ static id _Nullable DecodeEventPayloadForValveConfigurationAndControlCluster(Eve
         } while (0);
         do {
             NSNumber * _Nullable memberValue;
-            if (cppValue.valveLevel.HasValue()) {
+            if (cppValue.valveLevel.has_value()) {
                 memberValue = [NSNumber numberWithUnsignedChar:cppValue.valveLevel.Value()];
             } else {
                 memberValue = nil;
@@ -2501,42 +2501,42 @@ static id _Nullable DecodeEventPayloadForElectricalPowerMeasurementCluster(Event
                     newElement_0.measurementType = [NSNumber numberWithUnsignedShort:chip::to_underlying(entry_0.measurementType)];
                     newElement_0.min = [NSNumber numberWithLongLong:entry_0.min];
                     newElement_0.max = [NSNumber numberWithLongLong:entry_0.max];
-                    if (entry_0.startTimestamp.HasValue()) {
+                    if (entry_0.startTimestamp.has_value()) {
                         newElement_0.startTimestamp = [NSNumber numberWithUnsignedInt:entry_0.startTimestamp.Value()];
                     } else {
                         newElement_0.startTimestamp = nil;
                     }
-                    if (entry_0.endTimestamp.HasValue()) {
+                    if (entry_0.endTimestamp.has_value()) {
                         newElement_0.endTimestamp = [NSNumber numberWithUnsignedInt:entry_0.endTimestamp.Value()];
                     } else {
                         newElement_0.endTimestamp = nil;
                     }
-                    if (entry_0.minTimestamp.HasValue()) {
+                    if (entry_0.minTimestamp.has_value()) {
                         newElement_0.minTimestamp = [NSNumber numberWithUnsignedInt:entry_0.minTimestamp.Value()];
                     } else {
                         newElement_0.minTimestamp = nil;
                     }
-                    if (entry_0.maxTimestamp.HasValue()) {
+                    if (entry_0.maxTimestamp.has_value()) {
                         newElement_0.maxTimestamp = [NSNumber numberWithUnsignedInt:entry_0.maxTimestamp.Value()];
                     } else {
                         newElement_0.maxTimestamp = nil;
                     }
-                    if (entry_0.startSystime.HasValue()) {
+                    if (entry_0.startSystime.has_value()) {
                         newElement_0.startSystime = [NSNumber numberWithUnsignedLongLong:entry_0.startSystime.Value()];
                     } else {
                         newElement_0.startSystime = nil;
                     }
-                    if (entry_0.endSystime.HasValue()) {
+                    if (entry_0.endSystime.has_value()) {
                         newElement_0.endSystime = [NSNumber numberWithUnsignedLongLong:entry_0.endSystime.Value()];
                     } else {
                         newElement_0.endSystime = nil;
                     }
-                    if (entry_0.minSystime.HasValue()) {
+                    if (entry_0.minSystime.has_value()) {
                         newElement_0.minSystime = [NSNumber numberWithUnsignedLongLong:entry_0.minSystime.Value()];
                     } else {
                         newElement_0.minSystime = nil;
                     }
-                    if (entry_0.maxSystime.HasValue()) {
+                    if (entry_0.maxSystime.has_value()) {
                         newElement_0.maxSystime = [NSNumber numberWithUnsignedLongLong:entry_0.maxSystime.Value()];
                     } else {
                         newElement_0.maxSystime = nil;
@@ -2578,25 +2578,25 @@ static id _Nullable DecodeEventPayloadForElectricalEnergyMeasurementCluster(Even
 
         do {
             MTRElectricalEnergyMeasurementClusterEnergyMeasurementStruct * _Nullable memberValue;
-            if (cppValue.energyImported.HasValue()) {
+            if (cppValue.energyImported.has_value()) {
                 memberValue = [MTRElectricalEnergyMeasurementClusterEnergyMeasurementStruct new];
                 memberValue.energy = [NSNumber numberWithLongLong:cppValue.energyImported.Value().energy];
-                if (cppValue.energyImported.Value().startTimestamp.HasValue()) {
+                if (cppValue.energyImported.Value().startTimestamp.has_value()) {
                     memberValue.startTimestamp = [NSNumber numberWithUnsignedInt:cppValue.energyImported.Value().startTimestamp.Value()];
                 } else {
                     memberValue.startTimestamp = nil;
                 }
-                if (cppValue.energyImported.Value().endTimestamp.HasValue()) {
+                if (cppValue.energyImported.Value().endTimestamp.has_value()) {
                     memberValue.endTimestamp = [NSNumber numberWithUnsignedInt:cppValue.energyImported.Value().endTimestamp.Value()];
                 } else {
                     memberValue.endTimestamp = nil;
                 }
-                if (cppValue.energyImported.Value().startSystime.HasValue()) {
+                if (cppValue.energyImported.Value().startSystime.has_value()) {
                     memberValue.startSystime = [NSNumber numberWithUnsignedLongLong:cppValue.energyImported.Value().startSystime.Value()];
                 } else {
                     memberValue.startSystime = nil;
                 }
-                if (cppValue.energyImported.Value().endSystime.HasValue()) {
+                if (cppValue.energyImported.Value().endSystime.has_value()) {
                     memberValue.endSystime = [NSNumber numberWithUnsignedLongLong:cppValue.energyImported.Value().endSystime.Value()];
                 } else {
                     memberValue.endSystime = nil;
@@ -2608,25 +2608,25 @@ static id _Nullable DecodeEventPayloadForElectricalEnergyMeasurementCluster(Even
         } while (0);
         do {
             MTRElectricalEnergyMeasurementClusterEnergyMeasurementStruct * _Nullable memberValue;
-            if (cppValue.energyExported.HasValue()) {
+            if (cppValue.energyExported.has_value()) {
                 memberValue = [MTRElectricalEnergyMeasurementClusterEnergyMeasurementStruct new];
                 memberValue.energy = [NSNumber numberWithLongLong:cppValue.energyExported.Value().energy];
-                if (cppValue.energyExported.Value().startTimestamp.HasValue()) {
+                if (cppValue.energyExported.Value().startTimestamp.has_value()) {
                     memberValue.startTimestamp = [NSNumber numberWithUnsignedInt:cppValue.energyExported.Value().startTimestamp.Value()];
                 } else {
                     memberValue.startTimestamp = nil;
                 }
-                if (cppValue.energyExported.Value().endTimestamp.HasValue()) {
+                if (cppValue.energyExported.Value().endTimestamp.has_value()) {
                     memberValue.endTimestamp = [NSNumber numberWithUnsignedInt:cppValue.energyExported.Value().endTimestamp.Value()];
                 } else {
                     memberValue.endTimestamp = nil;
                 }
-                if (cppValue.energyExported.Value().startSystime.HasValue()) {
+                if (cppValue.energyExported.Value().startSystime.has_value()) {
                     memberValue.startSystime = [NSNumber numberWithUnsignedLongLong:cppValue.energyExported.Value().startSystime.Value()];
                 } else {
                     memberValue.startSystime = nil;
                 }
-                if (cppValue.energyExported.Value().endSystime.HasValue()) {
+                if (cppValue.energyExported.Value().endSystime.has_value()) {
                     memberValue.endSystime = [NSNumber numberWithUnsignedLongLong:cppValue.energyExported.Value().endSystime.Value()];
                 } else {
                     memberValue.endSystime = nil;
@@ -2650,25 +2650,25 @@ static id _Nullable DecodeEventPayloadForElectricalEnergyMeasurementCluster(Even
 
         do {
             MTRElectricalEnergyMeasurementClusterEnergyMeasurementStruct * _Nullable memberValue;
-            if (cppValue.energyImported.HasValue()) {
+            if (cppValue.energyImported.has_value()) {
                 memberValue = [MTRElectricalEnergyMeasurementClusterEnergyMeasurementStruct new];
                 memberValue.energy = [NSNumber numberWithLongLong:cppValue.energyImported.Value().energy];
-                if (cppValue.energyImported.Value().startTimestamp.HasValue()) {
+                if (cppValue.energyImported.Value().startTimestamp.has_value()) {
                     memberValue.startTimestamp = [NSNumber numberWithUnsignedInt:cppValue.energyImported.Value().startTimestamp.Value()];
                 } else {
                     memberValue.startTimestamp = nil;
                 }
-                if (cppValue.energyImported.Value().endTimestamp.HasValue()) {
+                if (cppValue.energyImported.Value().endTimestamp.has_value()) {
                     memberValue.endTimestamp = [NSNumber numberWithUnsignedInt:cppValue.energyImported.Value().endTimestamp.Value()];
                 } else {
                     memberValue.endTimestamp = nil;
                 }
-                if (cppValue.energyImported.Value().startSystime.HasValue()) {
+                if (cppValue.energyImported.Value().startSystime.has_value()) {
                     memberValue.startSystime = [NSNumber numberWithUnsignedLongLong:cppValue.energyImported.Value().startSystime.Value()];
                 } else {
                     memberValue.startSystime = nil;
                 }
-                if (cppValue.energyImported.Value().endSystime.HasValue()) {
+                if (cppValue.energyImported.Value().endSystime.has_value()) {
                     memberValue.endSystime = [NSNumber numberWithUnsignedLongLong:cppValue.energyImported.Value().endSystime.Value()];
                 } else {
                     memberValue.endSystime = nil;
@@ -2680,25 +2680,25 @@ static id _Nullable DecodeEventPayloadForElectricalEnergyMeasurementCluster(Even
         } while (0);
         do {
             MTRElectricalEnergyMeasurementClusterEnergyMeasurementStruct * _Nullable memberValue;
-            if (cppValue.energyExported.HasValue()) {
+            if (cppValue.energyExported.has_value()) {
                 memberValue = [MTRElectricalEnergyMeasurementClusterEnergyMeasurementStruct new];
                 memberValue.energy = [NSNumber numberWithLongLong:cppValue.energyExported.Value().energy];
-                if (cppValue.energyExported.Value().startTimestamp.HasValue()) {
+                if (cppValue.energyExported.Value().startTimestamp.has_value()) {
                     memberValue.startTimestamp = [NSNumber numberWithUnsignedInt:cppValue.energyExported.Value().startTimestamp.Value()];
                 } else {
                     memberValue.startTimestamp = nil;
                 }
-                if (cppValue.energyExported.Value().endTimestamp.HasValue()) {
+                if (cppValue.energyExported.Value().endTimestamp.has_value()) {
                     memberValue.endTimestamp = [NSNumber numberWithUnsignedInt:cppValue.energyExported.Value().endTimestamp.Value()];
                 } else {
                     memberValue.endTimestamp = nil;
                 }
-                if (cppValue.energyExported.Value().startSystime.HasValue()) {
+                if (cppValue.energyExported.Value().startSystime.has_value()) {
                     memberValue.startSystime = [NSNumber numberWithUnsignedLongLong:cppValue.energyExported.Value().startSystime.Value()];
                 } else {
                     memberValue.startSystime = nil;
                 }
-                if (cppValue.energyExported.Value().endSystime.HasValue()) {
+                if (cppValue.energyExported.Value().endSystime.has_value()) {
                     memberValue.endSystime = [NSNumber numberWithUnsignedLongLong:cppValue.energyExported.Value().endSystime.Value()];
                 } else {
                     memberValue.endSystime = nil;
@@ -2763,12 +2763,12 @@ static id _Nullable DecodeEventPayloadForDemandResponseLoadControlCluster(EventI
         } while (0);
         do {
             MTRDemandResponseLoadControlClusterTemperatureControlStruct * _Nullable memberValue;
-            if (cppValue.temperatureControl.HasValue()) {
+            if (cppValue.temperatureControl.has_value()) {
                 if (cppValue.temperatureControl.Value().IsNull()) {
                     memberValue = nil;
                 } else {
                     memberValue = [MTRDemandResponseLoadControlClusterTemperatureControlStruct new];
-                    if (cppValue.temperatureControl.Value().Value().coolingTempOffset.HasValue()) {
+                    if (cppValue.temperatureControl.Value().Value().coolingTempOffset.has_value()) {
                         if (cppValue.temperatureControl.Value().Value().coolingTempOffset.Value().IsNull()) {
                             memberValue.coolingTempOffset = nil;
                         } else {
@@ -2777,7 +2777,7 @@ static id _Nullable DecodeEventPayloadForDemandResponseLoadControlCluster(EventI
                     } else {
                         memberValue.coolingTempOffset = nil;
                     }
-                    if (cppValue.temperatureControl.Value().Value().heatingtTempOffset.HasValue()) {
+                    if (cppValue.temperatureControl.Value().Value().heatingtTempOffset.has_value()) {
                         if (cppValue.temperatureControl.Value().Value().heatingtTempOffset.Value().IsNull()) {
                             memberValue.heatingtTempOffset = nil;
                         } else {
@@ -2786,7 +2786,7 @@ static id _Nullable DecodeEventPayloadForDemandResponseLoadControlCluster(EventI
                     } else {
                         memberValue.heatingtTempOffset = nil;
                     }
-                    if (cppValue.temperatureControl.Value().Value().coolingTempSetpoint.HasValue()) {
+                    if (cppValue.temperatureControl.Value().Value().coolingTempSetpoint.has_value()) {
                         if (cppValue.temperatureControl.Value().Value().coolingTempSetpoint.Value().IsNull()) {
                             memberValue.coolingTempSetpoint = nil;
                         } else {
@@ -2795,7 +2795,7 @@ static id _Nullable DecodeEventPayloadForDemandResponseLoadControlCluster(EventI
                     } else {
                         memberValue.coolingTempSetpoint = nil;
                     }
-                    if (cppValue.temperatureControl.Value().Value().heatingTempSetpoint.HasValue()) {
+                    if (cppValue.temperatureControl.Value().Value().heatingTempSetpoint.has_value()) {
                         if (cppValue.temperatureControl.Value().Value().heatingTempSetpoint.Value().IsNull()) {
                             memberValue.heatingTempSetpoint = nil;
                         } else {
@@ -2812,7 +2812,7 @@ static id _Nullable DecodeEventPayloadForDemandResponseLoadControlCluster(EventI
         } while (0);
         do {
             MTRDemandResponseLoadControlClusterAverageLoadControlStruct * _Nullable memberValue;
-            if (cppValue.averageLoadControl.HasValue()) {
+            if (cppValue.averageLoadControl.has_value()) {
                 if (cppValue.averageLoadControl.Value().IsNull()) {
                     memberValue = nil;
                 } else {
@@ -2826,7 +2826,7 @@ static id _Nullable DecodeEventPayloadForDemandResponseLoadControlCluster(EventI
         } while (0);
         do {
             MTRDemandResponseLoadControlClusterDutyCycleControlStruct * _Nullable memberValue;
-            if (cppValue.dutyCycleControl.HasValue()) {
+            if (cppValue.dutyCycleControl.has_value()) {
                 if (cppValue.dutyCycleControl.Value().IsNull()) {
                     memberValue = nil;
                 } else {
@@ -2840,7 +2840,7 @@ static id _Nullable DecodeEventPayloadForDemandResponseLoadControlCluster(EventI
         } while (0);
         do {
             MTRDemandResponseLoadControlClusterPowerSavingsControlStruct * _Nullable memberValue;
-            if (cppValue.powerSavingsControl.HasValue()) {
+            if (cppValue.powerSavingsControl.has_value()) {
                 if (cppValue.powerSavingsControl.Value().IsNull()) {
                     memberValue = nil;
                 } else {
@@ -2854,7 +2854,7 @@ static id _Nullable DecodeEventPayloadForDemandResponseLoadControlCluster(EventI
         } while (0);
         do {
             MTRDemandResponseLoadControlClusterHeatingSourceControlStruct * _Nullable memberValue;
-            if (cppValue.heatingSourceControl.HasValue()) {
+            if (cppValue.heatingSourceControl.has_value()) {
                 if (cppValue.heatingSourceControl.Value().IsNull()) {
                     memberValue = nil;
                 } else {
@@ -2931,7 +2931,7 @@ static id _Nullable DecodeEventPayloadForMessagesCluster(EventId aEventId, TLV::
         } while (0);
         do {
             NSNumber * _Nullable memberValue;
-            if (cppValue.responseID.HasValue()) {
+            if (cppValue.responseID.has_value()) {
                 if (cppValue.responseID.Value().IsNull()) {
                     memberValue = nil;
                 } else {
@@ -2944,7 +2944,7 @@ static id _Nullable DecodeEventPayloadForMessagesCluster(EventId aEventId, TLV::
         } while (0);
         do {
             NSString * _Nullable memberValue;
-            if (cppValue.reply.HasValue()) {
+            if (cppValue.reply.has_value()) {
                 if (cppValue.reply.Value().IsNull()) {
                     memberValue = nil;
                 } else {
@@ -3110,7 +3110,7 @@ static id _Nullable DecodeEventPayloadForEnergyEVSECluster(EventId aEventId, TLV
         } while (0);
         do {
             NSNumber * _Nullable memberValue;
-            if (cppValue.sessionEnergyDischarged.HasValue()) {
+            if (cppValue.sessionEnergyDischarged.has_value()) {
                 memberValue = [NSNumber numberWithLongLong:cppValue.sessionEnergyDischarged.Value()];
             } else {
                 memberValue = nil;
@@ -3374,7 +3374,7 @@ static id _Nullable DecodeEventPayloadForDoorLockCluster(EventId aEventId, TLV::
         } while (0);
         do {
             NSArray * _Nullable memberValue;
-            if (cppValue.credentials.HasValue()) {
+            if (cppValue.credentials.has_value()) {
                 if (cppValue.credentials.Value().IsNull()) {
                     memberValue = nil;
                 } else {
@@ -3458,7 +3458,7 @@ static id _Nullable DecodeEventPayloadForDoorLockCluster(EventId aEventId, TLV::
         } while (0);
         do {
             NSArray * _Nullable memberValue;
-            if (cppValue.credentials.HasValue()) {
+            if (cppValue.credentials.has_value()) {
                 if (cppValue.credentials.Value().IsNull()) {
                     memberValue = nil;
                 } else {
@@ -4176,7 +4176,7 @@ static id _Nullable DecodeEventPayloadForMediaPlaybackCluster(EventId aEventId, 
         } while (0);
         do {
             NSData * _Nullable memberValue;
-            if (cppValue.data.HasValue()) {
+            if (cppValue.data.has_value()) {
                 memberValue = AsData(cppValue.data.Value());
             } else {
                 memberValue = nil;
@@ -4298,7 +4298,7 @@ static id _Nullable DecodeEventPayloadForAccountLoginCluster(EventId aEventId, T
 
         do {
             NSNumber * _Nullable memberValue;
-            if (cppValue.node.HasValue()) {
+            if (cppValue.node.has_value()) {
                 memberValue = [NSNumber numberWithUnsignedLongLong:cppValue.node.Value()];
             } else {
                 memberValue = nil;

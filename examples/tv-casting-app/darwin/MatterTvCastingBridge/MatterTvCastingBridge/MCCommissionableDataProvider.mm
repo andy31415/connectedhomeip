@@ -211,7 +211,7 @@ namespace casting {
             VerifyOrReturnError(mFirstUpdated, CHIP_ERROR_INCORRECT_STATE);
 
             // Pretend not implemented if we don't have a passcode value externally set
-            if (!mSetupPasscode.HasValue()) {
+            if (!mSetupPasscode.has_value()) {
                 return CHIP_ERROR_NOT_IMPLEMENTED;
             }
 

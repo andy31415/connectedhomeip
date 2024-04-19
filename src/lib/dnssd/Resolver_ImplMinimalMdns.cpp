@@ -634,7 +634,7 @@ CHIP_ERROR MinMdnsResolver::SendAllPendingQueries()
     {
         Optional<ActiveResolveAttempts::ScheduledAttempt> resolve = mActiveResolves.NextScheduled();
 
-        if (!resolve.HasValue())
+        if (!resolve.has_value())
         {
             break;
         }
@@ -734,7 +734,7 @@ CHIP_ERROR MinMdnsResolver::ScheduleRetries()
 
     Optional<System::Clock::Timeout> delay = mActiveResolves.GetTimeUntilNextExpectedResponse();
 
-    if (!delay.HasValue())
+    if (!delay.has_value())
     {
         return CHIP_NO_ERROR;
     }

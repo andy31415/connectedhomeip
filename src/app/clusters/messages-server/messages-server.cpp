@@ -193,7 +193,7 @@ bool emberAfMessagesClusterPresentMessagesRequestCallback(
                  ChipLogProgress(Zcl, "emberAfMessagesClusterPresentMessagesRequestCallback invalid message text length");
                  status = Status::ConstraintError);
 
-    if (responses.HasValue())
+    if (responses.has_value())
     {
         size_t size = 0;
         err         = responses.Value().ComputeSize(&size);
@@ -217,7 +217,7 @@ bool emberAfMessagesClusterPresentMessagesRequestCallback(
             auto & response = iter.GetValue();
 
             // response feature is checked above
-            VerifyOrExit(response.messageResponseID.HasValue() && response.label.HasValue(),
+            VerifyOrExit(response.messageResponseID.has_value() && response.label.has_value(),
                          ChipLogProgress(Zcl, "emberAfMessagesClusterPresentMessagesRequestCallback missing response id or label");
                          status = Status::InvalidCommand);
 

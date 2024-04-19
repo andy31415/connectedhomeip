@@ -73,7 +73,7 @@ public:
 
     // Converts an LegacyOptional of an implicitly convertible type
     template <class U, std::enable_if_t<!std::is_same_v<T, U> && std::is_convertible_v<const U, T>, bool> = true>
-    constexpr LegacyOptional(const LegacyOptional<U> & other) : mHasValue(other.HasValue())
+    constexpr LegacyOptional(const LegacyOptional<U> & other) : mHasValue(other.has_value())
     {
         if (mHasValue)
         {
@@ -85,7 +85,7 @@ public:
     template <class U,
               std::enable_if_t<!std::is_same_v<T, U> && !std::is_convertible_v<const U, T> && std::is_constructible_v<T, const U &>,
                                bool> = true>
-    constexpr explicit LegacyOptional(const LegacyOptional<U> & other) : mHasValue(other.HasValue())
+    constexpr explicit LegacyOptional(const LegacyOptional<U> & other) : mHasValue(other.has_value())
     {
         if (mHasValue)
         {

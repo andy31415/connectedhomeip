@@ -54,7 +54,7 @@ public:
     {
         dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL);
         MTRReadParams * params = [[MTRReadParams alloc] init];
-        if (mFabricFiltered.HasValue()) {
+        if (mFabricFiltered.has_value()) {
             params.filterByFabric = mFabricFiltered.Value();
         }
         [device
@@ -127,13 +127,13 @@ public:
         dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL);
 
         MTRSubscribeParams * params = [[MTRSubscribeParams alloc] initWithMinInterval:@(mMinInterval) maxInterval:@(mMaxInterval)];
-        if (mFabricFiltered.HasValue()) {
+        if (mFabricFiltered.has_value()) {
             params.filterByFabric = mFabricFiltered.Value();
         }
-        if (mKeepSubscriptions.HasValue()) {
+        if (mKeepSubscriptions.has_value()) {
             params.replaceExistingSubscriptions = !mKeepSubscriptions.Value();
         }
-        if (mAutoResubscribe.HasValue()) {
+        if (mAutoResubscribe.has_value()) {
             params.resubscribeAutomatically = mAutoResubscribe.Value();
         }
 
@@ -217,16 +217,16 @@ public:
         dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL);
 
         MTRSubscribeParams * params = [[MTRSubscribeParams alloc] initWithMinInterval:@(mMinInterval) maxInterval:@(mMaxInterval)];
-        if (mEventNumber.HasValue()) {
+        if (mEventNumber.has_value()) {
             params.minEventNumber = [NSNumber numberWithUnsignedLongLong:mEventNumber.Value()];
         }
-        if (mKeepSubscriptions.HasValue()) {
+        if (mKeepSubscriptions.has_value()) {
             params.replaceExistingSubscriptions = !mKeepSubscriptions.Value();
         }
-        if (mIsUrgent.HasValue()) {
+        if (mIsUrgent.has_value()) {
             params.reportEventsUrgently = mIsUrgent.Value();
         }
-        if (mAutoResubscribe.HasValue()) {
+        if (mAutoResubscribe.has_value()) {
             params.resubscribeAutomatically = mAutoResubscribe.Value();
         }
 
@@ -326,10 +326,10 @@ public:
     {
         dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL);
         MTRReadParams * params = [[MTRReadParams alloc] init];
-        if (mFabricFiltered.HasValue()) {
+        if (mFabricFiltered.has_value()) {
             params.filterByFabric = mFabricFiltered.Value();
         }
-        if (mEventNumber.HasValue()) {
+        if (mEventNumber.has_value()) {
             params.minEventNumber = [NSNumber numberWithUnsignedLongLong:mEventNumber.Value()];
         }
 

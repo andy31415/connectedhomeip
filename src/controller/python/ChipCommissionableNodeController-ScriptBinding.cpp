@@ -98,7 +98,7 @@ void pychip_CommissionableNodeController_PrintDiscoveredCommissioners(
         ChipLogProgress(Discovery, "\tRotating Id\t\t%s", rotatingId);
         ChipLogProgress(Discovery, "\tPairing Instruction\t%s", dnsSdInfo->nodeData.pairingInstruction);
         ChipLogProgress(Discovery, "\tPairing Hint\t\t%u", dnsSdInfo->nodeData.pairingHint);
-        if (dnsSdInfo->resolutionData.GetMrpRetryIntervalIdle().HasValue())
+        if (dnsSdInfo->resolutionData.GetMrpRetryIntervalIdle().has_value())
         {
             ChipLogProgress(Discovery, "\tMrp Interval idle\t%u",
                             dnsSdInfo->resolutionData.GetMrpRetryIntervalIdle().Value().count());
@@ -107,7 +107,7 @@ void pychip_CommissionableNodeController_PrintDiscoveredCommissioners(
         {
             ChipLogProgress(Discovery, "\tMrp Interval idle\tNot present");
         }
-        if (dnsSdInfo->resolutionData.GetMrpRetryIntervalActive().HasValue())
+        if (dnsSdInfo->resolutionData.GetMrpRetryIntervalActive().has_value())
         {
             ChipLogProgress(Discovery, "\tMrp Interval active\t%u",
                             dnsSdInfo->resolutionData.GetMrpRetryIntervalActive().Value().count());
@@ -118,7 +118,7 @@ void pychip_CommissionableNodeController_PrintDiscoveredCommissioners(
         }
         ChipLogProgress(Discovery, "\tSupports TCP\t\t%d", dnsSdInfo->resolutionData.supportsTcp);
 
-        if (dnsSdInfo->resolutionData.isICDOperatingAsLIT.HasValue())
+        if (dnsSdInfo->resolutionData.isICDOperatingAsLIT.has_value())
         {
             ChipLogProgress(Discovery, "\tICD is operating as a\t%s",
                             dnsSdInfo->resolutionData.isICDOperatingAsLIT.Value() ? "LIT" : "SIT");

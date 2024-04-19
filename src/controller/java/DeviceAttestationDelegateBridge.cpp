@@ -50,7 +50,7 @@ CHIP_ERROR N2J_AttestationInfo(JNIEnv * env, const chip::Credentials::DeviceAtte
     SuccessOrExit(err);
     err = JniReferences::GetInstance().N2J_ByteArray(env, PAI.data(), static_cast<jsize>(PAI.size()), javaPAI);
     SuccessOrExit(err);
-    if (certificationDeclarationSpan.HasValue())
+    if (certificationDeclarationSpan.has_value())
     {
         err = JniReferences::GetInstance().N2J_ByteArray(env, certificationDeclarationSpan.Value().data(),
                                                          static_cast<jsize>(certificationDeclarationSpan.Value().size()), javaCD);

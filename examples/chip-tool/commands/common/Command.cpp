@@ -887,7 +887,7 @@ const char * Command::GetReadOnlyGlobalCommandArgument() const
 
 const char * Command::GetAttribute() const
 {
-    if (mReadOnlyGlobalCommandArgument.HasValue())
+    if (mReadOnlyGlobalCommandArgument.has_value())
     {
         return mReadOnlyGlobalCommandArgument.Value().value;
     }
@@ -897,7 +897,7 @@ const char * Command::GetAttribute() const
 
 const char * Command::GetEvent() const
 {
-    if (mReadOnlyGlobalCommandArgument.HasValue())
+    if (mReadOnlyGlobalCommandArgument.has_value())
     {
         return mReadOnlyGlobalCommandArgument.Value().value;
     }

@@ -73,7 +73,7 @@ static void HandleNodeBrowse(void * context, DnssdService * services, size_t ser
         // For some platforms browsed services are already resolved, so verify if resolve is really needed or call resolve callback
 
         // Check if SRV, TXT and AAAA records were received in DNS responses
-        if (strlen(services[i].mHostName) == 0 || services[i].mTextEntrySize == 0 || !services[i].mAddress.HasValue())
+        if (strlen(services[i].mHostName) == 0 || services[i].mTextEntrySize == 0 || !services[i].mAddress.has_value())
         {
             ChipDnssdResolve(&services[i], services[i].mInterface, HandleNodeResolve, context);
         }
@@ -115,7 +115,7 @@ template <class T>
 CHIP_ERROR AddPtrRecord(DiscoveryFilterType type, const char ** entries, size_t & entriesCount, char * buffer, size_t bufferLen,
                         chip::Optional<T> value)
 {
-    VerifyOrReturnError(value.HasValue(), CHIP_NO_ERROR);
+    VerifyOrReturnError(value.has_value(), CHIP_NO_ERROR);
     return AddPtrRecord(type, entries, entriesCount, buffer, bufferLen, value.Value());
 }
 
@@ -163,14 +163,14 @@ CHIP_ERROR CopyTextRecordValue(char * buffer, size_t bufferLen, CommissioningMod
 template <class T>
 CHIP_ERROR CopyTextRecordValue(char * buffer, size_t bufferLen, chip::Optional<T> value)
 {
-    VerifyOrReturnError(value.HasValue(), CHIP_ERROR_UNINITIALIZED);
+    VerifyOrReturnError(value.has_value(), CHIP_ERROR_UNINITIALIZED);
     return CopyTextRecordValue(buffer, bufferLen, value.Value());
 }
 
 CHIP_ERROR CopyTextRecordValue(char * buffer, size_t bufferLen, chip::Optional<uint16_t> value1, chip::Optional<uint16_t> value2)
 {
-    VerifyOrReturnError(value1.HasValue(), CHIP_ERROR_UNINITIALIZED);
-    return value2.HasValue() ? CopyTextRecordValue(buffer, bufferLen, value1.Value(), value2.Value())
+    VerifyOrReturnError(value1.has_value(), CHIP_ERROR_UNINITIALIZED);
+    return value2.has_value() ? CopyTextRecordValue(buffer, bufferLen, value1.Value(), value2.Value())
                              : CopyTextRecordValue(buffer, bufferLen, value1.Value());
 }
 
@@ -180,7 +180,7 @@ CHIP_ERROR CopyTextRecordValue(char * buffer, size_t bufferLen, const chip::Opti
     VerifyOrReturnError((key == TxtFieldKey::kSessionIdleInterval || key == TxtFieldKey::kSessionActiveInterval ||
                          key == TxtFieldKey::kSessionActiveThreshold),
                         CHIP_ERROR_INVALID_ARGUMENT);
-    VerifyOrReturnError(optional.HasValue(), CHIP_ERROR_UNINITIALIZED);
+    VerifyOrReturnError(optional.has_value(), CHIP_ERROR_UNINITIALIZED);
 
     CHIP_ERROR err;
     if (key == TxtFieldKey::kSessionActiveThreshold)
@@ -760,7 +760,7 @@ CHIP_ERROR DiscoveryImplPlatform::StartDiscovery(DiscoveryType type, DiscoveryFi
 
 CHIP_ERROR DiscoveryImplPlatform::StopDiscovery(DiscoveryContext & context)
 {
-    if (!context.GetBrowseIdentifier().HasValue())
+    if (!context.GetBrowseIdentifier().has_value())
     {
         // No discovery going on.
         return CHIP_NO_ERROR;

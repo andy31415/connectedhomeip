@@ -97,7 +97,7 @@ CHIP_ERROR BindingTable::SaveEntryToStorage(uint8_t index, uint8_t nextIndex)
     ReturnErrorOnFailure(writer.StartContainer(TLV::AnonymousTag(), TLV::TLVType::kTLVType_Structure, container));
     ReturnErrorOnFailure(writer.Put(TLV::ContextTag(kTagFabricIndex), entry.fabricIndex));
     ReturnErrorOnFailure(writer.Put(TLV::ContextTag(kTagLocalEndpoint), entry.local));
-    if (entry.clusterId.HasValue())
+    if (entry.clusterId.has_value())
     {
         ReturnErrorOnFailure(writer.Put(TLV::ContextTag(kTagCluster), entry.clusterId.Value()));
     }

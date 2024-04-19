@@ -395,7 +395,7 @@ public:
     CHIP_ERROR AddRequestData(const CommandPathParams & aCommandPath, const CommandDataT & aData,
                               AddRequestDataParameters & aAddRequestDataParams)
     {
-        VerifyOrReturnError(!CommandDataT::MustUseTimedInvoke() || aAddRequestDataParams.timedInvokeTimeoutMs.HasValue(),
+        VerifyOrReturnError(!CommandDataT::MustUseTimedInvoke() || aAddRequestDataParams.timedInvokeTimeoutMs.has_value(),
                             CHIP_ERROR_INVALID_ARGUMENT);
 
         return AddRequestDataInternal(aCommandPath, aData, aAddRequestDataParams);
@@ -433,7 +433,7 @@ public:
     {
         if (mBatchCommandsEnabled)
         {
-            VerifyOrReturnError(aFinishCommandParams.commandRef.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
+            VerifyOrReturnError(aFinishCommandParams.commandRef.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
         }
         return FinishCommandInternal(aFinishCommandParams);
     }

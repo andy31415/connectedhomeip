@@ -273,7 +273,7 @@ public:
     PacketHeader & SetSourceNodeId(Optional<NodeId> id)
     {
         mSourceNodeId = id;
-        mMsgFlags.Set(Header::MsgFlagValues::kSourceNodeIdPresent, id.HasValue());
+        mMsgFlags.Set(Header::MsgFlagValues::kSourceNodeIdPresent, id.has_value());
         return *this;
     }
 
@@ -294,7 +294,7 @@ public:
     PacketHeader & SetDestinationNodeId(Optional<NodeId> id)
     {
         mDestinationNodeId = id;
-        mMsgFlags.Set(Header::MsgFlagValues::kDestinationNodeIdPresent, id.HasValue());
+        mMsgFlags.Set(Header::MsgFlagValues::kDestinationNodeIdPresent, id.has_value());
         return *this;
     }
 
@@ -315,7 +315,7 @@ public:
     PacketHeader & SetDestinationGroupId(Optional<GroupId> id)
     {
         mDestinationGroupId = id;
-        mMsgFlags.Set(Header::MsgFlagValues::kDestinationGroupIdPresent, id.HasValue());
+        mMsgFlags.Set(Header::MsgFlagValues::kDestinationGroupIdPresent, id.has_value());
         return *this;
     }
 
@@ -605,7 +605,7 @@ public:
     PayloadHeader & SetAckMessageCounter(Optional<uint32_t> id)
     {
         mAckMessageCounter = id;
-        mExchangeFlags.Set(Header::ExFlagValues::kExchangeFlag_AckMsg, id.HasValue());
+        mExchangeFlags.Set(Header::ExFlagValues::kExchangeFlag_AckMsg, id.has_value());
         return *this;
     }
 

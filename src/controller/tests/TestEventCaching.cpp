@@ -223,7 +223,7 @@ void TestReadEvents::TestBasicCaching(nlTestSuite * apSuite, void * apContext)
 
         Optional<EventNumber> highestEventNumber;
         readCallback.mClusterCacheAdapter.GetHighestReceivedEventNumber(highestEventNumber);
-        NL_TEST_ASSERT(apSuite, highestEventNumber.HasValue() && highestEventNumber.Value() == lastEventNumber);
+        NL_TEST_ASSERT(apSuite, highestEventNumber.has_value() && highestEventNumber.Value() == lastEventNumber);
 
         //
         // Re-run the iterator but pass in a path filter: EP*/TestCluster/EID*
@@ -361,7 +361,7 @@ void TestReadEvents::TestBasicCaching(nlTestSuite * apSuite, void * apContext)
 
         Optional<EventNumber> highestEventNumber;
         readCallback.mClusterCacheAdapter.GetHighestReceivedEventNumber(highestEventNumber);
-        NL_TEST_ASSERT(apSuite, highestEventNumber.HasValue() && highestEventNumber.Value() == 9);
+        NL_TEST_ASSERT(apSuite, highestEventNumber.has_value() && highestEventNumber.Value() == 9);
 
         readCallback.mClusterCacheAdapter.ClearEventCache();
         generationCount = 0;
@@ -372,7 +372,7 @@ void TestReadEvents::TestBasicCaching(nlTestSuite * apSuite, void * apContext)
 
         NL_TEST_ASSERT(apSuite, generationCount == 0);
         readCallback.mClusterCacheAdapter.GetHighestReceivedEventNumber(highestEventNumber);
-        NL_TEST_ASSERT(apSuite, highestEventNumber.HasValue() && highestEventNumber.Value() == 9);
+        NL_TEST_ASSERT(apSuite, highestEventNumber.has_value() && highestEventNumber.Value() == 9);
     }
 
     //
@@ -419,7 +419,7 @@ void TestReadEvents::TestBasicCaching(nlTestSuite * apSuite, void * apContext)
         NL_TEST_ASSERT(apSuite, generationCount == lastEventNumber - oldFirstEventNumber + 1);
         Optional<EventNumber> highestEventNumber;
         readCallback.mClusterCacheAdapter.GetHighestReceivedEventNumber(highestEventNumber);
-        NL_TEST_ASSERT(apSuite, highestEventNumber.HasValue() && highestEventNumber.Value() == lastEventNumber);
+        NL_TEST_ASSERT(apSuite, highestEventNumber.has_value() && highestEventNumber.Value() == lastEventNumber);
     }
 
     //
@@ -460,7 +460,7 @@ void TestReadEvents::TestBasicCaching(nlTestSuite * apSuite, void * apContext)
 
         Optional<EventNumber> highestEventNumber;
         readCallback.mClusterCacheAdapter.GetHighestReceivedEventNumber(highestEventNumber);
-        NL_TEST_ASSERT(apSuite, highestEventNumber.HasValue() && highestEventNumber.Value() == 9);
+        NL_TEST_ASSERT(apSuite, highestEventNumber.has_value() && highestEventNumber.Value() == 9);
     }
 
     NL_TEST_ASSERT(apSuite, ctx.GetExchangeManager().GetNumActiveExchanges() == 0);

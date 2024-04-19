@@ -192,7 +192,7 @@ void ExchangeManager::OnMessageReceived(const PacketHeader & packetHeader, const
     //
     char ackBuf[20];
     ackBuf[0] = '\0';
-    if (payloadHeader.GetAckMessageCounter().HasValue())
+    if (payloadHeader.GetAckMessageCounter().has_value())
     {
         snprintf(ackBuf, sizeof(ackBuf), " (Ack:" ChipLogFormatMessageCounter ")", payloadHeader.GetAckMessageCounter().Value());
     }

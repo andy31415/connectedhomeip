@@ -28,7 +28,7 @@ namespace chip {
 CHIP_ERROR PairingSession::AllocateSecureSession(SessionManager & sessionManager, const ScopedNodeId & sessionEvictionHint)
 {
     auto handle = sessionManager.AllocateSession(GetSecureSessionType(), sessionEvictionHint);
-    VerifyOrReturnError(handle.HasValue(), CHIP_ERROR_NO_MEMORY);
+    VerifyOrReturnError(handle.has_value(), CHIP_ERROR_NO_MEMORY);
     VerifyOrReturnError(mSecureSessionHolder.GrabPairingSession(handle.Value()), CHIP_ERROR_INTERNAL);
     mSessionManager = &sessionManager;
     return CHIP_NO_ERROR;
@@ -79,7 +79,7 @@ void PairingSession::Finish()
 
 void PairingSession::DiscardExchange()
 {
-    if (mExchangeCtxt.HasValue())
+    if (mExchangeCtxt.has_value())
     {
         // Make sure the exchange doesn't try to notify us when it closes,
         // since we might be dead by then.
@@ -231,7 +231,7 @@ void PairingSession::Clear()
     // Clear acts like the destructor of PairingSession. If it is called during
     // the middle of pairing, that means we should terminate the exchange. For the
     // normal path, the exchange should already be discarded before calling Clear.
-    if (mExchangeCtxt.HasValue())
+    if (mExchangeCtxt.has_value())
     {
         // The only time we reach this is when we are getting destroyed in the
         // middle of our handshake. In that case, there is no point in trying to

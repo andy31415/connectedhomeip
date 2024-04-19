@@ -342,7 +342,7 @@ void DefaultOTARequestorDriver::SendQueryImage()
     OTAUpdateStateEnum currentUpdateState;
     Optional<ProviderLocationType> lastUsedProvider;
     mRequestor->GetProviderLocation(lastUsedProvider);
-    if (!lastUsedProvider.HasValue())
+    if (!lastUsedProvider.has_value())
     {
         ProviderLocationType providerLocation;
         bool listExhausted = false;
@@ -464,7 +464,7 @@ bool DefaultOTARequestorDriver::GetNextProviderLocation(ProviderLocationType & p
 
     // Iterate through the default providers list and find the last used provider. If found, return the provider after it
     auto iterator = mRequestor->GetDefaultOTAProviderListIterator();
-    while (lastUsedProvider.HasValue() && iterator.Next())
+    while (lastUsedProvider.has_value() && iterator.Next())
     {
         if (ProviderLocationsEqual(iterator.GetValue(), lastUsedProvider.Value()))
         {

@@ -117,7 +117,7 @@ CHIP_ERROR CommissioneeDeviceProxy::SetConnected(const SessionHandle & session)
 CommissioneeDeviceProxy::~CommissioneeDeviceProxy()
 {
     auto session = GetSecureSession();
-    if (session.HasValue())
+    if (session.has_value())
     {
         session.Value()->AsSecureSession()->MarkForEviction();
     }

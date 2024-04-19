@@ -78,7 +78,7 @@ void ModelCommand::Shutdown()
 
 void ModelCommand::CheckPeerICDType()
 {
-    if (mIsPeerLIT.HasValue())
+    if (mIsPeerLIT.has_value())
     {
         ChipLogProgress(chipTool, "Peer ICD type is set to %s", mIsPeerLIT.Value() == 1 ? "LIT-ICD" : "non LIT-ICD");
         return;

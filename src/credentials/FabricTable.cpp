@@ -994,7 +994,7 @@ CHIP_ERROR FabricTable::Delete(FabricIndex fabricIndex)
     // Since fabricIsInitialized was true, fabric is not null.
     fabricInfo->Reset();
 
-    if (!mNextAvailableFabricIndex.HasValue())
+    if (!mNextAvailableFabricIndex.has_value())
     {
         // We must have been in a situation where CHIP_CONFIG_MAX_FABRICS is 254
         // and our fabric table was full, so there was no valid next index.  We
@@ -1284,7 +1284,7 @@ FabricIndex NextFabricIndex(FabricIndex fabricIndex)
 
 void FabricTable::UpdateNextAvailableFabricIndex()
 {
-    // Only called when mNextAvailableFabricIndex.HasValue()
+    // Only called when mNextAvailableFabricIndex.has_value()
     for (FabricIndex candidate = NextFabricIndex(mNextAvailableFabricIndex.Value()); candidate != mNextAvailableFabricIndex.Value();
          candidate             = NextFabricIndex(candidate))
     {
@@ -1307,7 +1307,7 @@ CHIP_ERROR FabricTable::StoreFabricIndexInfo() const
     TLV::TLVType outerType;
     ReturnErrorOnFailure(writer.StartContainer(TLV::AnonymousTag(), TLV::kTLVType_Structure, outerType));
 
-    if (mNextAvailableFabricIndex.HasValue())
+    if (mNextAvailableFabricIndex.has_value())
     {
         writer.Put(kNextAvailableFabricIndexTag, mNextAvailableFabricIndex.Value());
     }
@@ -1337,7 +1337,7 @@ CHIP_ERROR FabricTable::StoreFabricIndexInfo() const
 
 void FabricTable::EnsureNextAvailableFabricIndexUpdated()
 {
-    if (!mNextAvailableFabricIndex.HasValue() && mFabricCount < kMaxValidFabricIndex)
+    if (!mNextAvailableFabricIndex.has_value() && mFabricCount < kMaxValidFabricIndex)
     {
         // We must have a fabric index available here. This situation could
         // happen if we fail to store fabric index info when deleting a
@@ -1559,7 +1559,7 @@ CHIP_ERROR FabricTable::AllocatePendingOperationalKey(Optional<FabricIndex> fabr
     EnsureNextAvailableFabricIndexUpdated();
     FabricIndex fabricIndexToUse = kUndefinedFabricIndex;
 
-    if (fabricIndex.HasValue())
+    if (fabricIndex.has_value())
     {
         // Check we not are trying to do an update but also change the root: forbidden
         ReturnErrorCodeIf(mStateFlags.Has(StateFlags::kIsTrustedRootPending), CHIP_ERROR_INCORRECT_STATE);
@@ -1568,7 +1568,7 @@ CHIP_ERROR FabricTable::AllocatePendingOperationalKey(Optional<FabricIndex> fabr
         fabricIndexToUse = fabricIndex.Value();
         mStateFlags.Set(StateFlags::kIsPendingKeyForUpdateNoc);
     }
-    else if (mNextAvailableFabricIndex.HasValue())
+    else if (mNextAvailableFabricIndex.has_value())
     {
         // Fabric addition case (e.g. AddNOC): we need to allocate for the next pending fabric index
         fabricIndexToUse = mNextAvailableFabricIndex.Value();
@@ -1600,7 +1600,7 @@ CHIP_ERROR FabricTable::AddNewPendingTrustedRootCert(const ByteSpan & rcac)
     EnsureNextAvailableFabricIndexUpdated();
     FabricIndex fabricIndexToUse = kUndefinedFabricIndex;
 
-    if (mNextAvailableFabricIndex.HasValue())
+    if (mNextAvailableFabricIndex.has_value())
     {
         fabricIndexToUse = mNextAvailableFabricIndex.Value();
     }
@@ -1680,7 +1680,7 @@ CHIP_ERROR FabricTable::AddNewPendingFabricCommon(const ByteSpan & noc, const By
 
     EnsureNextAvailableFabricIndexUpdated();
     FabricIndex fabricIndexToUse = kUndefinedFabricIndex;
-    if (mNextAvailableFabricIndex.HasValue())
+    if (mNextAvailableFabricIndex.has_value())
     {
         fabricIndexToUse = mNextAvailableFabricIndex.Value();
     }
@@ -2112,7 +2112,7 @@ CHIP_ERROR FabricTable::GetFabricLabel(FabricIndex fabricIndex, CharSpan & outFa
 CHIP_ERROR FabricTable::PeekFabricIndexForNextAddition(FabricIndex & outIndex)
 {
     EnsureNextAvailableFabricIndexUpdated();
-    if (!mNextAvailableFabricIndex.HasValue())
+    if (!mNextAvailableFabricIndex.has_value())
     {
         return CHIP_ERROR_NO_MEMORY;
     }

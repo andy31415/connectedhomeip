@@ -73,7 +73,7 @@ public:
         ChipLogProgress(chipTool, "RCAC: %s", rcacStr.c_str());
 
         std::string ipkStr;
-        if (ipk.HasValue())
+        if (ipk.has_value())
         {
             err = ToBase64(ipk.Value(), ipkStr);
             VerifyOrReturn(CHIP_NO_ERROR == err, command->SetCommandExitStatus(err));

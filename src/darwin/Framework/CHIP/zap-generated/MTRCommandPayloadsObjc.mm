@@ -3910,14 +3910,14 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.status)];
     }
     {
-        if (decodableStruct.delayedActionTime.HasValue()) {
+        if (decodableStruct.delayedActionTime.has_value()) {
             self.delayedActionTime = [NSNumber numberWithUnsignedInt:decodableStruct.delayedActionTime.Value()];
         } else {
             self.delayedActionTime = nil;
         }
     }
     {
-        if (decodableStruct.imageURI.HasValue()) {
+        if (decodableStruct.imageURI.has_value()) {
             self.imageURI = AsString(decodableStruct.imageURI.Value());
             if (self.imageURI == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -3928,14 +3928,14 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
     {
-        if (decodableStruct.softwareVersion.HasValue()) {
+        if (decodableStruct.softwareVersion.has_value()) {
             self.softwareVersion = [NSNumber numberWithUnsignedInt:decodableStruct.softwareVersion.Value()];
         } else {
             self.softwareVersion = nil;
         }
     }
     {
-        if (decodableStruct.softwareVersionString.HasValue()) {
+        if (decodableStruct.softwareVersionString.has_value()) {
             self.softwareVersionString = AsString(decodableStruct.softwareVersionString.Value());
             if (self.softwareVersionString == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -3946,21 +3946,21 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
     {
-        if (decodableStruct.updateToken.HasValue()) {
+        if (decodableStruct.updateToken.has_value()) {
             self.updateToken = AsData(decodableStruct.updateToken.Value());
         } else {
             self.updateToken = nil;
         }
     }
     {
-        if (decodableStruct.userConsentNeeded.HasValue()) {
+        if (decodableStruct.userConsentNeeded.has_value()) {
             self.userConsentNeeded = [NSNumber numberWithBool:decodableStruct.userConsentNeeded.Value()];
         } else {
             self.userConsentNeeded = nil;
         }
     }
     {
-        if (decodableStruct.metadataForRequestor.HasValue()) {
+        if (decodableStruct.metadataForRequestor.has_value()) {
             self.metadataForRequestor = AsData(decodableStruct.metadataForRequestor.Value());
         } else {
             self.metadataForRequestor = nil;
@@ -5101,7 +5101,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.networkingStatus = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.networkingStatus)];
     }
     {
-        if (decodableStruct.debugText.HasValue()) {
+        if (decodableStruct.debugText.has_value()) {
             self.debugText = AsString(decodableStruct.debugText.Value());
             if (self.debugText == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -5112,7 +5112,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
     {
-        if (decodableStruct.wiFiScanResults.HasValue()) {
+        if (decodableStruct.wiFiScanResults.has_value()) {
             { // Scope for our temporary variables
                 auto * array_1 = [NSMutableArray new];
                 auto iter_1 = decodableStruct.wiFiScanResults.Value().begin();
@@ -5139,7 +5139,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
     {
-        if (decodableStruct.threadScanResults.HasValue()) {
+        if (decodableStruct.threadScanResults.has_value()) {
             { // Scope for our temporary variables
                 auto * array_1 = [NSMutableArray new];
                 auto iter_1 = decodableStruct.threadScanResults.Value().begin();
@@ -5562,7 +5562,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.networkingStatus = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.networkingStatus)];
     }
     {
-        if (decodableStruct.debugText.HasValue()) {
+        if (decodableStruct.debugText.has_value()) {
             self.debugText = AsString(decodableStruct.debugText.Value());
             if (self.debugText == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -5573,21 +5573,21 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
     {
-        if (decodableStruct.networkIndex.HasValue()) {
+        if (decodableStruct.networkIndex.has_value()) {
             self.networkIndex = [NSNumber numberWithUnsignedChar:decodableStruct.networkIndex.Value()];
         } else {
             self.networkIndex = nil;
         }
     }
     {
-        if (decodableStruct.clientIdentity.HasValue()) {
+        if (decodableStruct.clientIdentity.has_value()) {
             self.clientIdentity = AsData(decodableStruct.clientIdentity.Value());
         } else {
             self.clientIdentity = nil;
         }
     }
     {
-        if (decodableStruct.possessionSignature.HasValue()) {
+        if (decodableStruct.possessionSignature.has_value()) {
             self.possessionSignature = AsData(decodableStruct.possessionSignature.Value());
         } else {
             self.possessionSignature = nil;
@@ -5769,7 +5769,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.networkingStatus = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.networkingStatus)];
     }
     {
-        if (decodableStruct.debugText.HasValue()) {
+        if (decodableStruct.debugText.has_value()) {
             self.debugText = AsString(decodableStruct.debugText.Value());
             if (self.debugText == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -6051,7 +6051,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.identity = AsData(decodableStruct.identity);
     }
     {
-        if (decodableStruct.possessionSignature.HasValue()) {
+        if (decodableStruct.possessionSignature.has_value()) {
             self.possessionSignature = AsData(decodableStruct.possessionSignature.Value());
         } else {
             self.possessionSignature = nil;
@@ -6245,14 +6245,14 @@ NS_ASSUME_NONNULL_BEGIN
         self.logContent = AsData(decodableStruct.logContent);
     }
     {
-        if (decodableStruct.UTCTimeStamp.HasValue()) {
+        if (decodableStruct.UTCTimeStamp.has_value()) {
             self.utcTimeStamp = [NSNumber numberWithUnsignedLongLong:decodableStruct.UTCTimeStamp.Value()];
         } else {
             self.utcTimeStamp = nil;
         }
     }
     {
-        if (decodableStruct.timeSinceBoot.HasValue()) {
+        if (decodableStruct.timeSinceBoot.has_value()) {
             self.timeSinceBoot = [NSNumber numberWithUnsignedLongLong:decodableStruct.timeSinceBoot.Value()];
         } else {
             self.timeSinceBoot = nil;
@@ -8686,14 +8686,14 @@ NS_ASSUME_NONNULL_BEGIN
         self.statusCode = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.statusCode)];
     }
     {
-        if (decodableStruct.fabricIndex.HasValue()) {
+        if (decodableStruct.fabricIndex.has_value()) {
             self.fabricIndex = [NSNumber numberWithUnsignedChar:decodableStruct.fabricIndex.Value()];
         } else {
             self.fabricIndex = nil;
         }
     }
     {
-        if (decodableStruct.debugText.HasValue()) {
+        if (decodableStruct.debugText.has_value()) {
             self.debugText = AsString(decodableStruct.debugText.Value());
             if (self.debugText == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -10613,7 +10613,7 @@ NS_ASSUME_NONNULL_BEGIN
     {
         self.commandResponseState = [MTROvenCavityOperationalStateClusterErrorStateStruct new];
         self.commandResponseState.errorStateID = [NSNumber numberWithUnsignedChar:decodableStruct.commandResponseState.errorStateID];
-        if (decodableStruct.commandResponseState.errorStateLabel.HasValue()) {
+        if (decodableStruct.commandResponseState.errorStateLabel.has_value()) {
             self.commandResponseState.errorStateLabel = AsString(decodableStruct.commandResponseState.errorStateLabel.Value());
             if (self.commandResponseState.errorStateLabel == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -10622,7 +10622,7 @@ NS_ASSUME_NONNULL_BEGIN
         } else {
             self.commandResponseState.errorStateLabel = nil;
         }
-        if (decodableStruct.commandResponseState.errorStateDetails.HasValue()) {
+        if (decodableStruct.commandResponseState.errorStateDetails.has_value()) {
             self.commandResponseState.errorStateDetails = AsString(decodableStruct.commandResponseState.errorStateDetails.Value());
             if (self.commandResponseState.errorStateDetails == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -10794,7 +10794,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:decodableStruct.status];
     }
     {
-        if (decodableStruct.statusText.HasValue()) {
+        if (decodableStruct.statusText.has_value()) {
             self.statusText = AsString(decodableStruct.statusText.Value());
             if (self.statusText == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -11045,7 +11045,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:decodableStruct.status];
     }
     {
-        if (decodableStruct.statusText.HasValue()) {
+        if (decodableStruct.statusText.has_value()) {
             self.statusText = AsString(decodableStruct.statusText.Value());
             if (self.statusText == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -11217,7 +11217,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:decodableStruct.status];
     }
     {
-        if (decodableStruct.statusText.HasValue()) {
+        if (decodableStruct.statusText.has_value()) {
             self.statusText = AsString(decodableStruct.statusText.Value());
             if (self.statusText == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -11389,7 +11389,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:decodableStruct.status];
     }
     {
-        if (decodableStruct.statusText.HasValue()) {
+        if (decodableStruct.statusText.has_value()) {
             self.statusText = AsString(decodableStruct.statusText.Value());
             if (self.statusText == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -11561,7 +11561,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:decodableStruct.status];
     }
     {
-        if (decodableStruct.statusText.HasValue()) {
+        if (decodableStruct.statusText.has_value()) {
             self.statusText = AsString(decodableStruct.statusText.Value());
             if (self.statusText == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -11824,7 +11824,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:decodableStruct.status];
     }
     {
-        if (decodableStruct.statusText.HasValue()) {
+        if (decodableStruct.statusText.has_value()) {
             self.statusText = AsString(decodableStruct.statusText.Value());
             if (self.statusText == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -12633,7 +12633,7 @@ NS_ASSUME_NONNULL_BEGIN
     {
         self.commandResponseState = [MTROperationalStateClusterErrorStateStruct new];
         self.commandResponseState.errorStateID = [NSNumber numberWithUnsignedChar:decodableStruct.commandResponseState.errorStateID];
-        if (decodableStruct.commandResponseState.errorStateLabel.HasValue()) {
+        if (decodableStruct.commandResponseState.errorStateLabel.has_value()) {
             self.commandResponseState.errorStateLabel = AsString(decodableStruct.commandResponseState.errorStateLabel.Value());
             if (self.commandResponseState.errorStateLabel == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -12642,7 +12642,7 @@ NS_ASSUME_NONNULL_BEGIN
         } else {
             self.commandResponseState.errorStateLabel = nil;
         }
-        if (decodableStruct.commandResponseState.errorStateDetails.HasValue()) {
+        if (decodableStruct.commandResponseState.errorStateDetails.has_value()) {
             self.commandResponseState.errorStateDetails = AsString(decodableStruct.commandResponseState.errorStateDetails.Value());
             if (self.commandResponseState.errorStateDetails == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -12877,7 +12877,7 @@ NS_ASSUME_NONNULL_BEGIN
     {
         self.commandResponseState = [MTRRVCOperationalStateClusterErrorStateStruct new];
         self.commandResponseState.errorStateID = [NSNumber numberWithUnsignedChar:decodableStruct.commandResponseState.errorStateID];
-        if (decodableStruct.commandResponseState.errorStateLabel.HasValue()) {
+        if (decodableStruct.commandResponseState.errorStateLabel.has_value()) {
             self.commandResponseState.errorStateLabel = AsString(decodableStruct.commandResponseState.errorStateLabel.Value());
             if (self.commandResponseState.errorStateLabel == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -12886,7 +12886,7 @@ NS_ASSUME_NONNULL_BEGIN
         } else {
             self.commandResponseState.errorStateLabel = nil;
         }
-        if (decodableStruct.commandResponseState.errorStateDetails.HasValue()) {
+        if (decodableStruct.commandResponseState.errorStateDetails.has_value()) {
             self.commandResponseState.errorStateDetails = AsString(decodableStruct.commandResponseState.errorStateDetails.Value());
             if (self.commandResponseState.errorStateDetails == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -13393,14 +13393,14 @@ NS_ASSUME_NONNULL_BEGIN
         self.sceneID = [NSNumber numberWithUnsignedChar:decodableStruct.sceneID];
     }
     {
-        if (decodableStruct.transitionTime.HasValue()) {
+        if (decodableStruct.transitionTime.has_value()) {
             self.transitionTime = [NSNumber numberWithUnsignedInt:decodableStruct.transitionTime.Value()];
         } else {
             self.transitionTime = nil;
         }
     }
     {
-        if (decodableStruct.sceneName.HasValue()) {
+        if (decodableStruct.sceneName.has_value()) {
             self.sceneName = AsString(decodableStruct.sceneName.Value());
             if (self.sceneName == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -13411,7 +13411,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
     {
-        if (decodableStruct.extensionFieldSets.HasValue()) {
+        if (decodableStruct.extensionFieldSets.has_value()) {
             { // Scope for our temporary variables
                 auto * array_1 = [NSMutableArray new];
                 auto iter_1 = decodableStruct.extensionFieldSets.Value().begin();
@@ -14242,7 +14242,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.groupID = [NSNumber numberWithUnsignedShort:decodableStruct.groupID];
     }
     {
-        if (decodableStruct.sceneList.HasValue()) {
+        if (decodableStruct.sceneList.has_value()) {
             { // Scope for our temporary variables
                 auto * array_1 = [NSMutableArray new];
                 auto iter_1 = decodableStruct.sceneList.Value().begin();
@@ -16502,12 +16502,12 @@ NS_ASSUME_NONNULL_BEGIN
                         MTREnergyEVSEClusterChargingTargetStruct * newElement_2;
                         newElement_2 = [MTREnergyEVSEClusterChargingTargetStruct new];
                         newElement_2.targetTimeMinutesPastMidnight = [NSNumber numberWithUnsignedShort:entry_2.targetTimeMinutesPastMidnight];
-                        if (entry_2.targetSoC.HasValue()) {
+                        if (entry_2.targetSoC.has_value()) {
                             newElement_2.targetSoC = [NSNumber numberWithUnsignedChar:entry_2.targetSoC.Value()];
                         } else {
                             newElement_2.targetSoC = nil;
                         }
-                        if (entry_2.addedEnergy.HasValue()) {
+                        if (entry_2.addedEnergy.has_value()) {
                             newElement_2.addedEnergy = [NSNumber numberWithLongLong:entry_2.addedEnergy.Value()];
                         } else {
                             newElement_2.addedEnergy = nil;
@@ -17299,7 +17299,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:decodableStruct.status];
     }
     {
-        if (decodableStruct.statusText.HasValue()) {
+        if (decodableStruct.statusText.has_value()) {
             self.statusText = AsString(decodableStruct.statusText.Value());
             if (self.statusText == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -17471,7 +17471,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:decodableStruct.status];
     }
     {
-        if (decodableStruct.statusText.HasValue()) {
+        if (decodableStruct.statusText.has_value()) {
             self.statusText = AsString(decodableStruct.statusText.Value());
             if (self.statusText == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -18042,35 +18042,35 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.status)];
     }
     {
-        if (decodableStruct.daysMask.HasValue()) {
+        if (decodableStruct.daysMask.has_value()) {
             self.daysMask = [NSNumber numberWithUnsignedChar:decodableStruct.daysMask.Value().Raw()];
         } else {
             self.daysMask = nil;
         }
     }
     {
-        if (decodableStruct.startHour.HasValue()) {
+        if (decodableStruct.startHour.has_value()) {
             self.startHour = [NSNumber numberWithUnsignedChar:decodableStruct.startHour.Value()];
         } else {
             self.startHour = nil;
         }
     }
     {
-        if (decodableStruct.startMinute.HasValue()) {
+        if (decodableStruct.startMinute.has_value()) {
             self.startMinute = [NSNumber numberWithUnsignedChar:decodableStruct.startMinute.Value()];
         } else {
             self.startMinute = nil;
         }
     }
     {
-        if (decodableStruct.endHour.HasValue()) {
+        if (decodableStruct.endHour.has_value()) {
             self.endHour = [NSNumber numberWithUnsignedChar:decodableStruct.endHour.Value()];
         } else {
             self.endHour = nil;
         }
     }
     {
-        if (decodableStruct.endMinute.HasValue()) {
+        if (decodableStruct.endMinute.has_value()) {
             self.endMinute = [NSNumber numberWithUnsignedChar:decodableStruct.endMinute.Value()];
         } else {
             self.endMinute = nil;
@@ -18443,14 +18443,14 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.status)];
     }
     {
-        if (decodableStruct.localStartTime.HasValue()) {
+        if (decodableStruct.localStartTime.has_value()) {
             self.localStartTime = [NSNumber numberWithUnsignedInt:decodableStruct.localStartTime.Value()];
         } else {
             self.localStartTime = nil;
         }
     }
     {
-        if (decodableStruct.localEndTime.HasValue()) {
+        if (decodableStruct.localEndTime.has_value()) {
             self.localEndTime = [NSNumber numberWithUnsignedInt:decodableStruct.localEndTime.Value()];
         } else {
             self.localEndTime = nil;
@@ -18814,21 +18814,21 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.status)];
     }
     {
-        if (decodableStruct.localStartTime.HasValue()) {
+        if (decodableStruct.localStartTime.has_value()) {
             self.localStartTime = [NSNumber numberWithUnsignedInt:decodableStruct.localStartTime.Value()];
         } else {
             self.localStartTime = nil;
         }
     }
     {
-        if (decodableStruct.localEndTime.HasValue()) {
+        if (decodableStruct.localEndTime.has_value()) {
             self.localEndTime = [NSNumber numberWithUnsignedInt:decodableStruct.localEndTime.Value()];
         } else {
             self.localEndTime = nil;
         }
     }
     {
-        if (decodableStruct.operatingMode.HasValue()) {
+        if (decodableStruct.operatingMode.has_value()) {
             self.operatingMode = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.operatingMode.Value())];
         } else {
             self.operatingMode = nil;
@@ -24127,7 +24127,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.status)];
     }
     {
-        if (decodableStruct.data.HasValue()) {
+        if (decodableStruct.data.has_value()) {
             self.data = AsString(decodableStruct.data.Value());
             if (self.data == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24593,17 +24593,17 @@ NS_ASSUME_NONNULL_BEGIN
 {
     {
         self.paging = [MTRChannelClusterChannelPagingStruct new];
-        if (decodableStruct.paging.previousToken.HasValue()) {
+        if (decodableStruct.paging.previousToken.has_value()) {
             if (decodableStruct.paging.previousToken.Value().IsNull()) {
                 self.paging.previousToken = nil;
             } else {
                 self.paging.previousToken = [MTRChannelClusterPageTokenStruct new];
-                if (decodableStruct.paging.previousToken.Value().Value().limit.HasValue()) {
+                if (decodableStruct.paging.previousToken.Value().Value().limit.has_value()) {
                     self.paging.previousToken.limit = [NSNumber numberWithUnsignedShort:decodableStruct.paging.previousToken.Value().Value().limit.Value()];
                 } else {
                     self.paging.previousToken.limit = nil;
                 }
-                if (decodableStruct.paging.previousToken.Value().Value().after.HasValue()) {
+                if (decodableStruct.paging.previousToken.Value().Value().after.has_value()) {
                     self.paging.previousToken.after = AsString(decodableStruct.paging.previousToken.Value().Value().after.Value());
                     if (self.paging.previousToken.after == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24612,7 +24612,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     self.paging.previousToken.after = nil;
                 }
-                if (decodableStruct.paging.previousToken.Value().Value().before.HasValue()) {
+                if (decodableStruct.paging.previousToken.Value().Value().before.has_value()) {
                     self.paging.previousToken.before = AsString(decodableStruct.paging.previousToken.Value().Value().before.Value());
                     if (self.paging.previousToken.before == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24625,17 +24625,17 @@ NS_ASSUME_NONNULL_BEGIN
         } else {
             self.paging.previousToken = nil;
         }
-        if (decodableStruct.paging.nextToken.HasValue()) {
+        if (decodableStruct.paging.nextToken.has_value()) {
             if (decodableStruct.paging.nextToken.Value().IsNull()) {
                 self.paging.nextToken = nil;
             } else {
                 self.paging.nextToken = [MTRChannelClusterPageTokenStruct new];
-                if (decodableStruct.paging.nextToken.Value().Value().limit.HasValue()) {
+                if (decodableStruct.paging.nextToken.Value().Value().limit.has_value()) {
                     self.paging.nextToken.limit = [NSNumber numberWithUnsignedShort:decodableStruct.paging.nextToken.Value().Value().limit.Value()];
                 } else {
                     self.paging.nextToken.limit = nil;
                 }
-                if (decodableStruct.paging.nextToken.Value().Value().after.HasValue()) {
+                if (decodableStruct.paging.nextToken.Value().Value().after.has_value()) {
                     self.paging.nextToken.after = AsString(decodableStruct.paging.nextToken.Value().Value().after.Value());
                     if (self.paging.nextToken.after == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24644,7 +24644,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     self.paging.nextToken.after = nil;
                 }
-                if (decodableStruct.paging.nextToken.Value().Value().before.HasValue()) {
+                if (decodableStruct.paging.nextToken.Value().Value().before.has_value()) {
                     self.paging.nextToken.before = AsString(decodableStruct.paging.nextToken.Value().Value().before.Value());
                     if (self.paging.nextToken.before == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24674,7 +24674,7 @@ NS_ASSUME_NONNULL_BEGIN
                 newElement_0.channel = [MTRChannelClusterChannelInfoStruct new];
                 newElement_0.channel.majorNumber = [NSNumber numberWithUnsignedShort:entry_0.channel.majorNumber];
                 newElement_0.channel.minorNumber = [NSNumber numberWithUnsignedShort:entry_0.channel.minorNumber];
-                if (entry_0.channel.name.HasValue()) {
+                if (entry_0.channel.name.has_value()) {
                     newElement_0.channel.name = AsString(entry_0.channel.name.Value());
                     if (newElement_0.channel.name == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24683,7 +24683,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.channel.name = nil;
                 }
-                if (entry_0.channel.callSign.HasValue()) {
+                if (entry_0.channel.callSign.has_value()) {
                     newElement_0.channel.callSign = AsString(entry_0.channel.callSign.Value());
                     if (newElement_0.channel.callSign == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24692,7 +24692,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.channel.callSign = nil;
                 }
-                if (entry_0.channel.affiliateCallSign.HasValue()) {
+                if (entry_0.channel.affiliateCallSign.has_value()) {
                     newElement_0.channel.affiliateCallSign = AsString(entry_0.channel.affiliateCallSign.Value());
                     if (newElement_0.channel.affiliateCallSign == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24701,7 +24701,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.channel.affiliateCallSign = nil;
                 }
-                if (entry_0.channel.identifier.HasValue()) {
+                if (entry_0.channel.identifier.has_value()) {
                     newElement_0.channel.identifier = AsString(entry_0.channel.identifier.Value());
                     if (newElement_0.channel.identifier == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24710,7 +24710,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.channel.identifier = nil;
                 }
-                if (entry_0.channel.type.HasValue()) {
+                if (entry_0.channel.type.has_value()) {
                     newElement_0.channel.type = [NSNumber numberWithUnsignedChar:chip::to_underlying(entry_0.channel.type.Value())];
                 } else {
                     newElement_0.channel.type = nil;
@@ -24722,7 +24722,7 @@ NS_ASSUME_NONNULL_BEGIN
                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
                     return err;
                 }
-                if (entry_0.subtitle.HasValue()) {
+                if (entry_0.subtitle.has_value()) {
                     newElement_0.subtitle = AsString(entry_0.subtitle.Value());
                     if (newElement_0.subtitle == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24731,7 +24731,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.subtitle = nil;
                 }
-                if (entry_0.description.HasValue()) {
+                if (entry_0.description.has_value()) {
                     newElement_0.descriptionString = AsString(entry_0.description.Value());
                     if (newElement_0.descriptionString == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24740,7 +24740,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.descriptionString = nil;
                 }
-                if (entry_0.audioLanguages.HasValue()) {
+                if (entry_0.audioLanguages.has_value()) {
                     { // Scope for our temporary variables
                         auto * array_3 = [NSMutableArray new];
                         auto iter_3 = entry_0.audioLanguages.Value().begin();
@@ -24763,7 +24763,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.audioLanguages = nil;
                 }
-                if (entry_0.ratings.HasValue()) {
+                if (entry_0.ratings.has_value()) {
                     { // Scope for our temporary variables
                         auto * array_3 = [NSMutableArray new];
                         auto iter_3 = entry_0.ratings.Value().begin();
@@ -24786,7 +24786,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.ratings = nil;
                 }
-                if (entry_0.thumbnailUrl.HasValue()) {
+                if (entry_0.thumbnailUrl.has_value()) {
                     newElement_0.thumbnailUrl = AsString(entry_0.thumbnailUrl.Value());
                     if (newElement_0.thumbnailUrl == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24795,7 +24795,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.thumbnailUrl = nil;
                 }
-                if (entry_0.posterArtUrl.HasValue()) {
+                if (entry_0.posterArtUrl.has_value()) {
                     newElement_0.posterArtUrl = AsString(entry_0.posterArtUrl.Value());
                     if (newElement_0.posterArtUrl == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24804,7 +24804,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.posterArtUrl = nil;
                 }
-                if (entry_0.dvbiUrl.HasValue()) {
+                if (entry_0.dvbiUrl.has_value()) {
                     newElement_0.dvbiUrl = AsString(entry_0.dvbiUrl.Value());
                     if (newElement_0.dvbiUrl == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24813,7 +24813,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.dvbiUrl = nil;
                 }
-                if (entry_0.releaseDate.HasValue()) {
+                if (entry_0.releaseDate.has_value()) {
                     newElement_0.releaseDate = AsString(entry_0.releaseDate.Value());
                     if (newElement_0.releaseDate == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24822,7 +24822,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.releaseDate = nil;
                 }
-                if (entry_0.parentalGuidanceText.HasValue()) {
+                if (entry_0.parentalGuidanceText.has_value()) {
                     newElement_0.parentalGuidanceText = AsString(entry_0.parentalGuidanceText.Value());
                     if (newElement_0.parentalGuidanceText == nil) {
                         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24831,12 +24831,12 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.parentalGuidanceText = nil;
                 }
-                if (entry_0.recordingFlag.HasValue()) {
+                if (entry_0.recordingFlag.has_value()) {
                     newElement_0.recordingFlag = [NSNumber numberWithUnsignedInt:entry_0.recordingFlag.Value().Raw()];
                 } else {
                     newElement_0.recordingFlag = nil;
                 }
-                if (entry_0.seriesInfo.HasValue()) {
+                if (entry_0.seriesInfo.has_value()) {
                     if (entry_0.seriesInfo.Value().IsNull()) {
                         newElement_0.seriesInfo = nil;
                     } else {
@@ -24855,7 +24855,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.seriesInfo = nil;
                 }
-                if (entry_0.categoryList.HasValue()) {
+                if (entry_0.categoryList.has_value()) {
                     { // Scope for our temporary variables
                         auto * array_3 = [NSMutableArray new];
                         auto iter_3 = entry_0.categoryList.Value().begin();
@@ -24868,7 +24868,7 @@ NS_ASSUME_NONNULL_BEGIN
                                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
                                 return err;
                             }
-                            if (entry_3.subCategory.HasValue()) {
+                            if (entry_3.subCategory.has_value()) {
                                 newElement_3.subCategory = AsString(entry_3.subCategory.Value());
                                 if (newElement_3.subCategory == nil) {
                                     CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -24888,7 +24888,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.categoryList = nil;
                 }
-                if (entry_0.castList.HasValue()) {
+                if (entry_0.castList.has_value()) {
                     { // Scope for our temporary variables
                         auto * array_3 = [NSMutableArray new];
                         auto iter_3 = entry_0.castList.Value().begin();
@@ -24917,7 +24917,7 @@ NS_ASSUME_NONNULL_BEGIN
                 } else {
                     newElement_0.castList = nil;
                 }
-                if (entry_0.externalIDList.HasValue()) {
+                if (entry_0.externalIDList.has_value()) {
                     { // Scope for our temporary variables
                         auto * array_3 = [NSMutableArray new];
                         auto iter_3 = entry_0.externalIDList.Value().begin();
@@ -25366,7 +25366,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.status)];
     }
     {
-        if (decodableStruct.data.HasValue()) {
+        if (decodableStruct.data.has_value()) {
             self.data = AsString(decodableStruct.data.Value());
             if (self.data == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -26226,7 +26226,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.status)];
     }
     {
-        if (decodableStruct.data.HasValue()) {
+        if (decodableStruct.data.has_value()) {
             self.data = AsString(decodableStruct.data.Value());
             if (self.data == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -27600,7 +27600,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.status)];
     }
     {
-        if (decodableStruct.data.HasValue()) {
+        if (decodableStruct.data.has_value()) {
             self.data = AsString(decodableStruct.data.Value());
             if (self.data == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -28123,7 +28123,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.status)];
     }
     {
-        if (decodableStruct.data.HasValue()) {
+        if (decodableStruct.data.has_value()) {
             self.data = AsData(decodableStruct.data.Value());
         } else {
             self.data = nil;
@@ -29507,7 +29507,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.status = [NSNumber numberWithUnsignedChar:chip::to_underlying(decodableStruct.status)];
     }
     {
-        if (decodableStruct.data.HasValue()) {
+        if (decodableStruct.data.has_value()) {
             self.data = AsString(decodableStruct.data.Value());
             if (self.data == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -29518,7 +29518,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
     {
-        if (decodableStruct.encodingHint.HasValue()) {
+        if (decodableStruct.encodingHint.has_value()) {
             self.encodingHint = AsString(decodableStruct.encodingHint.Value());
             if (self.encodingHint == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -31552,21 +31552,21 @@ NS_ASSUME_NONNULL_BEGIN
         self.wasPresent = [NSNumber numberWithBool:decodableStruct.wasPresent];
     }
     {
-        if (decodableStruct.wasNull.HasValue()) {
+        if (decodableStruct.wasNull.has_value()) {
             self.wasNull = [NSNumber numberWithBool:decodableStruct.wasNull.Value()];
         } else {
             self.wasNull = nil;
         }
     }
     {
-        if (decodableStruct.value.HasValue()) {
+        if (decodableStruct.value.has_value()) {
             self.value = [NSNumber numberWithUnsignedChar:decodableStruct.value.Value()];
         } else {
             self.value = nil;
         }
     }
     {
-        if (decodableStruct.originalValue.HasValue()) {
+        if (decodableStruct.originalValue.has_value()) {
             if (decodableStruct.originalValue.Value().IsNull()) {
                 self.originalValue = nil;
             } else {
@@ -31839,7 +31839,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.nullableIntWasNull = [NSNumber numberWithBool:decodableStruct.nullableIntWasNull];
     }
     {
-        if (decodableStruct.nullableIntValue.HasValue()) {
+        if (decodableStruct.nullableIntValue.has_value()) {
             self.nullableIntValue = [NSNumber numberWithUnsignedShort:decodableStruct.nullableIntValue.Value()];
         } else {
             self.nullableIntValue = nil;
@@ -31849,7 +31849,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.optionalIntWasPresent = [NSNumber numberWithBool:decodableStruct.optionalIntWasPresent];
     }
     {
-        if (decodableStruct.optionalIntValue.HasValue()) {
+        if (decodableStruct.optionalIntValue.has_value()) {
             self.optionalIntValue = [NSNumber numberWithUnsignedShort:decodableStruct.optionalIntValue.Value()];
         } else {
             self.optionalIntValue = nil;
@@ -31859,14 +31859,14 @@ NS_ASSUME_NONNULL_BEGIN
         self.nullableOptionalIntWasPresent = [NSNumber numberWithBool:decodableStruct.nullableOptionalIntWasPresent];
     }
     {
-        if (decodableStruct.nullableOptionalIntWasNull.HasValue()) {
+        if (decodableStruct.nullableOptionalIntWasNull.has_value()) {
             self.nullableOptionalIntWasNull = [NSNumber numberWithBool:decodableStruct.nullableOptionalIntWasNull.Value()];
         } else {
             self.nullableOptionalIntWasNull = nil;
         }
     }
     {
-        if (decodableStruct.nullableOptionalIntValue.HasValue()) {
+        if (decodableStruct.nullableOptionalIntValue.has_value()) {
             self.nullableOptionalIntValue = [NSNumber numberWithUnsignedShort:decodableStruct.nullableOptionalIntValue.Value()];
         } else {
             self.nullableOptionalIntValue = nil;
@@ -31876,7 +31876,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.nullableStringWasNull = [NSNumber numberWithBool:decodableStruct.nullableStringWasNull];
     }
     {
-        if (decodableStruct.nullableStringValue.HasValue()) {
+        if (decodableStruct.nullableStringValue.has_value()) {
             self.nullableStringValue = AsString(decodableStruct.nullableStringValue.Value());
             if (self.nullableStringValue == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -31890,7 +31890,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.optionalStringWasPresent = [NSNumber numberWithBool:decodableStruct.optionalStringWasPresent];
     }
     {
-        if (decodableStruct.optionalStringValue.HasValue()) {
+        if (decodableStruct.optionalStringValue.has_value()) {
             self.optionalStringValue = AsString(decodableStruct.optionalStringValue.Value());
             if (self.optionalStringValue == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -31904,14 +31904,14 @@ NS_ASSUME_NONNULL_BEGIN
         self.nullableOptionalStringWasPresent = [NSNumber numberWithBool:decodableStruct.nullableOptionalStringWasPresent];
     }
     {
-        if (decodableStruct.nullableOptionalStringWasNull.HasValue()) {
+        if (decodableStruct.nullableOptionalStringWasNull.has_value()) {
             self.nullableOptionalStringWasNull = [NSNumber numberWithBool:decodableStruct.nullableOptionalStringWasNull.Value()];
         } else {
             self.nullableOptionalStringWasNull = nil;
         }
     }
     {
-        if (decodableStruct.nullableOptionalStringValue.HasValue()) {
+        if (decodableStruct.nullableOptionalStringValue.has_value()) {
             self.nullableOptionalStringValue = AsString(decodableStruct.nullableOptionalStringValue.Value());
             if (self.nullableOptionalStringValue == nil) {
                 CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
@@ -31925,7 +31925,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.nullableStructWasNull = [NSNumber numberWithBool:decodableStruct.nullableStructWasNull];
     }
     {
-        if (decodableStruct.nullableStructValue.HasValue()) {
+        if (decodableStruct.nullableStructValue.has_value()) {
             self.nullableStructValue = [MTRUnitTestingClusterSimpleStruct new];
             self.nullableStructValue.a = [NSNumber numberWithUnsignedChar:decodableStruct.nullableStructValue.Value().a];
             self.nullableStructValue.b = [NSNumber numberWithBool:decodableStruct.nullableStructValue.Value().b];
@@ -31947,7 +31947,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.optionalStructWasPresent = [NSNumber numberWithBool:decodableStruct.optionalStructWasPresent];
     }
     {
-        if (decodableStruct.optionalStructValue.HasValue()) {
+        if (decodableStruct.optionalStructValue.has_value()) {
             self.optionalStructValue = [MTRUnitTestingClusterSimpleStruct new];
             self.optionalStructValue.a = [NSNumber numberWithUnsignedChar:decodableStruct.optionalStructValue.Value().a];
             self.optionalStructValue.b = [NSNumber numberWithBool:decodableStruct.optionalStructValue.Value().b];
@@ -31969,14 +31969,14 @@ NS_ASSUME_NONNULL_BEGIN
         self.nullableOptionalStructWasPresent = [NSNumber numberWithBool:decodableStruct.nullableOptionalStructWasPresent];
     }
     {
-        if (decodableStruct.nullableOptionalStructWasNull.HasValue()) {
+        if (decodableStruct.nullableOptionalStructWasNull.has_value()) {
             self.nullableOptionalStructWasNull = [NSNumber numberWithBool:decodableStruct.nullableOptionalStructWasNull.Value()];
         } else {
             self.nullableOptionalStructWasNull = nil;
         }
     }
     {
-        if (decodableStruct.nullableOptionalStructValue.HasValue()) {
+        if (decodableStruct.nullableOptionalStructValue.has_value()) {
             self.nullableOptionalStructValue = [MTRUnitTestingClusterSimpleStruct new];
             self.nullableOptionalStructValue.a = [NSNumber numberWithUnsignedChar:decodableStruct.nullableOptionalStructValue.Value().a];
             self.nullableOptionalStructValue.b = [NSNumber numberWithBool:decodableStruct.nullableOptionalStructValue.Value().b];
@@ -31998,7 +31998,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.nullableListWasNull = [NSNumber numberWithBool:decodableStruct.nullableListWasNull];
     }
     {
-        if (decodableStruct.nullableListValue.HasValue()) {
+        if (decodableStruct.nullableListValue.has_value()) {
             { // Scope for our temporary variables
                 auto * array_1 = [NSMutableArray new];
                 auto iter_1 = decodableStruct.nullableListValue.Value().begin();
@@ -32022,7 +32022,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.optionalListWasPresent = [NSNumber numberWithBool:decodableStruct.optionalListWasPresent];
     }
     {
-        if (decodableStruct.optionalListValue.HasValue()) {
+        if (decodableStruct.optionalListValue.has_value()) {
             { // Scope for our temporary variables
                 auto * array_1 = [NSMutableArray new];
                 auto iter_1 = decodableStruct.optionalListValue.Value().begin();
@@ -32046,14 +32046,14 @@ NS_ASSUME_NONNULL_BEGIN
         self.nullableOptionalListWasPresent = [NSNumber numberWithBool:decodableStruct.nullableOptionalListWasPresent];
     }
     {
-        if (decodableStruct.nullableOptionalListWasNull.HasValue()) {
+        if (decodableStruct.nullableOptionalListWasNull.has_value()) {
             self.nullableOptionalListWasNull = [NSNumber numberWithBool:decodableStruct.nullableOptionalListWasNull.Value()];
         } else {
             self.nullableOptionalListWasNull = nil;
         }
     }
     {
-        if (decodableStruct.nullableOptionalListValue.HasValue()) {
+        if (decodableStruct.nullableOptionalListValue.has_value()) {
             { // Scope for our temporary variables
                 auto * array_1 = [NSMutableArray new];
                 auto iter_1 = decodableStruct.nullableOptionalListValue.Value().begin();

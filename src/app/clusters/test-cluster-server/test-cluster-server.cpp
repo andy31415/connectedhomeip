@@ -531,12 +531,12 @@ CHIP_ERROR TestAttrAccess::WriteListNullablesAndOptionalsStructAttribute(const C
         VerifyOrReturnError(value.nullableString.IsNull(), CHIP_ERROR_INVALID_ARGUMENT);
         VerifyOrReturnError(value.nullableStruct.IsNull(), CHIP_ERROR_INVALID_ARGUMENT);
 
-        VerifyOrReturnError(!value.optionalString.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
-        VerifyOrReturnError(!value.nullableOptionalString.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
-        VerifyOrReturnError(!value.optionalStruct.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
-        VerifyOrReturnError(!value.nullableOptionalStruct.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
-        VerifyOrReturnError(!value.optionalList.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
-        VerifyOrReturnError(!value.nullableOptionalList.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
+        VerifyOrReturnError(!value.optionalString.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
+        VerifyOrReturnError(!value.nullableOptionalString.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
+        VerifyOrReturnError(!value.optionalStruct.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
+        VerifyOrReturnError(!value.nullableOptionalStruct.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
+        VerifyOrReturnError(!value.optionalList.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
+        VerifyOrReturnError(!value.nullableOptionalList.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
 
         count++;
 
@@ -1007,7 +1007,7 @@ bool emberAfUnitTestingClusterTestNullableOptionalRequestCallback(
     Commands::TestNullableOptionalRequest::DecodableType const & commandData)
 {
     Commands::TestNullableOptionalResponse::Type response;
-    response.wasPresent = commandData.arg1.HasValue();
+    response.wasPresent = commandData.arg1.has_value();
     if (response.wasPresent)
     {
         bool wasNull = commandData.arg1.Value().IsNull();
@@ -1052,7 +1052,7 @@ bool emberAfUnitTestingClusterTestSimpleOptionalArgumentRequestCallback(
     CommandHandler * commandObj, const ConcreteCommandPath & commandPath,
     const Commands::TestSimpleOptionalArgumentRequest::DecodableType & commandData)
 {
-    Protocols::InteractionModel::Status status = commandData.arg1.HasValue() ? Protocols::InteractionModel::Status::Success
+    Protocols::InteractionModel::Status status = commandData.arg1.has_value() ? Protocols::InteractionModel::Status::Success
                                                                              : Protocols::InteractionModel::Status::InvalidValue;
     commandObj->AddStatus(commandPath, status);
     return true;

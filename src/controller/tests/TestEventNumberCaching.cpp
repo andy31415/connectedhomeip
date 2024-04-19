@@ -191,7 +191,7 @@ void TestReadEvents::TestEventNumberCaching(nlTestSuite * apSuite, void * apCont
     {
         Optional<EventNumber> highestEventNumber;
         readCallback.mClusterCacheAdapter.GetHighestReceivedEventNumber(highestEventNumber);
-        NL_TEST_ASSERT(apSuite, !highestEventNumber.HasValue());
+        NL_TEST_ASSERT(apSuite, !highestEventNumber.has_value());
         app::ReadClient readClient(engine, &ctx.GetExchangeManager(), readCallback.mClusterCacheAdapter.GetBufferedCallback(),
                                    app::ReadClient::InteractionType::Read);
 
@@ -209,7 +209,7 @@ void TestReadEvents::TestEventNumberCaching(nlTestSuite * apSuite, void * apCont
         });
 
         readCallback.mClusterCacheAdapter.GetHighestReceivedEventNumber(highestEventNumber);
-        NL_TEST_ASSERT(apSuite, highestEventNumber.HasValue() && highestEventNumber.Value() == lastEventNumber);
+        NL_TEST_ASSERT(apSuite, highestEventNumber.has_value() && highestEventNumber.Value() == lastEventNumber);
     }
 
     //
@@ -223,7 +223,7 @@ void TestReadEvents::TestEventNumberCaching(nlTestSuite * apSuite, void * apCont
         readCallback.mClusterCacheAdapter.ClearEventCache(true);
         Optional<EventNumber> highestEventNumber;
         readCallback.mClusterCacheAdapter.GetHighestReceivedEventNumber(highestEventNumber);
-        NL_TEST_ASSERT(apSuite, !highestEventNumber.HasValue());
+        NL_TEST_ASSERT(apSuite, !highestEventNumber.has_value());
 
         const EventNumber kHighestEventNumberSeen = lastEventNumber - 1;
         NL_TEST_ASSERT(apSuite, kHighestEventNumberSeen < lastEventNumber);
@@ -233,7 +233,7 @@ void TestReadEvents::TestEventNumberCaching(nlTestSuite * apSuite, void * apCont
         readCallback.mEventsSeen = 0;
 
         readParams.mEventNumber.ClearValue();
-        NL_TEST_ASSERT(apSuite, !readParams.mEventNumber.HasValue());
+        NL_TEST_ASSERT(apSuite, !readParams.mEventNumber.has_value());
         NL_TEST_ASSERT(apSuite, readClient.SendRequest(readParams) == CHIP_NO_ERROR);
 
         ctx.DrainAndServiceIO();
@@ -249,7 +249,7 @@ void TestReadEvents::TestEventNumberCaching(nlTestSuite * apSuite, void * apCont
         });
 
         readCallback.mClusterCacheAdapter.GetHighestReceivedEventNumber(highestEventNumber);
-        NL_TEST_ASSERT(apSuite, highestEventNumber.HasValue() && highestEventNumber.Value() == lastEventNumber);
+        NL_TEST_ASSERT(apSuite, highestEventNumber.has_value() && highestEventNumber.Value() == lastEventNumber);
     }
     NL_TEST_ASSERT(apSuite, ctx.GetExchangeManager().GetNumActiveExchanges() == 0);
 

@@ -374,7 +374,7 @@ const EmberAfAttributeMetadata * GetAttributeMetadata(const ConcreteAttributePat
 CHIP_ERROR WriteSingleClusterData(const Access::SubjectDescriptor & aSubjectDescriptor, const ConcreteDataAttributePath & aPath,
                                   TLV::TLVReader & aReader, WriteHandler * aWriteHandler)
 {
-    if (aPath.mDataVersion.HasValue() && aPath.mDataVersion.Value() == kRejectedDataVersion)
+    if (aPath.mDataVersion.has_value() && aPath.mDataVersion.Value() == kRejectedDataVersion)
     {
         return aWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::DataVersionMismatch);
     }

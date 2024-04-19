@@ -169,7 +169,7 @@ void MessageCounterManager::ProcessPendingMessages(NodeId peerNodeId)
                 continue;
             }
 
-            if (packetHeader.GetSourceNodeId().HasValue() && packetHeader.GetSourceNodeId().Value() == peerNodeId)
+            if (packetHeader.GetSourceNodeId().has_value() && packetHeader.GetSourceNodeId().Value() == peerNodeId)
             {
                 // Reprocess message.
                 sessionManager->OnMessageReceived(entry.peerAddress, std::move(entry.msgBuf));

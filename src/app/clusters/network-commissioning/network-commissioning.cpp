@@ -431,7 +431,7 @@ CHIP_ERROR Instance::Write(const ConcreteDataAttributePath & aPath, AttributeVal
 
 void Instance::OnNetworkingStatusChange(Status aCommissioningError, Optional<ByteSpan> aNetworkId, Optional<int32_t> aConnectStatus)
 {
-    if (aNetworkId.HasValue())
+    if (aNetworkId.has_value())
     {
         if (aNetworkId.Value().size() > kMaxNetworkIDLen)
         {
@@ -444,7 +444,7 @@ void Instance::OnNetworkingStatusChange(Status aCommissioningError, Optional<Byt
     }
 
     SetLastNetworkingStatusValue(MakeNullable(aCommissioningError));
-    if (aConnectStatus.HasValue())
+    if (aConnectStatus.has_value())
     {
         SetLastConnectErrorValue(MakeNullable(aConnectStatus.Value()));
     }
@@ -462,7 +462,7 @@ void Instance::HandleScanNetworks(HandlerContext & ctx, const Commands::ScanNetw
     if (mFeatureFlags.Has(Feature::kWiFiNetworkInterface))
     {
         ByteSpan ssid;
-        if (req.ssid.HasValue())
+        if (req.ssid.has_value())
         {
             const auto & nullableSSID = req.ssid.Value();
             if (!nullableSSID.IsNull())
@@ -498,7 +498,7 @@ void Instance::HandleScanNetworks(HandlerContext & ctx, const Commands::ScanNetw
         // fixing its code and will return to un-comment this code, with that work tracked by Issue #32887.
         //
         // SSID present on Thread violates the `[WI]` conformance.
-        // if (req.ssid.HasValue())
+        // if (req.ssid.has_value())
         // {
         //     ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Protocols::InteractionModel::Status::InvalidCommand);
         //     return;
@@ -556,7 +556,7 @@ void Instance::HandleAddOrUpdateWiFiNetwork(HandlerContext & ctx, const Commands
     }
 
     // Presence of a Network Identity indicates we're configuring for Per-Device Credentials
-    if (req.networkIdentity.HasValue())
+    if (req.networkIdentity.has_value())
     {
 #if CHIP_DEVICE_CONFIG_ENABLE_WIFI_PDC
         if (mFeatureFlags.Has(Feature::kWiFiNetworkInterface))
@@ -638,13 +638,13 @@ void Instance::HandleAddOrUpdateWiFiNetworkWithPDC(HandlerContext & ctx,
         return;
     }
 
-    if (req.clientIdentifier.HasValue() && req.clientIdentifier.Value().size() != CertificateKeyId::size())
+    if (req.clientIdentifier.has_value() && req.clientIdentifier.Value().size() != CertificateKeyId::size())
     {
         ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Protocols::InteractionModel::Status::ConstraintError, "clientIdentifier");
         return;
     }
 
-    bool provePossession = req.possessionNonce.HasValue();
+    bool provePossession = req.possessionNonce.has_value();
     if (provePossession && req.possessionNonce.Value().size() != kPossessionNonceSize)
     {
         ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Protocols::InteractionModel::Status::ConstraintError, "possessionNonce");
@@ -657,12 +657,12 @@ void Instance::HandleAddOrUpdateWiFiNetworkWithPDC(HandlerContext & ctx,
 
         // If the client is requesting re-use of a Client Identity, find the existing network it belongs to
         Optional<uint8_t> clientIdentityNetworkIndex;
-        if (req.clientIdentifier.HasValue())
+        if (req.clientIdentifier.has_value())
         {
             CertificateKeyId clientIdentifier(req.clientIdentifier.Value().data());
             uint8_t networkIndex = 0;
             EnumerateAndRelease(driver->GetNetworks(), [&](const Network & network) {
-                if (network.clientIdentifier.HasValue() && clientIdentifier.data_equal(network.clientIdentifier.Value()))
+                if (network.clientIdentifier.has_value() && clientIdentifier.data_equal(network.clientIdentifier.Value()))
                 {
                     clientIdentityNetworkIndex.SetValue(networkIndex);
                     return Loop::Break;
@@ -670,7 +670,7 @@ void Instance::HandleAddOrUpdateWiFiNetworkWithPDC(HandlerContext & ctx,
                 networkIndex++;
                 return Loop::Continue;
             });
-            if (!clientIdentityNetworkIndex.HasValue())
+            if (!clientIdentityNetworkIndex.has_value())
             {
                 ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Protocols::InteractionModel::Status::NotFound, "clientIdentifier");
                 return;
@@ -748,7 +748,7 @@ void Instance::HandleAddOrUpdateThreadNetwork(HandlerContext & ctx, const Comman
 
 void Instance::UpdateBreadcrumb(const Optional<uint64_t> & breadcrumb)
 {
-    VerifyOrReturn(breadcrumb.HasValue());
+    VerifyOrReturn(breadcrumb.has_value());
     GeneralCommissioning::SetBreadcrumb(breadcrumb.Value());
 }
 
@@ -851,7 +851,7 @@ void Instance::HandleQueryIdentity(HandlerContext & ctx, const Commands::QueryId
     }
     CertificateKeyId keyIdentifier(req.keyIdentifier.data());
 
-    bool provePossession = req.possessionNonce.HasValue();
+    bool provePossession = req.possessionNonce.has_value();
     if (provePossession && req.possessionNonce.Value().size() != kPossessionNonceSize)
     {
         ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Protocols::InteractionModel::Status::ConstraintError, "possessionNonce");
@@ -878,7 +878,7 @@ void Instance::HandleQueryIdentity(HandlerContext & ctx, const Commands::QueryId
         {
             VerifyOrExit(networks->Next(network), status = Protocols::InteractionModel::Status::NotFound);
 
-            if (network.clientIdentifier.HasValue() && keyIdentifier.data_equal(network.clientIdentifier.Value()))
+            if (network.clientIdentifier.has_value() && keyIdentifier.data_equal(network.clientIdentifier.Value()))
             {
                 SuccessOrExit(err = driver->GetClientIdentity(networkIndex, identity));
                 if (provePossession)
@@ -891,7 +891,7 @@ void Instance::HandleQueryIdentity(HandlerContext & ctx, const Commands::QueryId
                 break;
             }
             if (!provePossession && // Proof-of-possession is not possible for network identities
-                network.networkIdentifier.HasValue() && keyIdentifier.data_equal(network.networkIdentifier.Value()))
+                network.networkIdentifier.has_value() && keyIdentifier.data_equal(network.networkIdentifier.Value()))
             {
                 SuccessOrExit(err = driver->GetNetworkIdentity(networkIndex, identity));
                 break;
@@ -900,7 +900,7 @@ void Instance::HandleQueryIdentity(HandlerContext & ctx, const Commands::QueryId
 
         Commands::QueryIdentityResponse::Type response;
         response.identity = identity;
-        if (possessionSignature.HasValue())
+        if (possessionSignature.has_value())
         {
             response.possessionSignature.SetValue(possessionSignature.Value().Span());
         }

@@ -69,7 +69,7 @@ ExampleMicrowaveOvenDevice::HandleSetCookingParametersCallback(uint8_t cookMode,
     // If using power as number, check if powerSettingNum has value before setting the power number.
     // If powerSetting field is missing in the command, the powerSettingNum passed here is handled to the max value
     // and user can use this value directly.
-    if (powerSettingNum.HasValue())
+    if (powerSettingNum.has_value())
     {
         mPowerSettingNum = powerSettingNum.Value();
     }
@@ -77,7 +77,7 @@ ExampleMicrowaveOvenDevice::HandleSetCookingParametersCallback(uint8_t cookMode,
     // If using power in watt, check if wattSettingIndex has value before setting the watt rating and watt list index.
     // If wattSettinIndex field is missing in the command, the wattSettingIndex passed here is handled to the max value
     // and user can use this value directly.
-    if (wattSettingIndex.HasValue())
+    if (wattSettingIndex.has_value())
     {
         mSelectedWattIndex = wattSettingIndex.Value();
         mWattRating        = mWattSettingList[mSelectedWattIndex];

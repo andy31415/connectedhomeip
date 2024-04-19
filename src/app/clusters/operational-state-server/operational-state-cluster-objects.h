@@ -53,7 +53,7 @@ struct GenericOperationalState : public app::Clusters::detail::Structs::Operatio
     void Set(uint8_t state, Optional<CharSpan> label = NullOptional)
     {
         operationalStateID = state;
-        if (label.HasValue())
+        if (label.has_value())
         {
             memset(mOperationalStateLabelBuffer, 0, sizeof(mOperationalStateLabelBuffer));
             if (label.Value().size() > sizeof(mOperationalStateLabelBuffer))
@@ -99,7 +99,7 @@ struct GenericOperationalError : public app::Clusters::detail::Structs::ErrorSta
     void Set(uint8_t state, Optional<chip::CharSpan> label = NullOptional, Optional<chip::CharSpan> details = NullOptional)
     {
         errorStateID = state;
-        if (label.HasValue())
+        if (label.has_value())
         {
             memset(mErrorStateLabelBuffer, 0, sizeof(mErrorStateLabelBuffer));
             if (label.Value().size() > sizeof(mErrorStateLabelBuffer))
@@ -118,7 +118,7 @@ struct GenericOperationalError : public app::Clusters::detail::Structs::ErrorSta
             errorStateLabel = NullOptional;
         }
 
-        if (details.HasValue())
+        if (details.has_value())
         {
             memset(mErrorStateDetailsBuffer, 0, sizeof(mErrorStateDetailsBuffer));
             if (details.Value().size() > sizeof(mErrorStateDetailsBuffer))
@@ -144,19 +144,19 @@ struct GenericOperationalError : public app::Clusters::detail::Structs::ErrorSta
         {
             return false;
         }
-        if (errorStateLabel.HasValue() != rhs.errorStateLabel.HasValue() ||
-            errorStateDetails.HasValue() != rhs.errorStateDetails.HasValue())
+        if (errorStateLabel.has_value() != rhs.errorStateLabel.has_value() ||
+            errorStateDetails.has_value() != rhs.errorStateDetails.has_value())
         {
             return false;
         }
-        if (errorStateLabel.HasValue())
+        if (errorStateLabel.has_value())
         {
             if (!errorStateLabel.Value().data_equal(rhs.errorStateLabel.Value()))
             {
                 return false;
             }
         }
-        if (errorStateDetails.HasValue())
+        if (errorStateDetails.has_value())
         {
             if (!errorStateDetails.Value().data_equal(rhs.errorStateDetails.Value()))
             {

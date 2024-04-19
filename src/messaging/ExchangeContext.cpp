@@ -532,7 +532,7 @@ CHIP_ERROR ExchangeContext::HandleMessage(uint32_t messageCounter, const Payload
         if (mDispatch.IsReliableTransmissionAllowed())
         {
             if (!msgFlags.Has(MessageFlagValues::kDuplicateMessage) && payloadHeader.IsAckMsg() &&
-                payloadHeader.GetAckMessageCounter().HasValue())
+                payloadHeader.GetAckMessageCounter().has_value())
             {
                 HandleRcvdAck(payloadHeader.GetAckMessageCounter().Value());
             }

@@ -30,7 +30,7 @@ void MTRDeviceConnectionBridge::OnConnected(
 void MTRDeviceConnectionBridge::OnConnectionFailure(void * context, const chip::OperationalSessionSetup::ConnnectionFailureInfo & failureInfo)
 {
     NSNumber * retryDelay;
-    if (failureInfo.requestedBusyDelay.HasValue()) {
+    if (failureInfo.requestedBusyDelay.has_value()) {
         retryDelay = @(static_cast<double>(failureInfo.requestedBusyDelay.Value().count()) / MSEC_PER_SEC);
     }
     auto * object = static_cast<MTRDeviceConnectionBridge *>(context);

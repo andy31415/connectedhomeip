@@ -35,7 +35,7 @@ void ContentAppObserverManager::HandleContentAppMessage(chip::app::CommandRespon
 {
     ChipLogProgress(Zcl, "ContentAppObserverManager::HandleContentAppMessage");
 
-    string dataString(data.HasValue() ? data.Value().data() : "", data.HasValue() ? data.Value().size() : 0);
+    string dataString(data.has_value() ? data.Value().data() : "", data.has_value() ? data.Value().size() : 0);
     string encodingHintString(encodingHint.data(), encodingHint.size());
 
     ChipLogProgress(Zcl, "ContentAppObserverManager::HandleContentAppMessage TEST CASE hint=%s data=%s ",

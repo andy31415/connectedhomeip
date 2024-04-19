@@ -181,7 +181,7 @@ static bool emitTimeZoneStatusEvent(EndpointId ep)
     Events::TimeZoneStatus::Type event;
 
     event.offset = tz.offset;
-    if (tz.name.HasValue())
+    if (tz.name.has_value())
     {
         event.name.SetValue(tz.name.Value());
     }
@@ -554,7 +554,7 @@ CHIP_ERROR TimeSynchronizationServer::SetTimeZone(const DataModel::DecodableList
     {
         const auto & tzStore = GetTimeZone()[0];
         lastTz.offset        = tzStore.timeZone.offset;
-        if (tzStore.timeZone.name.HasValue())
+        if (tzStore.timeZone.name.has_value())
         {
             lastTz.name.SetValue(CharSpan(name));
             memcpy(name, tzStore.name, sizeof(tzStore.name));
@@ -588,7 +588,7 @@ CHIP_ERROR TimeSynchronizationServer::SetTimeZone(const DataModel::DecodableList
         }
         tzStore.timeZone.offset  = newTz.offset;
         tzStore.timeZone.validAt = newTz.validAt;
-        if (newTz.name.HasValue() && newTz.name.Value().size() > 0)
+        if (newTz.name.has_value() && newTz.name.Value().size() > 0)
         {
             size_t len = newTz.name.Value().size();
             if (len > sizeof(tzStore.name))
@@ -627,7 +627,7 @@ CHIP_ERROR TimeSynchronizationServer::SetTimeZone(const DataModel::DecodableList
         {
             emit = true;
         }
-        if ((tz.name.HasValue() && lastTz.name.HasValue()) && !(tz.name.Value().data_equal(lastTz.name.Value())))
+        if ((tz.name.has_value() && lastTz.name.has_value()) && !(tz.name.Value().data_equal(lastTz.name.Value())))
         {
             emit = true;
         }
@@ -1096,7 +1096,7 @@ bool emberAfTimeSynchronizationClusterSetUTCTimeCallback(
         commandObj->AddStatus(commandPath, Status::InvalidCommand);
         return true;
     }
-    if (timeSource.HasValue() && (timeSource.Value() < TimeSourceEnum::kNone || timeSource.Value() > TimeSourceEnum::kGnss))
+    if (timeSource.has_value() && (timeSource.Value() < TimeSourceEnum::kNone || timeSource.Value() > TimeSourceEnum::kGnss))
     {
         commandObj->AddStatus(commandPath, Status::InvalidCommand);
         return true;
@@ -1182,7 +1182,7 @@ bool emberAfTimeSynchronizationClusterSetTimeZoneCallback(
     if (GetDelegate()->HasFeature(Feature::kTimeZone) && tzDb != TimeZoneDatabaseEnum::kNone && tzList.size() != 0)
     {
         auto & tz = tzList[0].timeZone;
-        if (tz.name.HasValue() && GetDelegate()->HandleUpdateDSTOffset(tz.name.Value()))
+        if (tz.name.has_value() && GetDelegate()->HandleUpdateDSTOffset(tz.name.Value()))
         {
             response.DSTOffsetRequired = false;
             emitDSTStatusEvent(commandPath.mEndpointId, true);

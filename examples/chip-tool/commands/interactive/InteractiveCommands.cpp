@@ -289,7 +289,7 @@ char * InteractiveStartCommand::GetCommand(char * command)
 std::string InteractiveStartCommand::GetHistoryFilePath() const
 {
     std::string storageDir;
-    if (GetStorageDirectory().HasValue())
+    if (GetStorageDirectory().has_value())
     {
         storageDir = GetStorageDirectory().Value();
     }

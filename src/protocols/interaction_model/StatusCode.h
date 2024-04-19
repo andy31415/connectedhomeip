@@ -131,7 +131,7 @@ public:
     Status GetStatus() const { return mStatus; }
 
     /// @return true if a cluster-specific code is associated with the ClusterStatusCode.
-    bool HasClusterSpecificCode() const { return mClusterSpecificCode.HasValue(); }
+    bool HasClusterSpecificCode() const { return mClusterSpecificCode.has_value(); }
 
     /// @return the cluster-specific code associated with this ClusterStatusCode or chip::NullOptional if none is associated.
     chip::Optional<ClusterStatus> GetClusterSpecificCode() const

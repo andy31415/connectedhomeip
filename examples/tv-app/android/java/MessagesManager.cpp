@@ -360,7 +360,7 @@ CHIP_ERROR MessagesManager::HandlePresentMessagesRequest(
         jobject joptions = env->NewObject(hashMapClass, hashMapCtor);
         VerifyOrReturnError(joptions != nullptr, CHIP_ERROR_INCORRECT_STATE, ChipLogError(Zcl, "Could not create HashMap"));
 
-        if (responses.HasValue())
+        if (responses.has_value())
         {
             jmethodID hashMapPut =
                 env->GetMethodID(hashMapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");

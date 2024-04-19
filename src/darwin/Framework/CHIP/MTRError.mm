@@ -229,7 +229,7 @@ NSString * const MTRInteractionErrorDomain = @"MTRInteractionErrorDomain";
 
     NSMutableDictionary * userInfo = [[NSMutableDictionary alloc] init];
     userInfo[NSLocalizedDescriptionKey] = description;
-    if (status.mClusterStatus.HasValue()) {
+    if (status.mClusterStatus.has_value()) {
         userInfo[@"clusterStatus"] = @(status.mClusterStatus.Value());
     }
 

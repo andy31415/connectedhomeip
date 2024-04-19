@@ -290,7 +290,7 @@ void Resolver::OnOperationalNodeResolved(const Dnssd::ResolvedNodeData & nodeDat
         result.mrpRemoteConfig = nodeData.resolutionData.GetRemoteMRPConfig();
         result.supportsTcp     = nodeData.resolutionData.supportsTcp;
 
-        if (nodeData.resolutionData.isICDOperatingAsLIT.HasValue())
+        if (nodeData.resolutionData.isICDOperatingAsLIT.has_value())
         {
             result.isICDOperatingAsLIT = nodeData.resolutionData.isICDOperatingAsLIT.Value();
         }

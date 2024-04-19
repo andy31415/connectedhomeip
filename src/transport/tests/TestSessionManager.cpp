@@ -702,7 +702,7 @@ static void RandomSessionIdAllocatorOffset(nlTestSuite * inSuite, SessionManager
         auto handle = sessionManager.AllocateSession(
             Transport::SecureSession::Type::kPASE,
             ScopedNodeId(NodeIdFromPAKEKeyId(kDefaultCommissioningPasscodeId), kUndefinedFabricIndex));
-        NL_TEST_ASSERT(inSuite, handle.HasValue());
+        NL_TEST_ASSERT(inSuite, handle.has_value());
         handle.Value()->AsSecureSession()->MarkForEviction();
     }
 }
@@ -730,7 +730,7 @@ void SessionAllocationTest(nlTestSuite * inSuite, void * inContext)
         auto handle = sessionManager.AllocateSession(
             Transport::SecureSession::Type::kPASE,
             ScopedNodeId(NodeIdFromPAKEKeyId(kDefaultCommissioningPasscodeId), kUndefinedFabricIndex));
-        NL_TEST_ASSERT(inSuite, handle.HasValue());
+        NL_TEST_ASSERT(inSuite, handle.has_value());
         SessionHolder session;
         session.GrabPairingSession(handle.Value());
         sessionId1 = session->AsSecureSession()->GetLocalSessionId();
@@ -744,7 +744,7 @@ void SessionAllocationTest(nlTestSuite * inSuite, void * inContext)
         auto handle = sessionManager.AllocateSession(
             Transport::SecureSession::Type::kPASE,
             ScopedNodeId(NodeIdFromPAKEKeyId(kDefaultCommissioningPasscodeId), kUndefinedFabricIndex));
-        if (!handle.HasValue())
+        if (!handle.has_value())
         {
             break;
         }
@@ -768,7 +768,7 @@ void SessionAllocationTest(nlTestSuite * inSuite, void * inContext)
         auto handle = sessionManager.AllocateSession(
             Transport::SecureSession::Type::kPASE,
             ScopedNodeId(NodeIdFromPAKEKeyId(kDefaultCommissioningPasscodeId), kUndefinedFabricIndex));
-        NL_TEST_ASSERT(inSuite, handle.HasValue());
+        NL_TEST_ASSERT(inSuite, handle.has_value());
         prevSessionId = handle.Value()->AsSecureSession()->GetLocalSessionId();
         handle.Value()->AsSecureSession()->MarkForEviction();
     }
@@ -781,7 +781,7 @@ void SessionAllocationTest(nlTestSuite * inSuite, void * inContext)
         auto handle = sessionManager.AllocateSession(
             Transport::SecureSession::Type::kPASE,
             ScopedNodeId(NodeIdFromPAKEKeyId(kDefaultCommissioningPasscodeId), kUndefinedFabricIndex));
-        NL_TEST_ASSERT(inSuite, handle.HasValue());
+        NL_TEST_ASSERT(inSuite, handle.has_value());
         auto sessionId = handle.Value()->AsSecureSession()->GetLocalSessionId();
         NL_TEST_ASSERT(inSuite, sessionId - prevSessionId == 1 || (sessionId == 1 && prevSessionId == 65535));
         NL_TEST_ASSERT(inSuite, sessionId != 0);
@@ -804,7 +804,7 @@ void SessionAllocationTest(nlTestSuite * inSuite, void * inContext)
             handles[h]              = sessionManager.AllocateSession(
                 Transport::SecureSession::Type::kPASE,
                 ScopedNodeId(NodeIdFromPAKEKeyId(kDefaultCommissioningPasscodeId), kUndefinedFabricIndex));
-            NL_TEST_ASSERT(inSuite, handles[h].HasValue());
+            NL_TEST_ASSERT(inSuite, handles[h].has_value());
             sessionIds[h] = handles[h].Value()->AsSecureSession()->GetLocalSessionId();
             RandomSessionIdAllocatorOffset(inSuite, sessionManager, maxOffset);
         }
@@ -822,7 +822,7 @@ void SessionAllocationTest(nlTestSuite * inSuite, void * inContext)
             auto handle = sessionManager.AllocateSession(
                 Transport::SecureSession::Type::kPASE,
                 ScopedNodeId(NodeIdFromPAKEKeyId(kDefaultCommissioningPasscodeId), kUndefinedFabricIndex));
-            NL_TEST_ASSERT(inSuite, handle.HasValue());
+            NL_TEST_ASSERT(inSuite, handle.has_value());
             auto potentialCollision = handle.Value()->AsSecureSession()->GetLocalSessionId();
             for (uint16_t sessionId : sessionIds)
             {
@@ -1045,7 +1045,7 @@ static void TestFindSecureSessionForNode(nlTestSuite * inSuite, void * inContext
 
     auto foundSession = sessionManager.FindSecureSessionForNode(ScopedNodeId(bobNodeId, aliceFabricIndex),
                                                                 MakeOptional(SecureSession::Type::kCASE));
-    NL_TEST_ASSERT(inSuite, foundSession.HasValue());
+    NL_TEST_ASSERT(inSuite, foundSession.has_value());
     NL_TEST_ASSERT(inSuite, newAliceToBobSession.Contains(foundSession.Value()));
     NL_TEST_ASSERT(inSuite, !aliceToBobSession.Contains(foundSession.Value()));
 

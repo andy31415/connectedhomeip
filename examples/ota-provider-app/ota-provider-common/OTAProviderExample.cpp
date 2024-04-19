@@ -134,11 +134,11 @@ void OTAProviderExample::SetOTACandidates(std::vector<OTAProviderExample::Device
         VerifyOrDie(strlen(candidate.softwareVersionString) == header.mSoftwareVersionString.size());
         VerifyOrDie(memcmp(candidate.softwareVersionString, header.mSoftwareVersionString.data(),
                            header.mSoftwareVersionString.size()) == 0);
-        if (header.mMinApplicableVersion.HasValue())
+        if (header.mMinApplicableVersion.has_value())
         {
             VerifyOrDie(candidate.minApplicableSoftwareVersion == header.mMinApplicableVersion.Value());
         }
-        if (header.mMaxApplicableVersion.HasValue())
+        if (header.mMaxApplicableVersion.has_value())
         {
             VerifyOrDie(candidate.maxApplicableSoftwareVersion == header.mMaxApplicableVersion.Value());
         }
@@ -185,7 +185,7 @@ UserConsentSubject OTAProviderExample::GetUserConsentSubject(const app::CommandH
     subject.requestorProductId      = commandData.productID;
     subject.requestorCurrentVersion = commandData.softwareVersion;
     subject.requestorTargetVersion  = targetVersion;
-    if (commandData.metadataForProvider.HasValue())
+    if (commandData.metadataForProvider.has_value())
     {
         subject.metadata = commandData.metadataForProvider.Value();
     }

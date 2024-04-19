@@ -29,7 +29,7 @@ SessionHolder::~SessionHolder()
 SessionHolder::SessionHolder(const SessionHolder & that) : IntrusiveListNodeBase()
 {
     mSession = that.mSession;
-    if (mSession.HasValue())
+    if (mSession.has_value())
     {
         mSession.Value()->AddHolder(*this);
     }
@@ -38,7 +38,7 @@ SessionHolder::SessionHolder(const SessionHolder & that) : IntrusiveListNodeBase
 SessionHolder::SessionHolder(SessionHolder && that) : IntrusiveListNodeBase()
 {
     mSession = that.mSession;
-    if (mSession.HasValue())
+    if (mSession.has_value())
     {
         mSession.Value()->AddHolder(*this);
     }
@@ -51,7 +51,7 @@ SessionHolder & SessionHolder::operator=(const SessionHolder & that)
     Release();
 
     mSession = that.mSession;
-    if (mSession.HasValue())
+    if (mSession.has_value())
     {
         mSession.Value()->AddHolder(*this);
     }
@@ -64,7 +64,7 @@ SessionHolder & SessionHolder::operator=(SessionHolder && that)
     Release();
 
     mSession = that.mSession;
-    if (mSession.HasValue())
+    if (mSession.has_value())
     {
         mSession.Value()->AddHolder(*this);
     }
@@ -101,14 +101,14 @@ bool SessionHolder::Grab(const SessionHandle & session)
 
 void SessionHolder::GrabUnchecked(const SessionHandle & session)
 {
-    VerifyOrDie(!mSession.HasValue());
+    VerifyOrDie(!mSession.has_value());
     mSession.Emplace(session.mSession);
     session->AddHolder(*this);
 }
 
 void SessionHolder::Release()
 {
-    if (mSession.HasValue())
+    if (mSession.has_value())
     {
         mSession.Value()->RemoveHolder(*this);
         mSession.ClearValue();

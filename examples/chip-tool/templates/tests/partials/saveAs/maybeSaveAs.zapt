@@ -10,7 +10,7 @@
 {{#if saveAs}}
     {{#if (isString type)}}
         {{#if isOptional}}
-        if ({{asPropertyValue dontUnwrapValue=true}}.HasValue()) {
+        if ({{asPropertyValue dontUnwrapValue=true}}.has_value()) {
         {{/if}}
         {{#if isNullable}}
             if ({{asPropertyValue}}.IsNull()){

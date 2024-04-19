@@ -114,11 +114,11 @@ public:
     {
         mIsWifi   = false;
         mIsThread = false;
-        if (params.GetWiFiCredentials().HasValue())
+        if (params.GetWiFiCredentials().has_value())
         {
             mIsWifi = true;
         }
-        else if (params.GetThreadOperationalDataset().HasValue())
+        else if (params.GetThreadOperationalDataset().has_value())
         {
             mIsThread = true;
         }
@@ -322,13 +322,13 @@ private:
         case chip::Controller::CommissioningStage::kConfigureUTCTime:
             return mReadCommissioningInfo.requiresUTC;
         case chip::Controller::CommissioningStage::kConfigureTimeZone:
-            return mReadCommissioningInfo.requiresTimeZone && mParams.GetTimeZone().HasValue();
+            return mReadCommissioningInfo.requiresTimeZone && mParams.GetTimeZone().has_value();
         case chip::Controller::CommissioningStage::kConfigureTrustedTimeSource:
-            return mReadCommissioningInfo.requiresTrustedTimeSource && mParams.GetTrustedTimeSource().HasValue();
+            return mReadCommissioningInfo.requiresTrustedTimeSource && mParams.GetTrustedTimeSource().has_value();
         case chip::Controller::CommissioningStage::kConfigureDefaultNTP:
-            return mReadCommissioningInfo.requiresDefaultNTP && mParams.GetDefaultNTP().HasValue();
+            return mReadCommissioningInfo.requiresDefaultNTP && mParams.GetDefaultNTP().has_value();
         case chip::Controller::CommissioningStage::kConfigureDSTOffset:
-            return mNeedsDST && mParams.GetDSTOffsets().HasValue();
+            return mNeedsDST && mParams.GetDSTOffsets().has_value();
         case chip::Controller::CommissioningStage::kError:
         case chip::Controller::CommissioningStage::kSecurePairing:
             return false;

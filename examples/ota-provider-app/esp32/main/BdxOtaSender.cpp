@@ -33,13 +33,13 @@ CHIP_ERROR BdxOtaSender::InitializeTransfer(chip::FabricIndex fabricIndex, chip:
     if (mInitialized)
     {
         // Reset stale connection from the Same Node if exists
-        if ((mFabricIndex.HasValue() && mFabricIndex.Value() == fabricIndex) && (mNodeId.HasValue() && mNodeId.Value() == nodeId))
+        if ((mFabricIndex.has_value() && mFabricIndex.Value() == fabricIndex) && (mNodeId.has_value() && mNodeId.Value() == nodeId))
         {
             Reset();
         }
         // Prevent a new node connection since another is active
-        else if ((mFabricIndex.HasValue() && mFabricIndex.Value() != fabricIndex) ||
-                 (mNodeId.HasValue() && mNodeId.Value() != nodeId))
+        else if ((mFabricIndex.has_value() && mFabricIndex.Value() != fabricIndex) ||
+                 (mNodeId.has_value() && mNodeId.Value() != nodeId))
         {
             return CHIP_ERROR_BUSY;
         }

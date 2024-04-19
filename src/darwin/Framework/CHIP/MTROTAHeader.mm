@@ -56,13 +56,13 @@
     _imageDigest = AsData(header.mImageDigest);
     _imageDigestType = static_cast<MTROTAImageDigestType>(chip::to_underlying(header.mImageDigestType));
 
-    if (header.mMinApplicableVersion.HasValue()) {
+    if (header.mMinApplicableVersion.has_value()) {
         _minApplicableVersion = @(header.mMinApplicableVersion.Value());
     } else {
         _minApplicableVersion = nil;
     }
 
-    if (header.mMaxApplicableVersion.HasValue()) {
+    if (header.mMaxApplicableVersion.has_value()) {
         _maxApplicableVersion = @(header.mMaxApplicableVersion.Value());
     } else {
         _maxApplicableVersion = nil;

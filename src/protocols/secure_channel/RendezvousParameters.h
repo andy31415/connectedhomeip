@@ -105,11 +105,11 @@ public:
     bool HasDiscoveredObject() const { return false; }
 #endif // CONFIG_NETWORK_LAYER_BLE
 
-    bool HasMRPConfig() const { return mMRPConfig.HasValue(); }
+    bool HasMRPConfig() const { return mMRPConfig.has_value(); }
     ReliableMessageProtocolConfig GetMRPConfig() const { return mMRPConfig.ValueOr(GetDefaultMRPConfig()); }
     RendezvousParameters & SetIdleInterval(System::Clock::Milliseconds32 interval)
     {
-        if (!mMRPConfig.HasValue())
+        if (!mMRPConfig.has_value())
         {
             mMRPConfig.Emplace(GetDefaultMRPConfig());
         }
@@ -119,7 +119,7 @@ public:
 
     RendezvousParameters & SetActiveInterval(System::Clock::Milliseconds32 interval)
     {
-        if (!mMRPConfig.HasValue())
+        if (!mMRPConfig.has_value())
         {
             mMRPConfig.Emplace(GetDefaultMRPConfig());
         }

@@ -104,12 +104,12 @@ public:
 
     bool ACLCheckCacheHit(const AttributeAccessToken & aToken)
     {
-        return mACLCheckCache.HasValue() && mACLCheckCache.Value() == aToken;
+        return mACLCheckCache.has_value() && mACLCheckCache.Value() == aToken;
     }
 
     bool IsCurrentlyProcessingWritePath(const ConcreteAttributePath & aPath)
     {
-        return mProcessingAttributePath.HasValue() && mProcessingAttributePath.Value() == aPath;
+        return mProcessingAttributePath.has_value() && mProcessingAttributePath.Value() == aPath;
     }
 
 private:

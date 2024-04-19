@@ -131,7 +131,7 @@ public:
 
         gOnCommandSenderResponseCallback(
             mAppContext, path.mEndpointId, path.mClusterId, path.mCommandId, index, to_underlying(statusIB.mStatus),
-            statusIB.mClusterStatus.HasValue() ? statusIB.mClusterStatus.Value() : chip::python::kUndefinedClusterStatus, buffer,
+            statusIB.mClusterStatus.has_value() ? statusIB.mClusterStatus.Value() : chip::python::kUndefinedClusterStatus, buffer,
             size);
     }
 
@@ -205,7 +205,7 @@ PyChipError SendBatchCommandsInternal(void * appContext, DeviceProxy * device, u
     bool testOnlySuppressTimedRequestMessage = false;
     uint16_t * testOnlyCommandRefsOverride   = nullptr;
 
-    VerifyOrReturnError(device->GetSecureSession().HasValue(), ToPyChipError(CHIP_ERROR_MISSING_SECURE_SESSION));
+    VerifyOrReturnError(device->GetSecureSession().has_value(), ToPyChipError(CHIP_ERROR_MISSING_SECURE_SESSION));
 
     // Test only override validation checks and setup
     if (testOnlyOverrides != nullptr)
@@ -349,7 +349,7 @@ PyChipError pychip_CommandSender_SendCommand(void * appContext, DeviceProxy * de
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
 
-    VerifyOrReturnError(device->GetSecureSession().HasValue(), ToPyChipError(CHIP_ERROR_MISSING_SECURE_SESSION));
+    VerifyOrReturnError(device->GetSecureSession().has_value(), ToPyChipError(CHIP_ERROR_MISSING_SECURE_SESSION));
 
     bool isBatchedCommands  = false;
     bool callTestOnlyOnDone = false;
@@ -426,7 +426,7 @@ PyChipError pychip_CommandSender_TestOnlySendCommandTimedRequestNoTimedInvoke(
 
     CHIP_ERROR err = CHIP_NO_ERROR;
 
-    VerifyOrReturnError(device->GetSecureSession().HasValue(), ToPyChipError(CHIP_ERROR_MISSING_SECURE_SESSION));
+    VerifyOrReturnError(device->GetSecureSession().has_value(), ToPyChipError(CHIP_ERROR_MISSING_SECURE_SESSION));
 
     bool isBatchedCommands  = false;
     bool callTestOnlyOnDone = false;

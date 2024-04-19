@@ -75,7 +75,7 @@ CHIP_ERROR ElectricalEnergyMeasurementAttrAccess::Read(const app::ConcreteReadAt
                 HasFeature(ElectricalEnergyMeasurement::Feature::kImportedEnergy),
             CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE,
             ChipLogError(Zcl, "Electrical Energy Measurement: can not get CumulativeEnergyImported, feature is not supported"));
-        if ((data == nullptr) || !data->cumulativeImported.HasValue())
+        if ((data == nullptr) || !data->cumulativeImported.has_value())
         {
             return aEncoder.EncodeNull();
         }
@@ -86,7 +86,7 @@ CHIP_ERROR ElectricalEnergyMeasurementAttrAccess::Read(const app::ConcreteReadAt
                 HasFeature(ElectricalEnergyMeasurement::Feature::kExportedEnergy),
             CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE,
             ChipLogError(Zcl, "Electrical Energy Measurement: can not get CumulativeEnergyExported, feature is not supported"));
-        if ((data == nullptr) || !data->cumulativeExported.HasValue())
+        if ((data == nullptr) || !data->cumulativeExported.has_value())
         {
             return aEncoder.EncodeNull();
         }
@@ -97,7 +97,7 @@ CHIP_ERROR ElectricalEnergyMeasurementAttrAccess::Read(const app::ConcreteReadAt
                 HasFeature(ElectricalEnergyMeasurement::Feature::kImportedEnergy),
             CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE,
             ChipLogError(Zcl, "Electrical Energy Measurement: can not get PeriodicEnergyImported, feature is not supported"));
-        if ((data == nullptr) || !data->periodicImported.HasValue())
+        if ((data == nullptr) || !data->periodicImported.has_value())
         {
             return aEncoder.EncodeNull();
         }
@@ -108,7 +108,7 @@ CHIP_ERROR ElectricalEnergyMeasurementAttrAccess::Read(const app::ConcreteReadAt
                 HasFeature(ElectricalEnergyMeasurement::Feature::kExportedEnergy),
             CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE,
             ChipLogError(Zcl, "Electrical Energy Measurement: can not get PeriodicEnergyExported, feature is not supported"));
-        if ((data == nullptr) || !data->periodicExported.HasValue())
+        if ((data == nullptr) || !data->periodicExported.has_value())
         {
             return aEncoder.EncodeNull();
         }
@@ -122,7 +122,7 @@ CHIP_ERROR ElectricalEnergyMeasurementAttrAccess::Read(const app::ConcreteReadAt
         {
             return CHIP_IM_GLOBAL_STATUS(UnsupportedAttribute);
         }
-        if ((data == nullptr) || !data->cumulativeReset.HasValue())
+        if ((data == nullptr) || !data->cumulativeReset.has_value())
         {
             return aEncoder.EncodeNull();
         }

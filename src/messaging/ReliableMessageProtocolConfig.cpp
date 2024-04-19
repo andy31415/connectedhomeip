@@ -89,7 +89,7 @@ Optional<ReliableMessageProtocolConfig> GetLocalMRPConfig()
     ReliableMessageProtocolConfig config(CHIP_CONFIG_MRP_LOCAL_IDLE_RETRY_INTERVAL, CHIP_CONFIG_MRP_LOCAL_ACTIVE_RETRY_INTERVAL);
 
 #if CHIP_DEVICE_CONFIG_ENABLE_DYNAMIC_MRP_CONFIG
-    if (sDynamicLocalMPRConfig.HasValue())
+    if (sDynamicLocalMPRConfig.has_value())
     {
         config = sDynamicLocalMPRConfig.Value();
     }
@@ -105,17 +105,17 @@ Optional<ReliableMessageProtocolConfig> GetLocalMRPConfig()
 #endif
 
 #if CONFIG_BUILD_FOR_HOST_UNIT_TEST
-    if (idleRetransTimeoutOverride.HasValue())
+    if (idleRetransTimeoutOverride.has_value())
     {
         config.mIdleRetransTimeout = idleRetransTimeoutOverride.Value();
     }
 
-    if (activeRetransTimeoutOverride.HasValue())
+    if (activeRetransTimeoutOverride.has_value())
     {
         config.mActiveRetransTimeout = activeRetransTimeoutOverride.Value();
     }
 
-    if (activeThresholdTimeOverride.HasValue())
+    if (activeThresholdTimeOverride.has_value())
     {
         config.mActiveThresholdTime = activeRetransTimeoutOverride.Value();
     }

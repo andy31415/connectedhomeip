@@ -71,7 +71,7 @@ CHIP_ERROR WriteSingleClusterData(const Access::SubjectDescriptor & aSubjectDesc
 {
     static ListIndex listStructOctetStringElementCount = 0;
 
-    if (aPath.mDataVersion.HasValue() && aPath.mDataVersion.Value() == kRejectedDataVersion)
+    if (aPath.mDataVersion.has_value() && aPath.mDataVersion.Value() == kRejectedDataVersion)
     {
         return aWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::DataVersionMismatch);
     }

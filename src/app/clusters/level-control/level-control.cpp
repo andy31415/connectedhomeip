@@ -552,7 +552,7 @@ static bool shouldExecuteIfOff(EndpointId endpoint, CommandId commandId, chip::O
         // ---------- The following order is important in decision making -------
         // -----------more readable ----------
         //
-        if (!optionsMask.HasValue() || !optionsOverride.HasValue())
+        if (!optionsMask.has_value() || !optionsOverride.has_value())
         {
             // in case optionMask or optionOverride is not set, use of option
             // attribute to decide execution of the command

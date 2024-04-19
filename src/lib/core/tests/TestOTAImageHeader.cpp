@@ -85,9 +85,9 @@ void TestHappyPath(nlTestSuite * inSuite, void * inContext)
     NL_TEST_ASSERT(inSuite, header.mSoftwareVersion == 0xFFFFFFFF);
     NL_TEST_ASSERT(inSuite, header.mSoftwareVersionString.data_equal("1.0"_span));
     NL_TEST_ASSERT(inSuite, header.mPayloadSize == strlen("test payload"));
-    NL_TEST_ASSERT(inSuite, header.mMinApplicableVersion.HasValue());
+    NL_TEST_ASSERT(inSuite, header.mMinApplicableVersion.has_value());
     NL_TEST_ASSERT(inSuite, header.mMinApplicableVersion.Value() == 1);
-    NL_TEST_ASSERT(inSuite, header.mMaxApplicableVersion.HasValue());
+    NL_TEST_ASSERT(inSuite, header.mMaxApplicableVersion.has_value());
     NL_TEST_ASSERT(inSuite, header.mMaxApplicableVersion.Value() == 2);
     NL_TEST_ASSERT(inSuite, header.mReleaseNotesURL.data_equal("https://rn"_span));
     NL_TEST_ASSERT(inSuite, header.mImageDigestType == OTAImageDigestType::kSha256);
@@ -171,9 +171,9 @@ void TestSmallBlocks(nlTestSuite * inSuite, void * inContext)
         NL_TEST_ASSERT(inSuite, header.mSoftwareVersion == 0xFFFFFFFF);
         NL_TEST_ASSERT(inSuite, header.mSoftwareVersionString.data_equal("1.0"_span));
         NL_TEST_ASSERT(inSuite, header.mPayloadSize == strlen("test payload"));
-        NL_TEST_ASSERT(inSuite, header.mMinApplicableVersion.HasValue());
+        NL_TEST_ASSERT(inSuite, header.mMinApplicableVersion.has_value());
         NL_TEST_ASSERT(inSuite, header.mMinApplicableVersion.Value() == 1);
-        NL_TEST_ASSERT(inSuite, header.mMaxApplicableVersion.HasValue());
+        NL_TEST_ASSERT(inSuite, header.mMaxApplicableVersion.has_value());
         NL_TEST_ASSERT(inSuite, header.mMaxApplicableVersion.Value() == 2);
         NL_TEST_ASSERT(inSuite, header.mReleaseNotesURL.data_equal("https://rn"_span));
         NL_TEST_ASSERT(inSuite, header.mImageDigestType == OTAImageDigestType::kSha256);

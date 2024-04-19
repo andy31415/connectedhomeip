@@ -78,7 +78,7 @@ bool OperationalSessionSetup::AttachToExistingSecureSession()
 
     auto sessionHandle =
         mInitParams.sessionManager->FindSecureSessionForNode(mPeerId, MakeOptional(Transport::SecureSession::Type::kCASE));
-    if (!sessionHandle.HasValue())
+    if (!sessionHandle.has_value())
         return false;
 
     ChipLogProgress(Discovery, "Found an existing secure session to [%u:" ChipLogFormatX64 "]!", mPeerId.GetFabricIndex(),

@@ -461,7 +461,7 @@
                                          index, associatedConnectableVideoPlayer);
                                  if (cppDiscoveredNodeData != nullptr) {
                                      commissioner = [ConversionUtils convertToObjCDiscoveredNodeDataFrom:cppDiscoveredNodeData];
-                                     if (associatedConnectableVideoPlayer.HasValue()) {
+                                     if (associatedConnectableVideoPlayer.has_value()) {
                                          VideoPlayer * connectableVideoPlayer = [ConversionUtils
                                              convertToObjCVideoPlayerFrom:associatedConnectableVideoPlayer.Value()];
                                          [commissioner setConnectableVideoPlayer:connectableVideoPlayer];

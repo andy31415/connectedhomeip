@@ -25,7 +25,7 @@ void ChunkedWriteCallback::OnResponse(const WriteClient * apWriteClient, const C
 {
     // We may send a chunked list. To make the behavior consistent whether a list is being chunked or not,
     // we merge the write responses for a chunked list here and provide our consumer with a single status response.
-    if (mProcessingAttributePath.HasValue())
+    if (mProcessingAttributePath.has_value())
     {
         // This is not the first write response.
         if (IsAppendingToLastItem(aPath))
@@ -61,7 +61,7 @@ void ChunkedWriteCallback::OnError(const WriteClient * apWriteClient, CHIP_ERROR
 
 void ChunkedWriteCallback::OnDone(WriteClient * apWriteClient)
 {
-    if (mProcessingAttributePath.HasValue())
+    if (mProcessingAttributePath.has_value())
     {
         // We have a cached status that has yet to be reported to the application so report it now.
         // If we failed to receive the response, or we received a malformed response, OnResponse won't be called,
@@ -81,7 +81,7 @@ bool ChunkedWriteCallback::IsAppendingToLastItem(const ConcreteDataAttributePath
     {
         return false;
     }
-    if (!mProcessingAttributePath.HasValue() || !(mProcessingAttributePath.Value() == aPath))
+    if (!mProcessingAttributePath.has_value() || !(mProcessingAttributePath.Value() == aPath))
     {
         return false;
     }

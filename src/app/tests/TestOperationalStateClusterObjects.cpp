@@ -33,22 +33,22 @@ void TestStructGenericOperationalStateConstructorWithOnlyStateID(nlTestSuite * i
     // General state: Stopped
     GenericOperationalState operationalStateStopped(to_underlying(OperationalStateEnum::kStopped));
     NL_TEST_ASSERT(inSuite, operationalStateStopped.operationalStateID == to_underlying(OperationalStateEnum::kStopped));
-    NL_TEST_ASSERT(inSuite, operationalStateStopped.operationalStateLabel.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalStateStopped.operationalStateLabel.has_value() == false);
 
     // General state: Running
     GenericOperationalState operationalStateRunning(to_underlying(OperationalStateEnum::kRunning));
     NL_TEST_ASSERT(inSuite, operationalStateRunning.operationalStateID == to_underlying(OperationalStateEnum::kRunning));
-    NL_TEST_ASSERT(inSuite, operationalStateRunning.operationalStateLabel.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalStateRunning.operationalStateLabel.has_value() == false);
 
     // General state: Paused
     GenericOperationalState operationalStatePaused(to_underlying(OperationalStateEnum::kPaused));
     NL_TEST_ASSERT(inSuite, operationalStatePaused.operationalStateID == to_underlying(OperationalStateEnum::kPaused));
-    NL_TEST_ASSERT(inSuite, operationalStatePaused.operationalStateLabel.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalStatePaused.operationalStateLabel.has_value() == false);
 
     // General state: Error
     GenericOperationalState operationalStateError(to_underlying(OperationalStateEnum::kError));
     NL_TEST_ASSERT(inSuite, operationalStateError.operationalStateID == to_underlying(OperationalStateEnum::kError));
-    NL_TEST_ASSERT(inSuite, operationalStateError.operationalStateLabel.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalStateError.operationalStateLabel.has_value() == false);
 }
 
 void TestStructGenericOperationalStateConstructorWithStateIDAndStateLabel(nlTestSuite * inSuite, void * inContext)
@@ -67,7 +67,7 @@ void TestStructGenericOperationalStateConstructorWithStateIDAndStateLabel(nlTest
                                              Optional<CharSpan>(CharSpan::fromCharString(buffer)));
 
     NL_TEST_ASSERT(inSuite, operationalState.operationalStateID == to_underlying(ManufactureOperationalStateEnum::kRebooting));
-    NL_TEST_ASSERT(inSuite, operationalState.operationalStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, operationalState.operationalStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite, operationalState.operationalStateLabel.Value().size() == strlen(buffer));
     NL_TEST_ASSERT(inSuite,
                    memcmp(const_cast<char *>(operationalState.operationalStateLabel.Value().data()), buffer, strlen(buffer)) == 0);
@@ -90,7 +90,7 @@ void TestStructGenericOperationalStateCopyConstructor(nlTestSuite * inSuite, voi
     GenericOperationalState desOperationalState(srcOperationalState);
 
     NL_TEST_ASSERT(inSuite, desOperationalState.operationalStateID == srcOperationalState.operationalStateID);
-    NL_TEST_ASSERT(inSuite, desOperationalState.operationalStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, desOperationalState.operationalStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite,
                    desOperationalState.operationalStateLabel.Value().size() ==
                        srcOperationalState.operationalStateLabel.Value().size());
@@ -117,7 +117,7 @@ void TestStructGenericOperationalStateCopyAssignment(nlTestSuite * inSuite, void
     GenericOperationalState desOperationalState = srcOperationalState;
 
     NL_TEST_ASSERT(inSuite, desOperationalState.operationalStateID == srcOperationalState.operationalStateID);
-    NL_TEST_ASSERT(inSuite, desOperationalState.operationalStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, desOperationalState.operationalStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite,
                    desOperationalState.operationalStateLabel.Value().size() ==
                        srcOperationalState.operationalStateLabel.Value().size());
@@ -145,13 +145,13 @@ void TestStructGenericOperationalStateFuncSet(nlTestSuite * inSuite, void * inCo
     // change state without label
     operationalState.Set(to_underlying(OperationalStateEnum::kStopped));
     NL_TEST_ASSERT(inSuite, operationalState.operationalStateID == to_underlying(OperationalStateEnum::kStopped));
-    NL_TEST_ASSERT(inSuite, operationalState.operationalStateLabel.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalState.operationalStateLabel.has_value() == false);
 
     // change state with label
     operationalState.Set(to_underlying(ManufactureOperationalStateEnum::kRebooting),
                          Optional<CharSpan>(CharSpan::fromCharString(buffer)));
     NL_TEST_ASSERT(inSuite, operationalState.operationalStateID == to_underlying(ManufactureOperationalStateEnum::kRebooting));
-    NL_TEST_ASSERT(inSuite, operationalState.operationalStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, operationalState.operationalStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite, operationalState.operationalStateLabel.Value().size() == strlen(buffer));
     NL_TEST_ASSERT(inSuite,
                    memcmp(const_cast<char *>(operationalState.operationalStateLabel.Value().data()), buffer, strlen(buffer)) == 0);
@@ -164,7 +164,7 @@ void TestStructGenericOperationalStateFuncSet(nlTestSuite * inSuite, void * inCo
     operationalState.Set(to_underlying(ManufactureOperationalStateEnum::kRebooting),
                          Optional<CharSpan>(CharSpan(buffer, sizeof(buffer))));
     NL_TEST_ASSERT(inSuite, operationalState.operationalStateID == to_underlying(ManufactureOperationalStateEnum::kRebooting));
-    NL_TEST_ASSERT(inSuite, operationalState.operationalStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, operationalState.operationalStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite, operationalState.operationalStateLabel.Value().size() == sizeof(buffer));
     NL_TEST_ASSERT(inSuite,
                    memcmp(const_cast<char *>(operationalState.operationalStateLabel.Value().data()), buffer, sizeof(buffer)) == 0);
@@ -179,7 +179,7 @@ void TestStructGenericOperationalStateFuncSet(nlTestSuite * inSuite, void * inCo
     operationalState.Set(to_underlying(ManufactureOperationalStateEnum::kRebooting),
                          Optional<CharSpan>(CharSpan(buffer2, sizeof(buffer2))));
     NL_TEST_ASSERT(inSuite, operationalState.operationalStateID == to_underlying(ManufactureOperationalStateEnum::kRebooting));
-    NL_TEST_ASSERT(inSuite, operationalState.operationalStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, operationalState.operationalStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite, operationalState.operationalStateLabel.Value().size() == kOperationalStateLabelMaxSize);
     NL_TEST_ASSERT(inSuite,
                    memcmp(const_cast<char *>(operationalState.operationalStateLabel.Value().data()), buffer2,
@@ -193,16 +193,16 @@ void TestStructGenericOperationalErrorConstructorWithOnlyStateID(nlTestSuite * i
     GenericOperationalError operationalErrorNoErr(to_underlying(ErrorStateEnum::kNoError));
 
     NL_TEST_ASSERT(inSuite, operationalErrorNoErr.errorStateID == to_underlying(ErrorStateEnum::kNoError));
-    NL_TEST_ASSERT(inSuite, operationalErrorNoErr.errorStateLabel.HasValue() == false);
-    NL_TEST_ASSERT(inSuite, operationalErrorNoErr.errorStateDetails.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalErrorNoErr.errorStateLabel.has_value() == false);
+    NL_TEST_ASSERT(inSuite, operationalErrorNoErr.errorStateDetails.has_value() == false);
 
     // General errors: UnableToStartOrResume
     GenericOperationalError operationalErrorUnableToStartOrResume(to_underlying(ErrorStateEnum::kUnableToStartOrResume));
 
     NL_TEST_ASSERT(inSuite,
                    operationalErrorUnableToStartOrResume.errorStateID == to_underlying(ErrorStateEnum::kUnableToStartOrResume));
-    NL_TEST_ASSERT(inSuite, operationalErrorUnableToStartOrResume.errorStateLabel.HasValue() == false);
-    NL_TEST_ASSERT(inSuite, operationalErrorUnableToStartOrResume.errorStateDetails.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalErrorUnableToStartOrResume.errorStateLabel.has_value() == false);
+    NL_TEST_ASSERT(inSuite, operationalErrorUnableToStartOrResume.errorStateDetails.has_value() == false);
 
     // General errors: UnableToCompleteOperation
     GenericOperationalError operationalErrorkUnableToCompleteOperation(to_underlying(ErrorStateEnum::kUnableToCompleteOperation));
@@ -210,16 +210,16 @@ void TestStructGenericOperationalErrorConstructorWithOnlyStateID(nlTestSuite * i
     NL_TEST_ASSERT(inSuite,
                    operationalErrorkUnableToCompleteOperation.errorStateID ==
                        to_underlying(ErrorStateEnum::kUnableToCompleteOperation));
-    NL_TEST_ASSERT(inSuite, operationalErrorkUnableToCompleteOperation.errorStateLabel.HasValue() == false);
-    NL_TEST_ASSERT(inSuite, operationalErrorkUnableToCompleteOperation.errorStateDetails.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalErrorkUnableToCompleteOperation.errorStateLabel.has_value() == false);
+    NL_TEST_ASSERT(inSuite, operationalErrorkUnableToCompleteOperation.errorStateDetails.has_value() == false);
 
     // General errors: CommandInvalidInState
     GenericOperationalError operationalErrorCommandInvalidInState(to_underlying(ErrorStateEnum::kCommandInvalidInState));
 
     NL_TEST_ASSERT(inSuite,
                    operationalErrorCommandInvalidInState.errorStateID == to_underlying(ErrorStateEnum::kCommandInvalidInState));
-    NL_TEST_ASSERT(inSuite, operationalErrorCommandInvalidInState.errorStateLabel.HasValue() == false);
-    NL_TEST_ASSERT(inSuite, operationalErrorCommandInvalidInState.errorStateDetails.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalErrorCommandInvalidInState.errorStateLabel.has_value() == false);
+    NL_TEST_ASSERT(inSuite, operationalErrorCommandInvalidInState.errorStateDetails.has_value() == false);
 }
 
 void TestStructGenericOperationalErrorConstructorWithStateIDAndStateLabel(nlTestSuite * inSuite, void * inContext)
@@ -238,12 +238,12 @@ void TestStructGenericOperationalErrorConstructorWithStateIDAndStateLabel(nlTest
                                              Optional<CharSpan>(CharSpan::fromCharString(labelBuffer)));
 
     NL_TEST_ASSERT(inSuite, operationalError.errorStateID == to_underlying(ManufactureOperationalErrorEnum::kLowBattery));
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.Value().size() == strlen(labelBuffer));
     NL_TEST_ASSERT(inSuite,
                    memcmp(const_cast<char *>(operationalError.errorStateLabel.Value().data()), labelBuffer, strlen(labelBuffer)) ==
                        0);
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.has_value() == false);
 }
 
 void TestStructGenericOperationalErrorConstructorWithFullParam(nlTestSuite * inSuite, void * inContext)
@@ -264,13 +264,13 @@ void TestStructGenericOperationalErrorConstructorWithFullParam(nlTestSuite * inS
                                              Optional<CharSpan>(CharSpan::fromCharString(detailBuffer)));
 
     NL_TEST_ASSERT(inSuite, operationalError.errorStateID == to_underlying(ManufactureOperationalErrorEnum::kLowBattery));
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.Value().size() == strlen(labelBuffer));
     NL_TEST_ASSERT(inSuite,
                    memcmp(const_cast<char *>(operationalError.errorStateLabel.Value().data()), labelBuffer, strlen(labelBuffer)) ==
                        0);
 
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.has_value() == true);
     NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.Value().size() == strlen(detailBuffer));
     NL_TEST_ASSERT(
         inSuite,
@@ -297,7 +297,7 @@ void TestStructGenericOperationalErrorCopyConstructor(nlTestSuite * inSuite, voi
     // call copy constructor
     GenericOperationalError desOperationalError(srcOperationalError);
     NL_TEST_ASSERT(inSuite, desOperationalError.errorStateID == srcOperationalError.errorStateID);
-    NL_TEST_ASSERT(inSuite, desOperationalError.errorStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, desOperationalError.errorStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite,
                    desOperationalError.errorStateLabel.Value().size() == srcOperationalError.errorStateLabel.Value().size());
     NL_TEST_ASSERT(inSuite,
@@ -305,7 +305,7 @@ void TestStructGenericOperationalErrorCopyConstructor(nlTestSuite * inSuite, voi
                           const_cast<char *>(srcOperationalError.errorStateLabel.Value().data()),
                           desOperationalError.errorStateLabel.Value().size()) == 0);
 
-    NL_TEST_ASSERT(inSuite, desOperationalError.errorStateDetails.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, desOperationalError.errorStateDetails.has_value() == true);
     NL_TEST_ASSERT(inSuite,
                    desOperationalError.errorStateDetails.Value().size() == srcOperationalError.errorStateDetails.Value().size());
     NL_TEST_ASSERT(inSuite,
@@ -334,7 +334,7 @@ void TestStructGenericOperationalErrorCopyAssignment(nlTestSuite * inSuite, void
     // call copy assignment
     GenericOperationalError desOperationalError = srcOperationalError;
     NL_TEST_ASSERT(inSuite, desOperationalError.errorStateID == srcOperationalError.errorStateID);
-    NL_TEST_ASSERT(inSuite, desOperationalError.errorStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, desOperationalError.errorStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite,
                    desOperationalError.errorStateLabel.Value().size() == srcOperationalError.errorStateLabel.Value().size());
     NL_TEST_ASSERT(inSuite,
@@ -342,7 +342,7 @@ void TestStructGenericOperationalErrorCopyAssignment(nlTestSuite * inSuite, void
                           const_cast<char *>(srcOperationalError.errorStateLabel.Value().data()),
                           desOperationalError.errorStateLabel.Value().size()) == 0);
 
-    NL_TEST_ASSERT(inSuite, desOperationalError.errorStateDetails.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, desOperationalError.errorStateDetails.has_value() == true);
     NL_TEST_ASSERT(inSuite,
                    desOperationalError.errorStateDetails.Value().size() == srcOperationalError.errorStateDetails.Value().size());
     NL_TEST_ASSERT(inSuite,
@@ -367,27 +367,27 @@ void TestStructGenericOperationalErrorFuncSet(nlTestSuite * inSuite, void * inCo
     GenericOperationalError operationalError(to_underlying(ErrorStateEnum::kNoError));
 
     NL_TEST_ASSERT(inSuite, operationalError.errorStateID == to_underlying(ErrorStateEnum::kNoError));
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.HasValue() == false);
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.has_value() == false);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.has_value() == false);
 
     // call Set with stateId
     operationalError.Set(to_underlying(ErrorStateEnum::kUnableToStartOrResume));
 
     NL_TEST_ASSERT(inSuite, operationalError.errorStateID == to_underlying(ErrorStateEnum::kUnableToStartOrResume));
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.HasValue() == false);
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.has_value() == false);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.has_value() == false);
 
     // call Set with stateId and StateLabel
     operationalError.Set(to_underlying(ErrorStateEnum::kUnableToStartOrResume),
                          Optional<CharSpan>(CharSpan::fromCharString(labelBuffer)));
 
     NL_TEST_ASSERT(inSuite, operationalError.errorStateID == to_underlying(ErrorStateEnum::kUnableToStartOrResume));
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.Value().size() == strlen(labelBuffer));
     NL_TEST_ASSERT(inSuite,
                    memcmp(const_cast<char *>(operationalError.errorStateLabel.Value().data()), labelBuffer, strlen(labelBuffer)) ==
                        0);
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.has_value() == false);
 
     // call Set with stateId, StateLabel and StateDetails
     operationalError.Set(to_underlying(ErrorStateEnum::kUnableToStartOrResume),
@@ -395,13 +395,13 @@ void TestStructGenericOperationalErrorFuncSet(nlTestSuite * inSuite, void * inCo
                          Optional<CharSpan>(CharSpan::fromCharString(detailBuffer)));
 
     NL_TEST_ASSERT(inSuite, operationalError.errorStateID == to_underlying(ErrorStateEnum::kUnableToStartOrResume));
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.Value().size() == strlen(labelBuffer));
     NL_TEST_ASSERT(inSuite,
                    memcmp(const_cast<char *>(operationalError.errorStateLabel.Value().data()), labelBuffer, strlen(labelBuffer)) ==
                        0);
 
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.has_value() == true);
     NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.Value().size() == strlen(detailBuffer));
     NL_TEST_ASSERT(
         inSuite,
@@ -416,12 +416,12 @@ void TestStructGenericOperationalErrorFuncSet(nlTestSuite * inSuite, void * inCo
                          Optional<CharSpan>(CharSpan(labelBuffer, sizeof(labelBuffer))));
 
     NL_TEST_ASSERT(inSuite, operationalError.errorStateID == to_underlying(ErrorStateEnum::kUnableToStartOrResume));
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.Value().size() == sizeof(labelBuffer));
     NL_TEST_ASSERT(inSuite,
                    memcmp(const_cast<char *>(operationalError.errorStateLabel.Value().data()), labelBuffer, sizeof(labelBuffer)) ==
                        0);
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.has_value() == false);
 
     // change state with label, label len = kOperationalStateLabelMaxSize + 1
     char labelBuffer2[kOperationalErrorLabelMaxSize + 1];
@@ -433,12 +433,12 @@ void TestStructGenericOperationalErrorFuncSet(nlTestSuite * inSuite, void * inCo
                          Optional<CharSpan>(CharSpan(labelBuffer2, sizeof(labelBuffer2))));
 
     NL_TEST_ASSERT(inSuite, operationalError.errorStateID == to_underlying(ErrorStateEnum::kUnableToStartOrResume));
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.Value().size() == kOperationalErrorLabelMaxSize);
     NL_TEST_ASSERT(inSuite,
                    memcmp(const_cast<char *>(operationalError.errorStateLabel.Value().data()), labelBuffer2,
                           kOperationalErrorLabelMaxSize) == 0);
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.HasValue() == false);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.has_value() == false);
 
     // change state with label and details, details len = kOperationalErrorDetailsMaxSize + 1
     char detailBuffer2[kOperationalErrorDetailsMaxSize + 1];
@@ -451,13 +451,13 @@ void TestStructGenericOperationalErrorFuncSet(nlTestSuite * inSuite, void * inCo
                          Optional<CharSpan>(CharSpan(detailBuffer2, sizeof(detailBuffer2))));
 
     NL_TEST_ASSERT(inSuite, operationalError.errorStateID == to_underlying(ErrorStateEnum::kUnableToStartOrResume));
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.has_value() == true);
     NL_TEST_ASSERT(inSuite, operationalError.errorStateLabel.Value().size() == kOperationalErrorLabelMaxSize);
     NL_TEST_ASSERT(inSuite,
                    memcmp(const_cast<char *>(operationalError.errorStateLabel.Value().data()), labelBuffer2,
                           kOperationalErrorLabelMaxSize) == 0);
 
-    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.HasValue() == true);
+    NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.has_value() == true);
 
     NL_TEST_ASSERT(inSuite, operationalError.errorStateDetails.Value().size() == kOperationalErrorDetailsMaxSize);
     NL_TEST_ASSERT(inSuite,

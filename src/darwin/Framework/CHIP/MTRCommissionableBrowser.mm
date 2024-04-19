@@ -143,7 +143,7 @@ public:
             for (id interfaceKey in interfaces) {
                 // Check if the interface data has been resolved already, otherwise, just inform the
                 // back end that we may not need it anymore.
-                if (!interfaces[interfaceKey].resolutionData.HasValue()) {
+                if (!interfaces[interfaceKey].resolutionData.has_value()) {
                     ChipDnssdResolveNoLongerNeeded(key.UTF8String);
                 }
             }
@@ -185,7 +185,7 @@ public:
         auto shouldDispatchToDelegate = YES;
         for (id interfaceKey in interfaces) {
             if (![interfaceKey isEqual:@(resolutionData.interfaceId.GetPlatformInterface())]
-                && interfaces[interfaceKey].resolutionData.HasValue()) {
+                && interfaces[interfaceKey].resolutionData.has_value()) {
                 shouldDispatchToDelegate = NO;
                 break;
             }
@@ -246,7 +246,7 @@ public:
 
         // Check if the interface data has been resolved already, otherwise, just inform the
         // back end that we may not need it anymore.
-        if (!interfaces[interfaceKey].resolutionData.HasValue()) {
+        if (!interfaces[interfaceKey].resolutionData.has_value()) {
             ChipDnssdResolveNoLongerNeeded(service.mName);
         }
 

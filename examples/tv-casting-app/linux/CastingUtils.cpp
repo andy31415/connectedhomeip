@@ -103,7 +103,7 @@ void InitCommissioningFlow(intptr_t commandArg)
             ChipLogProgress(AppServer, "Discovered Commissioner #%d", commissionerCount);
             commissionerCount++;
             commissioner->LogDetail();
-            if (associatedConnectableVideoPlayer.HasValue())
+            if (associatedConnectableVideoPlayer.has_value())
             {
                 [[maybe_unused]] TargetVideoPlayerInfo * targetVideoPlayerInfo = associatedConnectableVideoPlayer.Value();
                 ChipLogProgress(AppServer, "Previously connected with nodeId 0x" ChipLogFormatX64 " fabricIndex: %d",

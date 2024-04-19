@@ -227,8 +227,8 @@ bool emberAfContentLauncherClusterLaunchContentCallback(CommandHandler * command
                  err = CHIP_ERROR_INCORRECT_STATE);
 
     // note assume if client does not send useCurrentContext then it's set to false
-    delegate->HandleLaunchContent(responder, decodableParameterList, autoplay, data.HasValue() ? data.Value() : CharSpan(),
-                                  playbackPreferences, useCurrentContext.HasValue() ? useCurrentContext.Value() : false);
+    delegate->HandleLaunchContent(responder, decodableParameterList, autoplay, data.has_value() ? data.Value() : CharSpan(),
+                                  playbackPreferences, useCurrentContext.has_value() ? useCurrentContext.Value() : false);
 
 exit:
     if (err != CHIP_NO_ERROR)
@@ -261,8 +261,8 @@ bool emberAfContentLauncherClusterLaunchURLCallback(CommandHandler * commandObj,
     VerifyOrExit(isDelegateNull(delegate, endpoint) != true && delegate->HasFeature(endpoint, Feature::kURLPlayback),
                  err = CHIP_ERROR_INCORRECT_STATE);
     {
-        delegate->HandleLaunchUrl(responder, contentUrl, displayString.HasValue() ? displayString.Value() : CharSpan(),
-                                  brandingInformation.HasValue() ? brandingInformation.Value()
+        delegate->HandleLaunchUrl(responder, contentUrl, displayString.has_value() ? displayString.Value() : CharSpan(),
+                                  brandingInformation.has_value() ? brandingInformation.Value()
                                                                  : chip::app::Clusters::ContentLauncher::BrandingInformation());
     }
 

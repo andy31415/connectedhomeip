@@ -998,7 +998,7 @@ void Engine::ScheduleUrgentEventDeliverySync(Optional<FabricIndex> fabricIndex)
             return Loop::Continue;
         }
 
-        if (fabricIndex.HasValue() && fabricIndex.Value() != handler->GetAccessingFabricIndex())
+        if (fabricIndex.has_value() && fabricIndex.Value() != handler->GetAccessingFabricIndex())
         {
             return Loop::Continue;
         }

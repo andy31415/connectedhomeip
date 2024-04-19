@@ -89,14 +89,14 @@ public:
 
     bool Contains(const SessionHandle & session) const
     {
-        return mSession.HasValue() && &mSession.Value().Get() == &session.mSession.Get();
+        return mSession.has_value() && &mSession.Value().Get() == &session.mSession.Get();
     }
 
     bool GrabPairingSession(const SessionHandle & session); // Should be only used inside CASE/PASE pairing.
     bool Grab(const SessionHandle & session);
     void Release();
 
-    explicit operator bool() const { return mSession.HasValue(); }
+    explicit operator bool() const { return mSession.has_value(); }
     Optional<SessionHandle> Get() const
     {
         //
@@ -105,7 +105,7 @@ public:
         //
         // So, construct a new Optional<SessionHandle> from the underlying Transport::Session reference.
         //
-        return mSession.HasValue() ? chip::MakeOptional<SessionHandle>(mSession.Value().Get())
+        return mSession.has_value() ? chip::MakeOptional<SessionHandle>(mSession.Value().Get())
                                    : chip::Optional<SessionHandle>::Missing();
     }
 

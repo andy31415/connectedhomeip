@@ -249,7 +249,7 @@ CHIP_ERROR LogAddNOC(TLV::TLVReader & reader)
 
     LogCertificate("NOCValue", value.NOCValue);
 
-    if (value.ICACValue.HasValue())
+    if (value.ICACValue.has_value())
     {
         LogCertificate("ICACValue", value.ICACValue.Value());
     }

@@ -340,7 +340,7 @@ CHIP_ERROR SessionManager::PrepareMessage(const SessionHandle & sessionHandle, P
     //
     char ackBuf[20];
     ackBuf[0] = '\0';
-    if (payloadHeader.GetAckMessageCounter().HasValue())
+    if (payloadHeader.GetAckMessageCounter().has_value())
     {
         snprintf(ackBuf, sizeof(ackBuf), " (Ack:" ChipLogFormatMessageCounter ")", payloadHeader.GetAckMessageCounter().Value());
     }
@@ -532,7 +532,7 @@ void SessionManager::MarkSessionsAsDefunct(const ScopedNodeId & node, const Opti
 {
     mSecureSessions.ForEachSession([&node, &type](auto session) {
         if (session->IsActiveSession() && session->GetPeer() == node &&
-            (!type.HasValue() || type.Value() == session->GetSecureSessionType()))
+            (!type.has_value() || type.Value() == session->GetSecureSessionType()))
         {
             session->MarkAsDefunct();
         }
@@ -568,7 +568,7 @@ CHIP_ERROR SessionManager::InjectPaseSessionWithTestKey(SessionHolder & sessionH
     Optional<SessionHandle> session = mSecureSessions.CreateNewSecureSessionForTest(
         chip::Transport::SecureSession::Type::kPASE, localSessionId, localNodeId, peerNodeId, CATValues{}, peerSessionId, fabric,
         GetLocalMRPConfig().ValueOr(GetDefaultMRPConfig()));
-    VerifyOrReturnError(session.HasValue(), CHIP_ERROR_NO_MEMORY);
+    VerifyOrReturnError(session.has_value(), CHIP_ERROR_NO_MEMORY);
     SecureSession * secureSession = session.Value()->AsSecureSession();
     secureSession->SetPeerAddress(peerAddress);
 
@@ -589,7 +589,7 @@ CHIP_ERROR SessionManager::InjectCaseSessionWithTestKey(SessionHolder & sessionH
     Optional<SessionHandle> session = mSecureSessions.CreateNewSecureSessionForTest(
         chip::Transport::SecureSession::Type::kCASE, localSessionId, localNodeId, peerNodeId, cats, peerSessionId, fabric,
         GetLocalMRPConfig().ValueOr(GetDefaultMRPConfig()));
-    VerifyOrReturnError(session.HasValue(), CHIP_ERROR_NO_MEMORY);
+    VerifyOrReturnError(session.has_value(), CHIP_ERROR_NO_MEMORY);
     SecureSession * secureSession = session.Value()->AsSecureSession();
     secureSession->SetPeerAddress(peerAddress);
 
@@ -648,7 +648,7 @@ void SessionManager::UnauthenticatedMessageDispatch(const PacketHeader & partial
     Optional<NodeId> source      = packetHeader.GetSourceNodeId();
     Optional<NodeId> destination = packetHeader.GetDestinationNodeId();
 
-    if ((source.HasValue() && destination.HasValue()) || (!source.HasValue() && !destination.HasValue()))
+    if ((source.has_value() && destination.has_value()) || (!source.has_value() && !destination.has_value()))
     {
         ChipLogProgress(Inet,
                         "Received malformed unsecure packet with source 0x" ChipLogFormatX64 " destination 0x" ChipLogFormatX64,
@@ -657,11 +657,11 @@ void SessionManager::UnauthenticatedMessageDispatch(const PacketHeader & partial
     }
 
     Optional<SessionHandle> optionalSession;
-    if (source.HasValue())
+    if (source.has_value())
     {
         // Assume peer is the initiator, we are the responder.
         optionalSession = mUnauthenticatedSessions.FindOrAllocateResponder(source.Value(), GetDefaultMRPConfig());
-        if (!optionalSession.HasValue())
+        if (!optionalSession.has_value())
         {
             ChipLogError(Inet, "UnauthenticatedSession exhausted");
             return;
@@ -671,7 +671,7 @@ void SessionManager::UnauthenticatedMessageDispatch(const PacketHeader & partial
     {
         // Assume peer is the responder, we are the initiator.
         optionalSession = mUnauthenticatedSessions.FindInitiator(destination.Value());
-        if (!optionalSession.HasValue())
+        if (!optionalSession.has_value())
         {
             ChipLogProgress(Inet, "Received unknown unsecure packet for initiator 0x" ChipLogFormatX64,
                             ChipLogValueX64(destination.Value()));
@@ -751,7 +751,7 @@ void SessionManager::SecureUnicastMessageDispatch(const PacketHeader & partialPa
         return;
     }
 
-    if (!session.HasValue())
+    if (!session.has_value())
     {
         ChipLogError(Inet, "Data received on an unknown session (LSID=%d). Dropping it!", packetHeader.GetSessionId());
         return;
@@ -1063,7 +1063,7 @@ Optional<SessionHandle> SessionManager::FindSecureSessionForNode(ScopedNodeId pe
 
     mSecureSessions.ForEachSession([&peerNodeId, &type, &found](auto session) {
         if (session->IsActiveSession() && session->GetPeer() == peerNodeId &&
-            (!type.HasValue() || type.Value() == session->GetSecureSessionType()))
+            (!type.has_value() || type.Value() == session->GetSecureSessionType()))
         {
             //
             // Select the active session with the most recent activity to return back to the caller.

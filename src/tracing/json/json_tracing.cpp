@@ -176,7 +176,7 @@ void DecodePayloadHeader(::Json::Value & value, const PayloadHeader * payloadHea
     value["needsAck"]      = payloadHeader->NeedsAck();
 
     const Optional<uint32_t> & acknowledgedMessageCounter = payloadHeader->GetAckMessageCounter();
-    if (acknowledgedMessageCounter.HasValue())
+    if (acknowledgedMessageCounter.has_value())
     {
         value["ackMessageCounter"] = acknowledgedMessageCounter.Value();
     }
@@ -191,7 +191,7 @@ void DecodePacketHeader(::Json::Value & value, const PacketHeader * packetHeader
 
     {
         const Optional<NodeId> & nodeId = packetHeader->GetSourceNodeId();
-        if (nodeId.HasValue())
+        if (nodeId.has_value())
         {
             value["sourceNodeId"] = nodeId.Value();
         }
@@ -199,7 +199,7 @@ void DecodePacketHeader(::Json::Value & value, const PacketHeader * packetHeader
 
     {
         const Optional<NodeId> & nodeId = packetHeader->GetDestinationNodeId();
-        if (nodeId.HasValue())
+        if (nodeId.has_value())
         {
             value["destinationNodeId"] = nodeId.Value();
         }
@@ -207,7 +207,7 @@ void DecodePacketHeader(::Json::Value & value, const PacketHeader * packetHeader
 
     {
         const Optional<GroupId> & groupId = packetHeader->GetDestinationGroupId();
-        if (groupId.HasValue())
+        if (groupId.has_value())
         {
             value["groupId"] = groupId.Value();
         }

@@ -114,7 +114,7 @@ void ReadApplicationBasicVendorID(matter::casting::memory::Strong<matter::castin
         [](void * context,
            chip::Optional<chip::app::Clusters::ApplicationBasic::Attributes::VendorID::TypeInfo::DecodableArgType> before,
            chip::app::Clusters::ApplicationBasic::Attributes::VendorID::TypeInfo::DecodableArgType after) {
-            if (before.HasValue())
+            if (before.has_value())
             {
                 ChipLogProgress(AppServer, "Read VendorID value: %d [Before reading value: %d]", after, before.Value());
             }
@@ -149,7 +149,7 @@ void SubscribeToMediaPlaybackCurrentState(matter::casting::memory::Strong<matter
         [](void * context,
            chip::Optional<chip::app::Clusters::MediaPlayback::Attributes::CurrentState::TypeInfo::DecodableArgType> before,
            chip::app::Clusters::MediaPlayback::Attributes::CurrentState::TypeInfo::DecodableArgType after) {
-            if (before.HasValue())
+            if (before.has_value())
             {
                 ChipLogProgress(AppServer, "Read CurrentState value: %d [Before reading value: %d]", static_cast<int>(after),
                                 static_cast<int>(before.Value()));

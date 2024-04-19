@@ -3462,7 +3462,7 @@ bool DoorLockServer::HandleRemoteLockOperation(chip::app::CommandHandler * comma
         goto exit;
     }
 
-    if (pinCode.HasValue())
+    if (pinCode.has_value())
     {
         // appclusters.pdf 5.3.4.1:
         // If the PINCode field is provided, the door lock SHALL verify PINCode before granting access regardless of the value
@@ -3529,7 +3529,7 @@ exit:
     }
 
     // Reset the wrong code retry attempts if a valid credential is presented during lock/unlock
-    if (success && pinCode.HasValue())
+    if (success && pinCode.has_value())
     {
         ResetWrongCodeEntryAttempts(endpoint);
     }
@@ -3550,7 +3550,7 @@ exit:
 
     // appclusters.pdf 5.3.5.3, 5.3.5.4:
     // The list of credentials used in performing the lock operation. This SHALL be null if no credentials were involved.
-    if (pinCode.HasValue() && pinCredIdx.HasValue())
+    if (pinCode.has_value() && pinCredIdx.has_value())
     {
         foundCred[0].credentialIndex = pinCredIdx.Value();
         credentials.SetNonNull(foundCred);
@@ -3578,7 +3578,7 @@ void DoorLockServer::SendLockOperationEvent(chip::EndpointId endpointId, LockOpe
                                             const Nullable<List<const LockOpCredentials>> & credentials, bool opSuccess)
 {
 
-    // TODO: if [USR] feature is not supported then credentials should be omitted (Optional.HasValue()==false)?
+    // TODO: if [USR] feature is not supported then credentials should be omitted (Optional.has_value()==false)?
     // Spec just says that it should be NULL if no PIN were provided.
     if (opSuccess)
     {
@@ -3911,7 +3911,7 @@ void DoorLockServer::setAliroReaderConfigCommandHandler(CommandHandler * command
     VerifyOrReturn(delegate != nullptr, ChipLogError(Zcl, "Delegate is null"));
 
     // If Aliro BLE UWB feature is supported and groupResolvingKey is not provided in the command, return INVALID_COMMAND.
-    if (SupportsAliroBLEUWB(endpointID) && !groupResolvingKey.HasValue())
+    if (SupportsAliroBLEUWB(endpointID) && !groupResolvingKey.has_value())
     {
         ChipLogProgress(Zcl, "[SetAliroReaderConfig] Aliro BLE UWB supported but Group Resolving Key is not provided");
         commandObj->AddStatus(commandPath, Status::InvalidCommand);
@@ -3922,7 +3922,7 @@ void DoorLockServer::setAliroReaderConfigCommandHandler(CommandHandler * command
     // Return INVALID_COMMAND if not.
     if (signingKey.size() != kAliroSigningKeySize || verificationKey.size() != kAliroReaderVerificationKeySize ||
         groupIdentifier.size() != kAliroReaderGroupIdentifierSize ||
-        (groupResolvingKey.HasValue() && groupResolvingKey.Value().size() != kAliroGroupResolvingKeySize))
+        (groupResolvingKey.has_value() && groupResolvingKey.Value().size() != kAliroGroupResolvingKeySize))
     {
         ChipLogProgress(Zcl,
                         "[SetAliroReaderConfig] One or more parameters in the command do not meet the size constraint as per spec");

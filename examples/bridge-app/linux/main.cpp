@@ -711,7 +711,7 @@ bool emberAfActionsClusterInstantActionCallback(app::CommandHandler * commandObj
     EndpointId endpointID = commandPath.mEndpointId;
     auto & actionID       = commandData.actionID;
 
-    if (commandData.invokeID.HasValue())
+    if (commandData.invokeID.has_value())
     {
         hasInvokeID = true;
         invokeID    = commandData.invokeID.Value();

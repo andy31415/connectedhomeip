@@ -197,7 +197,7 @@ Status CommandHandler::ProcessInvokeRequest(System::PacketBufferHandle && payloa
     invokeRequestMessage.PrettyPrint();
 #endif
     VerifyOrDie(mpResponder);
-    if (mpResponder->GetGroupId().HasValue())
+    if (mpResponder->GetGroupId().has_value())
     {
         SetGroupRequest(true);
     }
@@ -932,7 +932,7 @@ void CommandHandler::TestOnlyInvokeCommandRequestWithFaultsInjected(CommandHandl
     ChipLogProgress(DataManagement, "   Injecting the following response:%s", GetFaultInjectionTypeStr(faultType));
 
     Handle workHandle(this);
-    VerifyOrDieWithMsg(!commandResponder.GetGroupId().HasValue(), DataManagement, "DUT Failure: Unexpected Group Command");
+    VerifyOrDieWithMsg(!commandResponder.GetGroupId().has_value(), DataManagement, "DUT Failure: Unexpected Group Command");
 
     System::PacketBufferTLVReader reader;
     InvokeRequestMessage::Parser invokeRequestMessage;

@@ -1081,7 +1081,7 @@ private:
             auto onAttributeSuccessCb
                 = [resultArray, includeDataVersion](const ConcreteDataAttributePath & aAttributePath, const MTRDataValueDictionaryDecodableType & aData) {
                       // TODO: move this logic into MTRDataValueDictionaryDecodableType
-                      if (includeDataVersion && aAttributePath.mDataVersion.HasValue()) {
+                      if (includeDataVersion && aAttributePath.mDataVersion.has_value()) {
                           NSDictionary * dataValue = aData.GetDecodedObject();
                           [resultArray addObject:@{
                               MTRAttributePathKey : [[MTRAttributePath alloc] initWithPath:aAttributePath],

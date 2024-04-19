@@ -271,7 +271,7 @@ CHIP_ERROR CHIPCommand::Run()
 
 void CHIPCommand::StartTracing()
 {
-    if (mTraceTo.HasValue())
+    if (mTraceTo.has_value())
     {
         for (const auto & destination : mTraceTo.Value())
         {
@@ -282,16 +282,16 @@ void CHIPCommand::StartTracing()
 #if CHIP_CONFIG_TRANSPORT_TRACE_ENABLED
     chip::trace::InitTrace();
 
-    if (mTraceFile.HasValue())
+    if (mTraceFile.has_value())
     {
         chip::trace::AddTraceStream(new chip::trace::TraceStreamFile(mTraceFile.Value()));
     }
-    else if (mTraceLog.HasValue() && mTraceLog.Value())
+    else if (mTraceLog.has_value() && mTraceLog.Value())
     {
         chip::trace::AddTraceStream(new chip::trace::TraceStreamLog());
     }
 
-    if (mTraceDecode.HasValue() && mTraceDecode.Value())
+    if (mTraceDecode.has_value() && mTraceDecode.Value())
     {
         chip::trace::TraceDecoderOptions options;
         // The interaction model protocol is already logged, so just disable logging those.
@@ -328,7 +328,7 @@ void CHIPCommand::SetIdentity(const char * identity)
 
 std::string CHIPCommand::GetIdentity()
 {
-    std::string name = mCommissionerName.HasValue() ? mCommissionerName.Value() : kIdentityAlpha;
+    std::string name = mCommissionerName.has_value() ? mCommissionerName.Value() : kIdentityAlpha;
     if (name.compare(kIdentityAlpha) != 0 && name.compare(kIdentityBeta) != 0 && name.compare(kIdentityGamma) != 0 &&
         name.compare(kIdentityNull) != 0)
     {
@@ -355,7 +355,7 @@ std::string CHIPCommand::GetIdentity()
 
 CHIP_ERROR CHIPCommand::GetIdentityNodeId(std::string identity, chip::NodeId * nodeId)
 {
-    if (mCommissionerNodeId.HasValue())
+    if (mCommissionerNodeId.has_value())
     {
         *nodeId = mCommissionerNodeId.Value();
         return CHIP_NO_ERROR;
@@ -461,7 +461,7 @@ CHIP_ERROR CHIPCommand::InitializeCommissioner(CommissionerIdentity & identity, 
         //        store the credentials in persistent storage, and
         //        generate when not available in the storage.
         ReturnLogErrorOnFailure(mCommissionerStorage.Init(identity.mName.c_str(), GetStorageDirectory().ValueOr(nullptr)));
-        if (mUseMaxSizedCerts.HasValue())
+        if (mUseMaxSizedCerts.has_value())
         {
             auto option = CredentialIssuerCommands::CredentialIssuerOptions::kMaximizeCertificateSizes;
             mCredIssuerCmds->SetCredentialIssuerOption(option, mUseMaxSizedCerts.Value());

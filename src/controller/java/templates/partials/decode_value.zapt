@@ -2,7 +2,7 @@
 jobject {{target}};
 {{/unless}}
 {{#if isOptional}}
-if (!{{source}}.HasValue()) {
+if (!{{source}}.has_value()) {
   chip::JniReferences::GetInstance().CreateOptional(nullptr, {{target}});
 } else {
   jobject {{target}}InsideOptional;

@@ -80,14 +80,14 @@ CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIn
 CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
 {
     {{#if struct_has_fabric_sensitive_fields}}
-    bool includeSensitive = !aAccessingFabricIndex.HasValue() || (aAccessingFabricIndex.Value() == fabricIndex);
+    bool includeSensitive = !aAccessingFabricIndex.has_value() || (aAccessingFabricIndex.Value() == fabricIndex);
     {{/if}}
 
     DataModel::WrappedStructEncoder encoder{aWriter, aTag};
 
     {{#zcl_struct_items}}
     {{#if (is_num_equal fieldIdentifier 254)}}
-    if (aAccessingFabricIndex.HasValue()) {
+    if (aAccessingFabricIndex.has_value()) {
       encoder.Encode(to_underlying(Fields::k{{asUpperCamelCase label}}), {{asLowerCamelCase label}});
     }
     {{else if isFabricSensitive}}

@@ -197,24 +197,24 @@ void OTAProviderDelegateBridge::HandleQueryImage(CommandHandler * commandObj, co
                                                                   &handleQueryImageMethod);
     VerifyOrExit(err == CHIP_NO_ERROR, ChipLogError(Controller, "Could not find handleQueryImage method"));
 
-    if (hardwareVersion.HasValue())
+    if (hardwareVersion.has_value())
     {
         chip::JniReferences::GetInstance().CreateBoxedObject<jint>(
             "java/lang/Integer", "(I)V", static_cast<jint>(hardwareVersion.Value()), boxedHardwareVersion);
     }
 
-    if (location.HasValue())
+    if (location.has_value())
     {
         boxedLocation = env->NewStringUTF(std::string(location.Value().data(), location.Value().size()).c_str());
     }
 
-    if (requestorCanConsent.HasValue())
+    if (requestorCanConsent.has_value())
     {
         chip::JniReferences::GetInstance().CreateBoxedObject<jboolean>(
             "java/lang/Boolean", "(Z)V", requestorCanConsent.Value() ? JNI_TRUE : JNI_FALSE, boxedRequestorCanConsent);
     }
 
-    if (metadataForProvider.HasValue())
+    if (metadataForProvider.has_value())
     {
         jbyteArray boxedMetadataForProviderByteArray = env->NewByteArray(static_cast<jsize>(metadataForProvider.Value().size()));
         env->SetByteArrayRegion(boxedMetadataForProviderByteArray, 0, static_cast<jsize>(metadataForProvider.Value().size()),

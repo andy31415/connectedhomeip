@@ -98,7 +98,7 @@ void ParseStatusIB(nlTestSuite * apSuite, StatusIB::Parser & aStatusIBParser)
     err = aStatusIBParser.DecodeStatusIB(statusIB);
     NL_TEST_ASSERT(apSuite,
                    err == CHIP_NO_ERROR && statusIB.mStatus == chip::Protocols::InteractionModel::Status::InvalidSubscription &&
-                       !statusIB.mClusterStatus.HasValue());
+                       !statusIB.mClusterStatus.has_value());
 }
 
 void BuildClusterPathIB(nlTestSuite * apSuite, ClusterPathIB::Builder & aClusterPathBuilder)

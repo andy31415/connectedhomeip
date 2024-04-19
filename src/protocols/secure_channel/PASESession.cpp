@@ -123,7 +123,7 @@ CHIP_ERROR PASESession::Init(SessionManager & sessionManager, uint32_t setupCode
 
     mDelegate = delegate;
     ReturnErrorOnFailure(AllocateSecureSession(sessionManager));
-    VerifyOrReturnError(GetLocalSessionId().HasValue(), CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrReturnError(GetLocalSessionId().has_value(), CHIP_ERROR_INCORRECT_STATE);
     ChipLogDetail(SecureChannel, "Assigned local session key ID %u", GetLocalSessionId().Value());
 
     ReturnErrorCodeIf(setupCode >= (1 << kSetupPINCodeFieldLengthInBits), CHIP_ERROR_INVALID_ARGUMENT);
@@ -244,7 +244,7 @@ void PASESession::OnResponseTimeout(ExchangeContext * ec)
 {
     MATTER_TRACE_SCOPE("OnResponseTimeout", "PASESession");
     VerifyOrReturn(ec != nullptr, ChipLogError(SecureChannel, "PASESession::OnResponseTimeout was called by null exchange"));
-    VerifyOrReturn(!mExchangeCtxt.HasValue() || &mExchangeCtxt.Value().Get() == ec,
+    VerifyOrReturn(!mExchangeCtxt.has_value() || &mExchangeCtxt.Value().Get() == ec,
                    ChipLogError(SecureChannel, "PASESession::OnResponseTimeout exchange doesn't match"));
     // If we were waiting for something, mNextExpectedMsg had better have a value.
     ChipLogError(SecureChannel, "PASESession timed out while waiting for a response from the peer. Expected message type was %u",
@@ -276,7 +276,7 @@ CHIP_ERROR PASESession::SendPBKDFParamRequest()
 {
     MATTER_TRACE_SCOPE("SendPBKDFParamRequest", "PASESession");
 
-    VerifyOrReturnError(GetLocalSessionId().HasValue(), CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrReturnError(GetLocalSessionId().has_value(), CHIP_ERROR_INCORRECT_STATE);
 
     ReturnErrorOnFailure(DRBG_get_bytes(mPBKDFLocalRandomData, sizeof(mPBKDFLocalRandomData)));
 
@@ -386,7 +386,7 @@ CHIP_ERROR PASESession::SendPBKDFParamResponse(ByteSpan initiatorRandom, bool in
 {
     MATTER_TRACE_SCOPE("SendPBKDFParamResponse", "PASESession");
 
-    VerifyOrReturnError(GetLocalSessionId().HasValue(), CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrReturnError(GetLocalSessionId().has_value(), CHIP_ERROR_INCORRECT_STATE);
 
     ReturnErrorOnFailure(DRBG_get_bytes(mPBKDFLocalRandomData, sizeof(mPBKDFLocalRandomData)));
 
@@ -791,7 +791,7 @@ CHIP_ERROR PASESession::ValidateReceivedMessage(ExchangeContext * exchange, cons
     // mExchangeCtxt can be nullptr if this is the first message (PBKDFParamRequest) received by PASESession
     // via UnsolicitedMessageHandler. The exchange context is allocated by exchange manager and provided
     // to the handler (PASESession object).
-    if (mExchangeCtxt.HasValue())
+    if (mExchangeCtxt.has_value())
     {
         if (&mExchangeCtxt.Value().Get() != exchange)
         {
@@ -812,7 +812,7 @@ CHIP_ERROR PASESession::ValidateReceivedMessage(ExchangeContext * exchange, cons
     mExchangeCtxt.Value()->UseSuggestedResponseTimeout(kExpectedHighProcessingTime);
 
     VerifyOrReturnError(!msg.IsNull(), CHIP_ERROR_INVALID_ARGUMENT);
-    VerifyOrReturnError((mNextExpectedMsg.HasValue() && payloadHeader.HasMessageType(mNextExpectedMsg.Value())) ||
+    VerifyOrReturnError((mNextExpectedMsg.has_value() && payloadHeader.HasMessageType(mNextExpectedMsg.Value())) ||
                             payloadHeader.HasMessageType(MsgType::StatusReport),
                         CHIP_ERROR_INVALID_MESSAGE_TYPE);
 
@@ -866,7 +866,7 @@ CHIP_ERROR PASESession::OnMessageReceived(ExchangeContext * exchange, const Payl
 
     case MsgType::StatusReport:
         err =
-            HandleStatusReport(std::move(msg), mNextExpectedMsg.HasValue() && (mNextExpectedMsg.Value() == MsgType::StatusReport));
+            HandleStatusReport(std::move(msg), mNextExpectedMsg.has_value() && (mNextExpectedMsg.Value() == MsgType::StatusReport));
         break;
 
     default:

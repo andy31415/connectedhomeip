@@ -42,7 +42,7 @@ RemoteDataModelLoggerDelegate * gDelegate;
 
 CHIP_ERROR LogError(Json::Value & value, const chip::app::StatusIB & status)
 {
-    if (status.mClusterStatus.HasValue())
+    if (status.mClusterStatus.has_value())
     {
         auto statusValue          = status.mClusterStatus.Value();
         value[kClusterErrorIdKey] = statusValue;
@@ -71,7 +71,7 @@ CHIP_ERROR LogAttributeAsJSON(const chip::app::ConcreteDataAttributePath & path,
     value[kClusterIdKey]   = path.mClusterId;
     value[kEndpointIdKey]  = path.mEndpointId;
     value[kAttributeIdKey] = path.mAttributeId;
-    if (path.mDataVersion.HasValue())
+    if (path.mDataVersion.has_value())
     {
         value[kDataVersionKey] = path.mDataVersion.Value();
     }
@@ -245,22 +245,22 @@ CHIP_ERROR LogDiscoveredNodeData(const chip::Dnssd::DiscoveredNodeData & nodeDat
     value["port"]               = resolutionData.port;
     value["numIPs"]             = static_cast<uint8_t>(resolutionData.numIPs);
 
-    if (resolutionData.mrpRetryIntervalIdle.HasValue())
+    if (resolutionData.mrpRetryIntervalIdle.has_value())
     {
         value["mrpRetryIntervalIdle"] = resolutionData.mrpRetryIntervalIdle.Value().count();
     }
 
-    if (resolutionData.mrpRetryIntervalActive.HasValue())
+    if (resolutionData.mrpRetryIntervalActive.has_value())
     {
         value["mrpRetryIntervalActive"] = resolutionData.mrpRetryIntervalActive.Value().count();
     }
 
-    if (resolutionData.mrpRetryActiveThreshold.HasValue())
+    if (resolutionData.mrpRetryActiveThreshold.has_value())
     {
         value["mrpRetryActiveThreshold"] = resolutionData.mrpRetryActiveThreshold.Value().count();
     }
 
-    if (resolutionData.isICDOperatingAsLIT.HasValue())
+    if (resolutionData.isICDOperatingAsLIT.has_value())
     {
         value["isICDOperatingAsLIT"] = resolutionData.isICDOperatingAsLIT.Value();
     }

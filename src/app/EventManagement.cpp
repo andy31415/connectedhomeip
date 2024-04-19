@@ -532,7 +532,7 @@ CHIP_ERROR EventManagement::CheckEventContext(EventLoadOutContext * eventLoadOut
         return CHIP_ERROR_UNEXPECTED_EVENT;
     }
 
-    if (event.mFabricIndex.HasValue() &&
+    if (event.mFabricIndex.has_value() &&
         (event.mFabricIndex.Value() == kUndefinedFabricIndex ||
          eventLoadOutContext->mSubjectDescriptor.fabricIndex != event.mFabricIndex.Value()))
     {

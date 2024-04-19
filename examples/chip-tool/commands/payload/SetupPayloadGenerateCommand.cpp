@@ -30,32 +30,32 @@ using namespace ::chip;
 
 void SetupPayloadGenerateCommand::ConfigurePayload(SetupPayload & payload)
 {
-    if (mDiscriminator.HasValue())
+    if (mDiscriminator.has_value())
     {
         payload.discriminator.SetLongValue(mDiscriminator.Value());
     }
 
-    if (mSetUpPINCode.HasValue())
+    if (mSetUpPINCode.has_value())
     {
         payload.setUpPINCode = mSetUpPINCode.Value();
     }
 
-    if (mVersion.HasValue())
+    if (mVersion.has_value())
     {
         payload.version = mVersion.Value();
     }
 
-    if (mVendorId.HasValue())
+    if (mVendorId.has_value())
     {
         payload.vendorID = mVendorId.Value();
     }
 
-    if (mProductId.HasValue())
+    if (mProductId.has_value())
     {
         payload.productID = mProductId.Value();
     }
 
-    if (mCommissioningMode.HasValue())
+    if (mCommissioningMode.has_value())
     {
         payload.commissioningFlow = static_cast<CommissioningFlow>(mCommissioningMode.Value());
     }
@@ -65,7 +65,7 @@ CHIP_ERROR SetupPayloadGenerateQRCodeCommand::Run()
 {
     SetupPayload payload;
 
-    if (mExistingPayload.HasValue())
+    if (mExistingPayload.has_value())
     {
         CHIP_ERROR err = QRCodeSetupPayloadParser(mExistingPayload.Value()).populatePayload(payload);
         if (err != CHIP_NO_ERROR)
@@ -77,17 +77,17 @@ CHIP_ERROR SetupPayloadGenerateQRCodeCommand::Run()
 
     ConfigurePayload(payload);
 
-    if (mRendezvous.HasValue())
+    if (mRendezvous.has_value())
     {
         payload.rendezvousInformation.Emplace().SetRaw(mRendezvous.Value());
     }
-    else if (!payload.rendezvousInformation.HasValue())
+    else if (!payload.rendezvousInformation.has_value())
     {
         // Default to not having anything in the discovery capabilities.
         payload.rendezvousInformation.SetValue(RendezvousInformationFlag::kNone);
     }
 
-    if (mTLVBytes.HasValue())
+    if (mTLVBytes.has_value())
     {
         CHIP_ERROR err = PopulatePayloadTLVFromBytes(payload, mTLVBytes.Value());
         if (err != CHIP_NO_ERROR)
@@ -217,7 +217,7 @@ CHIP_ERROR SetupPayloadGenerateManualCodeCommand::Run()
 {
     SetupPayload payload;
 
-    if (mExistingPayload.HasValue())
+    if (mExistingPayload.has_value())
     {
         CHIP_ERROR err = ManualSetupPayloadParser(mExistingPayload.Value()).populatePayload(payload);
         if (err != CHIP_NO_ERROR)

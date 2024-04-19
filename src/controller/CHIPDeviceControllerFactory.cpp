@@ -306,7 +306,7 @@ void DeviceControllerFactory::PopulateInitParams(ControllerInitParams & controll
     controllerParams.controllerVendorId = params.controllerVendorId;
 
     controllerParams.enableServerInteractions = params.enableServerInteractions;
-    if (params.fabricIndex.HasValue())
+    if (params.fabricIndex.has_value())
     {
         controllerParams.fabricIndex.SetValue(params.fabricIndex.Value());
     }

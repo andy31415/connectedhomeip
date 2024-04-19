@@ -1445,7 +1445,7 @@ static NSString * const sAttributesKey = @"attributes";
                            idleSleepInterval = maxIntervalCeilingMax;
                        }
 #ifdef DEBUG
-                       if (maxIntervalOverride.HasValue()) {
+                       if (maxIntervalOverride.has_value()) {
                            idleSleepInterval = maxIntervalOverride.Value();
                        }
 #endif
@@ -2946,7 +2946,7 @@ void SubscriptionCallback::OnAttributeData(
             MTRErrorKey : [MTRError errorForCHIPErrorCode:CHIP_ERROR_INVALID_ARGUMENT]
         }];
     } else {
-        NSNumber * dataVersionNumber = aPath.mDataVersion.HasValue() ? @(aPath.mDataVersion.Value()) : nil;
+        NSNumber * dataVersionNumber = aPath.mDataVersion.has_value() ? @(aPath.mDataVersion.Value()) : nil;
         NSDictionary * value = MTRDecodeDataValueDictionaryFromCHIPTLV(apData, dataVersionNumber);
         if (value == nil) {
             MTR_LOG_ERROR("Failed to decode attribute data for path %@", attributePath);

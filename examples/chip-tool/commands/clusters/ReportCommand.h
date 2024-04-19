@@ -124,7 +124,7 @@ protected:
     // while.
     chip::System::Clock::Timeout GetWaitDuration() const override
     {
-        return mTimeout.HasValue() ? chip::System::Clock::Seconds16(mTimeout.Value()) : (ModelCommand::GetWaitDuration() * 3);
+        return mTimeout.has_value() ? chip::System::Clock::Seconds16(mTimeout.Value()) : (ModelCommand::GetWaitDuration() * 3);
     }
 
     CHIP_ERROR mError = CHIP_NO_ERROR;

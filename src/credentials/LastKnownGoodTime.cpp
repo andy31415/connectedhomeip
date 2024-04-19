@@ -131,7 +131,7 @@ CHIP_ERROR LastKnownGoodTime::SetLastKnownGoodChipEpochTime(System::Clock::Secon
                                                             System::Clock::Seconds32 notBefore)
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
-    VerifyOrExit(mLastKnownGoodChipEpochTime.HasValue(), err = CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrExit(mLastKnownGoodChipEpochTime.has_value(), err = CHIP_ERROR_INCORRECT_STATE);
     LogTime("Last Known Good Time: ", mLastKnownGoodChipEpochTime.Value());
     LogTime("New proposed Last Known Good Time: ", lastKnownGoodChipEpochTime);
 
@@ -170,7 +170,7 @@ exit:
 CHIP_ERROR LastKnownGoodTime::UpdatePendingLastKnownGoodChipEpochTime(System::Clock::Seconds32 lastKnownGoodChipEpochTime)
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
-    VerifyOrExit(mLastKnownGoodChipEpochTime.HasValue(), err = CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrExit(mLastKnownGoodChipEpochTime.has_value(), err = CHIP_ERROR_INCORRECT_STATE);
     LogTime("Last Known Good Time: ", mLastKnownGoodChipEpochTime.Value());
     LogTime("New proposed Last Known Good Time: ", lastKnownGoodChipEpochTime);
     if (lastKnownGoodChipEpochTime > mLastKnownGoodChipEpochTime.Value())
@@ -189,7 +189,7 @@ exit:
 CHIP_ERROR LastKnownGoodTime::CommitPendingLastKnownGoodChipEpochTime()
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
-    VerifyOrExit(mLastKnownGoodChipEpochTime.HasValue(), err = CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrExit(mLastKnownGoodChipEpochTime.has_value(), err = CHIP_ERROR_INCORRECT_STATE);
     LogTime("Committing Last Known Good Time to storage: ", mLastKnownGoodChipEpochTime.Value());
     SuccessOrExit(err = StoreLastKnownGoodChipEpochTime(mLastKnownGoodChipEpochTime.Value()));
 exit:
@@ -204,7 +204,7 @@ CHIP_ERROR LastKnownGoodTime::RevertPendingLastKnownGoodChipEpochTime()
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
     System::Clock::Seconds32 storedLastKnownGoodChipEpochTime;
-    VerifyOrExit(mLastKnownGoodChipEpochTime.HasValue(), err = CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrExit(mLastKnownGoodChipEpochTime.has_value(), err = CHIP_ERROR_INCORRECT_STATE);
     LogTime("Pending Last Known Good Time: ", mLastKnownGoodChipEpochTime.Value());
     SuccessOrExit(err = LoadLastKnownGoodChipEpochTime(storedLastKnownGoodChipEpochTime));
     LogTime("Previous Last Known Good Time: ", storedLastKnownGoodChipEpochTime);

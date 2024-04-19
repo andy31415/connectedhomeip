@@ -32,7 +32,7 @@ inline std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>:
     NSNumber * _Nullable>
 AsNumber(chip::Optional<T> optional)
 {
-    return (optional.HasValue()) ? @(optional.Value()) : nil;
+    return (optional.has_value()) ? @(optional.Value()) : nil;
 }
 
 inline NSDate * MatterEpochSecondsAsDate(uint32_t matterEpochSeconds)

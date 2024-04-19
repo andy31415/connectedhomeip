@@ -36,7 +36,7 @@ size_t SizeOfStatusIB(const StatusIB & aStatus)
     // 1 byte: end of container.
     size_t size = 5;
 
-    if (aStatus.mClusterStatus.HasValue())
+    if (aStatus.mClusterStatus.has_value())
     {
         // 1 byte: control byte for uint8 value.
         // 1 byte: context-specific tag for uint8 value.
@@ -168,7 +168,7 @@ CHIP_ERROR ClusterStateCache::UpdateEventCache(const EventHeader & aEventHeader,
         //
         // If we've already seen this event before, there's no more work to be done.
         //
-        if (mHighestReceivedEventNumber.HasValue() && aEventHeader.mEventNumber <= mHighestReceivedEventNumber.Value())
+        if (mHighestReceivedEventNumber.has_value() && aEventHeader.mEventNumber <= mHighestReceivedEventNumber.Value())
         {
             return CHIP_NO_ERROR;
         }
@@ -224,7 +224,7 @@ void ClusterStateCache::CommitPendingDataVersion()
     }
 
     auto & lastClusterInfo = mCache[mLastReportDataPath.mEndpointId][mLastReportDataPath.mClusterId];
-    if (lastClusterInfo.mPendingDataVersion.HasValue())
+    if (lastClusterInfo.mPendingDataVersion.has_value())
     {
         lastClusterInfo.mCommittedDataVersion = lastClusterInfo.mPendingDataVersion;
         lastClusterInfo.mPendingDataVersion.ClearValue();
@@ -453,7 +453,7 @@ void ClusterStateCache::GetSortedFilters(std::vector<std::pair<DataVersionFilter
         EndpointId endpointId = endpointIter.first;
         for (auto const & clusterIter : endpointIter.second)
         {
-            if (!clusterIter.second.mCommittedDataVersion.HasValue())
+            if (!clusterIter.second.mCommittedDataVersion.has_value())
             {
                 continue;
             }

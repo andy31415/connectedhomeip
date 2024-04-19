@@ -240,7 +240,7 @@ Optional<System::Clock::Timeout> ActiveResolveAttempts::GetTimeUntilNextExpected
         }
 
         System::Clock::Timeout entryDelay = entry.queryDueTime - now;
-        if (!minDelay.HasValue() || (minDelay.Value() > entryDelay))
+        if (!minDelay.has_value() || (minDelay.Value() > entryDelay))
         {
             minDelay.SetValue(entryDelay);
         }

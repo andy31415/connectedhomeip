@@ -39,7 +39,7 @@ CHIP_ERROR CASEClient::EstablishSession(const CASEClientInitParams & params, con
 
     // Create a UnauthenticatedSession for CASE pairing.
     Optional<SessionHandle> session = params.sessionManager->CreateUnauthenticatedSession(peerAddress, remoteMRPConfig);
-    VerifyOrReturnError(session.HasValue(), CHIP_ERROR_NO_MEMORY);
+    VerifyOrReturnError(session.has_value(), CHIP_ERROR_NO_MEMORY);
 
     // Allocate the exchange immediately before calling CASESession::EstablishSession.
     //
@@ -51,7 +51,7 @@ CHIP_ERROR CASEClient::EstablishSession(const CASEClientInitParams & params, con
     VerifyOrReturnError(exchange != nullptr, CHIP_ERROR_INTERNAL);
 
     const Optional<ReliableMessageProtocolConfig> & mrpLocalConfig =
-        params.mrpLocalConfig.HasValue() ? params.mrpLocalConfig : GetLocalMRPConfig();
+        params.mrpLocalConfig.has_value() ? params.mrpLocalConfig : GetLocalMRPConfig();
     mCASESession.SetGroupDataProvider(params.groupDataProvider);
     ReturnErrorOnFailure(mCASESession.EstablishSession(*params.sessionManager, params.fabricTable, peer, exchange,
                                                        params.sessionResumptionStorage, params.certificateValidityPolicy, delegate,

@@ -82,7 +82,7 @@ InvokeCommandRequest(Messaging::ExchangeManager * aExchangeMgr, const SessionHan
     decoder->SetOnDoneCallback(onDone);
 
     auto commandSender =
-        chip::Platform::MakeUnique<app::CommandSender>(decoder.get(), aExchangeMgr, timedInvokeTimeoutMs.HasValue());
+        chip::Platform::MakeUnique<app::CommandSender>(decoder.get(), aExchangeMgr, timedInvokeTimeoutMs.has_value());
     VerifyOrReturnError(commandSender != nullptr, CHIP_ERROR_NO_MEMORY);
 
     ReturnErrorOnFailure(commandSender->AddRequestData(commandPath, requestCommandData, timedInvokeTimeoutMs));

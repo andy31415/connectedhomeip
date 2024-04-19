@@ -69,12 +69,12 @@ void PairingCommandBridge::SetUpDeviceControllerDelegate()
 
     if (mUseDeviceAttestationDelegate.ValueOr(false)) {
         params.deviceAttestationDelegate = [[NoOpAttestationDelegate alloc] init];
-        if (mDeviceAttestationFailsafeTime.HasValue()) {
+        if (mDeviceAttestationFailsafeTime.has_value()) {
             params.failSafeTimeout = @(mDeviceAttestationFailsafeTime.Value());
         }
     }
 
-    if (mCountryCode.HasValue()) {
+    if (mCountryCode.has_value()) {
         params.countryCode = [NSString stringWithUTF8String:mCountryCode.Value()];
     }
 

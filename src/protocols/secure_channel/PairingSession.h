@@ -83,11 +83,11 @@ public:
 
     uint16_t GetPeerSessionId() const
     {
-        VerifyOrDie(mPeerSessionId.HasValue());
+        VerifyOrDie(mPeerSessionId.has_value());
         return mPeerSessionId.Value();
     }
 
-    bool IsValidPeerSessionId() const { return mPeerSessionId.HasValue(); }
+    bool IsValidPeerSessionId() const { return mPeerSessionId.has_value(); }
 
     /**
      * @brief

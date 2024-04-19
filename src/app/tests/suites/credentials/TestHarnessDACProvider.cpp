@@ -277,17 +277,17 @@ void TestHarnessDACProvider::Init(const char * filepath)
 
 void TestHarnessDACProvider::Init(const TestHarnessDACProviderData & data)
 {
-    mDacCert       = data.dacCert.HasValue() ? data.dacCert.Value() : DevelopmentCerts::kDacCert;
-    mDacPrivateKey = data.dacPrivateKey.HasValue() ? data.dacPrivateKey.Value() : DevelopmentCerts::kDacPrivateKey;
-    mDacPublicKey  = data.dacPublicKey.HasValue() ? data.dacPublicKey.Value() : DevelopmentCerts::kDacPublicKey;
-    mPaiCert       = data.paiCert.HasValue() ? data.paiCert.Value() : DevelopmentCerts::kPaiCert;
+    mDacCert       = data.dacCert.has_value() ? data.dacCert.Value() : DevelopmentCerts::kDacCert;
+    mDacPrivateKey = data.dacPrivateKey.has_value() ? data.dacPrivateKey.Value() : DevelopmentCerts::kDacPrivateKey;
+    mDacPublicKey  = data.dacPublicKey.has_value() ? data.dacPublicKey.Value() : DevelopmentCerts::kDacPublicKey;
+    mPaiCert       = data.paiCert.has_value() ? data.paiCert.Value() : DevelopmentCerts::kPaiCert;
     mCertificationDeclaration =
-        data.certificationDeclaration.HasValue() ? data.certificationDeclaration.Value() : ByteSpan{ kCdForAllExamples };
-    mIsSuccessCase = data.isSuccessCase.HasValue() ? data.isSuccessCase.Value() : true;
-    mDescription   = data.description.HasValue() ? data.description.Value() : CharSpan();
+        data.certificationDeclaration.has_value() ? data.certificationDeclaration.Value() : ByteSpan{ kCdForAllExamples };
+    mIsSuccessCase = data.isSuccessCase.has_value() ? data.isSuccessCase.Value() : true;
+    mDescription   = data.description.has_value() ? data.description.Value() : CharSpan();
 
     // TODO: We need a real example FirmwareInformation to be populated.
-    mFirmwareInformation = data.firmwareInformation.HasValue() ? data.firmwareInformation.Value() : ByteSpan();
+    mFirmwareInformation = data.firmwareInformation.has_value() ? data.firmwareInformation.Value() : ByteSpan();
 }
 
 CHIP_ERROR TestHarnessDACProvider::GetDeviceAttestationCert(MutableByteSpan & out_dac_buffer)

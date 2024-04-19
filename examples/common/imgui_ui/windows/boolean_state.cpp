@@ -29,7 +29,7 @@ namespace Windows {
 
 void BooleanState::UpdateState()
 {
-    if (mTargetState.HasValue())
+    if (mTargetState.has_value())
     {
         // TODO: if src/app/clusters/boolean-state exists, we should use its
         //       mutation API.

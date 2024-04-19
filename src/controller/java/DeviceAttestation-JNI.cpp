@@ -147,13 +147,13 @@ JNI_METHOD(void, validateAttestationInfo)
         VerifyOrExit(err == CHIP_NO_ERROR,
                      ChipLogError(Controller, "Extract VID, PID from DAC Error! : %" CHIP_ERROR_FORMAT, err.Format()));
 
-        if (paaVidPid.mVendorId.HasValue())
+        if (paaVidPid.mVendorId.has_value())
         {
             VerifyOrExit(paaVidPid.mVendorId == paiVidPid.mVendorId,
                          attestationError = chip::Credentials::AttestationVerificationResult::kPaiVendorIdMismatch);
         }
 
-        VerifyOrExit(!paaVidPid.mProductId.HasValue(),
+        VerifyOrExit(!paaVidPid.mProductId.has_value(),
                      attestationError = chip::Credentials::AttestationVerificationResult::kPaaFormatInvalid);
 
         err = chip::Crypto::ValidateCertificateChain(

@@ -125,15 +125,15 @@ void pychip_DeviceController_IterateDiscoveredCommissionableNodes(Controller::De
         jsonVal["deviceName"]         = dnsSdInfo->nodeData.deviceName;
         jsonVal["pairingInstruction"] = dnsSdInfo->nodeData.pairingInstruction;
         jsonVal["pairingHint"]        = dnsSdInfo->nodeData.pairingHint;
-        if (dnsSdInfo->resolutionData.GetMrpRetryIntervalIdle().HasValue())
+        if (dnsSdInfo->resolutionData.GetMrpRetryIntervalIdle().has_value())
         {
             jsonVal["mrpRetryIntervalIdle"] = dnsSdInfo->resolutionData.GetMrpRetryIntervalIdle().Value().count();
         }
-        if (dnsSdInfo->resolutionData.GetMrpRetryIntervalActive().HasValue())
+        if (dnsSdInfo->resolutionData.GetMrpRetryIntervalActive().has_value())
         {
             jsonVal["mrpRetryIntervalActive"] = dnsSdInfo->resolutionData.GetMrpRetryIntervalActive().Value().count();
         }
-        if (dnsSdInfo->resolutionData.GetMrpRetryActiveThreshold().HasValue())
+        if (dnsSdInfo->resolutionData.GetMrpRetryActiveThreshold().has_value())
         {
             jsonVal["mrpRetryActiveThreshold"] = dnsSdInfo->resolutionData.GetMrpRetryActiveThreshold().Value().count();
         }
@@ -148,7 +148,7 @@ void pychip_DeviceController_IterateDiscoveredCommissionableNodes(Controller::De
             }
             jsonVal["addresses"] = addresses;
         }
-        if (dnsSdInfo->resolutionData.isICDOperatingAsLIT.HasValue())
+        if (dnsSdInfo->resolutionData.isICDOperatingAsLIT.has_value())
         {
             jsonVal["isICDOperatingAsLIT"] = dnsSdInfo->resolutionData.isICDOperatingAsLIT.Value();
         }
@@ -190,7 +190,7 @@ void pychip_DeviceController_PrintDiscoveredDevices(Controller::DeviceCommission
         ChipLogProgress(Discovery, "\tRotating Id\t\t%s", rotatingId);
         ChipLogProgress(Discovery, "\tPairing Instruction\t%s", dnsSdInfo->nodeData.pairingInstruction);
         ChipLogProgress(Discovery, "\tPairing Hint\t\t%u", dnsSdInfo->nodeData.pairingHint);
-        if (dnsSdInfo->resolutionData.GetMrpRetryIntervalIdle().HasValue())
+        if (dnsSdInfo->resolutionData.GetMrpRetryIntervalIdle().has_value())
         {
             ChipLogProgress(Discovery, "\tMrp Interval idle\t%u",
                             dnsSdInfo->resolutionData.GetMrpRetryIntervalIdle().Value().count());
@@ -199,7 +199,7 @@ void pychip_DeviceController_PrintDiscoveredDevices(Controller::DeviceCommission
         {
             ChipLogProgress(Discovery, "\tMrp Interval idle\tNot present");
         }
-        if (dnsSdInfo->resolutionData.GetMrpRetryIntervalActive().HasValue())
+        if (dnsSdInfo->resolutionData.GetMrpRetryIntervalActive().has_value())
         {
             ChipLogProgress(Discovery, "\tMrp Interval active\t%u",
                             dnsSdInfo->resolutionData.GetMrpRetryIntervalActive().Value().count());
@@ -209,7 +209,7 @@ void pychip_DeviceController_PrintDiscoveredDevices(Controller::DeviceCommission
             ChipLogProgress(Discovery, "\tMrp Interval active\tNot present");
         }
         ChipLogProgress(Discovery, "\tSupports TCP\t\t%d", dnsSdInfo->resolutionData.supportsTcp);
-        if (dnsSdInfo->resolutionData.isICDOperatingAsLIT.HasValue())
+        if (dnsSdInfo->resolutionData.isICDOperatingAsLIT.has_value())
         {
             ChipLogProgress(Discovery, "\tICD is operating as a\t%s",
                             dnsSdInfo->resolutionData.isICDOperatingAsLIT.Value() ? "LIT" : "SIT");

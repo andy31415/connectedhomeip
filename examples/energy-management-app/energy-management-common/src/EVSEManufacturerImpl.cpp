@@ -197,7 +197,7 @@ CHIP_ERROR EVSEManufacturer::SendCumulativeEnergyReading(EndpointId aEndpointId,
     // Copy last endTimestamp into new startTimestamp if it exists
     energyImported.startTimestamp.ClearValue();
     energyImported.startSystime.ClearValue();
-    if (data->cumulativeImported.HasValue())
+    if (data->cumulativeImported.has_value())
     {
         energyImported.startTimestamp = data->cumulativeImported.Value().endTimestamp;
         energyImported.startSystime   = data->cumulativeImported.Value().endSystime;
@@ -209,7 +209,7 @@ CHIP_ERROR EVSEManufacturer::SendCumulativeEnergyReading(EndpointId aEndpointId,
     // Copy last endTimestamp into new startTimestamp if it exists
     energyExported.startTimestamp.ClearValue();
     energyExported.startSystime.ClearValue();
-    if (data->cumulativeExported.HasValue())
+    if (data->cumulativeExported.has_value())
     {
         energyExported.startTimestamp = data->cumulativeExported.Value().endTimestamp;
         energyExported.startSystime   = data->cumulativeExported.Value().endSystime;
@@ -270,7 +270,7 @@ CHIP_ERROR EVSEManufacturer::SendPeriodicEnergyReading(EndpointId aEndpointId, i
     // Copy last endTimestamp into new startTimestamp if it exists
     energyImported.startTimestamp.ClearValue();
     energyImported.startSystime.ClearValue();
-    if (data->periodicImported.HasValue())
+    if (data->periodicImported.has_value())
     {
         energyImported.startTimestamp = data->periodicImported.Value().endTimestamp;
         energyImported.startSystime   = data->periodicImported.Value().endSystime;
@@ -282,7 +282,7 @@ CHIP_ERROR EVSEManufacturer::SendPeriodicEnergyReading(EndpointId aEndpointId, i
     // Copy last endTimestamp into new startTimestamp if it exists
     energyExported.startTimestamp.ClearValue();
     energyExported.startSystime.ClearValue();
-    if (data->periodicExported.HasValue())
+    if (data->periodicExported.has_value())
     {
         energyExported.startTimestamp = data->periodicExported.Value().endTimestamp;
         energyExported.startSystime   = data->periodicExported.Value().endSystime;

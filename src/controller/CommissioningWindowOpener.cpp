@@ -64,13 +64,13 @@ CHIP_ERROR CommissioningWindowOpener::OpenCommissioningWindow(NodeId deviceId, S
     VerifyOrReturnError(kSpake2p_Min_PBKDF_Iterations <= iteration && iteration <= kSpake2p_Max_PBKDF_Iterations,
                         CHIP_ERROR_INVALID_ARGUMENT);
     VerifyOrReturnError(
-        !salt.HasValue() ||
+        !salt.has_value() ||
             (salt.Value().size() >= kSpake2p_Min_PBKDF_Salt_Length && salt.Value().size() <= kSpake2p_Max_PBKDF_Salt_Length),
         CHIP_ERROR_INVALID_ARGUMENT);
 
     mSetupPayload = SetupPayload();
 
-    if (setupPIN.HasValue())
+    if (setupPIN.has_value())
     {
         if (!SetupPayload::IsValidSetupPIN(setupPIN.Value()))
         {
@@ -85,7 +85,7 @@ CHIP_ERROR CommissioningWindowOpener::OpenCommissioningWindow(NodeId deviceId, S
         mCommissioningWindowOption = CommissioningWindowOption::kTokenWithRandomPIN;
     }
 
-    if (salt.HasValue())
+    if (salt.has_value())
     {
         memcpy(mPBKDFSaltBuffer, salt.Value().data(), salt.Value().size());
         mPBKDFSalt = ByteSpan(mPBKDFSaltBuffer, salt.Value().size());
@@ -106,7 +106,7 @@ CHIP_ERROR CommissioningWindowOpener::OpenCommissioningWindow(NodeId deviceId, S
     mCommissioningWindowTimeout       = timeout;
     mPBKDFIterations                  = iteration;
 
-    bool randomSetupPIN = !setupPIN.HasValue();
+    bool randomSetupPIN = !setupPIN.has_value();
     ReturnErrorOnFailure(
         PASESession::GeneratePASEVerifier(mVerifier, mPBKDFIterations, mPBKDFSalt, randomSetupPIN, mSetupPayload.setUpPINCode));
 

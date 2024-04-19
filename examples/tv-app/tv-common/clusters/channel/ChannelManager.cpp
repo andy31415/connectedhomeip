@@ -137,10 +137,10 @@ bool isChannelMatched(const ChannelInfoType & channel, const CharSpan & match)
 {
     char number[32];
     sprintf(number, "%d.%d", channel.majorNumber, channel.minorNumber);
-    bool nameMatch = channel.name.HasValue() ? channel.name.Value().data_equal(match) : false;
+    bool nameMatch = channel.name.has_value() ? channel.name.Value().data_equal(match) : false;
     bool affiliateCallSignMatch =
-        channel.affiliateCallSign.HasValue() ? channel.affiliateCallSign.Value().data_equal(match) : false;
-    bool callSignMatch = channel.callSign.HasValue() ? channel.callSign.Value().data_equal(match) : false;
+        channel.affiliateCallSign.has_value() ? channel.affiliateCallSign.Value().data_equal(match) : false;
+    bool callSignMatch = channel.callSign.has_value() ? channel.callSign.Value().data_equal(match) : false;
     bool numberMatch   = match.data_equal(chip::CharSpan::fromCharString(number));
 
     return affiliateCallSignMatch || callSignMatch || nameMatch || numberMatch;
@@ -259,11 +259,11 @@ void ChannelManager::HandleGetProgramGuide(
         {
             continue;
         }
-        if (endTime.HasValue() && endTime.ValueOr(0) < program.endTime)
+        if (endTime.has_value() && endTime.ValueOr(0) < program.endTime)
         {
             continue;
         }
-        if (channelList.HasValue())
+        if (channelList.has_value())
         {
             auto iter     = channelList.Value().begin();
             bool match    = false;

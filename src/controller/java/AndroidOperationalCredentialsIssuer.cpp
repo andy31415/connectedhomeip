@@ -403,7 +403,7 @@ CHIP_ERROR AndroidOperationalCredentialsIssuer::GenerateRootCertificate(Crypto::
     ChipDN rcac_dn;
     ReturnErrorOnFailure(rcac_dn.AddAttribute_MatterRCACId(issuerId));
 
-    if (fabricId.HasValue())
+    if (fabricId.has_value())
     {
         FabricId fabric = fabricId.Value();
         VerifyOrReturnError(IsValidFabricId(fabric), CHIP_ERROR_INVALID_ARGUMENT);
@@ -429,7 +429,7 @@ CHIP_ERROR AndroidOperationalCredentialsIssuer::GenerateIntermediateCertificate(
     ChipDN icac_dn;
     ReturnErrorOnFailure(icac_dn.AddAttribute_MatterICACId(issuerId));
 
-    if (fabricId.HasValue())
+    if (fabricId.has_value())
     {
         FabricId fabric = fabricId.Value();
         VerifyOrReturnError(IsValidFabricId(fabric), CHIP_ERROR_INVALID_ARGUMENT);

@@ -68,7 +68,7 @@ public:
         dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL);
         __auto_type * cluster = [[MTRBaseCluster{{asUpperCamelCase parent.name preserveAcronyms=true}} alloc] initWithDevice:device endpointID:@(endpointId) queue:callbackQueue];
         __auto_type * params = [[MTR{{asUpperCamelCase parent.name preserveAcronyms=true}}Cluster{{asUpperCamelCase name preserveAcronyms=true}}Params alloc] init];
-        params.timedInvokeTimeoutMs = mTimedInteractionTimeoutMs.HasValue() ? [NSNumber numberWithUnsignedShort:mTimedInteractionTimeoutMs.Value()] : nil;
+        params.timedInvokeTimeoutMs = mTimedInteractionTimeoutMs.has_value() ? [NSNumber numberWithUnsignedShort:mTimedInteractionTimeoutMs.Value()] : nil;
         {{#zcl_command_arguments}}
         {{#if (isProvisional (asUpperCamelCase parent.parent.name preserveAcronyms=true) command=(asUpperCamelCase parent.name preserveAcronyms=true) commandField=(asStructPropertyName label))}}
         #if MTR_ENABLE_PROVISIONAL
@@ -163,7 +163,7 @@ public:
         __auto_type * cluster = [[MTRBase{{>cluster}} alloc] initWithDevice:device endpointID:@(endpointId) queue:callbackQueue];
         {{#if_is_fabric_scoped_struct type}}
         __auto_type * params = [[MTRReadParams alloc] init];
-        if (mFabricFiltered.HasValue()) {
+        if (mFabricFiltered.has_value()) {
           params.filterByFabric = mFabricFiltered.Value();
         }
         {{/if_is_fabric_scoped_struct}}
@@ -220,8 +220,8 @@ public:
         dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL);
         __auto_type * cluster = [[MTRBase{{>cluster}} alloc] initWithDevice:device endpointID:@(endpointId) queue:callbackQueue];
         __auto_type * params = [[MTRWriteParams alloc] init];
-        params.timedWriteTimeout = mTimedInteractionTimeoutMs.HasValue() ? [NSNumber numberWithUnsignedShort:mTimedInteractionTimeoutMs.Value()] : nil;
-        params.dataVersion = mDataVersion.HasValue() ? [NSNumber numberWithUnsignedInt:mDataVersion.Value()] : nil;
+        params.timedWriteTimeout = mTimedInteractionTimeoutMs.has_value() ? [NSNumber numberWithUnsignedShort:mTimedInteractionTimeoutMs.Value()] : nil;
+        params.dataVersion = mDataVersion.has_value() ? [NSNumber numberWithUnsignedInt:mDataVersion.Value()] : nil;
         {{#if_chip_complex}}
         {{asObjectiveCType type parent.name}} value;
         {{>decodable_value target="value" source="mValue" cluster=parent.name errorCode="return err;" depth=0}}
@@ -293,13 +293,13 @@ public:
         dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL);
         __auto_type * cluster = [[MTRBase{{>cluster}} alloc] initWithDevice:device endpointID:@(endpointId) queue:callbackQueue];
         __auto_type * params = [[MTRSubscribeParams alloc] initWithMinInterval:@(mMinInterval) maxInterval:@(mMaxInterval)];
-        if (mKeepSubscriptions.HasValue()) {
+        if (mKeepSubscriptions.has_value()) {
           params.replaceExistingSubscriptions = !mKeepSubscriptions.Value();
         }
-        if (mFabricFiltered.HasValue()) {
+        if (mFabricFiltered.has_value()) {
           params.filterByFabric = mFabricFiltered.Value();
         }
-        if (mAutoResubscribe.HasValue()) {
+        if (mAutoResubscribe.has_value()) {
           params.resubscribeAutomatically = mAutoResubscribe.Value();
         }
         [cluster subscribe{{>attribute}}WithParams:params

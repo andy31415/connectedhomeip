@@ -346,10 +346,10 @@ void DefaultDACVerifier::VerifyAttestationInformation(const DeviceAttestationVer
                      attestationError = AttestationVerificationResult::kDacFormatInvalid);
         VerifyOrExit(ExtractVIDPIDFromX509Cert(info.paiDerBuffer, paiVidPid) == CHIP_NO_ERROR,
                      attestationError = AttestationVerificationResult::kPaiFormatInvalid);
-        VerifyOrExit(paiVidPid.mVendorId.HasValue() && paiVidPid.mVendorId == dacVidPid.mVendorId,
+        VerifyOrExit(paiVidPid.mVendorId.has_value() && paiVidPid.mVendorId == dacVidPid.mVendorId,
                      attestationError = AttestationVerificationResult::kDacVendorIdMismatch);
-        VerifyOrExit(dacVidPid.mProductId.HasValue(), attestationError = AttestationVerificationResult::kDacProductIdMismatch);
-        if (paiVidPid.mProductId.HasValue())
+        VerifyOrExit(dacVidPid.mProductId.has_value(), attestationError = AttestationVerificationResult::kDacProductIdMismatch);
+        if (paiVidPid.mProductId.has_value())
         {
             VerifyOrExit(paiVidPid.mProductId == dacVidPid.mProductId,
                          attestationError = AttestationVerificationResult::kDacProductIdMismatch);
@@ -398,13 +398,13 @@ void DefaultDACVerifier::VerifyAttestationInformation(const DeviceAttestationVer
         VerifyOrExit(ExtractVIDPIDFromX509Cert(paaDerBuffer, paaVidPid) == CHIP_NO_ERROR,
                      attestationError = AttestationVerificationResult::kPaaFormatInvalid);
 
-        if (paaVidPid.mVendorId.HasValue())
+        if (paaVidPid.mVendorId.has_value())
         {
             VerifyOrExit(paaVidPid.mVendorId == paiVidPid.mVendorId,
                          attestationError = AttestationVerificationResult::kPaiVendorIdMismatch);
         }
 
-        VerifyOrExit(!paaVidPid.mProductId.HasValue(), attestationError = AttestationVerificationResult::kPaaFormatInvalid);
+        VerifyOrExit(!paaVidPid.mProductId.has_value(), attestationError = AttestationVerificationResult::kPaaFormatInvalid);
     }
 
 #if !defined(CURRENT_TIME_NOT_IMPLEMENTED)

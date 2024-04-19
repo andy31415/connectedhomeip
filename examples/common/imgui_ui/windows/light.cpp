@@ -68,7 +68,7 @@ ImVec4 HueSaturationToColor(float hueDegrees, float saturationPercent)
 
 void Light::UpdateState()
 {
-    if (mTargetLightIsOn.HasValue())
+    if (mTargetLightIsOn.has_value())
     {
         chip::Protocols::InteractionModel::Status status = OnOffServer::Instance().setOnOffValue(
             mEndpointId, mTargetLightIsOn.Value() ? OnOff::Commands::On::Id : OnOff::Commands::Off::Id,
@@ -84,7 +84,7 @@ void Light::UpdateState()
     OnOff::Attributes::OnOff::Get(mEndpointId, &mLightIsOn);
 
     // Level Control
-    if (mTargetLevel.HasValue())
+    if (mTargetLevel.has_value())
     {
         LevelControl::Commands::MoveToLevel::DecodableType data;
 

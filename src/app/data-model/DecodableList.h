@@ -120,7 +120,7 @@ public:
         {
             bool hasNext = DoNext();
 
-            if (hasNext && mFabricIndex.HasValue())
+            if (hasNext && mFabricIndex.has_value())
             {
                 mValue.SetFabricIndex(mFabricIndex.Value());
             }

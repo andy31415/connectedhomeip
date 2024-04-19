@@ -130,7 +130,7 @@ void DiagnosticLogsServer::HandleLogRequestForBdx(CommandHandler * commandObj, c
 {
     // If the RequestedProtocol is set to BDX and there is no TransferFileDesignator the command SHALL fail with a Status Code of
     // INVALID_COMMAND.
-    VerifyOrReturn(transferFileDesignator.HasValue(), commandObj->AddStatus(path, Status::InvalidCommand));
+    VerifyOrReturn(transferFileDesignator.has_value(), commandObj->AddStatus(path, Status::InvalidCommand));
 
     VerifyOrReturn(transferFileDesignator.Value().size() <= kMaxFileDesignatorLen,
                    commandObj->AddStatus(path, Status::ConstraintError));

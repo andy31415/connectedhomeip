@@ -36,7 +36,7 @@ CHIP_ERROR InitCommissionableDataProvider(LinuxCommissionableDataProvider & prov
     {
         setupPasscode.SetValue(options.payload.setUpPINCode);
     }
-    else if (!options.spake2pVerifier.HasValue())
+    else if (!options.spake2pVerifier.has_value())
     {
         uint32_t defaultTestPasscode = 0;
         chip::DeviceLayer::TestOnlyCommissionableDataProvider TestOnlyCommissionableDataProvider;
@@ -57,7 +57,7 @@ CHIP_ERROR InitCommissionableDataProvider(LinuxCommissionableDataProvider & prov
         // properly to the commissioner later, PASE will succeed.
     }
 
-    if (options.discriminator.HasValue())
+    if (options.discriminator.has_value())
     {
         options.payload.discriminator.SetLongValue(options.discriminator.Value());
     }

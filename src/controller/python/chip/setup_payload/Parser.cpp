@@ -37,7 +37,7 @@ void YieldSetupPayloadAttributes(const SetupPayload & payload, AttributeVisitor 
     attrVisitor("VendorID", std::to_string(payload.vendorID).c_str());
     attrVisitor("ProductID", std::to_string(payload.productID).c_str());
     attrVisitor("CommissioningFlow", std::to_string(static_cast<uint8_t>(payload.commissioningFlow)).c_str());
-    if (payload.rendezvousInformation.HasValue())
+    if (payload.rendezvousInformation.has_value())
     {
         attrVisitor("RendezvousInformation", std::to_string(payload.rendezvousInformation.Value().Raw()).c_str());
     }

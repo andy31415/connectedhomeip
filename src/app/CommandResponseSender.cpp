@@ -64,7 +64,7 @@ CHIP_ERROR CommandResponseSender::OnMessageReceived(Messaging::ExchangeContext *
     StatusResponse::Send(Status::InvalidAction, mExchangeCtx.Get(), false /*aExpectResponse*/);
     return err;
 exit:
-    if (failureStatusToSend.HasValue())
+    if (failureStatusToSend.has_value())
     {
         StatusResponse::Send(failureStatusToSend.Value(), mExchangeCtx.Get(), false /*aExpectResponse*/);
     }

@@ -66,7 +66,7 @@ CHIP_ERROR ExtendedOTARequestorDriver::GetUserConsentSubject(chip::ota::UserCons
 {
     Optional<ProviderLocationType> lastUsedProvider;
     mRequestor->GetProviderLocation(lastUsedProvider);
-    if (lastUsedProvider.HasValue())
+    if (lastUsedProvider.has_value())
     {
         subject.fabricIndex        = lastUsedProvider.Value().fabricIndex;
         subject.providerEndpointId = lastUsedProvider.Value().endpoint;

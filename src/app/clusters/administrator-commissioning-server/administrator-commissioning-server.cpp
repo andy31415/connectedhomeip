@@ -123,7 +123,7 @@ bool emberAfAdministratorCommissioningClusterOpenCommissioningWindowCallback(
     ChipLogProgress(Zcl, "Commissioning window is now open");
 
 exit:
-    if (status.HasValue())
+    if (status.has_value())
     {
         ChipLogError(Zcl, "Failed to open commissioning window. Cluster status 0x%02x", to_underlying(status.Value()));
         commandObj->AddClusterSpecificFailure(commandPath, to_underlying(status.Value()));
@@ -170,7 +170,7 @@ bool emberAfAdministratorCommissioningClusterOpenBasicCommissioningWindowCallbac
     ChipLogProgress(Zcl, "Commissioning window is now open");
 
 exit:
-    if (status.HasValue())
+    if (status.has_value())
     {
         ChipLogError(Zcl, "Failed to open commissioning window. Cluster status 0x%02x", to_underlying(status.Value()));
         commandObj->AddClusterSpecificFailure(commandPath, to_underlying(status.Value()));

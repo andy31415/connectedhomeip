@@ -1222,7 +1222,7 @@ GroupDataProviderImpl::EndpointIteratorImpl::EndpointIteratorImpl(GroupDataProvi
     FabricData fabric(fabric_index);
     VerifyOrReturn(CHIP_NO_ERROR == fabric.Load(provider.mStorage));
 
-    if (group_id.HasValue())
+    if (group_id.has_value())
     {
         GroupData group(fabric_index, group_id.Value());
         VerifyOrReturn(CHIP_NO_ERROR == group.Load(provider.mStorage));

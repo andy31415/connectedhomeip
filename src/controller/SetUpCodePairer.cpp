@@ -65,7 +65,7 @@ CHIP_ERROR SetUpCodePairer::PairDevice(NodeId remoteId, const char * setUpCode, 
     SetupPayload payload;
     ReturnErrorOnFailure(GetPayload(setUpCode, payload));
 
-    if (resolutionData.HasValue())
+    if (resolutionData.has_value())
     {
         VerifyOrReturnError(discoveryType != DiscoveryType::kAll, CHIP_ERROR_INVALID_ARGUMENT);
         if (mRemoteId == remoteId && mSetUpPINCode == payload.setUpPINCode && mConnectionType == commission &&
@@ -83,7 +83,7 @@ CHIP_ERROR SetUpCodePairer::PairDevice(NodeId remoteId, const char * setUpCode, 
 
     ResetDiscoveryState();
 
-    if (resolutionData.HasValue())
+    if (resolutionData.has_value())
     {
         NotifyCommissionableDeviceDiscovered(resolutionData.Value());
         return CHIP_NO_ERROR;
@@ -98,7 +98,7 @@ CHIP_ERROR SetUpCodePairer::Connect(SetupPayload & payload)
     CHIP_ERROR err = CHIP_NO_ERROR;
     bool isRunning = false;
 
-    bool searchOverAll = !payload.rendezvousInformation.HasValue();
+    bool searchOverAll = !payload.rendezvousInformation.has_value();
 
     if (mDiscoveryType == DiscoveryType::kAll)
     {
@@ -541,7 +541,7 @@ void SetUpCodePairer::OnPairingComplete(CHIP_ERROR error)
     // It may happen that there is a stale DNS entry. If so, ReconfirmRecord will flush
     // the record from the daemon cache once it determines that it is invalid.
     // It may not help for this particular resolve, but may help subsequent resolves.
-    if (CHIP_ERROR_TIMEOUT == error && mCurrentPASEParameters.HasValue())
+    if (CHIP_ERROR_TIMEOUT == error && mCurrentPASEParameters.has_value())
     {
         const auto & params = mCurrentPASEParameters.Value();
         const auto & peer   = params.GetPeerAddress();
@@ -615,12 +615,12 @@ SetUpCodePairerParameters::SetUpCodePairerParameters(const Dnssd::CommonResoluti
     auto & ip = data.ipAddress[index];
     SetPeerAddress(Transport::PeerAddress::UDP(ip, data.port, ip.IsIPv6LinkLocal() ? data.interfaceId : Inet::InterfaceId::Null()));
 
-    if (data.mrpRetryIntervalIdle.HasValue())
+    if (data.mrpRetryIntervalIdle.has_value())
     {
         SetIdleInterval(data.mrpRetryIntervalIdle.Value());
     }
 
-    if (data.mrpRetryIntervalActive.HasValue())
+    if (data.mrpRetryIntervalActive.has_value())
     {
         SetActiveInterval(data.mrpRetryIntervalActive.Value());
     }

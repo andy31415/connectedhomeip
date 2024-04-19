@@ -42,7 +42,7 @@
 
 - (MTRDiscoveryCapabilities)convertRendezvousFlags:(const chip::Optional<chip::RendezvousInformationFlags> &)value
 {
-    if (!value.HasValue()) {
+    if (!value.has_value()) {
         return MTRDiscoveryCapabilitiesUnknown;
     }
 

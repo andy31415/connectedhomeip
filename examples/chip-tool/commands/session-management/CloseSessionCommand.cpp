@@ -28,7 +28,7 @@ CHIP_ERROR SendCloseSessionCommand::RunCommand()
     CommissioneeDeviceProxy * commissioneeDeviceProxy = nullptr;
     if (CHIP_NO_ERROR == CurrentCommissioner().GetDeviceBeingCommissioned(mDestinationNodeId, &commissioneeDeviceProxy))
     {
-        VerifyOrReturnError(commissioneeDeviceProxy->GetSecureSession().HasValue(), CHIP_ERROR_INCORRECT_STATE);
+        VerifyOrReturnError(commissioneeDeviceProxy->GetSecureSession().has_value(), CHIP_ERROR_INCORRECT_STATE);
         return CloseSession(*commissioneeDeviceProxy->GetExchangeManager(), commissioneeDeviceProxy->GetSecureSession().Value());
     }
 

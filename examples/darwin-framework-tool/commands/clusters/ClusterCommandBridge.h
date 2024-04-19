@@ -78,7 +78,7 @@ public:
                                       clusterID:[NSNumber numberWithUnsignedInteger:clusterId]
                                       commandID:[NSNumber numberWithUnsignedInteger:commandId]
                                   commandFields:commandFields
-                             timedInvokeTimeout:mTimedInteractionTimeoutMs.HasValue()
+                             timedInvokeTimeout:mTimedInteractionTimeoutMs.has_value()
                                  ? [NSNumber numberWithUnsignedShort:mTimedInteractionTimeoutMs.Value()]
                                  : nil
                                           queue:callbackQueue
@@ -94,7 +94,7 @@ public:
                                          }
                                      }];
 
-            if (mRepeatDelayInMs.HasValue()) {
+            if (mRepeatDelayInMs.has_value()) {
                 [NSThread sleepForTimeInterval:((double) mRepeatDelayInMs.Value()) / 1000];
             }
         }

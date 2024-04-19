@@ -2747,8 +2747,8 @@ static void TestVIDPID_StringExtraction(nlTestSuite * inSuite, void * inContext)
                 vidpidToCheck = vidpidFromCN;
             }
 
-            NL_TEST_ASSERT(inSuite, vidpidToCheck.mVendorId.HasValue() == testCase.expectedVidPresent);
-            NL_TEST_ASSERT(inSuite, vidpidToCheck.mProductId.HasValue() == testCase.expectedPidPresent);
+            NL_TEST_ASSERT(inSuite, vidpidToCheck.mVendorId.has_value() == testCase.expectedVidPresent);
+            NL_TEST_ASSERT(inSuite, vidpidToCheck.mProductId.has_value() == testCase.expectedPidPresent);
 
             if (testCase.expectedVidPresent)
             {
@@ -2808,8 +2808,8 @@ static void TestVIDPID_x509Extraction(nlTestSuite * inSuite, void * inContext)
         AttestationCertVidPid vidpid;
         CHIP_ERROR result = ExtractVIDPIDFromX509Cert(testCase.cert, vidpid);
         NL_TEST_ASSERT(inSuite, result == testCase.expectedResult);
-        NL_TEST_ASSERT(inSuite, vidpid.mVendorId.HasValue() == testCase.expectedVidPresent);
-        NL_TEST_ASSERT(inSuite, vidpid.mProductId.HasValue() == testCase.expectedPidPresent);
+        NL_TEST_ASSERT(inSuite, vidpid.mVendorId.has_value() == testCase.expectedVidPresent);
+        NL_TEST_ASSERT(inSuite, vidpid.mProductId.has_value() == testCase.expectedPidPresent);
 
         // If present, make sure the VID matches expectation.
         if (testCase.expectedVidPresent)

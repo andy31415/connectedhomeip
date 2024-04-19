@@ -110,22 +110,22 @@ public:
 
         auto retryInterval = nodeData.resolutionData.GetMrpRetryIntervalIdle();
 
-        if (retryInterval.HasValue())
+        if (retryInterval.has_value())
             streamer_printf(streamer_get(), "   MRP retry interval (idle): %" PRIu32 "ms\r\n", retryInterval.Value());
 
         retryInterval = nodeData.resolutionData.GetMrpRetryIntervalActive();
 
-        if (retryInterval.HasValue())
+        if (retryInterval.has_value())
             streamer_printf(streamer_get(), "   MRP retry interval (active): %" PRIu32 "ms\r\n", retryInterval.Value());
 
-        if (nodeData.resolutionData.GetMrpRetryActiveThreshold().HasValue())
+        if (nodeData.resolutionData.GetMrpRetryActiveThreshold().has_value())
         {
             streamer_printf(streamer_get(), "   MRP retry active threshold time: %" PRIu32 "ms\r\n",
                             nodeData.resolutionData.GetMrpRetryActiveThreshold().Value());
         }
         streamer_printf(streamer_get(), "   Supports TCP: %s\r\n", nodeData.resolutionData.supportsTcp ? "yes" : "no");
 
-        if (nodeData.resolutionData.isICDOperatingAsLIT.HasValue())
+        if (nodeData.resolutionData.isICDOperatingAsLIT.has_value())
         {
             streamer_printf(streamer_get(), "   ICD is operating as a: %s\r\n",
                             nodeData.resolutionData.isICDOperatingAsLIT.Value() ? "LIT" : "SIT");

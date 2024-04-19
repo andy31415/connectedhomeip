@@ -439,7 +439,7 @@ bool emberAfBooleanStateConfigurationClusterEnableDisableAlarmCallback(
     }
 
 exit:
-    if (status.HasValue())
+    if (status.has_value())
     {
         commandObj->AddStatus(commandPath, status.Value());
     }

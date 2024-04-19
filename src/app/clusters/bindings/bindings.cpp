@@ -67,9 +67,9 @@ bool IsValidBinding(const EndpointId localEndpoint, const TargetStructType & ent
     bool isValid = false;
 
     // Entry has endpoint, node id and no group id
-    if (!entry.group.HasValue() && entry.endpoint.HasValue() && entry.node.HasValue())
+    if (!entry.group.has_value() && entry.endpoint.has_value() && entry.node.has_value())
     {
-        if (entry.cluster.HasValue())
+        if (entry.cluster.has_value())
         {
             if (emberAfContainsClient(localEndpoint, entry.cluster.Value()))
             {
@@ -84,7 +84,7 @@ bool IsValidBinding(const EndpointId localEndpoint, const TargetStructType & ent
         }
     }
     // Entry has group id and no endpoint and node id
-    else if (!entry.endpoint.HasValue() && !entry.node.HasValue() && entry.group.HasValue())
+    else if (!entry.endpoint.has_value() && !entry.node.has_value() && entry.group.has_value())
     {
         // Valid group binding
         isValid = true;
@@ -123,7 +123,7 @@ CHIP_ERROR CreateBindingEntry(const TargetStructType & entry, EndpointId localEn
 {
     EmberBindingTableEntry bindingEntry;
 
-    if (entry.group.HasValue())
+    if (entry.group.has_value())
     {
         bindingEntry = EmberBindingTableEntry::ForGroup(entry.fabricIndex, entry.group.Value(), localEndpoint, entry.cluster);
     }

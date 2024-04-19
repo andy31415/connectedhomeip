@@ -97,7 +97,7 @@ void TestSecureSessionTable::AllocateSession(const ScopedNodeId & sessionEvictio
                                              std::vector<SessionParameters> & sessionParameters, uint16_t evictedSessionIndex)
 {
     auto session = mSessionTable->CreateNewSecureSession(SecureSession::Type::kCASE, sessionEvictionHint);
-    NL_TEST_ASSERT(mTestSuite, session.HasValue());
+    NL_TEST_ASSERT(mTestSuite, session.has_value());
     NL_TEST_ASSERT(mTestSuite, mSessionList[evictedSessionIndex].get()->mSessionReleased == true);
 }
 
@@ -114,7 +114,7 @@ void TestSecureSessionTable::CreateSessionTable(std::vector<SessionParameters> &
     for (unsigned int i = 0; i < sessionParams.size(); i++)
     {
         auto session = mSessionTable->CreateNewSecureSession(SecureSession::Type::kCASE, ScopedNodeId());
-        NL_TEST_ASSERT(mTestSuite, session.HasValue());
+        NL_TEST_ASSERT(mTestSuite, session.has_value());
 
         session.Value()->AsSecureSession()->Activate(
             ScopedNodeId(1, sessionParams[i].mPeer.GetFabricIndex()), sessionParams[i].mPeer, CATValues(), static_cast<uint16_t>(i),

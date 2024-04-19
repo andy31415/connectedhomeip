@@ -81,7 +81,7 @@ CHIP_ERROR ICDCheckInSender::SendCheckInMsg(const Transport::PeerAddress & addr)
     // Using default MRP since we are not doing MRP in this context
     Optional<SessionHandle> session =
         mExchangeManager->GetSessionManager()->CreateUnauthenticatedSession(addr, GetDefaultMRPConfig());
-    VerifyOrReturnError(session.HasValue(), CHIP_ERROR_NO_MEMORY);
+    VerifyOrReturnError(session.has_value(), CHIP_ERROR_NO_MEMORY);
 
     Messaging::ExchangeContext * exchangeContext = mExchangeManager->NewContext(session.Value(), nullptr);
 

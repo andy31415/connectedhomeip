@@ -1517,7 +1517,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                         jnivalue_id, value_id);
 
             jobject value_name;
-            if (!cppValue.name.HasValue())
+            if (!cppValue.name.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_name);
             }
@@ -1530,7 +1530,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
             }
 
             jobject value_faultRecording;
-            if (!cppValue.faultRecording.HasValue())
+            if (!cppValue.faultRecording.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_faultRecording);
             }
@@ -1920,7 +1920,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                 value_offsetClassName.c_str(), value_offsetCtorSignature.c_str(), jnivalue_offset, value_offset);
 
             jobject value_name;
-            if (!cppValue.name.HasValue())
+            if (!cppValue.name.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_name);
             }
@@ -2620,7 +2620,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                 value_errorState_errorStateIDClassName.c_str(), value_errorState_errorStateIDCtorSignature.c_str(),
                 jnivalue_errorState_errorStateID, value_errorState_errorStateID);
             jobject value_errorState_errorStateLabel;
-            if (!cppValue.errorState.errorStateLabel.HasValue())
+            if (!cppValue.errorState.errorStateLabel.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_errorState_errorStateLabel);
             }
@@ -2633,7 +2633,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                   value_errorState_errorStateLabel);
             }
             jobject value_errorState_errorStateDetails;
-            if (!cppValue.errorState.errorStateDetails.HasValue())
+            if (!cppValue.errorState.errorStateDetails.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_errorState_errorStateDetails);
             }
@@ -2712,7 +2712,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                        jnivalue_completionErrorCode, value_completionErrorCode);
 
             jobject value_totalOperationalTime;
-            if (!cppValue.totalOperationalTime.HasValue())
+            if (!cppValue.totalOperationalTime.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_totalOperationalTime);
             }
@@ -2739,7 +2739,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
             }
 
             jobject value_pausedTime;
-            if (!cppValue.pausedTime.HasValue())
+            if (!cppValue.pausedTime.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_pausedTime);
             }
@@ -3453,7 +3453,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                 value_errorState_errorStateIDClassName.c_str(), value_errorState_errorStateIDCtorSignature.c_str(),
                 jnivalue_errorState_errorStateID, value_errorState_errorStateID);
             jobject value_errorState_errorStateLabel;
-            if (!cppValue.errorState.errorStateLabel.HasValue())
+            if (!cppValue.errorState.errorStateLabel.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_errorState_errorStateLabel);
             }
@@ -3466,7 +3466,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                   value_errorState_errorStateLabel);
             }
             jobject value_errorState_errorStateDetails;
-            if (!cppValue.errorState.errorStateDetails.HasValue())
+            if (!cppValue.errorState.errorStateDetails.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_errorState_errorStateDetails);
             }
@@ -3542,7 +3542,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                        jnivalue_completionErrorCode, value_completionErrorCode);
 
             jobject value_totalOperationalTime;
-            if (!cppValue.totalOperationalTime.HasValue())
+            if (!cppValue.totalOperationalTime.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_totalOperationalTime);
             }
@@ -3569,7 +3569,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
             }
 
             jobject value_pausedTime;
-            if (!cppValue.pausedTime.HasValue())
+            if (!cppValue.pausedTime.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_pausedTime);
             }
@@ -3643,7 +3643,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                 value_errorState_errorStateIDClassName.c_str(), value_errorState_errorStateIDCtorSignature.c_str(),
                 jnivalue_errorState_errorStateID, value_errorState_errorStateID);
             jobject value_errorState_errorStateLabel;
-            if (!cppValue.errorState.errorStateLabel.HasValue())
+            if (!cppValue.errorState.errorStateLabel.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_errorState_errorStateLabel);
             }
@@ -3656,7 +3656,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                   value_errorState_errorStateLabel);
             }
             jobject value_errorState_errorStateDetails;
-            if (!cppValue.errorState.errorStateDetails.HasValue())
+            if (!cppValue.errorState.errorStateDetails.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_errorState_errorStateDetails);
             }
@@ -3732,7 +3732,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                        jnivalue_completionErrorCode, value_completionErrorCode);
 
             jobject value_totalOperationalTime;
-            if (!cppValue.totalOperationalTime.HasValue())
+            if (!cppValue.totalOperationalTime.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_totalOperationalTime);
             }
@@ -3759,7 +3759,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
             }
 
             jobject value_pausedTime;
-            if (!cppValue.pausedTime.HasValue())
+            if (!cppValue.pausedTime.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_pausedTime);
             }
@@ -3863,7 +3863,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                        jnivalue_alarmsActive, value_alarmsActive);
 
             jobject value_alarmsSuppressed;
-            if (!cppValue.alarmsSuppressed.HasValue())
+            if (!cppValue.alarmsSuppressed.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_alarmsSuppressed);
             }
@@ -3969,7 +3969,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                 value_valveStateClassName.c_str(), value_valveStateCtorSignature.c_str(), jnivalue_valveState, value_valveState);
 
             jobject value_valveLevel;
-            if (!cppValue.valveLevel.HasValue())
+            if (!cppValue.valveLevel.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_valveLevel);
             }
@@ -4096,7 +4096,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                             newElement_0_maxCtorSignature.c_str(),
                                                                             jninewElement_0_max, newElement_0_max);
                 jobject newElement_0_startTimestamp;
-                if (!entry_0.startTimestamp.HasValue())
+                if (!entry_0.startTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_startTimestamp);
                 }
@@ -4114,7 +4114,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       newElement_0_startTimestamp);
                 }
                 jobject newElement_0_endTimestamp;
-                if (!entry_0.endTimestamp.HasValue())
+                if (!entry_0.endTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_endTimestamp);
                 }
@@ -4132,7 +4132,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       newElement_0_endTimestamp);
                 }
                 jobject newElement_0_minTimestamp;
-                if (!entry_0.minTimestamp.HasValue())
+                if (!entry_0.minTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_minTimestamp);
                 }
@@ -4150,7 +4150,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       newElement_0_minTimestamp);
                 }
                 jobject newElement_0_maxTimestamp;
-                if (!entry_0.maxTimestamp.HasValue())
+                if (!entry_0.maxTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_maxTimestamp);
                 }
@@ -4168,7 +4168,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       newElement_0_maxTimestamp);
                 }
                 jobject newElement_0_startSystime;
-                if (!entry_0.startSystime.HasValue())
+                if (!entry_0.startSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_startSystime);
                 }
@@ -4186,7 +4186,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       newElement_0_startSystime);
                 }
                 jobject newElement_0_endSystime;
-                if (!entry_0.endSystime.HasValue())
+                if (!entry_0.endSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_endSystime);
                 }
@@ -4204,7 +4204,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       newElement_0_endSystime);
                 }
                 jobject newElement_0_minSystime;
-                if (!entry_0.minSystime.HasValue())
+                if (!entry_0.minSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_minSystime);
                 }
@@ -4222,7 +4222,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       newElement_0_minSystime);
                 }
                 jobject newElement_0_maxSystime;
-                if (!entry_0.maxSystime.HasValue())
+                if (!entry_0.maxSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, newElement_0_maxSystime);
                 }
@@ -4316,7 +4316,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                 return nullptr;
             }
             jobject value_energyImported;
-            if (!cppValue.energyImported.HasValue())
+            if (!cppValue.energyImported.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyImported);
             }
@@ -4332,7 +4332,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                     value_energyImportedInsideOptional_energyCtorSignature.c_str(), jnivalue_energyImportedInsideOptional_energy,
                     value_energyImportedInsideOptional_energy);
                 jobject value_energyImportedInsideOptional_startTimestamp;
-                if (!cppValue.energyImported.Value().startTimestamp.HasValue())
+                if (!cppValue.energyImported.Value().startTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyImportedInsideOptional_startTimestamp);
                 }
@@ -4353,7 +4353,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                         value_energyImportedInsideOptional_startTimestamp);
                 }
                 jobject value_energyImportedInsideOptional_endTimestamp;
-                if (!cppValue.energyImported.Value().endTimestamp.HasValue())
+                if (!cppValue.energyImported.Value().endTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyImportedInsideOptional_endTimestamp);
                 }
@@ -4373,7 +4373,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       value_energyImportedInsideOptional_endTimestamp);
                 }
                 jobject value_energyImportedInsideOptional_startSystime;
-                if (!cppValue.energyImported.Value().startSystime.HasValue())
+                if (!cppValue.energyImported.Value().startSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyImportedInsideOptional_startSystime);
                 }
@@ -4393,7 +4393,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       value_energyImportedInsideOptional_startSystime);
                 }
                 jobject value_energyImportedInsideOptional_endSystime;
-                if (!cppValue.energyImported.Value().endSystime.HasValue())
+                if (!cppValue.energyImported.Value().endSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyImportedInsideOptional_endSystime);
                 }
@@ -4444,7 +4444,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
             }
 
             jobject value_energyExported;
-            if (!cppValue.energyExported.HasValue())
+            if (!cppValue.energyExported.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyExported);
             }
@@ -4460,7 +4460,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                     value_energyExportedInsideOptional_energyCtorSignature.c_str(), jnivalue_energyExportedInsideOptional_energy,
                     value_energyExportedInsideOptional_energy);
                 jobject value_energyExportedInsideOptional_startTimestamp;
-                if (!cppValue.energyExported.Value().startTimestamp.HasValue())
+                if (!cppValue.energyExported.Value().startTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyExportedInsideOptional_startTimestamp);
                 }
@@ -4481,7 +4481,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                         value_energyExportedInsideOptional_startTimestamp);
                 }
                 jobject value_energyExportedInsideOptional_endTimestamp;
-                if (!cppValue.energyExported.Value().endTimestamp.HasValue())
+                if (!cppValue.energyExported.Value().endTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyExportedInsideOptional_endTimestamp);
                 }
@@ -4501,7 +4501,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       value_energyExportedInsideOptional_endTimestamp);
                 }
                 jobject value_energyExportedInsideOptional_startSystime;
-                if (!cppValue.energyExported.Value().startSystime.HasValue())
+                if (!cppValue.energyExported.Value().startSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyExportedInsideOptional_startSystime);
                 }
@@ -4521,7 +4521,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       value_energyExportedInsideOptional_startSystime);
                 }
                 jobject value_energyExportedInsideOptional_endSystime;
-                if (!cppValue.energyExported.Value().endSystime.HasValue())
+                if (!cppValue.energyExported.Value().endSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyExportedInsideOptional_endSystime);
                 }
@@ -4607,7 +4607,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                 return nullptr;
             }
             jobject value_energyImported;
-            if (!cppValue.energyImported.HasValue())
+            if (!cppValue.energyImported.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyImported);
             }
@@ -4623,7 +4623,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                     value_energyImportedInsideOptional_energyCtorSignature.c_str(), jnivalue_energyImportedInsideOptional_energy,
                     value_energyImportedInsideOptional_energy);
                 jobject value_energyImportedInsideOptional_startTimestamp;
-                if (!cppValue.energyImported.Value().startTimestamp.HasValue())
+                if (!cppValue.energyImported.Value().startTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyImportedInsideOptional_startTimestamp);
                 }
@@ -4644,7 +4644,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                         value_energyImportedInsideOptional_startTimestamp);
                 }
                 jobject value_energyImportedInsideOptional_endTimestamp;
-                if (!cppValue.energyImported.Value().endTimestamp.HasValue())
+                if (!cppValue.energyImported.Value().endTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyImportedInsideOptional_endTimestamp);
                 }
@@ -4664,7 +4664,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       value_energyImportedInsideOptional_endTimestamp);
                 }
                 jobject value_energyImportedInsideOptional_startSystime;
-                if (!cppValue.energyImported.Value().startSystime.HasValue())
+                if (!cppValue.energyImported.Value().startSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyImportedInsideOptional_startSystime);
                 }
@@ -4684,7 +4684,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       value_energyImportedInsideOptional_startSystime);
                 }
                 jobject value_energyImportedInsideOptional_endSystime;
-                if (!cppValue.energyImported.Value().endSystime.HasValue())
+                if (!cppValue.energyImported.Value().endSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyImportedInsideOptional_endSystime);
                 }
@@ -4735,7 +4735,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
             }
 
             jobject value_energyExported;
-            if (!cppValue.energyExported.HasValue())
+            if (!cppValue.energyExported.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyExported);
             }
@@ -4751,7 +4751,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                     value_energyExportedInsideOptional_energyCtorSignature.c_str(), jnivalue_energyExportedInsideOptional_energy,
                     value_energyExportedInsideOptional_energy);
                 jobject value_energyExportedInsideOptional_startTimestamp;
-                if (!cppValue.energyExported.Value().startTimestamp.HasValue())
+                if (!cppValue.energyExported.Value().startTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyExportedInsideOptional_startTimestamp);
                 }
@@ -4772,7 +4772,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                         value_energyExportedInsideOptional_startTimestamp);
                 }
                 jobject value_energyExportedInsideOptional_endTimestamp;
-                if (!cppValue.energyExported.Value().endTimestamp.HasValue())
+                if (!cppValue.energyExported.Value().endTimestamp.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyExportedInsideOptional_endTimestamp);
                 }
@@ -4792,7 +4792,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       value_energyExportedInsideOptional_endTimestamp);
                 }
                 jobject value_energyExportedInsideOptional_startSystime;
-                if (!cppValue.energyExported.Value().startSystime.HasValue())
+                if (!cppValue.energyExported.Value().startSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyExportedInsideOptional_startSystime);
                 }
@@ -4812,7 +4812,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                       value_energyExportedInsideOptional_startSystime);
                 }
                 jobject value_energyExportedInsideOptional_endSystime;
-                if (!cppValue.energyExported.Value().endSystime.HasValue())
+                if (!cppValue.energyExported.Value().endSystime.has_value())
                 {
                     chip::JniReferences::GetInstance().CreateOptional(nullptr, value_energyExportedInsideOptional_endSystime);
                 }
@@ -4951,7 +4951,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                 value_controlClassName.c_str(), value_controlCtorSignature.c_str(), jnivalue_control, value_control);
 
             jobject value_temperatureControl;
-            if (!cppValue.temperatureControl.HasValue())
+            if (!cppValue.temperatureControl.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_temperatureControl);
             }
@@ -4965,7 +4965,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                 else
                 {
                     jobject value_temperatureControlInsideOptional_coolingTempOffset;
-                    if (!cppValue.temperatureControl.Value().Value().coolingTempOffset.HasValue())
+                    if (!cppValue.temperatureControl.Value().Value().coolingTempOffset.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(nullptr,
                                                                           value_temperatureControlInsideOptional_coolingTempOffset);
@@ -4996,7 +4996,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                             value_temperatureControlInsideOptional_coolingTempOffset);
                     }
                     jobject value_temperatureControlInsideOptional_heatingtTempOffset;
-                    if (!cppValue.temperatureControl.Value().Value().heatingtTempOffset.HasValue())
+                    if (!cppValue.temperatureControl.Value().Value().heatingtTempOffset.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(
                             nullptr, value_temperatureControlInsideOptional_heatingtTempOffset);
@@ -5027,7 +5027,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                             value_temperatureControlInsideOptional_heatingtTempOffset);
                     }
                     jobject value_temperatureControlInsideOptional_coolingTempSetpoint;
-                    if (!cppValue.temperatureControl.Value().Value().coolingTempSetpoint.HasValue())
+                    if (!cppValue.temperatureControl.Value().Value().coolingTempSetpoint.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(
                             nullptr, value_temperatureControlInsideOptional_coolingTempSetpoint);
@@ -5058,7 +5058,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                             value_temperatureControlInsideOptional_coolingTempSetpoint);
                     }
                     jobject value_temperatureControlInsideOptional_heatingTempSetpoint;
-                    if (!cppValue.temperatureControl.Value().Value().heatingTempSetpoint.HasValue())
+                    if (!cppValue.temperatureControl.Value().Value().heatingTempSetpoint.has_value())
                     {
                         chip::JniReferences::GetInstance().CreateOptional(
                             nullptr, value_temperatureControlInsideOptional_heatingTempSetpoint);
@@ -5123,7 +5123,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
             }
 
             jobject value_averageLoadControl;
-            if (!cppValue.averageLoadControl.HasValue())
+            if (!cppValue.averageLoadControl.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_averageLoadControl);
             }
@@ -5177,7 +5177,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
             }
 
             jobject value_dutyCycleControl;
-            if (!cppValue.dutyCycleControl.HasValue())
+            if (!cppValue.dutyCycleControl.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_dutyCycleControl);
             }
@@ -5230,7 +5230,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
             }
 
             jobject value_powerSavingsControl;
-            if (!cppValue.powerSavingsControl.HasValue())
+            if (!cppValue.powerSavingsControl.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_powerSavingsControl);
             }
@@ -5286,7 +5286,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
             }
 
             jobject value_heatingSourceControl;
-            if (!cppValue.heatingSourceControl.HasValue())
+            if (!cppValue.heatingSourceControl.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_heatingSourceControl);
             }
@@ -5467,7 +5467,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
             value_messageID = value_messageIDByteArray;
 
             jobject value_responseID;
-            if (!cppValue.responseID.HasValue())
+            if (!cppValue.responseID.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_responseID);
             }
@@ -5491,7 +5491,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
             }
 
             jobject value_reply;
-            if (!cppValue.reply.HasValue())
+            if (!cppValue.reply.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_reply);
             }
@@ -5790,7 +5790,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                         jnivalue_sessionEnergyCharged, value_sessionEnergyCharged);
 
             jobject value_sessionEnergyDischarged;
-            if (!cppValue.sessionEnergyDischarged.HasValue())
+            if (!cppValue.sessionEnergyDischarged.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_sessionEnergyDischarged);
             }
@@ -6240,7 +6240,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
             }
 
             jobject value_credentials;
-            if (!cppValue.credentials.HasValue())
+            if (!cppValue.credentials.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_credentials);
             }
@@ -6405,7 +6405,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
             }
 
             jobject value_credentials;
-            if (!cppValue.credentials.HasValue())
+            if (!cppValue.credentials.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_credentials);
             }
@@ -7609,7 +7609,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                                                                         jnivalue_seekRangeStart, value_seekRangeStart);
 
             jobject value_data;
-            if (!cppValue.data.HasValue())
+            if (!cppValue.data.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_data);
             }
@@ -7747,7 +7747,7 @@ jobject DecodeEventValue(const app::ConcreteEventPath & aPath, TLV::TLVReader & 
                 return nullptr;
             }
             jobject value_node;
-            if (!cppValue.node.HasValue())
+            if (!cppValue.node.has_value())
             {
                 chip::JniReferences::GetInstance().CreateOptional(nullptr, value_node);
             }

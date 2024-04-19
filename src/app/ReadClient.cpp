@@ -151,9 +151,9 @@ CHIP_ERROR ReadClient::ScheduleResubscription(uint32_t aTimeTillNextResubscripti
     //
     // If we're establishing CASE, make sure we are not provided a new SessionHandle as well.
     //
-    VerifyOrReturnError(!aReestablishCASE || !aNewSessionHandle.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
+    VerifyOrReturnError(!aReestablishCASE || !aNewSessionHandle.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
 
-    if (aNewSessionHandle.HasValue())
+    if (aNewSessionHandle.has_value())
     {
         mReadPrepareParams.mSessionHolder.Grab(aNewSessionHandle.Value());
     }
@@ -307,7 +307,7 @@ CHIP_ERROR ReadClient::SendReadRequest(ReadPrepareParams & aReadPrepareParams)
 
         Optional<EventNumber> eventMin;
         ReturnErrorOnFailure(GetMinEventNumber(aReadPrepareParams, eventMin));
-        if (eventMin.HasValue())
+        if (eventMin.has_value())
         {
             EventFilterIBs::Builder & eventFilters = request.CreateEventFilters();
             ReturnErrorOnFailure(err = request.GetError());
@@ -422,7 +422,7 @@ CHIP_ERROR ReadClient::BuildDataVersionFilterList(DataVersionFilterIBs::Builder 
         ClusterPathIB::Builder & path = filterIB.CreatePath();
         ReturnErrorOnFailure(filterIB.GetError());
         ReturnErrorOnFailure(path.Endpoint(filter.mEndpointId).Cluster(filter.mClusterId).EndOfClusterPathIB());
-        VerifyOrReturnError(filter.mDataVersion.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
+        VerifyOrReturnError(filter.mDataVersion.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
         ReturnErrorOnFailure(filterIB.DataVersion(filter.mDataVersion.Value()).EndOfDataVersionFilterIB());
         aEncodedDataVersionList = true;
     }
@@ -1143,7 +1143,7 @@ CHIP_ERROR ReadClient::SendSubscribeRequestImpl(const ReadPrepareParams & aReadP
 
         Optional<EventNumber> eventMin;
         ReturnErrorOnFailure(GetMinEventNumber(aReadPrepareParams, eventMin));
-        if (eventMin.HasValue())
+        if (eventMin.has_value())
         {
             EventFilterIBs::Builder & eventFilters = request.CreateEventFilters();
             ReturnErrorOnFailure(request.GetError());
@@ -1258,7 +1258,7 @@ void ReadClient::HandleDeviceConnectionFailure(void * context, const Operational
 
 #if CHIP_CONFIG_ENABLE_BUSY_HANDLING_FOR_OPERATIONAL_SESSION_SETUP
 #if CHIP_DETAIL_LOGGING
-    if (failureInfo.requestedBusyDelay.HasValue())
+    if (failureInfo.requestedBusyDelay.has_value())
     {
         ChipLogDetail(DataManagement, "Will delay resubscription by %u ms due to BUSY response",
                       failureInfo.requestedBusyDelay.Value().count());
@@ -1338,14 +1338,14 @@ void ReadClient::UpdateDataVersionFilters(const ConcreteDataAttributePath & aPat
 
 CHIP_ERROR ReadClient::GetMinEventNumber(const ReadPrepareParams & aReadPrepareParams, Optional<EventNumber> & aEventMin)
 {
-    if (aReadPrepareParams.mEventNumber.HasValue())
+    if (aReadPrepareParams.mEventNumber.has_value())
     {
         aEventMin = aReadPrepareParams.mEventNumber;
     }
     else
     {
         ReturnErrorOnFailure(mpCallback.GetHighestReceivedEventNumber(aEventMin));
-        if (aEventMin.HasValue())
+        if (aEventMin.has_value())
         {
             // We want to start with the first event _after_ the last one we received.
             aEventMin.SetValue(aEventMin.Value() + 1);

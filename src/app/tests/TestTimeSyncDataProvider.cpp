@@ -140,7 +140,7 @@ void TestTimeZoneStoreLoad(nlTestSuite * inSuite, void * inContext)
         auto & tz = tzL[0].timeZone;
         NL_TEST_ASSERT(inSuite, tz.offset == 1);
         NL_TEST_ASSERT(inSuite, tz.validAt == 1);
-        NL_TEST_ASSERT(inSuite, tz.name.HasValue());
+        NL_TEST_ASSERT(inSuite, tz.name.has_value());
         NL_TEST_ASSERT(inSuite, tz.name.Value().size() == 2);
 
         tzL = tzL.SubSpan(1);
@@ -151,7 +151,7 @@ void TestTimeZoneStoreLoad(nlTestSuite * inSuite, void * inContext)
         auto & tz = tzL[0].timeZone;
         NL_TEST_ASSERT(inSuite, tz.offset == 2);
         NL_TEST_ASSERT(inSuite, tz.validAt == 2);
-        NL_TEST_ASSERT(inSuite, tz.name.HasValue());
+        NL_TEST_ASSERT(inSuite, tz.name.has_value());
         NL_TEST_ASSERT(inSuite, tz.name.Value().size() == 63);
 
         tzL = tzL.SubSpan(1);
@@ -162,7 +162,7 @@ void TestTimeZoneStoreLoad(nlTestSuite * inSuite, void * inContext)
         auto & tz = tzL[0].timeZone;
         NL_TEST_ASSERT(inSuite, tz.offset == 3);
         NL_TEST_ASSERT(inSuite, tz.validAt == 3);
-        NL_TEST_ASSERT(inSuite, tz.name.HasValue());
+        NL_TEST_ASSERT(inSuite, tz.name.has_value());
         NL_TEST_ASSERT(inSuite, tz.name.Value().size() == 6);
 
         tzL = tzL.SubSpan(1);

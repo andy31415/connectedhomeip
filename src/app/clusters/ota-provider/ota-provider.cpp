@@ -182,24 +182,24 @@ bool emberAfOtaSoftwareUpdateProviderClusterQueryImageCallback(app::CommandHandl
         ChipLogDetail(Zcl, "    %u", to_underlying(protocolIter.GetValue()));
     }
     ChipLogDetail(Zcl, "  ]");
-    if (hardwareVersion.HasValue())
+    if (hardwareVersion.has_value())
     {
         ChipLogDetail(Zcl, "  HardwareVersion: %u", hardwareVersion.Value());
     }
-    if (location.HasValue())
+    if (location.has_value())
     {
         ChipLogDetail(Zcl, "  Location: %.*s", static_cast<int>(location.Value().size()), location.Value().data());
     }
-    if (requestorCanConsent.HasValue())
+    if (requestorCanConsent.has_value())
     {
         ChipLogDetail(Zcl, "  RequestorCanConsent: %u", requestorCanConsent.Value());
     }
-    if (metadataForProvider.HasValue())
+    if (metadataForProvider.has_value())
     {
         ChipLogDetail(Zcl, "  MetadataForProvider: %u", static_cast<unsigned int>(metadataForProvider.Value().size()));
     }
 
-    if (location.HasValue() && location.Value().size() != kLocationLen)
+    if (location.has_value() && location.Value().size() != kLocationLen)
     {
         ChipLogError(Zcl, "location param length %u != expected length %u", static_cast<unsigned int>(location.Value().size()),
                      static_cast<unsigned int>(kLocationLen));
@@ -207,7 +207,7 @@ bool emberAfOtaSoftwareUpdateProviderClusterQueryImageCallback(app::CommandHandl
         return true;
     }
 
-    if (metadataForProvider.HasValue() && metadataForProvider.Value().size() > kMaxMetadataLen)
+    if (metadataForProvider.has_value() && metadataForProvider.Value().size() > kMaxMetadataLen)
     {
         ChipLogError(Zcl, "metadata size %u exceeds max %u", static_cast<unsigned int>(metadataForProvider.Value().size()),
                      static_cast<unsigned int>(kMaxMetadataLen));

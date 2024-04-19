@@ -129,7 +129,7 @@ public:
      */
     bool Matches(EndpointId aEndpointId, ClusterId aClusterId) const
     {
-        return (!mEndpointId.HasValue() || mEndpointId.Value() == aEndpointId) && mClusterId == aClusterId;
+        return (!mEndpointId.has_value() || mEndpointId.Value() == aEndpointId) && mClusterId == aClusterId;
     }
 
     /**
@@ -137,7 +137,7 @@ public:
      * specific endpoint.  This is used to clean up overrides registered for an
      * endpoint that becomes disabled.
      */
-    bool MatchesEndpoint(EndpointId aEndpointId) const { return mEndpointId.HasValue() && mEndpointId.Value() == aEndpointId; }
+    bool MatchesEndpoint(EndpointId aEndpointId) const { return mEndpointId.has_value() && mEndpointId.Value() == aEndpointId; }
 
     /**
      * Check whether another AttributeAccessInterface wants to handle the same set of
@@ -146,7 +146,7 @@ public:
     bool Matches(const AttributeAccessInterface & aOther) const
     {
         return mClusterId == aOther.mClusterId &&
-            (!mEndpointId.HasValue() || !aOther.mEndpointId.HasValue() || mEndpointId.Value() == aOther.mEndpointId.Value());
+            (!mEndpointId.has_value() || !aOther.mEndpointId.has_value() || mEndpointId.Value() == aOther.mEndpointId.Value());
     }
 
 private:

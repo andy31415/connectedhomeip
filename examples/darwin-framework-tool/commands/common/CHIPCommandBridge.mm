@@ -42,7 +42,7 @@ CHIP_ERROR CHIPCommandBridge::Run()
 {
     ChipLogProgress(chipTool, "Running Command");
     ReturnErrorOnFailure(MaybeSetUpStack());
-    SetIdentity(mCommissionerName.HasValue() ? mCommissionerName.Value() : kIdentityAlpha);
+    SetIdentity(mCommissionerName.has_value() ? mCommissionerName.Value() : kIdentityAlpha);
 
     {
         std::lock_guard<std::mutex> lk(cvWaitingForResponseMutex);
@@ -71,13 +71,13 @@ CHIP_ERROR CHIPCommandBridge::GetPAACertsFromFolder(NSArray<NSData *> * __autore
 {
     NSMutableArray * paaCerts = [[NSMutableArray alloc] init];
 
-    if (!mPaaTrustStorePath.HasValue()) {
+    if (!mPaaTrustStorePath.has_value()) {
         char * const trust_store_path = getenv(kTrustStorePathVariable);
         if (trust_store_path != nullptr) {
             mPaaTrustStorePath.SetValue(trust_store_path);
         }
     }
-    if (mPaaTrustStorePath.HasValue()) {
+    if (mPaaTrustStorePath.has_value()) {
         NSError * error;
         NSString * paaStorePath = [NSString stringWithCString:mPaaTrustStorePath.Value() encoding:NSUTF8StringEncoding];
         NSArray * derFolder = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:paaStorePath error:&error];
@@ -146,11 +146,11 @@ CHIP_ERROR CHIPCommandBridge::MaybeSetUpStack()
     ipk = [gNocSigner getIPK];
 
     constexpr const char * identities[] = { kIdentityAlpha, kIdentityBeta, kIdentityGamma };
-    std::string commissionerName = mCommissionerName.HasValue() ? mCommissionerName.Value() : kIdentityAlpha;
+    std::string commissionerName = mCommissionerName.has_value() ? mCommissionerName.Value() : kIdentityAlpha;
     for (size_t i = 0; i < ArraySize(identities); ++i) {
         auto controllerParams = [[MTRDeviceControllerStartupParams alloc] initWithIPK:ipk fabricID:@(i + 1) nocSigner:gNocSigner];
 
-        if (commissionerName.compare(identities[i]) == 0 && mCommissionerNodeId.HasValue()) {
+        if (commissionerName.compare(identities[i]) == 0 && mCommissionerNodeId.has_value()) {
             controllerParams.nodeId = @(mCommissionerNodeId.Value());
         }
         // We're not sure whether we're creating a new fabric or using an

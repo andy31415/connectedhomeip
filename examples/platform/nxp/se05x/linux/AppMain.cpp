@@ -191,7 +191,7 @@ int ChipLinuxAppInit(int argc, char * const argv[], OptionSet * customOptions)
                                                    LinuxDeviceOptions::GetInstance());
     SuccessOrExit(err);
 
-    if (LinuxDeviceOptions::GetInstance().payload.rendezvousInformation.HasValue())
+    if (LinuxDeviceOptions::GetInstance().payload.rendezvousInformation.has_value())
     {
         rendezvousFlags = LinuxDeviceOptions::GetInstance().payload.rendezvousInformation.Value();
     }
@@ -225,7 +225,7 @@ int ChipLinuxAppInit(int argc, char * const argv[], OptionSet * customOptions)
     DeviceLayer::PlatformMgrImpl().AddEventHandler(EventHandler, 0);
 
 #if CHIP_CONFIG_TRANSPORT_TRACE_ENABLED
-    if (LinuxDeviceOptions::GetInstance().traceStreamFilename.HasValue())
+    if (LinuxDeviceOptions::GetInstance().traceStreamFilename.has_value())
     {
         const char * traceFilename = LinuxDeviceOptions::GetInstance().traceStreamFilename.Value().c_str();
         auto traceStream           = new chip::trace::TraceStreamFile(traceFilename);

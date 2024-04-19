@@ -321,8 +321,8 @@ void InteractionModelEngine::ShutdownMatchingSubscriptions(const Optional<Fabric
         auto * nextClient = readClient->GetNextClient();
         if (readClient->IsSubscriptionType())
         {
-            bool fabricMatches = !aFabricIndex.HasValue() || (aFabricIndex.Value() == readClient->GetFabricIndex());
-            bool nodeIdMatches = !aPeerNodeId.HasValue() || (aPeerNodeId.Value() == readClient->GetPeerNodeId());
+            bool fabricMatches = !aFabricIndex.has_value() || (aFabricIndex.Value() == readClient->GetFabricIndex());
+            bool nodeIdMatches = !aPeerNodeId.has_value() || (aPeerNodeId.Value() == readClient->GetPeerNodeId());
             if (fabricMatches && nodeIdMatches)
             {
                 readClient->Close(CHIP_NO_ERROR);

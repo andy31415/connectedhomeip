@@ -141,7 +141,7 @@ bool ChannelManager::isChannelMatched(const ChannelInfoType & channel, const chi
     StringBuilder<16> channelNum;
     channelNum.AddFormat("%d.%d", channel.majorNumber, channel.minorNumber);
 
-    auto isMatch = [&match](const Optional<chip::CharSpan> & a) { return a.HasValue() && a.Value().data_equal(match); };
+    auto isMatch = [&match](const Optional<chip::CharSpan> & a) { return a.has_value() && a.Value().data_equal(match); };
 
     return isMatch(channel.name) || isMatch(channel.affiliateCallSign) || isMatch(channel.callSign) ||
         match.data_equal(chip::CharSpan::fromCharString(channelNum.c_str()));
@@ -256,7 +256,7 @@ void ChannelManager::HandleGetProgramGuide(CommandResponseHelper<ProgramGuideRes
         {
             continue;
         }
-        if (channelList.HasValue())
+        if (channelList.has_value())
         {
             auto iter     = channelList.Value().begin();
             bool match    = false;

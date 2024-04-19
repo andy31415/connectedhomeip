@@ -40,10 +40,10 @@ System::Clock::Milliseconds32 ICDConfigurationData::GetSlowPollingInterval()
 CHIP_ERROR ICDConfigurationData::SetModeDurations(Optional<System::Clock::Milliseconds32> activeModeDuration,
                                                   Optional<System::Clock::Milliseconds32> idleModeDuration)
 {
-    VerifyOrReturnError(activeModeDuration.HasValue() || idleModeDuration.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
+    VerifyOrReturnError(activeModeDuration.has_value() || idleModeDuration.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
 
     // Convert idleModeDuration to seconds for the correct precision
-    System::Clock::Seconds32 tmpIdleModeDuration = idleModeDuration.HasValue()
+    System::Clock::Seconds32 tmpIdleModeDuration = idleModeDuration.has_value()
         ? std::chrono::duration_cast<System::Clock::Seconds32>(idleModeDuration.Value())
         : mIdleModeDuration;
 

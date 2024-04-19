@@ -124,7 +124,7 @@ public:
     void ResetState()
     {
         assertChipStackLockedByCurrentThread();
-        if (mNodeId.HasValue() && mFabricIndex.HasValue()) {
+        if (mNodeId.has_value() && mFabricIndex.has_value()) {
             ChipLogProgress(Controller,
                 "Resetting state for OTA Provider; no longer providing an update for node id 0x" ChipLogFormatX64
                 ", fabric index %u",
@@ -206,8 +206,8 @@ private:
             mSystemLayer->CancelTimer(HandleBdxInitReceivedTimeoutExpired, this);
         }
 
-        VerifyOrReturnError(mFabricIndex.HasValue(), CHIP_ERROR_INCORRECT_STATE);
-        VerifyOrReturnError(mNodeId.HasValue(), CHIP_ERROR_INCORRECT_STATE);
+        VerifyOrReturnError(mFabricIndex.has_value(), CHIP_ERROR_INCORRECT_STATE);
+        VerifyOrReturnError(mNodeId.has_value(), CHIP_ERROR_INCORRECT_STATE);
         uint16_t fdl = 0;
         auto fd = mTransfer.GetFileDesignator(fdl);
         VerifyOrReturnError(fdl <= bdx::kMaxFileDesignatorLen, CHIP_ERROR_INVALID_ARGUMENT);
@@ -284,8 +284,8 @@ private:
     {
         assertChipStackLockedByCurrentThread();
 
-        VerifyOrReturnError(mFabricIndex.HasValue(), CHIP_ERROR_INCORRECT_STATE);
-        VerifyOrReturnError(mNodeId.HasValue(), CHIP_ERROR_INCORRECT_STATE);
+        VerifyOrReturnError(mFabricIndex.has_value(), CHIP_ERROR_INCORRECT_STATE);
+        VerifyOrReturnError(mNodeId.has_value(), CHIP_ERROR_INCORRECT_STATE);
 
         CHIP_ERROR error = CHIP_NO_ERROR;
         if (event.EventType == TransferSession::OutputEventType::kTransferTimeout) {
@@ -315,8 +315,8 @@ private:
     {
         assertChipStackLockedByCurrentThread();
 
-        VerifyOrReturnError(mFabricIndex.HasValue(), CHIP_ERROR_INCORRECT_STATE);
-        VerifyOrReturnError(mNodeId.HasValue(), CHIP_ERROR_INCORRECT_STATE);
+        VerifyOrReturnError(mFabricIndex.has_value(), CHIP_ERROR_INCORRECT_STATE);
+        VerifyOrReturnError(mNodeId.has_value(), CHIP_ERROR_INCORRECT_STATE);
 
         auto blockSize = @(mTransfer.GetTransferBlockSize());
         auto blockIndex = @(mTransfer.GetNextBlockNum());
@@ -858,19 +858,19 @@ CHIP_ERROR MTROTAProviderDelegateBridge::ConvertToQueryImageParams(
     ReturnErrorOnFailure(iterator.GetStatus());
     commandParams.protocolsSupported = protocolsSupported;
 
-    if (commandData.hardwareVersion.HasValue()) {
+    if (commandData.hardwareVersion.has_value()) {
         commandParams.hardwareVersion = [NSNumber numberWithUnsignedShort:commandData.hardwareVersion.Value()];
     }
 
-    if (commandData.location.HasValue()) {
+    if (commandData.location.has_value()) {
         commandParams.location = AsString(commandData.location.Value());
     }
 
-    if (commandData.requestorCanConsent.HasValue()) {
+    if (commandData.requestorCanConsent.has_value()) {
         commandParams.requestorCanConsent = [NSNumber numberWithBool:commandData.requestorCanConsent.Value()];
     }
 
-    if (commandData.metadataForProvider.HasValue()) {
+    if (commandData.metadataForProvider.has_value()) {
         commandParams.metadataForProvider = AsData(commandData.metadataForProvider.Value());
     }
     return CHIP_NO_ERROR;

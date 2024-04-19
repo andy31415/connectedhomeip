@@ -80,7 +80,7 @@ CHIP_ERROR SetupPayloadParseCommand::Print(chip::SetupPayload payload)
     {
         StringBuilder<128> humanFlags;
 
-        if (!payload.rendezvousInformation.HasValue())
+        if (!payload.rendezvousInformation.has_value())
         {
             ChipLogProgress(SetupPayload, "Discovery Bitmask:   UNKNOWN");
         }

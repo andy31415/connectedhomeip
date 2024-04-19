@@ -200,7 +200,7 @@ CHIP_ERROR DeviceScanner::Get(uint16_t index, Dnssd::CommonResolutionData & reso
         {
             for (auto & result : interface.second)
             {
-                if (currentIndex == index && result.mResolutionData.HasValue())
+                if (currentIndex == index && result.mResolutionData.has_value())
                 {
                     resolutionData = result.mResolutionData.Value();
                     return CHIP_NO_ERROR;

@@ -122,31 +122,31 @@ CHIP_ERROR OTASoftwareUpdateSetParams::SetParams(chip::Optional<uint16_t> action
     chip::Optional<uint64_t> timedInvokeTimeoutMs)
 {
     CHIP_ERROR error = CHIP_NO_ERROR;
-    if (action.HasValue()) {
+    if (action.has_value()) {
         error = SetActionReplyStatus(action.Value());
         if (error != CHIP_NO_ERROR) {
             return error;
         }
     }
-    if (delayedActionTime.HasValue()) {
+    if (delayedActionTime.has_value()) {
         mOTADelegate.delayedActionTime = @(delayedActionTime.Value());
     }
-    if (timedInvokeTimeoutMs.HasValue()) {
+    if (timedInvokeTimeoutMs.has_value()) {
         mOTADelegate.timedInvokeTimeoutMs = @(timedInvokeTimeoutMs.Value());
     }
-    if (status.HasValue()) {
+    if (status.has_value()) {
         error = SetReplyStatus(status.Value());
         if (error != CHIP_NO_ERROR) {
             return error;
         }
     }
-    if (consent.HasValue()) {
+    if (consent.has_value()) {
         error = SetUserConsentStatus(consent.Value());
         if (error != CHIP_NO_ERROR) {
             return error;
         }
     }
-    if (userConsentNeeded.HasValue()) {
+    if (userConsentNeeded.has_value()) {
         error = SetUserConsentNeeded(userConsentNeeded.Value());
         if (error != CHIP_NO_ERROR) {
             return error;

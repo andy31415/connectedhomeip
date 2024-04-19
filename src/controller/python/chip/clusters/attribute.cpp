@@ -134,7 +134,7 @@ public:
         }
 
         DataVersion version = 0;
-        if (aPath.mDataVersion.HasValue())
+        if (aPath.mDataVersion.has_value())
         {
             version = aPath.mDataVersion.Value();
         }
@@ -355,7 +355,7 @@ PyChipError pychip_WriteClient_WriteAttributes(void * appContext, DeviceProxy * 
         app::InteractionModelEngine::GetInstance()->GetExchangeManager(), callback->GetChunkedCallback(),
         timedWriteTimeoutMs != 0 ? Optional<uint16_t>(timedWriteTimeoutMs) : Optional<uint16_t>::Missing());
 
-    VerifyOrExit(device != nullptr && device->GetSecureSession().HasValue(), err = CHIP_ERROR_MISSING_SECURE_SESSION);
+    VerifyOrExit(device != nullptr && device->GetSecureSession().has_value(), err = CHIP_ERROR_MISSING_SECURE_SESSION);
 
     for (size_t i = 0; i < attributeDataLength; i++)
     {
@@ -481,7 +481,7 @@ void pychip_ReadClient_GetSubscriptionTimeoutMs(ReadClient * pReadClient, uint32
     // The return value of GetSubscriptionTimeout cannot be 0
     // so milliSec=0 can be considered as the subscription has been abnormal.
     *milliSec = 0;
-    if (duration.HasValue())
+    if (duration.has_value())
     {
         System::Clock::Milliseconds32 msec = std::chrono::duration_cast<System::Clock::Milliseconds32>(duration.Value());
         *milliSec                          = msec.count();
@@ -536,7 +536,7 @@ PyChipError pychip_ReadClient_Read(void * appContext, ReadClient ** pReadClient,
     }
 
     Optional<SessionHandle> session = device->GetSecureSession();
-    VerifyOrExit(session.HasValue(), err = CHIP_ERROR_NOT_CONNECTED);
+    VerifyOrExit(session.has_value(), err = CHIP_ERROR_NOT_CONNECTED);
 
     readClient = std::make_unique<ReadClient>(
         InteractionModelEngine::GetInstance(), device->GetExchangeManager(), *callback->GetBufferedReadCallback(),

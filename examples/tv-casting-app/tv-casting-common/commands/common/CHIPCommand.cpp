@@ -41,11 +41,11 @@ void CHIPCommand::StartTracing()
 #if CHIP_CONFIG_TRANSPORT_TRACE_ENABLED
     chip::trace::InitTrace();
 
-    if (mTraceFile.HasValue())
+    if (mTraceFile.has_value())
     {
         chip::trace::AddTraceStream(new chip::trace::TraceStreamFile(mTraceFile.Value()));
     }
-    else if (mTraceLog.HasValue() && mTraceLog.Value())
+    else if (mTraceLog.has_value() && mTraceLog.Value())
     {
         chip::trace::AddTraceStream(new chip::trace::TraceStreamLog());
     }
@@ -98,7 +98,7 @@ std::map<CHIPCommand::CommissionerIdentity, std::unique_ptr<chip::Controller::De
 
 std::string CHIPCommand::GetIdentity()
 {
-    std::string name = mCommissionerName.HasValue() ? mCommissionerName.Value() : kIdentityAlpha;
+    std::string name = mCommissionerName.has_value() ? mCommissionerName.Value() : kIdentityAlpha;
     if (name.compare(kIdentityAlpha) != 0 && name.compare(kIdentityBeta) != 0 && name.compare(kIdentityGamma) != 0 &&
         name.compare(kIdentityNull) != 0)
     {

@@ -132,7 +132,7 @@ CHIP_ERROR TimeSyncDataProvider::LoadTimeZone(TimeZoneObj & timeZoneObj)
         ReturnErrorOnFailure(tz.Decode(reader));
         tzStore.timeZone.offset  = tz.offset;
         tzStore.timeZone.validAt = tz.validAt;
-        if (tz.name.HasValue())
+        if (tz.name.has_value())
         {
             MutableCharSpan tempSpan(tzStore.name);
             ReturnErrorOnFailure(CopyCharSpanToMutableCharSpan(tz.name.Value(), tempSpan));

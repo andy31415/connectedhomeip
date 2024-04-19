@@ -419,7 +419,7 @@ void TestReadInteraction::TestReadAttributeResponse(nlTestSuite * apSuite, void 
     auto onSuccessCb = [apSuite, &onSuccessCbInvoked](const app::ConcreteDataAttributePath & attributePath,
                                                       const auto & dataResponse) {
         uint8_t i = 0;
-        NL_TEST_ASSERT(apSuite, attributePath.mDataVersion.HasValue() && attributePath.mDataVersion.Value() == kDataVersion);
+        NL_TEST_ASSERT(apSuite, attributePath.mDataVersion.has_value() && attributePath.mDataVersion.Value() == kDataVersion);
         auto iter = dataResponse.begin();
         while (iter.Next())
         {
@@ -508,7 +508,7 @@ void TestReadInteraction::TestReadSubscribeAttributeResponseWithCache(nlTestSuit
         Optional<DataVersion> version1;
         app::ConcreteClusterPath clusterPath1(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath1, version1) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version1.HasValue());
+        NL_TEST_ASSERT(apSuite, !version1.has_value());
         delegate.mNumAttributeResponse = 0;
     }
 
@@ -543,11 +543,11 @@ void TestReadInteraction::TestReadSubscribeAttributeResponseWithCache(nlTestSuit
         Optional<DataVersion> version1;
         app::ConcreteClusterPath clusterPath1(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath1, version1) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version1.HasValue());
+        NL_TEST_ASSERT(apSuite, !version1.has_value());
         Optional<DataVersion> version2;
         app::ConcreteClusterPath clusterPath2(chip::Test::kMockEndpoint3, chip::Test::MockClusterId(2));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath2, version2) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version2.HasValue());
+        NL_TEST_ASSERT(apSuite, !version2.has_value());
 
         {
             app::ConcreteAttributePath attributePath(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3),
@@ -614,11 +614,11 @@ void TestReadInteraction::TestReadSubscribeAttributeResponseWithCache(nlTestSuit
         Optional<DataVersion> version1;
         app::ConcreteClusterPath clusterPath1(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath1, version1) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version1.HasValue());
+        NL_TEST_ASSERT(apSuite, !version1.has_value());
         Optional<DataVersion> version2;
         app::ConcreteClusterPath clusterPath2(chip::Test::kMockEndpoint3, chip::Test::MockClusterId(2));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath2, version2) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version2.HasValue());
+        NL_TEST_ASSERT(apSuite, !version2.has_value());
 
         {
             app::ConcreteAttributePath attributePath(chip::Test::kMockEndpoint1, chip::Test::MockClusterId(2),
@@ -676,11 +676,11 @@ void TestReadInteraction::TestReadSubscribeAttributeResponseWithCache(nlTestSuit
         Optional<DataVersion> version1;
         app::ConcreteClusterPath clusterPath1(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath1, version1) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, version1.HasValue() && (version1.Value() == 0));
+        NL_TEST_ASSERT(apSuite, version1.has_value() && (version1.Value() == 0));
         Optional<DataVersion> version2;
         app::ConcreteClusterPath clusterPath2(chip::Test::kMockEndpoint3, chip::Test::MockClusterId(2));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath2, version2) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version2.HasValue());
+        NL_TEST_ASSERT(apSuite, !version2.has_value());
 
         {
             app::ConcreteAttributePath attributePath(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3),
@@ -755,11 +755,11 @@ void TestReadInteraction::TestReadSubscribeAttributeResponseWithCache(nlTestSuit
         Optional<DataVersion> version1;
         app::ConcreteClusterPath clusterPath1(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath1, version1) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, version1.HasValue() && (version1.Value() == 0));
+        NL_TEST_ASSERT(apSuite, version1.has_value() && (version1.Value() == 0));
         Optional<DataVersion> version2;
         app::ConcreteClusterPath clusterPath2(chip::Test::kMockEndpoint3, chip::Test::MockClusterId(2));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath2, version2) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version2.HasValue());
+        NL_TEST_ASSERT(apSuite, !version2.has_value());
 
         {
             app::ConcreteAttributePath attributePath(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3),
@@ -819,11 +819,11 @@ void TestReadInteraction::TestReadSubscribeAttributeResponseWithCache(nlTestSuit
         Optional<DataVersion> version1;
         app::ConcreteClusterPath clusterPath1(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath1, version1) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, version1.HasValue() && (version1.Value() == 0));
+        NL_TEST_ASSERT(apSuite, version1.has_value() && (version1.Value() == 0));
         Optional<DataVersion> version2;
         app::ConcreteClusterPath clusterPath2(chip::Test::kMockEndpoint3, chip::Test::MockClusterId(2));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath2, version2) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version2.HasValue());
+        NL_TEST_ASSERT(apSuite, !version2.has_value());
 
         {
             app::ConcreteAttributePath attributePath(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3),
@@ -901,11 +901,11 @@ void TestReadInteraction::TestReadSubscribeAttributeResponseWithCache(nlTestSuit
         Optional<DataVersion> version1;
         app::ConcreteClusterPath clusterPath1(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath1, version1) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version1.HasValue());
+        NL_TEST_ASSERT(apSuite, !version1.has_value());
         Optional<DataVersion> version2;
         app::ConcreteClusterPath clusterPath2(chip::Test::kMockEndpoint3, chip::Test::MockClusterId(2));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath2, version2) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version2.HasValue());
+        NL_TEST_ASSERT(apSuite, !version2.has_value());
 
         {
             app::ConcreteAttributePath attributePath(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3),
@@ -970,11 +970,11 @@ void TestReadInteraction::TestReadSubscribeAttributeResponseWithCache(nlTestSuit
         Optional<DataVersion> version1;
         app::ConcreteClusterPath clusterPath1(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath1, version1) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version1.HasValue());
+        NL_TEST_ASSERT(apSuite, !version1.has_value());
         Optional<DataVersion> version2;
         app::ConcreteClusterPath clusterPath2(chip::Test::kMockEndpoint3, chip::Test::MockClusterId(2));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath2, version2) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version2.HasValue());
+        NL_TEST_ASSERT(apSuite, !version2.has_value());
 
         {
             app::ConcreteAttributePath attributePath(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3),
@@ -1034,11 +1034,11 @@ void TestReadInteraction::TestReadSubscribeAttributeResponseWithCache(nlTestSuit
         Optional<DataVersion> version1;
         app::ConcreteClusterPath clusterPath1(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath1, version1) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, version1.HasValue() && (version1.Value() == 1));
+        NL_TEST_ASSERT(apSuite, version1.has_value() && (version1.Value() == 1));
         Optional<DataVersion> version2;
         app::ConcreteClusterPath clusterPath2(chip::Test::kMockEndpoint3, chip::Test::MockClusterId(2));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath2, version2) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version2.HasValue());
+        NL_TEST_ASSERT(apSuite, !version2.has_value());
 
         {
             app::ConcreteAttributePath attributePath(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3),
@@ -1117,11 +1117,11 @@ void TestReadInteraction::TestReadSubscribeAttributeResponseWithCache(nlTestSuit
         Optional<DataVersion> version1;
         app::ConcreteClusterPath clusterPath1(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath1, version1) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, version1.HasValue() && (version1.Value() == 1));
+        NL_TEST_ASSERT(apSuite, version1.has_value() && (version1.Value() == 1));
         Optional<DataVersion> version2;
         app::ConcreteClusterPath clusterPath2(chip::Test::kMockEndpoint3, chip::Test::MockClusterId(2));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath2, version2) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version2.HasValue());
+        NL_TEST_ASSERT(apSuite, !version2.has_value());
 
         {
             app::ConcreteAttributePath attributePath(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3),
@@ -1202,15 +1202,15 @@ void TestReadInteraction::TestReadSubscribeAttributeResponseWithCache(nlTestSuit
         Optional<DataVersion> version1;
         app::ConcreteClusterPath clusterPath1(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath1, version1) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, version1.HasValue() && (version1.Value() == 2));
+        NL_TEST_ASSERT(apSuite, version1.has_value() && (version1.Value() == 2));
         Optional<DataVersion> version2;
         app::ConcreteClusterPath clusterPath2(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(2));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath2, version2) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, version2.HasValue() && (version2.Value() == 2));
+        NL_TEST_ASSERT(apSuite, version2.has_value() && (version2.Value() == 2));
         Optional<DataVersion> version3;
         app::ConcreteClusterPath clusterPath3(chip::Test::kMockEndpoint1, chip::Test::MockClusterId(2));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath3, version3) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, version3.HasValue() && (version3.Value() == 2));
+        NL_TEST_ASSERT(apSuite, version3.has_value() && (version3.Value() == 2));
 
         {
             app::ConcreteAttributePath attributePath(chip::Test::kMockEndpoint1, chip::Test::MockClusterId(2),
@@ -1313,15 +1313,15 @@ void TestReadInteraction::TestReadSubscribeAttributeResponseWithCache(nlTestSuit
         Optional<DataVersion> version1;
         app::ConcreteClusterPath clusterPath1(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath1, version1) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, version1.HasValue() && (version1.Value() == 2));
+        NL_TEST_ASSERT(apSuite, version1.has_value() && (version1.Value() == 2));
         Optional<DataVersion> version2;
         app::ConcreteClusterPath clusterPath2(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(2));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath2, version2) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, version2.HasValue() && (version2.Value() == 2));
+        NL_TEST_ASSERT(apSuite, version2.has_value() && (version2.Value() == 2));
         Optional<DataVersion> version3;
         app::ConcreteClusterPath clusterPath3(chip::Test::kMockEndpoint1, chip::Test::MockClusterId(2));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath3, version3) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, version3.HasValue() && (version3.Value() == 2));
+        NL_TEST_ASSERT(apSuite, version3.has_value() && (version3.Value() == 2));
 
         {
             app::ConcreteAttributePath attributePath(chip::Test::kMockEndpoint1, chip::Test::MockClusterId(2),
@@ -1410,7 +1410,7 @@ void TestReadInteraction::TestReadSubscribeAttributeResponseWithCache(nlTestSuit
         app::ConcreteClusterPath clusterPath(chip::Test::kMockEndpoint3, chip::Test::MockClusterId(2));
 
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath, version1) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, version1.HasValue());
+        NL_TEST_ASSERT(apSuite, version1.has_value());
 
         {
             app::ConcreteAttributePath attributePath(chip::Test::kMockEndpoint3, chip::Test::MockClusterId(2),
@@ -1498,11 +1498,11 @@ void TestReadInteraction::TestReadSubscribeAttributeResponseWithVersionOnlyCache
         Optional<DataVersion> version1;
         app::ConcreteClusterPath clusterPath1(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath1, version1) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, version1.HasValue() && (version1.Value() == 0));
+        NL_TEST_ASSERT(apSuite, version1.has_value() && (version1.Value() == 0));
         Optional<DataVersion> version2;
         app::ConcreteClusterPath clusterPath2(chip::Test::kMockEndpoint3, chip::Test::MockClusterId(2));
         NL_TEST_ASSERT(apSuite, cache.GetVersion(clusterPath2, version2) == CHIP_NO_ERROR);
-        NL_TEST_ASSERT(apSuite, !version2.HasValue());
+        NL_TEST_ASSERT(apSuite, !version2.has_value());
 
         {
             app::ConcreteAttributePath attributePath(chip::Test::kMockEndpoint2, chip::Test::MockClusterId(3),
@@ -3096,7 +3096,7 @@ void TestReadInteraction::TestReadHandler_MultipleSubscriptionsWithDataVersionFi
     // not safe to do so.
     auto onSuccessCb = [apSuite, &numSuccessCalls](const app::ConcreteDataAttributePath & attributePath,
                                                    const auto & dataResponse) {
-        NL_TEST_ASSERT(apSuite, attributePath.mDataVersion.HasValue() && attributePath.mDataVersion.Value() == kDataVersion);
+        NL_TEST_ASSERT(apSuite, attributePath.mDataVersion.has_value() && attributePath.mDataVersion.Value() == kDataVersion);
         numSuccessCalls++;
     };
 
@@ -4853,7 +4853,7 @@ void TestReadInteraction::TestReadAttribute_ManyDataValues(nlTestSuite * apSuite
     // Passing of stack variables by reference is only safe because of synchronous completion of the interaction. Otherwise, it's
     // not safe to do so.
     auto onSuccessCb = [apSuite, &successCalls](const app::ConcreteDataAttributePath & attributePath, const auto & dataResponse) {
-        NL_TEST_ASSERT(apSuite, attributePath.mDataVersion.HasValue() && attributePath.mDataVersion.Value() == kDataVersion);
+        NL_TEST_ASSERT(apSuite, attributePath.mDataVersion.has_value() && attributePath.mDataVersion.Value() == kDataVersion);
 
         NL_TEST_ASSERT(apSuite, dataResponse);
         ++successCalls;
@@ -4887,7 +4887,7 @@ void TestReadInteraction::TestReadAttribute_ManyDataValuesWrongPath(nlTestSuite 
     // Passing of stack variables by reference is only safe because of synchronous completion of the interaction. Otherwise, it's
     // not safe to do so.
     auto onSuccessCb = [apSuite, &successCalls](const app::ConcreteDataAttributePath & attributePath, const auto & dataResponse) {
-        NL_TEST_ASSERT(apSuite, attributePath.mDataVersion.HasValue() && attributePath.mDataVersion.Value() == kDataVersion);
+        NL_TEST_ASSERT(apSuite, attributePath.mDataVersion.has_value() && attributePath.mDataVersion.Value() == kDataVersion);
 
         NL_TEST_ASSERT(apSuite, dataResponse);
         ++successCalls;
@@ -4921,7 +4921,7 @@ void TestReadInteraction::TestReadAttribute_ManyErrors(nlTestSuite * apSuite, vo
     // Passing of stack variables by reference is only safe because of synchronous completion of the interaction. Otherwise, it's
     // not safe to do so.
     auto onSuccessCb = [apSuite, &successCalls](const app::ConcreteDataAttributePath & attributePath, const auto & dataResponse) {
-        NL_TEST_ASSERT(apSuite, attributePath.mDataVersion.HasValue() && attributePath.mDataVersion.Value() == kDataVersion);
+        NL_TEST_ASSERT(apSuite, attributePath.mDataVersion.has_value() && attributePath.mDataVersion.Value() == kDataVersion);
 
         NL_TEST_ASSERT(apSuite, dataResponse);
         ++successCalls;

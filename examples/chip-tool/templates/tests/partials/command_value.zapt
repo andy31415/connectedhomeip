@@ -40,7 +40,7 @@
     {{~#if (chip_tests_variables_has definedValue)~}}
       {{definedValue}};
     {{else if (chip_tests_config_has definedValue)}}
-      m{{asUpperCamelCase definedValue}}.HasValue() ? m{{asUpperCamelCase definedValue}}.Value() :
+      m{{asUpperCamelCase definedValue}}.has_value() ? m{{asUpperCamelCase definedValue}}.Value() :
       {{~#if_is_strongly_typed_chip_enum type~}}
         static_cast<{{zapTypeToEncodableClusterObjectType type ns=ns}}>({{chip_tests_config_get_default_value definedValue}});
       {{else if (isCharString type)}}
