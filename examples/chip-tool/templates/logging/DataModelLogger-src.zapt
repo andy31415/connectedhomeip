@@ -57,7 +57,7 @@ CHIP_ERROR DataModelLogger::LogValue(const char * label, size_t indent, const {{
 CHIP_ERROR DataModelLogger::LogAttribute(const chip::app::ConcreteDataAttributePath & path, chip::TLV::TLVReader * data)
 {
     ChipLogProgress(chipTool, "Endpoint: %u Cluster: " ChipLogFormatMEI " Attribute " ChipLogFormatMEI " DataVersion: %" PRIu32, path.mEndpointId,
-                    ChipLogValueMEI(path.mClusterId), ChipLogValueMEI(path.mAttributeId), path.mDataVersion.ValueOr(0));
+                    ChipLogValueMEI(path.mClusterId), ChipLogValueMEI(path.mAttributeId), path.mDataVersion.value_or(0));
 
     switch (path.mClusterId)
     {

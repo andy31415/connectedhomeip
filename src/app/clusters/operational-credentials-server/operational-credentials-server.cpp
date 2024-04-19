@@ -646,7 +646,7 @@ bool emberAfOperationalCredentialsClusterAddNOCCallback(app::CommandHandler * co
     VerifyOrExit(IsOperationalNodeId(commandData.caseAdminSubject) || IsCASEAuthTag(commandData.caseAdminSubject),
                  nocResponse = NodeOperationalCertStatusEnum::kInvalidAdminSubject);
 
-    err = fabricTable.AddNewPendingFabricWithOperationalKeystore(NOCValue, ICACValue.ValueOr(ByteSpan{}), adminVendorId,
+    err = fabricTable.AddNewPendingFabricWithOperationalKeystore(NOCValue, ICACValue.value_or(ByteSpan{}), adminVendorId,
                                                                  &newFabricIndex);
     VerifyOrExit(err == CHIP_NO_ERROR, nocResponse = ConvertToNOCResponseStatus(err));
 
@@ -805,7 +805,7 @@ bool emberAfOperationalCredentialsClusterUpdateNOCCallback(app::CommandHandler *
     // Flush acks before really slow work
     commandObj->FlushAcksRightAwayOnSlowCommand();
 
-    err = fabricTable.UpdatePendingFabricWithOperationalKeystore(fabricIndex, NOCValue, ICACValue.ValueOr(ByteSpan{}));
+    err = fabricTable.UpdatePendingFabricWithOperationalKeystore(fabricIndex, NOCValue, ICACValue.value_or(ByteSpan{}));
     VerifyOrExit(err == CHIP_NO_ERROR, nocResponse = ConvertToNOCResponseStatus(err));
 
     // Flag on the fail-safe context that the UpdateNOC command was invoked.
@@ -1019,7 +1019,7 @@ bool emberAfOperationalCredentialsClusterCSRRequestCallback(app::CommandHandler 
     auto & failSafeContext = Server::GetInstance().GetFailSafeContext();
 
     auto & CSRNonce     = commandData.CSRNonce;
-    bool isForUpdateNoc = commandData.isForUpdateNOC.ValueOr(false);
+    bool isForUpdateNoc = commandData.isForUpdateNOC.value_or(false);
 
     // TODO: Create an alternative way to retrieve the Attestation Challenge without this huge amount of calls.
     // Retrieve attestation challenge

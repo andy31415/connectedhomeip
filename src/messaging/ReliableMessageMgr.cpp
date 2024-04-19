@@ -268,7 +268,7 @@ System::Clock::Timestamp ReliableMessageMgr::GetBackoff(System::Clock::Timestamp
 #endif
 
 #if CHIP_DEVICE_CONFIG_ENABLE_DYNAMIC_MRP_CONFIG
-    mrpBackoffTime += sAdditionalMRPBackoffTime.ValueOr(CHIP_CONFIG_MRP_RETRY_INTERVAL_SENDER_BOOST);
+    mrpBackoffTime += sAdditionalMRPBackoffTime.value_or(CHIP_CONFIG_MRP_RETRY_INTERVAL_SENDER_BOOST);
 #else
     mrpBackoffTime += CHIP_CONFIG_MRP_RETRY_INTERVAL_SENDER_BOOST;
 #endif // CHIP_DEVICE_CONFIG_ENABLE_DYNAMIC_MRP_CONFIG

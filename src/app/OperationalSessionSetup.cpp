@@ -756,7 +756,7 @@ CHIP_ERROR OperationalSessionSetup::ScheduleSessionSetupReattempt(System::Clock:
         // but in practice for old devices BUSY often sends some hardcoded value
         // that tells us nothing about when the other side will decide it has
         // timed out.
-        auto additionalTimeout = CASESession::ComputeSigma2ResponseTimeout(GetLocalMRPConfig().ValueOr(GetDefaultMRPConfig()));
+        auto additionalTimeout = CASESession::ComputeSigma2ResponseTimeout(GetLocalMRPConfig().value_or(GetDefaultMRPConfig()));
         actualTimerDelay += additionalTimeout;
     }
     timerDelay = std::chrono::duration_cast<System::Clock::Seconds16>(actualTimerDelay);

@@ -567,7 +567,7 @@ CHIP_ERROR SessionManager::InjectPaseSessionWithTestKey(SessionHolder & sessionH
     NodeId localNodeId              = kUndefinedNodeId;
     Optional<SessionHandle> session = mSecureSessions.CreateNewSecureSessionForTest(
         chip::Transport::SecureSession::Type::kPASE, localSessionId, localNodeId, peerNodeId, CATValues{}, peerSessionId, fabric,
-        GetLocalMRPConfig().ValueOr(GetDefaultMRPConfig()));
+        GetLocalMRPConfig().value_or(GetDefaultMRPConfig()));
     VerifyOrReturnError(session.has_value(), CHIP_ERROR_NO_MEMORY);
     SecureSession * secureSession = session.Value()->AsSecureSession();
     secureSession->SetPeerAddress(peerAddress);
@@ -588,7 +588,7 @@ CHIP_ERROR SessionManager::InjectCaseSessionWithTestKey(SessionHolder & sessionH
 {
     Optional<SessionHandle> session = mSecureSessions.CreateNewSecureSessionForTest(
         chip::Transport::SecureSession::Type::kCASE, localSessionId, localNodeId, peerNodeId, cats, peerSessionId, fabric,
-        GetLocalMRPConfig().ValueOr(GetDefaultMRPConfig()));
+        GetLocalMRPConfig().value_or(GetDefaultMRPConfig()));
     VerifyOrReturnError(session.has_value(), CHIP_ERROR_NO_MEMORY);
     SecureSession * secureSession = session.Value()->AsSecureSession();
     secureSession->SetPeerAddress(peerAddress);
@@ -652,7 +652,7 @@ void SessionManager::UnauthenticatedMessageDispatch(const PacketHeader & partial
     {
         ChipLogProgress(Inet,
                         "Received malformed unsecure packet with source 0x" ChipLogFormatX64 " destination 0x" ChipLogFormatX64,
-                        ChipLogValueX64(source.ValueOr(kUndefinedNodeId)), ChipLogValueX64(destination.ValueOr(kUndefinedNodeId)));
+                        ChipLogValueX64(source.value_or(kUndefinedNodeId)), ChipLogValueX64(destination.value_or(kUndefinedNodeId)));
         return; // ephemeral node id is only assigned to the initiator, there should be one and only one node id exists.
     }
 

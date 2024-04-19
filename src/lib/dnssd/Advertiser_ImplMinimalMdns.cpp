@@ -878,7 +878,7 @@ FullQName AdvertiserMinMdns::GetCommissioningTxtEntries(const CommissionAdvertis
     }
     else
     {
-        if (params.GetCommissionerPasscodeSupported().ValueOr(false))
+        if (params.GetCommissionerPasscodeSupported().value_or(false))
         {
             snprintf(txtCommissionerPasscode, sizeof(txtCommissionerPasscode), "CP=%d", static_cast<int>(1));
             txtFields[numTxtFields++] = txtCommissionerPasscode;

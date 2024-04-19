@@ -245,14 +245,14 @@ protected:
     CHIP_ERROR SendCommand(chip::DeviceProxy * device, chip::EndpointId endpointId, chip::ClusterId clusterId,
                            chip::CommandId commandId, const T & value)
     {
-        uint16_t repeat = mRepeatCount.ValueOr(1);
+        uint16_t repeat = mRepeatCount.value_or(1);
         while (repeat--)
         {
 
             chip::app::CommandPathParams commandPath = { endpointId, clusterId, commandId,
                                                          (chip::app::CommandPathFlags::kEndpointIdValid) };
             auto commandSender                       = std::make_unique<chip::app::CommandSender>(
-                mCallback, device->GetExchangeManager(), mTimedInteractionTimeoutMs.has_value(), mSuppressResponse.ValueOr(false));
+                mCallback, device->GetExchangeManager(), mTimedInteractionTimeoutMs.has_value(), mSuppressResponse.value_or(false));
             VerifyOrReturnError(commandSender != nullptr, CHIP_ERROR_NO_MEMORY);
 
             chip::app::CommandSender::AddRequestDataParameters addRequestDataParams(mTimedInteractionTimeoutMs);
@@ -397,12 +397,12 @@ protected:
 
         VerifyOrReturnError(pathsConfig.count == values.size() || values.size() == 1, CHIP_ERROR_INVALID_ARGUMENT);
 
-        uint16_t repeat = mRepeatCount.ValueOr(1);
+        uint16_t repeat = mRepeatCount.value_or(1);
         while (repeat--)
         {
 
             mWriteClient = std::make_unique<chip::app::WriteClient>(device->GetExchangeManager(), &mChunkedWriteCallback,
-                                                                    mTimedInteractionTimeoutMs, mSuppressResponse.ValueOr(false));
+                                                                    mTimedInteractionTimeoutMs, mSuppressResponse.value_or(false));
             VerifyOrReturnError(mWriteClient != nullptr, CHIP_ERROR_NO_MEMORY);
 
             for (uint8_t i = 0; i < pathsConfig.count; i++)

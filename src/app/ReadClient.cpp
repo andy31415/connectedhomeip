@@ -951,7 +951,7 @@ CHIP_ERROR ReadClient::ComputeLivenessCheckTimerTimeout(System::Clock::Timeout *
     //
     const auto & localMRPConfig   = GetLocalMRPConfig();
     const auto & defaultMRPConfig = GetDefaultMRPConfig();
-    const auto & ourMrpConfig     = localMRPConfig.ValueOr(defaultMRPConfig);
+    const auto & ourMrpConfig     = localMRPConfig.value_or(defaultMRPConfig);
     auto publisherTransmissionTimeout =
         GetRetransmissionTimeout(ourMrpConfig.mActiveRetransTimeout, ourMrpConfig.mIdleRetransTimeout,
                                  System::SystemClock().GetMonotonicTimestamp(), ourMrpConfig.mActiveThresholdTime);
@@ -1264,7 +1264,7 @@ void ReadClient::HandleDeviceConnectionFailure(void * context, const Operational
                       failureInfo.requestedBusyDelay.Value().count());
     }
 #endif // CHIP_DETAIL_LOGGING
-    _this->mMinimalResubscribeDelay = failureInfo.requestedBusyDelay.ValueOr(System::Clock::kZero);
+    _this->mMinimalResubscribeDelay = failureInfo.requestedBusyDelay.value_or(System::Clock::kZero);
 #else
     _this->mMinimalResubscribeDelay = System::Clock::kZero;
 #endif // CHIP_CONFIG_ENABLE_BUSY_HANDLING_FOR_OPERATIONAL_SESSION_SETUP

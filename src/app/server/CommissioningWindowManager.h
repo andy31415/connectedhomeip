@@ -72,7 +72,7 @@ public:
     System::Clock::Seconds32 MinCommissioningTimeout() const
     {
         // Specification section 5.4.2.3. Announcement Duration says 3 minutes.
-        return mMinCommissioningTimeoutOverride.ValueOr(System::Clock::Seconds32(3 * 60));
+        return mMinCommissioningTimeoutOverride.value_or(System::Clock::Seconds32(3 * 60));
     }
 
     void SetAppDelegate(AppDelegate * delegate) { mAppDelegate = delegate; }

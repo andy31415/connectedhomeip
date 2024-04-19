@@ -1902,7 +1902,7 @@ void DeviceCommissioner::SendCommissioningCompleteCallbacks(NodeId nodeId, const
     {
         // TODO: We should propogate detailed error information (commissioningError, networkCommissioningStatus) from
         // completionStatus.
-        mPairingDelegate->OnCommissioningFailure(peerId, completionStatus.err, completionStatus.failedStage.ValueOr(kError),
+        mPairingDelegate->OnCommissioningFailure(peerId, completionStatus.err, completionStatus.failedStage.value_or(kError),
                                                  completionStatus.attestationResult);
     }
 }
@@ -2742,7 +2742,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
         // Make sure the fail-safe value we set here actually ends up being used
         // no matter what.
         proxy->SetFailSafeExpirationTimestamp(System::Clock::kZero);
-        VerifyOrDie(ExtendArmFailSafeInternal(proxy, step, params.GetFailsafeTimerSeconds().ValueOr(kDefaultFailsafeTimeout),
+        VerifyOrDie(ExtendArmFailSafeInternal(proxy, step, params.GetFailsafeTimerSeconds().value_or(kDefaultFailsafeTimeout),
                                               timeout, OnArmFailSafe, OnBasicFailure, /* fireAndForget = */ false));
     }
     break;
@@ -2934,7 +2934,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
         // TODO(cecille): Where is the country config actually set?
         ChipLogProgress(Controller, "Setting Regulatory Config");
         auto capability =
-            params.GetLocationCapability().ValueOr(app::Clusters::GeneralCommissioning::RegulatoryLocationTypeEnum::kOutdoor);
+            params.GetLocationCapability().value_or(app::Clusters::GeneralCommissioning::RegulatoryLocationTypeEnum::kOutdoor);
         app::Clusters::GeneralCommissioning::RegulatoryLocationTypeEnum regulatoryConfig;
         // Value is only switchable on the devices with indoor/outdoor capability
         if (capability == app::Clusters::GeneralCommissioning::RegulatoryLocationTypeEnum::kIndoorOutdoor)
@@ -3404,7 +3404,7 @@ void DeviceCommissioner::ExtendFailsafeBeforeNetworkEnable(DeviceProxy * device,
 
     // Try to make sure we have at least enough time for our expected
     // commissioning bits plus the MRP retries for a Sigma1.
-    uint16_t failSafeTimeoutSecs = params.GetFailsafeTimerSeconds().ValueOr(kDefaultFailsafeTimeout);
+    uint16_t failSafeTimeoutSecs = params.GetFailsafeTimerSeconds().value_or(kDefaultFailsafeTimeout);
     auto sigma1Timeout           = CASESession::ComputeSigma1ResponseTimeout(commissioneeDevice->GetPairing().GetRemoteMRPConfig());
     uint16_t sigma1TimeoutSecs   = std::chrono::duration_cast<System::Clock::Seconds16>(sigma1Timeout).count();
     if (UINT16_MAX - failSafeTimeoutSecs < sigma1TimeoutSecs)

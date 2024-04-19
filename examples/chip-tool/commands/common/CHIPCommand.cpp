@@ -100,10 +100,10 @@ CHIP_ERROR CHIPCommand::MaybeSetUpStack()
 
 #if (CHIP_DEVICE_LAYER_TARGET_LINUX || CHIP_DEVICE_LAYER_TARGET_TIZEN) && CHIP_DEVICE_CONFIG_ENABLE_CHIPOBLE
     // By default, Linux device is configured as a BLE peripheral while the controller needs a BLE central.
-    ReturnLogErrorOnFailure(chip::DeviceLayer::Internal::BLEMgrImpl().ConfigureBle(mBleAdapterId.ValueOr(0), true));
+    ReturnLogErrorOnFailure(chip::DeviceLayer::Internal::BLEMgrImpl().ConfigureBle(mBleAdapterId.value_or(0), true));
 #endif
 
-    ReturnLogErrorOnFailure(mDefaultStorage.Init(nullptr, GetStorageDirectory().ValueOr(nullptr)));
+    ReturnLogErrorOnFailure(mDefaultStorage.Init(nullptr, GetStorageDirectory().value_or(nullptr)));
     ReturnLogErrorOnFailure(mOperationalKeystore.Init(&mDefaultStorage));
     ReturnLogErrorOnFailure(mOpCertStore.Init(&mDefaultStorage));
 
@@ -149,7 +149,7 @@ CHIP_ERROR CHIPCommand::MaybeSetUpStack()
 
     server->SetDelegate(&BDXDiagnosticLogsServerDelegate::GetInstance());
 
-    ReturnErrorOnFailure(GetAttestationTrustStore(mPaaTrustStorePath.ValueOr(nullptr), &sTrustStore));
+    ReturnErrorOnFailure(GetAttestationTrustStore(mPaaTrustStorePath.value_or(nullptr), &sTrustStore));
 
     auto engine = chip::app::InteractionModelEngine::GetInstance();
     VerifyOrReturnError(engine != nullptr, CHIP_ERROR_INCORRECT_STATE);
@@ -162,7 +162,7 @@ CHIP_ERROR CHIPCommand::MaybeSetUpStack()
 
     // After initializing first commissioner, add the additional CD certs once
     {
-        const char * cdTrustStorePath = mCDTrustStorePath.ValueOr(nullptr);
+        const char * cdTrustStorePath = mCDTrustStorePath.value_or(nullptr);
         if (cdTrustStorePath == nullptr)
         {
             cdTrustStorePath = getenv(kCDTrustStorePathVariable);
@@ -181,7 +181,7 @@ CHIP_ERROR CHIPCommand::MaybeSetUpStack()
         }
         ReturnErrorOnFailure(mCredIssuerCmds->AddAdditionalCDVerifyingCerts(additionalCdCerts));
     }
-    bool allowTestCdSigningKey = !mOnlyAllowTrustedCdKeys.ValueOr(false);
+    bool allowTestCdSigningKey = !mOnlyAllowTrustedCdKeys.value_or(false);
     mCredIssuerCmds->SetCredentialIssuerOption(CredentialIssuerCommands::CredentialIssuerOptions::kAllowTestCdSigningKey,
                                                allowTestCdSigningKey);
 
@@ -367,7 +367,7 @@ CHIP_ERROR CHIPCommand::GetIdentityNodeId(std::string identity, chip::NodeId * n
         return CHIP_NO_ERROR;
     }
 
-    ReturnLogErrorOnFailure(mCommissionerStorage.Init(identity.c_str(), GetStorageDirectory().ValueOr(nullptr)));
+    ReturnLogErrorOnFailure(mCommissionerStorage.Init(identity.c_str(), GetStorageDirectory().value_or(nullptr)));
 
     *nodeId = mCommissionerStorage.GetLocalNodeId();
 
@@ -460,7 +460,7 @@ CHIP_ERROR CHIPCommand::InitializeCommissioner(CommissionerIdentity & identity, 
         // TODO - OpCreds should only be generated for pairing command
         //        store the credentials in persistent storage, and
         //        generate when not available in the storage.
-        ReturnLogErrorOnFailure(mCommissionerStorage.Init(identity.mName.c_str(), GetStorageDirectory().ValueOr(nullptr)));
+        ReturnLogErrorOnFailure(mCommissionerStorage.Init(identity.mName.c_str(), GetStorageDirectory().value_or(nullptr)));
         if (mUseMaxSizedCerts.has_value())
         {
             auto option = CredentialIssuerCommands::CredentialIssuerOptions::kMaximizeCertificateSizes;
@@ -493,7 +493,7 @@ CHIP_ERROR CHIPCommand::InitializeCommissioner(CommissionerIdentity & identity, 
 
     // TODO: Initialize IPK epoch key in ExampleOperationalCredentials issuer rather than relying on DefaultIpkValue
     commissionerParams.operationalCredentialsDelegate = mCredIssuerCmds->GetCredentialIssuer();
-    commissionerParams.controllerVendorId             = mCommissionerVendorId.ValueOr(chip::VendorId::TestVendor1);
+    commissionerParams.controllerVendorId             = mCommissionerVendorId.value_or(chip::VendorId::TestVendor1);
 
     ReturnLogErrorOnFailure(DeviceControllerFactory::GetInstance().SetupCommissioner(commissionerParams, *(commissioner.get())));
 

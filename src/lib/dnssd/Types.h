@@ -102,9 +102,9 @@ struct CommonResolutionData
     ReliableMessageProtocolConfig GetRemoteMRPConfig() const
     {
         const ReliableMessageProtocolConfig defaultConfig = GetDefaultMRPConfig();
-        return ReliableMessageProtocolConfig(GetMrpRetryIntervalIdle().ValueOr(defaultConfig.mIdleRetransTimeout),
-                                             GetMrpRetryIntervalActive().ValueOr(defaultConfig.mActiveRetransTimeout),
-                                             GetMrpRetryActiveThreshold().ValueOr(defaultConfig.mActiveThresholdTime));
+        return ReliableMessageProtocolConfig(GetMrpRetryIntervalIdle().value_or(defaultConfig.mIdleRetransTimeout),
+                                             GetMrpRetryIntervalActive().value_or(defaultConfig.mActiveRetransTimeout),
+                                             GetMrpRetryActiveThreshold().value_or(defaultConfig.mActiveThresholdTime));
     }
     Optional<System::Clock::Milliseconds32> GetMrpRetryIntervalIdle() const { return mrpRetryIntervalIdle; }
     Optional<System::Clock::Milliseconds32> GetMrpRetryIntervalActive() const { return mrpRetryIntervalActive; }

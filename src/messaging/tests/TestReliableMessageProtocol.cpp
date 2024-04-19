@@ -76,8 +76,8 @@ public:
     CHIP_ERROR SetUp() override
     {
         ReturnErrorOnFailure(chip::Test::LoopbackMessagingContext::SetUp());
-        GetSessionAliceToBob()->AsSecureSession()->SetRemoteSessionParameters(GetLocalMRPConfig().ValueOr(GetDefaultMRPConfig()));
-        GetSessionBobToAlice()->AsSecureSession()->SetRemoteSessionParameters(GetLocalMRPConfig().ValueOr(GetDefaultMRPConfig()));
+        GetSessionAliceToBob()->AsSecureSession()->SetRemoteSessionParameters(GetLocalMRPConfig().value_or(GetDefaultMRPConfig()));
+        GetSessionBobToAlice()->AsSecureSession()->SetRemoteSessionParameters(GetLocalMRPConfig().value_or(GetDefaultMRPConfig()));
         return CHIP_NO_ERROR;
     }
 };

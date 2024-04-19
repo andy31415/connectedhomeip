@@ -420,9 +420,9 @@ void ChannelManager::HandleGetProgramGuide(
         jobjectArray externalIDListArray = (jobjectArray) env->NewObjectArray(0, env->FindClass("java/util/Map$Entry"), NULL);
 
         jobject resp = env->CallObjectMethod(
-            mChannelManagerObject.ObjectRef(), mGetProgramGuideMethod, static_cast<jlong>(startTime.ValueOr(0)),
-            static_cast<jlong>(endTime.ValueOr(0)), channelsArray, jToken.jniValue(),
-            static_cast<jboolean>(recordingFlag.ValueOr(0).Raw() != 0), externalIDListArray, jData.jniValue());
+            mChannelManagerObject.ObjectRef(), mGetProgramGuideMethod, static_cast<jlong>(startTime.value_or(0)),
+            static_cast<jlong>(endTime.value_or(0)), channelsArray, jToken.jniValue(),
+            static_cast<jboolean>(recordingFlag.value_or(0).Raw() != 0), externalIDListArray, jData.jniValue());
         if (env->ExceptionCheck())
         {
             ChipLogError(Zcl, "Java exception in ChannelManager::HandleGetProgramGuide");

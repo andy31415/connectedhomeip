@@ -122,8 +122,8 @@ void PartialDACVerifier::VerifyAttestationInformation(const DeviceAttestationVer
         deviceInfo.dacVendorId  = dacVidPid.mVendorId.Value();
         deviceInfo.dacProductId = dacVidPid.mProductId.Value();
         deviceInfo.paiVendorId  = paiVidPid.mVendorId.Value();
-        deviceInfo.paiProductId = paiVidPid.mProductId.ValueOr(0);
-        deviceInfo.paaVendorId  = paaVidPid.mVendorId.ValueOr(VendorId::NotSpecified);
+        deviceInfo.paiProductId = paiVidPid.mProductId.value_or(0);
+        deviceInfo.paaVendorId  = paaVidPid.mVendorId.value_or(VendorId::NotSpecified);
 
         ChipLogProgress(
             Support,

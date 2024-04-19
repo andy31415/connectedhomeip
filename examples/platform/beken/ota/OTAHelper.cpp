@@ -53,7 +53,7 @@ chip::ota::DefaultOTARequestorUserConsent gUserConsentProvider;
 
 bool CustomOTARequestorDriver::CanConsent()
 {
-    return gRequestorCanConsent.ValueOr(DeviceLayer::ExtendedOTARequestorDriver::CanConsent());
+    return gRequestorCanConsent.value_or(DeviceLayer::ExtendedOTARequestorDriver::CanConsent());
 }
 
 extern "C" void QueryImageCmdHandler()

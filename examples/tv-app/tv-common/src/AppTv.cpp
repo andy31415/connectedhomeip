@@ -224,8 +224,8 @@ class MyPostCommissioningListener : public PostCommissioningListener
         {
             auto & binding = iter.GetValue();
             ChipLogProgress(Controller, "Binding found nodeId=0x" ChipLogFormatX64 " my nodeId=0x" ChipLogFormatX64,
-                            ChipLogValueX64(binding.node.ValueOr(0)), ChipLogValueX64(localNodeId));
-            if (binding.node.ValueOr(0) != localNodeId)
+                            ChipLogValueX64(binding.node.value_or(0)), ChipLogValueX64(localNodeId));
+            if (binding.node.value_or(0) != localNodeId)
             {
                 ChipLogProgress(Controller, "Found a binding for a different node, preserving");
                 bindings.push_back(binding);

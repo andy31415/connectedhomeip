@@ -98,7 +98,7 @@ CHIP_ERROR SetupPayloadGenerateQRCodeCommand::Run()
     }
 
     QRCodeSetupPayloadGenerator generator(payload);
-    generator.SetAllowInvalidPayload(mAllowInvalidPayload.ValueOr(false));
+    generator.SetAllowInvalidPayload(mAllowInvalidPayload.value_or(false));
 
     std::string code;
     ReturnErrorOnFailure(generator.payloadBase38RepresentationWithAutoTLVBuffer(code));
@@ -230,8 +230,8 @@ CHIP_ERROR SetupPayloadGenerateManualCodeCommand::Run()
     ConfigurePayload(payload);
 
     ManualSetupPayloadGenerator generator(payload);
-    generator.SetAllowInvalidPayload(mAllowInvalidPayload.ValueOr(false));
-    generator.SetForceShortCode(mForceShortCode.ValueOr(false));
+    generator.SetAllowInvalidPayload(mAllowInvalidPayload.value_or(false));
+    generator.SetForceShortCode(mForceShortCode.value_or(false));
 
     std::string code;
     ReturnErrorOnFailure(generator.payloadDecimalStringRepresentation(code));

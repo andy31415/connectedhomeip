@@ -60,7 +60,7 @@ CHIP_ERROR SendCloseSessionCommand::CloseSession(Messaging::ExchangeManager & ex
         exchange->SendMessage(SecureChannel::MsgType::StatusReport, std::move(msg), Messaging::SendMessageFlags::kNoAutoRequestAck);
     if (err == CHIP_NO_ERROR)
     {
-        if (mEvictLocalSession.ValueOr(true))
+        if (mEvictLocalSession.value_or(true))
         {
             sessionHandle->AsSecureSession()->MarkForEviction();
         }

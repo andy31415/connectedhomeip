@@ -405,5 +405,5 @@ bool InteractiveCommand::ParseCommand(char * command, int * status)
 
 bool InteractiveCommand::NeedsOperationalAdvertising()
 {
-    return mAdvertiseOperational.ValueOr(true);
+    return mAdvertiseOperational.value_or(true);
 }

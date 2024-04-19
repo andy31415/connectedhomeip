@@ -61,7 +61,7 @@ public:
 
     /////////// CHIPCommand Interface /////////
     CHIP_ERROR RunCommand() override;
-    chip::System::Clock::Timeout GetWaitDuration() const override { return chip::System::Clock::Seconds16(mTimeout.ValueOr(20)); }
+    chip::System::Clock::Timeout GetWaitDuration() const override { return chip::System::Clock::Seconds16(mTimeout.value_or(20)); }
 
     virtual CHIP_ERROR SendCommand(chip::DeviceProxy * device, std::vector<chip::EndpointId> endPointIds) = 0;
 
@@ -70,7 +70,7 @@ public:
     void Shutdown() override;
 
 protected:
-    bool IsPeerLIT() { return mIsPeerLIT.ValueOr(false); }
+    bool IsPeerLIT() { return mIsPeerLIT.value_or(false); }
 
     chip::Optional<uint16_t> mTimeout;
 

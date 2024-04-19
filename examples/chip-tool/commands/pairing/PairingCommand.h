@@ -189,7 +189,7 @@ public:
 
     /////////// CHIPCommand Interface /////////
     CHIP_ERROR RunCommand() override;
-    chip::System::Clock::Timeout GetWaitDuration() const override { return chip::System::Clock::Seconds16(mTimeout.ValueOr(120)); }
+    chip::System::Clock::Timeout GetWaitDuration() const override { return chip::System::Clock::Seconds16(mTimeout.value_or(120)); }
 
     /////////// DevicePairingDelegate Interface /////////
     void OnStatusUpdate(chip::Controller::DevicePairingDelegate::Status status) override;

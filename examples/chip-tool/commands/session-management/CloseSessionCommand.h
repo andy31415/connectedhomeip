@@ -58,7 +58,7 @@ public:
     CHIP_ERROR RunCommand() override;
     chip::System::Clock::Timeout GetWaitDuration() const override
     {
-        return chip::System::Clock::Seconds16(mTimeoutSecs.ValueOr(10));
+        return chip::System::Clock::Seconds16(mTimeoutSecs.value_or(10));
     }
 
 private:

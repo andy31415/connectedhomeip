@@ -440,7 +440,7 @@ CommissioningStage AutoCommissioner::GetNextCommissioningStageInternal(Commissio
         else
         {
             SetCASEFailsafeTimerIfNeeded();
-            if (mParams.GetSkipCommissioningComplete().ValueOr(false))
+            if (mParams.GetSkipCommissioningComplete().value_or(false))
             {
                 return CommissioningStage::kCleanup;
             }
@@ -479,7 +479,7 @@ CommissioningStage AutoCommissioner::GetNextCommissioningStageInternal(Commissio
         {
             return CommissioningStage::kThreadNetworkEnable;
         }
-        else if (mParams.GetSkipCommissioningComplete().ValueOr(false))
+        else if (mParams.GetSkipCommissioningComplete().value_or(false))
         {
             SetCASEFailsafeTimerIfNeeded();
             return CommissioningStage::kCleanup;
@@ -491,7 +491,7 @@ CommissioningStage AutoCommissioner::GetNextCommissioningStageInternal(Commissio
         }
     case CommissioningStage::kThreadNetworkEnable:
         SetCASEFailsafeTimerIfNeeded();
-        if (mParams.GetSkipCommissioningComplete().ValueOr(false))
+        if (mParams.GetSkipCommissioningComplete().value_or(false))
         {
             return CommissioningStage::kCleanup;
         }

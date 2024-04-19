@@ -157,9 +157,9 @@ CHIP_ERROR UpdateFabricSceneInfo(EndpointId endpoint, FabricIndex fabric, Option
         Structs::SceneInfoStruct::Type newSceneInfo;
         newSceneInfo.fabricIndex = fabric;
 
-        newSceneInfo.currentGroup = group.ValueOr(0);
-        newSceneInfo.currentScene = scene.ValueOr(0);
-        newSceneInfo.sceneValid   = sceneValid.ValueOr(false);
+        newSceneInfo.currentGroup = group.value_or(0);
+        newSceneInfo.currentScene = scene.value_or(0);
+        newSceneInfo.sceneValid   = sceneValid.value_or(false);
 
         ReturnErrorOnFailure(sceneTable->GetFabricSceneCount(fabric, newSceneInfo.sceneCount));
         ReturnErrorOnFailure(sceneTable->GetRemainingCapacity(fabric, newSceneInfo.remainingCapacity));

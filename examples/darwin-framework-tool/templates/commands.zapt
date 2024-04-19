@@ -78,7 +78,7 @@ public:
         #endif // MTR_ENABLE_PROVISIONAL
         {{/if}}
         {{/zcl_command_arguments}}
-        uint16_t repeatCount = mRepeatCount.ValueOr(1);
+        uint16_t repeatCount = mRepeatCount.value_or(1);
         uint16_t __block responsesNeeded = repeatCount;
         while (repeatCount--)
         {

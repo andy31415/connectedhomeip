@@ -233,7 +233,7 @@ void OTAProviderExample::SendQueryImageResponse(app::CommandHandler * commandObj
     VerifyOrReturn(commandObj != nullptr, ChipLogError(SoftwareUpdate, "Invalid commandObj, cannot send QueryImageResponse"));
 
     QueryImageResponse::Type response;
-    bool requestorCanConsent             = commandData.requestorCanConsent.ValueOr(false);
+    bool requestorCanConsent             = commandData.requestorCanConsent.value_or(false);
     uint8_t updateToken[kUpdateTokenLen] = { 0 };
     char strBuf[kUpdateTokenStrLen]      = { 0 };
 
@@ -324,7 +324,7 @@ void OTAProviderExample::SendQueryImageResponse(app::CommandHandler * commandObj
 void OTAProviderExample::HandleQueryImage(app::CommandHandler * commandObj, const app::ConcreteCommandPath & commandPath,
                                           const QueryImage::DecodableType & commandData)
 {
-    bool requestorCanConsent = commandData.requestorCanConsent.ValueOr(false);
+    bool requestorCanConsent = commandData.requestorCanConsent.value_or(false);
 
     if (mIgnoreQueryImageCount > 0)
     {

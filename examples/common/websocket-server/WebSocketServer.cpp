@@ -172,7 +172,7 @@ CHIP_ERROR WebSocketServer::Run(chip::Optional<uint16_t> port, WebSocketServerDe
 
     lws_context_creation_info info;
     memset(&info, 0, sizeof(info));
-    info.port                         = port.ValueOr(kDefaultWebSocketServerPort);
+    info.port                         = port.value_or(kDefaultWebSocketServerPort);
     info.iface                        = nullptr;
     info.pt_serv_buf_size             = kMaxMessageBufferLen;
     info.protocols                    = protocols;

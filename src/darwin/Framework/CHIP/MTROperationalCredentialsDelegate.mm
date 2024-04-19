@@ -219,7 +219,7 @@ void MTROperationalCredentialsDelegate::ExternalNOCChainGenerated(
                 return;
             }
 
-            IdentityProtectionKeySpan ipk = commissioningParameters.Value().GetIpk().ValueOr(GetIPK());
+            IdentityProtectionKeySpan ipk = commissioningParameters.Value().GetIpk().value_or(GetIPK());
 
             Optional<NodeId> adminSubject;
             if (chain.adminSubject != nil) {

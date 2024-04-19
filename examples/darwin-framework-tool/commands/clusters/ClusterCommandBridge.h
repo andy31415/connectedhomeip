@@ -69,7 +69,7 @@ public:
     CHIP_ERROR SendCommand(MTRBaseDevice * _Nonnull device, chip::EndpointId endpointId, chip::ClusterId clusterId,
         chip::CommandId commandId, id _Nonnull commandFields)
     {
-        uint16_t repeatCount = mRepeatCount.ValueOr(1);
+        uint16_t repeatCount = mRepeatCount.value_or(1);
         uint16_t __block responsesNeeded = repeatCount;
         dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL);
 

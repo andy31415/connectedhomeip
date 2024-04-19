@@ -211,7 +211,7 @@ void DefaultOTARequestor::OnQueryImageResponse(void * context, const QueryImageR
             requestorCore->mFileDesignator = fileDesignator;
 
             requestorCore->mOtaRequestorDriver->UpdateAvailable(update,
-                                                                System::Clock::Seconds32(response.delayedActionTime.ValueOr(0)));
+                                                                System::Clock::Seconds32(response.delayedActionTime.value_or(0)));
         }
         else
         {
@@ -219,7 +219,7 @@ void DefaultOTARequestor::OnQueryImageResponse(void * context, const QueryImageR
                           update.softwareVersion, requestorCore->mCurrentVersion);
 
             requestorCore->mOtaRequestorDriver->UpdateNotFound(UpdateNotFoundReason::kUpToDate,
-                                                               System::Clock::Seconds32(response.delayedActionTime.ValueOr(0)));
+                                                               System::Clock::Seconds32(response.delayedActionTime.value_or(0)));
             requestorCore->RecordNewUpdateState(OTAUpdateStateEnum::kIdle, OTAChangeReasonEnum::kSuccess);
         }
 
@@ -227,7 +227,7 @@ void DefaultOTARequestor::OnQueryImageResponse(void * context, const QueryImageR
     }
     case OTAQueryStatus::kBusy: {
         CHIP_ERROR status = requestorCore->mOtaRequestorDriver->UpdateNotFound(
-            UpdateNotFoundReason::kBusy, System::Clock::Seconds32(response.delayedActionTime.ValueOr(0)));
+            UpdateNotFoundReason::kBusy, System::Clock::Seconds32(response.delayedActionTime.value_or(0)));
         if ((status == CHIP_ERROR_MAX_RETRY_EXCEEDED) || (status == CHIP_ERROR_PROVIDER_LIST_EXHAUSTED))
         {
             requestorCore->RecordNewUpdateState(OTAUpdateStateEnum::kIdle, OTAChangeReasonEnum::kSuccess);
@@ -241,7 +241,7 @@ void DefaultOTARequestor::OnQueryImageResponse(void * context, const QueryImageR
     }
     case OTAQueryStatus::kNotAvailable: {
         requestorCore->mOtaRequestorDriver->UpdateNotFound(UpdateNotFoundReason::kNotAvailable,
-                                                           System::Clock::Seconds32(response.delayedActionTime.ValueOr(0)));
+                                                           System::Clock::Seconds32(response.delayedActionTime.value_or(0)));
         requestorCore->RecordNewUpdateState(OTAUpdateStateEnum::kIdle, OTAChangeReasonEnum::kSuccess);
         break;
     }
@@ -789,8 +789,8 @@ CHIP_ERROR DefaultOTARequestor::ExtractUpdateDescription(const QueryImageRespons
     VerifyOrReturnError(response.updateToken.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
     update.updateToken = response.updateToken.Value();
 
-    update.userConsentNeeded    = response.userConsentNeeded.ValueOr(false);
-    update.metadataForRequestor = response.metadataForRequestor.ValueOr({});
+    update.userConsentNeeded    = response.userConsentNeeded.value_or(false);
+    update.metadataForRequestor = response.metadataForRequestor.value_or({});
 
     return CHIP_NO_ERROR;
 }

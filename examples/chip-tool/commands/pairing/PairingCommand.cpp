@@ -97,8 +97,8 @@ CHIP_ERROR PairingCommand::RunInternal(NodeId remoteId)
 CommissioningParameters PairingCommand::GetCommissioningParameters()
 {
     auto params = CommissioningParameters();
-    params.SetSkipCommissioningComplete(mSkipCommissioningComplete.ValueOr(false));
-    if (mBypassAttestationVerifier.ValueOr(false))
+    params.SetSkipCommissioningComplete(mSkipCommissioningComplete.value_or(false));
+    if (mBypassAttestationVerifier.value_or(false))
     {
         params.SetDeviceAttestationDelegate(this);
     }
@@ -136,7 +136,7 @@ CommissioningParameters PairingCommand::GetCommissioningParameters()
         params.SetDSTOffsets(mDSTOffsetList);
     }
 
-    if (!mSkipICDRegistration.ValueOr(false))
+    if (!mSkipICDRegistration.value_or(false))
     {
         params.SetICDRegistrationStrategy(ICDRegistrationStrategy::kBeforeComplete);
 
@@ -170,12 +170,12 @@ CommissioningParameters PairingCommand::GetCommissioningParameters()
 CHIP_ERROR PairingCommand::PaseWithCode(NodeId remoteId)
 {
     auto discoveryType = DiscoveryType::kAll;
-    if (mUseOnlyOnNetworkDiscovery.ValueOr(false))
+    if (mUseOnlyOnNetworkDiscovery.value_or(false))
     {
         discoveryType = DiscoveryType::kDiscoveryNetworkOnly;
     }
 
-    if (mDiscoverOnce.ValueOr(false))
+    if (mDiscoverOnce.value_or(false))
     {
         discoveryType = DiscoveryType::kDiscoveryNetworkOnlyWithoutPASEAutoRetry;
     }
@@ -197,12 +197,12 @@ CHIP_ERROR PairingCommand::PairWithCode(NodeId remoteId)
     }
 
     auto discoveryType = DiscoveryType::kAll;
-    if (mUseOnlyOnNetworkDiscovery.ValueOr(false))
+    if (mUseOnlyOnNetworkDiscovery.value_or(false))
     {
         discoveryType = DiscoveryType::kDiscoveryNetworkOnly;
     }
 
-    if (mDiscoverOnce.ValueOr(false))
+    if (mDiscoverOnce.value_or(false))
     {
         discoveryType = DiscoveryType::kDiscoveryNetworkOnlyWithoutPASEAutoRetry;
     }
@@ -215,7 +215,7 @@ CHIP_ERROR PairingCommand::Pair(NodeId remoteId, PeerAddress address)
     auto params = RendezvousParameters().SetSetupPINCode(mSetupPINCode).SetDiscriminator(mDiscriminator).SetPeerAddress(address);
 
     CHIP_ERROR err = CHIP_NO_ERROR;
-    if (mPaseOnly.ValueOr(false))
+    if (mPaseOnly.value_or(false))
     {
         err = CurrentCommissioner().EstablishPASEConnection(remoteId, params);
     }
@@ -237,7 +237,7 @@ CHIP_ERROR PairingCommand::PairWithMdnsOrBleByIndex(NodeId remoteId, uint16_t in
     params.SetSetupPINCode(mSetupPINCode);
 
     CHIP_ERROR err = CHIP_NO_ERROR;
-    if (mPaseOnly.ValueOr(false))
+    if (mPaseOnly.value_or(false))
     {
         err = CurrentCommissioner().EstablishPASEConnection(remoteId, params);
     }
@@ -282,7 +282,7 @@ CHIP_ERROR PairingCommand::PairWithMdnsOrBleByIndexWithCode(NodeId remoteId, uin
     }
 
     err = CHIP_NO_ERROR;
-    if (mPaseOnly.ValueOr(false))
+    if (mPaseOnly.value_or(false))
     {
         err = CurrentCommissioner().EstablishPASEConnection(remoteId, mOnboardingPayload, DiscoveryType::kDiscoveryNetworkOnly,
                                                             MakeOptional(resolutionData));
@@ -355,7 +355,7 @@ void PairingCommand::OnPairingComplete(CHIP_ERROR err)
     {
         ChipLogProgress(chipTool, "Pairing Success");
         ChipLogProgress(chipTool, "PASE establishment successful");
-        if (mPairingMode == PairingMode::CodePaseOnly || mPaseOnly.ValueOr(false))
+        if (mPairingMode == PairingMode::CodePaseOnly || mPaseOnly.value_or(false))
         {
             SetCommandExitStatus(err);
         }

@@ -46,7 +46,7 @@ public:
     CHIP_ERROR RunCommand() override;
     // We issue multiple data model operations for this command, and the default
     // timeout for those is 10 seconds, so default to 20 seconds.
-    chip::System::Clock::Timeout GetWaitDuration() const override { return chip::System::Clock::Seconds16(mTimeout.ValueOr(20)); }
+    chip::System::Clock::Timeout GetWaitDuration() const override { return chip::System::Clock::Seconds16(mTimeout.value_or(20)); }
 
 private:
     NodeId mNodeId;

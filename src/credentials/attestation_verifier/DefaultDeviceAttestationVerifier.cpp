@@ -432,8 +432,8 @@ void DefaultDACVerifier::VerifyAttestationInformation(const DeviceAttestationVer
             .dacVendorId  = dacVidPid.mVendorId.Value(),
             .dacProductId = dacVidPid.mProductId.Value(),
             .paiVendorId  = paiVidPid.mVendorId.Value(),
-            .paiProductId = paiVidPid.mProductId.ValueOr(0),
-            .paaVendorId  = paaVidPid.mVendorId.ValueOr(VendorId::NotSpecified),
+            .paiProductId = paiVidPid.mProductId.value_or(0),
+            .paaVendorId  = paaVidPid.mVendorId.value_or(VendorId::NotSpecified),
         };
 
         MutableByteSpan paaSKID(deviceInfo.paaSKID);

@@ -88,9 +88,9 @@ private:
     // the target.
     bool IsScanNeeded()
     {
-        return ((mParams.GetAttemptWiFiNetworkScan().ValueOr(false) &&
+        return ((mParams.GetAttemptWiFiNetworkScan().value_or(false) &&
                  mDeviceCommissioningInfo.network.wifi.endpoint != kInvalidEndpointId) ||
-                (mParams.GetAttemptThreadNetworkScan().ValueOr(false) &&
+                (mParams.GetAttemptThreadNetworkScan().value_or(false) &&
                  mDeviceCommissioningInfo.network.thread.endpoint != kInvalidEndpointId));
     };
 

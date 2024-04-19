@@ -67,7 +67,7 @@ void PairingCommandBridge::SetUpDeviceControllerDelegate()
         break;
     }
 
-    if (mUseDeviceAttestationDelegate.ValueOr(false)) {
+    if (mUseDeviceAttestationDelegate.value_or(false)) {
         params.deviceAttestationDelegate = [[NoOpAttestationDelegate alloc] init];
         if (mDeviceAttestationFailsafeTime.has_value()) {
             params.failSafeTimeout = @(mDeviceAttestationFailsafeTime.Value());

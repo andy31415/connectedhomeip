@@ -25,7 +25,7 @@ CHIP_ERROR WaitForCommissioneeCommand::RunCommand()
     chip::FabricIndex fabricIndex = CurrentCommissioner().GetFabricIndex();
     ReturnErrorCodeIf(fabricIndex == chip::kUndefinedFabricIndex, CHIP_ERROR_INCORRECT_STATE);
 
-    if (mExpireExistingSession.ValueOr(true))
+    if (mExpireExistingSession.value_or(true))
     {
         CurrentCommissioner().SessionMgr()->ExpireAllSessions(chip::ScopedNodeId(mNodeId, fabricIndex));
     }

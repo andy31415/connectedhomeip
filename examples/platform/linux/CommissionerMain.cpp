@@ -319,7 +319,7 @@ void PairingCommand::OnCommissioningComplete(NodeId nodeId, CHIP_ERROR err)
 #if CHIP_DEVICE_CONFIG_APP_PLATFORM_ENABLED
         ChipLogProgress(AppServer, "Device commissioning completed with success - getting OperationalDeviceProxy");
 
-        gCommissioner.GetConnectedDevice(gAutoCommissioner.GetCommissioningParameters().GetRemoteNodeId().ValueOr(nodeId),
+        gCommissioner.GetConnectedDevice(gAutoCommissioner.GetCommissioningParameters().GetRemoteNodeId().value_or(nodeId),
                                          &mOnDeviceConnectedCallback, &mOnDeviceConnectionFailureCallback);
 #else  // CHIP_DEVICE_CONFIG_APP_PLATFORM_ENABLED
         ChipLogProgress(AppServer, "Device commissioning completed with success");

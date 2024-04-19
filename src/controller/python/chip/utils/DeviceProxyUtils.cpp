@@ -95,9 +95,9 @@ PyChipError pychip_DeviceProxy_GetRemoteSessionParameters(DeviceProxy * device, 
     sessionParam->sessionIdleInterval      = remoteMrpConfig.mIdleRetransTimeout.count();
     sessionParam->sessionActiveInterval    = remoteMrpConfig.mActiveRetransTimeout.count();
     sessionParam->sessionActiveThreshold   = remoteMrpConfig.mActiveThresholdTime.count();
-    sessionParam->dataModelRevision        = remoteSessionParameters.GetDataModelRevision().ValueOr(0);
-    sessionParam->interactionModelRevision = remoteSessionParameters.GetInteractionModelRevision().ValueOr(0);
-    sessionParam->specificationVersion     = remoteSessionParameters.GetSpecificationVersion().ValueOr(0);
+    sessionParam->dataModelRevision        = remoteSessionParameters.GetDataModelRevision().value_or(0);
+    sessionParam->interactionModelRevision = remoteSessionParameters.GetInteractionModelRevision().value_or(0);
+    sessionParam->specificationVersion     = remoteSessionParameters.GetSpecificationVersion().value_or(0);
     sessionParam->maxPathsPerInvoke        = remoteSessionParameters.GetMaxPathsPerInvoke();
     return ToPyChipError(CHIP_NO_ERROR);
 }

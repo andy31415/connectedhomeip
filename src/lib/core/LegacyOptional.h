@@ -194,7 +194,7 @@ public:
 
     /** Gets the current value of the optional if the optional has a value;
         otherwise returns the provided default value. */
-    const T & ValueOr(const T & defaultValue) const { return HasValue() ? Value() : defaultValue; }
+    const T & value_or(const T & defaultValue) const { return HasValue() ? Value() : defaultValue; }
 
     /** Checks if the optional contains a value or not */
     constexpr bool HasValue() const { return mHasValue; }

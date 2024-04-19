@@ -61,7 +61,7 @@ CHIP_ERROR ChefFanControlManager::ReadPercentCurrent(AttributeValueEncoder & aEn
 
     VerifyOrReturnError(Protocols::InteractionModel::Status::Success == status, CHIP_ERROR_READ_FAILED);
 
-    return aEncoder.Encode(percentSetting.ValueOr(0));
+    return aEncoder.Encode(percentSetting.value_or(0));
 }
 
 CHIP_ERROR ChefFanControlManager::ReadSpeedCurrent(AttributeValueEncoder & aEncoder)
@@ -72,7 +72,7 @@ CHIP_ERROR ChefFanControlManager::ReadSpeedCurrent(AttributeValueEncoder & aEnco
 
     VerifyOrReturnError(Protocols::InteractionModel::Status::Success == status, CHIP_ERROR_READ_FAILED);
 
-    return aEncoder.Encode(speedSetting.ValueOr(0));
+    return aEncoder.Encode(speedSetting.value_or(0));
 }
 
 Status ChefFanControlManager::HandleStep(StepDirectionEnum aDirection, bool aWrap, bool aLowestOff)
@@ -96,8 +96,8 @@ Status ChefFanControlManager::HandleStep(StepDirectionEnum aDirection, bool aWra
     status = SpeedSetting::Get(mEndpoint, speedSetting);
     VerifyOrReturnError(Protocols::InteractionModel::Status::Success == status, Status::InvalidCommand);
 
-    uint8_t newSpeedSetting    = speedSetting.ValueOr(0);
-    uint8_t speedValue         = speedSetting.ValueOr(speedCurrent);
+    uint8_t newSpeedSetting    = speedSetting.value_or(0);
+    uint8_t speedValue         = speedSetting.value_or(speedCurrent);
     const uint8_t kLowestSpeed = aLowestOff ? 0 : 1;
 
     if (aDirection == StepDirectionEnum::kIncrease)

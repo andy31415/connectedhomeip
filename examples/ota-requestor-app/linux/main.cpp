@@ -141,7 +141,7 @@ constexpr EndpointId kNetworkCommissioningEndpointSecondary = 0xFFFE;
 
 bool CustomOTARequestorDriver::CanConsent()
 {
-    return gRequestorCanConsent.ValueOr(DeviceLayer::ExtendedOTARequestorDriver::CanConsent());
+    return gRequestorCanConsent.value_or(DeviceLayer::ExtendedOTARequestorDriver::CanConsent());
 }
 
 void CustomOTARequestorDriver::UpdateDownloaded()

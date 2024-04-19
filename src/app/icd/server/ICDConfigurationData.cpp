@@ -47,7 +47,7 @@ CHIP_ERROR ICDConfigurationData::SetModeDurations(Optional<System::Clock::Millis
         ? std::chrono::duration_cast<System::Clock::Seconds32>(idleModeDuration.Value())
         : mIdleModeDuration;
 
-    System::Clock::Milliseconds32 tmpActiveModeDuration = activeModeDuration.ValueOr(mActiveModeDuration);
+    System::Clock::Milliseconds32 tmpActiveModeDuration = activeModeDuration.value_or(mActiveModeDuration);
 
     VerifyOrReturnError(tmpActiveModeDuration <= tmpIdleModeDuration, CHIP_ERROR_INVALID_ARGUMENT);
     VerifyOrReturnError(tmpIdleModeDuration <= kMaxIdleModeDuration, CHIP_ERROR_INVALID_ARGUMENT);

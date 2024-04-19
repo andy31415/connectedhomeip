@@ -28,7 +28,7 @@ void DiscoverCommissionablesCommandBase::OnDiscoveredDevice(const chip::Dnssd::D
     nodeData.LogDetail();
     LogErrorOnFailure(RemoteDataModelLogger::LogDiscoveredNodeData(nodeData));
 
-    if (mDiscoverOnce.ValueOr(true))
+    if (mDiscoverOnce.value_or(true))
     {
         mCommissioner->RegisterDeviceDiscoveryDelegate(nullptr);
         auto err = mCommissioner->StopCommissionableDiscovery();

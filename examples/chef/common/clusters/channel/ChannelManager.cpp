@@ -248,11 +248,11 @@ void ChannelManager::HandleGetProgramGuide(CommandResponseHelper<ProgramGuideRes
     std::vector<ProgramType> matches;
     for (auto const & program : mPrograms)
     {
-        if (startTime.ValueOr(0) > program.startTime)
+        if (startTime.value_or(0) > program.startTime)
         {
             continue;
         }
-        if (endTime.ValueOr(std::numeric_limits<uint32_t>::max()) < program.endTime)
+        if (endTime.value_or(std::numeric_limits<uint32_t>::max()) < program.endTime)
         {
             continue;
         }

@@ -33,7 +33,7 @@ CHIP_ERROR DownloadLogCommand::RunCommand()
     auto logType = static_cast<MTRDiagnosticLogType>(mLogType);
     auto queue = dispatch_queue_create("com.chip.bdx.downloader", DISPATCH_QUEUE_SERIAL);
 
-    bool shouldWaitForDownload = !mIsAsyncCommand.ValueOr(false);
+    bool shouldWaitForDownload = !mIsAsyncCommand.value_or(false);
     mIsAsyncCommand.ClearValue();
 
     bool dumpToFile = mFilePath.has_value();

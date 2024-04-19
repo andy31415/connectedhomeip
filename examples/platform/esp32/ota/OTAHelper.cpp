@@ -62,7 +62,7 @@ CharSpan sOTADecryptionKey(sOTADecryptionKeyStart, sOTADecryptionKeyEnd - sOTADe
 
 bool CustomOTARequestorDriver::CanConsent()
 {
-    return gRequestorCanConsent.ValueOr(DeviceLayer::ExtendedOTARequestorDriver::CanConsent());
+    return gRequestorCanConsent.value_or(DeviceLayer::ExtendedOTARequestorDriver::CanConsent());
 }
 
 void OTAHelpers::InitOTARequestor()

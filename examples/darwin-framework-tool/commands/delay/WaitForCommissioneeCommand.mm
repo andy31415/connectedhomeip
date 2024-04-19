@@ -28,7 +28,7 @@ CHIP_ERROR WaitForCommissioneeCommand::RunCommand()
     auto * base_device = [MTRBaseDevice deviceWithNodeID:@(mNodeId) controller:commissioner];
     VerifyOrReturnError(base_device != nil, CHIP_ERROR_INCORRECT_STATE);
 
-    if (mExpireExistingSession.ValueOr(true)) {
+    if (mExpireExistingSession.value_or(true)) {
         [base_device invalidateCASESession];
     }
 

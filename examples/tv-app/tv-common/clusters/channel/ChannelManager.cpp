@@ -255,11 +255,11 @@ void ChannelManager::HandleGetProgramGuide(
     std::vector<ProgramType> matches;
     for (auto const & program : mPrograms)
     {
-        if (startTime.ValueOr(0) > program.startTime)
+        if (startTime.value_or(0) > program.startTime)
         {
             continue;
         }
-        if (endTime.has_value() && endTime.ValueOr(0) < program.endTime)
+        if (endTime.has_value() && endTime.value_or(0) < program.endTime)
         {
             continue;
         }

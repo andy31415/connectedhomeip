@@ -254,7 +254,7 @@ CHIP_ERROR CopyTxtRecord(TxtFieldKey key, char * buffer, size_t bufferLen, const
         return CopyTextRecordValue(buffer, bufferLen, params.GetCommissioningMode());
     case TxtFieldKey::kCommissionerPasscode:
         return CopyTextRecordValue(buffer, bufferLen,
-                                   static_cast<uint16_t>(params.GetCommissionerPasscodeSupported().ValueOr(false) ? 1 : 0));
+                                   static_cast<uint16_t>(params.GetCommissionerPasscodeSupported().value_or(false) ? 1 : 0));
     default:
         return CopyTxtRecord(key, buffer, bufferLen, static_cast<BaseAdvertisingParams<CommissionAdvertisingParameters>>(params));
     }

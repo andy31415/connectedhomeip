@@ -359,7 +359,7 @@ CHIP_ERROR InteractionModelReports::ReportAttribute(DeviceProxy * device, std::v
     {
         ReturnErrorOnFailure(client->SendRequest(params));
     }
-    else if (mAutoResubscribe.ValueOr(false))
+    else if (mAutoResubscribe.value_or(false))
     {
         pathsConfig.attributePathParams.release();
         if (mDataVersions.has_value())
@@ -485,7 +485,7 @@ CHIP_ERROR InteractionModelReports::ReportEvent(DeviceProxy * device, std::vecto
 
     auto client = std::make_unique<ReadClient>(InteractionModelEngine::GetInstance(), device->GetExchangeManager(),
                                                mBufferedReadAdapter, interactionType);
-    if (mAutoResubscribe.ValueOr(false))
+    if (mAutoResubscribe.value_or(false))
     {
         eventPathParams.release();
         ReturnErrorOnFailure(client->SendAutoResubscribeRequest(std::move(params)));

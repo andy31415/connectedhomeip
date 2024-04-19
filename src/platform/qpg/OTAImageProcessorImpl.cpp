@@ -89,8 +89,8 @@ CHIP_ERROR OTAImageProcessorImpl::ProcessHeader(ByteSpan & block)
         qvCHIP_OtaImgHeader.vendorId             = header.mVendorId;
         qvCHIP_OtaImgHeader.productId            = header.mProductId;
         qvCHIP_OtaImgHeader.softwareVersion      = header.mSoftwareVersion;
-        qvCHIP_OtaImgHeader.minApplicableVersion = header.mMinApplicableVersion.ValueOr(0);
-        qvCHIP_OtaImgHeader.maxApplicableVersion = header.mMaxApplicableVersion.ValueOr(0);
+        qvCHIP_OtaImgHeader.minApplicableVersion = header.mMinApplicableVersion.value_or(0);
+        qvCHIP_OtaImgHeader.maxApplicableVersion = header.mMaxApplicableVersion.value_or(0);
 
         if (true != qvCHIP_OtaValidateImage(qvCHIP_OtaImgHeader))
         {

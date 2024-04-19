@@ -245,7 +245,7 @@ JNI_METHOD(jlong, onNOCChainGeneration)
     if (adminSubject == kUndefinedNodeId)
     {
         // if no value pass in ControllerParams, use value from CommissioningParameters
-        adminSubject = commissioningParams.GetAdminSubject().ValueOr(kUndefinedNodeId);
+        adminSubject = commissioningParams.GetAdminSubject().value_or(kUndefinedNodeId);
     }
     if (adminSubject != kUndefinedNodeId)
     {

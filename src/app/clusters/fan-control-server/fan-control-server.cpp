@@ -459,8 +459,8 @@ bool emberAfFanControlClusterStepCallback(app::CommandHandler * commandObj, cons
         EndpointId endpoint         = commandPath.mEndpointId;
         StepDirectionEnum direction = commandData.direction;
 
-        bool wrapValue      = commandData.wrap.ValueOr(false);
-        bool lowestOffValue = commandData.lowestOff.ValueOr(false);
+        bool wrapValue      = commandData.wrap.value_or(false);
+        bool lowestOffValue = commandData.lowestOff.value_or(false);
 
         Delegate * delegate = GetDelegate(endpoint);
         if (delegate)

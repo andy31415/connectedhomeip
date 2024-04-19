@@ -671,7 +671,7 @@ void MTROTAProviderDelegateBridge::HandleQueryImage(
                             Controller, "Responding with Busy due to being in the middle of handling another BDX transfer");
                         Commands::QueryImageResponse::Type response;
                         response.status = static_cast<StatusEnum>(MTROTASoftwareUpdateProviderStatusBusy);
-                        response.delayedActionTime.SetValue(delegateResponse.delayedActionTime.ValueOr(kDelayedActionTimeSeconds));
+                        response.delayedActionTime.SetValue(delegateResponse.delayedActionTime.value_or(kDelayedActionTimeSeconds));
                         handler->AddResponse(cachedCommandPath, response);
                         handle.Release();
                         // We do not reset state when we get the busy error because that means we are locked in a BDX transfer

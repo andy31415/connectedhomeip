@@ -95,7 +95,7 @@ void DnssdServer::SetExtendedDiscoveryTimeoutSecs(int32_t secs)
 
 int32_t DnssdServer::GetExtendedDiscoveryTimeoutSecs()
 {
-    return mExtendedDiscoveryTimeoutSecs.ValueOr(CHIP_DEVICE_CONFIG_EXTENDED_DISCOVERY_TIMEOUT_SECS);
+    return mExtendedDiscoveryTimeoutSecs.value_or(CHIP_DEVICE_CONFIG_EXTENDED_DISCOVERY_TIMEOUT_SECS);
 }
 
 /// Callback from Extended Discovery Expiration timer
@@ -139,7 +139,7 @@ CHIP_ERROR DnssdServer::GetCommissionableInstanceName(char * buffer, size_t buff
 
 CHIP_ERROR DnssdServer::SetEphemeralDiscriminator(Optional<uint16_t> discriminator)
 {
-    VerifyOrReturnError(discriminator.ValueOr(0) <= kMaxDiscriminatorValue, CHIP_ERROR_INVALID_ARGUMENT);
+    VerifyOrReturnError(discriminator.value_or(0) <= kMaxDiscriminatorValue, CHIP_ERROR_INVALID_ARGUMENT);
     mEphemeralDiscriminator = discriminator;
 
     return CHIP_NO_ERROR;
@@ -295,7 +295,7 @@ CHIP_ERROR DnssdServer::Advertise(bool commissionableNode, chip::Dnssd::Commissi
         }
 
         // Override discriminator with temporary one if one is set
-        discriminator = mEphemeralDiscriminator.ValueOr(discriminator);
+        discriminator = mEphemeralDiscriminator.value_or(discriminator);
 
         advertiseParameters.SetShortDiscriminator(static_cast<uint8_t>((discriminator >> 8) & 0x0F))
             .SetLongDiscriminator(discriminator);
@@ -357,10 +357,10 @@ CHIP_ERROR DnssdServer::Advertise(bool commissionableNode, chip::Dnssd::Commissi
     auto & mdnsAdvertiser = chip::Dnssd::ServiceAdvertiser::Instance();
 
     ChipLogProgress(Discovery, "Advertise commission parameter vendorID=%u productID=%u discriminator=%04u/%02u cm=%u cp=%u",
-                    advertiseParameters.GetVendorId().ValueOr(0), advertiseParameters.GetProductId().ValueOr(0),
+                    advertiseParameters.GetVendorId().value_or(0), advertiseParameters.GetProductId().value_or(0),
                     advertiseParameters.GetLongDiscriminator(), advertiseParameters.GetShortDiscriminator(),
                     to_underlying(advertiseParameters.GetCommissioningMode()),
-                    advertiseParameters.GetCommissionerPasscodeSupported().ValueOr(false) ? 1 : 0);
+                    advertiseParameters.GetCommissionerPasscodeSupported().value_or(false) ? 1 : 0);
     return mdnsAdvertiser.Advertise(advertiseParameters);
 }
 

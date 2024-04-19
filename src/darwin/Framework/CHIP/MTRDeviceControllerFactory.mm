@@ -1296,7 +1296,7 @@ void MTRSetMessageReliabilityParameters(NSNumber * _Nullable idleRetransmitMs,
 
         // Get current MRP parameters, then override the things we were asked to
         // override.
-        ReliableMessageProtocolConfig mrpConfig = GetLocalMRPConfig().ValueOr(GetDefaultMRPConfig());
+        ReliableMessageProtocolConfig mrpConfig = GetLocalMRPConfig().value_or(GetDefaultMRPConfig());
         if (idleRetransmitMs != nil) {
             mrpConfig.mIdleRetransTimeout = System::Clock::Milliseconds32(idleRetransmitMs.unsignedLongValue);
         }

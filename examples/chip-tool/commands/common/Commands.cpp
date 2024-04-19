@@ -313,7 +313,7 @@ CHIP_ERROR Commands::RunCommand(int argc, char ** argv, bool interactive,
     // Now that the command is initialized, get our storage from it as needed
     // and set up our loging level.
 #ifdef CONFIG_USE_LOCAL_STORAGE
-    CHIP_ERROR err = mStorage.Init(nullptr, command->GetStorageDirectory().ValueOr(nullptr));
+    CHIP_ERROR err = mStorage.Init(nullptr, command->GetStorageDirectory().value_or(nullptr));
     if (err != CHIP_NO_ERROR)
     {
         ChipLogError(Controller, "Init Storage failure: %s", chip::ErrorStr(err));
