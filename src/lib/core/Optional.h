@@ -28,13 +28,14 @@ using Optional = LegacyOptional<T>;
 template <class T>
 constexpr Optional<std::decay_t<T>> MakeOptional(T && value)
 {
-    return MakeLegacyOptional(value);
+    return Optional<std::decay_t<T>>(InPlace, std::forward<T>(value));
 }
 
 template <class T, class... Args>
+
 constexpr Optional<T> MakeOptional(Args &&... args)
 {
-    return MakeLegacyOptional(std::forward<Args>(args)...);
+    return Optional<T>(InPlace, std::forward<Args>(args)...);
 }
 
 } // namespace chip
