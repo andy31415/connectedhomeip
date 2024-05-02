@@ -139,7 +139,7 @@ public:
     void SetICDManager(ICDManager * manager) { mICDManager = manager; };
 #endif // CHIP_CONFIG_ENABLE_ICD_SERVER
 
-    Messaging::ExchangeManager * GetExchangeManager(void) const { return mpExchangeMgr; }
+    Messaging::ExchangeManager * GetExchangeManager() { return mpExchangeMgr; }
 
     /**
      * Returns a pointer to the CASESessionManager. This can return nullptr if one wasn't

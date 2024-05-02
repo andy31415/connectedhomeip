@@ -95,7 +95,7 @@ public:
         mExchangeMgr      = nullptr;
         mPeerScopedNodeId = ScopedNodeId();
     }
-    Messaging::ExchangeManager * GetExchangeManager() const override { return mExchangeMgr; }
+    Messaging::ExchangeManager * GetExchangeManager() override { return mExchangeMgr; }
     chip::Optional<SessionHandle> GetSecureSession() const override { return mSecureSession.Get(); }
     NodeId GetDeviceId() const override { return mPeerScopedNodeId.GetNodeId(); }
     ScopedNodeId GetPeerScopedNodeId() const { return mPeerScopedNodeId; }

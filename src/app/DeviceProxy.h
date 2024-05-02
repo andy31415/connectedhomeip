@@ -49,7 +49,7 @@ public:
 
     virtual CHIP_ERROR SendCommands(app::CommandSender * commandObj, chip::Optional<System::Clock::Timeout> timeout = NullOptional);
 
-    virtual Messaging::ExchangeManager * GetExchangeManager() const = 0;
+    virtual Messaging::ExchangeManager * GetExchangeManager() = 0;
 
     virtual chip::Optional<SessionHandle> GetSecureSession() const = 0;
 

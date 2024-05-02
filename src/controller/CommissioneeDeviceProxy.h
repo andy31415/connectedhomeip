@@ -144,7 +144,7 @@ public:
 
     chip::Optional<SessionHandle> GetSecureSession() const override { return mSecureSession.Get(); }
 
-    Messaging::ExchangeManager * GetExchangeManager() const override { return mExchangeMgr; }
+    Messaging::ExchangeManager * GetExchangeManager() override { return mExchangeMgr; }
 
     PASESession & GetPairing() { return mPairing; }
 
