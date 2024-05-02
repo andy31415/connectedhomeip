@@ -51,7 +51,7 @@ public:
 
     virtual Messaging::ExchangeManager * GetExchangeManager() = 0;
 
-    virtual chip::Optional<SessionHandle> GetSecureSession() const = 0;
+    virtual chip::Optional<SessionHandle> GetSecureSession() = 0;
 
     virtual CHIP_ERROR SetPeerId(ByteSpan rcac, ByteSpan noc) { return CHIP_ERROR_NOT_IMPLEMENTED; }
 

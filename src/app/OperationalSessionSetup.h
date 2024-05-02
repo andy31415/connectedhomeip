@@ -96,7 +96,7 @@ public:
         mPeerScopedNodeId = ScopedNodeId();
     }
     Messaging::ExchangeManager * GetExchangeManager() override { return mExchangeMgr; }
-    chip::Optional<SessionHandle> GetSecureSession() const override { return mSecureSession.Get(); }
+    chip::Optional<SessionHandle> GetSecureSession() override { return mSecureSession.Get(); }
     NodeId GetDeviceId() const override { return mPeerScopedNodeId.GetNodeId(); }
     ScopedNodeId GetPeerScopedNodeId() const { return mPeerScopedNodeId; }
 
