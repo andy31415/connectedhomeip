@@ -34,8 +34,11 @@ bool IsServerMask(EmberAfClusterMask mask)
 }
 
 /// Load the cluster information into the specified destination
-void LoadClusterInfo(const ConcreteClusterPath & path, const EmberAfCluster & cluster, InteractionModel::ClusterInfo * info)
+///
+/// Returns TRUE if data could be loaded, FALSE otherwise
+bool LoadClusterInfo(const ConcreteClusterPath & path, const EmberAfCluster & cluster, InteractionModel::ClusterInfo * info)
 {
+    bool loadOk                    = true;
     chip::DataVersion * versionPtr = emberAfDataVersionStorage(path);
     if (versionPtr != nullptr)
     {
@@ -46,19 +49,25 @@ void LoadClusterInfo(const ConcreteClusterPath & path, const EmberAfCluster & cl
         ChipLogError(AppServer, "Failed to get data version for %d/" ChipLogFormatMEI, static_cast<int>(path.mEndpointId),
                      ChipLogValueMEI(cluster.clusterId));
         info->dataVersion = 0;
+        loadOk            = false;
     }
 
     // TODO: set entry flags:
     //   info->flags.Set(ClusterQualityFlags::kDiagnosticsData)
+
+    return loadOk;
 }
 
 /// Converts a EmberAfCluster into a ClusterEntry
-InteractionModel::ClusterEntry ClusterEntryFrom(EndpointId endpointId, const EmberAfCluster & cluster)
+std::optional<InteractionModel::ClusterEntry> ClusterEntryFrom(EndpointId endpointId, const EmberAfCluster & cluster)
 {
     InteractionModel::ClusterEntry entry;
 
     entry.path = ConcreteClusterPath(endpointId, cluster.clusterId);
-    LoadClusterInfo(entry.path, cluster, &entry.info);
+    if (!LoadClusterInfo(entry.path, cluster, &entry.info))
+    {
+        return std::nullopt;
+    }
 
     return entry;
 }
@@ -77,8 +86,12 @@ InteractionModel::ClusterEntry FirstServerClusterEntry(EndpointId endpointId, co
             continue;
         }
 
-        found_index = cluster_idx;
-        return ClusterEntryFrom(endpointId, cluster);
+        auto entry = ClusterEntryFrom(endpointId, cluster);
+        if (entry.has_value())
+        {
+            found_index = cluster_idx;
+            return *entry;
+        }
     }
 
     return InteractionModel::ClusterEntry::Invalid();
@@ -257,7 +270,10 @@ std::optional<InteractionModel::ClusterInfo> CodegenDataModel::GetClusterInfo(co
     VerifyOrReturnValue(cluster != nullptr, std::nullopt);
 
     InteractionModel::ClusterInfo info;
-    LoadClusterInfo(path, *cluster, &info);
+    if (!LoadClusterInfo(path, *cluster, &info))
+    {
+        return std::nullopt;
+    }
 
     return std::make_optional(info);
 }

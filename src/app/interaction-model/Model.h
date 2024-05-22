@@ -113,7 +113,7 @@ public:
     ///         - `NeedsTimedInteraction` if the invoke requires timed interaction support
     virtual CHIP_ERROR Invoke(const InvokeRequest & request, chip::TLV::TLVReader & input_arguments, InvokeReply & reply) = 0;
 
-private:
+protected:
     InteractionModelActions mActions = { nullptr };
 };
 

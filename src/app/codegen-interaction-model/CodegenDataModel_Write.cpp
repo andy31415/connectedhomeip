@@ -77,61 +77,29 @@ CHIP_ERROR CodegenDataModel::WriteAttribute(const InteractionModel::WriteAttribu
         return CHIP_IM_GLOBAL_STATUS(NeedsTimedInteraction);
     }
 
+    if (request.path.mDataVersion.HasValue())
+    {
+        std::optional<InteractionModel::ClusterInfo> clusterInfo = GetClusterInfo(request.path);
+        if (!clusterInfo.has_value()) {
+            ChipLogError(DataManagement, "Unable to get cluster info for Endpoint %x, Cluster " ChipLogFormatMEI,
+                         request.path.mEndpointId, ChipLogValueMEI(request.path.mClusterId));
+            return CHIP_IM_GLOBAL_STATUS(DataVersionMismatch);
+        }
+
+        if (request.path.mDataVersion.Value() != clusterInfo->dataVersion) {
+            ChipLogError(DataManagement, "Write Version mismatch for Endpoint %x, Cluster " ChipLogFormatMEI,
+                         request.path.mEndpointId, ChipLogValueMEI(request.path.mClusterId));
+            return CHIP_IM_GLOBAL_STATUS(DataVersionMismatch);
+        }
+    }
+
     // TODO:
-    //   - data version check
     //   - access override usage
     //   - ember write
 
     return CHIP_ERROR_NOT_IMPLEMENTED;
 #if 0
-    ////////// EMBER !!! ///////
-
-
-    // Check attribute existence. This includes attributes with registered metadata, but also specially handled
-    // mandatory global attributes (which just check for cluster on endpoint).
-    const EmberAfCluster * attributeCluster            = nullptr;
-    const EmberAfAttributeMetadata * attributeMetadata = nullptr;
-    FindAttributeMetadata(aPath, &attributeCluster, &attributeMetadata);
-
-    if (attributeCluster == nullptr && attributeMetadata == nullptr)
-    {
-        return apWriteHandler->AddStatus(aPath, UnsupportedAttributeStatus(aPath));
-    }
-
-    // All the global attributes we don't have metadata for are readonly.
-    if (attributeMetadata == nullptr || attributeMetadata->IsReadOnly())
-    {
-        return apWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::UnsupportedWrite);
-    }
-
-    {
-        Access::RequestPath requestPath{ .cluster = aPath.mClusterId, .endpoint = aPath.mEndpointId };
-        Access::Privilege requestPrivilege = RequiredPrivilege::ForWriteAttribute(aPath);
-        CHIP_ERROR err                     = CHIP_NO_ERROR;
-        if (!apWriteHandler->ACLCheckCacheHit({ aPath, requestPrivilege }))
-        {
-            err = Access::GetAccessControl().Check(aSubjectDescriptor, requestPath, requestPrivilege);
-        }
-        if (err != CHIP_NO_ERROR)
-        {
-            ReturnErrorCodeIf(err != CHIP_ERROR_ACCESS_DENIED, err);
-            // TODO: when wildcard/group writes are supported, handle them to discard rather than fail with status
-            return apWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::UnsupportedAccess);
-        }
-        apWriteHandler->CacheACLCheckResult({ aPath, requestPrivilege });
-    }
-
-    if (attributeMetadata->MustUseTimedWrite() && !apWriteHandler->IsTimedWrite())
-    {
-        return apWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::NeedsTimedInteraction);
-    }
-
-    if (aPath.mDataVersion.HasValue() && !IsClusterDataVersionEqual(aPath, aPath.mDataVersion.Value()))
-    {
-        ChipLogError(DataManagement, "Write Version mismatch for Endpoint %x, Cluster " ChipLogFormatMEI, aPath.mEndpointId,
-                     ChipLogValueMEI(aPath.mClusterId));
-        return apWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::DataVersionMismatch);
-    }
+    ////////// EMBER (remaining only)///////
 
     if (auto * attrOverride = GetAttributeAccessOverride(aPath.mEndpointId, aPath.mClusterId))
     {
