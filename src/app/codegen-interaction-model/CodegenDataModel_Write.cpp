@@ -1,0 +1,169 @@
+/*
+ *    Copyright (c) 2024 Project CHIP Authors
+ *    All rights reserved.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+#include <app/codegen-interaction-model/CodegenDataModel.h>
+
+#include <access/AccessControl.h>
+#include <app/RequiredPrivilege.h>
+#include <app/codegen-interaction-model/EmberMetadata.h>
+
+namespace chip {
+namespace app {
+namespace {
+
+// TODO: anything here?
+
+} // namespace
+
+CHIP_ERROR CodegenDataModel::WriteAttribute(const InteractionModel::WriteAttributeRequest & request,
+                                            AttributeValueDecoder & decoder)
+{
+    ChipLogDetail(DataManagement,
+                  "Reading attribute: Cluster=" ChipLogFormatMEI " Endpoint=%x AttributeId=" ChipLogFormatMEI " (expanded=%d)",
+                  ChipLogValueMEI(request.path.mClusterId), request.path.mEndpointId, ChipLogValueMEI(request.path.mAttributeId),
+                  request.path.mExpanded);
+
+    // ACL check for non-internal requests
+    if (!request.operationFlags.Has(InteractionModel::OperationFlags::kInternal))
+    {
+        ReturnErrorCodeIf(!request.subjectDescriptor.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
+
+        Access::RequestPath requestPath{ .cluster = request.path.mClusterId, .endpoint = request.path.mEndpointId };
+        ReturnErrorOnFailure(Access::GetAccessControl().Check(*request.subjectDescriptor, requestPath,
+                                                              RequiredPrivilege::ForWriteAttribute(request.path)));
+    }
+
+    auto metadata = Ember::FindAttributeMetadata(request.path);
+
+    // Explicit failure in finding a suitable metadata
+    if (const CHIP_ERROR * err = std::get_if<CHIP_ERROR>(&metadata))
+    {
+        VerifyOrDie(*err != CHIP_NO_ERROR);
+        return *err;
+    }
+
+    // All the global attributes that we do not have metadata for are
+    // read-only (i.e. cannot write atribute_list/event_list/accepted_cmds/generated_cmds)
+    //
+    // so if no metadata available, we wil lreturn an error
+    const EmberAfAttributeMetadata ** meta = std::get_if<const EmberAfAttributeMetadata *>(&metadata);
+    if (meta == nullptr)
+    {
+        return CHIP_IM_GLOBAL_STATUS(UnsupportedWrite);
+    }
+
+    if ((*meta)->IsReadOnly() && !request.operationFlags.Has(InteractionModel::OperationFlags::kInternal))
+    {
+        // Internal is allowed to try to bypass read-only updates, however otherwise we deny read-only
+        // updates
+        return CHIP_IM_GLOBAL_STATUS(UnsupportedWrite);
+    }
+
+    if ((*meta)->MustUseTimedWrite() && !request.writeFlags.Has(InteractionModel::WriteFlags::kTimed))
+    {
+        return CHIP_IM_GLOBAL_STATUS(NeedsTimedInteraction);
+    }
+
+    // TODO:
+    //   - data version check
+    //   - access override usage
+    //   - ember write
+
+    return CHIP_ERROR_NOT_IMPLEMENTED;
+#if 0
+    ////////// EMBER !!! ///////
+
+
+    // Check attribute existence. This includes attributes with registered metadata, but also specially handled
+    // mandatory global attributes (which just check for cluster on endpoint).
+    const EmberAfCluster * attributeCluster            = nullptr;
+    const EmberAfAttributeMetadata * attributeMetadata = nullptr;
+    FindAttributeMetadata(aPath, &attributeCluster, &attributeMetadata);
+
+    if (attributeCluster == nullptr && attributeMetadata == nullptr)
+    {
+        return apWriteHandler->AddStatus(aPath, UnsupportedAttributeStatus(aPath));
+    }
+
+    // All the global attributes we don't have metadata for are readonly.
+    if (attributeMetadata == nullptr || attributeMetadata->IsReadOnly())
+    {
+        return apWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::UnsupportedWrite);
+    }
+
+    {
+        Access::RequestPath requestPath{ .cluster = aPath.mClusterId, .endpoint = aPath.mEndpointId };
+        Access::Privilege requestPrivilege = RequiredPrivilege::ForWriteAttribute(aPath);
+        CHIP_ERROR err                     = CHIP_NO_ERROR;
+        if (!apWriteHandler->ACLCheckCacheHit({ aPath, requestPrivilege }))
+        {
+            err = Access::GetAccessControl().Check(aSubjectDescriptor, requestPath, requestPrivilege);
+        }
+        if (err != CHIP_NO_ERROR)
+        {
+            ReturnErrorCodeIf(err != CHIP_ERROR_ACCESS_DENIED, err);
+            // TODO: when wildcard/group writes are supported, handle them to discard rather than fail with status
+            return apWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::UnsupportedAccess);
+        }
+        apWriteHandler->CacheACLCheckResult({ aPath, requestPrivilege });
+    }
+
+    if (attributeMetadata->MustUseTimedWrite() && !apWriteHandler->IsTimedWrite())
+    {
+        return apWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::NeedsTimedInteraction);
+    }
+
+    if (aPath.mDataVersion.HasValue() && !IsClusterDataVersionEqual(aPath, aPath.mDataVersion.Value()))
+    {
+        ChipLogError(DataManagement, "Write Version mismatch for Endpoint %x, Cluster " ChipLogFormatMEI, aPath.mEndpointId,
+                     ChipLogValueMEI(aPath.mClusterId));
+        return apWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::DataVersionMismatch);
+    }
+
+    if (auto * attrOverride = GetAttributeAccessOverride(aPath.mEndpointId, aPath.mClusterId))
+    {
+        AttributeValueDecoder valueDecoder(aReader, aSubjectDescriptor);
+        ReturnErrorOnFailure(attrOverride->Write(aPath, valueDecoder));
+
+        if (valueDecoder.TriedDecode())
+        {
+            MatterReportingAttributeChangeCallback(aPath);
+            return apWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::Success);
+        }
+    }
+
+    CHIP_ERROR preparationError = CHIP_NO_ERROR;
+    uint16_t dataLen            = 0;
+    if ((preparationError = prepareWriteData(attributeMetadata, aReader, dataLen)) != CHIP_NO_ERROR)
+    {
+        ChipLogDetail(Zcl, "Failed to prepare data to write: %" CHIP_ERROR_FORMAT, preparationError.Format());
+        return apWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::InvalidValue);
+    }
+
+    if (dataLen > attributeMetadata->size)
+    {
+        ChipLogDetail(Zcl, "Data to write exceedes the attribute size claimed.");
+        return apWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::InvalidValue);
+    }
+
+    auto status = emAfWriteAttributeExternal(aPath.mEndpointId, aPath.mClusterId, aPath.mAttributeId,
+                                             gEmberAttributeIOBufferSpan.data(), attributeMetadata->attributeType);
+    return apWriteHandler->AddStatus(aPath, status);
+#endif
+}
+
+} // namespace app
+} // namespace chip
