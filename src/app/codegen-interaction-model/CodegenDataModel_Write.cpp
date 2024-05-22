@@ -130,7 +130,7 @@ CHIP_ERROR CodegenDataModel::WriteAttribute(const InteractionModel::WriteAttribu
         }
     }
 
-    std::optional<CHIP_ERROR> aai_result = TryWriteViaAccessInteraface(
+    std::optional<CHIP_ERROR> aai_result = TryWriteViaAccessInterface(
         request.path, GetAttributeAccessOverride(request.path.mEndpointId, request.path.mClusterId), decoder);
     ReturnErrorCodeIf(aai_result.has_value(), *aai_result);
 
