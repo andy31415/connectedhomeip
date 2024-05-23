@@ -1785,7 +1785,7 @@ TEST(TestCodegenModelViaMocks, EmberAttributeWriteDataVersion)
     ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
 }
 
-TEST(TestCodegenModelViaMocks, InvalidAttribute)
+TEST(TestCodegenModelViaMocks, WriteToInvalidPath)
 {
     UseMockNodeConfig config(gTestNodeConfig);
     chip::app::CodegenDataModel model;
@@ -1808,3 +1808,15 @@ TEST(TestCodegenModelViaMocks, InvalidAttribute)
         ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_IM_GLOBAL_STATUS(UnsupportedAttribute));
     }
 }
+
+TEST(TestCodegenModelViaMocks, WriteToGlobalAttribute)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    TestWriteRequest test(kAdminSubjectDescriptor, ConcreteAttributePath(kMockEndpoint1, MockClusterId(1), AttributeList::Id));
+    AttributeValueDecoder decoder = test.DecoderFor<int32_t>(1234);
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_IM_GLOBAL_STATUS(UnsupportedWrite));
+}
+
