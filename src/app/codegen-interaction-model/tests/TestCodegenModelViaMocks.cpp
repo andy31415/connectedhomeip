@@ -14,11 +14,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "app/interaction-model/OperationTypes.h"
-#include "app/util/ember-io-storage.h"
-#include "lib/core/TLVTags.h"
-#include "lib/core/TLVTypes.h"
-#include "lib/support/Span.h"
 #include <app/codegen-interaction-model/CodegenDataModel.h>
 
 #include <app/codegen-interaction-model/tests/EmberReadWriteOverride.h>
@@ -36,7 +31,9 @@
 #include <app/MessageDef/ReportDataMessage.h>
 #include <app/data-model/Decode.h>
 #include <app/data-model/Encode.h>
+#include <app/interaction-model/OperationTypes.h>
 #include <app/util/attribute-storage-null-handling.h>
+#include <app/util/ember-io-storage.h>
 #include <app/util/mock/Constants.h>
 #include <app/util/mock/Functions.h>
 #include <app/util/mock/MockNodeConfig.h>
@@ -46,7 +43,10 @@
 #include <lib/core/StringBuilderAdapters.h>
 #include <lib/core/TLVDebug.h>
 #include <lib/core/TLVReader.h>
+#include <lib/core/TLVTags.h>
+#include <lib/core/TLVTypes.h>
 #include <lib/core/TLVWriter.h>
+#include <lib/support/Span.h>
 
 #include <gtest/gtest.h>
 #include <vector>
@@ -639,6 +639,31 @@ void TestEmberScalarTypeWrite(const typename NumericAttributeTraits<T>::WorkingT
     typename NumericAttributeTraits<T>::WorkingType actual = NumericAttributeTraits<T>::StorageToWorking(storage);
 
     ASSERT_EQ(actual, value);
+}
+
+template <typename T, EmberAfAttributeType ZclType>
+void TestEmberScalarNullWrite()
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    TestWriteRequest test(kAdminSubjectDescriptor,
+                          ConcreteAttributePath(kMockEndpoint3, MockClusterId(4), MOCK_ATTRIBUTE_ID_FOR_NULLABLE_TYPE(ZclType)));
+    AttributeValueDecoder decoder = test.DecoderFor<DataModel::Nullable<T>>(DataModel::Nullable<T>());
+
+    // write should succeed
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
+
+    // Validate data after write
+    chip::ByteSpan writtenData = Test::GetEmberBuffer();
+
+    using Traits = NumericAttributeTraits<T>;
+
+    typename Traits::StorageType storage;
+    ASSERT_GE(writtenData.size(), sizeof(storage));
+    memcpy(&storage, writtenData.data(), sizeof(storage));
+    ASSERT_TRUE(Traits::IsNullValue(storage));
 }
 
 } // namespace
@@ -1510,5 +1535,50 @@ TEST(TestCodegenModelViaMocks, EmberAttributeWriteAclDeny)
 
 TEST(TestCodegenModelViaMocks, EmberAttributeWriteBasicTypes)
 {
-    TestEmberScalarTypeWrite<int32_t, ZCL_INT32S_ATTRIBUTE_TYPE>(-1234);
+    TestEmberScalarTypeWrite<uint8_t, ZCL_INT8U_ATTRIBUTE_TYPE>(0x12);
+    TestEmberScalarTypeWrite<uint16_t, ZCL_ENUM16_ATTRIBUTE_TYPE>(0x1234);
+    TestEmberScalarTypeWrite<OddSizedInteger<3, false>, ZCL_INT24U_ATTRIBUTE_TYPE>(0x1234AB);
+    TestEmberScalarTypeWrite<uint32_t, ZCL_INT32U_ATTRIBUTE_TYPE>(0x1234ABCD);
+    TestEmberScalarTypeWrite<OddSizedInteger<5, false>, ZCL_INT40U_ATTRIBUTE_TYPE>(0x1122334455);
+    TestEmberScalarTypeWrite<OddSizedInteger<6, false>, ZCL_INT48U_ATTRIBUTE_TYPE>(0xAABB11223344);
+    TestEmberScalarTypeWrite<OddSizedInteger<7, false>, ZCL_INT56U_ATTRIBUTE_TYPE>(0xAABB11223344);
+    TestEmberScalarTypeWrite<uint64_t, ZCL_INT64U_ATTRIBUTE_TYPE>(0x1122334455667788L);
+
+    TestEmberScalarTypeWrite<int8_t, ZCL_INT8S_ATTRIBUTE_TYPE>(-10);
+    TestEmberScalarTypeWrite<int16_t, ZCL_INT16S_ATTRIBUTE_TYPE>(-123);
+    TestEmberScalarTypeWrite<OddSizedInteger<3, true>, ZCL_INT24S_ATTRIBUTE_TYPE>(-1234);
+    TestEmberScalarTypeWrite<int32_t, ZCL_INT32S_ATTRIBUTE_TYPE>(-12345);
+    TestEmberScalarTypeWrite<OddSizedInteger<5, true>, ZCL_INT40S_ATTRIBUTE_TYPE>(-123456);
+    TestEmberScalarTypeWrite<OddSizedInteger<6, true>, ZCL_INT48S_ATTRIBUTE_TYPE>(-1234567);
+    TestEmberScalarTypeWrite<OddSizedInteger<7, true>, ZCL_INT56S_ATTRIBUTE_TYPE>(-12345678);
+    TestEmberScalarTypeWrite<int64_t, ZCL_INT64S_ATTRIBUTE_TYPE>(-123456789);
+
+    TestEmberScalarTypeWrite<bool, ZCL_BOOLEAN_ATTRIBUTE_TYPE>(true);
+    TestEmberScalarTypeWrite<bool, ZCL_BOOLEAN_ATTRIBUTE_TYPE>(false);
+    TestEmberScalarTypeWrite<float, ZCL_SINGLE_ATTRIBUTE_TYPE>(0.625);
+    TestEmberScalarTypeWrite<double, ZCL_DOUBLE_ATTRIBUTE_TYPE>(0.625);
+}
+
+TEST(TestCodegenModelViaMocks, EmberAttributeWriteNulls)
+{
+    TestEmberScalarNullWrite<uint8_t, ZCL_INT8U_ATTRIBUTE_TYPE>();
+    TestEmberScalarNullWrite<uint16_t, ZCL_ENUM16_ATTRIBUTE_TYPE>();
+    // TestEmberScalarNullWrite<OddSizedInteger<3, false>, ZCL_INT24U_ATTRIBUTE_TYPE>();
+    TestEmberScalarNullWrite<uint32_t, ZCL_INT32U_ATTRIBUTE_TYPE>();
+    // // TestEmberScalarNullWrite<OddSizedInteger<5, false>, ZCL_INT40U_ATTRIBUTE_TYPE>();
+    // // TestEmberScalarNullWrite<OddSizedInteger<6, false>, ZCL_INT48U_ATTRIBUTE_TYPE>();
+    // // TestEmberScalarNullWrite<OddSizedInteger<7, false>, ZCL_INT56U_ATTRIBUTE_TYPE>();
+    TestEmberScalarNullWrite<uint64_t, ZCL_INT64U_ATTRIBUTE_TYPE>();
+
+    TestEmberScalarNullWrite<int8_t, ZCL_INT8S_ATTRIBUTE_TYPE>();
+    TestEmberScalarNullWrite<int16_t, ZCL_INT16S_ATTRIBUTE_TYPE>();
+    // // TestEmberScalarNullWrite<OddSizedInteger<3, true>, ZCL_INT24S_ATTRIBUTE_TYPE>();
+    TestEmberScalarNullWrite<int32_t, ZCL_INT32S_ATTRIBUTE_TYPE>();
+    // // TestEmberScalarNullWrite<OddSizedInteger<5, true>, ZCL_INT40S_ATTRIBUTE_TYPE>();
+    // // TestEmberScalarNullWrite<OddSizedInteger<6, true>, ZCL_INT48S_ATTRIBUTE_TYPE>();
+    // // TestEmberScalarNullWrite<OddSizedInteger<7, true>, ZCL_INT56S_ATTRIBUTE_TYPE>();
+    TestEmberScalarNullWrite<int64_t, ZCL_INT64S_ATTRIBUTE_TYPE>();
+    TestEmberScalarNullWrite<bool, ZCL_BOOLEAN_ATTRIBUTE_TYPE>();
+    TestEmberScalarNullWrite<float, ZCL_SINGLE_ATTRIBUTE_TYPE>();
+    TestEmberScalarNullWrite<double, ZCL_DOUBLE_ATTRIBUTE_TYPE>();
 }

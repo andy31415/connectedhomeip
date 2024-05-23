@@ -139,21 +139,48 @@ CHIP_ERROR DecodeStringLikeIntoEmberBuffer(AttributeValueDecoder decoder, bool i
 template <typename T>
 CHIP_ERROR DecodeIntoEmberBuffer(AttributeValueDecoder & decoder, bool isNullable, MutableByteSpan out)
 {
+    if (isNullable)
+    {
+        using Traits = NumericAttributeTraits<T>;
 
-    typename NumericAttributeTraits<T>::WorkingType workingValue;
-    ReturnErrorOnFailure(decoder.Decode(workingValue));
+        DataModel::Nullable<typename Traits::WorkingType> workingValue;
+        ReturnErrorOnFailure(decoder.Decode(workingValue));
 
-    typename NumericAttributeTraits<T>::StorageType storageValue;
-    NumericAttributeTraits<T>::WorkingToStorage(workingValue, storageValue);
+        typename Traits::StorageType storageValue;
+        if (workingValue.IsNull())
+        {
+            Traits::SetNull(storageValue);
+        }
+        else
+        {
+            VerifyOrReturnError(Traits::CanRepresentValue(isNullable, *workingValue), CHIP_ERROR_INVALID_ARGUMENT);
+            Traits::WorkingToStorage(*workingValue, storageValue);
+        }
 
-    VerifyOrReturnError(out.size() >= sizeof(storageValue), CHIP_ERROR_INVALID_ARGUMENT);
+        VerifyOrReturnError(out.size() >= sizeof(storageValue), CHIP_ERROR_INVALID_ARGUMENT);
 
-    // This guards against trying to encode something that overlaps nullable, for example
-    // Nullable<uint8_t>(0xFF) is not representable because 0xFF is the encoding of NULL in ember
-    VerifyOrReturnError(NumericAttributeTraits<T>::CanRepresentValue(isNullable, workingValue), CHIP_ERROR_INVALID_ARGUMENT);
+        const uint8_t * data = Traits::ToAttributeStoreRepresentation(storageValue);
+        memcpy(out.data(), data, sizeof(storageValue));
+    }
+    else
+    {
+        using Traits = NumericAttributeTraits<T>;
 
-    const uint8_t * data = NumericAttributeTraits<T>::ToAttributeStoreRepresentation(storageValue);
-    memcpy(out.data(), data, sizeof(storageValue));
+        typename Traits::WorkingType workingValue;
+        ReturnErrorOnFailure(decoder.Decode(workingValue));
+
+        typename Traits::StorageType storageValue;
+        Traits::WorkingToStorage(workingValue, storageValue);
+
+        VerifyOrReturnError(out.size() >= sizeof(storageValue), CHIP_ERROR_INVALID_ARGUMENT);
+
+        // This guards against trying to encode something that overlaps nullable, for example
+        // Nullable<uint8_t>(0xFF) is not representable because 0xFF is the encoding of NULL in ember
+        VerifyOrReturnError(Traits::CanRepresentValue(isNullable, workingValue), CHIP_ERROR_INVALID_ARGUMENT);
+
+        const uint8_t * data = Traits::ToAttributeStoreRepresentation(storageValue);
+        memcpy(out.data(), data, sizeof(storageValue));
+    }
 
     return CHIP_NO_ERROR;
 }
