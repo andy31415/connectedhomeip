@@ -1075,6 +1075,9 @@ TEST(TestCodegenModelViaMocks, EmberAttributeReadErrorReading)
         std::unique_ptr<AttributeValueEncoder> encoder = testRequest.StartEncoding(&model);
         ASSERT_EQ(model.ReadAttribute(testRequest.request, *encoder), CHIP_IM_GLOBAL_STATUS(Busy));
     }
+
+    // reset things to success to not affect other tests
+    chip::Test::SetEmberReadOutput(ByteSpan());
 }
 
 TEST(TestCodegenModelViaMocks, EmberAttributeReadNullOctetString)
@@ -1780,4 +1783,28 @@ TEST(TestCodegenModelViaMocks, EmberAttributeWriteDataVersion)
     // Write passes if we set the right version for the data
     test.request.path.mDataVersion = MakeOptional(GetVersion());
     ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
+}
+
+TEST(TestCodegenModelViaMocks, InvalidAttribute)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    {
+        TestWriteRequest test(kAdminSubjectDescriptor, ConcreteAttributePath(kInvalidEndpointId, MockClusterId(1234), 1234));
+        AttributeValueDecoder decoder = test.DecoderFor<int32_t>(1234);
+        ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_IM_GLOBAL_STATUS(UnsupportedEndpoint));
+    }
+    {
+        TestWriteRequest test(kAdminSubjectDescriptor, ConcreteAttributePath(kMockEndpoint1, MockClusterId(1234), 1234));
+        AttributeValueDecoder decoder = test.DecoderFor<int32_t>(1234);
+        ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_IM_GLOBAL_STATUS(UnsupportedCluster));
+    }
+
+    {
+        TestWriteRequest test(kAdminSubjectDescriptor, ConcreteAttributePath(kMockEndpoint1, MockClusterId(1), 1234));
+        AttributeValueDecoder decoder = test.DecoderFor<int32_t>(1234);
+        ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_IM_GLOBAL_STATUS(UnsupportedAttribute));
+    }
 }
