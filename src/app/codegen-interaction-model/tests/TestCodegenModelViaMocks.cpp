@@ -14,6 +14,9 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app/interaction-model/OperationTypes.h"
+#include "lib/core/TLVTags.h"
+#include "lib/core/TLVTypes.h"
 #include <app/codegen-interaction-model/CodegenDataModel.h>
 
 #include <app/codegen-interaction-model/tests/EmberReadWriteOverride.h>
@@ -491,6 +494,55 @@ struct TestReadRequest
     }
 
     CHIP_ERROR FinishEncoding() { return encodedIBs.FinishEncoding(reportBuilder); }
+};
+
+// Sets up data for writing
+struct TestWriteRequest
+{
+    InteractionModel::WriteAttributeRequest request;
+    uint8_t tlvBuffer[128] = { 0 };
+    TLV::TLVReader
+        tlvReader; /// tlv reader used for the returned AttributeValueDecoder (since attributeValueDecoder uses references)
+
+    TestWriteRequest(const Access::SubjectDescriptor & subject, const ConcreteDataAttributePath & path)
+    {
+        request.subjectDescriptor = subject;
+        request.path              = path;
+    }
+
+    template <typename T>
+    TLV::TLVReader ReadEncodedValue(const T & value)
+    {
+        TLV::TLVWriter writer;
+        writer.Init(tlvBuffer);
+
+        // Encoding is within a structure:
+        //   - BEGIN_STRUCT
+        //     - 1: .....
+        //   - END_STRUCT
+        TLV::TLVType outerContainerType;
+        VerifyOrDie(writer.StartContainer(TLV::AnonymousTag(), TLV::kTLVType_Structure, outerContainerType) == CHIP_NO_ERROR);
+        VerifyOrDie(DataModel::Encode(writer, TLV::ContextTag(1), value) == CHIP_NO_ERROR);
+        VerifyOrDie(writer.EndContainer(outerContainerType) == CHIP_NO_ERROR);
+        VerifyOrDie(writer.Finalize() == CHIP_NO_ERROR);
+
+        TLV::TLVReader reader;
+        reader.Init(tlvBuffer);
+
+        // position the reader inside the buffer, on the encoded value
+        VerifyOrDie(reader.Next() == CHIP_NO_ERROR);
+        VerifyOrDie(reader.EnterContainer(outerContainerType) == CHIP_NO_ERROR);
+        VerifyOrDie(reader.Next() == CHIP_NO_ERROR);
+
+        return reader;
+    }
+
+    template <class T>
+    AttributeValueDecoder DecoderFor(const T & value)
+    {
+        tlvReader = ReadEncodedValue(value);
+        return AttributeValueDecoder(tlvReader, request.subjectDescriptor.value_or(kDenySubjectDescriptor));
+    }
 };
 
 template <typename T, EmberAfAttributeType ZclType>
@@ -1414,4 +1466,18 @@ TEST(TestCodegenModelViaMocks, ReadGlobalAttributeAttributeList)
     {
         EXPECT_EQ(items[i], expected[i]);
     }
+}
+
+TEST(TestCodegenModelViaMocks, EmberAttributeWriteAclDeny)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    TestWriteRequest test(kDenySubjectDescriptor, ConcreteDataAttributePath(kMockEndpoint1, MockClusterId(1), MockAttributeId(10)));
+    AttributeValueDecoder decoder = test.DecoderFor<uint32_t>(1234);
+
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_ERROR_ACCESS_DENIED);
+
+    // ASSERT_EQ(model.ReadAttribute(testRequest.request, *encoder), CHIP_ERROR_ACCESS_DENIED);
 }
