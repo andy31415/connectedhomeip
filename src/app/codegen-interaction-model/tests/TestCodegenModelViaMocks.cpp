@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 #include "app/interaction-model/OperationTypes.h"
+#include "app/util/ember-io-storage.h"
 #include "lib/core/TLVTags.h"
 #include "lib/core/TLVTypes.h"
 #include <app/codegen-interaction-model/CodegenDataModel.h>
@@ -611,6 +612,29 @@ void TestEmberScalarNullRead()
     chip::app::DataModel::Nullable<typename NumericAttributeTraits<T>::WorkingType> actual;
     ASSERT_EQ(chip::app::DataModel::Decode(encodedData.dataReader, actual), CHIP_NO_ERROR);
     ASSERT_TRUE(actual.IsNull());
+}
+
+template <typename T, EmberAfAttributeType ZclType>
+void TestEmberScalarTypeWrite(const typename NumericAttributeTraits<T>::WorkingType value)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    TestWriteRequest test(
+        kAdminSubjectDescriptor,
+        ConcreteAttributePath(kMockEndpoint3, MockClusterId(4), MOCK_ATTRIBUTE_ID_FOR_NON_NULLABLE_TYPE(ZclType)));
+    AttributeValueDecoder decoder = test.DecoderFor(value);
+
+    // write should succeed
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
+
+    // Validate data after write
+    typename NumericAttributeTraits<T>::StorageType storage;
+    memcpy(&storage, Compatibility::Internal::gEmberAttributeIOBufferSpan.data(), sizeof(storage));
+    typename NumericAttributeTraits<T>::WorkingType actual = NumericAttributeTraits<T>::StorageToWorking(storage);
+
+    ASSERT_EQ(actual, value);
 }
 
 } // namespace
@@ -1478,6 +1502,9 @@ TEST(TestCodegenModelViaMocks, EmberAttributeWriteAclDeny)
     AttributeValueDecoder decoder = test.DecoderFor<uint32_t>(1234);
 
     ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_ERROR_ACCESS_DENIED);
+}
 
-    // ASSERT_EQ(model.ReadAttribute(testRequest.request, *encoder), CHIP_ERROR_ACCESS_DENIED);
+TEST(TestCodegenModelViaMocks, EmberAttributeWriteBasicTypes)
+{
+    TestEmberScalarTypeWrite<int32_t, ZCL_INT32S_ATTRIBUTE_TYPE>(-1234);
 }
