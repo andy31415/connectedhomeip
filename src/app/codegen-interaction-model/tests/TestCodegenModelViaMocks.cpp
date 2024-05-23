@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 #include "app-common/zap-generated/attribute-type.h"
+#include "app/util/attribute-metadata.h"
 #include <app/codegen-interaction-model/CodegenDataModel.h>
 
 #include <app/codegen-interaction-model/tests/EmberReadWriteOverride.h>
@@ -62,6 +63,9 @@ namespace {
 
 constexpr FabricIndex kTestFabrixIndex = kMinValidFabricIndex;
 constexpr NodeId kTestNodeId           = 0xFFFF'1234'ABCD'4321;
+
+constexpr AttributeId kAttributeIdReadOnly   = 0x3001;
+constexpr AttributeId kAttributeIdTimedWrite = 0x3002;
 
 constexpr EndpointId kEndpointIdThatIsMissing = kMockEndpointMin - 1;
 
@@ -335,6 +339,10 @@ const MockNodeConfig gTestNodeConfig({
             MOCK_ATTRIBUTE_CONFIG_NULLABLE(ZCL_IPV6ADR_ATTRIBUTE_TYPE),
             MOCK_ATTRIBUTE_CONFIG_NULLABLE(ZCL_IPV6PRE_ATTRIBUTE_TYPE),
             MOCK_ATTRIBUTE_CONFIG_NULLABLE(ZCL_HWADR_ATTRIBUTE_TYPE),
+
+            // Special case handling
+            MockAttributeConfig(kAttributeIdReadOnly, ZCL_INT32S_ATTRIBUTE_TYPE, 0),
+            MockAttributeConfig(kAttributeIdTimedWrite, ZCL_INT32S_ATTRIBUTE_TYPE, ATTRIBUTE_MASK_WRITABLE | ATTRIBUTE_MASK_MUST_USE_TIMED_WRITE),
         }),
     }),
 });
@@ -1672,4 +1680,36 @@ TEST(TestCodegenModelViaMocks, EmberAttributeWriteLongBytes)
     EXPECT_EQ(writtenData[2], 11u);
     EXPECT_EQ(writtenData[3], 12u);
     EXPECT_EQ(writtenData[4], 13u);
+}
+
+TEST(TestCodegenModelViaMocks, EmberAttributeWriteTimedWrite)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    TestWriteRequest test(kAdminSubjectDescriptor, ConcreteAttributePath(kMockEndpoint3, MockClusterId(4), kAttributeIdTimedWrite));
+    AttributeValueDecoder decoder = test.DecoderFor<int32_t>(1234);
+
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_IM_GLOBAL_STATUS(NeedsTimedInteraction));
+
+    // writing as timed should be fine
+    test.request.writeFlags.Set(WriteFlags::kTimed);
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
+}
+
+TEST(TestCodegenModelViaMocks, EmberAttributeWriteReadOnlyAttribute)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    TestWriteRequest test(kAdminSubjectDescriptor, ConcreteAttributePath(kMockEndpoint3, MockClusterId(4), kAttributeIdReadOnly));
+    AttributeValueDecoder decoder = test.DecoderFor<int32_t>(1234);
+
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_IM_GLOBAL_STATUS(UnsupportedWrite));
+
+    // Internal writes bypass the read only requirement
+    test.request.operationFlags.Set(OperationFlags::kInternal);
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
 }
