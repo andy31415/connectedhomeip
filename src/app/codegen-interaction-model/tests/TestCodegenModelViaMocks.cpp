@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 #include "app-common/zap-generated/attribute-type.h"
+#include "app/data-model/Nullable.h"
 #include "app/util/attribute-metadata.h"
 #include <app/codegen-interaction-model/CodegenDataModel.h>
 
@@ -1633,6 +1634,45 @@ TEST(TestCodegenModelViaMocks, EmberAttributeWriteLongString)
     chip::CharSpan asCharSpan(reinterpret_cast<const char *>(writtenData.data() + 2), 4);
 
     ASSERT_TRUE(asCharSpan.data_equal("text"_span));
+}
+
+TEST(TestCodegenModelViaMocks, EmberAttributeWriteNullableLongStringValue)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    TestWriteRequest test(kAdminSubjectDescriptor,
+                          ConcreteAttributePath(kMockEndpoint3, MockClusterId(4),
+                                                MOCK_ATTRIBUTE_ID_FOR_NULLABLE_TYPE(ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE)));
+    AttributeValueDecoder decoder = test.DecoderFor<DataModel::Nullable<CharSpan>>(DataModel::MakeNullable("text"_span));
+
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
+    chip::ByteSpan writtenData = GetEmberBuffer();
+
+    uint16_t len;
+    memcpy(&len, writtenData.data(), 2);
+    EXPECT_EQ(len, 4);
+    chip::CharSpan asCharSpan(reinterpret_cast<const char *>(writtenData.data() + 2), 4);
+
+    ASSERT_TRUE(asCharSpan.data_equal("text"_span));
+}
+
+TEST(TestCodegenModelViaMocks, EmberAttributeWriteLongNullableStringNull)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    TestWriteRequest test(kAdminSubjectDescriptor,
+                          ConcreteAttributePath(kMockEndpoint3, MockClusterId(4),
+                                                MOCK_ATTRIBUTE_ID_FOR_NULLABLE_TYPE(ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE)));
+    AttributeValueDecoder decoder = test.DecoderFor<DataModel::Nullable<CharSpan>>(DataModel::Nullable<CharSpan>());
+
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
+    chip::ByteSpan writtenData = GetEmberBuffer();
+    ASSERT_EQ(writtenData[0], 0xFF);
+    ASSERT_EQ(writtenData[0], 0xFF);
 }
 
 TEST(TestCodegenModelViaMocks, EmberAttributeWriteShortBytes)

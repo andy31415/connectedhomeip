@@ -340,28 +340,6 @@ CHIP_ERROR CodegenDataModel::WriteAttribute(const InteractionModel::WriteAttribu
     }
 
     return CHIP_NO_ERROR;
-
-#if 0
-    ////////// EMBER (remaining only)///////
-
-    CHIP_ERROR preparationError = CHIP_NO_ERROR;
-    uint16_t dataLen            = 0;
-    if ((preparationError = prepareWriteData(attributeMetadata, aReader, dataLen)) != CHIP_NO_ERROR)
-    {
-        ChipLogDetail(Zcl, "Failed to prepare data to write: %" CHIP_ERROR_FORMAT, preparationError.Format());
-        return apWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::InvalidValue);
-    }
-
-    if (dataLen > attributeMetadata->size)
-    {
-        ChipLogDetail(Zcl, "Data to write exceedes the attribute size claimed.");
-        return apWriteHandler->AddStatus(aPath, Protocols::InteractionModel::Status::InvalidValue);
-    }
-
-    auto status = emAfWriteAttributeExternal(aPath.mEndpointId, aPath.mClusterId, aPath.mAttributeId,
-                                             gEmberAttributeIOBufferSpan.data(), attributeMetadata->attributeType);
-    return apWriteHandler->AddStatus(aPath, status);
-#endif
 }
 
 } // namespace app
