@@ -99,7 +99,7 @@ static_assert(sizeof(LongPascalString::LengthType) == 2);
 ///
 /// isNullable defines if the value of NULL is allowed to be encoded.
 template <typename T, class ENCODING>
-CHIP_ERROR DecodeStringLike(AttributeValueDecoder decoder, bool isNullable, MutableByteSpan out)
+CHIP_ERROR DecodeStringLikeIntoEmberBuffer(AttributeValueDecoder decoder, bool isNullable, MutableByteSpan out)
 {
     T workingValue;
 
@@ -137,7 +137,7 @@ CHIP_ERROR DecodeStringLike(AttributeValueDecoder decoder, bool isNullable, Muta
 ///
 /// isNullable defines if the value of NULL is allowed to be encoded.
 template <typename T>
-CHIP_ERROR DecodeIntoSpan(AttributeValueDecoder & decoder, bool isNullable, MutableByteSpan out)
+CHIP_ERROR DecodeIntoEmberBuffer(AttributeValueDecoder & decoder, bool isNullable, MutableByteSpan out)
 {
 
     typename NumericAttributeTraits<T>::WorkingType workingValue;
@@ -157,7 +157,8 @@ CHIP_ERROR DecodeIntoSpan(AttributeValueDecoder & decoder, bool isNullable, Muta
 /// Read the data from "decoder" into an ember-formatted buffer "out"
 ///
 /// Uses the attribute `metadata` to determine how the data is to be encoded into out.
-CHIP_ERROR DecodeEmberValue(AttributeValueDecoder & decoder, const EmberAfAttributeMetadata * metadata, MutableByteSpan out)
+CHIP_ERROR DecodeValueIntoEmberBuffer(AttributeValueDecoder & decoder, const EmberAfAttributeMetadata * metadata,
+                                      MutableByteSpan out)
 {
     VerifyOrReturnError(metadata != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
 
@@ -166,51 +167,51 @@ CHIP_ERROR DecodeEmberValue(AttributeValueDecoder & decoder, const EmberAfAttrib
     switch (AttributeBaseType(metadata->attributeType))
     {
     case ZCL_BOOLEAN_ATTRIBUTE_TYPE: // Boolean
-        return DecodeIntoSpan<bool>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<bool>(decoder, isNullable, out);
     case ZCL_INT8U_ATTRIBUTE_TYPE: // Unsigned 8-bit integer
-        return DecodeIntoSpan<uint8_t>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<uint8_t>(decoder, isNullable, out);
     case ZCL_INT16U_ATTRIBUTE_TYPE: // Unsigned 16-bit integer
-        return DecodeIntoSpan<uint16_t>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<uint16_t>(decoder, isNullable, out);
     case ZCL_INT24U_ATTRIBUTE_TYPE: // Unsigned 24-bit integer
-        return DecodeIntoSpan<OddSizedInteger<3, false>>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<OddSizedInteger<3, false>>(decoder, isNullable, out);
     case ZCL_INT32U_ATTRIBUTE_TYPE: // Unsigned 32-bit integer
-        return DecodeIntoSpan<uint32_t>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<uint32_t>(decoder, isNullable, out);
     case ZCL_INT40U_ATTRIBUTE_TYPE: // Unsigned 40-bit integer
-        return DecodeIntoSpan<OddSizedInteger<5, false>>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<OddSizedInteger<5, false>>(decoder, isNullable, out);
     case ZCL_INT48U_ATTRIBUTE_TYPE: // Unsigned 48-bit integer
-        return DecodeIntoSpan<OddSizedInteger<6, false>>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<OddSizedInteger<6, false>>(decoder, isNullable, out);
     case ZCL_INT56U_ATTRIBUTE_TYPE: // Unsigned 56-bit integer
-        return DecodeIntoSpan<OddSizedInteger<7, false>>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<OddSizedInteger<7, false>>(decoder, isNullable, out);
     case ZCL_INT64U_ATTRIBUTE_TYPE: // Unsigned 64-bit integer
-        return DecodeIntoSpan<uint64_t>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<uint64_t>(decoder, isNullable, out);
     case ZCL_INT8S_ATTRIBUTE_TYPE: // Signed 8-bit integer
-        return DecodeIntoSpan<int8_t>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<int8_t>(decoder, isNullable, out);
     case ZCL_INT16S_ATTRIBUTE_TYPE: // Signed 16-bit integer
-        return DecodeIntoSpan<int16_t>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<int16_t>(decoder, isNullable, out);
     case ZCL_INT24S_ATTRIBUTE_TYPE: // Signed 24-bit integer
-        return DecodeIntoSpan<OddSizedInteger<3, true>>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<OddSizedInteger<3, true>>(decoder, isNullable, out);
     case ZCL_INT32S_ATTRIBUTE_TYPE: // Signed 32-bit integer
-        return DecodeIntoSpan<int32_t>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<int32_t>(decoder, isNullable, out);
     case ZCL_INT40S_ATTRIBUTE_TYPE: // Signed 40-bit integer
-        return DecodeIntoSpan<OddSizedInteger<5, true>>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<OddSizedInteger<5, true>>(decoder, isNullable, out);
     case ZCL_INT48S_ATTRIBUTE_TYPE: // Signed 48-bit integer
-        return DecodeIntoSpan<OddSizedInteger<6, true>>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<OddSizedInteger<6, true>>(decoder, isNullable, out);
     case ZCL_INT56S_ATTRIBUTE_TYPE: // Signed 56-bit integer
-        return DecodeIntoSpan<OddSizedInteger<7, true>>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<OddSizedInteger<7, true>>(decoder, isNullable, out);
     case ZCL_INT64S_ATTRIBUTE_TYPE: // Signed 64-bit integer
-        return DecodeIntoSpan<int64_t>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<int64_t>(decoder, isNullable, out);
     case ZCL_SINGLE_ATTRIBUTE_TYPE: // 32-bit float
-        return DecodeIntoSpan<float>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<float>(decoder, isNullable, out);
     case ZCL_DOUBLE_ATTRIBUTE_TYPE: // 64-bit float
-        return DecodeIntoSpan<double>(decoder, isNullable, out);
+        return DecodeIntoEmberBuffer<double>(decoder, isNullable, out);
     case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
-        return DecodeStringLike<CharSpan, ShortPascalString>(decoder, isNullable, out);
+        return DecodeStringLikeIntoEmberBuffer<CharSpan, ShortPascalString>(decoder, isNullable, out);
     case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
-        return DecodeStringLike<CharSpan, LongPascalString>(decoder, isNullable, out);
+        return DecodeStringLikeIntoEmberBuffer<CharSpan, LongPascalString>(decoder, isNullable, out);
     case ZCL_OCTET_STRING_ATTRIBUTE_TYPE: // Octet string
-        return DecodeStringLike<ByteSpan, ShortPascalString>(decoder, isNullable, out);
+        return DecodeStringLikeIntoEmberBuffer<ByteSpan, ShortPascalString>(decoder, isNullable, out);
     case ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE:
-        return DecodeStringLike<ByteSpan, LongPascalString>(decoder, isNullable, out);
+        return DecodeStringLikeIntoEmberBuffer<ByteSpan, LongPascalString>(decoder, isNullable, out);
     default:
         ChipLogError(DataManagement, "Attribute type 0x%x not handled", static_cast<int>(metadata->attributeType));
         return CHIP_IM_GLOBAL_STATUS(UnsupportedWrite);
@@ -291,7 +292,7 @@ CHIP_ERROR CodegenDataModel::WriteAttribute(const InteractionModel::WriteAttribu
         request.path, GetAttributeAccessOverride(request.path.mEndpointId, request.path.mClusterId), decoder);
     ReturnErrorCodeIf(aai_result.has_value(), *aai_result);
 
-    ReturnErrorOnFailure(DecodeEmberValue(decoder, *attributeMetadata, gEmberAttributeIOBufferSpan));
+    ReturnErrorOnFailure(DecodeValueIntoEmberBuffer(decoder, *attributeMetadata, gEmberAttributeIOBufferSpan));
 
     EmberAfAttributeSearchRecord record;
     record.endpoint    = request.path.mEndpointId;
