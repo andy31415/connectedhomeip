@@ -17,6 +17,7 @@
 #include "app-common/zap-generated/attribute-type.h"
 #include "app/data-model/Nullable.h"
 #include "app/util/attribute-metadata.h"
+#include "lib/core/Optional.h"
 #include <app/codegen-interaction-model/CodegenDataModel.h>
 
 #include <app/codegen-interaction-model/tests/EmberReadWriteOverride.h>
@@ -1751,5 +1752,32 @@ TEST(TestCodegenModelViaMocks, EmberAttributeWriteReadOnlyAttribute)
 
     // Internal writes bypass the read only requirement
     test.request.operationFlags.Set(OperationFlags::kInternal);
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
+}
+
+TEST(TestCodegenModelViaMocks, EmberAttributeWriteDataVersion)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    TestWriteRequest test(kAdminSubjectDescriptor,
+                          ConcreteAttributePath(kMockEndpoint3, MockClusterId(4),
+                                                MOCK_ATTRIBUTE_ID_FOR_NON_NULLABLE_TYPE(ZCL_INT32S_ATTRIBUTE_TYPE)));
+
+    // Initialize to some version
+    ResetVersion();
+    BumpVersion();
+    test.request.path.mDataVersion = MakeOptional(GetVersion());
+
+    // Make version invalid
+    BumpVersion();
+
+    AttributeValueDecoder decoder = test.DecoderFor<int32_t>(1234);
+
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_IM_GLOBAL_STATUS(DataVersionMismatch));
+
+    // Write passes if we set the right version for the data
+    test.request.path.mDataVersion = MakeOptional(GetVersion());
     ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
 }
