@@ -17,14 +17,28 @@
 #include <app/codegen-interaction-model/CodegenDataModel.h>
 
 #include <access/AccessControl.h>
+#include <app-common/zap-generated/attribute-type.h>
 #include <app/AttributeAccessInterface.h>
 #include <app/AttributeAccessInterfaceRegistry.h>
 #include <app/RequiredPrivilege.h>
 #include <app/codegen-interaction-model/EmberMetadata.h>
+#include <app/data-model/FabricScoped.h>
+#include <app/util/af-types.h>
+#include <app/util/attribute-metadata.h>
+#include <app/util/attribute-storage-detail.h>
+#include <app/util/attribute-storage-null-handling.h>
+#include <app/util/ember-io-storage.h>
+#include <app/util/odd-sized-integers.h>
+#include <lib/core/CHIPError.h>
+#include <lib/support/CodeUtils.h>
+
+#include <zap-generated/endpoint_config.h>
 
 namespace chip {
 namespace app {
 namespace {
+
+using namespace chip::app::Compatibility::Internal;
 
 /// Attempts to write via an attribute access interface (AAI)
 ///
@@ -60,6 +74,149 @@ std::optional<CHIP_ERROR> TryWriteViaAccessInterface(const ConcreteAttributePath
     //   - if no encode, say that processing must continue
     return decoder.TriedDecode() ? std::make_optional(CHIP_NO_ERROR) : std::nullopt;
 }
+/// Metadata of what a ember/pascal short string means (prepended by a u8 length)
+struct ShortPascalString
+{
+    using LengthType                        = uint8_t;
+    static constexpr LengthType kNullLength = 0xFF;
+};
+
+/// Metadata of what a ember/pascal LONG string means (prepended by a u16 length)
+struct LongPascalString
+{
+    using LengthType                        = uint16_t;
+    static constexpr LengthType kNullLength = 0xFFFF;
+};
+
+// ember assumptions ... should just work
+static_assert(sizeof(ShortPascalString::LengthType) == 1);
+static_assert(sizeof(LongPascalString::LengthType) == 2);
+
+/// Encode the value stored in 'decoder' into an ember format string 'out'
+///
+/// The value encoded will be of type T (e.g. CharSpan or ByteSpan) and it will be encoded
+/// via the given ENCODING (i.e. ShortPascalString or LongPascalString)
+///
+/// isNullable defines if the value of NULL is allowed to be encoded.
+template <typename T, class ENCODING>
+CHIP_ERROR DecodeStringLike(AttributeValueDecoder decoder, bool isNullable, MutableByteSpan out)
+{
+    T workingValue;
+
+    if (isNullable)
+    {
+        typename DataModel::Nullable<T> nullableWorkingValue;
+        ReturnErrorOnFailure(decoder.Decode(nullableWorkingValue));
+
+        if (nullableWorkingValue.IsNull())
+        {
+            VerifyOrReturnError(out.size() >= sizeof(typename ENCODING::LengthType), CHIP_ERROR_BUFFER_TOO_SMALL);
+
+            typename ENCODING::LengthType nullLength = ENCODING::kNullLength;
+            memcpy(out.data(), &nullLength, sizeof(nullLength));
+            return CHIP_NO_ERROR;
+        }
+
+        // continue encoding non-null value
+        workingValue = nullableWorkingValue.Value();
+    }
+    else
+    {
+        ReturnErrorOnFailure(decoder.Decode(workingValue));
+    }
+
+    typename ENCODING::LengthType len = workingValue.size();
+    VerifyOrReturnError(out.size() >= sizeof(len) + len, CHIP_ERROR_BUFFER_TOO_SMALL);
+
+    memcpy(out.data(), &len, sizeof(len));
+    memcpy(out.data() + sizeof(len), workingValue.data(), workingValue.size());
+    return CHIP_NO_ERROR;
+}
+
+/// Encodes a numeric data value of type T from the given ember-encoded buffer `data`.
+///
+/// isNullable defines if the value of NULL is allowed to be encoded.
+template <typename T>
+CHIP_ERROR DecodeIntoSpan(AttributeValueDecoder & decoder, bool isNullable, MutableByteSpan out)
+{
+
+    typename NumericAttributeTraits<T>::WorkingType workingValue;
+    ReturnErrorOnFailure(decoder.Decode(workingValue));
+
+    typename NumericAttributeTraits<T>::StorageType storageValue;
+    NumericAttributeTraits<T>::WorkingToStorage(workingValue, storageValue);
+
+    VerifyOrReturnError(out.size() >= sizeof(storageValue), CHIP_ERROR_INVALID_ARGUMENT);
+
+    const uint8_t * data = NumericAttributeTraits<T>::ToAttributeStoreRepresentation(storageValue);
+    memcpy(out.data(), data, sizeof(storageValue));
+
+    return CHIP_NO_ERROR;
+}
+
+/// Read the data from "decoder" into an ember-formatted buffer "out"
+///
+/// Uses the attribute `metadata` to determine how the data is to be encoded into out.
+CHIP_ERROR DecodeEmberValue(AttributeValueDecoder & decoder, const EmberAfAttributeMetadata * metadata, MutableByteSpan out)
+{
+    VerifyOrReturnError(metadata != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+
+    const bool isNullable = metadata->IsNullable();
+
+    switch (AttributeBaseType(metadata->attributeType))
+    {
+    case ZCL_BOOLEAN_ATTRIBUTE_TYPE: // Boolean
+        return DecodeIntoSpan<bool>(decoder, isNullable, out);
+    case ZCL_INT8U_ATTRIBUTE_TYPE: // Unsigned 8-bit integer
+        return DecodeIntoSpan<uint8_t>(decoder, isNullable, out);
+    case ZCL_INT16U_ATTRIBUTE_TYPE: // Unsigned 16-bit integer
+        return DecodeIntoSpan<uint16_t>(decoder, isNullable, out);
+    case ZCL_INT24U_ATTRIBUTE_TYPE: // Unsigned 24-bit integer
+        return DecodeIntoSpan<OddSizedInteger<3, false>>(decoder, isNullable, out);
+    case ZCL_INT32U_ATTRIBUTE_TYPE: // Unsigned 32-bit integer
+        return DecodeIntoSpan<uint32_t>(decoder, isNullable, out);
+    case ZCL_INT40U_ATTRIBUTE_TYPE: // Unsigned 40-bit integer
+        return DecodeIntoSpan<OddSizedInteger<5, false>>(decoder, isNullable, out);
+    case ZCL_INT48U_ATTRIBUTE_TYPE: // Unsigned 48-bit integer
+        return DecodeIntoSpan<OddSizedInteger<6, false>>(decoder, isNullable, out);
+    case ZCL_INT56U_ATTRIBUTE_TYPE: // Unsigned 56-bit integer
+        return DecodeIntoSpan<OddSizedInteger<7, false>>(decoder, isNullable, out);
+    case ZCL_INT64U_ATTRIBUTE_TYPE: // Unsigned 64-bit integer
+        return DecodeIntoSpan<uint64_t>(decoder, isNullable, out);
+    case ZCL_INT8S_ATTRIBUTE_TYPE: // Signed 8-bit integer
+        return DecodeIntoSpan<int8_t>(decoder, isNullable, out);
+    case ZCL_INT16S_ATTRIBUTE_TYPE: // Signed 16-bit integer
+        return DecodeIntoSpan<int16_t>(decoder, isNullable, out);
+    case ZCL_INT24S_ATTRIBUTE_TYPE: // Signed 24-bit integer
+        return DecodeIntoSpan<OddSizedInteger<3, true>>(decoder, isNullable, out);
+    case ZCL_INT32S_ATTRIBUTE_TYPE: // Signed 32-bit integer
+        return DecodeIntoSpan<int32_t>(decoder, isNullable, out);
+    case ZCL_INT40S_ATTRIBUTE_TYPE: // Signed 40-bit integer
+        return DecodeIntoSpan<OddSizedInteger<5, true>>(decoder, isNullable, out);
+    case ZCL_INT48S_ATTRIBUTE_TYPE: // Signed 48-bit integer
+        return DecodeIntoSpan<OddSizedInteger<6, true>>(decoder, isNullable, out);
+    case ZCL_INT56S_ATTRIBUTE_TYPE: // Signed 56-bit integer
+        return DecodeIntoSpan<OddSizedInteger<7, true>>(decoder, isNullable, out);
+    case ZCL_INT64S_ATTRIBUTE_TYPE: // Signed 64-bit integer
+        return DecodeIntoSpan<int64_t>(decoder, isNullable, out);
+    case ZCL_SINGLE_ATTRIBUTE_TYPE: // 32-bit float
+        return DecodeIntoSpan<float>(decoder, isNullable, out);
+    case ZCL_DOUBLE_ATTRIBUTE_TYPE: // 64-bit float
+        return DecodeIntoSpan<double>(decoder, isNullable, out);
+    case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
+        return DecodeStringLike<CharSpan, ShortPascalString>(decoder, isNullable, out);
+    case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
+        return DecodeStringLike<CharSpan, LongPascalString>(decoder, isNullable, out);
+    case ZCL_OCTET_STRING_ATTRIBUTE_TYPE: // Octet string
+        return DecodeStringLike<ByteSpan, ShortPascalString>(decoder, isNullable, out);
+    case ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE:
+        return DecodeStringLike<ByteSpan, LongPascalString>(decoder, isNullable, out);
+    default:
+        ChipLogError(DataManagement, "Attribute type 0x%x not handled", static_cast<int>(metadata->attributeType));
+        return CHIP_IM_GLOBAL_STATUS(UnsupportedWrite);
+    }
+    return CHIP_IM_GLOBAL_STATUS(UnsupportedWrite);
+}
 
 } // namespace
 
@@ -94,20 +251,20 @@ CHIP_ERROR CodegenDataModel::WriteAttribute(const InteractionModel::WriteAttribu
     // read-only (i.e. cannot write atribute_list/event_list/accepted_cmds/generated_cmds)
     //
     // so if no metadata available, we wil lreturn an error
-    const EmberAfAttributeMetadata ** meta = std::get_if<const EmberAfAttributeMetadata *>(&metadata);
-    if (meta == nullptr)
+    const EmberAfAttributeMetadata ** attributeMetadata = std::get_if<const EmberAfAttributeMetadata *>(&metadata);
+    if (attributeMetadata == nullptr)
     {
         return CHIP_IM_GLOBAL_STATUS(UnsupportedWrite);
     }
 
-    if ((*meta)->IsReadOnly() && !request.operationFlags.Has(InteractionModel::OperationFlags::kInternal))
+    if ((*attributeMetadata)->IsReadOnly() && !request.operationFlags.Has(InteractionModel::OperationFlags::kInternal))
     {
         // Internal is allowed to try to bypass read-only updates, however otherwise we deny read-only
         // updates
         return CHIP_IM_GLOBAL_STATUS(UnsupportedWrite);
     }
 
-    if ((*meta)->MustUseTimedWrite() && !request.writeFlags.Has(InteractionModel::WriteFlags::kTimed))
+    if ((*attributeMetadata)->MustUseTimedWrite() && !request.writeFlags.Has(InteractionModel::WriteFlags::kTimed))
     {
         return CHIP_IM_GLOBAL_STATUS(NeedsTimedInteraction);
     }
@@ -134,10 +291,24 @@ CHIP_ERROR CodegenDataModel::WriteAttribute(const InteractionModel::WriteAttribu
         request.path, GetAttributeAccessOverride(request.path.mEndpointId, request.path.mClusterId), decoder);
     ReturnErrorCodeIf(aai_result.has_value(), *aai_result);
 
-    // TODO:
-    //   - ember write
+    ReturnErrorOnFailure(DecodeEmberValue(decoder, *attributeMetadata, gEmberAttributeIOBufferSpan));
 
-    return CHIP_ERROR_NOT_IMPLEMENTED;
+    EmberAfAttributeSearchRecord record;
+    record.endpoint    = request.path.mEndpointId;
+    record.clusterId   = request.path.mClusterId;
+    record.attributeId = request.path.mAttributeId;
+
+    Protocols::InteractionModel::Status status =
+        emAfReadOrWriteAttribute(&record, attributeMetadata, gEmberAttributeIOBufferSpan.data(), gEmberAttributeIOBufferSpan.size(),
+                                 /* write = */ true);
+
+    if (status != Protocols::InteractionModel::Status::Success)
+    {
+        return ChipError(ChipError::SdkPart::kIMGlobalStatus, to_underlying(status), __FILE__, __LINE__);
+    }
+
+    return CHIP_NO_ERROR;
+
 #if 0
     ////////// EMBER (remaining only)///////
 
