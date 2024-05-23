@@ -18,6 +18,7 @@
 #include "app/util/ember-io-storage.h"
 #include "lib/core/TLVTags.h"
 #include "lib/core/TLVTypes.h"
+#include "lib/support/Span.h"
 #include <app/codegen-interaction-model/CodegenDataModel.h>
 
 #include <app/codegen-interaction-model/tests/EmberReadWriteOverride.h>
@@ -630,8 +631,11 @@ void TestEmberScalarTypeWrite(const typename NumericAttributeTraits<T>::WorkingT
     ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
 
     // Validate data after write
+    chip::ByteSpan writtenData = Test::GetEmberBuffer();
+
     typename NumericAttributeTraits<T>::StorageType storage;
-    memcpy(&storage, Compatibility::Internal::gEmberAttributeIOBufferSpan.data(), sizeof(storage));
+    ASSERT_GE(writtenData.size(), sizeof(storage));
+    memcpy(&storage, writtenData.data(), sizeof(storage));
     typename NumericAttributeTraits<T>::WorkingType actual = NumericAttributeTraits<T>::StorageToWorking(storage);
 
     ASSERT_EQ(actual, value);
