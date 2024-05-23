@@ -396,8 +396,19 @@ public:
         return encoder.Encode(mData);
     }
 
+    CHIP_ERROR Write(const ConcreteDataAttributePath & path, AttributeValueDecoder & decoder) override
+    {
+        if (static_cast<const ConcreteAttributePath &>(path) != mPath)
+        {
+            // returning without trying to handle means "I do not handle this"
+            return CHIP_NO_ERROR;
+        }
+
+        return decoder.Decode(mData);
+    }
+
     void SetReturnedData(const Clusters::UnitTesting::Structs::SimpleStruct::Type & data) { mData = data; }
-    Clusters::UnitTesting::Structs::SimpleStruct::Type simpleStruct;
+    const Clusters::UnitTesting::Structs::SimpleStruct::Type & GetData() const { return mData; }
 
 private:
     ConcreteAttributePath mPath;
@@ -432,7 +443,6 @@ public:
 
     void SetReturnedData(const Clusters::UnitTesting::Structs::SimpleStruct::Type & data) { mData = data; }
     void SetReturnedDataCount(unsigned count) { mCount = count; }
-    Clusters::UnitTesting::Structs::SimpleStruct::Type simpleStruct;
 
 private:
     ConcreteAttributePath mPath;
@@ -1842,4 +1852,34 @@ TEST(TestCodegenModelViaMocks, EmberWriteFailure)
     }
     // reset things to success to not affect other tests
     chip::Test::SetEmberReadOutput(ByteSpan());
+}
+
+TEST(TestCodegenModelViaMocks, EmberWriteAttributeAccessInterfaceTest)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    const ConcreteAttributePath kStructPath(kMockEndpoint3, MockClusterId(4),
+                                            MOCK_ATTRIBUTE_ID_FOR_NON_NULLABLE_TYPE(ZCL_STRUCT_ATTRIBUTE_TYPE));
+    RegisteredAttributeAccessInterface<StructAttributeAccessInterface> aai(kStructPath);
+
+    TestWriteRequest test(kAdminSubjectDescriptor, kStructPath);
+    Clusters::UnitTesting::Structs::SimpleStruct::Type testValue{
+        .a = 112,
+        .b = true,
+        .e = "aai_write_test"_span,
+        .g = 0.5,
+        .h = 0.125,
+    };
+
+    AttributeValueDecoder decoder = test.DecoderFor(testValue);
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
+
+    EXPECT_EQ(aai->GetData().a, 112);
+    EXPECT_TRUE(aai->GetData().e.data_equal("aai_write_test"_span));
+
+    // AAI does not prevent read/write of regular attributes
+    TestEmberScalarTypeWrite<uint32_t, ZCL_INT32U_ATTRIBUTE_TYPE>(1234);
+    TestEmberScalarNullWrite<int64_t, ZCL_INT64S_ATTRIBUTE_TYPE>();
 }
