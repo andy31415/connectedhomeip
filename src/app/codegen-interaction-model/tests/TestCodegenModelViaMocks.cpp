@@ -1843,4 +1843,3 @@ TEST(TestCodegenModelViaMocks, EmberWriteFailure)
     // reset things to success to not affect other tests
     chip::Test::SetEmberReadOutput(ByteSpan());
 }
-
