@@ -148,6 +148,10 @@ CHIP_ERROR DecodeIntoEmberBuffer(AttributeValueDecoder & decoder, bool isNullabl
 
     VerifyOrReturnError(out.size() >= sizeof(storageValue), CHIP_ERROR_INVALID_ARGUMENT);
 
+    // This guards against trying to encode something that overlaps nullable, for example
+    // Nullable<uint8_t>(0xFF) is not representable because 0xFF is the encoding of NULL in ember
+    VerifyOrReturnError(NumericAttributeTraits<T>::CanRepresentValue(isNullable, workingValue), CHIP_ERROR_INVALID_ARGUMENT);
+
     const uint8_t * data = NumericAttributeTraits<T>::ToAttributeStoreRepresentation(storageValue);
     memcpy(out.data(), data, sizeof(storageValue));
 
