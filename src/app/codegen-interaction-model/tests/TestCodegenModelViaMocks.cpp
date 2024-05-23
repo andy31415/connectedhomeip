@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app-common/zap-generated/attribute-type.h"
 #include <app/codegen-interaction-model/CodegenDataModel.h>
 
 #include <app/codegen-interaction-model/tests/EmberReadWriteOverride.h>
@@ -1585,4 +1586,90 @@ TEST(TestCodegenModelViaMocks, EmberAttributeWriteNulls)
     TestEmberScalarNullWrite<bool, ZCL_BOOLEAN_ATTRIBUTE_TYPE>();
     TestEmberScalarNullWrite<float, ZCL_SINGLE_ATTRIBUTE_TYPE>();
     TestEmberScalarNullWrite<double, ZCL_DOUBLE_ATTRIBUTE_TYPE>();
+}
+
+TEST(TestCodegenModelViaMocks, EmberAttributeWriteShortString)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    TestWriteRequest test(kAdminSubjectDescriptor,
+                          ConcreteAttributePath(kMockEndpoint3, MockClusterId(4),
+                                                MOCK_ATTRIBUTE_ID_FOR_NON_NULLABLE_TYPE(ZCL_CHAR_STRING_ATTRIBUTE_TYPE)));
+    AttributeValueDecoder decoder = test.DecoderFor<CharSpan>("hello world"_span);
+
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
+    chip::ByteSpan writtenData = GetEmberBuffer();
+    chip::CharSpan asCharSpan(reinterpret_cast<const char *>(writtenData.data()), writtenData[0] + 1);
+    ASSERT_TRUE(asCharSpan.data_equal("\x0Bhello world"_span));
+}
+
+TEST(TestCodegenModelViaMocks, EmberAttributeWriteLongString)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    TestWriteRequest test(kAdminSubjectDescriptor,
+                          ConcreteAttributePath(kMockEndpoint3, MockClusterId(4),
+                                                MOCK_ATTRIBUTE_ID_FOR_NON_NULLABLE_TYPE(ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE)));
+    AttributeValueDecoder decoder = test.DecoderFor<CharSpan>("text"_span);
+
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
+    chip::ByteSpan writtenData = GetEmberBuffer();
+
+    uint16_t len;
+    memcpy(&len, writtenData.data(), 2);
+    EXPECT_EQ(len, 4);
+    chip::CharSpan asCharSpan(reinterpret_cast<const char *>(writtenData.data() + 2), 4);
+
+    ASSERT_TRUE(asCharSpan.data_equal("text"_span));
+}
+
+TEST(TestCodegenModelViaMocks, EmberAttributeWriteShortBytes)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    TestWriteRequest test(kAdminSubjectDescriptor,
+                          ConcreteAttributePath(kMockEndpoint3, MockClusterId(4),
+                                                MOCK_ATTRIBUTE_ID_FOR_NON_NULLABLE_TYPE(ZCL_OCTET_STRING_ATTRIBUTE_TYPE)));
+    uint8_t buffer[] = { 11, 12, 13 };
+
+    AttributeValueDecoder decoder = test.DecoderFor<ByteSpan>(ByteSpan(buffer));
+
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
+    chip::ByteSpan writtenData = GetEmberBuffer();
+
+    EXPECT_EQ(writtenData[0], 3u);
+    EXPECT_EQ(writtenData[1], 11u);
+    EXPECT_EQ(writtenData[2], 12u);
+    EXPECT_EQ(writtenData[3], 13u);
+}
+
+TEST(TestCodegenModelViaMocks, EmberAttributeWriteLongBytes)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    TestWriteRequest test(kAdminSubjectDescriptor,
+                          ConcreteAttributePath(kMockEndpoint3, MockClusterId(4),
+                                                MOCK_ATTRIBUTE_ID_FOR_NON_NULLABLE_TYPE(ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE)));
+    uint8_t buffer[] = { 11, 12, 13 };
+
+    AttributeValueDecoder decoder = test.DecoderFor<ByteSpan>(ByteSpan(buffer));
+
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
+    chip::ByteSpan writtenData = GetEmberBuffer();
+
+    uint16_t len;
+    memcpy(&len, writtenData.data(), 2);
+    EXPECT_EQ(len, 3);
+
+    EXPECT_EQ(writtenData[2], 11u);
+    EXPECT_EQ(writtenData[3], 12u);
+    EXPECT_EQ(writtenData[4], 13u);
 }
