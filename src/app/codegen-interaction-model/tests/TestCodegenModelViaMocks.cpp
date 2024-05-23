@@ -1820,3 +1820,27 @@ TEST(TestCodegenModelViaMocks, WriteToGlobalAttribute)
     ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_IM_GLOBAL_STATUS(UnsupportedWrite));
 }
 
+TEST(TestCodegenModelViaMocks, EmberWriteFailure)
+{
+    UseMockNodeConfig config(gTestNodeConfig);
+    chip::app::CodegenDataModel model;
+    ScopedMockAccessControl accessControl;
+
+    TestWriteRequest test(kAdminSubjectDescriptor,
+                          ConcreteAttributePath(kMockEndpoint3, MockClusterId(4),
+                                                MOCK_ATTRIBUTE_ID_FOR_NON_NULLABLE_TYPE(ZCL_INT32S_ATTRIBUTE_TYPE)));
+
+    {
+        AttributeValueDecoder decoder = test.DecoderFor<int32_t>(1234);
+        chip::Test::SetEmberReadOutput(Protocols::InteractionModel::Status::Failure);
+        ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_IM_GLOBAL_STATUS(Failure));
+    }
+    {
+        AttributeValueDecoder decoder = test.DecoderFor<int32_t>(1234);
+        chip::Test::SetEmberReadOutput(Protocols::InteractionModel::Status::Busy);
+        ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_IM_GLOBAL_STATUS(Busy));
+    }
+    // reset things to success to not affect other tests
+    chip::Test::SetEmberReadOutput(ByteSpan());
+}
+
