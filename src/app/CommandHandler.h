@@ -56,7 +56,52 @@
 namespace chip {
 namespace app {
 
-class CommandHandler
+/// Limited interface of what a "responder" can do with a command handler
+///
+/// This reduces the API surface of a full `CommandHandler` class to a
+/// few underlying items.
+class CommandResponder
+{
+public:
+    virtual ~CommandResponder() = default;
+
+    /// GetSubjectDescriptor() may only be called during synchronous command
+    /// processing.  Anything that runs async (while holding a
+    /// CommandHandler::Handle or equivalent) must not call this method, because
+    /// it might not work right if the session we're using was evicted.
+    virtual Access::SubjectDescriptor GetSubjectDescriptor() const = 0;
+
+    /// @brief Flush acks right away for a slow command
+    ///
+    /// Some commands that do heavy lifting of storage/crypto should
+    /// ack right away to improve reliability and reduce needless retries. This
+    /// method can be manually called in commands that are especially slow to
+    /// immediately schedule an acknowledgement (if needed) since the delayed
+    /// stand-alone ack timer may actually not hit soon enough due to blocking command
+    /// execution.
+    virtual void FlushAcksRightAwayOnSlowCommand() = 0;
+
+    /// GetAccessingFabricIndex() may only be called during synchronous command
+    /// processing.  Anything that runs async (while holding a
+    /// CommandHandler::Handle or equivalent) must not call this method, because
+    /// it will not work right if the session we're using was evicted.
+    virtual FabricIndex GetAccessingFabricIndex() const = 0;
+
+    /// Adds a status when the caller is unable to handle any failures. Logging is performed
+    /// and failure to register the status is checked with VerifyOrDie.
+    virtual void AddStatus(const ConcreteCommandPath & aCommandPath, const Protocols::InteractionModel::Status aStatus,
+                           const char * context = nullptr) = 0;
+
+    // TODO:
+    //
+    // template <typename CommandData>
+    // void AddResponse(const ConcreteCommandPath & aRequestCommandPath, const CommandData & aData)
+    //
+    // template <typename CommandData>
+    // CHIP_ERROR AddResponseData(const ConcreteCommandPath & aRequestCommandPath, const CommandData & aData)
+};
+
+class CommandHandler : CommandResponder
 {
 public:
     class Callback
@@ -244,13 +289,6 @@ public:
     CHIP_ERROR FallibleAddStatus(const ConcreteCommandPath & aCommandPath, const Protocols::InteractionModel::Status aStatus,
                                  const char * context = nullptr);
 
-    /**
-     * Adds a status when the caller is unable to handle any failures. Logging is performed
-     * and failure to register the status is checked with VerifyOrDie.
-     */
-    void AddStatus(const ConcreteCommandPath & aCommandPath, const Protocols::InteractionModel::Status aStatus,
-                   const char * context = nullptr);
-
     CHIP_ERROR AddClusterSpecificSuccess(const ConcreteCommandPath & aCommandPath, ClusterStatus aClusterStatus);
 
     CHIP_ERROR AddClusterSpecificFailure(const ConcreteCommandPath & aCommandPath, ClusterStatus aClusterStatus);
@@ -306,14 +344,6 @@ public:
     CHIP_ERROR FinishCommand(bool aEndDataStruct = true);
 
     TLV::TLVWriter * GetCommandDataIBTLVWriter();
-
-    /**
-     * GetAccessingFabricIndex() may only be called during synchronous command
-     * processing.  Anything that runs async (while holding a
-     * CommandHandler::Handle or equivalent) must not call this method, because
-     * it will not work right if the session we're using was evicted.
-     */
-    FabricIndex GetAccessingFabricIndex() const;
 
     /**
      * API for adding a data response.  The template parameter T is generally
@@ -379,18 +409,7 @@ public:
         return mpResponder->GetExchangeContext();
     }
 
-    /**
-     * @brief Flush acks right away for a slow command
-     *
-     * Some commands that do heavy lifting of storage/crypto should
-     * ack right away to improve reliability and reduce needless retries. This
-     * method can be manually called in commands that are especially slow to
-     * immediately schedule an acknowledgement (if needed) since the delayed
-     * stand-alone ack timer may actually not hit soon enough due to blocking command
-     * execution.
-     *
-     */
-    void FlushAcksRightAwayOnSlowCommand()
+    void FlushAcksRightAwayOnSlowCommand() override
     {
         if (mpResponder)
         {
@@ -398,18 +417,17 @@ public:
         }
     }
 
-    /**
-     * GetSubjectDescriptor() may only be called during synchronous command
-     * processing.  Anything that runs async (while holding a
-     * CommandHandler::Handle or equivalent) must not call this method, because
-     * it might not work right if the session we're using was evicted.
-     */
-    Access::SubjectDescriptor GetSubjectDescriptor() const
+    Access::SubjectDescriptor GetSubjectDescriptor() const override
     {
         VerifyOrDie(!mGoneAsync);
         VerifyOrDie(mpResponder);
         return mpResponder->GetSubjectDescriptor();
     }
+
+    FabricIndex GetAccessingFabricIndex() const override;
+
+    void AddStatus(const ConcreteCommandPath & aCommandPath, const Protocols::InteractionModel::Status aStatus,
+                   const char * context = nullptr) override;
 
 #if CHIP_WITH_NLFAULTINJECTION
 
