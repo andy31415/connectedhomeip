@@ -35,6 +35,7 @@
 #include <app/ConcreteCommandPath.h>
 #include <app/data-model/Encode.h>
 #include <lib/core/CHIPCore.h>
+#include <lib/core/CHIPError.h>
 #include <lib/core/TLV.h>
 #include <lib/core/TLVDebug.h>
 #include <lib/support/BitFlags.h>
@@ -53,10 +54,32 @@
 #include <app/MessageDef/InvokeRequestMessage.h>
 #include <app/MessageDef/InvokeResponseMessage.h>
 
-#include <pw_function/function.h>
-
 namespace chip {
 namespace app {
+
+/// Defines an abstract class of something that can be encoded
+/// into a TLV with a given data tag
+class EncoderToTLV
+{
+public:
+    virtual ~EncoderToTLV() = default;
+
+    virtual CHIP_ERROR Encode(TLV::TLVWriter &, TLV::Tag tag) = 0;
+};
+/// Defines an abstract class of something that can be encoded
+/// into a TLV with a given data tag
+
+template <typename T>
+class DataModelEncoderToTLV : public EncoderToTLV
+{
+public:
+    DataModelEncoderToTLV(T & value) : mValue(value) {}
+
+    virtual CHIP_ERROR Encode(TLV::TLVWriter & writer, TLV::Tag tag) { return DataModel::Encode(writer, tag, mValue); }
+
+private:
+    T & mValue;
+};
 
 /// Limited interface of what a "responder" can do with a command handler
 ///
@@ -94,9 +117,14 @@ public:
     virtual void AddStatus(const ConcreteCommandPath & aCommandPath, const Protocols::InteractionModel::Status aStatus,
                            const char * context = nullptr) = 0;
 
-    using DataEncode = pw::Function<CHIP_ERROR(TLV::TLVWriter &)>;
+    template <typename T>
+    CHIP_ERROR AddResponseData(const ConcreteCommandPath & path, const T & value)
+    {
+        DataModelEncoderToTLV<T> encoder(value);
+        return AddResponseDataViaEncoder(path, encoder);
+    }
 
-    virtual CHIP_ERROR AddResponseData(const ConcreteCommandPath & path, const DataEncode & encoder)
+    virtual CHIP_ERROR AddResponseDataViaEncoder(const ConcreteCommandPath & path, const EncoderToTLV & encoder)
     {
         return CHIP_ERROR_NOT_IMPLEMENTED;
     }

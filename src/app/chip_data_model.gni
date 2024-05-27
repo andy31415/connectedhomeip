@@ -111,7 +111,7 @@ template("chip_data_model") {
   source_set("${_data_model_name}-endpoint-metadata") {
     sources = filter_include(
             get_target_outputs(":${_data_model_name}_codegen_generate"),
-            [ "*\bPluginApplicationCallbacks.h" ])
+            [ "*/PluginApplicationCallbacks.h" ])
     sources += filter_include(
             get_target_outputs(":${_data_model_name}_zapgen_generate"),
             [
@@ -132,13 +132,12 @@ template("chip_data_model") {
     sources = filter_include(
             get_target_outputs(":${_data_model_name}_codegen_generate"),
             [
-              "*\bcallback-stub.cpp",
-              "*\bcluster-init-callback.cpp",
+              "*/callback-stup.cpp",
+              "*/cluster-init-callback.cpp",
             ])
 
     deps = [
       ":${_data_model_name}_codegen_generate",
-      "${chip_root}/src/app:command-handler",
       "${chip_root}/src/app/common:ids",
       "${chip_root}/src/lib/support:span",
       "${chip_root}/src/protocols/interaction_model",
@@ -406,7 +405,6 @@ template("chip_data_model") {
       "${chip_root}/src/access",
       "${chip_root}/src/app",
       "${chip_root}/src/app/common:attribute-type",
-      "${chip_root}/src/app/common:callbacks",
       "${chip_root}/src/app/common:cluster-objects",
       "${chip_root}/src/app/common:enums",
       "${chip_root}/src/app/util:types",

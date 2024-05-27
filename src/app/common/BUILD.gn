@@ -59,20 +59,6 @@ static_library("cluster-objects") {
   public_configs = [ ":includes" ]
 }
 
-source_set("callbacks") {
-  sources = [
-    "${chip_root}/zzz_generated/app-common/app-common/zap-generated/callback.h",
-  ]
-  public_deps = [
-    ":cluster-objects",
-    "${chip_root}/src/app:command-handler",
-    "${chip_root}/src/app:paths",
-    "${chip_root}/src/app/util:af-types",
-    "${chip_root}/src/lib/support",
-    "${chip_root}/src/protocols/interaction_model",
-  ]
-}
-
 source_set("enums") {
   sources = [
     "${chip_root}/zzz_generated/app-common/app-common/zap-generated/cluster-enums-check.h",
