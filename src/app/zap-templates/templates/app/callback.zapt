@@ -7,12 +7,21 @@
 #include <app/util/af-types.h>
 #include <app/util/basic-types.h>
 
-#include <app/CommandHandler.h>
-#include <app/CommandSender.h>
-#include <app/ConcreteAttributePath.h>
-#include <app/ConcreteCommandPath.h>
-#include <lib/support/Span.h>
-#include <protocols/interaction_model/Constants.h>
+#include <protocols/interaction_model/StatusCode.h>
+
+
+// Forward declarations to aboid this header including a LOT since
+// this file is generally just a forward declare of things
+namespace chip {
+namespace app {
+
+class CommandHandler;
+class CommandSender;
+class ConcreteAttributePath;
+class ConcreteCommandPath;
+
+} // namespace app
+} // namespace chip
 
 // Cluster Init Functions
 

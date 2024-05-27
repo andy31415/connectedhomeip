@@ -24,12 +24,18 @@
 #include <app/util/af-types.h>
 #include <app/util/basic-types.h>
 
-#include <app/CommandHandler.h>
-#include <app/CommandSender.h>
-#include <app/ConcreteAttributePath.h>
-#include <app/ConcreteCommandPath.h>
-#include <lib/support/Span.h>
 #include <protocols/interaction_model/Constants.h>
+
+namespace chip {
+namespace app {
+
+class CommandHandler;
+class CommandSender;
+class ConcreteAttributePath;
+class ConcreteCommandPath;
+
+} // namespace app
+} // namespace chip
 
 // Cluster Init Functions
 
