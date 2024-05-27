@@ -94,14 +94,12 @@ public:
     virtual void AddStatus(const ConcreteCommandPath & aCommandPath, const Protocols::InteractionModel::Status aStatus,
                            const char * context = nullptr) = 0;
 
-
     using DataEncode = pw::Function<CHIP_ERROR(TLV::TLVWriter &)>;
 
-    virtual CHIP_ERROR AddResponseData(const ConcreteCommandPath &path, const DataEncode &encoder) {
-      return CHIP_ERROR_NOT_IMPLEMENTED;
+    virtual CHIP_ERROR AddResponseData(const ConcreteCommandPath & path, const DataEncode & encoder)
+    {
+        return CHIP_ERROR_NOT_IMPLEMENTED;
     }
-
-
 
     // TODO:
     //   - Trying to add response boils down to:
@@ -109,7 +107,6 @@ public:
     //     - GetCommandDataIBTLVWriter(this is the TRICKY part)
     //     - Encode
     //     - Finish
-
 
     // TODO:
     //

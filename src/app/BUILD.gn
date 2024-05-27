@@ -347,13 +347,13 @@ source_set("command-handler") {
     ":paths",
     ":required-privileges",
     ":status-response",
+    "$dir_pw_function",
     "${chip_root}/src/access:types",
     "${chip_root}/src/app/MessageDef",
     "${chip_root}/src/app/data-model",
     "${chip_root}/src/app/util:callbacks",
     "${chip_root}/src/lib/support",
     "${chip_root}/src/messaging",
-    "$dir_pw_function",
   ]
 }
 
