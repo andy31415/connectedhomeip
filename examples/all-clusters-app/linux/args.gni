@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import("//build_overrides/chip.gni")
+import("//build_overrides/pigweed.gni")
 
 import("${chip_root}/config/standalone/args.gni")
 
@@ -29,3 +30,11 @@ matter_log_json_payload_decode_full = true
 matter_log_json_payload_hex = true
 chip_enable_smoke_co_trigger = true
 chip_enable_boolean_state_configuration_trigger = true
+
+pw_log_BACKEND = "${chip_root}/src/lib/support/pw_log_chip"
+pw_assert_BACKEND = "$dir_pw_assert_log"
+
+pw_build_LINK_DEPS = [
+  "$dir_pw_assert:impl",
+  "$dir_pw_log:impl",
+]

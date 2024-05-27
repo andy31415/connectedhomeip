@@ -13,9 +13,12 @@
 # limitations under the License.
 
 import("//build_overrides/chip.gni")
+import("//build_overrides/pigweed.gni")
+
 import("${chip_root}/build/chip/buildconfig_header.gni")
 import("${chip_root}/src/lib/core/core.gni")
 import("${chip_root}/src/platform/device.gni")
+
 import("common_flags.gni")
 import("icd/icd.gni")
 
@@ -406,6 +409,7 @@ static_library("app") {
     "${chip_root}/src/messaging",
     "${chip_root}/src/protocols/interaction_model",
     "${chip_root}/src/system",
+    "${dir_pw_function}",
   ]
 
   if (chip_enable_read_client) {

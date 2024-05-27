@@ -53,6 +53,8 @@
 #include <app/MessageDef/InvokeRequestMessage.h>
 #include <app/MessageDef/InvokeResponseMessage.h>
 
+#include <pw_function/function.h>
+
 namespace chip {
 namespace app {
 
@@ -92,6 +94,23 @@ public:
     virtual void AddStatus(const ConcreteCommandPath & aCommandPath, const Protocols::InteractionModel::Status aStatus,
                            const char * context = nullptr) = 0;
 
+
+    using DataEncode = pw::Function<CHIP_ERROR(TLV::TLVWriter &)>;
+
+    virtual CHIP_ERROR AddResponseData(const ConcreteCommandPath &path, const DataEncode &encoder) {
+      return CHIP_ERROR_NOT_IMPLEMENTED;
+    }
+
+
+
+    // TODO:
+    //   - Trying to add response boils down to:
+    //     - preparation
+    //     - GetCommandDataIBTLVWriter(this is the TRICKY part)
+    //     - Encode
+    //     - Finish
+
+
     // TODO:
     //
     // template <typename CommandData>
@@ -99,6 +118,34 @@ public:
     //
     // template <typename CommandData>
     // CHIP_ERROR AddResponseData(const ConcreteCommandPath & aRequestCommandPath, const CommandData & aData)
+
+#if 0
+    template <typename CommandData>
+    void AddResponse(const ConcreteCommandPath & aRequestCommandPath, const CommandData & aData)
+    {
+        // Straight-forward move to AddResponseData
+        if (AddResponseData(aRequestCommandPath, aData) != CHIP_NO_ERROR)
+        {
+            AddStatus(aRequestCommandPath, Protocols::InteractionModel::Status::Failure);
+        }
+    }
+
+    template <typename CommandData>
+    CHIP_ERROR AddResponseData(const ConcreteCommandPath & aRequestCommandPath, const CommandData & aData)
+    {
+        VerifyOrReturnValue(ResponsesAccepted(), CHIP_NO_ERROR); // TODO: what is ResponsesAccepted?
+        return TryAddingResponse([&]() -> CHIP_ERROR { return TryAddResponseData(aRequestCommandPath, aData); });
+    }
+
+    CHIP_ERROR TryAddingResponse(Function && addResponseFunction) {
+       // Sets up a FUNCTION ... which is TryAddResponseData that is BOUND!
+    }
+
+    // FINAL call:
+    ReturnErrorOnFailure(DataModel::Encode(*writer, TLV::ContextTag(CommandDataIB::Tag::kFields), aData));
+
+    // and aData IS templateable
+#endif
 };
 
 class CommandHandler : CommandResponder
