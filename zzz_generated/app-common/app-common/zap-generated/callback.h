@@ -24,8 +24,10 @@
 #include <app/util/af-types.h>
 #include <app/util/basic-types.h>
 
-#include <protocols/interaction_model/Constants.h>
+#include <protocols/interaction_model/StatusCode.h>
 
+// Forward declarations to aboid this header including a LOT since
+// this file is generally just a forward declare of things
 namespace chip {
 namespace app {
 
