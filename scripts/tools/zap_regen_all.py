@@ -306,9 +306,6 @@ class JinjaCodegenTarget():
 
             with tempfile.TemporaryDirectory(prefix='ktfmt') as tmpdir:
                 path = await DownloadUrl(jar_url, Path(tmpdir).joinpath(JAR_NAME).as_posix())
-                print("!"*100)
-                print("%r" % (['java', '-jar', path, '--google-style'] + paths),)
-                print("!"*100)
                 proc = await asyncio.create_subprocess_exec('java', '-jar', path, '--google-style', *paths)
                 await proc.wait()
         except Exception:
