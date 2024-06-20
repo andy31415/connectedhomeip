@@ -213,7 +213,8 @@ class ZAPGenerateTarget:
         logging.info("Generating target: %s" % " ".join(cmd))
 
         generate_start = time.time()
-        await asyncio.create_subprocess_exec(*cmd).wait()
+        proc = await asyncio.create_subprocess_exec(*cmd)
+        await proc.wait()
         generate_end = time.time()
 
         if self.zap_config.is_for_chef_example:
@@ -252,7 +253,8 @@ class GoldenTestImageTarget():
 
     async def generate(self) -> TargetRunStats:
         generate_start = time.time()
-        await asyncio.create_subprocess_exec(*self.command).wait()
+        proc = await asyncio.create_subprocess_exec(*self.command)
+        await proc.wait()
         generate_end = time.time()
 
         return TargetRunStats(
@@ -292,7 +294,8 @@ class JinjaCodegenTarget():
             with tempfile.TemporaryDirectory(prefix='ktfmt') as tmpdir:
                 # TODO: this should be ASYNC!!!
                 path, http_message = urllib.request.urlretrieve(jar_url, Path(tmpdir).joinpath(JAR_NAME).as_posix())
-                await asyncio.create_subprocess_exec('java', '-jar', path, '--google-style', *paths).wait()
+                proc = await asyncio.create_subprocess_exec('java', '-jar', path, '--google-style', *paths)
+                await proc.wait()
         except Exception:
             traceback.print_exc()
 
@@ -300,10 +303,16 @@ class JinjaCodegenTarget():
         result = await asyncio.create_subprocess_exec(
             "./scripts/codegen.py", "--name-only", "--generator",
             self.generator, "--log-level", "fatal", self.idl_path,
-            stdout=subprocess.PIPE,
-            stdin=os.devnull).wait()
+            stdout=subprocess.PIPE)
 
-        outputs = result.stdout.decode("utf8").split("\n")
+        while not result.stdout.feed_eof():
+            name = await result.stdout.readline()
+            name = name.decode("utf8").strip()
+            if name:
+                outputs.append(os.path.join(self.output_directory, name))
+
+        await result.wait()
+
         outputs = [os.path.join(self.output_directory, name) for name in outputs if name]
 
         # Split output files by extension,
@@ -318,7 +327,8 @@ class JinjaCodegenTarget():
     async def generate(self) -> TargetRunStats:
         generate_start = time.time()
 
-        await asyncio.create_subprocess_exec(*self.command).wait()
+        proc = await asyncio.create_subprocess_exec(*self.command)
+        await proc.wait()
         await self.codeFormat()
 
         generate_end = time.time()
