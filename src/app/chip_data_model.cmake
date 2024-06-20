@@ -23,6 +23,11 @@ include("${CHIP_ROOT}/build/chip/chip_codegen.cmake")
 function(chip_configure_cluster APP_TARGET CLUSTER)
     file(GLOB CLUSTER_SOURCES "${CHIP_APP_BASE_DIR}/clusters/${CLUSTER}/*.cpp")
     target_sources(${APP_TARGET} PRIVATE ${CLUSTER_SOURCES})
+
+    # EXTRA dependencies that are cluster-specific
+    if (${CLUSTER} STREQUAL "fault-injection-server")
+        target_include_directories(${APP_TARGET} PRIVATE ${CHIP_ROOT}/third_party/nlfaultinjection/include)
+    endif()
 endfunction()
 
 #

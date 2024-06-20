@@ -16,6 +16,7 @@
 #
 
 import argparse
+import asyncio
 import logging
 import multiprocessing
 import os
@@ -205,14 +206,14 @@ class ZAPGenerateTarget:
 
         return cmd
 
-    def generate(self) -> TargetRunStats:
+    async def generate(self) -> TargetRunStats:
         """Runs a ZAP generate command on the configured zap/template/outputs.
         """
         cmd = self.build_cmd()
         logging.info("Generating target: %s" % " ".join(cmd))
 
         generate_start = time.time()
-        subprocess.check_call(cmd)
+        await asyncio.create_subprocess_exec(*cmd).wait()
         generate_end = time.time()
 
         if self.zap_config.is_for_chef_example:
@@ -249,9 +250,9 @@ class GoldenTestImageTarget():
         if os.path.isdir(self.tempdir):
             shutil.rmtree(self.tempdir)
 
-    def generate(self) -> TargetRunStats:
+    async def generate(self) -> TargetRunStats:
         generate_start = time.time()
-        subprocess.check_call(self.command)
+        await asyncio.create_subprocess_exec(*self.command).wait()
         generate_end = time.time()
 
         return TargetRunStats(
@@ -278,7 +279,7 @@ class JinjaCodegenTarget():
         self.command = ["./scripts/codegen.py", "--output-dir", output_directory,
                         "--generator", generator, idl_path]
 
-    def formatKotlinFiles(self, paths):
+    async def formatKotlinFiles(self, paths):
         try:
             logging.info("Prettifying %d kotlin files:", len(paths))
             for name in paths:
@@ -289,14 +290,20 @@ class JinjaCodegenTarget():
             jar_url = f"https://repo1.maven.org/maven2/com/facebook/ktfmt/{VERSION}/{JAR_NAME}"
 
             with tempfile.TemporaryDirectory(prefix='ktfmt') as tmpdir:
+                # TODO: this should be ASYNC!!!
                 path, http_message = urllib.request.urlretrieve(jar_url, Path(tmpdir).joinpath(JAR_NAME).as_posix())
-                subprocess.check_call(['java', '-jar', path, '--google-style'] + paths)
+                await asyncio.create_subprocess_exec('java', '-jar', path, '--google-style', *paths).wait()
         except Exception:
             traceback.print_exc()
 
-    def codeFormat(self):
-        outputs = subprocess.check_output(["./scripts/codegen.py", "--name-only", "--generator",
-                                           self.generator, "--log-level", "fatal", self.idl_path]).decode("utf8").split("\n")
+    async def codeFormat(self):
+        result = await asyncio.create_subprocess_exec(
+            "./scripts/codegen.py", "--name-only", "--generator",
+            self.generator, "--log-level", "fatal", self.idl_path,
+            stdout=subprocess.PIPE,
+            stdin=os.devnull).wait()
+
+        outputs = result.stdout.decode("utf8").split("\n")
         outputs = [os.path.join(self.output_directory, name) for name in outputs if name]
 
         # Split output files by extension,
@@ -306,14 +313,13 @@ class JinjaCodegenTarget():
             name_dict[extension] = name_dict.get(extension, []) + [name]
 
         if '.kt' in name_dict:
-            self.formatKotlinFiles(name_dict['.kt'])
+            await self.formatKotlinFiles(name_dict['.kt'])
 
-    def generate(self) -> TargetRunStats:
+    async def generate(self) -> TargetRunStats:
         generate_start = time.time()
 
-        subprocess.check_call(self.command)
-
-        self.codeFormat()
+        await asyncio.create_subprocess_exec(*self.command).wait()
+        await self.codeFormat()
 
         generate_end = time.time()
 
@@ -482,15 +488,17 @@ def getTargets(type):
     return targets
 
 
-def _ParallelGenerateOne(target):
+async def _ParallelGenerateOne(target, concurrency_limit: asyncio.Semaphore):
     """
     Helper method to be passed to multiprocessing parallel generation of
     items.
     """
-    return target.generate()
+    async with concurrency_limit:
+        result = await target.generate()
+        return result
 
 
-def main():
+async def main():
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s %(name)s %(levelname)-7s %(message)s'
@@ -505,32 +513,33 @@ def main():
         sys.exit(0)
 
     if args.run_bootstrap:
-        subprocess.check_call(os.path.join(
-            CHIP_ROOT_DIR, "scripts/tools/zap/zap_bootstrap.sh"), shell=True)
+        await asyncio.create_subprocess_shell(os.path.join(CHIP_ROOT_DIR, "scripts/tools/zap/zap_bootstrap.sh"))
+
+    parallel_lock = asyncio.Semaphore(multiprocessing.cpu_count()) if args.parallel else 1
 
     timings = []
     if args.parallel:
         # Ensure each zap run is independent
         os.environ['ZAP_TEMPSTATE'] = '1'
 
-        # There is a sequencing here:
-        #   - ZAP will generate ".matter" files
-        #   - various codegen may generate from ".matter" files (like java)
-        # We split codegen into two generations to not be racy
-        first, second = [], []
-        for target in targets:
-            if isinstance(target, ZAPGenerateTarget) and target.is_matter_idl_generation:
-                first.append(target)
-            else:
-                second.append(target)
+    # There is a sequencing here:
+    #   - ZAP will generate ".matter" files
+    #   - various codegen may generate from ".matter" files (like java)
+    # We split codegen into two generations to not be racy
+    first, second = [], []
+    for target in targets:
+        if isinstance(target, ZAPGenerateTarget) and target.is_matter_idl_generation:
+            first.append(target)
+        else:
+            second.append(target)
 
-        for items in [first, second]:
-            with multiprocessing.Pool() as pool:
-                for timing in pool.imap_unordered(_ParallelGenerateOne, items):
-                    timings.append(timing)
-    else:
-        for target in targets:
-            timings.append(target.generate())
+    async with asyncio.TaskGroup() as tg:
+        first_results = [tg.create_task(_ParallelGenerateOne(x, parallel_lock)) for x in first]
+    timings.append([x.result() for x in first_results])
+
+    async with asyncio.TaskGroup() as tg:
+        second_results = [tg.create_task(_ParallelGenerateOne(x, parallel_lock)) for x in second]
+    timings.append([x.result() for x in second_results])
 
     timings.sort(key=lambda t: t.generate_time)
 
@@ -555,4 +564,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
