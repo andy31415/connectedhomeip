@@ -275,7 +275,8 @@ class GoldenTestImageTarget():
 async def DownloadUrl(url, output_path):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
-            print(response.status)
+            if response.status != 200:
+                raise RuntimeError("Invalid status, excepted 200 got %d instead" % response.status)
 
             with open(output_path, 'wb') as fd:
                 async for chunk in response.content.iter_chunked(1024):
@@ -305,6 +306,9 @@ class JinjaCodegenTarget():
 
             with tempfile.TemporaryDirectory(prefix='ktfmt') as tmpdir:
                 path = await DownloadUrl(jar_url, Path(tmpdir).joinpath(JAR_NAME).as_posix())
+                print("!"*100)
+                print("%r" % (['java', '-jar', path, '--google-style'] + paths),)
+                print("!"*100)
                 proc = await asyncio.create_subprocess_exec('java', '-jar', path, '--google-style', *paths)
                 await proc.wait()
         except Exception:
