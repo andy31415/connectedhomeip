@@ -17,6 +17,7 @@
 
 import argparse
 import asyncio
+import aiohttp
 import logging
 import multiprocessing
 import os
@@ -271,6 +272,17 @@ class GoldenTestImageTarget():
         logging.info("  %s" % " ".join(self.command))
 
 
+async def DownloadUrl(url, output_path):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            print(response.status)
+
+            with open(output_path, 'wb') as fd:
+                async for chunk in response.content.iter_chunked(1024):
+                    fd.write(chunk)
+    return output_path
+
+
 class JinjaCodegenTarget():
     def __init__(self, generator: str, output_directory: str, idl_path: str):
         # This runs a test, but the important bit is we pass `--regenerate`
@@ -292,8 +304,7 @@ class JinjaCodegenTarget():
             jar_url = f"https://repo1.maven.org/maven2/com/facebook/ktfmt/{VERSION}/{JAR_NAME}"
 
             with tempfile.TemporaryDirectory(prefix='ktfmt') as tmpdir:
-                # TODO: this should be ASYNC!!!
-                path, http_message = urllib.request.urlretrieve(jar_url, Path(tmpdir).joinpath(JAR_NAME).as_posix())
+                path = await DownloadUrl(jar_url, Path(tmpdir).joinpath(JAR_NAME).as_posix())
                 proc = await asyncio.create_subprocess_exec('java', '-jar', path, '--google-style', *paths)
                 await proc.wait()
         except Exception:

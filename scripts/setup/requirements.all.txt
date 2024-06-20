@@ -27,6 +27,9 @@ diskcache
 lark
 websockets
 
+# zap-regen-all
+aiohttp
+
 # mobly tests
 portpicker
 mobly
