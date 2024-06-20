@@ -532,7 +532,6 @@ async def main():
 
     parallel_lock = asyncio.Semaphore(multiprocessing.cpu_count()) if args.parallel else 1
 
-    timings = []
     if args.parallel:
         # Ensure each zap run is independent
         os.environ['ZAP_TEMPSTATE'] = '1'
@@ -548,13 +547,14 @@ async def main():
         else:
             second.append(target)
 
+    timings = []
     async with asyncio.TaskGroup() as tg:
         first_results = [tg.create_task(_ParallelGenerateOne(x, parallel_lock)) for x in first]
-    timings.append([x.result() for x in first_results])
+    timings.extend([x.result() for x in first_results])
 
     async with asyncio.TaskGroup() as tg:
         second_results = [tg.create_task(_ParallelGenerateOne(x, parallel_lock)) for x in second]
-    timings.append([x.result() for x in second_results])
+    timings.extend([x.result() for x in second_results])
 
     timings.sort(key=lambda t: t.generate_time)
 
