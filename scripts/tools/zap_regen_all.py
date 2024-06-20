@@ -304,22 +304,15 @@ class JinjaCodegenTarget():
             "./scripts/codegen.py", "--name-only", "--generator",
             self.generator, "--log-level", "fatal", self.idl_path,
             stdout=subprocess.PIPE)
-
-        while not result.stdout.feed_eof():
-            name = await result.stdout.readline()
-            name = name.decode("utf8").strip()
-            if name:
-                outputs.append(os.path.join(self.output_directory, name))
-
         await result.wait()
-
-        outputs = [os.path.join(self.output_directory, name) for name in outputs if name]
 
         # Split output files by extension,
         name_dict = {}
-        for name in outputs:
-            _, extension = os.path.splitext(name)
-            name_dict[extension] = name_dict.get(extension, []) + [name]
+        for name in (await result.stdout.read()).decode('utf8').split('\n'):
+            if name:
+                name = os.path.join(self.output_directory, name)
+                _, extension = os.path.splitext(name)
+                name_dict[extension] = name_dict.get(extension, []) + [name]
 
         if '.kt' in name_dict:
             await self.formatKotlinFiles(name_dict['.kt'])
