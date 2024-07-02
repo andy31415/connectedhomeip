@@ -18,6 +18,7 @@
 
 #include <app-common/zap-generated/attribute-type.h>
 #include <app/RequiredPrivilege.h>
+#include <app/util/IMClusterCommandHandler.h>
 #include <app/util/attribute-storage.h>
 #include <app/util/endpoint-config-api.h>
 #include <lib/core/DataModelTypes.h>
@@ -229,6 +230,16 @@ bool CodegenDataModel::EmberCommandListIterator::Exists(const CommandId * list, 
     }
 
     return (*mCurrentHint == toCheck);
+}
+
+CHIP_ERROR CodegenDataModel::Invoke(const InteractionModel::InvokeRequest & request, TLV::TLVReader & input_arguments,
+                                    CommandHandler * handler)
+{
+    // TODO: CommandHandlerInterface support is currently
+    //       residing in InteractionModelEngine itself. We may want to separate this out
+    //       into its own registry, similar to attributes
+    DispatchSingleClusterCommand(request.path, input_arguments, handler);
+    return CHIP_NO_ERROR;
 }
 
 EndpointId CodegenDataModel::FirstEndpoint()
