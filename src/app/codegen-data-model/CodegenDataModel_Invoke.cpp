@@ -14,7 +14,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "app/tests/test-interaction-model-api.h"
 #include <app/codegen-data-model/CodegenDataModel.h>
 
 #include <app/util/IMClusterCommandHandler.h>
@@ -23,21 +22,14 @@ namespace chip {
 namespace app {
 
 CHIP_ERROR CodegenDataModel::Invoke(const InteractionModel::InvokeRequest & request, TLV::TLVReader & input_arguments,
-                                    CommandHandler *handler)
+                                    CommandHandler * handler)
 {
     // TODO: CommandHandlerInterface support is currently
     //       residing in InteractionModelEngine itself. We may want to separate this out
     //       into its own registry, similar to attributes
-    
-    DispatchSingleClusterCommand(
-        request.path,
-        input_arguments,
-        handler
-    );
-   
+    DispatchSingleClusterCommand(request.path, input_arguments, handler);
     return CHIP_NO_ERROR;
 }
 
 } // namespace app
 } // namespace chip
-

@@ -337,12 +337,22 @@ source_set("command-handler-interface") {
   sources = [
     "CommandHandler.cpp",
     "CommandHandler.h",
+    "CommandHandlerExchangeInterface.h",
+  ]
+
+  public_deps = [
+    ":paths",
+    "${chip_root}/src/access:types",
+    "${chip_root}/src/app/data-model",
+    "${chip_root}/src/lib/core",
+    "${chip_root}/src/lib/support",
+    "${chip_root}/src/messaging",
+    "${chip_root}/src/protocols/interaction_model",
   ]
 }
 
 source_set("command-handler-impl") {
   sources = [
-    "CommandHandlerExchangeInterface.h",
     "CommandHandlerImpl.cpp",
     "CommandHandlerImpl.h",
   ]

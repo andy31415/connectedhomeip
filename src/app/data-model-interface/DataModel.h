@@ -100,7 +100,7 @@ public:
 
     /// `handler` is used to send back the reply.
     ///    - returning a value other than CHIP_NO_ERROR implies an error reply (error and data are mutually exclusive)
-    virtual CHIP_ERROR Invoke(const InvokeRequest & request, chip::TLV::TLVReader & input_arguments, CommandHandler *handler) = 0;
+    virtual CHIP_ERROR Invoke(const InvokeRequest & request, chip::TLV::TLVReader & input_arguments, CommandHandler * handler) = 0;
 
 private:
     InteractionModelContext mContext = { nullptr };
