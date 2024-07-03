@@ -158,7 +158,8 @@ CHIP_ERROR DecodeIntoEmberBuffer(AttributeValueDecoder & decoder, bool isNullabl
         {
             // This guards against trying to encode something that overlaps nullable, for example
             // Nullable<uint8_t>(0xFF) is not representable because 0xFF is the encoding of NULL in ember
-            // as well as odd-sized integers.
+            // as well as odd-sized integers (e.g. full 32-bit value like 0x11223344 cannot be written
+            // to a 3-byte odd-sized integger).
             VerifyOrReturnError(Traits::CanRepresentValue(isNullable, *workingValue), CHIP_ERROR_INVALID_ARGUMENT);
             Traits::WorkingToStorage(*workingValue, storageValue);
         }
@@ -248,9 +249,8 @@ CHIP_ERROR DecodeValueIntoEmberBuffer(AttributeValueDecoder & decoder, const Emb
         return DecodeStringLikeIntoEmberBuffer<ByteSpan, LongPascalString>(decoder, isNullable, out);
     default:
         ChipLogError(DataManagement, "Attribute type 0x%x not handled", static_cast<int>(metadata->attributeType));
-        return CHIP_IM_GLOBAL_STATUS(UnsupportedWrite);
+        return CHIP_IM_GLOBAL_STATUS(ConstraintError);
     }
-    return CHIP_IM_GLOBAL_STATUS(UnsupportedWrite);
 }
 
 } // namespace
