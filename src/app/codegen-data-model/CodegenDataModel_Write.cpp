@@ -28,6 +28,7 @@
 #include <app/util/attribute-storage-detail.h>
 #include <app/util/attribute-storage-null-handling.h>
 #include <app/util/ember-io-storage.h>
+#include <app/util/ember-strings.h>
 #include <app/util/odd-sized-integers.h>
 #include <lib/core/CHIPError.h>
 #include <lib/support/CodeUtils.h>
@@ -49,7 +50,6 @@ using namespace chip::app::Compatibility::Internal;
 std::optional<CHIP_ERROR> TryWriteViaAccessInterface(const ConcreteAttributePath & path, AttributeAccessInterface * aai,
                                                      AttributeValueDecoder & decoder)
 {
-
     // Processing can happen only if an attribute access interface actually exists..
     if (aai == nullptr)
     {
@@ -64,8 +64,8 @@ std::optional<CHIP_ERROR> TryWriteViaAccessInterface(const ConcreteAttributePath
     }
 
     // If the decoder tried to decode, then a value should have been read for processing.
-    //   - if decode, assueme DONE (i.e. FINAL CHIP_NO_ERROR)
-    //   - if no encode, say that processing must continue
+    //   - if decoding was done, assume DONE (i.e. final CHIP_NO_ERROR)
+    //   -  otherwise, if no decoding done, return that processing must continue via nullopt
     return decoder.TriedDecode() ? std::make_optional(CHIP_NO_ERROR) : std::nullopt;
 }
 
@@ -74,6 +74,8 @@ struct ShortPascalString
 {
     using LengthType                        = uint8_t;
     static constexpr LengthType kNullLength = 0xFF;
+
+    static void SetLength(uint8_t * buffer, LengthType value) { *buffer = value; }
 };
 
 /// Metadata of what a ember/pascal LONG string means (prepended by a u16 length)
@@ -81,6 +83,9 @@ struct LongPascalString
 {
     using LengthType                        = uint16_t;
     static constexpr LengthType kNullLength = 0xFFFF;
+
+    // Encoding for ember string lengths is little-endian (see ember-strings.cpp)
+    static void SetLength(uint8_t * buffer, LengthType value) { Encoding::LittleEndian::Put16(buffer, value); }
 };
 
 // ember assumptions ... should just work
@@ -106,9 +111,7 @@ CHIP_ERROR DecodeStringLikeIntoEmberBuffer(AttributeValueDecoder decoder, bool i
         if (nullableWorkingValue.IsNull())
         {
             VerifyOrReturnError(out.size() >= sizeof(typename ENCODING::LengthType), CHIP_ERROR_BUFFER_TOO_SMALL);
-
-            typename ENCODING::LengthType nullLength = ENCODING::kNullLength;
-            memcpy(out.data(), &nullLength, sizeof(nullLength));
+            ENCODING::SetLength(out.data(), ENCODING::kNullLength);
             return CHIP_NO_ERROR;
         }
 
@@ -123,8 +126,13 @@ CHIP_ERROR DecodeStringLikeIntoEmberBuffer(AttributeValueDecoder decoder, bool i
     typename ENCODING::LengthType len = static_cast<typename ENCODING::LengthType>(workingValue.size());
     VerifyOrReturnError(out.size() >= sizeof(len) + len, CHIP_ERROR_BUFFER_TOO_SMALL);
 
-    memcpy(out.data(), &len, sizeof(len));
-    memcpy(out.data() + sizeof(len), workingValue.data(), workingValue.size());
+    uint8_t * output_buffer = out.data();
+
+    ENCODING::SetLength(output_buffer, len);
+    output_buffer += sizeof(len);
+
+    memcpy(output_buffer, workingValue.data(), workingValue.size());
+
     return CHIP_NO_ERROR;
 }
 
@@ -134,48 +142,48 @@ CHIP_ERROR DecodeStringLikeIntoEmberBuffer(AttributeValueDecoder decoder, bool i
 template <typename T>
 CHIP_ERROR DecodeIntoEmberBuffer(AttributeValueDecoder & decoder, bool isNullable, MutableByteSpan out)
 {
+    using Traits = NumericAttributeTraits<T>;
+    typename Traits::StorageType storageValue;
+
     if (isNullable)
     {
-        using Traits = NumericAttributeTraits<T>;
-
         DataModel::Nullable<typename Traits::WorkingType> workingValue;
         ReturnErrorOnFailure(decoder.Decode(workingValue));
 
-        typename Traits::StorageType storageValue;
         if (workingValue.IsNull())
         {
             Traits::SetNull(storageValue);
         }
         else
         {
+            // This guards against trying to encode something that overlaps nullable, for example
+            // Nullable<uint8_t>(0xFF) is not representable because 0xFF is the encoding of NULL in ember
+            // as well as odd-sized integers.
             VerifyOrReturnError(Traits::CanRepresentValue(isNullable, *workingValue), CHIP_ERROR_INVALID_ARGUMENT);
             Traits::WorkingToStorage(*workingValue, storageValue);
         }
 
         VerifyOrReturnError(out.size() >= sizeof(storageValue), CHIP_ERROR_INVALID_ARGUMENT);
-
-        const uint8_t * data = Traits::ToAttributeStoreRepresentation(storageValue);
-        memcpy(out.data(), data, sizeof(storageValue));
     }
     else
     {
-        using Traits = NumericAttributeTraits<T>;
-
         typename Traits::WorkingType workingValue;
         ReturnErrorOnFailure(decoder.Decode(workingValue));
 
-        typename Traits::StorageType storageValue;
         Traits::WorkingToStorage(workingValue, storageValue);
 
         VerifyOrReturnError(out.size() >= sizeof(storageValue), CHIP_ERROR_INVALID_ARGUMENT);
 
-        // This guards against trying to encode something that overlaps nullable, for example
-        // Nullable<uint8_t>(0xFF) is not representable because 0xFF is the encoding of NULL in ember
+        // Even non-nullable values may be outside range: e.g. odd-sized integers have working values
+        // that are larger than the storage values (e.g. a uint32_t being stored as a 3-byte integer)
         VerifyOrReturnError(Traits::CanRepresentValue(isNullable, workingValue), CHIP_ERROR_INVALID_ARGUMENT);
-
-        const uint8_t * data = Traits::ToAttributeStoreRepresentation(storageValue);
-        memcpy(out.data(), data, sizeof(storageValue));
     }
+
+    const uint8_t * data = Traits::ToAttributeStoreRepresentation(storageValue);
+
+    // The decoding + ToAttributeStoreRepresentation will result in data being
+    // stored in native format/byteorder, suitable to directly be stored in the data store
+    memcpy(out.data(), data, sizeof(storageValue));
 
     return CHIP_NO_ERROR;
 }
@@ -250,51 +258,63 @@ CHIP_ERROR DecodeValueIntoEmberBuffer(AttributeValueDecoder & decoder, const Emb
 CHIP_ERROR CodegenDataModel::WriteAttribute(const InteractionModel::WriteAttributeRequest & request,
                                             AttributeValueDecoder & decoder)
 {
-    ChipLogDetail(DataManagement,
-                  "Reading attribute: Cluster=" ChipLogFormatMEI " Endpoint=%x AttributeId=" ChipLogFormatMEI " (expanded=%d)",
-                  ChipLogValueMEI(request.path.mClusterId), request.path.mEndpointId, ChipLogValueMEI(request.path.mAttributeId),
-                  request.path.mExpanded);
+    ChipLogDetail(DataManagement, "Writing attribute: Cluster=" ChipLogFormatMEI " Endpoint=%x AttributeId=" ChipLogFormatMEI,
+                  ChipLogValueMEI(request.path.mClusterId), request.path.mEndpointId, ChipLogValueMEI(request.path.mAttributeId));
 
     // ACL check for non-internal requests
     if (!request.operationFlags.Has(InteractionModel::OperationFlags::kInternal))
     {
-        ReturnErrorCodeIf(!request.subjectDescriptor.has_value(), CHIP_ERROR_INVALID_ARGUMENT);
+        ReturnErrorCodeIf(!request.subjectDescriptor.has_value(), CHIP_IM_GLOBAL_STATUS(UnsupportedAccess));
 
         Access::RequestPath requestPath{ .cluster = request.path.mClusterId, .endpoint = request.path.mEndpointId };
-        ReturnErrorOnFailure(Access::GetAccessControl().Check(*request.subjectDescriptor, requestPath,
-                                                              RequiredPrivilege::ForWriteAttribute(request.path)));
+        CHIP_ERROR err = Access::GetAccessControl().Check(*request.subjectDescriptor, requestPath,
+                                                          RequiredPrivilege::ForWriteAttribute(request.path));
+
+        if (err != CHIP_NO_ERROR)
+        {
+            ReturnErrorCodeIf(err != CHIP_ERROR_ACCESS_DENIED, err);
+
+            // TODO: when wildcard/group writes are supported, handle them to discard rather than fail with status
+            return CHIP_IM_GLOBAL_STATUS(UnsupportedAccess);
+        }
     }
 
     auto metadata = Ember::FindAttributeMetadata(request.path);
 
-    // Explicit failure in finding a suitable metadata
     if (const CHIP_ERROR * err = std::get_if<CHIP_ERROR>(&metadata))
     {
-        VerifyOrDie(*err != CHIP_NO_ERROR);
+        VerifyOrDie((*err == CHIP_IM_GLOBAL_STATUS(UnsupportedEndpoint)) || //
+                    (*err == CHIP_IM_GLOBAL_STATUS(UnsupportedCluster)) ||  //
+                    (*err == CHIP_IM_GLOBAL_STATUS(UnsupportedAttribute)));
         return *err;
     }
 
-    // All the global attributes that we do not have metadata for are
-    // read-only (i.e. cannot write atribute_list/event_list/accepted_cmds/generated_cmds)
-    //
-    // so if no metadata available, we wil lreturn an error
     const EmberAfAttributeMetadata ** attributeMetadata = std::get_if<const EmberAfAttributeMetadata *>(&metadata);
-    if (attributeMetadata == nullptr)
+
+    // All the global attributes that we do not have metadata for are
+    // read-only. Specifically only the following list-based attributes match the
+    // "global attributes not in metadata" (see GlobalAttributes.h :: GlobalAttributesNotInMetadat):
+    //   - AttributeList
+    //   - EventList
+    //   - AcceptedCommands
+    //   - GeneratedCommands
+    //
+    // Given the above, UnsupportedWrite should be correct (attempt to write to a read-only list)
+    bool isReadOnly = (attributeMetadata == nullptr) || (*attributeMetadata)->IsReadOnly();
+
+    // Internal is allowed to bypass timed writes and read-only.
+    if (!request.operationFlags.Has(InteractionModel::OperationFlags::kInternal))
     {
-        return CHIP_IM_GLOBAL_STATUS(UnsupportedWrite);
+        VerifyOrReturnError(!isReadOnly, CHIP_IM_GLOBAL_STATUS(UnsupportedWrite));
+
+        VerifyOrReturnError(!(*attributeMetadata)->MustUseTimedWrite() ||
+                                request.writeFlags.Has(InteractionModel::WriteFlags::kTimed),
+                            CHIP_IM_GLOBAL_STATUS(NeedsTimedInteraction));
     }
 
-    if ((*attributeMetadata)->IsReadOnly() && !request.operationFlags.Has(InteractionModel::OperationFlags::kInternal))
-    {
-        // Internal is allowed to try to bypass read-only updates, however otherwise we deny read-only
-        // updates
-        return CHIP_IM_GLOBAL_STATUS(UnsupportedWrite);
-    }
-
-    if ((*attributeMetadata)->MustUseTimedWrite() && !request.writeFlags.Has(InteractionModel::WriteFlags::kTimed))
-    {
-        return CHIP_IM_GLOBAL_STATUS(NeedsTimedInteraction);
-    }
+    // Extra check: internal requests can bypass the read only check, however global attributes
+    // have no underlying storage, so write still cannot be done
+    VerifyOrReturnError(attributeMetadata != nullptr, CHIP_IM_GLOBAL_STATUS(UnsupportedWrite));
 
     if (request.path.mDataVersion.HasValue())
     {
@@ -303,7 +323,7 @@ CHIP_ERROR CodegenDataModel::WriteAttribute(const InteractionModel::WriteAttribu
         {
             ChipLogError(DataManagement, "Unable to get cluster info for Endpoint %x, Cluster " ChipLogFormatMEI,
                          request.path.mEndpointId, ChipLogValueMEI(request.path.mClusterId));
-            return CHIP_IM_GLOBAL_STATUS(DataVersionMismatch);
+            return CHIP_ERROR_NOT_FOUND;
         }
 
         if (request.path.mDataVersion.Value() != clusterInfo->dataVersion)
@@ -314,8 +334,14 @@ CHIP_ERROR CodegenDataModel::WriteAttribute(const InteractionModel::WriteAttribu
         }
     }
 
-    std::optional<CHIP_ERROR> aai_result = TryWriteViaAccessInterface(
-        request.path, GetAttributeAccessOverride(request.path.mEndpointId, request.path.mClusterId), decoder);
+    AttributeAccessInterface * aai       = GetAttributeAccessOverride(request.path.mEndpointId, request.path.mClusterId);
+    std::optional<CHIP_ERROR> aai_result = TryWriteViaAccessInterface(request.path, aai, decoder);
+
+    if (aai_result.has_value())
+    {
+        return *aai_result;
+    }
+
     ReturnErrorCodeIf(aai_result.has_value(), *aai_result);
 
     ReturnErrorOnFailure(DecodeValueIntoEmberBuffer(decoder, *attributeMetadata, gEmberAttributeIOBufferSpan));
@@ -331,7 +357,7 @@ CHIP_ERROR CodegenDataModel::WriteAttribute(const InteractionModel::WriteAttribu
 
     if (status != Protocols::InteractionModel::Status::Success)
     {
-        return ChipError(ChipError::SdkPart::kIMGlobalStatus, to_underlying(status), __FILE__, __LINE__);
+        return CHIP_ERROR_IM_GLOBAL_STATUS_VALUE(status);
     }
 
     return CHIP_NO_ERROR;

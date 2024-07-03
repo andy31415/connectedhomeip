@@ -37,6 +37,7 @@
 #include <app/util/attribute-storage.h>
 #include <app/util/ember-global-attribute-access-interface.h>
 #include <app/util/ember-io-storage.h>
+#include <app/util/ember-strings.h>
 #include <app/util/endpoint-config-api.h>
 #include <app/util/odd-sized-integers.h>
 #include <lib/core/CHIPError.h>
@@ -88,6 +89,8 @@ struct ShortPascalString
 {
     using LengthType                        = uint8_t;
     static constexpr LengthType kNullLength = 0xFF;
+
+    static LengthType GetLength(const uint8_t * buffer) { return emberAfStringLength(buffer); }
 };
 
 /// Metadata of what a ember/pascal LONG string means (prepended by a u16 length)
@@ -95,6 +98,13 @@ struct LongPascalString
 {
     using LengthType                        = uint16_t;
     static constexpr LengthType kNullLength = 0xFFFF;
+
+    static LengthType GetLength(const uint8_t * buffer)
+    {
+        // NOTE: we do NOT use emberAfLongStringLength because that will result in 0 length
+        //       for null strings
+        return Encoding::LittleEndian::Read16(buffer);
+    }
 };
 
 // ember assumptions ... should just work
@@ -107,12 +117,8 @@ static_assert(sizeof(LongPascalString::LengthType) == 2);
 template <class OUT, class ENCODING>
 std::optional<OUT> ExtractEmberString(ByteSpan data)
 {
-    typename ENCODING::LengthType len;
-
-    // Ember storage format for pascal-prefix data is specifically "native byte order",
-    // hence the use of memcpy.
-    VerifyOrDie(sizeof(len) <= data.size());
-    memcpy(&len, data.data(), sizeof(len));
+    VerifyOrDie(sizeof(typename ENCODING::LengthType) <= data.size());
+    typename ENCODING::LengthType len = ENCODING::GetLength(data.data());
 
     if (len == ENCODING::kNullLength)
     {
@@ -232,7 +238,7 @@ CHIP_ERROR EncodeEmberValue(ByteSpan data, const EmberAfAttributeMetadata * meta
         return EncodeStringLike<ByteSpan, LongPascalString>(data, isNullable, encoder);
     default:
         ChipLogError(DataManagement, "Attribute type 0x%x not handled", static_cast<int>(metadata->attributeType));
-        return CHIP_IM_GLOBAL_STATUS(UnsupportedRead);
+        return CHIP_IM_GLOBAL_STATUS(ConstraintError);
     }
 }
 
@@ -261,12 +267,15 @@ CHIP_ERROR CodegenDataModel::ReadAttribute(const InteractionModel::ReadAttribute
                                                           RequiredPrivilege::ForReadAttribute(request.path));
         if (err != CHIP_NO_ERROR)
         {
+            ReturnErrorCodeIf(err != CHIP_ERROR_ACCESS_DENIED, err);
+
             // Implementation of 8.4.3.2 of the spec for path expansion
             if (request.path.mExpanded && (err == CHIP_ERROR_ACCESS_DENIED))
             {
                 return CHIP_NO_ERROR;
             }
-            return err;
+            // access denied has a specific code for IM
+            return CHIP_IM_GLOBAL_STATUS(UnsupportedAccess);
         }
     }
 
@@ -275,7 +284,9 @@ CHIP_ERROR CodegenDataModel::ReadAttribute(const InteractionModel::ReadAttribute
     // Explicit failure in finding a suitable metadata
     if (const CHIP_ERROR * err = std::get_if<CHIP_ERROR>(&metadata))
     {
-        VerifyOrDie(*err != CHIP_NO_ERROR);
+        VerifyOrDie((*err == CHIP_IM_GLOBAL_STATUS(UnsupportedEndpoint)) || //
+                    (*err == CHIP_IM_GLOBAL_STATUS(UnsupportedCluster)) ||  //
+                    (*err == CHIP_IM_GLOBAL_STATUS(UnsupportedAttribute)));
         return *err;
     }
 

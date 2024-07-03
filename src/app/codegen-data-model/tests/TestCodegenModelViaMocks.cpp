@@ -733,6 +733,18 @@ void TestEmberScalarNullWrite()
     ASSERT_TRUE(Traits::IsNullValue(storage));
 }
 
+uint16_t ReadLe16(const void * buffer)
+{
+    const uint8_t * p = reinterpret_cast<const uint8_t *>(buffer);
+    return chip::Encoding::LittleEndian::Read16(p);
+}
+
+void WriteLe16(void * buffer, uint16_t value)
+{
+    uint8_t * p = reinterpret_cast<uint8_t *>(buffer);
+    chip::Encoding::LittleEndian::Write16(p, value);
+}
+
 } // namespace
 
 TEST(TestCodegenModelViaMocks, IterateOverEndpoints)
@@ -1130,7 +1142,7 @@ TEST(TestCodegenModelViaMocks, EmberAttributeReadAclDeny)
                                 ConcreteAttributePath(kMockEndpoint1, MockClusterId(1), MockAttributeId(10)));
     std::unique_ptr<AttributeValueEncoder> encoder = testRequest.StartEncoding(&model);
 
-    ASSERT_EQ(model.ReadAttribute(testRequest.request, *encoder), CHIP_ERROR_ACCESS_DENIED);
+    ASSERT_EQ(model.ReadAttribute(testRequest.request, *encoder), CHIP_IM_GLOBAL_STATUS(UnsupportedAccess));
 }
 
 TEST(TestCodegenModelViaMocks, ReadForInvalidGlobalAttributePath)
@@ -1394,9 +1406,8 @@ TEST(TestCodegenModelViaMocks, EmberAttributeReadOctetString)
 
     // NOTE: This is a pascal string, so actual data is "test"
     //       the longer encoding is to make it clear we do not encode the overflow
-    char data[]  = "\0\0testing here with overflow";
-    uint16_t len = 4;
-    memcpy(data, &len, sizeof(uint16_t));
+    char data[] = "\0\0testing here with overflow";
+    WriteLe16(data, 4);
     chip::Test::SetEmberReadOutput(ByteSpan(reinterpret_cast<const uint8_t *>(data), sizeof(data)));
 
     // Actual read via an encoder
@@ -1470,9 +1481,8 @@ TEST(TestCodegenModelViaMocks, EmberAttributeReadShortString)
 
     // NOTE: This is a pascal string, so actual data is "abcde"
     //       the longer encoding is to make it clear we do not encode the overflow
-    char data[]  = "\0abcdef...this is the alphabet";
-    uint16_t len = 5;
-    memcpy(data, &len, sizeof(uint8_t));
+    char data[] = "\0abcdef...this is the alphabet";
+    *data       = 5;
     chip::Test::SetEmberReadOutput(ByteSpan(reinterpret_cast<const uint8_t *>(data), sizeof(data)));
 
     // Actual read via an encoder
@@ -1508,9 +1518,8 @@ TEST(TestCodegenModelViaMocks, EmberAttributeReadLongString)
 
     // NOTE: This is a pascal string, so actual data is "abcde"
     //       the longer encoding is to make it clear we do not encode the overflow
-    char data[]  = "\0\0abcdef...this is the alphabet";
-    uint16_t len = 5;
-    memcpy(data, &len, sizeof(uint16_t));
+    char data[] = "\0\0abcdef...this is the alphabet";
+    WriteLe16(data, 5);
     chip::Test::SetEmberReadOutput(ByteSpan(reinterpret_cast<const uint8_t *>(data), sizeof(data)));
 
     // Actual read via an encoder
@@ -1814,19 +1823,19 @@ TEST(TestCodegenModelViaMocks, EmberAttributeWriteAclDeny)
     TestWriteRequest test(kDenySubjectDescriptor, ConcreteDataAttributePath(kMockEndpoint1, MockClusterId(1), MockAttributeId(10)));
     AttributeValueDecoder decoder = test.DecoderFor<uint32_t>(1234);
 
-    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_ERROR_ACCESS_DENIED);
+    ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_IM_GLOBAL_STATUS(UnsupportedAccess));
 }
 
 TEST(TestCodegenModelViaMocks, EmberAttributeWriteBasicTypes)
 {
     TestEmberScalarTypeWrite<uint8_t, ZCL_INT8U_ATTRIBUTE_TYPE>(0x12);
     TestEmberScalarTypeWrite<uint16_t, ZCL_ENUM16_ATTRIBUTE_TYPE>(0x1234);
-    TestEmberScalarTypeWrite<OddSizedInteger<3, false>, ZCL_INT24U_ATTRIBUTE_TYPE>(0x1234AB);
-    TestEmberScalarTypeWrite<uint32_t, ZCL_INT32U_ATTRIBUTE_TYPE>(0x1234ABCD);
-    TestEmberScalarTypeWrite<OddSizedInteger<5, false>, ZCL_INT40U_ATTRIBUTE_TYPE>(0x1122334455);
-    TestEmberScalarTypeWrite<OddSizedInteger<6, false>, ZCL_INT48U_ATTRIBUTE_TYPE>(0xAABB11223344);
-    TestEmberScalarTypeWrite<OddSizedInteger<7, false>, ZCL_INT56U_ATTRIBUTE_TYPE>(0xAABB11223344);
-    TestEmberScalarTypeWrite<uint64_t, ZCL_INT64U_ATTRIBUTE_TYPE>(0x1122334455667788L);
+    TestEmberScalarTypeWrite<OddSizedInteger<3, false>, ZCL_INT24U_ATTRIBUTE_TYPE>(0x112233);
+    TestEmberScalarTypeWrite<uint32_t, ZCL_INT32U_ATTRIBUTE_TYPE>(0x11223344);
+    TestEmberScalarTypeWrite<OddSizedInteger<5, false>, ZCL_INT40U_ATTRIBUTE_TYPE>(0x1122334455ULL);
+    TestEmberScalarTypeWrite<OddSizedInteger<6, false>, ZCL_INT48U_ATTRIBUTE_TYPE>(0x112233445566ULL);
+    TestEmberScalarTypeWrite<OddSizedInteger<7, false>, ZCL_INT56U_ATTRIBUTE_TYPE>(0x11223344556677ULL);
+    TestEmberScalarTypeWrite<uint64_t, ZCL_INT64U_ATTRIBUTE_TYPE>(0x1122334455667788ULL);
 
     TestEmberScalarTypeWrite<int8_t, ZCL_INT8S_ATTRIBUTE_TYPE>(-10);
     TestEmberScalarTypeWrite<int16_t, ZCL_INT16S_ATTRIBUTE_TYPE>(-123);
@@ -1841,6 +1850,18 @@ TEST(TestCodegenModelViaMocks, EmberAttributeWriteBasicTypes)
     TestEmberScalarTypeWrite<bool, ZCL_BOOLEAN_ATTRIBUTE_TYPE>(false);
     TestEmberScalarTypeWrite<float, ZCL_SINGLE_ATTRIBUTE_TYPE>(0.625);
     TestEmberScalarTypeWrite<double, ZCL_DOUBLE_ATTRIBUTE_TYPE>(0.625);
+}
+
+TEST(TestCodegenModelViaMocks, EmberAttributeWriteBasicTypesLowestValue)
+{
+    TestEmberScalarTypeWrite<int8_t, ZCL_INT8S_ATTRIBUTE_TYPE>(-127);
+    TestEmberScalarTypeWrite<int16_t, ZCL_INT16S_ATTRIBUTE_TYPE>(-32767);
+    TestEmberScalarTypeWrite<OddSizedInteger<3, true>, ZCL_INT24S_ATTRIBUTE_TYPE>(-8388607);
+    TestEmberScalarTypeWrite<int32_t, ZCL_INT32S_ATTRIBUTE_TYPE>(-2147483647);
+    TestEmberScalarTypeWrite<OddSizedInteger<5, true>, ZCL_INT40S_ATTRIBUTE_TYPE>(-549755813887);
+    TestEmberScalarTypeWrite<OddSizedInteger<6, true>, ZCL_INT48S_ATTRIBUTE_TYPE>(-140737488355327);
+    TestEmberScalarTypeWrite<OddSizedInteger<7, true>, ZCL_INT56S_ATTRIBUTE_TYPE>(-36028797018963967);
+    TestEmberScalarTypeWrite<int64_t, ZCL_INT64S_ATTRIBUTE_TYPE>(-9223372036854775807);
 }
 
 TEST(TestCodegenModelViaMocks, EmberAttributeWriteNulls)
@@ -1898,8 +1919,7 @@ TEST(TestCodegenModelViaMocks, EmberAttributeWriteLongString)
     ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
     chip::ByteSpan writtenData = GetEmberBuffer();
 
-    uint16_t len;
-    memcpy(&len, writtenData.data(), 2);
+    uint16_t len = ReadLe16(writtenData.data());
     EXPECT_EQ(len, 4);
     chip::CharSpan asCharSpan(reinterpret_cast<const char *>(writtenData.data() + 2), 4);
 
@@ -1921,8 +1941,7 @@ TEST(TestCodegenModelViaMocks, EmberAttributeWriteNullableLongStringValue)
     ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
     chip::ByteSpan writtenData = GetEmberBuffer();
 
-    uint16_t len;
-    memcpy(&len, writtenData.data(), 2);
+    uint16_t len = ReadLe16(writtenData.data());
     EXPECT_EQ(len, 4);
     chip::CharSpan asCharSpan(reinterpret_cast<const char *>(writtenData.data() + 2), 4);
 
@@ -1944,7 +1963,7 @@ TEST(TestCodegenModelViaMocks, EmberAttributeWriteLongNullableStringNull)
     ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
     chip::ByteSpan writtenData = GetEmberBuffer();
     ASSERT_EQ(writtenData[0], 0xFF);
-    ASSERT_EQ(writtenData[0], 0xFF);
+    ASSERT_EQ(writtenData[1], 0xFF);
 }
 
 TEST(TestCodegenModelViaMocks, EmberAttributeWriteShortBytes)
@@ -1985,8 +2004,7 @@ TEST(TestCodegenModelViaMocks, EmberAttributeWriteLongBytes)
     ASSERT_EQ(model.WriteAttribute(test.request, decoder), CHIP_NO_ERROR);
     chip::ByteSpan writtenData = GetEmberBuffer();
 
-    uint16_t len;
-    memcpy(&len, writtenData.data(), 2);
+    uint16_t len = ReadLe16(writtenData.data());
     EXPECT_EQ(len, 3);
 
     EXPECT_EQ(writtenData[2], 11u);
@@ -2138,6 +2156,8 @@ TEST(TestCodegenModelViaMocks, EmberWriteAttributeAccessInterfaceTest)
     EXPECT_TRUE(aai->GetData().e.data_equal("aai_write_test"_span));
 
     // AAI does not prevent read/write of regular attributes
+    // validate that once AAI is added, we still can go through writing regular bits (i.e.
+    // AAI returning "unknown" has fallback to ember)
     TestEmberScalarTypeWrite<uint32_t, ZCL_INT32U_ATTRIBUTE_TYPE>(1234);
     TestEmberScalarNullWrite<int64_t, ZCL_INT64S_ATTRIBUTE_TYPE>();
 }
