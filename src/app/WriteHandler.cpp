@@ -19,6 +19,7 @@
 #include "app/AttributeValueDecoder.h"
 #include "app/data-model-interface/OperationTypes.h"
 #include "lib/core/CHIPError.h"
+#include "lib/support/CodeUtils.h"
 #include "messaging/ExchangeContext.h"
 #include <app/AppConfig.h>
 #include <app/AttributeAccessInterfaceRegistry.h>
@@ -41,12 +42,14 @@ using namespace Protocols::InteractionModel;
 using Status                         = Protocols::InteractionModel::Status;
 constexpr uint8_t kListAttributeType = 0x48;
 
-CHIP_ERROR WriteHandler::Init(WriteHandlerDelegate * apWriteHandlerDelegate)
+CHIP_ERROR WriteHandler::Init(InteractionModel::DataModel * apModel, WriteHandlerDelegate * apWriteHandlerDelegate)
 {
     VerifyOrReturnError(!mExchangeCtx, CHIP_ERROR_INCORRECT_STATE);
     VerifyOrReturnError(apWriteHandlerDelegate, CHIP_ERROR_INVALID_ARGUMENT);
+    VerifyOrReturnError(apModel, CHIP_ERROR_INVALID_ARGUMENT);
 
-    mDelegate = apWriteHandlerDelegate;
+    mDelegate  = apWriteHandlerDelegate;
+    mDataModel = apModel;
     MoveToState(State::Initialized);
 
     mACLCheckCache.ClearValue();
@@ -66,6 +69,7 @@ void WriteHandler::Close()
     DeliverFinalListWriteEnd(false /* wasSuccessful */);
     mExchangeCtx.Release();
     mSuppressResponse = false;
+    mDataModel        = nullptr;
     MoveToState(State::Uninitialized);
 }
 
@@ -699,7 +703,7 @@ CHIP_ERROR WriteHandler::WriteClusterData(const Access::SubjectDescriptor & subj
     // Writes do not have a checked-path. If data model interface is enabled (both checked and only version)
     // the write is done via the DataModel interface
 #if CHIP_CONFIG_USE_DATA_MODEL_INTERFACE
-    InteractionModel::DataModel * model = nullptr; // FIXME: get this one somehow!
+    VerifyOrReturnError(mDataModel != nullptr, CHIP_ERROR_INCORRECT_STATE);
 
     InteractionModel::WriteAttributeRequest request;
 
@@ -708,7 +712,7 @@ CHIP_ERROR WriteHandler::WriteClusterData(const Access::SubjectDescriptor & subj
 
     AttributeValueDecoder decoder(data, subject);
 
-    return model->WriteAttribute(request, decoder);
+    return mDataModel->WriteAttribute(request, decoder);
 #else
     return WriteSingleClusterData(subject, path, data, this);
 #endif // CHIP_CONFIG_USE_DATA_MODEL_INTERFACE

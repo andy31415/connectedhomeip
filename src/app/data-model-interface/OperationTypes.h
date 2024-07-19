@@ -70,7 +70,7 @@ struct ReadAttributeRequest : OperationRequest
 
 enum class WriteFlags : uint32_t
 {
-    kTimed     = 0x0001, // Write is a timed write (i.e. a Timed Request Action preceeded it)
+    kTimed = 0x0001, // Write is a timed write (i.e. a Timed Request Action preceeded it)
 };
 
 struct WriteAttributeRequest : OperationRequest
