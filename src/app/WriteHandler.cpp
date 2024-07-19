@@ -16,6 +16,8 @@
  *    limitations under the License.
  */
 
+#include "app/AttributeValueDecoder.h"
+#include "app/data-model-interface/OperationTypes.h"
 #include "lib/core/CHIPError.h"
 #include "messaging/ExchangeContext.h"
 #include <app/AppConfig.h>
@@ -697,8 +699,16 @@ CHIP_ERROR WriteHandler::WriteClusterData(const Access::SubjectDescriptor & subj
     // Writes do not have a checked-path. If data model interface is enabled (both checked and only version)
     // the write is done via the DataModel interface
 #if CHIP_CONFIG_USE_DATA_MODEL_INTERFACE
-    // FIXME: implement
-    return CHIP_ERROR_NOT_IMPLEMENTED;
+    InteractionModel::DataModel * model = nullptr; // FIXME: get this one somehow!
+
+    InteractionModel::WriteAttributeRequest request;
+
+    request.path = path;
+    request.writeFlags.Set(InteractionModel::WriteFlags::kTimed, IsTimedWrite());
+
+    AttributeValueDecoder decoder(data, subject);
+
+    return model->WriteAttribute(request, decoder);
 #else
     return WriteSingleClusterData(subject, path, data, this);
 #endif // CHIP_CONFIG_USE_DATA_MODEL_INTERFACE
