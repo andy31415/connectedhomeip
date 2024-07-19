@@ -16,6 +16,7 @@
  *    limitations under the License.
  */
 
+#include "lib/core/CHIPError.h"
 #include "messaging/ExchangeContext.h"
 #include <app/AppConfig.h>
 #include <app/AttributeAccessInterfaceRegistry.h>
@@ -351,7 +352,7 @@ CHIP_ERROR WriteHandler::ProcessAttributeDataIBs(TLV::TLVReader & aAttributeData
             err = CHIP_NO_ERROR;
         }
         SuccessOrExit(err);
-        err = WriteSingleClusterData(subjectDescriptor, dataAttributePath, dataReader, this);
+        err = WriteClusterData(subjectDescriptor, dataAttributePath, dataReader, this);
         if (err != CHIP_NO_ERROR)
         {
             mWriteResponseBuilder.GetWriteResponses().Rollback(backup);
@@ -497,12 +498,11 @@ CHIP_ERROR WriteHandler::ProcessGroupAttributeDataIBs(TLV::TLVReader & aAttribut
 
             DataModelCallbacks::GetInstance()->AttributeOperation(DataModelCallbacks::OperationType::Write,
                                                                   DataModelCallbacks::OperationOrder::Pre, dataAttributePath);
-            err = WriteSingleClusterData(subjectDescriptor, dataAttributePath, tmpDataReader, this);
-
+            err = WriteClusterData(subjectDescriptor, dataAttributePath, tmpDataReader, this);
             if (err != CHIP_NO_ERROR)
             {
                 ChipLogError(DataManagement,
-                             "WriteSingleClusterData Endpoint=%u Cluster=" ChipLogFormatMEI " Attribute =" ChipLogFormatMEI
+                             "WriteClusterData Endpoint=%u Cluster=" ChipLogFormatMEI " Attribute =" ChipLogFormatMEI
                              " failed: %" CHIP_ERROR_FORMAT,
                              mapping.endpoint_id, ChipLogValueMEI(dataAttributePath.mClusterId),
                              ChipLogValueMEI(dataAttributePath.mAttributeId), err.Format());
@@ -689,6 +689,19 @@ void WriteHandler::MoveToState(const State aTargetState)
 {
     mState = aTargetState;
     ChipLogDetail(DataManagement, "IM WH moving to [%s]", GetStateStr());
+}
+
+CHIP_ERROR WriteClusterData(const Access::SubjectDescriptor & subject, const ConcreteDataAttributePath & path,
+                            TLV::TLVReader & data, WriteHandler * handler)
+{
+    // Writes do not have a checked-path. If data model interface is enabled (both checked and only version)
+    // the write is done via the DataModel interface
+#if CHIP_CONFIG_USE_DATA_MODEL_INTERFACE
+    // FIXME: implement
+    return CHIP_ERROR_NOT_IMPLEMENTED;
+#else
+    return WriteSingleClusterData(subject, path, data, handler);
+#endif // CHIP_CONFIG_USE_DATA_MODEL_INTERFACE
 }
 
 } // namespace app

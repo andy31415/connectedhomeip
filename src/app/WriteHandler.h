@@ -172,11 +172,14 @@ private:
 
     CHIP_ERROR AddStatusInternal(const ConcreteDataAttributePath & aPath, const StatusIB & aStatus);
 
-private:
     // ExchangeDelegate
     CHIP_ERROR OnMessageReceived(Messaging::ExchangeContext * apExchangeContext, const PayloadHeader & aPayloadHeader,
                                  System::PacketBufferHandle && aPayload) override;
     void OnResponseTimeout(Messaging::ExchangeContext * apExchangeContext) override;
+
+    // Write the given data to the given path
+    CHIP_ERROR WriteClusterData(const Access::SubjectDescriptor & subject, const ConcreteDataAttributePath & path,
+                                TLV::TLVReader & data, WriteHandler * handler);
 
     Messaging::ExchangeHolder mExchangeCtx;
     WriteResponseMessage::Builder mWriteResponseBuilder;
