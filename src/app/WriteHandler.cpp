@@ -352,7 +352,7 @@ CHIP_ERROR WriteHandler::ProcessAttributeDataIBs(TLV::TLVReader & aAttributeData
             err = CHIP_NO_ERROR;
         }
         SuccessOrExit(err);
-        err = WriteClusterData(subjectDescriptor, dataAttributePath, dataReader, this);
+        err = WriteClusterData(subjectDescriptor, dataAttributePath, dataReader);
         if (err != CHIP_NO_ERROR)
         {
             mWriteResponseBuilder.GetWriteResponses().Rollback(backup);
@@ -498,7 +498,7 @@ CHIP_ERROR WriteHandler::ProcessGroupAttributeDataIBs(TLV::TLVReader & aAttribut
 
             DataModelCallbacks::GetInstance()->AttributeOperation(DataModelCallbacks::OperationType::Write,
                                                                   DataModelCallbacks::OperationOrder::Pre, dataAttributePath);
-            err = WriteClusterData(subjectDescriptor, dataAttributePath, tmpDataReader, this);
+            err = WriteClusterData(subjectDescriptor, dataAttributePath, tmpDataReader);
             if (err != CHIP_NO_ERROR)
             {
                 ChipLogError(DataManagement,
@@ -691,8 +691,8 @@ void WriteHandler::MoveToState(const State aTargetState)
     ChipLogDetail(DataManagement, "IM WH moving to [%s]", GetStateStr());
 }
 
-CHIP_ERROR WriteClusterData(const Access::SubjectDescriptor & subject, const ConcreteDataAttributePath & path,
-                            TLV::TLVReader & data, WriteHandler * handler)
+CHIP_ERROR WriteHandler::WriteClusterData(const Access::SubjectDescriptor & subject, const ConcreteDataAttributePath & path,
+                                          TLV::TLVReader & data)
 {
     // Writes do not have a checked-path. If data model interface is enabled (both checked and only version)
     // the write is done via the DataModel interface
@@ -700,7 +700,7 @@ CHIP_ERROR WriteClusterData(const Access::SubjectDescriptor & subject, const Con
     // FIXME: implement
     return CHIP_ERROR_NOT_IMPLEMENTED;
 #else
-    return WriteSingleClusterData(subject, path, data, handler);
+    return WriteSingleClusterData(subject, path, data, this);
 #endif // CHIP_CONFIG_USE_DATA_MODEL_INTERFACE
 }
 

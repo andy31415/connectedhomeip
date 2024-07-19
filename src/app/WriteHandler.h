@@ -179,7 +179,7 @@ private:
 
     // Write the given data to the given path
     CHIP_ERROR WriteClusterData(const Access::SubjectDescriptor & subject, const ConcreteDataAttributePath & path,
-                                TLV::TLVReader & data, WriteHandler * handler);
+                                TLV::TLVReader & data);
 
     Messaging::ExchangeHolder mExchangeCtx;
     WriteResponseMessage::Builder mWriteResponseBuilder;
