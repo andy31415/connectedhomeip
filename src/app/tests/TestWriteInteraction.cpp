@@ -296,7 +296,8 @@ TEST_F(TestWriteInteraction, TestWriteHandler)
 
             System::PacketBufferHandle buf = System::PacketBufferHandle::New(System::PacketBuffer::kMaxSize);
 
-            writeHandler.Init(chip::app::InteractionModelEngine::GetInstance());
+            writeHandler.Init(chip::app::InteractionModelEngine::GetInstance()->GetDataModel(),
+                              chip::app::InteractionModelEngine::GetInstance());
 
             GenerateWriteRequest(messageIsTimed, buf);
 
