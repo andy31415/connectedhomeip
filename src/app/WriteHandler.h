@@ -17,11 +17,12 @@
  */
 
 #pragma once
-#include "app/data-model-interface/DataModel.h"
+
 #include <app/AttributeAccessToken.h>
 #include <app/AttributePathParams.h>
 #include <app/InteractionModelDelegatePointers.h>
 #include <app/MessageDef/WriteResponseMessage.h>
+#include <app/data-model-interface/DataModel.h>
 #include <lib/core/CHIPCore.h>
 #include <lib/core/TLVDebug.h>
 #include <lib/support/CodeUtils.h>
