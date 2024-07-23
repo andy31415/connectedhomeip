@@ -81,7 +81,16 @@ CHIP_ERROR RetrieveClusterData(InteractionModel::DataModel * dataModel, const Ac
         ChipLogError(Test, "Different return codes between ember and DM");
         ChipLogError(Test, "  Ember error: %" CHIP_ERROR_FORMAT, errEmber.Format());
         ChipLogError(Test, "  DM error: %" CHIP_ERROR_FORMAT, errDM.Format());
+
+        // For time-dependent data, we may have size differences here: one data fitting in buffer
+        // while another not, resulting in different errors (success vs out of space).
+        //
+        // Make unit tests strict, however untime allow it with potentially odd mismatch errors
+        // (in which case logs will be odd, however we also expect Checked versions to only
+        // run for a short period until we switch over to either ember or DM completely).
+#if CONFIG_BUILD_FOR_HOST_UNIT_TEST
         chipDie();
+#endif
     }
 
     // data should be identical for most cases EXCEPT that for time-deltas (e.g. seconds since boot or similar)
@@ -94,7 +103,7 @@ CHIP_ERROR RetrieveClusterData(InteractionModel::DataModel * dataModel, const Ac
     // NOTE: RetrieveClusterData is responsible for encoding StatusIB errors in case of failures
     //       so we validate length written requirements for BOTH success and failure.
     //
-    // NOTE: data length is NOT reliable if the data content differs in encoding lentgh. E.g. numbers changing
+    // NOTE: data length is NOT reliable if the data content differs in encoding length. E.g. numbers changing
     //       from 0xFF to 0x100 or similar will use up more space.
     //       For unit tests we make the validation strict, however for runtime we just report an
     //       error for different sizes.
@@ -118,12 +127,20 @@ CHIP_ERROR RetrieveClusterData(InteractionModel::DataModel * dataModel, const Ac
             if (encoderState->AllowPartialData() != stateDm.AllowPartialData())
             {
                 ChipLogError(Test, "Different partial data");
+                // NOTE: die on unit tests only, since partial data size may differ across
+                //       time-dependent data (very rarely because fast code, but still possible)
+#if CONFIG_BUILD_FOR_HOST_UNIT_TEST
                 chipDie();
+#endif
             }
             if (encoderState->CurrentEncodingListIndex() != stateDm.CurrentEncodingListIndex())
             {
                 ChipLogError(Test, "Different partial data");
+                // NOTE: die on unit tests only, since partial data size may differ across
+                //       time-dependent data (very rarely because fast code, but still possible)
+#if CONFIG_BUILD_FOR_HOST_UNIT_TEST
                 chipDie();
+#endif
             }
         }
     }
