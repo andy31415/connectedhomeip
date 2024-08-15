@@ -1792,7 +1792,7 @@ class BasicInformationCluster(
     }
   }
 
-  suspend fun readUniqueIDAttribute(): String {
+  suspend fun readUniqueIDAttribute(): String? {
     val ATTRIBUTE_ID: UInt = 18u
 
     val attributePath =
@@ -1818,7 +1818,12 @@ class BasicInformationCluster(
 
     // Decode the TLV data into the appropriate type
     val tlvReader = TlvReader(attributeData.data)
-    val decodedValue: String = tlvReader.getString(AnonymousTag)
+    val decodedValue: String? =
+      if (tlvReader.isNextTag(AnonymousTag)) {
+        tlvReader.getString(AnonymousTag)
+      } else {
+        null
+      }
 
     return decodedValue
   }
@@ -1862,9 +1867,14 @@ class BasicInformationCluster(
 
           // Decode the TLV data into the appropriate type
           val tlvReader = TlvReader(attributeData.data)
-          val decodedValue: String = tlvReader.getString(AnonymousTag)
+          val decodedValue: String? =
+            if (tlvReader.isNextTag(AnonymousTag)) {
+              tlvReader.getString(AnonymousTag)
+            } else {
+              null
+            }
 
-          emit(StringSubscriptionState.Success(decodedValue))
+          decodedValue?.let { emit(StringSubscriptionState.Success(it)) }
         }
         SubscriptionState.SubscriptionEstablished -> {
           emit(StringSubscriptionState.SubscriptionEstablished)
