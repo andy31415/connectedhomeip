@@ -28,6 +28,7 @@
 #include <app/InteractionModelEngine.h>
 #include <app/ReadClient.h>
 #include <app/tests/AppTestContext.h>
+#include <app/util/mock/CodegenEmberMocks.h>
 #include <app/util/mock/Constants.h>
 #include <app/util/mock/Functions.h>
 #include <controller/ReadInteraction.h>
@@ -1305,6 +1306,43 @@ TEST_F(TestRead, TestReadEventResponse)
     EXPECT_FALSE(onFailureCbInvoked);
     EXPECT_TRUE(onDoneCbInvoked);
 
+    EXPECT_EQ(app::InteractionModelEngine::GetInstance()->GetNumActiveReadClients(), 0u);
+    EXPECT_EQ(app::InteractionModelEngine::GetInstance()->GetNumActiveReadHandlers(), 0u);
+    EXPECT_EQ(GetExchangeManager().GetNumActiveExchanges(), 0u);
+}
+
+TEST_F(TestRead, TestReadEmberError)
+{
+    auto sessionHandle  = GetSessionBobToAlice();
+    size_t successCalls = 0;
+    size_t failureCalls = 0;
+
+    // Passing of stack variables by reference is only safe because of synchronous completion of the interaction. Otherwise, it's
+    // not safe to do so.
+    auto onSuccessCb = [&successCalls](const app::ConcreteDataAttributePath & attributePath, const auto & dataResponse) {
+        ++successCalls;
+    };
+
+    // Passing of stack variables by reference is only safe because of synchronous completion of the interaction. Otherwise, it's
+    // not safe to do so.
+    auto onFailureCb = [&failureCalls](const app::ConcreteDataAttributePath * attributePath, CHIP_ERROR aError) { ++failureCalls; };
+
+  CodegenEmberMocks::ScopedEmAfReadOrWriteAttributeReturn failReturn(Protocols::InteractionModel::Status::Failure);
+
+    // temporarely roll back the data model provided to the "default"
+    // that will use ember functions
+    InteractionModelEngine::GetInstance()->SetDataModelProvider(mOldProvider);
+
+    Controller::ReadAttribute<Clusters::UnitTesting::Attributes::Boolean::TypeInfo>(&GetExchangeManager(), sessionHandle,
+                                                                                    kTestEndpointId, onSuccessCb, onFailureCb);
+
+    DrainAndServiceIO();
+
+    // set things back
+    InteractionModelEngine::GetInstance()->SetDataModelProvider(&CustomDataModel::Instance());
+
+    EXPECT_EQ(successCalls, 0u);
+    EXPECT_EQ(failureCalls, 1u);
     EXPECT_EQ(app::InteractionModelEngine::GetInstance()->GetNumActiveReadClients(), 0u);
     EXPECT_EQ(app::InteractionModelEngine::GetInstance()->GetNumActiveReadHandlers(), 0u);
     EXPECT_EQ(GetExchangeManager().GetNumActiveExchanges(), 0u);
@@ -4701,8 +4739,8 @@ TEST_F(TestRead, TestReadHandler_KeepSubscriptionTest)
 
     readParam.mAttributePathParamsListSize = 0;
     readClient                             = std::make_unique<app::ReadClient>(app::InteractionModelEngine::GetInstance(),
-                                                   app::InteractionModelEngine::GetInstance()->GetExchangeManager(), readCallback,
-                                                   app::ReadClient::InteractionType::Subscribe);
+                                                                               app::InteractionModelEngine::GetInstance()->GetExchangeManager(), readCallback,
+                                                                               app::ReadClient::InteractionType::Subscribe);
     EXPECT_EQ(readClient->SendRequest(readParam), CHIP_NO_ERROR);
 
     DrainAndServiceIO();

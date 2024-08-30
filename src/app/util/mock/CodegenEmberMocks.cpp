@@ -14,10 +14,24 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "CodegenEmberMocks.h"
+
 #include <app/reporting/reporting.h>
 #include <app/util/attribute-storage.h>
 
+namespace {
 using chip::Protocols::InteractionModel::Status;
+
+chip::ScopedChangeOnly<Status> gMockReadOrWriteStatus{ Status::Success };
+} // namespace
+
+namespace CodegenEmberMocks {
+
+ScopedEmAfReadOrWriteAttributeReturn::ScopedEmAfReadOrWriteAttributeReturn(chip::Protocols::InteractionModel::Status status) :
+    mScope(gMockReadOrWriteStatus, status)
+{}
+
+} // namespace CodegenEmberMocks
 
 void MatterReportingAttributeChangeCallback(const chip::app::ConcreteAttributePath & aPath)
 {
@@ -31,7 +45,8 @@ Status emAfReadOrWriteAttribute(const EmberAfAttributeSearchRecord * attRecord, 
     {
         memset(buffer, 0, readLength);
     }
-    return Status::Success;
+
+    return gMockReadOrWriteStatus;
 }
 
 Status emAfWriteAttributeExternal(chip::EndpointId endpoint, chip::ClusterId cluster, chip::AttributeId attributeID,
