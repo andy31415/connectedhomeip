@@ -329,6 +329,9 @@ CHIP_ERROR ReadSingleClusterData(const SubjectDescriptor & aSubjectDescriptor, b
     }
 
     // Read attribute using Ember, if it doesn't have an override.
+    chip::TLV::TLVWriter checkpoint;
+    aAttributeReports.Checkpoint(checkpoint);
+
     AttributeReportIB::Builder & attributeReport = aAttributeReports.CreateAttributeReport();
     ReturnErrorOnFailure(aAttributeReports.GetError());
 
@@ -359,6 +362,7 @@ CHIP_ERROR ReadSingleClusterData(const SubjectDescriptor & aSubjectDescriptor, b
 
     if (status != Status::Success)
     {
+        aAttributeReports.Rollback(checkpoint);
         return CHIP_ERROR_IM_GLOBAL_STATUS_VALUE(status);
     }
 
