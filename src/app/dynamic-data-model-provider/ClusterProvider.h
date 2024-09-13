@@ -22,4 +22,27 @@
 //   - definitions in MetadataTypes are useful. Every of attribute/command expose
 //     an ID and a Attribute/CommandInfo to be fully defined
 //   - Expectations:
-//      
+//      - Cluster global information:
+//         - data version
+//         - qualities
+//      - MUST be capable to update own version
+//      - Can list:
+//        - attributes
+//        - accepted commands
+//        - generated commands (huge annoyance!)
+//      - provides:
+//        - Read, Write, Invoke
+//
+// Implementation details:      
+//   - List of attributes
+//     - general storage is {id, info, reader, writer (this affects ability to read/write)}
+//   - List of commands
+//     - general storage is {id, info, handler}
+//   - GeneratedCommands (how? We can implement a slow version of this ...)
+//     - general storage is a list
+//     - have helper of iterator from a array (which can be initialized)
+// 
+// Problem on iterator-based implementation:
+//   - O(n^2) if we iterate from the start
+//   - Interface on main provider is using a next(previous) implementation which
+//     is far from ideal
