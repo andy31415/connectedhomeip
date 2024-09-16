@@ -16,6 +16,7 @@
  *    limitations under the License.
  */
 
+#include "lib/core/TLVReader.h"
 #include "protocols/interaction_model/StatusCode.h"
 #include <access/Privilege.h>
 #include <app-common/zap-generated/cluster-enums.h>
@@ -154,20 +155,33 @@ TEST(TestClusterProvider, BasicRead)
     }
 
     {
-        constexpr auto kTestValue = 0x1234;
+        constexpr uint32_t kTestValue = 0x1234;
         testClusters.TestSetInt24Value(kTestValue);
+
+        constexpr chip::DataVersion kTestDataVersion = 112233;
 
         TestReadRequest read_request(
             kAdminSubjectDescriptor,
             ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Int24u::Id));
 
-        std::unique_ptr<AttributeValueEncoder> encoder = read_request.StartEncoding(123 /* dataVersion */);
+        std::unique_ptr<AttributeValueEncoder> encoder = read_request.StartEncoding(kTestDataVersion);
         ASSERT_TRUE(encoder);
 
         // attempt to read
         ASSERT_EQ(testClusters.ReadAttribute(context, read_request.request, *encoder.get()), CHIP_NO_ERROR);
         ASSERT_EQ(read_request.FinishEncoding(), CHIP_NO_ERROR);
 
-        // TODO: assert read value is ok and equal to kTestValue
+        std::vector<chip::Test::DecodedAttributeData> items;
+        ASSERT_EQ(read_request.encodedIBs.Decode(items), CHIP_NO_ERROR);
+
+        ASSERT_EQ(items.size(), 1u);
+
+        const chip::Test::DecodedAttributeData & data = items[0];
+        ASSERT_EQ(data.dataVersion, kTestDataVersion);
+
+        chip::TLV::TLVReader reader(data.dataReader);
+        uint32_t readValue = 0;
+        ASSERT_EQ(reader.Get(readValue), CHIP_NO_ERROR);
+        ASSERT_EQ(readValue, kTestValue);
     }
 }
