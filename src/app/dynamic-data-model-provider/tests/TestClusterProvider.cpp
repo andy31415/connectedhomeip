@@ -154,9 +154,11 @@ TEST(TestClusterProvider, BasicRead)
                   Protocols::InteractionModel::Status::UnsupportedRead);
     }
 
+    constexpr uint32_t kTestValues[] = { 0x1234, 0, 1234, 4321, 100, 0xFFFFFF, 18 };
+
+    for (uint32_t testValue : kTestValues)
     {
-        constexpr uint32_t kTestValue = 0x1234;
-        testClusters.TestSetInt24Value(kTestValue);
+        testClusters.TestSetInt24Value(testValue);
 
         constexpr chip::DataVersion kTestDataVersion = 112233;
 
@@ -182,6 +184,6 @@ TEST(TestClusterProvider, BasicRead)
         chip::TLV::TLVReader reader(data.dataReader);
         uint32_t readValue = 0;
         ASSERT_EQ(reader.Get(readValue), CHIP_NO_ERROR);
-        ASSERT_EQ(readValue, kTestValue);
+        ASSERT_EQ(readValue, testValue);
     }
 }
