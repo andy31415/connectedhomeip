@@ -14,8 +14,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "lib/core/CHIPError.h"
 #include <app/dynamic-data-model-provider/ClusterProvider.h>
+#include <lib/core/CHIPError.h>
 
 namespace chip {
 namespace app {
@@ -25,8 +25,18 @@ DataModel::ActionReturnStatus ClusterBase::ReadAttribute(const DataModel::Intera
                                                          const DataModel::ReadAttributeRequest & request,
                                                          AttributeValueEncoder & encoder)
 {
-    // TODO: implement
-    return CHIP_ERROR_NOT_IMPLEMENTED;
+    const AttributeDefinition * attribute = AttributesBegin();
+    const AttributeDefinition * end       = AttributesEnd();
+
+    for (; attribute != end; attribute++)
+    {
+        if (attribute->id == request.path.mAttributeId)
+        {
+            return (*attribute->readFunction)(context, request, encoder);
+        }
+    }
+
+    return Protocols::InteractionModel::Status::UnsupportedRead;
 }
 
 DataModel::ActionReturnStatus ClusterBase::WriteAttribute(const DataModel::InteractionModelContext & context,

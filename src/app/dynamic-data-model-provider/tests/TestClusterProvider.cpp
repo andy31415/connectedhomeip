@@ -16,10 +16,18 @@
  *    limitations under the License.
  */
 
-#include "access/Privilege.h"
-#include "app-common/zap-generated/cluster-enums.h"
-#include "app-common/zap-generated/ids/Attributes.h"
+#include "protocols/interaction_model/StatusCode.h"
+#include <access/Privilege.h>
+#include <app-common/zap-generated/cluster-enums.h>
+#include <app-common/zap-generated/ids/Attributes.h>
+#include <app/AttributeValueEncoder.h>
+#include <app/codegen-data-model-provider/tests/AttributeReportIBEncodeDecode.h>
+#include <app/data-model-provider/Context.h>
+#include <app/data-model-provider/OperationTypes.h>
+#include <app/data-model-provider/StringBuilderAdapters.h>
 #include <app/dynamic-data-model-provider/ClusterProvider.h>
+#include <lib/core/CHIPError.h>
+#include <lib/core/DataModelTypes.h>
 #include <lib/core/StringBuilderAdapters.h>
 
 #include <app-common/zap-generated/cluster-objects.h>
@@ -29,7 +37,22 @@
 namespace {
 
 using namespace chip::app;
+using namespace chip;
 using namespace chip::app::DynamicDataModel;
+
+constexpr FabricIndex kTestFabrixIndex = kMinValidFabricIndex;
+constexpr NodeId kTestNodeId           = 0xFFFF'1234'ABCD'4321;
+
+constexpr Access::SubjectDescriptor kAdminSubjectDescriptor{
+    .fabricIndex = kTestFabrixIndex,
+    .authMode    = Access::AuthMode::kCase,
+    .subject     = kTestNodeId,
+};
+constexpr Access::SubjectDescriptor kViewSubjectDescriptor{
+    .fabricIndex = kTestFabrixIndex + 1,
+    .authMode    = Access::AuthMode::kCase,
+    .subject     = kTestNodeId,
+};
 
 class TestCluster : public Cluster<2 /* kAttributeCount */>
 {
@@ -38,33 +61,113 @@ public:
 
     constexpr TestCluster() :
         Base({
-            AttributeDefinition(Clusters::UnitTesting::Attributes::Boolean::Id) //
-                .SetReadFunction(ReadVia(this, &TestCluster::GetBoolValue)),
+            AttributeDefinition(Clusters::UnitTesting::Attributes::Int24u::Id) //
+                .SetReadFunction(ReadVia(this, &TestCluster::GetInt24Value)),
             AttributeDefinition(Clusters::UnitTesting::Attributes::Bitmap8::Id) //
                 .SetReadFunction(ReadVia(this, &TestCluster::GetBitmap8Value))
                 .SetWriteFunction(WriteVia(this, &TestCluster::SetBitmap8Value))
                 .SetWritePrivilege(chip::Access::Privilege::kAdminister),
-
-            // WHAT I want:
-            //   .SetReadFunction(Base::ReadVia(GetBitmap8Value))
-            //   .SetWriteFunction(Base::WriteVia(SetBitmap8Value))
-            //
-            // Issues:
-            //   - input data to function is DYNAMIC so lambda bridge does NOT work
-            //   - May need something else here, to be trivial. Modeled AFTER lambda bridge
         })
     {}
 
-private:
-    bool GetBoolValue();
+    uint32_t GetInt24Value() { return mInt24Value; }
 
-    chip::BitMask<Clusters::UnitTesting::Bitmap8MaskMap> GetBitmap8Value();
-    CHIP_ERROR SetBitmap8Value(const chip::BitMask<Clusters::UnitTesting::Bitmap8MaskMap> &);
+    chip::BitMask<Clusters::UnitTesting::Bitmap8MaskMap> GetBitmap8Value() { return mMaskValue; }
+
+    CHIP_ERROR SetBitmap8Value(const chip::BitMask<Clusters::UnitTesting::Bitmap8MaskMap> & value)
+    {
+        mMaskValue = value;
+        return CHIP_NO_ERROR;
+    }
+
+    void TestSetInt24Value(uint32_t v) { mInt24Value = v; }
+
+private:
+    uint32_t mInt24Value = 123;
+    chip::BitMask<Clusters::UnitTesting::Bitmap8MaskMap> mMaskValue;
+};
+
+/// Contains a `ReadAttributeRequest` as well as classes to convert this into a AttributeReportIBs
+/// and later decode it
+///
+/// It wraps boilerplate code to obtain a `AttributeValueEncoder` as well as later decoding
+/// the underlying encoded data for verification.
+struct TestReadRequest
+{
+    DataModel::ReadAttributeRequest request;
+
+    // encoded-used classes
+    chip::Test::EncodedReportIBs encodedIBs;
+    AttributeReportIBs::Builder reportBuilder;
+    std::unique_ptr<AttributeValueEncoder> encoder;
+
+    TestReadRequest(const chip::Access::SubjectDescriptor & subject, const ConcreteAttributePath & path)
+    {
+        // operationFlags is 0 i.e. not internal
+        // readFlags is 0 i.e. not fabric filtered
+        // dataVersion is missing (no data version filtering)
+        request.subjectDescriptor = subject;
+        request.path              = path;
+    }
+
+    std::unique_ptr<AttributeValueEncoder> StartEncoding(chip::DataVersion dataVersion,
+                                                         AttributeEncodeState state = AttributeEncodeState())
+    {
+        CHIP_ERROR err = encodedIBs.StartEncoding(reportBuilder);
+        if (err != CHIP_NO_ERROR)
+        {
+            ChipLogError(Test, "FAILURE starting encoding %" CHIP_ERROR_FORMAT, err.Format());
+            return nullptr;
+        }
+
+        // TODO: could we test isFabricFiltered and EncodeState?
+
+        // request.subjectDescriptor is known non-null because it is set in the constructor
+        // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+        return std::make_unique<AttributeValueEncoder>(reportBuilder, *request.subjectDescriptor, request.path, dataVersion,
+                                                       false /* aIsFabricFiltered */, state);
+    }
+
+    CHIP_ERROR FinishEncoding() { return encodedIBs.FinishEncoding(reportBuilder); }
 };
 
 } // namespace
 
-TEST(TestClusterProvider, BasicTest)
+TEST(TestClusterProvider, BasicRead)
 {
-    ASSERT_EQ(1, 1);
+    TestCluster testClusters;
+
+    // Minimal data required
+    DataModel::InteractionModelContext context{ nullptr, nullptr, nullptr };
+
+    {
+        TestReadRequest read_request(
+            kAdminSubjectDescriptor,
+            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Boolean::Id));
+
+        std::unique_ptr<AttributeValueEncoder> encoder = read_request.StartEncoding(123 /* dataVersion */);
+        ASSERT_TRUE(encoder);
+
+        // attempt to read an unsupported attribute should error out
+        ASSERT_EQ(testClusters.ReadAttribute(context, read_request.request, *encoder.get()),
+                  Protocols::InteractionModel::Status::UnsupportedRead);
+    }
+
+    {
+        constexpr auto kTestValue = 0x1234;
+        testClusters.TestSetInt24Value(kTestValue);
+
+        TestReadRequest read_request(
+            kAdminSubjectDescriptor,
+            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Int24u::Id));
+
+        std::unique_ptr<AttributeValueEncoder> encoder = read_request.StartEncoding(123 /* dataVersion */);
+        ASSERT_TRUE(encoder);
+
+        // attempt to read
+        ASSERT_EQ(testClusters.ReadAttribute(context, read_request.request, *encoder.get()), CHIP_NO_ERROR);
+        ASSERT_EQ(read_request.FinishEncoding(), CHIP_NO_ERROR);
+
+        // TODO: assert read value is ok and equal to kTestValue
+    }
 }
