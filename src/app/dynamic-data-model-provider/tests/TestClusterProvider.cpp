@@ -41,6 +41,8 @@ public:
             AttributeDefinition(Clusters::UnitTesting::Attributes::Boolean::Id) //
                 .SetReadFunction(ReadVia(this, &TestCluster::GetBoolValue)),
             AttributeDefinition(Clusters::UnitTesting::Attributes::Bitmap8::Id) //
+                .SetReadFunction(ReadVia(this, &TestCluster::GetBitmap8Value))
+                .SetWriteFunction(WriteVia(this, &TestCluster::SetBitmap8Value))
                 .SetWritePrivilege(chip::Access::Privilege::kAdminister),
 
             // WHAT I want:

@@ -25,11 +25,13 @@
 #include <app/data-model-provider/Context.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <app/data-model-provider/OperationTypes.h>
+#include <app/data-model/FabricScoped.h>
 #include <lib/support/BitFlags.h>
 
 #include <array>
 #include <cstdint>
 #include <optional>
+#include <type_traits>
 
 // General interface expectation that would allow some internal hint in the caller class
 template <typename T>
@@ -227,8 +229,8 @@ public:
     virtual ~ClusterBase() = default;
 
     /// Methods to be used by subclasses when configuring read/writes
-    template <typename Class, typename Result>
-    constexpr ReadLambda ReadVia(Class * object, Result (Class::*memberFunction)())
+    template <typename Class, typename DataType>
+    constexpr ReadLambda ReadVia(Class * object, DataType (Class::*memberFunction)())
     {
         ReadLambda value;
         value.Initialize([this, object, memberFunction](const DataModel::InteractionModelContext & context,
@@ -236,6 +238,35 @@ public:
                                                         AttributeValueEncoder & encoder) -> DataModel::ActionReturnStatus {
             // memberFunction is a pure getter, so it never fails
             return encoder.Encode((object->*memberFunction)());
+        });
+        return value;
+    }
+
+    template <typename Class, typename DataType>
+    constexpr WriteLambda WriteVia(Class * object, void (Class::*memberFunction)(DataType value))
+    {
+        WriteLambda value;
+        value.Initialize([this, object, memberFunction](const DataModel::InteractionModelContext & context,
+                                                        const DataModel::WriteAttributeRequest & request,
+                                                        AttributeValueDecoder & decoder) -> DataModel::ActionReturnStatus {
+            DataType data;
+            ReturnErrorOnFailure(decoder.Decode(data));
+            (object->*memberFunction)(data);
+            return CHIP_NO_ERROR;
+        });
+        return value;
+    }
+
+    template <typename Class, typename DataType>
+    constexpr WriteLambda WriteVia(Class * object, CHIP_ERROR (Class::*memberFunction)(DataType value))
+    {
+        WriteLambda value;
+        value.Initialize([this, object, memberFunction](const DataModel::InteractionModelContext & context,
+                                                        const DataModel::WriteAttributeRequest & request,
+                                                        AttributeValueDecoder & decoder) -> DataModel::ActionReturnStatus {
+            std::decay_t<DataType> data;
+            ReturnErrorOnFailure(decoder.Decode(data));
+            return (object->*memberFunction)(data);
         });
         return value;
     }
