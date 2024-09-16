@@ -251,6 +251,7 @@ public:
                                                         AttributeValueDecoder & decoder) -> DataModel::ActionReturnStatus {
             DataType data;
             ReturnErrorOnFailure(decoder.Decode(data));
+            // memberFunction is a pure setter, so it never fails
             (object->*memberFunction)(data);
             return CHIP_NO_ERROR;
         });
@@ -270,9 +271,6 @@ public:
         });
         return value;
     }
-
-    // TODO: figure out a way to pass in `self` as callbacks to read/write attributes
-    //       we may want to use lambdabridge in some way (do we have enough space???)
 
     // TODO: cluster metadata:
     //   - BitFlags<ClusterQualityFlags>
