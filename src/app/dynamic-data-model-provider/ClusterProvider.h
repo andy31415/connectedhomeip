@@ -82,13 +82,12 @@ public:
     /// TODO: figure out a way to pass in `self` as callbacks to read/write attributes
     ///       we may want to use lambdabridge in some way (do we have enough space???)
 
-
     // TODO: cluster metadata:
     //   - BitFlags<ClusterQualityFlags>
     //   - data version <- this MUST be modifiable because of self
 
     // TODO: add iteration (and exitence? we have Get capability here... for commands)
-    // 
+    //
     // we need from MetadataTypes.h/ProviderMetadataTree:
     //   - attributes: first, next, get
     //   - commands: first, next, get
@@ -112,13 +111,13 @@ public:
     DataModel::ActionReturnStatus WriteAttribute(const DataModel::InteractionModelContext & context,
                                                  const DataModel::WriteAttributeRequest & request, AttributeValueDecoder & decoder);
 
-
     /// Performs an invoke for the given command
     ///
     /// request.path MUST correspond to the current cluster id
     std::optional<DataModel::ActionReturnStatus> Invoke(const DataModel::InteractionModelContext & context,
                                                         const DataModel::InvokeRequest & request,
                                                         chip::TLV::TLVReader & input_arguments, CommandHandler * handler);
+
 private:
     // TODO: need list of attributes
     // TODO: need list of commands
