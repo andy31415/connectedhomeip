@@ -261,8 +261,8 @@ public:
                                                         chip::TLV::TLVReader & input_arguments, CommandHandler * handler);
 
 protected:
-    virtual const AttributeDefinition * AttributesBegin() const = 0;
-    virtual const AttributeDefinition * AttributesEnd() const   = 0;
+    [[nodiscard]] virtual const AttributeDefinition * AttributesBegin() const = 0;
+    [[nodiscard]] virtual const AttributeDefinition * AttributesEnd() const   = 0;
 };
 
 template <size_t kAttributeCount = 0>
