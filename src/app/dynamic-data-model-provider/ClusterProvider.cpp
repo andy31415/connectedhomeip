@@ -21,25 +21,25 @@ namespace chip {
 namespace app {
 namespace DynamicDataModel {
 
-DataModel::ActionReturnStatus Cluster::ReadAttribute(const DataModel::InteractionModelContext & context,
-                                                     const DataModel::ReadAttributeRequest & request,
-                                                     AttributeValueEncoder & encoder)
+DataModel::ActionReturnStatus ClusterBase::ReadAttribute(const DataModel::InteractionModelContext & context,
+                                                         const DataModel::ReadAttributeRequest & request,
+                                                         AttributeValueEncoder & encoder)
 {
     // TODO: implement
     return CHIP_ERROR_NOT_IMPLEMENTED;
 }
 
-DataModel::ActionReturnStatus Cluster::WriteAttribute(const DataModel::InteractionModelContext & context,
-                                                      const DataModel::WriteAttributeRequest & request,
-                                                      AttributeValueDecoder & decoder)
+DataModel::ActionReturnStatus ClusterBase::WriteAttribute(const DataModel::InteractionModelContext & context,
+                                                          const DataModel::WriteAttributeRequest & request,
+                                                          AttributeValueDecoder & decoder)
 {
     // TODO: implement
     return CHIP_ERROR_NOT_IMPLEMENTED;
 }
 
-std::optional<DataModel::ActionReturnStatus> Cluster::Invoke(const DataModel::InteractionModelContext & context,
-                                                             const DataModel::InvokeRequest & request,
-                                                             chip::TLV::TLVReader & input_arguments, CommandHandler * handler)
+std::optional<DataModel::ActionReturnStatus> ClusterBase::Invoke(const DataModel::InteractionModelContext & context,
+                                                                 const DataModel::InvokeRequest & request,
+                                                                 chip::TLV::TLVReader & input_arguments, CommandHandler * handler)
 {
     // TODO: implement
     return CHIP_ERROR_NOT_IMPLEMENTED;

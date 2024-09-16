@@ -16,6 +16,29 @@
  */
 #pragma once
 
+#include "access/Privilege.h"
+#include "lib/support/BitFlags.h"
+#include "lib/support/LambdaBridge.h"
+#include <app/AttributeValueDecoder.h>
+#include <app/AttributeValueEncoder.h>
+#include <app/CommandHandler.h>
+#include <app/data-model-provider/ActionReturnStatus.h>
+#include <app/data-model-provider/Context.h>
+#include <app/data-model-provider/MetadataTypes.h>
+#include <app/data-model-provider/OperationTypes.h>
+
+#include <array>
+#include <cstdint>
+#include <optional>
+
+// General interface expectation that would allow some internal hint in the caller class
+template <typename T>
+T NextItem(const T & previous, uintptr_t & hint);
+
+namespace chip {
+namespace app {
+namespace DynamicDataModel {
+
 // FIXME: implement
 //
 // TODO:
@@ -57,30 +80,87 @@
 //     allowing a single context:
 //       - CANNOT be a real pointer as there is no "free". Suggesting to just use some context.
 
-#include <app/AttributeValueDecoder.h>
-#include <app/AttributeValueEncoder.h>
-#include <app/CommandHandler.h>
-#include <app/data-model-provider/ActionReturnStatus.h>
-#include <app/data-model-provider/Context.h>
-#include <app/data-model-provider/MetadataTypes.h>
-#include <app/data-model-provider/OperationTypes.h>
+/// Represents the definition on how an attribute should be handled
+///
+/// For a given attribute, one has the capability to:
+struct AttributeDefinition
+{
+    AttributeId id;
+    DataModel::AttributeInfo metadata;
+    std::optional<LambdaBridge> readFunction;
+    std::optional<LambdaBridge> writeFunction;
+};
 
-#include <cstdint>
-#include <optional>
-
-// General interface expectation that would allow some internal hint in the caller class
-template <typename T>
-T NextItem(const T & previous, uintptr_t & hint);
-
-namespace chip {
-namespace app {
-namespace DynamicDataModel {
-
-class Cluster
+class AttributeDefinitionBuilder
 {
 public:
-    /// TODO: figure out a way to pass in `self` as callbacks to read/write attributes
-    ///       we may want to use lambdabridge in some way (do we have enough space???)
+    constexpr AttributeDefinitionBuilder(AttributeId id) :
+        mDefinition{
+            id,
+            {
+                BitFlags<DataModel::AttributeQualityFlags>(0) /* flags */,
+                std::make_optional(Access::Privilege::kView) /* readPrivilege */,
+                std::make_optional(Access::Privilege::kOperate) /* writePrivilege */,
+            },
+            std::nullopt /* readFunction */,
+            std::nullopt /* writeFunction */,
+        }
+    {}
+
+    /// Set a flag on the attribute (like list, scoped, timed etc.)
+    constexpr AttributeDefinitionBuilder & AddFlag(DataModel::AttributeQualityFlags flag)
+    {
+        mDefinition.metadata.flags.Set(flag);
+        return *this;
+    }
+
+    constexpr AttributeDefinitionBuilder & SetReadPrivilege(Access::Privilege p)
+    {
+        mDefinition.metadata.readPrivilege = std::make_optional(p);
+        return *this;
+    }
+
+    constexpr AttributeDefinitionBuilder & SetWritePrivilege(Access::Privilege p)
+    {
+        mDefinition.metadata.writePrivilege = std::make_optional(p);
+        return *this;
+    }
+
+    constexpr AttributeDefinitionBuilder & SetReadFunction(const LambdaBridge & f)
+    {
+        mDefinition.readFunction = std::make_optional(f);
+        return *this;
+    }
+
+    constexpr AttributeDefinitionBuilder & SetWriteFunction(const LambdaBridge & f)
+    {
+        mDefinition.writeFunction = std::make_optional(f);
+        return *this;
+    }
+
+    [[nodiscard]] constexpr AttributeDefinition Build() const { return mDefinition; }
+
+private:
+    AttributeDefinition mDefinition;
+};
+
+/// Defines a cluster implementation that is able to handle a set of attributes and commands
+///
+/// TODO: how do I generate events ?
+///
+/// TODO:
+///    - attribute storage -> This includes read/write invocations
+///    - command storage -> This includes invoke calls
+///
+/// Want: cluster class to be well defined, so need subclasses to provide the data storage
+///       for the underlying storage ...
+class ClusterBase
+{
+public:
+    virtual ~ClusterBase() = default;
+
+    // TODO: figure out a way to pass in `self` as callbacks to read/write attributes
+    //       we may want to use lambdabridge in some way (do we have enough space???)
 
     // TODO: cluster metadata:
     //   - BitFlags<ClusterQualityFlags>
@@ -118,9 +198,25 @@ public:
                                                         const DataModel::InvokeRequest & request,
                                                         chip::TLV::TLVReader & input_arguments, CommandHandler * handler);
 
-private:
-    // TODO: need list of attributes
-    // TODO: need list of commands
+protected:
+    virtual AttributeDefinition * AttributesBegin() = 0;
+    virtual AttributeDefinition * AttributesEnd()   = 0;
+};
+
+template <size_t kAttributeCount = 0>
+class Cluster : ClusterBase
+{
+public:
+    using AttributeArray = std::array<AttributeDefinition, kAttributeCount>;
+
+    constexpr Cluster(const AttributeArray & attributes) : mAttributes(attributes) {}
+    ~Cluster() override = default;
+
+protected:
+    AttributeArray mAttributes;
+
+    AttributeDefinition * AttributesBegin() override { return mAttributes.begin(); }
+    AttributeDefinition * AttributesEnd() override { return mAttributes.end(); }
 };
 
 } // namespace DynamicDataModel

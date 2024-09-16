@@ -17,9 +17,7 @@ import("${chip_root}/build/chip/chip_test_suite.gni")
 chip_test_suite("tests") {
   output_name = "libDynamicDataModelProviderTests"
 
-  test_sources = [
-    "TestClusterProvider.cpp",
-  ]
+  test_sources = [ "TestClusterProvider.cpp" ]
 
   cflags = [ "-Wconversion" ]
 

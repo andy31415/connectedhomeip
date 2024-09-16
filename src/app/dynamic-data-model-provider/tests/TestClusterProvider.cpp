@@ -16,10 +16,41 @@
  *    limitations under the License.
  */
 
+#include "access/Privilege.h"
+#include "app-common/zap-generated/cluster-enums.h"
+#include "app-common/zap-generated/ids/Attributes.h"
 #include <app/dynamic-data-model-provider/ClusterProvider.h>
 #include <lib/core/StringBuilderAdapters.h>
 
+#include <app-common/zap-generated/cluster-objects.h>
+
 #include <pw_unit_test/framework.h>
+
+namespace {
+
+using namespace chip::app;
+using namespace chip::app::DynamicDataModel;
+
+class TestCluster : public Cluster<2 /* kAttributeCount */>
+{
+public:
+    constexpr TestCluster() :
+        Cluster<2>({
+            AttributeDefinitionBuilder(Clusters::UnitTesting::Attributes::Boolean::Id).Build(),
+            AttributeDefinitionBuilder(Clusters::UnitTesting::Attributes::Bitmap8::Id)
+                .SetWritePrivilege(chip::Access::Privilege::kAdminister)
+                .Build(),
+        })
+    {}
+
+private:
+    bool GetBoolValue();
+
+    chip::BitMask<Clusters::UnitTesting::Bitmap8MaskMap> GetBitmap8Value();
+    CHIP_ERROR SetBitmap8Value(const chip::BitMask<Clusters::UnitTesting::Bitmap8MaskMap> &);
+};
+
+} // namespace
 
 TEST(TestClusterProvider, BasicTest)
 {
