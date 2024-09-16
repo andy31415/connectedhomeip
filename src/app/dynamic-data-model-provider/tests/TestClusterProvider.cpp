@@ -34,12 +34,21 @@ using namespace chip::app::DynamicDataModel;
 class TestCluster : public Cluster<2 /* kAttributeCount */>
 {
 public:
+    using Base = Cluster<2>;
+
     constexpr TestCluster() :
-        Cluster<2>({
-            AttributeDefinitionBuilder(Clusters::UnitTesting::Attributes::Boolean::Id).Build(),
-            AttributeDefinitionBuilder(Clusters::UnitTesting::Attributes::Bitmap8::Id)
-                .SetWritePrivilege(chip::Access::Privilege::kAdminister)
-                .Build(),
+        Base({
+            AttributeDefinition(Clusters::UnitTesting::Attributes::Boolean::Id),
+            AttributeDefinition(Clusters::UnitTesting::Attributes::Bitmap8::Id)
+                .SetWritePrivilege(chip::Access::Privilege::kAdminister),
+
+            // WHAT I want:
+            //   .SetReadFunction(Base::ReadVia(GetBitmap8Value))
+            //   .SetWriteFunction(Base::WriteVia(SetBitmap8Value))
+            //
+            // Issues:
+            //   - input data to function is DYNAMIC so lambda bridge does NOT work
+            //   - May need something else here, to be trivial. Modeled AFTER lambda bridge
         })
     {}
 

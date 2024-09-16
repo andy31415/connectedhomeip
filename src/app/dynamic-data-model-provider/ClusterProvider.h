@@ -16,9 +16,7 @@
  */
 #pragma once
 
-#include "access/Privilege.h"
-#include "lib/support/BitFlags.h"
-#include "lib/support/LambdaBridge.h"
+#include <access/Privilege.h>
 #include <app/AttributeValueDecoder.h>
 #include <app/AttributeValueEncoder.h>
 #include <app/CommandHandler.h>
@@ -26,6 +24,7 @@
 #include <app/data-model-provider/Context.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <app/data-model-provider/OperationTypes.h>
+#include <lib/support/BitFlags.h>
 
 #include <array>
 #include <cstdint>
@@ -80,68 +79,131 @@ namespace DynamicDataModel {
 //     allowing a single context:
 //       - CANNOT be a real pointer as there is no "free". Suggesting to just use some context.
 
+// A lambda specifically for reading functions
+class ReadLambda
+{
+private:
+    static constexpr std::size_t kAlign = sizeof(void *);
+    static constexpr std::size_t kSize  = 16;
+
+public:
+    // Use initialize instead of constructor because this class has to be trivial
+    template <typename Lambda>
+    void Initialize(const Lambda & lambda)
+    {
+        // memcpy is used to move the lambda into the event queue, so it must be trivially copyable
+        static_assert(std::is_trivially_copyable<Lambda>::value, "lambda must be trivially copyable");
+        static_assert(sizeof(Lambda) <= kSize, "lambda too large");
+        static_assert(kAlign % alignof(Lambda) == 0, "lambda align too large");
+
+        // Implicit cast a capture-less lambda into a raw function pointer.
+        mLambdaProxy = [](const LambdaStorage & body, const DataModel::InteractionModelContext & context,
+                          const DataModel::ReadAttributeRequest & request, AttributeValueEncoder & encoder) {
+            (*reinterpret_cast<const Lambda *>(&body))(context, request, encoder);
+        };
+        ::memcpy(&mLambdaBody, &lambda, sizeof(Lambda));
+    }
+
+    void operator()(const DataModel::InteractionModelContext & context, const DataModel::ReadAttributeRequest & request,
+                    AttributeValueEncoder & encoder) const
+    {
+        mLambdaProxy(mLambdaBody, context, request, encoder);
+    }
+
+private:
+    using LambdaStorage = std::aligned_storage_t<kSize, kAlign>;
+    void (*mLambdaProxy)(const LambdaStorage & body, const DataModel::InteractionModelContext & context,
+                         const DataModel::ReadAttributeRequest & request, AttributeValueEncoder & decoder);
+    LambdaStorage mLambdaBody;
+};
+
+// A lambda specifically for reading functions
+class WriteLambda
+{
+private:
+    static constexpr std::size_t kAlign = sizeof(void *);
+    static constexpr std::size_t kSize  = 16;
+
+public:
+    // Use initialize instead of constructor because this class has to be trivial
+    template <typename Lambda>
+    void Initialize(const Lambda & lambda)
+    {
+        // memcpy is used to move the lambda into the event queue, so it must be trivially copyable
+        static_assert(std::is_trivially_copyable<Lambda>::value, "lambda must be trivially copyable");
+        static_assert(sizeof(Lambda) <= kSize, "lambda too large");
+        static_assert(kAlign % alignof(Lambda) == 0, "lambda align too large");
+
+        // Implicit cast a capture-less lambda into a raw function pointer.
+        mLambdaProxy = [](const LambdaStorage & body, const DataModel::InteractionModelContext & context,
+                          const DataModel::WriteAttributeRequest & request, AttributeValueDecoder & decoder) {
+            (*reinterpret_cast<const Lambda *>(&body))(context, request, decoder);
+        };
+        ::memcpy(&mLambdaBody, &lambda, sizeof(Lambda));
+    }
+
+    void operator()(const DataModel::InteractionModelContext & context, const DataModel::WriteAttributeRequest & request,
+                    AttributeValueDecoder & decoder) const
+    {
+        mLambdaProxy(mLambdaBody, context, request, decoder);
+    }
+
+private:
+    using LambdaStorage = std::aligned_storage_t<kSize, kAlign>;
+    void (*mLambdaProxy)(const LambdaStorage & body, const DataModel::InteractionModelContext & context,
+                         const DataModel::WriteAttributeRequest & request, AttributeValueDecoder & decoder);
+    LambdaStorage mLambdaBody;
+};
+
 /// Represents the definition on how an attribute should be handled
 ///
-/// For a given attribute, one has the capability to:
+/// Maintains attribute metadata  as well as read/write functions to use
+/// when operating on such a function.
 struct AttributeDefinition
 {
     AttributeId id;
     DataModel::AttributeInfo metadata;
-    std::optional<LambdaBridge> readFunction;
-    std::optional<LambdaBridge> writeFunction;
-};
+    std::optional<ReadLambda> readFunction   = std::nullopt;
+    std::optional<WriteLambda> writeFunction = std::nullopt;
 
-class AttributeDefinitionBuilder
-{
-public:
-    constexpr AttributeDefinitionBuilder(AttributeId id) :
-        mDefinition{
-            id,
-            {
-                BitFlags<DataModel::AttributeQualityFlags>(0) /* flags */,
-                std::make_optional(Access::Privilege::kView) /* readPrivilege */,
-                std::make_optional(Access::Privilege::kOperate) /* writePrivilege */,
-            },
-            std::nullopt /* readFunction */,
-            std::nullopt /* writeFunction */,
-        }
+    constexpr AttributeDefinition(AttributeId attributeId) :
+        id(attributeId), metadata({
+                             BitFlags<DataModel::AttributeQualityFlags>(0) /* flags */,
+                             std::make_optional(Access::Privilege::kView) /* readPrivilege */,
+                             std::make_optional(Access::Privilege::kOperate) /* writePrivilege */,
+                         })
     {}
 
     /// Set a flag on the attribute (like list, scoped, timed etc.)
-    constexpr AttributeDefinitionBuilder & AddFlag(DataModel::AttributeQualityFlags flag)
+    constexpr AttributeDefinition & AddFlag(DataModel::AttributeQualityFlags flag)
     {
-        mDefinition.metadata.flags.Set(flag);
+        metadata.flags.Set(flag);
         return *this;
     }
 
-    constexpr AttributeDefinitionBuilder & SetReadPrivilege(Access::Privilege p)
+    constexpr AttributeDefinition & SetReadPrivilege(Access::Privilege p)
     {
-        mDefinition.metadata.readPrivilege = std::make_optional(p);
+        metadata.readPrivilege = std::make_optional(p);
         return *this;
     }
 
-    constexpr AttributeDefinitionBuilder & SetWritePrivilege(Access::Privilege p)
+    constexpr AttributeDefinition & SetWritePrivilege(Access::Privilege p)
     {
-        mDefinition.metadata.writePrivilege = std::make_optional(p);
+        metadata.writePrivilege = std::make_optional(p);
         return *this;
     }
 
-    constexpr AttributeDefinitionBuilder & SetReadFunction(const LambdaBridge & f)
+    constexpr AttributeDefinition & SetReadFunction(const ReadLambda & f)
     {
-        mDefinition.readFunction = std::make_optional(f);
+        readFunction = std::make_optional(f);
         return *this;
     }
 
-    constexpr AttributeDefinitionBuilder & SetWriteFunction(const LambdaBridge & f)
+    constexpr AttributeDefinition & SetWriteFunction(const WriteLambda & f)
     {
-        mDefinition.writeFunction = std::make_optional(f);
+        writeFunction = std::make_optional(f);
         return *this;
     }
-
-    [[nodiscard]] constexpr AttributeDefinition Build() const { return mDefinition; }
-
-private:
-    AttributeDefinition mDefinition;
 };
 
 /// Defines a cluster implementation that is able to handle a set of attributes and commands
@@ -199,8 +261,8 @@ public:
                                                         chip::TLV::TLVReader & input_arguments, CommandHandler * handler);
 
 protected:
-    virtual AttributeDefinition * AttributesBegin() = 0;
-    virtual AttributeDefinition * AttributesEnd()   = 0;
+    virtual const AttributeDefinition * AttributesBegin() const = 0;
+    virtual const AttributeDefinition * AttributesEnd() const   = 0;
 };
 
 template <size_t kAttributeCount = 0>
@@ -213,10 +275,10 @@ public:
     ~Cluster() override = default;
 
 protected:
-    AttributeArray mAttributes;
+    const AttributeArray mAttributes;
 
-    AttributeDefinition * AttributesBegin() override { return mAttributes.begin(); }
-    AttributeDefinition * AttributesEnd() override { return mAttributes.end(); }
+    const AttributeDefinition * AttributesBegin() const override { return mAttributes.cbegin(); }
+    const AttributeDefinition * AttributesEnd() const override { return mAttributes.cend(); }
 };
 
 } // namespace DynamicDataModel
