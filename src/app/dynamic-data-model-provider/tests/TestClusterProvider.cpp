@@ -16,8 +16,6 @@
  *    limitations under the License.
  */
 
-#include "lib/core/TLVReader.h"
-#include "protocols/interaction_model/StatusCode.h"
 #include <access/Privilege.h>
 #include <app-common/zap-generated/cluster-enums.h>
 #include <app-common/zap-generated/ids/Attributes.h>
@@ -30,6 +28,9 @@
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
 #include <lib/core/StringBuilderAdapters.h>
+#include <lib/core/TLVReader.h>
+#include <lib/support/BitFlags.h>
+#include <protocols/interaction_model/StatusCode.h>
 
 #include <app-common/zap-generated/cluster-objects.h>
 
@@ -154,9 +155,9 @@ TEST(TestClusterProvider, BasicRead)
                   Protocols::InteractionModel::Status::UnsupportedRead);
     }
 
-    constexpr uint32_t kTestValues[] = { 0x1234, 0, 1234, 4321, 100, 0xFFFFFF, 18 };
+    constexpr uint32_t kUint32TestValues[] = { 0x1234, 0, 1234, 4321, 100, 0xFFFFFF, 18 };
 
-    for (uint32_t testValue : kTestValues)
+    for (uint32_t testValue : kUint32TestValues)
     {
         testClusters.TestSetInt24Value(testValue);
 
@@ -185,5 +186,71 @@ TEST(TestClusterProvider, BasicRead)
         uint32_t readValue = 0;
         ASSERT_EQ(reader.Get(readValue), CHIP_NO_ERROR);
         ASSERT_EQ(readValue, testValue);
+    }
+
+    // Test bitmap8 values
+    constexpr chip::BitMask<Clusters::UnitTesting::Bitmap8MaskMap> kBitmapTestValues[] = {
+        chip::BitFlags<Clusters::UnitTesting::Bitmap8MaskMap>(Clusters::UnitTesting::Bitmap8MaskMap::kMaskVal1),
+        chip::BitFlags<Clusters::UnitTesting::Bitmap8MaskMap>(0),
+        chip::BitFlags<Clusters::UnitTesting::Bitmap8MaskMap>(Clusters::UnitTesting::Bitmap8MaskMap::kMaskVal1,
+                                                              Clusters::UnitTesting::Bitmap8MaskMap::kMaskVal2,
+                                                              Clusters::UnitTesting::Bitmap8MaskMap::kMaskVal4),
+        chip::BitFlags<Clusters::UnitTesting::Bitmap8MaskMap>(Clusters::UnitTesting::Bitmap8MaskMap::kMaskVal3,
+                                                              Clusters::UnitTesting::Bitmap8MaskMap::kMaskVal4),
+
+    };
+    for (auto testValue : kBitmapTestValues)
+    {
+        testClusters.SetBitmap8Value(testValue);
+
+        constexpr chip::DataVersion kTestDataVersion = 112233;
+
+        TestReadRequest read_request(
+            kAdminSubjectDescriptor,
+            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Bitmap8::Id));
+
+        std::unique_ptr<AttributeValueEncoder> encoder = read_request.StartEncoding(kTestDataVersion);
+        ASSERT_TRUE(encoder);
+
+        // attempt to read
+        ASSERT_EQ(testClusters.ReadAttribute(context, read_request.request, *encoder.get()), CHIP_NO_ERROR);
+        ASSERT_EQ(read_request.FinishEncoding(), CHIP_NO_ERROR);
+
+        std::vector<chip::Test::DecodedAttributeData> items;
+        ASSERT_EQ(read_request.encodedIBs.Decode(items), CHIP_NO_ERROR);
+
+        ASSERT_EQ(items.size(), 1u);
+
+        const chip::Test::DecodedAttributeData & data = items[0];
+        ASSERT_EQ(data.dataVersion, kTestDataVersion);
+
+        chip::TLV::TLVReader reader(data.dataReader);
+        BitMask<Clusters::UnitTesting::Bitmap8MaskMap> readValue = 0;
+        ASSERT_EQ(reader.Get(readValue), CHIP_NO_ERROR);
+        ASSERT_EQ(readValue, testValue);
+    }
+}
+
+TEST(TestClusterProvider, BasicWrite)
+{
+    // TODO: implement a basic write test, including the ability to have encoders ...
+    TestCluster testClusters;
+
+    // Minimal data required
+    DataModel::InteractionModelContext context{ nullptr, nullptr, nullptr };
+
+    {
+        DataModel::WriteAttributeRequest request;
+
+        request.subjectDescriptor = kAdminSubjectDescriptor;
+        request.path =
+            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Int24u::Id);
+
+        TLV::TLVReader reader; // FIXME: how do I fill this one up?
+
+        AttributeValueDecoder decoder(reader, kAdminSubjectDescriptor);
+
+        // attempt to read an unsupported attribute should error out
+        ASSERT_EQ(testClusters.WriteAttribute(context, request, decoder), Protocols::InteractionModel::Status::UnsupportedWrite);
     }
 }
