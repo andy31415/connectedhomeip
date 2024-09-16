@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "lib/core/CHIPError.h"
 #include <access/Privilege.h>
 #include <app/AttributeValueDecoder.h>
 #include <app/AttributeValueEncoder.h>
@@ -84,7 +85,7 @@ class ReadLambda
 {
 private:
     static constexpr std::size_t kAlign = sizeof(void *);
-    static constexpr std::size_t kSize  = 16;
+    static constexpr std::size_t kSize  = 32;
 
 public:
     // Use initialize instead of constructor because this class has to be trivial
@@ -98,22 +99,23 @@ public:
 
         // Implicit cast a capture-less lambda into a raw function pointer.
         mLambdaProxy = [](const LambdaStorage & body, const DataModel::InteractionModelContext & context,
-                          const DataModel::ReadAttributeRequest & request, AttributeValueEncoder & encoder) {
-            (*reinterpret_cast<const Lambda *>(&body))(context, request, encoder);
+                          const DataModel::ReadAttributeRequest & request,
+                          AttributeValueEncoder & encoder) -> DataModel::ActionReturnStatus {
+            return (*reinterpret_cast<const Lambda *>(&body))(context, request, encoder);
         };
         ::memcpy(&mLambdaBody, &lambda, sizeof(Lambda));
     }
 
-    void operator()(const DataModel::InteractionModelContext & context, const DataModel::ReadAttributeRequest & request,
-                    AttributeValueEncoder & encoder) const
+    DataModel::ActionReturnStatus operator()(const DataModel::InteractionModelContext & context,
+                                             const DataModel::ReadAttributeRequest & request, AttributeValueEncoder & encoder) const
     {
-        mLambdaProxy(mLambdaBody, context, request, encoder);
+        return mLambdaProxy(mLambdaBody, context, request, encoder);
     }
 
 private:
     using LambdaStorage = std::aligned_storage_t<kSize, kAlign>;
-    void (*mLambdaProxy)(const LambdaStorage & body, const DataModel::InteractionModelContext & context,
-                         const DataModel::ReadAttributeRequest & request, AttributeValueEncoder & decoder);
+    DataModel::ActionReturnStatus (*mLambdaProxy)(const LambdaStorage & body, const DataModel::InteractionModelContext & context,
+                                                  const DataModel::ReadAttributeRequest & request, AttributeValueEncoder & encoder);
     LambdaStorage mLambdaBody;
 };
 
@@ -122,7 +124,7 @@ class WriteLambda
 {
 private:
     static constexpr std::size_t kAlign = sizeof(void *);
-    static constexpr std::size_t kSize  = 16;
+    static constexpr std::size_t kSize  = 32;
 
 public:
     // Use initialize instead of constructor because this class has to be trivial
@@ -136,22 +138,25 @@ public:
 
         // Implicit cast a capture-less lambda into a raw function pointer.
         mLambdaProxy = [](const LambdaStorage & body, const DataModel::InteractionModelContext & context,
-                          const DataModel::WriteAttributeRequest & request, AttributeValueDecoder & decoder) {
-            (*reinterpret_cast<const Lambda *>(&body))(context, request, decoder);
+                          const DataModel::WriteAttributeRequest & request,
+                          AttributeValueDecoder & decoder) -> DataModel::ActionReturnStatus {
+            return (*reinterpret_cast<const Lambda *>(&body))(context, request, decoder);
         };
         ::memcpy(&mLambdaBody, &lambda, sizeof(Lambda));
     }
 
-    void operator()(const DataModel::InteractionModelContext & context, const DataModel::WriteAttributeRequest & request,
-                    AttributeValueDecoder & decoder) const
+    DataModel::ActionReturnStatus operator()(const DataModel::InteractionModelContext & context,
+                                             const DataModel::WriteAttributeRequest & request,
+                                             AttributeValueDecoder & decoder) const
     {
-        mLambdaProxy(mLambdaBody, context, request, decoder);
+        return mLambdaProxy(mLambdaBody, context, request, decoder);
     }
 
 private:
     using LambdaStorage = std::aligned_storage_t<kSize, kAlign>;
-    void (*mLambdaProxy)(const LambdaStorage & body, const DataModel::InteractionModelContext & context,
-                         const DataModel::WriteAttributeRequest & request, AttributeValueDecoder & decoder);
+    DataModel::ActionReturnStatus (*mLambdaProxy)(const LambdaStorage & body, const DataModel::InteractionModelContext & context,
+                                                  const DataModel::WriteAttributeRequest & request,
+                                                  AttributeValueDecoder & decoder);
     LambdaStorage mLambdaBody;
 };
 
@@ -221,6 +226,20 @@ class ClusterBase
 public:
     virtual ~ClusterBase() = default;
 
+    /// Methods to be used by subclasses when configuring read/writes
+    template <typename Class, typename Result>
+    constexpr ReadLambda ReadVia(Class * object, Result (Class::*memberFunction)())
+    {
+        ReadLambda value;
+        value.Initialize([this, object, memberFunction](const DataModel::InteractionModelContext & context,
+                                                        const DataModel::ReadAttributeRequest & request,
+                                                        AttributeValueEncoder & encoder) -> DataModel::ActionReturnStatus {
+            // memberFunction is a pure getter, so it never fails
+            return encoder.Encode((object->*memberFunction)());
+        });
+        return value;
+    }
+
     // TODO: figure out a way to pass in `self` as callbacks to read/write attributes
     //       we may want to use lambdabridge in some way (do we have enough space???)
 
@@ -266,7 +285,7 @@ protected:
 };
 
 template <size_t kAttributeCount = 0>
-class Cluster : ClusterBase
+class Cluster : public ClusterBase
 {
 public:
     using AttributeArray = std::array<AttributeDefinition, kAttributeCount>;

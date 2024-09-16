@@ -38,8 +38,9 @@ public:
 
     constexpr TestCluster() :
         Base({
-            AttributeDefinition(Clusters::UnitTesting::Attributes::Boolean::Id),
-            AttributeDefinition(Clusters::UnitTesting::Attributes::Bitmap8::Id)
+            AttributeDefinition(Clusters::UnitTesting::Attributes::Boolean::Id) //
+                .SetReadFunction(ReadVia(this, &TestCluster::GetBoolValue)),
+            AttributeDefinition(Clusters::UnitTesting::Attributes::Bitmap8::Id) //
                 .SetWritePrivilege(chip::Access::Privilege::kAdminister),
 
             // WHAT I want:
