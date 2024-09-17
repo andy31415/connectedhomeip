@@ -95,7 +95,8 @@ CHIP_ERROR DecodeAttributeReportIBs(ByteSpan data, std::vector<DecodedAttributeD
 
 std::unique_ptr<AttributeValueEncoder> ReadOperation::StartEncoding(const EncodingParams & params)
 {
-    VerifyOrDie(mState == State::kEncoding);
+    VerifyOrDie((mState == State::kEncoding) || (mState == State::kInitializing));
+    mState = State::kEncoding;
 
     CHIP_ERROR err = mEncodedIBs.StartEncoding(mAttributeReportIBsBuilder);
     if (err != CHIP_NO_ERROR)

@@ -136,8 +136,7 @@ TEST(TestClusterProvider, BasicRead)
     DataModel::InteractionModelContext context{ nullptr, nullptr, nullptr };
 
     {
-        ReadOperation operation(ReadOperation::ConstructionArguments(
-            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Boolean::Id)));
+        ReadOperation operation(0 /* endpoint */, 0 /* cluster */, Clusters::UnitTesting::Attributes::Boolean::Id);
 
         std::unique_ptr<AttributeValueEncoder> encoder = operation.StartEncoding();
         ASSERT_TRUE(encoder);
@@ -147,16 +146,14 @@ TEST(TestClusterProvider, BasicRead)
                   Protocols::InteractionModel::Status::UnsupportedRead);
     }
 
-    constexpr uint32_t kUint32TestValues[] = { 0x1234, 0, 1234, 4321, 100, 0xFFFFFF, 18 };
+    constexpr uint32_t kUint32TestValues[]       = { 0x1234, 0, 1234, 4321, 100, 0xFFFFFF, 18 };
+    constexpr chip::DataVersion kTestDataVersion = 112233;
 
     for (uint32_t testValue : kUint32TestValues)
     {
         testClusters.TestSetInt24Value(testValue);
 
-        constexpr chip::DataVersion kTestDataVersion = 112233;
-
-        ReadOperation operation(ReadOperation::ConstructionArguments(
-            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Int24u::Id)));
+        ReadOperation operation(0 /* endpoint */, 0 /* cluster */, Clusters::UnitTesting::Attributes::Int24u::Id);
 
         std::unique_ptr<AttributeValueEncoder> encoder =
             operation.StartEncoding(ReadOperation::EncodingParams().SetDataVersion(kTestDataVersion));
@@ -194,11 +191,7 @@ TEST(TestClusterProvider, BasicRead)
     for (auto testValue : kBitmapTestValues)
     {
         testClusters.SetBitmap8Value(testValue);
-
-        constexpr chip::DataVersion kTestDataVersion = 112233;
-
-        ReadOperation operation(ReadOperation::ConstructionArguments(
-            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Bitmap8::Id)));
+        ReadOperation operation(0 /* endpoint */, 0 /* cluster */, Clusters::UnitTesting::Attributes::Bitmap8::Id);
 
         std::unique_ptr<AttributeValueEncoder> encoder =
             operation.StartEncoding(ReadOperation::EncodingParams().SetDataVersion(kTestDataVersion));
@@ -225,7 +218,6 @@ TEST(TestClusterProvider, BasicRead)
 
 TEST(TestClusterProvider, BasicWrite)
 {
-    // TODO: implement a basic write test, including the ability to have encoders ...
     TestCluster testClusters;
 
     // Minimal data required

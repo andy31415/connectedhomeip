@@ -75,9 +75,9 @@ private:
 ///
 /// Usage:
 ///
-///    ReadOperation operation(ReadOperation::ConstructionArguments(path));
+///    ReadOperation operation(1 /* endpoint */, 2 /* cluster */, 3 /* attribute */);
 ///
-///    auto encoder = operation.StartEncoding(/* ... */)
+///    auto encoder = operation.StartEncoding(/* ... */);
 ///    ASSERT_NE(encoder.get(), nullptr);
 ///
 ///    // use encoder, like pass in to a WriteAttribute() call
@@ -133,37 +133,36 @@ public:
         AttributeEncodeState mAttributeEncodeState;
     };
 
-    /// Convenience builds an object by incrementally adding information
-    class ConstructionArguments
+    ReadOperation(const ConcreteAttributePath & path)
     {
-    public:
-        ConstructionArguments(ConcreteAttributePath path) { mRequest.path = path; }
+        mRequest.path              = path;
+        mRequest.subjectDescriptor = kDenySubjectDescriptor;
+    }
 
-        ConstructionArguments & SetSubjectDescriptor(const chip::Access::SubjectDescriptor & descriptor)
-        {
-            mRequest.subjectDescriptor = descriptor;
-            return *this;
-        }
+    ReadOperation(EndpointId endpoint, ClusterId cluster, AttributeId attribute) :
+        ReadOperation(ConcreteAttributePath(endpoint, cluster, attribute))
+    {}
 
-        ConstructionArguments & SetReadFlags(const BitFlags<DataModel::ReadFlags> & flags)
-        {
-            mRequest.readFlags = flags;
-            return *this;
-        }
+    ReadOperation & SetSubjectDescriptor(const chip::Access::SubjectDescriptor & descriptor)
+    {
+        VerifyOrDie(mState == State::kInitializing);
+        mRequest.subjectDescriptor = descriptor;
+        return *this;
+    }
 
-        ConstructionArguments & SetOperationFlags(const BitFlags<DataModel::OperationFlags> & flags)
-        {
-            mRequest.operationFlags = flags;
-            return *this;
-        }
+    ReadOperation & SetReadFlags(const BitFlags<DataModel::ReadFlags> & flags)
+    {
+        VerifyOrDie(mState == State::kInitializing);
+        mRequest.readFlags = flags;
+        return *this;
+    }
 
-        const DataModel::ReadAttributeRequest & Request() const { return mRequest; }
-
-    private:
-        DataModel::ReadAttributeRequest mRequest;
-    };
-
-    ReadOperation(const ConstructionArguments & arguments) : mRequest(arguments.Request()) {}
+    ReadOperation & SetOperationFlags(const BitFlags<DataModel::OperationFlags> & flags)
+    {
+        VerifyOrDie(mState == State::kInitializing);
+        mRequest.operationFlags = flags;
+        return *this;
+    }
 
     /// Start the encoding of a new element with the given data version associated to it.
     ///
@@ -192,11 +191,12 @@ public:
 private:
     enum class State
     {
-        kEncoding, // Encoding values via StartEncoding
-        kFinished, // FinishEncoding has been called
+        kInitializing, // Setting up initial values (i.e. setting up mRequest)
+        kEncoding,     // Encoding values via StartEncoding
+        kFinished,     // FinishEncoding has been called
 
     };
-    State mState = State::kEncoding;
+    State mState = State::kInitializing;
 
     DataModel::ReadAttributeRequest mRequest;
 
