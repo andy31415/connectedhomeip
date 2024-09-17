@@ -93,20 +93,23 @@ private:
 public:
     // Use initialize instead of constructor because this class has to be trivial
     template <typename Lambda>
-    void Initialize(const Lambda & lambda)
+    constexpr static ReadLambda For(const Lambda & lambda)
     {
+        ReadLambda result;
         // memcpy is used to move the lambda into the event queue, so it must be trivially copyable
         static_assert(std::is_trivially_copyable<Lambda>::value, "lambda must be trivially copyable");
         static_assert(sizeof(Lambda) <= kSize, "lambda too large");
         static_assert(kAlign % alignof(Lambda) == 0, "lambda align too large");
 
         // Implicit cast a capture-less lambda into a raw function pointer.
-        mLambdaProxy = [](const LambdaStorage & body, const DataModel::InteractionModelContext & context,
-                          const DataModel::ReadAttributeRequest & request,
-                          AttributeValueEncoder & encoder) -> DataModel::ActionReturnStatus {
+        result.mLambdaProxy = [](const LambdaStorage & body, const DataModel::InteractionModelContext & context,
+                                 const DataModel::ReadAttributeRequest & request,
+                                 AttributeValueEncoder & encoder) -> DataModel::ActionReturnStatus {
             return (*reinterpret_cast<const Lambda *>(&body))(context, request, encoder);
         };
-        ::memcpy(&mLambdaBody, &lambda, sizeof(Lambda));
+        ::memcpy(&result.mLambdaBody, &lambda, sizeof(Lambda));
+
+        return result;
     }
 
     DataModel::ActionReturnStatus operator()(const DataModel::InteractionModelContext & context,
@@ -132,20 +135,23 @@ private:
 public:
     // Use initialize instead of constructor because this class has to be trivial
     template <typename Lambda>
-    void Initialize(const Lambda & lambda)
+    constexpr static WriteLambda For(const Lambda & lambda)
     {
+        WriteLambda result;
+
         // memcpy is used to move the lambda into the event queue, so it must be trivially copyable
         static_assert(std::is_trivially_copyable<Lambda>::value, "lambda must be trivially copyable");
         static_assert(sizeof(Lambda) <= kSize, "lambda too large");
         static_assert(kAlign % alignof(Lambda) == 0, "lambda align too large");
 
         // Implicit cast a capture-less lambda into a raw function pointer.
-        mLambdaProxy = [](const LambdaStorage & body, const DataModel::InteractionModelContext & context,
-                          const DataModel::WriteAttributeRequest & request,
-                          AttributeValueDecoder & decoder) -> DataModel::ActionReturnStatus {
+        result.mLambdaProxy = [](const LambdaStorage & body, const DataModel::InteractionModelContext & context,
+                                 const DataModel::WriteAttributeRequest & request,
+                                 AttributeValueDecoder & decoder) -> DataModel::ActionReturnStatus {
             return (*reinterpret_cast<const Lambda *>(&body))(context, request, decoder);
         };
-        ::memcpy(&mLambdaBody, &lambda, sizeof(Lambda));
+        ::memcpy(&result.mLambdaBody, &lambda, sizeof(Lambda));
+        return result;
     }
 
     DataModel::ActionReturnStatus operator()(const DataModel::InteractionModelContext & context,
@@ -233,44 +239,38 @@ public:
     template <typename Class, typename DataType>
     constexpr ReadLambda ReadVia(Class * object, DataType (Class::*memberFunction)())
     {
-        ReadLambda value;
-        value.Initialize([object, memberFunction](const DataModel::InteractionModelContext & context,
+        return ReadLambda::For([object, memberFunction](const DataModel::InteractionModelContext & context,
                                                         const DataModel::ReadAttributeRequest & request,
                                                         AttributeValueEncoder & encoder) -> DataModel::ActionReturnStatus {
             // memberFunction is a pure getter, so it never fails
             return encoder.Encode((object->*memberFunction)());
         });
-        return value;
     }
 
     template <typename Class, typename DataType>
     constexpr WriteLambda WriteVia(Class * object, void (Class::*memberFunction)(DataType value))
     {
-        WriteLambda value;
-        value.Initialize([object, memberFunction](const DataModel::InteractionModelContext & context,
-                                                        const DataModel::WriteAttributeRequest & request,
-                                                        AttributeValueDecoder & decoder) -> DataModel::ActionReturnStatus {
+        return WriteLambda::For([object, memberFunction](const DataModel::InteractionModelContext & context,
+                                                         const DataModel::WriteAttributeRequest & request,
+                                                         AttributeValueDecoder & decoder) -> DataModel::ActionReturnStatus {
             DataType data;
             ReturnErrorOnFailure(decoder.Decode(data));
             // memberFunction is a pure setter, so it never fails
             (object->*memberFunction)(data);
             return CHIP_NO_ERROR;
         });
-        return value;
     }
 
     template <typename Class, typename DataType>
     constexpr WriteLambda WriteVia(Class * object, CHIP_ERROR (Class::*memberFunction)(DataType value))
     {
-        WriteLambda value;
-        value.Initialize([object, memberFunction](const DataModel::InteractionModelContext & context,
-                                                        const DataModel::WriteAttributeRequest & request,
-                                                        AttributeValueDecoder & decoder) -> DataModel::ActionReturnStatus {
+        return WriteLambda::For([object, memberFunction](const DataModel::InteractionModelContext & context,
+                                                         const DataModel::WriteAttributeRequest & request,
+                                                         AttributeValueDecoder & decoder) -> DataModel::ActionReturnStatus {
             std::decay_t<DataType> data;
             ReturnErrorOnFailure(decoder.Decode(data));
             return (object->*memberFunction)(data);
         });
-        return value;
     }
 
     // TODO: cluster metadata:
@@ -313,7 +313,7 @@ protected:
     [[nodiscard]] virtual const AttributeDefinition * AttributesBegin() const = 0;
     [[nodiscard]] virtual const AttributeDefinition * AttributesEnd() const   = 0;
 
-    [[nodiscard]] const AttributeDefinition * AttributeDefinitionForPath(const ConcreteAttributePath &path) const;
+    [[nodiscard]] const AttributeDefinition * AttributeDefinitionForPath(const ConcreteAttributePath & path) const;
 };
 
 template <size_t kAttributeCount = 0>
