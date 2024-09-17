@@ -50,6 +50,11 @@ constexpr Access::SubjectDescriptor kAdminSubjectDescriptor{
     .authMode    = Access::AuthMode::kCase,
     .subject     = kTestNodeId,
 };
+constexpr Access::SubjectDescriptor kDenySubjectDescriptor{
+    .fabricIndex = kTestFabrixIndex + 2,
+    .authMode    = Access::AuthMode::kCase,
+    .subject     = kTestNodeId,
+};
 
 class TestCluster : public Cluster<2 /* kAttributeCount */>
 {
@@ -89,6 +94,8 @@ private:
 ///
 /// It wraps boilerplate code to obtain a `AttributeValueEncoder` as well as later decoding
 /// the underlying encoded data for verification.
+///
+/// TODO: cary over TestReadRequest for preparing tests
 struct TestReadRequest
 {
     DataModel::ReadAttributeRequest request;
@@ -126,6 +133,55 @@ struct TestReadRequest
     }
 
     CHIP_ERROR FinishEncoding() { return encodedIBs.FinishEncoding(reportBuilder); }
+};
+
+// Sets up data for writing
+struct TestWriteRequest
+{
+    DataModel::WriteAttributeRequest request;
+    uint8_t tlvBuffer[128] = { 0 };
+    TLV::TLVReader
+        tlvReader; /// tlv reader used for the returned AttributeValueDecoder (since attributeValueDecoder uses references)
+
+    TestWriteRequest(const Access::SubjectDescriptor & subject, const ConcreteDataAttributePath & path)
+    {
+        request.subjectDescriptor = subject;
+        request.path              = path;
+    }
+
+    template <typename T>
+    TLV::TLVReader ReadEncodedValue(const T & value)
+    {
+        TLV::TLVWriter writer;
+        writer.Init(tlvBuffer);
+
+        // Encoding is within a structure:
+        //   - BEGIN_STRUCT
+        //     - 1: .....
+        //   - END_STRUCT
+        TLV::TLVType outerContainerType;
+        VerifyOrDie(writer.StartContainer(TLV::AnonymousTag(), TLV::kTLVType_Structure, outerContainerType) == CHIP_NO_ERROR);
+        VerifyOrDie(chip::app::DataModel::Encode(writer, TLV::ContextTag(1), value) == CHIP_NO_ERROR);
+        VerifyOrDie(writer.EndContainer(outerContainerType) == CHIP_NO_ERROR);
+        VerifyOrDie(writer.Finalize() == CHIP_NO_ERROR);
+
+        TLV::TLVReader reader;
+        reader.Init(tlvBuffer);
+
+        // position the reader inside the buffer, on the encoded value
+        VerifyOrDie(reader.Next() == CHIP_NO_ERROR);
+        VerifyOrDie(reader.EnterContainer(outerContainerType) == CHIP_NO_ERROR);
+        VerifyOrDie(reader.Next() == CHIP_NO_ERROR);
+
+        return reader;
+    }
+
+    template <class T>
+    AttributeValueDecoder DecoderFor(const T & value)
+    {
+        tlvReader = ReadEncodedValue(value);
+        return AttributeValueDecoder(tlvReader, request.subjectDescriptor.value_or(kDenySubjectDescriptor));
+    }
 };
 
 } // namespace
@@ -247,5 +303,29 @@ TEST(TestClusterProvider, BasicWrite)
 
         // attempt to read an unsupported attribute should error out
         ASSERT_EQ(testClusters.WriteAttribute(context, request, decoder), Protocols::InteractionModel::Status::UnsupportedWrite);
+    }
+
+    // Test bitmap8 values
+    constexpr chip::BitMask<Clusters::UnitTesting::Bitmap8MaskMap> kBitmapTestValues[] = {
+        chip::BitFlags<Clusters::UnitTesting::Bitmap8MaskMap>(Clusters::UnitTesting::Bitmap8MaskMap::kMaskVal1),
+        chip::BitFlags<Clusters::UnitTesting::Bitmap8MaskMap>(0),
+        chip::BitFlags<Clusters::UnitTesting::Bitmap8MaskMap>(Clusters::UnitTesting::Bitmap8MaskMap::kMaskVal1,
+                                                              Clusters::UnitTesting::Bitmap8MaskMap::kMaskVal2,
+                                                              Clusters::UnitTesting::Bitmap8MaskMap::kMaskVal4),
+        chip::BitFlags<Clusters::UnitTesting::Bitmap8MaskMap>(Clusters::UnitTesting::Bitmap8MaskMap::kMaskVal3,
+                                                              Clusters::UnitTesting::Bitmap8MaskMap::kMaskVal4),
+
+    };
+    for (auto testValue : kBitmapTestValues)
+    {
+        TestWriteRequest request(
+            kAdminSubjectDescriptor,
+            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Bitmap8::Id));
+
+        AttributeValueDecoder decoder = request.DecoderFor(testValue);
+
+        // Writing of the values should succeed and the written value should match
+        ASSERT_EQ(testClusters.WriteAttribute(context, request.request, decoder), CHIP_NO_ERROR);
+        ASSERT_EQ(testClusters.GetBitmap8Value(), testValue);
     }
 }
