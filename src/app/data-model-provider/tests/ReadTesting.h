@@ -16,14 +16,14 @@
  */
 #pragma once
 
-#include "access/SubjectDescriptor.h"
-#include "app/AttributeEncodeState.h"
-#include "lib/core/DataModelTypes.h"
-#include "lib/support/BitFlags.h"
+#include <access/SubjectDescriptor.h>
+#include <app/AttributeEncodeState.h>
 #include <app/AttributeValueEncoder.h>
 #include <app/ConcreteAttributePath.h>
 #include <app/data-model-provider/OperationTypes.h>
 #include <app/data-model-provider/tests/TestConstants.h>
+#include <lib/core/DataModelTypes.h>
+#include <lib/support/BitFlags.h>
 
 #include <vector>
 
@@ -152,7 +152,7 @@ public:
     CHIP_ERROR FinishEncoding();
 
     const DataModel::ReadAttributeRequest & GetRequest() const { return mRequest; }
-    const EncodedReportIBs& GetEncodedIBs() const { return mEncodedIBs; }
+    const EncodedReportIBs & GetEncodedIBs() const { return mEncodedIBs; }
 
 private:
     DataModel::ReadAttributeRequest mRequest;
