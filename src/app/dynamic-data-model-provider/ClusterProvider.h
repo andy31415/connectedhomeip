@@ -220,15 +220,15 @@ struct AttributeDefinition
     }
 };
 
-/// Defines a cluster implementation that is able to handle a set of attributes and commands
+/// Defines a cluster implementation that is able to handle a set of attributes and commands.
 ///
-/// TODO: how do I generate events ?
+/// ClusterBase objects are capable to handle read/write/invoke and provide
+/// sufficient metadata to fully support iteration as DataModel::ProviderMetadataTree for
+/// an individual cluster.
 ///
-/// TODO:
-///    - command storage -> This includes invoke calls
+/// Objects of this type are not often created as a stand-alone and are rather created
+/// out of `Cluster`
 ///
-/// Want: cluster class to be well defined, so need subclasses to provide the data storage
-///       for the underlying storage ...
 class ClusterBase
 {
 public:
