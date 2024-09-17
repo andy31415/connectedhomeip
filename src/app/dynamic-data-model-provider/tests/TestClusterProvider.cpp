@@ -1,5 +1,4 @@
 /*
- *
  *    Copyright (c) 2024 Project CHIP Authors
  *    All rights reserved.
  *
@@ -20,7 +19,6 @@
 #include <app-common/zap-generated/cluster-enums.h>
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app/AttributeValueEncoder.h>
-#include <app/codegen-data-model-provider/tests/AttributeReportIBEncodeDecode.h>
 #include <app/data-model-provider/Context.h>
 #include <app/data-model-provider/OperationTypes.h>
 #include <app/data-model-provider/StringBuilderAdapters.h>
@@ -32,29 +30,19 @@
 #include <lib/support/BitFlags.h>
 #include <protocols/interaction_model/StatusCode.h>
 
+#include <app/data-model-provider/tests/ReadTesting.h>
+#include <app/data-model-provider/tests/TestConstants.h>
+
 #include <app-common/zap-generated/cluster-objects.h>
 
 #include <pw_unit_test/framework.h>
 
 namespace {
 
-using namespace chip::app;
 using namespace chip;
+using namespace chip::app;
 using namespace chip::app::DynamicDataModel;
-
-constexpr FabricIndex kTestFabrixIndex = kMinValidFabricIndex;
-constexpr NodeId kTestNodeId           = 0xFFFF'1234'ABCD'4321;
-
-constexpr Access::SubjectDescriptor kAdminSubjectDescriptor{
-    .fabricIndex = kTestFabrixIndex,
-    .authMode    = Access::AuthMode::kCase,
-    .subject     = kTestNodeId,
-};
-constexpr Access::SubjectDescriptor kDenySubjectDescriptor{
-    .fabricIndex = kTestFabrixIndex + 2,
-    .authMode    = Access::AuthMode::kCase,
-    .subject     = kTestNodeId,
-};
+using namespace chip::app::Testing;
 
 class TestCluster : public Cluster<2 /* kAttributeCount */>
 {
@@ -87,52 +75,6 @@ public:
 private:
     uint32_t mInt24Value = 123;
     chip::BitMask<Clusters::UnitTesting::Bitmap8MaskMap> mMaskValue;
-};
-
-/// Contains a `ReadAttributeRequest` as well as classes to convert this into a AttributeReportIBs
-/// and later decode it
-///
-/// It wraps boilerplate code to obtain a `AttributeValueEncoder` as well as later decoding
-/// the underlying encoded data for verification.
-///
-/// TODO: cary over TestReadRequest for preparing tests
-struct TestReadRequest
-{
-    DataModel::ReadAttributeRequest request;
-
-    // encoded-used classes
-    chip::Test::EncodedReportIBs encodedIBs;
-    AttributeReportIBs::Builder reportBuilder;
-    std::unique_ptr<AttributeValueEncoder> encoder;
-
-    TestReadRequest(const chip::Access::SubjectDescriptor & subject, const ConcreteAttributePath & path)
-    {
-        // operationFlags is 0 i.e. not internal
-        // readFlags is 0 i.e. not fabric filtered
-        // dataVersion is missing (no data version filtering)
-        request.subjectDescriptor = subject;
-        request.path              = path;
-    }
-
-    std::unique_ptr<AttributeValueEncoder> StartEncoding(chip::DataVersion dataVersion,
-                                                         AttributeEncodeState state = AttributeEncodeState())
-    {
-        CHIP_ERROR err = encodedIBs.StartEncoding(reportBuilder);
-        if (err != CHIP_NO_ERROR)
-        {
-            ChipLogError(Test, "FAILURE starting encoding %" CHIP_ERROR_FORMAT, err.Format());
-            return nullptr;
-        }
-
-        // TODO: could we test isFabricFiltered and EncodeState?
-
-        // request.subjectDescriptor is known non-null because it is set in the constructor
-        // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-        return std::make_unique<AttributeValueEncoder>(reportBuilder, *request.subjectDescriptor, request.path, dataVersion,
-                                                       false /* aIsFabricFiltered */, state);
-    }
-
-    CHIP_ERROR FinishEncoding() { return encodedIBs.FinishEncoding(reportBuilder); }
 };
 
 // Sets up data for writing
@@ -194,15 +136,14 @@ TEST(TestClusterProvider, BasicRead)
     DataModel::InteractionModelContext context{ nullptr, nullptr, nullptr };
 
     {
-        TestReadRequest read_request(
-            kAdminSubjectDescriptor,
-            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Boolean::Id));
+        TestReadRequest read_request(TestReadRequest::ConstructionArguments(
+            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Boolean::Id)));
 
-        std::unique_ptr<AttributeValueEncoder> encoder = read_request.StartEncoding(123 /* dataVersion */);
+        std::unique_ptr<AttributeValueEncoder> encoder = read_request.StartEncoding();
         ASSERT_TRUE(encoder);
 
         // attempt to read an unsupported attribute should error out
-        ASSERT_EQ(testClusters.ReadAttribute(context, read_request.request, *encoder.get()),
+        ASSERT_EQ(testClusters.ReadAttribute(context, read_request.GetRequest(), *encoder.get()),
                   Protocols::InteractionModel::Status::UnsupportedRead);
     }
 
@@ -214,23 +155,23 @@ TEST(TestClusterProvider, BasicRead)
 
         constexpr chip::DataVersion kTestDataVersion = 112233;
 
-        TestReadRequest read_request(
-            kAdminSubjectDescriptor,
-            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Int24u::Id));
+        TestReadRequest read_request(TestReadRequest::ConstructionArguments(
+            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Int24u::Id)));
 
-        std::unique_ptr<AttributeValueEncoder> encoder = read_request.StartEncoding(kTestDataVersion);
+        std::unique_ptr<AttributeValueEncoder> encoder =
+            read_request.StartEncoding(TestReadRequest::EncodingParams().SetDataVersion(kTestDataVersion));
         ASSERT_TRUE(encoder);
 
         // attempt to read
-        ASSERT_EQ(testClusters.ReadAttribute(context, read_request.request, *encoder.get()), CHIP_NO_ERROR);
+        ASSERT_EQ(testClusters.ReadAttribute(context, read_request.GetRequest(), *encoder.get()), CHIP_NO_ERROR);
         ASSERT_EQ(read_request.FinishEncoding(), CHIP_NO_ERROR);
 
-        std::vector<chip::Test::DecodedAttributeData> items;
-        ASSERT_EQ(read_request.encodedIBs.Decode(items), CHIP_NO_ERROR);
+        std::vector<DecodedAttributeData> items;
+        ASSERT_EQ(read_request.GetEncodedIBs().Decode(items), CHIP_NO_ERROR);
 
         ASSERT_EQ(items.size(), 1u);
 
-        const chip::Test::DecodedAttributeData & data = items[0];
+        const DecodedAttributeData & data = items[0];
         ASSERT_EQ(data.dataVersion, kTestDataVersion);
 
         chip::TLV::TLVReader reader(data.dataReader);
@@ -256,23 +197,23 @@ TEST(TestClusterProvider, BasicRead)
 
         constexpr chip::DataVersion kTestDataVersion = 112233;
 
-        TestReadRequest read_request(
-            kAdminSubjectDescriptor,
-            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Bitmap8::Id));
+        TestReadRequest read_request(TestReadRequest::ConstructionArguments(
+            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Bitmap8::Id)));
 
-        std::unique_ptr<AttributeValueEncoder> encoder = read_request.StartEncoding(kTestDataVersion);
+        std::unique_ptr<AttributeValueEncoder> encoder =
+            read_request.StartEncoding(TestReadRequest::EncodingParams().SetDataVersion(kTestDataVersion));
         ASSERT_TRUE(encoder);
 
         // attempt to read
-        ASSERT_EQ(testClusters.ReadAttribute(context, read_request.request, *encoder.get()), CHIP_NO_ERROR);
+        ASSERT_EQ(testClusters.ReadAttribute(context, read_request.GetRequest(), *encoder.get()), CHIP_NO_ERROR);
         ASSERT_EQ(read_request.FinishEncoding(), CHIP_NO_ERROR);
 
-        std::vector<chip::Test::DecodedAttributeData> items;
-        ASSERT_EQ(read_request.encodedIBs.Decode(items), CHIP_NO_ERROR);
+        std::vector<DecodedAttributeData> items;
+        ASSERT_EQ(read_request.GetEncodedIBs().Decode(items), CHIP_NO_ERROR);
 
         ASSERT_EQ(items.size(), 1u);
 
-        const chip::Test::DecodedAttributeData & data = items[0];
+        const DecodedAttributeData & data = items[0];
         ASSERT_EQ(data.dataVersion, kTestDataVersion);
 
         chip::TLV::TLVReader reader(data.dataReader);
