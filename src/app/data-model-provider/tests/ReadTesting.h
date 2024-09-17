@@ -164,6 +164,13 @@ public:
         return *this;
     }
 
+    ReadOperation & SetPathExpanded(bool value)
+    {
+        VerifyOrDie(mState == State::kInitializing);
+        mRequest.path.mExpanded = value;
+        return *this;
+    }
+
     /// Start the encoding of a new element with the given data version associated to it.
     ///
     /// The input attribute encoding state will be attached to the returned value encoded (so that

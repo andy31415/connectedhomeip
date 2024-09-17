@@ -15,19 +15,6 @@ import("//build_overrides/chip.gni")
 import("${chip_root}/build/chip/chip_test_suite.gni")
 import("${chip_root}/src/app/codegen-data-model-provider/model.gni")
 
-source_set("reportib-encode-decode") {
-  sources = [
-    "AttributeReportIBEncodeDecode.cpp",
-    "AttributeReportIBEncodeDecode.h",
-  ]
-  public_deps = [
-    "${chip_root}/src/app:paths",
-    "${chip_root}/src/app/MessageDef",
-    "${chip_root}/src/lib/core",
-    "${chip_root}/src/lib/core:types",
-  ]
-}
-
 source_set("ember_extra_files") {
   sources = [
     # This IS TERRIBLE, however we want to pretend AAI exists for global
@@ -43,8 +30,8 @@ source_set("ember_extra_files") {
   ]
 
   public_deps = [
-    ":reportib-encode-decode",
     "${chip_root}/src/app/util/mock:mock_ember",
+    "${chip_root}/src/app/data-model-provider/tests:encode-decode",
     "${chip_root}/src/protocols",
   ]
 }

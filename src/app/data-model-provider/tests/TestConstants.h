@@ -32,6 +32,12 @@ constexpr Access::SubjectDescriptor kAdminSubjectDescriptor{
     .subject     = kTestNodeId,
 };
 
+constexpr Access::SubjectDescriptor kViewSubjectDescriptor{
+    .fabricIndex = kTestFabrixIndex + 1,
+    .authMode    = Access::AuthMode::kCase,
+    .subject     = kTestNodeId,
+};
+
 constexpr Access::SubjectDescriptor kDenySubjectDescriptor{
     .fabricIndex = kTestFabrixIndex + 2,
     .authMode    = Access::AuthMode::kCase,
