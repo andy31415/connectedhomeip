@@ -30,8 +30,8 @@ source_set("ember_extra_files") {
   ]
 
   public_deps = [
-    "${chip_root}/src/app/util/mock:mock_ember",
     "${chip_root}/src/app/data-model-provider/tests:encode-decode",
+    "${chip_root}/src/app/util/mock:mock_ember",
     "${chip_root}/src/protocols",
   ]
 }

@@ -1833,8 +1833,8 @@ TEST(TestCodegenModelViaMocks, AttributeAccessInterfaceListIncrementalRead)
     AttributeEncodeState encodeState;
     encodeState.SetCurrentEncodingListIndex(kEncodeIndexStart);
 
-    std::unique_ptr<AttributeValueEncoder> encoder = testRequest.StartEncoding(
-        ReadOperation::EncodingParams().SetEncodingState(encodeState));
+    std::unique_ptr<AttributeValueEncoder> encoder =
+        testRequest.StartEncoding(ReadOperation::EncodingParams().SetEncodingState(encodeState));
 
     // NOTE: overflow, however data should be valid. Technically both NO_MEMORY and BUFFER_TOO_SMALL
     // should be ok here, however we know buffer-too-small is the error in this case hence
