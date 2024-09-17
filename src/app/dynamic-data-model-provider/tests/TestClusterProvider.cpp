@@ -136,14 +136,14 @@ TEST(TestClusterProvider, BasicRead)
     DataModel::InteractionModelContext context{ nullptr, nullptr, nullptr };
 
     {
-        ReadOperation read_request(ReadOperation::ConstructionArguments(
+        ReadOperation operation(ReadOperation::ConstructionArguments(
             ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Boolean::Id)));
 
-        std::unique_ptr<AttributeValueEncoder> encoder = read_request.StartEncoding();
+        std::unique_ptr<AttributeValueEncoder> encoder = operation.StartEncoding();
         ASSERT_TRUE(encoder);
 
         // attempt to read an unsupported attribute should error out
-        ASSERT_EQ(testClusters.ReadAttribute(context, read_request.GetRequest(), *encoder.get()),
+        ASSERT_EQ(testClusters.ReadAttribute(context, operation.GetRequest(), *encoder.get()),
                   Protocols::InteractionModel::Status::UnsupportedRead);
     }
 
@@ -155,19 +155,19 @@ TEST(TestClusterProvider, BasicRead)
 
         constexpr chip::DataVersion kTestDataVersion = 112233;
 
-        ReadOperation read_request(ReadOperation::ConstructionArguments(
+        ReadOperation operation(ReadOperation::ConstructionArguments(
             ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Int24u::Id)));
 
         std::unique_ptr<AttributeValueEncoder> encoder =
-            read_request.StartEncoding(ReadOperation::EncodingParams().SetDataVersion(kTestDataVersion));
+            operation.StartEncoding(ReadOperation::EncodingParams().SetDataVersion(kTestDataVersion));
         ASSERT_TRUE(encoder);
 
         // attempt to read
-        ASSERT_EQ(testClusters.ReadAttribute(context, read_request.GetRequest(), *encoder.get()), CHIP_NO_ERROR);
-        ASSERT_EQ(read_request.FinishEncoding(), CHIP_NO_ERROR);
+        ASSERT_EQ(testClusters.ReadAttribute(context, operation.GetRequest(), *encoder.get()), CHIP_NO_ERROR);
+        ASSERT_EQ(operation.FinishEncoding(), CHIP_NO_ERROR);
 
         std::vector<DecodedAttributeData> items;
-        ASSERT_EQ(read_request.GetEncodedIBs().Decode(items), CHIP_NO_ERROR);
+        ASSERT_EQ(operation.GetEncodedIBs().Decode(items), CHIP_NO_ERROR);
 
         ASSERT_EQ(items.size(), 1u);
 
@@ -197,19 +197,19 @@ TEST(TestClusterProvider, BasicRead)
 
         constexpr chip::DataVersion kTestDataVersion = 112233;
 
-        ReadOperation read_request(ReadOperation::ConstructionArguments(
+        ReadOperation operation(ReadOperation::ConstructionArguments(
             ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Bitmap8::Id)));
 
         std::unique_ptr<AttributeValueEncoder> encoder =
-            read_request.StartEncoding(ReadOperation::EncodingParams().SetDataVersion(kTestDataVersion));
+            operation.StartEncoding(ReadOperation::EncodingParams().SetDataVersion(kTestDataVersion));
         ASSERT_TRUE(encoder);
 
         // attempt to read
-        ASSERT_EQ(testClusters.ReadAttribute(context, read_request.GetRequest(), *encoder.get()), CHIP_NO_ERROR);
-        ASSERT_EQ(read_request.FinishEncoding(), CHIP_NO_ERROR);
+        ASSERT_EQ(testClusters.ReadAttribute(context, operation.GetRequest(), *encoder.get()), CHIP_NO_ERROR);
+        ASSERT_EQ(operation.FinishEncoding(), CHIP_NO_ERROR);
 
         std::vector<DecodedAttributeData> items;
-        ASSERT_EQ(read_request.GetEncodedIBs().Decode(items), CHIP_NO_ERROR);
+        ASSERT_EQ(operation.GetEncodedIBs().Decode(items), CHIP_NO_ERROR);
 
         ASSERT_EQ(items.size(), 1u);
 
