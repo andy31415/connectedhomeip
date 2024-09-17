@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "app/ConcreteAttributePath.h"
 #include "lib/core/CHIPError.h"
 #include <access/Privilege.h>
 #include <app/AttributeValueDecoder.h>
@@ -233,7 +234,7 @@ public:
     constexpr ReadLambda ReadVia(Class * object, DataType (Class::*memberFunction)())
     {
         ReadLambda value;
-        value.Initialize([this, object, memberFunction](const DataModel::InteractionModelContext & context,
+        value.Initialize([object, memberFunction](const DataModel::InteractionModelContext & context,
                                                         const DataModel::ReadAttributeRequest & request,
                                                         AttributeValueEncoder & encoder) -> DataModel::ActionReturnStatus {
             // memberFunction is a pure getter, so it never fails
@@ -246,7 +247,7 @@ public:
     constexpr WriteLambda WriteVia(Class * object, void (Class::*memberFunction)(DataType value))
     {
         WriteLambda value;
-        value.Initialize([this, object, memberFunction](const DataModel::InteractionModelContext & context,
+        value.Initialize([object, memberFunction](const DataModel::InteractionModelContext & context,
                                                         const DataModel::WriteAttributeRequest & request,
                                                         AttributeValueDecoder & decoder) -> DataModel::ActionReturnStatus {
             DataType data;
@@ -262,7 +263,7 @@ public:
     constexpr WriteLambda WriteVia(Class * object, CHIP_ERROR (Class::*memberFunction)(DataType value))
     {
         WriteLambda value;
-        value.Initialize([this, object, memberFunction](const DataModel::InteractionModelContext & context,
+        value.Initialize([object, memberFunction](const DataModel::InteractionModelContext & context,
                                                         const DataModel::WriteAttributeRequest & request,
                                                         AttributeValueDecoder & decoder) -> DataModel::ActionReturnStatus {
             std::decay_t<DataType> data;
@@ -311,6 +312,8 @@ public:
 protected:
     [[nodiscard]] virtual const AttributeDefinition * AttributesBegin() const = 0;
     [[nodiscard]] virtual const AttributeDefinition * AttributesEnd() const   = 0;
+
+    [[nodiscard]] const AttributeDefinition * AttributeDefinitionForPath(const ConcreteAttributePath &path) const;
 };
 
 template <size_t kAttributeCount = 0>

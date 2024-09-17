@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "lib/support/CodeUtils.h"
 #include <app/dynamic-data-model-provider/ClusterProvider.h>
 #include <lib/core/CHIPError.h>
 
@@ -21,30 +22,44 @@ namespace chip {
 namespace app {
 namespace DynamicDataModel {
 
-DataModel::ActionReturnStatus ClusterBase::ReadAttribute(const DataModel::InteractionModelContext & context,
-                                                         const DataModel::ReadAttributeRequest & request,
-                                                         AttributeValueEncoder & encoder)
+const AttributeDefinition * ClusterBase::AttributeDefinitionForPath(const ConcreteAttributePath & path) const
 {
+    // TODO: we may want to check clusterID for a match
     const AttributeDefinition * attribute = AttributesBegin();
     const AttributeDefinition * end       = AttributesEnd();
 
     for (; attribute != end; attribute++)
     {
-        if (attribute->id == request.path.mAttributeId)
+        if (attribute->id == path.mAttributeId)
         {
-            return (*attribute->readFunction)(context, request, encoder);
+            return attribute;
         }
     }
+    return nullptr;
+}
 
-    return Protocols::InteractionModel::Status::UnsupportedRead;
+DataModel::ActionReturnStatus ClusterBase::ReadAttribute(const DataModel::InteractionModelContext & context,
+                                                         const DataModel::ReadAttributeRequest & request,
+                                                         AttributeValueEncoder & encoder)
+{
+    const AttributeDefinition * attribute = AttributeDefinitionForPath(request.path);
+
+    VerifyOrReturnValue(attribute != nullptr, Protocols::InteractionModel::Status::UnsupportedRead);
+    VerifyOrReturnValue(attribute->readFunction.has_value(), Protocols::InteractionModel::Status::UnsupportedRead);
+
+    return (*attribute->readFunction)(context, request, encoder);
 }
 
 DataModel::ActionReturnStatus ClusterBase::WriteAttribute(const DataModel::InteractionModelContext & context,
                                                           const DataModel::WriteAttributeRequest & request,
                                                           AttributeValueDecoder & decoder)
 {
-    // TODO: implement
-    return CHIP_ERROR_NOT_IMPLEMENTED;
+    const AttributeDefinition * attribute = AttributeDefinitionForPath(request.path);
+
+    VerifyOrReturnValue(attribute != nullptr, Protocols::InteractionModel::Status::UnsupportedWrite);
+    VerifyOrReturnValue(attribute->writeFunction.has_value(), Protocols::InteractionModel::Status::UnsupportedWrite);
+
+    return (*attribute->writeFunction)(context, request, decoder);
 }
 
 std::optional<DataModel::ActionReturnStatus> ClusterBase::Invoke(const DataModel::InteractionModelContext & context,

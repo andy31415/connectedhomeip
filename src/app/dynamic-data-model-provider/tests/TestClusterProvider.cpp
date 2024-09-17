@@ -50,11 +50,6 @@ constexpr Access::SubjectDescriptor kAdminSubjectDescriptor{
     .authMode    = Access::AuthMode::kCase,
     .subject     = kTestNodeId,
 };
-constexpr Access::SubjectDescriptor kViewSubjectDescriptor{
-    .fabricIndex = kTestFabrixIndex + 1,
-    .authMode    = Access::AuthMode::kCase,
-    .subject     = kTestNodeId,
-};
 
 class TestCluster : public Cluster<2 /* kAttributeCount */>
 {
