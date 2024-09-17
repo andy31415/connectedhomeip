@@ -225,7 +225,6 @@ struct AttributeDefinition
 /// TODO: how do I generate events ?
 ///
 /// TODO:
-///    - attribute storage -> This includes read/write invocations
 ///    - command storage -> This includes invoke calls
 ///
 /// Want: cluster class to be well defined, so need subclasses to provide the data storage
