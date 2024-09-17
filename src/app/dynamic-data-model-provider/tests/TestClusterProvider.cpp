@@ -136,7 +136,7 @@ TEST(TestClusterProvider, BasicRead)
     DataModel::InteractionModelContext context{ nullptr, nullptr, nullptr };
 
     {
-        TestReadRequest read_request(TestReadRequest::ConstructionArguments(
+        ReadOperation read_request(ReadOperation::ConstructionArguments(
             ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Boolean::Id)));
 
         std::unique_ptr<AttributeValueEncoder> encoder = read_request.StartEncoding();
@@ -155,11 +155,11 @@ TEST(TestClusterProvider, BasicRead)
 
         constexpr chip::DataVersion kTestDataVersion = 112233;
 
-        TestReadRequest read_request(TestReadRequest::ConstructionArguments(
+        ReadOperation read_request(ReadOperation::ConstructionArguments(
             ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Int24u::Id)));
 
         std::unique_ptr<AttributeValueEncoder> encoder =
-            read_request.StartEncoding(TestReadRequest::EncodingParams().SetDataVersion(kTestDataVersion));
+            read_request.StartEncoding(ReadOperation::EncodingParams().SetDataVersion(kTestDataVersion));
         ASSERT_TRUE(encoder);
 
         // attempt to read
@@ -197,11 +197,11 @@ TEST(TestClusterProvider, BasicRead)
 
         constexpr chip::DataVersion kTestDataVersion = 112233;
 
-        TestReadRequest read_request(TestReadRequest::ConstructionArguments(
+        ReadOperation read_request(ReadOperation::ConstructionArguments(
             ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Bitmap8::Id)));
 
         std::unique_ptr<AttributeValueEncoder> encoder =
-            read_request.StartEncoding(TestReadRequest::EncodingParams().SetDataVersion(kTestDataVersion));
+            read_request.StartEncoding(ReadOperation::EncodingParams().SetDataVersion(kTestDataVersion));
         ASSERT_TRUE(encoder);
 
         // attempt to read

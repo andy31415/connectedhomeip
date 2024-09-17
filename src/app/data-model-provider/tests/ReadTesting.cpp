@@ -21,39 +21,7 @@
 namespace chip {
 namespace app {
 namespace Testing {
-
-std::unique_ptr<AttributeValueEncoder> TestReadRequest::StartEncoding(const EncodingParams & params)
-{
-    CHIP_ERROR err = mEncodedIBs.StartEncoding(mAttributeReportIBsBuilder);
-    if (err != CHIP_NO_ERROR)
-    {
-        ChipLogError(Test, "FAILURE starting encoding %" CHIP_ERROR_FORMAT, err.Format());
-        return nullptr;
-    }
-
-    // mRequest.subjectDescriptor is known non-null because it is set in the constructor
-    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-    return std::make_unique<AttributeValueEncoder>(mAttributeReportIBsBuilder, *mRequest.subjectDescriptor, mRequest.path,
-                                                   params.GetDataVersion(), params.GetIsFabricFiltered(),
-                                                   params.GetAttributeEncodeState());
-}
-
-CHIP_ERROR TestReadRequest::FinishEncoding()
-{
-    return mEncodedIBs.FinishEncoding(mAttributeReportIBsBuilder);
-}
-
-CHIP_ERROR DecodedAttributeData::DecodeFrom(const AttributeDataIB::Parser & parser)
-{
-    ReturnErrorOnFailure(parser.GetDataVersion(&dataVersion));
-
-    AttributePathIB::Parser pathParser;
-    ReturnErrorOnFailure(parser.GetPath(&pathParser));
-    ReturnErrorOnFailure(pathParser.GetConcreteAttributePath(attributePath, AttributePathIB::ValidateIdRanges::kNo));
-    ReturnErrorOnFailure(parser.GetData(&dataReader));
-
-    return CHIP_NO_ERROR;
-}
+namespace {
 
 CHIP_ERROR DecodeAttributeReportIBs(ByteSpan data, std::vector<DecodedAttributeData> & decoded_items)
 {
@@ -121,6 +89,45 @@ CHIP_ERROR DecodeAttributeReportIBs(ByteSpan data, std::vector<DecodedAttributeD
     }
 
     return err;
+}
+
+} // namespace
+
+std::unique_ptr<AttributeValueEncoder> ReadOperation::StartEncoding(const EncodingParams & params)
+{
+    VerifyOrDie(mState == State::kEncoding);
+
+    CHIP_ERROR err = mEncodedIBs.StartEncoding(mAttributeReportIBsBuilder);
+    if (err != CHIP_NO_ERROR)
+    {
+        ChipLogError(Test, "FAILURE starting encoding %" CHIP_ERROR_FORMAT, err.Format());
+        return nullptr;
+    }
+
+    // mRequest.subjectDescriptor is known non-null because it is set in the constructor
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+    return std::make_unique<AttributeValueEncoder>(mAttributeReportIBsBuilder, *mRequest.subjectDescriptor, mRequest.path,
+                                                   params.GetDataVersion(), params.GetIsFabricFiltered(),
+                                                   params.GetAttributeEncodeState());
+}
+
+CHIP_ERROR ReadOperation::FinishEncoding()
+{
+    VerifyOrDie(mState == State::kEncoding);
+    mState = State::kFinished;
+    return mEncodedIBs.FinishEncoding(mAttributeReportIBsBuilder);
+}
+
+CHIP_ERROR DecodedAttributeData::DecodeFrom(const AttributeDataIB::Parser & parser)
+{
+    ReturnErrorOnFailure(parser.GetDataVersion(&dataVersion));
+
+    AttributePathIB::Parser pathParser;
+    ReturnErrorOnFailure(parser.GetPath(&pathParser));
+    ReturnErrorOnFailure(pathParser.GetConcreteAttributePath(attributePath, AttributePathIB::ValidateIdRanges::kNo));
+    ReturnErrorOnFailure(parser.GetData(&dataReader));
+
+    return CHIP_NO_ERROR;
 }
 
 CHIP_ERROR EncodedReportIBs::StartEncoding(app::AttributeReportIBs::Builder & builder)

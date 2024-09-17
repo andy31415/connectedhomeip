@@ -41,8 +41,6 @@ struct DecodedAttributeData
     CHIP_ERROR DecodeFrom(const chip::app::AttributeDataIB::Parser & parser);
 };
 
-CHIP_ERROR DecodeAttributeReportIBs(ByteSpan data, std::vector<DecodedAttributeData> & decoded_items);
-
 /// Maintains an internal TLV buffer for data encoding and
 /// decoding for ReportIBs.
 ///
@@ -61,7 +59,9 @@ public:
     CHIP_ERROR Decode(std::vector<DecodedAttributeData> & decoded_items) const;
 
 private:
-    uint8_t mTlvDataBuffer[1024];
+    constexpr static size_t kMaxTLVBufferSize = 1024;
+
+    uint8_t mTlvDataBuffer[kMaxTLVBufferSize];
     TLV::TLVType mOuterStructureType;
     TLV::TLVWriter mEncodeWriter;
     ByteSpan mDecodeSpan;
@@ -72,7 +72,31 @@ private:
 ///
 /// It wraps boilerplate code to obtain a `AttributeValueEncoder` as well as later decoding
 /// the underlying encoded data for verification.
-class TestReadRequest
+///
+/// Usage:
+///
+///    ReadOperation operation(ReadOperation::ConstructionArguments(path));
+///
+///    auto encoder = operation.StartEncoding(/* ... */)
+///    ASSERT_NE(encoder.get(), nullptr);
+///
+///    // use encoder, like pass in to a WriteAttribute() call
+///
+///    ASSERT_EQ(operation.FinishEncoding(), CHIP_NO_ERROR);
+///
+///    // extract the written data
+///    std::vector<DecodedAttributeData> items;
+///    ASSERT_EQ(read_request.GetEncodedIBs().Decode(items), CHIP_NO_ERROR);
+///
+///    // can use items::dataReader for a chip::TLV::TLVReader access to the underlying data
+///    // for example
+///    uint32_t value = 0;
+///    chip::TLV::TLVReader reader(items[0].dataReader);
+///    ASSERT_EQ(reader.Get(value), CHIP_NO_ERROR);
+///    ASSERT_EQ(value, 123u);
+///
+///
+class ReadOperation
 {
 public:
     /// Represents parameters for StartEncoding
@@ -139,7 +163,7 @@ public:
         DataModel::ReadAttributeRequest mRequest;
     };
 
-    TestReadRequest(const ConstructionArguments & arguments) : mRequest(arguments.Request()) {}
+    ReadOperation(const ConstructionArguments & arguments) : mRequest(arguments.Request()) {}
 
     /// Start the encoding of a new element with the given data version associated to it.
     ///
@@ -149,12 +173,31 @@ public:
     std::unique_ptr<AttributeValueEncoder> StartEncoding(const EncodingParams & params = EncodingParams());
 
     /// Completes the encoding and finalizes the undelying AttributeReport.
+    ///
+    /// Call this to finish a set of `StartEncoding` values and have access to
+    /// the underlying `GetEncodedIBs`
     CHIP_ERROR FinishEncoding();
 
+    /// Get the underlying read request (i.e. path and flags) for this request
     const DataModel::ReadAttributeRequest & GetRequest() const { return mRequest; }
-    const EncodedReportIBs & GetEncodedIBs() const { return mEncodedIBs; }
+
+    /// Once encoding has finished, you can get access to the underlying
+    /// written data via GetEncodedIBs.
+    const EncodedReportIBs & GetEncodedIBs() const
+    {
+        VerifyOrDie(mState == State::kFinished);
+        return mEncodedIBs;
+    }
 
 private:
+    enum class State
+    {
+        kEncoding, // Encoding values via StartEncoding
+        kFinished, // FinishEncoding has been called
+
+    };
+    State mState = State::kEncoding;
+
     DataModel::ReadAttributeRequest mRequest;
 
     // encoded-used classes
