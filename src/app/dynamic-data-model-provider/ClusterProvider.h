@@ -327,8 +327,8 @@ public:
 protected:
     const AttributeArray mAttributes;
 
-    [[nodiscard]] const AttributeDefinition * AttributesBegin() const override { return mAttributes.cbegin(); }
-    [[nodiscard]] const AttributeDefinition * AttributesEnd() const override { return mAttributes.cend(); }
+    [[nodiscard]] const AttributeDefinition * AttributesBegin() const override { return mAttributes.data(); }
+    [[nodiscard]] const AttributeDefinition * AttributesEnd() const override { return mAttributes.data() + kAttributeCount; }
 };
 
 } // namespace DynamicDataModel

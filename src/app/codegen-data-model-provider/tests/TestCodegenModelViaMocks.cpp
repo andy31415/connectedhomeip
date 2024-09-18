@@ -72,9 +72,6 @@ using chip::Protocols::InteractionModel::Status;
 
 namespace {
 
-constexpr FabricIndex kTestFabrixIndex = kMinValidFabricIndex;
-constexpr NodeId kTestNodeId           = 0xFFFF'1234'ABCD'4321;
-
 constexpr AttributeId kAttributeIdReadOnly   = 0x3001;
 constexpr AttributeId kAttributeIdTimedWrite = 0x3002;
 
