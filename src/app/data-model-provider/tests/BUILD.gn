@@ -43,9 +43,8 @@ source_set("encode-decode") {
     "ReadTesting.cpp",
     "ReadTesting.h",
     "TestConstants.h",
-
-    # "WriteTesting.cpp",
-    # "WriteTesting.h",
+    "WriteTesting.cpp",
+    "WriteTesting.h",
   ]
 
   public_deps = [

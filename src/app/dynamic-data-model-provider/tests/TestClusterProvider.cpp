@@ -22,6 +22,9 @@
 #include <app/data-model-provider/Context.h>
 #include <app/data-model-provider/OperationTypes.h>
 #include <app/data-model-provider/StringBuilderAdapters.h>
+#include <app/data-model-provider/tests/ReadTesting.h>
+#include <app/data-model-provider/tests/TestConstants.h>
+#include <app/data-model-provider/tests/WriteTesting.h>
 #include <app/dynamic-data-model-provider/ClusterProvider.h>
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
@@ -29,9 +32,6 @@
 #include <lib/core/TLVReader.h>
 #include <lib/support/BitFlags.h>
 #include <protocols/interaction_model/StatusCode.h>
-
-#include <app/data-model-provider/tests/ReadTesting.h>
-#include <app/data-model-provider/tests/TestConstants.h>
 
 #include <app-common/zap-generated/cluster-objects.h>
 
@@ -75,55 +75,6 @@ public:
 private:
     uint32_t mInt24Value = 123;
     chip::BitMask<Clusters::UnitTesting::Bitmap8MaskMap> mMaskValue;
-};
-
-// Sets up data for writing
-struct TestWriteRequest
-{
-    DataModel::WriteAttributeRequest request;
-    uint8_t tlvBuffer[128] = { 0 };
-    TLV::TLVReader
-        tlvReader; /// tlv reader used for the returned AttributeValueDecoder (since attributeValueDecoder uses references)
-
-    TestWriteRequest(const Access::SubjectDescriptor & subject, const ConcreteDataAttributePath & path)
-    {
-        request.subjectDescriptor = subject;
-        request.path              = path;
-    }
-
-    template <typename T>
-    TLV::TLVReader ReadEncodedValue(const T & value)
-    {
-        TLV::TLVWriter writer;
-        writer.Init(tlvBuffer);
-
-        // Encoding is within a structure:
-        //   - BEGIN_STRUCT
-        //     - 1: .....
-        //   - END_STRUCT
-        TLV::TLVType outerContainerType;
-        VerifyOrDie(writer.StartContainer(TLV::AnonymousTag(), TLV::kTLVType_Structure, outerContainerType) == CHIP_NO_ERROR);
-        VerifyOrDie(chip::app::DataModel::Encode(writer, TLV::ContextTag(1), value) == CHIP_NO_ERROR);
-        VerifyOrDie(writer.EndContainer(outerContainerType) == CHIP_NO_ERROR);
-        VerifyOrDie(writer.Finalize() == CHIP_NO_ERROR);
-
-        TLV::TLVReader reader;
-        reader.Init(tlvBuffer);
-
-        // position the reader inside the buffer, on the encoded value
-        VerifyOrDie(reader.Next() == CHIP_NO_ERROR);
-        VerifyOrDie(reader.EnterContainer(outerContainerType) == CHIP_NO_ERROR);
-        VerifyOrDie(reader.Next() == CHIP_NO_ERROR);
-
-        return reader;
-    }
-
-    template <class T>
-    AttributeValueDecoder DecoderFor(const T & value)
-    {
-        tlvReader = ReadEncodedValue(value);
-        return AttributeValueDecoder(tlvReader, request.subjectDescriptor.value_or(kDenySubjectDescriptor));
-    }
 };
 
 } // namespace
@@ -251,14 +202,13 @@ TEST(TestClusterProvider, BasicWrite)
     };
     for (auto testValue : kBitmapTestValues)
     {
-        TestWriteRequest request(
-            kAdminSubjectDescriptor,
-            ConcreteAttributePath(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Bitmap8::Id));
+        WriteOperation request(0 /* kEndpointId */, 0 /* kClusterId */, Clusters::UnitTesting::Attributes::Bitmap8::Id);
+        request.SetSubjectDescriptor(kAdminSubjectDescriptor);
 
         AttributeValueDecoder decoder = request.DecoderFor(testValue);
 
         // Writing of the values should succeed and the written value should match
-        ASSERT_EQ(testClusters.WriteAttribute(context, request.request, decoder), CHIP_NO_ERROR);
+        ASSERT_EQ(testClusters.WriteAttribute(context, request.GetRequest(), decoder), CHIP_NO_ERROR);
         ASSERT_EQ(testClusters.GetBitmap8Value(), testValue);
     }
 }
