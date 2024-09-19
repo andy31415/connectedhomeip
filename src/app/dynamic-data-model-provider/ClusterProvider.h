@@ -144,7 +144,7 @@ public:
     //
     //   Pattern to use: use uintptr_t as a "hint" (this can be used in the actual provider as well
     //   and clusters should probably be grouped within a endpoint for composition purposes)
-    
+
     /// Get a snapshot of the current cluster information.
     DataModel::ClusterInfo GetClusterInfo() const
     {
