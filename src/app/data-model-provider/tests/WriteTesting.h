@@ -27,7 +27,20 @@ namespace chip {
 namespace app {
 namespace Testing {
 
-// Sets up data for writing
+/// Contains support for setting up a WriteAttributeRequest and underlying data.
+///
+/// It wraps the boilerplate to obtain a AttributeValueDecoder that can be passed in
+/// to DataModel::Provider calls.
+///
+/// Usage:
+///
+///    WriteOperation operation(1 /* endpoint */, 2 /* cluster */, 3 /* attribute */);
+///    test.SetSubjectDescriptor(kAdminSubjectDescriptor);  // optional set access
+///
+///    AttributeValueDecoder decoder = test.DecoderFor<uint32_t>(0x1234);
+///
+///    // decoder is usable at this point
+///    ASSERT_EQ(model.WriteAttribute(test.GetRequest(), decoder), CHIP_NO_ERROR);
 class WriteOperation
 {
 public:
