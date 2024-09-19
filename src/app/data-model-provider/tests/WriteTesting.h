@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "lib/core/DataModelTypes.h"
 #include <app/AttributeValueDecoder.h>
 #include <app/data-model-provider/OperationTypes.h>
 #include <app/data-model-provider/tests/TestConstants.h>
@@ -49,6 +50,12 @@ public:
     WriteOperation & SetPreviousSuccessPath(std::optional<ConcreteAttributePath> path)
     {
         mRequest.previousSuccessPath = path;
+        return *this;
+    }
+
+    WriteOperation & SetDataVersion(Optional<DataVersion> version)
+    {
+        mRequest.path.mDataVersion = version;
         return *this;
     }
 
