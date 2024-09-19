@@ -14,9 +14,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "lib/support/CodeUtils.h"
 #include <app/dynamic-data-model-provider/ClusterProvider.h>
+
 #include <lib/core/CHIPError.h>
+#include <lib/support/CodeUtils.h>
 
 namespace chip {
 namespace app {

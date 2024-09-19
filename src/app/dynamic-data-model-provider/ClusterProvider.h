@@ -16,17 +16,17 @@
  */
 #pragma once
 
-#include "app/ConcreteAttributePath.h"
-#include "lib/core/CHIPError.h"
 #include <access/Privilege.h>
 #include <app/AttributeValueDecoder.h>
 #include <app/AttributeValueEncoder.h>
 #include <app/CommandHandler.h>
+#include <app/ConcreteAttributePath.h>
 #include <app/data-model-provider/ActionReturnStatus.h>
 #include <app/data-model-provider/Context.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <app/data-model-provider/OperationTypes.h>
 #include <app/data-model/FabricScoped.h>
+#include <lib/core/CHIPError.h>
 #include <lib/support/BitFlags.h>
 
 #include <array>
