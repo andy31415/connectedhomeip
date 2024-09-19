@@ -144,6 +144,14 @@ public:
     //
     //   Pattern to use: use uintptr_t as a "hint" (this can be used in the actual provider as well
     //   and clusters should probably be grouped within a endpoint for composition purposes)
+    
+    /// Get a snapshot of the current cluster information.
+    DataModel::ClusterInfo GetClusterInfo() const
+    {
+        DataModel::ClusterInfo result(mDataVersion);
+        result.flags = GetClusterFlags();
+        return result;
+    }
 
     // Generic attribute operations below. Their implementation redirects to the underlying cluster
     // data definitions.
@@ -172,6 +180,14 @@ protected:
     [[nodiscard]] virtual const AttributeDefinition * AttributesEnd() const   = 0;
 
     [[nodiscard]] const AttributeDefinition * AttributeDefinitionForPath(const ConcreteAttributePath & path) const;
+
+    [[nodiscard]] virtual BitFlags<DataModel::ClusterQualityFlags> GetClusterFlags() const
+    {
+        return BitFlags<DataModel::ClusterQualityFlags>();
+    }
+
+private:
+    DataVersion mDataVersion = 0; // TODO: cluster version SHOULD/COULD be random
 };
 
 template <size_t kAttributeCount = 0>
