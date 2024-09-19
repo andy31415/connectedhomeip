@@ -16,6 +16,7 @@ import("//build_overrides/pigweed.gni")
 
 source_set("dynamic-data-model-provider") {
   sources = [
+    "AttributeDefinition.h",
     "ClusterProvider.cpp",
     "ClusterProvider.h",
   ]
