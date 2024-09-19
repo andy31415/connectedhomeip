@@ -96,7 +96,7 @@ public:
     constexpr static ReadLambda For(const Lambda & lambda)
     {
         ReadLambda result;
-        // memcpy is used to move the lambda into the event queue, so it must be trivially copyable
+        // memcpy is used to move the lambda aroud, so it must be trivially copyable
         static_assert(std::is_trivially_copyable<Lambda>::value, "lambda must be trivially copyable");
         static_assert(sizeof(Lambda) <= kSize, "lambda too large");
         static_assert(kAlign % alignof(Lambda) == 0, "lambda align too large");
@@ -139,7 +139,7 @@ public:
     {
         WriteLambda result;
 
-        // memcpy is used to move the lambda into the event queue, so it must be trivially copyable
+        // memcpy is used to move the lambda around, so it must be trivially copyable
         static_assert(std::is_trivially_copyable<Lambda>::value, "lambda must be trivially copyable");
         static_assert(sizeof(Lambda) <= kSize, "lambda too large");
         static_assert(kAlign % alignof(Lambda) == 0, "lambda align too large");
