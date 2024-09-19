@@ -16,6 +16,7 @@
  *    limitations under the License.
  */
 
+#include "app/data-model-provider/MetadataTypes.h"
 #include <app/AppConfig.h>
 #include <app/AttributeAccessInterfaceRegistry.h>
 #include <app/AttributeValueDecoder.h>
@@ -317,8 +318,7 @@ CHIP_ERROR WriteHandler::ProcessAttributeDataIBs(TLV::TLVReader & aAttributeData
         err = element.GetData(&dataReader);
         SuccessOrExit(err);
 
-        const auto attributeMetadata = GetAttributeMetadata(dataAttributePath);
-        bool currentAttributeIsList  = (attributeMetadata != nullptr && attributeMetadata->attributeType == kListAttributeType);
+        bool currentAttributeIsList  = AttributeIsList(dataAttributePath);
 
         if (!dataAttributePath.IsListOperation() && currentAttributeIsList)
         {
@@ -462,9 +462,7 @@ CHIP_ERROR WriteHandler::ProcessGroupAttributeDataIBs(TLV::TLVReader & aAttribut
             // list write begin.
             if (attributeMetadata == nullptr)
             {
-                attributeMetadata = GetAttributeMetadata(dataAttributePath);
-                bool currentAttributeIsList =
-                    (attributeMetadata != nullptr && attributeMetadata->attributeType == kListAttributeType);
+                bool currentAttributeIsList = AttributeIsList(dataAttributePath);
                 if (!dataAttributePath.IsListOperation() && currentAttributeIsList)
                 {
                     dataAttributePath.mListOp = ConcreteDataAttributePath::ListOperation::ReplaceAll;
@@ -745,6 +743,24 @@ CHIP_ERROR WriteHandler::WriteClusterData(const Access::SubjectDescriptor & aSub
 #else
     return WriteSingleClusterData(aSubject, aPath, aData, this);
 #endif // CHIP_CONFIG_USE_DATA_MODEL_INTERFACE
+}
+
+bool WriteHandler::AttributeIsList(const ConcreteAttributePath & path) const
+{
+#if CHIP_CONFIG_USE_DATA_MODEL_INTERFACE
+    VerifyOrReturnValue(mDataModelProvider != nullptr, false);
+
+    std::optional<DataModel::AttributeInfo> info = mDataModelProvider->GetAttributeInfo(path);
+    if (!info.has_value())
+    {
+        return false;
+    }
+
+    return info->flags.Has(DataModel::AttributeQualityFlags::kListAttribute);
+#else
+    const auto attributeMetadata = GetAttributeMetadata(path);
+    return (attributeMetadata != nullptr && attributeMetadata->attributeType == kListAttributeType);
+#endif
 }
 
 } // namespace app

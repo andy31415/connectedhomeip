@@ -189,6 +189,8 @@ private:
     CHIP_ERROR WriteClusterData(const Access::SubjectDescriptor & aSubject, const ConcreteDataAttributePath & aPath,
                                 TLV::TLVReader & aData);
 
+    bool AttributeIsList(const ConcreteAttributePath &path) const;
+
     Messaging::ExchangeHolder mExchangeCtx;
     WriteResponseMessage::Builder mWriteResponseBuilder;
     Optional<ConcreteAttributePath> mProcessingAttributePath;
