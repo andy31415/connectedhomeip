@@ -20,11 +20,11 @@ namespace chip {
 namespace app {
 namespace Ember {
 
-CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader) {
+CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
+{
     // FIXME: implement
     return CHIP_ERROR_NOT_IMPLEMENTED;
 }
-
 
 } // namespace Ember
 } // namespace app
