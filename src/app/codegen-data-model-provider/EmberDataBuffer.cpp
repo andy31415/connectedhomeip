@@ -55,9 +55,12 @@ constexpr UnsignedDecodeInfo GetUnsignedDecodeInfo(EmberAfAttributeType type)
     chipDie();
 }
 
-constexpr bool IsNullValue(uint64_t v, unsigned byteCount) {
-    for (unsigned i = 0; i < byteCount; i++) {
-        if ((v & 0xFF) != 0xFF) {
+constexpr bool IsNullValue(uint64_t v, unsigned byteCount)
+{
+    for (unsigned i = 0; i < byteCount; i++)
+    {
+        if ((v & 0xFF) != 0xFF)
+        {
             return false;
         }
         v >>= 8;

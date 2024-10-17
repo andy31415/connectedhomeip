@@ -21,8 +21,8 @@
 #include <app/AttributeAccessInterface.h>
 #include <app/AttributeAccessInterfaceRegistry.h>
 #include <app/RequiredPrivilege.h>
-#include <app/codegen-data-model-provider/EmberMetadata.h>
 #include <app/codegen-data-model-provider/EmberDataBuffer.h>
+#include <app/codegen-data-model-provider/EmberMetadata.h>
 #include <app/data-model/FabricScoped.h>
 #include <app/reporting/reporting.h>
 #include <app/util/af-types.h>
@@ -230,7 +230,7 @@ CHIP_ERROR DecodeValueIntoEmberBuffer(AttributeValueDecoder & decoder, const Emb
     switch (AttributeBaseType(metadata->attributeType))
     {
     // case ZCL_BOOLEAN_ATTRIBUTE_TYPE: // Boolean
-    case ZCL_INT8U_ATTRIBUTE_TYPE: // Unsigned 8-bit integer
+    case ZCL_INT8U_ATTRIBUTE_TYPE:  // Unsigned 8-bit integer
     case ZCL_INT16U_ATTRIBUTE_TYPE: // Unsigned 16-bit integer
     case ZCL_INT24U_ATTRIBUTE_TYPE: // Unsigned 24-bit integer
     case ZCL_INT32U_ATTRIBUTE_TYPE: // Unsigned 32-bit integer
@@ -238,23 +238,22 @@ CHIP_ERROR DecodeValueIntoEmberBuffer(AttributeValueDecoder & decoder, const Emb
     case ZCL_INT48U_ATTRIBUTE_TYPE: // Unsigned 48-bit integer
     case ZCL_INT56U_ATTRIBUTE_TYPE: // Unsigned 56-bit integer
     case ZCL_INT64U_ATTRIBUTE_TYPE: // Unsigned 64-bit integer
-    // case ZCL_INT8S_ATTRIBUTE_TYPE: // Signed 8-bit integer
-    // case ZCL_INT16S_ATTRIBUTE_TYPE: // Signed 16-bit integer
-    // case ZCL_INT24S_ATTRIBUTE_TYPE: // Signed 24-bit integer
-    // case ZCL_INT32S_ATTRIBUTE_TYPE: // Signed 32-bit integer
-    // case ZCL_INT40S_ATTRIBUTE_TYPE: // Signed 40-bit integer
-    // case ZCL_INT48S_ATTRIBUTE_TYPE: // Signed 48-bit integer
-    // case ZCL_INT56S_ATTRIBUTE_TYPE: // Signed 56-bit integer
-    // case ZCL_INT64S_ATTRIBUTE_TYPE: // Signed 64-bit integer
-    // case ZCL_SINGLE_ATTRIBUTE_TYPE: // 32-bit float
-    // case ZCL_DOUBLE_ATTRIBUTE_TYPE: // 64-bit float
-    // case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
-    // case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
-    // case ZCL_OCTET_STRING_ATTRIBUTE_TYPE: // Octet string
-    // case ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE:
+                                    // case ZCL_INT8S_ATTRIBUTE_TYPE: // Signed 8-bit integer
+                                    // case ZCL_INT16S_ATTRIBUTE_TYPE: // Signed 16-bit integer
+                                    // case ZCL_INT24S_ATTRIBUTE_TYPE: // Signed 24-bit integer
+                                    // case ZCL_INT32S_ATTRIBUTE_TYPE: // Signed 32-bit integer
+                                    // case ZCL_INT40S_ATTRIBUTE_TYPE: // Signed 40-bit integer
+                                    // case ZCL_INT48S_ATTRIBUTE_TYPE: // Signed 48-bit integer
+                                    // case ZCL_INT56S_ATTRIBUTE_TYPE: // Signed 56-bit integer
+                                    // case ZCL_INT64S_ATTRIBUTE_TYPE: // Signed 64-bit integer
+                                    // case ZCL_SINGLE_ATTRIBUTE_TYPE: // 32-bit float
+                                    // case ZCL_DOUBLE_ATTRIBUTE_TYPE: // 64-bit float
+                                    // case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
+                                    // case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
+                                    // case ZCL_OCTET_STRING_ATTRIBUTE_TYPE: // Octet string
+                                    // case ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE:
         return decoder.Decode(emberData);
     }
-
 
     switch (AttributeBaseType(metadata->attributeType))
     {
