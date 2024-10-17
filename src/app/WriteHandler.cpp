@@ -320,7 +320,6 @@ CHIP_ERROR WriteHandler::ProcessAttributeDataIBs(TLV::TLVReader & aAttributeData
     CHIP_ERROR err = CHIP_NO_ERROR;
 
     ReturnErrorCodeIf(!mExchangeCtx, CHIP_ERROR_INTERNAL);
-    const Access::SubjectDescriptor subjectDescriptor = mExchangeCtx->GetSessionHandle()->GetSubjectDescriptor();
 
     while (CHIP_NO_ERROR == (err = aAttributeDataIBsReader.Next()))
     {
@@ -389,7 +388,7 @@ CHIP_ERROR WriteHandler::ProcessAttributeDataIBs(TLV::TLVReader & aAttributeData
             err = CHIP_NO_ERROR;
         }
         SuccessOrExit(err);
-        err = WriteClusterData(subjectDescriptor, dataAttributePath, dataReader);
+        err = WriteClusterData(dataAttributePath, dataReader);
         if (err != CHIP_NO_ERROR)
         {
             mWriteResponseBuilder.GetWriteResponses().Rollback(backup);
@@ -422,8 +421,6 @@ CHIP_ERROR WriteHandler::ProcessGroupAttributeDataIBs(TLV::TLVReader & aAttribut
     CHIP_ERROR err = CHIP_NO_ERROR;
 
     ReturnErrorCodeIf(!mExchangeCtx, CHIP_ERROR_INTERNAL);
-    const Access::SubjectDescriptor subjectDescriptor =
-        mExchangeCtx->GetSessionHandle()->AsIncomingGroupSession()->GetSubjectDescriptor();
 
     GroupId groupId    = mExchangeCtx->GetSessionHandle()->AsIncomingGroupSession()->GetGroupId();
     FabricIndex fabric = GetAccessingFabricIndex();
@@ -536,7 +533,7 @@ CHIP_ERROR WriteHandler::ProcessGroupAttributeDataIBs(TLV::TLVReader & aAttribut
 
             DataModelCallbacks::GetInstance()->AttributeOperation(DataModelCallbacks::OperationType::Write,
                                                                   DataModelCallbacks::OperationOrder::Pre, dataAttributePath);
-            err = WriteClusterData(subjectDescriptor, dataAttributePath, tmpDataReader);
+            err = WriteClusterData(dataAttributePath, tmpDataReader);
             if (err != CHIP_NO_ERROR)
             {
                 ChipLogError(DataManagement,
@@ -742,9 +739,10 @@ void WriteHandler::MoveToState(const State aTargetState)
     ChipLogDetail(DataManagement, "IM WH moving to [%s]", GetStateStr());
 }
 
-CHIP_ERROR WriteHandler::WriteClusterData(const Access::SubjectDescriptor & aSubject, const ConcreteDataAttributePath & aPath,
-                                          TLV::TLVReader & aData)
+CHIP_ERROR WriteHandler::WriteClusterData(const ConcreteDataAttributePath & aPath, TLV::TLVReader & aData)
 {
+    const Access::SubjectDescriptor subjectDescriptor = mExchangeCtx->GetSessionHandle()->GetSubjectDescriptor();
+
     // Writes do not have a checked-path. If data model interface is enabled (both checked and only version)
     // the write is done via the DataModel interface
 #if CHIP_CONFIG_USE_DATA_MODEL_INTERFACE
@@ -753,11 +751,11 @@ CHIP_ERROR WriteHandler::WriteClusterData(const Access::SubjectDescriptor & aSub
     DataModel::WriteAttributeRequest request;
 
     request.path                = aPath;
-    request.subjectDescriptor   = aSubject;
+    request.subjectDescriptor   = subjectDescriptor;
     request.previousSuccessPath = mLastSuccessfullyWrittenPath;
     request.writeFlags.Set(DataModel::WriteFlags::kTimed, IsTimedWrite());
 
-    AttributeValueDecoder decoder(aData, aSubject);
+    AttributeValueDecoder decoder(aData, subjectDescriptor);
 
     DataModel::ActionReturnStatus status = mDataModelProvider->WriteAttribute(request, decoder);
 
@@ -765,7 +763,7 @@ CHIP_ERROR WriteHandler::WriteClusterData(const Access::SubjectDescriptor & aSub
 
     return AddStatusInternal(aPath, StatusIB(status.GetStatusCode()));
 #else
-    return WriteSingleClusterData(aSubject, aPath, aData, this);
+    return WriteSingleClusterData(subjectDescriptor, aPath, aData, this);
 #endif // CHIP_CONFIG_USE_DATA_MODEL_INTERFACE
 }
 

@@ -186,8 +186,7 @@ private:
     void OnResponseTimeout(Messaging::ExchangeContext * apExchangeContext) override;
 
     // Write the given data to the given path
-    CHIP_ERROR WriteClusterData(const Access::SubjectDescriptor & aSubject, const ConcreteDataAttributePath & aPath,
-                                TLV::TLVReader & aData);
+    CHIP_ERROR WriteClusterData(const ConcreteDataAttributePath & aPath, TLV::TLVReader & aData);
 
     /// Checks whether the given path corresponds to a list attribute
     /// Return values:
