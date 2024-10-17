@@ -33,6 +33,8 @@ namespace Ember {
 class EmberAttributeBuffer
 {
 public:
+    static constexpr bool kIsFabricScoped = false;
+
     EmberAttributeBuffer(const EmberAfAttributeMetadata * meta, MutableByteSpan & data) :
         mIsNullable(meta->IsNullable()), mAttributeType(chip::app::Compatibility::Internal::AttributeBaseType(meta->attributeType)),
         mDataBuffer(data)
@@ -43,6 +45,9 @@ public:
     CHIP_ERROR Decode(chip::TLV::TLVReader & reader);
 
 private:
+    // decodes unsigned values
+    CHIP_ERROR DecodeUnsigned(chip::TLV::TLVReader &reader);
+
     const bool mIsNullable;
     const EmberAfAttributeType mAttributeType;
     MutableByteSpan & mDataBuffer;
@@ -53,7 +58,7 @@ private:
 namespace DataModel {
 
 /// Helper method to forward the decode of this type to the class specific implementation
-CHIP_ERROR Decode(TLV::TLVReader & reader, Ember::EmberAttributeBuffer & buffer)
+inline CHIP_ERROR Decode(TLV::TLVReader & reader, Ember::EmberAttributeBuffer & buffer)
 {
     return buffer.Decode(reader);
 }
