@@ -45,8 +45,8 @@ public:
     CHIP_ERROR Decode(chip::TLV::TLVReader & reader);
 
 private:
-    // decodes unsigned values
-    CHIP_ERROR DecodeUnsigned(chip::TLV::TLVReader & reader);
+    CHIP_ERROR DecodeUnsignedInteger(chip::TLV::TLVReader & reader);
+    CHIP_ERROR DecodeSignedInteger(chip::TLV::TLVReader & reader);
 
     const bool mIsNullable;
     const EmberAfAttributeType mAttributeType;
