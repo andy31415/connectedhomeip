@@ -16,10 +16,10 @@
  */
 #pragma once
 
-#include <lib/core/TLVTypes.h>
 #include <app/util/attribute-metadata.h>
 #include <app/util/ember-io-storage.h>
 #include <lib/core/TLVReader.h>
+#include <lib/core/TLVTypes.h>
 #include <lib/support/Span.h>
 
 namespace chip {
