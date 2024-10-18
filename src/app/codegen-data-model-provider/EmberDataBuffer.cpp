@@ -32,12 +32,6 @@ namespace Ember {
 
 namespace {
 
-/// Length in bytes for a given string type
-constexpr unsigned LengthInBytes(EmberAttributeBuffer::PascalString s)
-{
-    return (s == EmberAttributeBuffer::PascalString::kShort) ? 1 : 2;
-}
-
 /// Maximum length of a string, inclusive
 ///
 /// For nullable strings, the maximum length marker is used as a "NULL" marker
@@ -50,9 +44,6 @@ constexpr uint32_t MaxLength(EmberAttributeBuffer::PascalString s, bool nullable
     // EmberAttributeBuffer::PascalString::kLong:
     return nullable ? std::numeric_limits<uint16_t>::max() - 1 : std::numeric_limits<uint16_t>::max();
 }
-
-static constexpr unsigned kShortStringLengthInBytes = 1;
-static constexpr unsigned kLongStringLengthInBytes  = 2;
 
 struct UnsignedDecodeInfo
 {
@@ -161,10 +152,9 @@ CHIP_ERROR OutOfRangeError(unsigned byteCount)
 
 } // namespace
 
-CHIP_ERROR EmberAttributeBuffer::DecodeUnsignedInteger(chip::TLV::TLVReader & reader)
+CHIP_ERROR EmberAttributeBuffer::DecodeUnsignedInteger(chip::TLV::TLVReader & reader, EndianWriter & writer)
 {
     UnsignedDecodeInfo info = GetUnsignedDecodeInfo(mAttributeType);
-    VerifyOrReturnError(mDataBuffer.size() >= info.byteCount, CHIP_ERROR_NO_MEMORY);
 
     // Any size of integer can be read by TLV getting 64-bit integers
     uint64_t value;
@@ -184,25 +174,13 @@ CHIP_ERROR EmberAttributeBuffer::DecodeUnsignedInteger(chip::TLV::TLVReader & re
                             OutOfRangeError(info.byteCount));
     }
 
-#if CHIP_CONFIG_BIG_ENDIAN_TARGET
-    for (unsigned i = info.byteCount; i > 0; i--)
-    {
-        mDataBuffer[i - 1] = (value & 0xFF);
-        value >>= 8;
-    }
-#else
-    memcpy(mDataBuffer.data(), &value, info.byteCount);
-#endif
-
-    mDataBuffer.reduce_size(info.byteCount);
-
+    writer.EndianPut(value, info.byteCount);
     return CHIP_NO_ERROR;
 }
 
-CHIP_ERROR EmberAttributeBuffer::DecodeSignedInteger(chip::TLV::TLVReader & reader)
+CHIP_ERROR EmberAttributeBuffer::DecodeSignedInteger(chip::TLV::TLVReader & reader, EndianWriter & writer)
 {
     SignedDecodeInfo info = GetSignedDecodeInfo(mAttributeType);
-    VerifyOrReturnError(mDataBuffer.size() >= info.byteCount, CHIP_ERROR_NO_MEMORY);
 
     // Any size of integer can be read by TLV getting 64-bit integers
     int64_t value;
@@ -225,64 +203,49 @@ CHIP_ERROR EmberAttributeBuffer::DecodeSignedInteger(chip::TLV::TLVReader & read
 
         VerifyOrReturnError(valid, OutOfRangeError(info.byteCount));
     }
-
-#if CHIP_CONFIG_BIG_ENDIAN_TARGET
-    for (unsigned i = info.byteCount; i > 0; i--)
-    {
-        mDataBuffer[i - 1] = (value & 0xFF);
-        value >>= 8;
-    }
-#else
-    memcpy(mDataBuffer.data(), &value, info.byteCount);
-#endif
-
-    mDataBuffer.reduce_size(info.byteCount);
-
+    writer.EndianPutSigned(value, info.byteCount);
     return CHIP_NO_ERROR;
 }
 
-CHIP_ERROR EmberAttributeBuffer::DecodeAsString(chip::TLV::TLVReader & reader, PascalString stringType, TLV::TLVType tlvType)
+CHIP_ERROR EmberAttributeBuffer::DecodeAsString(chip::TLV::TLVReader & reader, PascalString stringType, TLV::TLVType tlvType,
+                                                EndianWriter & writer)
 {
-    const unsigned kSizeLength = LengthInBytes(stringType);
-
     // Handle null first, then the actual data
     if (reader.GetType() == TLV::kTLVType_Null)
     {
         // we know mIsNullable due to the check at the top of ::Decode
-        VerifyOrReturnError(mDataBuffer.size() >= kSizeLength, CHIP_ERROR_NO_MEMORY);
-
-        memset(mDataBuffer.data(), 0xFF, kSizeLength);
-        mDataBuffer.reduce_size(kSizeLength);
+        switch (stringType)
+        {
+        case PascalString::kShort:
+            writer.Put8(0xFF);
+            break;
+        case PascalString::kLong:
+            writer.Put16(0xFFFF);
+            break;
+        }
         return CHIP_NO_ERROR;
     }
 
     const uint32_t stringLength = reader.GetLength();
 
     VerifyOrReturnError(reader.GetType() == tlvType, CHIP_ERROR_WRONG_TLV_TYPE);
-    VerifyOrReturnError(mDataBuffer.size() >= stringLength + kSizeLength, CHIP_ERROR_NO_MEMORY);
-
     VerifyOrReturnError(reader.GetLength() <= MaxLength(stringType, mIsNullable), CHIP_ERROR_INVALID_ARGUMENT);
 
     // Size is a prefix, where 0xFF/0xFFFF is the null marker (if applicable)
     switch (stringType)
     {
-    case PascalString::kShort: {
-        uint8_t len = static_cast<uint8_t>(stringLength);
-        memcpy(mDataBuffer.data(), &len, sizeof(len));
+    case PascalString::kShort:
+        writer.Put8(static_cast<uint8_t>(stringLength));
         break;
-    }
-    case PascalString::kLong: {
-        uint16_t len = static_cast<uint16_t>(stringLength);
-        memcpy(mDataBuffer.data(), &len, sizeof(len));
+    case PascalString::kLong:
+        writer.Put16(static_cast<uint16_t>(stringLength));
         break;
-    }
     }
 
     // data copy
     const uint8_t * tlvData;
     ReturnErrorOnFailure(reader.GetDataPtr(tlvData));
-    memcpy(mDataBuffer.data() + kSizeLength, tlvData, stringLength);
-    mDataBuffer.reduce_size(kSizeLength + stringLength);
+    writer.Put(tlvData, stringLength);
 
     return CHIP_NO_ERROR;
 }
@@ -293,11 +256,11 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
     // even though clarity suffers)
     VerifyOrReturnError(mIsNullable || reader.GetType() != TLV::kTLVType_Null, CHIP_ERROR_WRONG_TLV_TYPE);
 
+    EndianWriter endianWriter(mDataBuffer.data(), mDataBuffer.size());
+
     switch (mAttributeType)
     {
     case ZCL_BOOLEAN_ATTRIBUTE_TYPE: // Boolean
-        VerifyOrReturnError(mDataBuffer.size() > 0, CHIP_ERROR_NO_MEMORY);
-
         // Boolean values:
         //   0xFF is NULL
         //   0x01 is TRUE
@@ -305,18 +268,15 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
         if (reader.GetType() == TLV::kTLVType_Null)
         {
             // we know mIsNullable due to the check at the top of ::Decode
-            mDataBuffer[0] = 0xFF;
+            endianWriter.Put8(0xFF);
         }
         else
         {
-
             bool value;
             ReturnErrorOnFailure(reader.Get(value));
-            mDataBuffer[0] = value ? 1 : 0;
+            endianWriter.Put8(value ? 1 : 0);
         }
-
-        mDataBuffer.reduce_size(1);
-        return CHIP_NO_ERROR;
+        break;
     case ZCL_INT8U_ATTRIBUTE_TYPE:  // Unsigned 8-bit integer
     case ZCL_INT16U_ATTRIBUTE_TYPE: // Unsigned 16-bit integer
     case ZCL_INT24U_ATTRIBUTE_TYPE: // Unsigned 24-bit integer
@@ -325,7 +285,8 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
     case ZCL_INT48U_ATTRIBUTE_TYPE: // Unsigned 48-bit integer
     case ZCL_INT56U_ATTRIBUTE_TYPE: // Unsigned 56-bit integer
     case ZCL_INT64U_ATTRIBUTE_TYPE: // Unsigned 64-bit integer
-        return DecodeUnsignedInteger(reader);
+        ReturnErrorOnFailure(DecodeUnsignedInteger(reader, endianWriter));
+        break;
     case ZCL_INT8S_ATTRIBUTE_TYPE:  // Signed 8-bit integer
     case ZCL_INT16S_ATTRIBUTE_TYPE: // Signed 16-bit integer
     case ZCL_INT24S_ATTRIBUTE_TYPE: // Signed 24-bit integer
@@ -334,10 +295,10 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
     case ZCL_INT48S_ATTRIBUTE_TYPE: // Signed 48-bit integer
     case ZCL_INT56S_ATTRIBUTE_TYPE: // Signed 56-bit integer
     case ZCL_INT64S_ATTRIBUTE_TYPE: // Signed 64-bit integer
-        return DecodeSignedInteger(reader);
+        ReturnErrorOnFailure(DecodeSignedInteger(reader, endianWriter));
+        break;
     case ZCL_SINGLE_ATTRIBUTE_TYPE: { // 32-bit float
         float value;
-        VerifyOrReturnError(mDataBuffer.size() >= sizeof(value), CHIP_ERROR_NO_MEMORY);
         if (reader.GetType() == TLV::kTLVType_Null)
         {
             // we know mIsNullable due to the check at the top of ::Decode
@@ -348,14 +309,11 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
 
             ReturnErrorOnFailure(reader.Get(value));
         }
-
-        memcpy(mDataBuffer.data(), &value, sizeof(value));
-        mDataBuffer.reduce_size(sizeof(value));
-        return CHIP_NO_ERROR;
+        endianWriter.Put(&value, sizeof(value));
+        break;
     }
     case ZCL_DOUBLE_ATTRIBUTE_TYPE: { // 64-bit float
         double value;
-        VerifyOrReturnError(mDataBuffer.size() >= sizeof(value), CHIP_ERROR_NO_MEMORY);
         if (reader.GetType() == TLV::kTLVType_Null)
         {
             // we know mIsNullable due to the check at the top of ::Decode
@@ -363,26 +321,36 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
         }
         else
         {
-
             ReturnErrorOnFailure(reader.Get(value));
         }
-
-        memcpy(mDataBuffer.data(), &value, sizeof(value));
-        mDataBuffer.reduce_size(sizeof(value));
-        return CHIP_NO_ERROR;
+        endianWriter.Put(&value, sizeof(value));
+        break;
     }
     case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
-        return DecodeAsString(reader, PascalString::kShort, TLV::kTLVType_UTF8String);
+        ReturnErrorOnFailure(DecodeAsString(reader, PascalString::kShort, TLV::kTLVType_UTF8String, endianWriter));
+        break;
     case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
-        return DecodeAsString(reader, PascalString::kLong, TLV::kTLVType_UTF8String);
+        ReturnErrorOnFailure(DecodeAsString(reader, PascalString::kLong, TLV::kTLVType_UTF8String, endianWriter));
+        break;
     case ZCL_OCTET_STRING_ATTRIBUTE_TYPE: // Octet string
-        return DecodeAsString(reader, PascalString::kShort, TLV::kTLVType_ByteString);
+        ReturnErrorOnFailure(DecodeAsString(reader, PascalString::kShort, TLV::kTLVType_ByteString, endianWriter));
+        break;
     case ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE:
-        return DecodeAsString(reader, PascalString::kLong, TLV::kTLVType_ByteString);
+        ReturnErrorOnFailure(DecodeAsString(reader, PascalString::kLong, TLV::kTLVType_ByteString, endianWriter));
+        break;
+    default:
+        ChipLogError(DataManagement, "Attribute type 0x%x not handled", mAttributeType);
+        return CHIP_IM_GLOBAL_STATUS(Failure);
     }
 
-    ChipLogError(DataManagement, "Attribute type 0x%x not handled", mAttributeType);
-    return CHIP_IM_GLOBAL_STATUS(Failure);
+    size_t written;
+    if (!endianWriter.Fit(written))
+    {
+        return CHIP_ERROR_NO_MEMORY;
+    }
+
+    mDataBuffer.reduce_size(written);
+    return CHIP_NO_ERROR;
 }
 
 } // namespace Ember

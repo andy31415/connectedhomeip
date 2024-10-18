@@ -20,6 +20,7 @@
 #include <app/util/ember-io-storage.h>
 #include <lib/core/TLVReader.h>
 #include <lib/core/TLVTypes.h>
+#include <lib/support/BufferWriter.h>
 #include <lib/support/Span.h>
 
 namespace chip {
@@ -52,9 +53,14 @@ public:
     CHIP_ERROR Decode(chip::TLV::TLVReader & reader);
 
 private:
-    CHIP_ERROR DecodeUnsignedInteger(chip::TLV::TLVReader & reader);
-    CHIP_ERROR DecodeSignedInteger(chip::TLV::TLVReader & reader);
-    CHIP_ERROR DecodeAsString(chip::TLV::TLVReader & reader, PascalString stringType, TLV::TLVType tlvType);
+#if CHIP_CONFIG_BIG_ENDIAN_TARGET
+    using EndianWriter = Encoding::BigEndian::BufferWriter;
+#else
+    using EndianWriter = Encoding::LittleEndian::BufferWriter;
+#endif
+    CHIP_ERROR DecodeUnsignedInteger(chip::TLV::TLVReader & reader, EndianWriter & writer);
+    CHIP_ERROR DecodeSignedInteger(chip::TLV::TLVReader & reader, EndianWriter & writer);
+    CHIP_ERROR DecodeAsString(chip::TLV::TLVReader & reader, PascalString stringType, TLV::TLVType tlvType, EndianWriter & writer);
 
     const bool mIsNullable;
     const EmberAfAttributeType mAttributeType;
