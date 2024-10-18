@@ -155,7 +155,7 @@ TEST(TestEmberAttributeBuffer, TestEncodeUnsignedTypes)
     }
 
     {
-        EncodeTester tester(CreateFakeMeta(ZCL_INT8U_ATTRIBUTE_TYPE, false /* nullable */));
+        EncodeTester tester(CreateFakeMeta(ZCL_INT8U_ATTRIBUTE_TYPE, true /* nullable */));
 
         ASSERT_TRUE(tester.EncodingOk<uint8_t>(0, { 0 }));
         ASSERT_TRUE(tester.EncodingOk<uint8_t>(123, { 123 }));
