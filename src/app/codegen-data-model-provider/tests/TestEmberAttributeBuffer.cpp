@@ -14,22 +14,24 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "app-common/zap-generated/attribute-type.h"
-#include "app/util/attribute-metadata.h"
-#include "lib/core/TLVTags.h"
-#include "lib/core/TLVTypes.h"
-#include "lib/support/Span.h"
 #include <pw_unit_test/framework.h>
 
 #include <app/codegen-data-model-provider/EmberDataBuffer.h>
 
+#include <app-common/zap-generated/attribute-type.h>
 #include <app/MessageDef/AttributeDataIB.h>
 #include <app/data-model/Encode.h>
 #include <app/data-model/Nullable.h>
+#include <app/util/attribute-metadata.h>
 #include <lib/core/CHIPError.h>
 #include <lib/core/TLVReader.h>
+#include <lib/core/TLVTags.h>
+#include <lib/core/TLVTypes.h>
 #include <lib/core/TLVWriter.h>
 #include <lib/support/CodeUtils.h>
+#include <lib/support/Span.h>
+
+#include <vector>
 
 using namespace chip;
 using namespace chip::app;
@@ -81,20 +83,22 @@ private:
 class EncodeTester
 {
 public:
-    EncodeTester()  = default;
+    EncodeTester(const EmberAfAttributeMetadata * meta) : mMetaData(meta) {}
     ~EncodeTester() = default;
 
-    template <typename T>
-    bool EncodingOk(const T & value, const EmberAfAttributeMetadata * meta, ByteSpan expected)
+    template <typename T, size_t N>
+    bool EncodingOk(const T & value, const uint8_t (&arr)[N])
     {
+        ByteSpan expected(arr);
         MutableByteSpan out_span(mEmberDataBuffer);
-        Ember::EmberAttributeBuffer buffer(meta, out_span);
+        Ember::EmberAttributeBuffer buffer(mMetaData, out_span);
 
         TLVEncodedValue tlvEncoded;
         TLV::TLVReader reader = tlvEncoded.EncodeValue(value);
 
         CHIP_ERROR err = buffer.Decode(reader);
-        if (err != CHIP_NO_ERROR) {
+        if (err != CHIP_NO_ERROR)
+        {
             ChipLogError(Test, "Decoding failed: %" CHIP_ERROR_FORMAT, err.Format());
             return false;
         }
@@ -117,6 +121,7 @@ public:
 
 private:
     static constexpr size_t kMaxSize = 128;
+    const EmberAfAttributeMetadata * mMetaData;
     uint8_t mEmberDataBuffer[kMaxSize];
 };
 
@@ -131,7 +136,7 @@ const EmberAfAttributeMetadata * CreateFakeMeta(EmberAfAttributeType type, bool 
     };
 
     meta.attributeType = type;
-    meta.mask = nullable ? ATTRIBUTE_MASK_NULLABLE : 0;
+    meta.mask          = nullable ? ATTRIBUTE_MASK_NULLABLE : 0;
 
     return &meta;
 }
@@ -140,25 +145,21 @@ const EmberAfAttributeMetadata * CreateFakeMeta(EmberAfAttributeType type, bool 
 
 TEST(TestEmberAttributeBuffer, TestEncodeUnsignedTypes)
 {
-    EncodeTester tester;
-
     {
-        uint8_t expected[] = { 123 };
-        ASSERT_TRUE(tester.EncodingOk<uint8_t>(123, CreateFakeMeta(ZCL_INT8U_ATTRIBUTE_TYPE, false), ByteSpan(expected)));
-        ASSERT_TRUE(tester.EncodingOk<uint8_t>(123, CreateFakeMeta(ZCL_INT8U_ATTRIBUTE_TYPE, true), ByteSpan(expected)));
+        EncodeTester tester(CreateFakeMeta(ZCL_INT8U_ATTRIBUTE_TYPE, false /* nullable */));
+
+        ASSERT_TRUE(tester.EncodingOk<uint8_t>(0, { 0 }));
+        ASSERT_TRUE(tester.EncodingOk<uint8_t>(123, { 123 }));
+        ASSERT_TRUE(tester.EncodingOk<uint8_t>(0xFD, { 0xFD }));
+        ASSERT_TRUE(tester.EncodingOk<uint8_t>(255, { 0xFF }));
     }
 
     {
-        uint8_t expected[] = { 0 };
-        ASSERT_TRUE(tester.EncodingOk<uint8_t>(0, CreateFakeMeta(ZCL_INT8U_ATTRIBUTE_TYPE, false), ByteSpan(expected)));
-        ASSERT_TRUE(tester.EncodingOk<uint8_t>(0, CreateFakeMeta(ZCL_INT8U_ATTRIBUTE_TYPE, true), ByteSpan(expected)));
-    }
+        EncodeTester tester(CreateFakeMeta(ZCL_INT8U_ATTRIBUTE_TYPE, false /* nullable */));
 
-    {
-        uint8_t expected[] = { 0xFF };
-        ASSERT_TRUE(tester.EncodingOk<uint8_t>(255, CreateFakeMeta(ZCL_INT8U_ATTRIBUTE_TYPE, false), ByteSpan(expected)));
-        ASSERT_TRUE(tester.EncodingOk<DataModel::Nullable<uint8_t>>(DataModel::NullNullable, CreateFakeMeta(ZCL_INT8U_ATTRIBUTE_TYPE, true), ByteSpan(expected)));
+        ASSERT_TRUE(tester.EncodingOk<uint8_t>(0, { 0 }));
+        ASSERT_TRUE(tester.EncodingOk<uint8_t>(123, { 123 }));
+        ASSERT_TRUE(tester.EncodingOk<uint8_t>(0xFD, { 0xFD }));
+        ASSERT_TRUE(tester.EncodingOk<DataModel::Nullable<uint8_t>>(DataModel::NullNullable, { 0xFF }));
     }
-
-    // Validate expected sizes
 }
