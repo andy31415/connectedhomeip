@@ -256,33 +256,33 @@ CHIP_ERROR EmberAttributeBuffer::DecodeAsString(chip::TLV::TLVReader & reader, P
         return CHIP_NO_ERROR;
     }
 
+    const size_t stringLength = reader.GetLength();
+
     VerifyOrReturnError(reader.GetType() == tlvType, CHIP_ERROR_WRONG_TLV_TYPE);
-    VerifyOrReturnError(mDataBuffer.size() >= reader.GetLength() + kSizeLength, CHIP_ERROR_NO_MEMORY);
+    VerifyOrReturnError(mDataBuffer.size() >= stringLength + kSizeLength, CHIP_ERROR_NO_MEMORY);
 
     VerifyOrReturnError(reader.GetLength() <= MaxLength(stringType, mIsNullable), CHIP_ERROR_INVALID_ARGUMENT);
 
     // Size is a prefix, where 0xFF/0xFFFF is the null marker (if applicable)
-    switch (kSizeLength)
+    switch (stringType)
     {
-    case kShortStringLengthInBytes: {
-        uint8_t len = static_cast<uint8_t>(reader.GetLength());
+    case PascalString::kShort: {
+        uint8_t len = static_cast<uint8_t>(stringLength);
         memcpy(mDataBuffer.data(), &len, sizeof(len));
         break;
     }
-    case kLongStringLengthInBytes: {
-        uint16_t len = static_cast<uint16_t>(reader.GetLength());
+    case PascalString::kLong: {
+        uint16_t len = static_cast<uint16_t>(stringLength);
         memcpy(mDataBuffer.data(), &len, sizeof(len));
         break;
     }
-    default:
-        return CHIP_ERROR_INVALID_ARGUMENT;
     }
 
     // data copy
-    const uint8_t * tlvData = nullptr;
+    const uint8_t * tlvData;
     ReturnErrorOnFailure(reader.GetDataPtr(tlvData));
-    memcpy(mDataBuffer.data() + kSizeLength, tlvData, reader.GetLength());
-    mDataBuffer.reduce_size(kSizeLength + reader.GetLength());
+    memcpy(mDataBuffer.data() + kSizeLength, tlvData, stringLength);
+    mDataBuffer.reduce_size(kSizeLength + stringLength);
 
     return CHIP_NO_ERROR;
 }
