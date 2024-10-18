@@ -196,7 +196,10 @@ CHIP_ERROR EmberAttributeBuffer::DecodeSignedInteger(chip::TLV::TLVReader & read
     {
         ReturnErrorOnFailure(reader.Get(value));
 
-        bool valid = (value < info.maxValue) && (mIsNullable ? (value < info.maxValue) : (value <= info.maxValue));
+        // NULLABLE reserves minValue for NULL, so range is:
+        //   - NULLABLE:      (minValue, MaxValue]
+        //   - NON-NULLABLE:  [minValue, MaxValue]
+        bool valid = (value <= info.maxValue) && (mIsNullable ? (value > info.minValue) : (value >= info.minValue));
 
         // TODO: Error values below tehcnically SHOULD be constraint error, however to match legacy implementation
         //       1:1 with old ember code, we specifically craft the errors. Technically we should have:

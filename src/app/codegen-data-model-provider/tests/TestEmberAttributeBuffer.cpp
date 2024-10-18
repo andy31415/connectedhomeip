@@ -33,6 +33,7 @@
 #include <lib/support/CodeUtils.h>
 #include <lib/support/Span.h>
 
+#include <limits>
 #include <optional>
 
 using namespace chip;
@@ -259,5 +260,55 @@ TEST(TestEmberAttributeBuffer, TestEncodeUnsignedTypes)
         EXPECT_EQ(tester.TryEncode<uint64_t>(0x10011001100, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
         // cannot encode null equivalent value
         EXPECT_EQ(tester.TryEncode<uint64_t>(0xFFFFFFFFFF, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
+    }
+}
+
+TEST(TestEmberAttributeBuffer, TestEncodeSignedTypes)
+{
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT8S_ATTRIBUTE_TYPE, false /* nullable */));
+
+        EXPECT_TRUE(tester.TryEncode<int8_t>(0, { 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int8_t>(123, { 123 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int8_t>(127, { 127 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int8_t>(-10, { 0xF6 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int8_t>(-128, { 0x80 }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT8S_ATTRIBUTE_TYPE, true /* nullable */));
+
+        EXPECT_TRUE(tester.TryEncode<int8_t>(0, { 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int8_t>(123, { 123 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int8_t>(127, { 127 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int8_t>(-10, { 0xF6 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int8_t>(-127, { 0x81 }).IsSuccess());
+
+        // NULL canot be encoded
+        EXPECT_EQ(tester.TryEncode<int8_t>(std::numeric_limits<int8_t>::min(), { 0x80 }), CHIP_IM_GLOBAL_STATUS(ConstraintError));
+    }
+    {
+
+        EncodeTester tester(CreateFakeMeta(ZCL_INT16S_ATTRIBUTE_TYPE, false /* nullable */));
+
+        EXPECT_TRUE(tester.TryEncode<int16_t>(0, { 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int16_t>(123, { 123, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int16_t>(127, { 127, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int16_t>(-10, { 0xF6, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int16_t>(-128, { 0x80, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int16_t>(-1234, { 0x2E, 0xFB }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int16_t>(std::numeric_limits<int16_t>::min(), { 0x0, 0x80 }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT16S_ATTRIBUTE_TYPE, true /* nullable */));
+
+        EXPECT_TRUE(tester.TryEncode<int16_t>(0, { 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int16_t>(123, { 123, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int16_t>(127, { 127, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int16_t>(-10, { 0xF6, 0xFF }).IsSuccess());
+
+        // NULL canot be encoded
+        EXPECT_EQ(tester.TryEncode<int16_t>(std::numeric_limits<int16_t>::min(), { 0x80 }), CHIP_IM_GLOBAL_STATUS(ConstraintError));
     }
 }
