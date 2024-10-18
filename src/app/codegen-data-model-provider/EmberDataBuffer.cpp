@@ -14,13 +14,14 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "protocols/interaction_model/StatusCode.h"
 #include <app/codegen-data-model-provider/EmberDataBuffer.h>
 
 #include <app-common/zap-generated/attribute-type.h>
+#include <app/util/attribute-storage-null-handling.h>
 #include <lib/core/CHIPError.h>
 #include <limits>
 #include <protocols/interaction_model/Constants.h>
+#include <protocols/interaction_model/StatusCode.h>
 
 namespace chip {
 namespace app {
@@ -224,7 +225,7 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
 {
     switch (mAttributeType)
     {
-    case ZCL_BOOLEAN_ATTRIBUTE_TYPE: { // Boolean
+    case ZCL_BOOLEAN_ATTRIBUTE_TYPE: // Boolean
         VerifyOrReturnError(mDataBuffer.size() > 0, CHIP_ERROR_NO_MEMORY);
 
         // Boolean values:
@@ -249,7 +250,6 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
 
         mDataBuffer.reduce_size(1);
         return CHIP_NO_ERROR;
-    }
     case ZCL_INT8U_ATTRIBUTE_TYPE:  // Unsigned 8-bit integer
     case ZCL_INT16U_ATTRIBUTE_TYPE: // Unsigned 16-bit integer
     case ZCL_INT24U_ATTRIBUTE_TYPE: // Unsigned 24-bit integer
@@ -268,6 +268,48 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
     case ZCL_INT56S_ATTRIBUTE_TYPE: // Signed 56-bit integer
     case ZCL_INT64S_ATTRIBUTE_TYPE: // Signed 64-bit integer
         return DecodeSignedInteger(reader);
+    case ZCL_SINGLE_ATTRIBUTE_TYPE: { // 32-bit float
+        float value;
+        VerifyOrReturnError(mDataBuffer.size() >= sizeof(value), CHIP_ERROR_NO_MEMORY);
+        if (reader.GetType() == TLV::kTLVType_Null)
+        {
+            if (!mIsNullable)
+            {
+                return CHIP_ERROR_WRONG_TLV_TYPE;
+            }
+            NumericAttributeTraits<float>::SetNull(value);
+        }
+        else
+        {
+
+            ReturnErrorOnFailure(reader.Get(value));
+        }
+
+        memcpy(mDataBuffer.data(), &value, sizeof(value));
+        mDataBuffer.reduce_size(sizeof(value));
+        return CHIP_NO_ERROR;
+    }
+    case ZCL_DOUBLE_ATTRIBUTE_TYPE: { // 64-bit float
+        double value;
+        VerifyOrReturnError(mDataBuffer.size() >= sizeof(value), CHIP_ERROR_NO_MEMORY);
+        if (reader.GetType() == TLV::kTLVType_Null)
+        {
+            if (!mIsNullable)
+            {
+                return CHIP_ERROR_WRONG_TLV_TYPE;
+            }
+            NumericAttributeTraits<double>::SetNull(value);
+        }
+        else
+        {
+
+            ReturnErrorOnFailure(reader.Get(value));
+        }
+
+        memcpy(mDataBuffer.data(), &value, sizeof(value));
+        mDataBuffer.reduce_size(sizeof(value));
+        return CHIP_NO_ERROR;
+    }
     }
 
     // FIXME: implement

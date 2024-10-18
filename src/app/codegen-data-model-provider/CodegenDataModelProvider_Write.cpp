@@ -250,8 +250,8 @@ CHIP_ERROR DecodeValueIntoEmberBuffer(AttributeValueDecoder & decoder, const Emb
     case ZCL_INT48S_ATTRIBUTE_TYPE:  // Signed 48-bit integer
     case ZCL_INT56S_ATTRIBUTE_TYPE:  // Signed 56-bit integer
     case ZCL_INT64S_ATTRIBUTE_TYPE:  // Signed 64-bit integer
-                                     // case ZCL_SINGLE_ATTRIBUTE_TYPE: // 32-bit float
-                                     // case ZCL_DOUBLE_ATTRIBUTE_TYPE: // 64-bit float
+    case ZCL_SINGLE_ATTRIBUTE_TYPE:  // 32-bit float
+    case ZCL_DOUBLE_ATTRIBUTE_TYPE:  // 64-bit float
                                      // case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
                                      // case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
                                      // case ZCL_OCTET_STRING_ATTRIBUTE_TYPE: // Octet string
@@ -297,11 +297,11 @@ CHIP_ERROR DecodeValueIntoEmberBuffer(AttributeValueDecoder & decoder, const Emb
         return DecodeIntoEmberBuffer<OddSizedInteger<7, true>>(decoder, isNullable, out);
     case ZCL_INT64S_ATTRIBUTE_TYPE: // Signed 64-bit integer
         return DecodeIntoEmberBuffer<int64_t>(decoder, isNullable, out);
-#endif
     case ZCL_SINGLE_ATTRIBUTE_TYPE: // 32-bit float
         return DecodeIntoEmberBuffer<float>(decoder, isNullable, out);
     case ZCL_DOUBLE_ATTRIBUTE_TYPE: // 64-bit float
         return DecodeIntoEmberBuffer<double>(decoder, isNullable, out);
+#endif
     case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
         return DecodeStringLikeIntoEmberBuffer<CharSpan, ShortPascalString>(decoder, isNullable, out);
     case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
