@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "protocols/interaction_model/StatusCode.h"
 #include <app/codegen-data-model-provider/EmberDataBuffer.h>
 
 #include <app-common/zap-generated/attribute-type.h>
@@ -119,6 +120,19 @@ static constexpr bool IsOddIntegerSize(unsigned byteCount)
     return (byteCount == 3) || (byteCount == 5) || (byteCount == 6) || (byteCount == 7);
 }
 
+// This is an odd workaround for legacy. Errors SHOULD be always ConstraintError
+// however in practice old ember code returns INVALID_ARGUMENT for odd sized integers
+//
+// TODO: This should ALWAYS return ConstraintError (and method should not exist ...)
+CHIP_ERROR OutOfRangeError(unsigned byteCount)
+{
+    if (IsOddIntegerSize(byteCount))
+    {
+        return CHIP_ERROR_INVALID_ARGUMENT;
+    }
+    return CHIP_IM_GLOBAL_STATUS(ConstraintError);
+}
+
 } // namespace
 
 CHIP_ERROR EmberAttributeBuffer::DecodeUnsignedInteger(chip::TLV::TLVReader & reader)
@@ -141,19 +155,10 @@ CHIP_ERROR EmberAttributeBuffer::DecodeUnsignedInteger(chip::TLV::TLVReader & re
     {
         ReturnErrorOnFailure(reader.Get(value));
 
-        // TODO: Error values below tehcnically SHOULD be constraint error, however to match legacy implementation
-        //       1:1 with old ember code, we specifically craft the errors. Technically we should have:
-        //
-        // VerifyOrReturnError(mIsNullable // ::max() on the type is used as the NULL flag
-        //                         ? (value < info.maxValue)
-        //                         : (value <= info.maxValue),
-        //                     CHIP_IM_GLOBAL_STATUS(ConstraintError));
         VerifyOrReturnError(mIsNullable // ::max() on the type is used as the NULL flag
                                 ? (value < info.maxValue)
                                 : (value <= info.maxValue),
-                            IsOddIntegerSize(info.byteCount) // This mismatch between odd and non-odd is wrong
-                                ? CHIP_ERROR_INVALID_ARGUMENT
-                                : CHIP_IM_GLOBAL_STATUS(ConstraintError));
+                            OutOfRangeError(info.byteCount));
     }
 
 #if CHIP_CONFIG_BIG_ENDIAN_TARGET
@@ -163,11 +168,7 @@ CHIP_ERROR EmberAttributeBuffer::DecodeUnsignedInteger(chip::TLV::TLVReader & re
         value >>= 8;
     }
 #else
-    for (unsigned i = 0; i < info.byteCount; i++)
-    {
-        mDataBuffer[i] = (value & 0xFF);
-        value >>= 8;
-    }
+    memcpy(mDataBuffer.data(), &value, info.byteCount);
 #endif
 
     mDataBuffer.reduce_size(info.byteCount);
@@ -201,14 +202,7 @@ CHIP_ERROR EmberAttributeBuffer::DecodeSignedInteger(chip::TLV::TLVReader & read
         //   - NON-NULLABLE:  [minValue, MaxValue]
         bool valid = (value <= info.maxValue) && (mIsNullable ? (value > info.minValue) : (value >= info.minValue));
 
-        // TODO: Error values below tehcnically SHOULD be constraint error, however to match legacy implementation
-        //       1:1 with old ember code, we specifically craft the errors. Technically we should have:
-        //
-        // VerifyOrReturnError(valid, CHIP_IM_GLOBAL_STATUS(ConstraintError));
-        VerifyOrReturnError(valid,
-                            IsOddIntegerSize(info.byteCount) // This mismatch between odd and non-odd is wrong
-                                ? CHIP_ERROR_INVALID_ARGUMENT
-                                : CHIP_IM_GLOBAL_STATUS(ConstraintError));
+        VerifyOrReturnError(valid, OutOfRangeError(info.byteCount));
     }
 
 #if CHIP_CONFIG_BIG_ENDIAN_TARGET
@@ -218,11 +212,7 @@ CHIP_ERROR EmberAttributeBuffer::DecodeSignedInteger(chip::TLV::TLVReader & read
         value >>= 8;
     }
 #else
-    for (unsigned i = 0; i < info.byteCount; i++)
-    {
-        mDataBuffer[i] = (value & 0xFF);
-        value >>= 8;
-    }
+    memcpy(mDataBuffer.data(), &value, info.byteCount);
 #endif
 
     mDataBuffer.reduce_size(info.byteCount);
