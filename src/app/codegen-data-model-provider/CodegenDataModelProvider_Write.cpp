@@ -210,7 +210,7 @@ CHIP_ERROR DecodeIntoEmberBuffer(AttributeValueDecoder & decoder, bool isNullabl
     return CHIP_NO_ERROR;
 }
 
-#define NEW_API 0
+#define NEW_API 1
 
 /// Read the data from "decoder" into an ember-formatted buffer "out"
 ///
@@ -233,7 +233,6 @@ CHIP_ERROR DecodeValueIntoEmberBuffer(AttributeValueDecoder & decoder, const Emb
     // FIXME: we could implement this, but for now restrict ...
     switch (AttributeBaseType(metadata->attributeType))
     {
-    // case ZCL_BOOLEAN_ATTRIBUTE_TYPE: // Boolean
     case ZCL_INT8U_ATTRIBUTE_TYPE:  // Unsigned 8-bit integer
     case ZCL_INT16U_ATTRIBUTE_TYPE: // Unsigned 16-bit integer
     case ZCL_INT24U_ATTRIBUTE_TYPE: // Unsigned 24-bit integer
@@ -279,9 +278,9 @@ CHIP_ERROR DecodeValueIntoEmberBuffer(AttributeValueDecoder & decoder, const Emb
         return DecodeIntoEmberBuffer<OddSizedInteger<6, false>>(decoder, isNullable, out);
     case ZCL_INT56U_ATTRIBUTE_TYPE: // Unsigned 56-bit integer
         return DecodeIntoEmberBuffer<OddSizedInteger<7, false>>(decoder, isNullable, out);
-#endif
     case ZCL_INT64U_ATTRIBUTE_TYPE: // Unsigned 64-bit integer
         return DecodeIntoEmberBuffer<uint64_t>(decoder, isNullable, out);
+#endif
     case ZCL_INT8S_ATTRIBUTE_TYPE: // Signed 8-bit integer
         return DecodeIntoEmberBuffer<int8_t>(decoder, isNullable, out);
     case ZCL_INT16S_ATTRIBUTE_TYPE: // Signed 16-bit integer
