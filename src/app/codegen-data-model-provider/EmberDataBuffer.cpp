@@ -262,9 +262,9 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
     {
     case ZCL_BOOLEAN_ATTRIBUTE_TYPE: // Boolean
         // Boolean values:
-        //   0xFF is NULL
+        //   0x00 is FALSE
         //   0x01 is TRUE
-        //   0x02 is FALSE
+        //   0xFF is NULL
         if (reader.GetType() == TLV::kTLVType_Null)
         {
             // we know mIsNullable due to the check at the top of ::Decode
