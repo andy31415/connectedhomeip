@@ -14,22 +14,45 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "lib/core/TLVTypes.h"
-#include "lib/support/CodeUtils.h"
 #include <app/codegen-data-model-provider/EmberDataBuffer.h>
 
 #include <app-common/zap-generated/attribute-type.h>
 #include <app/util/attribute-storage-null-handling.h>
 #include <lib/core/CHIPError.h>
-#include <limits>
+#include <lib/core/TLVTypes.h>
+#include <lib/support/CodeUtils.h>
 #include <protocols/interaction_model/Constants.h>
 #include <protocols/interaction_model/StatusCode.h>
+
+#include <limits>
 
 namespace chip {
 namespace app {
 namespace Ember {
 
 namespace {
+
+/// Length in bytes for a given string type
+constexpr unsigned LengthInBytes(EmberAttributeBuffer::PascalString s)
+{
+    return (s == EmberAttributeBuffer::PascalString::kShort) ? 1 : 2;
+}
+
+/// Maximum length of a string, inclusive
+///
+/// For nullable strings, the maximum length marker is used as a "NULL" marker
+constexpr uint32_t MaxLength(EmberAttributeBuffer::PascalString s, bool nullable)
+{
+    if (s == EmberAttributeBuffer::PascalString::kShort)
+    {
+        return nullable ? std::numeric_limits<uint8_t>::max() - 1 : std::numeric_limits<uint8_t>::max();
+    }
+    // EmberAttributeBuffer::PascalString::kLong:
+    return nullable ? std::numeric_limits<uint16_t>::max() - 1 : std::numeric_limits<uint16_t>::max();
+}
+
+static constexpr unsigned kShortStringLengthInBytes = 1;
+static constexpr unsigned kLongStringLengthInBytes  = 2;
 
 struct UnsignedDecodeInfo
 {
@@ -218,37 +241,35 @@ CHIP_ERROR EmberAttributeBuffer::DecodeSignedInteger(chip::TLV::TLVReader & read
     return CHIP_NO_ERROR;
 }
 
-CHIP_ERROR EmberAttributeBuffer::DecodeAsString(chip::TLV::TLVReader & reader, unsigned size_length, TLV::TLVType stringType)
+CHIP_ERROR EmberAttributeBuffer::DecodeAsString(chip::TLV::TLVReader & reader, PascalString stringType, TLV::TLVType tlvType)
 {
+    const unsigned kSizeLength = LengthInBytes(stringType);
+
     // Handle null first, then the actual data
     if (reader.GetType() == TLV::kTLVType_Null)
     {
         // we know mIsNullable due to the check at the top of ::Decode
-        VerifyOrReturnError(mDataBuffer.size() >= size_length, CHIP_ERROR_NO_MEMORY);
-        memset(mDataBuffer.data(), 0xFF, size_length);
-        mDataBuffer.reduce_size(size_length);
+        VerifyOrReturnError(mDataBuffer.size() >= kSizeLength, CHIP_ERROR_NO_MEMORY);
+
+        memset(mDataBuffer.data(), 0xFF, kSizeLength);
+        mDataBuffer.reduce_size(kSizeLength);
         return CHIP_NO_ERROR;
     }
 
-    VerifyOrReturnError(reader.GetType() == stringType, CHIP_ERROR_WRONG_TLV_TYPE);
-    VerifyOrReturnError(mDataBuffer.size() >= reader.GetLength() + size_length, CHIP_ERROR_NO_MEMORY);
+    VerifyOrReturnError(reader.GetType() == tlvType, CHIP_ERROR_WRONG_TLV_TYPE);
+    VerifyOrReturnError(mDataBuffer.size() >= reader.GetLength() + kSizeLength, CHIP_ERROR_NO_MEMORY);
 
-    size_t maxLength = (size_length == 1 ? std::numeric_limits<uint8_t>::max() : std::numeric_limits<uint16_t>::max());
-    if (mIsNullable)
-    {
-        maxLength--;
-    }
-    VerifyOrReturnError(reader.GetLength() <= maxLength, CHIP_ERROR_INVALID_ARGUMENT);
+    VerifyOrReturnError(reader.GetLength() <= MaxLength(stringType, mIsNullable), CHIP_ERROR_INVALID_ARGUMENT);
 
     // Size is a prefix, where 0xFF/0xFFFF is the null marker (if applicable)
-    switch (size_length)
+    switch (kSizeLength)
     {
-    case 1: {
+    case kShortStringLengthInBytes: {
         uint8_t len = static_cast<uint8_t>(reader.GetLength());
         memcpy(mDataBuffer.data(), &len, sizeof(len));
         break;
     }
-    case 2: {
+    case kLongStringLengthInBytes: {
         uint16_t len = static_cast<uint16_t>(reader.GetLength());
         memcpy(mDataBuffer.data(), &len, sizeof(len));
         break;
@@ -260,8 +281,8 @@ CHIP_ERROR EmberAttributeBuffer::DecodeAsString(chip::TLV::TLVReader & reader, u
     // data copy
     const uint8_t * tlvData = nullptr;
     ReturnErrorOnFailure(reader.GetDataPtr(tlvData));
-    memcpy(mDataBuffer.data() + size_length, tlvData, reader.GetLength());
-    mDataBuffer.reduce_size(size_length + reader.GetLength());
+    memcpy(mDataBuffer.data() + kSizeLength, tlvData, reader.GetLength());
+    mDataBuffer.reduce_size(kSizeLength + reader.GetLength());
 
     return CHIP_NO_ERROR;
 }
@@ -351,13 +372,13 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
         return CHIP_NO_ERROR;
     }
     case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
-        return DecodeAsString(reader, 1, TLV::kTLVType_UTF8String);
+        return DecodeAsString(reader, PascalString::kShort, TLV::kTLVType_UTF8String);
     case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
-        return DecodeAsString(reader, 2, TLV::kTLVType_UTF8String);
+        return DecodeAsString(reader, PascalString::kLong, TLV::kTLVType_UTF8String);
     case ZCL_OCTET_STRING_ATTRIBUTE_TYPE: // Octet string
-        return DecodeAsString(reader, 1, TLV::kTLVType_ByteString);
+        return DecodeAsString(reader, PascalString::kShort, TLV::kTLVType_ByteString);
     case ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE:
-        return DecodeAsString(reader, 2, TLV::kTLVType_ByteString);
+        return DecodeAsString(reader, PascalString::kLong, TLV::kTLVType_ByteString);
     }
 
     ChipLogError(DataManagement, "Attribute type 0x%x not handled", mAttributeType);

@@ -34,6 +34,12 @@ namespace Ember {
 class EmberAttributeBuffer
 {
 public:
+    enum class PascalString
+    {
+        kShort,
+        kLong,
+    };
+
     static constexpr bool kIsFabricScoped = false;
 
     EmberAttributeBuffer(const EmberAfAttributeMetadata * meta, MutableByteSpan & data) :
@@ -48,7 +54,7 @@ public:
 private:
     CHIP_ERROR DecodeUnsignedInteger(chip::TLV::TLVReader & reader);
     CHIP_ERROR DecodeSignedInteger(chip::TLV::TLVReader & reader);
-    CHIP_ERROR DecodeAsString(chip::TLV::TLVReader & reader, unsigned size_length, TLV::TLVType stringType);
+    CHIP_ERROR DecodeAsString(chip::TLV::TLVReader & reader, PascalString stringType, TLV::TLVType tlvType);
 
     const bool mIsNullable;
     const EmberAfAttributeType mAttributeType;
