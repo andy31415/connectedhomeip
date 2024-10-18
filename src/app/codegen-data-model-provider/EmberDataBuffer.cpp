@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "lib/core/CHIPError.h"
 #include <app/codegen-data-model-provider/EmberDataBuffer.h>
 
 #include <app-common/zap-generated/attribute-type.h>
@@ -65,8 +66,11 @@ CHIP_ERROR EmberAttributeBuffer::DecodeUnsigned(chip::TLV::TLVReader & reader)
     // Any size of integer can be read by TLV getting 64-bit integers
     uint64_t value;
 
-    if (mIsNullable && reader.GetType() == TLV::kTLVType_Null)
+    if (reader.GetType() == TLV::kTLVType_Null)
     {
+        if (!mIsNullable) {
+            return CHIP_ERROR_INVALID_ARGUMENT;
+        }
         value = ~(0ULL); // Null value is ALWAYS negative-fill
     }
     else
