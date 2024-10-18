@@ -68,7 +68,8 @@ CHIP_ERROR EmberAttributeBuffer::DecodeUnsigned(chip::TLV::TLVReader & reader)
 
     if (reader.GetType() == TLV::kTLVType_Null)
     {
-        if (!mIsNullable) {
+        if (!mIsNullable)
+        {
             return CHIP_ERROR_INVALID_ARGUMENT;
         }
         value = ~(0ULL); // Null value is ALWAYS negative-fill

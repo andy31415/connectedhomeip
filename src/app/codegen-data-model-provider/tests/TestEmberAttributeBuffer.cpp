@@ -33,7 +33,7 @@
 #include <lib/support/CodeUtils.h>
 #include <lib/support/Span.h>
 
-#include <vector>
+#include <optional>
 
 using namespace chip;
 using namespace chip::app;
@@ -80,6 +80,22 @@ private:
     uint8_t mBuffer[kMaxSize];
 };
 
+class EncodeResult
+{
+public:
+    explicit EncodeResult() = default;
+    EncodeResult(CHIP_ERROR error) : mResult(error) { VerifyOrDie(error != CHIP_NO_ERROR); }
+
+    static EncodeResult Ok() { return EncodeResult(); }
+
+    bool IsSuccess() const { return !mResult.has_value(); }
+
+    bool operator==(const CHIP_ERROR & other) const { return mResult.has_value() && (*mResult == other); }
+
+private:
+    std::optional<CHIP_ERROR> mResult;
+};
+
 /// Validates that an encoded value in ember takes a specific format
 class EncodeTester
 {
@@ -88,7 +104,7 @@ public:
     ~EncodeTester() = default;
 
     template <typename T, size_t N>
-    bool EncodingOk(const T & value, const uint8_t (&arr)[N])
+    EncodeResult TryEncode(const T & value, const uint8_t (&arr)[N])
     {
         ByteSpan expected(arr);
         MutableByteSpan out_span(mEmberDataBuffer);
@@ -101,23 +117,23 @@ public:
         if (err != CHIP_NO_ERROR)
         {
             ChipLogError(Test, "Decoding failed: %" CHIP_ERROR_FORMAT, err.Format());
-            return false;
+            return err;
         }
 
         if (expected.size() != out_span.size())
         {
             ChipLogError(Test, "Decode mismatch in size: expected %u, got %u", static_cast<unsigned>(expected.size()),
                          static_cast<unsigned>(out_span.size()));
-            return false;
+            return CHIP_ERROR_INTERNAL;
         }
 
         if (!expected.data_equal(out_span))
         {
             ChipLogError(Test, "Decode mismatch in content for %u bytes", static_cast<unsigned>(expected.size()));
-            return false;
+            return CHIP_ERROR_INTERNAL;
         }
 
-        return true;
+        return EncodeResult::Ok();
     }
 
 private:
@@ -131,7 +147,7 @@ const EmberAfAttributeMetadata * CreateFakeMeta(EmberAfAttributeType type, bool 
     static EmberAfAttributeMetadata meta = {
         .defaultValue  = EmberAfDefaultOrMinMaxAttributeValue(static_cast<uint8_t *>(nullptr)),
         .attributeId   = 0,
-        .size          = 0, // likely not valid
+        .size          = 0, // likely not valid, however not used for tests
         .attributeType = ZCL_UNKNOWN_ATTRIBUTE_TYPE,
         .mask          = 0,
     };
@@ -154,70 +170,82 @@ TEST(TestEmberAttributeBuffer, TestEncodeUnsignedTypes)
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT8U_ATTRIBUTE_TYPE, false /* nullable */));
 
-        ASSERT_TRUE(tester.EncodingOk<uint8_t>(0, { 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint8_t>(123, { 123 }));
-        ASSERT_TRUE(tester.EncodingOk<uint8_t>(0xFD, { 0xFD }));
-        ASSERT_TRUE(tester.EncodingOk<uint8_t>(255, { 0xFF }));
+        ASSERT_TRUE(tester.TryEncode<uint8_t>(0, { 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint8_t>(123, { 123 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint8_t>(0xFD, { 0xFD }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint8_t>(255, { 0xFF }).IsSuccess());
     }
 
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT8U_ATTRIBUTE_TYPE, true /* nullable */));
 
-        ASSERT_TRUE(tester.EncodingOk<uint8_t>(0, { 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint8_t>(123, { 123 }));
-        ASSERT_TRUE(tester.EncodingOk<uint8_t>(0xFD, { 0xFD }));
-        ASSERT_TRUE(tester.EncodingOk<DataModel::Nullable<uint8_t>>(DataModel::NullNullable, { 0xFF }));
+        ASSERT_TRUE(tester.TryEncode<uint8_t>(0, { 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint8_t>(123, { 123 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint8_t>(0xFD, { 0xFD }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<DataModel::Nullable<uint8_t>>(DataModel::NullNullable, { 0xFF }).IsSuccess());
+
+        // Not allowed to encode null-equivalent
+        ASSERT_EQ(tester.TryEncode<uint8_t>(0xFF, { 0xFF }), CHIP_ERROR_INVALID_ARGUMENT);
     }
 
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT16U_ATTRIBUTE_TYPE, false /* nullable */));
 
-        ASSERT_TRUE(tester.EncodingOk<uint16_t>(0, { 0, 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint16_t>(123, { 123, 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint16_t>(0xFD, { 0xFD, 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint16_t>(255, { 0xFF, 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint16_t>(0xABCD, { 0xCD, 0xAB }));
-        ASSERT_TRUE(tester.EncodingOk<uint16_t>(0xFFFF, { 0xFF, 0xFF }));
+        ASSERT_TRUE(tester.TryEncode<uint16_t>(0, { 0, 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint16_t>(123, { 123, 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint16_t>(0xFD, { 0xFD, 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint16_t>(255, { 0xFF, 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint16_t>(0xABCD, { 0xCD, 0xAB }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint16_t>(0xFFFF, { 0xFF, 0xFF }).IsSuccess());
     }
 
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT16U_ATTRIBUTE_TYPE, true /* nullable */));
 
-        ASSERT_TRUE(tester.EncodingOk<uint16_t>(0, { 0, 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint16_t>(123, { 123, 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint16_t>(0xFD, { 0xFD, 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint16_t>(255, { 0xFF, 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint16_t>(0xABCD, { 0xCD, 0xAB }));
-        ASSERT_TRUE(tester.EncodingOk<DataModel::Nullable<uint16_t>>(DataModel::NullNullable, { 0xFF, 0xFF }));
+        ASSERT_TRUE(tester.TryEncode<uint16_t>(0, { 0, 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint16_t>(123, { 123, 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint16_t>(0xFD, { 0xFD, 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint16_t>(255, { 0xFF, 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint16_t>(0xABCD, { 0xCD, 0xAB }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<DataModel::Nullable<uint16_t>>(DataModel::NullNullable, { 0xFF, 0xFF }).IsSuccess());
+
+        // Not allowed to encode null-equivalent
+        ASSERT_EQ(tester.TryEncode<uint16_t>(0xFFFF, { 0xFF, 0xFF }), CHIP_ERROR_INVALID_ARGUMENT);
     }
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT64U_ATTRIBUTE_TYPE, true /* nullable */));
 
-        ASSERT_TRUE(tester.EncodingOk<uint64_t>(0, { 0, 0, 0, 0, 0, 0, 0, 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint64_t>(0x1234567, { 0x67, 0x45, 0x23, 0x01, 0, 0, 0, 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint64_t>(0xAABBCCDDEEFF1122, { 0x22, 0x11, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA }));
-        ASSERT_TRUE(tester.EncodingOk<DataModel::Nullable<uint64_t>>(DataModel::NullNullable,
-                                                                     { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }));
+        ASSERT_TRUE(tester.TryEncode<uint64_t>(0, { 0, 0, 0, 0, 0, 0, 0, 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint64_t>(0x1234567, { 0x67, 0x45, 0x23, 0x01, 0, 0, 0, 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint64_t>(0xAABBCCDDEEFF1122, { 0x22, 0x11, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA }).IsSuccess());
+        ASSERT_TRUE(tester
+                        .TryEncode<DataModel::Nullable<uint64_t>>(DataModel::NullNullable,
+                                                                  { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF })
+                        .IsSuccess());
     }
 
     /// Odd sized integers
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT24U_ATTRIBUTE_TYPE, false /* nullable */));
-        ASSERT_TRUE(tester.EncodingOk<uint32_t>(0, { 0, 0, 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint32_t>(0x123456, { 0x56, 0x34, 0x12 }));
-        ASSERT_TRUE(tester.EncodingOk<uint32_t>(0xFFFFFF, { 0xFF, 0xFF, 0xFF }));
+        ASSERT_TRUE(tester.TryEncode<uint32_t>(0, { 0, 0, 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint32_t>(0x123456, { 0x56, 0x34, 0x12 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint32_t>(0xFFFFFF, { 0xFF, 0xFF, 0xFF }).IsSuccess());
     }
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT24U_ATTRIBUTE_TYPE, true /* nullable */));
-        ASSERT_TRUE(tester.EncodingOk<uint32_t>(0, { 0, 0, 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint32_t>(0x123456, { 0x56, 0x34, 0x12 }));
-        ASSERT_TRUE(tester.EncodingOk<DataModel::Nullable<uint32_t>>(DataModel::NullNullable, { 0xFF, 0xFF, 0xFF }));
+        ASSERT_TRUE(tester.TryEncode<uint32_t>(0, { 0, 0, 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint32_t>(0x123456, { 0x56, 0x34, 0x12 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<DataModel::Nullable<uint32_t>>(DataModel::NullNullable, { 0xFF, 0xFF, 0xFF }).IsSuccess());
+
+        // cannot encode null equivalent value
+        ASSERT_EQ(tester.TryEncode<uint32_t>(0xFFFFFF, { 0x56, 0x34, 0x12 }), CHIP_ERROR_INVALID_ARGUMENT);
     }
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT40U_ATTRIBUTE_TYPE, true /* nullable */));
-        ASSERT_TRUE(tester.EncodingOk<uint64_t>(0, { 0, 0, 0, 0, 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint64_t>(0x123456, { 0x56, 0x34, 0x12, 0, 0 }));
-        ASSERT_TRUE(tester.EncodingOk<uint64_t>(0x123456FFFF, { 0xFF, 0xFF, 0x56, 0x34, 0x12 }));
-        ASSERT_TRUE(tester.EncodingOk<DataModel::Nullable<uint64_t>>(DataModel::NullNullable, { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }));
+        ASSERT_TRUE(tester.TryEncode<uint64_t>(0, { 0, 0, 0, 0, 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint64_t>(0x123456, { 0x56, 0x34, 0x12, 0, 0 }).IsSuccess());
+        ASSERT_TRUE(tester.TryEncode<uint64_t>(0x123456FFFF, { 0xFF, 0xFF, 0x56, 0x34, 0x12 }).IsSuccess());
+        ASSERT_TRUE(
+            tester.TryEncode<DataModel::Nullable<uint64_t>>(DataModel::NullNullable, { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }).IsSuccess());
     }
 }
