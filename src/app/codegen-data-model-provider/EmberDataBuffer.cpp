@@ -233,21 +233,22 @@ CHIP_ERROR EmberAttributeBuffer::DecodeAsString(chip::TLV::TLVReader & reader, u
     VerifyOrReturnError(reader.GetType() == stringType, CHIP_ERROR_WRONG_TLV_TYPE);
     VerifyOrReturnError(mDataBuffer.size() >= reader.GetLength() + size_length, CHIP_ERROR_NO_MEMORY);
 
+    size_t maxLength = (size_length == 1 ? std::numeric_limits<uint8_t>::max() : std::numeric_limits<uint16_t>::max());
+    if (mIsNullable)
+    {
+        maxLength--;
+    }
+    VerifyOrReturnError(reader.GetLength() <= maxLength, CHIP_ERROR_INVALID_ARGUMENT);
+
     // Size is a prefix, where 0xFF/0xFFFF is the null marker (if applicable)
     switch (size_length)
     {
     case 1: {
-        VerifyOrReturnError(mIsNullable ? reader.GetLength() < std::numeric_limits<uint8_t>::max()
-                                        : reader.GetLength() <= std::numeric_limits<uint8_t>::max(),
-                            CHIP_ERROR_INVALID_ARGUMENT);
         uint8_t len = static_cast<uint8_t>(reader.GetLength());
         memcpy(mDataBuffer.data(), &len, sizeof(len));
         break;
     }
     case 2: {
-        VerifyOrReturnError(mIsNullable ? reader.GetLength() < std::numeric_limits<uint16_t>::max()
-                                        : reader.GetLength() <= std::numeric_limits<uint16_t>::max(),
-                            CHIP_ERROR_INVALID_ARGUMENT);
         uint16_t len = static_cast<uint16_t>(reader.GetLength());
         memcpy(mDataBuffer.data(), &len, sizeof(len));
         break;
