@@ -170,55 +170,55 @@ TEST(TestEmberAttributeBuffer, TestEncodeUnsignedTypes)
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT8U_ATTRIBUTE_TYPE, false /* nullable */));
 
-        ASSERT_TRUE(tester.TryEncode<uint8_t>(0, { 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint8_t>(123, { 123 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint8_t>(0xFD, { 0xFD }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint8_t>(255, { 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint8_t>(0, { 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint8_t>(123, { 123 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint8_t>(0xFD, { 0xFD }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint8_t>(255, { 0xFF }).IsSuccess());
     }
 
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT8U_ATTRIBUTE_TYPE, true /* nullable */));
 
-        ASSERT_TRUE(tester.TryEncode<uint8_t>(0, { 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint8_t>(123, { 123 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint8_t>(0xFD, { 0xFD }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<DataModel::Nullable<uint8_t>>(DataModel::NullNullable, { 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint8_t>(0, { 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint8_t>(123, { 123 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint8_t>(0xFD, { 0xFD }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<DataModel::Nullable<uint8_t>>(DataModel::NullNullable, { 0xFF }).IsSuccess());
 
         // Not allowed to encode null-equivalent
-        ASSERT_EQ(tester.TryEncode<uint8_t>(0xFF, { 0xFF }), CHIP_ERROR_INVALID_ARGUMENT);
+        EXPECT_EQ(tester.TryEncode<uint8_t>(0xFF, { 0xFF }), CHIP_IM_GLOBAL_STATUS(ConstraintError));
     }
 
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT16U_ATTRIBUTE_TYPE, false /* nullable */));
 
-        ASSERT_TRUE(tester.TryEncode<uint16_t>(0, { 0, 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint16_t>(123, { 123, 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint16_t>(0xFD, { 0xFD, 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint16_t>(255, { 0xFF, 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint16_t>(0xABCD, { 0xCD, 0xAB }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint16_t>(0xFFFF, { 0xFF, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint16_t>(0, { 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint16_t>(123, { 123, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint16_t>(0xFD, { 0xFD, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint16_t>(255, { 0xFF, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint16_t>(0xABCD, { 0xCD, 0xAB }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint16_t>(0xFFFF, { 0xFF, 0xFF }).IsSuccess());
     }
 
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT16U_ATTRIBUTE_TYPE, true /* nullable */));
 
-        ASSERT_TRUE(tester.TryEncode<uint16_t>(0, { 0, 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint16_t>(123, { 123, 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint16_t>(0xFD, { 0xFD, 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint16_t>(255, { 0xFF, 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint16_t>(0xABCD, { 0xCD, 0xAB }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<DataModel::Nullable<uint16_t>>(DataModel::NullNullable, { 0xFF, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint16_t>(0, { 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint16_t>(123, { 123, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint16_t>(0xFD, { 0xFD, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint16_t>(255, { 0xFF, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint16_t>(0xABCD, { 0xCD, 0xAB }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<DataModel::Nullable<uint16_t>>(DataModel::NullNullable, { 0xFF, 0xFF }).IsSuccess());
 
         // Not allowed to encode null-equivalent
-        ASSERT_EQ(tester.TryEncode<uint16_t>(0xFFFF, { 0xFF, 0xFF }), CHIP_ERROR_INVALID_ARGUMENT);
+        EXPECT_EQ(tester.TryEncode<uint16_t>(0xFFFF, { 0xFF, 0xFF }), CHIP_IM_GLOBAL_STATUS(ConstraintError));
     }
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT64U_ATTRIBUTE_TYPE, true /* nullable */));
 
-        ASSERT_TRUE(tester.TryEncode<uint64_t>(0, { 0, 0, 0, 0, 0, 0, 0, 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint64_t>(0x1234567, { 0x67, 0x45, 0x23, 0x01, 0, 0, 0, 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint64_t>(0xAABBCCDDEEFF1122, { 0x22, 0x11, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA }).IsSuccess());
-        ASSERT_TRUE(tester
+        EXPECT_TRUE(tester.TryEncode<uint64_t>(0, { 0, 0, 0, 0, 0, 0, 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint64_t>(0x1234567, { 0x67, 0x45, 0x23, 0x01, 0, 0, 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint64_t>(0xAABBCCDDEEFF1122, { 0x22, 0x11, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA }).IsSuccess());
+        EXPECT_TRUE(tester
                         .TryEncode<DataModel::Nullable<uint64_t>>(DataModel::NullNullable,
                                                                   { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF })
                         .IsSuccess());
@@ -227,25 +227,37 @@ TEST(TestEmberAttributeBuffer, TestEncodeUnsignedTypes)
     /// Odd sized integers
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT24U_ATTRIBUTE_TYPE, false /* nullable */));
-        ASSERT_TRUE(tester.TryEncode<uint32_t>(0, { 0, 0, 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint32_t>(0x123456, { 0x56, 0x34, 0x12 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint32_t>(0xFFFFFF, { 0xFF, 0xFF, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint32_t>(0, { 0, 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint32_t>(0x123456, { 0x56, 0x34, 0x12 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint32_t>(0xFFFFFF, { 0xFF, 0xFF, 0xFF }).IsSuccess());
+
+        // Out of range
+        EXPECT_EQ(tester.TryEncode<uint32_t>(0x1000000, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
+        EXPECT_EQ(tester.TryEncode<uint32_t>(0xFF000000, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
     }
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT24U_ATTRIBUTE_TYPE, true /* nullable */));
-        ASSERT_TRUE(tester.TryEncode<uint32_t>(0, { 0, 0, 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint32_t>(0x123456, { 0x56, 0x34, 0x12 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<DataModel::Nullable<uint32_t>>(DataModel::NullNullable, { 0xFF, 0xFF, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint32_t>(0, { 0, 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint32_t>(0x123456, { 0x56, 0x34, 0x12 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<DataModel::Nullable<uint32_t>>(DataModel::NullNullable, { 0xFF, 0xFF, 0xFF }).IsSuccess());
 
+        // Out of range
+        EXPECT_EQ(tester.TryEncode<uint32_t>(0x1000000, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
         // cannot encode null equivalent value
-        ASSERT_EQ(tester.TryEncode<uint32_t>(0xFFFFFF, { 0x56, 0x34, 0x12 }), CHIP_ERROR_INVALID_ARGUMENT);
+        EXPECT_EQ(tester.TryEncode<uint32_t>(0xFFFFFF, { 0x56, 0x34, 0x12 }), CHIP_ERROR_INVALID_ARGUMENT);
     }
+
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT40U_ATTRIBUTE_TYPE, true /* nullable */));
-        ASSERT_TRUE(tester.TryEncode<uint64_t>(0, { 0, 0, 0, 0, 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint64_t>(0x123456, { 0x56, 0x34, 0x12, 0, 0 }).IsSuccess());
-        ASSERT_TRUE(tester.TryEncode<uint64_t>(0x123456FFFF, { 0xFF, 0xFF, 0x56, 0x34, 0x12 }).IsSuccess());
-        ASSERT_TRUE(
+        EXPECT_TRUE(tester.TryEncode<uint64_t>(0, { 0, 0, 0, 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint64_t>(0x123456, { 0x56, 0x34, 0x12, 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<uint64_t>(0x123456FFFF, { 0xFF, 0xFF, 0x56, 0x34, 0x12 }).IsSuccess());
+        EXPECT_TRUE(
             tester.TryEncode<DataModel::Nullable<uint64_t>>(DataModel::NullNullable, { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }).IsSuccess());
+
+        // Out of range
+        EXPECT_EQ(tester.TryEncode<uint64_t>(0x10011001100, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
+        // cannot encode null equivalent value
+        EXPECT_EQ(tester.TryEncode<uint64_t>(0xFFFFFFFFFF, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
     }
 }

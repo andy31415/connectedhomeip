@@ -14,10 +14,11 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "lib/core/CHIPError.h"
 #include <app/codegen-data-model-provider/EmberDataBuffer.h>
 
 #include <app-common/zap-generated/attribute-type.h>
+#include <lib/core/CHIPError.h>
+#include <protocols/interaction_model/Constants.h>
 
 namespace chip {
 namespace app {
@@ -78,16 +79,24 @@ CHIP_ERROR EmberAttributeBuffer::DecodeUnsigned(chip::TLV::TLVReader & reader)
     {
         ReturnErrorOnFailure(reader.Get(value));
 
-        if (value > info.maxValue)
+        // TODO: Error values below tehcnically SHOULD be constraint error, however to match legacy implementation
+        //       1:1 with old ember code, we specifically craft the errors. Technically we should have:
+        //
+        // VerifyOrReturnError(mIsNullable // ::max() on the type is used as the NULL flag
+        //                         ? (value < info.maxValue)
+        //                         : (value <= info.maxValue),
+        //                     CHIP_IM_GLOBAL_STATUS(ConstraintError));
+        CHIP_ERROR range_error = CHIP_IM_GLOBAL_STATUS(ConstraintError);
+        if (info.byteCount == 3 || info.byteCount == 5 || info.byteCount == 6 || info.byteCount == 7)
         {
-            return CHIP_ERROR_INVALID_ARGUMENT;
+            // Odd sized integers return a different error type. This is should be corrected
+            range_error = CHIP_ERROR_INVALID_ARGUMENT;
         }
 
-        if (mIsNullable)
-        {
-            // Maximum value is reserved to represent "NULL"
-            VerifyOrReturnError(value != info.maxValue, CHIP_ERROR_INVALID_ARGUMENT);
-        }
+        VerifyOrReturnError(mIsNullable // ::max() on the type is used as the NULL flag
+                                ? (value < info.maxValue)
+                                : (value <= info.maxValue),
+                            range_error);
     }
 
 #if CHIP_CONFIG_BIG_ENDIAN_TARGET
