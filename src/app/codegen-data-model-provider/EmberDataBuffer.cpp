@@ -148,7 +148,7 @@ CHIP_ERROR EmberAttributeBuffer::DecodeUnsignedInteger(chip::TLV::TLVReader & re
 
     if (reader.GetType() == TLV::kTLVType_Null)
     {
-        VerifyOrReturnError(mIsNullable, CHIP_ERROR_WRONG_TLV_TYPE);
+        // we know mIsNullable due to the check at the top of ::Decode
         value = ~(0ULL); // Null value is ALWAYS negative-fill
     }
     else
@@ -186,7 +186,7 @@ CHIP_ERROR EmberAttributeBuffer::DecodeSignedInteger(chip::TLV::TLVReader & read
 
     if (reader.GetType() == TLV::kTLVType_Null)
     {
-        VerifyOrReturnError(mIsNullable, CHIP_ERROR_WRONG_TLV_TYPE);
+        // we know mIsNullable due to the check at the top of ::Decode
 
         // Most negative integer (i.e. 0b1000...0 is flagged as NULL value)
         value = info.minValue;
@@ -223,7 +223,7 @@ CHIP_ERROR EmberAttributeBuffer::DecodeAsString(chip::TLV::TLVReader & reader, u
     // Handle null first, then the actual data
     if (reader.GetType() == TLV::kTLVType_Null)
     {
-        VerifyOrReturnError(mIsNullable, CHIP_ERROR_WRONG_TLV_TYPE);
+        // we know mIsNullable due to the check at the top of ::Decode
         VerifyOrReturnError(mDataBuffer.size() >= size_length, CHIP_ERROR_NO_MEMORY);
         memset(mDataBuffer.data(), 0xFF, size_length);
         mDataBuffer.reduce_size(size_length);
@@ -268,6 +268,10 @@ CHIP_ERROR EmberAttributeBuffer::DecodeAsString(chip::TLV::TLVReader & reader, u
 
 CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
 {
+    // all methods below assume that nullable setting matches  (this is to reduce code size
+    // even though clarity suffers)
+    VerifyOrReturnError(mIsNullable || reader.GetType() != TLV::kTLVType_Null, CHIP_ERROR_WRONG_TLV_TYPE);
+
     switch (mAttributeType)
     {
     case ZCL_BOOLEAN_ATTRIBUTE_TYPE: // Boolean
@@ -279,10 +283,7 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
         //   0x02 is FALSE
         if (reader.GetType() == TLV::kTLVType_Null)
         {
-            if (!mIsNullable)
-            {
-                return CHIP_ERROR_WRONG_TLV_TYPE;
-            }
+            // we know mIsNullable due to the check at the top of ::Decode
             mDataBuffer[0] = 0xFF;
         }
         else
@@ -318,10 +319,7 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
         VerifyOrReturnError(mDataBuffer.size() >= sizeof(value), CHIP_ERROR_NO_MEMORY);
         if (reader.GetType() == TLV::kTLVType_Null)
         {
-            if (!mIsNullable)
-            {
-                return CHIP_ERROR_WRONG_TLV_TYPE;
-            }
+            // we know mIsNullable due to the check at the top of ::Decode
             NumericAttributeTraits<float>::SetNull(value);
         }
         else
@@ -339,10 +337,7 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
         VerifyOrReturnError(mDataBuffer.size() >= sizeof(value), CHIP_ERROR_NO_MEMORY);
         if (reader.GetType() == TLV::kTLVType_Null)
         {
-            if (!mIsNullable)
-            {
-                return CHIP_ERROR_WRONG_TLV_TYPE;
-            }
+            // we know mIsNullable due to the check at the top of ::Decode
             NumericAttributeTraits<double>::SetNull(value);
         }
         else
