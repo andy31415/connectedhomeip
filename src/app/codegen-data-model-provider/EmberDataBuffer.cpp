@@ -256,7 +256,7 @@ CHIP_ERROR EmberAttributeBuffer::DecodeAsString(chip::TLV::TLVReader & reader, P
         return CHIP_NO_ERROR;
     }
 
-    const size_t stringLength = reader.GetLength();
+    const uint32_t stringLength = reader.GetLength();
 
     VerifyOrReturnError(reader.GetType() == tlvType, CHIP_ERROR_WRONG_TLV_TYPE);
     VerifyOrReturnError(mDataBuffer.size() >= stringLength + kSizeLength, CHIP_ERROR_NO_MEMORY);
