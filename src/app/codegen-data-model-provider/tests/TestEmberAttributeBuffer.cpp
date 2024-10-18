@@ -51,7 +51,7 @@ public:
         const auto kTag = TLV::ContextTag(AttributeDataIB::Tag::kData);
 
         TLV::TLVWriter writer;
-        writer.Init(mBuffer, mBufferFill);
+        writer.Init(mBuffer, sizeof(mBuffer));
 
         TLV::TLVType outer;
 
@@ -60,10 +60,10 @@ public:
         VerifyOrDie(writer.EndContainer(outer) == CHIP_NO_ERROR);
 
         VerifyOrDie(writer.Finalize() == CHIP_NO_ERROR);
-        mBufferFill = writer.GetLengthWritten();
+        size_t fill = writer.GetLengthWritten();
 
         TLV::TLVReader reader;
-        reader.Init(mBuffer, mBufferFill);
+        reader.Init(mBuffer, fill);
         VerifyOrDie(reader.Next() == CHIP_NO_ERROR);
         VerifyOrDie(reader.GetTag() == TLV::AnonymousTag());
         VerifyOrDie(reader.EnterContainer(outer) == CHIP_NO_ERROR);
@@ -76,7 +76,6 @@ public:
 private:
     static constexpr size_t kMaxSize = 128;
     uint8_t mBuffer[kMaxSize];
-    size_t mBufferFill;
 };
 
 /// Validates that an encoded value in ember takes a specific format
@@ -143,6 +142,12 @@ const EmberAfAttributeMetadata * CreateFakeMeta(EmberAfAttributeType type, bool 
 
 } // namespace
 
+
+// All the tests below assume buffer ordering in little endian format
+// Since currently all chip platforms in CI are little endian, we just kept tests
+// as-is
+static_assert(!CHIP_CONFIG_BIG_ENDIAN_TARGET);
+
 TEST(TestEmberAttributeBuffer, TestEncodeUnsignedTypes)
 {
     {
@@ -162,4 +167,27 @@ TEST(TestEmberAttributeBuffer, TestEncodeUnsignedTypes)
         ASSERT_TRUE(tester.EncodingOk<uint8_t>(0xFD, { 0xFD }));
         ASSERT_TRUE(tester.EncodingOk<DataModel::Nullable<uint8_t>>(DataModel::NullNullable, { 0xFF }));
     }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT16U_ATTRIBUTE_TYPE, false /* nullable */));
+
+        ASSERT_TRUE(tester.EncodingOk<uint16_t>(0, { 0, 0 }));
+        ASSERT_TRUE(tester.EncodingOk<uint16_t>(123, { 123, 0 }));
+        ASSERT_TRUE(tester.EncodingOk<uint16_t>(0xFD, { 0xFD, 0 }));
+        ASSERT_TRUE(tester.EncodingOk<uint16_t>(255, { 0xFF, 0 }));
+        ASSERT_TRUE(tester.EncodingOk<uint16_t>(0xABCD, { 0xCD, 0xAB }));
+        ASSERT_TRUE(tester.EncodingOk<uint16_t>(0xFFFF, { 0xFF, 0xFF }));
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT16U_ATTRIBUTE_TYPE, true /* nullable */));
+
+        ASSERT_TRUE(tester.EncodingOk<uint16_t>(0, { 0, 0 }));
+        ASSERT_TRUE(tester.EncodingOk<uint16_t>(123, { 123, 0 }));
+        ASSERT_TRUE(tester.EncodingOk<uint16_t>(0xFD, { 0xFD, 0 }));
+        ASSERT_TRUE(tester.EncodingOk<uint16_t>(255, { 0xFF, 0 }));
+        ASSERT_TRUE(tester.EncodingOk<uint16_t>(0xABCD, { 0xCD, 0xAB }));
+        ASSERT_TRUE(tester.EncodingOk<DataModel::Nullable<uint16_t>>(DataModel::NullNullable, { 0xFF, 0xFF }));
+    }
+
 }
