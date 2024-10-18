@@ -260,8 +260,9 @@ CHIP_ERROR EmberAttributeBuffer::DecodeAsString(chip::TLV::TLVReader & reader, u
     const uint8_t * tlvData = nullptr;
     ReturnErrorOnFailure(reader.GetDataPtr(tlvData));
     memcpy(mDataBuffer.data() + size_length, tlvData, reader.GetLength());
+    mDataBuffer.reduce_size(size_length + reader.GetLength());
 
-    return CHIP_ERROR_NOT_IMPLEMENTED;
+    return CHIP_NO_ERROR;
 }
 
 CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
