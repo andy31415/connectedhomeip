@@ -356,8 +356,8 @@ TEST(TestEmberAttributeBuffer, TestEncodeSignedTypes)
         EXPECT_TRUE(tester.TryEncode<int64_t>(0, { 0, 0, 0, 0, 0 }).IsSuccess());
         EXPECT_TRUE(tester.TryEncode<int64_t>(0x123456, { 0x56, 0x34, 0x12, 0, 0 }).IsSuccess());
         EXPECT_TRUE(tester.TryEncode<int64_t>(-1234, { 0x2E, 0xFB, 0xFF, 0xFF, 0xFF }).IsSuccess());
-        EXPECT_TRUE(tester.TryEncode<int64_t>(-123456789, { 0xeb, 0x32, 0xa4, 0xf8, 0xFF}).IsSuccess());
-        EXPECT_TRUE(tester.TryEncode<int64_t>(-12345678910, {0xc2, 0xe3, 0x23, 0x20, 0xfd}).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int64_t>(-123456789, { 0xeb, 0x32, 0xa4, 0xf8, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int64_t>(-12345678910, { 0xc2, 0xe3, 0x23, 0x20, 0xfd }).IsSuccess());
 
         EXPECT_TRUE(
             tester.TryEncode<DataModel::Nullable<uint64_t>>(DataModel::NullNullable, { 0x00, 0x00, 0x00, 0x00, 0x80 }).IsSuccess());
