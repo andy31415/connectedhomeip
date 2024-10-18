@@ -189,5 +189,14 @@ TEST(TestEmberAttributeBuffer, TestEncodeUnsignedTypes)
         ASSERT_TRUE(tester.EncodingOk<uint16_t>(0xABCD, { 0xCD, 0xAB }));
         ASSERT_TRUE(tester.EncodingOk<DataModel::Nullable<uint16_t>>(DataModel::NullNullable, { 0xFF, 0xFF }));
     }
+    {
+
+        EncodeTester tester(CreateFakeMeta(ZCL_INT64U_ATTRIBUTE_TYPE, true /* nullable */));
+
+        ASSERT_TRUE(tester.EncodingOk<uint64_t>(0, { 0, 0, 0, 0, 0, 0, 0, 0 }));
+        ASSERT_TRUE(tester.EncodingOk<uint64_t>(0x1234567, { 0x67, 0x45, 0x23, 0x01, 0, 0, 0, 0 }));
+        ASSERT_TRUE(tester.EncodingOk<uint64_t>(0xAABBCCDDEEFF1122, { 0x22, 0x11, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA }));
+        ASSERT_TRUE(tester.EncodingOk<DataModel::Nullable<uint64_t>>(DataModel::NullNullable, { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }));
+    }
 
 }
