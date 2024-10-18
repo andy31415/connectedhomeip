@@ -14,6 +14,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "lib/core/TLVTypes.h"
+#include "lib/support/CodeUtils.h"
 #include <app/codegen-data-model-provider/EmberDataBuffer.h>
 
 #include <app-common/zap-generated/attribute-type.h>
@@ -146,10 +148,7 @@ CHIP_ERROR EmberAttributeBuffer::DecodeUnsignedInteger(chip::TLV::TLVReader & re
 
     if (reader.GetType() == TLV::kTLVType_Null)
     {
-        if (!mIsNullable)
-        {
-            return CHIP_ERROR_WRONG_TLV_TYPE;
-        }
+        VerifyOrReturnError(mIsNullable, CHIP_ERROR_WRONG_TLV_TYPE);
         value = ~(0ULL); // Null value is ALWAYS negative-fill
     }
     else
@@ -187,10 +186,8 @@ CHIP_ERROR EmberAttributeBuffer::DecodeSignedInteger(chip::TLV::TLVReader & read
 
     if (reader.GetType() == TLV::kTLVType_Null)
     {
-        if (!mIsNullable)
-        {
-            return CHIP_ERROR_WRONG_TLV_TYPE;
-        }
+        VerifyOrReturnError(mIsNullable, CHIP_ERROR_WRONG_TLV_TYPE);
+
         // Most negative integer (i.e. 0b1000...0 is flagged as NULL value)
         value = info.minValue;
     }
@@ -219,6 +216,52 @@ CHIP_ERROR EmberAttributeBuffer::DecodeSignedInteger(chip::TLV::TLVReader & read
     mDataBuffer.reduce_size(info.byteCount);
 
     return CHIP_NO_ERROR;
+}
+
+CHIP_ERROR EmberAttributeBuffer::DecodeAsString(chip::TLV::TLVReader & reader, unsigned size_length, TLV::TLVType stringType)
+{
+    // Handle null first, then the actual data
+    if (reader.GetType() == TLV::kTLVType_Null)
+    {
+        VerifyOrReturnError(mIsNullable, CHIP_ERROR_WRONG_TLV_TYPE);
+        VerifyOrReturnError(mDataBuffer.size() >= size_length, CHIP_ERROR_NO_MEMORY);
+        memset(mDataBuffer.data(), 0xFF, size_length);
+        mDataBuffer.reduce_size(size_length);
+        return CHIP_NO_ERROR;
+    }
+
+    VerifyOrReturnError(reader.GetType() == stringType, CHIP_ERROR_WRONG_TLV_TYPE);
+    VerifyOrReturnError(mDataBuffer.size() >= reader.GetLength() + size_length, CHIP_ERROR_NO_MEMORY);
+
+    // Size is a prefix, where 0xFF/0xFFFF is the null marker (if applicable)
+    switch (size_length)
+    {
+    case 1: {
+        VerifyOrReturnError(mIsNullable ? reader.GetLength() < std::numeric_limits<uint8_t>::max()
+                                        : reader.GetLength() <= std::numeric_limits<uint8_t>::max(),
+                            CHIP_ERROR_INVALID_ARGUMENT);
+        uint8_t len = static_cast<uint8_t>(reader.GetLength());
+        memcpy(mDataBuffer.data(), &len, sizeof(len));
+        break;
+    }
+    case 2: {
+        VerifyOrReturnError(mIsNullable ? reader.GetLength() < std::numeric_limits<uint16_t>::max()
+                                        : reader.GetLength() <= std::numeric_limits<uint16_t>::max(),
+                            CHIP_ERROR_INVALID_ARGUMENT);
+        uint16_t len = static_cast<uint16_t>(reader.GetLength());
+        memcpy(mDataBuffer.data(), &len, sizeof(len));
+        break;
+    }
+    default:
+        return CHIP_ERROR_INVALID_ARGUMENT;
+    }
+
+    // data copy
+    const uint8_t * tlvData = nullptr;
+    ReturnErrorOnFailure(reader.GetDataPtr(tlvData));
+    memcpy(mDataBuffer.data() + size_length, tlvData, reader.GetLength());
+
+    return CHIP_ERROR_NOT_IMPLEMENTED;
 }
 
 CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
@@ -310,10 +353,18 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
         mDataBuffer.reduce_size(sizeof(value));
         return CHIP_NO_ERROR;
     }
+    case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
+        return DecodeAsString(reader, 1, TLV::kTLVType_UTF8String);
+    case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
+        return DecodeAsString(reader, 2, TLV::kTLVType_UTF8String);
+    case ZCL_OCTET_STRING_ATTRIBUTE_TYPE: // Octet string
+        return DecodeAsString(reader, 1, TLV::kTLVType_ByteString);
+    case ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE:
+        return DecodeAsString(reader, 2, TLV::kTLVType_ByteString);
     }
 
-    // FIXME: implement
-    return CHIP_ERROR_NOT_IMPLEMENTED;
+    ChipLogError(DataManagement, "Attribute type 0x%x not handled", mAttributeType);
+    return CHIP_IM_GLOBAL_STATUS(Failure);
 }
 
 } // namespace Ember

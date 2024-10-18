@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include <lib/core/TLVTypes.h>
 #include <app/util/attribute-metadata.h>
 #include <app/util/ember-io-storage.h>
 #include <lib/core/TLVReader.h>
@@ -47,6 +48,7 @@ public:
 private:
     CHIP_ERROR DecodeUnsignedInteger(chip::TLV::TLVReader & reader);
     CHIP_ERROR DecodeSignedInteger(chip::TLV::TLVReader & reader);
+    CHIP_ERROR DecodeAsString(chip::TLV::TLVReader & reader, unsigned size_length, TLV::TLVType stringType);
 
     const bool mIsNullable;
     const EmberAfAttributeType mAttributeType;
