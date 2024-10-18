@@ -311,4 +311,61 @@ TEST(TestEmberAttributeBuffer, TestEncodeSignedTypes)
         // NULL canot be encoded
         EXPECT_EQ(tester.TryEncode<int16_t>(std::numeric_limits<int16_t>::min(), { 0x80 }), CHIP_IM_GLOBAL_STATUS(ConstraintError));
     }
+
+    // Odd size integers
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT24S_ATTRIBUTE_TYPE, false /* nullable */));
+
+        EXPECT_TRUE(tester.TryEncode<int32_t>(0, { 0, 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int32_t>(0x123456, { 0x56, 0x34, 0x12 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int32_t>(-1, { 0xFF, 0xFF, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int32_t>(-10, { 0xF6, 0xFF, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int32_t>(-1234, { 0x2E, 0xFB, 0xFF }).IsSuccess());
+
+        // Out of range
+        EXPECT_EQ(tester.TryEncode<int32_t>(0x1000000, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
+        EXPECT_EQ(tester.TryEncode<int32_t>(0x0F000000, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
+        EXPECT_EQ(tester.TryEncode<int32_t>(-0x1000000, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
+    }
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT24S_ATTRIBUTE_TYPE, true /* nullable */));
+
+        EXPECT_TRUE(tester.TryEncode<int32_t>(0, { 0, 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int32_t>(0x123456, { 0x56, 0x34, 0x12 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int32_t>(-1, { 0xFF, 0xFF, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int32_t>(-10, { 0xF6, 0xFF, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int32_t>(-1234, { 0x2E, 0xFB, 0xFF }).IsSuccess());
+
+        EXPECT_TRUE(tester.TryEncode<DataModel::Nullable<uint32_t>>(DataModel::NullNullable, { 0x00, 0x00, 0x80 }).IsSuccess());
+
+        // Out of range
+        EXPECT_EQ(tester.TryEncode<int32_t>(0x1000000, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
+        // cannot encode null equivalent value
+        EXPECT_EQ(tester.TryEncode<int32_t>(0xFFFFFF, { 0x56, 0x34, 0x12 }), CHIP_ERROR_INVALID_ARGUMENT);
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT40S_ATTRIBUTE_TYPE, true /* nullable */));
+
+        // NOTE: to generate encoded values, you an use commands like:
+        //
+        //    python -c 'import struct; print(", ".join(["0x%X" % v for v in struct.pack("<q", -12345678910)]))'
+        //
+        //    OUTPUT: 0xC2, 0xE3, 0x23, 0x20, 0xFD, 0xFF, 0xFF, 0xFF
+        //
+        EXPECT_TRUE(tester.TryEncode<int64_t>(0, { 0, 0, 0, 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int64_t>(0x123456, { 0x56, 0x34, 0x12, 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int64_t>(-1234, { 0x2E, 0xFB, 0xFF, 0xFF, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int64_t>(-123456789, { 0xeb, 0x32, 0xa4, 0xf8, 0xFF}).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<int64_t>(-12345678910, {0xc2, 0xe3, 0x23, 0x20, 0xfd}).IsSuccess());
+
+        EXPECT_TRUE(
+            tester.TryEncode<DataModel::Nullable<uint64_t>>(DataModel::NullNullable, { 0x00, 0x00, 0x00, 0x00, 0x80 }).IsSuccess());
+
+        // Out of range
+        EXPECT_EQ(tester.TryEncode<int64_t>(0x10011001100, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
+        // cannot encode null equivalent value
+        EXPECT_EQ(tester.TryEncode<int64_t>(0xFFFFFFFFFF, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
+        EXPECT_EQ(tester.TryEncode<int64_t>(-0x10000000000, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
+    }
 }
