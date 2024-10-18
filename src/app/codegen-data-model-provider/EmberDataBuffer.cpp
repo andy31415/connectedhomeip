@@ -224,6 +224,32 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
 {
     switch (mAttributeType)
     {
+    case ZCL_BOOLEAN_ATTRIBUTE_TYPE: { // Boolean
+        VerifyOrReturnError(mDataBuffer.size() > 0, CHIP_ERROR_NO_MEMORY);
+
+        // Boolean values:
+        //   0xFF is NULL
+        //   0x01 is TRUE
+        //   0x02 is FALSE
+        if (reader.GetType() == TLV::kTLVType_Null)
+        {
+            if (!mIsNullable)
+            {
+                return CHIP_ERROR_WRONG_TLV_TYPE;
+            }
+            mDataBuffer[0] = 0xFF;
+        }
+        else
+        {
+
+            bool value;
+            ReturnErrorOnFailure(reader.Get(value));
+            mDataBuffer[0] = value ? 1 : 0;
+        }
+
+        mDataBuffer.reduce_size(1);
+        return CHIP_NO_ERROR;
+    }
     case ZCL_INT8U_ATTRIBUTE_TYPE:  // Unsigned 8-bit integer
     case ZCL_INT16U_ATTRIBUTE_TYPE: // Unsigned 16-bit integer
     case ZCL_INT24U_ATTRIBUTE_TYPE: // Unsigned 24-bit integer
