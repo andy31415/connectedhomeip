@@ -32,6 +32,10 @@ namespace Ember {
 /// Ember attributes are stored as raw bytes for numeric types (i.e. memcpy-like storage except
 /// unaligned) and strings are Pascal-like (short with 1-byte length prefix or long with 2-byte length
 /// prefix).
+///
+/// Class is to be used a one-shot:
+///   - create it out of metadata + data span
+///   - call Decode (which modifies the input data span)
 class EmberAttributeBuffer
 {
 public:
@@ -50,6 +54,9 @@ public:
 
     /// Reads the data pointed into by `reader` and updates the data
     /// internally into mDataBuffer (which is then reflected outwards)
+    ///
+    /// Generally should be called ONLY ONCE as the internal mutable byte span gets
+    /// modified by this call.
     CHIP_ERROR Decode(chip::TLV::TLVReader & reader);
 
 private:
@@ -58,13 +65,24 @@ private:
 #else
     using EndianWriter = Encoding::LittleEndian::BufferWriter;
 #endif
+    /// Decodes the UNSIGNED integer stored in `reader` and places its content into `writer`
+    /// Takes into account internal mIsNullable.
     CHIP_ERROR DecodeUnsignedInteger(chip::TLV::TLVReader & reader, EndianWriter & writer);
+
+    /// Decodes the SIGNED integer stored in `reader` and places its content into `writer`
+    /// Takes into account internal mIsNullable.
     CHIP_ERROR DecodeSignedInteger(chip::TLV::TLVReader & reader, EndianWriter & writer);
+
+    /// Decodes the string/byte string contained in `reader` and stores it into `writer`.
+    /// String is encoded using a pascal-prefix of size `stringType`.
+    /// Takes into account internal mIsNullable.
+    ///
+    /// The string in `reader` is expected to be of type `tlvType`
     CHIP_ERROR DecodeAsString(chip::TLV::TLVReader & reader, PascalString stringType, TLV::TLVType tlvType, EndianWriter & writer);
 
-    const bool mIsNullable;
-    const EmberAfAttributeType mAttributeType;
-    MutableByteSpan & mDataBuffer;
+    const bool mIsNullable;                    // Contains if the attribute metadata marks the field as NULLABLE
+    const EmberAfAttributeType mAttributeType; // Initialized with the attribute type from the metadata
+    MutableByteSpan & mDataBuffer;             // output buffer, modified by `Decode`
 };
 
 } // namespace Ember
