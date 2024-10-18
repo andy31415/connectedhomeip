@@ -384,7 +384,6 @@ TEST(TestEmberAttributeBuffer, TestEncodeBool)
 
         EXPECT_TRUE(tester.TryEncode<bool>(true, { 1 }).IsSuccess());
         EXPECT_TRUE(tester.TryEncode<bool>(false, { 0 }).IsSuccess());
-        EXPECT_TRUE(
-            tester.TryEncode<DataModel::Nullable<bool>>(DataModel::NullNullable, { 0xFF}).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<DataModel::Nullable<bool>>(DataModel::NullNullable, { 0xFF }).IsSuccess());
     }
 }
