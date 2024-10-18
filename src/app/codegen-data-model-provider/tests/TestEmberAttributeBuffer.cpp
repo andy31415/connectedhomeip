@@ -369,3 +369,22 @@ TEST(TestEmberAttributeBuffer, TestEncodeSignedTypes)
         EXPECT_EQ(tester.TryEncode<int64_t>(-0x10000000000, { 0 }), CHIP_ERROR_INVALID_ARGUMENT);
     }
 }
+
+TEST(TestEmberAttributeBuffer, TestEncodeBool)
+{
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_BOOLEAN_ATTRIBUTE_TYPE, false /* nullable */));
+
+        EXPECT_TRUE(tester.TryEncode<bool>(true, { 1 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<bool>(false, { 0 }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_BOOLEAN_ATTRIBUTE_TYPE, true /* nullable */));
+
+        EXPECT_TRUE(tester.TryEncode<bool>(true, { 1 }).IsSuccess());
+        EXPECT_TRUE(tester.TryEncode<bool>(false, { 0 }).IsSuccess());
+        EXPECT_TRUE(
+            tester.TryEncode<DataModel::Nullable<bool>>(DataModel::NullNullable, { 0xFF}).IsSuccess());
+    }
+}
