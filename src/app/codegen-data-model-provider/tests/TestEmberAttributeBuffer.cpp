@@ -30,6 +30,8 @@
 #include <lib/core/TLVWriter.h>
 #include <lib/support/CodeUtils.h>
 #include <lib/support/Span.h>
+#include <app/util/attribute-storage-null-handling.h>
+#include <app/util/odd-sized-integers.h>
 
 #include <vector>
 
@@ -190,13 +192,26 @@ TEST(TestEmberAttributeBuffer, TestEncodeUnsignedTypes)
         ASSERT_TRUE(tester.EncodingOk<DataModel::Nullable<uint16_t>>(DataModel::NullNullable, { 0xFF, 0xFF }));
     }
     {
-
         EncodeTester tester(CreateFakeMeta(ZCL_INT64U_ATTRIBUTE_TYPE, true /* nullable */));
 
         ASSERT_TRUE(tester.EncodingOk<uint64_t>(0, { 0, 0, 0, 0, 0, 0, 0, 0 }));
         ASSERT_TRUE(tester.EncodingOk<uint64_t>(0x1234567, { 0x67, 0x45, 0x23, 0x01, 0, 0, 0, 0 }));
         ASSERT_TRUE(tester.EncodingOk<uint64_t>(0xAABBCCDDEEFF1122, { 0x22, 0x11, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA }));
         ASSERT_TRUE(tester.EncodingOk<DataModel::Nullable<uint64_t>>(DataModel::NullNullable, { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }));
+    }
+
+    /// Odd sized integers
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT24U_ATTRIBUTE_TYPE, false /* nullable */));
+        ASSERT_TRUE(tester.EncodingOk<uint32_t>(0, { 0, 0, 0}));
+        ASSERT_TRUE(tester.EncodingOk<uint32_t>(0x123456, { 0x56, 0x34, 0x12}));
+        ASSERT_TRUE(tester.EncodingOk<uint32_t>(0xFFFFFF, { 0xFF, 0xFF, 0xFF}));
+    }
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT24U_ATTRIBUTE_TYPE, true /* nullable */));
+        ASSERT_TRUE(tester.EncodingOk<uint32_t>(0, { 0, 0, 0}));
+        ASSERT_TRUE(tester.EncodingOk<uint32_t>(0x123456, { 0x56, 0x34, 0x12}));
+        ASSERT_TRUE(tester.EncodingOk<DataModel::Nullable<uint32_t>>(DataModel::NullNullable, { 0xFF, 0xFF, 0xFF}));
     }
 
 }
