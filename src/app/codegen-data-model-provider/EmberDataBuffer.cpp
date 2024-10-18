@@ -55,19 +55,6 @@ constexpr UnsignedDecodeInfo GetUnsignedDecodeInfo(EmberAfAttributeType type)
     chipDie();
 }
 
-constexpr bool IsNullValue(uint64_t v, unsigned byteCount)
-{
-    for (unsigned i = 0; i < byteCount; i++)
-    {
-        if ((v & 0xFF) != 0xFF)
-        {
-            return false;
-        }
-        v >>= 8;
-    }
-    return true;
-}
-
 } // namespace
 
 CHIP_ERROR EmberAttributeBuffer::DecodeUnsigned(chip::TLV::TLVReader & reader)
@@ -93,7 +80,8 @@ CHIP_ERROR EmberAttributeBuffer::DecodeUnsigned(chip::TLV::TLVReader & reader)
 
         if (mIsNullable)
         {
-            VerifyOrReturnError(IsNullValue(value, info.byteCount), CHIP_ERROR_INVALID_ARGUMENT);
+            // Maximum value is reserved to represent "NULL"
+            VerifyOrReturnError(value != info.maxValue, CHIP_ERROR_INVALID_ARGUMENT);
         }
     }
 

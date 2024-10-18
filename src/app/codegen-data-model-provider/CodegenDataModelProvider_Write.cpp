@@ -210,6 +210,8 @@ CHIP_ERROR DecodeIntoEmberBuffer(AttributeValueDecoder & decoder, bool isNullabl
     return CHIP_NO_ERROR;
 }
 
+#define NEW_API 0
+
 /// Read the data from "decoder" into an ember-formatted buffer "out"
 ///
 /// `out` is a in/out buffer:
@@ -223,6 +225,8 @@ CHIP_ERROR DecodeValueIntoEmberBuffer(AttributeValueDecoder & decoder, const Emb
     VerifyOrReturnError(metadata != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
 
     const bool isNullable = metadata->IsNullable();
+
+#if NEW_API
 
     Ember::EmberAttributeBuffer emberData(metadata, out);
 
@@ -254,27 +258,30 @@ CHIP_ERROR DecodeValueIntoEmberBuffer(AttributeValueDecoder & decoder, const Emb
                                     // case ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE:
         return decoder.Decode(emberData);
     }
+#endif
 
     switch (AttributeBaseType(metadata->attributeType))
     {
     case ZCL_BOOLEAN_ATTRIBUTE_TYPE: // Boolean
         return DecodeIntoEmberBuffer<bool>(decoder, isNullable, out);
-    // case ZCL_INT8U_ATTRIBUTE_TYPE: // Unsigned 8-bit integer
-    //     return DecodeIntoEmberBuffer<uint8_t>(decoder, isNullable, out);
-    // case ZCL_INT16U_ATTRIBUTE_TYPE: // Unsigned 16-bit integer
-    //     return DecodeIntoEmberBuffer<uint16_t>(decoder, isNullable, out);
-    // case ZCL_INT24U_ATTRIBUTE_TYPE: // Unsigned 24-bit integer
-    //     return DecodeIntoEmberBuffer<OddSizedInteger<3, false>>(decoder, isNullable, out);
-    // case ZCL_INT32U_ATTRIBUTE_TYPE: // Unsigned 32-bit integer
-    //     return DecodeIntoEmberBuffer<uint32_t>(decoder, isNullable, out);
-    // case ZCL_INT40U_ATTRIBUTE_TYPE: // Unsigned 40-bit integer
-    //     return DecodeIntoEmberBuffer<OddSizedInteger<5, false>>(decoder, isNullable, out);
-    // case ZCL_INT48U_ATTRIBUTE_TYPE: // Unsigned 48-bit integer
-    //     return DecodeIntoEmberBuffer<OddSizedInteger<6, false>>(decoder, isNullable, out);
-    // case ZCL_INT56U_ATTRIBUTE_TYPE: // Unsigned 56-bit integer
-    //     return DecodeIntoEmberBuffer<OddSizedInteger<7, false>>(decoder, isNullable, out);
-    // case ZCL_INT64U_ATTRIBUTE_TYPE: // Unsigned 64-bit integer
-    //     return DecodeIntoEmberBuffer<uint64_t>(decoder, isNullable, out);
+#if !NEW_API
+    case ZCL_INT8U_ATTRIBUTE_TYPE: // Unsigned 8-bit integer
+        return DecodeIntoEmberBuffer<uint8_t>(decoder, isNullable, out);
+    case ZCL_INT16U_ATTRIBUTE_TYPE: // Unsigned 16-bit integer
+        return DecodeIntoEmberBuffer<uint16_t>(decoder, isNullable, out);
+    case ZCL_INT24U_ATTRIBUTE_TYPE: // Unsigned 24-bit integer
+        return DecodeIntoEmberBuffer<OddSizedInteger<3, false>>(decoder, isNullable, out);
+    case ZCL_INT32U_ATTRIBUTE_TYPE: // Unsigned 32-bit integer
+        return DecodeIntoEmberBuffer<uint32_t>(decoder, isNullable, out);
+    case ZCL_INT40U_ATTRIBUTE_TYPE: // Unsigned 40-bit integer
+        return DecodeIntoEmberBuffer<OddSizedInteger<5, false>>(decoder, isNullable, out);
+    case ZCL_INT48U_ATTRIBUTE_TYPE: // Unsigned 48-bit integer
+        return DecodeIntoEmberBuffer<OddSizedInteger<6, false>>(decoder, isNullable, out);
+    case ZCL_INT56U_ATTRIBUTE_TYPE: // Unsigned 56-bit integer
+        return DecodeIntoEmberBuffer<OddSizedInteger<7, false>>(decoder, isNullable, out);
+#endif
+    case ZCL_INT64U_ATTRIBUTE_TYPE: // Unsigned 64-bit integer
+        return DecodeIntoEmberBuffer<uint64_t>(decoder, isNullable, out);
     case ZCL_INT8S_ATTRIBUTE_TYPE: // Signed 8-bit integer
         return DecodeIntoEmberBuffer<int8_t>(decoder, isNullable, out);
     case ZCL_INT16S_ATTRIBUTE_TYPE: // Signed 16-bit integer
