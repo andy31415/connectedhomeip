@@ -18,6 +18,7 @@
 
 #include <app-common/zap-generated/attribute-type.h>
 #include <app/util/attribute-storage-null-handling.h>
+#include <cstdint>
 #include <lib/core/CHIPError.h>
 #include <lib/core/TLVTypes.h>
 #include <lib/support/CodeUtils.h>
@@ -358,6 +359,104 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
     return CHIP_NO_ERROR;
 }
 
+CHIP_ERROR EmberAttributeBuffer::EncodeInteger(chip::TLV::TLVWriter & writer, TLV::Tag tag, EndianReader & reader) const
+{
+
+    uint8_t raw_bytes[8];
+
+    bool isSigned = (mAttributeType == ZCL_INT8S_ATTRIBUTE_TYPE) //
+        || (mAttributeType == ZCL_INT16S_ATTRIBUTE_TYPE)         //
+        || (mAttributeType == ZCL_INT24S_ATTRIBUTE_TYPE)         //
+        || (mAttributeType == ZCL_INT32S_ATTRIBUTE_TYPE)         //
+        || (mAttributeType == ZCL_INT40S_ATTRIBUTE_TYPE)         //
+        || (mAttributeType == ZCL_INT48S_ATTRIBUTE_TYPE)         //
+        || (mAttributeType == ZCL_INT56S_ATTRIBUTE_TYPE)         //
+        || (mAttributeType == ZCL_INT64S_ATTRIBUTE_TYPE);
+
+    unsigned byteCount;
+    uint64_t nullValue;
+
+    if (isSigned)
+    {
+        const SignedDecodeInfo info = GetSignedDecodeInfo(mAttributeType);
+        byteCount                   = info.byteCount;
+        nullValue                   = static_cast<uint64_t>(info.minValue);
+    }
+    else
+    {
+        const UnsignedDecodeInfo info = GetUnsignedDecodeInfo(mAttributeType);
+        byteCount                     = info.byteCount;
+        nullValue                     = info.maxValue;
+    }
+
+    VerifyOrDie(sizeof(raw_bytes) >= byteCount);
+    if (!reader.ReadBytes(raw_bytes, byteCount).IsSuccess())
+    {
+        return reader.StatusCode();
+    }
+
+    // At this point, RAW_VALUE contains the actual value, need to make it "real"
+    union
+    {
+        int64_t int_value;
+        uint64_t uint_value;
+    } value;
+
+    value.uint_value = 0;
+
+#if CHIP_CONFIG_BIG_ENDIAN_TARGET
+    bool isNegative = isSigned && (raw_bytes[0] >= 0x80);
+    if (isNegative)
+    {
+        value.int_value = -1;
+    }
+    for (int i = 0; i < static_cast<int>(byteCount); i++)
+    {
+#else
+    bool isNegative = isSigned && (raw_bytes[byteCount - 1] >= 0x80);
+    if (isNegative)
+    {
+        value.int_value = -1;
+    }
+    for (int i = static_cast<int>(byteCount) - 1; i >= 0; i--)
+    {
+#endif
+        value.uint_value <<= 8;
+        value.uint_value = (value.uint_value & ~0xFFULL) | raw_bytes[i];
+    }
+
+    if (mIsNullable && (value.uint_value == nullValue))
+    {
+        // MaxValue is used for NULL setting
+        return writer.PutNull(tag);
+    }
+
+    switch (mAttributeType)
+    {
+    case ZCL_INT8U_ATTRIBUTE_TYPE: // Unsigned 8-bit integer
+        return writer.Put(tag, static_cast<uint8_t>(value.uint_value));
+    case ZCL_INT16U_ATTRIBUTE_TYPE: // Unsigned 16-bit integer
+        return writer.Put(tag, static_cast<uint16_t>(value.uint_value));
+    case ZCL_INT24U_ATTRIBUTE_TYPE: // Unsigned 24-bit integer
+    case ZCL_INT32U_ATTRIBUTE_TYPE: // Unsigned 32-bit integer
+        return writer.Put(tag, static_cast<uint32_t>(value.uint_value));
+    case ZCL_INT40U_ATTRIBUTE_TYPE: // Unsigned 40-bit integer
+    case ZCL_INT48U_ATTRIBUTE_TYPE: // Unsigned 48-bit integer
+    case ZCL_INT56U_ATTRIBUTE_TYPE: // Unsigned 56-bit integer
+    case ZCL_INT64U_ATTRIBUTE_TYPE: // Unsigned 64-bit integer
+        return writer.Put(tag, static_cast<uint64_t>(value.uint_value));
+    case ZCL_INT8S_ATTRIBUTE_TYPE: // Unsigned 8-bit integer
+        return writer.Put(tag, static_cast<int8_t>(value.int_value));
+    case ZCL_INT16S_ATTRIBUTE_TYPE: // Unsigned 16-bit integer
+        return writer.Put(tag, static_cast<int16_t>(value.int_value));
+    case ZCL_INT24S_ATTRIBUTE_TYPE: // Unsigned 24-bit integer
+    case ZCL_INT32S_ATTRIBUTE_TYPE: // Unsigned 32-bit integer
+        return writer.Put(tag, static_cast<int32_t>(value.int_value));
+    default:
+        return writer.Put(tag, static_cast<int64_t>(value.int_value));
+    }
+}
+
 CHIP_ERROR EmberAttributeBuffer::Encode(chip::TLV::TLVWriter & writer, TLV::Tag tag) const
 {
     EndianReader endianReader(mDataBuffer.data(), mDataBuffer.size());
@@ -384,22 +483,23 @@ CHIP_ERROR EmberAttributeBuffer::Encode(chip::TLV::TLVWriter & writer, TLV::Tag 
             return CHIP_ERROR_INCORRECT_STATE;
         }
     }
-        // case ZCL_INT8U_ATTRIBUTE_TYPE:       // Unsigned 8-bit integer
-        // case ZCL_INT16U_ATTRIBUTE_TYPE:      // Unsigned 16-bit integer
-        // case ZCL_INT24U_ATTRIBUTE_TYPE:      // Unsigned 24-bit integer
-        // case ZCL_INT32U_ATTRIBUTE_TYPE:      // Unsigned 32-bit integer
-        // case ZCL_INT40U_ATTRIBUTE_TYPE:      // Unsigned 40-bit integer
-        // case ZCL_INT48U_ATTRIBUTE_TYPE:      // Unsigned 48-bit integer
-        // case ZCL_INT56U_ATTRIBUTE_TYPE:      // Unsigned 56-bit integer
-        // case ZCL_INT64U_ATTRIBUTE_TYPE:      // Unsigned 64-bit integer
-        // case ZCL_INT8S_ATTRIBUTE_TYPE:       // Signed 8-bit integer
-        // case ZCL_INT16S_ATTRIBUTE_TYPE:      // Signed 16-bit integer
-        // case ZCL_INT24S_ATTRIBUTE_TYPE:      // Signed 24-bit integer
-        // case ZCL_INT32S_ATTRIBUTE_TYPE:      // Signed 32-bit integer
-        // case ZCL_INT40S_ATTRIBUTE_TYPE:      // Signed 40-bit integer
-        // case ZCL_INT48S_ATTRIBUTE_TYPE:      // Signed 48-bit integer
-        // case ZCL_INT56S_ATTRIBUTE_TYPE:      // Signed 56-bit integer
-        // case ZCL_INT64S_ATTRIBUTE_TYPE:      // Signed 64-bit integer
+    case ZCL_INT8U_ATTRIBUTE_TYPE:  // Unsigned 8-bit integer
+    case ZCL_INT16U_ATTRIBUTE_TYPE: // Unsigned 16-bit integer
+    case ZCL_INT24U_ATTRIBUTE_TYPE: // Unsigned 24-bit integer
+    case ZCL_INT32U_ATTRIBUTE_TYPE: // Unsigned 32-bit integer
+    case ZCL_INT40U_ATTRIBUTE_TYPE: // Unsigned 40-bit integer
+    case ZCL_INT48U_ATTRIBUTE_TYPE: // Unsigned 48-bit integer
+    case ZCL_INT56U_ATTRIBUTE_TYPE: // Unsigned 56-bit integer
+    case ZCL_INT64U_ATTRIBUTE_TYPE: // Unsigned 64-bit integer
+    case ZCL_INT8S_ATTRIBUTE_TYPE:  // Signed 8-bit integer
+    case ZCL_INT16S_ATTRIBUTE_TYPE: // Signed 16-bit integer
+    case ZCL_INT24S_ATTRIBUTE_TYPE: // Signed 24-bit integer
+    case ZCL_INT32S_ATTRIBUTE_TYPE: // Signed 32-bit integer
+    case ZCL_INT40S_ATTRIBUTE_TYPE: // Signed 40-bit integer
+    case ZCL_INT48S_ATTRIBUTE_TYPE: // Signed 48-bit integer
+    case ZCL_INT56S_ATTRIBUTE_TYPE: // Signed 56-bit integer
+    case ZCL_INT64S_ATTRIBUTE_TYPE: // Signed 64-bit integer
+        return EncodeInteger(writer, tag, endianReader);
         // case ZCL_SINGLE_ATTRIBUTE_TYPE:      // 32-bit float
         // case ZCL_DOUBLE_ATTRIBUTE_TYPE:      // 64-bit float
         // case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
