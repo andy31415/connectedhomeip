@@ -375,9 +375,8 @@ CHIP_ERROR EmberAttributeBuffer::Encode(chip::TLV::TLVWriter & writer, TLV::Tag 
         switch (value)
         {
         case 0:
-            return writer.PutBoolean(tag, false);
         case 1:
-            return writer.PutBoolean(tag, true);
+            return writer.PutBoolean(tag, value != 0);
         case 0xFF:
             return writer.PutNull(tag);
         default:
