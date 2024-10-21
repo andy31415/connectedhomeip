@@ -361,6 +361,10 @@ CHIP_ERROR EmberAttributeBuffer::Decode(chip::TLV::TLVReader & reader)
 
 CHIP_ERROR EmberAttributeBuffer::EncodeInteger(chip::TLV::TLVWriter & writer, TLV::Tag tag, EndianReader & reader) const
 {
+    // Encodes an integer by first reading as raw bytes and then
+    // bitshift-convert
+    //
+    // This optimizes code size rather than readability at this point.
 
     uint8_t raw_bytes[8];
 
@@ -380,7 +384,7 @@ CHIP_ERROR EmberAttributeBuffer::EncodeInteger(chip::TLV::TLVWriter & writer, TL
     {
         const SignedDecodeInfo info = GetSignedDecodeInfo(mAttributeType);
         byteCount                   = info.byteCount;
-        nullValue                   = static_cast<uint64_t>(info.minValue);
+        nullValue                   = static_cast<uint64_t>(info.minValue); // just a bit cast for easy compare
     }
     else
     {
