@@ -101,29 +101,34 @@ private:
     std::optional<CHIP_ERROR> mResult;
 };
 
-
 template <typename T>
-bool IsEqual(const T& a, const T& b) {
+bool IsEqual(const T & a, const T & b)
+{
     return a == b;
 }
 
 template <>
-bool IsEqual<ByteSpan>(const ByteSpan& a, const ByteSpan& b) {
+bool IsEqual<ByteSpan>(const ByteSpan & a, const ByteSpan & b)
+{
     return a.data_equal(b);
 }
 
 template <>
-bool IsEqual<CharSpan>(const CharSpan& a, const CharSpan& b) {
+bool IsEqual<CharSpan>(const CharSpan & a, const CharSpan & b)
+{
     return a.data_equal(b);
 }
 
 template <typename T>
-bool IsEqual(const std::optional<T> &a, const std::optional<T> &b) {
-    if (a.has_value() != b.has_value()) {
+bool IsEqual(const std::optional<T> & a, const std::optional<T> & b)
+{
+    if (a.has_value() != b.has_value())
+    {
         return false;
     }
 
-    if (!a.has_value()) {
+    if (!a.has_value())
+    {
         return true;
     }
 
@@ -131,12 +136,15 @@ bool IsEqual(const std::optional<T> &a, const std::optional<T> &b) {
 }
 
 template <typename T>
-bool IsEqual(const DataModel::Nullable<T> &a, const DataModel::Nullable<T> &b) {
-    if (a.IsNull() != b.IsNull()) {
+bool IsEqual(const DataModel::Nullable<T> & a, const DataModel::Nullable<T> & b)
+{
+    if (a.IsNull() != b.IsNull())
+    {
         return false;
     }
 
-    if (a.IsNull()) {
+    if (a.IsNull())
+    {
         return true;
     }
 
@@ -1075,7 +1083,8 @@ TEST(TestEmberAttributeBuffer, TestDecodeFloatingPoint)
     {
         EncodeTester tester(CreateFakeMeta(ZCL_DOUBLE_ATTRIBUTE_TYPE, true /* nullable */));
         EXPECT_TRUE(tester.TryDecode<double>(123.55, { 0x33, 0x33, 0x33, 0x33, 0x33, 0xE3, 0x5E, 0x40 }).IsSuccess());
-        EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<double>>(123.55, { 0x33, 0x33, 0x33, 0x33, 0x33, 0xE3, 0x5E, 0x40 }).IsSuccess());
+        EXPECT_TRUE(
+            tester.TryDecode<DataModel::Nullable<double>>(123.55, { 0x33, 0x33, 0x33, 0x33, 0x33, 0xE3, 0x5E, 0x40 }).IsSuccess());
         EXPECT_TRUE(
             tester.TryDecode<DataModel::Nullable<double>>(DataModel::NullNullable, { 0, 0, 0, 0, 0, 0, 0xF8, 0x7F }).IsSuccess());
     }
