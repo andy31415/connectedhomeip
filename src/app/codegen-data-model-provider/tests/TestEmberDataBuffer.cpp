@@ -703,7 +703,7 @@ TEST(TestEmberAttributeBuffer, TestDecodeFailures)
     {
         // Insufficient data buffer - should never happen, but test that we will error out
         EncodeTester tester(CreateFakeMeta(ZCL_INT32U_ATTRIBUTE_TYPE, false /* nullable */));
-        EXPECT_EQ(tester.TryEncode<uint32_t>(123, { 1, 2, 3 }), CHIP_ERROR_INTERNAL);
+        EXPECT_EQ(tester.TryDecode<uint32_t>(123, { 1, 2, 3 }), CHIP_ERROR_BUFFER_TOO_SMALL);
     }
 }
 
