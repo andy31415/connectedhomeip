@@ -1027,3 +1027,56 @@ TEST(TestEmberAttributeBuffer, TestDecodeStrings)
         EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<ByteSpan>>(DataModel::NullNullable, { 0xFF, 0xFF }).IsSuccess());
     }
 }
+
+TEST(TestEmberAttributeBuffer, TestDecodeBool)
+{
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_BOOLEAN_ATTRIBUTE_TYPE, false /* nullable */));
+
+        EXPECT_TRUE(tester.TryDecode<bool>(true, { 1 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<bool>(false, { 0 }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_BOOLEAN_ATTRIBUTE_TYPE, true /* nullable */));
+
+        EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<bool>>(true, { 1 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<bool>>(false, { 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<bool>>(DataModel::NullNullable, { 0xFF }).IsSuccess());
+    }
+}
+
+TEST(TestEmberAttributeBuffer, TestDecodeFloatingPoint)
+{
+    // NOTE: to generate encoded values, you an use commands like:
+    //
+    //    python -c 'import struct; print(", ".join(["0x%X" % v for v in struct.pack("<f", -123.55)]))'
+    //    OUTPUT: 0x9A, 0x19, 0xF7, 0x42
+    //
+    //    python -c 'import struct; print(", ".join(["0x%X" % v for v in struct.pack("<f", float("nan"))]))'
+    //    OUTPUT: 0x00, 0x00, 0xC0, 0x7F
+    //
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_SINGLE_ATTRIBUTE_TYPE, false /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<float>(123.55f, { 0x9A, 0x19, 0xF7, 0x42 }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_SINGLE_ATTRIBUTE_TYPE, true /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<float>(123.55f, { 0x9A, 0x19, 0xF7, 0x42 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<float>>(DataModel::NullNullable, { 0, 0, 0xC0, 0x7F }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_DOUBLE_ATTRIBUTE_TYPE, false /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<double>(123.55, { 0x33, 0x33, 0x33, 0x33, 0x33, 0xE3, 0x5E, 0x40 }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_DOUBLE_ATTRIBUTE_TYPE, true /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<double>(123.55, { 0x33, 0x33, 0x33, 0x33, 0x33, 0xE3, 0x5E, 0x40 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<double>>(123.55, { 0x33, 0x33, 0x33, 0x33, 0x33, 0xE3, 0x5E, 0x40 }).IsSuccess());
+        EXPECT_TRUE(
+            tester.TryDecode<DataModel::Nullable<double>>(DataModel::NullNullable, { 0, 0, 0, 0, 0, 0, 0xF8, 0x7F }).IsSuccess());
+    }
+}
