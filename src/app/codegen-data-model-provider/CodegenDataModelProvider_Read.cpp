@@ -163,32 +163,6 @@ CHIP_ERROR EncodeStringLike(ByteSpan data, bool isNullable, AttributeValueEncode
     return encoder.Encode(*value);
 }
 
-/// Encodes a numeric data value of type T from the given ember-encoded buffer `data`.
-///
-/// isNullable defines if the value of NULL is allowed to be encoded.
-template <typename T>
-CHIP_ERROR EncodeFromSpan(ByteSpan data, bool isNullable, AttributeValueEncoder & encoder)
-{
-    typename NumericAttributeTraits<T>::StorageType value;
-
-    VerifyOrReturnError(data.size() >= sizeof(value), CHIP_ERROR_INVALID_ARGUMENT);
-    memcpy(&value, data.data(), sizeof(value));
-
-    if (isNullable && NumericAttributeTraits<T>::IsNullValue(value))
-    {
-        return encoder.EncodeNull();
-    }
-
-    if (!NumericAttributeTraits<T>::CanRepresentValue(isNullable, value))
-    {
-        return CHIP_ERROR_INCORRECT_STATE;
-    }
-
-    return encoder.Encode(NumericAttributeTraits<T>::StorageToWorking(value));
-}
-
-#define NEW_API 1
-
 /// Converts raw ember data from `data` into the encoder
 ///
 /// Uses the attribute `metadata` to determine how the data is encoded into `data` and
@@ -201,10 +175,6 @@ CHIP_ERROR EncodeEmberValue(MutableByteSpan data, const EmberAfAttributeMetadata
 
     switch (AttributeBaseType(metadata->attributeType))
     {
-    case ZCL_SINGLE_ATTRIBUTE_TYPE: // 32-bit float
-        return EncodeFromSpan<float>(data, isNullable, encoder);
-    case ZCL_DOUBLE_ATTRIBUTE_TYPE: // 64-bit float
-        return EncodeFromSpan<double>(data, isNullable, encoder);
     case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
         return EncodeStringLike<CharSpan, ShortPascalString>(data, isNullable, encoder);
     case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:

@@ -512,8 +512,40 @@ CHIP_ERROR EmberAttributeBuffer::Encode(chip::TLV::TLVWriter & writer, TLV::Tag 
     case ZCL_INT56S_ATTRIBUTE_TYPE: // Signed 56-bit integer
     case ZCL_INT64S_ATTRIBUTE_TYPE: // Signed 64-bit integer
         return EncodeInteger(writer, tag, endianReader);
-        // case ZCL_SINGLE_ATTRIBUTE_TYPE:      // 32-bit float
-        // case ZCL_DOUBLE_ATTRIBUTE_TYPE:      // 64-bit float
+    case ZCL_SINGLE_ATTRIBUTE_TYPE: { // 32-bit float
+        union
+        {
+            uint8_t raw[sizeof(float)];
+            float value;
+        } value;
+
+        if (!endianReader.ReadBytes(value.raw, sizeof(value)).IsSuccess())
+        {
+            return endianReader.StatusCode();
+        }
+        if (NumericAttributeTraits<float>::IsNullValue(value.value))
+        {
+            return writer.PutNull(tag);
+        }
+        return writer.Put(tag, value.value);
+    }
+    case ZCL_DOUBLE_ATTRIBUTE_TYPE: { // 64-bit float
+        union
+        {
+            uint8_t raw[sizeof(double)];
+            double value;
+        } value;
+
+        if (!endianReader.ReadBytes(value.raw, sizeof(value)).IsSuccess())
+        {
+            return endianReader.StatusCode();
+        }
+        if (NumericAttributeTraits<double>::IsNullValue(value.value))
+        {
+            return writer.PutNull(tag);
+        }
+        return writer.Put(tag, value.value);
+    }
         // case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
         // case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
         // case ZCL_OCTET_STRING_ATTRIBUTE_TYPE: // Octet string
