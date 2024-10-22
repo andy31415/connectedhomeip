@@ -122,7 +122,6 @@ public:
         CHIP_ERROR err = buffer.Decode(reader);
         if (err != CHIP_NO_ERROR)
         {
-            ChipLogError(Test, "Decoding failed: %" CHIP_ERROR_FORMAT, err.Format());
             return err;
         }
 
@@ -136,6 +135,42 @@ public:
         if (!expected.data_equal(out_span))
         {
             ChipLogError(Test, "Decode mismatch in content for %u bytes", static_cast<unsigned>(expected.size()));
+            return CHIP_ERROR_INTERNAL;
+        }
+
+        return EncodeResult::Ok();
+    }
+
+    template <typename T, size_t N>
+    EncodeResult TryDecode(const T & value, const uint8_t (&arr)[N])
+    {
+        // Write data to TLV
+        {
+            uint8_t mutableBuffer[N];
+            memcpy(mutableBuffer, arr, N);
+
+            MutableByteSpan data_span(mutableBuffer);
+            Ember::EmberAttributeBuffer buffer(mMetaData, data_span);
+
+            TLV::TLVWriter writer;
+            writer.Init(mEmberDataBuffer, sizeof(mEmberDataBuffer));
+            ReturnErrorOnFailure(buffer.Encode(writer, TLV::AnonymousTag()));
+            ReturnErrorOnFailure(writer.Finalize());
+        }
+
+        // Data was written in TLV. Take it back out
+
+        TLV::TLVReader reader;
+        reader.Init(mEmberDataBuffer, sizeof(mEmberDataBuffer));
+
+        ReturnErrorOnFailure(reader.Next());
+
+        T encodedValue;
+        ReturnErrorOnFailure(DataModel::Decode(reader, encodedValue));
+
+        if (encodedValue != value)
+        {
+            ChipLogError(Test, "Encode mismatch: different data");
             return CHIP_ERROR_INTERNAL;
         }
 
@@ -588,7 +623,7 @@ TEST(TestEmberAttributeBuffer, TestEncodeStrings)
     }
 }
 
-TEST(TestEmberAttributeBuffer, TestFailures)
+TEST(TestEmberAttributeBuffer, TestEncodeFailures)
 {
     {
         // attribute type that is not handled
@@ -612,5 +647,151 @@ TEST(TestEmberAttributeBuffer, TestFailures)
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT32U_ATTRIBUTE_TYPE, false /* nullable */));
         EXPECT_EQ(tester.TryEncode<bool>(true, { 0 }), CHIP_ERROR_WRONG_TLV_TYPE);
+    }
+}
+
+TEST(TestEmberAttributeBuffer, TestDecodeSignedTypes)
+{
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT8S_ATTRIBUTE_TYPE, false /* nullable */));
+
+        EXPECT_TRUE(tester.TryDecode<int8_t>(0, { 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int8_t>(123, { 123 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int8_t>(127, { 127 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int8_t>(-10, { 0xF6 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int8_t>(-128, { 0x80 }).IsSuccess());
+
+        // longer data is ok
+        EXPECT_TRUE(tester.TryDecode<int8_t>(-128, { 0x80, 1, 2, 3, 4 }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT8S_ATTRIBUTE_TYPE, true /* nullable */));
+
+        EXPECT_TRUE(tester.TryDecode<int8_t>(0, { 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int8_t>(123, { 123 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int8_t>(127, { 127 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int8_t>(-10, { 0xF6 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int8_t>(-127, { 0x81 }).IsSuccess());
+
+        // NULL can be decoded
+        EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<int8_t>>(DataModel::NullNullable, { 0x80 }).IsSuccess());
+
+        // decoding as nullable proceeds as normal
+        EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<int8_t>>(-127, { 0x81 }).IsSuccess());
+    }
+
+    {
+
+        EncodeTester tester(CreateFakeMeta(ZCL_INT16S_ATTRIBUTE_TYPE, false /* nullable */));
+
+        EXPECT_TRUE(tester.TryDecode<int16_t>(0, { 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int16_t>(123, { 123, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int16_t>(127, { 127, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int16_t>(-10, { 0xF6, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int16_t>(-128, { 0x80, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int16_t>(-1234, { 0x2E, 0xFB }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int16_t>(std::numeric_limits<int16_t>::min(), { 0x0, 0x80 }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT16S_ATTRIBUTE_TYPE, true /* nullable */));
+
+        EXPECT_TRUE(tester.TryDecode<int16_t>(0, { 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int16_t>(123, { 123, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int16_t>(127, { 127, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int16_t>(-10, { 0xF6, 0xFF }).IsSuccess());
+
+        // NULL decoding
+        EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<int16_t>>(DataModel::NullNullable, {0x00, 0x80 }).IsSuccess());
+    }
+
+    // Odd size integers
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT24S_ATTRIBUTE_TYPE, false /* nullable */));
+
+        EXPECT_TRUE(tester.TryDecode<int32_t>(0, { 0, 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int32_t>(0x123456, { 0x56, 0x34, 0x12 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int32_t>(-1, { 0xFF, 0xFF, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int32_t>(-10, { 0xF6, 0xFF, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int32_t>(-1234, { 0x2E, 0xFB, 0xFF }).IsSuccess());
+    }
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT24S_ATTRIBUTE_TYPE, true /* nullable */));
+
+        EXPECT_TRUE(tester.TryDecode<int32_t>(0, { 0, 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int32_t>(0x123456, { 0x56, 0x34, 0x12 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int32_t>(-1, { 0xFF, 0xFF, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int32_t>(-10, { 0xF6, 0xFF, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int32_t>(-1234, { 0x2E, 0xFB, 0xFF }).IsSuccess());
+
+        EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<uint32_t>>(DataModel::NullNullable, { 0x00, 0x00, 0x80 }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT40S_ATTRIBUTE_TYPE, true /* nullable */));
+
+        // NOTE: to generate encoded values, you an use commands like:
+        //
+        //    python -c 'import struct; print(", ".join(["0x%X" % v for v in struct.pack("<q", -12345678910)]))'
+        //
+        //    OUTPUT: 0xC2, 0xE3, 0x23, 0x20, 0xFD, 0xFF, 0xFF, 0xFF
+        //
+        EXPECT_TRUE(tester.TryDecode<int64_t>(0, { 0, 0, 0, 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int64_t>(0x123456, { 0x56, 0x34, 0x12, 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int64_t>(-1234, { 0x2E, 0xFB, 0xFF, 0xFF, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int64_t>(-123456789, { 0xeb, 0x32, 0xa4, 0xf8, 0xFF }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<int64_t>(-12345678910, { 0xc2, 0xe3, 0x23, 0x20, 0xfd }).IsSuccess());
+
+        EXPECT_TRUE(
+            tester.TryDecode<DataModel::Nullable<uint64_t>>(DataModel::NullNullable, { 0x00, 0x00, 0x00, 0x00, 0x80 }).IsSuccess());
+    }
+
+    // Double-check tests, not as exhaustive, to cover all other unsigned values and get
+    // more test line coverage
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT32S_ATTRIBUTE_TYPE, true /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<int64_t>(-1234, { 0x2E, 0xFB, 0xFF, 0xFF }).IsSuccess());
+    }
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT48S_ATTRIBUTE_TYPE, true /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<int64_t>(-1234, { 0x2E, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF }).IsSuccess());
+    }
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT56S_ATTRIBUTE_TYPE, true /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<int64_t>(-1234, { 0x2E, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT64S_ATTRIBUTE_TYPE, true /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<int64_t>(-1234, { 0x2E, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }).IsSuccess());
+
+        // min/max ranges too
+        EXPECT_TRUE(
+            tester.TryDecode<int64_t>(std::numeric_limits<int64_t>::min() + 1, { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80 })
+                .IsSuccess());
+        EXPECT_TRUE(
+            tester.TryDecode<int64_t>(std::numeric_limits<int64_t>::max(), { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F })
+                .IsSuccess());
+
+        EXPECT_TRUE(tester
+                        .TryDecode<DataModel::Nullable<int64_t>>(DataModel::NullNullable,
+                                                                 { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80 })
+                        .IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_INT64S_ATTRIBUTE_TYPE, false /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<int64_t>(-1234, { 0x2E, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }).IsSuccess());
+
+        EXPECT_TRUE(
+            tester.TryDecode<int64_t>(std::numeric_limits<int64_t>::min(), { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80 })
+                .IsSuccess());
+        EXPECT_TRUE(
+            tester.TryDecode<int64_t>(std::numeric_limits<int64_t>::min() + 1, { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80 })
+                .IsSuccess());
+        EXPECT_TRUE(
+            tester.TryDecode<int64_t>(std::numeric_limits<int64_t>::max(), { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F })
+                .IsSuccess());
     }
 }
