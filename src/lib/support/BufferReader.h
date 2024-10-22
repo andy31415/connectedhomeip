@@ -292,6 +292,33 @@ public:
     void RawReadLowLevelBeCareful(T * retval);
 
     /**
+     * Access bytes of size length, useful for in-place processing of strings
+     *
+     * data_ptr MUST NOT be null and will contain the data pointer with `len` bytes available
+     * if this call is successful
+     *
+     * If len is greater than the number of available bytes, the object enters in a failed status.
+     */
+    CHECK_RETURN_VALUE
+    Reader & ZeroCopyProcessBytes(size_t len, const uint8_t **data_ptr)
+    {
+        if (len > mAvailable)
+        {
+            *data_ptr = nullptr;
+            mStatus  = CHIP_ERROR_BUFFER_TOO_SMALL;
+            // Ensure that future reads all fail.
+            mAvailable = 0;
+        }
+        else
+        {
+            *data_ptr = mReadPtr;
+            mReadPtr += len;
+            mAvailable -= len;
+        }
+        return *this;
+    }
+
+    /**
      * Advance the Reader forward by the specified number of octets.
      *
      * @param len The number of octets to skip.

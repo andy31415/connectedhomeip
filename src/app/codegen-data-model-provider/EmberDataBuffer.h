@@ -21,8 +21,8 @@
 #include <app/util/ember-io-storage.h>
 #include <lib/core/TLVReader.h>
 #include <lib/core/TLVTypes.h>
-#include <lib/support/BufferWriter.h>
 #include <lib/support/BufferReader.h>
+#include <lib/support/BufferWriter.h>
 #include <lib/support/Span.h>
 
 namespace chip {
@@ -41,6 +41,14 @@ namespace Ember {
 class EmberAttributeBuffer
 {
 public:
+#if CHIP_CONFIG_BIG_ENDIAN_TARGET
+    using EndianWriter = Encoding::BigEndian::BufferWriter;
+    using EndianReader = Encoding::BigEndian::Reader;
+#else
+    using EndianWriter = Encoding::LittleEndian::BufferWriter;
+    using EndianReader = Encoding::LittleEndian::Reader;
+#endif
+
     enum class PascalStringType
     {
         kShort,
@@ -69,13 +77,6 @@ public:
     CHIP_ERROR Encode(chip::TLV::TLVWriter & writer, TLV::Tag tag) const;
 
 private:
-#if CHIP_CONFIG_BIG_ENDIAN_TARGET
-    using EndianWriter = Encoding::BigEndian::BufferWriter;
-    using EndianReader = Encoding::BigEndian::Reader;
-#else
-    using EndianWriter = Encoding::LittleEndian::BufferWriter;
-    using EndianReader = Encoding::LittleEndian::Reader;
-#endif
     /// Decodes the UNSIGNED integer stored in `reader` and places its content into `writer`
     /// Takes into account internal mIsNullable.
     CHIP_ERROR DecodeUnsignedInteger(chip::TLV::TLVReader & reader, EndianWriter & writer);

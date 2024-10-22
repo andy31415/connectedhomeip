@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "lib/support/Span.h"
 #include <app/codegen-data-model-provider/CodegenDataModelProvider.h>
 
 #include <optional>
@@ -84,109 +85,6 @@ std::optional<CHIP_ERROR> TryReadViaAccessInterface(const ConcreteAttributePath 
     //   - if encode, assume DONE (i.e. FINAL CHIP_NO_ERROR)
     //   - if no encode, say that processing must continue
     return encoder.TriedEncode() ? std::make_optional(CHIP_NO_ERROR) : std::nullopt;
-}
-
-/// Metadata of what a ember/pascal short string means (prepended by a u8 length)
-struct ShortPascalString
-{
-    using LengthType                        = uint8_t;
-    static constexpr LengthType kNullLength = 0xFF;
-
-    static size_t GetLength(ByteSpan buffer)
-    {
-        VerifyOrDie(buffer.size() >= 1);
-        // NOTE: we do NOT use emberAfStringLength from ember-strings.h because that will result in 0
-        //       length for null sizes (i.e. 0xFF is translated to 0 and we do not want that here)
-        return buffer[0];
-    }
-};
-
-/// Metadata of what a ember/pascal LONG string means (prepended by a u16 length)
-struct LongPascalString
-{
-    using LengthType                        = uint16_t;
-    static constexpr LengthType kNullLength = 0xFFFF;
-
-    static size_t GetLength(ByteSpan buffer)
-    {
-        // NOTE: we do NOT use emberAfLongStringLength from ember-strings.h because that will result in 0
-        //       length for null sizes (i.e. 0xFFFF is translated to 0 and we do not want that here)
-        VerifyOrDie(buffer.size() >= 2);
-        const uint8_t * data = buffer.data();
-        return Encoding::LittleEndian::Read16(data);
-    }
-};
-
-// ember assumptions ... should just work
-static_assert(sizeof(ShortPascalString::LengthType) == 1);
-static_assert(sizeof(LongPascalString::LengthType) == 2);
-
-/// Given a ByteSpan containing data from ember, interpret it
-/// as a span of type OUT (i.e. ByteSpan or CharSpan) given a ENCODING
-/// where ENCODING is Short or Long pascal strings.
-template <class OUT_TYPE, class ENCODING>
-std::optional<OUT_TYPE> ExtractEmberString(ByteSpan data)
-{
-    constexpr size_t kLengthTypeSize = sizeof(typename ENCODING::LengthType);
-    VerifyOrDie(kLengthTypeSize <= data.size());
-    auto len = ENCODING::GetLength(data);
-
-    if (len == ENCODING::kNullLength)
-    {
-        return std::nullopt;
-    }
-
-    VerifyOrDie(len + sizeof(len) <= data.size());
-    return std::make_optional<OUT_TYPE>(reinterpret_cast<typename OUT_TYPE::pointer>(data.data() + kLengthTypeSize), len);
-}
-
-/// Encode a value inside `encoder`
-///
-/// The value encoded will be of type T (e.g. CharSpan or ByteSpan) and it will be decoded
-/// via the given ENCODING (i.e. ShortPascalString or LongPascalString)
-///
-/// isNullable defines if the value of NULL is allowed to be encoded.
-template <typename T, class ENCODING>
-CHIP_ERROR EncodeStringLike(ByteSpan data, bool isNullable, AttributeValueEncoder & encoder)
-{
-    std::optional<T> value = ExtractEmberString<T, ENCODING>(data);
-    if (!value.has_value())
-    {
-        if (isNullable)
-        {
-            return encoder.EncodeNull();
-        }
-        return CHIP_ERROR_INCORRECT_STATE;
-    }
-
-    // encode value as-is
-    return encoder.Encode(*value);
-}
-
-/// Converts raw ember data from `data` into the encoder
-///
-/// Uses the attribute `metadata` to determine how the data is encoded into `data` and
-/// write a suitable value into `encoder`.
-CHIP_ERROR EncodeEmberValue(MutableByteSpan data, const EmberAfAttributeMetadata * metadata, AttributeValueEncoder & encoder)
-{
-    VerifyOrReturnError(metadata != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
-
-    const bool isNullable = metadata->IsNullable();
-
-    switch (AttributeBaseType(metadata->attributeType))
-    {
-    case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
-        return EncodeStringLike<CharSpan, ShortPascalString>(data, isNullable, encoder);
-    case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
-        return EncodeStringLike<CharSpan, LongPascalString>(data, isNullable, encoder);
-    case ZCL_OCTET_STRING_ATTRIBUTE_TYPE: // Octet string
-        return EncodeStringLike<ByteSpan, ShortPascalString>(data, isNullable, encoder);
-    case ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE:
-        return EncodeStringLike<ByteSpan, LongPascalString>(data, isNullable, encoder);
-    }
-
-    Ember::EmberAttributeBuffer emberData(metadata, data);
-    return encoder.Encode(emberData);
 }
 
 } // namespace
@@ -280,7 +178,11 @@ DataModel::ActionReturnStatus CodegenDataModelProvider::ReadAttribute(const Data
         return CHIP_ERROR_IM_GLOBAL_STATUS_VALUE(status);
     }
 
-    return EncodeEmberValue(gEmberAttributeIOBufferSpan, attributeMetadata, encoder);
+    VerifyOrReturnError(attributeMetadata != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+
+    MutableByteSpan data = gEmberAttributeIOBufferSpan;
+    Ember::EmberAttributeBuffer emberData(attributeMetadata, data);
+    return encoder.Encode(emberData);
 }
 
 } // namespace app

@@ -14,6 +14,9 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app/util/attribute-metadata.h"
+#include "lib/core/TLVTags.h"
+#include "lib/core/TLVWriter.h"
 #include <app/codegen-data-model-provider/EmberDataBuffer.h>
 
 #include <app-common/zap-generated/attribute-type.h>
@@ -164,6 +167,55 @@ CHIP_ERROR OutOfRangeError(unsigned byteCount)
         return CHIP_ERROR_INVALID_ARGUMENT;
     }
     return CHIP_IM_GLOBAL_STATUS(ConstraintError);
+}
+
+/// Encodes the string of type stringType pointed to by `reader` into the TLV `writer`.
+/// Then encoded string will be at tag `tag` and of type `tlvType`
+CHIP_ERROR EncodeString(EmberAttributeBuffer::PascalStringType stringType, TLV::TLVType tlvType, TLV::TLVWriter & writer,
+                        TLV::Tag tag, EmberAttributeBuffer::EndianReader & reader, bool nullable)
+{
+    unsigned stringLen;
+    if (stringType == EmberAttributeBuffer::PascalStringType::kShort)
+    {
+        uint8_t len;
+        if (!reader.Read8(&len).IsSuccess())
+        {
+            return reader.StatusCode();
+        }
+        if (len == NumericAttributeTraits<uint8_t>::kNullValue)
+        {
+            VerifyOrReturnError(nullable, CHIP_ERROR_INVALID_ARGUMENT);
+            return writer.PutNull(tag);
+        }
+        stringLen = len;
+    }
+    else
+    {
+        uint16_t len;
+        if (!reader.Read16(&len).IsSuccess())
+        {
+            return reader.StatusCode();
+        }
+        if (len == NumericAttributeTraits<uint16_t>::kNullValue)
+        {
+            VerifyOrReturnError(nullable, CHIP_ERROR_INVALID_ARGUMENT);
+            return writer.PutNull(tag);
+        }
+        stringLen = len;
+    }
+
+    const uint8_t * data;
+    if (!reader.ZeroCopyProcessBytes(stringLen, &data).IsSuccess())
+    {
+        return reader.StatusCode();
+    }
+
+    if (tlvType == TLV::kTLVType_UTF8String)
+    {
+        return writer.PutString(tag, reinterpret_cast<const char *>(data), stringLen);
+    }
+
+    return writer.PutBytes(tag, data, stringLen);
 }
 
 } // namespace
@@ -546,10 +598,15 @@ CHIP_ERROR EmberAttributeBuffer::Encode(chip::TLV::TLVWriter & writer, TLV::Tag 
         }
         return writer.Put(tag, value.value);
     }
-        // case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
-        // case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
-        // case ZCL_OCTET_STRING_ATTRIBUTE_TYPE: // Octet string
-        // case ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE:
+
+    case ZCL_CHAR_STRING_ATTRIBUTE_TYPE: // Char string
+        return EncodeString(PascalStringType::kShort, TLV::kTLVType_UTF8String, writer, tag, endianReader, mIsNullable);
+    case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
+        return EncodeString(PascalStringType::kLong, TLV::kTLVType_UTF8String, writer, tag, endianReader, mIsNullable);
+    case ZCL_OCTET_STRING_ATTRIBUTE_TYPE: // Octet string
+        return EncodeString(PascalStringType::kShort, TLV::kTLVType_ByteString, writer, tag, endianReader, mIsNullable);
+    case ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE:
+        return EncodeString(PascalStringType::kLong, TLV::kTLVType_ByteString, writer, tag, endianReader, mIsNullable);
     default:
         ChipLogError(DataManagement, "Attribute type 0x%x not handled", static_cast<int>(mAttributeType));
         return CHIP_IM_GLOBAL_STATUS(Failure);
