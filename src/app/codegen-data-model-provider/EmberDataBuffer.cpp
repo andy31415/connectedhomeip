@@ -289,6 +289,7 @@ CHIP_ERROR EmberAttributeBuffer::DecodeAsString(chip::TLV::TLVReader & reader, P
             writer.Put16(NumericAttributeTraits<uint16_t>::kNullValue);
             break;
         }
+
         return CHIP_NO_ERROR;
     }
 

@@ -684,9 +684,36 @@ TEST(TestEmberAttributeBuffer, TestEncodeFailures)
     {
         // Insufficient space
         EncodeTester<3> tester(CreateFakeMeta(ZCL_CHAR_STRING_ATTRIBUTE_TYPE, true /* nullable */));
+
+        // Empty is ok
         EXPECT_TRUE(tester.TryEncode<CharSpan>(""_span, { 0 }).IsSuccess());
+
+        // Short strings (with and without count) is wrong.
         EXPECT_EQ(tester.TryEncode<CharSpan>("test"_span, { 0 }), CHIP_ERROR_NO_MEMORY);
+        EXPECT_EQ(tester.TryEncode<CharSpan>("foo"_span, { 3, 'f', 'o' }), CHIP_ERROR_NO_MEMORY);
+
         EXPECT_TRUE(tester.TryEncode<DataModel::Nullable<CharSpan>>(DataModel::NullNullable, { 0xFF }).IsSuccess());
+    }
+
+    {
+        // Insufficient space
+        EncodeTester<3> tester(CreateFakeMeta(ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE, true /* nullable */));
+
+        // Empty is ok
+        EXPECT_TRUE(tester.TryEncode<CharSpan>(""_span, { 0, 0 }).IsSuccess());
+
+        // Short strings (with and without count) is wrong.
+        EXPECT_EQ(tester.TryEncode<CharSpan>("test"_span, { 0 }), CHIP_ERROR_NO_MEMORY);
+        EXPECT_EQ(tester.TryEncode<CharSpan>("foo"_span, { 0, 3, 'f', 'o' }), CHIP_ERROR_NO_MEMORY);
+        EXPECT_EQ(tester.TryEncode<CharSpan>("test"_span, { 0xFF }), CHIP_ERROR_NO_MEMORY);
+
+        EXPECT_TRUE(tester.TryEncode<DataModel::Nullable<CharSpan>>(DataModel::NullNullable, { 0xFF, 0xFF }).IsSuccess());
+    }
+
+    {
+        // Insufficient space even for length
+        EncodeTester<1> tester(CreateFakeMeta(ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE, true /* nullable */));
+        EXPECT_EQ(tester.TryEncode<CharSpan>(""_span, { 0 }), CHIP_ERROR_NO_MEMORY);
     }
 
     // bad type casts
@@ -698,6 +725,16 @@ TEST(TestEmberAttributeBuffer, TestEncodeFailures)
         EncodeTester tester(CreateFakeMeta(ZCL_INT32U_ATTRIBUTE_TYPE, false /* nullable */));
         EXPECT_EQ(tester.TryEncode<bool>(true, { 0 }), CHIP_ERROR_WRONG_TLV_TYPE);
     }
+}
+
+TEST(TestEmberAttributeBuffer, TestNoData)
+{
+    EncodeTester tester(CreateFakeMeta(ZCL_NO_DATA_ATTRIBUTE_TYPE, true /* nullable */));
+
+    // support a always-null type
+    EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<uint32_t>>(DataModel::NullNullable, { 0 }).IsSuccess());
+    EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<float>>(DataModel::NullNullable, { 0 }).IsSuccess());
+    EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<bool>>(DataModel::NullNullable, { 0 }).IsSuccess());
 }
 
 TEST(TestEmberAttributeBuffer, TestDecodeFailures)
@@ -726,11 +763,10 @@ TEST(TestEmberAttributeBuffer, TestDecodeFailures)
         EXPECT_EQ(tester.TryDecode<double>(1.5, { 1, 2, 3 }), CHIP_ERROR_BUFFER_TOO_SMALL);
     }
 
-
     {
         // Bad boolean data
         EncodeTester tester(CreateFakeMeta(ZCL_BOOLEAN_ATTRIBUTE_TYPE, false /* nullable */));
-        EXPECT_EQ(tester.TryDecode<bool>(true, { 123}), CHIP_ERROR_INCORRECT_STATE);
+        EXPECT_EQ(tester.TryDecode<bool>(true, { 123 }), CHIP_ERROR_INCORRECT_STATE);
     }
 }
 
