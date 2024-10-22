@@ -518,10 +518,10 @@ CHIP_ERROR EmberAttributeBuffer::Encode(chip::TLV::TLVWriter & writer, TLV::Tag 
         // case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
         // case ZCL_OCTET_STRING_ATTRIBUTE_TYPE: // Octet string
         // case ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE:
+    default:
+        ChipLogError(DataManagement, "Attribute type 0x%x not handled", static_cast<int>(mAttributeType));
+        return CHIP_IM_GLOBAL_STATUS(Failure);
     }
-
-    // FIXME: implement
-    return CHIP_ERROR_NOT_IMPLEMENTED;
 }
 
 } // namespace Ember
