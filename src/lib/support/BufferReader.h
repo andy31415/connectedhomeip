@@ -300,12 +300,12 @@ public:
      * If len is greater than the number of available bytes, the object enters in a failed status.
      */
     CHECK_RETURN_VALUE
-    Reader & ZeroCopyProcessBytes(size_t len, const uint8_t **data_ptr)
+    Reader & ZeroCopyProcessBytes(size_t len, const uint8_t ** data_ptr)
     {
         if (len > mAvailable)
         {
             *data_ptr = nullptr;
-            mStatus  = CHIP_ERROR_BUFFER_TOO_SMALL;
+            mStatus   = CHIP_ERROR_BUFFER_TOO_SMALL;
             // Ensure that future reads all fail.
             mAvailable = 0;
         }
