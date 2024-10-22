@@ -746,6 +746,14 @@ TEST(TestEmberAttributeBuffer, TestDecodeFailures)
     }
 
     {
+        // Insufficient input
+        EncodeTester<3> tester(CreateFakeMeta(ZCL_CHAR_STRING_ATTRIBUTE_TYPE, true /* nullable */));
+
+        EXPECT_EQ(tester.TryDecode<CharSpan>("test"_span, { 10 }), CHIP_ERROR_BUFFER_TOO_SMALL);
+        EXPECT_EQ(tester.TryDecode<CharSpan>("foo"_span, { 3, 'f', 'o' }), CHIP_ERROR_BUFFER_TOO_SMALL);
+    }
+
+    {
         // Insufficient data buffer - should never happen, but test that we will error out
         EncodeTester tester(CreateFakeMeta(ZCL_INT32U_ATTRIBUTE_TYPE, false /* nullable */));
         EXPECT_EQ(tester.TryDecode<uint32_t>(123, { 1, 2, 3 }), CHIP_ERROR_BUFFER_TOO_SMALL);
