@@ -101,6 +101,48 @@ private:
     std::optional<CHIP_ERROR> mResult;
 };
 
+
+template <typename T>
+bool IsEqual(const T& a, const T& b) {
+    return a == b;
+}
+
+template <>
+bool IsEqual<ByteSpan>(const ByteSpan& a, const ByteSpan& b) {
+    return a.data_equal(b);
+}
+
+template <>
+bool IsEqual<CharSpan>(const CharSpan& a, const CharSpan& b) {
+    return a.data_equal(b);
+}
+
+template <typename T>
+bool IsEqual(const std::optional<T> &a, const std::optional<T> &b) {
+    if (a.has_value() != b.has_value()) {
+        return false;
+    }
+
+    if (!a.has_value()) {
+        return true;
+    }
+
+    return IsEqual(*a, *b);
+}
+
+template <typename T>
+bool IsEqual(const DataModel::Nullable<T> &a, const DataModel::Nullable<T> &b) {
+    if (a.IsNull() != b.IsNull()) {
+        return false;
+    }
+
+    if (a.IsNull()) {
+        return true;
+    }
+
+    return IsEqual(a.Value(), b.Value());
+}
+
 /// Validates that an encoded value in ember takes a specific format
 template <size_t kMaxSize = 128>
 class EncodeTester
@@ -168,7 +210,7 @@ public:
         T encodedValue;
         ReturnErrorOnFailure(DataModel::Decode(reader, encodedValue));
 
-        if (encodedValue != value)
+        if (!IsEqual(encodedValue, value))
         {
             ChipLogError(Test, "Encode mismatch: different data");
             return CHIP_ERROR_INTERNAL;
@@ -650,6 +692,21 @@ TEST(TestEmberAttributeBuffer, TestEncodeFailures)
     }
 }
 
+TEST(TestEmberAttributeBuffer, TestDecodeFailures)
+{
+    {
+        // attribute type that is not handled
+        EncodeTester tester(CreateFakeMeta(ZCL_UNKNOWN_ATTRIBUTE_TYPE, true /* nullable */));
+        EXPECT_EQ(tester.TryDecode<DataModel::Nullable<uint32_t>>(DataModel::NullNullable, { 0 }), CHIP_IM_GLOBAL_STATUS(Failure));
+    }
+
+    {
+        // Insufficient data buffer - should never happen, but test that we will error out
+        EncodeTester tester(CreateFakeMeta(ZCL_INT32U_ATTRIBUTE_TYPE, false /* nullable */));
+        EXPECT_EQ(tester.TryEncode<uint32_t>(123, { 1, 2, 3 }), CHIP_ERROR_INTERNAL);
+    }
+}
+
 TEST(TestEmberAttributeBuffer, TestDecodeSignedTypes)
 {
     {
@@ -909,5 +966,64 @@ TEST(TestEmberAttributeBuffer, TestDecodeUnsignedTypes)
     {
         EncodeTester tester(CreateFakeMeta(ZCL_INT56U_ATTRIBUTE_TYPE, true /* nullable */));
         EXPECT_TRUE(tester.TryDecode<uint64_t>(0x1234, { 0x34, 0x12, 0, 0, 0, 0, 0 }).IsSuccess());
+    }
+}
+
+TEST(TestEmberAttributeBuffer, TestDecodeStrings)
+{
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_CHAR_STRING_ATTRIBUTE_TYPE, false /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<CharSpan>(""_span, { 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<CharSpan>("test"_span, { 4, 't', 'e', 's', 't' }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<CharSpan>("foo"_span, { 3, 'f', 'o', 'o' }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_CHAR_STRING_ATTRIBUTE_TYPE, true /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<CharSpan>(""_span, { 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<CharSpan>("test"_span, { 4, 't', 'e', 's', 't' }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<CharSpan>>(DataModel::NullNullable, { 0xFF }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE, false /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<CharSpan>(""_span, { 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<CharSpan>("test"_span, { 4, 0, 't', 'e', 's', 't' }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<CharSpan>("foo"_span, { 3, 0, 'f', 'o', 'o' }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE, true /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<CharSpan>("test"_span, { 4, 0, 't', 'e', 's', 't' }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<CharSpan>>(DataModel::NullNullable, { 0xFF, 0xFF }).IsSuccess());
+    }
+
+    const uint8_t kOctetData[] = { 1, 2, 3 };
+
+    // Binary data
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_OCTET_STRING_ATTRIBUTE_TYPE, false /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<ByteSpan>(ByteSpan({}), { 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<ByteSpan>(ByteSpan(kOctetData), { 3, 1, 2, 3 }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_OCTET_STRING_ATTRIBUTE_TYPE, true /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<ByteSpan>(ByteSpan({}), { 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<ByteSpan>(ByteSpan(kOctetData), { 3, 1, 2, 3 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<ByteSpan>>(DataModel::NullNullable, { 0xFF }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE, false /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<ByteSpan>(ByteSpan({}), { 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<ByteSpan>(ByteSpan(kOctetData), { 3, 0, 1, 2, 3 }).IsSuccess());
+    }
+
+    {
+        EncodeTester tester(CreateFakeMeta(ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE, true /* nullable */));
+        EXPECT_TRUE(tester.TryDecode<ByteSpan>(ByteSpan({}), { 0, 0 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<ByteSpan>(ByteSpan(kOctetData), { 3, 0, 1, 2, 3 }).IsSuccess());
+        EXPECT_TRUE(tester.TryDecode<DataModel::Nullable<ByteSpan>>(DataModel::NullNullable, { 0xFF, 0xFF }).IsSuccess());
     }
 }
