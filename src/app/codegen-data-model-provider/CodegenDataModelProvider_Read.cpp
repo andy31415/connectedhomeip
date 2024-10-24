@@ -14,7 +14,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "lib/support/Span.h"
 #include <app/codegen-data-model-provider/CodegenDataModelProvider.h>
 
 #include <optional>
@@ -29,7 +28,7 @@
 #include <app/AttributeValueEncoder.h>
 #include <app/GlobalAttributes.h>
 #include <app/RequiredPrivilege.h>
-#include <app/codegen-data-model-provider/EmberDataBuffer.h>
+#include <app/codegen-data-model-provider/EmberAttributeDataBuffer.h>
 #include <app/codegen-data-model-provider/EmberMetadata.h>
 #include <app/data-model/FabricScoped.h>
 #include <app/util/af-types.h>
@@ -43,6 +42,7 @@
 #include <app/util/odd-sized-integers.h>
 #include <lib/core/CHIPError.h>
 #include <lib/support/CodeUtils.h>
+#include <lib/support/Span.h>
 
 #include <zap-generated/endpoint_config.h>
 
@@ -181,7 +181,7 @@ DataModel::ActionReturnStatus CodegenDataModelProvider::ReadAttribute(const Data
     VerifyOrReturnError(attributeMetadata != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
 
     MutableByteSpan data = gEmberAttributeIOBufferSpan;
-    Ember::EmberAttributeBuffer emberData(attributeMetadata, data);
+    Ember::EmberAttributeDataBuffer emberData(attributeMetadata, data);
     return encoder.Encode(emberData);
 }
 
