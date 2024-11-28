@@ -16,11 +16,63 @@
  */
 #pragma once
 
+#include <access/Privilege.h>
 #include <app/data-model-provider/MetadataTypes.h>
+#include <lib/core/DataModelTypes.h>
+#include <lib/support/BitFlags.h>
+#include <lib/support/Span.h>
+#include <lib/support/TypeTraits.h>
+
+#include <cstdint>
+#include <optional>
+#include <type_traits>
 
 namespace chip {
 namespace app {
 namespace Metadata {
+
+/// More compact representation of attribute access privileges
+enum AttributePrivilege : uint8_t
+{
+    kNone = 0,
+
+    // Privleges are defined in chip::Access::Privilege (Privilege.h)
+    // and contain 6 constants INCLUDING unused ones (ProxyView)
+    // We use 3 bits for each of them
+    kRead_View       = 1,
+    kRead_ProxyView  = 2,
+    kRead_Operate    = 3,
+    kRead_Manage     = 4,
+    kRead_Administer = 5,
+
+    // the write privileges are the same as read, except shifted
+    kWrite_View       = (kRead_View << 3),
+    kWrite_ProxyView  = (kRead_ProxyView << 3),
+    kWrite_Operate    = (kRead_Operate << 3),
+    kWrite_Manage     = (kRead_Manage << 3),
+    kWrite_Administer = (kRead_Administer << 3),
+};
+
+std::optional<Access::Privilege> ReadPrivilege(std::underlying_type_t<AttributePrivilege> value);
+std::optional<Access::Privilege> WritePrivilege(std::underlying_type_t<AttributePrivilege> value);
+
+struct AttributeMeta
+{
+    AttributeId id;
+    BitFlags<DataModel::CommandQualityFlags> qualities;
+    std::underlying_type_t<AttributePrivilege> privileges;
+};
+
+struct CommandMeta
+{
+};
+
+struct ClusterMeta
+{
+    Span<AttributeMeta> attributes;
+    Span<CommandMeta> acceptedCommands;
+    Span<CommandId> generatedCommands;
+};
 
 // FIXME: define some things here for cluster metadata definition
 //

@@ -14,11 +14,35 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "access/Privilege.h"
+#include <optional>
 #include <pw_unit_test/framework.h>
 
 #include <app/code-data-model-provider/Metadata.h>
 
-TEST(TestMetadata, BasicTest)
+using namespace chip::Access;
+using namespace chip::app::Metadata;
+
+TEST(TestMetadata, TestPrivilegeConversion)
 {
+    ASSERT_EQ(ReadPrivilege(AttributePrivilege::kNone), std::nullopt);
+    ASSERT_EQ(WritePrivilege(AttributePrivilege::kNone), std::nullopt);
+
+    ASSERT_EQ(ReadPrivilege(AttributePrivilege::kRead_View), std::make_optional(Privilege::kView));
+    ASSERT_EQ(WritePrivilege(AttributePrivilege::kRead_View), std::nullopt);
+
+    ASSERT_EQ(ReadPrivilege(AttributePrivilege::kWrite_Manage), std::nullopt);
+    ASSERT_EQ(WritePrivilege(AttributePrivilege::kWrite_Manage), std::make_optional(Privilege::kManage));
+
+    ASSERT_EQ(ReadPrivilege(AttributePrivilege::kRead_Administer | AttributePrivilege::kWrite_Operate),
+              std::make_optional(Privilege::kAdminister));
+    ASSERT_EQ(WritePrivilege(AttributePrivilege::kRead_Administer | AttributePrivilege::kWrite_Operate),
+              std::make_optional(Privilege::kOperate));
+
+    ASSERT_EQ(ReadPrivilege(AttributePrivilege::kRead_ProxyView | AttributePrivilege::kWrite_View),
+              std::make_optional(Privilege::kProxyView));
+    ASSERT_EQ(WritePrivilege(AttributePrivilege::kRead_ProxyView | AttributePrivilege::kWrite_View),
+              std::make_optional(Privilege::kView));
+
     EXPECT_EQ(1, 1);
 }
