@@ -21,7 +21,6 @@
 #include <lib/core/DataModelTypes.h>
 #include <lib/support/BitFlags.h>
 #include <lib/support/Span.h>
-#include <lib/support/TypeTraits.h>
 
 #include <cstdint>
 #include <optional>
@@ -59,12 +58,15 @@ std::optional<Access::Privilege> WritePrivilege(std::underlying_type_t<Attribute
 struct AttributeMeta
 {
     AttributeId id;
-    BitFlags<DataModel::CommandQualityFlags> qualities;
+    BitFlags<DataModel::AttributeQualityFlags> qualities;
     std::underlying_type_t<AttributePrivilege> privileges;
 };
 
 struct CommandMeta
 {
+    CommandId id;
+    BitFlags<DataModel::CommandQualityFlags> qualities;
+    Access::Privilege invokePrivilege;
 };
 
 struct ClusterMeta
