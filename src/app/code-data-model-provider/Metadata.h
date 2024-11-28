@@ -16,11 +16,33 @@
  */
 #pragma once
 
+#include <app/data-model-provider/MetadataTypes.h>
+
 namespace chip {
 namespace app {
 namespace Metadata {
 
 // FIXME: define some things here for cluster metadata definition
+//
+// Also see updates from https://github.com/project-chip/connectedhomeip/pull/36493
+//
+// Overall requirements:
+//   Cluster Metadata:
+//      - ARRAY of attributes: id, quality, readPrivilege, writePrivilege
+//      - ARRAY of commands: id, quality, privilege
+//      - ARRAY of generatedCommands: id
+//
+//   Cluster INSTANCES:
+//      - dataVersion
+//
+//   Endpoint INSTANCES:
+//      - ARRAY of device types: where are these definitions? (DeviceTypeEntry)
+//      - ARRAY of semantic tags                              (TAGS)
+//      - ARRAY of Client clusters                            (METADATA)
+//      - ARRAY of Server clusters                            (ID only)
+//      - COMPOSITION:
+//          - parentId -> optional (supports invalid)
+//          - composition pattern (should re-use this one once 36493 is defined)
 
 } // namespace Metadata
 } // namespace app
