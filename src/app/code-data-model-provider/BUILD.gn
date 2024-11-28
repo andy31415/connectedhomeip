@@ -1,0 +1,5 @@
+source_set("code-data-model-provider") {
+  sources = [
+    "Metadata.h"
+  ]
+}
