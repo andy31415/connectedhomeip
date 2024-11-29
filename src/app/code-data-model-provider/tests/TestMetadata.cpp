@@ -14,10 +14,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "access/Privilege.h"
 #include <optional>
 #include <pw_unit_test/framework.h>
 
+#include <access/Privilege.h>
 #include <app/code-data-model-provider/Metadata.h>
 
 using namespace chip::Access;
