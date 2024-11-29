@@ -123,12 +123,6 @@ struct EndpointInstance
 
     EndpointId parentEndpointId; // can be kInvalidEndpointId
     DataModel::EndpointCompositionPattern endpointComposition;
-
-    // composition ???
-    // TODO:
-    //   - server clusters
-    //   - client clusters
-    //   - composition: parentId (???), pattern
 };
 
 // FIXME: define some things here for cluster metadata definition
@@ -145,7 +139,7 @@ struct EndpointInstance
 //      - dataVersion
 //      - Cluster Metadata
 //
-//   [TODO] Endpoint INSTANCES:
+//   [DONE] Endpoint INSTANCES:
 //      - ARRAY of device types: where are these definitions? (DeviceTypeEntry)
 //      - ARRAY of semantic tags                              (TAGS)
 //      - ARRAY of Server clusters                            (CLUSTER INSTANCES)
