@@ -55,6 +55,10 @@ enum AttributePrivilege : uint8_t
 std::optional<Access::Privilege> ReadPrivilege(std::underlying_type_t<AttributePrivilege> value);
 std::optional<Access::Privilege> WritePrivilege(std::underlying_type_t<AttributePrivilege> value);
 
+/// Represents information about a single attribute that is exposed by a cluster
+///
+/// Generally compact and sufficient information to contain both ID and create
+/// a DataModel::AttributeInfo entry
 struct AttributeMeta
 {
     AttributeId id;
@@ -62,6 +66,10 @@ struct AttributeMeta
     std::underlying_type_t<AttributePrivilege> privileges;
 };
 
+/// Represents information about a command exposed by a cluster
+///
+/// Generally compact and sufficient information to contain both ID and create
+/// a DataModel::CommandInfo entry
 struct CommandMeta
 {
     CommandId id;
@@ -69,11 +77,19 @@ struct CommandMeta
     Access::Privilege invokePrivilege;
 };
 
+/// Repesents metadata for an exposed clusters:
+///   - what attributes are contained within this cluster
+///   - what commands are accepted for processing
+///   - what commands are generated as responses
+///
+/// Information here is intended to sufficiently cover all data returned
+/// by per-cluster ProviderMetadatatre queries: first/next/get attribute,
+/// first/next/get accepted command and first/next generated command
 struct ClusterMeta
 {
-    Span<AttributeMeta> attributes;
-    Span<CommandMeta> acceptedCommands;
-    Span<CommandId> generatedCommands;
+    Span<const AttributeMeta> attributes;
+    Span<const CommandMeta> acceptedCommands;
+    Span<const CommandId> generatedCommands;
 };
 
 // FIXME: define some things here for cluster metadata definition
@@ -81,18 +97,19 @@ struct ClusterMeta
 // Also see updates from https://github.com/project-chip/connectedhomeip/pull/36493
 //
 // Overall requirements:
-//   Cluster Metadata:
+//   [DONE] Cluster Metadata:
 //      - ARRAY of attributes: id, quality, readPrivilege, writePrivilege
 //      - ARRAY of commands: id, quality, privilege
 //      - ARRAY of generatedCommands: id
 //
-//   Cluster INSTANCES:
+//   [TODO] Cluster INSTANCES:
 //      - dataVersion
+//      - Cluster Metadata
 //
 //   Endpoint INSTANCES:
 //      - ARRAY of device types: where are these definitions? (DeviceTypeEntry)
 //      - ARRAY of semantic tags                              (TAGS)
-//      - ARRAY of Client clusters                            (METADATA)
+//      - ARRAY of Client clusters                            (CLUSTER INSTANCES)
 //      - ARRAY of Server clusters                            (ID only)
 //      - COMPOSITION:
 //          - parentId -> optional (supports invalid)
