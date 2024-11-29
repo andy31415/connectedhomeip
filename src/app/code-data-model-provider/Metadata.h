@@ -102,8 +102,8 @@ struct ClusterInstance
 {
     DataVersion dataVersion;
     const ClusterMeta * metadata;
-    const AttributeAccessInterface * attributes;
-    const CommandHandlerInterface * commands;
+    const AttributeAccessInterface * attributeHandler;
+    const CommandHandlerInterface * commandHandler;
 };
 
 // FIXME: define some things here for cluster metadata definition
