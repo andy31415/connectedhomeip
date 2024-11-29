@@ -118,8 +118,11 @@ struct EndpointInstance
     Span<const DataModel::DeviceTypeEntry> deviceTypes;
     Span<const SemanticTag> semanticTags;
 
-    Span<ClusterInstance> serverClusters; // NOTE: NOT const as data version may vary
-    Span<const ClusterId> clientClusters; // bindings
+    // Server clusters are exposed functionality (attributes & commands)
+    Span<ClusterInstance> serverClusters;
+
+    // Client clusters are available bindings on this endpoint
+    Span<const ClusterId> clientClusters;
 
     EndpointId parentEndpointId; // can be kInvalidEndpointId
     DataModel::EndpointCompositionPattern endpointComposition;
