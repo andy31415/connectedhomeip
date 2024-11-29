@@ -119,34 +119,11 @@ struct EndpointInstance
     Span<const SemanticTag> semanticTags;
 
     Span<ClusterInstance> serverClusters; // NOTE: NOT const as data version may vary
-    Span<ClusterId> clientClusters; // bindings
+    Span<const ClusterId> clientClusters; // bindings
 
     EndpointId parentEndpointId; // can be kInvalidEndpointId
     DataModel::EndpointCompositionPattern endpointComposition;
 };
-
-// FIXME: define some things here for cluster metadata definition
-//
-// Also see updates from https://github.com/project-chip/connectedhomeip/pull/36493
-//
-// Overall requirements:
-//   [DONE] Cluster Metadata:
-//      - ARRAY of attributes: id, quality, readPrivilege, writePrivilege
-//      - ARRAY of commands: id, quality, privilege
-//      - ARRAY of generatedCommands: id
-//
-//   [DONE] Cluster INSTANCES:
-//      - dataVersion
-//      - Cluster Metadata
-//
-//   [DONE] Endpoint INSTANCES:
-//      - ARRAY of device types: where are these definitions? (DeviceTypeEntry)
-//      - ARRAY of semantic tags                              (TAGS)
-//      - ARRAY of Server clusters                            (CLUSTER INSTANCES)
-//      - ARRAY of Client clusters                            (ID only)
-//      - COMPOSITION:
-//          - parentId -> optional (supports invalid)
-//          - composition pattern (should re-use this one once 36493 is defined)
 
 } // namespace Metadata
 } // namespace app
