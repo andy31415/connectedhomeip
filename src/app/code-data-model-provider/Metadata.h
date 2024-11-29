@@ -104,8 +104,8 @@ struct ClusterInstance
 {
     DataVersion dataVersion;
     const ClusterMeta * metadata;
-    const AttributeAccessInterface * attributeHandler;
-    const CommandHandlerInterface * commandHandler;
+    AttributeAccessInterface * attributeHandler;
+    CommandHandlerInterface * commandHandler;
 };
 
 /// Represents an available/instantiated endpoint
