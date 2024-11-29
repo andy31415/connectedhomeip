@@ -92,6 +92,13 @@ struct ClusterMeta
     Span<const CommandId> generatedCommands;
 };
 
+// Represents metadata for a specific INSTANTIATED cluster
+struct ClusterInstance
+{
+    DataVersion dataVersion;
+    const ClusterMeta * metadata;
+};
+
 // FIXME: define some things here for cluster metadata definition
 //
 // Also see updates from https://github.com/project-chip/connectedhomeip/pull/36493
@@ -102,11 +109,11 @@ struct ClusterMeta
 //      - ARRAY of commands: id, quality, privilege
 //      - ARRAY of generatedCommands: id
 //
-//   [TODO] Cluster INSTANCES:
+//   [DONE] Cluster INSTANCES:
 //      - dataVersion
 //      - Cluster Metadata
 //
-//   Endpoint INSTANCES:
+//   [TODO] Endpoint INSTANCES:
 //      - ARRAY of device types: where are these definitions? (DeviceTypeEntry)
 //      - ARRAY of semantic tags                              (TAGS)
 //      - ARRAY of Client clusters                            (CLUSTER INSTANCES)
