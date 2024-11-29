@@ -24,6 +24,8 @@
 #include <lib/support/BitFlags.h>
 #include <lib/support/Span.h>
 
+#include <app-common/zap-generated/cluster-objects.h>
+
 #include <cstdint>
 #include <optional>
 #include <type_traits>
@@ -106,6 +108,29 @@ struct ClusterInstance
     const CommandHandlerInterface * commandHandler;
 };
 
+/// Represents an available/instantiated endpoint
+struct EndpointInstance
+{
+    using SemanticTag = Clusters::Descriptor::Structs::SemanticTagStruct::Type;
+
+    EndpointId id;
+
+    Span<const DataModel::DeviceTypeEntry> deviceTypes;
+    Span<const SemanticTag> semanticTags;
+
+    Span<ClusterInstance> serverClusters; // NOTE: NOT const as data version may vary
+    Span<ClusterId> clientClusters; // bindings
+
+    EndpointId parentEndpointId; // can be kInvalidEndpointId
+    DataModel::EndpointCompositionPattern endpointComposition;
+
+    // composition ???
+    // TODO:
+    //   - server clusters
+    //   - client clusters
+    //   - composition: parentId (???), pattern
+};
+
 // FIXME: define some things here for cluster metadata definition
 //
 // Also see updates from https://github.com/project-chip/connectedhomeip/pull/36493
@@ -123,8 +148,8 @@ struct ClusterInstance
 //   [TODO] Endpoint INSTANCES:
 //      - ARRAY of device types: where are these definitions? (DeviceTypeEntry)
 //      - ARRAY of semantic tags                              (TAGS)
-//      - ARRAY of Client clusters                            (CLUSTER INSTANCES)
-//      - ARRAY of Server clusters                            (ID only)
+//      - ARRAY of Server clusters                            (CLUSTER INSTANCES)
+//      - ARRAY of Client clusters                            (ID only)
 //      - COMPOSITION:
 //          - parentId -> optional (supports invalid)
 //          - composition pattern (should re-use this one once 36493 is defined)
