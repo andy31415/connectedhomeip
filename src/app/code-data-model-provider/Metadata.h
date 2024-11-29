@@ -17,6 +17,8 @@
 #pragma once
 
 #include <access/Privilege.h>
+#include <app/AttributeAccessInterface.h>
+#include <app/CommandHandlerInterface.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <lib/core/DataModelTypes.h>
 #include <lib/support/BitFlags.h>
@@ -92,11 +94,16 @@ struct ClusterMeta
     Span<const CommandId> generatedCommands;
 };
 
-// Represents metadata for a specific INSTANTIATED cluster
+/// Represents metadata for a specific INSTANTIATED cluster
+///
+/// A cluster generally contains metadata but also has a current 'version'
+/// of attributes as well as processing logic.
 struct ClusterInstance
 {
     DataVersion dataVersion;
     const ClusterMeta * metadata;
+    const AttributeAccessInterface * attributes;
+    const CommandHandlerInterface * commands;
 };
 
 // FIXME: define some things here for cluster metadata definition

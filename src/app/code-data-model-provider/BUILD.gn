@@ -22,6 +22,8 @@ source_set("code-data-model-provider") {
 
   public_deps = [
     "${chip_root}/src/access:types",
+    "${chip_root}/src/app:attribute-access",
+    "${chip_root}/src/app:command-handler-interface",
     "${chip_root}/src/app/data-model-provider:data-model-provider",
   ]
 }
