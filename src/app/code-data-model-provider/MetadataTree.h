@@ -57,6 +57,7 @@ private:
     Span<Metadata::EndpointInstance> mEndpoints;
     size_t mEndpointIndexHint = 0;
     size_t mDeviceTypeHint    = 0;
+    size_t mSemanticTagHint   = 0;
 };
 
 } // namespace app

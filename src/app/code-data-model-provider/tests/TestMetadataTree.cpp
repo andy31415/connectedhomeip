@@ -16,7 +16,9 @@
  */
 #include "app/code-data-model-provider/Metadata.h"
 #include "app/data-model-provider/MetadataTypes.h"
+#include "app/data-model/Nullable.h"
 #include "lib/core/DataModelTypes.h"
+#include "lib/core/Optional.h"
 #include "pw_unit_test/framework.h"
 #include <optional>
 #include <pw_unit_test/framework.h>
@@ -111,10 +113,27 @@ constexpr ClusterMeta kMeta = {
 };
 
 } // namespace ExampleClusterTwo
-  //
+
 constexpr DeviceTypeId kRootNodeDeviceType         = 22;
 constexpr DeviceTypeId kOnOffLightSwitchDeviceType = 259;
 constexpr DeviceTypeId kDimmerSwitchDeviceType     = 260;
+
+const EndpointInstance::SemanticTag kSomeSemanticTags[] = {
+    {
+        .namespaceID = 1,
+        .tag         = 2,
+        .label       = MakeOptional(MakeNullable("test"_span)),
+    },
+    {
+        .namespaceID = 123,
+        .tag         = 234,
+    },
+    {
+        .namespaceID = 100,
+        .tag         = 200,
+        .label       = MakeOptional(MakeNullable("foo"_span)),
+    },
+};
 
 const DataModel::DeviceTypeEntry ep0DeviceTypes[] = { { .deviceTypeId = kRootNodeDeviceType, .deviceTypeRevision = 1 } };
 
@@ -154,7 +173,7 @@ EndpointInstance endpoints[] = {
     {
         .id                  = 1,
         .deviceTypes         = Span<const DataModel::DeviceTypeEntry>(ep1DeviceTypes),
-        .semanticTags        = Span<const EndpointInstance::SemanticTag>(),
+        .semanticTags        = Span<const EndpointInstance::SemanticTag>(kSomeSemanticTags),
         .serverClusters      = Span<ClusterInstance>(ep1Clusters),
         .clientClusters      = Span<const ClusterId>(),
         .parentEndpointId    = 0,
@@ -248,7 +267,6 @@ TEST(TestMetadataTree, TestEndpointInfo)
 
 TEST(TestMetadataTree, TestDeviceTypes)
 {
-
     CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
 
     {
@@ -276,6 +294,17 @@ TEST(TestMetadataTree, TestDeviceTypes)
         EXPECT_FALSE(value.has_value());
     }
 
+    {
+        // can run the same query several times
+        auto value = tree.FirstDeviceType(1);
+        ASSERT_TRUE(value.has_value());
+
+        EXPECT_TRUE(tree.NextDeviceType(1, *value).has_value());
+        EXPECT_TRUE(tree.NextDeviceType(1, *value).has_value());
+        EXPECT_TRUE(tree.NextDeviceType(1, *value).has_value());
+        EXPECT_TRUE(tree.NextDeviceType(1, *value).has_value());
+    }
+
     EXPECT_FALSE(tree.FirstDeviceType(2).has_value());
     EXPECT_FALSE(tree.FirstDeviceType(100).has_value());
     EXPECT_FALSE(tree.FirstDeviceType(123).has_value());
@@ -291,4 +320,43 @@ TEST(TestMetadataTree, TestDeviceTypes)
     EXPECT_FALSE(tree.NextDeviceType(123, DeviceTypeEntry{}).has_value());
     EXPECT_FALSE(tree.NextDeviceType(0xFFFE, DeviceTypeEntry{}).has_value());
     EXPECT_FALSE(tree.NextDeviceType(kInvalidEndpointId, DeviceTypeEntry{}).has_value());
+}
+
+TEST(TestMetadataTree, TestSemanticTags)
+{
+    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+
+    // no semantic tags set on root
+    EXPECT_FALSE(tree.GetFirstSemanticTag(0).has_value());
+
+    // EP1 semantic tags test
+    {
+        auto value = tree.GetFirstSemanticTag(1);
+        ASSERT_TRUE(value.has_value());
+
+        EXPECT_EQ(value->namespaceID, kSomeSemanticTags[0].namespaceID);
+        EXPECT_EQ(value->tag, kSomeSemanticTags[0].tag);
+
+        // first semantic tag has a label, so test that. This optional nullable is messy
+        ASSERT_TRUE(value->label.HasValue());
+        ASSERT_FALSE(value->label.Value().IsNull());
+        ASSERT_TRUE(value->label.Value().Value().data_equal(kSomeSemanticTags[0].label.Value().Value()));
+
+        for (unsigned i = 1; i < ArraySize(kSomeSemanticTags); i++)
+        {
+            value = tree.GetNextSemanticTag(1, *value);
+            ASSERT_TRUE(value.has_value());
+
+            EXPECT_EQ(value->namespaceID, kSomeSemanticTags[i].namespaceID);
+            EXPECT_EQ(value->tag, kSomeSemanticTags[i].tag);
+        }
+
+        EXPECT_FALSE(tree.GetNextSemanticTag(1, *value).has_value());
+    }
+
+    // invalid getters
+    EXPECT_FALSE(tree.GetFirstSemanticTag(2).has_value());
+    EXPECT_FALSE(tree.GetFirstSemanticTag(100).has_value());
+    EXPECT_FALSE(tree.GetFirstSemanticTag(0xFFFE).has_value());
+    EXPECT_FALSE(tree.GetFirstSemanticTag(kInvalidEndpointId).has_value());
 }

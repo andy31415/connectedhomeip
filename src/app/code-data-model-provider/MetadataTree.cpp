@@ -26,6 +26,31 @@ namespace app {
 namespace {
 using SemanticTag = Clusters::Descriptor::Structs::SemanticTagStruct::Type;
 
+bool operator==(const Metadata::EndpointInstance::SemanticTag & tagA, const Metadata::EndpointInstance::SemanticTag & tagB)
+{
+    // Label is an optional and nullable value of CharSpan. Optional and Nullable have overload for ==,
+    // But `==` is deleted for CharSpan. Here we only check whether the string is the same.
+    if (tagA.label.HasValue() != tagB.label.HasValue())
+    {
+        return false;
+    }
+    if (tagA.label.HasValue())
+    {
+        if (tagA.label.Value().IsNull() != tagB.label.Value().IsNull())
+        {
+            return false;
+        }
+        if (!tagA.label.Value().IsNull())
+        {
+            if (!tagA.label.Value().Value().data_equal(tagB.label.Value().Value()))
+            {
+                return false;
+            }
+        }
+    }
+    return (tagA.tag == tagB.tag) && (tagA.mfgCode == tagB.mfgCode) && (tagA.namespaceID == tagB.namespaceID);
+}
+
 /// Try to find the endpoint with the given ID in a span
 /// Uses a `hint` to speed up searches
 std::optional<size_t> FindEndpointIndex(EndpointId id, Span<Metadata::EndpointInstance> endpoints, size_t & hint)
@@ -172,7 +197,36 @@ std::optional<SemanticTag> CodeMetadataTree::GetFirstSemanticTag(EndpointId endp
 
 std::optional<SemanticTag> CodeMetadataTree::GetNextSemanticTag(EndpointId endpoint, const SemanticTag & previous)
 {
-    // FIXME: implement
+    std::optional<size_t> index = FindEndpointIndex(endpoint, mEndpoints, mEndpointIndexHint);
+    if (!index.has_value())
+    {
+        return std::nullopt;
+    }
+
+    auto & ep = mEndpoints[*index];
+
+    if (mSemanticTagHint < ep.deviceTypes.size())
+    {
+        if (ep.semanticTags[mSemanticTagHint] == previous)
+        {
+            if (mSemanticTagHint + 1 >= ep.semanticTags.size())
+            {
+                return std::nullopt; // reached the end
+            }
+            // found it using the hint, update the hint as well
+            return ep.semanticTags[++mSemanticTagHint];
+        }
+    }
+
+    for (size_t idx = 1; idx < ep.semanticTags.size(); idx++)
+    {
+        if (ep.semanticTags[idx - 1] == previous)
+        {
+            mSemanticTagHint = idx;
+            return ep.semanticTags[idx];
+        }
+    }
+
     return std::nullopt;
 }
 
