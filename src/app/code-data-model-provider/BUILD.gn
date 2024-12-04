@@ -18,6 +18,8 @@ source_set("code-data-model-provider") {
   sources = [
     "Metadata.cpp",
     "Metadata.h",
+    "MetadataTree.cpp",
+    "MetadataTree.h",
   ]
 
   public_deps = [

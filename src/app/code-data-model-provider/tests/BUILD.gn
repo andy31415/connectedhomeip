@@ -17,7 +17,10 @@ import("${chip_root}/build/chip/chip_test_suite.gni")
 chip_test_suite("tests") {
   output_name = "libCodeDataModelProviderTests"
 
-  test_sources = [ "TestMetadata.cpp" ]
+  test_sources = [
+    "TestMetadata.cpp",
+    "TestMetadataTree.cpp",
+  ]
 
   cflags = [ "-Wconversion" ]
 
