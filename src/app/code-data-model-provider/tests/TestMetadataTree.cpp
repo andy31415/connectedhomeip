@@ -42,8 +42,8 @@ namespace {
 // A fake cluster composition based on GeneralCommissioning ids
 namespace ExampleClusterOne {
 
-using namespace chip::app::Clusters::GeneralCommissioning::Attributes;
-using namespace chip::app::Clusters::GeneralCommissioning::Commands;
+using namespace Clusters::GeneralCommissioning::Attributes;
+using namespace Clusters::GeneralCommissioning::Commands;
 
 constexpr AttributeMeta kAttributes[] = {
     { Breadcrumb::Id, BitFlags<AttributeQualityFlags>(), AttributePrivilege::kRead_View | AttributePrivilege::kWrite_Administer },
@@ -69,7 +69,7 @@ constexpr CommandMeta kAccepted[] = {
 constexpr CommandId kGenerated[] = { ArmFailSafeResponse::Id, SetRegulatoryConfigResponse::Id, CommissioningCompleteResponse::Id };
 
 constexpr ClusterMeta kMeta = {
-    .clusterId         = chip::app::Clusters::GeneralCommissioning::Id,
+    .clusterId         = Clusters::GeneralCommissioning::Id,
     .qualities         = BitFlags<DataModel::ClusterQualityFlags>(),
     .attributes        = Span<const AttributeMeta>(kAttributes),
     .acceptedCommands  = Span<const CommandMeta>(kAccepted),
@@ -81,8 +81,8 @@ constexpr ClusterMeta kMeta = {
 // A fake cluster composition based on UnitTesting cluster IDs
 namespace ExampleClusterTwo {
 
-using namespace chip::app::Clusters::UnitTesting::Attributes;
-using namespace chip::app::Clusters::UnitTesting::Commands;
+using namespace Clusters::UnitTesting::Attributes;
+using namespace Clusters::UnitTesting::Commands;
 
 constexpr AttributeMeta kAttributes[] = {
     { Boolean::Id, BitFlags<AttributeQualityFlags>(), AttributePrivilege::kRead_View | AttributePrivilege::kWrite_Administer },
@@ -110,7 +110,7 @@ constexpr CommandMeta kAccepted[] = {
 constexpr CommandId kGenerated[] = { TestSpecificResponse::Id, TestSimpleArgumentResponse::Id, TestAddArgumentsResponse::Id };
 
 constexpr ClusterMeta kMeta = {
-    .clusterId         = chip::app::Clusters::UnitTesting::Id,
+    .clusterId         = Clusters::UnitTesting::Id,
     .qualities         = BitFlags<DataModel::ClusterQualityFlags>(),
     .attributes        = Span<const AttributeMeta>(kAttributes),
     .acceptedCommands  = Span<const CommandMeta>(kAccepted),
@@ -142,14 +142,17 @@ const EndpointInstance::SemanticTag kSomeSemanticTags[] = {
 
 const DataModel::DeviceTypeEntry ep0DeviceTypes[] = { { .deviceTypeId = kRootNodeDeviceType, .deviceTypeRevision = 1 } };
 
+constexpr DataVersion kVer0 = 123;
+constexpr DataVersion kVer1 = 2222;
+
 ClusterInstance ep0Clusters[] = { {
-                                      .dataVersion      = 0,
+                                      .dataVersion      = kVer0,
                                       .metadata         = &ExampleClusterOne::kMeta,
                                       .attributeHandler = nullptr,
                                       .commandHandler   = nullptr,
                                   },
                                   {
-                                      .dataVersion      = 0,
+                                      .dataVersion      = kVer1,
                                       .metadata         = &ExampleClusterTwo::kMeta,
                                       .attributeHandler = nullptr,
                                       .commandHandler   = nullptr,
@@ -158,8 +161,9 @@ ClusterInstance ep0Clusters[] = { {
 const DataModel::DeviceTypeEntry ep1DeviceTypes[] = { { .deviceTypeId = kOnOffLightSwitchDeviceType, .deviceTypeRevision = 1 },
                                                       { .deviceTypeId = kDimmerSwitchDeviceType, .deviceTypeRevision = 1 } };
 
+constexpr DataVersion kVer2   = 234;
 ClusterInstance ep1Clusters[] = { {
-    .dataVersion      = 0,
+    .dataVersion      = kVer2,
     .metadata         = &ExampleClusterTwo::kMeta,
     .attributeHandler = nullptr,
     .commandHandler   = nullptr,
@@ -402,11 +406,13 @@ TEST(TestMetadataTree, TestServerClusterIteration)
     {
         auto value = tree.FirstServerCluster(0);
         EXPECT_TRUE(value.IsValid());
-        EXPECT_EQ(value.path, ConcreteClusterPath(0, chip::app::Clusters::GeneralCommissioning::Id));
+        EXPECT_EQ(value.path, ConcreteClusterPath(0, Clusters::GeneralCommissioning::Id));
+        EXPECT_EQ(value.info.dataVersion, kVer0);
 
         value = tree.NextServerCluster(value.path);
         EXPECT_TRUE(value.IsValid());
-        EXPECT_EQ(value.path, ConcreteClusterPath(0, chip::app::Clusters::UnitTesting::Id));
+        EXPECT_EQ(value.path, ConcreteClusterPath(0, Clusters::UnitTesting::Id));
+        EXPECT_EQ(value.info.dataVersion, kVer1);
 
         value = tree.NextServerCluster(value.path);
         EXPECT_FALSE(value.IsValid());
@@ -415,7 +421,8 @@ TEST(TestMetadataTree, TestServerClusterIteration)
 
         auto value = tree.FirstServerCluster(1);
         EXPECT_TRUE(value.IsValid());
-        EXPECT_EQ(value.path, ConcreteClusterPath(1, chip::app::Clusters::UnitTesting::Id));
+        EXPECT_EQ(value.path, ConcreteClusterPath(1, Clusters::UnitTesting::Id));
+        EXPECT_EQ(value.info.dataVersion, kVer2);
 
         value = tree.NextServerCluster(value.path);
         EXPECT_FALSE(value.IsValid());
@@ -428,4 +435,35 @@ TEST(TestMetadataTree, TestServerClusterIteration)
 
     EXPECT_FALSE(tree.NextServerCluster(ConcreteClusterPath(kInvalidEndpointId, 1)).IsValid());
     EXPECT_FALSE(tree.NextServerCluster(ConcreteClusterPath(2, 0)).IsValid());
+}
+
+TEST(TestMetadataTree, TestServerClusterInfo)
+{
+    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+
+    auto value = tree.GetServerClusterInfo(ConcreteClusterPath(0, Clusters::GeneralCommissioning::Id));
+    ASSERT_TRUE(value.has_value());
+    EXPECT_EQ(value->dataVersion, kVer0);
+
+    // repeat call should be ok
+    value = tree.GetServerClusterInfo(ConcreteClusterPath(0, Clusters::GeneralCommissioning::Id));
+    ASSERT_TRUE(value.has_value());
+    EXPECT_EQ(value->dataVersion, kVer0);
+
+    value = tree.GetServerClusterInfo(ConcreteClusterPath(0, Clusters::UnitTesting::Id));
+    ASSERT_TRUE(value.has_value());
+    EXPECT_EQ(value->dataVersion, kVer1);
+
+    value = tree.GetServerClusterInfo(ConcreteClusterPath(1, Clusters::UnitTesting::Id));
+    ASSERT_TRUE(value.has_value());
+    EXPECT_EQ(value->dataVersion, kVer2);
+
+    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(2, Clusters::UnitTesting::Id)).has_value());
+    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(123, Clusters::UnitTesting::Id)).has_value());
+    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(0xFFFE, Clusters::UnitTesting::Id)).has_value());
+    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(kInvalidEndpointId, Clusters::UnitTesting::Id)).has_value());
+
+    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(0, Clusters::PowerSource::Id)).has_value());
+    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(1, Clusters::AccessControl::Id)).has_value());
+    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(100, Clusters::AccessControl::Id)).has_value());
 }
