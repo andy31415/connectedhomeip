@@ -205,7 +205,7 @@ std::optional<SemanticTag> CodeMetadataTree::GetNextSemanticTag(EndpointId endpo
 
     auto & ep = mEndpoints[*index];
 
-    if (mSemanticTagHint < ep.deviceTypes.size())
+    if (mSemanticTagHint < ep.semanticTags.size())
     {
         if (ep.semanticTags[mSemanticTagHint] == previous)
         {
