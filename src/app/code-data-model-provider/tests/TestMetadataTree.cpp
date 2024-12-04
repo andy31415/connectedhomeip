@@ -169,13 +169,18 @@ ClusterInstance ep1Clusters[] = { {
     .commandHandler   = nullptr,
 } };
 
+const ClusterId kSomeClientClusters[] = {
+    Clusters::Binding::Id,
+    Clusters::Descriptor::Id,
+};
+
 EndpointInstance endpoints[] = {
     {
         .id                  = 0,
         .deviceTypes         = Span<const DataModel::DeviceTypeEntry>(ep0DeviceTypes),
         .semanticTags        = Span<const EndpointInstance::SemanticTag>(),
         .serverClusters      = Span<ClusterInstance>(ep0Clusters),
-        .clientClusters      = Span<const ClusterId>(),
+        .clientClusters      = Span<const ClusterId>(kSomeClientClusters),
         .parentEndpointId    = kInvalidEndpointId,
         .endpointComposition = DataModel::EndpointCompositionPattern::kTree,
     },
@@ -466,4 +471,31 @@ TEST(TestMetadataTree, TestServerClusterInfo)
     ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(0, Clusters::PowerSource::Id)).has_value());
     ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(1, Clusters::AccessControl::Id)).has_value());
     ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(100, Clusters::AccessControl::Id)).has_value());
+}
+
+TEST(TestMetadataTree, TestServerClientClustersIteration)
+{
+    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+
+    {
+        auto value = tree.FirstClientCluster(0);
+        EXPECT_EQ(value, ConcreteClusterPath(0, Clusters::Binding::Id));
+
+        value = tree.NextClientCluster(value);
+        EXPECT_EQ(value, ConcreteClusterPath(0, Clusters::Descriptor::Id));
+
+        value = tree.NextClientCluster(value);
+        EXPECT_EQ(value, ConcreteClusterPath{});
+    }
+
+    EXPECT_EQ(tree.FirstClientCluster(1), ConcreteClusterPath{});
+    EXPECT_EQ(tree.FirstClientCluster(2), ConcreteClusterPath{});
+    EXPECT_EQ(tree.FirstClientCluster(100), ConcreteClusterPath{});
+    EXPECT_EQ(tree.FirstClientCluster(0xFFFE), ConcreteClusterPath{});
+    EXPECT_EQ(tree.FirstClientCluster(kInvalidEndpointId), ConcreteClusterPath{});
+
+    EXPECT_EQ(tree.NextClientCluster({kInvalidEndpointId,123}), ConcreteClusterPath{});
+    EXPECT_EQ(tree.NextClientCluster({kInvalidEndpointId,Clusters::Binding::Id}), ConcreteClusterPath{});
+    EXPECT_EQ(tree.NextClientCluster({100,Clusters::Binding::Id}), ConcreteClusterPath{});
+
 }
