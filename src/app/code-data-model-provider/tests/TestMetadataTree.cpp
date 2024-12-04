@@ -494,8 +494,7 @@ TEST(TestMetadataTree, TestServerClientClustersIteration)
     EXPECT_EQ(tree.FirstClientCluster(0xFFFE), ConcreteClusterPath{});
     EXPECT_EQ(tree.FirstClientCluster(kInvalidEndpointId), ConcreteClusterPath{});
 
-    EXPECT_EQ(tree.NextClientCluster({kInvalidEndpointId,123}), ConcreteClusterPath{});
-    EXPECT_EQ(tree.NextClientCluster({kInvalidEndpointId,Clusters::Binding::Id}), ConcreteClusterPath{});
-    EXPECT_EQ(tree.NextClientCluster({100,Clusters::Binding::Id}), ConcreteClusterPath{});
-
+    EXPECT_EQ(tree.NextClientCluster({ kInvalidEndpointId, 123 }), ConcreteClusterPath{});
+    EXPECT_EQ(tree.NextClientCluster({ kInvalidEndpointId, Clusters::Binding::Id }), ConcreteClusterPath{});
+    EXPECT_EQ(tree.NextClientCluster({ 100, Clusters::Binding::Id }), ConcreteClusterPath{});
 }
