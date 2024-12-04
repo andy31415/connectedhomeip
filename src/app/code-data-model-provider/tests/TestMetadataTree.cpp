@@ -179,3 +179,43 @@ TEST(TestMetadataTree, TestEndpointIteration)
     EXPECT_EQ(tree.FirstEndpoint().id, 0u);
     EXPECT_EQ(tree.FirstEndpoint().id, 0u);
 }
+
+TEST(TestMetadataTree, TestEndpointInfo)
+{
+    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+
+    // test that next has ok values
+    {
+        auto value = tree.FirstEndpoint();
+        EXPECT_EQ(value.id, 0);
+        EXPECT_EQ(value.info.compositionPattern, EndpointCompositionPattern::kTree);
+        EXPECT_EQ(value.info.parentId, kInvalidEndpointId);
+    }
+
+    {
+        auto value = tree.NextEndpoint(0);
+        EXPECT_EQ(value.id, 1);
+        EXPECT_EQ(value.info.compositionPattern, EndpointCompositionPattern::kTree);
+        EXPECT_EQ(value.info.parentId, 0);
+    }
+
+    // direct fetch should work
+    {
+        auto value = tree.GetEndpointInfo(0);
+        ASSERT_TRUE(value.has_value());
+        EXPECT_EQ(value->compositionPattern, EndpointCompositionPattern::kTree);
+        EXPECT_EQ(value->parentId, kInvalidEndpointId);
+    }
+    {
+        auto value = tree.GetEndpointInfo(1);
+        ASSERT_TRUE(value.has_value());
+        EXPECT_EQ(value->compositionPattern, EndpointCompositionPattern::kTree);
+        EXPECT_EQ(value->parentId, 0);
+    }
+
+    ASSERT_FALSE(tree.GetEndpointInfo(2).has_value());
+    ASSERT_FALSE(tree.GetEndpointInfo(100).has_value());
+    ASSERT_FALSE(tree.GetEndpointInfo(1234).has_value());
+    ASSERT_FALSE(tree.GetEndpointInfo(0xFFFE).has_value());
+    ASSERT_FALSE(tree.GetEndpointInfo(kInvalidEndpointId).has_value());
+}
