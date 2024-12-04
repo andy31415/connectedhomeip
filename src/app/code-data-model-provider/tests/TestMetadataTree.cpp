@@ -281,4 +281,14 @@ TEST(TestMetadataTree, TestDeviceTypes)
     EXPECT_FALSE(tree.FirstDeviceType(123).has_value());
     EXPECT_FALSE(tree.FirstDeviceType(0xFFFE).has_value());
     EXPECT_FALSE(tree.FirstDeviceType(kInvalidEndpointId).has_value());
+
+    // invalid entries
+    EXPECT_FALSE(tree.NextDeviceType(0, DeviceTypeEntry{}).has_value());
+    EXPECT_FALSE(tree.NextDeviceType(1, DeviceTypeEntry{}).has_value());
+
+    // some nonsense queries of invalid indexes
+    EXPECT_FALSE(tree.NextDeviceType(2, DeviceTypeEntry{}).has_value());
+    EXPECT_FALSE(tree.NextDeviceType(123, DeviceTypeEntry{}).has_value());
+    EXPECT_FALSE(tree.NextDeviceType(0xFFFE, DeviceTypeEntry{}).has_value());
+    EXPECT_FALSE(tree.NextDeviceType(kInvalidEndpointId, DeviceTypeEntry{}).has_value());
 }
