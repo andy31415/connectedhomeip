@@ -15,12 +15,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "app/ConcreteClusterPath.h"
-#include "app/ConcreteCommandPath.h"
-#include "app/code-data-model-provider/Metadata.h"
-#include "app/data-model-provider/MetadataTypes.h"
-#include "lib/core/DataModelTypes.h"
+#include <app/ConcreteClusterPath.h>
+#include <app/ConcreteCommandPath.h>
+#include <app/code-data-model-provider/Metadata.h>
 #include <app/code-data-model-provider/MetadataTree.h>
+#include <app/data-model-provider/MetadataTypes.h>
+#include <lib/core/DataModelTypes.h>
 #include <optional>
 
 namespace chip {
