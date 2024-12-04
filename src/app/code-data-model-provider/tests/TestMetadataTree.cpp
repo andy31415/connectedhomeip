@@ -354,6 +354,25 @@ TEST(TestMetadataTree, TestSemanticTags)
         EXPECT_FALSE(tree.GetNextSemanticTag(1, *value).has_value());
     }
 
+    // some repeat calls should work
+    {
+        auto value = tree.GetFirstSemanticTag(1);
+        ASSERT_TRUE(value.has_value());
+
+        EXPECT_TRUE(tree.GetNextSemanticTag(1, *value).has_value());
+        EXPECT_TRUE(tree.GetNextSemanticTag(1, *value).has_value());
+        EXPECT_TRUE(tree.GetNextSemanticTag(1, *value).has_value());
+
+        value = tree.GetNextSemanticTag(1, *value);
+        ASSERT_TRUE(value.has_value());
+
+        EXPECT_TRUE(tree.GetNextSemanticTag(1, *value).has_value());
+        EXPECT_FALSE(tree.GetNextSemanticTag(0, *value).has_value());
+        EXPECT_TRUE(tree.GetNextSemanticTag(1, *value).has_value());
+        EXPECT_FALSE(tree.GetNextSemanticTag(0, *value).has_value());
+        EXPECT_TRUE(tree.GetNextSemanticTag(1, *value).has_value());
+    }
+
     // invalid getters
     EXPECT_FALSE(tree.GetFirstSemanticTag(2).has_value());
     EXPECT_FALSE(tree.GetFirstSemanticTag(100).has_value());
