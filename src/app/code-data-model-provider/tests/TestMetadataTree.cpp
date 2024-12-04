@@ -14,13 +14,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "app/ConcreteClusterPath.h"
-#include "app/code-data-model-provider/Metadata.h"
-#include "app/data-model-provider/MetadataTypes.h"
-#include "app/data-model/Nullable.h"
-#include "lib/core/DataModelTypes.h"
-#include "lib/core/Optional.h"
-#include "pw_unit_test/framework.h"
 #include <optional>
 #include <pw_unit_test/framework.h>
 
@@ -28,7 +21,13 @@
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app-common/zap-generated/ids/Commands.h>
+#include <app/ConcreteClusterPath.h>
+#include <app/code-data-model-provider/Metadata.h>
 #include <app/code-data-model-provider/MetadataTree.h>
+#include <app/data-model-provider/MetadataTypes.h>
+#include <app/data-model/Nullable.h>
+#include <lib/core/DataModelTypes.h>
+#include <lib/core/Optional.h>
 
 using namespace chip;
 using namespace chip::app;
