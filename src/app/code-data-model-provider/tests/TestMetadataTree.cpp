@@ -194,6 +194,9 @@ TEST(TestMetadataTree, TestEmptyTree)
     EXPECT_FALSE(tree.GetEndpointInfo(1).has_value());
     EXPECT_FALSE(tree.GetEndpointInfo(kInvalidEndpointId).has_value());
     EXPECT_FALSE(tree.FirstDeviceType(0).has_value());
+    EXPECT_FALSE(tree.NextDeviceType(0, {}).has_value());
+    EXPECT_FALSE(tree.GetFirstSemanticTag(0).has_value());
+    EXPECT_FALSE(tree.GetNextSemanticTag(123, {}).has_value());
 }
 
 TEST(TestMetadataTree, TestEndpointIteration)
