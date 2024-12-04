@@ -275,14 +275,37 @@ std::optional<DataModel::ClusterInfo> CodeMetadataTree::GetServerClusterInfo(con
 
 ConcreteClusterPath CodeMetadataTree::FirstClientCluster(EndpointId endpoint)
 {
-    // FIXME: implement
-    return {};
+    std::optional<size_t> ep_index = FindIndexUsingHint(endpoint, mEndpoints, mEndpointIndexHint, SameEndpointId);
+    if (!ep_index.has_value())
+    {
+        return {};
+    }
+    auto & ep = mEndpoints[*ep_index];
+
+    if (ep.clientClusters.empty())
+    {
+        return {};
+    }
+
+    return { endpoint, ep.clientClusters[0] };
 }
 
 ConcreteClusterPath CodeMetadataTree::NextClientCluster(const ConcreteClusterPath & before)
 {
-    // FIXME: implement
-    return {};
+    std::optional<size_t> ep_index = FindIndexUsingHint(before.mEndpointId, mEndpoints, mEndpointIndexHint, SameEndpointId);
+    if (!ep_index.has_value())
+    {
+        return {};
+    }
+    auto & ep                 = mEndpoints[*ep_index];
+    std::optional<size_t> idx = FindNextIndexUsingHint(before.mClusterId, ep.clientClusters, mClientClusterHint, SameValue);
+
+    if (!idx.has_value())
+    {
+        return {};
+    }
+
+    return { before.mEndpointId, ep.clientClusters[*idx] };
 }
 
 DataModel::AttributeEntry CodeMetadataTree::FirstAttribute(const ConcreteClusterPath & cluster)

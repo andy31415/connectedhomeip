@@ -59,6 +59,7 @@ private:
     size_t mDeviceTypeHint    = 0;
     size_t mSemanticTagHint   = 0;
     size_t mServerClusterHint = 0;
+    size_t mClientClusterHint = 0;
 };
 
 } // namespace app
