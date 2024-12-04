@@ -91,6 +91,10 @@ struct CommandMeta
 /// first/next/get accepted command and first/next generated command
 struct ClusterMeta
 {
+    const ClusterId clusterId;
+
+    BitFlags<DataModel::ClusterQualityFlags> qualities;
+
     Span<const AttributeMeta> attributes;
     Span<const CommandMeta> acceptedCommands;
     Span<const CommandId> generatedCommands;

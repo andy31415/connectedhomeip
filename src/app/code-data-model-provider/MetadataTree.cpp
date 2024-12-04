@@ -15,6 +15,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app/ConcreteClusterPath.h"
 #include "app/ConcreteCommandPath.h"
 #include "app/code-data-model-provider/Metadata.h"
 #include "app/data-model-provider/MetadataTypes.h"
@@ -104,6 +105,11 @@ bool SameValue(const T & a, const T & b)
     return a == b;
 }
 
+bool SameClusterId(const ClusterId & id, const Metadata::ClusterInstance & instance)
+{
+    return id == instance.metadata->clusterId;
+}
+
 /// Convert a endpoint instance struct to a datamodel endpoint entry
 DataModel::EndpointEntry EndpointEntryFrom(const Metadata::EndpointInstance & instance)
 {
@@ -111,6 +117,15 @@ DataModel::EndpointEntry EndpointEntryFrom(const Metadata::EndpointInstance & in
         .id   = instance.id,
         .info = DataModel::EndpointInfo(instance.parentEndpointId, instance.endpointComposition),
     };
+}
+
+DataModel::ClusterEntry ClusterEntryFrom(EndpointId endpointId, const Metadata::ClusterInstance & instance)
+{
+    DataModel::ClusterInfo clusterInfo(instance.dataVersion);
+
+    clusterInfo.flags = instance.metadata->qualities;
+
+    return DataModel::ClusterEntry{ .path = ConcreteClusterPath(endpointId, instance.metadata->clusterId), .info = clusterInfo };
 }
 
 } // namespace
@@ -208,20 +223,54 @@ std::optional<SemanticTag> CodeMetadataTree::GetNextSemanticTag(EndpointId endpo
 
 DataModel::ClusterEntry CodeMetadataTree::FirstServerCluster(EndpointId endpoint)
 {
-    // FIXME: implement
-    return DataModel::ClusterEntry::kInvalid;
+    std::optional<size_t> ep_index = FindIndexUsingHint(endpoint, mEndpoints, mEndpointIndexHint, SameEndpointId);
+    if (!ep_index.has_value())
+    {
+        return DataModel::ClusterEntry::kInvalid;
+    }
+    auto & ep = mEndpoints[*ep_index];
+    if (ep.serverClusters.empty())
+    {
+        return DataModel::ClusterEntry::kInvalid;
+    }
+
+    mServerClusterHint = 0;
+    return ClusterEntryFrom(endpoint, ep.serverClusters[0]);
 }
 
 DataModel::ClusterEntry CodeMetadataTree::NextServerCluster(const ConcreteClusterPath & before)
 {
-    // FIXME: implement
-    return DataModel::ClusterEntry::kInvalid;
+    std::optional<size_t> ep_index = FindIndexUsingHint(before.mEndpointId, mEndpoints, mEndpointIndexHint, SameEndpointId);
+    if (!ep_index.has_value())
+    {
+        return DataModel::ClusterEntry::kInvalid;
+    }
+    auto & ep = mEndpoints[*ep_index];
+    std::optional<size_t> cluster_index =
+        FindNextIndexUsingHint(before.mClusterId, ep.serverClusters, mServerClusterHint, SameClusterId);
+    if (!cluster_index.has_value())
+    {
+        return DataModel::ClusterEntry::kInvalid;
+    }
+
+    return ClusterEntryFrom(before.mEndpointId, ep.serverClusters[*cluster_index]);
 }
 
 std::optional<DataModel::ClusterInfo> CodeMetadataTree::GetServerClusterInfo(const ConcreteClusterPath & path)
 {
-    // FIXME: implement
-    return std::nullopt;
+    std::optional<size_t> ep_index = FindIndexUsingHint(path.mEndpointId, mEndpoints, mEndpointIndexHint, SameEndpointId);
+    if (!ep_index.has_value())
+    {
+        return std::nullopt;
+    }
+    auto & ep                           = mEndpoints[*ep_index];
+    std::optional<size_t> cluster_index = FindIndexUsingHint(path.mClusterId, ep.serverClusters, mServerClusterHint, SameClusterId);
+    if (!cluster_index.has_value())
+    {
+        return std::nullopt;
+    }
+
+    return ClusterEntryFrom(path.mEndpointId, ep.serverClusters[*cluster_index]).info;
 }
 
 ConcreteClusterPath CodeMetadataTree::FirstClientCluster(EndpointId endpoint)

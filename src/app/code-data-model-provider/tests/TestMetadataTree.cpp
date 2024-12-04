@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app/ConcreteClusterPath.h"
 #include "app/code-data-model-provider/Metadata.h"
 #include "app/data-model-provider/MetadataTypes.h"
 #include "app/data-model/Nullable.h"
@@ -68,6 +69,8 @@ constexpr CommandMeta kAccepted[] = {
 constexpr CommandId kGenerated[] = { ArmFailSafeResponse::Id, SetRegulatoryConfigResponse::Id, CommissioningCompleteResponse::Id };
 
 constexpr ClusterMeta kMeta = {
+    .clusterId         = chip::app::Clusters::GeneralCommissioning::Id,
+    .qualities         = BitFlags<DataModel::ClusterQualityFlags>(),
     .attributes        = Span<const AttributeMeta>(kAttributes),
     .acceptedCommands  = Span<const CommandMeta>(kAccepted),
     .generatedCommands = Span<const CommandId>(kGenerated),
@@ -107,6 +110,8 @@ constexpr CommandMeta kAccepted[] = {
 constexpr CommandId kGenerated[] = { TestSpecificResponse::Id, TestSimpleArgumentResponse::Id, TestAddArgumentsResponse::Id };
 
 constexpr ClusterMeta kMeta = {
+    .clusterId         = chip::app::Clusters::UnitTesting::Id,
+    .qualities         = BitFlags<DataModel::ClusterQualityFlags>(),
     .attributes        = Span<const AttributeMeta>(kAttributes),
     .acceptedCommands  = Span<const CommandMeta>(kAccepted),
     .generatedCommands = Span<const CommandId>(kGenerated),
@@ -388,4 +393,39 @@ TEST(TestMetadataTree, TestSemanticTags)
     // next called on invalid endpoint
     EXPECT_FALSE(tree.GetNextSemanticTag(2, EndpointInstance::SemanticTag{}).has_value());
     EXPECT_FALSE(tree.GetNextSemanticTag(0xFFFE, EndpointInstance::SemanticTag{}).has_value());
+}
+
+TEST(TestMetadataTree, TestServerClusterIteration)
+{
+    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+
+    {
+        auto value = tree.FirstServerCluster(0);
+        EXPECT_TRUE(value.IsValid());
+        EXPECT_EQ(value.path, ConcreteClusterPath(0, chip::app::Clusters::GeneralCommissioning::Id));
+
+        value = tree.NextServerCluster(value.path);
+        EXPECT_TRUE(value.IsValid());
+        EXPECT_EQ(value.path, ConcreteClusterPath(0, chip::app::Clusters::UnitTesting::Id));
+
+        value = tree.NextServerCluster(value.path);
+        EXPECT_FALSE(value.IsValid());
+    }
+    {
+
+        auto value = tree.FirstServerCluster(1);
+        EXPECT_TRUE(value.IsValid());
+        EXPECT_EQ(value.path, ConcreteClusterPath(1, chip::app::Clusters::UnitTesting::Id));
+
+        value = tree.NextServerCluster(value.path);
+        EXPECT_FALSE(value.IsValid());
+    }
+
+    EXPECT_FALSE(tree.FirstServerCluster(2).IsValid());
+    EXPECT_FALSE(tree.FirstServerCluster(123).IsValid());
+    EXPECT_FALSE(tree.FirstServerCluster(0xFFFE).IsValid());
+    EXPECT_FALSE(tree.FirstServerCluster(kInvalidEndpointId).IsValid());
+
+    EXPECT_FALSE(tree.NextServerCluster(ConcreteClusterPath(kInvalidEndpointId, 1)).IsValid());
+    EXPECT_FALSE(tree.NextServerCluster(ConcreteClusterPath(2, 0)).IsValid());
 }
