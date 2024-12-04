@@ -372,10 +372,17 @@ TEST(TestMetadataTree, TestSemanticTags)
         EXPECT_FALSE(tree.GetNextSemanticTag(0, *value).has_value());
         EXPECT_TRUE(tree.GetNextSemanticTag(1, *value).has_value());
     }
+    // these are not tags on EP0 or 1
+    EXPECT_FALSE(tree.GetNextSemanticTag(0, EndpointInstance::SemanticTag{}).has_value());
+    EXPECT_FALSE(tree.GetNextSemanticTag(1, EndpointInstance::SemanticTag{}).has_value());
 
     // invalid getters
     EXPECT_FALSE(tree.GetFirstSemanticTag(2).has_value());
     EXPECT_FALSE(tree.GetFirstSemanticTag(100).has_value());
     EXPECT_FALSE(tree.GetFirstSemanticTag(0xFFFE).has_value());
     EXPECT_FALSE(tree.GetFirstSemanticTag(kInvalidEndpointId).has_value());
+
+    // next called on invalid endpoint
+    EXPECT_FALSE(tree.GetNextSemanticTag(2, EndpointInstance::SemanticTag{}).has_value());
+    EXPECT_FALSE(tree.GetNextSemanticTag(0xFFFE, EndpointInstance::SemanticTag{}).has_value());
 }
