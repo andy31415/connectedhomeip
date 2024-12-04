@@ -111,8 +111,12 @@ constexpr ClusterMeta kMeta = {
 };
 
 } // namespace ExampleClusterTwo
+  //
+constexpr DeviceTypeId kRootNodeDeviceType         = 22;
+constexpr DeviceTypeId kOnOffLightSwitchDeviceType = 259;
+constexpr DeviceTypeId kDimmerSwitchDeviceType     = 260;
 
-const DataModel::DeviceTypeEntry ep0DeviceTypes[] = { { .deviceTypeId = 0, .deviceTypeRevision = 1 } };
+const DataModel::DeviceTypeEntry ep0DeviceTypes[] = { { .deviceTypeId = kRootNodeDeviceType, .deviceTypeRevision = 1 } };
 
 ClusterInstance ep0Clusters[] = { {
                                       .dataVersion      = 0,
@@ -127,12 +131,14 @@ ClusterInstance ep0Clusters[] = { {
                                       .commandHandler   = nullptr,
                                   } };
 
-const DataModel::DeviceTypeEntry ep1DeviceTypes[] = { { .deviceTypeId = 0, .deviceTypeRevision = 1 } };
-ClusterInstance ep1Clusters[]                     = { {
-                        .dataVersion      = 0,
-                        .metadata         = &ExampleClusterTwo::kMeta,
-                        .attributeHandler = nullptr,
-                        .commandHandler   = nullptr,
+const DataModel::DeviceTypeEntry ep1DeviceTypes[] = { { .deviceTypeId = kOnOffLightSwitchDeviceType, .deviceTypeRevision = 1 },
+                                                      { .deviceTypeId = kDimmerSwitchDeviceType, .deviceTypeRevision = 1 } };
+
+ClusterInstance ep1Clusters[] = { {
+    .dataVersion      = 0,
+    .metadata         = &ExampleClusterTwo::kMeta,
+    .attributeHandler = nullptr,
+    .commandHandler   = nullptr,
 } };
 
 EndpointInstance endpoints[] = {
@@ -157,6 +163,19 @@ EndpointInstance endpoints[] = {
 };
 
 } // namespace
+  //
+TEST(TestMetadataTree, TestEmptyTree)
+{
+    CodeMetadataTree tree((Span<EndpointInstance>()));
+
+    EXPECT_FALSE(tree.FirstEndpoint().IsValid());
+    EXPECT_FALSE(tree.NextEndpoint(0).IsValid());
+    EXPECT_FALSE(tree.NextEndpoint(kInvalidEndpointId).IsValid());
+    EXPECT_FALSE(tree.GetEndpointInfo(0).has_value());
+    EXPECT_FALSE(tree.GetEndpointInfo(1).has_value());
+    EXPECT_FALSE(tree.GetEndpointInfo(kInvalidEndpointId).has_value());
+    EXPECT_FALSE(tree.FirstDeviceType(0).has_value());
+}
 
 TEST(TestMetadataTree, TestEndpointIteration)
 {
@@ -178,6 +197,13 @@ TEST(TestMetadataTree, TestEndpointIteration)
     EXPECT_EQ(tree.NextEndpoint(1).id, kInvalidEndpointId);
     EXPECT_EQ(tree.FirstEndpoint().id, 0u);
     EXPECT_EQ(tree.FirstEndpoint().id, 0u);
+
+    // invalid should work
+    EXPECT_FALSE(tree.NextEndpoint(2).IsValid());
+    EXPECT_FALSE(tree.NextEndpoint(100).IsValid());
+    EXPECT_FALSE(tree.NextEndpoint(1234).IsValid());
+    EXPECT_FALSE(tree.NextEndpoint(0xFFFE).IsValid());
+    EXPECT_FALSE(tree.NextEndpoint(kInvalidEndpointId).IsValid());
 }
 
 TEST(TestMetadataTree, TestEndpointInfo)
@@ -213,9 +239,46 @@ TEST(TestMetadataTree, TestEndpointInfo)
         EXPECT_EQ(value->parentId, 0);
     }
 
-    ASSERT_FALSE(tree.GetEndpointInfo(2).has_value());
-    ASSERT_FALSE(tree.GetEndpointInfo(100).has_value());
-    ASSERT_FALSE(tree.GetEndpointInfo(1234).has_value());
-    ASSERT_FALSE(tree.GetEndpointInfo(0xFFFE).has_value());
-    ASSERT_FALSE(tree.GetEndpointInfo(kInvalidEndpointId).has_value());
+    EXPECT_FALSE(tree.GetEndpointInfo(2).has_value());
+    EXPECT_FALSE(tree.GetEndpointInfo(100).has_value());
+    EXPECT_FALSE(tree.GetEndpointInfo(1234).has_value());
+    EXPECT_FALSE(tree.GetEndpointInfo(0xFFFE).has_value());
+    EXPECT_FALSE(tree.GetEndpointInfo(kInvalidEndpointId).has_value());
+}
+
+TEST(TestMetadataTree, TestDeviceTypes)
+{
+
+    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+
+    {
+        auto value = tree.FirstDeviceType(0);
+        ASSERT_TRUE(value.has_value());
+        EXPECT_EQ(value->deviceTypeId, kRootNodeDeviceType);
+        EXPECT_EQ(value->deviceTypeRevision, 1);
+
+        value = tree.NextDeviceType(0, *value);
+        EXPECT_FALSE(value.has_value());
+    }
+
+    {
+        auto value = tree.FirstDeviceType(1);
+        ASSERT_TRUE(value.has_value());
+        EXPECT_EQ(value->deviceTypeId, kOnOffLightSwitchDeviceType);
+        EXPECT_EQ(value->deviceTypeRevision, 1);
+
+        value = tree.NextDeviceType(1, *value);
+        ASSERT_TRUE(value.has_value());
+        EXPECT_EQ(value->deviceTypeId, kDimmerSwitchDeviceType);
+        EXPECT_EQ(value->deviceTypeRevision, 1);
+
+        value = tree.NextDeviceType(1, *value);
+        EXPECT_FALSE(value.has_value());
+    }
+
+    EXPECT_FALSE(tree.FirstDeviceType(2).has_value());
+    EXPECT_FALSE(tree.FirstDeviceType(100).has_value());
+    EXPECT_FALSE(tree.FirstDeviceType(123).has_value());
+    EXPECT_FALSE(tree.FirstDeviceType(0xFFFE).has_value());
+    EXPECT_FALSE(tree.FirstDeviceType(kInvalidEndpointId).has_value());
 }

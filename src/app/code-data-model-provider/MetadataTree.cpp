@@ -120,7 +120,36 @@ std::optional<DataModel::DeviceTypeEntry> CodeMetadataTree::FirstDeviceType(Endp
 std::optional<DataModel::DeviceTypeEntry> CodeMetadataTree::NextDeviceType(EndpointId endpoint,
                                                                            const DataModel::DeviceTypeEntry & previous)
 {
-    // FIXME: implement
+    std::optional<size_t> index = FindEndpointIndex(endpoint, mEndpoints, mEndpointIndexHint);
+    if (!index.has_value())
+    {
+        return std::nullopt;
+    }
+
+    auto & ep = mEndpoints[*index];
+
+    if (mDeviceTypeHint < ep.deviceTypes.size())
+    {
+        if (ep.deviceTypes[mDeviceTypeHint] == previous)
+        {
+            if (mDeviceTypeHint + 1 >= ep.deviceTypes.size())
+            {
+                return std::nullopt; // reached the end
+            }
+            // found it using the hint, update the hint as well
+            return ep.deviceTypes[++mDeviceTypeHint];
+        }
+    }
+
+    for (size_t idx = 1; idx < ep.deviceTypes.size(); idx++)
+    {
+        if (ep.deviceTypes[idx - 1] == previous)
+        {
+            mDeviceTypeHint = idx;
+            return ep.deviceTypes[idx];
+        }
+    }
+
     return std::nullopt;
 }
 
