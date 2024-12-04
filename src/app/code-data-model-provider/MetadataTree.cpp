@@ -18,13 +18,55 @@
 #include "app/ConcreteCommandPath.h"
 #include "app/code-data-model-provider/Metadata.h"
 #include "app/data-model-provider/MetadataTypes.h"
+#include "lib/core/DataModelTypes.h"
 #include <app/code-data-model-provider/MetadataTree.h>
 #include <optional>
 
 namespace chip {
 namespace app {
 namespace {
+
 using SemanticTag = Clusters::Descriptor::Structs::SemanticTagStruct::Type;
+
+/// Search for the index where `needle` inside `haystack`
+///
+/// using `compareFunc` to compare a needle with a haystack value.
+template <typename N, typename H>
+std::optional<size_t> FindIndexUsingHint(const N & needle, Span<H> haystack, size_t & hint,
+                                         bool (*compareFunc)(const N &, const H &))
+{
+    if (hint < haystack.size())
+    {
+        if (compareFunc(needle, haystack[hint]))
+        {
+            return hint;
+        }
+    }
+
+    for (size_t i = 0; i < haystack.size(); i++)
+    {
+        if (compareFunc(needle, haystack[i]))
+        {
+            hint = i;
+            return i;
+        }
+    }
+
+    return std::nullopt;
+}
+
+template <typename N, typename H>
+std::optional<size_t> FindNextIndexUsingHint(const N & needle, Span<H> haystack, size_t & hint,
+                                             bool (*compareFunc)(const N &, const H &))
+{
+    auto idx = FindIndexUsingHint<N, H>(needle, haystack, hint, compareFunc);
+    if (!idx.has_value() || (*idx + 1 >= haystack.size()))
+    {
+        return std::nullopt;
+    }
+    hint = *idx + 1;
+    return hint;
+}
 
 bool operator==(const Metadata::EndpointInstance::SemanticTag & tagA, const Metadata::EndpointInstance::SemanticTag & tagB)
 {
@@ -51,30 +93,15 @@ bool operator==(const Metadata::EndpointInstance::SemanticTag & tagA, const Meta
     return (tagA.tag == tagB.tag) && (tagA.mfgCode == tagB.mfgCode) && (tagA.namespaceID == tagB.namespaceID);
 }
 
-/// Try to find the endpoint with the given ID in a span
-/// Uses a `hint` to speed up searches
-std::optional<size_t> FindEndpointIndex(EndpointId id, Span<Metadata::EndpointInstance> endpoints, size_t & hint)
+bool SameEndpointId(const EndpointId & id, const Metadata::EndpointInstance & instance)
 {
-    if (hint < endpoints.size())
-    {
-        // see if hint is a good index, maybe we are lucky
-        if (endpoints[hint].id == id)
-        {
-            return hint;
-        }
-    }
+    return id == instance.id;
+}
 
-    // hint was not useful, just search the whole thing
-    for (size_t i = 0; i < endpoints.size(); i++)
-    {
-        if (endpoints[i].id == id)
-        {
-            hint = i;
-            return i;
-        }
-    }
-
-    return std::nullopt;
+template <typename T>
+bool SameValue(const T & a, const T & b)
+{
+    return a == b;
 }
 
 /// Convert a endpoint instance struct to a datamodel endpoint entry
@@ -100,24 +127,13 @@ DataModel::EndpointEntry CodeMetadataTree::FirstEndpoint()
 
 DataModel::EndpointEntry CodeMetadataTree::NextEndpoint(EndpointId before)
 {
-    std::optional<size_t> beforeIndex = FindEndpointIndex(before, mEndpoints, mEndpointIndexHint);
-    if (!beforeIndex.has_value())
-    {
-        return DataModel::EndpointEntry::kInvalid;
-    }
-
-    if (*beforeIndex + 1 >= mEndpoints.size())
-    {
-        // reached the end
-        return DataModel::EndpointEntry::kInvalid;
-    }
-
-    return EndpointEntryFrom(mEndpoints[*beforeIndex + 1]);
+    std::optional<size_t> idx = FindNextIndexUsingHint(before, mEndpoints, mEndpointIndexHint, SameEndpointId);
+    return idx.has_value() ? EndpointEntryFrom(mEndpoints[*idx]) : DataModel::EndpointEntry::kInvalid;
 }
 
 std::optional<DataModel::EndpointInfo> CodeMetadataTree::GetEndpointInfo(EndpointId id)
 {
-    std::optional<size_t> index = FindEndpointIndex(id, mEndpoints, mEndpointIndexHint);
+    std::optional<size_t> index = FindIndexUsingHint(id, mEndpoints, mEndpointIndexHint, SameEndpointId);
     if (!index.has_value())
     {
         return std::nullopt;
@@ -127,7 +143,7 @@ std::optional<DataModel::EndpointInfo> CodeMetadataTree::GetEndpointInfo(Endpoin
 
 std::optional<DataModel::DeviceTypeEntry> CodeMetadataTree::FirstDeviceType(EndpointId endpoint)
 {
-    std::optional<size_t> index = FindEndpointIndex(endpoint, mEndpoints, mEndpointIndexHint);
+    std::optional<size_t> index = FindIndexUsingHint(endpoint, mEndpoints, mEndpointIndexHint, SameEndpointId);
     if (!index.has_value())
     {
         return std::nullopt;
@@ -139,95 +155,55 @@ std::optional<DataModel::DeviceTypeEntry> CodeMetadataTree::FirstDeviceType(Endp
         return std::nullopt;
     }
 
+    mDeviceTypeHint = 0;
     return ep.deviceTypes[0];
 }
 
 std::optional<DataModel::DeviceTypeEntry> CodeMetadataTree::NextDeviceType(EndpointId endpoint,
                                                                            const DataModel::DeviceTypeEntry & previous)
 {
-    std::optional<size_t> index = FindEndpointIndex(endpoint, mEndpoints, mEndpointIndexHint);
-    if (!index.has_value())
+    std::optional<size_t> ep_index = FindIndexUsingHint(endpoint, mEndpoints, mEndpointIndexHint, SameEndpointId);
+    if (!ep_index.has_value())
     {
         return std::nullopt;
     }
 
-    auto & ep = mEndpoints[*index];
+    auto & ep = mEndpoints[*ep_index];
 
-    if (mDeviceTypeHint < ep.deviceTypes.size())
-    {
-        if (ep.deviceTypes[mDeviceTypeHint] == previous)
-        {
-            if (mDeviceTypeHint + 1 >= ep.deviceTypes.size())
-            {
-                return std::nullopt; // reached the end
-            }
-            // found it using the hint, update the hint as well
-            return ep.deviceTypes[++mDeviceTypeHint];
-        }
-    }
-
-    for (size_t idx = 1; idx < ep.deviceTypes.size(); idx++)
-    {
-        if (ep.deviceTypes[idx - 1] == previous)
-        {
-            mDeviceTypeHint = idx;
-            return ep.deviceTypes[idx];
-        }
-    }
-
-    return std::nullopt;
+    std::optional<size_t> idx = FindNextIndexUsingHint(previous, ep.deviceTypes, mDeviceTypeHint, SameValue);
+    return idx.has_value() ? std::make_optional(ep.deviceTypes[*idx]) : std::nullopt;
 }
 
 std::optional<SemanticTag> CodeMetadataTree::GetFirstSemanticTag(EndpointId endpoint)
 {
-    std::optional<size_t> index = FindEndpointIndex(endpoint, mEndpoints, mEndpointIndexHint);
-    if (!index.has_value())
+    std::optional<size_t> ep_index = FindIndexUsingHint(endpoint, mEndpoints, mEndpointIndexHint, SameEndpointId);
+    if (!ep_index.has_value())
     {
         return std::nullopt;
     }
 
-    auto & ep = mEndpoints[*index];
+    auto & ep = mEndpoints[*ep_index];
     if (ep.semanticTags.empty())
     {
         return std::nullopt;
     }
 
+    mSemanticTagHint = 0;
     return ep.semanticTags[0];
 }
 
 std::optional<SemanticTag> CodeMetadataTree::GetNextSemanticTag(EndpointId endpoint, const SemanticTag & previous)
 {
-    std::optional<size_t> index = FindEndpointIndex(endpoint, mEndpoints, mEndpointIndexHint);
-    if (!index.has_value())
+    std::optional<size_t> ep_index = FindIndexUsingHint(endpoint, mEndpoints, mEndpointIndexHint, SameEndpointId);
+    if (!ep_index.has_value())
     {
         return std::nullopt;
     }
 
-    auto & ep = mEndpoints[*index];
+    auto & ep = mEndpoints[*ep_index];
 
-    if (mSemanticTagHint < ep.semanticTags.size())
-    {
-        if (ep.semanticTags[mSemanticTagHint] == previous)
-        {
-            if (mSemanticTagHint + 1 >= ep.semanticTags.size())
-            {
-                return std::nullopt; // reached the end
-            }
-            // found it using the hint, update the hint as well
-            return ep.semanticTags[++mSemanticTagHint];
-        }
-    }
-
-    for (size_t idx = 1; idx < ep.semanticTags.size(); idx++)
-    {
-        if (ep.semanticTags[idx - 1] == previous)
-        {
-            mSemanticTagHint = idx;
-            return ep.semanticTags[idx];
-        }
-    }
-
-    return std::nullopt;
+    std::optional<size_t> tagIndex = FindNextIndexUsingHint(previous, ep.semanticTags, mSemanticTagHint, SameValue);
+    return tagIndex.has_value() ? std::make_optional(ep.semanticTags[*tagIndex]) : std::nullopt;
 }
 
 DataModel::ClusterEntry CodeMetadataTree::FirstServerCluster(EndpointId endpoint)
