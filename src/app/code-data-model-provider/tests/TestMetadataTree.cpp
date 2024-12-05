@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 #include "app/ConcreteAttributePath.h"
+#include "app/ConcreteCommandPath.h"
 #include <optional>
 #include <pw_unit_test/framework.h>
 
@@ -589,4 +590,30 @@ TEST(TestMetadataTree, TestAttributeInfo)
     EXPECT_FALSE(tree.GetAttributeInfo({ 0, GeneralCommissioning::Id, kInvalidAttributeId }).has_value());
     EXPECT_FALSE(tree.GetAttributeInfo({ 0, GeneralCommissioning::Id, 0xBADBAD }).has_value());
     EXPECT_FALSE(tree.GetAttributeInfo({ kInvalidEndpointId, UnitTesting::Id, 100 }).has_value());
+}
+
+TEST(TestMetadataTree, TestGeneratedCommandsIteration)
+{
+    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+
+    {
+        ConcreteCommandPath path = tree.FirstGeneratedCommand({0, GeneralCommissioning::Id});
+
+        for (auto &id : ExampleClusterOne::kGenerated) {
+            EXPECT_EQ(path, ConcreteCommandPath(0, GeneralCommissioning::Id, id));
+            path = tree.NextGeneratedCommand(path);
+        }
+    }
+
+    // some nonsense paths
+    ASSERT_FALSE(tree.FirstGeneratedCommand({0, PowerSource::Id}).HasValidIds());
+    ASSERT_FALSE(tree.FirstGeneratedCommand({123, GeneralCommissioning::Id}).HasValidIds());
+    ASSERT_FALSE(tree.FirstGeneratedCommand({kInvalidEndpointId, GeneralCommissioning::Id}).HasValidIds());
+    ASSERT_FALSE(tree.FirstGeneratedCommand({0, kInvalidCommandId}).HasValidIds());
+
+    ASSERT_FALSE(tree.NextGeneratedCommand({0, GeneralCommissioning::Id, kInvalidCommandId}).HasValidIds());
+    ASSERT_FALSE(tree.NextGeneratedCommand({0, GeneralCommissioning::Id, 0x123FEFE}).HasValidIds());
+    ASSERT_FALSE(tree.NextGeneratedCommand({123, GeneralCommissioning::Id, GeneralCommissioning::Commands::ArmFailSafe::Id}).HasValidIds());
+    ASSERT_FALSE(tree.NextGeneratedCommand({kInvalidEndpointId, GeneralCommissioning::Id, GeneralCommissioning::Commands::ArmFailSafe::Id}).HasValidIds());
+    ASSERT_FALSE(tree.NextGeneratedCommand({0, kInvalidClusterId, GeneralCommissioning::Commands::ArmFailSafe::Id}).HasValidIds());
 }
