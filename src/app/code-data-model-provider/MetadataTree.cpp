@@ -109,7 +109,7 @@ struct ByEndpoint
     using Key  = EndpointId;
     using Type = Metadata::EndpointInstance;
     static Span<Type> GetSpan(EndpointsWrapper & wrapper) { return wrapper.endpoints; }
-    static bool Compare(const EndpointId & id, const Metadata::EndpointInstance & instance) { return id == instance.id; }
+    static bool Compare(const Key & id, const Type & instance) { return id == instance.id; }
 };
 
 struct ByDeviceType
@@ -117,7 +117,7 @@ struct ByDeviceType
     using Key  = const DataModel::DeviceTypeEntry;
     using Type = const DataModel::DeviceTypeEntry;
     static Span<Type> GetSpan(Metadata::EndpointInstance & v) { return v.deviceTypes; }
-    static bool Compare(const DataModel::DeviceTypeEntry & a, const DataModel::DeviceTypeEntry & b) { return a == b; }
+    static bool Compare(const Key & a, const Type & b) { return a == b; }
 };
 
 struct BySemanticTag
@@ -125,7 +125,7 @@ struct BySemanticTag
     using Key  = const SemanticTag;
     using Type = const SemanticTag;
     static Span<Type> GetSpan(Metadata::EndpointInstance & v) { return v.semanticTags; }
-    static bool Compare(const SemanticTag & a, const SemanticTag & b) { return a == b; }
+    static bool Compare(const Key & a, const Type & b) { return a == b; }
 };
 
 struct ByServerCluster
@@ -133,10 +133,7 @@ struct ByServerCluster
     using Key  = ClusterId;
     using Type = Metadata::ClusterInstance;
     static Span<Type> GetSpan(Metadata::EndpointInstance & v) { return v.serverClusters; }
-    static bool Compare(const ClusterId & id, const Metadata::ClusterInstance & instance)
-    {
-        return id == instance.metadata->clusterId;
-    }
+    static bool Compare(const Key & id, const Type & instance) { return id == instance.metadata->clusterId; }
 };
 
 struct ByClientCluster
@@ -144,7 +141,7 @@ struct ByClientCluster
     using Key  = ClusterId;
     using Type = const ClusterId;
     static Span<Type> GetSpan(Metadata::EndpointInstance & v) { return v.clientClusters; }
-    static bool Compare(const ClusterId & a, const ClusterId & b) { return a == b; }
+    static bool Compare(const Key & a, const Type & b) { return a == b; }
 };
 
 struct ByAttribute
@@ -152,7 +149,15 @@ struct ByAttribute
     using Key  = AttributeId;
     using Type = const Metadata::AttributeMeta;
     static Span<Type> GetSpan(Metadata::ClusterInstance & v) { return v.metadata->attributes; }
-    static bool Compare(const AttributeId & id, const Metadata::AttributeMeta & meta) { return id == meta.id; }
+    static bool Compare(const Key & id, const Metadata::AttributeMeta & meta) { return id == meta.id; }
+};
+
+struct ByAcceptedCommand
+{
+    using Key  = CommandId;
+    using Type = const Metadata::CommandMeta;
+    static Span<Type> GetSpan(Metadata::ClusterInstance & v) { return v.metadata->acceptedCommands; }
+    static bool Compare(const Key & id, const Type & value) { return id == value.id; }
 };
 
 /// represents a wrapper around a type `T` that contains internal
@@ -161,12 +166,23 @@ struct ByAttribute
 ///
 /// Use case is that we very often search within a tree, like "find-endpoint" + "find-cluster" + "find-attribute"
 /// and we generally only care if "does the last element exist or not"
+///
+/// General usage is for fluent-searching for things like:
+///
+///  const Metadata::CommandMeta * value =
+///         container
+///            .Find<ByEndpoint>(path.mEndpointId, mEndpointIndexHint)
+///            .Find<ByServerCluster>(path.mClusterId, mServerClusterHint)
+///            .Find<ByAcceptedCommand>(path.mCommandId, mAcceptedCommandHint)
+///            .Value();
+///
 template <typename T>
 class SearchableContainer
 {
 public:
     explicit SearchableContainer(T * value) : mValue(value) {}
 
+    /// Returns NULLPTR if such an element does not exist or non-null valid value if the element exists
     T * Value() const { return mValue; }
 
     // Get the first element of `TYPE`
@@ -240,6 +256,18 @@ DataModel::AttributeEntry AttributeEntryFrom(const ConcreteClusterPath & cluster
                 .flags          = attribute.qualities,
                 .readPrivilege  = Metadata::ReadPrivilege(attribute.privileges),
                 .writePrivilege = Metadata::WritePrivilege(attribute.privileges),
+            },
+    };
+}
+
+DataModel::CommandEntry CommandEntryFrom(const ConcreteClusterPath clusterPath, const Metadata::CommandMeta & command)
+{
+    return DataModel::CommandEntry{
+        .path = { clusterPath.mEndpointId, clusterPath.mClusterId, command.id },
+        .info =
+            DataModel::CommandInfo{
+                .flags           = command.qualities,
+                .invokePrivilege = command.invokePrivilege,
             },
     };
 }
@@ -438,20 +466,44 @@ std::optional<DataModel::AttributeInfo> CodeMetadataTree::GetAttributeInfo(const
 
 DataModel::CommandEntry CodeMetadataTree::FirstAcceptedCommand(const ConcreteClusterPath & cluster)
 {
-    // FIXME: implement
-    return DataModel::CommandEntry::kInvalid;
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
+
+    const Metadata::CommandMeta * value = search                                                             //
+                                              .Find<ByEndpoint>(cluster.mEndpointId, mEndpointIndexHint)     //
+                                              .Find<ByServerCluster>(cluster.mClusterId, mServerClusterHint) //
+                                              .First<ByAcceptedCommand>(mAcceptedCommandHint)                //
+                                              .Value();
+
+    return (value == nullptr) ? DataModel::CommandEntry::kInvalid : CommandEntryFrom(cluster, *value);
 }
 
 DataModel::CommandEntry CodeMetadataTree::NextAcceptedCommand(const ConcreteCommandPath & before)
 {
-    // FIXME: implement
-    return DataModel::CommandEntry::kInvalid;
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
+
+    const Metadata::CommandMeta * value = search                                                                //
+                                              .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)         //
+                                              .Find<ByServerCluster>(before.mClusterId, mServerClusterHint)     //
+                                              .Next<ByAcceptedCommand>(before.mCommandId, mAcceptedCommandHint) //
+                                              .Value();
+
+    return (value == nullptr) ? DataModel::CommandEntry::kInvalid : CommandEntryFrom(before, *value);
 }
 
 std::optional<DataModel::CommandInfo> CodeMetadataTree::GetAcceptedCommandInfo(const ConcreteCommandPath & path)
 {
-    // FIXME: implement
-    return std::nullopt;
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
+
+    const Metadata::CommandMeta * value = search                                                              //
+                                              .Find<ByEndpoint>(path.mEndpointId, mEndpointIndexHint)         //
+                                              .Find<ByServerCluster>(path.mClusterId, mServerClusterHint)     //
+                                              .Find<ByAcceptedCommand>(path.mCommandId, mAcceptedCommandHint) //
+                                              .Value();
+
+    return (value == nullptr) ? std::nullopt : std::make_optional(CommandEntryFrom(path, *value).info);
 }
 
 ConcreteCommandPath CodeMetadataTree::FirstGeneratedCommand(const ConcreteClusterPath & cluster)
