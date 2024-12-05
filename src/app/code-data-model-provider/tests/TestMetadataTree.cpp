@@ -607,9 +607,10 @@ TEST(TestMetadataTree, TestAcceptedCommandsIteration)
     CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
 
     {
-        DataModel::CommandEntry entry = tree.FirstAcceptedCommand({0, GeneralCommissioning::Id});
+        DataModel::CommandEntry entry = tree.FirstAcceptedCommand({ 0, GeneralCommissioning::Id });
 
-        for (auto &cmd : FakeGeneralCommissioningCluster::kAccepted) {
+        for (auto & cmd : FakeGeneralCommissioningCluster::kAccepted)
+        {
             ASSERT_TRUE(entry.IsValid());
 
             ASSERT_EQ(entry.path, ConcreteCommandPath(0, GeneralCommissioning::Id, cmd.id));
@@ -624,9 +625,10 @@ TEST(TestMetadataTree, TestAcceptedCommandsIteration)
     }
 
     {
-        DataModel::CommandEntry entry = tree.FirstAcceptedCommand({1, UnitTesting::Id});
+        DataModel::CommandEntry entry = tree.FirstAcceptedCommand({ 1, UnitTesting::Id });
 
-        for (auto &cmd : FakeUnitTestingCluster::kAccepted) {
+        for (auto & cmd : FakeUnitTestingCluster::kAccepted)
+        {
             ASSERT_TRUE(entry.IsValid());
 
             ASSERT_EQ(entry.path, ConcreteCommandPath(1, UnitTesting::Id, cmd.id));
@@ -640,16 +642,40 @@ TEST(TestMetadataTree, TestAcceptedCommandsIteration)
         ASSERT_FALSE(entry.IsValid());
     }
 
-
     // some invalid searches
-    ASSERT_FALSE(tree.FirstAcceptedCommand({1, PowerSource::Id}).IsValid());
-    ASSERT_FALSE(tree.FirstAcceptedCommand({0, PowerSource::Id}).IsValid());
-    ASSERT_FALSE(tree.FirstAcceptedCommand({1, GeneralCommissioning::Id}).IsValid());
-    ASSERT_FALSE(tree.FirstAcceptedCommand({kInvalidEndpointId, UnitTesting::Id}).IsValid());
+    ASSERT_FALSE(tree.FirstAcceptedCommand({ 1, PowerSource::Id }).IsValid());
+    ASSERT_FALSE(tree.FirstAcceptedCommand({ 0, PowerSource::Id }).IsValid());
+    ASSERT_FALSE(tree.FirstAcceptedCommand({ 1, GeneralCommissioning::Id }).IsValid());
+    ASSERT_FALSE(tree.FirstAcceptedCommand({ kInvalidEndpointId, UnitTesting::Id }).IsValid());
 
-    ASSERT_FALSE(tree.NextAcceptedCommand({1, UnitTesting::Id, 0x123FEFE}).IsValid());
-    ASSERT_FALSE(tree.NextAcceptedCommand({1, PowerSource::Id, 0}).IsValid());
-    ASSERT_FALSE(tree.NextAcceptedCommand({kInvalidEndpointId, UnitTesting::Id, 0}).IsValid());
+    ASSERT_FALSE(tree.NextAcceptedCommand({ 1, UnitTesting::Id, 0x123FEFE }).IsValid());
+    ASSERT_FALSE(tree.NextAcceptedCommand({ 1, PowerSource::Id, 0 }).IsValid());
+    ASSERT_FALSE(tree.NextAcceptedCommand({ kInvalidEndpointId, UnitTesting::Id, 0 }).IsValid());
+}
+
+TEST(TestMetadataTree, TestAcceptedCommandInfo)
+{
+    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+
+    std::optional<DataModel::CommandInfo> info =
+        tree.GetAcceptedCommandInfo({ 0, GeneralCommissioning::Id, GeneralCommissioning::Commands::ArmFailSafe::Id });
+
+    ASSERT_TRUE(info.has_value());
+    EXPECT_EQ(info->flags, BitFlags<CommandQualityFlags>());
+    EXPECT_EQ(info->invokePrivilege, Privilege::kAdminister);
+
+    info = tree.GetAcceptedCommandInfo({ 1, UnitTesting::Id, UnitTesting::Commands::Test::Id });
+
+    ASSERT_TRUE(info.has_value());
+    EXPECT_EQ(info->flags, BitFlags<CommandQualityFlags>());
+    EXPECT_EQ(info->invokePrivilege, Privilege::kOperate);
+
+    EXPECT_FALSE(
+        tree.GetAcceptedCommandInfo({ 1, GeneralCommissioning::Id, GeneralCommissioning::Commands::ArmFailSafe::Id }).has_value());
+    EXPECT_FALSE(tree.GetAcceptedCommandInfo(
+                         { kInvalidEndpointId, GeneralCommissioning::Id, GeneralCommissioning::Commands::ArmFailSafe::Id })
+                     .has_value());
+    EXPECT_FALSE(tree.GetAcceptedCommandInfo({ 1, UnitTesting::Id, 0x12344321 }).has_value());
 }
 
 TEST(TestMetadataTree, TestGeneratedCommandsIteration)
@@ -657,9 +683,10 @@ TEST(TestMetadataTree, TestGeneratedCommandsIteration)
     CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
 
     {
-        ConcreteCommandPath path = tree.FirstGeneratedCommand({0, GeneralCommissioning::Id});
+        ConcreteCommandPath path = tree.FirstGeneratedCommand({ 0, GeneralCommissioning::Id });
 
-        for (auto &id : FakeGeneralCommissioningCluster::kGenerated) {
+        for (auto & id : FakeGeneralCommissioningCluster::kGenerated)
+        {
             EXPECT_EQ(path, ConcreteCommandPath(0, GeneralCommissioning::Id, id));
             path = tree.NextGeneratedCommand(path);
         }
@@ -669,9 +696,10 @@ TEST(TestMetadataTree, TestGeneratedCommandsIteration)
     }
 
     {
-        ConcreteCommandPath path = tree.FirstGeneratedCommand({1, UnitTesting::Id});
+        ConcreteCommandPath path = tree.FirstGeneratedCommand({ 1, UnitTesting::Id });
 
-        for (auto &id : FakeUnitTestingCluster::kGenerated) {
+        for (auto & id : FakeUnitTestingCluster::kGenerated)
+        {
             EXPECT_EQ(path, ConcreteCommandPath(1, UnitTesting::Id, id));
             path = tree.NextGeneratedCommand(path);
         }
@@ -681,14 +709,18 @@ TEST(TestMetadataTree, TestGeneratedCommandsIteration)
     }
 
     // some nonsense paths
-    ASSERT_FALSE(tree.FirstGeneratedCommand({0, PowerSource::Id}).HasValidIds());
-    ASSERT_FALSE(tree.FirstGeneratedCommand({123, GeneralCommissioning::Id}).HasValidIds());
-    ASSERT_FALSE(tree.FirstGeneratedCommand({kInvalidEndpointId, GeneralCommissioning::Id}).HasValidIds());
-    ASSERT_FALSE(tree.FirstGeneratedCommand({0, kInvalidCommandId}).HasValidIds());
+    ASSERT_FALSE(tree.FirstGeneratedCommand({ 0, PowerSource::Id }).HasValidIds());
+    ASSERT_FALSE(tree.FirstGeneratedCommand({ 123, GeneralCommissioning::Id }).HasValidIds());
+    ASSERT_FALSE(tree.FirstGeneratedCommand({ kInvalidEndpointId, GeneralCommissioning::Id }).HasValidIds());
+    ASSERT_FALSE(tree.FirstGeneratedCommand({ 0, kInvalidCommandId }).HasValidIds());
 
-    ASSERT_FALSE(tree.NextGeneratedCommand({0, GeneralCommissioning::Id, kInvalidCommandId}).HasValidIds());
-    ASSERT_FALSE(tree.NextGeneratedCommand({0, GeneralCommissioning::Id, 0x123FEFE}).HasValidIds());
-    ASSERT_FALSE(tree.NextGeneratedCommand({123, GeneralCommissioning::Id, GeneralCommissioning::Commands::ArmFailSafe::Id}).HasValidIds());
-    ASSERT_FALSE(tree.NextGeneratedCommand({kInvalidEndpointId, GeneralCommissioning::Id, GeneralCommissioning::Commands::ArmFailSafe::Id}).HasValidIds());
-    ASSERT_FALSE(tree.NextGeneratedCommand({0, kInvalidClusterId, GeneralCommissioning::Commands::ArmFailSafe::Id}).HasValidIds());
+    ASSERT_FALSE(tree.NextGeneratedCommand({ 0, GeneralCommissioning::Id, kInvalidCommandId }).HasValidIds());
+    ASSERT_FALSE(tree.NextGeneratedCommand({ 0, GeneralCommissioning::Id, 0x123FEFE }).HasValidIds());
+    ASSERT_FALSE(tree.NextGeneratedCommand({ 123, GeneralCommissioning::Id, GeneralCommissioning::Commands::ArmFailSafe::Id })
+                     .HasValidIds());
+    ASSERT_FALSE(
+        tree.NextGeneratedCommand({ kInvalidEndpointId, GeneralCommissioning::Id, GeneralCommissioning::Commands::ArmFailSafe::Id })
+            .HasValidIds());
+    ASSERT_FALSE(
+        tree.NextGeneratedCommand({ 0, kInvalidClusterId, GeneralCommissioning::Commands::ArmFailSafe::Id }).HasValidIds());
 }
