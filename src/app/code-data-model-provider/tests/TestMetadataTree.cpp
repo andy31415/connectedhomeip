@@ -537,15 +537,24 @@ TEST(TestMetadataTree, TestAttributeIteration)
         ASSERT_TRUE(tree.FirstAttribute({ 0, GeneralCommissioning::Id }).IsValid());
         ASSERT_TRUE(tree.FirstAttribute({ 0, GeneralCommissioning::Id }).IsValid());
 
-        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id }).IsValid());
-        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id }).IsValid());
-        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id }).IsValid());
-        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id }).IsValid());
-        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id }).IsValid());
-        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::Breadcrumb::Id }).IsValid());
-        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::Breadcrumb::Id }).IsValid());
-        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id }).IsValid());
-        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::Breadcrumb::Id }).IsValid());
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id })
+                        .IsValid());
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id })
+                        .IsValid());
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id })
+                        .IsValid());
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id })
+                        .IsValid());
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id })
+                        .IsValid());
+        ASSERT_TRUE(
+            tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::Breadcrumb::Id }).IsValid());
+        ASSERT_TRUE(
+            tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::Breadcrumb::Id }).IsValid());
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id })
+                        .IsValid());
+        ASSERT_TRUE(
+            tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::Breadcrumb::Id }).IsValid());
     }
 
     // Some invalid fetches
