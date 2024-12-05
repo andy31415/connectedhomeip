@@ -160,6 +160,14 @@ struct ByAcceptedCommand
     static bool Compare(const Key & id, const Type & value) { return id == value.id; }
 };
 
+struct ByGeneratedCommand
+{
+    using Key  = CommandId;
+    using Type = const CommandId;
+    static Span<Type> GetSpan(Metadata::ClusterInstance & v) { return v.metadata->generatedCommands; }
+    static bool Compare(const Key & id, const Type & value) { return id == value; }
+};
+
 /// represents a wrapper around a type `T` that contains internal
 /// `Span<...>` values of other sub-types. It allows searching within the container sub-spans
 /// to create new containers.
@@ -508,14 +516,30 @@ std::optional<DataModel::CommandInfo> CodeMetadataTree::GetAcceptedCommandInfo(c
 
 ConcreteCommandPath CodeMetadataTree::FirstGeneratedCommand(const ConcreteClusterPath & cluster)
 {
-    // FIXME: implement
-    return {};
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
+
+    const CommandId * value = search                                                             //
+                                  .Find<ByEndpoint>(cluster.mEndpointId, mEndpointIndexHint)     //
+                                  .Find<ByServerCluster>(cluster.mClusterId, mServerClusterHint) //
+                                  .First<ByGeneratedCommand>(mGeneratedCommandHint)              //
+                                  .Value();
+
+    return (value == nullptr) ? ConcreteCommandPath() : ConcreteCommandPath(cluster.mExpanded, cluster.mClusterId, *value);
 }
 
 ConcreteCommandPath CodeMetadataTree::NextGeneratedCommand(const ConcreteCommandPath & before)
 {
-    // FIXME: implement
-    return {};
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
+
+    const CommandId * value = search                                                                  //
+                                  .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)           //
+                                  .Find<ByServerCluster>(before.mClusterId, mServerClusterHint)       //
+                                  .Next<ByGeneratedCommand>(before.mCommandId, mGeneratedCommandHint) //
+                                  .Value();
+
+    return (value == nullptr) ? ConcreteCommandPath() : ConcreteCommandPath(before.mExpanded, before.mClusterId, *value);
 }
 
 } // namespace app
