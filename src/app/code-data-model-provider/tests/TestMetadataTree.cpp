@@ -38,6 +38,16 @@ using namespace chip::app::Metadata;
 using namespace chip::app::DataModel;
 using namespace chip::app::Clusters;
 
+namespace pw {
+
+template <>
+StatusWithSize ToString<ConcreteCommandPath>(const ConcreteCommandPath & p, pw::span<char> buffer)
+{
+    return pw::string::Format(buffer, "ConcreteCommandPath<0x%X, 0x%X, 0x%X>", p.mEndpointId, p.mClusterId, p.mCommandId);
+}
+
+} // namespace pw
+
 namespace {
 
 // A fake cluster composition based on GeneralCommissioning ids
@@ -603,6 +613,9 @@ TEST(TestMetadataTree, TestGeneratedCommandsIteration)
             EXPECT_EQ(path, ConcreteCommandPath(0, GeneralCommissioning::Id, id));
             path = tree.NextGeneratedCommand(path);
         }
+
+        // final iteration should end
+        ASSERT_FALSE(path.HasValidIds());
     }
 
     // some nonsense paths

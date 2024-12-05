@@ -525,7 +525,7 @@ ConcreteCommandPath CodeMetadataTree::FirstGeneratedCommand(const ConcreteCluste
                                   .First<ByGeneratedCommand>(mGeneratedCommandHint)              //
                                   .Value();
 
-    return (value == nullptr) ? ConcreteCommandPath() : ConcreteCommandPath(cluster.mExpanded, cluster.mClusterId, *value);
+    return (value == nullptr) ? ConcreteCommandPath() : ConcreteCommandPath(cluster.mEndpointId, cluster.mClusterId, *value);
 }
 
 ConcreteCommandPath CodeMetadataTree::NextGeneratedCommand(const ConcreteCommandPath & before)
@@ -539,7 +539,7 @@ ConcreteCommandPath CodeMetadataTree::NextGeneratedCommand(const ConcreteCommand
                                   .Next<ByGeneratedCommand>(before.mCommandId, mGeneratedCommandHint) //
                                   .Value();
 
-    return (value == nullptr) ? ConcreteCommandPath() : ConcreteCommandPath(before.mExpanded, before.mClusterId, *value);
+    return (value == nullptr) ? ConcreteCommandPath() : ConcreteCommandPath(before.mEndpointId, before.mClusterId, *value);
 }
 
 } // namespace app
