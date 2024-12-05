@@ -133,7 +133,18 @@ struct ByServerCluster
     using Key  = ClusterId;
     using Type = Metadata::ClusterInstance;
     static Span<Type> GetSpan(Metadata::EndpointInstance & v) { return v.serverClusters; }
-    static bool Compare(const ClusterId & id, const Metadata::ClusterInstance & instance) { return id == instance.metadata->clusterId; }
+    static bool Compare(const ClusterId & id, const Metadata::ClusterInstance & instance)
+    {
+        return id == instance.metadata->clusterId;
+    }
+};
+
+struct ByClientCluster
+{
+    using Key  = ClusterId;
+    using Type = const ClusterId;
+    static Span<Type> GetSpan(Metadata::EndpointInstance & v) { return v.clientClusters; }
+    static bool Compare(const ClusterId & a, const ClusterId & b) { return a == b; }
 };
 
 /// represents a wrapper around a type `T` that contains internal
@@ -359,54 +370,41 @@ DataModel::ClusterEntry CodeMetadataTree::NextServerCluster(const ConcreteCluste
 
 std::optional<DataModel::ClusterInfo> CodeMetadataTree::GetServerClusterInfo(const ConcreteClusterPath & path)
 {
-    std::optional<size_t> ep_index = FindIndexUsingHint(path.mEndpointId, mEndpoints, mEndpointIndexHint, SameEndpointId);
-    if (!ep_index.has_value())
-    {
-        return std::nullopt;
-    }
-    auto & ep                           = mEndpoints[*ep_index];
-    std::optional<size_t> cluster_index = FindIndexUsingHint(path.mClusterId, ep.serverClusters, mServerClusterHint, SameClusterId);
-    if (!cluster_index.has_value())
-    {
-        return std::nullopt;
-    }
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
 
-    return ClusterEntryFrom(path.mEndpointId, ep.serverClusters[*cluster_index]).info;
+    const Metadata::ClusterInstance * value = search                                                      //
+                                                  .Find<ByEndpoint>(path.mEndpointId, mEndpointIndexHint) //
+                                                  .Find<ByServerCluster>(path.mClusterId, mServerClusterHint)
+                                                  .Value();
+
+    return (value == nullptr) ? std::nullopt : std::make_optional(ClusterEntryFrom(path.mEndpointId, *value).info);
 }
 
 ConcreteClusterPath CodeMetadataTree::FirstClientCluster(EndpointId endpoint)
 {
-    std::optional<size_t> ep_index = FindIndexUsingHint(endpoint, mEndpoints, mEndpointIndexHint, SameEndpointId);
-    if (!ep_index.has_value())
-    {
-        return {};
-    }
-    auto & ep = mEndpoints[*ep_index];
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
 
-    if (ep.clientClusters.empty())
-    {
-        return {};
-    }
+    const ClusterId * value = search                                              //
+                                  .Find<ByEndpoint>(endpoint, mEndpointIndexHint) //
+                                  .First<ByClientCluster>(mClientClusterHint)
+                                  .Value();
 
-    return { endpoint, ep.clientClusters[0] };
+    return (value == nullptr) ? ConcreteClusterPath() : ConcreteClusterPath(endpoint, *value);
 }
 
 ConcreteClusterPath CodeMetadataTree::NextClientCluster(const ConcreteClusterPath & before)
 {
-    std::optional<size_t> ep_index = FindIndexUsingHint(before.mEndpointId, mEndpoints, mEndpointIndexHint, SameEndpointId);
-    if (!ep_index.has_value())
-    {
-        return {};
-    }
-    auto & ep                 = mEndpoints[*ep_index];
-    std::optional<size_t> idx = FindNextIndexUsingHint(before.mClusterId, ep.clientClusters, mClientClusterHint, SameValue);
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
 
-    if (!idx.has_value())
-    {
-        return {};
-    }
+    const ClusterId * value = search                                                        //
+                                  .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint) //
+                                  .Next<ByClientCluster>(before.mClusterId, mClientClusterHint)
+                                  .Value();
 
-    return { before.mEndpointId, ep.clientClusters[*idx] };
+    return (value == nullptr) ? ConcreteClusterPath() : ConcreteClusterPath(before.mEndpointId, *value);
 }
 
 DataModel::AttributeEntry CodeMetadataTree::FirstAttribute(const ConcreteClusterPath & clusterPath)
