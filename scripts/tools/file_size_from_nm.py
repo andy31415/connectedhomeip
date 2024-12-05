@@ -73,6 +73,14 @@ class Symbol:
     size: int
 
 
+def try_demangle(name: str) -> str:
+    try:
+        return cxxfilt.demangle(name)
+    except cxxfilt.InvalidName:
+        logging.debug("BAD NAME: %s" % name)
+        return name
+
+
 def tree_display_name(name: str) -> list[str]:
     """
     Convert the given name from NM into a tree path.
@@ -81,7 +89,7 @@ def tree_display_name(name: str) -> list[str]:
     'emberAf' prefixes to make them common and uses 'vtable for' information
     """
 
-    name = cxxfilt.demangle(name)
+    name = try_demangle(name)
 
     if name.startswith("non-virtual thunk to "):
         name = name[21:]
@@ -315,7 +323,7 @@ def build_treemap(
             partial = next_value
 
         # the name MUST be added
-        data["name"].append(cxxfilt.demangle(symbol.name))
+        data["name"].append(try_demangle(name))
         data["parent"].append(partial if partial else root)
         data["size"].append(symbol.size)
         data["hover"].append(f"{symbol.name} of type {symbol.symbol_type}")
