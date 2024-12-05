@@ -51,7 +51,7 @@ StatusWithSize ToString<ConcreteCommandPath>(const ConcreteCommandPath & p, pw::
 namespace {
 
 // A fake cluster composition based on GeneralCommissioning ids
-namespace ExampleClusterOne {
+namespace FakeGeneralCommissioningCluster {
 
 using namespace GeneralCommissioning::Attributes;
 using namespace GeneralCommissioning::Commands;
@@ -87,10 +87,10 @@ constexpr ClusterMeta kMeta = {
     .generatedCommands = Span<const CommandId>(kGenerated),
 };
 
-} // namespace ExampleClusterOne
+} // namespace FakeGeneralCommissioningCluster
 
 // A fake cluster composition based on UnitTesting cluster IDs
-namespace ExampleClusterTwo {
+namespace FakeUnitTestingCluster {
 
 using namespace UnitTesting::Attributes;
 using namespace UnitTesting::Commands;
@@ -128,7 +128,7 @@ constexpr ClusterMeta kMeta = {
     .generatedCommands = Span<const CommandId>(kGenerated),
 };
 
-} // namespace ExampleClusterTwo
+} // namespace FakeUnitTestingCluster
 
 constexpr DeviceTypeId kRootNodeDeviceType         = 22;
 constexpr DeviceTypeId kOnOffLightSwitchDeviceType = 259;
@@ -158,13 +158,13 @@ constexpr DataVersion kVer1 = 2222;
 
 ClusterInstance ep0Clusters[] = { {
                                       .dataVersion      = kVer0,
-                                      .metadata         = &ExampleClusterOne::kMeta,
+                                      .metadata         = &FakeGeneralCommissioningCluster::kMeta,
                                       .attributeHandler = nullptr,
                                       .commandHandler   = nullptr,
                                   },
                                   {
                                       .dataVersion      = kVer1,
-                                      .metadata         = &ExampleClusterTwo::kMeta,
+                                      .metadata         = &FakeUnitTestingCluster::kMeta,
                                       .attributeHandler = nullptr,
                                       .commandHandler   = nullptr,
                                   } };
@@ -175,7 +175,7 @@ const DataModel::DeviceTypeEntry ep1DeviceTypes[] = { { .deviceTypeId = kOnOffLi
 constexpr DataVersion kVer2   = 234;
 ClusterInstance ep1Clusters[] = { {
     .dataVersion      = kVer2,
-    .metadata         = &ExampleClusterTwo::kMeta,
+    .metadata         = &FakeUnitTestingCluster::kMeta,
     .attributeHandler = nullptr,
     .commandHandler   = nullptr,
 } };
@@ -515,7 +515,7 @@ TEST(TestMetadataTree, TestAttributeIteration)
         auto value = tree.FirstAttribute({ 1, UnitTesting::Id });
 
         // iteration over attributes should be identical with what we have in the metadata
-        for (auto & attr : ExampleClusterTwo::kAttributes)
+        for (auto & attr : FakeUnitTestingCluster::kAttributes)
         {
             ASSERT_TRUE(value.IsValid());
             EXPECT_EQ(value.path, ConcreteAttributePath(1, UnitTesting::Id, attr.id));
@@ -529,7 +529,7 @@ TEST(TestMetadataTree, TestAttributeIteration)
         value = tree.FirstAttribute({ 0, GeneralCommissioning::Id });
 
         // iteration over attributes should be identical with what we have in the metadata
-        for (auto & attr : ExampleClusterOne::kAttributes)
+        for (auto & attr : FakeGeneralCommissioningCluster::kAttributes)
         {
             ASSERT_TRUE(value.IsValid());
             EXPECT_EQ(value.path, ConcreteAttributePath(0, GeneralCommissioning::Id, attr.id));
@@ -585,7 +585,7 @@ TEST(TestMetadataTree, TestAttributeInfo)
     CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
 
     // iteration over attributes should be identical with what we have in the metadata
-    for (auto & attr : ExampleClusterTwo::kAttributes)
+    for (auto & attr : FakeUnitTestingCluster::kAttributes)
     {
         auto value = tree.GetAttributeInfo({ 1, UnitTesting::Id, attr.id });
         ASSERT_TRUE(value.has_value());
@@ -602,6 +602,56 @@ TEST(TestMetadataTree, TestAttributeInfo)
     EXPECT_FALSE(tree.GetAttributeInfo({ kInvalidEndpointId, UnitTesting::Id, 100 }).has_value());
 }
 
+TEST(TestMetadataTree, TestAcceptedCommandsIteration)
+{
+    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+
+    {
+        DataModel::CommandEntry entry = tree.FirstAcceptedCommand({0, GeneralCommissioning::Id});
+
+        for (auto &cmd : FakeGeneralCommissioningCluster::kAccepted) {
+            ASSERT_TRUE(entry.IsValid());
+
+            ASSERT_EQ(entry.path, ConcreteCommandPath(0, GeneralCommissioning::Id, cmd.id));
+            ASSERT_EQ(entry.info.flags, cmd.qualities);
+            ASSERT_EQ(entry.info.invokePrivilege, cmd.invokePrivilege);
+
+            entry = tree.NextAcceptedCommand(entry.path);
+        }
+
+        // final iteration should end
+        ASSERT_FALSE(entry.IsValid());
+    }
+
+    {
+        DataModel::CommandEntry entry = tree.FirstAcceptedCommand({1, UnitTesting::Id});
+
+        for (auto &cmd : FakeUnitTestingCluster::kAccepted) {
+            ASSERT_TRUE(entry.IsValid());
+
+            ASSERT_EQ(entry.path, ConcreteCommandPath(1, UnitTesting::Id, cmd.id));
+            ASSERT_EQ(entry.info.flags, cmd.qualities);
+            ASSERT_EQ(entry.info.invokePrivilege, cmd.invokePrivilege);
+
+            entry = tree.NextAcceptedCommand(entry.path);
+        }
+
+        // final iteration should end
+        ASSERT_FALSE(entry.IsValid());
+    }
+
+
+    // some invalid searches
+    ASSERT_FALSE(tree.FirstAcceptedCommand({1, PowerSource::Id}).IsValid());
+    ASSERT_FALSE(tree.FirstAcceptedCommand({0, PowerSource::Id}).IsValid());
+    ASSERT_FALSE(tree.FirstAcceptedCommand({1, GeneralCommissioning::Id}).IsValid());
+    ASSERT_FALSE(tree.FirstAcceptedCommand({kInvalidEndpointId, UnitTesting::Id}).IsValid());
+
+    ASSERT_FALSE(tree.NextAcceptedCommand({1, UnitTesting::Id, 0x123FEFE}).IsValid());
+    ASSERT_FALSE(tree.NextAcceptedCommand({1, PowerSource::Id, 0}).IsValid());
+    ASSERT_FALSE(tree.NextAcceptedCommand({kInvalidEndpointId, UnitTesting::Id, 0}).IsValid());
+}
+
 TEST(TestMetadataTree, TestGeneratedCommandsIteration)
 {
     CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
@@ -609,7 +659,7 @@ TEST(TestMetadataTree, TestGeneratedCommandsIteration)
     {
         ConcreteCommandPath path = tree.FirstGeneratedCommand({0, GeneralCommissioning::Id});
 
-        for (auto &id : ExampleClusterOne::kGenerated) {
+        for (auto &id : FakeGeneralCommissioningCluster::kGenerated) {
             EXPECT_EQ(path, ConcreteCommandPath(0, GeneralCommissioning::Id, id));
             path = tree.NextGeneratedCommand(path);
         }
@@ -621,7 +671,7 @@ TEST(TestMetadataTree, TestGeneratedCommandsIteration)
     {
         ConcreteCommandPath path = tree.FirstGeneratedCommand({1, UnitTesting::Id});
 
-        for (auto &id : ExampleClusterTwo::kGenerated) {
+        for (auto &id : FakeUnitTestingCluster::kGenerated) {
             EXPECT_EQ(path, ConcreteCommandPath(1, UnitTesting::Id, id));
             path = tree.NextGeneratedCommand(path);
         }
