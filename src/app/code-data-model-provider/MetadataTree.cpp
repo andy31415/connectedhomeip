@@ -382,8 +382,27 @@ DataModel::AttributeEntry CodeMetadataTree::NextAttribute(const ConcreteAttribut
 
 std::optional<DataModel::AttributeInfo> CodeMetadataTree::GetAttributeInfo(const ConcreteAttributePath & path)
 {
-    // FIXME: implement
-    return std::nullopt;
+    std::optional<size_t> ep_index = FindIndexUsingHint(path.mEndpointId, mEndpoints, mEndpointIndexHint, SameEndpointId);
+    if (!ep_index.has_value())
+    {
+        return std::nullopt;
+    }
+    auto & ep                           = mEndpoints[*ep_index];
+    std::optional<size_t> cluster_index = FindIndexUsingHint(path.mClusterId, ep.serverClusters, mServerClusterHint, SameClusterId);
+    if (!cluster_index.has_value())
+    {
+        return std::nullopt;
+    }
+
+    auto & cluster = ep.serverClusters[*cluster_index];
+    std::optional<size_t> attribute_index =
+        FindIndexUsingHint(path.mAttributeId, cluster.metadata->attributes, mAttributeHint, SameAttributeId);
+    if (!attribute_index.has_value())
+    {
+        return std::nullopt;
+    }
+
+    return AttributeEntryFrom(path, cluster.metadata->attributes[*attribute_index]).info;
 }
 
 DataModel::CommandEntry CodeMetadataTree::FirstAcceptedCommand(const ConcreteClusterPath & cluster)
