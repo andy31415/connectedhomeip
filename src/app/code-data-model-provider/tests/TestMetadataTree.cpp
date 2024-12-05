@@ -618,6 +618,18 @@ TEST(TestMetadataTree, TestGeneratedCommandsIteration)
         ASSERT_FALSE(path.HasValidIds());
     }
 
+    {
+        ConcreteCommandPath path = tree.FirstGeneratedCommand({1, UnitTesting::Id});
+
+        for (auto &id : ExampleClusterTwo::kGenerated) {
+            EXPECT_EQ(path, ConcreteCommandPath(1, UnitTesting::Id, id));
+            path = tree.NextGeneratedCommand(path);
+        }
+
+        // final iteration should end
+        ASSERT_FALSE(path.HasValidIds());
+    }
+
     // some nonsense paths
     ASSERT_FALSE(tree.FirstGeneratedCommand({0, PowerSource::Id}).HasValidIds());
     ASSERT_FALSE(tree.FirstGeneratedCommand({123, GeneralCommissioning::Id}).HasValidIds());
