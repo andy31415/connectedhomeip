@@ -147,6 +147,14 @@ struct ByClientCluster
     static bool Compare(const ClusterId & a, const ClusterId & b) { return a == b; }
 };
 
+struct ByAttribute
+{
+    using Key  = AttributeId;
+    using Type = const Metadata::AttributeMeta;
+    static Span<Type> GetSpan(Metadata::ClusterInstance & v) { return v.metadata->attributes; }
+    static bool Compare(const AttributeId & id, const Metadata::AttributeMeta & meta) { return id == meta.id; }
+};
+
 /// represents a wrapper around a type `T` that contains internal
 /// `Span<...>` values of other sub-types. It allows searching within the container sub-spans
 /// to create new containers.
@@ -204,27 +212,6 @@ public:
 private:
     T * mValue = nullptr; // underlying value, NULL if such a value does not exist
 };
-
-bool SameEndpointId(const EndpointId & id, const Metadata::EndpointInstance & instance)
-{
-    return id == instance.id;
-}
-
-template <typename T>
-bool SameValue(const T & a, const T & b)
-{
-    return a == b;
-}
-
-bool SameClusterId(const ClusterId & id, const Metadata::ClusterInstance & instance)
-{
-    return id == instance.metadata->clusterId;
-}
-
-bool SameAttributeId(const AttributeId & id, const Metadata::AttributeMeta & meta)
-{
-    return id == meta.id;
-}
 
 /// Convert a endpoint instance struct to a datamodel endpoint entry
 DataModel::EndpointEntry EndpointEntryFrom(const Metadata::EndpointInstance & instance)
@@ -409,78 +396,44 @@ ConcreteClusterPath CodeMetadataTree::NextClientCluster(const ConcreteClusterPat
 
 DataModel::AttributeEntry CodeMetadataTree::FirstAttribute(const ConcreteClusterPath & clusterPath)
 {
-    std::optional<size_t> ep_index = FindIndexUsingHint(clusterPath.mEndpointId, mEndpoints, mEndpointIndexHint, SameEndpointId);
-    if (!ep_index.has_value())
-    {
-        return DataModel::AttributeEntry::kInvalid;
-    }
-    auto & ep = mEndpoints[*ep_index];
-    std::optional<size_t> cluster_index =
-        FindIndexUsingHint(clusterPath.mClusterId, ep.serverClusters, mServerClusterHint, SameClusterId);
-    if (!cluster_index.has_value())
-    {
-        return DataModel::AttributeEntry::kInvalid;
-    }
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
 
-    auto & cluster = ep.serverClusters[*cluster_index];
-    if (cluster.metadata->attributes.empty())
-    {
-        return DataModel::AttributeEntry::kInvalid;
-    }
+    const Metadata::AttributeMeta * value = search                                                                 //
+                                                .Find<ByEndpoint>(clusterPath.mEndpointId, mEndpointIndexHint)     //
+                                                .Find<ByServerCluster>(clusterPath.mClusterId, mServerClusterHint) //
+                                                .First<ByAttribute>(mAttributeHint)                                //
+                                                .Value();
 
-    mAttributeHint = 0;
-    return AttributeEntryFrom(clusterPath, cluster.metadata->attributes[0]);
+    return (value == nullptr) ? DataModel::AttributeEntry::kInvalid : AttributeEntryFrom(clusterPath, *value);
 }
 
 DataModel::AttributeEntry CodeMetadataTree::NextAttribute(const ConcreteAttributePath & before)
 {
-    std::optional<size_t> ep_index = FindIndexUsingHint(before.mEndpointId, mEndpoints, mEndpointIndexHint, SameEndpointId);
-    if (!ep_index.has_value())
-    {
-        return DataModel::AttributeEntry::kInvalid;
-    }
-    auto & ep = mEndpoints[*ep_index];
-    std::optional<size_t> cluster_index =
-        FindIndexUsingHint(before.mClusterId, ep.serverClusters, mServerClusterHint, SameClusterId);
-    if (!cluster_index.has_value())
-    {
-        return DataModel::AttributeEntry::kInvalid;
-    }
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
 
-    auto & cluster = ep.serverClusters[*cluster_index];
-    std::optional<size_t> attribute_index =
-        FindNextIndexUsingHint(before.mAttributeId, cluster.metadata->attributes, mAttributeHint, SameAttributeId);
-    if (!attribute_index.has_value())
-    {
-        return DataModel::AttributeEntry::kInvalid;
-    }
+    const Metadata::AttributeMeta * value = search                                                            //
+                                                .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)     //
+                                                .Find<ByServerCluster>(before.mClusterId, mServerClusterHint) //
+                                                .Next<ByAttribute>(before.mAttributeId, mAttributeHint)       //
+                                                .Value();
 
-    return AttributeEntryFrom(before, cluster.metadata->attributes[*attribute_index]);
+    return (value == nullptr) ? DataModel::AttributeEntry::kInvalid : AttributeEntryFrom(before, *value);
 }
 
 std::optional<DataModel::AttributeInfo> CodeMetadataTree::GetAttributeInfo(const ConcreteAttributePath & path)
 {
-    std::optional<size_t> ep_index = FindIndexUsingHint(path.mEndpointId, mEndpoints, mEndpointIndexHint, SameEndpointId);
-    if (!ep_index.has_value())
-    {
-        return std::nullopt;
-    }
-    auto & ep                           = mEndpoints[*ep_index];
-    std::optional<size_t> cluster_index = FindIndexUsingHint(path.mClusterId, ep.serverClusters, mServerClusterHint, SameClusterId);
-    if (!cluster_index.has_value())
-    {
-        return std::nullopt;
-    }
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
 
-    auto & cluster = ep.serverClusters[*cluster_index];
-    std::optional<size_t> attribute_index =
-        FindIndexUsingHint(path.mAttributeId, cluster.metadata->attributes, mAttributeHint, SameAttributeId);
-    if (!attribute_index.has_value())
-    {
-        return std::nullopt;
-    }
+    const Metadata::AttributeMeta * value = search                                                            //
+                                                .Find<ByEndpoint>(path.mEndpointId, mEndpointIndexHint)     //
+                                                .Find<ByServerCluster>(path.mClusterId, mServerClusterHint) //
+                                                .Find<ByAttribute>(path.mAttributeId, mAttributeHint)       //
+                                                .Value();
 
-    return AttributeEntryFrom(path, cluster.metadata->attributes[*attribute_index]).info;
+    return (value == nullptr) ? std::nullopt : std::make_optional(AttributeEntryFrom(path, *value).info);
 }
 
 DataModel::CommandEntry CodeMetadataTree::FirstAcceptedCommand(const ConcreteClusterPath & cluster)
