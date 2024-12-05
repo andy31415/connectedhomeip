@@ -15,13 +15,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app/ConcreteAttributePath.h"
 #include <app/ConcreteClusterPath.h>
 #include <app/ConcreteCommandPath.h>
 #include <app/code-data-model-provider/Metadata.h>
 #include <app/code-data-model-provider/MetadataTree.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <lib/core/DataModelTypes.h>
+
 #include <optional>
+#include <type_traits>
 
 namespace chip {
 namespace app {
@@ -34,7 +37,7 @@ using SemanticTag = Clusters::Descriptor::Structs::SemanticTagStruct::Type;
 /// using `compareFunc` to compare a needle with a haystack value.
 template <typename N, typename H>
 std::optional<size_t> FindIndexUsingHint(const N & needle, Span<H> haystack, size_t & hint,
-                                         bool (*compareFunc)(const N &, const H &))
+                                         bool (*compareFunc)(const N &, const typename std::remove_const<H>::type &))
 {
     if (hint < haystack.size())
     {
@@ -58,7 +61,7 @@ std::optional<size_t> FindIndexUsingHint(const N & needle, Span<H> haystack, siz
 
 template <typename N, typename H>
 std::optional<size_t> FindNextIndexUsingHint(const N & needle, Span<H> haystack, size_t & hint,
-                                             bool (*compareFunc)(const N &, const H &))
+                                             bool (*compareFunc)(const N &, const typename std::remove_const<H>::type &))
 {
     auto idx = FindIndexUsingHint<N, H>(needle, haystack, hint, compareFunc);
     if (!idx.has_value() || (*idx + 1 >= haystack.size()))
@@ -110,6 +113,11 @@ bool SameClusterId(const ClusterId & id, const Metadata::ClusterInstance & insta
     return id == instance.metadata->clusterId;
 }
 
+bool SameAttributeId(const AttributeId & id, const Metadata::AttributeMeta & meta)
+{
+    return id == meta.id;
+}
+
 /// Convert a endpoint instance struct to a datamodel endpoint entry
 DataModel::EndpointEntry EndpointEntryFrom(const Metadata::EndpointInstance & instance)
 {
@@ -126,6 +134,19 @@ DataModel::ClusterEntry ClusterEntryFrom(EndpointId endpointId, const Metadata::
     clusterInfo.flags = instance.metadata->qualities;
 
     return DataModel::ClusterEntry{ .path = ConcreteClusterPath(endpointId, instance.metadata->clusterId), .info = clusterInfo };
+}
+
+DataModel::AttributeEntry AttributeEntryFrom(const ConcreteClusterPath & clusterPath, const Metadata::AttributeMeta & attribute)
+{
+    return DataModel::AttributeEntry{
+        .path = ConcreteAttributePath(clusterPath.mEndpointId, clusterPath.mClusterId, attribute.id),
+        .info =
+            DataModel::AttributeInfo{
+                .flags          = attribute.qualities,
+                .readPrivilege  = Metadata::ReadPrivilege(attribute.privileges),
+                .writePrivilege = Metadata::WritePrivilege(attribute.privileges),
+            },
+    };
 }
 
 } // namespace
@@ -308,16 +329,55 @@ ConcreteClusterPath CodeMetadataTree::NextClientCluster(const ConcreteClusterPat
     return { before.mEndpointId, ep.clientClusters[*idx] };
 }
 
-DataModel::AttributeEntry CodeMetadataTree::FirstAttribute(const ConcreteClusterPath & cluster)
+DataModel::AttributeEntry CodeMetadataTree::FirstAttribute(const ConcreteClusterPath & clusterPath)
 {
-    // FIXME: implement
-    return DataModel::AttributeEntry::kInvalid;
+    std::optional<size_t> ep_index = FindIndexUsingHint(clusterPath.mEndpointId, mEndpoints, mEndpointIndexHint, SameEndpointId);
+    if (!ep_index.has_value())
+    {
+        return DataModel::AttributeEntry::kInvalid;
+    }
+    auto & ep = mEndpoints[*ep_index];
+    std::optional<size_t> cluster_index =
+        FindIndexUsingHint(clusterPath.mClusterId, ep.serverClusters, mServerClusterHint, SameClusterId);
+    if (!cluster_index.has_value())
+    {
+        return DataModel::AttributeEntry::kInvalid;
+    }
+
+    auto & cluster = ep.serverClusters[*cluster_index];
+    if (cluster.metadata->attributes.empty())
+    {
+        return DataModel::AttributeEntry::kInvalid;
+    }
+
+    mAttributeHint = 0;
+    return AttributeEntryFrom(clusterPath, cluster.metadata->attributes[0]);
 }
 
 DataModel::AttributeEntry CodeMetadataTree::NextAttribute(const ConcreteAttributePath & before)
 {
-    // FIXME: implement
-    return DataModel::AttributeEntry::kInvalid;
+    std::optional<size_t> ep_index = FindIndexUsingHint(before.mEndpointId, mEndpoints, mEndpointIndexHint, SameEndpointId);
+    if (!ep_index.has_value())
+    {
+        return DataModel::AttributeEntry::kInvalid;
+    }
+    auto & ep = mEndpoints[*ep_index];
+    std::optional<size_t> cluster_index =
+        FindIndexUsingHint(before.mClusterId, ep.serverClusters, mServerClusterHint, SameClusterId);
+    if (!cluster_index.has_value())
+    {
+        return DataModel::AttributeEntry::kInvalid;
+    }
+
+    auto & cluster = ep.serverClusters[*cluster_index];
+    std::optional<size_t> attribute_index =
+        FindNextIndexUsingHint(before.mAttributeId, cluster.metadata->attributes, mAttributeHint, SameAttributeId);
+    if (!attribute_index.has_value())
+    {
+        return DataModel::AttributeEntry::kInvalid;
+    }
+
+    return AttributeEntryFrom(before, cluster.metadata->attributes[*attribute_index]);
 }
 
 std::optional<DataModel::AttributeInfo> CodeMetadataTree::GetAttributeInfo(const ConcreteAttributePath & path)
