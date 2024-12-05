@@ -15,7 +15,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "app/ConcreteAttributePath.h"
+#include <app/ConcreteAttributePath.h>
 #include <app/ConcreteClusterPath.h>
 #include <app/ConcreteCommandPath.h>
 #include <app/code-data-model-provider/Metadata.h>
@@ -97,6 +97,103 @@ bool operator==(const Metadata::EndpointInstance::SemanticTag & tagA, const Meta
     return (tagA.tag == tagB.tag) && (tagA.mfgCode == tagB.mfgCode) && (tagA.namespaceID == tagB.namespaceID);
 }
 
+struct EndpointsWrapper
+{
+    Span<Metadata::EndpointInstance> endpoints;
+    explicit EndpointsWrapper(Span<Metadata::EndpointInstance> e) : endpoints(e) {}
+};
+
+/// search endpoints by an endpoint ID
+struct ByEndpoint
+{
+    using Key  = EndpointId;
+    using Type = Metadata::EndpointInstance;
+    static Span<Type> GetSpan(EndpointsWrapper & wrapper) { return wrapper.endpoints; }
+    static bool Compare(const EndpointId & id, const Metadata::EndpointInstance & instance) { return id == instance.id; }
+};
+
+struct ByDeviceType
+{
+    using Key  = const DataModel::DeviceTypeEntry;
+    using Type = const DataModel::DeviceTypeEntry;
+    static Span<Type> GetSpan(Metadata::EndpointInstance & v) { return v.deviceTypes; }
+    static bool Compare(const DataModel::DeviceTypeEntry & a, const DataModel::DeviceTypeEntry & b) { return a == b; }
+};
+
+struct BySemanticTag
+{
+    using Key  = const SemanticTag;
+    using Type = const SemanticTag;
+    static Span<Type> GetSpan(Metadata::EndpointInstance & v) { return v.semanticTags; }
+    static bool Compare(const SemanticTag & a, const SemanticTag & b) { return a == b; }
+};
+
+struct ByServerCluster
+{
+    using Key  = ClusterId;
+    using Type = Metadata::ClusterInstance;
+    static Span<Type> GetSpan(Metadata::EndpointInstance & v) { return v.serverClusters; }
+    static bool Compare(const ClusterId & id, const Metadata::ClusterInstance & instance) { return id == instance.metadata->clusterId; }
+};
+
+/// represents a wrapper around a type `T` that contains internal
+/// `Span<...>` values of other sub-types. It allows searching within the container sub-spans
+/// to create new containers.
+///
+/// Use case is that we very often search within a tree, like "find-endpoint" + "find-cluster" + "find-attribute"
+/// and we generally only care if "does the last element exist or not"
+template <typename T>
+class SearchableContainer
+{
+public:
+    explicit SearchableContainer(T * value) : mValue(value) {}
+
+    T * Value() const { return mValue; }
+
+    // Get the first element of `TYPE`
+    template <typename TYPE>
+    SearchableContainer<typename TYPE::Type> First(size_t & indexHint)
+    {
+        // if no value, searching more also yields no value
+        VerifyOrReturnValue(mValue != nullptr, SearchableContainer<typename TYPE::Type>(nullptr));
+
+        Span<typename TYPE::Type> value_span = TYPE::GetSpan(*mValue);
+        VerifyOrReturnValue(!value_span.empty(), SearchableContainer<typename TYPE::Type>(nullptr));
+
+        // found it, save the hint
+        indexHint = 0;
+        return SearchableContainer<typename TYPE::Type>(&value_span[0]);
+    }
+
+    // Find the value for type EXACTLY type
+    template <typename TYPE>
+    SearchableContainer<typename TYPE::Type> Find(typename TYPE::Key key, size_t & indexHint)
+    {
+        VerifyOrReturnValue(mValue != nullptr, SearchableContainer<typename TYPE::Type>(nullptr));
+
+        Span<typename TYPE::Type> value_span = TYPE::GetSpan(*mValue);
+        std::optional<size_t> idx            = FindIndexUsingHint(key, value_span, indexHint, TYPE::Compare);
+
+        VerifyOrReturnValue(idx.has_value(), SearchableContainer<typename TYPE::Type>(nullptr));
+        return SearchableContainer<typename TYPE::Type>(&value_span[*idx]);
+    }
+
+    template <typename TYPE>
+    SearchableContainer<typename TYPE::Type> Next(typename TYPE::Key key, size_t & indexHint)
+    {
+        VerifyOrReturnValue(mValue != nullptr, SearchableContainer<typename TYPE::Type>(nullptr));
+
+        Span<typename TYPE::Type> value_span = TYPE::GetSpan(*mValue);
+        std::optional<size_t> idx            = FindNextIndexUsingHint(key, value_span, indexHint, TYPE::Compare);
+
+        VerifyOrReturnValue(idx.has_value(), SearchableContainer<typename TYPE::Type>(nullptr));
+        return SearchableContainer<typename TYPE::Type>(&value_span[*idx]);
+    }
+
+private:
+    T * mValue = nullptr; // underlying value, NULL if such a value does not exist
+};
+
 bool SameEndpointId(const EndpointId & id, const Metadata::EndpointInstance & instance)
 {
     return id == instance.id;
@@ -153,128 +250,111 @@ DataModel::AttributeEntry AttributeEntryFrom(const ConcreteClusterPath & cluster
 
 DataModel::EndpointEntry CodeMetadataTree::FirstEndpoint()
 {
-    if (mEndpoints.empty())
-    {
-        return DataModel::EndpointEntry::kInvalid;
-    }
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
 
-    return EndpointEntryFrom(mEndpoints[0]);
+    Metadata::EndpointInstance * ep = search.First<ByEndpoint>(mEndpointIndexHint).Value();
+
+    return (ep == nullptr) ? DataModel::EndpointEntry::kInvalid : EndpointEntryFrom(*ep);
 }
 
 DataModel::EndpointEntry CodeMetadataTree::NextEndpoint(EndpointId before)
 {
-    std::optional<size_t> idx = FindNextIndexUsingHint(before, mEndpoints, mEndpointIndexHint, SameEndpointId);
-    return idx.has_value() ? EndpointEntryFrom(mEndpoints[*idx]) : DataModel::EndpointEntry::kInvalid;
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
+
+    Metadata::EndpointInstance * ep = search.Next<ByEndpoint>(before, mEndpointIndexHint).Value();
+
+    return (ep == nullptr) ? DataModel::EndpointEntry::kInvalid : EndpointEntryFrom(*ep);
 }
 
 std::optional<DataModel::EndpointInfo> CodeMetadataTree::GetEndpointInfo(EndpointId id)
 {
-    std::optional<size_t> index = FindIndexUsingHint(id, mEndpoints, mEndpointIndexHint, SameEndpointId);
-    if (!index.has_value())
-    {
-        return std::nullopt;
-    }
-    return EndpointEntryFrom(mEndpoints[*index]).info;
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
+
+    Metadata::EndpointInstance * ep = search.Find<ByEndpoint>(id, mEndpointIndexHint).Value();
+
+    return (ep == nullptr) ? std::nullopt : std::make_optional(EndpointEntryFrom(*ep).info);
 }
 
 std::optional<DataModel::DeviceTypeEntry> CodeMetadataTree::FirstDeviceType(EndpointId endpoint)
 {
-    std::optional<size_t> index = FindIndexUsingHint(endpoint, mEndpoints, mEndpointIndexHint, SameEndpointId);
-    if (!index.has_value())
-    {
-        return std::nullopt;
-    }
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
 
-    auto & ep = mEndpoints[*index];
-    if (ep.deviceTypes.empty())
-    {
-        return std::nullopt;
-    }
+    const DataModel::DeviceTypeEntry * value = search                                              //
+                                                   .Find<ByEndpoint>(endpoint, mEndpointIndexHint) //
+                                                   .First<ByDeviceType>(mDeviceTypeHint)
+                                                   .Value();
 
-    mDeviceTypeHint = 0;
-    return ep.deviceTypes[0];
+    return (value == nullptr) ? std::nullopt : std::make_optional(*value);
 }
 
 std::optional<DataModel::DeviceTypeEntry> CodeMetadataTree::NextDeviceType(EndpointId endpoint,
                                                                            const DataModel::DeviceTypeEntry & previous)
 {
-    std::optional<size_t> ep_index = FindIndexUsingHint(endpoint, mEndpoints, mEndpointIndexHint, SameEndpointId);
-    if (!ep_index.has_value())
-    {
-        return std::nullopt;
-    }
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
 
-    auto & ep = mEndpoints[*ep_index];
+    const DataModel::DeviceTypeEntry * value = search                                              //
+                                                   .Find<ByEndpoint>(endpoint, mEndpointIndexHint) //
+                                                   .Next<ByDeviceType>(previous, mDeviceTypeHint)
+                                                   .Value();
 
-    std::optional<size_t> idx = FindNextIndexUsingHint(previous, ep.deviceTypes, mDeviceTypeHint, SameValue);
-    return idx.has_value() ? std::make_optional(ep.deviceTypes[*idx]) : std::nullopt;
+    return (value == nullptr) ? std::nullopt : std::make_optional(*value);
 }
 
 std::optional<SemanticTag> CodeMetadataTree::GetFirstSemanticTag(EndpointId endpoint)
 {
-    std::optional<size_t> ep_index = FindIndexUsingHint(endpoint, mEndpoints, mEndpointIndexHint, SameEndpointId);
-    if (!ep_index.has_value())
-    {
-        return std::nullopt;
-    }
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
 
-    auto & ep = mEndpoints[*ep_index];
-    if (ep.semanticTags.empty())
-    {
-        return std::nullopt;
-    }
+    const SemanticTag * value = search                                              //
+                                    .Find<ByEndpoint>(endpoint, mEndpointIndexHint) //
+                                    .First<BySemanticTag>(mSemanticTagHint)
+                                    .Value();
 
-    mSemanticTagHint = 0;
-    return ep.semanticTags[0];
+    return (value == nullptr) ? std::nullopt : std::make_optional(*value);
 }
 
 std::optional<SemanticTag> CodeMetadataTree::GetNextSemanticTag(EndpointId endpoint, const SemanticTag & previous)
 {
-    std::optional<size_t> ep_index = FindIndexUsingHint(endpoint, mEndpoints, mEndpointIndexHint, SameEndpointId);
-    if (!ep_index.has_value())
-    {
-        return std::nullopt;
-    }
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
 
-    auto & ep = mEndpoints[*ep_index];
+    const SemanticTag * value = search                                              //
+                                    .Find<ByEndpoint>(endpoint, mEndpointIndexHint) //
+                                    .Next<BySemanticTag>(previous, mSemanticTagHint)
+                                    .Value();
 
-    std::optional<size_t> tagIndex = FindNextIndexUsingHint(previous, ep.semanticTags, mSemanticTagHint, SameValue);
-    return tagIndex.has_value() ? std::make_optional(ep.semanticTags[*tagIndex]) : std::nullopt;
+    return (value == nullptr) ? std::nullopt : std::make_optional(*value);
 }
 
 DataModel::ClusterEntry CodeMetadataTree::FirstServerCluster(EndpointId endpoint)
 {
-    std::optional<size_t> ep_index = FindIndexUsingHint(endpoint, mEndpoints, mEndpointIndexHint, SameEndpointId);
-    if (!ep_index.has_value())
-    {
-        return DataModel::ClusterEntry::kInvalid;
-    }
-    auto & ep = mEndpoints[*ep_index];
-    if (ep.serverClusters.empty())
-    {
-        return DataModel::ClusterEntry::kInvalid;
-    }
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
 
-    mServerClusterHint = 0;
-    return ClusterEntryFrom(endpoint, ep.serverClusters[0]);
+    const Metadata::ClusterInstance * value = search                                              //
+                                                  .Find<ByEndpoint>(endpoint, mEndpointIndexHint) //
+                                                  .First<ByServerCluster>(mServerClusterHint)
+                                                  .Value();
+
+    return (value == nullptr) ? DataModel::ClusterEntry::kInvalid : ClusterEntryFrom(endpoint, *value);
 }
 
 DataModel::ClusterEntry CodeMetadataTree::NextServerCluster(const ConcreteClusterPath & before)
 {
-    std::optional<size_t> ep_index = FindIndexUsingHint(before.mEndpointId, mEndpoints, mEndpointIndexHint, SameEndpointId);
-    if (!ep_index.has_value())
-    {
-        return DataModel::ClusterEntry::kInvalid;
-    }
-    auto & ep = mEndpoints[*ep_index];
-    std::optional<size_t> cluster_index =
-        FindNextIndexUsingHint(before.mClusterId, ep.serverClusters, mServerClusterHint, SameClusterId);
-    if (!cluster_index.has_value())
-    {
-        return DataModel::ClusterEntry::kInvalid;
-    }
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
 
-    return ClusterEntryFrom(before.mEndpointId, ep.serverClusters[*cluster_index]);
+    const Metadata::ClusterInstance * value = search                                                        //
+                                                  .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint) //
+                                                  .Next<ByServerCluster>(before.mClusterId, mServerClusterHint)
+                                                  .Value();
+
+    return (value == nullptr) ? DataModel::ClusterEntry::kInvalid : ClusterEntryFrom(before.mEndpointId, *value);
 }
 
 std::optional<DataModel::ClusterInfo> CodeMetadataTree::GetServerClusterInfo(const ConcreteClusterPath & path)
