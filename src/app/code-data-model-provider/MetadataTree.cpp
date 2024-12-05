@@ -427,7 +427,7 @@ std::optional<DataModel::AttributeInfo> CodeMetadataTree::GetAttributeInfo(const
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
 
-    const Metadata::AttributeMeta * value = search                                                            //
+    const Metadata::AttributeMeta * value = search                                                          //
                                                 .Find<ByEndpoint>(path.mEndpointId, mEndpointIndexHint)     //
                                                 .Find<ByServerCluster>(path.mClusterId, mServerClusterHint) //
                                                 .Find<ByAttribute>(path.mAttributeId, mAttributeHint)       //
