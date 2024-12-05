@@ -558,13 +558,35 @@ TEST(TestMetadataTree, TestAttributeIteration)
     }
 
     // Some invalid fetches
-    ASSERT_FALSE(tree.FirstAttribute({ 1, GeneralCommissioning::Id }).IsValid());
-    ASSERT_FALSE(tree.FirstAttribute({ 100, GeneralCommissioning::Id }).IsValid());
-    ASSERT_FALSE(tree.FirstAttribute({ kInvalidEndpointId, UnitTesting::Id }).IsValid());
+    EXPECT_FALSE(tree.FirstAttribute({ 1, GeneralCommissioning::Id }).IsValid());
+    EXPECT_FALSE(tree.FirstAttribute({ 100, GeneralCommissioning::Id }).IsValid());
+    EXPECT_FALSE(tree.FirstAttribute({ kInvalidEndpointId, UnitTesting::Id }).IsValid());
 
-    ASSERT_FALSE(tree.NextAttribute({ 1, GeneralCommissioning::Id, 0 }).IsValid());
-    ASSERT_FALSE(tree.NextAttribute({ 100, GeneralCommissioning::Id, 1 }).IsValid());
-    ASSERT_FALSE(tree.NextAttribute({ 0, GeneralCommissioning::Id, kInvalidAttributeId }).IsValid());
-    ASSERT_FALSE(tree.NextAttribute({ 0, GeneralCommissioning::Id, 0xBADBAD }).IsValid());
-    ASSERT_FALSE(tree.NextAttribute({ kInvalidEndpointId, UnitTesting::Id, 100 }).IsValid());
+    EXPECT_FALSE(tree.NextAttribute({ 1, GeneralCommissioning::Id, 0 }).IsValid());
+    EXPECT_FALSE(tree.NextAttribute({ 100, GeneralCommissioning::Id, 1 }).IsValid());
+    EXPECT_FALSE(tree.NextAttribute({ 0, GeneralCommissioning::Id, kInvalidAttributeId }).IsValid());
+    EXPECT_FALSE(tree.NextAttribute({ 0, GeneralCommissioning::Id, 0xBADBAD }).IsValid());
+    EXPECT_FALSE(tree.NextAttribute({ kInvalidEndpointId, UnitTesting::Id, 100 }).IsValid());
+}
+
+TEST(TestMetadataTree, TestAttributeInfo)
+{
+    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+
+    // iteration over attributes should be identical with what we have in the metadata
+    for (auto & attr : ExampleClusterTwo::kAttributes)
+    {
+        auto value = tree.GetAttributeInfo({ 1, UnitTesting::Id, attr.id });
+        ASSERT_TRUE(value.has_value());
+        EXPECT_EQ(value->flags, attr.qualities);
+        EXPECT_EQ(value->readPrivilege, ReadPrivilege(attr.privileges));
+        EXPECT_EQ(value->writePrivilege, WritePrivilege(attr.privileges));
+    }
+
+    // invalid attributes should not have info
+    EXPECT_FALSE(tree.GetAttributeInfo({ 1, GeneralCommissioning::Id, 0 }).has_value());
+    EXPECT_FALSE(tree.GetAttributeInfo({ 100, GeneralCommissioning::Id, 1 }).has_value());
+    EXPECT_FALSE(tree.GetAttributeInfo({ 0, GeneralCommissioning::Id, kInvalidAttributeId }).has_value());
+    EXPECT_FALSE(tree.GetAttributeInfo({ 0, GeneralCommissioning::Id, 0xBADBAD }).has_value());
+    EXPECT_FALSE(tree.GetAttributeInfo({ kInvalidEndpointId, UnitTesting::Id, 100 }).has_value());
 }
