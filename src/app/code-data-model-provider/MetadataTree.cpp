@@ -1,4 +1,3 @@
-
 /*
  *    Copyright (c) 2024 Project CHIP Authors
  *    All rights reserved.
@@ -57,19 +56,6 @@ std::optional<size_t> FindIndexUsingHint(const N & needle, Span<H> haystack, siz
     }
 
     return std::nullopt;
-}
-
-template <typename N, typename H>
-std::optional<size_t> FindNextIndexUsingHint(const N & needle, Span<H> haystack, size_t & hint,
-                                             bool (*compareFunc)(const N &, const typename std::remove_const<H>::type &))
-{
-    auto idx = FindIndexUsingHint<N, H>(needle, haystack, hint, compareFunc);
-    if (!idx.has_value() || (*idx + 1 >= haystack.size()))
-    {
-        return std::nullopt;
-    }
-    hint = *idx + 1;
-    return hint;
 }
 
 bool operator==(const Metadata::EndpointInstance::SemanticTag & tagA, const Metadata::EndpointInstance::SemanticTag & tagB)
@@ -227,10 +213,12 @@ public:
         VerifyOrReturnValue(mValue != nullptr, SearchableContainer<typename TYPE::Type>(nullptr));
 
         Span<typename TYPE::Type> value_span = TYPE::GetSpan(*mValue);
-        std::optional<size_t> idx            = FindNextIndexUsingHint(key, value_span, indexHint, TYPE::Compare);
+        std::optional<size_t> idx            = FindIndexUsingHint(key, value_span, indexHint, TYPE::Compare);
 
-        VerifyOrReturnValue(idx.has_value(), SearchableContainer<typename TYPE::Type>(nullptr));
-        return SearchableContainer<typename TYPE::Type>(&value_span[*idx]);
+        VerifyOrReturnValue(idx.has_value() && ((*idx + 1) < value_span.size()), SearchableContainer<typename TYPE::Type>(nullptr));
+
+        indexHint = *idx + 1;
+        return SearchableContainer<typename TYPE::Type>(&value_span[*idx + 1]);
     }
 
 private:
