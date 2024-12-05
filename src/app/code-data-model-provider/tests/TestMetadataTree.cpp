@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app/ConcreteAttributePath.h"
 #include <optional>
 #include <pw_unit_test/framework.h>
 
@@ -41,8 +42,8 @@ namespace {
 // A fake cluster composition based on GeneralCommissioning ids
 namespace ExampleClusterOne {
 
-using namespace Clusters::GeneralCommissioning::Attributes;
-using namespace Clusters::GeneralCommissioning::Commands;
+using namespace GeneralCommissioning::Attributes;
+using namespace GeneralCommissioning::Commands;
 
 constexpr AttributeMeta kAttributes[] = {
     { Breadcrumb::Id, BitFlags<AttributeQualityFlags>(), AttributePrivilege::kRead_View | AttributePrivilege::kWrite_Administer },
@@ -68,7 +69,7 @@ constexpr CommandMeta kAccepted[] = {
 constexpr CommandId kGenerated[] = { ArmFailSafeResponse::Id, SetRegulatoryConfigResponse::Id, CommissioningCompleteResponse::Id };
 
 constexpr ClusterMeta kMeta = {
-    .clusterId         = Clusters::GeneralCommissioning::Id,
+    .clusterId         = GeneralCommissioning::Id,
     .qualities         = BitFlags<DataModel::ClusterQualityFlags>(),
     .attributes        = Span<const AttributeMeta>(kAttributes),
     .acceptedCommands  = Span<const CommandMeta>(kAccepted),
@@ -80,8 +81,8 @@ constexpr ClusterMeta kMeta = {
 // A fake cluster composition based on UnitTesting cluster IDs
 namespace ExampleClusterTwo {
 
-using namespace Clusters::UnitTesting::Attributes;
-using namespace Clusters::UnitTesting::Commands;
+using namespace UnitTesting::Attributes;
+using namespace UnitTesting::Commands;
 
 constexpr AttributeMeta kAttributes[] = {
     { Boolean::Id, BitFlags<AttributeQualityFlags>(), AttributePrivilege::kRead_View | AttributePrivilege::kWrite_Administer },
@@ -109,7 +110,7 @@ constexpr CommandMeta kAccepted[] = {
 constexpr CommandId kGenerated[] = { TestSpecificResponse::Id, TestSimpleArgumentResponse::Id, TestAddArgumentsResponse::Id };
 
 constexpr ClusterMeta kMeta = {
-    .clusterId         = Clusters::UnitTesting::Id,
+    .clusterId         = UnitTesting::Id,
     .qualities         = BitFlags<DataModel::ClusterQualityFlags>(),
     .attributes        = Span<const AttributeMeta>(kAttributes),
     .acceptedCommands  = Span<const CommandMeta>(kAccepted),
@@ -169,8 +170,8 @@ ClusterInstance ep1Clusters[] = { {
 } };
 
 const ClusterId kSomeClientClusters[] = {
-    Clusters::Binding::Id,
-    Clusters::Descriptor::Id,
+    Binding::Id,
+    Descriptor::Id,
 };
 
 EndpointInstance endpoints[] = {
@@ -410,12 +411,12 @@ TEST(TestMetadataTree, TestServerClusterIteration)
     {
         auto value = tree.FirstServerCluster(0);
         EXPECT_TRUE(value.IsValid());
-        EXPECT_EQ(value.path, ConcreteClusterPath(0, Clusters::GeneralCommissioning::Id));
+        EXPECT_EQ(value.path, ConcreteClusterPath(0, GeneralCommissioning::Id));
         EXPECT_EQ(value.info.dataVersion, kVer0);
 
         value = tree.NextServerCluster(value.path);
         EXPECT_TRUE(value.IsValid());
-        EXPECT_EQ(value.path, ConcreteClusterPath(0, Clusters::UnitTesting::Id));
+        EXPECT_EQ(value.path, ConcreteClusterPath(0, UnitTesting::Id));
         EXPECT_EQ(value.info.dataVersion, kVer1);
 
         value = tree.NextServerCluster(value.path);
@@ -425,7 +426,7 @@ TEST(TestMetadataTree, TestServerClusterIteration)
 
         auto value = tree.FirstServerCluster(1);
         EXPECT_TRUE(value.IsValid());
-        EXPECT_EQ(value.path, ConcreteClusterPath(1, Clusters::UnitTesting::Id));
+        EXPECT_EQ(value.path, ConcreteClusterPath(1, UnitTesting::Id));
         EXPECT_EQ(value.info.dataVersion, kVer2);
 
         value = tree.NextServerCluster(value.path);
@@ -445,43 +446,40 @@ TEST(TestMetadataTree, TestServerClusterInfo)
 {
     CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
 
-    auto value = tree.GetServerClusterInfo(ConcreteClusterPath(0, Clusters::GeneralCommissioning::Id));
+    auto value = tree.GetServerClusterInfo(ConcreteClusterPath(0, GeneralCommissioning::Id));
     ASSERT_TRUE(value.has_value());
     EXPECT_EQ(value->dataVersion, kVer0);
 
     // repeat call should be ok
-    value = tree.GetServerClusterInfo(ConcreteClusterPath(0, Clusters::GeneralCommissioning::Id));
+    value = tree.GetServerClusterInfo(ConcreteClusterPath(0, GeneralCommissioning::Id));
     ASSERT_TRUE(value.has_value());
     EXPECT_EQ(value->dataVersion, kVer0);
 
-    value = tree.GetServerClusterInfo(ConcreteClusterPath(0, Clusters::UnitTesting::Id));
+    value = tree.GetServerClusterInfo(ConcreteClusterPath(0, UnitTesting::Id));
     ASSERT_TRUE(value.has_value());
     EXPECT_EQ(value->dataVersion, kVer1);
 
-    value = tree.GetServerClusterInfo(ConcreteClusterPath(1, Clusters::UnitTesting::Id));
+    value = tree.GetServerClusterInfo(ConcreteClusterPath(1, UnitTesting::Id));
     ASSERT_TRUE(value.has_value());
     EXPECT_EQ(value->dataVersion, kVer2);
 
-    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(2, Clusters::UnitTesting::Id)).has_value());
-    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(123, Clusters::UnitTesting::Id)).has_value());
-    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(0xFFFE, Clusters::UnitTesting::Id)).has_value());
-    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(kInvalidEndpointId, Clusters::UnitTesting::Id)).has_value());
-
-    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(0, Clusters::PowerSource::Id)).has_value());
-    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(1, Clusters::AccessControl::Id)).has_value());
-    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(100, Clusters::AccessControl::Id)).has_value());
+    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(2, UnitTesting::Id)).has_value());
+    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(123, UnitTesting::Id)).has_value());
+    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(0xFFFE, PowerSource::Id)).has_value());
+    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(1, AccessControl::Id)).has_value());
+    ASSERT_FALSE(tree.GetServerClusterInfo(ConcreteClusterPath(100, AccessControl::Id)).has_value());
 }
 
-TEST(TestMetadataTree, TestServerClientClustersIteration)
+TEST(TestMetadataTree, TestClientClustersIteration)
 {
     CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
 
     {
         auto value = tree.FirstClientCluster(0);
-        EXPECT_EQ(value, ConcreteClusterPath(0, Clusters::Binding::Id));
+        EXPECT_EQ(value, ConcreteClusterPath(0, Binding::Id));
 
         value = tree.NextClientCluster(value);
-        EXPECT_EQ(value, ConcreteClusterPath(0, Clusters::Descriptor::Id));
+        EXPECT_EQ(value, ConcreteClusterPath(0, Descriptor::Id));
 
         value = tree.NextClientCluster(value);
         EXPECT_EQ(value, ConcreteClusterPath{});
@@ -494,6 +492,70 @@ TEST(TestMetadataTree, TestServerClientClustersIteration)
     EXPECT_EQ(tree.FirstClientCluster(kInvalidEndpointId), ConcreteClusterPath{});
 
     EXPECT_EQ(tree.NextClientCluster({ kInvalidEndpointId, 123 }), ConcreteClusterPath{});
-    EXPECT_EQ(tree.NextClientCluster({ kInvalidEndpointId, Clusters::Binding::Id }), ConcreteClusterPath{});
-    EXPECT_EQ(tree.NextClientCluster({ 100, Clusters::Binding::Id }), ConcreteClusterPath{});
+    EXPECT_EQ(tree.NextClientCluster({ kInvalidEndpointId, Binding::Id }), ConcreteClusterPath{});
+    EXPECT_EQ(tree.NextClientCluster({ 100, Binding::Id }), ConcreteClusterPath{});
+}
+
+TEST(TestMetadataTree, TestAttributeIteration)
+{
+    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+
+    {
+        auto value = tree.FirstAttribute({ 1, UnitTesting::Id });
+
+        // iteration over attributes should be identical with what we have in the metadata
+        for (auto & attr : ExampleClusterTwo::kAttributes)
+        {
+            ASSERT_TRUE(value.IsValid());
+            EXPECT_EQ(value.path, ConcreteAttributePath(1, UnitTesting::Id, attr.id));
+            EXPECT_EQ(value.info.flags, attr.qualities);
+            EXPECT_EQ(value.info.readPrivilege, ReadPrivilege(attr.privileges));
+            EXPECT_EQ(value.info.writePrivilege, WritePrivilege(attr.privileges));
+            value = tree.NextAttribute(value.path);
+        }
+        ASSERT_FALSE(value.IsValid());
+
+        value = tree.FirstAttribute({ 0, GeneralCommissioning::Id });
+
+        // iteration over attributes should be identical with what we have in the metadata
+        for (auto & attr : ExampleClusterOne::kAttributes)
+        {
+            ASSERT_TRUE(value.IsValid());
+            EXPECT_EQ(value.path, ConcreteAttributePath(0, GeneralCommissioning::Id, attr.id));
+            EXPECT_EQ(value.info.flags, attr.qualities);
+            EXPECT_EQ(value.info.readPrivilege, ReadPrivilege(attr.privileges));
+            EXPECT_EQ(value.info.writePrivilege, WritePrivilege(attr.privileges));
+            value = tree.NextAttribute(value.path);
+        }
+        ASSERT_FALSE(value.IsValid());
+    }
+
+    {
+        /// repeat fetching should be ok
+        ASSERT_TRUE(tree.FirstAttribute({ 0, GeneralCommissioning::Id }).IsValid());
+        ASSERT_TRUE(tree.FirstAttribute({ 0, GeneralCommissioning::Id }).IsValid());
+        ASSERT_TRUE(tree.FirstAttribute({ 0, GeneralCommissioning::Id }).IsValid());
+        ASSERT_TRUE(tree.FirstAttribute({ 0, GeneralCommissioning::Id }).IsValid());
+
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id }).IsValid());
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id }).IsValid());
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id }).IsValid());
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id }).IsValid());
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id }).IsValid());
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::Breadcrumb::Id }).IsValid());
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::Breadcrumb::Id }).IsValid());
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::LocationCapability::Id }).IsValid());
+        ASSERT_TRUE(tree.NextAttribute({ 0, GeneralCommissioning::Id, GeneralCommissioning::Attributes::Breadcrumb::Id }).IsValid());
+    }
+
+    // Some invalid fetches
+    ASSERT_FALSE(tree.FirstAttribute({ 1, GeneralCommissioning::Id }).IsValid());
+    ASSERT_FALSE(tree.FirstAttribute({ 100, GeneralCommissioning::Id }).IsValid());
+    ASSERT_FALSE(tree.FirstAttribute({ kInvalidEndpointId, UnitTesting::Id }).IsValid());
+
+    ASSERT_FALSE(tree.NextAttribute({ 1, GeneralCommissioning::Id, 0 }).IsValid());
+    ASSERT_FALSE(tree.NextAttribute({ 100, GeneralCommissioning::Id, 1 }).IsValid());
+    ASSERT_FALSE(tree.NextAttribute({ 0, GeneralCommissioning::Id, kInvalidAttributeId }).IsValid());
+    ASSERT_FALSE(tree.NextAttribute({ 0, GeneralCommissioning::Id, 0xBADBAD }).IsValid());
+    ASSERT_FALSE(tree.NextAttribute({ kInvalidEndpointId, UnitTesting::Id, 100 }).IsValid());
 }
