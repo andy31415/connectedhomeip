@@ -90,9 +90,28 @@ def tree_display_name(name: str) -> list[str]:
 
     # These are C-style methods really, we have no top-level namespaces named
     # like this but still want to see these differently
-    for special_prefix in {"emberAf", "Matter"}:
-        if name.startswith(special_prefix):
-            return [special_prefix, name]
+    # Ember callbacks:
+    if name.startswith("emberAf") and "Callback" in name:
+        return ["emberAf-CALLBACKS", name]
+
+    if name.startswith("emberAf") or name.startswith("emAf"):
+        return ["EMBER", name]
+
+    # also ember names really
+    for s in {
+        "SetParentEndpointForEndpoint",
+        "SetFlatCompositionForEndpoint",
+        "SetTreeCompositionForEndpoint",
+        "IsFlatCompositionForEndpoint",
+        "IsTreeCompositionForEndpoint",
+        "GetCompositionForEndpointIndex",
+        "InitDataModelHandler",
+    }:
+        if s in name:
+            return ["EMBER", name]
+
+    if name.startswith("Matter"):
+        return ["Matter", name]
 
     # If the first element contains a space, it is either within `<>` for templates or it means it is a
     # separator of the type. Try to find the type separator
