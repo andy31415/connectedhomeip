@@ -483,6 +483,7 @@ DataModel::CommandEntry CodeDataModelProvider::NextAcceptedCommand(const Concret
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
 
+    // NOTE: this IGNORES accepted/generated commands list from the commandHandlerInterface
     const Metadata::CommandMeta * value = search                                                                //
                                               .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)         //
                                               .Find<ByServerCluster>(before.mClusterId, mServerClusterHint)     //
@@ -497,6 +498,7 @@ std::optional<DataModel::CommandInfo> CodeDataModelProvider::GetAcceptedCommandI
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
 
+    // NOTE: this IGNORES accepted/generated commands list from the commandHandlerInterface
     const Metadata::CommandMeta * value = search                                                              //
                                               .Find<ByEndpoint>(path.mEndpointId, mEndpointIndexHint)         //
                                               .Find<ByServerCluster>(path.mClusterId, mServerClusterHint)     //
@@ -511,6 +513,7 @@ ConcreteCommandPath CodeDataModelProvider::FirstGeneratedCommand(const ConcreteC
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
 
+    // NOTE: this IGNORES accepted/generated commands list from the commandHandlerInterface
     const CommandId * value = search                                                             //
                                   .Find<ByEndpoint>(cluster.mEndpointId, mEndpointIndexHint)     //
                                   .Find<ByServerCluster>(cluster.mClusterId, mServerClusterHint) //
@@ -525,6 +528,7 @@ ConcreteCommandPath CodeDataModelProvider::NextGeneratedCommand(const ConcreteCo
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
 
+    // NOTE: this IGNORES accepted/generated commands list from the commandHandlerInterface
     const CommandId * value = search                                                                  //
                                   .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)           //
                                   .Find<ByServerCluster>(before.mClusterId, mServerClusterHint)       //

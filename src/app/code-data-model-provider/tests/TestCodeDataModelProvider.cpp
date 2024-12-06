@@ -14,9 +14,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app/AttributeAccessInterface.h"
+#include "app/CommandHandlerInterface.h"
 #include "app/data-model-provider/Context.h"
 #include "app/data-model-provider/ProviderChangeListener.h"
+#include "app/data-model-provider/tests/TestConstants.h"
 #include "lib/core/CHIPError.h"
+#include "lib/core/TLVTypes.h"
 #include <optional>
 #include <pw_unit_test/framework.h>
 
@@ -30,12 +34,15 @@
 #include <app/code-data-model-provider/CodeDataModelProvider.h>
 #include <app/code-data-model-provider/Metadata.h>
 #include <app/data-model-provider/MetadataTypes.h>
+#include <app/data-model-provider/tests/ReadTesting.h>
+#include <app/data-model-provider/tests/WriteTesting.h>
 #include <app/data-model/Nullable.h>
 #include <lib/core/DataModelTypes.h>
 #include <lib/core/Optional.h>
 
 using namespace chip;
 using namespace chip::app;
+using namespace chip::app::Testing;
 using namespace chip::Access;
 using namespace chip::app::Metadata;
 using namespace chip::app::DataModel;
@@ -52,6 +59,32 @@ StatusWithSize ToString<ConcreteCommandPath>(const ConcreteCommandPath & p, pw::
 } // namespace pw
 
 namespace {
+
+/// A handler that uses the attribute/command ID as a number to read/write attributes and invoke. It will:
+///
+/// - READ returns the attribute ID
+/// - WRITE forces ATTRIBUTEID to be the value, otherwise returns CHIP_ERROR_INVALID_ARGUMENT
+/// - INVOKE always succeeds by marking the command handled
+class FakeClusterHandler : public AttributeAccessInterface, public CommandHandlerInterface
+{
+public:
+    FakeClusterHandler() : AttributeAccessInterface(NullOptional, 0), CommandHandlerInterface(NullOptional, 0) {}
+
+    CHIP_ERROR Read(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) override
+    {
+        aEncoder.Encode(aPath.mAttributeId);
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR Write(const ConcreteDataAttributePath & aPath, AttributeValueDecoder & aDecoder) override
+    {
+        AttributeId id;
+        aDecoder.Decode(id);
+
+        return (id == aPath.mAttributeId) ? CHIP_NO_ERROR : CHIP_ERROR_INVALID_ARGUMENT;
+    }
+    void InvokeCommand(HandlerContext & handlerContext) override { handlerContext.SetCommandHandled(); }
+};
 
 // A fake cluster composition based on GeneralCommissioning ids
 namespace FakeGeneralCommissioningCluster {
@@ -159,22 +192,25 @@ const DataModel::DeviceTypeEntry ep0DeviceTypes[] = { { .deviceTypeId = kRootNod
 constexpr DataVersion kVer0 = 123;
 constexpr DataVersion kVer1 = 2222;
 
+FakeClusterHandler gClusterHandler;
+
 ClusterInstance ep0Clusters[] = { {
                                       .dataVersion      = kVer0,
                                       .metadata         = &FakeGeneralCommissioningCluster::kMeta,
-                                      .attributeHandler = nullptr,
-                                      .commandHandler   = nullptr,
+                                      .attributeHandler = &gClusterHandler,
+                                      .commandHandler   = &gClusterHandler,
                                   },
                                   {
                                       .dataVersion      = kVer1,
                                       .metadata         = &FakeUnitTestingCluster::kMeta,
-                                      .attributeHandler = nullptr,
-                                      .commandHandler   = nullptr,
+                                      .attributeHandler = &gClusterHandler,
+                                      .commandHandler   = &gClusterHandler,
                                   } };
 
 const DataModel::DeviceTypeEntry ep1DeviceTypes[] = { { .deviceTypeId = kOnOffLightSwitchDeviceType, .deviceTypeRevision = 1 },
                                                       { .deviceTypeId = kDimmerSwitchDeviceType, .deviceTypeRevision = 1 } };
 
+// EP1 does not have cluster handlers on purpose, to test more error code paths
 constexpr DataVersion kVer2   = 234;
 ClusterInstance ep1Clusters[] = { {
     .dataVersion      = kVer2,
@@ -235,9 +271,7 @@ public:
 
         VerifyOrDie(Startup(context) == CHIP_NO_ERROR);
     }
-    ~TestCodeDataModelProvider() {
-        VerifyOrDie(Shutdown() == CHIP_NO_ERROR);
-    }
+    ~TestCodeDataModelProvider() { VerifyOrDie(Shutdown() == CHIP_NO_ERROR); }
 
     AccumulatingChangeListener mChangeListener;
 };
@@ -816,6 +850,67 @@ TEST(TestMetadataTree, TestTemporaryReportAttributeChanged)
     // invalid paths should not cause problems
     tree.Temporary_ReportAttributeChanged({ 123, UnitTesting::Id, kInvalidAttributeId });
     tree.Temporary_ReportAttributeChanged({ 123, kInvalidClusterId, kInvalidAttributeId });
-    tree.Temporary_ReportAttributeChanged({ kInvalidEndpointId , UnitTesting::Id, kInvalidAttributeId });
-    tree.Temporary_ReportAttributeChanged({ 0 , PowerSource::Id, kInvalidAttributeId });
+    tree.Temporary_ReportAttributeChanged({ kInvalidEndpointId, UnitTesting::Id, kInvalidAttributeId });
+    tree.Temporary_ReportAttributeChanged({ 0, PowerSource::Id, kInvalidAttributeId });
+}
+
+TEST(TestMetadataTree, TestReadAttribute)
+{
+    TestCodeDataModelProvider tree;
+
+    // These tests rely that the fake handlers use the attribute ID as the I/O value for attribute contents
+    // (ignore that GlobalEnum or other IDs actually would have a different type in the spec).
+    {
+        ReadOperation testRequest(0, UnitTesting::Id, UnitTesting::Attributes::GlobalEnum::Id);
+        testRequest.SetSubjectDescriptor(kAdminSubjectDescriptor);
+
+        std::unique_ptr<AttributeValueEncoder> encoder = testRequest.StartEncoding();
+
+        ASSERT_EQ(tree.ReadAttribute(testRequest.GetRequest(), *encoder), CHIP_NO_ERROR);
+        ASSERT_EQ(testRequest.FinishEncoding(), CHIP_NO_ERROR);
+
+        ASSERT_TRUE(encoder->TriedEncode());
+
+        std::vector<DecodedAttributeData> attribute_data;
+        ASSERT_EQ(testRequest.GetEncodedIBs().Decode(attribute_data), CHIP_NO_ERROR);
+        ASSERT_EQ(attribute_data.size(), 1u);
+
+        DecodedAttributeData & encodedData = attribute_data[0];
+        ASSERT_EQ(encodedData.attributePath, testRequest.GetRequest().path);
+
+        // should encode the attribute id
+        ASSERT_EQ(encodedData.dataReader.GetType(), TLV::kTLVType_UnsignedInteger);
+        AttributeId actual;
+        ASSERT_EQ(encodedData.dataReader.Get(actual), CHIP_NO_ERROR);
+        EXPECT_EQ( actual, testRequest.GetRequest().path.mAttributeId);
+    }
+ 
+    /// Test failure cases
+    {
+        ReadOperation testRequest(123, UnitTesting::Id, UnitTesting::Attributes::GlobalEnum::Id);
+        testRequest.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        std::unique_ptr<AttributeValueEncoder> encoder = testRequest.StartEncoding();
+        ASSERT_EQ(tree.ReadAttribute(testRequest.GetRequest(), *encoder), Protocols::InteractionModel::Status::UnsupportedEndpoint);
+    }
+
+    {
+        ReadOperation testRequest(0, PowerSource::Id, UnitTesting::Attributes::GlobalEnum::Id);
+        testRequest.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        std::unique_ptr<AttributeValueEncoder> encoder = testRequest.StartEncoding();
+        ASSERT_EQ(tree.ReadAttribute(testRequest.GetRequest(), *encoder), Protocols::InteractionModel::Status::UnsupportedCluster);
+    }
+    {
+        ReadOperation testRequest(0, UnitTesting::Id, 0x1234FEDC);
+        testRequest.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        std::unique_ptr<AttributeValueEncoder> encoder = testRequest.StartEncoding();
+        ASSERT_EQ(tree.ReadAttribute(testRequest.GetRequest(), *encoder), Protocols::InteractionModel::Status::UnsupportedAttribute);
+    }
+
+    // invalid state path: no attribute handler on ep1
+    {
+        ReadOperation testRequest(1, UnitTesting::Id, UnitTesting::Attributes::GlobalEnum::Id);
+        testRequest.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        std::unique_ptr<AttributeValueEncoder> encoder = testRequest.StartEncoding();
+        ASSERT_EQ(tree.ReadAttribute(testRequest.GetRequest(), *encoder), CHIP_ERROR_INTERNAL);
+    }
 }
