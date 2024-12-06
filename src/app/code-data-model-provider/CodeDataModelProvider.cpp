@@ -37,14 +37,14 @@ using SemanticTag = Clusters::Descriptor::Structs::SemanticTagStruct::Type;
 
 /// Search for the index where `needle` inside `haystack`
 ///
-/// using `compareFunc` to compare a needle with a haystack value.
+/// using `haystackValueMatchesNeedle` to find if a given haystack value matches the given needle
 template <typename N, typename H>
 std::optional<size_t> FindIndexUsingHint(const N & needle, Span<H> haystack, size_t & hint,
-                                         bool (*compareFunc)(const N &, const typename std::remove_const<H>::type &))
+                                         bool (*haystackValueMatchesNeedle)(const N &, const typename std::remove_const<H>::type &))
 {
     if (hint < haystack.size())
     {
-        if (compareFunc(needle, haystack[hint]))
+        if (haystackValueMatchesNeedle(needle, haystack[hint]))
         {
             return hint;
         }
@@ -52,7 +52,7 @@ std::optional<size_t> FindIndexUsingHint(const N & needle, Span<H> haystack, siz
 
     for (size_t i = 0; i < haystack.size(); i++)
     {
-        if (compareFunc(needle, haystack[i]))
+        if (haystackValueMatchesNeedle(needle, haystack[i]))
         {
             hint = i;
             return i;
@@ -99,7 +99,7 @@ struct ByEndpoint
     using Key  = EndpointId;
     using Type = Metadata::EndpointInstance;
     static Span<Type> GetSpan(EndpointsWrapper & wrapper) { return wrapper.endpoints; }
-    static bool Compare(const Key & id, const Type & instance) { return id == instance.id; }
+    static bool HasKey(const Key & id, const Type & instance) { return id == instance.id; }
 };
 
 struct ByDeviceType
@@ -107,7 +107,7 @@ struct ByDeviceType
     using Key  = const DataModel::DeviceTypeEntry;
     using Type = const DataModel::DeviceTypeEntry;
     static Span<Type> GetSpan(Metadata::EndpointInstance & v) { return v.deviceTypes; }
-    static bool Compare(const Key & a, const Type & b) { return a == b; }
+    static bool HasKey(const Key & a, const Type & b) { return a == b; }
 };
 
 struct BySemanticTag
@@ -115,7 +115,7 @@ struct BySemanticTag
     using Key  = const SemanticTag;
     using Type = const SemanticTag;
     static Span<Type> GetSpan(Metadata::EndpointInstance & v) { return v.semanticTags; }
-    static bool Compare(const Key & a, const Type & b) { return a == b; }
+    static bool HasKey(const Key & a, const Type & b) { return a == b; }
 };
 
 struct ByServerCluster
@@ -123,7 +123,7 @@ struct ByServerCluster
     using Key  = ClusterId;
     using Type = Metadata::ClusterInstance;
     static Span<Type> GetSpan(Metadata::EndpointInstance & v) { return v.serverClusters; }
-    static bool Compare(const Key & id, const Type & instance) { return id == instance.metadata->clusterId; }
+    static bool HasKey(const Key & id, const Type & instance) { return id == instance.metadata->clusterId; }
 };
 
 struct ByClientCluster
@@ -131,7 +131,7 @@ struct ByClientCluster
     using Key  = ClusterId;
     using Type = const ClusterId;
     static Span<Type> GetSpan(Metadata::EndpointInstance & v) { return v.clientClusters; }
-    static bool Compare(const Key & a, const Type & b) { return a == b; }
+    static bool HasKey(const Key & a, const Type & b) { return a == b; }
 };
 
 struct ByAttribute
@@ -139,7 +139,7 @@ struct ByAttribute
     using Key  = AttributeId;
     using Type = const Metadata::AttributeMeta;
     static Span<Type> GetSpan(Metadata::ClusterInstance & v) { return v.metadata->attributes; }
-    static bool Compare(const Key & id, const Metadata::AttributeMeta & meta) { return id == meta.id; }
+    static bool HasKey(const Key & id, const Metadata::AttributeMeta & meta) { return id == meta.id; }
 };
 
 struct ByAcceptedCommand
@@ -147,7 +147,7 @@ struct ByAcceptedCommand
     using Key  = CommandId;
     using Type = const Metadata::CommandMeta;
     static Span<Type> GetSpan(Metadata::ClusterInstance & v) { return v.metadata->acceptedCommands; }
-    static bool Compare(const Key & id, const Type & value) { return id == value.id; }
+    static bool HasKey(const Key & id, const Type & value) { return id == value.id; }
 };
 
 struct ByGeneratedCommand
@@ -155,7 +155,7 @@ struct ByGeneratedCommand
     using Key  = CommandId;
     using Type = const CommandId;
     static Span<Type> GetSpan(Metadata::ClusterInstance & v) { return v.metadata->generatedCommands; }
-    static bool Compare(const Key & id, const Type & value) { return id == value; }
+    static bool HasKey(const Key & id, const Type & value) { return id == value; }
 };
 
 /// represents a wrapper around a type `T` that contains internal
@@ -205,7 +205,7 @@ public:
         VerifyOrReturnValue(mValue != nullptr, SearchableContainer<typename TYPE::Type>(nullptr));
 
         Span<typename TYPE::Type> value_span = TYPE::GetSpan(*mValue);
-        std::optional<size_t> idx            = FindIndexUsingHint(key, value_span, indexHint, TYPE::Compare);
+        std::optional<size_t> idx            = FindIndexUsingHint(key, value_span, indexHint, TYPE::HasKey);
 
         VerifyOrReturnValue(idx.has_value(), SearchableContainer<typename TYPE::Type>(nullptr));
         return SearchableContainer<typename TYPE::Type>(&value_span[*idx]);
@@ -217,7 +217,7 @@ public:
         VerifyOrReturnValue(mValue != nullptr, SearchableContainer<typename TYPE::Type>(nullptr));
 
         Span<typename TYPE::Type> value_span = TYPE::GetSpan(*mValue);
-        std::optional<size_t> idx            = FindIndexUsingHint(key, value_span, indexHint, TYPE::Compare);
+        std::optional<size_t> idx            = FindIndexUsingHint(key, value_span, indexHint, TYPE::HasKey);
 
         VerifyOrReturnValue(idx.has_value() && ((*idx + 1) < value_span.size()), SearchableContainer<typename TYPE::Type>(nullptr));
 
