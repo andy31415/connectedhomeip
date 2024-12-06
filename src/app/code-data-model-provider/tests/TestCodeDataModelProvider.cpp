@@ -772,8 +772,10 @@ TEST(TestMetadataTree, TestTemporaryReportAttributeChanged)
         const DataVersion ep1_c0 = ep1Clusters[0].dataVersion;
 
         // change the entire EP1
+        tree.mChangeListener.mRequests.clear();
         tree.Temporary_ReportAttributeChanged({ 1, kInvalidClusterId, kInvalidAttributeId });
 
+        EXPECT_EQ(tree.mChangeListener.mRequests.size(), 1u);
         EXPECT_EQ(ep0Clusters[0].dataVersion, ep0_c0);     // EP0 unaffected
         EXPECT_EQ(ep0Clusters[1].dataVersion, ep0_c1);     // EP0 unaffected
         EXPECT_EQ(ep1Clusters[0].dataVersion, ep1_c0 + 1); // EP1 increased the version
@@ -786,8 +788,10 @@ TEST(TestMetadataTree, TestTemporaryReportAttributeChanged)
         const DataVersion ep1_c0 = ep1Clusters[0].dataVersion;
 
         // change the entire EP1
+        tree.mChangeListener.mRequests.clear();
         tree.Temporary_ReportAttributeChanged({ 0, kInvalidClusterId, kInvalidAttributeId });
 
+        EXPECT_EQ(tree.mChangeListener.mRequests.size(), 1u);
         EXPECT_EQ(ep0Clusters[0].dataVersion, ep0_c0 + 1);
         EXPECT_EQ(ep0Clusters[1].dataVersion, ep0_c1 + 1);
         EXPECT_EQ(ep1Clusters[0].dataVersion, ep1_c0);
@@ -800,8 +804,10 @@ TEST(TestMetadataTree, TestTemporaryReportAttributeChanged)
         const DataVersion ep1_c0 = ep1Clusters[0].dataVersion;
 
         // change the entire EP1
+        tree.mChangeListener.mRequests.clear();
         tree.Temporary_ReportAttributeChanged({ 0, UnitTesting::Id, kInvalidAttributeId });
 
+        EXPECT_EQ(tree.mChangeListener.mRequests.size(), 1u);
         EXPECT_EQ(ep0Clusters[0].dataVersion, ep0_c0);
         EXPECT_EQ(ep0Clusters[1].dataVersion, ep0_c1 + 1); // unit testing is the 2nd cluster
         EXPECT_EQ(ep1Clusters[0].dataVersion, ep1_c0);
