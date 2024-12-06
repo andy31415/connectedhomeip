@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "lib/core/CHIPError.h"
 #include <app/ConcreteAttributePath.h>
 #include <app/ConcreteClusterPath.h>
 #include <app/ConcreteCommandPath.h>
@@ -528,6 +529,29 @@ ConcreteCommandPath CodeDataModelProvider::NextGeneratedCommand(const ConcreteCo
                                   .Value();
 
     return (value == nullptr) ? ConcreteCommandPath() : ConcreteCommandPath(before.mEndpointId, before.mClusterId, *value);
+}
+
+DataModel::ActionReturnStatus CodeDataModelProvider::ReadAttribute(const DataModel::ReadAttributeRequest & request,
+                                                                   AttributeValueEncoder & encoder)
+{
+
+    // FIXME: implement
+    return CHIP_ERROR_NOT_IMPLEMENTED;
+}
+
+DataModel::ActionReturnStatus CodeDataModelProvider::WriteAttribute(const DataModel::WriteAttributeRequest & request,
+                                                                    AttributeValueDecoder & decoder)
+{
+    // FIXME: implement
+    return CHIP_ERROR_NOT_IMPLEMENTED;
+}
+
+std::optional<DataModel::ActionReturnStatus> CodeDataModelProvider::Invoke(const DataModel::InvokeRequest & request,
+                                                                           chip::TLV::TLVReader & input_arguments,
+                                                                           CommandHandler * handler)
+{
+    // FIXME: implement
+    return CHIP_ERROR_NOT_IMPLEMENTED;
 }
 
 } // namespace app

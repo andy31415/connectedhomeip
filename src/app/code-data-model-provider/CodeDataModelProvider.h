@@ -28,7 +28,14 @@ class CodeDataModelProvider : public DataModel::Provider
 public:
     CodeDataModelProvider(Span<Metadata::EndpointInstance> endpoints) : mEndpoints(endpoints) {}
 
-    /////// Implementation of ProviderMetadataTree  /////////
+    /////// Implementation of DataModel::Provider  /////////
+    DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request,
+                                                AttributeValueEncoder & encoder) override;
+    DataModel::ActionReturnStatus WriteAttribute(const DataModel::WriteAttributeRequest & request,
+                                                 AttributeValueDecoder & decoder) override;
+    std::optional<DataModel::ActionReturnStatus> Invoke(const DataModel::InvokeRequest & request,
+                                                        chip::TLV::TLVReader & input_arguments, CommandHandler * handler) override;
+
     using SemanticTag = Clusters::Descriptor::Structs::SemanticTagStruct::Type;
 
     DataModel::EndpointEntry FirstEndpoint() override;
