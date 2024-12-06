@@ -61,6 +61,7 @@ public:
     ConcreteCommandPath NextGeneratedCommand(const ConcreteCommandPath & before) override;
 
     void Temporary_ReportAttributeChanged(const AttributePathParams & path) override;
+
 private:
     Span<Metadata::EndpointInstance> mEndpoints;
     size_t mEndpointIndexHint    = 0;

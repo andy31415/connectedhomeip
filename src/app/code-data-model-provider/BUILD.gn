@@ -16,10 +16,10 @@ import("//build_overrides/chip.gni")
 
 source_set("code-data-model-provider") {
   sources = [
-    "Metadata.cpp",
-    "Metadata.h",
     "CodeDataModelProvider.cpp",
     "CodeDataModelProvider.h",
+    "Metadata.cpp",
+    "Metadata.h",
   ]
 
   public_deps = [
