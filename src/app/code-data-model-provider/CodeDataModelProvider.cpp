@@ -17,8 +17,8 @@
 #include <app/ConcreteAttributePath.h>
 #include <app/ConcreteClusterPath.h>
 #include <app/ConcreteCommandPath.h>
+#include <app/code-data-model-provider/CodeDataModelProvider.h>
 #include <app/code-data-model-provider/Metadata.h>
-#include <app/code-data-model-provider/MetadataTree.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <lib/core/DataModelTypes.h>
 
@@ -314,7 +314,7 @@ std::optional<DataModel::DeviceTypeEntry> CodeDataModelProvider::FirstDeviceType
 }
 
 std::optional<DataModel::DeviceTypeEntry> CodeDataModelProvider::NextDeviceType(EndpointId endpoint,
-                                                                           const DataModel::DeviceTypeEntry & previous)
+                                                                                const DataModel::DeviceTypeEntry & previous)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
