@@ -14,8 +14,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "app/ConcreteAttributePath.h"
-#include "app/ConcreteCommandPath.h"
 #include <optional>
 #include <pw_unit_test/framework.h>
 
@@ -23,9 +21,11 @@
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app-common/zap-generated/ids/Commands.h>
+#include <app/ConcreteAttributePath.h>
 #include <app/ConcreteClusterPath.h>
+#include <app/ConcreteCommandPath.h>
+#include <app/code-data-model-provider/CodeDataModelProvider.h>
 #include <app/code-data-model-provider/Metadata.h>
-#include <app/code-data-model-provider/MetadataTree.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <app/data-model/Nullable.h>
 #include <lib/core/DataModelTypes.h>
@@ -210,7 +210,7 @@ EndpointInstance endpoints[] = {
   //
 TEST(TestMetadataTree, TestEmptyTree)
 {
-    CodeMetadataTree tree((Span<EndpointInstance>()));
+    CodeDataModelProvider tree((Span<EndpointInstance>()));
 
     EXPECT_FALSE(tree.FirstEndpoint().IsValid());
     EXPECT_FALSE(tree.NextEndpoint(0).IsValid());
@@ -226,7 +226,7 @@ TEST(TestMetadataTree, TestEmptyTree)
 
 TEST(TestMetadataTree, TestEndpointIteration)
 {
-    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
 
     /// we encode 2 endpoints here
     EXPECT_EQ(tree.FirstEndpoint().id, 0u);
@@ -255,7 +255,7 @@ TEST(TestMetadataTree, TestEndpointIteration)
 
 TEST(TestMetadataTree, TestEndpointInfo)
 {
-    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
 
     // test that next has ok values
     {
@@ -295,7 +295,7 @@ TEST(TestMetadataTree, TestEndpointInfo)
 
 TEST(TestMetadataTree, TestDeviceTypes)
 {
-    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
 
     {
         auto value = tree.FirstDeviceType(0);
@@ -352,7 +352,7 @@ TEST(TestMetadataTree, TestDeviceTypes)
 
 TEST(TestMetadataTree, TestSemanticTags)
 {
-    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
 
     // no semantic tags set on root
     EXPECT_FALSE(tree.GetFirstSemanticTag(0).has_value());
@@ -417,7 +417,7 @@ TEST(TestMetadataTree, TestSemanticTags)
 
 TEST(TestMetadataTree, TestServerClusterIteration)
 {
-    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
 
     {
         auto value = tree.FirstServerCluster(0);
@@ -455,7 +455,7 @@ TEST(TestMetadataTree, TestServerClusterIteration)
 
 TEST(TestMetadataTree, TestServerClusterInfo)
 {
-    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
 
     auto value = tree.GetServerClusterInfo(ConcreteClusterPath(0, GeneralCommissioning::Id));
     ASSERT_TRUE(value.has_value());
@@ -483,7 +483,7 @@ TEST(TestMetadataTree, TestServerClusterInfo)
 
 TEST(TestMetadataTree, TestClientClustersIteration)
 {
-    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
 
     {
         auto value = tree.FirstClientCluster(0);
@@ -509,7 +509,7 @@ TEST(TestMetadataTree, TestClientClustersIteration)
 
 TEST(TestMetadataTree, TestAttributeIteration)
 {
-    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
 
     {
         auto value = tree.FirstAttribute({ 1, UnitTesting::Id });
@@ -582,7 +582,7 @@ TEST(TestMetadataTree, TestAttributeIteration)
 
 TEST(TestMetadataTree, TestAttributeInfo)
 {
-    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
 
     // iteration over attributes should be identical with what we have in the metadata
     for (auto & attr : FakeUnitTestingCluster::kAttributes)
@@ -604,7 +604,7 @@ TEST(TestMetadataTree, TestAttributeInfo)
 
 TEST(TestMetadataTree, TestAcceptedCommandsIteration)
 {
-    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
 
     {
         DataModel::CommandEntry entry = tree.FirstAcceptedCommand({ 0, GeneralCommissioning::Id });
@@ -655,7 +655,7 @@ TEST(TestMetadataTree, TestAcceptedCommandsIteration)
 
 TEST(TestMetadataTree, TestAcceptedCommandInfo)
 {
-    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
 
     std::optional<DataModel::CommandInfo> info =
         tree.GetAcceptedCommandInfo({ 0, GeneralCommissioning::Id, GeneralCommissioning::Commands::ArmFailSafe::Id });
@@ -680,7 +680,7 @@ TEST(TestMetadataTree, TestAcceptedCommandInfo)
 
 TEST(TestMetadataTree, TestGeneratedCommandsIteration)
 {
-    CodeMetadataTree tree((Span<EndpointInstance>(endpoints)));
+    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
 
     {
         ConcreteCommandPath path = tree.FirstGeneratedCommand({ 0, GeneralCommissioning::Id });

@@ -270,7 +270,7 @@ DataModel::CommandEntry CommandEntryFrom(const ConcreteClusterPath clusterPath, 
 
 } // namespace
 
-DataModel::EndpointEntry CodeMetadataTree::FirstEndpoint()
+DataModel::EndpointEntry CodeDataModelProvider::FirstEndpoint()
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -280,7 +280,7 @@ DataModel::EndpointEntry CodeMetadataTree::FirstEndpoint()
     return (ep == nullptr) ? DataModel::EndpointEntry::kInvalid : EndpointEntryFrom(*ep);
 }
 
-DataModel::EndpointEntry CodeMetadataTree::NextEndpoint(EndpointId before)
+DataModel::EndpointEntry CodeDataModelProvider::NextEndpoint(EndpointId before)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -290,7 +290,7 @@ DataModel::EndpointEntry CodeMetadataTree::NextEndpoint(EndpointId before)
     return (ep == nullptr) ? DataModel::EndpointEntry::kInvalid : EndpointEntryFrom(*ep);
 }
 
-std::optional<DataModel::EndpointInfo> CodeMetadataTree::GetEndpointInfo(EndpointId id)
+std::optional<DataModel::EndpointInfo> CodeDataModelProvider::GetEndpointInfo(EndpointId id)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -300,7 +300,7 @@ std::optional<DataModel::EndpointInfo> CodeMetadataTree::GetEndpointInfo(Endpoin
     return (ep == nullptr) ? std::nullopt : std::make_optional(EndpointEntryFrom(*ep).info);
 }
 
-std::optional<DataModel::DeviceTypeEntry> CodeMetadataTree::FirstDeviceType(EndpointId endpoint)
+std::optional<DataModel::DeviceTypeEntry> CodeDataModelProvider::FirstDeviceType(EndpointId endpoint)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -313,7 +313,7 @@ std::optional<DataModel::DeviceTypeEntry> CodeMetadataTree::FirstDeviceType(Endp
     return (value == nullptr) ? std::nullopt : std::make_optional(*value);
 }
 
-std::optional<DataModel::DeviceTypeEntry> CodeMetadataTree::NextDeviceType(EndpointId endpoint,
+std::optional<DataModel::DeviceTypeEntry> CodeDataModelProvider::NextDeviceType(EndpointId endpoint,
                                                                            const DataModel::DeviceTypeEntry & previous)
 {
     EndpointsWrapper wrapper(mEndpoints);
@@ -327,7 +327,7 @@ std::optional<DataModel::DeviceTypeEntry> CodeMetadataTree::NextDeviceType(Endpo
     return (value == nullptr) ? std::nullopt : std::make_optional(*value);
 }
 
-std::optional<SemanticTag> CodeMetadataTree::GetFirstSemanticTag(EndpointId endpoint)
+std::optional<SemanticTag> CodeDataModelProvider::GetFirstSemanticTag(EndpointId endpoint)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -340,7 +340,7 @@ std::optional<SemanticTag> CodeMetadataTree::GetFirstSemanticTag(EndpointId endp
     return (value == nullptr) ? std::nullopt : std::make_optional(*value);
 }
 
-std::optional<SemanticTag> CodeMetadataTree::GetNextSemanticTag(EndpointId endpoint, const SemanticTag & previous)
+std::optional<SemanticTag> CodeDataModelProvider::GetNextSemanticTag(EndpointId endpoint, const SemanticTag & previous)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -353,7 +353,7 @@ std::optional<SemanticTag> CodeMetadataTree::GetNextSemanticTag(EndpointId endpo
     return (value == nullptr) ? std::nullopt : std::make_optional(*value);
 }
 
-DataModel::ClusterEntry CodeMetadataTree::FirstServerCluster(EndpointId endpoint)
+DataModel::ClusterEntry CodeDataModelProvider::FirstServerCluster(EndpointId endpoint)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -366,7 +366,7 @@ DataModel::ClusterEntry CodeMetadataTree::FirstServerCluster(EndpointId endpoint
     return (value == nullptr) ? DataModel::ClusterEntry::kInvalid : ClusterEntryFrom(endpoint, *value);
 }
 
-DataModel::ClusterEntry CodeMetadataTree::NextServerCluster(const ConcreteClusterPath & before)
+DataModel::ClusterEntry CodeDataModelProvider::NextServerCluster(const ConcreteClusterPath & before)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -379,7 +379,7 @@ DataModel::ClusterEntry CodeMetadataTree::NextServerCluster(const ConcreteCluste
     return (value == nullptr) ? DataModel::ClusterEntry::kInvalid : ClusterEntryFrom(before.mEndpointId, *value);
 }
 
-std::optional<DataModel::ClusterInfo> CodeMetadataTree::GetServerClusterInfo(const ConcreteClusterPath & path)
+std::optional<DataModel::ClusterInfo> CodeDataModelProvider::GetServerClusterInfo(const ConcreteClusterPath & path)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -392,7 +392,7 @@ std::optional<DataModel::ClusterInfo> CodeMetadataTree::GetServerClusterInfo(con
     return (value == nullptr) ? std::nullopt : std::make_optional(ClusterEntryFrom(path.mEndpointId, *value).info);
 }
 
-ConcreteClusterPath CodeMetadataTree::FirstClientCluster(EndpointId endpoint)
+ConcreteClusterPath CodeDataModelProvider::FirstClientCluster(EndpointId endpoint)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -405,7 +405,7 @@ ConcreteClusterPath CodeMetadataTree::FirstClientCluster(EndpointId endpoint)
     return (value == nullptr) ? ConcreteClusterPath() : ConcreteClusterPath(endpoint, *value);
 }
 
-ConcreteClusterPath CodeMetadataTree::NextClientCluster(const ConcreteClusterPath & before)
+ConcreteClusterPath CodeDataModelProvider::NextClientCluster(const ConcreteClusterPath & before)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -418,7 +418,7 @@ ConcreteClusterPath CodeMetadataTree::NextClientCluster(const ConcreteClusterPat
     return (value == nullptr) ? ConcreteClusterPath() : ConcreteClusterPath(before.mEndpointId, *value);
 }
 
-DataModel::AttributeEntry CodeMetadataTree::FirstAttribute(const ConcreteClusterPath & clusterPath)
+DataModel::AttributeEntry CodeDataModelProvider::FirstAttribute(const ConcreteClusterPath & clusterPath)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -432,7 +432,7 @@ DataModel::AttributeEntry CodeMetadataTree::FirstAttribute(const ConcreteCluster
     return (value == nullptr) ? DataModel::AttributeEntry::kInvalid : AttributeEntryFrom(clusterPath, *value);
 }
 
-DataModel::AttributeEntry CodeMetadataTree::NextAttribute(const ConcreteAttributePath & before)
+DataModel::AttributeEntry CodeDataModelProvider::NextAttribute(const ConcreteAttributePath & before)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -446,7 +446,7 @@ DataModel::AttributeEntry CodeMetadataTree::NextAttribute(const ConcreteAttribut
     return (value == nullptr) ? DataModel::AttributeEntry::kInvalid : AttributeEntryFrom(before, *value);
 }
 
-std::optional<DataModel::AttributeInfo> CodeMetadataTree::GetAttributeInfo(const ConcreteAttributePath & path)
+std::optional<DataModel::AttributeInfo> CodeDataModelProvider::GetAttributeInfo(const ConcreteAttributePath & path)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -460,7 +460,7 @@ std::optional<DataModel::AttributeInfo> CodeMetadataTree::GetAttributeInfo(const
     return (value == nullptr) ? std::nullopt : std::make_optional(AttributeEntryFrom(path, *value).info);
 }
 
-DataModel::CommandEntry CodeMetadataTree::FirstAcceptedCommand(const ConcreteClusterPath & cluster)
+DataModel::CommandEntry CodeDataModelProvider::FirstAcceptedCommand(const ConcreteClusterPath & cluster)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -474,7 +474,7 @@ DataModel::CommandEntry CodeMetadataTree::FirstAcceptedCommand(const ConcreteClu
     return (value == nullptr) ? DataModel::CommandEntry::kInvalid : CommandEntryFrom(cluster, *value);
 }
 
-DataModel::CommandEntry CodeMetadataTree::NextAcceptedCommand(const ConcreteCommandPath & before)
+DataModel::CommandEntry CodeDataModelProvider::NextAcceptedCommand(const ConcreteCommandPath & before)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -488,7 +488,7 @@ DataModel::CommandEntry CodeMetadataTree::NextAcceptedCommand(const ConcreteComm
     return (value == nullptr) ? DataModel::CommandEntry::kInvalid : CommandEntryFrom(before, *value);
 }
 
-std::optional<DataModel::CommandInfo> CodeMetadataTree::GetAcceptedCommandInfo(const ConcreteCommandPath & path)
+std::optional<DataModel::CommandInfo> CodeDataModelProvider::GetAcceptedCommandInfo(const ConcreteCommandPath & path)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -502,7 +502,7 @@ std::optional<DataModel::CommandInfo> CodeMetadataTree::GetAcceptedCommandInfo(c
     return (value == nullptr) ? std::nullopt : std::make_optional(CommandEntryFrom(path, *value).info);
 }
 
-ConcreteCommandPath CodeMetadataTree::FirstGeneratedCommand(const ConcreteClusterPath & cluster)
+ConcreteCommandPath CodeDataModelProvider::FirstGeneratedCommand(const ConcreteClusterPath & cluster)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);
@@ -516,7 +516,7 @@ ConcreteCommandPath CodeMetadataTree::FirstGeneratedCommand(const ConcreteCluste
     return (value == nullptr) ? ConcreteCommandPath() : ConcreteCommandPath(cluster.mEndpointId, cluster.mClusterId, *value);
 }
 
-ConcreteCommandPath CodeMetadataTree::NextGeneratedCommand(const ConcreteCommandPath & before)
+ConcreteCommandPath CodeDataModelProvider::NextGeneratedCommand(const ConcreteCommandPath & before)
 {
     EndpointsWrapper wrapper(mEndpoints);
     SearchableContainer<EndpointsWrapper> search(&wrapper);

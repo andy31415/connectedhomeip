@@ -17,16 +17,16 @@
 #pragma once
 
 #include <app/code-data-model-provider/Metadata.h>
-#include <app/data-model-provider/MetadataTypes.h>
+#include <app/data-model-provider/Provider.h>
 #include <lib/support/Span.h>
 
 namespace chip {
 namespace app {
 
-class CodeMetadataTree : public DataModel::ProviderMetadataTree
+class CodeDataModelProvider : public DataModel::Provider
 {
 public:
-    CodeMetadataTree(Span<Metadata::EndpointInstance> endpoints) : mEndpoints(endpoints) {}
+    CodeDataModelProvider(Span<Metadata::EndpointInstance> endpoints) : mEndpoints(endpoints) {}
 
     /////// Implementation of ProviderMetadataTree  /////////
     using SemanticTag = Clusters::Descriptor::Structs::SemanticTagStruct::Type;
