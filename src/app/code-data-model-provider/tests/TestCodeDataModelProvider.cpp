@@ -882,9 +882,9 @@ TEST(TestMetadataTree, TestReadAttribute)
         ASSERT_EQ(encodedData.dataReader.GetType(), TLV::kTLVType_UnsignedInteger);
         AttributeId actual;
         ASSERT_EQ(encodedData.dataReader.Get(actual), CHIP_NO_ERROR);
-        EXPECT_EQ( actual, testRequest.GetRequest().path.mAttributeId);
+        EXPECT_EQ(actual, testRequest.GetRequest().path.mAttributeId);
     }
- 
+
     /// Test failure cases
     {
         ReadOperation testRequest(123, UnitTesting::Id, UnitTesting::Attributes::GlobalEnum::Id);
@@ -903,7 +903,8 @@ TEST(TestMetadataTree, TestReadAttribute)
         ReadOperation testRequest(0, UnitTesting::Id, 0x1234FEDC);
         testRequest.SetSubjectDescriptor(kAdminSubjectDescriptor);
         std::unique_ptr<AttributeValueEncoder> encoder = testRequest.StartEncoding();
-        ASSERT_EQ(tree.ReadAttribute(testRequest.GetRequest(), *encoder), Protocols::InteractionModel::Status::UnsupportedAttribute);
+        ASSERT_EQ(tree.ReadAttribute(testRequest.GetRequest(), *encoder),
+                  Protocols::InteractionModel::Status::UnsupportedAttribute);
     }
 
     // invalid state path: no attribute handler on ep1
