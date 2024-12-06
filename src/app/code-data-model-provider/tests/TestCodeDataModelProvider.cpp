@@ -968,3 +968,28 @@ TEST(TestMetadataTree, TestWriteAttribute)
         ASSERT_EQ(tree.WriteAttribute(testRequest.GetRequest(), decoder), CHIP_ERROR_INTERNAL);
     }
 }
+
+TEST(TestMetadataTree, TestInvoke)
+{
+    TestCodeDataModelProvider tree;
+
+    // a successful invoke
+    {
+        const ConcreteCommandPath kCommandPath(0, UnitTesting::Id, UnitTesting::Commands::Test::Id);
+        const InvokeRequest kInvokeRequest{ .path = kCommandPath };
+        chip::TLV::TLVReader tlvReader;
+
+        ASSERT_EQ(tree.Invoke(kInvokeRequest, tlvReader /* inputArguments */, nullptr /* handler */), std::nullopt);
+    }
+
+    // error case: cluster 1 has no command handler
+    {
+        const ConcreteCommandPath kCommandPath(1, UnitTesting::Id, UnitTesting::Commands::Test::Id);
+        const InvokeRequest kInvokeRequest{ .path = kCommandPath };
+        chip::TLV::TLVReader tlvReader;
+
+        ASSERT_EQ(tree.Invoke(kInvokeRequest, tlvReader /* inputArguments */, nullptr /* handler */), CHIP_ERROR_INTERNAL);
+    }
+
+    // various invalid paths
+}
