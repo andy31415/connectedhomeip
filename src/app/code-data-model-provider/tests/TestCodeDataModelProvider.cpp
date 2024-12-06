@@ -14,6 +14,9 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app/data-model-provider/Context.h"
+#include "app/data-model-provider/ProviderChangeListener.h"
+#include "lib/core/CHIPError.h"
 #include <optional>
 #include <pw_unit_test/framework.h>
 
@@ -185,7 +188,7 @@ const ClusterId kSomeClientClusters[] = {
     Descriptor::Id,
 };
 
-EndpointInstance endpoints[] = {
+EndpointInstance gTestEndpoints[] = {
     {
         .id                  = 0,
         .deviceTypes         = Span<const DataModel::DeviceTypeEntry>(ep0DeviceTypes),
@@ -204,6 +207,39 @@ EndpointInstance endpoints[] = {
         .parentEndpointId    = 0,
         .endpointComposition = DataModel::EndpointCompositionPattern::kTree,
     },
+};
+
+class AccumulatingChangeListener : public DataModel::ProviderChangeListener
+{
+public:
+    void MarkDirty(const AttributePathParams & path) override { mRequests.push_back(path); }
+    std::vector<AttributePathParams> mRequests;
+};
+
+/// A wrapper for CodeDataModelProvider to initialize it for testing
+///
+/// Sets up global endpoints and starts it up with an appropriate context.
+class TestCodeDataModelProvider : public CodeDataModelProvider
+{
+public:
+    TestCodeDataModelProvider() : CodeDataModelProvider(Span<EndpointInstance>(gTestEndpoints))
+    {
+        InteractionModelContext context;
+
+        // our mark dirty tests use this
+        context.dataModelChangeListener = &mChangeListener;
+
+        // These do not impact the provider functionality for our tests
+        context.eventsGenerator = nullptr;
+        context.actionContext   = nullptr;
+
+        VerifyOrDie(Startup(context) == CHIP_NO_ERROR);
+    }
+    ~TestCodeDataModelProvider() {
+        VerifyOrDie(Shutdown() == CHIP_NO_ERROR);
+    }
+
+    AccumulatingChangeListener mChangeListener;
 };
 
 } // namespace
@@ -226,7 +262,7 @@ TEST(TestMetadataTree, TestEmptyTree)
 
 TEST(TestMetadataTree, TestEndpointIteration)
 {
-    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
+    TestCodeDataModelProvider tree;
 
     /// we encode 2 endpoints here
     EXPECT_EQ(tree.FirstEndpoint().id, 0u);
@@ -255,7 +291,7 @@ TEST(TestMetadataTree, TestEndpointIteration)
 
 TEST(TestMetadataTree, TestEndpointInfo)
 {
-    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
+    TestCodeDataModelProvider tree;
 
     // test that next has ok values
     {
@@ -295,7 +331,7 @@ TEST(TestMetadataTree, TestEndpointInfo)
 
 TEST(TestMetadataTree, TestDeviceTypes)
 {
-    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
+    TestCodeDataModelProvider tree;
 
     {
         auto value = tree.FirstDeviceType(0);
@@ -352,7 +388,7 @@ TEST(TestMetadataTree, TestDeviceTypes)
 
 TEST(TestMetadataTree, TestSemanticTags)
 {
-    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
+    TestCodeDataModelProvider tree;
 
     // no semantic tags set on root
     EXPECT_FALSE(tree.GetFirstSemanticTag(0).has_value());
@@ -417,7 +453,7 @@ TEST(TestMetadataTree, TestSemanticTags)
 
 TEST(TestMetadataTree, TestServerClusterIteration)
 {
-    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
+    TestCodeDataModelProvider tree;
 
     {
         auto value = tree.FirstServerCluster(0);
@@ -455,7 +491,7 @@ TEST(TestMetadataTree, TestServerClusterIteration)
 
 TEST(TestMetadataTree, TestServerClusterInfo)
 {
-    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
+    TestCodeDataModelProvider tree;
 
     auto value = tree.GetServerClusterInfo(ConcreteClusterPath(0, GeneralCommissioning::Id));
     ASSERT_TRUE(value.has_value());
@@ -483,7 +519,7 @@ TEST(TestMetadataTree, TestServerClusterInfo)
 
 TEST(TestMetadataTree, TestClientClustersIteration)
 {
-    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
+    TestCodeDataModelProvider tree;
 
     {
         auto value = tree.FirstClientCluster(0);
@@ -509,7 +545,7 @@ TEST(TestMetadataTree, TestClientClustersIteration)
 
 TEST(TestMetadataTree, TestAttributeIteration)
 {
-    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
+    TestCodeDataModelProvider tree;
 
     {
         auto value = tree.FirstAttribute({ 1, UnitTesting::Id });
@@ -582,7 +618,7 @@ TEST(TestMetadataTree, TestAttributeIteration)
 
 TEST(TestMetadataTree, TestAttributeInfo)
 {
-    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
+    TestCodeDataModelProvider tree;
 
     // iteration over attributes should be identical with what we have in the metadata
     for (auto & attr : FakeUnitTestingCluster::kAttributes)
@@ -604,7 +640,7 @@ TEST(TestMetadataTree, TestAttributeInfo)
 
 TEST(TestMetadataTree, TestAcceptedCommandsIteration)
 {
-    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
+    TestCodeDataModelProvider tree;
 
     {
         DataModel::CommandEntry entry = tree.FirstAcceptedCommand({ 0, GeneralCommissioning::Id });
@@ -655,7 +691,7 @@ TEST(TestMetadataTree, TestAcceptedCommandsIteration)
 
 TEST(TestMetadataTree, TestAcceptedCommandInfo)
 {
-    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
+    TestCodeDataModelProvider tree;
 
     std::optional<DataModel::CommandInfo> info =
         tree.GetAcceptedCommandInfo({ 0, GeneralCommissioning::Id, GeneralCommissioning::Commands::ArmFailSafe::Id });
@@ -680,7 +716,7 @@ TEST(TestMetadataTree, TestAcceptedCommandInfo)
 
 TEST(TestMetadataTree, TestGeneratedCommandsIteration)
 {
-    CodeDataModelProvider tree((Span<EndpointInstance>(endpoints)));
+    TestCodeDataModelProvider tree;
 
     {
         ConcreteCommandPath path = tree.FirstGeneratedCommand({ 0, GeneralCommissioning::Id });
@@ -723,4 +759,51 @@ TEST(TestMetadataTree, TestGeneratedCommandsIteration)
             .HasValidIds());
     ASSERT_FALSE(
         tree.NextGeneratedCommand({ 0, kInvalidClusterId, GeneralCommissioning::Commands::ArmFailSafe::Id }).HasValidIds());
+}
+
+TEST(TestMetadataTree, TestTemporaryReportAttributeChanged)
+{
+    TestCodeDataModelProvider tree;
+
+    // wildcard change
+    {
+        const DataVersion ep0_c0 = ep0Clusters[0].dataVersion;
+        const DataVersion ep0_c1 = ep0Clusters[1].dataVersion;
+        const DataVersion ep1_c0 = ep1Clusters[0].dataVersion;
+
+        // change the entire EP1
+        tree.Temporary_ReportAttributeChanged({ 1, kInvalidClusterId, kInvalidAttributeId });
+
+        EXPECT_EQ(ep0Clusters[0].dataVersion, ep0_c0);     // EP0 unaffected
+        EXPECT_EQ(ep0Clusters[0].dataVersion, ep0_c1);     // EP0 unaffected
+        EXPECT_EQ(ep1Clusters[0].dataVersion, ep1_c0 + 1); // EP1 increased the version
+    }
+
+    // wildcard multiple clusters
+    {
+        const DataVersion ep0_c0 = ep0Clusters[0].dataVersion;
+        const DataVersion ep0_c1 = ep0Clusters[1].dataVersion;
+        const DataVersion ep1_c0 = ep1Clusters[0].dataVersion;
+
+        // change the entire EP1
+        tree.Temporary_ReportAttributeChanged({ 0, kInvalidClusterId, kInvalidAttributeId });
+
+        EXPECT_EQ(ep0Clusters[0].dataVersion, ep0_c0 + 1);
+        EXPECT_EQ(ep0Clusters[0].dataVersion, ep0_c1 + 1);
+        EXPECT_EQ(ep1Clusters[0].dataVersion, ep1_c0);
+    }
+
+    // explicit cluster change
+    {
+        const DataVersion ep0_c0 = ep0Clusters[0].dataVersion;
+        const DataVersion ep0_c1 = ep0Clusters[1].dataVersion;
+        const DataVersion ep1_c0 = ep1Clusters[0].dataVersion;
+
+        // change the entire EP1
+        tree.Temporary_ReportAttributeChanged({ 0, UnitTesting::Id, kInvalidAttributeId });
+
+        EXPECT_EQ(ep0Clusters[0].dataVersion, ep0_c0);
+        EXPECT_EQ(ep0Clusters[0].dataVersion, ep0_c1 + 1); // unit testing is the 2nd cluster
+        EXPECT_EQ(ep1Clusters[0].dataVersion, ep1_c0);
+    }
 }
