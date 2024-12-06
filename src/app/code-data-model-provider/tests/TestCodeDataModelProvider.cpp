@@ -83,7 +83,15 @@ public:
 
         return (id == aPath.mAttributeId) ? CHIP_NO_ERROR : CHIP_ERROR_INVALID_ARGUMENT;
     }
-    void InvokeCommand(HandlerContext & handlerContext) override { handlerContext.SetCommandHandled(); }
+    void InvokeCommand(HandlerContext & handlerContext) override
+    {
+        if ((handlerContext.mRequestPath.mClusterId == UnitTesting::Id) &&
+            (handlerContext.mRequestPath.mCommandId == UnitTesting::Commands::TestNotHandled::Id))
+        {
+            return;
+        }
+        handlerContext.SetCommandHandled();
+    }
 };
 
 // A fake cluster composition based on GeneralCommissioning ids
@@ -973,23 +981,51 @@ TEST(TestMetadataTree, TestInvoke)
 {
     TestCodeDataModelProvider tree;
 
+    chip::TLV::TLVReader input_args;
+
     // a successful invoke
     {
         const ConcreteCommandPath kCommandPath(0, UnitTesting::Id, UnitTesting::Commands::Test::Id);
         const InvokeRequest kInvokeRequest{ .path = kCommandPath };
-        chip::TLV::TLVReader tlvReader;
 
-        ASSERT_EQ(tree.Invoke(kInvokeRequest, tlvReader /* inputArguments */, nullptr /* handler */), std::nullopt);
+        // Success is marked by returning "status will be handled by something else"
+        ASSERT_EQ(tree.Invoke(kInvokeRequest, input_args, nullptr /* handler */), std::nullopt);
     }
 
     // error case: cluster 1 has no command handler
     {
         const ConcreteCommandPath kCommandPath(1, UnitTesting::Id, UnitTesting::Commands::Test::Id);
         const InvokeRequest kInvokeRequest{ .path = kCommandPath };
-        chip::TLV::TLVReader tlvReader;
-
-        ASSERT_EQ(tree.Invoke(kInvokeRequest, tlvReader /* inputArguments */, nullptr /* handler */), CHIP_ERROR_INTERNAL);
+        ASSERT_EQ(tree.Invoke(kInvokeRequest, input_args, nullptr /* handler */), CHIP_ERROR_INTERNAL);
     }
 
     // various invalid paths
+    {
+        const ConcreteCommandPath kCommandPath(123, UnitTesting::Id, UnitTesting::Commands::Test::Id);
+        const InvokeRequest kInvokeRequest{ .path = kCommandPath };
+        ASSERT_EQ(tree.Invoke(kInvokeRequest, input_args, nullptr /* handler */),
+                  Protocols::InteractionModel::Status::UnsupportedEndpoint);
+    }
+    {
+        const ConcreteCommandPath kCommandPath(0, PowerSource::Id, 123321);
+        const InvokeRequest kInvokeRequest{ .path = kCommandPath };
+        ASSERT_EQ(tree.Invoke(kInvokeRequest, input_args, nullptr /* handler */),
+                  Protocols::InteractionModel::Status::UnsupportedCluster);
+    }
+    {
+        const ConcreteCommandPath kCommandPath(0, UnitTesting::Id, 123321);
+        const InvokeRequest kInvokeRequest{ .path = kCommandPath };
+        ASSERT_EQ(tree.Invoke(kInvokeRequest, input_args, nullptr /* handler */),
+                  Protocols::InteractionModel::Status::UnsupportedCommand);
+    }
+
+    // a not handled should return in a bad command (with a log)
+    {
+        const ConcreteCommandPath kCommandPath(0, UnitTesting::Id, UnitTesting::Commands::TestNotHandled::Id);
+        const InvokeRequest kInvokeRequest{ .path = kCommandPath };
+
+        // Success is marked by returning "status will be handled by something else"
+        ASSERT_EQ(tree.Invoke(kInvokeRequest, input_args, nullptr /* handler */),
+                  Protocols::InteractionModel::Status::InvalidCommand);
+    }
 }
