@@ -65,9 +65,9 @@ std::optional<Access::Privilege> WritePrivilege(std::underlying_type_t<Attribute
 /// a DataModel::AttributeInfo entry
 struct AttributeMeta
 {
-    AttributeId id;
-    BitFlags<DataModel::AttributeQualityFlags> qualities;
-    std::underlying_type_t<AttributePrivilege> privileges;
+    const AttributeId id;
+    const BitFlags<DataModel::AttributeQualityFlags> qualities;
+    const std::underlying_type_t<AttributePrivilege> privileges;
 };
 
 /// Represents information about a command exposed by a cluster
@@ -76,9 +76,9 @@ struct AttributeMeta
 /// a DataModel::CommandInfo entry
 struct CommandMeta
 {
-    CommandId id;
-    BitFlags<DataModel::CommandQualityFlags> qualities;
-    Access::Privilege invokePrivilege;
+    const CommandId id;
+    const BitFlags<DataModel::CommandQualityFlags> qualities;
+    const Access::Privilege invokePrivilege;
 };
 
 /// Repesents metadata for an exposed clusters:
@@ -92,9 +92,7 @@ struct CommandMeta
 struct ClusterMeta
 {
     const ClusterId clusterId;
-
-    BitFlags<DataModel::ClusterQualityFlags> qualities;
-
+    const BitFlags<DataModel::ClusterQualityFlags> qualities;
     Span<const AttributeMeta> attributes;
     Span<const CommandMeta> acceptedCommands;
     Span<const CommandId> generatedCommands;
@@ -117,7 +115,7 @@ struct EndpointInstance
 {
     using SemanticTag = Clusters::Descriptor::Structs::SemanticTagStruct::Type;
 
-    EndpointId id;
+    const EndpointId id;
 
     Span<const DataModel::DeviceTypeEntry> deviceTypes;
     Span<const SemanticTag> semanticTags;
@@ -128,8 +126,8 @@ struct EndpointInstance
     // Client clusters are available bindings on this endpoint
     Span<const ClusterId> clientClusters;
 
-    EndpointId parentEndpointId; // can be kInvalidEndpointId
-    DataModel::EndpointCompositionPattern endpointComposition;
+    const EndpointId parentEndpointId; // can be kInvalidEndpointId
+    const DataModel::EndpointCompositionPattern endpointComposition;
 };
 
 } // namespace Metadata
