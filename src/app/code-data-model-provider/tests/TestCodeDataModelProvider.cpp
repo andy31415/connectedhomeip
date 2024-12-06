@@ -812,4 +812,10 @@ TEST(TestMetadataTree, TestTemporaryReportAttributeChanged)
         EXPECT_EQ(ep0Clusters[1].dataVersion, ep0_c1 + 1); // unit testing is the 2nd cluster
         EXPECT_EQ(ep1Clusters[0].dataVersion, ep1_c0);
     }
+
+    // invalid paths should not cause problems
+    tree.Temporary_ReportAttributeChanged({ 123, UnitTesting::Id, kInvalidAttributeId });
+    tree.Temporary_ReportAttributeChanged({ 123, kInvalidClusterId, kInvalidAttributeId });
+    tree.Temporary_ReportAttributeChanged({ kInvalidEndpointId , UnitTesting::Id, kInvalidAttributeId });
+    tree.Temporary_ReportAttributeChanged({ 0 , PowerSource::Id, kInvalidAttributeId });
 }
