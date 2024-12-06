@@ -19,6 +19,7 @@
 #include "access/SubjectDescriptor.h"
 #include "app/EventPathParams.h"
 #include "lib/core/CHIPError.h"
+#include "lib/core/ErrorStr.h"
 #include <lib/core/TLVReader.h>
 #include <lib/core/TLVWriter.h>
 
@@ -53,7 +54,8 @@ public:
         mContext = context;
         return CHIP_NO_ERROR;
     }
-    virtual CHIP_ERROR Shutdown() = 0;
+
+    virtual CHIP_ERROR Shutdown() { return CHIP_NO_ERROR; }
 
     // During the transition phase, we expect a large subset of code to require access to
     // event emitting, path marking and other operations

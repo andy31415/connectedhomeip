@@ -142,7 +142,7 @@ public:
     CHIP_ERROR Shutdown() override
     {
         Reset();
-        return CHIP_NO_ERROR;
+        return DataModel::Provider::Shutdown();
     }
 
     CHIP_ERROR Startup(DataModel::InteractionModelContext context) override;

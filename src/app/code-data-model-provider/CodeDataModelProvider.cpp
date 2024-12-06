@@ -531,6 +531,10 @@ ConcreteCommandPath CodeDataModelProvider::NextGeneratedCommand(const ConcreteCo
     return (value == nullptr) ? ConcreteCommandPath() : ConcreteCommandPath(before.mEndpointId, before.mClusterId, *value);
 }
 
+void CodeDataModelProvider::Temporary_ReportAttributeChanged(const AttributePathParams & path) {
+    // FIXME: implement
+}
+
 DataModel::ActionReturnStatus CodeDataModelProvider::ReadAttribute(const DataModel::ReadAttributeRequest & request,
                                                                    AttributeValueEncoder & encoder)
 {
