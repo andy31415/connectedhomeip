@@ -14,15 +14,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "lib/core/CHIPError.h"
-#include "lib/support/logging/TextOnlyLogging.h"
 #include <app/ConcreteAttributePath.h>
 #include <app/ConcreteClusterPath.h>
 #include <app/ConcreteCommandPath.h>
 #include <app/code-data-model-provider/CodeDataModelProvider.h>
 #include <app/code-data-model-provider/Metadata.h>
 #include <app/data-model-provider/MetadataTypes.h>
+#include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
+#include <lib/support/logging/TextOnlyLogging.h>
+#include <protocols/interaction_model/StatusCode.h>
 
 #include <optional>
 #include <type_traits>
@@ -31,6 +32,7 @@ namespace chip {
 namespace app {
 namespace {
 
+using Protocols::InteractionModel::Status;
 using SemanticTag = Clusters::Descriptor::Structs::SemanticTagStruct::Type;
 
 /// Search for the index where `needle` inside `haystack`
@@ -576,23 +578,151 @@ void CodeDataModelProvider::Temporary_ReportAttributeChanged(const AttributePath
 DataModel::ActionReturnStatus CodeDataModelProvider::ReadAttribute(const DataModel::ReadAttributeRequest & request,
                                                                    AttributeValueEncoder & encoder)
 {
-    // FIXME: implement
-    return CHIP_ERROR_NOT_IMPLEMENTED;
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
+
+    SearchableContainer<Metadata::EndpointInstance> endpoint =
+        search.Find<ByEndpoint>(request.path.mEndpointId, mEndpointIndexHint);
+
+    if (endpoint.Value() == nullptr)
+    {
+        return Status::UnsupportedEndpoint;
+    }
+
+    SearchableContainer<Metadata::ClusterInstance> cluster =
+        endpoint.Find<ByServerCluster>(request.path.mClusterId, mServerClusterHint);
+
+    if (cluster.Value() == nullptr)
+    {
+        return Status::UnsupportedCluster;
+    }
+
+    const Metadata::AttributeMeta * attribute = cluster.Find<ByAttribute>(request.path.mAttributeId, mAttributeHint).Value();
+
+    // check if the atttribute actually exist. This is an internal double-check
+    if (attribute == nullptr)
+    {
+        ChipLogError(DataManagement,
+                     "Attempt to read attribute that is not present in metadata: 0x%X/" ChipLogFormatMEI "/" ChipLogFormatMEI,
+                     request.path.mEndpointId, ChipLogValueMEI(request.path.mClusterId),
+                     ChipLogValueMEI(request.path.mAttributeId));
+        return Status::UnsupportedAttribute;
+    }
+
+    if (cluster.Value()->attributeHandler == nullptr)
+    {
+        // this should never happen, however we expect maybe unit tests to see this
+        ChipLogError(DataManagement, "Missing attribute handler on read: 0x%X/" ChipLogFormatMEI "/" ChipLogFormatMEI,
+                     request.path.mEndpointId, ChipLogValueMEI(request.path.mClusterId),
+                     ChipLogValueMEI(request.path.mAttributeId));
+        return CHIP_ERROR_INTERNAL;
+    }
+
+    return cluster.Value()->attributeHandler->Read(request.path, encoder);
 }
 
 DataModel::ActionReturnStatus CodeDataModelProvider::WriteAttribute(const DataModel::WriteAttributeRequest & request,
                                                                     AttributeValueDecoder & decoder)
 {
-    // FIXME: implement
-    return CHIP_ERROR_NOT_IMPLEMENTED;
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
+
+    SearchableContainer<Metadata::EndpointInstance> endpoint =
+        search.Find<ByEndpoint>(request.path.mEndpointId, mEndpointIndexHint);
+
+    if (endpoint.Value() == nullptr)
+    {
+        return Status::UnsupportedEndpoint;
+    }
+
+    SearchableContainer<Metadata::ClusterInstance> cluster =
+        endpoint.Find<ByServerCluster>(request.path.mClusterId, mServerClusterHint);
+
+    if (cluster.Value() == nullptr)
+    {
+        return Status::UnsupportedCluster;
+    }
+
+    const Metadata::AttributeMeta * attribute = cluster.Find<ByAttribute>(request.path.mAttributeId, mAttributeHint).Value();
+
+    // check if the atttribute actually exist. This is an internal double-check
+    if (attribute == nullptr)
+    {
+        ChipLogError(DataManagement,
+                     "Attempt to write attribute that is not present in metadata: 0x%X/" ChipLogFormatMEI "/" ChipLogFormatMEI,
+                     request.path.mEndpointId, ChipLogValueMEI(request.path.mClusterId),
+                     ChipLogValueMEI(request.path.mAttributeId));
+        return Status::UnsupportedAttribute;
+    }
+
+    if (cluster.Value()->attributeHandler == nullptr)
+    {
+        // this should never happen, however we expect maybe unit tests to see this
+        ChipLogError(DataManagement, "Missing attribute handler on write: 0x%X/" ChipLogFormatMEI "/" ChipLogFormatMEI,
+                     request.path.mEndpointId, ChipLogValueMEI(request.path.mClusterId),
+                     ChipLogValueMEI(request.path.mAttributeId));
+        return CHIP_ERROR_INTERNAL;
+    }
+
+    return cluster.Value()->attributeHandler->Write(request.path, decoder);
 }
 
 std::optional<DataModel::ActionReturnStatus> CodeDataModelProvider::Invoke(const DataModel::InvokeRequest & request,
                                                                            chip::TLV::TLVReader & input_arguments,
                                                                            CommandHandler * handler)
 {
-    // FIXME: implement
-    return CHIP_ERROR_NOT_IMPLEMENTED;
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
+
+    SearchableContainer<Metadata::EndpointInstance> endpoint =
+        search.Find<ByEndpoint>(request.path.mEndpointId, mEndpointIndexHint);
+
+    if (endpoint.Value() == nullptr)
+    {
+        return Status::UnsupportedEndpoint;
+    }
+
+    SearchableContainer<Metadata::ClusterInstance> cluster =
+        endpoint.Find<ByServerCluster>(request.path.mClusterId, mServerClusterHint);
+
+    if (cluster.Value() == nullptr)
+    {
+        return Status::UnsupportedCluster;
+    }
+
+    const Metadata::CommandMeta * command = cluster.Find<ByAcceptedCommand>(request.path.mCommandId, mAcceptedCommandHint).Value();
+
+    // check if the atttribute actually exist. This is an internal double-check
+    if (command == nullptr)
+    {
+        ChipLogError(DataManagement,
+                     "Attempt to invoke a command that is not present in accepted commands: 0x%X/" ChipLogFormatMEI
+                     "/" ChipLogFormatMEI,
+                     request.path.mEndpointId, ChipLogValueMEI(request.path.mClusterId), ChipLogValueMEI(request.path.mCommandId));
+        return Status::UnsupportedCommand;
+    }
+
+    if (cluster.Value()->commandHandler == nullptr)
+    {
+        // this should never happen, however we expect maybe unit tests to see this
+        ChipLogError(DataManagement, "Missing command handler on invoke: 0x%X/" ChipLogFormatMEI "/" ChipLogFormatMEI,
+                     request.path.mEndpointId, ChipLogValueMEI(request.path.mClusterId), ChipLogValueMEI(request.path.mCommandId));
+        return CHIP_ERROR_INTERNAL;
+    }
+
+    CommandHandlerInterface::HandlerContext context(*handler, request.path, input_arguments);
+
+    cluster.Value()->commandHandler->InvokeCommand(context);
+    if (context.mCommandHandled)
+    {
+        return std::nullopt;
+    }
+
+    // command is in metadata but handler refused to handle it. This is an inconsistency
+    ChipLogError(DataManagement, "Command handler failed to handle accepted command: 0x%X/" ChipLogFormatMEI "/" ChipLogFormatMEI,
+                 request.path.mEndpointId, ChipLogValueMEI(request.path.mClusterId), ChipLogValueMEI(request.path.mCommandId));
+
+    return Status::InvalidCommand;
 }
 
 } // namespace app
