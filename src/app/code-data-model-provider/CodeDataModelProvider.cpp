@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 #include "lib/core/CHIPError.h"
+#include "lib/support/logging/TextOnlyLogging.h"
 #include <app/ConcreteAttributePath.h>
 #include <app/ConcreteClusterPath.h>
 #include <app/ConcreteCommandPath.h>
@@ -531,14 +532,50 @@ ConcreteCommandPath CodeDataModelProvider::NextGeneratedCommand(const ConcreteCo
     return (value == nullptr) ? ConcreteCommandPath() : ConcreteCommandPath(before.mEndpointId, before.mClusterId, *value);
 }
 
-void CodeDataModelProvider::Temporary_ReportAttributeChanged(const AttributePathParams & path) {
-    // FIXME: implement
+void CodeDataModelProvider::Temporary_ReportAttributeChanged(const AttributePathParams & path)
+{
+    EndpointsWrapper wrapper(mEndpoints);
+    SearchableContainer<EndpointsWrapper> search(&wrapper);
+
+    if (path.mClusterId == kInvalidClusterId)
+    {
+        // TODO: endpoint itself changed. we will update all server clusters
+        Metadata::EndpointInstance * endpoint = search.Find<ByEndpoint>(path.mEndpointId, mEndpointIndexHint).Value();
+
+        if (endpoint != nullptr)
+        {
+            for (auto & cluster : endpoint->serverClusters)
+            {
+                cluster.dataVersion++;
+            }
+        }
+        else
+        {
+            ChipLogError(DataManagement, "Endpoint 0x%X not found for marking dirty", path.mEndpointId)
+        }
+    }
+    else
+    {
+        Metadata::ClusterInstance * cluster = search.Find<ByEndpoint>(path.mEndpointId, mEndpointIndexHint)
+                                                  .Find<ByServerCluster>(path.mClusterId, mServerClusterHint)
+                                                  .Value();
+        if (cluster != nullptr)
+        {
+            cluster->dataVersion++;
+        }
+        else
+        {
+            ChipLogError(DataManagement, "Cluster 0x%X/" ChipLogFormatMEI " not found for marking dirty", path.mEndpointId,
+                         ChipLogValueMEI(path.mClusterId));
+        }
+    }
+
+    CurrentContext().dataModelChangeListener->MarkDirty(path);
 }
 
 DataModel::ActionReturnStatus CodeDataModelProvider::ReadAttribute(const DataModel::ReadAttributeRequest & request,
                                                                    AttributeValueEncoder & encoder)
 {
-
     // FIXME: implement
     return CHIP_ERROR_NOT_IMPLEMENTED;
 }
