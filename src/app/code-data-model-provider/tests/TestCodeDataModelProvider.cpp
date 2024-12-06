@@ -915,3 +915,56 @@ TEST(TestMetadataTree, TestReadAttribute)
         ASSERT_EQ(tree.ReadAttribute(testRequest.GetRequest(), *encoder), CHIP_ERROR_INTERNAL);
     }
 }
+
+TEST(TestMetadataTree, TestWriteAttribute)
+{
+    TestCodeDataModelProvider tree;
+
+    // These tests rely that the fake handlers use the attribute ID as the I/O value for attribute contents
+    // (ignore that GlobalEnum or other IDs actually would have a different type in the spec).
+    {
+        WriteOperation testRequest(0, UnitTesting::Id, UnitTesting::Attributes::GlobalEnum::Id);
+        testRequest.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        AttributeValueDecoder decoder = testRequest.DecoderFor<AttributeId>(testRequest.GetRequest().path.mAttributeId);
+        ASSERT_EQ(tree.WriteAttribute(testRequest.GetRequest(), decoder), CHIP_NO_ERROR);
+    }
+
+    // attempt to write an "invalid" value (i.e. not the attribute ID)
+    {
+        WriteOperation testRequest(0, UnitTesting::Id, UnitTesting::Attributes::GlobalEnum::Id);
+        testRequest.SetSubjectDescriptor(kAdminSubjectDescriptor);
+
+        AttributeValueDecoder decoder = testRequest.DecoderFor<AttributeId>(testRequest.GetRequest().path.mAttributeId + 1);
+        ASSERT_EQ(tree.WriteAttribute(testRequest.GetRequest(), decoder), CHIP_ERROR_INVALID_ARGUMENT);
+    }
+
+    /// Test failure cases
+    {
+        WriteOperation testRequest(123, UnitTesting::Id, UnitTesting::Attributes::GlobalEnum::Id);
+        testRequest.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        AttributeValueDecoder decoder = testRequest.DecoderFor<AttributeId>(testRequest.GetRequest().path.mAttributeId + 1);
+        ASSERT_EQ(tree.WriteAttribute(testRequest.GetRequest(), decoder), Protocols::InteractionModel::Status::UnsupportedEndpoint);
+    }
+
+    {
+        WriteOperation testRequest(0, PowerSource::Id, UnitTesting::Attributes::GlobalEnum::Id);
+        testRequest.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        AttributeValueDecoder decoder = testRequest.DecoderFor<AttributeId>(testRequest.GetRequest().path.mAttributeId + 1);
+        ASSERT_EQ(tree.WriteAttribute(testRequest.GetRequest(), decoder), Protocols::InteractionModel::Status::UnsupportedCluster);
+    }
+    {
+        WriteOperation testRequest(0, UnitTesting::Id, 0x1234FEDC);
+        testRequest.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        AttributeValueDecoder decoder = testRequest.DecoderFor<AttributeId>(testRequest.GetRequest().path.mAttributeId + 1);
+        ASSERT_EQ(tree.WriteAttribute(testRequest.GetRequest(), decoder),
+                  Protocols::InteractionModel::Status::UnsupportedAttribute);
+    }
+
+    // invalid state path: no attribute handler on ep1
+    {
+        WriteOperation testRequest(1, UnitTesting::Id, UnitTesting::Attributes::GlobalEnum::Id);
+        testRequest.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        AttributeValueDecoder decoder = testRequest.DecoderFor<AttributeId>(testRequest.GetRequest().path.mAttributeId + 1);
+        ASSERT_EQ(tree.WriteAttribute(testRequest.GetRequest(), decoder), CHIP_ERROR_INTERNAL);
+    }
+}
