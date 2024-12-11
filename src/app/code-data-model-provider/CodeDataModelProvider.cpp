@@ -231,40 +231,28 @@ DataModel::CommandEntry CommandEntryFrom(const ConcreteClusterPath clusterPath, 
 
 DataModel::EndpointEntry CodeDataModelProvider::FirstEndpoint()
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
-    Metadata::EndpointInstance * ep = search.First<ByEndpoint>(mEndpointIndexHint).Value();
+    Metadata::EndpointInstance * ep = EndpointsSearchValue(&mEndpoints).First<ByEndpoint>(mEndpointIndexHint).Value();
 
     return (ep == nullptr) ? DataModel::EndpointEntry::kInvalid : EndpointEntryFrom(*ep);
 }
 
 DataModel::EndpointEntry CodeDataModelProvider::NextEndpoint(EndpointId before)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
-    Metadata::EndpointInstance * ep = search.Next<ByEndpoint>(before, mEndpointIndexHint).Value();
+    Metadata::EndpointInstance * ep = EndpointsSearchValue(&mEndpoints).Next<ByEndpoint>(before, mEndpointIndexHint).Value();
 
     return (ep == nullptr) ? DataModel::EndpointEntry::kInvalid : EndpointEntryFrom(*ep);
 }
 
 std::optional<DataModel::EndpointInfo> CodeDataModelProvider::GetEndpointInfo(EndpointId id)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
-    Metadata::EndpointInstance * ep = search.Find<ByEndpoint>(id, mEndpointIndexHint).Value();
+    Metadata::EndpointInstance * ep = EndpointsSearchValue(&mEndpoints).Find<ByEndpoint>(id, mEndpointIndexHint).Value();
 
     return (ep == nullptr) ? std::nullopt : std::make_optional(EndpointEntryFrom(*ep).info);
 }
 
 std::optional<DataModel::DeviceTypeEntry> CodeDataModelProvider::FirstDeviceType(EndpointId endpoint)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
-    const DataModel::DeviceTypeEntry * value = search                                              //
+    const DataModel::DeviceTypeEntry * value = EndpointsSearchValue(&mEndpoints)                   //
                                                    .Find<ByEndpoint>(endpoint, mEndpointIndexHint) //
                                                    .First<ByDeviceType>(mDeviceTypeHint)
                                                    .Value();
@@ -275,10 +263,7 @@ std::optional<DataModel::DeviceTypeEntry> CodeDataModelProvider::FirstDeviceType
 std::optional<DataModel::DeviceTypeEntry> CodeDataModelProvider::NextDeviceType(EndpointId endpoint,
                                                                                 const DataModel::DeviceTypeEntry & previous)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
-    const DataModel::DeviceTypeEntry * value = search                                              //
+    const DataModel::DeviceTypeEntry * value = EndpointsSearchValue(&mEndpoints)                   //
                                                    .Find<ByEndpoint>(endpoint, mEndpointIndexHint) //
                                                    .Next<ByDeviceType>(previous, mDeviceTypeHint)
                                                    .Value();
@@ -288,10 +273,7 @@ std::optional<DataModel::DeviceTypeEntry> CodeDataModelProvider::NextDeviceType(
 
 std::optional<SemanticTag> CodeDataModelProvider::GetFirstSemanticTag(EndpointId endpoint)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
-    const SemanticTag * value = search                                              //
+    const SemanticTag * value = EndpointsSearchValue(&mEndpoints)                   //
                                     .Find<ByEndpoint>(endpoint, mEndpointIndexHint) //
                                     .First<BySemanticTag>(mSemanticTagHint)
                                     .Value();
@@ -301,10 +283,7 @@ std::optional<SemanticTag> CodeDataModelProvider::GetFirstSemanticTag(EndpointId
 
 std::optional<SemanticTag> CodeDataModelProvider::GetNextSemanticTag(EndpointId endpoint, const SemanticTag & previous)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
-    const SemanticTag * value = search                                              //
+    const SemanticTag * value = EndpointsSearchValue(&mEndpoints)                   //
                                     .Find<ByEndpoint>(endpoint, mEndpointIndexHint) //
                                     .Next<BySemanticTag>(previous, mSemanticTagHint)
                                     .Value();
@@ -314,11 +293,8 @@ std::optional<SemanticTag> CodeDataModelProvider::GetNextSemanticTag(EndpointId 
 
 DataModel::ClusterEntry CodeDataModelProvider::FirstServerCluster(EndpointId endpoint)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
     return ClusterEntryFrom(endpoint,
-                            search                                              //
+                            EndpointsSearchValue(&mEndpoints)                   //
                                 .Find<ByEndpoint>(endpoint, mEndpointIndexHint) //
                                 .First<ByServerCluster>(mServerClusterHint)     //
                                 .Value());
@@ -326,11 +302,8 @@ DataModel::ClusterEntry CodeDataModelProvider::FirstServerCluster(EndpointId end
 
 DataModel::ClusterEntry CodeDataModelProvider::NextServerCluster(const ConcreteClusterPath & before)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
     return ClusterEntryFrom(before.mEndpointId,
-                            search                                                            //
+                            EndpointsSearchValue(&mEndpoints)                                 //
                                 .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)     //
                                 .Next<ByServerCluster>(before.mClusterId, mServerClusterHint) //
                                 .Value());
@@ -338,10 +311,7 @@ DataModel::ClusterEntry CodeDataModelProvider::NextServerCluster(const ConcreteC
 
 std::optional<DataModel::ClusterInfo> CodeDataModelProvider::GetServerClusterInfo(const ConcreteClusterPath & path)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
-    const Metadata::ClusterInstance * value = search                                                      //
+    const Metadata::ClusterInstance * value = EndpointsSearchValue(&mEndpoints)                           //
                                                   .Find<ByEndpoint>(path.mEndpointId, mEndpointIndexHint) //
                                                   .Find<ByServerCluster>(path.mClusterId, mServerClusterHint)
                                                   .Value();
@@ -351,10 +321,7 @@ std::optional<DataModel::ClusterInfo> CodeDataModelProvider::GetServerClusterInf
 
 ConcreteClusterPath CodeDataModelProvider::FirstClientCluster(EndpointId endpoint)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
-    const ClusterId * value = search                                              //
+    const ClusterId * value = EndpointsSearchValue(&mEndpoints)                   //
                                   .Find<ByEndpoint>(endpoint, mEndpointIndexHint) //
                                   .First<ByClientCluster>(mClientClusterHint)
                                   .Value();
@@ -364,10 +331,7 @@ ConcreteClusterPath CodeDataModelProvider::FirstClientCluster(EndpointId endpoin
 
 ConcreteClusterPath CodeDataModelProvider::NextClientCluster(const ConcreteClusterPath & before)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
-    const ClusterId * value = search                                                        //
+    const ClusterId * value = EndpointsSearchValue(&mEndpoints)                             //
                                   .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint) //
                                   .Next<ByClientCluster>(before.mClusterId, mClientClusterHint)
                                   .Value();
@@ -377,10 +341,9 @@ ConcreteClusterPath CodeDataModelProvider::NextClientCluster(const ConcreteClust
 
 DataModel::AttributeEntry CodeDataModelProvider::FirstAttribute(const ConcreteClusterPath & clusterPath)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
     return AttributeEntryFrom(clusterPath,
-                              search.Find<ByEndpoint>(clusterPath.mEndpointId, mEndpointIndexHint)
+                              EndpointsSearchValue(&mEndpoints)
+                                  .Find<ByEndpoint>(clusterPath.mEndpointId, mEndpointIndexHint)
                                   .Find<ByServerCluster>(clusterPath.mClusterId, mServerClusterHint)
                                   .First<ByAttribute>(mAttributeHint)
                                   .Value());
@@ -388,11 +351,9 @@ DataModel::AttributeEntry CodeDataModelProvider::FirstAttribute(const ConcreteCl
 
 DataModel::AttributeEntry CodeDataModelProvider::NextAttribute(const ConcreteAttributePath & before)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
     return AttributeEntryFrom(before,
-                              search.Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)
+                              EndpointsSearchValue(&mEndpoints)
+                                  .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)
                                   .Find<ByServerCluster>(before.mClusterId, mServerClusterHint)
                                   .Next<ByAttribute>(before.mAttributeId, mAttributeHint)
                                   .Value());
@@ -400,10 +361,7 @@ DataModel::AttributeEntry CodeDataModelProvider::NextAttribute(const ConcreteAtt
 
 std::optional<DataModel::AttributeInfo> CodeDataModelProvider::GetAttributeInfo(const ConcreteAttributePath & path)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
-    const Metadata::AttributeMeta * value = search                                                          //
+    const Metadata::AttributeMeta * value = EndpointsSearchValue(&mEndpoints)                               //
                                                 .Find<ByEndpoint>(path.mEndpointId, mEndpointIndexHint)     //
                                                 .Find<ByServerCluster>(path.mClusterId, mServerClusterHint) //
                                                 .Find<ByAttribute>(path.mAttributeId, mAttributeHint)       //
@@ -414,12 +372,10 @@ std::optional<DataModel::AttributeInfo> CodeDataModelProvider::GetAttributeInfo(
 
 DataModel::CommandEntry CodeDataModelProvider::FirstAcceptedCommand(const ConcreteClusterPath & cluster)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
     // NOTE: this IGNORES accepted/generated commands list from the commandHandlerInterface
     return CommandEntryFrom(cluster,
-                            search.Find<ByEndpoint>(cluster.mEndpointId, mEndpointIndexHint)
+                            EndpointsSearchValue(&mEndpoints)
+                                .Find<ByEndpoint>(cluster.mEndpointId, mEndpointIndexHint)
                                 .Find<ByServerCluster>(cluster.mClusterId, mServerClusterHint)
                                 .First<ByAcceptedCommand>(mAcceptedCommandHint)
                                 .Value());
@@ -427,12 +383,10 @@ DataModel::CommandEntry CodeDataModelProvider::FirstAcceptedCommand(const Concre
 
 DataModel::CommandEntry CodeDataModelProvider::NextAcceptedCommand(const ConcreteCommandPath & before)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
     // NOTE: this IGNORES accepted/generated commands list from the commandHandlerInterface
     return CommandEntryFrom(before,
-                            search.Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)
+                            EndpointsSearchValue(&mEndpoints)
+                                .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)
                                 .Find<ByServerCluster>(before.mClusterId, mServerClusterHint)
                                 .Next<ByAcceptedCommand>(before.mCommandId, mAcceptedCommandHint)
                                 .Value());
@@ -440,11 +394,8 @@ DataModel::CommandEntry CodeDataModelProvider::NextAcceptedCommand(const Concret
 
 std::optional<DataModel::CommandInfo> CodeDataModelProvider::GetAcceptedCommandInfo(const ConcreteCommandPath & path)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
     // NOTE: this IGNORES accepted/generated commands list from the commandHandlerInterface
-    const Metadata::CommandMeta * value = search                                                              //
+    const Metadata::CommandMeta * value = EndpointsSearchValue(&mEndpoints)                                   //
                                               .Find<ByEndpoint>(path.mEndpointId, mEndpointIndexHint)         //
                                               .Find<ByServerCluster>(path.mClusterId, mServerClusterHint)     //
                                               .Find<ByAcceptedCommand>(path.mCommandId, mAcceptedCommandHint) //
@@ -455,11 +406,8 @@ std::optional<DataModel::CommandInfo> CodeDataModelProvider::GetAcceptedCommandI
 
 ConcreteCommandPath CodeDataModelProvider::FirstGeneratedCommand(const ConcreteClusterPath & cluster)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
     // NOTE: this IGNORES accepted/generated commands list from the commandHandlerInterface
-    const CommandId * value = search                                                             //
+    const CommandId * value = EndpointsSearchValue(&mEndpoints)                                  //
                                   .Find<ByEndpoint>(cluster.mEndpointId, mEndpointIndexHint)     //
                                   .Find<ByServerCluster>(cluster.mClusterId, mServerClusterHint) //
                                   .First<ByGeneratedCommand>(mGeneratedCommandHint)              //
@@ -470,11 +418,8 @@ ConcreteCommandPath CodeDataModelProvider::FirstGeneratedCommand(const ConcreteC
 
 ConcreteCommandPath CodeDataModelProvider::NextGeneratedCommand(const ConcreteCommandPath & before)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
     // NOTE: this IGNORES accepted/generated commands list from the commandHandlerInterface
-    const CommandId * value = search                                                                  //
+    const CommandId * value = EndpointsSearchValue(&mEndpoints)                                       //
                                   .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)           //
                                   .Find<ByServerCluster>(before.mClusterId, mServerClusterHint)       //
                                   .Next<ByGeneratedCommand>(before.mCommandId, mGeneratedCommandHint) //
@@ -485,7 +430,6 @@ ConcreteCommandPath CodeDataModelProvider::NextGeneratedCommand(const ConcreteCo
 
 void CodeDataModelProvider::Temporary_ReportAttributeChanged(const AttributePathParams & path)
 {
-
     EndpointsSearchValue search(&mEndpoints);
 
     if (path.mClusterId == kInvalidClusterId)
@@ -527,10 +471,8 @@ void CodeDataModelProvider::Temporary_ReportAttributeChanged(const AttributePath
 DataModel::ActionReturnStatus CodeDataModelProvider::ReadAttribute(const DataModel::ReadAttributeRequest & request,
                                                                    AttributeValueEncoder & encoder)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
-    SpanSearchValue<Metadata::EndpointInstance> endpoint = search.Find<ByEndpoint>(request.path.mEndpointId, mEndpointIndexHint);
+    SpanSearchValue<Metadata::EndpointInstance> endpoint =
+        EndpointsSearchValue(&mEndpoints).Find<ByEndpoint>(request.path.mEndpointId, mEndpointIndexHint);
 
     if (endpoint.Value() == nullptr)
     {
@@ -572,10 +514,8 @@ DataModel::ActionReturnStatus CodeDataModelProvider::ReadAttribute(const DataMod
 DataModel::ActionReturnStatus CodeDataModelProvider::WriteAttribute(const DataModel::WriteAttributeRequest & request,
                                                                     AttributeValueDecoder & decoder)
 {
-
-    EndpointsSearchValue search(&mEndpoints);
-
-    SpanSearchValue<Metadata::EndpointInstance> endpoint = search.Find<ByEndpoint>(request.path.mEndpointId, mEndpointIndexHint);
+    SpanSearchValue<Metadata::EndpointInstance> endpoint =
+        EndpointsSearchValue(&mEndpoints).Find<ByEndpoint>(request.path.mEndpointId, mEndpointIndexHint);
 
     if (endpoint.Value() == nullptr)
     {
@@ -618,9 +558,8 @@ std::optional<DataModel::ActionReturnStatus> CodeDataModelProvider::Invoke(const
                                                                            chip::TLV::TLVReader & input_arguments,
                                                                            CommandHandler * handler)
 {
-    EndpointsSearchValue search(&mEndpoints);
-
-    SpanSearchValue<Metadata::EndpointInstance> endpoint = search.Find<ByEndpoint>(request.path.mEndpointId, mEndpointIndexHint);
+    SpanSearchValue<Metadata::EndpointInstance> endpoint =
+        EndpointsSearchValue(&mEndpoints).Find<ByEndpoint>(request.path.mEndpointId, mEndpointIndexHint);
 
     if (endpoint.Value() == nullptr)
     {
