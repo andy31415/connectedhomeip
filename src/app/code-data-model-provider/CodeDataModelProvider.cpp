@@ -163,13 +163,26 @@ DataModel::EndpointEntry EndpointEntryFrom(const Metadata::EndpointInstance & in
     };
 }
 
-DataModel::ClusterEntry ClusterEntryFrom(EndpointId endpointId, const Metadata::ClusterInstance & instance)
+DataModel::ClusterInfo ClusterInfoFrom(const Metadata::ClusterInstance & instance)
 {
     DataModel::ClusterInfo clusterInfo(instance.dataVersion);
 
     clusterInfo.flags = instance.metadata->qualities;
 
-    return DataModel::ClusterEntry{ .path = ConcreteClusterPath(endpointId, instance.metadata->clusterId), .info = clusterInfo };
+    return clusterInfo;
+}
+
+DataModel::ClusterEntry ClusterEntryFrom(EndpointId endpointId, const Metadata::ClusterInstance * instance)
+{
+    if (instance == nullptr)
+    {
+        return DataModel::ClusterEntry::kInvalid;
+    }
+
+    return DataModel::ClusterEntry{
+        .path = ConcreteClusterPath(endpointId, instance->metadata->clusterId),
+        .info = ClusterInfoFrom(*instance),
+    };
 }
 
 DataModel::AttributeInfo AttributeInfoFrom(const Metadata::AttributeMeta & attribute)
@@ -304,12 +317,11 @@ DataModel::ClusterEntry CodeDataModelProvider::FirstServerCluster(EndpointId end
 
     EndpointsSearchValue search(&mEndpoints);
 
-    const Metadata::ClusterInstance * value = search                                              //
-                                                  .Find<ByEndpoint>(endpoint, mEndpointIndexHint) //
-                                                  .First<ByServerCluster>(mServerClusterHint)
-                                                  .Value();
-
-    return (value == nullptr) ? DataModel::ClusterEntry::kInvalid : ClusterEntryFrom(endpoint, *value);
+    return ClusterEntryFrom(endpoint,
+                            search                                              //
+                                .Find<ByEndpoint>(endpoint, mEndpointIndexHint) //
+                                .First<ByServerCluster>(mServerClusterHint)     //
+                                .Value());
 }
 
 DataModel::ClusterEntry CodeDataModelProvider::NextServerCluster(const ConcreteClusterPath & before)
@@ -317,12 +329,11 @@ DataModel::ClusterEntry CodeDataModelProvider::NextServerCluster(const ConcreteC
 
     EndpointsSearchValue search(&mEndpoints);
 
-    const Metadata::ClusterInstance * value = search                                                        //
-                                                  .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint) //
-                                                  .Next<ByServerCluster>(before.mClusterId, mServerClusterHint)
-                                                  .Value();
-
-    return (value == nullptr) ? DataModel::ClusterEntry::kInvalid : ClusterEntryFrom(before.mEndpointId, *value);
+    return ClusterEntryFrom(before.mEndpointId,
+                            search                                                            //
+                                .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)     //
+                                .Next<ByServerCluster>(before.mClusterId, mServerClusterHint) //
+                                .Value());
 }
 
 std::optional<DataModel::ClusterInfo> CodeDataModelProvider::GetServerClusterInfo(const ConcreteClusterPath & path)
@@ -335,7 +346,7 @@ std::optional<DataModel::ClusterInfo> CodeDataModelProvider::GetServerClusterInf
                                                   .Find<ByServerCluster>(path.mClusterId, mServerClusterHint)
                                                   .Value();
 
-    return (value == nullptr) ? std::nullopt : std::make_optional(ClusterEntryFrom(path.mEndpointId, *value).info);
+    return (value == nullptr) ? std::nullopt : std::make_optional(ClusterInfoFrom(*value));
 }
 
 ConcreteClusterPath CodeDataModelProvider::FirstClientCluster(EndpointId endpoint)
