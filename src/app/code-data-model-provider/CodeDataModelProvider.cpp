@@ -172,16 +172,24 @@ DataModel::ClusterEntry ClusterEntryFrom(EndpointId endpointId, const Metadata::
     return DataModel::ClusterEntry{ .path = ConcreteClusterPath(endpointId, instance.metadata->clusterId), .info = clusterInfo };
 }
 
-DataModel::AttributeEntry AttributeEntryFrom(const ConcreteClusterPath & clusterPath, const Metadata::AttributeMeta & attribute)
+DataModel::AttributeInfo AttributeInfoFrom(const Metadata::AttributeMeta & attribute)
 {
+    return DataModel::AttributeInfo{
+        .flags          = attribute.qualities,
+        .readPrivilege  = Metadata::ReadPrivilege(attribute.privileges),
+        .writePrivilege = Metadata::WritePrivilege(attribute.privileges),
+    };
+}
+
+DataModel::AttributeEntry AttributeEntryFrom(const ConcreteClusterPath & clusterPath, const Metadata::AttributeMeta * attribute)
+{
+    if (attribute == nullptr)
+    {
+        return DataModel::AttributeEntry::kInvalid;
+    }
     return DataModel::AttributeEntry{
-        .path = ConcreteAttributePath(clusterPath.mEndpointId, clusterPath.mClusterId, attribute.id),
-        .info =
-            DataModel::AttributeInfo{
-                .flags          = attribute.qualities,
-                .readPrivilege  = Metadata::ReadPrivilege(attribute.privileges),
-                .writePrivilege = Metadata::WritePrivilege(attribute.privileges),
-            },
+        .path = ConcreteAttributePath(clusterPath.mEndpointId, clusterPath.mClusterId, attribute->id),
+        .info = AttributeInfoFrom(*attribute),
     };
 }
 
@@ -360,14 +368,11 @@ DataModel::AttributeEntry CodeDataModelProvider::FirstAttribute(const ConcreteCl
 {
 
     EndpointsSearchValue search(&mEndpoints);
-
-    const Metadata::AttributeMeta * value = search                                                                 //
-                                                .Find<ByEndpoint>(clusterPath.mEndpointId, mEndpointIndexHint)     //
-                                                .Find<ByServerCluster>(clusterPath.mClusterId, mServerClusterHint) //
-                                                .First<ByAttribute>(mAttributeHint)                                //
-                                                .Value();
-
-    return (value == nullptr) ? DataModel::AttributeEntry::kInvalid : AttributeEntryFrom(clusterPath, *value);
+    return AttributeEntryFrom(clusterPath,
+                              search.Find<ByEndpoint>(clusterPath.mEndpointId, mEndpointIndexHint)
+                                  .Find<ByServerCluster>(clusterPath.mClusterId, mServerClusterHint)
+                                  .First<ByAttribute>(mAttributeHint)
+                                  .Value());
 }
 
 DataModel::AttributeEntry CodeDataModelProvider::NextAttribute(const ConcreteAttributePath & before)
@@ -375,13 +380,11 @@ DataModel::AttributeEntry CodeDataModelProvider::NextAttribute(const ConcreteAtt
 
     EndpointsSearchValue search(&mEndpoints);
 
-    const Metadata::AttributeMeta * value = search                                                            //
-                                                .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)     //
-                                                .Find<ByServerCluster>(before.mClusterId, mServerClusterHint) //
-                                                .Next<ByAttribute>(before.mAttributeId, mAttributeHint)       //
-                                                .Value();
-
-    return (value == nullptr) ? DataModel::AttributeEntry::kInvalid : AttributeEntryFrom(before, *value);
+    return AttributeEntryFrom(before,
+                              search.Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)
+                                  .Find<ByServerCluster>(before.mClusterId, mServerClusterHint)
+                                  .Next<ByAttribute>(before.mAttributeId, mAttributeHint)
+                                  .Value());
 }
 
 std::optional<DataModel::AttributeInfo> CodeDataModelProvider::GetAttributeInfo(const ConcreteAttributePath & path)
@@ -395,7 +398,7 @@ std::optional<DataModel::AttributeInfo> CodeDataModelProvider::GetAttributeInfo(
                                                 .Find<ByAttribute>(path.mAttributeId, mAttributeHint)       //
                                                 .Value();
 
-    return (value == nullptr) ? std::nullopt : std::make_optional(AttributeEntryFrom(path, *value).info);
+    return (value == nullptr) ? std::nullopt : std::make_optional(AttributeInfoFrom(*value));
 }
 
 DataModel::CommandEntry CodeDataModelProvider::FirstAcceptedCommand(const ConcreteClusterPath & cluster)
