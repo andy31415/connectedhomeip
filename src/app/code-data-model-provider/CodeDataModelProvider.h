@@ -64,14 +64,14 @@ public:
 
 private:
     Span<Metadata::EndpointInstance> mEndpoints;
-    size_t mEndpointIndexHint    = 0;
-    size_t mDeviceTypeHint       = 0;
-    size_t mSemanticTagHint      = 0;
-    size_t mServerClusterHint    = 0;
-    size_t mClientClusterHint    = 0;
-    size_t mAttributeHint        = 0;
-    size_t mAcceptedCommandHint  = 0;
-    size_t mGeneratedCommandHint = 0;
+    unsigned mEndpointIndexHint    = 0;
+    unsigned mDeviceTypeHint       = 0;
+    unsigned mSemanticTagHint      = 0;
+    unsigned mServerClusterHint    = 0;
+    unsigned mClientClusterHint    = 0;
+    unsigned mAttributeHint        = 0;
+    unsigned mAcceptedCommandHint  = 0;
+    unsigned mGeneratedCommandHint = 0;
 };
 
 } // namespace app
