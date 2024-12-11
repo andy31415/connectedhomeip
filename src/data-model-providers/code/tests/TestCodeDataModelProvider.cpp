@@ -14,31 +14,32 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "app/AttributeAccessInterface.h"
-#include "app/CommandHandlerInterface.h"
-#include "app/data-model-provider/Context.h"
-#include "app/data-model-provider/ProviderChangeListener.h"
-#include "app/data-model-provider/tests/TestConstants.h"
-#include "lib/core/CHIPError.h"
-#include "lib/core/TLVTypes.h"
-#include <optional>
 #include <pw_unit_test/framework.h>
 
 #include <access/Privilege.h>
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app-common/zap-generated/ids/Commands.h>
+#include <app/AttributeAccessInterface.h>
+#include <app/CommandHandlerInterface.h>
 #include <app/ConcreteAttributePath.h>
 #include <app/ConcreteClusterPath.h>
 #include <app/ConcreteCommandPath.h>
+#include <app/data-model-provider/Context.h>
 #include <app/data-model-provider/MetadataTypes.h>
+#include <app/data-model-provider/ProviderChangeListener.h>
 #include <app/data-model-provider/tests/ReadTesting.h>
+#include <app/data-model-provider/tests/TestConstants.h>
 #include <app/data-model-provider/tests/WriteTesting.h>
 #include <app/data-model/Nullable.h>
 #include <data-model-providers/code/CodeDataModelProvider.h>
 #include <data-model-providers/code/Metadata.h>
+#include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
 #include <lib/core/Optional.h>
+#include <lib/core/TLVTypes.h>
+
+#include <optional>
 
 using namespace chip;
 using namespace chip::app;
