@@ -16,8 +16,8 @@
  */
 #pragma once
 
-#include <app/code-data-model-provider/Metadata.h>
 #include <app/data-model-provider/Provider.h>
+#include <data-model-providers/code/Metadata.h>
 #include <lib/support/Span.h>
 
 namespace chip {

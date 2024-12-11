@@ -14,7 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include <app/code-data-model-provider/Metadata.h>
+#include <data-model-providers/code/Metadata.h>
 
 namespace chip {
 namespace app {

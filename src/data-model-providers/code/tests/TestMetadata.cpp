@@ -18,7 +18,7 @@
 #include <pw_unit_test/framework.h>
 
 #include <access/Privilege.h>
-#include <app/code-data-model-provider/Metadata.h>
+#include <data-model-providers/code/Metadata.h>
 
 using namespace chip::Access;
 using namespace chip::app::Metadata;

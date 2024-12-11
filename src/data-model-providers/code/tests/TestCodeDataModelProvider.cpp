@@ -31,12 +31,12 @@
 #include <app/ConcreteAttributePath.h>
 #include <app/ConcreteClusterPath.h>
 #include <app/ConcreteCommandPath.h>
-#include <app/code-data-model-provider/CodeDataModelProvider.h>
-#include <app/code-data-model-provider/Metadata.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <app/data-model-provider/tests/ReadTesting.h>
 #include <app/data-model-provider/tests/WriteTesting.h>
 #include <app/data-model/Nullable.h>
+#include <data-model-providers/code/CodeDataModelProvider.h>
+#include <data-model-providers/code/Metadata.h>
 #include <lib/core/DataModelTypes.h>
 #include <lib/core/Optional.h>
 
