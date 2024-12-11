@@ -14,7 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include <app/codegen-data-model-provider/CodegenDataModelProvider.h>
+#include <data-model-providers/codegen/CodegenDataModelProvider.h>
 
 #include <access/AccessControl.h>
 #include <app-common/zap-generated/attribute-type.h>
@@ -35,6 +35,7 @@
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
 #include <lib/support/CodeUtils.h>
+#include <lib/support/SpanSearchValue.h>
 
 #include <optional>
 #include <variant>
@@ -106,12 +107,24 @@ using detail::EnumeratorCommandFinder;
 
 namespace {
 
-const chip::CommandId * AcceptedCommands(const EmberAfCluster & cluster)
+/// Search by device type within a `DeviceListWrapper` which just wraps a span of EmberAfDeviceType
+struct ByDeviceType
+{
+    using Key  = DataModel::DeviceTypeEntry;
+    using Type = const EmberAfDeviceType;
+    static Span<Type> GetSpan(Span<const EmberAfDeviceType> & data) { return data; }
+    static bool HasKey(const Key & id, const Type & instance)
+    {
+        return (instance.deviceId == id.deviceTypeId) && (instance.deviceVersion == id.deviceTypeRevision);
+    }
+};
+
+const CommandId * AcceptedCommands(const EmberAfCluster & cluster)
 {
     return cluster.acceptedCommandList;
 }
 
-const chip::CommandId * GeneratedCommands(const EmberAfCluster & cluster)
+const CommandId * GeneratedCommands(const EmberAfCluster & cluster)
 {
     return cluster.generatedCommandList;
 }
@@ -268,51 +281,17 @@ DataModel::CommandEntry CommandEntryFrom(const ConcreteClusterPath & clusterPath
 //       to a common type is probably better. Need to figure out dependencies since
 //       this would make ember return datamodel-provider types.
 //       See: https://github.com/project-chip/connectedhomeip/issues/35889
-DataModel::DeviceTypeEntry DeviceTypeEntryFromEmber(const EmberAfDeviceType & other)
+std::optional<DataModel::DeviceTypeEntry> DeviceTypeEntryFromEmber(const EmberAfDeviceType * other)
 {
-    DataModel::DeviceTypeEntry entry;
-
-    entry.deviceTypeId       = other.deviceId;
-    entry.deviceTypeRevision = other.deviceVersion;
-
-    return entry;
-}
-
-// Explicitly compare for identical entries. note that types are different,
-// so you must do `a == b` and the `b == a` will not work.
-bool operator==(const DataModel::DeviceTypeEntry & a, const EmberAfDeviceType & b)
-{
-    return (a.deviceTypeId == b.deviceId) && (a.deviceTypeRevision == b.deviceVersion);
-}
-
-/// Find the `index` where one of the following holds:
-///    - types[index - 1] == previous OR
-///    - index == types.size()  // i.e. not found or there is no next
-///
-/// hintWherePreviousMayBe represents a search hint where previous may exist.
-unsigned FindNextDeviceTypeIndex(Span<const EmberAfDeviceType> types, const DataModel::DeviceTypeEntry & previous,
-                                 unsigned hintWherePreviousMayBe)
-{
-    if (hintWherePreviousMayBe < types.size())
+    if (other == nullptr)
     {
-        // this is a valid hint ... see if we are lucky
-        if (previous == types[hintWherePreviousMayBe])
-        {
-            return hintWherePreviousMayBe + 1; // return the next index
-        }
+        return std::nullopt;
     }
 
-    // hint was not useful. We have to do a full search
-    for (unsigned idx = 0; idx < types.size(); idx++)
-    {
-        if (previous == types[idx])
-        {
-            return idx + 1;
-        }
-    }
-
-    // cast should be safe as we know we do not have that many types
-    return static_cast<unsigned>(types.size());
+    return DataModel::DeviceTypeEntry{
+        .deviceTypeId       = other->deviceId,
+        .deviceTypeRevision = other->deviceVersion,
+    };
 }
 
 const ConcreteCommandPath kInvalidCommandPath(kInvalidEndpointId, kInvalidClusterId, kInvalidCommandId);
@@ -892,17 +871,11 @@ std::optional<DataModel::DeviceTypeEntry> CodegenDataModelProvider::FirstDeviceT
         return std::nullopt;
     }
 
-    CHIP_ERROR err                            = CHIP_NO_ERROR;
-    Span<const EmberAfDeviceType> deviceTypes = emberAfDeviceTypeListFromEndpointIndex(*endpoint_index, err);
+    CHIP_ERROR err                                  = CHIP_NO_ERROR;
+    chip::Span<const EmberAfDeviceType> deviceTypes = emberAfDeviceTypeListFromEndpointIndex(*endpoint_index, err);
+    SpanSearchValue<chip::Span<const EmberAfDeviceType>> tree(&deviceTypes);
 
-    if (deviceTypes.empty())
-    {
-        return std::nullopt;
-    }
-
-    // we start at the beginning
-    mDeviceTypeIterationHint = 0;
-    return DeviceTypeEntryFromEmber(deviceTypes[0]);
+    return DeviceTypeEntryFromEmber(tree.First<ByDeviceType>(mDeviceTypeIterationHint).Value());
 }
 
 std::optional<DataModel::DeviceTypeEntry> CodegenDataModelProvider::NextDeviceType(EndpointId endpoint,
@@ -917,18 +890,11 @@ std::optional<DataModel::DeviceTypeEntry> CodegenDataModelProvider::NextDeviceTy
         return std::nullopt;
     }
 
-    CHIP_ERROR err                            = CHIP_NO_ERROR;
-    Span<const EmberAfDeviceType> deviceTypes = emberAfDeviceTypeListFromEndpointIndex(*endpoint_index, err);
+    CHIP_ERROR err                                  = CHIP_NO_ERROR;
+    chip::Span<const EmberAfDeviceType> deviceTypes = emberAfDeviceTypeListFromEndpointIndex(*endpoint_index, err);
+    SpanSearchValue<chip::Span<const EmberAfDeviceType>> tree(&deviceTypes);
 
-    unsigned idx = FindNextDeviceTypeIndex(deviceTypes, previous, mDeviceTypeIterationHint);
-
-    if (idx >= deviceTypes.size())
-    {
-        return std::nullopt;
-    }
-
-    mDeviceTypeIterationHint = idx;
-    return DeviceTypeEntryFromEmber(deviceTypes[idx]);
+    return DeviceTypeEntryFromEmber(tree.Next<ByDeviceType>(previous, mDeviceTypeIterationHint).Value());
 }
 
 std::optional<DataModel::Provider::SemanticTag> CodegenDataModelProvider::GetFirstSemanticTag(EndpointId endpoint)
