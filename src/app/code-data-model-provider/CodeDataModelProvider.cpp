@@ -185,15 +185,24 @@ DataModel::AttributeEntry AttributeEntryFrom(const ConcreteClusterPath & cluster
     };
 }
 
-DataModel::CommandEntry CommandEntryFrom(const ConcreteClusterPath clusterPath, const Metadata::CommandMeta & command)
+DataModel::CommandInfo CommandInfoFrom(const Metadata::CommandMeta & command)
 {
+    return DataModel::CommandInfo{
+        .flags           = command.qualities,
+        .invokePrivilege = command.invokePrivilege,
+    };
+}
+
+DataModel::CommandEntry CommandEntryFrom(const ConcreteClusterPath clusterPath, const Metadata::CommandMeta * command)
+{
+    if (command == nullptr)
+    {
+        return DataModel::CommandEntry::kInvalid;
+    }
+
     return DataModel::CommandEntry{
-        .path = { clusterPath.mEndpointId, clusterPath.mClusterId, command.id },
-        .info =
-            DataModel::CommandInfo{
-                .flags           = command.qualities,
-                .invokePrivilege = command.invokePrivilege,
-            },
+        .path = { clusterPath.mEndpointId, clusterPath.mClusterId, command->id },
+        .info = CommandInfoFrom(*command),
     };
 }
 
@@ -394,13 +403,12 @@ DataModel::CommandEntry CodeDataModelProvider::FirstAcceptedCommand(const Concre
 
     EndpointsSearchValue search(&mEndpoints);
 
-    const Metadata::CommandMeta * value = search                                                             //
-                                              .Find<ByEndpoint>(cluster.mEndpointId, mEndpointIndexHint)     //
-                                              .Find<ByServerCluster>(cluster.mClusterId, mServerClusterHint) //
-                                              .First<ByAcceptedCommand>(mAcceptedCommandHint)                //
-                                              .Value();
-
-    return (value == nullptr) ? DataModel::CommandEntry::kInvalid : CommandEntryFrom(cluster, *value);
+    // NOTE: this IGNORES accepted/generated commands list from the commandHandlerInterface
+    return CommandEntryFrom(cluster,
+                            search.Find<ByEndpoint>(cluster.mEndpointId, mEndpointIndexHint)
+                                .Find<ByServerCluster>(cluster.mClusterId, mServerClusterHint)
+                                .First<ByAcceptedCommand>(mAcceptedCommandHint)
+                                .Value());
 }
 
 DataModel::CommandEntry CodeDataModelProvider::NextAcceptedCommand(const ConcreteCommandPath & before)
@@ -409,13 +417,11 @@ DataModel::CommandEntry CodeDataModelProvider::NextAcceptedCommand(const Concret
     EndpointsSearchValue search(&mEndpoints);
 
     // NOTE: this IGNORES accepted/generated commands list from the commandHandlerInterface
-    const Metadata::CommandMeta * value = search                                                                //
-                                              .Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)         //
-                                              .Find<ByServerCluster>(before.mClusterId, mServerClusterHint)     //
-                                              .Next<ByAcceptedCommand>(before.mCommandId, mAcceptedCommandHint) //
-                                              .Value();
-
-    return (value == nullptr) ? DataModel::CommandEntry::kInvalid : CommandEntryFrom(before, *value);
+    return CommandEntryFrom(before,
+                            search.Find<ByEndpoint>(before.mEndpointId, mEndpointIndexHint)
+                                .Find<ByServerCluster>(before.mClusterId, mServerClusterHint)
+                                .Next<ByAcceptedCommand>(before.mCommandId, mAcceptedCommandHint)
+                                .Value());
 }
 
 std::optional<DataModel::CommandInfo> CodeDataModelProvider::GetAcceptedCommandInfo(const ConcreteCommandPath & path)
@@ -430,7 +436,7 @@ std::optional<DataModel::CommandInfo> CodeDataModelProvider::GetAcceptedCommandI
                                               .Find<ByAcceptedCommand>(path.mCommandId, mAcceptedCommandHint) //
                                               .Value();
 
-    return (value == nullptr) ? std::nullopt : std::make_optional(CommandEntryFrom(path, *value).info);
+    return (value == nullptr) ? std::nullopt : std::make_optional(CommandInfoFrom(*value));
 }
 
 ConcreteCommandPath CodeDataModelProvider::FirstGeneratedCommand(const ConcreteClusterPath & cluster)
