@@ -86,7 +86,9 @@ public:
             mLastOutputPath.mExpanded    = true;
         }
 
-        /// Fetch the last output path by this expand iterator
+        /// Fetch the last output path by this expand iterator. MAY contain an invalid path (i.e. using
+        /// kInvalidEndpointId/kInvalidClusterId/kInvalidAttributeId) in case the expansion was not started (i.e. Next on a linked
+        /// iterator was never called)
         ///
         /// Returns false if the current iteration is completed
         bool GetLastOutputPath(ConcreteAttributePath & path)
