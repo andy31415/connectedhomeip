@@ -132,19 +132,12 @@ uint16_t emberAfGetClusterServerEndpointIndex(EndpointId endpoint, ClusterId clu
     return UINT16_MAX;
 }
 
-/**
- * Methods used by AttributePathExpandIterator, which need to exist
- * because it is part of libCHIP.  For AttributePathExpandIterator
- * purposes, for now, we just pretend like we have just our one
- * endpoint, the OTA Provider cluster, and no attributes (because we
- * would be erroring out from them anyway).
- */
 uint16_t emberAfGetServerAttributeCount(EndpointId endpoint, ClusterId cluster)
 {
     return 0;
 }
 
-uint16_t emberAfEndpointCount(void)
+uint16_t emberAfEndpointCount()
 {
     return 1;
 }

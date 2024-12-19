@@ -124,14 +124,14 @@ public:
         /*
          * Called after a subscription has been fully established.
          */
-        virtual void OnSubscriptionEstablished(ReadHandler & aReadHandler){};
+        virtual void OnSubscriptionEstablished(ReadHandler & aReadHandler) {};
 
         /*
          * Called right before a subscription is about to get terminated. This is only called on subscriptions that were terminated
          * after they had been fully established (and therefore had called OnSubscriptionEstablished).
          * OnSubscriptionEstablishment().
          */
-        virtual void OnSubscriptionTerminated(ReadHandler & aReadHandler){};
+        virtual void OnSubscriptionTerminated(ReadHandler & aReadHandler) {};
     };
 
     /*
@@ -212,7 +212,7 @@ public:
      *
      */
     ReadHandler(ManagementCallback & apCallback, Messaging::ExchangeContext * apExchangeContext, InteractionType aInteractionType,
-                Observer * observer, DataModel::Provider * apDataModel);
+                Observer * observer);
 
 #if CHIP_CONFIG_PERSIST_SUBSCRIPTIONS
     /**
@@ -222,7 +222,7 @@ public:
      *  The callback passed in has to outlive this handler object.
      *
      */
-    ReadHandler(ManagementCallback & apCallback, Observer * observer, DataModel::Provider * apDataModel);
+    ReadHandler(ManagementCallback & apCallback, Observer * observer);
 #endif
 
     const SingleLinkedListNode<AttributePathParams> * GetAttributePathList() const { return mpAttributePathList; }
@@ -407,7 +407,12 @@ private:
     bool IsFabricFiltered() const { return mFlags.Has(ReadHandlerFlags::FabricFiltered); }
     CHIP_ERROR OnSubscribeRequest(Messaging::ExchangeContext * apExchangeContext, System::PacketBufferHandle && aPayload);
     void GetSubscriptionId(SubscriptionId & aSubscriptionId) const { aSubscriptionId = mSubscriptionId; }
-    AttributePathExpandIterator * GetAttributePathExpandIterator() { return &mAttributePathExpandIterator; }
+
+    /// returns an iterator based on the current read state
+    AttributePathExpandIterator2 IterateAttributePaths(DataModel::Provider * provider)
+    {
+        return AttributePathExpandIterator2(provider, mAttributePathExpandState);
+    }
 
     /// @brief Notifies the read handler that a set of attribute paths has been marked dirty. This will schedule a reporting engine
     /// run if the change to the attribute path makes the ReadHandler reportable.
@@ -519,7 +524,7 @@ private:
     /// @param aFlag Flag to clear
     void ClearStateFlag(ReadHandlerFlags aFlag);
 
-    AttributePathExpandIterator mAttributePathExpandIterator;
+    AttributePathExpandIterator2::State mAttributePathExpandState;
 
     // The current generation of the reporting engine dirty set the last time we were notified that a path we're interested in was
     // marked dirty.

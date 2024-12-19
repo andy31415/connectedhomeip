@@ -72,6 +72,8 @@ public:
         State(const State &)             = default;
         State & operator=(const State &) = default;
 
+        State() : mAttributePath(nullptr) {}
+
         /// Reset the iterator to the beginning of current cluster if we are in the middle of expanding a wildcard attribute id for
         /// some cluster.
         ///
@@ -82,6 +84,15 @@ public:
             VerifyOrReturn(mAttributePath != nullptr && mAttributePath->mValue.HasWildcardAttributeId());
             mLastOutputPath.mAttributeId = kInvalidAttributeId;
             mLastOutputPath.mExpanded    = true;
+        }
+
+        /// Fetch the last output path by this expand iterator
+        ///
+        /// Returns false if the current iteration is completed
+        bool GetLastOutputPath(ConcreteAttributePath & path)
+        {
+            path = mLastOutputPath;
+            return (mAttributePath != nullptr);
         }
 
     protected:

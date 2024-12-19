@@ -15,7 +15,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 #include <access/AccessRestrictionProvider.h>
 #include <access/Privilege.h>
 #include <app/AppConfig.h>
@@ -315,8 +314,8 @@ CHIP_ERROR Engine::BuildSingleReportDataAttributeReportIBs(ReportDataMessage::Bu
 #endif
 
         // For each path included in the interested path of the read handler...
-        for (; apReadHandler->GetAttributePathExpandIterator()->Get(readPath);
-             apReadHandler->GetAttributePathExpandIterator()->Next())
+        AttributePathExpandIterator2 iterator = apReadHandler->IterateAttributePaths(mpImEngine->GetDataModelProvider());
+        while (iterator.Next(readPath))
         {
             if (!apReadHandler->IsPriming())
             {
@@ -1208,6 +1207,6 @@ void Engine::MarkDirty(const AttributePathParams & path)
 
 // TODO: MatterReportingAttributeChangeCallback should just live in libCHIP, It does not depend on any
 // app-specific generated bits.
-void __attribute__((weak))
-MatterReportingAttributeChangeCallback(chip::EndpointId endpoint, chip::ClusterId clusterId, chip::AttributeId attributeId)
+void __attribute__((weak)) MatterReportingAttributeChangeCallback(chip::EndpointId endpoint, chip::ClusterId clusterId,
+                                                                  chip::AttributeId attributeId)
 {}
