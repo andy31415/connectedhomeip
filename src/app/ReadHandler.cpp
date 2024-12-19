@@ -55,7 +55,8 @@ uint16_t ReadHandler::GetPublisherSelectedIntervalLimit()
 
 ReadHandler::ReadHandler(ManagementCallback & apCallback, Messaging::ExchangeContext * apExchangeContext,
                          InteractionType aInteractionType, Observer * observer) :
-    mExchangeCtx(*this), mManagementCallback(apCallback)
+    mExchangeCtx(*this),
+    mManagementCallback(apCallback)
 {
     VerifyOrDie(apExchangeContext != nullptr);
 
@@ -511,7 +512,7 @@ CHIP_ERROR ReadHandler::ProcessAttributePaths(AttributePathIBs::Parser & aAttrib
     {
         mManagementCallback.GetInteractionModelEngine()->RemoveDuplicateConcreteAttributePath(mpAttributePathList);
         mAttributePathExpandState = AttributePathExpandIterator2::State::StartIterating(mpAttributePathList);
-        err = CHIP_NO_ERROR;
+        err                       = CHIP_NO_ERROR;
     }
     return err;
 }
