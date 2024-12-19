@@ -21,7 +21,6 @@
  *      This file defines read handler for a CHIP Interaction Data model
  *
  */
-#include "app/AttributePathExpandIterator.h"
 #include <app/AppConfig.h>
 #include <app/InteractionModelEngine.h>
 #include <app/MessageDef/EventPathIB.h>
