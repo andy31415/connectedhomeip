@@ -55,8 +55,8 @@ uint16_t ReadHandler::GetPublisherSelectedIntervalLimit()
 
 ReadHandler::ReadHandler(ManagementCallback & apCallback, Messaging::ExchangeContext * apExchangeContext,
                          InteractionType aInteractionType, Observer * observer) :
-    mTestAttributePathExpandIterator(InteractionModelEngine::GetInstance()->GetDataModelProvider(), nullptr), mExchangeCtx(*this),
-    mManagementCallback(apCallback)
+    mTestAttributePathExpandIterator(InteractionModelEngine::GetInstance()->GetDataModelProvider(), nullptr),
+    mExchangeCtx(*this), mManagementCallback(apCallback)
 {
     VerifyOrDie(apExchangeContext != nullptr);
 
