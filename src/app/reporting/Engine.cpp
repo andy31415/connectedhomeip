@@ -324,6 +324,7 @@ CHIP_ERROR Engine::BuildSingleReportDataAttributeReportIBs(ReportDataMessage::Bu
                 ConcreteAttributePath testPath;
                 VerifyOrDie(apReadHandler->GetTestAttributePathExpandIterator()->Get(testPath));
                 VerifyOrDie(readPath == testPath);
+                VerifyOrDie(readPath.mExpanded == testPath.mExpanded);
 
                 // this was done WITHOUT bool checking previous!
                 (void) apReadHandler->GetTestAttributePathExpandIterator()->Next();

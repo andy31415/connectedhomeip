@@ -888,6 +888,7 @@ void ReadHandler::AttributePathIsDirty(const AttributePathParams & aAttributeCha
         if (hasA)
         {
             VerifyOrDie(pathA == pathB);
+            VerifyOrDie(pathA.mExpanded == pathB.mExpanded);
         }
     }
 
