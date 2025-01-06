@@ -15,6 +15,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app/ConcreteAttributePath.h"
 #include <access/AccessRestrictionProvider.h>
 #include <access/Privilege.h>
 #include <app/AppConfig.h>
@@ -317,6 +318,17 @@ CHIP_ERROR Engine::BuildSingleReportDataAttributeReportIBs(ReportDataMessage::Bu
         AttributePathExpandIterator2 iterator = apReadHandler->IterateAttributePaths(mpImEngine->GetDataModelProvider());
         while (iterator.Next(readPath))
         {
+            // TODO: remove
+            {
+
+                ConcreteAttributePath testPath;
+                VerifyOrDie(apReadHandler->GetTestAttributePathExpandIterator()->Get(testPath));
+                VerifyOrDie(readPath == testPath);
+
+                // this was done WITHOUT bool checking previous!
+                (void) apReadHandler->GetTestAttributePathExpandIterator()->Next();
+            }
+
             if (!apReadHandler->IsPriming())
             {
                 bool concretePathDirty = false;
@@ -427,6 +439,14 @@ CHIP_ERROR Engine::BuildSingleReportDataAttributeReportIBs(ReportDataMessage::Bu
             // Successfully encoded the attribute, clear the internal state.
             apReadHandler->SetAttributeEncodeState(AttributeEncodeState());
         }
+
+        // TODO: remove
+        {
+
+            ConcreteAttributePath testPath;
+            VerifyOrDie(!apReadHandler->GetTestAttributePathExpandIterator()->Get(testPath));
+        }
+
         // We just visited all paths interested by this read handler and did not abort in the middle of iteration, there are no more
         // chunks for this report.
         hasMoreChunks = false;
@@ -1207,6 +1227,6 @@ void Engine::MarkDirty(const AttributePathParams & path)
 
 // TODO: MatterReportingAttributeChangeCallback should just live in libCHIP, It does not depend on any
 // app-specific generated bits.
-void __attribute__((weak))
-MatterReportingAttributeChangeCallback(chip::EndpointId endpoint, chip::ClusterId clusterId, chip::AttributeId attributeId)
+void __attribute__((weak)) MatterReportingAttributeChangeCallback(chip::EndpointId endpoint, chip::ClusterId clusterId,
+                                                                  chip::AttributeId attributeId)
 {}

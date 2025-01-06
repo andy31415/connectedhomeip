@@ -21,6 +21,7 @@
  *      This file defines read handler for a CHIP Interaction Data model
  *
  */
+
 #include <app/AppConfig.h>
 #include <app/InteractionModelEngine.h>
 #include <app/MessageDef/EventPathIB.h>
@@ -54,7 +55,7 @@ uint16_t ReadHandler::GetPublisherSelectedIntervalLimit()
 
 ReadHandler::ReadHandler(ManagementCallback & apCallback, Messaging::ExchangeContext * apExchangeContext,
                          InteractionType aInteractionType, Observer * observer) :
-    mExchangeCtx(*this),
+    mTestAttributePathExpandIterator(InteractionModelEngine::GetInstance()->GetDataModelProvider(), nullptr), mExchangeCtx(*this),
     mManagementCallback(apCallback)
 {
     VerifyOrDie(apExchangeContext != nullptr);
@@ -80,7 +81,8 @@ ReadHandler::ReadHandler(ManagementCallback & apCallback, Messaging::ExchangeCon
 
 #if CHIP_CONFIG_PERSIST_SUBSCRIPTIONS
 ReadHandler::ReadHandler(ManagementCallback & apCallback, Observer * observer) :
-    mExchangeCtx(*this), mManagementCallback(apCallback)
+    mTestAttributePathExpandIterator(InteractionModelEngine::GetInstance()->GetDataModelProvider(), nullptr), mExchangeCtx(*this),
+    mManagementCallback(apCallback)
 {
     mInteractionType = InteractionType::Subscribe;
     mFlags.ClearAll();
@@ -510,6 +512,10 @@ CHIP_ERROR ReadHandler::ProcessAttributePaths(AttributePathIBs::Parser & aAttrib
     if (CHIP_END_OF_TLV == err)
     {
         mManagementCallback.GetInteractionModelEngine()->RemoveDuplicateConcreteAttributePath(mpAttributePathList);
+
+        // TODO: remove
+        mTestAttributePathExpandIterator.ResetTo(mpAttributePathList);
+
         mAttributePathExpandState = AttributePathExpandIterator2::State::StartIterating(mpAttributePathList);
         err                       = CHIP_NO_ERROR;
     }
@@ -853,6 +859,9 @@ void ReadHandler::PersistSubscription()
 
 void ReadHandler::ResetPathIterator()
 {
+    // TODO: remove
+    mTestAttributePathExpandIterator.ResetTo(mpAttributePathList);
+
     mAttributePathExpandState = AttributePathExpandIterator2::State::StartIterating(mpAttributePathList);
     mAttributeEncoderState.Reset();
 }
@@ -869,6 +878,19 @@ void ReadHandler::AttributePathIsDirty(const AttributePathParams & aAttributeCha
     // Here we just reset the iterator to the beginning of the current cluster, if the dirty path affects it.
     // This will ensure the reports are consistent within a single cluster generated from a single path in the request.
 
+    {
+        ConcreteAttributePath pathA;
+        ConcreteAttributePath pathB;
+        bool hasA = mTestAttributePathExpandIterator.Get(pathA);
+        bool hasB = mAttributePathExpandState.GetLastOutputPath(pathB);
+
+        VerifyOrDie(hasA == hasB);
+        if (hasA)
+        {
+            VerifyOrDie(pathA == pathB);
+        }
+    }
+
     // TODO (#16699): Currently we can only guarantee the reports generated from a single path in the request are consistent. The
     // data might be inconsistent if the user send a request with two paths from the same cluster. We need to clearify the behavior
     // or make it consistent.
@@ -882,6 +904,10 @@ void ReadHandler::AttributePathIsDirty(const AttributePathParams & aAttributeCha
         // If we're currently in the middle of generating reports for a given cluster and that in turn is marked dirty, let's reset
         // our iterator to point back to the beginning of that cluster. This ensures that the receiver will get a coherent view of
         // the state of the cluster as present on the server
+
+        // TODO: remove
+        mTestAttributePathExpandIterator.ResetCurrentCluster();
+
         mAttributePathExpandState.IterateFromTheStartOfTheCurrentCluster();
         mAttributeEncoderState.Reset();
     }
