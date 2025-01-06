@@ -586,10 +586,24 @@ CHIP_ERROR InteractionModelEngine::ParseAttributePaths(const Access::SubjectDesc
             AttributePathExpandIterator2 pathIterator(GetDataModelProvider(), state);
             ConcreteAttributePath readPath;
 
+            // TODO: remove
+            AttributePathExpandIterator testPathIterator(GetDataModelProvider(), &paramsList);
+
             // The definition of "valid path" is "path exists and ACL allows access". The "path exists" part is handled by
             // AttributePathExpandIterator. So we just need to check the ACL bits.
             while (pathIterator.Next(readPath))
             {
+                // TODO: remove
+                {
+                    ConcreteAttributePath testPath;
+                    VerifyOrDie(testPathIterator.Get(testPath));
+                    VerifyOrDie(readPath == testPath);
+                    VerifyOrDie(readPath.mExpanded == testPath.mExpanded);
+
+                    // this was done WITHOUT bool checking previous!
+                    (void) testPathIterator.Next();
+                }
+
                 // leave requestPath.entityId optional value unset to indicate wildcard
                 Access::RequestPath requestPath{ .cluster     = readPath.mClusterId,
                                                  .endpoint    = readPath.mEndpointId,
@@ -601,6 +615,12 @@ CHIP_ERROR InteractionModelEngine::ParseAttributePaths(const Access::SubjectDesc
                     aHasValidAttributePath = true;
                     break;
                 }
+            }
+
+            // TODO: remove
+            {
+                ConcreteAttributePath testPath;
+                VerifyOrDie(!testPathIterator.Get(testPath));
             }
         }
         else
