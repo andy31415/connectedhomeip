@@ -19,8 +19,8 @@
 
 #include "LEDManager.h"
 
-#include <app/clusters/window-covering-server/window-covering-delegate.h>
-#include <app/clusters/window-covering-server/window-covering-server.h>
+#include <app/clusters/window-covering-server/legacy/window-covering-delegate.h>
+#include <app/clusters/window-covering-server/legacy/window-covering-server.h>
 
 #include <cstdint>
 

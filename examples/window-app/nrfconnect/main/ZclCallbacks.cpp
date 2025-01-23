@@ -30,7 +30,7 @@
 #include <app/CommandHandler.h>
 #include <app/ConcreteAttributePath.h>
 #include <app/ConcreteCommandPath.h>
-#include <app/clusters/window-covering-server/window-covering-server.h>
+#include <app/clusters/window-covering-server/legacy/window-covering-server.h>
 
 using namespace ::chip;
 using namespace ::chip::app::Clusters::WindowCovering;

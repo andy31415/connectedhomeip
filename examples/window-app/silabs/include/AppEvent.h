@@ -21,7 +21,7 @@
 struct AppEvent;
 typedef void (*EventHandler)(AppEvent *);
 
-#include <app/clusters/window-covering-server/window-covering-server.h>
+#include <app/clusters/window-covering-server/legacy/window-covering-server.h>
 #include <lib/core/CHIPError.h>
 
 using namespace chip::app::Clusters::WindowCovering;

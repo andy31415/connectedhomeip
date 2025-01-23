@@ -24,7 +24,7 @@
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/ConcreteAttributePath.h>
-#include <app/clusters/window-covering-server/window-covering-delegate.h>
+#include <app/clusters/window-covering-server/legacy/window-covering-delegate.h>
 #include <lib/support/logging/CHIPLogging.h>
 
 LOG_MODULE_DECLARE(app, CONFIG_CHIP_APP_LOG_LEVEL);

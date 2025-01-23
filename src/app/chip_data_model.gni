@@ -452,6 +452,12 @@ template("chip_data_model") {
           "${_app_root}/clusters/${cluster}/ArlEncoder.cpp",
           "${_app_root}/clusters/${cluster}/ArlEncoder.h",
         ]
+      } else if (cluster == "window-covering-server") {
+        sources += [
+          "${_app_root}/clusters/window-covering-server/legacy/window-covering-delegate.h",
+          "${_app_root}/clusters/window-covering-server/legacy/window-covering-server.cpp",
+          "${_app_root}/clusters/window-covering-server/legacy/window-covering-server.h",
+        ]
       } else {
         sources += [ "${_app_root}/clusters/${cluster}/${cluster}.cpp" ]
       }
