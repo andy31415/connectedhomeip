@@ -92,8 +92,9 @@ ActionReturnStatus ServerClusterInterface::WriteAttribute(const WriteAttributeRe
     return Protocols::InteractionModel::Status::UnsupportedWrite;
 }
 
-std::optional<ActionReturnStatus> ServerClusterInterface::Invoke(const InvokeRequest & request,
-                                                                 chip::TLV::TLVReader & input_arguments, CommandHandler * handler)
+std::optional<ActionReturnStatus> ServerClusterInterface::InvokeCommand(const InvokeRequest & request,
+                                                                        chip::TLV::TLVReader & input_arguments,
+                                                                        CommandHandler * handler)
 {
     return Protocols::InteractionModel::Status::UnsupportedCommand;
 }

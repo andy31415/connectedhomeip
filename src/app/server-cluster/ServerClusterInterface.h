@@ -195,8 +195,8 @@ public:
     /// Must only be implemented if commands are supported by the cluster
     ///
     /// Default implementation errors out with an UnspportedCommand error.
-    virtual std::optional<DataModel::ActionReturnStatus> Invoke(const DataModel::InvokeRequest & request,
-                                                                chip::TLV::TLVReader & input_arguments, CommandHandler * handler);
+    virtual std::optional<DataModel::ActionReturnStatus>
+    InvokeCommand(const DataModel::InvokeRequest & request, chip::TLV::TLVReader & input_arguments, CommandHandler * handler);
 
     /// Must only be implemented if commands are supported by the cluster
     ///

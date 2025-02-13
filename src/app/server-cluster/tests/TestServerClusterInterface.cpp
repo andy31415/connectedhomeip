@@ -237,5 +237,6 @@ TEST(TestServerClusterInterface, InvokeDefault)
 
     request.path = { 0 /* endpoint */, 1 /* cluster */, 1234 /* command */ };
 
-    ASSERT_EQ(cluster.Invoke(request, tlvReader, nullptr /* command handler, assumed unused here */), Status::UnsupportedCommand);
+    ASSERT_EQ(cluster.InvokeCommand(request, tlvReader, nullptr /* command handler, assumed unused here */),
+              Status::UnsupportedCommand);
 }
