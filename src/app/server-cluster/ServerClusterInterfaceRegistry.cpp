@@ -30,6 +30,22 @@ ServerClusterInterfaceRegistry & ServerClusterInterfaceRegistry::Instance()
     return sRegistry;
 }
 
+ServerClusterInterfaceRegistry::~ServerClusterInterfaceRegistry()
+{
+    for (auto & ep : mPreallocateEndpoints)
+    {
+        if (ep.endpointId == kInvalidEndpointId)
+        {
+            UnregisterAllFromEndpoint(ep.endpointId);
+        }
+    }
+
+    while (mDynamicEndpoints != nullptr)
+    {
+        UnregisterAllFromEndpoint(mDynamicEndpoints->endpointId);
+    }
+}
+
 CHIP_ERROR ServerClusterInterfaceRegistry::AllocateNewEndpointClusters(EndpointId endpointId, EndpointClusters *& dest)
 {
     for (auto & ep : mPreallocateEndpoints)

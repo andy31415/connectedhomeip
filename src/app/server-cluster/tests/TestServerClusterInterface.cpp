@@ -122,6 +122,7 @@ TEST(TestServerClusterInterface, TestAssignmentInList)
     {
         FakeServerClusterInterface other(basic);
         ASSERT_TRUE(other.IsInList());
+        other.SetNotInList(); // ensure destruction is ok
     }
 
     // assignment : not in list
@@ -131,6 +132,8 @@ TEST(TestServerClusterInterface, TestAssignmentInList)
 
         other = basic;
         ASSERT_TRUE(other.IsInList());
+
+        other.SetNotInList(); // ensure destruction is ok
     }
 
     // move constructor
@@ -142,6 +145,8 @@ TEST(TestServerClusterInterface, TestAssignmentInList)
 
         FakeServerClusterInterface other(std::move(movable));
         ASSERT_TRUE(other.IsInList());
+
+        other.SetNotInList(); // ensure destruction is ok
     }
 
     // move assignment
@@ -156,7 +161,11 @@ TEST(TestServerClusterInterface, TestAssignmentInList)
 
         other = std::move(movable);
         ASSERT_TRUE(other.IsInList());
+
+        other.SetNotInList(); // ensure destruction is ok
     }
+
+    basic.SetNotInList(); // ensure destruction is ok
 }
 
 TEST(TestServerClusterInterface, TestDataVersion)

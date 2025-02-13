@@ -28,6 +28,8 @@ namespace app {
 class ServerClusterInterfaceRegistry
 {
 public:
+    ~ServerClusterInterfaceRegistry();
+
     /// Associate a specific interface for the given endpoint.
     ///
     /// There MUST be a single cluster registration for any given endpoint

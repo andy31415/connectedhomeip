@@ -32,18 +32,27 @@ namespace chip {
 namespace app {
 
 namespace detail {
+
+/// This class implements an intrusive single linked list
+///
+/// The class is an implementation detail for the use of ServerClusterInterfaceRegistry and
+/// is NOT considered public API. No API-compatibility is guaranteed across different
+/// SDK releases.
 template <typename SELF>
 class IntrusiveSingleLinkedList
 {
 public:
     IntrusiveSingleLinkedList() : mNext(static_cast<SELF *>(this)) {}
+    ~IntrusiveSingleLinkedList() { VerifyOrDie(!IsInList()); }
 
     // IMPLEMENTATION DETAILS:
     //   Since `mNext == this` is used as a marker for "is in a list",
     //   the assignment of these interfaces is overloaded even for the move operator.
     IntrusiveSingleLinkedList(IntrusiveSingleLinkedList && other) :
         mNext((other.mNext == &other) ? static_cast<SELF *>(this) : other.mNext)
-    {}
+    {
+        other.SetNotInList();
+    }
     IntrusiveSingleLinkedList(const IntrusiveSingleLinkedList & other) :
         mNext((other.mNext == &other) ? static_cast<SELF *>(this) : other.mNext)
     {}
@@ -55,27 +64,19 @@ public:
         }
         return *this;
     }
-    IntrusiveSingleLinkedList & operator=(const IntrusiveSingleLinkedList && other)
+    IntrusiveSingleLinkedList & operator=(IntrusiveSingleLinkedList && other)
     {
         mNext = (other.mNext == &other) ? static_cast<SELF *>(this) : other.mNext;
+        other.SetNotInList();
         return *this;
     }
 
-    // Internal details for processing
-
-    /// This is NOT a STABLE API.
-    ///
     /// Determines if this object is part of a linked list already or not.
     [[nodiscard]] bool IsInList() const { return (mNext != this); }
 
-    /// This is NOT a STABLE API.
-    ///
     /// Marks this object as not being part of a linked list
     void SetNotInList() { mNext = static_cast<SELF *>(this); }
 
-    /// This is NOT a STABLE API. It allows interfaces to be stored within a registry, however
-    /// usage of this method MAY be changed in the future.
-    ///
     /// Returns a "next" pointer when the ServerClusterInterface is assumed to be
     /// part of a SINGLE linked list.
     [[nodiscard]] SELF * GetNextListItem() const
@@ -84,9 +85,6 @@ public:
         return mNext;
     }
 
-    /// This is NOT a STABLE API. It allows interfaces to be stored within a registry, however
-    /// usage of this method MAY be changed in the future.
-    ///
     /// Sets the "next" pointer when the SELF is assumed to be
     /// part of a SINGLE linked list.
     ///
@@ -123,6 +121,11 @@ class ServerClusterInterface : public detail::IntrusiveSingleLinkedList<ServerCl
 public:
     ServerClusterInterface();
     virtual ~ServerClusterInterface() = default;
+
+    ServerClusterInterface(const ServerClusterInterface &)             = default;
+    ServerClusterInterface(ServerClusterInterface &&)                  = default;
+    ServerClusterInterface & operator=(const ServerClusterInterface &) = default;
+    ServerClusterInterface & operator=(ServerClusterInterface &&)      = default;
 
     ///////////////////////////////////// Cluster Metadata Support //////////////////////////////////////////////////
     [[nodiscard]] virtual ClusterId GetClusterId() const = 0;
@@ -211,12 +214,6 @@ public:
 
 private:
     DataVersion mDataVersion; // will be random-initialized as per spec
-
-    // The mNext pointer has 2 (!) states:
-    //  - `this` means this item is NOT part of a linked list (used since we would generally
-    //    not allow loops)
-    //  - OTHER values, including nullptr, when this is part of a REAL LIST
-    ServerClusterInterface * mNext; /* = this (in constructor) */
 };
 
 } // namespace app

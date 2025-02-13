@@ -71,9 +71,6 @@ ServerClusterInterface::ServerClusterInterface()
     // SPEC - 7.10.3. Cluster Data Version
     //   A cluster data version SHALL be initialized randomly when it is first published.
     mDataVersion = Crypto::GetRandU32();
-
-    // marks that this sever cluster interface is NOT in list
-    mNext = this;
 }
 
 CHIP_ERROR ServerClusterInterface::Attributes(const ConcreteClusterPath & path, DataModel::ListBuilder<AttributeEntry> & builder)
