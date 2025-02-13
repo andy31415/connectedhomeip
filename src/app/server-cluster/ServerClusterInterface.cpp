@@ -14,9 +14,9 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "access/Privilege.h"
 #include <app/server-cluster/ServerClusterInterface.h>
 
+#include <access/Privilege.h>
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <crypto/RandUtils.h>
