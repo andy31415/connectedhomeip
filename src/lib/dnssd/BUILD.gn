@@ -23,6 +23,15 @@ source_set("constants") {
 
 source_set("types") {
   sources = [ "Types.h" ]
+
+  public_deps = [
+    ":constants",
+    "${chip_root}/src/inet",
+    "${chip_root}/src/lib/core",
+    "${chip_root}/src/lib/core:error",
+    "${chip_root}/src/lib/support",
+    "${chip_root}/src/messaging:configurations",
+  ]
 }
 
 source_set("naming") {

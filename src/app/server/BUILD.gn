@@ -77,6 +77,7 @@ static_library("server") {
     "${chip_root}/src/lib/dnssd",
     "${chip_root}/src/lib/dnssd:naming",
     "${chip_root}/src/messaging",
+    "${chip_root}/src/messaging:configurations",
     "${chip_root}/src/platform",
     "${chip_root}/src/protocols",
     "${chip_root}/src/transport",
