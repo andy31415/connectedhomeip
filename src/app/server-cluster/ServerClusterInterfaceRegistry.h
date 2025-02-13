@@ -35,7 +35,7 @@ public:
     /// exists on the given endpoint for the given clusterid.
     ///
     /// Registrations need a valid endpointid and cluster MUST return a valid clusterid.
-    CHIP_ERROR Register(EndpointId endpointId, ServerClusterInterface * cluster);
+    [[nodiscard]] CHIP_ERROR Register(EndpointId endpointId, ServerClusterInterface * cluster);
 
     /// Remove an existing registration for a given endpoint/cluster path.
     ///
@@ -77,7 +77,7 @@ private:
     };
 
     // Serves as a pool of pre-allocated clusters to avoid HEAP
-    EndpointClusters mPreallocateEndpoints[kPreallocatedEndpointClusters];
+    std::array<EndpointClusters, kPreallocatedEndpointClusters> mPreallocateEndpoints;
 
     // Dynamic allocated endpoint cluters, once static allocation is used up
     DynamicEndpointClusters * mDynamicEndpoints = nullptr;

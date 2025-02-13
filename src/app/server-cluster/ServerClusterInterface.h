@@ -51,8 +51,11 @@ public:
 
     ServerClusterInterface & operator=(const ServerClusterInterface & other)
     {
-        mDataVersion = other.mDataVersion;
-        mNext        = (other.mNext == &other) ? this : other.mNext;
+        if (&other != this)
+        {
+            mDataVersion = other.mDataVersion;
+            mNext        = (other.mNext == &other) ? this : other.mNext;
+        }
         return *this;
     }
     ServerClusterInterface & operator=(const ServerClusterInterface && other)
@@ -63,7 +66,7 @@ public:
     }
 
     ///////////////////////////////////// Cluster Metadata Support //////////////////////////////////////////////////
-    virtual ClusterId GetClusterId() const = 0;
+    [[nodiscard]] virtual ClusterId GetClusterId() const = 0;
 
     // Every cluster must have a data version. Base class implementation to avoid
     // code duplication
@@ -77,13 +80,13 @@ public:
     //   [...]
     //   A cluster data version SHALL be incremented if any attribute data changes.
     //
-    DataVersion GetDataVersion() const { return mDataVersion; }
+    [[nodiscard]] DataVersion GetDataVersion() const { return mDataVersion; }
     void IncreaseDataVersion() { mDataVersion++; }
 
     /// Cluster flags can be overridden, however most clusters likely have a default of "nothing special".
     ///
     /// Default implementation returns a 0/empty quality list.
-    virtual BitFlags<DataModel::ClusterQualityFlags> GetClusterFlags() const;
+    [[nodiscard]] virtual BitFlags<DataModel::ClusterQualityFlags> GetClusterFlags() const;
 
     ///////////////////////////////////// Attribute Support ////////////////////////////////////////////////////////
 
