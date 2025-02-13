@@ -95,8 +95,13 @@ ServerClusterInterface * ServerClusterInterfaceRegistry::Unregister(const Concre
             UnregisterAllFromEndpoint(endpointClusters->endpointId);
         }
 
-        // ensure we can catch if elements are parts of list or not
+        if (mCachedInterface == previous)
+        {
+            mCachedClusterEndpointId = kInvalidEndpointId;
+            mCachedInterface         = nullptr;
+        }
         previous->SetNotInList();
+
         return previous;
     }
 
@@ -111,8 +116,13 @@ ServerClusterInterface * ServerClusterInterfaceRegistry::Unregister(const Concre
             // takes the item out of the current list and return it.
             prev->SetNextListItem(current->GetNextListItem());
 
-            // ensure we can catch if elements are parts of list or not
+            if (mCachedInterface == current)
+            {
+                mCachedClusterEndpointId = kInvalidEndpointId;
+                mCachedInterface         = nullptr;
+            }
             current->SetNotInList();
+
             return current;
         }
 
@@ -139,6 +149,13 @@ void ServerClusterInterfaceRegistry::UnregisterAllFromEndpoint(EndpointId endpoi
     if ((mEndpointClustersCache != nullptr) && (mEndpointClustersCache->endpointId == endpointId))
     {
         mEndpointClustersCache = nullptr;
+    }
+
+    if (mCachedClusterEndpointId == endpointId)
+    {
+        // all clusters on the given endpoints will be destroyed.
+        mCachedInterface         = nullptr;
+        mCachedClusterEndpointId = kInvalidEndpointId;
     }
 
     // if it is static, just clear it
@@ -187,41 +204,25 @@ ServerClusterInterface * ServerClusterInterfaceRegistry::Get(const ConcreteClust
     VerifyOrReturnValue(endpointClusters != nullptr, nullptr);
     VerifyOrReturnValue(endpointClusters->firstCluster != nullptr, nullptr);
 
-    // To speed up lookups, this search will ALWAYS place any found element
-    // at the BEGINNING of the list.
-    if (endpointClusters->firstCluster->GetClusterId() == path.mClusterId)
+    // Check the cache to speed things up
+    if ((mCachedClusterEndpointId == path.mEndpointId) && (mCachedInterface != nullptr) &&
+        (mCachedInterface->GetClusterId() == path.mClusterId))
     {
-        return endpointClusters->firstCluster;
+        return mCachedInterface;
     }
 
-    // The cluster searched for is not the first. Do a linear search
-    // and update the "first" to be the found element (if any)
-    ServerClusterInterface * prev    = endpointClusters->firstCluster;
-    ServerClusterInterface * current = endpointClusters->firstCluster->GetNextListItem();
+    // The cluster searched for is not cached, do a linear search for it
+    ServerClusterInterface * current = endpointClusters->firstCluster;
 
     while (current != nullptr)
     {
         if (current->GetClusterId() == path.mClusterId)
         {
-            // adjust the list to move the found item at the start
-            // firstCluster -> A -> ...... -> prev -> current -> X ....
-            prev->SetNextListItem(current->GetNextListItem());
-            //                                 ┌─────────────────┐
-            //                                 │                 ↓
-            // firstCluster -> A -> ...... -> prev    current -> X ....
-            current->SetNextListItem(endpointClusters->firstCluster);
-            //                                 ┌─────────────────┐
-            //                                 │                 ↓
-            // firstCluster -> A -> ...... -> prev    current    X ....
-            //                 ↑                         │
-            //                 └─────────────────────────┘
-            endpointClusters->firstCluster = current;
-            // firstCluster -> current -> A -> ...... -> prev -> B
-
+            mCachedClusterEndpointId = path.mEndpointId;
+            mCachedInterface         = current;
             return current;
         }
 
-        prev    = current;
         current = current->GetNextListItem();
     }
 

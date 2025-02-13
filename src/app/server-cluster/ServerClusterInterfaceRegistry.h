@@ -85,6 +85,11 @@ private:
     // a one-element cache to speed up finding per endpoint
     EndpointClusters * mEndpointClustersCache = nullptr;
 
+    // a one-element cache to speed up finding clusters.
+    // The endpoint id specifies which endpoint the cache belongs to.
+    ClusterId mCachedClusterEndpointId = kInvalidEndpointId;
+    ServerClusterInterface *mCachedInterface = nullptr;
+
     /// returns nullptr if not found
     EndpointClusters * FindClusters(EndpointId endpointId);
 
