@@ -40,8 +40,9 @@ public:
     ServerClusterInterface();
     virtual ~ServerClusterInterface() = default;
 
-    // since we use `mNext == this` as a marker for "is in a list"
-    // the assignment of these interfaces is overloaded even for the move operator
+    // IMPLEMENTATION DETAILS:
+    //   Since `mNext == this` is used as a marker for "is in a list",
+    //   the assignment of these interfaces is overloaded even for the move operator.
     ServerClusterInterface(ServerClusterInterface && other) :
         mDataVersion(other.mDataVersion), mNext((other.mNext == &other) ? this : other.mNext)
     {}
