@@ -31,40 +31,98 @@
 namespace chip {
 namespace app {
 
-/// Defines an active cluster on an endpoint.
-///
-/// Provides metadata as well as interaction processing (attribute read/write and command handling).
-class ServerClusterInterface
+namespace detail {
+template <typename SELF>
+class IntrusiveSingleLinkedList
 {
 public:
-    ServerClusterInterface();
-    virtual ~ServerClusterInterface() = default;
+    IntrusiveSingleLinkedList() : mNext(static_cast<SELF *>(this)) {}
 
     // IMPLEMENTATION DETAILS:
     //   Since `mNext == this` is used as a marker for "is in a list",
     //   the assignment of these interfaces is overloaded even for the move operator.
-    ServerClusterInterface(ServerClusterInterface && other) :
-        mDataVersion(other.mDataVersion), mNext((other.mNext == &other) ? this : other.mNext)
+    IntrusiveSingleLinkedList(IntrusiveSingleLinkedList && other) :
+        mNext((other.mNext == &other) ? static_cast<SELF *>(this) : other.mNext)
     {}
-    ServerClusterInterface(const ServerClusterInterface & other) :
-        mDataVersion(other.mDataVersion), mNext((other.mNext == &other) ? this : other.mNext)
+    IntrusiveSingleLinkedList(const IntrusiveSingleLinkedList & other) :
+        mNext((other.mNext == &other) ? static_cast<SELF *>(this) : other.mNext)
     {}
-
-    ServerClusterInterface & operator=(const ServerClusterInterface & other)
+    IntrusiveSingleLinkedList & operator=(const IntrusiveSingleLinkedList & other)
     {
         if (&other != this)
         {
-            mDataVersion = other.mDataVersion;
-            mNext        = (other.mNext == &other) ? this : other.mNext;
+            mNext = (other.mNext == &other) ? static_cast<SELF *>(this) : other.mNext;
         }
         return *this;
     }
-    ServerClusterInterface & operator=(const ServerClusterInterface && other)
+    IntrusiveSingleLinkedList & operator=(const IntrusiveSingleLinkedList && other)
     {
-        mDataVersion = other.mDataVersion;
-        mNext        = (other.mNext == &other) ? this : other.mNext;
+        mNext = (other.mNext == &other) ? static_cast<SELF *>(this) : other.mNext;
         return *this;
     }
+
+    // Internal details for processing
+
+    /// This is NOT a STABLE API.
+    ///
+    /// Determines if this object is part of a linked list already or not.
+    [[nodiscard]] bool IsInList() const { return (mNext != this); }
+
+    /// This is NOT a STABLE API.
+    ///
+    /// Marks this object as not being part of a linked list
+    void SetNotInList() { mNext = static_cast<SELF *>(this); }
+
+    /// This is NOT a STABLE API. It allows interfaces to be stored within a registry, however
+    /// usage of this method MAY be changed in the future.
+    ///
+    /// Returns a "next" pointer when the ServerClusterInterface is assumed to be
+    /// part of a SINGLE linked list.
+    [[nodiscard]] SELF * GetNextListItem() const
+    {
+        VerifyOrDie(mNext != this);
+        return mNext;
+    }
+
+    /// This is NOT a STABLE API. It allows interfaces to be stored within a registry, however
+    /// usage of this method MAY be changed in the future.
+    ///
+    /// Sets the "next" pointer when the SELF is assumed to be
+    /// part of a SINGLE linked list.
+    ///
+    /// Returns the old value of "next"
+    SELF * SetNextListItem(SELF * value)
+    {
+        VerifyOrDie(value != this);
+        auto previousValue = mNext;
+        mNext              = value;
+        return previousValue;
+    }
+
+private:
+    // The mNext pointer has 2 (!) states:
+    //  - `this` means this item is NOT part of a linked list (used since we would generally
+    //    not allow loops)
+    //  - OTHER values, including nullptr, when this is part of a REAL LIST
+    SELF * mNext; /* = this (in constructor) */
+};
+
+} // namespace detail
+
+/// Defines an active cluster on an endpoint.
+///
+/// Provides metadata as well as interaction processing (attribute read/write and command handling).
+///
+/// Implementation note:
+///   - this class is highly coupled with ServerClusterInterfaceRegistry. The fact that it
+///     derives from `detail::IntrusiveSingleLinkedList` is NOT a public API and is only done
+///     for `ServerClusterInterfaceRegistry` usage. Code may be updated to support different
+///     implementations for storing interface.
+class ServerClusterInterface : public detail::IntrusiveSingleLinkedList<ServerClusterInterface>
+{
+public:
+    ServerClusterInterface();
+    virtual ~ServerClusterInterface() = default;
 
     ///////////////////////////////////// Cluster Metadata Support //////////////////////////////////////////////////
     [[nodiscard]] virtual ClusterId GetClusterId() const = 0;
@@ -150,44 +208,6 @@ public:
     ///
     /// Default implementation is a NOOP (no list items generated)
     virtual CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder);
-
-    // Internal details for processing
-
-    /// This is NOT a STABLE API.
-    ///
-    /// Determines if this object is part of a linked list already or not.
-    [[nodiscard]] bool IsInList() const { return (mNext != this); }
-
-    /// This is NOT a STABLE API.
-    ///
-    /// Marks this object as not being part of a linked list
-    void SetNotInList() { mNext = this; }
-
-    /// This is NOT a STABLE API. It allows interfaces to be stored within a registry, however
-    /// usage of this method MAY be changed in the future.
-    ///
-    /// Returns a "next" pointer when the ServerClusterInterface is assumed to be
-    /// part of a SINGLE linked list.
-    [[nodiscard]] ServerClusterInterface * GetNextListItem() const
-    {
-        VerifyOrDie(mNext != this);
-        return mNext;
-    }
-
-    /// This is NOT a STABLE API. It allows interfaces to be stored within a registry, however
-    /// usage of this method MAY be changed in the future.
-    ///
-    /// Sets the "next" pointer when the ServerClusterInterface is assumed to be
-    /// part of a SINGLE linked list.
-    ///
-    /// Returns the old value of "next"
-    ServerClusterInterface * SetNextListItem(ServerClusterInterface * value)
-    {
-        VerifyOrDie(value != this);
-        auto previousValue = mNext;
-        mNext              = value;
-        return previousValue;
-    }
 
 private:
     DataVersion mDataVersion; // will be random-initialized as per spec
