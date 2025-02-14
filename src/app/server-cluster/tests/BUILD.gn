@@ -19,8 +19,8 @@ chip_test_suite("tests") {
   output_name = "libServerClusterInterfaceTests"
 
   test_sources = [
-    "TestServerClusterInterface.cpp",
     "TestServerClusterInterfaceRegistry.cpp",
+    "TestStandardServerCluster.cpp",
   ]
 
   cflags = [ "-Wconversion" ]

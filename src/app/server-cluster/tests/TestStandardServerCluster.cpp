@@ -23,7 +23,7 @@
 #include <app/data-model-provider/OperationTypes.h>
 #include <app/data-model-provider/tests/ReadTesting.h>
 #include <app/data-model-provider/tests/WriteTesting.h>
-#include <app/server-cluster/ServerClusterInterface.h>
+#include <app/server-cluster/StandardServerCluster.h>
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
 #include <lib/core/StringBuilderAdapters.h>
@@ -41,10 +41,10 @@ using namespace chip::Protocols::InteractionModel;
 
 namespace {
 
-class FakeServerClusterInterface : public ServerClusterInterface
+class FakeStandardServerCluster : public StandardServerCluster
 {
 public:
-    FakeServerClusterInterface(ClusterId id) : mClusterId(id) {}
+    FakeStandardServerCluster(ClusterId id) : mClusterId(id) {}
 
     ClusterId GetClusterId() const override { return mClusterId; }
 
@@ -67,21 +67,21 @@ private:
 
 } // namespace
 
-TEST(TestServerClusterInterface, TestAssignmentNotInList)
+TEST(TestStandardServerCluster, TestAssignmentNotInList)
 {
-    FakeServerClusterInterface basic(1);
+    FakeStandardServerCluster basic(1);
 
     ASSERT_FALSE(basic.IsInList());
 
     // copy constructor: not in list
     {
-        FakeServerClusterInterface other(basic);
+        FakeStandardServerCluster other(basic);
         ASSERT_FALSE(other.IsInList());
     }
 
     // assignment : not in list
     {
-        FakeServerClusterInterface other(2);
+        FakeStandardServerCluster other(2);
         ASSERT_FALSE(other.IsInList());
 
         other = basic;
@@ -90,19 +90,19 @@ TEST(TestServerClusterInterface, TestAssignmentNotInList)
 
     // move constructor
     {
-        FakeServerClusterInterface movable(2);
+        FakeStandardServerCluster movable(2);
         ASSERT_FALSE(movable.IsInList());
 
-        FakeServerClusterInterface other(std::move(movable));
+        FakeStandardServerCluster other(std::move(movable));
         ASSERT_FALSE(other.IsInList());
     }
 
     // move assignment
     {
-        FakeServerClusterInterface movable(2);
+        FakeStandardServerCluster movable(2);
         ASSERT_FALSE(movable.IsInList());
 
-        FakeServerClusterInterface other(3);
+        FakeStandardServerCluster other(3);
         ASSERT_FALSE(other.IsInList());
 
         other = std::move(movable);
@@ -110,9 +110,9 @@ TEST(TestServerClusterInterface, TestAssignmentNotInList)
     }
 }
 
-TEST(TestServerClusterInterface, TestAssignmentInList)
+TEST(TestStandardServerCluster, TestAssignmentInList)
 {
-    FakeServerClusterInterface basic(1);
+    FakeStandardServerCluster basic(1);
 
     ASSERT_FALSE(basic.IsInList());
     basic.SetNextListItem(nullptr);
@@ -120,14 +120,14 @@ TEST(TestServerClusterInterface, TestAssignmentInList)
 
     // copy constructor: not in list
     {
-        FakeServerClusterInterface other(basic);
+        FakeStandardServerCluster other(basic);
         ASSERT_TRUE(other.IsInList());
         other.SetNotInList(); // ensure destruction is ok
     }
 
     // assignment : not in list
     {
-        FakeServerClusterInterface other(2);
+        FakeStandardServerCluster other(2);
         ASSERT_FALSE(other.IsInList());
 
         other = basic;
@@ -138,12 +138,12 @@ TEST(TestServerClusterInterface, TestAssignmentInList)
 
     // move constructor
     {
-        FakeServerClusterInterface movable(2);
+        FakeStandardServerCluster movable(2);
         ASSERT_FALSE(movable.IsInList());
         movable.SetNextListItem(nullptr);
         ASSERT_TRUE(movable.IsInList());
 
-        FakeServerClusterInterface other(std::move(movable));
+        FakeStandardServerCluster other(std::move(movable));
         ASSERT_TRUE(other.IsInList());
 
         other.SetNotInList(); // ensure destruction is ok
@@ -151,12 +151,12 @@ TEST(TestServerClusterInterface, TestAssignmentInList)
 
     // move assignment
     {
-        FakeServerClusterInterface movable(2);
+        FakeStandardServerCluster movable(2);
         ASSERT_FALSE(movable.IsInList());
         movable.SetNextListItem(nullptr);
         ASSERT_TRUE(movable.IsInList());
 
-        FakeServerClusterInterface other(3);
+        FakeStandardServerCluster other(3);
         ASSERT_FALSE(other.IsInList());
 
         other = std::move(movable);
@@ -168,24 +168,24 @@ TEST(TestServerClusterInterface, TestAssignmentInList)
     basic.SetNotInList(); // ensure destruction is ok
 }
 
-TEST(TestServerClusterInterface, TestDataVersion)
+TEST(TestStandardServerCluster, TestDataVersion)
 {
-    FakeServerClusterInterface cluster(1);
+    FakeStandardServerCluster cluster(1);
 
     DataVersion v1 = cluster.GetDataVersion();
     cluster.IncreaseDataVersion();
     ASSERT_EQ(cluster.GetDataVersion(), v1 + 1);
 }
 
-TEST(TestServerClusterInterface, TestFlagsDefault)
+TEST(TestStandardServerCluster, TestFlagsDefault)
 {
-    FakeServerClusterInterface cluster(1);
+    FakeStandardServerCluster cluster(1);
     ASSERT_EQ(cluster.GetClusterFlags().Raw(), 0u);
 }
 
-TEST(TestServerClusterInterface, AttributesDefault)
+TEST(TestStandardServerCluster, AttributesDefault)
 {
-    FakeServerClusterInterface cluster(1);
+    FakeStandardServerCluster cluster(1);
 
     DataModel::ListBuilder<AttributeEntry> attributes;
 
@@ -211,9 +211,9 @@ TEST(TestServerClusterInterface, AttributesDefault)
     }
 }
 
-TEST(TestServerClusterInterface, CommandsDefault)
+TEST(TestStandardServerCluster, CommandsDefault)
 {
-    FakeServerClusterInterface cluster(1);
+    FakeStandardServerCluster cluster(1);
 
     DataModel::ListBuilder<AcceptedCommandEntry> acceptedCommands;
     ASSERT_EQ(cluster.AcceptedCommands({ 1, 1 }, acceptedCommands), CHIP_NO_ERROR);
@@ -224,9 +224,9 @@ TEST(TestServerClusterInterface, CommandsDefault)
     ASSERT_TRUE(generatedCommands.TakeBuffer().empty());
 }
 
-TEST(TestServerClusterInterface, WriteAttributeDefault)
+TEST(TestStandardServerCluster, WriteAttributeDefault)
 {
-    FakeServerClusterInterface cluster(1);
+    FakeStandardServerCluster cluster(1);
 
     WriteOperation test(0 /* endpoint */, 1 /* cluster */, 1234 /* attribute */);
     test.SetSubjectDescriptor(kAdminSubjectDescriptor);
@@ -237,9 +237,9 @@ TEST(TestServerClusterInterface, WriteAttributeDefault)
     ASSERT_FALSE(decoder.TriedDecode());
 }
 
-TEST(TestServerClusterInterface, InvokeDefault)
+TEST(TestStandardServerCluster, InvokeDefault)
 {
-    FakeServerClusterInterface cluster(1);
+    FakeStandardServerCluster cluster(1);
 
     TLV::TLVReader tlvReader;
     InvokeRequest request;

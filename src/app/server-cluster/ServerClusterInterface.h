@@ -119,13 +119,8 @@ private:
 class ServerClusterInterface : public detail::IntrusiveSingleLinkedList<ServerClusterInterface>
 {
 public:
-    ServerClusterInterface();
+    ServerClusterInterface()          = default;
     virtual ~ServerClusterInterface() = default;
-
-    ServerClusterInterface(const ServerClusterInterface &)             = default;
-    ServerClusterInterface(ServerClusterInterface &&)                  = default;
-    ServerClusterInterface & operator=(const ServerClusterInterface &) = default;
-    ServerClusterInterface & operator=(ServerClusterInterface &&)      = default;
 
     ///////////////////////////////////// Cluster Metadata Support //////////////////////////////////////////////////
     [[nodiscard]] virtual ClusterId GetClusterId() const = 0;
@@ -142,13 +137,12 @@ public:
     //   [...]
     //   A cluster data version SHALL be incremented if any attribute data changes.
     //
-    [[nodiscard]] DataVersion GetDataVersion() const { return mDataVersion; }
-    void IncreaseDataVersion() { mDataVersion++; }
+    [[nodiscard]] virtual DataVersion GetDataVersion() const = 0;
 
     /// Cluster flags can be overridden, however most clusters likely have a default of "nothing special".
     ///
     /// Default implementation returns a 0/empty quality list.
-    [[nodiscard]] virtual BitFlags<DataModel::ClusterQualityFlags> GetClusterFlags() const;
+    [[nodiscard]] virtual BitFlags<DataModel::ClusterQualityFlags> GetClusterFlags() const = 0;
 
     ///////////////////////////////////// Attribute Support ////////////////////////////////////////////////////////
 
@@ -170,12 +164,8 @@ public:
 
     /// WriteAttribute MUST be done on a valid attribute path. `request.path` is expected to have `GetClusterId` as the cluster
     /// id as well as an attribute that is included in a `Attributes` call.
-    ///
-    /// Must only be implemented if writable attributes are defined.
-    ///
-    /// Default implementation errors out with an unsupported write on every attribute.
     virtual DataModel::ActionReturnStatus WriteAttribute(const DataModel::WriteAttributeRequest & request,
-                                                         AttributeValueDecoder & decoder);
+                                                         AttributeValueDecoder & decoder) = 0;
 
     /// Attribute list MUST contain global attributes.
     ///
@@ -187,33 +177,18 @@ public:
     ///     - GeneratedCommandList::Id
     /// See SPEC 7.13 Global Elements: `Global Attributes` table
     ///
-    /// Must only be implemented if support for any non-global attributes
-    /// is required.
-    ///
-    /// Default implementation just returns the above global attributes.
-    virtual CHIP_ERROR Attributes(const ConcreteClusterPath & path, DataModel::ListBuilder<DataModel::AttributeEntry> & builder);
+    virtual CHIP_ERROR Attributes(const ConcreteClusterPath & path,
+                                  DataModel::ListBuilder<DataModel::AttributeEntry> & builder) = 0;
 
     ///////////////////////////////////// Command Support /////////////////////////////////////////////////////////
 
-    /// Must only be implemented if commands are supported by the cluster
-    ///
-    /// Default implementation errors out with an UnspportedCommand error.
     virtual std::optional<DataModel::ActionReturnStatus>
-    InvokeCommand(const DataModel::InvokeRequest & request, chip::TLV::TLVReader & input_arguments, CommandHandler * handler);
+    InvokeCommand(const DataModel::InvokeRequest & request, chip::TLV::TLVReader & input_arguments, CommandHandler * handler) = 0;
 
-    /// Must only be implemented if commands are supported by the cluster
-    ///
-    /// Default implementation is a NOOP (no list items generated)
     virtual CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path,
-                                        DataModel::ListBuilder<DataModel::AcceptedCommandEntry> & builder);
+                                        DataModel::ListBuilder<DataModel::AcceptedCommandEntry> & builder) = 0;
 
-    /// Must only be implemented if commands are supported by the cluster that return values
-    ///
-    /// Default implementation is a NOOP (no list items generated)
-    virtual CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder);
-
-private:
-    DataVersion mDataVersion; // will be random-initialized as per spec
+    virtual CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder) = 0;
 };
 
 } // namespace app
