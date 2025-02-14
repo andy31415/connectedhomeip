@@ -21,6 +21,14 @@
 namespace chip {
 namespace app {
 
+/// Provides an implementation of most methods for a `ServerClusterInterface`
+/// to make it easier to implement spec-compliant classes.
+///
+/// In particular it does:
+///   - maintains a data version and provides `IncreaseDataVersion`. Ensures this
+///     version is spec-compliant initialized (with a random value)
+///   - Provides default implementations for most virtual methods EXCEPT
+///     ReadAttribute (since that one needs to handle featuremap and revision)
 class StandardServerCluster : public ServerClusterInterface
 {
 public:
@@ -28,6 +36,9 @@ public:
     virtual ~StandardServerCluster() = default;
 
     void IncreaseDataVersion() { mDataVersion++; }
+
+
+    //////////////////////////// ServerClusterInterface implementation ////////////////////////////////////////
 
     ClusterId GetClusterId() const override;
     DataVersion GetDataVersion() const override { return mDataVersion; }
