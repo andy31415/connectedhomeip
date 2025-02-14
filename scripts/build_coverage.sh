@@ -218,6 +218,7 @@ fi
 mkdir -p "$COVERAGE_ROOT"
 
 lcov --initial --capture --directory "$OUTPUT_ROOT/obj/src" \
+    --ignore-errors inconsistent \
     --exclude="$PWD"/zzz_generated/* \
     --exclude="$PWD"/third_party/* \
     --exclude=/usr/include/* \
@@ -225,6 +226,7 @@ lcov --initial --capture --directory "$OUTPUT_ROOT/obj/src" \
     --output-file "$COVERAGE_ROOT/lcov_base.info"
 
 lcov --capture --directory "$OUTPUT_ROOT/obj/src" \
+    --ignore-errors inconsistent \
     --exclude="$PWD"/zzz_generated/* \
     --exclude="$PWD"/third_party/* \
     --exclude=/usr/include/* \
@@ -234,9 +236,11 @@ lcov --capture --directory "$OUTPUT_ROOT/obj/src" \
 lcov --ignore-errors inconsistent \
     --add-tracefile "$COVERAGE_ROOT/lcov_base.info" \
     --add-tracefile "$COVERAGE_ROOT/lcov_test.info" \
+    --ignore-errors inconsistent \
     --output-file "$COVERAGE_ROOT/lcov_final.info"
 
 genhtml "$COVERAGE_ROOT/lcov_final.info" \
+    --ignore-errors inconsistent \
     --output-directory "$COVERAGE_ROOT/html" \
     --title "SHA:$(git rev-parse HEAD)" \
     --header-title "Matter SDK Coverage Report"
