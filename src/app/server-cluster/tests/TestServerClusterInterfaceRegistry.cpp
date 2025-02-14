@@ -18,7 +18,7 @@
 
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app/ConcreteClusterPath.h>
-#include <app/server-cluster/ServerClusterInterface.h>
+#include <app/server-cluster/StandardServerCluster.h>
 #include <app/server-cluster/ServerClusterInterfaceRegistry.h>
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
@@ -42,7 +42,7 @@ constexpr chip::ClusterId kCluster1 = 1;
 constexpr chip::ClusterId kCluster2 = 2;
 constexpr chip::ClusterId kCluster3 = 3;
 
-class FakeServerClusterInterface : public ServerClusterInterface
+class FakeServerClusterInterface : public StandardServerCluster
 {
 public:
     FakeServerClusterInterface(ClusterId id) : mClusterId(id) {}
