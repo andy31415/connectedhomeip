@@ -100,37 +100,24 @@ ServerClusterInterface * ServerClusterInterfaceRegistry::Unregister(const Concre
     VerifyOrReturnValue(endpointClusters != nullptr, nullptr);
     VerifyOrReturnValue(endpointClusters->firstCluster != nullptr, nullptr);
 
-    if (endpointClusters->firstCluster->GetClusterId() == path.mClusterId)
-    {
-        ServerClusterInterface * previous = endpointClusters->firstCluster;
-        endpointClusters->firstCluster    = endpointClusters->firstCluster->GetNextListItem();
-
-        if (endpointClusters->firstCluster == nullptr)
-        {
-            // Free up the endpoint as it has nothing on it.
-            UnregisterAllFromEndpoint(endpointClusters->endpointId);
-        }
-
-        if (mCachedInterface == previous)
-        {
-            mCachedClusterEndpointId = kInvalidEndpointId;
-            mCachedInterface         = nullptr;
-        }
-        previous->SetNotInList();
-
-        return previous;
-    }
-
-    // not found, go through the underlying list and remove any found element
-    ServerClusterInterface * prev    = endpointClusters->firstCluster;
-    ServerClusterInterface * current = endpointClusters->firstCluster->GetNextListItem();
+    ServerClusterInterface * prev    = nullptr;
+    ServerClusterInterface * current = endpointClusters->firstCluster;
 
     while (current != nullptr)
     {
         if (current->GetClusterId() == path.mClusterId)
         {
             // takes the item out of the current list and return it.
-            prev->SetNextListItem(current->GetNextListItem());
+            ServerClusterInterface * next = current->GetNextListItem();
+
+            if (prev == nullptr)
+            {
+                endpointClusters->firstCluster = next;
+            }
+            else
+            {
+                prev->SetNextListItem(next);
+            }
 
             if (mCachedInterface == current)
             {
