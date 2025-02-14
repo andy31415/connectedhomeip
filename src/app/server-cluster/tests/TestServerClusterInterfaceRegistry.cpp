@@ -267,6 +267,38 @@ TEST_F(TestServerClusterInterfaceRegistry, StressTest)
     }
 }
 
+TEST_F(TestServerClusterInterfaceRegistry, TestDestructionOrder)
+{
+    // Test that registry destruction AFTER clusters is still ok
+    std::vector<FakeServerClusterInterface> items;
+    static constexpr ClusterId kClusterTestCount = 200;
+
+    items.reserve(kClusterTestCount);
+    for (ClusterId i = 0; i < kClusterTestCount; i++)
+    {
+        items.emplace_back(i);
+        ASSERT_FALSE(items[i].IsInList());
+    }
+
+    {
+        ServerClusterInterfaceRegistry registry;
+
+        for (ClusterId i = 0; i < kClusterTestCount; i++)
+        {
+            ASSERT_EQ(registry.Register(static_cast<EndpointId>(i % 10), &items[i]), CHIP_NO_ERROR);
+        }
+        for (ClusterId i = 0; i < kClusterTestCount; i++)
+        {
+            ASSERT_TRUE(items[i].IsInList());
+        }
+    }
+
+    for (ClusterId i = 0; i < kClusterTestCount; i++)
+    {
+        ASSERT_FALSE(items[i].IsInList());
+    }
+}
+
 TEST_F(TestServerClusterInterfaceRegistry, InstanceUsage)
 {
     // This tests uses the instance member, to get coverage

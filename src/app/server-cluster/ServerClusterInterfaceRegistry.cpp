@@ -34,7 +34,7 @@ ServerClusterInterfaceRegistry::~ServerClusterInterfaceRegistry()
 {
     for (auto & ep : mPreallocateEndpoints)
     {
-        if (ep.endpointId == kInvalidEndpointId)
+        if (ep.endpointId != kInvalidEndpointId)
         {
             UnregisterAllFromEndpoint(ep.endpointId);
         }
