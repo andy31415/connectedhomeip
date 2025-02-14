@@ -122,6 +122,11 @@ public:
     ServerClusterInterface()          = default;
     virtual ~ServerClusterInterface() = default;
 
+    ServerClusterInterface(const ServerClusterInterface & other)             = default;
+    ServerClusterInterface(ServerClusterInterface && other)                  = default;
+    ServerClusterInterface & operator=(const ServerClusterInterface & other) = default;
+    ServerClusterInterface & operator=(ServerClusterInterface && other)      = default;
+
     ///////////////////////////////////// Cluster Metadata Support //////////////////////////////////////////////////
     [[nodiscard]] virtual ClusterId GetClusterId() const = 0;
 

@@ -27,19 +27,26 @@ namespace app {
 /// In particular it does:
 ///   - maintains a data version and provides `IncreaseDataVersion`. Ensures this
 ///     version is spec-compliant initialized (with a random value)
-///   - Provides default implementations for most virtual methods EXCEPT
-///     ReadAttribute (since that one needs to handle featuremap and revision)
+///   - Provides default implementations for most virtual methods EXCEPT:
+///       - ReadAttribute (since that one needs to handle featuremap and revision)
+///       - GetClusterId (since every implementation is for different clusters)
+///
+///
 class StandardServerCluster : public ServerClusterInterface
 {
 public:
     StandardServerCluster();
     virtual ~StandardServerCluster() = default;
 
+    StandardServerCluster(const StandardServerCluster & other)             = default;
+    StandardServerCluster(StandardServerCluster && other)                  = default;
+    StandardServerCluster & operator=(const StandardServerCluster & other) = default;
+    StandardServerCluster & operator=(StandardServerCluster && other)      = default;
+
     void IncreaseDataVersion() { mDataVersion++; }
 
     //////////////////////////// ServerClusterInterface implementation ////////////////////////////////////////
 
-    ClusterId GetClusterId() const override;
     DataVersion GetDataVersion() const override { return mDataVersion; }
     BitFlags<DataModel::ClusterQualityFlags> GetClusterFlags() const override;
 
