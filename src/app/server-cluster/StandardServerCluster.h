@@ -37,7 +37,6 @@ public:
 
     void IncreaseDataVersion() { mDataVersion++; }
 
-
     //////////////////////////// ServerClusterInterface implementation ////////////////////////////////////////
 
     ClusterId GetClusterId() const override;

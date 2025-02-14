@@ -90,14 +90,14 @@ ActionReturnStatus StandardServerCluster::WriteAttribute(const WriteAttributeReq
 }
 
 std::optional<ActionReturnStatus> StandardServerCluster::InvokeCommand(const InvokeRequest & request,
-                                                                        chip::TLV::TLVReader & input_arguments,
-                                                                        CommandHandler * handler)
+                                                                       chip::TLV::TLVReader & input_arguments,
+                                                                       CommandHandler * handler)
 {
     return Protocols::InteractionModel::Status::UnsupportedCommand;
 }
 
 CHIP_ERROR StandardServerCluster::AcceptedCommands(const ConcreteClusterPath & path,
-                                                    DataModel::ListBuilder<AcceptedCommandEntry> & builder)
+                                                   DataModel::ListBuilder<AcceptedCommandEntry> & builder)
 {
     return CHIP_NO_ERROR;
 }
