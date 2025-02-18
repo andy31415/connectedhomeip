@@ -79,7 +79,7 @@ private:
     };
 
     // Serves as a pool of pre-allocated clusters to avoid HEAP
-    std::array<EndpointClusters, kPreallocatedEndpointClusters> mPreallocateEndpoints;
+    std::array<EndpointClusters, kPreallocatedEndpointClusters> mPreallocatedEndpoints;
 
     // Dynamic allocated endpoint cluters, once static allocation is used up
     DynamicEndpointClusters * mDynamicEndpoints = nullptr;

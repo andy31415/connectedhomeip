@@ -32,7 +32,7 @@ ServerClusterInterfaceRegistry & ServerClusterInterfaceRegistry::Instance()
 
 ServerClusterInterfaceRegistry::~ServerClusterInterfaceRegistry()
 {
-    for (auto & ep : mPreallocateEndpoints)
+    for (auto & ep : mPreallocatedEndpoints)
     {
         if (ep.endpointId != kInvalidEndpointId)
         {
@@ -48,7 +48,7 @@ ServerClusterInterfaceRegistry::~ServerClusterInterfaceRegistry()
 
 CHIP_ERROR ServerClusterInterfaceRegistry::AllocateNewEndpointClusters(EndpointId endpointId, EndpointClusters *& dest)
 {
-    for (auto & ep : mPreallocateEndpoints)
+    for (auto & ep : mPreallocatedEndpoints)
     {
         if (ep.endpointId == kInvalidEndpointId)
         {
@@ -162,7 +162,7 @@ void ServerClusterInterfaceRegistry::UnregisterAllFromEndpoint(EndpointId endpoi
     }
 
     // if it is static, just clear it
-    for (auto & ep : mPreallocateEndpoints)
+    for (auto & ep : mPreallocatedEndpoints)
     {
         if (ep.endpointId == endpointId)
         {
@@ -245,7 +245,7 @@ ServerClusterInterfaceRegistry::EndpointClusters * ServerClusterInterfaceRegistr
     }
 
     // search statically first
-    for (auto & ep : mPreallocateEndpoints)
+    for (auto & ep : mPreallocatedEndpoints)
     {
         if (ep.endpointId == endpointId)
         {
