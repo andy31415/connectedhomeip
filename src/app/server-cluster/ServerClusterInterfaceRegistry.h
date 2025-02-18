@@ -30,7 +30,7 @@ class ServerClusterInterfaceRegistry
 public:
     ~ServerClusterInterfaceRegistry();
 
-    /// Associate a specific interface for the given endpoint.
+    /// Associate a specific interface with the given endpoint.
     ///
     /// There MUST be a single cluster registration for any given endpoint
     /// and Register will error out if an existing cluster interface `cluster` already
