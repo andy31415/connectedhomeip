@@ -42,7 +42,7 @@ public:
     /// Remove an existing registration for a given endpoint/cluster path.
     ///
     /// Returns the previous registration if any exists (or nullptr if nothing
-    /// to register)
+    /// to unregister)
     ServerClusterInterface * Unregister(const ConcreteClusterPath & path);
 
     /// Return the given registered interface or nullptr if one does not exist
