@@ -40,11 +40,12 @@ void ClearSingleLinkedList(ServerClusterInterface * clusters)
     }
 }
 
+ServerClusterInterfaceRegistry sRegistry;
+
 } // namespace
 
 ServerClusterInterfaceRegistry & ServerClusterInterfaceRegistry::Instance()
 {
-    static ServerClusterInterfaceRegistry sRegistry;
     return sRegistry;
 }
 
