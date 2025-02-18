@@ -45,7 +45,7 @@ public:
     /// to unregister)
     ServerClusterInterface * Unregister(const ConcreteClusterPath & path);
 
-    /// Return the given registered interface or nullptr if one does not exist
+    /// Return the interface registered for the given cluster path or nullptr if one does not exist
     ServerClusterInterface * Get(const ConcreteClusterPath & path);
 
     /// Unregister all registrations for the given endpoint.
