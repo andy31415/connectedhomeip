@@ -84,7 +84,7 @@ private:
     // Dynamic allocated endpoint cluters, once static allocation is used up
     DynamicEndpointClusters * mDynamicEndpoints = nullptr;
 
-    // a one-element cache to speed up finding per endpoint
+    // a one-element cache to speed up finding the cluster list for an endpoint.
     EndpointClusters * mEndpointClustersCache = nullptr;
 
     // a one-element cache to speed up finding a cluster within an endpoint.
