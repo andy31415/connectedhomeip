@@ -89,15 +89,14 @@ ActionReturnStatus DefaultServerCluster::WriteAttribute(const WriteAttributeRequ
     return Protocols::InteractionModel::Status::UnsupportedWrite;
 }
 
-std::optional<ActionReturnStatus> DefaultServerCluster::InvokeCommand(const InvokeRequest & request,
-                                                                       chip::TLV::TLVReader & input_arguments,
-                                                                       CommandHandler * handler)
+std::optional<ActionReturnStatus>
+DefaultServerCluster::InvokeCommand(const InvokeRequest & request, chip::TLV::TLVReader & input_arguments, CommandHandler * handler)
 {
     return Protocols::InteractionModel::Status::UnsupportedCommand;
 }
 
 CHIP_ERROR DefaultServerCluster::AcceptedCommands(const ConcreteClusterPath & path,
-                                                   DataModel::ListBuilder<AcceptedCommandEntry> & builder)
+                                                  DataModel::ListBuilder<AcceptedCommandEntry> & builder)
 {
     return CHIP_NO_ERROR;
 }

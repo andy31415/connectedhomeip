@@ -18,8 +18,8 @@
 
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app/ConcreteClusterPath.h>
-#include <app/server-cluster/ServerClusterInterfaceRegistry.h>
 #include <app/server-cluster/DefaultServerCluster.h>
+#include <app/server-cluster/ServerClusterInterfaceRegistry.h>
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
 #include <lib/core/StringBuilderAdapters.h>
