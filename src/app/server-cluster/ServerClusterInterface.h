@@ -119,7 +119,7 @@ private:
 ///   - this class is highly coupled with ServerClusterInterfaceRegistry. The fact that it
 ///     derives from `detail::IntrusiveSingleLinkedList` is NOT a public API and is only done
 ///     for `ServerClusterInterfaceRegistry` usage. Code may be updated to support different
-///     implementations for storing interface.
+///     implementations for storing server cluster interfaces.
 class ServerClusterInterface : public detail::IntrusiveSingleLinkedList<ServerClusterInterface>
 {
 public:
