@@ -24,6 +24,7 @@
 #include <app/RequiredPrivilege.h>
 #include <app/data-model/FabricScoped.h>
 #include <app/reporting/reporting.h>
+#include <app/server-cluster/ServerClusterInterfaceRegistry.h>
 #include <app/util/af-types.h>
 #include <app/util/attribute-metadata.h>
 #include <app/util/attribute-storage-detail.h>
@@ -92,6 +93,11 @@ std::optional<CHIP_ERROR> TryWriteViaAccessInterface(const ConcreteDataAttribute
 DataModel::ActionReturnStatus CodegenDataModelProvider::WriteAttribute(const DataModel::WriteAttributeRequest & request,
                                                                        AttributeValueDecoder & decoder)
 {
+    if (auto * cluster = ServerClusterInterfaceRegistry::Instance().Get(request.path); cluster != nullptr)
+    {
+        return cluster->WriteAttribute(request, decoder);
+    }
+
     auto metadata = Ember::FindAttributeMetadata(request.path);
 
     // Explicit failure in finding a suitable metadata

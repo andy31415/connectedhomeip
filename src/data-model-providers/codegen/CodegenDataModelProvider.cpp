@@ -30,6 +30,7 @@
 #include <app/data-model-provider/MetadataList.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <app/data-model-provider/Provider.h>
+#include <app/server-cluster/ServerClusterInterfaceRegistry.h>
 #include <app/util/DataModelHandler.h>
 #include <app/util/IMClusterCommandHandler.h>
 #include <app/util/af-types.h>
@@ -162,6 +163,11 @@ std::optional<DataModel::ActionReturnStatus> CodegenDataModelProvider::InvokeCom
                                                                                      TLV::TLVReader & input_arguments,
                                                                                      CommandHandler * handler)
 {
+    if (auto * cluster = ServerClusterInterfaceRegistry::Instance().Get(request.path); cluster != nullptr)
+    {
+        return cluster->InvokeCommand(request, input_arguments, handler);
+    }
+
     CommandHandlerInterface * handler_interface =
         CommandHandlerInterfaceRegistry::Instance().GetCommandHandler(request.path.mEndpointId, request.path.mClusterId);
 
@@ -263,6 +269,11 @@ CHIP_ERROR CodegenDataModelProvider::ServerClusters(EndpointId endpointId,
 CHIP_ERROR CodegenDataModelProvider::Attributes(const ConcreteClusterPath & path,
                                                 DataModel::ListBuilder<DataModel::AttributeEntry> & builder)
 {
+    if (auto * cluster = ServerClusterInterfaceRegistry::Instance().Get(path); cluster != nullptr)
+    {
+        return cluster->Attributes(path, builder);
+    }
+
     const EmberAfCluster * cluster = FindServerCluster(path);
 
     VerifyOrReturnValue(cluster != nullptr, CHIP_ERROR_NOT_FOUND);
@@ -351,6 +362,11 @@ const EmberAfCluster * CodegenDataModelProvider::FindServerCluster(const Concret
 CHIP_ERROR CodegenDataModelProvider::AcceptedCommands(const ConcreteClusterPath & path,
                                                       DataModel::ListBuilder<DataModel::AcceptedCommandEntry> & builder)
 {
+    if (auto * cluster = ServerClusterInterfaceRegistry::Instance().Get(path); cluster != nullptr)
+    {
+        return cluster->AcceptedCommands(path, builder);
+    }
+
     // Some CommandHandlerInterface instances are registered of ALL endpoints, so make sure first that
     // the cluster actually exists on this endpoint before asking the CommandHandlerInterface what commands
     // it claims to support.
@@ -435,6 +451,11 @@ CHIP_ERROR CodegenDataModelProvider::AcceptedCommands(const ConcreteClusterPath 
 CHIP_ERROR CodegenDataModelProvider::GeneratedCommands(const ConcreteClusterPath & path,
                                                        DataModel::ListBuilder<CommandId> & builder)
 {
+    if (auto * cluster = ServerClusterInterfaceRegistry::Instance().Get(path); cluster != nullptr)
+    {
+        return cluster->GeneratedCommands(path, builder);
+    }
+
     // Some CommandHandlerInterface instances are registered of ALL endpoints, so make sure first that
     // the cluster actually exists on this endpoint before asking the CommandHandlerInterface what commands
     // it claims to support.
