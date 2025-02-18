@@ -107,7 +107,7 @@ ServerClusterInterface * ServerClusterInterfaceRegistry::Unregister(const Concre
     {
         if (current->GetClusterId() == path.mClusterId)
         {
-            // takes the item out of the current list and return it.
+            // take the item out of the current list and return it.
             ServerClusterInterface * next = current->GetNextListItem();
 
             if (prev == nullptr)
