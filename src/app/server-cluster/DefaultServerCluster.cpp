@@ -81,7 +81,7 @@ CHIP_ERROR DefaultServerCluster::Attributes(const ConcreteClusterPath & path, Da
 
 BitFlags<ClusterQualityFlags> DefaultServerCluster::GetClusterFlags() const
 {
-    return BitFlags<ClusterQualityFlags>();
+    return {};
 }
 
 ActionReturnStatus DefaultServerCluster::WriteAttribute(const WriteAttributeRequest & request, AttributeValueDecoder & decoder)
