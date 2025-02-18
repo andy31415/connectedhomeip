@@ -110,7 +110,7 @@ private:
 
 /// Handles cluster interactions for a specific cluster id.
 ///
-/// A `ServerClusterInterface` is generally associated with a single endpoint id and represents
+/// A `ServerClusterInterface` is generally associated with a single endpointId and represents
 /// a cluster that exists at a given `endpoint_id/cluster_id` path.
 ///
 /// Provides metadata as well as interaction processing (attribute read/write and command handling).

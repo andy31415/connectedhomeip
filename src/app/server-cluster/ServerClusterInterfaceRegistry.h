@@ -32,14 +32,14 @@ public:
 
     /// Associate a specific interface with the given endpoint.
     ///
-    /// A `ServerClusterInterface` may only be associated on a single endpoint id and
+    /// A `ServerClusterInterface` may only be associated on a single endpointId and
     /// there can be only a single registration for a given `endpointId/clusterId` path.
     ///
     /// This means Register WILL RETURN AN ERROR if:
     ///   - A registration on the given `endpointId/cluster->GetClusterID()` already exists
     ///   - The given `cluster` is already registered for some enpoint id
     ///
-    /// Registrations need a valid endpoint id and cluster MUST return a valid cluster id.
+    /// Registrations need a valid endpointId and cluster MUST return a valid cluster id.
     [[nodiscard]] CHIP_ERROR Register(EndpointId endpointId, ServerClusterInterface * cluster);
 
     /// Remove an existing registration for a given endpoint/cluster path.
@@ -66,7 +66,7 @@ private:
     /// tracks clusters registered to a particular endpoint
     struct EndpointClusters
     {
-        // The endpoint ID for this registration. kInvalidEndpointId means
+        // The endpointId for this registration. kInvalidEndpointId means
         // not allocated/used
         EndpointId endpointId = kInvalidEndpointId;
 
@@ -91,7 +91,7 @@ private:
     EndpointClusters * mEndpointClustersCache = nullptr;
 
     // a one-element cache to speed up finding a cluster within an endpoint.
-    // The endpoint id specifies which endpoint the cache belongs to.
+    // The endpointId specifies which endpoint the cache belongs to.
     ClusterId mCachedClusterEndpointId        = kInvalidEndpointId;
     ServerClusterInterface * mCachedInterface = nullptr;
 
