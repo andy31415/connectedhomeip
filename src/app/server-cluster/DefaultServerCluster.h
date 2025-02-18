@@ -36,7 +36,7 @@ class DefaultServerCluster : public ServerClusterInterface
 {
 public:
     DefaultServerCluster();
-    virtual ~DefaultServerCluster() = default;
+     ~DefaultServerCluster() override = default;
 
     DefaultServerCluster(DefaultServerCluster && other)             = default;
     DefaultServerCluster & operator=(DefaultServerCluster && other) = default;
@@ -48,8 +48,8 @@ public:
 
     //////////////////////////// ServerClusterInterface implementation ////////////////////////////////////////
 
-    DataVersion GetDataVersion() const override { return mDataVersion; }
-    BitFlags<DataModel::ClusterQualityFlags> GetClusterFlags() const override;
+    [[nodiscard]] DataVersion GetDataVersion() const override { return mDataVersion; }
+    [[nodiscard]] BitFlags<DataModel::ClusterQualityFlags> GetClusterFlags() const override;
 
     /// Default implementation errors out with an unsupported write on every attribute.
     DataModel::ActionReturnStatus WriteAttribute(const DataModel::WriteAttributeRequest & request,
