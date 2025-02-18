@@ -46,7 +46,7 @@ public:
     ~IntrusiveSingleLinkedList() { VerifyOrDie(!IsInList()); }
 
     // IMPLEMENTATION DETAILS:
-    //   Since `mNext == this` is used as a marker for "is in a list",
+    //   Since `mNext == this` is used as a marker for "is not in a list",
     //   the assignment of these interfaces is overloaded even for the move operator.
     IntrusiveSingleLinkedList(IntrusiveSingleLinkedList && other) :
         mNext((other.mNext == &other) ? static_cast<SELF *>(this) : other.mNext)
