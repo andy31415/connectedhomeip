@@ -36,7 +36,7 @@ class DefaultServerCluster : public ServerClusterInterface
 {
 public:
     DefaultServerCluster();
-     ~DefaultServerCluster() override = default;
+    ~DefaultServerCluster() override = default;
 
     DefaultServerCluster(DefaultServerCluster && other)             = default;
     DefaultServerCluster & operator=(DefaultServerCluster && other) = default;
