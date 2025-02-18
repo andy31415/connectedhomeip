@@ -158,7 +158,7 @@ public:
     ///   - FeatureMap::Id      - generally 0 as a default
     ///   - ClusterRevision::Id - this is implementation defined
     ///
-    /// This call WILL NOT be called for attributes that can be built out of cluster metadata.
+    /// This function WILL NOT be called for attributes that can be built out of cluster metadata.
     /// Specifically this WILL NOT be called (and does not need to implement handling for) the
     /// following attribute IDs:
     ///     - AcceptedCommandList::Id
