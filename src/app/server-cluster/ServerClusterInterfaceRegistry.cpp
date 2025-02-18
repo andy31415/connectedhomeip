@@ -181,24 +181,20 @@ void ServerClusterInterfaceRegistry::UnregisterAllFromEndpoint(EndpointId endpoi
         }
     }
 
-    // not found, search dynamic. Special handling for first;
-    VerifyOrReturn(mDynamicEndpoints != nullptr);
-    if (mDynamicEndpoints->endpointId == endpointId)
-    {
-        DynamicEndpointClusters * value = mDynamicEndpoints;
-        mDynamicEndpoints               = mDynamicEndpoints->next;
-        ClearSingleLinkedList(value->firstCluster);
-        Platform::Delete(value);
-        return;
-    }
-    DynamicEndpointClusters * prev    = mDynamicEndpoints;
-    DynamicEndpointClusters * current = prev->next;
-
+    DynamicEndpointClusters * prev    = nullptr;
+    DynamicEndpointClusters * current = mDynamicEndpoints;
     while (current != nullptr)
     {
         if (current->endpointId == endpointId)
         {
-            prev->next = current->next;
+            if (prev == nullptr)
+            {
+                mDynamicEndpoints = current->next;
+            }
+            else
+            {
+                prev->next = current->next;
+            }
             ClearSingleLinkedList(current->firstCluster);
             Platform::Delete(current);
             return;
