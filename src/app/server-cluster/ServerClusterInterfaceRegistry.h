@@ -56,7 +56,7 @@ public:
     static ServerClusterInterfaceRegistry & Instance();
 
 private:
-    // Some pre-allocation. Minimal clusters have 2 endpoints: root/0 and
+    // Some pre-allocation. Minimal devices have 2 endpoints: root/0 and
     // some other endpoint for the actual device.
     static constexpr size_t kPreallocatedEndpointClusters = 2;
 
