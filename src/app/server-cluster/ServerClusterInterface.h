@@ -60,7 +60,7 @@ public:
         return *this;
     }
 
-    IntrusiveSingleLinkedList(const IntrusiveSingleLinkedList & other) = delete;
+    IntrusiveSingleLinkedList(const IntrusiveSingleLinkedList & other)             = delete;
     IntrusiveSingleLinkedList & operator=(const IntrusiveSingleLinkedList & other) = delete;
 
     /// Determines whether this object is part of a linked list already.
@@ -126,8 +126,8 @@ public:
     ServerClusterInterface()          = default;
     virtual ~ServerClusterInterface() = default;
 
-    ServerClusterInterface(ServerClusterInterface && other)                  = default;
-    ServerClusterInterface & operator=(ServerClusterInterface && other)      = default;
+    ServerClusterInterface(ServerClusterInterface && other)             = default;
+    ServerClusterInterface & operator=(ServerClusterInterface && other) = default;
 
     ServerClusterInterface(const ServerClusterInterface & other)             = delete;
     ServerClusterInterface & operator=(const ServerClusterInterface & other) = delete;
