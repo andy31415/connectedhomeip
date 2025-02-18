@@ -32,17 +32,17 @@ namespace app {
 ///       - GetClusterId (since every implementation is for different clusters)
 ///
 ///
-class StandardServerCluster : public ServerClusterInterface
+class DefaultServerCluster : public ServerClusterInterface
 {
 public:
-    StandardServerCluster();
-    virtual ~StandardServerCluster() = default;
+    DefaultServerCluster();
+    virtual ~DefaultServerCluster() = default;
 
-    StandardServerCluster(StandardServerCluster && other)             = default;
-    StandardServerCluster & operator=(StandardServerCluster && other) = default;
+    DefaultServerCluster(DefaultServerCluster && other)             = default;
+    DefaultServerCluster & operator=(DefaultServerCluster && other) = default;
 
-    StandardServerCluster(const StandardServerCluster & other)             = delete;
-    StandardServerCluster & operator=(const StandardServerCluster & other) = delete;
+    DefaultServerCluster(const DefaultServerCluster & other)             = delete;
+    DefaultServerCluster & operator=(const DefaultServerCluster & other) = delete;
 
     void IncreaseDataVersion() { mDataVersion++; }
 

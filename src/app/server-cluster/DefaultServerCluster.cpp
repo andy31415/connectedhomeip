@@ -14,7 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include <app/server-cluster/StandardServerCluster.h>
+#include <app/server-cluster/DefaultServerCluster.h>
 
 #include <access/Privilege.h>
 #include <app-common/zap-generated/ids/Attributes.h>
@@ -66,43 +66,43 @@ constexpr AttributeEntry kGlobalAttributeEntries[] = {
 
 } // namespace
 
-StandardServerCluster::StandardServerCluster()
+DefaultServerCluster::DefaultServerCluster()
 {
     // SPEC - 7.10.3. Cluster Data Version
     //   A cluster data version SHALL be initialized randomly when it is first published.
     mDataVersion = Crypto::GetRandU32();
 }
 
-CHIP_ERROR StandardServerCluster::Attributes(const ConcreteClusterPath & path, DataModel::ListBuilder<AttributeEntry> & builder)
+CHIP_ERROR DefaultServerCluster::Attributes(const ConcreteClusterPath & path, DataModel::ListBuilder<AttributeEntry> & builder)
 {
 
     return builder.ReferenceExisting(Span<const AttributeEntry>(kGlobalAttributeEntries));
 }
 
-BitFlags<ClusterQualityFlags> StandardServerCluster::GetClusterFlags() const
+BitFlags<ClusterQualityFlags> DefaultServerCluster::GetClusterFlags() const
 {
     return BitFlags<ClusterQualityFlags>();
 }
 
-ActionReturnStatus StandardServerCluster::WriteAttribute(const WriteAttributeRequest & request, AttributeValueDecoder & decoder)
+ActionReturnStatus DefaultServerCluster::WriteAttribute(const WriteAttributeRequest & request, AttributeValueDecoder & decoder)
 {
     return Protocols::InteractionModel::Status::UnsupportedWrite;
 }
 
-std::optional<ActionReturnStatus> StandardServerCluster::InvokeCommand(const InvokeRequest & request,
+std::optional<ActionReturnStatus> DefaultServerCluster::InvokeCommand(const InvokeRequest & request,
                                                                        chip::TLV::TLVReader & input_arguments,
                                                                        CommandHandler * handler)
 {
     return Protocols::InteractionModel::Status::UnsupportedCommand;
 }
 
-CHIP_ERROR StandardServerCluster::AcceptedCommands(const ConcreteClusterPath & path,
+CHIP_ERROR DefaultServerCluster::AcceptedCommands(const ConcreteClusterPath & path,
                                                    DataModel::ListBuilder<AcceptedCommandEntry> & builder)
 {
     return CHIP_NO_ERROR;
 }
 
-CHIP_ERROR StandardServerCluster::GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder)
+CHIP_ERROR DefaultServerCluster::GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder)
 {
     return CHIP_NO_ERROR;
 }

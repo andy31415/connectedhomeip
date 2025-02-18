@@ -20,7 +20,7 @@ chip_test_suite("tests") {
 
   test_sources = [
     "TestServerClusterInterfaceRegistry.cpp",
-    "TestStandardServerCluster.cpp",
+    "TestDefaultServerCluster.cpp",
   ]
 
   cflags = [ "-Wconversion" ]
