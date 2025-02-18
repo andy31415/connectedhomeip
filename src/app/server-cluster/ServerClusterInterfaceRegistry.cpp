@@ -24,6 +24,24 @@
 namespace chip {
 namespace app {
 
+namespace {
+
+/// Remove all elements of a linked list rom the linked list.
+///
+/// Marks every element in the given linked list as not being in a
+/// linked list anymore.
+void ClearSingleLinkedList(ServerClusterInterface * clusters)
+{
+    while (clusters != nullptr)
+    {
+        ServerClusterInterface * next = clusters->GetNextListItem();
+        clusters->SetNotInList();
+        clusters = next;
+    }
+}
+
+} // namespace
+
 ServerClusterInterfaceRegistry & ServerClusterInterfaceRegistry::Instance()
 {
     static ServerClusterInterfaceRegistry sRegistry;
@@ -137,16 +155,6 @@ ServerClusterInterface * ServerClusterInterfaceRegistry::Unregister(const Concre
     return nullptr;
 }
 
-void ServerClusterInterfaceRegistry::DestroySingleLinkedList(ServerClusterInterface * clusters)
-{
-    while (clusters != nullptr)
-    {
-        ServerClusterInterface * next = clusters->GetNextListItem();
-        clusters->SetNotInList();
-        clusters = next;
-    }
-}
-
 void ServerClusterInterfaceRegistry::UnregisterAllFromEndpoint(EndpointId endpointId)
 {
     if ((mEndpointClustersCache != nullptr) && (mEndpointClustersCache->endpointId == endpointId))
@@ -167,7 +175,7 @@ void ServerClusterInterfaceRegistry::UnregisterAllFromEndpoint(EndpointId endpoi
         if (ep.endpointId == endpointId)
         {
             ep.endpointId = kInvalidEndpointId;
-            DestroySingleLinkedList(ep.firstCluster);
+            ClearSingleLinkedList(ep.firstCluster);
             ep.firstCluster = nullptr;
             return;
         }
@@ -179,7 +187,7 @@ void ServerClusterInterfaceRegistry::UnregisterAllFromEndpoint(EndpointId endpoi
     {
         DynamicEndpointClusters * value = mDynamicEndpoints;
         mDynamicEndpoints               = mDynamicEndpoints->next;
-        DestroySingleLinkedList(value->firstCluster);
+        ClearSingleLinkedList(value->firstCluster);
         Platform::Delete(value);
         return;
     }
@@ -191,7 +199,7 @@ void ServerClusterInterfaceRegistry::UnregisterAllFromEndpoint(EndpointId endpoi
         if (current->endpointId == endpointId)
         {
             prev->next = current->next;
-            DestroySingleLinkedList(current->firstCluster);
+            ClearSingleLinkedList(current->firstCluster);
             Platform::Delete(current);
             return;
         }

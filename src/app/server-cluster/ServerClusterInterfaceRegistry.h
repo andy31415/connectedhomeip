@@ -97,9 +97,6 @@ private:
 
     /// Get a new usable (either static or dynamic) endpoint cluster
     CHIP_ERROR AllocateNewEndpointClusters(EndpointId endpointId, EndpointClusters *& dest);
-
-    // Mark every element in the given list as having no `Next`
-    void DestroySingleLinkedList(ServerClusterInterface * clusters);
 };
 
 } // namespace app
