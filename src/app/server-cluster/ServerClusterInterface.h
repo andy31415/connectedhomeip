@@ -71,7 +71,7 @@ public:
         return *this;
     }
 
-    /// Determines if this object is part of a linked list already or not.
+    /// Determines whether this object is part of a linked list already.
     [[nodiscard]] bool IsInList() const { return (mNext != this); }
 
     /// Marks this object as not being part of a linked list
