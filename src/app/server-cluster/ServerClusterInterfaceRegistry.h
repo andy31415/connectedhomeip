@@ -24,7 +24,7 @@
 namespace chip {
 namespace app {
 
-/// Maintains mapping clusters registered on specific endpoints.
+/// Allows registering and retrieving ServerClusterInterface instances for specific cluster paths. 
 class ServerClusterInterfaceRegistry
 {
 public:
