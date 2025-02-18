@@ -53,23 +53,15 @@ public:
     {
         other.SetNotInList();
     }
-    IntrusiveSingleLinkedList(const IntrusiveSingleLinkedList & other) :
-        mNext((other.mNext == &other) ? static_cast<SELF *>(this) : other.mNext)
-    {}
-    IntrusiveSingleLinkedList & operator=(const IntrusiveSingleLinkedList & other)
-    {
-        if (&other != this)
-        {
-            mNext = (other.mNext == &other) ? static_cast<SELF *>(this) : other.mNext;
-        }
-        return *this;
-    }
     IntrusiveSingleLinkedList & operator=(IntrusiveSingleLinkedList && other)
     {
         mNext = (other.mNext == &other) ? static_cast<SELF *>(this) : other.mNext;
         other.SetNotInList();
         return *this;
     }
+
+    IntrusiveSingleLinkedList(const IntrusiveSingleLinkedList & other) = delete;
+    IntrusiveSingleLinkedList & operator=(const IntrusiveSingleLinkedList & other) = delete;
 
     /// Determines whether this object is part of a linked list already.
     [[nodiscard]] bool IsInList() const { return (mNext != this); }
@@ -85,8 +77,17 @@ public:
         return mNext;
     }
 
-    /// Sets the "next" pointer when the SELF is assumed to be
-    /// part of a SINGLE linked list.
+    /// Sets the "next" pointer.
+    ///
+    /// A `SELF` has a `next` pointer when it is part of a linked list.
+    /// `SELF` is only allowed to be part of a SINGLE linked list at
+    /// one time (there is only one `next`).
+    ///
+    /// `value` MUST be an element that already is part of a single linked
+    /// list (or nullptr).
+    ///
+    /// NOTE: the marker of `next == this` is a flag that marks
+    ///       that `SELF` is not part of a linked list.
     ///
     /// Returns the old value of "next"
     SELF * SetNextListItem(SELF * value)
@@ -107,7 +108,10 @@ private:
 
 } // namespace detail
 
-/// Defines an active cluster on an endpoint.
+/// Handles cluster interactions for a specific cluster id.
+///
+/// A `ServerClusterInterface` is generally associated with a single endpoint id and represents
+/// a cluster that exists at a given `endpoint_id/cluster_id` path.
 ///
 /// Provides metadata as well as interaction processing (attribute read/write and command handling).
 ///
@@ -122,16 +126,16 @@ public:
     ServerClusterInterface()          = default;
     virtual ~ServerClusterInterface() = default;
 
-    ServerClusterInterface(const ServerClusterInterface & other)             = default;
     ServerClusterInterface(ServerClusterInterface && other)                  = default;
-    ServerClusterInterface & operator=(const ServerClusterInterface & other) = default;
     ServerClusterInterface & operator=(ServerClusterInterface && other)      = default;
+
+    ServerClusterInterface(const ServerClusterInterface & other)             = delete;
+    ServerClusterInterface & operator=(const ServerClusterInterface & other) = delete;
 
     ///////////////////////////////////// Cluster Metadata Support //////////////////////////////////////////////////
     [[nodiscard]] virtual ClusterId GetClusterId() const = 0;
 
-    // Every cluster instance must have a data version. Base class implementation to avoid
-    // code duplication
+    // Every cluster instance must have a data version.
     //
     // SPEC - 7.10.3. Cluster Data Version
     //   A cluster data version is a metadata increment-only counter value, maintained for each cluster instance.
@@ -144,19 +148,19 @@ public:
     //
     [[nodiscard]] virtual DataVersion GetDataVersion() const = 0;
 
-    /// Cluster flags can be overridden, however most clusters likely have a default of "nothing special".
-    ///
-    /// Default implementation returns a 0/empty quality list.
     [[nodiscard]] virtual BitFlags<DataModel::ClusterQualityFlags> GetClusterFlags() const = 0;
 
     ///////////////////////////////////// Attribute Support ////////////////////////////////////////////////////////
 
-    /// ReadAttribute MUST be done on a valid attribute path. `request.path` is expected to have `GetClusterId` as the cluster
-    /// id as well as an attribute that is included in a `Attributes` call.
+    /// ReadAttribute MUST be done on an "existent" attribute path: only on attributes that are
+    /// returned in an `Attributes` call for this cluster.
+    ///
+    /// `request.path` is expected to have `GetClusterId` as the cluster id as well as an attribute that is
+    /// included in a `Attributes` call.
     ///
     /// This MUST HANDLE the following global attributes:
-    ///   - FeatureMap::Id      - generally 0 as a default
-    ///   - ClusterRevision::Id - this is implementation defined
+    ///   - FeatureMap::Id
+    ///   - ClusterRevision::Id
     ///
     /// This function WILL NOT be called for attributes that can be built out of cluster metadata.
     /// Specifically this WILL NOT be called (and does not need to implement handling for) the
@@ -167,8 +171,11 @@ public:
     virtual DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request,
                                                         AttributeValueEncoder & encoder) = 0;
 
-    /// WriteAttribute MUST be done on a valid attribute path. `request.path` is expected to have `GetClusterId` as the cluster
-    /// id as well as an attribute that is included in a `Attributes` call.
+    /// WriteAttribute MUST be done on an "existent" attribute path: only on attributes that are
+    /// returned in an `Attributes` call for this cluster.
+    ///
+    /// `request.path` is expected to have `GetClusterId` as the cluster id as well as an attribute that is
+    /// included in a `Attributes` call.
     virtual DataModel::ActionReturnStatus WriteAttribute(const DataModel::WriteAttributeRequest & request,
                                                          AttributeValueDecoder & decoder) = 0;
 
