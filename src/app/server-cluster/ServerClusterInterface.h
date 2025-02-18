@@ -130,7 +130,7 @@ public:
     ///////////////////////////////////// Cluster Metadata Support //////////////////////////////////////////////////
     [[nodiscard]] virtual ClusterId GetClusterId() const = 0;
 
-    // Every cluster must have a data version. Base class implementation to avoid
+    // Every cluster instance must have a data version. Base class implementation to avoid
     // code duplication
     //
     // SPEC - 7.10.3. Cluster Data Version
