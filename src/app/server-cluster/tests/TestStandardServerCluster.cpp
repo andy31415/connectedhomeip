@@ -73,21 +73,6 @@ TEST(TestStandardServerCluster, TestAssignmentNotInList)
 
     ASSERT_FALSE(basic.IsInList());
 
-    // copy constructor: not in list
-    {
-        FakeStandardServerCluster other(basic);
-        ASSERT_FALSE(other.IsInList());
-    }
-
-    // assignment : not in list
-    {
-        FakeStandardServerCluster other(2);
-        ASSERT_FALSE(other.IsInList());
-
-        other = basic;
-        ASSERT_FALSE(other.IsInList());
-    }
-
     // move constructor
     {
         FakeStandardServerCluster movable(2);
@@ -117,24 +102,6 @@ TEST(TestStandardServerCluster, TestAssignmentInList)
     ASSERT_FALSE(basic.IsInList());
     basic.SetNextListItem(nullptr);
     ASSERT_TRUE(basic.IsInList());
-
-    // copy constructor: not in list
-    {
-        FakeStandardServerCluster other(basic);
-        ASSERT_TRUE(other.IsInList());
-        other.SetNotInList(); // ensure destruction is ok
-    }
-
-    // assignment : not in list
-    {
-        FakeStandardServerCluster other(2);
-        ASSERT_FALSE(other.IsInList());
-
-        other = basic;
-        ASSERT_TRUE(other.IsInList());
-
-        other.SetNotInList(); // ensure destruction is ok
-    }
 
     // move constructor
     {

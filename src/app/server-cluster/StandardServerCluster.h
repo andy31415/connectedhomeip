@@ -38,10 +38,11 @@ public:
     StandardServerCluster();
     virtual ~StandardServerCluster() = default;
 
-    StandardServerCluster(const StandardServerCluster & other)             = default;
     StandardServerCluster(StandardServerCluster && other)                  = default;
-    StandardServerCluster & operator=(const StandardServerCluster & other) = default;
     StandardServerCluster & operator=(StandardServerCluster && other)      = default;
+
+    StandardServerCluster(const StandardServerCluster & other)             = delete;
+    StandardServerCluster & operator=(const StandardServerCluster & other) = delete;
 
     void IncreaseDataVersion() { mDataVersion++; }
 
