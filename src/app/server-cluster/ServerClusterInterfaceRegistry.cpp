@@ -156,7 +156,7 @@ void ServerClusterInterfaceRegistry::UnregisterAllFromEndpoint(EndpointId endpoi
 
     if (mCachedClusterEndpointId == endpointId)
     {
-        // all clusters on the given endpoints will be destroyed.
+        // all clusters on the given endpoint will be unregistered.
         mCachedInterface         = nullptr;
         mCachedClusterEndpointId = kInvalidEndpointId;
     }
