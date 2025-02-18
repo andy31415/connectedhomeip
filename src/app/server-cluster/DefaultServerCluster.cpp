@@ -31,7 +31,7 @@ namespace {
 using namespace chip::app::Clusters;
 using namespace chip::app::DataModel;
 
-constexpr AttributeEntry kGlobalAttributeEntries[] = {
+constexpr std::array<AttributeEntry, 5> kGlobalAttributeEntries{ {
     {
         Globals::Attributes::ClusterRevision::Id,
         BitFlags<AttributeQualityFlags>(),
@@ -62,7 +62,7 @@ constexpr AttributeEntry kGlobalAttributeEntries[] = {
         Access::Privilege::kView,
         std::nullopt,
     },
-};
+} };
 
 } // namespace
 
@@ -76,7 +76,7 @@ DefaultServerCluster::DefaultServerCluster()
 CHIP_ERROR DefaultServerCluster::Attributes(const ConcreteClusterPath & path, DataModel::ListBuilder<AttributeEntry> & builder)
 {
 
-    return builder.ReferenceExisting(Span<const AttributeEntry>(kGlobalAttributeEntries));
+    return builder.ReferenceExisting(kGlobalAttributeEntries);
 }
 
 BitFlags<ClusterQualityFlags> DefaultServerCluster::GetClusterFlags() const
