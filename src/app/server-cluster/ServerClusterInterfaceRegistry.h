@@ -32,9 +32,12 @@ public:
 
     /// Associate a specific interface with the given endpoint.
     ///
-    /// There MUST be a single cluster registration for any given endpoint
-    /// and Register will error out if an existing cluster interface `cluster` already
-    /// exists on the given endpoint for the given clusterid.
+    /// A `ServerClusterInterface` may only be associated on a single endpoint id and
+    /// there can be only a single registration for a given `endpointId/clusterId` path.
+    ///
+    /// This means Register WILL RETURN AN ERROR if:
+    ///   - A registration on the given `endpointId/cluster->GetClusterID()` already exists
+    ///   - The given `cluster` is already registered for some enpoint id
     ///
     /// Registrations need a valid endpoint id and cluster MUST return a valid cluster id.
     [[nodiscard]] CHIP_ERROR Register(EndpointId endpointId, ServerClusterInterface * cluster);
