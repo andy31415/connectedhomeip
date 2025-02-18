@@ -36,7 +36,7 @@ public:
     /// and Register will error out if an existing cluster interface `cluster` already
     /// exists on the given endpoint for the given clusterid.
     ///
-    /// Registrations need a valid endpointid and cluster MUST return a valid clusterid.
+    /// Registrations need a valid endpoint id and cluster MUST return a valid cluster id.
     [[nodiscard]] CHIP_ERROR Register(EndpointId endpointId, ServerClusterInterface * cluster);
 
     /// Remove an existing registration for a given endpoint/cluster path.
