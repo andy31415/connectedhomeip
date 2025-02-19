@@ -88,11 +88,18 @@ def tree_display_name(name: str) -> list[str]:
     if name.startswith("vtable for "):
         name = name[11:]
 
+    # emberAf has a large set of `emberAf....Callback(...)` which are implemented
+    # functions by others. Spit those out
+    if name.startswith('emberAf'):
+        if 'Callback(' in name:
+            return ['emberAf', "Callbacks", name]
+        else:
+            return ['emberAf', "other", name]
+
     # These are C-style methods really, we have no top-level namespaces named
     # like this but still want to see these differently
-    for special_prefix in {"emberAf", "Matter"}:
-        if name.startswith(special_prefix):
-            return [special_prefix, name]
+    if name.startswith("Matter"):
+       return ["Matter", name]
 
     # If the first element contains a space, it is either within `<>` for templates or it means it is a
     # separator of the type. Try to find the type separator
