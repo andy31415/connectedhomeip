@@ -196,7 +196,8 @@ CHIP_ERROR GeneralDiagosticsGlobalInstance::Attributes(const ConcreteClusterPath
         { TestEventTriggersEnabled::Id, {}, Access::Privilege::kView },
     };
 
-    return builder.ReferenceExisting(Span<const AttributeEntry>(kAttributes));
+    ReturnErrorOnFailure(builder.ReferenceExisting(Span<const AttributeEntry>(kAttributes)));
+    return builder.AppendElements(GetGlobalAttributes());
 }
 
 ActionReturnStatus GeneralDiagosticsGlobalInstance::ReadAttribute(const ReadAttributeRequest & aRequest,
@@ -217,7 +218,13 @@ ActionReturnStatus GeneralDiagosticsGlobalInstance::ReadAttribute(const ReadAttr
         return ReadListIfSupported(&DiagnosticDataProvider::GetActiveNetworkFaults, aEncoder);
     }
     case RebootCount::Id: {
-        return ReadIfSupported(&DiagnosticDataProvider::GetRebootCount, aEncoder);
+        uint16_t rebootCount = 0;
+        CHIP_ERROR err       = GetDiagnosticDataProvider().GetRebootCount(rebootCount);
+        if ((err != CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE) && (err != CHIP_NO_ERROR))
+        {
+            return err;
+        }
+        return aEncoder.Encode(rebootCount);
     }
     case UpTime::Id: {
         System::Clock::Seconds64 system_time_seconds =
@@ -225,7 +232,13 @@ ActionReturnStatus GeneralDiagosticsGlobalInstance::ReadAttribute(const ReadAttr
         return aEncoder.Encode(static_cast<uint64_t>(system_time_seconds.count()));
     }
     case TotalOperationalHours::Id: {
-        return ReadIfSupported(&DiagnosticDataProvider::GetTotalOperationalHours, aEncoder);
+        uint32_t operationalHours = 0;
+        CHIP_ERROR err            = GetDiagnosticDataProvider().GetTotalOperationalHours(operationalHours);
+        if ((err != CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE) && (err != CHIP_NO_ERROR))
+        {
+            return err;
+        }
+        return aEncoder.Encode(operationalHours);
     }
     case BootReason::Id: {
         return ReadIfSupported(&DiagnosticDataProvider::GetBootReason, aEncoder);
@@ -266,10 +279,10 @@ std::optional<ActionReturnStatus> GeneralDiagosticsGlobalInstance::InvokeCommand
             input_arguments, [this](const auto & commandData) { return HandleTestEventTrigger(commandData); });
 
     case Commands::TimeSnapshot::Id:
-        return HandleCommand<Commands::TimeSnapshot::DecodableType>(input_arguments,
-                                                             [this, &requestPath, &handler](const auto & commandData) {
-                                                                 return HandleTimeSnapshot(handler, requestPath, commandData);
-                                                             });
+        return HandleCommand<Commands::TimeSnapshot::DecodableType>(
+            input_arguments, [this, &requestPath, &handler](const auto & commandData) {
+                return HandleTimeSnapshot(handler, requestPath, commandData);
+            });
 #ifdef GENERAL_DIAGNOSTICS_ENABLE_PAYLOAD_TEST_REQUEST_CMD
     case Commands::PayloadTestRequest::Id:
         return HandleCommand<Commands::PayloadTestRequest::DecodableType>(
@@ -583,12 +596,9 @@ void MatterGeneralDiagnosticsPluginServerInitCallback()
 {
     BootReasonEnum bootReason;
 
-    static_assert(MATTER_DM_GENERAL_COMMISSIONING_CLUSTER_SERVER_ENDPOINT_COUNT == 1, "Code expects general diagnostics on EP0 only");
-    CHIP_ERROR err = ServerClusterInterfaceRegistry::Instance().Register(kRootEndpointId, &gGeneralDiagosticsInstance);
-    if (err != CHIP_NO_ERROR)
-    {
-        ChipLogError(AppServer, "Failed to register ACL: %" CHIP_ERROR_FORMAT, err.Format());
-    }
+    static_assert(MATTER_DM_GENERAL_COMMISSIONING_CLUSTER_SERVER_ENDPOINT_COUNT == 1,
+                  "Code expects general diagnostics on EP0 only");
+    (void) ServerClusterInterfaceRegistry::Instance().Register(kRootEndpointId, &gGeneralDiagosticsInstance);
 
     ConnectivityMgr().SetDelegate(&gGeneralDiagosticsInstance);
 
