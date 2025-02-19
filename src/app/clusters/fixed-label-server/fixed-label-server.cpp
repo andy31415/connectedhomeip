@@ -20,11 +20,15 @@
  * @brief Implementation for the Fixed Label Server Cluster
  ***************************************************************************/
 
+#include <protocols/interaction_model/StatusCode.h>
 #include <app-common/zap-generated/cluster-objects.h>
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/AttributeAccessInterface.h>
 #include <app/AttributeAccessInterfaceRegistry.h>
+#include <app/server-cluster/DefaultServerCluster.h>
+#include <app/server-cluster/ServerClusterInterface.h>
+#include <app/server-cluster/ServerClusterInterfaceRegistry.h>
 #include <app/util/attribute-storage.h>
 #include <lib/support/CodeUtils.h>
 #include <lib/support/logging/CHIPLogging.h>
@@ -33,82 +37,85 @@
 
 using namespace chip;
 using namespace chip::app;
+using namespace chip::app::DataModel;
 using namespace chip::app::Clusters;
 using namespace chip::app::Clusters::FixedLabel;
 using namespace chip::app::Clusters::FixedLabel::Attributes;
 
 namespace {
 
-class FixedLabelAttrAccess : public AttributeAccessInterface
+class FixedLabelAttrAccess : public DefaultServerCluster
 {
 public:
     // Register for the Fixed Label cluster on all endpoints.
-    FixedLabelAttrAccess() : AttributeAccessInterface(Optional<EndpointId>::Missing(), FixedLabel::Id) {}
+    FixedLabelAttrAccess() = default;
 
-    CHIP_ERROR Read(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) override;
+    ClusterId GetClusterId() const override { return FixedLabel::Id; }
+
+    CHIP_ERROR Attributes(const ConcreteClusterPath & path, DataModel::ListBuilder<AttributeEntry> & builder) override;
+    ActionReturnStatus ReadAttribute(const ReadAttributeRequest & request, AttributeValueEncoder & encoder) override;
 
 private:
     CHIP_ERROR ReadLabelList(EndpointId endpoint, AttributeValueEncoder & aEncoder);
 };
 
+CHIP_ERROR FixedLabelAttrAccess::Attributes(const ConcreteClusterPath & path, DataModel::ListBuilder<AttributeEntry> & builder)
+{
+    static constexpr AttributeEntry kAttributes[] = {
+        { LabelList::Id, AttributeQualityFlags::kListAttribute, Access::Privilege::kView },
+    };
+
+    ReturnErrorOnFailure(builder.ReferenceExisting(Span<const AttributeEntry>(kAttributes)));
+    return builder.AppendElements(GetGlobalAttributes());
+}
+
 CHIP_ERROR FixedLabelAttrAccess::ReadLabelList(EndpointId endpoint, AttributeValueEncoder & aEncoder)
 {
-    CHIP_ERROR err = CHIP_NO_ERROR;
-
     DeviceLayer::DeviceInfoProvider * provider = DeviceLayer::GetDeviceInfoProvider();
-
-    if (provider)
+    if (provider == nullptr)
     {
-        DeviceLayer::DeviceInfoProvider::FixedLabelIterator * it = provider->IterateFixedLabel(endpoint);
-
-        if (it)
-        {
-            err = aEncoder.EncodeList([&it](const auto & encoder) -> CHIP_ERROR {
-                FixedLabel::Structs::LabelStruct::Type fixedlabel;
-
-                while (it->Next(fixedlabel))
-                {
-                    ReturnErrorOnFailure(encoder.Encode(fixedlabel));
-                }
-
-                return CHIP_NO_ERROR;
-            });
-
-            it->Release();
-        }
-        else
-        {
-            err = aEncoder.EncodeEmptyList();
-        }
+        return aEncoder.EncodeEmptyList();
     }
-    else
+
+    DeviceLayer::DeviceInfoProvider::FixedLabelIterator * it = provider->IterateFixedLabel(endpoint);
+    if (it == nullptr)
     {
-        err = aEncoder.EncodeEmptyList();
+        return aEncoder.EncodeEmptyList();
     }
+
+    CHIP_ERROR err = aEncoder.EncodeList([&it](const auto & encoder) -> CHIP_ERROR {
+        FixedLabel::Structs::LabelStruct::Type fixedlabel;
+
+        while (it->Next(fixedlabel))
+        {
+            ReturnErrorOnFailure(encoder.Encode(fixedlabel));
+        }
+
+        return CHIP_NO_ERROR;
+    });
+
+    it->Release();
 
     return err;
 }
 
 FixedLabelAttrAccess gAttrAccess;
 
-CHIP_ERROR FixedLabelAttrAccess::Read(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder)
+ActionReturnStatus FixedLabelAttrAccess::ReadAttribute(const ReadAttributeRequest & request, AttributeValueEncoder & encoder)
 {
-    VerifyOrDie(aPath.mClusterId == FixedLabel::Id);
 
-    switch (aPath.mAttributeId)
+    switch (request.path.mAttributeId)
     {
-    case LabelList::Id: {
-        return ReadLabelList(aPath.mEndpointId, aEncoder);
+    case LabelList::Id:
+        return ReadLabelList(request.path.mEndpointId, encoder);
+    default:
+        return Protocols::InteractionModel::Status::UnsupportedAttribute;
     }
-    default: {
-        break;
-    }
-    }
-    return CHIP_NO_ERROR;
 }
 } // anonymous namespace
 
 void MatterFixedLabelPluginServerInitCallback()
 {
-    AttributeAccessInterfaceRegistry::Instance().Register(&gAttrAccess);
+    static_assert(MATTER_DM_FIXED_LABEL_CLUSTER_SERVER_ENDPOINT_COUNT == 1, "Code expects general diagnostics on EP0 only");
+    (void) ServerClusterInterfaceRegistry::Instance().Register(kRootEndpointId, &gAttrAccess);
 }
