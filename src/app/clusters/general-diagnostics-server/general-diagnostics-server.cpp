@@ -149,9 +149,9 @@ private:
 
     CHIP_ERROR ReadNetworkInterfaces(AttributeValueEncoder & aEncoder);
 
-    std::optional<ActionReturnStatus> HandleTestEventTrigger(chip::TLV::TLVReader &input);
+    std::optional<ActionReturnStatus> HandleTestEventTrigger(chip::TLV::TLVReader & input);
     std::optional<ActionReturnStatus> HandleTimeSnapshot(CommandHandler * handler, const ConcreteCommandPath & requestPath,
-                                                         const Commands::TimeSnapshot::DecodableType & commandData);
+                                                         chip::TLV::TLVReader & input);
 
     template <typename RequestT, typename FuncT>
     std::optional<ActionReturnStatus> HandleCommand(chip::TLV::TLVReader & input_arguments, FuncT func)
@@ -279,10 +279,7 @@ std::optional<ActionReturnStatus> GeneralDiagosticsGlobalInstance::InvokeCommand
     case Commands::TestEventTrigger::Id:
         return HandleTestEventTrigger(input_arguments);
     case Commands::TimeSnapshot::Id:
-        return HandleCommand<Commands::TimeSnapshot::DecodableType>(
-            input_arguments, [this, &requestPath, &handler](const auto & commandData) {
-                return HandleTimeSnapshot(handler, requestPath, commandData);
-            });
+        return HandleTimeSnapshot(handler, requestPath, input_arguments);
 #ifdef GENERAL_DIAGNOSTICS_ENABLE_PAYLOAD_TEST_REQUEST_CMD
     case Commands::PayloadTestRequest::Id:
         return HandleCommand<Commands::PayloadTestRequest::DecodableType>(
@@ -410,11 +407,14 @@ std::optional<ActionReturnStatus> GeneralDiagosticsGlobalInstance::HandleTestEve
     return (handleEventTriggerResult != CHIP_NO_ERROR) ? Status::InvalidCommand : Status::Success;
 }
 
-std::optional<ActionReturnStatus>
-GeneralDiagosticsGlobalInstance::HandleTimeSnapshot(CommandHandler * handler, const ConcreteCommandPath & requestPath,
-                                                    const Commands::TimeSnapshot::DecodableType & commandData)
+std::optional<ActionReturnStatus> GeneralDiagosticsGlobalInstance::HandleTimeSnapshot(CommandHandler * handler,
+                                                                                      const ConcreteCommandPath & requestPath,
+                                                                                      chip::TLV::TLVReader & input)
 {
     ChipLogError(Zcl, "Received TimeSnapshot command!");
+
+    Commands::TimeSnapshot::DecodableType commandData;
+    ReturnErrorOnFailure(commandData.Decode(input));
 
     Commands::TimeSnapshotResponse::Type response;
 
