@@ -55,13 +55,18 @@ ServerClusterInterfaceRegistry::~ServerClusterInterfaceRegistry()
     {
         if (ep.endpointId != kInvalidEndpointId)
         {
-            UnregisterAllFromEndpoint(ep.endpointId);
+            ClearSingleLinkedList(ep.firstCluster);
+            ep.firstCluster = nullptr;
+            ep.endpointId   = kInvalidEndpointId;
         }
     }
 
     while (mDynamicEndpoints != nullptr)
     {
-        UnregisterAllFromEndpoint(mDynamicEndpoints->endpointId);
+        DynamicEndpointClusters * value = mDynamicEndpoints;
+        mDynamicEndpoints               = value->next;
+        ClearSingleLinkedList(value->firstCluster);
+        Platform::Delete(value);
     }
 }
 

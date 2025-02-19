@@ -299,6 +299,53 @@ TEST_F(TestServerClusterInterfaceRegistry, TestDestructionOrder)
     }
 }
 
+TEST_F(TestServerClusterInterfaceRegistry, UnregisterAllFromEndpoint)
+{
+
+    FakeServerClusterInterface cluster1(kCluster1);
+    FakeServerClusterInterface cluster2(kCluster2);
+    FakeServerClusterInterface cluster3(kCluster3);
+    FakeServerClusterInterface cluster4(kCluster1);
+    FakeServerClusterInterface cluster5(kCluster2);
+
+    ServerClusterInterfaceRegistry registry;
+
+    EXPECT_EQ(registry.Register(kEp1, &cluster1), CHIP_NO_ERROR);
+    EXPECT_EQ(registry.Register(kEp2, &cluster2), CHIP_NO_ERROR);
+    EXPECT_EQ(registry.Register(kEp2, &cluster3), CHIP_NO_ERROR);
+    EXPECT_EQ(registry.Register(kEp3, &cluster4), CHIP_NO_ERROR);
+    EXPECT_EQ(registry.Register(kEp3, &cluster5), CHIP_NO_ERROR);
+
+    // once registered, we can get the values
+    EXPECT_EQ(registry.Get({ kEp1, kCluster1 }), &cluster1);
+    EXPECT_EQ(registry.Get({ kEp2, kCluster2 }), &cluster2);
+    EXPECT_EQ(registry.Get({ kEp2, kCluster3 }), &cluster3);
+    EXPECT_EQ(registry.Get({ kEp3, kCluster1 }), &cluster4);
+    EXPECT_EQ(registry.Get({ kEp3, kCluster2 }), &cluster5);
+
+    // clear a static endpoint
+    registry.UnregisterAllFromEndpoint(kEp1);
+    EXPECT_EQ(registry.Get({ kEp1, kCluster1 }), nullptr);
+    EXPECT_EQ(registry.Get({ kEp2, kCluster2 }), &cluster2);
+    EXPECT_EQ(registry.Get({ kEp2, kCluster3 }), &cluster3);
+    EXPECT_EQ(registry.Get({ kEp3, kCluster1 }), &cluster4);
+    EXPECT_EQ(registry.Get({ kEp3, kCluster2 }), &cluster5);
+
+    // clear a dynamic one
+    registry.UnregisterAllFromEndpoint(kEp3);
+    EXPECT_EQ(registry.Get({ kEp1, kCluster1 }), nullptr);
+    EXPECT_EQ(registry.Get({ kEp2, kCluster2 }), &cluster2);
+    EXPECT_EQ(registry.Get({ kEp2, kCluster3 }), &cluster3);
+    EXPECT_EQ(registry.Get({ kEp3, kCluster1 }), nullptr);
+    EXPECT_EQ(registry.Get({ kEp3, kCluster2 }), nullptr);
+
+    EXPECT_FALSE(cluster1.IsInList());
+    EXPECT_TRUE(cluster2.IsInList());
+    EXPECT_TRUE(cluster3.IsInList());
+    EXPECT_FALSE(cluster4.IsInList());
+    EXPECT_FALSE(cluster5.IsInList());
+}
+
 TEST_F(TestServerClusterInterfaceRegistry, InstanceUsage)
 {
     // This tests uses the instance member, to get coverage
