@@ -58,7 +58,7 @@ public:
     /// Must only be implemented if support for any non-global attributes
     /// is required.
     ///
-    /// Default implementation just returns the above global attributes.
+    /// Default implementation just returns the global attributes.
     CHIP_ERROR Attributes(const ConcreteClusterPath & path, DataModel::ListBuilder<DataModel::AttributeEntry> & builder) override;
 
     ///////////////////////////////////// Command Support /////////////////////////////////////////////////////////
@@ -80,6 +80,10 @@ public:
     ///
     /// Default implementation is a NOOP (no list items generated)
     CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder) override;
+
+    /// returns the list of global attributes that are mandatory to
+    /// be supported by all Attributes() implementations.
+    static Span<const DataModel::AttributeEntry> GetGlobalAttributes();
 
 private:
     DataVersion mDataVersion; // will be random-initialized as per spec

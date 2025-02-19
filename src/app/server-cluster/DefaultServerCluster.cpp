@@ -73,6 +73,10 @@ DefaultServerCluster::DefaultServerCluster()
     mDataVersion = Crypto::GetRandU32();
 }
 
+Span<const DataModel::AttributeEntry> DefaultServerCluster::GetGlobalAttributes() {
+    return kGlobalAttributeEntries;
+}
+
 CHIP_ERROR DefaultServerCluster::Attributes(const ConcreteClusterPath & path, DataModel::ListBuilder<AttributeEntry> & builder)
 {
 

@@ -15,7 +15,19 @@
  *    limitations under the License.
  */
 
+#include <lib/core/CHIPError.h>
+#include <lib/support/CodeUtils.h>
+#include <lib/support/logging/TextOnlyLogging.h>
+#include <protocols/interaction_model/StatusCode.h>
 #include <access/AccessControl.h>
+#include <access/Privilege.h>
+#include <app-common/zap-generated/ids/Clusters.h>
+#include <app-common/zap-generated/ids/Commands.h>
+#include <app/data-model-provider/ActionReturnStatus.h>
+#include <app/data-model-provider/MetadataTypes.h>
+#include <app/server-cluster/DefaultServerCluster.h>
+#include <lib/core/DataModelTypes.h>
+#include <optional>
 
 #if CHIP_CONFIG_USE_ACCESS_RESTRICTIONS
 #include "ArlEncoder.h"
@@ -24,20 +36,21 @@
 
 #include <app-common/zap-generated/cluster-objects.h>
 
-#include <app/AttributeAccessInterface.h>
-#include <app/AttributeAccessInterfaceRegistry.h>
 #include <app/CommandHandler.h>
 #include <app/ConcreteCommandPath.h>
 #include <app/EventLogging.h>
 #include <app/data-model/Encode.h>
 #include <app/reporting/reporting.h>
+#include <app/server-cluster/ServerClusterInterface.h>
+#include <app/server-cluster/ServerClusterInterfaceRegistry.h>
 #include <app/server/AclStorage.h>
 #include <app/server/Server.h>
-#include <app/util/attribute-storage.h>
 
 using namespace chip;
 using namespace chip::app;
+using namespace chip::app::DataModel;
 using namespace chip::Access;
+using namespace chip::app::Clusters::Globals;
 
 namespace AccessControlCluster = chip::app::Clusters::AccessControl;
 
@@ -58,7 +71,39 @@ constexpr uint16_t kClusterRevision = 2;
 
 namespace {
 
-class AccessControlAttribute : public AttributeAccessInterface,
+ActionReturnStatus ChipErrorToStatus(CHIP_ERROR err)
+{
+    // Map some common errors into an underlying IM error
+    // Separate logging is done to not lose the original error location in case such
+    // this are available.
+    std::optional<ActionReturnStatus> mappedStatus;
+    if (err == CHIP_ERROR_INVALID_ARGUMENT)
+    {
+        mappedStatus = Protocols::InteractionModel::Status::ConstraintError;
+    }
+    else if (err == CHIP_ERROR_NOT_FOUND)
+    {
+        // Not found is generally also illegal argument: caused a lookup into an invalid location,
+        // like invalid subjects or targets.
+        mappedStatus = Protocols::InteractionModel::Status::ConstraintError;
+    }
+    else if (err == CHIP_ERROR_NO_MEMORY)
+    {
+        mappedStatus = Protocols::InteractionModel::Status::ResourceExhausted;
+    }
+
+    if (mappedStatus.has_value())
+    {
+        ActionReturnStatus::StringStorage storage;
+        ChipLogError(DataManagement, "Re-mapped %" CHIP_ERROR_FORMAT " into %s for IM return codes", err.Format(),
+                     mappedStatus->c_str(storage));
+        return *mappedStatus;
+    }
+
+    return err;
+}
+
+class AccessControlAttribute : public DefaultServerCluster,
                                public AccessControl::EntryListener
 #if CHIP_CONFIG_USE_ACCESS_RESTRICTIONS
     ,
@@ -66,17 +111,17 @@ class AccessControlAttribute : public AttributeAccessInterface,
 #endif
 {
 public:
-    AccessControlAttribute() : AttributeAccessInterface(Optional<EndpointId>(0), AccessControlCluster::Id) {}
+    AccessControlAttribute() = default;
 
-    /// IM-level implementation of read
-    ///
-    /// Returns appropriately mapped CHIP_ERROR if applicable (may return CHIP_IM_GLOBAL_STATUS errors)
-    CHIP_ERROR Read(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) override;
+    ClusterId GetClusterId() const override { return AccessControlCluster::Id; }
 
-    /// IM-level implementation of write
-    ///
-    /// Returns appropriately mapped CHIP_ERROR if applicable (may return CHIP_IM_GLOBAL_STATUS errors)
-    CHIP_ERROR Write(const ConcreteDataAttributePath & aPath, AttributeValueDecoder & aDecoder) override;
+    ActionReturnStatus ReadAttribute(const ReadAttributeRequest & request, AttributeValueEncoder & encoder) override;
+    ActionReturnStatus WriteAttribute(const WriteAttributeRequest & request, AttributeValueDecoder & decoder) override;
+    CHIP_ERROR Attributes(const ConcreteClusterPath & path, DataModel::ListBuilder<AttributeEntry> & builder) override;
+    std::optional<ActionReturnStatus> InvokeCommand(const InvokeRequest & request, chip::TLV::TLVReader & input_arguments,
+                                                    CommandHandler * handler) override;
+    CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<AcceptedCommandEntry> & builder) override;
+    CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder) override;
 
 public:
     void OnEntryChanged(const SubjectDescriptor * subjectDescriptor, FabricIndex fabric, size_t index,
@@ -92,12 +137,6 @@ public:
 #endif
 
 private:
-    /// Business logic implementation of write, returns generic CHIP_ERROR.
-    CHIP_ERROR ReadImpl(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder);
-
-    /// Business logic implementation of write, returns generic CHIP_ERROR.
-    CHIP_ERROR WriteImpl(const ConcreteDataAttributePath & aPath, AttributeValueDecoder & aDecoder);
-
     CHIP_ERROR ReadAcl(AttributeValueEncoder & aEncoder);
     CHIP_ERROR ReadExtension(AttributeValueEncoder & aEncoder);
     CHIP_ERROR WriteAcl(const ConcreteDataAttributePath & aPath, AttributeValueDecoder & aDecoder);
@@ -164,9 +203,64 @@ CHIP_ERROR CheckExtensionEntryDataFormat(const ByteSpan & data)
     return CHIP_NO_ERROR;
 }
 
-CHIP_ERROR AccessControlAttribute::ReadImpl(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder)
+CHIP_ERROR AccessControlAttribute::Attributes(const ConcreteClusterPath & path, DataModel::ListBuilder<AttributeEntry> & builder)
 {
-    switch (aPath.mAttributeId)
+
+    static constexpr std::array<AttributeEntry, 5> kAttributes{ {
+        {
+            AccessControlCluster::Attributes::Acl::Id,
+            BitFlags<AttributeQualityFlags>{ AttributeQualityFlags::kListAttribute },
+            Access::Privilege::kAdminister,
+            Access::Privilege::kAdminister,
+        },
+        {
+            AccessControlCluster::Attributes::SubjectsPerAccessControlEntry::Id,
+            {},
+            Access::Privilege::kView,
+        },
+        {
+            AccessControlCluster::Attributes::TargetsPerAccessControlEntry::Id,
+            {},
+            Access::Privilege::kView,
+        },
+        {
+            AccessControlCluster::Attributes::AccessControlEntriesPerFabric::Id,
+            {},
+            Access::Privilege::kView,
+        },
+    }};
+
+    ReturnErrorOnFailure(builder.ReferenceExisting(kAttributes));
+
+    /// TODO: this should be IF AND ONLY IF extension attributes exist
+    ReturnErrorOnFailure(builder.EnsureAppendCapacity(1));
+    ReturnErrorOnFailure(builder.Append({
+        AccessControlCluster::Attributes::Extension::Id,
+        BitFlags<AttributeQualityFlags>{ AttributeQualityFlags::kListAttribute },
+        Access::Privilege::kAdminister,
+        Access::Privilege::kAdminister,
+    }));
+
+#if CHIP_CONFIG_USE_ACCESS_RESTRICTIONS
+    ReturnErrorOnFailure(builder.EnsureAppendCapacity(2));
+    ReturnErrorOnFailure(builder.Append({
+        AccessControlCluster::Attributes::CommissioningARL::Id,
+        BitFlags<AttributeQualityFlags>{ AttributeQualityFlags::kListAttribute },
+        Access::Privilege::kView,
+    }));
+    ReturnErrorOnFailure(builder.Append({
+        AccessControlCluster::Attributes::Arl::Id,
+        BitFlags<AttributeQualityFlags>{ AttributeQualityFlags::kListAttribute },
+        Access::Privilege::kView,
+    }));
+#endif
+
+    return builder.AppendElements(GetGlobalAttributes());
+}
+
+ActionReturnStatus AccessControlAttribute::ReadAttribute(const ReadAttributeRequest & aRequest, AttributeValueEncoder & aEncoder)
+{
+    switch (aRequest.path.mAttributeId)
     {
     case AccessControlCluster::Attributes::Acl::Id:
         return ReadAcl(aEncoder);
@@ -249,17 +343,57 @@ CHIP_ERROR AccessControlAttribute::ReadExtension(AttributeValueEncoder & aEncode
     });
 }
 
-CHIP_ERROR AccessControlAttribute::WriteImpl(const ConcreteDataAttributePath & aPath, AttributeValueDecoder & aDecoder)
+ActionReturnStatus AccessControlAttribute::WriteAttribute(const DataModel::WriteAttributeRequest & aRequest,
+                                                          AttributeValueDecoder & aDecoder)
 {
-    switch (aPath.mAttributeId)
+    ActionReturnStatus status = Protocols::InteractionModel::Status::UnsupportedAttribute;
+
+    switch (aRequest.path.mAttributeId)
     {
     case AccessControlCluster::Attributes::Acl::Id:
-        return WriteAcl(aPath, aDecoder);
+        status = ChipErrorToStatus(WriteAcl(aRequest.path, aDecoder));
+        break;
     case AccessControlCluster::Attributes::Extension::Id:
-        return WriteExtension(aPath, aDecoder);
+        status = ChipErrorToStatus(WriteExtension(aRequest.path, aDecoder));
+        break;
     }
 
+    if (status.IsSuccess())
+    {
+        IncreaseDataVersion();
+        // TODO: subscription notification that is sane?
+        MatterReportingAttributeChangeCallback(aRequest.path);
+    }
+
+    return status;
+}
+
+CHIP_ERROR AccessControlAttribute::AcceptedCommands(const ConcreteClusterPath & path,
+                                                    DataModel::ListBuilder<AcceptedCommandEntry> & builder)
+{
+#if CHIP_CONFIG_USE_ACCESS_RESTRICTIONS
+    static constexpr std::array<AcceptedCommandEntry, 1> kEntries{ { {
+        AccessControlCluster::Commands::ReviewFabricRestrictions::Id,
+        {},
+        Access::Privilege::kAdminister,
+    } } };
+
+    return builder.ReferenceExisting(kEntries);
+#else
     return CHIP_NO_ERROR;
+#endif
+}
+
+CHIP_ERROR AccessControlAttribute::GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder)
+{
+#if CHIP_CONFIG_USE_ACCESS_RESTRICTIONS
+    static constexpr std::array<CommandId, 1> kEntries{ {
+        AccessControlCluster::Commands::ReviewFabricRestrictionsResponse::Id,
+    } };
+    return builder.ReferenceExisting(kEntries);
+#else
+    return CHIP_NO_ERROR;
+#endif
 }
 
 CHIP_ERROR AccessControlAttribute::WriteAcl(const ConcreteDataAttributePath & aPath, AttributeValueDecoder & aDecoder)
@@ -535,58 +669,18 @@ exit:
 }
 #endif
 
-CHIP_ERROR ChipErrorToImErrorMap(CHIP_ERROR err)
-{
-    // Map some common errors into an underlying IM error
-    // Separate logging is done to not lose the original error location in case such
-    // this are available.
-    CHIP_ERROR mappedError = err;
-
-    if (err == CHIP_ERROR_INVALID_ARGUMENT)
-    {
-        mappedError = CHIP_IM_GLOBAL_STATUS(ConstraintError);
-    }
-    else if (err == CHIP_ERROR_NOT_FOUND)
-    {
-        // Not found is generally also illegal argument: caused a lookup into an invalid location,
-        // like invalid subjects or targets.
-        mappedError = CHIP_IM_GLOBAL_STATUS(ConstraintError);
-    }
-    else if (err == CHIP_ERROR_NO_MEMORY)
-    {
-        mappedError = CHIP_IM_GLOBAL_STATUS(ResourceExhausted);
-    }
-
-    if (mappedError != err)
-    {
-        ChipLogError(DataManagement, "Re-mapped %" CHIP_ERROR_FORMAT " into %" CHIP_ERROR_FORMAT " for IM return codes",
-                     err.Format(), mappedError.Format());
-    }
-
-    return mappedError;
-}
-
-CHIP_ERROR AccessControlAttribute::Read(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder)
-{
-    // Note: We are not generating any errors under ReadImpl ourselves; it's
-    // just the IM encoding machinery that does it.  And we should propagate
-    // those errors through as-is, without mapping them to other errors, because
-    // they are used to communicate various state within said enoding machinery.
-    return ReadImpl(aPath, aEncoder);
-}
-
-CHIP_ERROR AccessControlAttribute::Write(const ConcreteDataAttributePath & aPath, AttributeValueDecoder & aDecoder)
-{
-    return ChipErrorToImErrorMap(WriteImpl(aPath, aDecoder));
-}
-
 } // namespace
 
 void MatterAccessControlPluginServerInitCallback()
 {
     ChipLogProgress(DataManagement, "AccessControlCluster: initializing");
 
-    AttributeAccessInterfaceRegistry::Instance().Register(&sAttribute);
+    CHIP_ERROR err = ServerClusterInterfaceRegistry::Instance().Register(0 /* endpointId */, &sAttribute);
+    if (err != CHIP_NO_ERROR)
+    {
+        ChipLogError(AppServer, "Failed to register ACL: %" CHIP_ERROR_FORMAT, err.Format());
+    }
+
     GetAccessControl().AddEntryListener(sAttribute);
 
 #if CHIP_CONFIG_USE_ACCESS_RESTRICTIONS
@@ -673,3 +767,23 @@ bool emberAfAccessControlClusterReviewFabricRestrictionsCallback(
     return true;
 }
 #endif
+
+std::optional<ActionReturnStatus> AccessControlAttribute::InvokeCommand(const InvokeRequest & request,
+                                                                        chip::TLV::TLVReader & input_arguments,
+                                                                        CommandHandler * handler)
+{
+#if CHIP_CONFIG_USE_ACCESS_RESTRICTIONS
+    if (request.path.mCommandId == AccessControlCluster::Commands::ReviewFabricRestrictions::Id)
+    {
+        Clusters::AccessControl::Commands::ReviewFabricRestrictions::DecodableType input;
+        ReturnErrorOnFailure(input.Decode(input_arguments));
+        if (!emberAfAccessControlClusterReviewFabricRestrictionsCallback(handler, request.path, input))
+        {
+            return Protocols::InteractionModel::Status::Failure;
+        }
+        return std::nullopt;
+    }
+#endif
+
+    return Protocols::InteractionModel::Status::UnsupportedCommand;
+}
