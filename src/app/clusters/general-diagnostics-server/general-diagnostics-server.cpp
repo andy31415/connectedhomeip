@@ -583,6 +583,7 @@ void MatterGeneralDiagnosticsPluginServerInitCallback()
 {
     BootReasonEnum bootReason;
 
+    static_assert(MATTER_DM_GENERAL_COMMISSIONING_CLUSTER_SERVER_ENDPOINT_COUNT == 1, "Code expects general diagnostics on EP0 only");
     CHIP_ERROR err = ServerClusterInterfaceRegistry::Instance().Register(kRootEndpointId, &gGeneralDiagosticsInstance);
     if (err != CHIP_NO_ERROR)
     {
