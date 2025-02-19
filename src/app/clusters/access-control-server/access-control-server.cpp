@@ -15,10 +15,6 @@
  *    limitations under the License.
  */
 
-#include <lib/core/CHIPError.h>
-#include <lib/support/CodeUtils.h>
-#include <lib/support/logging/TextOnlyLogging.h>
-#include <protocols/interaction_model/StatusCode.h>
 #include <access/AccessControl.h>
 #include <access/Privilege.h>
 #include <app-common/zap-generated/ids/Clusters.h>
@@ -26,8 +22,12 @@
 #include <app/data-model-provider/ActionReturnStatus.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <app/server-cluster/DefaultServerCluster.h>
+#include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
+#include <lib/support/CodeUtils.h>
+#include <lib/support/logging/TextOnlyLogging.h>
 #include <optional>
+#include <protocols/interaction_model/StatusCode.h>
 
 #if CHIP_CONFIG_USE_ACCESS_RESTRICTIONS
 #include "ArlEncoder.h"
@@ -228,7 +228,7 @@ CHIP_ERROR AccessControlAttribute::Attributes(const ConcreteClusterPath & path, 
             {},
             Access::Privilege::kView,
         },
-    }};
+    } };
 
     ReturnErrorOnFailure(builder.ReferenceExisting(kAttributes));
 
