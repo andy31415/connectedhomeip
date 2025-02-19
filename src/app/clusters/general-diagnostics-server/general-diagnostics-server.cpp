@@ -17,12 +17,12 @@
 
 #include "general-diagnostics-server.h"
 
-#include <stdint.h>
-#include <string.h>
+#include <cstdint>
+#include <cstring>
 
 #include <app/util/config.h>
 
-#include "app/server/Server.h"
+#include <access/Privilege.h>
 #include <app-common/zap-generated/attributes/Accessors.h>
 #include <app-common/zap-generated/cluster-objects.h>
 #include <app-common/zap-generated/ids/Attributes.h>
@@ -32,16 +32,27 @@
 #include <app/CommandHandler.h>
 #include <app/CommandHandlerInterface.h>
 #include <app/CommandHandlerInterfaceRegistry.h>
+#include <app/ConcreteCommandPath.h>
 #include <app/EventLogging.h>
+#include <app/data-model-provider/ActionReturnStatus.h>
+#include <app/data-model-provider/MetadataTypes.h>
 #include <app/reporting/reporting.h>
+#include <app/server-cluster/DefaultServerCluster.h>
+#include <app/server-cluster/ServerClusterInterface.h>
+#include <app/server-cluster/ServerClusterInterfaceRegistry.h>
+#include <app/server/Server.h>
 #include <app/util/attribute-storage.h>
+#include <lib/core/CHIPError.h>
+#include <lib/core/DataModelTypes.h>
 #include <lib/support/ScopedBuffer.h>
+#include <optional>
 #include <platform/ConnectivityManager.h>
 #include <platform/DiagnosticDataProvider.h>
 #include <zap-generated/gen_config.h>
 
 using namespace chip;
 using namespace chip::app;
+using namespace chip::app::DataModel;
 using namespace chip::app::Clusters;
 using namespace chip::app::Clusters::GeneralDiagnostics;
 using namespace chip::app::Clusters::GeneralDiagnostics::Attributes;
@@ -112,19 +123,20 @@ TestEventTriggerDelegate * GetTriggerDelegateOnMatchingKey(ByteSpan enableKey)
     return triggerDelegate;
 }
 
-class GeneralDiagosticsGlobalInstance : public AttributeAccessInterface,
-                                        public CommandHandlerInterface,
-                                        public DeviceLayer::ConnectivityManagerDelegate
+class GeneralDiagosticsGlobalInstance : public DefaultServerCluster, public DeviceLayer::ConnectivityManagerDelegate
 {
 public:
     // Register for the GeneralDiagnostics cluster on all endpoints.
-    GeneralDiagosticsGlobalInstance() :
-        AttributeAccessInterface(Optional<EndpointId>::Missing(), GeneralDiagnostics::Id),
-        CommandHandlerInterface(Optional<EndpointId>::Missing(), GeneralDiagnostics::Id)
-    {}
+    GeneralDiagosticsGlobalInstance() = default;
 
-    CHIP_ERROR Read(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) override;
-    void InvokeCommand(HandlerContext & handlerContext) override;
+    ClusterId GetClusterId() const override { return GeneralDiagnostics::Id; }
+
+    ActionReturnStatus ReadAttribute(const ReadAttributeRequest & request, AttributeValueEncoder & encoder) override;
+    CHIP_ERROR Attributes(const ConcreteClusterPath & path, DataModel::ListBuilder<AttributeEntry> & builder) override;
+    std::optional<ActionReturnStatus> InvokeCommand(const InvokeRequest & request, chip::TLV::TLVReader & input_arguments,
+                                                    CommandHandler * handler) override;
+    CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<AcceptedCommandEntry> & builder) override;
+    CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder) override;
 
 private:
     template <typename T>
@@ -135,11 +147,29 @@ private:
 
     CHIP_ERROR ReadNetworkInterfaces(AttributeValueEncoder & aEncoder);
 
-    void HandleTestEventTrigger(HandlerContext & ctx, const Commands::TestEventTrigger::DecodableType & commandData);
-    void HandleTimeSnapshot(HandlerContext & ctx, const Commands::TimeSnapshot::DecodableType & commandData);
+    std::optional<ActionReturnStatus> HandleTestEventTrigger(const Commands::TestEventTrigger::DecodableType & commandData);
+    std::optional<ActionReturnStatus> HandleTimeSnapshot(CommandHandler * handler, const ConcreteCommandPath & requestPath,
+                                                         const Commands::TimeSnapshot::DecodableType & commandData);
+
+    template <typename RequestT, typename FuncT>
+    std::optional<ActionReturnStatus> HandleCommand(chip::TLV::TLVReader & input_arguments, FuncT func)
+    {
+        RequestT requestPayload;
+
+        CHIP_ERROR err = DataModel::Decode(input_arguments, requestPayload);
+        if (err != CHIP_NO_ERROR)
+        {
+            return ActionReturnStatus{ err };
+        }
+
+        return func(requestPayload);
+    }
 
 #ifdef GENERAL_DIAGNOSTICS_ENABLE_PAYLOAD_TEST_REQUEST_CMD
-    void HandlePayloadTestRequest(HandlerContext & ctx, const Commands::PayloadTestRequest::DecodableType & commandData);
+    std::optional<ActionReturnStatus> HandlePayloadTestRequest(
+
+        CommandHandler * handler, const ConcreteCommandPath & requestPath,
+        const Commands::PayloadTestRequest::DecodableType & commandData);
 #endif
 
     // Gets called when any network interface on the Node is updated.
@@ -151,15 +181,28 @@ private:
     }
 };
 
-CHIP_ERROR GeneralDiagosticsGlobalInstance::Read(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder)
+CHIP_ERROR GeneralDiagosticsGlobalInstance::Attributes(const ConcreteClusterPath & path,
+                                                       DataModel::ListBuilder<AttributeEntry> & builder)
 {
-    if (aPath.mClusterId != GeneralDiagnostics::Id)
-    {
-        // We shouldn't have been called at all.
-        return CHIP_ERROR_INVALID_ARGUMENT;
-    }
+    static constexpr AttributeEntry kAttributes[] = {
+        { NetworkInterfaces::Id, AttributeQualityFlags::kListAttribute, Access::Privilege::kView },
+        { RebootCount::Id, {}, Access::Privilege::kView },
+        { UpTime::Id, {}, Access::Privilege::kView },
+        { TotalOperationalHours::Id, {}, Access::Privilege::kView },
+        { BootReason::Id, {}, Access::Privilege::kView },
+        { ActiveHardwareFaults::Id, AttributeQualityFlags::kListAttribute, Access::Privilege::kView },
+        { ActiveRadioFaults::Id, AttributeQualityFlags::kListAttribute, Access::Privilege::kView },
+        { ActiveNetworkFaults::Id, AttributeQualityFlags::kListAttribute, Access::Privilege::kView },
+        { TestEventTriggersEnabled::Id, {}, Access::Privilege::kView },
+    };
 
-    switch (aPath.mAttributeId)
+    return builder.ReferenceExisting(Span<const AttributeEntry>(kAttributes));
+}
+
+ActionReturnStatus GeneralDiagosticsGlobalInstance::ReadAttribute(const ReadAttributeRequest & aRequest,
+                                                                  AttributeValueEncoder & aEncoder)
+{
+    switch (aRequest.path.mAttributeId)
     {
     case NetworkInterfaces::Id: {
         return ReadNetworkInterfaces(aEncoder);
@@ -210,27 +253,60 @@ CHIP_ERROR GeneralDiagosticsGlobalInstance::Read(const ConcreteReadAttributePath
     return CHIP_NO_ERROR;
 }
 
-void GeneralDiagosticsGlobalInstance::InvokeCommand(HandlerContext & handlerContext)
+std::optional<ActionReturnStatus> GeneralDiagosticsGlobalInstance::InvokeCommand(const InvokeRequest & request,
+                                                                                 chip::TLV::TLVReader & input_arguments,
+                                                                                 CommandHandler * handler)
 {
-    switch (handlerContext.mRequestPath.mCommandId)
+    const ConcreteCommandPath & requestPath = request.path;
+
+    switch (requestPath.mCommandId)
     {
     case Commands::TestEventTrigger::Id:
-        CommandHandlerInterface::HandleCommand<Commands::TestEventTrigger::DecodableType>(
-            handlerContext, [this](HandlerContext & ctx, const auto & commandData) { HandleTestEventTrigger(ctx, commandData); });
-        break;
+        return HandleCommand<Commands::TestEventTrigger::DecodableType>(
+            input_arguments, [this](const auto & commandData) { return HandleTestEventTrigger(commandData); });
 
     case Commands::TimeSnapshot::Id:
-        CommandHandlerInterface::HandleCommand<Commands::TimeSnapshot::DecodableType>(
-            handlerContext, [this](HandlerContext & ctx, const auto & commandData) { HandleTimeSnapshot(ctx, commandData); });
-        break;
-
+        return HandleCommand<Commands::TimeSnapshot::DecodableType>(input_arguments,
+                                                             [this, &requestPath, &handler](const auto & commandData) {
+                                                                 return HandleTimeSnapshot(handler, requestPath, commandData);
+                                                             });
 #ifdef GENERAL_DIAGNOSTICS_ENABLE_PAYLOAD_TEST_REQUEST_CMD
     case Commands::PayloadTestRequest::Id:
-        CommandHandlerInterface::HandleCommand<Commands::PayloadTestRequest::DecodableType>(
-            handlerContext, [this](HandlerContext & ctx, const auto & commandData) { HandlePayloadTestRequest(ctx, commandData); });
-        break;
+        return HandleCommand<Commands::PayloadTestRequest::DecodableType>(
+            input_arguments, [this, &requestPath, &handler](const auto & commandData) {
+                return HandlePayloadTestRequest(handler, requestPath, commandData);
+            });
 #endif
     }
+
+    return Status::InvalidCommand;
+}
+
+CHIP_ERROR GeneralDiagosticsGlobalInstance::AcceptedCommands(const ConcreteClusterPath & path,
+                                                             DataModel::ListBuilder<AcceptedCommandEntry> & builder)
+{
+    static constexpr AcceptedCommandEntry kAcceptedCommands[] = {
+        { Commands::TestEventTrigger::Id, {}, Access::Privilege::kManage },
+        { Commands::TimeSnapshot::Id, {}, Access::Privilege::kOperate },
+#ifdef GENERAL_DIAGNOSTICS_ENABLE_PAYLOAD_TEST_REQUEST_CMD
+        { Commands::PayloadTestRequest::Id, {}, Access::Privilege::kManage },
+#endif
+    };
+
+    return builder.ReferenceExisting(Span<const AcceptedCommandEntry>(kAcceptedCommands));
+}
+
+CHIP_ERROR GeneralDiagosticsGlobalInstance::GeneratedCommands(const ConcreteClusterPath & path,
+                                                              DataModel::ListBuilder<CommandId> & builder)
+{
+    static constexpr CommandId kGeneratedCommands[] = {
+        Commands::TimeSnapshotResponse::Id,
+#ifdef GENERAL_DIAGNOSTICS_ENABLE_PAYLOAD_TEST_REQUEST_CMD
+        Commands::PayloadTestResponse::Id,
+#endif
+    };
+
+    return builder.ReferenceExisting(Span<const CommandId>(kGeneratedCommands));
 }
 
 template <typename T>
@@ -303,25 +379,24 @@ CHIP_ERROR GeneralDiagosticsGlobalInstance::ReadNetworkInterfaces(AttributeValue
     return err;
 }
 
-void GeneralDiagosticsGlobalInstance::HandleTestEventTrigger(HandlerContext & ctx,
-                                                             const Commands::TestEventTrigger::DecodableType & commandData)
+std::optional<ActionReturnStatus>
+GeneralDiagosticsGlobalInstance::HandleTestEventTrigger(const Commands::TestEventTrigger::DecodableType & commandData)
 {
     auto * triggerDelegate = GetTriggerDelegateOnMatchingKey(commandData.enableKey);
     if (triggerDelegate == nullptr)
     {
-        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::ConstraintError);
-        return;
+        return Status::ConstraintError;
     }
 
     CHIP_ERROR handleEventTriggerResult = triggerDelegate->HandleEventTriggers(commandData.eventTrigger);
 
     // When HandleEventTrigger fails, we simply convert any error to INVALID_COMMAND
-    ctx.mCommandHandler.AddStatus(ctx.mRequestPath,
-                                  (handleEventTriggerResult != CHIP_NO_ERROR) ? Status::InvalidCommand : Status::Success);
+    return (handleEventTriggerResult != CHIP_NO_ERROR) ? Status::InvalidCommand : Status::Success;
 }
 
-void GeneralDiagosticsGlobalInstance::HandleTimeSnapshot(HandlerContext & ctx,
-                                                         const Commands::TimeSnapshot::DecodableType & commandData)
+std::optional<ActionReturnStatus>
+GeneralDiagosticsGlobalInstance::HandleTimeSnapshot(CommandHandler * handler, const ConcreteCommandPath & requestPath,
+                                                    const Commands::TimeSnapshot::DecodableType & commandData)
 {
     ChipLogError(Zcl, "Received TimeSnapshot command!");
 
@@ -349,43 +424,34 @@ void GeneralDiagosticsGlobalInstance::HandleTimeSnapshot(HandlerContext & ctx,
         response.posixTimeMs.SetNonNull(
             static_cast<uint64_t>(std::chrono::duration_cast<System::Clock::Milliseconds64>(posix_time_us).count()));
     }
-    ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
+    handler->AddResponse(requestPath, response);
+    return std::nullopt;
 }
 
 #ifdef GENERAL_DIAGNOSTICS_ENABLE_PAYLOAD_TEST_REQUEST_CMD
-void GeneralDiagosticsGlobalInstance::HandlePayloadTestRequest(HandlerContext & ctx,
-                                                               const Commands::PayloadTestRequest::DecodableType & commandData)
+std::optional<ActionReturnStatus>
+GeneralDiagosticsGlobalInstance::HandlePayloadTestRequest(CommandHandler * handler, const ConcreteCommandPath & requestPath,
+                                                          const Commands::PayloadTestRequest::DecodableType & commandData)
 {
     // Max allowed is 2048.
-    if (commandData.count > 2048)
-    {
-        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::ConstraintError);
-        return;
-    }
+    VerifyOrReturnError(commandData.count <= 2048, Status::ConstraintError);
 
     // Ensure Test Event triggers are enabled and key matches.
     auto * triggerDelegate = GetTriggerDelegateOnMatchingKey(commandData.enableKey);
-    if (triggerDelegate == nullptr)
-    {
-        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::ConstraintError);
-        return;
-    }
+    VerifyOrReturnError(triggerDelegate != nullptr, Status::ConstraintError);
 
     Commands::PayloadTestResponse::Type response;
     Platform::ScopedMemoryBufferWithSize<uint8_t> payload;
     if (!payload.Calloc(commandData.count))
     {
-        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::ResourceExhausted);
-        return;
+        return Status::ResourceExhausted;
     }
 
     memset(payload.Get(), commandData.value, payload.AllocatedSize());
     response.payload = ByteSpan{ payload.Get(), payload.AllocatedSize() };
 
-    if (ctx.mCommandHandler.AddResponseData(ctx.mRequestPath, response) != CHIP_NO_ERROR)
-    {
-        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::ResourceExhausted);
-    }
+    handler->AddResponse(requestPath, response);
+    return std::nullopt;
 }
 #endif // GENERAL_DIAGNOSTICS_ENABLE_PAYLOAD_TEST_REQUEST_CMD
 
@@ -517,8 +583,11 @@ void MatterGeneralDiagnosticsPluginServerInitCallback()
 {
     BootReasonEnum bootReason;
 
-    AttributeAccessInterfaceRegistry::Instance().Register(&gGeneralDiagosticsInstance);
-    CommandHandlerInterfaceRegistry::Instance().RegisterCommandHandler(&gGeneralDiagosticsInstance);
+    CHIP_ERROR err = ServerClusterInterfaceRegistry::Instance().Register(kRootEndpointId, &gGeneralDiagosticsInstance);
+    if (err != CHIP_NO_ERROR)
+    {
+        ChipLogError(AppServer, "Failed to register ACL: %" CHIP_ERROR_FORMAT, err.Format());
+    }
 
     ConnectivityMgr().SetDelegate(&gGeneralDiagosticsInstance);
 
