@@ -16,6 +16,8 @@
  */
 
 #include "general-diagnostics-server.h"
+#include "lib/core/TLVReader.h"
+#include "lib/support/CodeUtils.h"
 
 #include <cstdint>
 #include <cstring>
@@ -147,7 +149,7 @@ private:
 
     CHIP_ERROR ReadNetworkInterfaces(AttributeValueEncoder & aEncoder);
 
-    std::optional<ActionReturnStatus> HandleTestEventTrigger(const Commands::TestEventTrigger::DecodableType & commandData);
+    std::optional<ActionReturnStatus> HandleTestEventTrigger(chip::TLV::TLVReader &input);
     std::optional<ActionReturnStatus> HandleTimeSnapshot(CommandHandler * handler, const ConcreteCommandPath & requestPath,
                                                          const Commands::TimeSnapshot::DecodableType & commandData);
 
@@ -275,9 +277,7 @@ std::optional<ActionReturnStatus> GeneralDiagosticsGlobalInstance::InvokeCommand
     switch (requestPath.mCommandId)
     {
     case Commands::TestEventTrigger::Id:
-        return HandleCommand<Commands::TestEventTrigger::DecodableType>(
-            input_arguments, [this](const auto & commandData) { return HandleTestEventTrigger(commandData); });
-
+        return HandleTestEventTrigger(input_arguments);
     case Commands::TimeSnapshot::Id:
         return HandleCommand<Commands::TimeSnapshot::DecodableType>(
             input_arguments, [this, &requestPath, &handler](const auto & commandData) {
@@ -392,9 +392,12 @@ CHIP_ERROR GeneralDiagosticsGlobalInstance::ReadNetworkInterfaces(AttributeValue
     return err;
 }
 
-std::optional<ActionReturnStatus>
-GeneralDiagosticsGlobalInstance::HandleTestEventTrigger(const Commands::TestEventTrigger::DecodableType & commandData)
+std::optional<ActionReturnStatus> GeneralDiagosticsGlobalInstance::HandleTestEventTrigger(chip::TLV::TLVReader & input)
 {
+    Commands::TestEventTrigger::DecodableType commandData;
+
+    ReturnErrorOnFailure(commandData.Decode(input));
+
     auto * triggerDelegate = GetTriggerDelegateOnMatchingKey(commandData.enableKey);
     if (triggerDelegate == nullptr)
     {
