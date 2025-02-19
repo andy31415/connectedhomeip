@@ -20,7 +20,6 @@
  * @brief Implementation for the Fixed Label Server Cluster
  ***************************************************************************/
 
-#include <protocols/interaction_model/StatusCode.h>
 #include <app-common/zap-generated/cluster-objects.h>
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
@@ -34,6 +33,7 @@
 #include <lib/support/logging/CHIPLogging.h>
 #include <platform/DeviceInfoProvider.h>
 #include <platform/PlatformManager.h>
+#include <protocols/interaction_model/StatusCode.h>
 
 using namespace chip;
 using namespace chip::app;

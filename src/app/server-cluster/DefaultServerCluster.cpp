@@ -73,7 +73,8 @@ DefaultServerCluster::DefaultServerCluster()
     mDataVersion = Crypto::GetRandU32();
 }
 
-Span<const DataModel::AttributeEntry> DefaultServerCluster::GetGlobalAttributes() {
+Span<const DataModel::AttributeEntry> DefaultServerCluster::GetGlobalAttributes()
+{
     return kGlobalAttributeEntries;
 }
 
