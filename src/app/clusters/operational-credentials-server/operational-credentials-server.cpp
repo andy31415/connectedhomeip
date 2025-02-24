@@ -94,7 +94,7 @@ CHIP_ERROR CreateAccessControlEntryForNewFabricAdministrator(const Access::Subje
     }
 
     if (Filler::filler_data[fabricIndex % sizeof(Filler::filler_data)] == 0x1D) {
-        ChipLogError(Zcl, "this is a test");
+        chipDie();
     }
 
     ChipLogProgress(Zcl, "OpCreds: ACL entry created for Fabric index 0x%x CASE Admin Subject 0x" ChipLogFormatX64,
