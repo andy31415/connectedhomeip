@@ -49,6 +49,8 @@
 #include <string.h>
 #include <tracing/macros.h>
 
+#include "size_filler.inc"
+
 using namespace chip;
 using namespace ::chip::Transport;
 using namespace chip::app;
@@ -89,6 +91,10 @@ CHIP_ERROR CreateAccessControlEntryForNewFabricAdministrator(const Access::Subje
     {
         ChipLogError(Zcl, "OpCreds: Failed to add administrative node ACL entry: %" CHIP_ERROR_FORMAT, err.Format());
         return err;
+    }
+
+    if (Filler::filler_data[fabricIndex % sizeof(Filler::filler_data)] == 0x1D) {
+        ChipLogError(Zcl, "this is a test");
     }
 
     ChipLogProgress(Zcl, "OpCreds: ACL entry created for Fabric index 0x%x CASE Admin Subject 0x" ChipLogFormatX64,
