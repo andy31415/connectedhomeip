@@ -346,6 +346,10 @@ TEST_F(TestServerClusterInterfaceRegistry, ClustersOnEndpoint)
         // Iterated through all : we overflowed and got a large number
         ASSERT_GE(expectedClusterId, kClusterTestCount);
     }
+
+    // invalid index works and iteration on empty lists is ok
+    auto clusters = registry.ClustersOnEndpoint(kEndpointTestCount + 1);
+    ASSERT_EQ(clusters.begin(), clusters.end());
 }
 
 TEST_F(TestServerClusterInterfaceRegistry, InstanceUsage)
