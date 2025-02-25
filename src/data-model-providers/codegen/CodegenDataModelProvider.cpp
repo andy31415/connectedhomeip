@@ -14,6 +14,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "lib/support/ScopedBuffer.h"
+#include <algorithm>
 #include <data-model-providers/codegen/CodegenDataModelProvider.h>
 
 #include <access/AccessControl.h>
@@ -252,6 +254,42 @@ CHIP_ERROR CodegenDataModelProvider::ServerClusters(EndpointId endpointId,
 
     ReturnErrorOnFailure(builder.EnsureAppendCapacity(emberAfClusterCountForEndpointType(endpoint, /* server = */ true)));
 
+    // We have 2 managed lists:
+    //   - ember clusters, that have ember metadata AND ember version
+    //   - `ServerClusterInterfaceRegistry` clusters which MAY have an ember version
+    //     however may also not have one (we should accept server clusters registered
+    //     completely outside ember).
+    //
+    // As a result, we are merging the lists here. The first list is from ember.
+    //
+    // This uses some RAM, however we assume clusters are in the 10s of items only.
+    // so this overflow seems ok.
+
+    size_t registryClustersCount = 0;
+    Platform::ScopedMemoryBuffer<ClusterId> registryClusters;
+
+    {
+        DataModel::ListBuilder<ClusterId> knownClustersBuilder;
+        for (auto * cluster : ServerClusterInterfaceRegistry::Instance().ClustersOnEndpoint(endpointId))
+        {
+            ReturnErrorOnFailure(builder.Append({
+                .clusterId   = cluster->GetClusterId(),
+                .dataVersion = cluster->GetDataVersion(),
+                .flags       = cluster->GetClusterFlags(),
+            }));
+            knownClustersBuilder.EnsureAppendCapacity(1);
+            knownClustersBuilder.Append(cluster->GetClusterId());
+        }
+        DataModel::ReadOnlyBuffer<ClusterId> buffer = knownClustersBuilder.TakeBuffer();
+        registryClustersCount                       = buffer.size();
+
+        VerifyOrReturnError(registryClusters.Alloc(registryClustersCount), CHIP_ERROR_NO_MEMORY);
+        memcpy(registryClusters.Get(), buffer.data(), sizeof(ClusterId) * registryClustersCount);
+
+        // ensure sorted for binary search
+        std::sort(registryClusters.Get(), registryClusters.Get() + registryClustersCount);
+    }
+
     const EmberAfCluster * begin = endpoint->cluster;
     const EmberAfCluster * end   = endpoint->cluster + endpoint->clusterCount;
     for (const EmberAfCluster * cluster = begin; cluster != end; cluster++)
@@ -260,21 +298,15 @@ CHIP_ERROR CodegenDataModelProvider::ServerClusters(EndpointId endpointId,
         {
             continue;
         }
+
+        if (std::binary_search(registryClusters.Get(), registryClusters.Get() + registryClustersCount, cluster->clusterId)) {
+            // value already filled from the ServerClusterRegistry. That one has the correct/overriden
+            // flags and data version
+            continue;
+        }
+
         ReturnErrorOnFailure(builder.Append(ServerClusterEntryFrom(endpointId, *cluster)));
     }
-
-    // FIXME: append or somehow else manage RegisteredClusters ?
-    //   - we have ServerClusterInterface registry
-    //   - we need to "merge" list somehow:
-    //      ServerClusterEntry:
-    //          ClusterId clusterId;
-    //          DataVersion dataVersion;
-    //          BitFlags<ClusterQualityFlags> flags;
-    //      HAVE:
-    //         - ClusterId()
-    //         - GetDataVersion()
-    //         - GetClusterFlags()
-
 
     return CHIP_NO_ERROR;
 }
