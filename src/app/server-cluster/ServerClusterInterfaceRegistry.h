@@ -28,6 +28,39 @@ namespace app {
 class ServerClusterInterfaceRegistry
 {
 public:
+    /// represents an iterable list of clusters
+    class ClustersList
+    {
+    public:
+        class Iterator
+        {
+        public:
+            Iterator(ServerClusterInterface * interface) : mInterface(interface) {}
+
+            Iterator & operator++()
+            {
+                if (mInterface != nullptr)
+                {
+                    mInterface = mInterface->GetNextListItem();
+                }
+                return *this;
+            }
+            bool operator==(const Iterator & other) const { return mInterface == other.mInterface; }
+            bool operator!=(const Iterator & other) const { return mInterface != other.mInterface; }
+            ServerClusterInterface * operator*() { return mInterface; }
+
+        private:
+            ServerClusterInterface * mInterface;
+        };
+
+        ClustersList(ServerClusterInterface * start) : mStart(start) {}
+        Iterator begin() { return mStart; }
+        Iterator end() { return nullptr; }
+
+    private:
+        ServerClusterInterface * mStart;
+    };
+
     ~ServerClusterInterfaceRegistry();
 
     /// Associate a specific interface with the given endpoint.
@@ -50,6 +83,9 @@ public:
 
     /// Return the interface registered for the given cluster path or nullptr if one does not exist
     ServerClusterInterface * Get(const ConcreteClusterPath & path);
+
+    /// ClustersList is valid as a snapshot only and should not be saved.
+    ClustersList ClustersOnEndpoint(EndpointId endpointId);
 
     /// Unregister all registrations for the given endpoint.
     void UnregisterAllFromEndpoint(EndpointId endpointId);

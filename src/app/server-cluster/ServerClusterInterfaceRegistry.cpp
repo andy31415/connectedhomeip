@@ -40,11 +40,12 @@ void ClearSingleLinkedList(ServerClusterInterface * clusters)
     }
 }
 
+ServerClusterInterfaceRegistry sRegistry;
+
 } // namespace
 
 ServerClusterInterfaceRegistry & ServerClusterInterfaceRegistry::Instance()
 {
-    static ServerClusterInterfaceRegistry sRegistry;
     return sRegistry;
 }
 
@@ -153,6 +154,18 @@ ServerClusterInterface * ServerClusterInterfaceRegistry::Unregister(const Concre
 
     // Not found.
     return nullptr;
+}
+
+ServerClusterInterfaceRegistry::ClustersList ServerClusterInterfaceRegistry::ClustersOnEndpoint(EndpointId endpointId)
+{
+    EndpointClusters * clusters = FindClusters(endpointId);
+
+    if (clusters == nullptr)
+    {
+        return nullptr;
+    }
+
+    return clusters->firstCluster;
 }
 
 void ServerClusterInterfaceRegistry::UnregisterAllFromEndpoint(EndpointId endpointId)

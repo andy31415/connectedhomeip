@@ -299,6 +299,59 @@ TEST_F(TestServerClusterInterfaceRegistry, TestDestructionOrder)
     }
 }
 
+TEST_F(TestServerClusterInterfaceRegistry, ClustersOnEndpoint)
+{
+    std::vector<FakeServerClusterInterface> items;
+
+    static constexpr ClusterId kClusterTestCount   = 200;
+    static constexpr EndpointId kEndpointTestCount = 10;
+
+    static_assert(kInvalidClusterId > kClusterTestCount, "Tests assume all clusters IDs [0...] are valid");
+
+    items.reserve(kClusterTestCount);
+    for (ClusterId i = 0; i < kClusterTestCount; i++)
+    {
+        items.emplace_back(i);
+        ASSERT_FALSE(items[i].IsInList());
+    }
+
+    ServerClusterInterfaceRegistry registry;
+
+    // place the clusters on the respecitve endpoints
+    for (ClusterId i = 0; i < kClusterTestCount; i++)
+    {
+        ASSERT_EQ(registry.Register(i % kEndpointTestCount, &items[i]), CHIP_NO_ERROR);
+        ASSERT_TRUE(items[i].IsInList());
+    }
+
+    // this IS implementation defined: we always register at "HEAD" so the listing is in
+    // INVERSE order of registering.
+    for (EndpointId ep = 0; ep < kEndpointTestCount; ep++)
+    {
+        // Move to the end since we iterate in reverse order
+        ClusterId expectedClusterId = ep + kEndpointTestCount * (kClusterTestCount / kEndpointTestCount);
+        if (expectedClusterId >= kClusterTestCount)
+        {
+            expectedClusterId -= kEndpointTestCount;
+        }
+
+        // ensure that iteration happens exactly as we expect: reverse order and complete
+        for (auto cluster : registry.ClustersOnEndpoint(ep))
+        {
+            ASSERT_LT(expectedClusterId, kClusterTestCount);
+            ASSERT_EQ(cluster->GetClusterId(), expectedClusterId);
+            expectedClusterId -= kEndpointTestCount; // next expected/registered cluster
+        }
+
+        // Iterated through all : we overflowed and got a large number
+        ASSERT_GE(expectedClusterId, kClusterTestCount);
+    }
+
+    // invalid index works and iteration on empty lists is ok
+    auto clusters = registry.ClustersOnEndpoint(kEndpointTestCount + 1);
+    ASSERT_EQ(clusters.begin(), clusters.end());
+}
+
 TEST_F(TestServerClusterInterfaceRegistry, InstanceUsage)
 {
     // This tests uses the instance member, to get coverage
