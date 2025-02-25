@@ -265,30 +265,19 @@ CHIP_ERROR CodegenDataModelProvider::ServerClusters(EndpointId endpointId,
     // This uses some RAM, however we assume clusters are in the 10s of items only.
     // so this overflow seems ok.
 
-    size_t registryClustersCount = 0;
-    Platform::ScopedMemoryBuffer<ClusterId> registryClusters;
-
+    DataModel::ListBuilder<ClusterId> knownClustersBuilder;
+    for (auto * cluster : ServerClusterInterfaceRegistry::Instance().ClustersOnEndpoint(endpointId))
     {
-        DataModel::ListBuilder<ClusterId> knownClustersBuilder;
-        for (auto * cluster : ServerClusterInterfaceRegistry::Instance().ClustersOnEndpoint(endpointId))
-        {
-            ReturnErrorOnFailure(builder.Append({
-                .clusterId   = cluster->GetClusterId(),
-                .dataVersion = cluster->GetDataVersion(),
-                .flags       = cluster->GetClusterFlags(),
-            }));
-            knownClustersBuilder.EnsureAppendCapacity(1);
-            knownClustersBuilder.Append(cluster->GetClusterId());
-        }
-        DataModel::ReadOnlyBuffer<ClusterId> buffer = knownClustersBuilder.TakeBuffer();
-        registryClustersCount                       = buffer.size();
-
-        VerifyOrReturnError(registryClusters.Alloc(registryClustersCount), CHIP_ERROR_NO_MEMORY);
-        memcpy(registryClusters.Get(), buffer.data(), sizeof(ClusterId) * registryClustersCount);
-
-        // ensure sorted for binary search
-        std::sort(registryClusters.Get(), registryClusters.Get() + registryClustersCount);
+        ReturnErrorOnFailure(builder.Append({
+            .clusterId   = cluster->GetClusterId(),
+            .dataVersion = cluster->GetDataVersion(),
+            .flags       = cluster->GetClusterFlags(),
+        }));
+        knownClustersBuilder.EnsureAppendCapacity(1);
+        knownClustersBuilder.Append(cluster->GetClusterId());
     }
+
+    DataModel::ReadOnlyBuffer<ClusterId> knownClusters = knownClustersBuilder.TakeBuffer();
 
     const EmberAfCluster * begin = endpoint->cluster;
     const EmberAfCluster * end   = endpoint->cluster + endpoint->clusterCount;
@@ -299,7 +288,19 @@ CHIP_ERROR CodegenDataModelProvider::ServerClusters(EndpointId endpointId,
             continue;
         }
 
-        if (std::binary_search(registryClusters.Get(), registryClusters.Get() + registryClustersCount, cluster->clusterId)) {
+        // linear search as this is a somewhat compact number list, so performance is probably not too bad
+        // This results in smaller code than some memory allocation + std::sort + std::binary_search
+        bool found = false;
+        for (ClusterId clusterId : knownClusters)
+        {
+            if (clusterId == cluster->clusterId)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (found)
+        {
             // value already filled from the ServerClusterRegistry. That one has the correct/overriden
             // flags and data version
             continue;
