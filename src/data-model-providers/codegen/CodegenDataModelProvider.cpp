@@ -263,6 +263,19 @@ CHIP_ERROR CodegenDataModelProvider::ServerClusters(EndpointId endpointId,
         ReturnErrorOnFailure(builder.Append(ServerClusterEntryFrom(endpointId, *cluster)));
     }
 
+    // FIXME: append or somehow else manage RegisteredClusters ?
+    //   - we have ServerClusterInterface registry
+    //   - we need to "merge" list somehow:
+    //      ServerClusterEntry:
+    //          ClusterId clusterId;
+    //          DataVersion dataVersion;
+    //          BitFlags<ClusterQualityFlags> flags;
+    //      HAVE:
+    //         - ClusterId()
+    //         - GetDataVersion()
+    //         - GetClusterFlags()
+
+
     return CHIP_NO_ERROR;
 }
 

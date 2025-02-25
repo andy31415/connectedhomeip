@@ -156,6 +156,18 @@ ServerClusterInterface * ServerClusterInterfaceRegistry::Unregister(const Concre
     return nullptr;
 }
 
+ServerClusterInterfaceRegistry::ClustersList ServerClusterInterfaceRegistry::ClustersOnEndpoint(EndpointId endpointId)
+{
+    EndpointClusters * clusters = FindClusters(endpointId);
+
+    if (clusters == nullptr)
+    {
+        return nullptr;
+    }
+
+    return clusters->firstCluster;
+}
+
 void ServerClusterInterfaceRegistry::UnregisterAllFromEndpoint(EndpointId endpointId)
 {
     if ((mEndpointClustersCache != nullptr) && (mEndpointClustersCache->endpointId == endpointId))
