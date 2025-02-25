@@ -320,7 +320,7 @@ TEST_F(TestServerClusterInterfaceRegistry, ClustersOnEndpoint)
     // place the clusters on the respecitve endpoints
     for (ClusterId i = 0; i < kClusterTestCount; i++)
     {
-        ASSERT_EQ(registry.Register(i % kEndpointTestCount, &items[i]), CHIP_NO_ERROR);
+        ASSERT_EQ(registry.Register(static_cast<EndpointId>(i % kEndpointTestCount), &items[i]), CHIP_NO_ERROR);
         ASSERT_TRUE(items[i].IsInList());
     }
 
