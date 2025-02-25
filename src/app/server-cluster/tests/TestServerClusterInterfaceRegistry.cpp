@@ -328,12 +328,14 @@ TEST_F(TestServerClusterInterfaceRegistry, ClustersOnEndpoint)
     // INVERSE order of registering.
     for (EndpointId ep = 0; ep < kEndpointTestCount; ep++)
     {
-        ClusterId expectedClusterId = ep;
         // Move to the end since we iterate in reverse order
-        while (expectedClusterId + kEndpointTestCount < kClusterTestCount) {
-            expectedClusterId += kEndpointTestCount;
+        ClusterId expectedClusterId = ep + kEndpointTestCount * (kClusterTestCount / kEndpointTestCount);
+        if (expectedClusterId >= kClusterTestCount)
+        {
+            expectedClusterId -= kEndpointTestCount;
         }
 
+        // ensure that iteration happens exactly as we expect: reverse order and complete
         for (auto cluster : registry.ClustersOnEndpoint(ep))
         {
             ASSERT_LT(expectedClusterId, kClusterTestCount);
