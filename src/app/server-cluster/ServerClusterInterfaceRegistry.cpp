@@ -112,7 +112,7 @@ ServerClusterInterface * ServerClusterInterfaceRegistry::Unregister(const Concre
                 mCachedInterface         = nullptr;
             }
 
-            ServerClusterInterface *result = current->serverClusterInterface;
+            ServerClusterInterface * result = current->serverClusterInterface;
             Platform::MemoryFree(current);
 
             return result;

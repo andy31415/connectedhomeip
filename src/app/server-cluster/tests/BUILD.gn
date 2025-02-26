@@ -18,9 +18,7 @@ import("${chip_root}/build/chip/chip_test_suite.gni")
 chip_test_suite("tests") {
   output_name = "libServerClusterInterfaceTests"
 
-  test_sources = [
-    "TestServerClusterInterfaceRegistry.cpp",
-  ]
+  test_sources = [ "TestServerClusterInterfaceRegistry.cpp" ]
 
   cflags = [ "-Wconversion" ]
 

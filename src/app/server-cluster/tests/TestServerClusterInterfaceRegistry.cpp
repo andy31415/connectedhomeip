@@ -305,4 +305,3 @@ TEST_F(TestServerClusterInterfaceRegistry, ClustersOnEndpoint)
     auto clusters = registry.ClustersOnEndpoint(kEndpointTestCount + 1);
     ASSERT_EQ(clusters.begin(), clusters.end());
 }
-
