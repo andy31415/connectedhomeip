@@ -27,6 +27,19 @@ namespace app {
 /// Allows registering and retrieving ServerClusterInterface instances for specific cluster paths.
 class ServerClusterInterfaceRegistry
 {
+private:
+    /// A single-linked list of registered server cluster interfaces
+    struct RegisteredServerClusterInterface
+    {
+        // A single-linked list of clusters registered for the given `endpointId`
+        ServerClusterInterface * serverClusterInterface = nullptr;
+        RegisteredServerClusterInterface * next         = nullptr;
+
+        constexpr RegisteredServerClusterInterface(ServerClusterInterface * cluster, RegisteredServerClusterInterface * n) :
+            serverClusterInterface(cluster), next(n)
+        {}
+    };
+
 public:
     /// represents an iterable list of clusters
     class ClustersList
@@ -35,30 +48,30 @@ public:
         class Iterator
         {
         public:
-            Iterator(ServerClusterInterface * interface) : mInterface(interface) {}
+            Iterator(RegisteredServerClusterInterface * interface) : mInterface(interface) {}
 
             Iterator & operator++()
             {
                 if (mInterface != nullptr)
                 {
-                    mInterface = mInterface->GetNextListItem();
+                    mInterface = mInterface->next;
                 }
                 return *this;
             }
             bool operator==(const Iterator & other) const { return mInterface == other.mInterface; }
             bool operator!=(const Iterator & other) const { return mInterface != other.mInterface; }
-            ServerClusterInterface * operator*() { return mInterface; }
+            ServerClusterInterface * operator*() { return mInterface->serverClusterInterface; }
 
         private:
-            ServerClusterInterface * mInterface;
+            RegisteredServerClusterInterface * mInterface;
         };
 
-        ClustersList(ServerClusterInterface * start) : mStart(start) {}
+        ClustersList(RegisteredServerClusterInterface * start) : mStart(start) {}
         Iterator begin() { return mStart; }
         Iterator end() { return nullptr; }
 
     private:
-        ServerClusterInterface * mStart;
+        RegisteredServerClusterInterface * mStart;
     };
 
     ~ServerClusterInterfaceRegistry();
@@ -90,15 +103,7 @@ public:
     /// Unregister all registrations for the given endpoint.
     void UnregisterAllFromEndpoint(EndpointId endpointId);
 
-    /// Access to an application global registry of server cluster interfaces
-    /// that are registered within the application.
-    static ServerClusterInterfaceRegistry & Instance();
-
 private:
-    // Some pre-allocation. Minimal devices have 2 endpoints: root/0 and
-    // some other endpoint for the actual device.
-    static constexpr size_t kPreallocatedEndpointClusters = 2;
-
     /// tracks clusters registered to a particular endpoint
     struct EndpointClusters
     {
@@ -107,24 +112,15 @@ private:
         EndpointId endpointId = kInvalidEndpointId;
 
         // A single-linked list of clusters registered for the given `endpointId`
-        ServerClusterInterface * firstCluster = nullptr;
-    };
+        RegisteredServerClusterInterface * firstCluster = nullptr;
 
-    struct DynamicEndpointClusters : public EndpointClusters
-    {
         /// A single-linked list of endpoint clusters that is dynamically
         /// allocated.
-        DynamicEndpointClusters * next;
+        EndpointClusters * next;
     };
 
-    // Serves as a pool of pre-allocated clusters to avoid HEAP
-    std::array<EndpointClusters, kPreallocatedEndpointClusters> mPreallocatedEndpoints;
-
     // Dynamic allocated endpoint cluters, once static allocation is used up
-    DynamicEndpointClusters * mDynamicEndpoints = nullptr;
-
-    // a one-element cache to speed up finding the cluster list for an endpoint.
-    EndpointClusters * mEndpointClustersCache = nullptr;
+    EndpointClusters * mEndpoints = nullptr;
 
     // a one-element cache to speed up finding a cluster within an endpoint.
     // The endpointId specifies which endpoint the cache belongs to.
@@ -134,8 +130,11 @@ private:
     /// returns nullptr if not found
     EndpointClusters * FindClusters(EndpointId endpointId);
 
-    /// Get a new usable (either static or dynamic) endpoint cluster
+    /// Get a new usable endpoint cluster
     CHIP_ERROR AllocateNewEndpointClusters(EndpointId endpointId, EndpointClusters *& dest);
+
+    /// Clear and free memory for the given linked list
+    static void ClearSingleLinkedList(RegisteredServerClusterInterface * clusters);
 };
 
 } // namespace app

@@ -108,14 +108,6 @@ TEST_F(TestServerClusterInterfaceRegistry, BasicTest)
     EXPECT_EQ(registry.Register(kEp2, &cluster2), CHIP_NO_ERROR);
     EXPECT_EQ(registry.Register(kEp2, &cluster3), CHIP_NO_ERROR);
 
-    // registering things again gives in use
-    EXPECT_EQ(registry.Register(kEp1, &cluster1), CHIP_ERROR_IN_USE);
-    EXPECT_EQ(registry.Register(kEp2, &cluster2), CHIP_ERROR_IN_USE);
-    EXPECT_EQ(registry.Register(kEp3, &cluster2), CHIP_ERROR_IN_USE);
-
-    // Cluster once registered cannot be added on a different endpoint as well (no re-use as single linked lists)
-    EXPECT_EQ(registry.Register(kEp2, &cluster1), CHIP_ERROR_IN_USE);
-
     // cannot register two implementations on the same path
     {
         FakeServerClusterInterface another1(kCluster1);
@@ -145,7 +137,6 @@ TEST_F(TestServerClusterInterfaceRegistry, BasicTest)
     // Re-adding works exactly once.
     EXPECT_EQ(registry.Get({ kEp2, kCluster2 }), nullptr);
     EXPECT_EQ(registry.Register(kEp3, &cluster2), CHIP_NO_ERROR);
-    EXPECT_EQ(registry.Register(kEp3, &cluster2), CHIP_ERROR_IN_USE);
     EXPECT_EQ(registry.Get({ kEp3, kCluster2 }), &cluster2);
     EXPECT_EQ(registry.Unregister({ kEp3, kCluster2 }), &cluster2);
     EXPECT_EQ(registry.Get({ kEp2, kCluster2 }), nullptr);
@@ -186,7 +177,6 @@ TEST_F(TestServerClusterInterfaceRegistry, StressTest)
     for (ClusterId i = 0; i < kClusterTestCount; i++)
     {
         items.emplace_back(i);
-        ASSERT_FALSE(items[i].IsInList());
     }
 
     ServerClusterInterfaceRegistry registry;
@@ -198,7 +188,6 @@ TEST_F(TestServerClusterInterfaceRegistry, StressTest)
 
         for (ClusterId i = 0; i < kClusterTestCount; i++)
         {
-            ASSERT_FALSE(items[i].IsInList());
             auto endpointId = static_cast<EndpointId>(rand() % kEndpointTestCount);
             endpoint_placement.push_back(endpointId);
             ASSERT_EQ(registry.Register(endpointId, &items[i]), CHIP_NO_ERROR);
@@ -258,44 +247,11 @@ TEST_F(TestServerClusterInterfaceRegistry, StressTest)
         // all endpoints should be clear
         for (ClusterId cluster = 0; cluster < kClusterTestCount; cluster++)
         {
-            ASSERT_FALSE(items[cluster].IsInList());
             for (EndpointId ep = 0; ep < kEndpointTestCount; ep++)
             {
                 ASSERT_EQ(registry.Get({ ep, cluster }), nullptr);
             }
         }
-    }
-}
-
-TEST_F(TestServerClusterInterfaceRegistry, TestDestructionOrder)
-{
-    // Test that registry destruction AFTER clusters is still ok
-    std::vector<FakeServerClusterInterface> items;
-    static constexpr ClusterId kClusterTestCount = 200;
-
-    items.reserve(kClusterTestCount);
-    for (ClusterId i = 0; i < kClusterTestCount; i++)
-    {
-        items.emplace_back(i);
-        ASSERT_FALSE(items[i].IsInList());
-    }
-
-    {
-        ServerClusterInterfaceRegistry registry;
-
-        for (ClusterId i = 0; i < kClusterTestCount; i++)
-        {
-            ASSERT_EQ(registry.Register(static_cast<EndpointId>(i % 10), &items[i]), CHIP_NO_ERROR);
-        }
-        for (ClusterId i = 0; i < kClusterTestCount; i++)
-        {
-            ASSERT_TRUE(items[i].IsInList());
-        }
-    }
-
-    for (ClusterId i = 0; i < kClusterTestCount; i++)
-    {
-        ASSERT_FALSE(items[i].IsInList());
     }
 }
 
@@ -312,7 +268,6 @@ TEST_F(TestServerClusterInterfaceRegistry, ClustersOnEndpoint)
     for (ClusterId i = 0; i < kClusterTestCount; i++)
     {
         items.emplace_back(i);
-        ASSERT_FALSE(items[i].IsInList());
     }
 
     ServerClusterInterfaceRegistry registry;
@@ -321,7 +276,6 @@ TEST_F(TestServerClusterInterfaceRegistry, ClustersOnEndpoint)
     for (ClusterId i = 0; i < kClusterTestCount; i++)
     {
         ASSERT_EQ(registry.Register(static_cast<EndpointId>(i % kEndpointTestCount), &items[i]), CHIP_NO_ERROR);
-        ASSERT_TRUE(items[i].IsInList());
     }
 
     // this IS implementation defined: we always register at "HEAD" so the listing is in
@@ -352,17 +306,3 @@ TEST_F(TestServerClusterInterfaceRegistry, ClustersOnEndpoint)
     ASSERT_EQ(clusters.begin(), clusters.end());
 }
 
-TEST_F(TestServerClusterInterfaceRegistry, InstanceUsage)
-{
-    // This tests uses the instance member, to get coverage
-    // instance is assumed to be empty
-    FakeServerClusterInterface cluster(1234);
-
-    ASSERT_EQ(ServerClusterInterfaceRegistry::Instance().Get({ kEp1, 1234 }), nullptr);
-    ASSERT_EQ(ServerClusterInterfaceRegistry::Instance().Register(kEp1, &cluster), CHIP_NO_ERROR);
-    ASSERT_EQ(ServerClusterInterfaceRegistry::Instance().Get({ kEp1, 1234 }), &cluster);
-    ASSERT_EQ(ServerClusterInterfaceRegistry::Instance().Unregister({ kEp1, 1234 }), &cluster);
-    ASSERT_EQ(ServerClusterInterfaceRegistry::Instance().Get({ kEp1, 1234 }), nullptr);
-    ASSERT_EQ(ServerClusterInterfaceRegistry::Instance().Unregister({ kEp1, 1234 }), nullptr);
-    ASSERT_EQ(ServerClusterInterfaceRegistry::Instance().Get({ kEp1, 1234 }), nullptr);
-}

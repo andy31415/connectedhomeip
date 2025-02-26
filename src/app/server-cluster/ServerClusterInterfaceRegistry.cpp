@@ -14,6 +14,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "lib/core/CHIPError.h"
+#include "lib/support/CHIPMem.h"
 #include <app/server-cluster/ServerClusterInterfaceRegistry.h>
 
 #include <app/ConcreteClusterPath.h>
@@ -24,68 +26,33 @@
 namespace chip {
 namespace app {
 
-namespace {
-
-/// Remove all elements of a linked list rom the linked list.
-///
-/// Marks every element in the given linked list as not being in a
-/// linked list anymore.
-void ClearSingleLinkedList(ServerClusterInterface * clusters)
+void ServerClusterInterfaceRegistry::ClearSingleLinkedList(RegisteredServerClusterInterface * clusters)
 {
     while (clusters != nullptr)
     {
-        ServerClusterInterface * next = clusters->GetNextListItem();
-        clusters->SetNotInList();
+        RegisteredServerClusterInterface * next = clusters->next;
+        Platform::Delete(clusters);
         clusters = next;
     }
 }
 
-ServerClusterInterfaceRegistry sRegistry;
-
-} // namespace
-
-ServerClusterInterfaceRegistry & ServerClusterInterfaceRegistry::Instance()
-{
-    return sRegistry;
-}
-
 ServerClusterInterfaceRegistry::~ServerClusterInterfaceRegistry()
 {
-    for (auto & ep : mPreallocatedEndpoints)
+    while (mEndpoints != nullptr)
     {
-        if (ep.endpointId != kInvalidEndpointId)
-        {
-            UnregisterAllFromEndpoint(ep.endpointId);
-        }
-    }
-
-    while (mDynamicEndpoints != nullptr)
-    {
-        UnregisterAllFromEndpoint(mDynamicEndpoints->endpointId);
+        UnregisterAllFromEndpoint(mEndpoints->endpointId);
     }
 }
 
 CHIP_ERROR ServerClusterInterfaceRegistry::AllocateNewEndpointClusters(EndpointId endpointId, EndpointClusters *& dest)
 {
-    for (auto & ep : mPreallocatedEndpoints)
-    {
-        if (ep.endpointId == kInvalidEndpointId)
-        {
-            ep.endpointId   = endpointId;
-            ep.firstCluster = nullptr;
-            dest            = &ep;
-            return CHIP_NO_ERROR;
-        }
-    }
-
-    // need to allocate dynamically
-    auto result = Platform::New<DynamicEndpointClusters>();
+    auto result = Platform::New<EndpointClusters>();
     VerifyOrReturnError(result != nullptr, CHIP_ERROR_NO_MEMORY);
 
     result->endpointId   = endpointId;
     result->firstCluster = nullptr;
-    result->next         = mDynamicEndpoints;
-    mDynamicEndpoints    = result;
+    result->next         = mEndpoints;
+    mEndpoints           = result;
     dest                 = result;
 
     return CHIP_NO_ERROR;
@@ -94,7 +61,6 @@ CHIP_ERROR ServerClusterInterfaceRegistry::AllocateNewEndpointClusters(EndpointI
 CHIP_ERROR ServerClusterInterfaceRegistry::Register(EndpointId endpointId, ServerClusterInterface * cluster)
 {
     VerifyOrReturnError(cluster != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
-    VerifyOrReturnError(!cluster->IsInList(), CHIP_ERROR_IN_USE);
     VerifyOrReturnError(endpointId != kInvalidEndpointId, CHIP_ERROR_INVALID_ARGUMENT);
     VerifyOrReturnError(cluster->GetClusterId() != kInvalidClusterId, CHIP_ERROR_INVALID_ARGUMENT);
 
@@ -107,8 +73,10 @@ CHIP_ERROR ServerClusterInterfaceRegistry::Register(EndpointId endpointId, Serve
         ReturnErrorOnFailure(AllocateNewEndpointClusters(endpointId, endpointClusters));
     }
 
-    cluster->SetNextListItem(endpointClusters->firstCluster);
-    endpointClusters->firstCluster = cluster;
+    auto entry = Platform::New<RegisteredServerClusterInterface>(cluster, endpointClusters->firstCluster);
+    VerifyOrReturnError(entry != nullptr, CHIP_ERROR_NO_MEMORY);
+
+    endpointClusters->firstCluster = entry;
 
     return CHIP_NO_ERROR;
 }
@@ -119,15 +87,15 @@ ServerClusterInterface * ServerClusterInterfaceRegistry::Unregister(const Concre
     VerifyOrReturnValue(endpointClusters != nullptr, nullptr);
     VerifyOrReturnValue(endpointClusters->firstCluster != nullptr, nullptr);
 
-    ServerClusterInterface * prev    = nullptr;
-    ServerClusterInterface * current = endpointClusters->firstCluster;
+    RegisteredServerClusterInterface * prev    = nullptr;
+    RegisteredServerClusterInterface * current = endpointClusters->firstCluster;
 
     while (current != nullptr)
     {
-        if (current->GetClusterId() == path.mClusterId)
+        if (current->serverClusterInterface->GetClusterId() == path.mClusterId)
         {
             // take the item out of the current list and return it.
-            ServerClusterInterface * next = current->GetNextListItem();
+            RegisteredServerClusterInterface * next = current->next;
 
             if (prev == nullptr)
             {
@@ -135,21 +103,23 @@ ServerClusterInterface * ServerClusterInterfaceRegistry::Unregister(const Concre
             }
             else
             {
-                prev->SetNextListItem(next);
+                prev->next = next;
             }
 
-            if (mCachedInterface == current)
+            if (mCachedInterface == current->serverClusterInterface)
             {
                 mCachedClusterEndpointId = kInvalidEndpointId;
                 mCachedInterface         = nullptr;
             }
-            current->SetNotInList();
 
-            return current;
+            ServerClusterInterface *result = current->serverClusterInterface;
+            Platform::MemoryFree(current);
+
+            return result;
         }
 
         prev    = current;
-        current = current->GetNextListItem();
+        current = current->next;
     }
 
     // Not found.
@@ -170,11 +140,6 @@ ServerClusterInterfaceRegistry::ClustersList ServerClusterInterfaceRegistry::Clu
 
 void ServerClusterInterfaceRegistry::UnregisterAllFromEndpoint(EndpointId endpointId)
 {
-    if ((mEndpointClustersCache != nullptr) && (mEndpointClustersCache->endpointId == endpointId))
-    {
-        mEndpointClustersCache = nullptr;
-    }
-
     if (mCachedClusterEndpointId == endpointId)
     {
         // all clusters on the given endpoint will be unregistered.
@@ -182,27 +147,15 @@ void ServerClusterInterfaceRegistry::UnregisterAllFromEndpoint(EndpointId endpoi
         mCachedClusterEndpointId = kInvalidEndpointId;
     }
 
-    // if it is static, just clear it
-    for (auto & ep : mPreallocatedEndpoints)
-    {
-        if (ep.endpointId == endpointId)
-        {
-            ep.endpointId = kInvalidEndpointId;
-            ClearSingleLinkedList(ep.firstCluster);
-            ep.firstCluster = nullptr;
-            return;
-        }
-    }
-
-    DynamicEndpointClusters * prev    = nullptr;
-    DynamicEndpointClusters * current = mDynamicEndpoints;
+    EndpointClusters * prev    = nullptr;
+    EndpointClusters * current = mEndpoints;
     while (current != nullptr)
     {
         if (current->endpointId == endpointId)
         {
             if (prev == nullptr)
             {
-                mDynamicEndpoints = current->next;
+                mEndpoints = current->next;
             }
             else
             {
@@ -232,18 +185,18 @@ ServerClusterInterface * ServerClusterInterfaceRegistry::Get(const ConcreteClust
     }
 
     // The cluster searched for is not cached, do a linear search for it
-    ServerClusterInterface * current = endpointClusters->firstCluster;
+    RegisteredServerClusterInterface * current = endpointClusters->firstCluster;
 
     while (current != nullptr)
     {
-        if (current->GetClusterId() == path.mClusterId)
+        if (current->serverClusterInterface->GetClusterId() == path.mClusterId)
         {
             mCachedClusterEndpointId = path.mEndpointId;
-            mCachedInterface         = current;
-            return current;
+            mCachedInterface         = current->serverClusterInterface;
+            return mCachedInterface;
         }
 
-        current = current->GetNextListItem();
+        current = current->next;
     }
 
     // not found
@@ -256,28 +209,11 @@ ServerClusterInterfaceRegistry::EndpointClusters * ServerClusterInterfaceRegistr
     // invalid cluster id as a marker of "not used")
     VerifyOrReturnValue(endpointId != kInvalidEndpointId, nullptr);
 
-    if ((mEndpointClustersCache != nullptr) && (mEndpointClustersCache->endpointId == endpointId))
-    {
-        return mEndpointClustersCache;
-    }
-
-    // search statically first
-    for (auto & ep : mPreallocatedEndpoints)
-    {
-        if (ep.endpointId == endpointId)
-        {
-            mEndpointClustersCache = &ep;
-            return mEndpointClustersCache;
-        }
-    }
-
-    // not found, search dynamic
-    for (DynamicEndpointClusters * p = mDynamicEndpoints; p != nullptr; p = p->next)
+    for (EndpointClusters * p = mEndpoints; p != nullptr; p = p->next)
     {
         if (p->endpointId == endpointId)
         {
-            mEndpointClustersCache = p;
-            return mEndpointClustersCache;
+            return p;
         }
     }
 
