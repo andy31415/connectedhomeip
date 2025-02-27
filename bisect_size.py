@@ -1,15 +1,44 @@
 #!/usr/bin/env python3
 
-import click
 import logging
 import subprocess
+import re
+import io
+
+import click
 import coloredlogs
+import alive_progress
+
+
+def execute_compile(target) -> bool:
+
+    progress_match = re.compile(r'.*\[\s*(?P<done>\d+)\s*/\s*(?P<total>\d+)\s*\].*')
+
+    with subprocess.Popen(
+        ["./scripts/build/build_examples.py", "--target", target, "build"],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        bufsize=0, # line buffering
+        pipesize=0, # attempt line buffering
+    ) as proc:
+        assert proc.stdout is not None
+
+        with alive_progress.alive_bar(title=f'Compiling {target}', manual=True) as bar:
+            for out_line in io.TextIOWrapper(proc.stdout, encoding='utf-8'):
+                m = progress_match.match(out_line)
+                if not m:
+                    continue
+                progress = float(m.group('done'))/int(m.group('total'))
+                bar(progress)
+
+        return proc.wait() == 0
 
 
 @click.command()
 @click.option(
     "--size",
-    default=128*1024,
+    default=128 * 1024,
     show_default=True,
     type=int,
     help="How many bytes to start the test with",
@@ -25,7 +54,7 @@ def main(size, target):
 
     while current != high and current != low:
         logging.info("Checking %d bytes", current)
-        if current > 10*1024*1024:
+        if current > 10 * 1024 * 1024:
             logging.error("Size too large!")
             break
 
@@ -35,9 +64,7 @@ def main(size, target):
 
         subprocess.run(["./gen_file.py", "--size", str(current)], check=True)
 
-        result = subprocess.run(["./scripts/build/build_examples.py", "--target", target, "build"], capture_output=True)
-
-        if result.returncode == 0:
+        if execute_compile(target):
             logging.info("COMPILE OK")
             low = current
         else:
@@ -55,8 +82,8 @@ def main(size, target):
             current = (high + low) // 2
 
     print("RESULT:")
-    print("  LOW:  %d"% low)
-    print("  HIGH: %d"% high)
+    print("  LOW:  %d" % low)
+    print("  HIGH: %d" % high)
 
 
 if __name__ == "__main__":
