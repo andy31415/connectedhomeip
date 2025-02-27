@@ -23,6 +23,7 @@
 #include <app/data-model-provider/ActionReturnStatus.h>
 #include <app/data-model-provider/MetadataList.h>
 #include <app/util/af-types.h>
+#include <data-model-providers/codegen/ServerClusterInterfaceRegistry.h>
 #include <lib/core/CHIPPersistentStorageDelegate.h>
 
 namespace chip {
@@ -49,6 +50,8 @@ public:
 
     void SetPersistentStorageDelegate(PersistentStorageDelegate * delegate) { mPersistentStorageDelegate = delegate; }
     PersistentStorageDelegate * GetPersistentStorageDelegate() { return mPersistentStorageDelegate; }
+
+    ServerClusterInterfaceRegistry &Registry() { return mRegistry; }
 
     /// Generic model implementations
     CHIP_ERROR Shutdown() override
@@ -111,6 +114,8 @@ private:
 
     // Ember requires a persistence provider, so we make sure we can always have something
     PersistentStorageDelegate * mPersistentStorageDelegate = nullptr;
+
+    ServerClusterInterfaceRegistry mRegistry;
 
     /// Finds the specified ember cluster
     ///

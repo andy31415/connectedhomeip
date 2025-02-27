@@ -14,8 +14,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "lib/support/ScopedBuffer.h"
-#include <algorithm>
 #include <data-model-providers/codegen/CodegenDataModelProvider.h>
 
 #include <access/AccessControl.h>
@@ -32,7 +30,6 @@
 #include <app/data-model-provider/MetadataList.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <app/data-model-provider/Provider.h>
-#include <app/server-cluster/ServerClusterInterfaceRegistry.h>
 #include <app/util/DataModelHandler.h>
 #include <app/util/IMClusterCommandHandler.h>
 #include <app/util/af-types.h>
@@ -45,6 +42,7 @@
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
 #include <lib/support/CodeUtils.h>
+#include <lib/support/ScopedBuffer.h>
 #include <lib/support/SpanSearchValue.h>
 
 #include <cstdint>
@@ -266,7 +264,7 @@ CHIP_ERROR CodegenDataModelProvider::ServerClusters(EndpointId endpointId,
     // so this overflow seems ok.
 
     DataModel::ListBuilder<ClusterId> knownClustersBuilder;
-    for (auto * cluster : ServerClusterInterfaceRegistry::Instance().ClustersOnEndpoint(endpointId))
+    for (auto * cluster : mRegistry.ClustersOnEndpoint(endpointId))
     {
         ReturnErrorOnFailure(builder.Append({
             .clusterId   = cluster->GetClusterId(),
@@ -315,7 +313,7 @@ CHIP_ERROR CodegenDataModelProvider::ServerClusters(EndpointId endpointId,
 CHIP_ERROR CodegenDataModelProvider::Attributes(const ConcreteClusterPath & path,
                                                 DataModel::ListBuilder<DataModel::AttributeEntry> & builder)
 {
-    if (auto * cluster = ServerClusterInterfaceRegistry::Instance().Get(path); cluster != nullptr)
+    if (auto * cluster = mRegistry.Get(path); cluster != nullptr)
     {
         return cluster->Attributes(path, builder);
     }
@@ -408,7 +406,7 @@ const EmberAfCluster * CodegenDataModelProvider::FindServerCluster(const Concret
 CHIP_ERROR CodegenDataModelProvider::AcceptedCommands(const ConcreteClusterPath & path,
                                                       DataModel::ListBuilder<DataModel::AcceptedCommandEntry> & builder)
 {
-    if (auto * cluster = ServerClusterInterfaceRegistry::Instance().Get(path); cluster != nullptr)
+    if (auto * cluster = mRegistry.Get(path); cluster != nullptr)
     {
         return cluster->AcceptedCommands(path, builder);
     }
@@ -497,7 +495,7 @@ CHIP_ERROR CodegenDataModelProvider::AcceptedCommands(const ConcreteClusterPath 
 CHIP_ERROR CodegenDataModelProvider::GeneratedCommands(const ConcreteClusterPath & path,
                                                        DataModel::ListBuilder<CommandId> & builder)
 {
-    if (auto * cluster = ServerClusterInterfaceRegistry::Instance().Get(path); cluster != nullptr)
+    if (auto * cluster = mRegistry.Get(path); cluster != nullptr)
     {
         return cluster->GeneratedCommands(path, builder);
     }
