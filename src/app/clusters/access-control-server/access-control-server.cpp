@@ -15,8 +15,6 @@
  *    limitations under the License.
  */
 
-#include "data-model-providers/codegen/CodegenDataModelProvider.h"
-#include "data-model-providers/codegen/Instance.h"
 #include <access/AccessControl.h>
 #include <access/Privilege.h>
 #include <app-common/zap-generated/ids/Clusters.h>
@@ -24,6 +22,8 @@
 #include <app/data-model-provider/ActionReturnStatus.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <app/server-cluster/DefaultServerCluster.h>
+#include <data-model-providers/codegen/CodegenDataModelProvider.h>
+#include <data-model-providers/codegen/Instance.h>
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
 #include <lib/support/CodeUtils.h>
@@ -44,7 +44,6 @@
 #include <app/data-model/Encode.h>
 #include <app/reporting/reporting.h>
 #include <app/server-cluster/ServerClusterInterface.h>
-#include <app/server-cluster/ServerClusterInterfaceRegistry.h>
 #include <app/server/AclStorage.h>
 #include <app/server/Server.h>
 
