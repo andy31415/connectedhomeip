@@ -104,12 +104,33 @@ public:
 
     ///////////////////////////////////// Command Support /////////////////////////////////////////////////////////
 
+    /// Handles a command.
+    ///
+    /// `handler` is used to send back the reply.
+    ///    - returning `std::nullopt` means that return value was placed in handler directly.
+    ///      This includes cases where command handling and value return will be done asynchronously.
+    ///    - returning a value other than Success implies an error reply (error and data are mutually exclusive)
+    ///
+    /// InvokeCommand MUST be done on an "existent" attribute path: only on commands that are
+    /// returned in an `AcceptedCommand` call for this cluster.
+    ///
+    /// Return value expectations:
+    ///   - if a response has been placed into `handler` then std::nullopt MUST be returned. In particular
+    ///     note that CHIP_NO_ERROR is NOT the same as std::nullopt:
+    ///        > CHIP_NO_ERROR means handler had no status set and we expect the caller to AddStatus(success)
+    ///        > std::nullopt means that handler has added an appropriate data/status response
+    ///   - if a value is returned (not nullopt) then the handler response MUST NOT be filled. The caller
+    ///     will then issue `handler->AddStatus(request.path, <return_value>->GetStatusCode())`. This is a
+    ///     convenience to make writing Invoke calls easier.
     virtual std::optional<DataModel::ActionReturnStatus>
     InvokeCommand(const DataModel::InvokeRequest & request, chip::TLV::TLVReader & input_arguments, CommandHandler * handler) = 0;
 
+    /// List all accepted commands (just returning CHIP_NO_ERROR is acceptable if no commands are supported by the cluster)
     virtual CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path,
                                         DataModel::ListBuilder<DataModel::AcceptedCommandEntry> & builder) = 0;
 
+    /// List all generated commands (just returning CHIP_NO_ERROR is acceptable if no command structures
+    /// are returned as a result of command processing by this clsuter).
     virtual CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder) = 0;
 };
 
