@@ -28,7 +28,6 @@
 #include <app/AttributeValueEncoder.h>
 #include <app/RequiredPrivilege.h>
 #include <app/data-model/FabricScoped.h>
-#include <app/server-cluster/ServerClusterInterfaceRegistry.h>
 #include <app/util/af-types.h>
 #include <app/util/attribute-metadata.h>
 #include <app/util/attribute-storage-detail.h>
@@ -103,7 +102,7 @@ DataModel::ActionReturnStatus CodegenDataModelProvider::ReadAttribute(const Data
                   ChipLogValueMEI(request.path.mClusterId), request.path.mEndpointId, ChipLogValueMEI(request.path.mAttributeId),
                   request.path.mExpanded);
 
-    if (auto * cluster = ServerClusterInterfaceRegistry::Instance().Get(request.path); cluster != nullptr)
+    if (auto * cluster = mRegistry.Get(request.path); cluster != nullptr)
     {
         return cluster->ReadAttribute(request, encoder);
     }
