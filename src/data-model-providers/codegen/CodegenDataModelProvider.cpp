@@ -163,7 +163,7 @@ std::optional<DataModel::ActionReturnStatus> CodegenDataModelProvider::InvokeCom
                                                                                      TLV::TLVReader & input_arguments,
                                                                                      CommandHandler * handler)
 {
-    if (auto * cluster = ServerClusterInterfaceRegistry::Instance().Get(request.path); cluster != nullptr)
+    if (auto * cluster = mRegistry.Get(request.path); cluster != nullptr)
     {
         return cluster->InvokeCommand(request, input_arguments, handler);
     }
