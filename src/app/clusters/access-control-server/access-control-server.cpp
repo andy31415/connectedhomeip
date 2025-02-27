@@ -15,6 +15,8 @@
  *    limitations under the License.
  */
 
+#include "data-model-providers/codegen/CodegenDataModelProvider.h"
+#include "data-model-providers/codegen/Instance.h"
 #include <access/AccessControl.h>
 #include <access/Privilege.h>
 #include <app-common/zap-generated/ids/Clusters.h>
@@ -675,7 +677,7 @@ void MatterAccessControlPluginServerInitCallback()
 {
     ChipLogProgress(DataManagement, "AccessControlCluster: initializing");
 
-    CHIP_ERROR err = ServerClusterInterfaceRegistry::Instance().Register(0 /* endpointId */, &sAttribute);
+    CHIP_ERROR err = TypedCodegenDataModelProviderInstance(nullptr)->Registry().Register(0 /* endpointId */, &sAttribute);
     if (err != CHIP_NO_ERROR)
     {
         ChipLogError(AppServer, "Failed to register ACL: %" CHIP_ERROR_FORMAT, err.Format());

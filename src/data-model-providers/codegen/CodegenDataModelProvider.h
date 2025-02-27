@@ -126,5 +126,8 @@ private:
     std::optional<unsigned> TryFindEndpointIndex(EndpointId id) const;
 };
 
+/// The typed version of the CodegenDataModelProviderInstance() global.
+CodegenDataModelProvider * TypedCodegenDataModelProviderInstance(PersistentStorageDelegate * delegate);
+
 } // namespace app
 } // namespace chip
