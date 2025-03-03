@@ -18,7 +18,9 @@
 
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app/ConcreteClusterPath.h>
+#include <app/data-model-provider/Context.h>
 #include <app/server-cluster/DefaultServerCluster.h>
+#include <app/server-cluster/ServerClusterContext.h>
 #include <data-model-providers/codegen/ServerClusterInterfaceRegistry.h>
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
@@ -62,8 +64,17 @@ public:
         return CHIP_ERROR_INVALID_ARGUMENT;
     }
 
+    bool HasContext() { return mContext != nullptr; }
+
 private:
     ClusterId mClusterId;
+};
+
+class CannotStartUpCluster : public FakeServerClusterInterface
+{
+public:
+    CannotStartUpCluster(ClusterId id) : FakeServerClusterInterface(id) {}
+    CHIP_ERROR Startup(EndpointId endpointId, ServerClusterContext * context) override { return CHIP_ERROR_BUSY; }
 };
 
 struct TestServerClusterInterfaceRegistry : public ::testing::Test
@@ -76,9 +87,6 @@ struct TestServerClusterInterfaceRegistry : public ::testing::Test
 
 TEST_F(TestServerClusterInterfaceRegistry, BasicTest)
 {
-    // NOTE: tests DO NOT use the global registry and validate implementation
-    //       details.
-
     ServerClusterInterfaceRegistry registry;
 
     FakeServerClusterInterface cluster1(kCluster1);
@@ -304,4 +312,109 @@ TEST_F(TestServerClusterInterfaceRegistry, ClustersOnEndpoint)
     // invalid index works and iteration on empty lists is ok
     auto clusters = registry.ClustersOnEndpoint(kEndpointTestCount + 1);
     ASSERT_EQ(clusters.begin(), clusters.end());
+}
+
+TEST_F(TestServerClusterInterfaceRegistry, Context)
+{
+    FakeServerClusterInterface cluster1(kCluster1);
+    FakeServerClusterInterface cluster2(kCluster2);
+    FakeServerClusterInterface cluster3(kCluster3);
+
+    {
+        ServerClusterInterfaceRegistry registry;
+        EXPECT_FALSE(cluster1.HasContext());
+        EXPECT_FALSE(cluster2.HasContext());
+        EXPECT_FALSE(cluster3.HasContext());
+
+        // registry is NOT initialized
+        EXPECT_EQ(registry.Register(kEp1, &cluster1), CHIP_NO_ERROR);
+        EXPECT_FALSE(cluster1.HasContext());
+
+        // set up the registry
+        ServerClusterContext nullContext; // not valid, however we do not care
+        EXPECT_EQ(registry.SetContext(nullContext), CHIP_NO_ERROR);
+
+        EXPECT_TRUE(cluster1.HasContext());
+        EXPECT_FALSE(cluster2.HasContext());
+        EXPECT_FALSE(cluster3.HasContext());
+
+        // adding clusters automatically adds the context
+        EXPECT_EQ(registry.Register(kEp2, &cluster2), CHIP_NO_ERROR);
+        EXPECT_TRUE(cluster2.HasContext());
+
+        // clearing the context clears all clusters
+        registry.ClearContext();
+        EXPECT_FALSE(cluster1.HasContext());
+        EXPECT_FALSE(cluster2.HasContext());
+        EXPECT_FALSE(cluster3.HasContext());
+
+        EXPECT_EQ(registry.SetContext(nullContext), CHIP_NO_ERROR);
+        EXPECT_TRUE(cluster1.HasContext());
+        EXPECT_TRUE(cluster2.HasContext());
+        EXPECT_FALSE(cluster3.HasContext());
+
+        EXPECT_EQ(registry.Register(kEp2, &cluster3), CHIP_NO_ERROR);
+        EXPECT_TRUE(cluster3.HasContext());
+
+        // adding twice results in failure as we cannot start it up twice
+        EXPECT_EQ(registry.Register(kEp3, &cluster3), CHIP_ERROR_ALREADY_INITIALIZED);
+        // still registered in the previous location
+        EXPECT_TRUE(cluster3.HasContext());
+
+        // removing clears the context/shuts clusters down
+        EXPECT_EQ(registry.Unregister({ kEp2, kCluster2 }), &cluster2);
+        EXPECT_TRUE(cluster1.HasContext());
+        EXPECT_FALSE(cluster2.HasContext());
+        EXPECT_TRUE(cluster3.HasContext());
+
+        // re-setting context works
+        EXPECT_EQ(registry.SetContext(nullContext), CHIP_NO_ERROR);
+        EXPECT_TRUE(cluster1.HasContext());
+        EXPECT_FALSE(cluster2.HasContext());
+        EXPECT_TRUE(cluster3.HasContext());
+
+        // also not valid, but different
+        ServerClusterContext otherContext;
+        InteractionModelContext modelContext;
+        otherContext.interactionContext = &modelContext;
+
+        EXPECT_EQ(registry.SetContext(otherContext), CHIP_NO_ERROR);
+        EXPECT_TRUE(cluster1.HasContext());
+        EXPECT_FALSE(cluster2.HasContext());
+        EXPECT_TRUE(cluster3.HasContext());
+    }
+
+    // destructor clears the context
+    EXPECT_FALSE(cluster1.HasContext());
+    EXPECT_FALSE(cluster2.HasContext());
+    EXPECT_FALSE(cluster3.HasContext());
+}
+
+TEST_F(TestServerClusterInterfaceRegistry, StartupErrors)
+{
+    FakeServerClusterInterface cluster1(kCluster1);
+    CannotStartUpCluster cluster2(kCluster2);
+
+    {
+        ServerClusterInterfaceRegistry registry;
+
+        EXPECT_FALSE(cluster1.HasContext());
+        EXPECT_FALSE(cluster2.HasContext());
+
+        // register without context works because startup not called yet
+        EXPECT_EQ(registry.Register(kEp1, &cluster1), CHIP_NO_ERROR);
+        EXPECT_EQ(registry.Register(kEp2, &cluster2), CHIP_NO_ERROR);
+
+        EXPECT_FALSE(cluster1.HasContext());
+        EXPECT_FALSE(cluster2.HasContext());
+
+        ServerClusterContext nullContext; // not valid, however we do not care
+        EXPECT_EQ(registry.SetContext(nullContext), CHIP_ERROR_HAD_FAILURES);
+        EXPECT_TRUE(cluster1.HasContext());
+        EXPECT_FALSE(cluster2.HasContext());
+
+        registry.ClearContext();
+        EXPECT_FALSE(cluster1.HasContext());
+        EXPECT_FALSE(cluster2.HasContext());
+    }
 }

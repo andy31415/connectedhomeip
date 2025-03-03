@@ -17,6 +17,7 @@
 #pragma once
 
 #include <app/ConcreteClusterPath.h>
+#include <app/server-cluster/ServerClusterContext.h>
 #include <app/server-cluster/ServerClusterInterface.h>
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
@@ -100,6 +101,14 @@ public:
     /// Unregister all registrations for the given endpoint.
     void UnregisterAllFromEndpoint(EndpointId endpointId);
 
+    // Set up the underlying context for all clusters that are managed by this registry.
+    //
+    // The values within context will be copied and used.
+    CHIP_ERROR SetContext(const ServerClusterContext & context);
+
+    // Invalidates current context.
+    void ClearContext();
+
 private:
     /// tracks clusters registered to a particular endpoint
     struct EndpointClusters
@@ -124,6 +133,10 @@ private:
     ClusterId mCachedClusterEndpointId        = kInvalidEndpointId;
     ServerClusterInterface * mCachedInterface = nullptr;
 
+    // Managing context for this registry
+    bool mContextIsValid = false;
+    ServerClusterContext mContext;
+
     /// returns nullptr if not found
     EndpointClusters * FindClusters(EndpointId endpointId);
 
@@ -131,7 +144,7 @@ private:
     CHIP_ERROR AllocateNewEndpointClusters(EndpointId endpointId, EndpointClusters *& dest);
 
     /// Clear and free memory for the given linked list
-    static void ClearSingleLinkedList(RegisteredServerClusterInterface * clusters);
+    void ClearSingleLinkedList(RegisteredServerClusterInterface * clusters);
 };
 
 } // namespace app

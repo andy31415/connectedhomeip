@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "lib/support/logging/TextOnlyLogging.h"
 #include <data-model-providers/codegen/ServerClusterInterfaceRegistry.h>
 
 #include <app/ConcreteClusterPath.h>
@@ -31,6 +32,10 @@ void ServerClusterInterfaceRegistry::ClearSingleLinkedList(RegisteredServerClust
     while (clusters != nullptr)
     {
         RegisteredServerClusterInterface * next = clusters->next;
+        if (mContextIsValid)
+        {
+            clusters->serverClusterInterface->Shutdown();
+        }
         Platform::Delete(clusters);
         clusters = next;
     }
@@ -76,6 +81,16 @@ CHIP_ERROR ServerClusterInterfaceRegistry::Register(EndpointId endpointId, Serve
     auto entry = Platform::New<RegisteredServerClusterInterface>(cluster, endpointClusters->firstCluster);
     VerifyOrReturnError(entry != nullptr, CHIP_ERROR_NO_MEMORY);
 
+    if (mContextIsValid)
+    {
+        CHIP_ERROR err = cluster->Startup(endpointId, &mContext);
+        if (err != CHIP_NO_ERROR)
+        {
+            Platform::Delete(entry);
+            return err;
+        }
+    }
+
     endpointClusters->firstCluster = entry;
 
     return CHIP_NO_ERROR;
@@ -113,8 +128,12 @@ ServerClusterInterface * ServerClusterInterfaceRegistry::Unregister(const Concre
             }
 
             ServerClusterInterface * result = current->serverClusterInterface;
-            Platform::MemoryFree(current);
+            Platform::Delete(current);
 
+            if (mContextIsValid)
+            {
+                result->Shutdown();
+            }
             return result;
         }
 
@@ -218,6 +237,63 @@ ServerClusterInterfaceRegistry::EndpointClusters * ServerClusterInterfaceRegistr
     }
 
     return nullptr;
+}
+
+CHIP_ERROR ServerClusterInterfaceRegistry::SetContext(const ServerClusterContext & context)
+{
+    if (mContextIsValid)
+    {
+        // if there is no difference, do not re-initialize.
+        VerifyOrReturnError(mContext != context, CHIP_NO_ERROR);
+        ClearContext();
+    }
+
+    mContext         = context;
+    mContextIsValid  = true;
+    bool had_failure = false;
+
+    for (EndpointClusters * endpoint = mEndpoints; endpoint != nullptr; endpoint = endpoint->next)
+    {
+        for (RegisteredServerClusterInterface * cluster = endpoint->firstCluster; cluster != nullptr; cluster = cluster->next)
+        {
+            CHIP_ERROR err = cluster->serverClusterInterface->Startup(endpoint->endpointId, &mContext);
+            if (err != CHIP_NO_ERROR)
+            {
+                ChipLogError(DataManagement, "Cluster %u/" ChipLogFormatMEI " startup failed: %" CHIP_ERROR_FORMAT,
+                             endpoint->endpointId, ChipLogValueMEI(cluster->serverClusterInterface->GetClusterId()), err.Format());
+                had_failure = true;
+                // NOTE: this makes the object be in an awkward state:
+                //       - cluster is not initialized
+                //       - mContext is valid
+                //       As a result, ::Shutdown on this cluster WILL be called even if startup failed.
+            }
+        }
+    }
+
+    if (had_failure)
+    {
+        return CHIP_ERROR_HAD_FAILURES;
+    }
+
+    return CHIP_NO_ERROR;
+}
+
+void ServerClusterInterfaceRegistry::ClearContext()
+{
+    if (!mContextIsValid)
+    {
+        return;
+    }
+    for (EndpointClusters * endpoint = mEndpoints; endpoint != nullptr; endpoint = endpoint->next)
+    {
+        for (RegisteredServerClusterInterface * cluster = endpoint->firstCluster; cluster != nullptr; cluster = cluster->next)
+        {
+            cluster->serverClusterInterface->Shutdown();
+        }
+    }
+
+    mContext        = ServerClusterContext{};
+    mContextIsValid = false;
 }
 
 } // namespace app
