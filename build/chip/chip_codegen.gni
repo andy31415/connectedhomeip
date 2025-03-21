@@ -51,6 +51,12 @@ template("_chip_build_time_codegen") {
       rebase_path(_expected_outputs, root_build_dir),
     ]
 
+    if (defined(invoker.additional_output_globs)) {
+      foreach(g, invoker.additional_output_globs) {
+        args += [ "--expect-output-glob", g ]
+      }
+    }
+
     if (defined(invoker.options)) {
       foreach(option, invoker.options) {
         args += [
@@ -281,6 +287,7 @@ template("chip_codegen") {
                                "outputs",
                                "options",
                                "public_configs",
+                               "additional_output_globs",
                              ])
     }
   } else {
@@ -302,6 +309,8 @@ template("chip_codegen") {
       foreach(name, invoker.outputs) {
         sources += [ "${_generation_dir}/${name}" ]
       }
+
+      # TODO: expand sources here: HOW CAN WE DO THIS
 
       # NOTE: we assume ALL outputs have a common subdir. This is generally the case with
       #       paths like "app/callback-stub.cpp" and "app/PluginApplicationCallbacks.h"

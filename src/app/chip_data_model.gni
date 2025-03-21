@@ -99,6 +99,10 @@ template("chip_data_model") {
       "app/cluster-init-callback.cpp",
     ]
 
+    additional_output_globs = [
+      "app/cluster-config/*.h"
+    ]
+
     if (!defined(deps)) {
       deps = []
     }

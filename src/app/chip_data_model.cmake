@@ -123,6 +123,8 @@ function(chip_configure_data_model APP_TARGET)
             "app/PluginApplicationCallbacks.h"
             "app/callback-stub.cpp"
             "app/cluster-init-callback.cpp"
+            ADDITIONAL_OUTPUT_GLOBS
+            "app/cluster-config/*.h"
             OUTPUT_PATH APP_GEN_DIR
             OUTPUT_FILES APP_GEN_FILES
         )

@@ -17,17 +17,17 @@
 #   INPUT     - the name of the ".matter" file to use for generation
 #   GENERATOR - generator to use for codegen.py
 #   OUTPUTS   - EXPECTED output names. MUST match actual outputs
-# 
+#
 #   OUTPUT_PATH  - [OUT] output variable will contain the directory where the
 #                  files will be generated
 #   OUTPUT_FILES - [OUT] output variable will contain the path of generated files.
 #                  suitable to be added within a build target
 #
 function(chip_codegen TARGET_NAME)
-    cmake_parse_arguments(ARG 
-         "" 
-         "INPUT;GENERATOR;OUTPUT_PATH;OUTPUT_FILES" 
-         "OUTPUTS" 
+    cmake_parse_arguments(ARG
+         ""
+         "INPUT;GENERATOR;OUTPUT_PATH;OUTPUT_FILES"
+         "OUTPUTS;ADDITIONAL_OUTPUT_GLOBS"
          ${ARGN}
     )
 
@@ -50,6 +50,12 @@ function(chip_codegen TARGET_NAME)
             list(APPEND OUT_NAMES "${GEN_FOLDER}/${NAME}")
         endforeach()
 
+        set(ADDITIONAL_GLOBS_ARGS)
+        foreach(NAME IN LISTS ARG_ADDITIONAL_OUTPUT_GLOBS)
+          list(APPEND ADDITIONAL_GLOBS_ARGS --expected-output-glob)
+          list(APPEND ADDITIONAL_GLOBS_ARGS "${NAME}")
+        endforeach()
+
         # Python is expected to be in the path
         #
         # find_package(Python3 REQUIRED)
@@ -59,6 +65,7 @@ function(chip_codegen TARGET_NAME)
             ARGS "--generator" "${ARG_GENERATOR}"
                  "--output-dir" "${GEN_FOLDER}"
                  "--expected-outputs" "${GEN_FOLDER}/expected.outputs"
+                 ${ADDITIONAL_GLOBS_ARGS}
                  "${ARG_INPUT}"
             DEPENDS
                 "${ARG_INPUT}"

@@ -15,6 +15,7 @@
 
 import logging
 import sys
+import fnmatch
 
 import click
 
@@ -98,10 +99,14 @@ __LOG_LEVELS__ = {
     type=click.Path(exists=True),
     default=None,
     help='A file containing all expected outputs. Script will fail if outputs do not match')
+@click.option(
+    '--expect-output-glob',
+    multiple=True,
+    help='Glob patterns for expected outputs (all matching paths will be accepted when generated)')
 @click.argument(
     'idl_path',
     type=click.Path(exists=True))
-def main(log_level, generator, option, output_dir, dry_run, name_only, expected_outputs, idl_path):
+def main(log_level, generator, option, output_dir, dry_run, name_only, expected_outputs, expect_output_glob, idl_path):
     """
     Parses MATTER IDL files (.matter) and performs SDK code generation
     as set up by the program arguments.
@@ -150,6 +155,11 @@ def main(log_level, generator, option, output_dir, dry_run, name_only, expected_
     generator.render(dry_run)
 
     if expected_outputs:
+        generated_paths = set()
+        for p in storage.generated_paths:
+            if any([fnmatch.fnmatch(p, g) for g in expect_output_glob]):
+                continue
+            generated_paths.add(p)
         with open(expected_outputs, 'rt') as fin:
             expected = set()
             for line in fin.readlines():
@@ -157,11 +167,11 @@ def main(log_level, generator, option, output_dir, dry_run, name_only, expected_
                 if line:
                     expected.add(line)
 
-            if expected != storage.generated_paths:
+            if expected != generated_paths:
                 logging.fatal("expected and generated files do not match.")
 
-                extra = storage.generated_paths - expected
-                missing = expected - storage.generated_paths
+                extra = generated_paths - expected
+                missing = expected - generated_paths
 
                 for name in extra:
                     logging.fatal("   '%s' was generated but not expected" % name)
