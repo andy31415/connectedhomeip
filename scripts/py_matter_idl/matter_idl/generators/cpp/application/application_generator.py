@@ -13,13 +13,12 @@
 # limitations under the License.
 
 import os
+from dataclasses import dataclass
+from typing import List, Mapping
 
 from matter_idl.generators import CodeGenerator, GeneratorStorage
 from matter_idl.generators.cluster_selection import server_side_clusters
 from matter_idl.matter_idl_types import Idl, ServerClusterInstantiation
-
-from typing import Mapping, List
-from dataclasses import dataclass
 
 
 @dataclass

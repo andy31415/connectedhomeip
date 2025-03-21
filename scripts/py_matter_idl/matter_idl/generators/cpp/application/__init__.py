@@ -14,4 +14,4 @@
 
 from .application_generator import CppApplicationGenerator
 
-__all__ = ['CppApplicationGenerator' ]
+__all__ = ['CppApplicationGenerator']
