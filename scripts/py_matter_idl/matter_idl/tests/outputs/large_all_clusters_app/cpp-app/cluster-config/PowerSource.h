@@ -1,11 +1,37 @@
-// TODO: implement
-// Cluster: PowerSource
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=0, cluster_name='PowerSource', feature_map=2, cluster_revision=1, instance=ServerClusterInstantiation(name='PowerSource', commands=[], attributes=[AttributeInstantiation(name='status', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=3947, column=5, start_pos=113307)), AttributeInstantiation(name='order', storage=<AttributeStorage.RAM: 1>, default=3, parse_meta=ParseMetaData(line=3948, column=5, start_pos=113338)), AttributeInstantiation(name='description', storage=<AttributeStorage.RAM: 1>, default='B1', parse_meta=ParseMetaData(line=3949, column=5, start_pos=113380)), AttributeInstantiation(name='batChargeLevel', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=3950, column=5, start_pos=113431)), AttributeInstantiation(name='batReplacementNeeded', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=3951, column=5, start_pos=113470)), AttributeInstantiation(name='batReplaceability', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=3952, column=5, start_pos=113515)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=2, parse_meta=ParseMetaData(line=3953, column=5, start_pos=113557)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=3954, column=5, start_pos=113604))], events_emitted=set(), parse_meta=ParseMetaData(line=3946, column=3, start_pos=113274)))
-// 
-//    ServerClusterConfig(endpoint_number=1, cluster_name='PowerSource', feature_map=2, cluster_revision=1, instance=ServerClusterInstantiation(name='PowerSource', commands=[], attributes=[AttributeInstantiation(name='status', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4254, column=5, start_pos=123904)), AttributeInstantiation(name='order', storage=<AttributeStorage.RAM: 1>, default=2, parse_meta=ParseMetaData(line=4255, column=5, start_pos=123935)), AttributeInstantiation(name='description', storage=<AttributeStorage.RAM: 1>, default='B2', parse_meta=ParseMetaData(line=4256, column=5, start_pos=123977)), AttributeInstantiation(name='batChargeLevel', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4257, column=5, start_pos=124028)), AttributeInstantiation(name='batReplacementNeeded', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4258, column=5, start_pos=124067)), AttributeInstantiation(name='batReplaceability', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4259, column=5, start_pos=124112)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=2, parse_meta=ParseMetaData(line=4260, column=5, start_pos=124154)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=4261, column=5, start_pos=124201))], events_emitted=set(), parse_meta=ParseMetaData(line=4253, column=3, start_pos=123871)))
-// 
-//    ServerClusterConfig(endpoint_number=2, cluster_name='PowerSource', feature_map=2, cluster_revision=1, instance=ServerClusterInstantiation(name='PowerSource', commands=[], attributes=[AttributeInstantiation(name='status', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4754, column=5, start_pos=142526)), AttributeInstantiation(name='order', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=4755, column=5, start_pos=142557)), AttributeInstantiation(name='description', storage=<AttributeStorage.RAM: 1>, default='B3', parse_meta=ParseMetaData(line=4756, column=5, start_pos=142599)), AttributeInstantiation(name='batChargeLevel', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4757, column=5, start_pos=142650)), AttributeInstantiation(name='batReplacementNeeded', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4758, column=5, start_pos=142689)), AttributeInstantiation(name='batReplaceability', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4759, column=5, start_pos=142734)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=2, parse_meta=ParseMetaData(line=4760, column=5, start_pos=142776)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=4761, column=5, start_pos=142823))], events_emitted=set(), parse_meta=ParseMetaData(line=4753, column=3, start_pos=142493)))
-// 
-//
+// Application configuration for PowerSource
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace PowerSource {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 0,
+    .featureMap = 2,
+    .clusterRevision = 1,
+  },
+  {
+    .endpointNumber = 1,
+    .featureMap = 2,
+    .clusterRevision = 1,
+  },
+  {
+    .endpointNumber = 2,
+    .featureMap = 2,
+    .clusterRevision = 1,
+  },
+};
+
+} // namespace PowerSource
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

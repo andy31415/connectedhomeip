@@ -1,9 +1,32 @@
-// TODO: implement
-// Cluster: OnOff
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=1, cluster_name='OnOff', feature_map=1, cluster_revision=4, instance=ServerClusterInstantiation(name='OnOff', commands=[], attributes=[AttributeInstantiation(name='onOff', storage=<AttributeStorage.PERSIST: 2>, default=None, parse_meta=ParseMetaData(line=4194, column=5, start_pos=121924)), AttributeInstantiation(name='globalSceneControl', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=4195, column=5, start_pos=121954)), AttributeInstantiation(name='onTime', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4196, column=5, start_pos=122012)), AttributeInstantiation(name='offWaitTime', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4197, column=5, start_pos=122043)), AttributeInstantiation(name='startUpOnOff', storage=<AttributeStorage.PERSIST: 2>, default=255, parse_meta=ParseMetaData(line=4198, column=5, start_pos=122079)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=4199, column=5, start_pos=122131)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=4, parse_meta=ParseMetaData(line=4200, column=5, start_pos=122183))], events_emitted=set(), parse_meta=ParseMetaData(line=4193, column=3, start_pos=121897)))
-// 
-//    ServerClusterConfig(endpoint_number=2, cluster_name='OnOff', feature_map=0, cluster_revision=4, instance=ServerClusterInstantiation(name='OnOff', commands=[], attributes=[AttributeInstantiation(name='onOff', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4735, column=5, start_pos=141949)), AttributeInstantiation(name='globalSceneControl', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=4736, column=5, start_pos=141979)), AttributeInstantiation(name='onTime', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4737, column=5, start_pos=142034)), AttributeInstantiation(name='offWaitTime', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4738, column=5, start_pos=142065)), AttributeInstantiation(name='startUpOnOff', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4739, column=5, start_pos=142101)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4740, column=5, start_pos=142138)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=4, parse_meta=ParseMetaData(line=4741, column=5, start_pos=142173))], events_emitted=set(), parse_meta=ParseMetaData(line=4734, column=3, start_pos=141922)))
-// 
-//
+// Application configuration for OnOff
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace OnOff {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 1,
+    .featureMap = 1,
+    .clusterRevision = 4,
+  },
+  {
+    .endpointNumber = 2,
+    .featureMap = 0,
+    .clusterRevision = 4,
+  },
+};
+
+} // namespace OnOff
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

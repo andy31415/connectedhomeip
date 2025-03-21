@@ -1,7 +1,27 @@
-// TODO: implement
-// Cluster: BasicInformation
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=0, cluster_name='BasicInformation', feature_map=0, cluster_revision=1, instance=ServerClusterInstantiation(name='BasicInformation', commands=[], attributes=[AttributeInstantiation(name='dataModelRevision', storage=<AttributeStorage.CALLBACK: 3>, default=10, parse_meta=ParseMetaData(line=1739, column=5, start_pos=50989)), AttributeInstantiation(name='vendorName', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1740, column=5, start_pos=51044)), AttributeInstantiation(name='vendorID', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1741, column=5, start_pos=51079)), AttributeInstantiation(name='productName', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1742, column=5, start_pos=51112)), AttributeInstantiation(name='productID', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1743, column=5, start_pos=51148)), AttributeInstantiation(name='nodeLabel', storage=<AttributeStorage.PERSIST: 2>, default=None, parse_meta=ParseMetaData(line=1744, column=5, start_pos=51182)), AttributeInstantiation(name='location', storage=<AttributeStorage.CALLBACK: 3>, default='XX', parse_meta=ParseMetaData(line=1745, column=5, start_pos=51216)), AttributeInstantiation(name='hardwareVersion', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1746, column=5, start_pos=51264)), AttributeInstantiation(name='hardwareVersionString', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1747, column=5, start_pos=51304)), AttributeInstantiation(name='softwareVersion', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1748, column=5, start_pos=51350)), AttributeInstantiation(name='softwareVersionString', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1749, column=5, start_pos=51390)), AttributeInstantiation(name='manufacturingDate', storage=<AttributeStorage.CALLBACK: 3>, default='20210614123456ZZ', parse_meta=ParseMetaData(line=1750, column=5, start_pos=51436)), AttributeInstantiation(name='partNumber', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1751, column=5, start_pos=51507)), AttributeInstantiation(name='productURL', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1752, column=5, start_pos=51542)), AttributeInstantiation(name='productLabel', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1753, column=5, start_pos=51577)), AttributeInstantiation(name='serialNumber', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1754, column=5, start_pos=51614)), AttributeInstantiation(name='localConfigDisabled', storage=<AttributeStorage.PERSIST: 2>, default=None, parse_meta=ParseMetaData(line=1755, column=5, start_pos=51651)), AttributeInstantiation(name='reachable', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=1756, column=5, start_pos=51695)), AttributeInstantiation(name='uniqueID', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1757, column=5, start_pos=51741)), AttributeInstantiation(name='capabilityMinima', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1758, column=5, start_pos=51774)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=1759, column=5, start_pos=51815)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=1760, column=5, start_pos=51850))], events_emitted=set(), parse_meta=ParseMetaData(line=1738, column=3, start_pos=50951)))
-// 
-//
+// Application configuration for BasicInformation
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace BasicInformation {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 0,
+    .featureMap = 0,
+    .clusterRevision = 1,
+  },
+};
+
+} // namespace BasicInformation
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

@@ -1,7 +1,27 @@
-// TODO: implement
-// Cluster: GeneralDiagnostics
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=0, cluster_name='GeneralDiagnostics', feature_map=0, cluster_revision=1, instance=ServerClusterInstantiation(name='GeneralDiagnostics', commands=[], attributes=[AttributeInstantiation(name='networkInterfaces', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1816, column=5, start_pos=53711)), AttributeInstantiation(name='rebootCount', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1817, column=5, start_pos=53753)), AttributeInstantiation(name='upTime', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1818, column=5, start_pos=53789)), AttributeInstantiation(name='totalOperationalHours', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1819, column=5, start_pos=53820)), AttributeInstantiation(name='bootReasons', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1820, column=5, start_pos=53866)), AttributeInstantiation(name='activeHardwareFaults', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1821, column=5, start_pos=53902)), AttributeInstantiation(name='activeRadioFaults', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1822, column=5, start_pos=53947)), AttributeInstantiation(name='activeNetworkFaults', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1823, column=5, start_pos=53989)), AttributeInstantiation(name='testEventTriggersEnabled', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1824, column=5, start_pos=54033)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=1825, column=5, start_pos=54082)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=1826, column=5, start_pos=54117))], events_emitted=set(), parse_meta=ParseMetaData(line=1815, column=3, start_pos=53671)))
-// 
-//
+// Application configuration for GeneralDiagnostics
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace GeneralDiagnostics {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 0,
+    .featureMap = 0,
+    .clusterRevision = 1,
+  },
+};
+
+} // namespace GeneralDiagnostics
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

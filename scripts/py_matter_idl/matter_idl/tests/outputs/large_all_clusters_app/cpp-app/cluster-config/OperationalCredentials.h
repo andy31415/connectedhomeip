@@ -1,7 +1,27 @@
-// TODO: implement
-// Cluster: OperationalCredentials
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=0, cluster_name='OperationalCredentials', feature_map=0, cluster_revision=1, instance=ServerClusterInstantiation(name='OperationalCredentials', commands=[], attributes=[AttributeInstantiation(name='NOCs', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=4120, column=5, start_pos=119730)), AttributeInstantiation(name='fabrics', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=4121, column=5, start_pos=119759)), AttributeInstantiation(name='supportedFabrics', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=4122, column=5, start_pos=119791)), AttributeInstantiation(name='commissionedFabrics', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=4123, column=5, start_pos=119832)), AttributeInstantiation(name='trustedRootCertificates', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=4124, column=5, start_pos=119876)), AttributeInstantiation(name='currentFabricIndex', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=4125, column=5, start_pos=119924)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4126, column=5, start_pos=119967)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=4127, column=5, start_pos=120002))], events_emitted=set(), parse_meta=ParseMetaData(line=4119, column=3, start_pos=119686)))
-// 
-//
+// Application configuration for OperationalCredentials
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace OperationalCredentials {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 0,
+    .featureMap = 0,
+    .clusterRevision = 1,
+  },
+};
+
+} // namespace OperationalCredentials
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

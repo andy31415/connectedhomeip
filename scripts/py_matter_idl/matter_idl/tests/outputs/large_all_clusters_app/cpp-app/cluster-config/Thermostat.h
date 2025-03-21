@@ -1,7 +1,27 @@
-// TODO: implement
-// Cluster: Thermostat
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=1, cluster_name='Thermostat', feature_map=35, cluster_revision=5, instance=ServerClusterInstantiation(name='Thermostat', commands=[], attributes=[AttributeInstantiation(name='localTemperature', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4400, column=5, start_pos=129885)), AttributeInstantiation(name='absMinHeatSetpointLimit', storage=<AttributeStorage.RAM: 1>, default=700, parse_meta=ParseMetaData(line=4401, column=5, start_pos=129926)), AttributeInstantiation(name='absMaxHeatSetpointLimit', storage=<AttributeStorage.RAM: 1>, default=3000, parse_meta=ParseMetaData(line=4402, column=5, start_pos=129991)), AttributeInstantiation(name='absMinCoolSetpointLimit', storage=<AttributeStorage.RAM: 1>, default=1600, parse_meta=ParseMetaData(line=4403, column=5, start_pos=130056)), AttributeInstantiation(name='absMaxCoolSetpointLimit', storage=<AttributeStorage.RAM: 1>, default=3200, parse_meta=ParseMetaData(line=4404, column=5, start_pos=130121)), AttributeInstantiation(name='occupiedCoolingSetpoint', storage=<AttributeStorage.RAM: 1>, default=2600, parse_meta=ParseMetaData(line=4405, column=5, start_pos=130186)), AttributeInstantiation(name='occupiedHeatingSetpoint', storage=<AttributeStorage.RAM: 1>, default=2000, parse_meta=ParseMetaData(line=4406, column=5, start_pos=130251)), AttributeInstantiation(name='minHeatSetpointLimit', storage=<AttributeStorage.RAM: 1>, default=700, parse_meta=ParseMetaData(line=4407, column=5, start_pos=130316)), AttributeInstantiation(name='maxHeatSetpointLimit', storage=<AttributeStorage.RAM: 1>, default=3000, parse_meta=ParseMetaData(line=4408, column=5, start_pos=130378)), AttributeInstantiation(name='minCoolSetpointLimit', storage=<AttributeStorage.RAM: 1>, default=1600, parse_meta=ParseMetaData(line=4409, column=5, start_pos=130440)), AttributeInstantiation(name='maxCoolSetpointLimit', storage=<AttributeStorage.RAM: 1>, default=3200, parse_meta=ParseMetaData(line=4410, column=5, start_pos=130502)), AttributeInstantiation(name='minSetpointDeadBand', storage=<AttributeStorage.RAM: 1>, default=25, parse_meta=ParseMetaData(line=4411, column=5, start_pos=130564)), AttributeInstantiation(name='controlSequenceOfOperation', storage=<AttributeStorage.RAM: 1>, default=4, parse_meta=ParseMetaData(line=4412, column=5, start_pos=130623)), AttributeInstantiation(name='systemMode', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=4413, column=5, start_pos=130689)), AttributeInstantiation(name='generatedCommandList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=4414, column=5, start_pos=130739)), AttributeInstantiation(name='acceptedCommandList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=4415, column=5, start_pos=130784)), AttributeInstantiation(name='attributeList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=4416, column=5, start_pos=130828)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=35, parse_meta=ParseMetaData(line=4417, column=5, start_pos=130866)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=5, parse_meta=ParseMetaData(line=4418, column=5, start_pos=130918))], events_emitted=set(), parse_meta=ParseMetaData(line=4399, column=3, start_pos=129853)))
-// 
-//
+// Application configuration for Thermostat
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace Thermostat {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 1,
+    .featureMap = 35,
+    .clusterRevision = 5,
+  },
+};
+
+} // namespace Thermostat
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

@@ -1,7 +1,27 @@
-// TODO: implement
-// Cluster: NetworkCommissioning
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=0, cluster_name='NetworkCommissioning', feature_map=2, cluster_revision=1, instance=ServerClusterInstantiation(name='NetworkCommissioning', commands=[], attributes=[AttributeInstantiation(name='maxNetworks', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=1798, column=5, start_pos=53115)), AttributeInstantiation(name='networks', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1799, column=5, start_pos=53151)), AttributeInstantiation(name='scanMaxTimeSeconds', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=1800, column=5, start_pos=53184)), AttributeInstantiation(name='connectMaxTimeSeconds', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=1801, column=5, start_pos=53227)), AttributeInstantiation(name='interfaceEnabled', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=1802, column=5, start_pos=53273)), AttributeInstantiation(name='lastNetworkingStatus', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=1803, column=5, start_pos=53314)), AttributeInstantiation(name='lastNetworkID', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=1804, column=5, start_pos=53359)), AttributeInstantiation(name='lastConnectErrorValue', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=1805, column=5, start_pos=53397)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=2, parse_meta=ParseMetaData(line=1806, column=5, start_pos=53443)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=1807, column=5, start_pos=53490))], events_emitted=set(), parse_meta=ParseMetaData(line=1797, column=3, start_pos=53073)))
-// 
-//
+// Application configuration for NetworkCommissioning
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace NetworkCommissioning {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 0,
+    .featureMap = 2,
+    .clusterRevision = 1,
+  },
+};
+
+} // namespace NetworkCommissioning
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

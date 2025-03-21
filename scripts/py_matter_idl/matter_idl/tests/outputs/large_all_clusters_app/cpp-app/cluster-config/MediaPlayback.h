@@ -1,7 +1,27 @@
-// TODO: implement
-// Cluster: MediaPlayback
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=1, cluster_name='MediaPlayback', feature_map=0, cluster_revision=1, instance=ServerClusterInstantiation(name='MediaPlayback', commands=[], attributes=[AttributeInstantiation(name='currentState', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4575, column=5, start_pos=136540)), AttributeInstantiation(name='startTime', storage=<AttributeStorage.RAM: 1>, default=255, parse_meta=ParseMetaData(line=4576, column=5, start_pos=136577)), AttributeInstantiation(name='duration', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4577, column=5, start_pos=136626)), AttributeInstantiation(name='playbackSpeed', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4578, column=5, start_pos=136659)), AttributeInstantiation(name='seekRangeEnd', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4579, column=5, start_pos=136697)), AttributeInstantiation(name='seekRangeStart', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4580, column=5, start_pos=136734)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4581, column=5, start_pos=136773)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=4582, column=5, start_pos=136808))], events_emitted=set(), parse_meta=ParseMetaData(line=4574, column=3, start_pos=136505)))
-// 
-//
+// Application configuration for MediaPlayback
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace MediaPlayback {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 1,
+    .featureMap = 0,
+    .clusterRevision = 1,
+  },
+};
+
+} // namespace MediaPlayback
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

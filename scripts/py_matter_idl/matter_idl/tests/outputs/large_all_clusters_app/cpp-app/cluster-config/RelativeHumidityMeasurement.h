@@ -1,9 +1,32 @@
-// TODO: implement
-// Cluster: RelativeHumidityMeasurement
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=0, cluster_name='RelativeHumidityMeasurement', feature_map=0, cluster_revision=3, instance=ServerClusterInstantiation(name='RelativeHumidityMeasurement', commands=[], attributes=[AttributeInstantiation(name='measuredValue', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4152, column=5, start_pos=120707)), AttributeInstantiation(name='minMeasuredValue', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4153, column=5, start_pos=120745)), AttributeInstantiation(name='maxMeasuredValue', storage=<AttributeStorage.RAM: 1>, default=10000, parse_meta=ParseMetaData(line=4154, column=5, start_pos=120786)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4155, column=5, start_pos=120844)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=3, parse_meta=ParseMetaData(line=4156, column=5, start_pos=120879))], events_emitted=set(), parse_meta=ParseMetaData(line=4151, column=3, start_pos=120658)))
-// 
-//    ServerClusterConfig(endpoint_number=1, cluster_name='RelativeHumidityMeasurement', feature_map=0, cluster_revision=3, instance=ServerClusterInstantiation(name='RelativeHumidityMeasurement', commands=[], attributes=[AttributeInstantiation(name='measuredValue', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4539, column=5, start_pos=135477)), AttributeInstantiation(name='minMeasuredValue', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4540, column=5, start_pos=135515)), AttributeInstantiation(name='maxMeasuredValue', storage=<AttributeStorage.RAM: 1>, default=10000, parse_meta=ParseMetaData(line=4541, column=5, start_pos=135556)), AttributeInstantiation(name='tolerance', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4542, column=5, start_pos=135614)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4543, column=5, start_pos=135648)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=3, parse_meta=ParseMetaData(line=4544, column=5, start_pos=135683))], events_emitted=set(), parse_meta=ParseMetaData(line=4538, column=3, start_pos=135428)))
-// 
-//
+// Application configuration for RelativeHumidityMeasurement
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace RelativeHumidityMeasurement {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 0,
+    .featureMap = 0,
+    .clusterRevision = 3,
+  },
+  {
+    .endpointNumber = 1,
+    .featureMap = 0,
+    .clusterRevision = 3,
+  },
+};
+
+} // namespace RelativeHumidityMeasurement
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

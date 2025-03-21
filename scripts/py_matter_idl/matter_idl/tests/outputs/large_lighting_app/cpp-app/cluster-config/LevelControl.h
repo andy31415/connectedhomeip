@@ -1,7 +1,27 @@
-// TODO: implement
-// Cluster: LevelControl
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=1, cluster_name='LevelControl', feature_map=3, cluster_revision=5, instance=ServerClusterInstantiation(name='LevelControl', commands=[], attributes=[AttributeInstantiation(name='currentLevel', storage=<AttributeStorage.PERSIST: 2>, default=1, parse_meta=ParseMetaData(line=2010, column=5, start_pos=60479)), AttributeInstantiation(name='remainingTime', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=2011, column=5, start_pos=60531)), AttributeInstantiation(name='minLevel', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=2012, column=5, start_pos=60569)), AttributeInstantiation(name='maxLevel', storage=<AttributeStorage.RAM: 1>, default=254, parse_meta=ParseMetaData(line=2013, column=5, start_pos=60617)), AttributeInstantiation(name='currentFrequency', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=2014, column=5, start_pos=60665)), AttributeInstantiation(name='minFrequency', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=2015, column=5, start_pos=60706)), AttributeInstantiation(name='maxFrequency', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=2016, column=5, start_pos=60743)), AttributeInstantiation(name='options', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=2017, column=5, start_pos=60780)), AttributeInstantiation(name='onOffTransitionTime', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=2018, column=5, start_pos=60812)), AttributeInstantiation(name='onLevel', storage=<AttributeStorage.RAM: 1>, default=255, parse_meta=ParseMetaData(line=2019, column=5, start_pos=60856)), AttributeInstantiation(name='onTransitionTime', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=2020, column=5, start_pos=60903)), AttributeInstantiation(name='offTransitionTime', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=2021, column=5, start_pos=60944)), AttributeInstantiation(name='defaultMoveRate', storage=<AttributeStorage.RAM: 1>, default=50, parse_meta=ParseMetaData(line=2022, column=5, start_pos=60986)), AttributeInstantiation(name='startUpCurrentLevel', storage=<AttributeStorage.PERSIST: 2>, default=255, parse_meta=ParseMetaData(line=2023, column=5, start_pos=61039)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=3, parse_meta=ParseMetaData(line=2024, column=5, start_pos=61097)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=5, parse_meta=ParseMetaData(line=2025, column=5, start_pos=61144))], events_emitted=set(), parse_meta=ParseMetaData(line=2009, column=3, start_pos=60445)))
-// 
-//
+// Application configuration for LevelControl
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace LevelControl {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 1,
+    .featureMap = 3,
+    .clusterRevision = 5,
+  },
+};
+
+} // namespace LevelControl
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

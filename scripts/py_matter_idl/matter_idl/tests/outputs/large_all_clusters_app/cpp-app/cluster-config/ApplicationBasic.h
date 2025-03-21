@@ -1,7 +1,27 @@
-// TODO: implement
-// Cluster: ApplicationBasic
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=1, cluster_name='ApplicationBasic', feature_map=0, cluster_revision=1, instance=ServerClusterInstantiation(name='ApplicationBasic', commands=[], attributes=[AttributeInstantiation(name='vendorName', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4623, column=5, start_pos=137916)), AttributeInstantiation(name='vendorID', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4624, column=5, start_pos=137951)), AttributeInstantiation(name='applicationName', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4625, column=5, start_pos=137984)), AttributeInstantiation(name='productID', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4626, column=5, start_pos=138024)), AttributeInstantiation(name='status', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4627, column=5, start_pos=138058)), AttributeInstantiation(name='applicationVersion', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4628, column=5, start_pos=138089)), AttributeInstantiation(name='allowedVendorList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=4629, column=5, start_pos=138132)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4630, column=5, start_pos=138174)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=4631, column=5, start_pos=138209))], events_emitted=set(), parse_meta=ParseMetaData(line=4622, column=3, start_pos=137878)))
-// 
-//
+// Application configuration for ApplicationBasic
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace ApplicationBasic {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 1,
+    .featureMap = 0,
+    .clusterRevision = 1,
+  },
+};
+
+} // namespace ApplicationBasic
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

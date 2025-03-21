@@ -1,7 +1,27 @@
-// TODO: implement
-// Cluster: LocalizationConfiguration
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=0, cluster_name='LocalizationConfiguration', feature_map=0, cluster_revision=1, instance=ServerClusterInstantiation(name='LocalizationConfiguration', commands=[], attributes=[AttributeInstantiation(name='activeLocale', storage=<AttributeStorage.PERSIST: 2>, default='en-US', parse_meta=ParseMetaData(line=1773, column=5, start_pos=52265)), AttributeInstantiation(name='supportedLocales', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1774, column=5, start_pos=52320)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=1775, column=5, start_pos=52361)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=1776, column=5, start_pos=52396))], events_emitted=set(), parse_meta=ParseMetaData(line=1772, column=3, start_pos=52218)))
-// 
-//
+// Application configuration for LocalizationConfiguration
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace LocalizationConfiguration {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 0,
+    .featureMap = 0,
+    .clusterRevision = 1,
+  },
+};
+
+} // namespace LocalizationConfiguration
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

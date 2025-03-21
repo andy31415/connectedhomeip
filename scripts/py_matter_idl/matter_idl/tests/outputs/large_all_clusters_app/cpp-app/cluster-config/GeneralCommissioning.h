@@ -1,7 +1,27 @@
-// TODO: implement
-// Cluster: GeneralCommissioning
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=0, cluster_name='GeneralCommissioning', feature_map=0, cluster_revision=1, instance=ServerClusterInstantiation(name='GeneralCommissioning', commands=[], attributes=[AttributeInstantiation(name='breadcrumb', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=3958, column=5, start_pos=113701)), AttributeInstantiation(name='basicCommissioningInfo', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=3959, column=5, start_pos=113736)), AttributeInstantiation(name='regulatoryConfig', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=3960, column=5, start_pos=113783)), AttributeInstantiation(name='locationCapability', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=3961, column=5, start_pos=113824)), AttributeInstantiation(name='supportsConcurrentConnection', storage=<AttributeStorage.CALLBACK: 3>, default=1, parse_meta=ParseMetaData(line=3962, column=5, start_pos=113867)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=3963, column=5, start_pos=113932)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=3964, column=5, start_pos=113967))], events_emitted=set(), parse_meta=ParseMetaData(line=3957, column=3, start_pos=113659)))
-// 
-//
+// Application configuration for GeneralCommissioning
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace GeneralCommissioning {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 0,
+    .featureMap = 0,
+    .clusterRevision = 1,
+  },
+};
+
+} // namespace GeneralCommissioning
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

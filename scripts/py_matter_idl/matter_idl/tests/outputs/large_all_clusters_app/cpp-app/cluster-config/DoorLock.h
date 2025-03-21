@@ -1,7 +1,27 @@
-// TODO: implement
-// Cluster: DoorLock
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=1, cluster_name='DoorLock', feature_map=3347, cluster_revision=6, instance=ServerClusterInstantiation(name='DoorLock', commands=[], attributes=[AttributeInstantiation(name='lockState', storage=<AttributeStorage.RAM: 1>, default=2, parse_meta=ParseMetaData(line=4306, column=5, start_pos=125604)), AttributeInstantiation(name='lockType', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4307, column=5, start_pos=125650)), AttributeInstantiation(name='actuatorEnabled', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4308, column=5, start_pos=125683)), AttributeInstantiation(name='doorState', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4309, column=5, start_pos=125723)), AttributeInstantiation(name='doorOpenEvents', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4310, column=5, start_pos=125757)), AttributeInstantiation(name='doorClosedEvents', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4311, column=5, start_pos=125796)), AttributeInstantiation(name='openPeriod', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4312, column=5, start_pos=125837)), AttributeInstantiation(name='numberOfTotalUsersSupported', storage=<AttributeStorage.RAM: 1>, default=10, parse_meta=ParseMetaData(line=4313, column=5, start_pos=125872)), AttributeInstantiation(name='numberOfPINUsersSupported', storage=<AttributeStorage.RAM: 1>, default=10, parse_meta=ParseMetaData(line=4314, column=5, start_pos=125937)), AttributeInstantiation(name='numberOfRFIDUsersSupported', storage=<AttributeStorage.RAM: 1>, default=10, parse_meta=ParseMetaData(line=4315, column=5, start_pos=126000)), AttributeInstantiation(name='numberOfWeekDaySchedulesSupportedPerUser', storage=<AttributeStorage.RAM: 1>, default=10, parse_meta=ParseMetaData(line=4316, column=5, start_pos=126064)), AttributeInstantiation(name='numberOfYearDaySchedulesSupportedPerUser', storage=<AttributeStorage.RAM: 1>, default=10, parse_meta=ParseMetaData(line=4317, column=5, start_pos=126142)), AttributeInstantiation(name='numberOfHolidaySchedulesSupported', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4318, column=5, start_pos=126220)), AttributeInstantiation(name='maxPINCodeLength', storage=<AttributeStorage.RAM: 1>, default=6, parse_meta=ParseMetaData(line=4319, column=5, start_pos=126278)), AttributeInstantiation(name='minPINCodeLength', storage=<AttributeStorage.RAM: 1>, default=6, parse_meta=ParseMetaData(line=4320, column=5, start_pos=126331)), AttributeInstantiation(name='maxRFIDCodeLength', storage=<AttributeStorage.RAM: 1>, default=20, parse_meta=ParseMetaData(line=4321, column=5, start_pos=126384)), AttributeInstantiation(name='minRFIDCodeLength', storage=<AttributeStorage.RAM: 1>, default=10, parse_meta=ParseMetaData(line=4322, column=5, start_pos=126439)), AttributeInstantiation(name='credentialRulesSupport', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=4323, column=5, start_pos=126494)), AttributeInstantiation(name='numberOfCredentialsSupportedPerUser', storage=<AttributeStorage.RAM: 1>, default=5, parse_meta=ParseMetaData(line=4324, column=5, start_pos=126553)), AttributeInstantiation(name='language', storage=<AttributeStorage.RAM: 1>, default='en', parse_meta=ParseMetaData(line=4325, column=5, start_pos=126625)), AttributeInstantiation(name='autoRelockTime', storage=<AttributeStorage.RAM: 1>, default=60, parse_meta=ParseMetaData(line=4326, column=5, start_pos=126673)), AttributeInstantiation(name='soundVolume', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4327, column=5, start_pos=126725)), AttributeInstantiation(name='operatingMode', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4328, column=5, start_pos=126761)), AttributeInstantiation(name='supportedOperatingModes', storage=<AttributeStorage.RAM: 1>, default=65526, parse_meta=ParseMetaData(line=4329, column=5, start_pos=126799)), AttributeInstantiation(name='defaultConfigurationRegister', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4330, column=5, start_pos=126864)), AttributeInstantiation(name='enableOneTouchLocking', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4331, column=5, start_pos=126917)), AttributeInstantiation(name='enableInsideStatusLED', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4332, column=5, start_pos=126963)), AttributeInstantiation(name='enablePrivacyModeButton', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4333, column=5, start_pos=127009)), AttributeInstantiation(name='wrongCodeEntryLimit', storage=<AttributeStorage.RAM: 1>, default=3, parse_meta=ParseMetaData(line=4334, column=5, start_pos=127057)), AttributeInstantiation(name='userCodeTemporaryDisableTime', storage=<AttributeStorage.RAM: 1>, default=10, parse_meta=ParseMetaData(line=4335, column=5, start_pos=127113)), AttributeInstantiation(name='requirePINforRemoteOperation', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4336, column=5, start_pos=127179)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=3347, parse_meta=ParseMetaData(line=4337, column=5, start_pos=127232)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=6, parse_meta=ParseMetaData(line=4338, column=5, start_pos=127283))], events_emitted=set(), parse_meta=ParseMetaData(line=4305, column=3, start_pos=125574)))
-// 
-//
+// Application configuration for DoorLock
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace DoorLock {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 1,
+    .featureMap = 3347,
+    .clusterRevision = 6,
+  },
+};
+
+} // namespace DoorLock
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

@@ -1,7 +1,29 @@
-// TODO: implement
-// Cluster: {{ cluster_name }}
+// DO NOT EDIT - Generated file
 //
-// {% for instance in instances %}
-//    {{ instance }}
-// {% endfor %}
-//
+// Application configuration for {{ cluster_name }}
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace {{ cluster_name }} {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+{%- for config in instances %}
+  {
+    .endpointNumber = {{ config.endpoint_number }},
+    .featureMap = {{ config.feature_map }},
+    .clusterRevision = {{ config.cluster_revision }},
+  },
+{%- endfor %}
+};
+
+} // namespace {{ cluster_name }}
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

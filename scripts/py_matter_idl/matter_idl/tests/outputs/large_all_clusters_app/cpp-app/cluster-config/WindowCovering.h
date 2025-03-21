@@ -1,7 +1,27 @@
-// TODO: implement
-// Cluster: WindowCovering
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=1, cluster_name='WindowCovering', feature_map=23, cluster_revision=5, instance=ServerClusterInstantiation(name='WindowCovering', commands=[], attributes=[AttributeInstantiation(name='type', storage=<AttributeStorage.RAM: 1>, default=8, parse_meta=ParseMetaData(line=4342, column=5, start_pos=127374)), AttributeInstantiation(name='physicalClosedLimitLift', storage=<AttributeStorage.RAM: 1>, default=65535, parse_meta=ParseMetaData(line=4343, column=5, start_pos=127418)), AttributeInstantiation(name='physicalClosedLimitTilt', storage=<AttributeStorage.RAM: 1>, default=65535, parse_meta=ParseMetaData(line=4344, column=5, start_pos=127483)), AttributeInstantiation(name='currentPositionLift', storage=<AttributeStorage.PERSIST: 2>, default=32767, parse_meta=ParseMetaData(line=4345, column=5, start_pos=127548)), AttributeInstantiation(name='currentPositionTilt', storage=<AttributeStorage.PERSIST: 2>, default=32767, parse_meta=ParseMetaData(line=4346, column=5, start_pos=127609)), AttributeInstantiation(name='numberOfActuationsLift', storage=<AttributeStorage.PERSIST: 2>, default=None, parse_meta=ParseMetaData(line=4347, column=5, start_pos=127670)), AttributeInstantiation(name='numberOfActuationsTilt', storage=<AttributeStorage.PERSIST: 2>, default=None, parse_meta=ParseMetaData(line=4348, column=5, start_pos=127717)), AttributeInstantiation(name='configStatus', storage=<AttributeStorage.PERSIST: 2>, default=3, parse_meta=ParseMetaData(line=4349, column=5, start_pos=127764)), AttributeInstantiation(name='currentPositionLiftPercentage', storage=<AttributeStorage.PERSIST: 2>, default=50, parse_meta=ParseMetaData(line=4350, column=5, start_pos=127816)), AttributeInstantiation(name='currentPositionTiltPercentage', storage=<AttributeStorage.PERSIST: 2>, default=50, parse_meta=ParseMetaData(line=4351, column=5, start_pos=127883)), AttributeInstantiation(name='operationalStatus', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4352, column=5, start_pos=127950)), AttributeInstantiation(name='targetPositionLiftPercent100ths', storage=<AttributeStorage.RAM: 1>, default=5000, parse_meta=ParseMetaData(line=4353, column=5, start_pos=127992)), AttributeInstantiation(name='targetPositionTiltPercent100ths', storage=<AttributeStorage.RAM: 1>, default=5000, parse_meta=ParseMetaData(line=4354, column=5, start_pos=128063)), AttributeInstantiation(name='endProductType', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4355, column=5, start_pos=128134)), AttributeInstantiation(name='currentPositionLiftPercent100ths', storage=<AttributeStorage.PERSIST: 2>, default=5000, parse_meta=ParseMetaData(line=4356, column=5, start_pos=128173)), AttributeInstantiation(name='currentPositionTiltPercent100ths', storage=<AttributeStorage.PERSIST: 2>, default=5000, parse_meta=ParseMetaData(line=4357, column=5, start_pos=128245)), AttributeInstantiation(name='installedOpenLimitLift', storage=<AttributeStorage.PERSIST: 2>, default=None, parse_meta=ParseMetaData(line=4358, column=5, start_pos=128317)), AttributeInstantiation(name='installedClosedLimitLift', storage=<AttributeStorage.PERSIST: 2>, default=65535, parse_meta=ParseMetaData(line=4359, column=5, start_pos=128364)), AttributeInstantiation(name='installedOpenLimitTilt', storage=<AttributeStorage.PERSIST: 2>, default=None, parse_meta=ParseMetaData(line=4360, column=5, start_pos=128430)), AttributeInstantiation(name='installedClosedLimitTilt', storage=<AttributeStorage.PERSIST: 2>, default=65535, parse_meta=ParseMetaData(line=4361, column=5, start_pos=128477)), AttributeInstantiation(name='mode', storage=<AttributeStorage.PERSIST: 2>, default=None, parse_meta=ParseMetaData(line=4362, column=5, start_pos=128543)), AttributeInstantiation(name='safetyStatus', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4363, column=5, start_pos=128572)), AttributeInstantiation(name='generatedCommandList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=4364, column=5, start_pos=128609)), AttributeInstantiation(name='acceptedCommandList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=4365, column=5, start_pos=128654)), AttributeInstantiation(name='attributeList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=4366, column=5, start_pos=128698)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=23, parse_meta=ParseMetaData(line=4367, column=5, start_pos=128736)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=5, parse_meta=ParseMetaData(line=4368, column=5, start_pos=128786))], events_emitted=set(), parse_meta=ParseMetaData(line=4341, column=3, start_pos=127338)))
-// 
-//
+// Application configuration for WindowCovering
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace WindowCovering {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 1,
+    .featureMap = 23,
+    .clusterRevision = 5,
+  },
+};
+
+} // namespace WindowCovering
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

@@ -1,9 +1,32 @@
-// TODO: implement
-// Cluster: OccupancySensing
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=1, cluster_name='OccupancySensing', feature_map=0, cluster_revision=3, instance=ServerClusterInstantiation(name='OccupancySensing', commands=[], attributes=[AttributeInstantiation(name='occupancy', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4548, column=5, start_pos=135776)), AttributeInstantiation(name='occupancySensorType', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4549, column=5, start_pos=135810)), AttributeInstantiation(name='occupancySensorTypeBitmap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4550, column=5, start_pos=135854)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4551, column=5, start_pos=135904)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=3, parse_meta=ParseMetaData(line=4552, column=5, start_pos=135939))], events_emitted=set(), parse_meta=ParseMetaData(line=4547, column=3, start_pos=135738)))
-// 
-//    ServerClusterConfig(endpoint_number=2, cluster_name='OccupancySensing', feature_map=0, cluster_revision=3, instance=ServerClusterInstantiation(name='OccupancySensing', commands=[], attributes=[AttributeInstantiation(name='occupancy', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4765, column=5, start_pos=142916)), AttributeInstantiation(name='occupancySensorType', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4766, column=5, start_pos=142950)), AttributeInstantiation(name='occupancySensorTypeBitmap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4767, column=5, start_pos=142994)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4768, column=5, start_pos=143044)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=3, parse_meta=ParseMetaData(line=4769, column=5, start_pos=143079))], events_emitted=set(), parse_meta=ParseMetaData(line=4764, column=3, start_pos=142878)))
-// 
-//
+// Application configuration for OccupancySensing
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace OccupancySensing {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 1,
+    .featureMap = 0,
+    .clusterRevision = 3,
+  },
+  {
+    .endpointNumber = 2,
+    .featureMap = 0,
+    .clusterRevision = 3,
+  },
+};
+
+} // namespace OccupancySensing
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

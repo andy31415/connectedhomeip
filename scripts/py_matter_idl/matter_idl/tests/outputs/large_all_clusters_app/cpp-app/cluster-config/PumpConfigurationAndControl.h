@@ -1,7 +1,27 @@
-// TODO: implement
-// Cluster: PumpConfigurationAndControl
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=1, cluster_name='PumpConfigurationAndControl', feature_map=0, cluster_revision=3, instance=ServerClusterInstantiation(name='PumpConfigurationAndControl', commands=[], attributes=[AttributeInstantiation(name='maxPressure', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4372, column=5, start_pos=128890)), AttributeInstantiation(name='maxSpeed', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4373, column=5, start_pos=128926)), AttributeInstantiation(name='maxFlow', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4374, column=5, start_pos=128959)), AttributeInstantiation(name='minConstPressure', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4375, column=5, start_pos=128991)), AttributeInstantiation(name='maxConstPressure', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4376, column=5, start_pos=129032)), AttributeInstantiation(name='minCompPressure', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4377, column=5, start_pos=129073)), AttributeInstantiation(name='maxCompPressure', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4378, column=5, start_pos=129113)), AttributeInstantiation(name='minConstSpeed', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4379, column=5, start_pos=129153)), AttributeInstantiation(name='maxConstSpeed', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4380, column=5, start_pos=129191)), AttributeInstantiation(name='minConstFlow', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4381, column=5, start_pos=129229)), AttributeInstantiation(name='maxConstFlow', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4382, column=5, start_pos=129266)), AttributeInstantiation(name='minConstTemp', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4383, column=5, start_pos=129303)), AttributeInstantiation(name='maxConstTemp', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4384, column=5, start_pos=129340)), AttributeInstantiation(name='pumpStatus', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4385, column=5, start_pos=129377)), AttributeInstantiation(name='effectiveOperationMode', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4386, column=5, start_pos=129412)), AttributeInstantiation(name='effectiveControlMode', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4387, column=5, start_pos=129459)), AttributeInstantiation(name='capacity', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4388, column=5, start_pos=129504)), AttributeInstantiation(name='speed', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4389, column=5, start_pos=129537)), AttributeInstantiation(name='lifetimeRunningHours', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4390, column=5, start_pos=129567)), AttributeInstantiation(name='power', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4391, column=5, start_pos=129612)), AttributeInstantiation(name='lifetimeEnergyConsumed', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4392, column=5, start_pos=129642)), AttributeInstantiation(name='operationMode', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4393, column=5, start_pos=129689)), AttributeInstantiation(name='controlMode', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4394, column=5, start_pos=129727)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4395, column=5, start_pos=129763)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=3, parse_meta=ParseMetaData(line=4396, column=5, start_pos=129798))], events_emitted=set(), parse_meta=ParseMetaData(line=4371, column=3, start_pos=128841)))
-// 
-//
+// Application configuration for PumpConfigurationAndControl
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace PumpConfigurationAndControl {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 1,
+    .featureMap = 0,
+    .clusterRevision = 3,
+  },
+};
+
+} // namespace PumpConfigurationAndControl
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

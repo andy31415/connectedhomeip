@@ -1,9 +1,32 @@
-// TODO: implement
-// Cluster: Descriptor
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=0, cluster_name='Descriptor', feature_map=0, cluster_revision=1, instance=ServerClusterInstantiation(name='Descriptor', commands=[], attributes=[AttributeInstantiation(name='deviceTypeList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1719, column=5, start_pos=50296)), AttributeInstantiation(name='serverList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1720, column=5, start_pos=50335)), AttributeInstantiation(name='clientList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1721, column=5, start_pos=50370)), AttributeInstantiation(name='partsList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1722, column=5, start_pos=50405)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=1723, column=5, start_pos=50439)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.CALLBACK: 3>, default=1, parse_meta=ParseMetaData(line=1724, column=5, start_pos=50474))], events_emitted=set(), parse_meta=ParseMetaData(line=1718, column=3, start_pos=50264)))
-// 
-//    ServerClusterConfig(endpoint_number=1, cluster_name='Descriptor', feature_map=0, cluster_revision=1, instance=ServerClusterInstantiation(name='Descriptor', commands=[], attributes=[AttributeInstantiation(name='deviceTypeList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=2029, column=5, start_pos=61231)), AttributeInstantiation(name='serverList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=2030, column=5, start_pos=61270)), AttributeInstantiation(name='clientList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=2031, column=5, start_pos=61305)), AttributeInstantiation(name='partsList', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=2032, column=5, start_pos=61340)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=2033, column=5, start_pos=61374)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.CALLBACK: 3>, default=1, parse_meta=ParseMetaData(line=2034, column=5, start_pos=61409))], events_emitted=set(), parse_meta=ParseMetaData(line=2028, column=3, start_pos=61199)))
-// 
-//
+// Application configuration for Descriptor
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace Descriptor {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 0,
+    .featureMap = 0,
+    .clusterRevision = 1,
+  },
+  {
+    .endpointNumber = 1,
+    .featureMap = 0,
+    .clusterRevision = 1,
+  },
+};
+
+} // namespace Descriptor
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+

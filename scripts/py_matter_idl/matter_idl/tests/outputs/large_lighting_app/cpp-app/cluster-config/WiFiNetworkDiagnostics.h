@@ -1,7 +1,27 @@
-// TODO: implement
-// Cluster: WiFiNetworkDiagnostics
+// DO NOT EDIT - Generated file
 //
-// 
-//    ServerClusterConfig(endpoint_number=0, cluster_name='WiFiNetworkDiagnostics', feature_map=3, cluster_revision=1, instance=ServerClusterInstantiation(name='WiFiNetworkDiagnostics', commands=[], attributes=[AttributeInstantiation(name='bssid', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1907, column=5, start_pos=57253)), AttributeInstantiation(name='securityType', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1908, column=5, start_pos=57283)), AttributeInstantiation(name='wiFiVersion', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1909, column=5, start_pos=57320)), AttributeInstantiation(name='channelNumber', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1910, column=5, start_pos=57356)), AttributeInstantiation(name='rssi', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1911, column=5, start_pos=57394)), AttributeInstantiation(name='beaconLostCount', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1912, column=5, start_pos=57423)), AttributeInstantiation(name='beaconRxCount', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1913, column=5, start_pos=57463)), AttributeInstantiation(name='packetMulticastRxCount', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1914, column=5, start_pos=57501)), AttributeInstantiation(name='packetMulticastTxCount', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1915, column=5, start_pos=57548)), AttributeInstantiation(name='packetUnicastRxCount', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1916, column=5, start_pos=57595)), AttributeInstantiation(name='packetUnicastTxCount', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1917, column=5, start_pos=57640)), AttributeInstantiation(name='currentMaxRate', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1918, column=5, start_pos=57685)), AttributeInstantiation(name='overrunCount', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1919, column=5, start_pos=57724)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=3, parse_meta=ParseMetaData(line=1920, column=5, start_pos=57761)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=1921, column=5, start_pos=57808))], events_emitted=set(), parse_meta=ParseMetaData(line=1906, column=3, start_pos=57209)))
-// 
-//
+// Application configuration for WiFiNetworkDiagnostics
+#pragma once
+
+#include <app/util/cluster-config.h>
+
+namespace chip {
+namespace app {
+namespace config {
+namespace Clusters {
+namespace WiFiNetworkDiagnostics {
+
+inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+  {
+    .endpointNumber = 0,
+    .featureMap = 3,
+    .clusterRevision = 1,
+  },
+};
+
+} // namespace WiFiNetworkDiagnostics
+} // namespace Clusters
+} // namespace config
+} // namespace app
+} // namespace namespace chip
+
