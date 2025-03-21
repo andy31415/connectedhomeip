@@ -3,7 +3,9 @@
 // Application configuration for ColorControl
 #pragma once
 
+#include <app-common/zap-generated/cluster-enums.h>
 #include <app/util/cluster-config.h>
+#include <lib/support/BitFlags.h>
 
 namespace chip {
 namespace app {
@@ -11,10 +13,18 @@ namespace config {
 namespace Clusters {
 namespace ColorControl {
 
-inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+using FeatureBitmapType = BitFlags<Clusters::ColorControl::ColorControlFeature>;
+
+inline constexpr ClusterEndpointConfiguration<FeatureBitmapType> kFixedEndpoints[] = {
   {
     .endpointNumber = 1,
-    .featureMap = 31,
+    .featureMap = {
+      FeatureBitmapType::kHueAndSaturation,
+      FeatureBitmapType::kEnhancedHue,
+      FeatureBitmapType::kColorLoop,
+      FeatureBitmapType::kXy,
+      FeatureBitmapType::kColorTemperature
+    },
     .clusterRevision = 5,
   },
 };

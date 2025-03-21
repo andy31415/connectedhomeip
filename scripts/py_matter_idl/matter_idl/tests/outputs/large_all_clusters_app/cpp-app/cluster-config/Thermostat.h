@@ -3,7 +3,9 @@
 // Application configuration for Thermostat
 #pragma once
 
+#include <app-common/zap-generated/cluster-enums.h>
 #include <app/util/cluster-config.h>
+#include <lib/support/BitFlags.h>
 
 namespace chip {
 namespace app {
@@ -11,10 +13,16 @@ namespace config {
 namespace Clusters {
 namespace Thermostat {
 
-inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+using FeatureBitmapType = BitFlags<Clusters::Thermostat::ThermostatFeature>;
+
+inline constexpr ClusterEndpointConfiguration<FeatureBitmapType> kFixedEndpoints[] = {
   {
     .endpointNumber = 1,
-    .featureMap = 35,
+    .featureMap = {
+      FeatureBitmapType::kHeating,
+      FeatureBitmapType::kCooling,
+      FeatureBitmapType::kAutomode
+    },
     .clusterRevision = 5,
   },
 };

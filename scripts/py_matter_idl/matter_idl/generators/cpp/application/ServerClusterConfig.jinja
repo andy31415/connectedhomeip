@@ -3,7 +3,9 @@
 // Application configuration for {{ cluster_name }}
 #pragma once
 
+#include <app-common/zap-generated/cluster-enums.h>
 #include <app/util/cluster-config.h>
+#include <lib/support/BitFlags.h>
 
 namespace chip {
 namespace app {
@@ -11,12 +13,27 @@ namespace config {
 namespace Clusters {
 namespace {{ cluster_name }} {
 
-inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
-{%- for config in instances %}
+{% if config.feature_bitmap_type -%}
+using FeatureBitmapType = BitFlags<Clusters::{{ cluster_name}}::{{ config.feature_bitmap_type.name }}>;
+{%- else %}
+using FeatureBitmapType = uint32_t;
+{%- endif %}
+
+inline constexpr ClusterEndpointConfiguration<FeatureBitmapType> kFixedEndpoints[] = {
+{%- for endpoint_config in config.endpoint_configs %}
   {
-    .endpointNumber = {{ config.endpoint_number }},
-    .featureMap = {{ config.feature_map }},
-    .clusterRevision = {{ config.cluster_revision }},
+    .endpointNumber = {{ endpoint_config.endpoint_number }},
+    .featureMap = {
+  {%- if config.feature_bitmap_type %}
+    {%- for feature_name in endpoint_config.feature_names: %}
+      FeatureBitmapType::{{ feature_name }}
+      {%- if not loop.last -%}, {%- endif %}
+    {%- endfor %}
+  {%- else %}
+      {{ "0x%0X" | format(endpoint_config.feature_map) }}
+  {%- endif %}
+    },
+    .clusterRevision = {{ endpoint_config.cluster_revision }},
   },
 {%- endfor %}
 };

@@ -3,7 +3,9 @@
 // Application configuration for DoorLock
 #pragma once
 
+#include <app-common/zap-generated/cluster-enums.h>
 #include <app/util/cluster-config.h>
+#include <lib/support/BitFlags.h>
 
 namespace chip {
 namespace app {
@@ -11,10 +13,19 @@ namespace config {
 namespace Clusters {
 namespace DoorLock {
 
-inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+using FeatureBitmapType = BitFlags<Clusters::DoorLock::DoorLockFeature>;
+
+inline constexpr ClusterEndpointConfiguration<FeatureBitmapType> kFixedEndpoints[] = {
   {
     .endpointNumber = 1,
-    .featureMap = 3347,
+    .featureMap = {
+      FeatureBitmapType::kPINCredentials,
+      FeatureBitmapType::kRFIDCredentials,
+      FeatureBitmapType::kWeekDaySchedules,
+      FeatureBitmapType::kUsersManagement,
+      FeatureBitmapType::kYearDaySchedules,
+      FeatureBitmapType::kHolidaySchedules
+    },
     .clusterRevision = 6,
   },
 };

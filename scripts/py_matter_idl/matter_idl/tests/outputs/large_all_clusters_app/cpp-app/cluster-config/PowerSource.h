@@ -3,7 +3,9 @@
 // Application configuration for PowerSource
 #pragma once
 
+#include <app-common/zap-generated/cluster-enums.h>
 #include <app/util/cluster-config.h>
+#include <lib/support/BitFlags.h>
 
 namespace chip {
 namespace app {
@@ -11,20 +13,28 @@ namespace config {
 namespace Clusters {
 namespace PowerSource {
 
-inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+using FeatureBitmapType = BitFlags<Clusters::PowerSource::PowerSourceFeature>;
+
+inline constexpr ClusterEndpointConfiguration<FeatureBitmapType> kFixedEndpoints[] = {
   {
     .endpointNumber = 0,
-    .featureMap = 2,
+    .featureMap = {
+      FeatureBitmapType::kBattery
+    },
     .clusterRevision = 1,
   },
   {
     .endpointNumber = 1,
-    .featureMap = 2,
+    .featureMap = {
+      FeatureBitmapType::kBattery
+    },
     .clusterRevision = 1,
   },
   {
     .endpointNumber = 2,
-    .featureMap = 2,
+    .featureMap = {
+      FeatureBitmapType::kBattery
+    },
     .clusterRevision = 1,
   },
 };

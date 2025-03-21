@@ -3,7 +3,9 @@
 // Application configuration for LevelControl
 #pragma once
 
+#include <app-common/zap-generated/cluster-enums.h>
 #include <app/util/cluster-config.h>
+#include <lib/support/BitFlags.h>
 
 namespace chip {
 namespace app {
@@ -11,10 +13,15 @@ namespace config {
 namespace Clusters {
 namespace LevelControl {
 
-inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+using FeatureBitmapType = BitFlags<Clusters::LevelControl::LevelControlFeature>;
+
+inline constexpr ClusterEndpointConfiguration<FeatureBitmapType> kFixedEndpoints[] = {
   {
     .endpointNumber = 1,
-    .featureMap = 3,
+    .featureMap = {
+      FeatureBitmapType::kOnOff,
+      FeatureBitmapType::kLighting
+    },
     .clusterRevision = 5,
   },
 };

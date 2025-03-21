@@ -3,7 +3,9 @@
 // Application configuration for ThreadNetworkDiagnostics
 #pragma once
 
+#include <app-common/zap-generated/cluster-enums.h>
 #include <app/util/cluster-config.h>
+#include <lib/support/BitFlags.h>
 
 namespace chip {
 namespace app {
@@ -11,10 +13,17 @@ namespace config {
 namespace Clusters {
 namespace ThreadNetworkDiagnostics {
 
-inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+using FeatureBitmapType = BitFlags<Clusters::ThreadNetworkDiagnostics::ThreadNetworkDiagnosticsFeature>;
+
+inline constexpr ClusterEndpointConfiguration<FeatureBitmapType> kFixedEndpoints[] = {
   {
     .endpointNumber = 0,
-    .featureMap = 15,
+    .featureMap = {
+      FeatureBitmapType::kPacketCounts,
+      FeatureBitmapType::kErrorCounts,
+      FeatureBitmapType::kMLECounts,
+      FeatureBitmapType::kMACCounts
+    },
     .clusterRevision = 1,
   },
 };

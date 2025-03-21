@@ -14,11 +14,12 @@
 
 import os
 from dataclasses import dataclass
-from typing import List, Mapping
+from typing import List, Mapping, Optional
 
 from matter_idl.generators import CodeGenerator, GeneratorStorage
 from matter_idl.generators.cluster_selection import server_side_clusters
-from matter_idl.matter_idl_types import Idl, ServerClusterInstantiation
+from matter_idl.generators.type_definitions import TypeLookupContext
+from matter_idl.matter_idl_types import Bitmap, Idl, ServerClusterInstantiation
 
 
 @dataclass
@@ -29,8 +30,60 @@ class ServerClusterConfig:
     cluster_revision: int
     instance: ServerClusterInstantiation
 
+    # Set if a `Feature` enumeration is available in the underlying
+    # cluster type
+    feature_bitmap_type: Optional[Bitmap]
 
-def cluster_instances(idl: Idl) -> Mapping[str, List[ServerClusterConfig]]:
+    @property
+    def feature_names(self):
+        """Returns a list of names of features based on the `feature_map` value"""
+
+        if not self.feature_map:
+            return []
+
+        if not self.feature_bitmap_type:
+            raise Exception(f"No feature enumeration for cluster {self.cluster_name}")
+
+        names = []
+        returned_values = 0
+
+        for entry in self.feature_bitmap_type.entries:
+            if self.feature_map & entry.code == 0:
+                continue
+            names.append(entry.name)
+            returned_values = returned_values | entry.code
+
+        if self.feature_map != returned_values:
+            raise Exception(f"Not all bits set in the feature map for {self.cluster_name} are defined: {self.feature_map}")
+
+        return names
+
+
+@dataclass
+class ClusterConfiguration:
+    endpoint_configs: List[ServerClusterConfig]
+    feature_bitmap_type: Optional[Bitmap]
+
+
+def find_feature_bitmap(idl: Idl, cluster_name: str) -> Optional[Bitmap]:
+    """
+    Searches for an enumeration named `Feature` within the given cluster
+    and returns it.
+    """
+    cluster = [c for c in idl.clusters if c.name == cluster_name][0]
+    if not cluster:
+        raise Exception(f"Cluster {cluster_name} not found in IDL definition.")
+    lookup = TypeLookupContext(idl, cluster)
+
+    for name in ["Feature", f"{cluster_name}Feature"]:
+        value = lookup.find_bitmap(name)
+        if value:
+            return value
+
+    return None
+
+
+def cluster_instances(idl: Idl) -> Mapping[str, ClusterConfiguration]:
     """
     Returns a map with all configured clusters in the application.
 
@@ -66,16 +119,21 @@ def cluster_instances(idl: Idl) -> Mapping[str, List[ServerClusterConfig]]:
                         pass
 
             name = server_cluster.name
+            feature_bitmap_type = find_feature_bitmap(idl, name)
             if name not in endpoint_infos:
-                endpoint_infos[name] = []
+                endpoint_infos[name] = ClusterConfiguration(
+                    endpoint_configs=[],
+                    feature_bitmap_type=feature_bitmap_type,
+                )
 
-            endpoint_infos[name].append(
+            endpoint_infos[name].endpoint_configs.append(
                 ServerClusterConfig(
                     endpoint_number=endpoint.number,
                     cluster_name=name,
                     feature_map=feature_map,
                     cluster_revision=cluster_revision,
                     instance=server_cluster,
+                    feature_bitmap_type=feature_bitmap_type
                 )
             )
 
@@ -120,9 +178,9 @@ class CppApplicationGenerator(CodeGenerator):
             vars={"clusters": server_side_clusters(self.idl)},
         )
 
-        for name, instances in cluster_instances(self.idl).items():
+        for name, config in cluster_instances(self.idl).items():
             self.internal_render_one_output(
                 template_path="ServerClusterConfig.jinja",
                 output_file_name=f"app/cluster-config/{name}.h",
-                vars={"cluster_name": name, "instances": instances},
+                vars={"cluster_name": name, "config": config},
             )

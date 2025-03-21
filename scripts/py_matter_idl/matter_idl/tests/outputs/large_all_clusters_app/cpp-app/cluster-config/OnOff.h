@@ -3,7 +3,9 @@
 // Application configuration for OnOff
 #pragma once
 
+#include <app-common/zap-generated/cluster-enums.h>
 #include <app/util/cluster-config.h>
+#include <lib/support/BitFlags.h>
 
 namespace chip {
 namespace app {
@@ -11,15 +13,20 @@ namespace config {
 namespace Clusters {
 namespace OnOff {
 
-inline constexpr ClusterEndpointConfiguration kFixedEndpoints[] = {
+using FeatureBitmapType = BitFlags<Clusters::OnOff::OnOffFeature>;
+
+inline constexpr ClusterEndpointConfiguration<FeatureBitmapType> kFixedEndpoints[] = {
   {
     .endpointNumber = 1,
-    .featureMap = 1,
+    .featureMap = {
+      FeatureBitmapType::kLighting
+    },
     .clusterRevision = 4,
   },
   {
     .endpointNumber = 2,
-    .featureMap = 0,
+    .featureMap = {
+    },
     .clusterRevision = 4,
   },
 };
