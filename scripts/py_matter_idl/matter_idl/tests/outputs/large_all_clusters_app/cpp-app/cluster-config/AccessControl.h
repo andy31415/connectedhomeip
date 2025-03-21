@@ -1,0 +1,7 @@
+// TODO: implement
+// Cluster: AccessControl
+//
+// 
+//    ServerClusterConfig(endpoint_number=0, cluster_name='AccessControl', feature_map=0, cluster_revision=1, instance=ServerClusterInstantiation(name='AccessControl', commands=[], attributes=[AttributeInstantiation(name='acl', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=3873, column=5, start_pos=110689)), AttributeInstantiation(name='extension', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=3874, column=5, start_pos=110717)), AttributeInstantiation(name='subjectsPerAccessControlEntry', storage=<AttributeStorage.CALLBACK: 3>, default=4, parse_meta=ParseMetaData(line=3875, column=5, start_pos=110751)), AttributeInstantiation(name='targetsPerAccessControlEntry', storage=<AttributeStorage.CALLBACK: 3>, default=3, parse_meta=ParseMetaData(line=3876, column=5, start_pos=110817)), AttributeInstantiation(name='accessControlEntriesPerFabric', storage=<AttributeStorage.CALLBACK: 3>, default=4, parse_meta=ParseMetaData(line=3877, column=5, start_pos=110882)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=3878, column=5, start_pos=110948)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.CALLBACK: 3>, default=1, parse_meta=ParseMetaData(line=3879, column=5, start_pos=110983))], events_emitted=set(), parse_meta=ParseMetaData(line=3872, column=3, start_pos=110654)))
+// 
+//

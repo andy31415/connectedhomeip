@@ -1,0 +1,9 @@
+// TODO: implement
+// Cluster: Identify
+//
+// 
+//    ServerClusterConfig(endpoint_number=0, cluster_name='Identify', feature_map=0, cluster_revision=4, instance=ServerClusterInstantiation(name='Identify', commands=[], attributes=[AttributeInstantiation(name='identifyTime', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=3845, column=5, start_pos=109920)), AttributeInstantiation(name='identifyType', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=3846, column=5, start_pos=109957)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=3847, column=5, start_pos=109994)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=4, parse_meta=ParseMetaData(line=3848, column=5, start_pos=110029))], events_emitted=set(), parse_meta=ParseMetaData(line=3844, column=3, start_pos=109890)))
+// 
+//    ServerClusterConfig(endpoint_number=1, cluster_name='Identify', feature_map=0, cluster_revision=4, instance=ServerClusterInstantiation(name='Identify', commands=[], attributes=[AttributeInstantiation(name='identifyTime', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4171, column=5, start_pos=121275)), AttributeInstantiation(name='identifyType', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4172, column=5, start_pos=121312)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4173, column=5, start_pos=121349)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=4, parse_meta=ParseMetaData(line=4174, column=5, start_pos=121384))], events_emitted=set(), parse_meta=ParseMetaData(line=4170, column=3, start_pos=121245)))
+// 
+//

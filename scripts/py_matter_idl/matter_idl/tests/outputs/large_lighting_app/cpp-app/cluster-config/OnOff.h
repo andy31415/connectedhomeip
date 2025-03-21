@@ -1,0 +1,7 @@
+// TODO: implement
+// Cluster: OnOff
+//
+// 
+//    ServerClusterConfig(endpoint_number=1, cluster_name='OnOff', feature_map=1, cluster_revision=4, instance=ServerClusterInstantiation(name='OnOff', commands=[], attributes=[AttributeInstantiation(name='onOff', storage=<AttributeStorage.PERSIST: 2>, default=None, parse_meta=ParseMetaData(line=2000, column=5, start_pos=60136)), AttributeInstantiation(name='globalSceneControl', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=2001, column=5, start_pos=60166)), AttributeInstantiation(name='onTime', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=2002, column=5, start_pos=60224)), AttributeInstantiation(name='offWaitTime', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=2003, column=5, start_pos=60255)), AttributeInstantiation(name='startUpOnOff', storage=<AttributeStorage.PERSIST: 2>, default=255, parse_meta=ParseMetaData(line=2004, column=5, start_pos=60291)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=2005, column=5, start_pos=60343)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=4, parse_meta=ParseMetaData(line=2006, column=5, start_pos=60390))], events_emitted=set(), parse_meta=ParseMetaData(line=1999, column=3, start_pos=60109)))
+// 
+//

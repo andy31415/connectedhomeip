@@ -1,0 +1,7 @@
+// TODO: implement
+// Cluster: GeneralCommissioning
+//
+// 
+//    ServerClusterConfig(endpoint_number=0, cluster_name='GeneralCommissioning', feature_map=0, cluster_revision=1, instance=ServerClusterInstantiation(name='GeneralCommissioning', commands=[], attributes=[AttributeInstantiation(name='breadcrumb', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=1788, column=5, start_pos=52752)), AttributeInstantiation(name='basicCommissioningInfo', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1789, column=5, start_pos=52787)), AttributeInstantiation(name='regulatoryConfig', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1790, column=5, start_pos=52834)), AttributeInstantiation(name='locationCapability', storage=<AttributeStorage.CALLBACK: 3>, default=None, parse_meta=ParseMetaData(line=1791, column=5, start_pos=52875)), AttributeInstantiation(name='supportsConcurrentConnection', storage=<AttributeStorage.CALLBACK: 3>, default=1, parse_meta=ParseMetaData(line=1792, column=5, start_pos=52918)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=1793, column=5, start_pos=52983)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=1794, column=5, start_pos=53018))], events_emitted=set(), parse_meta=ParseMetaData(line=1787, column=3, start_pos=52710)))
+// 
+//

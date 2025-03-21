@@ -1,0 +1,11 @@
+// TODO: implement
+// Cluster: Groups
+//
+// 
+//    ServerClusterConfig(endpoint_number=0, cluster_name='Groups', feature_map=0, cluster_revision=4, instance=ServerClusterInstantiation(name='Groups', commands=[], attributes=[AttributeInstantiation(name='nameSupport', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=3852, column=5, start_pos=110112)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=3853, column=5, start_pos=110148)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=4, parse_meta=ParseMetaData(line=3854, column=5, start_pos=110183))], events_emitted=set(), parse_meta=ParseMetaData(line=3851, column=3, start_pos=110084)))
+// 
+//    ServerClusterConfig(endpoint_number=1, cluster_name='Groups', feature_map=0, cluster_revision=4, instance=ServerClusterInstantiation(name='Groups', commands=[], attributes=[AttributeInstantiation(name='nameSupport', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4178, column=5, start_pos=121467)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4179, column=5, start_pos=121503)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=4, parse_meta=ParseMetaData(line=4180, column=5, start_pos=121538))], events_emitted=set(), parse_meta=ParseMetaData(line=4177, column=3, start_pos=121439)))
+// 
+//    ServerClusterConfig(endpoint_number=2, cluster_name='Groups', feature_map=0, cluster_revision=4, instance=ServerClusterInstantiation(name='Groups', commands=[], attributes=[AttributeInstantiation(name='nameSupport', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4729, column=5, start_pos=141796)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4730, column=5, start_pos=141832)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=4, parse_meta=ParseMetaData(line=4731, column=5, start_pos=141867))], events_emitted=set(), parse_meta=ParseMetaData(line=4728, column=3, start_pos=141768)))
+// 
+//

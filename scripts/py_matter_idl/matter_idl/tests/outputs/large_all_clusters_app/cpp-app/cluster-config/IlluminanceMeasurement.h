@@ -1,0 +1,7 @@
+// TODO: implement
+// Cluster: IlluminanceMeasurement
+//
+// 
+//    ServerClusterConfig(endpoint_number=1, cluster_name='IlluminanceMeasurement', feature_map=0, cluster_revision=3, instance=ServerClusterInstantiation(name='IlluminanceMeasurement', commands=[], attributes=[AttributeInstantiation(name='measuredValue', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4503, column=5, start_pos=134226)), AttributeInstantiation(name='minMeasuredValue', storage=<AttributeStorage.RAM: 1>, default=1, parse_meta=ParseMetaData(line=4504, column=5, start_pos=134264)), AttributeInstantiation(name='maxMeasuredValue', storage=<AttributeStorage.RAM: 1>, default=65534, parse_meta=ParseMetaData(line=4505, column=5, start_pos=134320)), AttributeInstantiation(name='tolerance', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4506, column=5, start_pos=134378)), AttributeInstantiation(name='lightSensorType', storage=<AttributeStorage.RAM: 1>, default=255, parse_meta=ParseMetaData(line=4507, column=5, start_pos=134412)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4508, column=5, start_pos=134467)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=3, parse_meta=ParseMetaData(line=4509, column=5, start_pos=134502))], events_emitted=set(), parse_meta=ParseMetaData(line=4502, column=3, start_pos=134182)))
+// 
+//

@@ -1,0 +1,7 @@
+// TODO: implement
+// Cluster: MatterScenes
+//
+// 
+//    ServerClusterConfig(endpoint_number=1, cluster_name='MatterScenes', feature_map=0, cluster_revision=4, instance=ServerClusterInstantiation(name='MatterScenes', commands=[], attributes=[AttributeInstantiation(name='sceneCount', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4184, column=5, start_pos=121627)), AttributeInstantiation(name='currentScene', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4185, column=5, start_pos=121662)), AttributeInstantiation(name='currentGroup', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4186, column=5, start_pos=121699)), AttributeInstantiation(name='sceneValid', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4187, column=5, start_pos=121736)), AttributeInstantiation(name='nameSupport', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4188, column=5, start_pos=121771)), AttributeInstantiation(name='featureMap', storage=<AttributeStorage.RAM: 1>, default=None, parse_meta=ParseMetaData(line=4189, column=5, start_pos=121807)), AttributeInstantiation(name='clusterRevision', storage=<AttributeStorage.RAM: 1>, default=4, parse_meta=ParseMetaData(line=4190, column=5, start_pos=121842))], events_emitted=set(), parse_meta=ParseMetaData(line=4183, column=3, start_pos=121593)))
+// 
+//

@@ -16,7 +16,18 @@ import os
 
 from matter_idl.generators import CodeGenerator, GeneratorStorage
 from matter_idl.generators.cluster_selection import server_side_clusters
-from matter_idl.matter_idl_types import Idl
+from matter_idl.matter_idl_types import Idl, ServerClusterInstantiation
+
+from dataclasses import dataclass
+
+@dataclass
+class ServerClusterConfig:
+    endpoint_number: int
+    cluster_name: str
+    feature_map: int
+    cluster_revision: int
+    instance: ServerClusterInstantiation
+
 
 
 class CppApplicationGenerator(CodeGenerator):
@@ -62,3 +73,56 @@ class CppApplicationGenerator(CodeGenerator):
                 'clusters': server_side_clusters(self.idl)
             }
         )
+
+        # Map of cluster names to actual cluster data
+        endpoint_infos = {}
+
+        # Generating metadata for every cluster
+        for endpoint in self.idl.endpoints:
+            for server_cluster in endpoint.server_clusters:
+
+                # Defaults as per spec, however ZAP should generally
+                # contain valid values here as they are required
+                feature_map = 0
+                cluster_revision = 1
+
+                for attribute in server_cluster.attributes:
+                    if attribute.default is None:
+                        continue
+
+                    match attribute.name:
+                        case 'featureMap':
+                            assert isinstance(attribute.default, int)
+                            feature_map = attribute.default
+                        case 'clusterRevision':
+                            assert isinstance(attribute.default, int)
+                            cluster_revision = attribute.default
+                        case _:
+                            # no other attributes are interesting at this point
+                            # although we may want to pull in some defaults
+                            pass
+
+                name = server_cluster.name
+                if name not in endpoint_infos:
+                    endpoint_infos[name] = []
+
+                endpoint_infos[name].append(
+                    ServerClusterConfig(
+                        endpoint_number=endpoint.number,
+                        cluster_name=name,
+                        feature_map=feature_map,
+                        cluster_revision = cluster_revision,
+                        instance = server_cluster,
+                    )
+                )
+
+        for name, instances in endpoint_infos.items():
+            self.internal_render_one_output(
+                template_path="ServerClusterConfig.jinja",
+                output_file_name=f"app/cluster-config/{name}.h",
+                vars={
+                    'cluster_name': name,
+                    'instances': instances
+                }
+            )
+
