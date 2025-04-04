@@ -36,6 +36,7 @@ source_set("elements") {
     "Structs.h",
   ]
   deps = [
+    ":enums",
     ":ids",
     "${chip_root}/src/app/common:global-ids",
     "${chip_root}/zzz_generated/app-common/clusters/shared:elements",
