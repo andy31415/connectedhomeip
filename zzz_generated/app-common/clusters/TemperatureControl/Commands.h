@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/TemperatureControl/ClusterId.h>
 #include <clusters/TemperatureControl/CommandIds.h>
 #include <clusters/TemperatureControl/Enums.h>
 #include <clusters/TemperatureControl/Structs.h>

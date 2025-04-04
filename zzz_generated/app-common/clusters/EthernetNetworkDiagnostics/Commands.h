@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/EthernetNetworkDiagnostics/ClusterId.h>
 #include <clusters/EthernetNetworkDiagnostics/CommandIds.h>
 #include <clusters/EthernetNetworkDiagnostics/Enums.h>
 #include <clusters/EthernetNetworkDiagnostics/Structs.h>

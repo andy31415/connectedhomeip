@@ -61,6 +61,7 @@ using DecodableType = Type;
 
 } // namespace MonitoringRegistrationStruct
 } // namespace Structs
+} // namespace IcdManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

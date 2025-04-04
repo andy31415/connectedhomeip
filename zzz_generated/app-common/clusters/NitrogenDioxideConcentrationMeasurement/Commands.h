@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/NitrogenDioxideConcentrationMeasurement/ClusterId.h>
 #include <clusters/NitrogenDioxideConcentrationMeasurement/CommandIds.h>
 #include <clusters/NitrogenDioxideConcentrationMeasurement/Enums.h>
 #include <clusters/NitrogenDioxideConcentrationMeasurement/Structs.h>

@@ -276,6 +276,7 @@ public:
 
 } // namespace TransportConfigurationStruct
 } // namespace Structs
+} // namespace PushAvStreamTransport
 } // namespace Clusters
 } // namespace app
 } // namespace chip

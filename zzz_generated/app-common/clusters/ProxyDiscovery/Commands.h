@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/ProxyDiscovery/ClusterId.h>
 #include <clusters/ProxyDiscovery/CommandIds.h>
 #include <clusters/ProxyDiscovery/Enums.h>
 #include <clusters/ProxyDiscovery/Structs.h>

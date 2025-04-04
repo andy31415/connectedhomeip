@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace Identify {} // namespace Identify
+namespace Identify {
+namespace Structs {} // namespace Structs
+} // namespace Identify
 } // namespace Clusters
 } // namespace app
 } // namespace chip

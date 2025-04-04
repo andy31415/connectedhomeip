@@ -74,6 +74,7 @@ public:
 
 } // namespace NetworkInterface
 } // namespace Structs
+} // namespace GeneralDiagnostics
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -28,6 +28,7 @@ namespace Structs {
 namespace ModeTagStruct    = Clusters::detail::Structs::ModeTagStruct;
 namespace ModeOptionStruct = Clusters::detail::Structs::ModeOptionStruct;
 } // namespace Structs
+} // namespace RvcCleanMode
 } // namespace Clusters
 } // namespace app
 } // namespace chip

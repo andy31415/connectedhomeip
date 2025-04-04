@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace RelativeHumidityMeasurement {} // namespace RelativeHumidityMeasurement
+namespace RelativeHumidityMeasurement {
+namespace Structs {} // namespace Structs
+} // namespace RelativeHumidityMeasurement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

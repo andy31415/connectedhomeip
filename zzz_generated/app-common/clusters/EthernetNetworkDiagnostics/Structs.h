@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace EthernetNetworkDiagnostics {} // namespace EthernetNetworkDiagnostics
+namespace EthernetNetworkDiagnostics {
+namespace Structs {} // namespace Structs
+} // namespace EthernetNetworkDiagnostics
 } // namespace Clusters
 } // namespace app
 } // namespace chip

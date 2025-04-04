@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace ContentAppObserver {} // namespace ContentAppObserver
+namespace ContentAppObserver {
+namespace Structs {} // namespace Structs
+} // namespace ContentAppObserver
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -319,6 +319,7 @@ public:
 
 } // namespace TariffPeriodStruct
 } // namespace Structs
+} // namespace CommodityTariff
 } // namespace Clusters
 } // namespace app
 } // namespace chip

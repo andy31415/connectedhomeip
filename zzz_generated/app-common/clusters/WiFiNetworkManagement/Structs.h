@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace WiFiNetworkManagement {} // namespace WiFiNetworkManagement
+namespace WiFiNetworkManagement {
+namespace Structs {} // namespace Structs
+} // namespace WiFiNetworkManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

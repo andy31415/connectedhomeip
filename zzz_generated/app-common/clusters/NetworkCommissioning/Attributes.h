@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/NetworkCommissioning/AttributeIds.h>
+#include <clusters/NetworkCommissioning/ClusterId.h>
 #include <clusters/NetworkCommissioning/Enums.h>
 #include <clusters/NetworkCommissioning/Structs.h>
 

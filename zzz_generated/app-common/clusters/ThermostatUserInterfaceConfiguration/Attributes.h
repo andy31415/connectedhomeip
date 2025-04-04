@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/ThermostatUserInterfaceConfiguration/AttributeIds.h>
+#include <clusters/ThermostatUserInterfaceConfiguration/ClusterId.h>
 #include <clusters/ThermostatUserInterfaceConfiguration/Enums.h>
 #include <clusters/ThermostatUserInterfaceConfiguration/Structs.h>
 

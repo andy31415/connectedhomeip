@@ -49,6 +49,7 @@ using DecodableType = Type;
 
 } // namespace CredentialStruct
 } // namespace Structs
+} // namespace DoorLock
 } // namespace Clusters
 } // namespace app
 } // namespace chip

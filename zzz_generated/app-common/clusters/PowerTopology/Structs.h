@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace PowerTopology {} // namespace PowerTopology
+namespace PowerTopology {
+namespace Structs {} // namespace Structs
+} // namespace PowerTopology
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -59,6 +59,7 @@ using DecodableType = Type;
 
 } // namespace ProviderLocation
 } // namespace Structs
+} // namespace OtaSoftwareUpdateRequestor
 } // namespace Clusters
 } // namespace app
 } // namespace chip

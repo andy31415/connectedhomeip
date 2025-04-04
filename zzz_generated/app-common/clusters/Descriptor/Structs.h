@@ -54,6 +54,7 @@ using DecodableType = Type;
 
 } // namespace SemanticTagStruct
 } // namespace Structs
+} // namespace Descriptor
 } // namespace Clusters
 } // namespace app
 } // namespace chip

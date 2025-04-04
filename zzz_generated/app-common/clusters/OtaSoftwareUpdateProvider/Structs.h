@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace OtaSoftwareUpdateProvider {} // namespace OtaSoftwareUpdateProvider
+namespace OtaSoftwareUpdateProvider {
+namespace Structs {} // namespace Structs
+} // namespace OtaSoftwareUpdateProvider
 } // namespace Clusters
 } // namespace app
 } // namespace chip

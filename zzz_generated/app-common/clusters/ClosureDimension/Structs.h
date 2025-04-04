@@ -122,6 +122,7 @@ using DecodableType = Type;
 
 } // namespace UnitRangeStruct
 } // namespace Structs
+} // namespace ClosureDimension
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace FaultInjection {} // namespace FaultInjection
+namespace FaultInjection {
+namespace Structs {} // namespace Structs
+} // namespace FaultInjection
 } // namespace Clusters
 } // namespace app
 } // namespace chip

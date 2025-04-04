@@ -95,6 +95,7 @@ using DecodableType = Type;
 
 } // namespace PlaybackPositionStruct
 } // namespace Structs
+} // namespace MediaPlayback
 } // namespace Clusters
 } // namespace app
 } // namespace chip

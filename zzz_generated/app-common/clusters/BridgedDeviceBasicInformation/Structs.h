@@ -49,6 +49,7 @@ using DecodableType = Type;
 
 } // namespace ProductAppearanceStruct
 } // namespace Structs
+} // namespace BridgedDeviceBasicInformation
 } // namespace Clusters
 } // namespace app
 } // namespace chip

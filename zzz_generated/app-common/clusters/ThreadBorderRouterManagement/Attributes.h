@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/ThreadBorderRouterManagement/AttributeIds.h>
+#include <clusters/ThreadBorderRouterManagement/ClusterId.h>
 #include <clusters/ThreadBorderRouterManagement/Enums.h>
 #include <clusters/ThreadBorderRouterManagement/Structs.h>
 

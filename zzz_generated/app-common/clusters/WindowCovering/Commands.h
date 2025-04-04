@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/WindowCovering/ClusterId.h>
 #include <clusters/WindowCovering/CommandIds.h>
 #include <clusters/WindowCovering/Enums.h>
 #include <clusters/WindowCovering/Structs.h>

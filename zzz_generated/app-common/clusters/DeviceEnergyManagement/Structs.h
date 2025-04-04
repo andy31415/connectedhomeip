@@ -293,6 +293,7 @@ using DecodableType = Type;
 
 } // namespace SlotAdjustmentStruct
 } // namespace Structs
+} // namespace DeviceEnergyManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

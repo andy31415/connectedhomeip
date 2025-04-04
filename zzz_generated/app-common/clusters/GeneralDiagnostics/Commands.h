@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/GeneralDiagnostics/ClusterId.h>
 #include <clusters/GeneralDiagnostics/CommandIds.h>
 #include <clusters/GeneralDiagnostics/Enums.h>
 #include <clusters/GeneralDiagnostics/Structs.h>

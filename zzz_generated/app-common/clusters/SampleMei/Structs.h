@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace SampleMei {} // namespace SampleMei
+namespace SampleMei {
+namespace Structs {} // namespace Structs
+} // namespace SampleMei
 } // namespace Clusters
 } // namespace app
 } // namespace chip

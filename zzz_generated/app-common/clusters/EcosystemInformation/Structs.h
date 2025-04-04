@@ -122,6 +122,7 @@ using DecodableType = Type;
 
 } // namespace EcosystemLocationStruct
 } // namespace Structs
+} // namespace EcosystemInformation
 } // namespace Clusters
 } // namespace app
 } // namespace chip

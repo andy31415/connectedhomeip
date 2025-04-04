@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace ThreadBorderRouterManagement {} // namespace ThreadBorderRouterManagement
+namespace ThreadBorderRouterManagement {
+namespace Structs {} // namespace Structs
+} // namespace ThreadBorderRouterManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

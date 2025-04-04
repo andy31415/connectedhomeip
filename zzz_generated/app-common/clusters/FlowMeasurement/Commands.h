@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/FlowMeasurement/ClusterId.h>
 #include <clusters/FlowMeasurement/CommandIds.h>
 #include <clusters/FlowMeasurement/Enums.h>
 #include <clusters/FlowMeasurement/Structs.h>

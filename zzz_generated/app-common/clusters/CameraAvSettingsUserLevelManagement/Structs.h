@@ -77,6 +77,7 @@ using DecodableType = Type;
 } // namespace MPTZPresetStruct
 namespace ViewportStruct = Clusters::detail::Structs::ViewportStruct;
 } // namespace Structs
+} // namespace CameraAvSettingsUserLevelManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

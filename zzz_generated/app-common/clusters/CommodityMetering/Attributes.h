@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/CommodityMetering/AttributeIds.h>
+#include <clusters/CommodityMetering/ClusterId.h>
 #include <clusters/CommodityMetering/Enums.h>
 #include <clusters/CommodityMetering/Structs.h>
 

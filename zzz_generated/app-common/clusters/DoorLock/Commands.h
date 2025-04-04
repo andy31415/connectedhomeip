@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/DoorLock/ClusterId.h>
 #include <clusters/DoorLock/CommandIds.h>
 #include <clusters/DoorLock/Enums.h>
 #include <clusters/DoorLock/Structs.h>

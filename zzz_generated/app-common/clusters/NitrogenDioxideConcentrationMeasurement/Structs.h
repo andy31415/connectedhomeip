@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace NitrogenDioxideConcentrationMeasurement {} // namespace NitrogenDioxideConcentrationMeasurement
+namespace NitrogenDioxideConcentrationMeasurement {
+namespace Structs {} // namespace Structs
+} // namespace NitrogenDioxideConcentrationMeasurement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

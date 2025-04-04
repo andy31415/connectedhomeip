@@ -27,6 +27,7 @@ namespace FixedLabel {
 namespace Structs {
 namespace LabelStruct = Clusters::detail::Structs::LabelStruct;
 } // namespace Structs
+} // namespace FixedLabel
 } // namespace Clusters
 } // namespace app
 } // namespace chip

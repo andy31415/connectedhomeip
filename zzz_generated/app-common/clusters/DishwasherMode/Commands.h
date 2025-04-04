@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/DishwasherMode/ClusterId.h>
 #include <clusters/DishwasherMode/CommandIds.h>
 #include <clusters/DishwasherMode/Enums.h>
 #include <clusters/DishwasherMode/Structs.h>

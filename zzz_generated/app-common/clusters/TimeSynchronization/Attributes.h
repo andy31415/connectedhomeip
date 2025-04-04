@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/TimeSynchronization/AttributeIds.h>
+#include <clusters/TimeSynchronization/ClusterId.h>
 #include <clusters/TimeSynchronization/Enums.h>
 #include <clusters/TimeSynchronization/Structs.h>
 

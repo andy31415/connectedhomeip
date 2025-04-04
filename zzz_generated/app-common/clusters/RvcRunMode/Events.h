@@ -30,6 +30,10 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Structs.h>
+
+#include <clusters/RvcRunMode/ClusterId.h>
+#include <clusters/RvcRunMode/Events.h>
 #include <clusters/RvcRunMode/Structs.h>
 
 namespace chip {

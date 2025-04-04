@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/RefrigeratorAlarm/ClusterId.h>
 #include <clusters/RefrigeratorAlarm/CommandIds.h>
 #include <clusters/RefrigeratorAlarm/Enums.h>
 #include <clusters/RefrigeratorAlarm/Structs.h>

@@ -13,6 +13,10 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Structs.h>
+
+#include <clusters/{{asUpperCamelCase name}}/ClusterId.h>
+#include <clusters/{{asUpperCamelCase name}}/Events.h>
 #include <clusters/{{asUpperCamelCase name}}/Structs.h>
 
 namespace chip {

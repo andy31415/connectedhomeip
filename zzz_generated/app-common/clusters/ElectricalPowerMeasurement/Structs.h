@@ -92,6 +92,7 @@ using DecodableType = Type;
 
 } // namespace MeasurementRangeStruct
 } // namespace Structs
+} // namespace ElectricalPowerMeasurement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

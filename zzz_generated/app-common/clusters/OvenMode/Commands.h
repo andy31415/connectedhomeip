@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/OvenMode/ClusterId.h>
 #include <clusters/OvenMode/CommandIds.h>
 #include <clusters/OvenMode/Enums.h>
 #include <clusters/OvenMode/Structs.h>

@@ -30,6 +30,10 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Structs.h>
+
+#include <clusters/ThermostatUserInterfaceConfiguration/ClusterId.h>
+#include <clusters/ThermostatUserInterfaceConfiguration/Events.h>
 #include <clusters/ThermostatUserInterfaceConfiguration/Structs.h>
 
 namespace chip {

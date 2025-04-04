@@ -49,6 +49,7 @@ using DecodableType = Type;
 
 } // namespace RatingNameStruct
 } // namespace Structs
+} // namespace ContentControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

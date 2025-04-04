@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/ActivatedCarbonFilterMonitoring/AttributeIds.h>
+#include <clusters/ActivatedCarbonFilterMonitoring/ClusterId.h>
 #include <clusters/ActivatedCarbonFilterMonitoring/Enums.h>
 #include <clusters/ActivatedCarbonFilterMonitoring/Structs.h>
 

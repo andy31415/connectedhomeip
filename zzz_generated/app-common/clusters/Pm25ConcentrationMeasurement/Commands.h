@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/Pm25ConcentrationMeasurement/ClusterId.h>
 #include <clusters/Pm25ConcentrationMeasurement/CommandIds.h>
 #include <clusters/Pm25ConcentrationMeasurement/Enums.h>
 #include <clusters/Pm25ConcentrationMeasurement/Structs.h>

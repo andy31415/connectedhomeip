@@ -30,6 +30,10 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Structs.h>
+
+#include <clusters/ActivatedCarbonFilterMonitoring/ClusterId.h>
+#include <clusters/ActivatedCarbonFilterMonitoring/Events.h>
 #include <clusters/ActivatedCarbonFilterMonitoring/Structs.h>
 
 namespace chip {

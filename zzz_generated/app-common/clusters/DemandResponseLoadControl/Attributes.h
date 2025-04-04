@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/DemandResponseLoadControl/AttributeIds.h>
+#include <clusters/DemandResponseLoadControl/ClusterId.h>
 #include <clusters/DemandResponseLoadControl/Enums.h>
 #include <clusters/DemandResponseLoadControl/Structs.h>
 

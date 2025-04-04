@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/PulseWidthModulation/AttributeIds.h>
+#include <clusters/PulseWidthModulation/ClusterId.h>
 #include <clusters/PulseWidthModulation/Enums.h>
 #include <clusters/PulseWidthModulation/Structs.h>
 

@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/OzoneConcentrationMeasurement/ClusterId.h>
 #include <clusters/OzoneConcentrationMeasurement/CommandIds.h>
 #include <clusters/OzoneConcentrationMeasurement/Enums.h>
 #include <clusters/OzoneConcentrationMeasurement/Structs.h>

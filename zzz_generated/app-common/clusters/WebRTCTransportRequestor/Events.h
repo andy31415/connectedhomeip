@@ -30,6 +30,10 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Structs.h>
+
+#include <clusters/WebRTCTransportRequestor/ClusterId.h>
+#include <clusters/WebRTCTransportRequestor/Events.h>
 #include <clusters/WebRTCTransportRequestor/Structs.h>
 
 namespace chip {

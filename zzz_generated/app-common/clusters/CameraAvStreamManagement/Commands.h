@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/CameraAvStreamManagement/ClusterId.h>
 #include <clusters/CameraAvStreamManagement/CommandIds.h>
 #include <clusters/CameraAvStreamManagement/Enums.h>
 #include <clusters/CameraAvStreamManagement/Structs.h>

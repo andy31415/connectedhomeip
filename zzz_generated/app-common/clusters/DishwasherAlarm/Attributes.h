@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/DishwasherAlarm/AttributeIds.h>
+#include <clusters/DishwasherAlarm/ClusterId.h>
 #include <clusters/DishwasherAlarm/Enums.h>
 #include <clusters/DishwasherAlarm/Structs.h>
 

@@ -116,6 +116,7 @@ public:
 
 } // namespace WiredFaultChangeType
 } // namespace Structs
+} // namespace PowerSource
 } // namespace Clusters
 } // namespace app
 } // namespace chip

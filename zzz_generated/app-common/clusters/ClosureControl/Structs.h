@@ -78,6 +78,7 @@ using DecodableType = Type;
 
 } // namespace OverallTargetStruct
 } // namespace Structs
+} // namespace ClosureControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

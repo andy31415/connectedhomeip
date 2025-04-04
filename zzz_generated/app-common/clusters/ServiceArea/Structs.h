@@ -147,6 +147,7 @@ using DecodableType = Type;
 
 } // namespace ProgressStruct
 } // namespace Structs
+} // namespace ServiceArea
 } // namespace Clusters
 } // namespace app
 } // namespace chip

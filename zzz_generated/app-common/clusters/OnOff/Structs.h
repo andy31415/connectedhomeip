@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace OnOff {} // namespace OnOff
+namespace OnOff {
+namespace Structs {} // namespace Structs
+} // namespace OnOff
 } // namespace Clusters
 } // namespace app
 } // namespace chip

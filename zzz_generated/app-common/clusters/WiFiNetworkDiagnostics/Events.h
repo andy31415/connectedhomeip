@@ -30,6 +30,10 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Structs.h>
+
+#include <clusters/WiFiNetworkDiagnostics/ClusterId.h>
+#include <clusters/WiFiNetworkDiagnostics/Events.h>
 #include <clusters/WiFiNetworkDiagnostics/Structs.h>
 
 namespace chip {

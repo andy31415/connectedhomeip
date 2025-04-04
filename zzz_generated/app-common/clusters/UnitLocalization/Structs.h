@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace UnitLocalization {} // namespace UnitLocalization
+namespace UnitLocalization {
+namespace Structs {} // namespace Structs
+} // namespace UnitLocalization
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/CarbonMonoxideConcentrationMeasurement/ClusterId.h>
 #include <clusters/CarbonMonoxideConcentrationMeasurement/CommandIds.h>
 #include <clusters/CarbonMonoxideConcentrationMeasurement/Enums.h>
 #include <clusters/CarbonMonoxideConcentrationMeasurement/Structs.h>

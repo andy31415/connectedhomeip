@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/RvcCleanMode/ClusterId.h>
 #include <clusters/RvcCleanMode/CommandIds.h>
 #include <clusters/RvcCleanMode/Enums.h>
 #include <clusters/RvcCleanMode/Structs.h>

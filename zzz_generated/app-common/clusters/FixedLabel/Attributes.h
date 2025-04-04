@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/FixedLabel/AttributeIds.h>
+#include <clusters/FixedLabel/ClusterId.h>
 #include <clusters/FixedLabel/Enums.h>
 #include <clusters/FixedLabel/Structs.h>
 

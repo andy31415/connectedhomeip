@@ -124,6 +124,7 @@ using DecodableType = Type;
 
 } // namespace TrustedTimeSourceStruct
 } // namespace Structs
+} // namespace TimeSynchronization
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/WebRTCTransportProvider/AttributeIds.h>
+#include <clusters/WebRTCTransportProvider/ClusterId.h>
 #include <clusters/WebRTCTransportProvider/Enums.h>
 #include <clusters/WebRTCTransportProvider/Structs.h>
 

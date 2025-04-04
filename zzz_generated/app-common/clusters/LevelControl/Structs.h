@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace LevelControl {} // namespace LevelControl
+namespace LevelControl {
+namespace Structs {} // namespace Structs
+} // namespace LevelControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

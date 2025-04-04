@@ -102,6 +102,7 @@ using DecodableType = Type;
 
 } // namespace NOCStruct
 } // namespace Structs
+} // namespace OperationalCredentials
 } // namespace Clusters
 } // namespace app
 } // namespace chip

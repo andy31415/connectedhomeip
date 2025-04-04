@@ -84,6 +84,7 @@ using DecodableType = Type;
 
 } // namespace EnergyMeasurementStruct
 } // namespace Structs
+} // namespace ElectricalEnergyMeasurement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

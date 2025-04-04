@@ -30,6 +30,10 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Structs.h>
+
+#include <clusters/MicrowaveOvenMode/ClusterId.h>
+#include <clusters/MicrowaveOvenMode/Events.h>
 #include <clusters/MicrowaveOvenMode/Structs.h>
 
 namespace chip {

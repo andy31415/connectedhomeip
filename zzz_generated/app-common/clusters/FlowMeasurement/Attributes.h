@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/FlowMeasurement/AttributeIds.h>
+#include <clusters/FlowMeasurement/ClusterId.h>
 #include <clusters/FlowMeasurement/Enums.h>
 #include <clusters/FlowMeasurement/Structs.h>
 

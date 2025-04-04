@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/IlluminanceMeasurement/AttributeIds.h>
+#include <clusters/IlluminanceMeasurement/ClusterId.h>
 #include <clusters/IlluminanceMeasurement/Enums.h>
 #include <clusters/IlluminanceMeasurement/Structs.h>
 

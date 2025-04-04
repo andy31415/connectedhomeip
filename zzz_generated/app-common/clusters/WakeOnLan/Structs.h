@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace WakeOnLan {} // namespace WakeOnLan
+namespace WakeOnLan {
+namespace Structs {} // namespace Structs
+} // namespace WakeOnLan
 } // namespace Clusters
 } // namespace app
 } // namespace chip

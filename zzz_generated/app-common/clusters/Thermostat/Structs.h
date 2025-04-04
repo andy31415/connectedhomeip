@@ -205,6 +205,7 @@ using DecodableType = Type;
 
 } // namespace WeeklyScheduleTransitionStruct
 } // namespace Structs
+} // namespace Thermostat
 } // namespace Clusters
 } // namespace app
 } // namespace chip

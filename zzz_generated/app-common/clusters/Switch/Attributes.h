@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/Switch/AttributeIds.h>
+#include <clusters/Switch/ClusterId.h>
 #include <clusters/Switch/Enums.h>
 #include <clusters/Switch/Structs.h>
 

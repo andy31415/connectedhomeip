@@ -92,6 +92,7 @@ public:
 
 } // namespace CommodityPriceStruct
 } // namespace Structs
+} // namespace CommodityPrice
 } // namespace Clusters
 } // namespace app
 } // namespace chip

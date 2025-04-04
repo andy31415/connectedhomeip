@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/ColorControl/AttributeIds.h>
+#include <clusters/ColorControl/ClusterId.h>
 #include <clusters/ColorControl/Enums.h>
 #include <clusters/ColorControl/Structs.h>
 

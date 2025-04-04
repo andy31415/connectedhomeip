@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace CommissionerControl {} // namespace CommissionerControl
+namespace CommissionerControl {
+namespace Structs {} // namespace Structs
+} // namespace CommissionerControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

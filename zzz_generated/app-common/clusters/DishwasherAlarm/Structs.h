@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace DishwasherAlarm {} // namespace DishwasherAlarm
+namespace DishwasherAlarm {
+namespace Structs {} // namespace Structs
+} // namespace DishwasherAlarm
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace Groups {} // namespace Groups
+namespace Groups {
+namespace Structs {} // namespace Structs
+} // namespace Groups
 } // namespace Clusters
 } // namespace app
 } // namespace chip

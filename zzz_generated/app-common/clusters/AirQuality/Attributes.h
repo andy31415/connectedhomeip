@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/AirQuality/AttributeIds.h>
+#include <clusters/AirQuality/ClusterId.h>
 #include <clusters/AirQuality/Enums.h>
 #include <clusters/AirQuality/Structs.h>
 

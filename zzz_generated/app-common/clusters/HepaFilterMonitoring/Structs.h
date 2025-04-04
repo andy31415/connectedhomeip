@@ -49,6 +49,7 @@ using DecodableType = Type;
 
 } // namespace ReplacementProductStruct
 } // namespace Structs
+} // namespace HepaFilterMonitoring
 } // namespace Clusters
 } // namespace app
 } // namespace chip

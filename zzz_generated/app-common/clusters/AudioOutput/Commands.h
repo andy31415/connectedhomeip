@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/AudioOutput/ClusterId.h>
 #include <clusters/AudioOutput/CommandIds.h>
 #include <clusters/AudioOutput/Enums.h>
 #include <clusters/AudioOutput/Structs.h>

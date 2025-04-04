@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace LowPower {} // namespace LowPower
+namespace LowPower {
+namespace Structs {} // namespace Structs
+} // namespace LowPower
 } // namespace Clusters
 } // namespace app
 } // namespace chip

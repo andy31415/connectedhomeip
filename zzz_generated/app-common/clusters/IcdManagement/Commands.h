@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/IcdManagement/ClusterId.h>
 #include <clusters/IcdManagement/CommandIds.h>
 #include <clusters/IcdManagement/Enums.h>
 #include <clusters/IcdManagement/Structs.h>

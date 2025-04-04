@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/Chime/ClusterId.h>
 #include <clusters/Chime/CommandIds.h>
 #include <clusters/Chime/Enums.h>
 #include <clusters/Chime/Structs.h>

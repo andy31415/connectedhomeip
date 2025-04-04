@@ -119,6 +119,7 @@ using DecodableType = Type;
 
 } // namespace WiFiInterfaceScanResultStruct
 } // namespace Structs
+} // namespace NetworkCommissioning
 } // namespace Clusters
 } // namespace app
 } // namespace chip

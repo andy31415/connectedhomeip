@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/PowerTopology/ClusterId.h>
 #include <clusters/PowerTopology/CommandIds.h>
 #include <clusters/PowerTopology/Enums.h>
 #include <clusters/PowerTopology/Structs.h>

@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace BooleanStateConfiguration {} // namespace BooleanStateConfiguration
+namespace BooleanStateConfiguration {
+namespace Structs {} // namespace Structs
+} // namespace BooleanStateConfiguration
 } // namespace Clusters
 } // namespace app
 } // namespace chip

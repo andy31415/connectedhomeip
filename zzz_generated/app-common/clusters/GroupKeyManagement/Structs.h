@@ -142,6 +142,7 @@ using DecodableType = Type;
 
 } // namespace GroupKeySetStruct
 } // namespace Structs
+} // namespace GroupKeyManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/LocalizationConfiguration/ClusterId.h>
 #include <clusters/LocalizationConfiguration/CommandIds.h>
 #include <clusters/LocalizationConfiguration/Enums.h>
 #include <clusters/LocalizationConfiguration/Structs.h>

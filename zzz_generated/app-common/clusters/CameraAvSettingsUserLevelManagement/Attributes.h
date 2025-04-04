@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/CameraAvSettingsUserLevelManagement/AttributeIds.h>
+#include <clusters/CameraAvSettingsUserLevelManagement/ClusterId.h>
 #include <clusters/CameraAvSettingsUserLevelManagement/Enums.h>
 #include <clusters/CameraAvSettingsUserLevelManagement/Structs.h>
 

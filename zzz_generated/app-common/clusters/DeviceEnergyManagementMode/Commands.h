@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/DeviceEnergyManagementMode/ClusterId.h>
 #include <clusters/DeviceEnergyManagementMode/CommandIds.h>
 #include <clusters/DeviceEnergyManagementMode/Enums.h>
 #include <clusters/DeviceEnergyManagementMode/Structs.h>

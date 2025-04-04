@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace WindowCovering {} // namespace WindowCovering
+namespace WindowCovering {
+namespace Structs {} // namespace Structs
+} // namespace WindowCovering
 } // namespace Clusters
 } // namespace app
 } // namespace chip

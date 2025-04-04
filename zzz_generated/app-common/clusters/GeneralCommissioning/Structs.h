@@ -49,6 +49,7 @@ using DecodableType = Type;
 
 } // namespace BasicCommissioningInfo
 } // namespace Structs
+} // namespace GeneralCommissioning
 } // namespace Clusters
 } // namespace app
 } // namespace chip

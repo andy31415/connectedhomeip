@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/OvenCavityOperationalState/AttributeIds.h>
+#include <clusters/OvenCavityOperationalState/ClusterId.h>
 #include <clusters/OvenCavityOperationalState/Enums.h>
 #include <clusters/OvenCavityOperationalState/Structs.h>
 

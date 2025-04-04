@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/OtaSoftwareUpdateProvider/ClusterId.h>
 #include <clusters/OtaSoftwareUpdateProvider/CommandIds.h>
 #include <clusters/OtaSoftwareUpdateProvider/Enums.h>
 #include <clusters/OtaSoftwareUpdateProvider/Structs.h>

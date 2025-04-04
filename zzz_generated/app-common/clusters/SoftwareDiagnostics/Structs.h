@@ -55,6 +55,7 @@ using DecodableType = Type;
 
 } // namespace ThreadMetricsStruct
 } // namespace Structs
+} // namespace SoftwareDiagnostics
 } // namespace Clusters
 } // namespace app
 } // namespace chip

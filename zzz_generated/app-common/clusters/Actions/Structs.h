@@ -93,6 +93,7 @@ public:
 
 } // namespace EndpointListStruct
 } // namespace Structs
+} // namespace Actions
 } // namespace Clusters
 } // namespace app
 } // namespace chip

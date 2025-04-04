@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/CommodityTariff/AttributeIds.h>
+#include <clusters/CommodityTariff/ClusterId.h>
 #include <clusters/CommodityTariff/Enums.h>
 #include <clusters/CommodityTariff/Structs.h>
 

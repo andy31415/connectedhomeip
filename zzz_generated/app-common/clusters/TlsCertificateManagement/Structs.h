@@ -82,6 +82,7 @@ public:
 
 } // namespace TLSClientCertificateDetailStruct
 } // namespace Structs
+} // namespace TlsCertificateManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -256,6 +256,7 @@ using DecodableType = Type;
 
 } // namespace BrandingInformationStruct
 } // namespace Structs
+} // namespace ContentLauncher
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -280,6 +280,7 @@ using DecodableType = Type;
 } // namespace VideoSensorParamsStruct
 namespace ViewportStruct = Clusters::detail::Structs::ViewportStruct;
 } // namespace Structs
+} // namespace CameraAvStreamManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

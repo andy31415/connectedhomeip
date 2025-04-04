@@ -72,6 +72,7 @@ using DecodableType = Type;
 
 } // namespace ProductAppearanceStruct
 } // namespace Structs
+} // namespace BasicInformation
 } // namespace Clusters
 } // namespace app
 } // namespace chip

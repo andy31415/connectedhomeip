@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/DemandResponseLoadControl/ClusterId.h>
 #include <clusters/DemandResponseLoadControl/CommandIds.h>
 #include <clusters/DemandResponseLoadControl/Enums.h>
 #include <clusters/DemandResponseLoadControl/Structs.h>

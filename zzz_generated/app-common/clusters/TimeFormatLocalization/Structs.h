@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace TimeFormatLocalization {} // namespace TimeFormatLocalization
+namespace TimeFormatLocalization {
+namespace Structs {} // namespace Structs
+} // namespace TimeFormatLocalization
 } // namespace Clusters
 } // namespace app
 } // namespace chip

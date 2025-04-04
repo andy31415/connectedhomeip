@@ -53,6 +53,7 @@ using DecodableType = Type;
 
 } // namespace InputInfoStruct
 } // namespace Structs
+} // namespace MediaInput
 } // namespace Clusters
 } // namespace app
 } // namespace chip

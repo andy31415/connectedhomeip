@@ -139,6 +139,7 @@ using DecodableType = Type;
 
 } // namespace ZoneTriggerControlStruct
 } // namespace Structs
+} // namespace ZoneManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

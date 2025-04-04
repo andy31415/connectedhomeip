@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace MeterIdentification {} // namespace MeterIdentification
+namespace MeterIdentification {
+namespace Structs {} // namespace Structs
+} // namespace MeterIdentification
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/BridgedDeviceBasicInformation/ClusterId.h>
 #include <clusters/BridgedDeviceBasicInformation/CommandIds.h>
 #include <clusters/BridgedDeviceBasicInformation/Enums.h>
 #include <clusters/BridgedDeviceBasicInformation/Structs.h>

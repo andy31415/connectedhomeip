@@ -51,6 +51,7 @@ using DecodableType = Type;
 
 } // namespace OutputInfoStruct
 } // namespace Structs
+} // namespace AudioOutput
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/RvcOperationalState/ClusterId.h>
 #include <clusters/RvcOperationalState/CommandIds.h>
 #include <clusters/RvcOperationalState/Enums.h>
 #include <clusters/RvcOperationalState/Structs.h>

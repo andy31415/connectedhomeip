@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/OtaSoftwareUpdateRequestor/AttributeIds.h>
+#include <clusters/OtaSoftwareUpdateRequestor/ClusterId.h>
 #include <clusters/OtaSoftwareUpdateRequestor/Enums.h>
 #include <clusters/OtaSoftwareUpdateRequestor/Structs.h>
 

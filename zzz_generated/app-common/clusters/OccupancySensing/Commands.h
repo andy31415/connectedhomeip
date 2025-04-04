@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/OccupancySensing/ClusterId.h>
 #include <clusters/OccupancySensing/CommandIds.h>
 #include <clusters/OccupancySensing/Enums.h>
 #include <clusters/OccupancySensing/Structs.h>

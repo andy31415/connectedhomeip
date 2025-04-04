@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/Pm1ConcentrationMeasurement/AttributeIds.h>
+#include <clusters/Pm1ConcentrationMeasurement/ClusterId.h>
 #include <clusters/Pm1ConcentrationMeasurement/Enums.h>
 #include <clusters/Pm1ConcentrationMeasurement/Structs.h>
 

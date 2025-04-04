@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/TlsCertificateManagement/AttributeIds.h>
+#include <clusters/TlsCertificateManagement/ClusterId.h>
 #include <clusters/TlsCertificateManagement/Enums.h>
 #include <clusters/TlsCertificateManagement/Structs.h>
 

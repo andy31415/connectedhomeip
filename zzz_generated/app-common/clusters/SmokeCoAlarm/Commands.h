@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/SmokeCoAlarm/ClusterId.h>
 #include <clusters/SmokeCoAlarm/CommandIds.h>
 #include <clusters/SmokeCoAlarm/Enums.h>
 #include <clusters/SmokeCoAlarm/Structs.h>

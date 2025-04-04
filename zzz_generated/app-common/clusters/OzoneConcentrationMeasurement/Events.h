@@ -30,6 +30,10 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Structs.h>
+
+#include <clusters/OzoneConcentrationMeasurement/ClusterId.h>
+#include <clusters/OzoneConcentrationMeasurement/Events.h>
 #include <clusters/OzoneConcentrationMeasurement/Structs.h>
 
 namespace chip {

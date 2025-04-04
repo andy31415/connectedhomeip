@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace LaundryWasherControls {} // namespace LaundryWasherControls
+namespace LaundryWasherControls {
+namespace Structs {} // namespace Structs
+} // namespace LaundryWasherControls
 } // namespace Clusters
 } // namespace app
 } // namespace chip

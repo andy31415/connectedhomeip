@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/FormaldehydeConcentrationMeasurement/AttributeIds.h>
+#include <clusters/FormaldehydeConcentrationMeasurement/ClusterId.h>
 #include <clusters/FormaldehydeConcentrationMeasurement/Enums.h>
 #include <clusters/FormaldehydeConcentrationMeasurement/Structs.h>
 

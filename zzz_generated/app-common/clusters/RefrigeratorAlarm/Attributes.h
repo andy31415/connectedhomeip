@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/RefrigeratorAlarm/AttributeIds.h>
+#include <clusters/RefrigeratorAlarm/ClusterId.h>
 #include <clusters/RefrigeratorAlarm/Enums.h>
 #include <clusters/RefrigeratorAlarm/Structs.h>
 

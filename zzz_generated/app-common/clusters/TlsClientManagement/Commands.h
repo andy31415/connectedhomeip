@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/TlsClientManagement/ClusterId.h>
 #include <clusters/TlsClientManagement/CommandIds.h>
 #include <clusters/TlsClientManagement/Enums.h>
 #include <clusters/TlsClientManagement/Structs.h>

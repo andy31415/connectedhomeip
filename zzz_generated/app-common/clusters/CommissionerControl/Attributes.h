@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/CommissionerControl/AttributeIds.h>
+#include <clusters/CommissionerControl/ClusterId.h>
 #include <clusters/CommissionerControl/Enums.h>
 #include <clusters/CommissionerControl/Structs.h>
 

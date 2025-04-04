@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/PushAvStreamTransport/ClusterId.h>
 #include <clusters/PushAvStreamTransport/CommandIds.h>
 #include <clusters/PushAvStreamTransport/Enums.h>
 #include <clusters/PushAvStreamTransport/Structs.h>

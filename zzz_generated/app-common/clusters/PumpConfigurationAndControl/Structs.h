@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace PumpConfigurationAndControl {} // namespace PumpConfigurationAndControl
+namespace PumpConfigurationAndControl {
+namespace Structs {} // namespace Structs
+} // namespace PumpConfigurationAndControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

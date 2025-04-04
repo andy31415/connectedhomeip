@@ -27,6 +27,7 @@ namespace UserLabel {
 namespace Structs {
 namespace LabelStruct = Clusters::detail::Structs::LabelStruct;
 } // namespace Structs
+} // namespace UserLabel
 } // namespace Clusters
 } // namespace app
 } // namespace chip

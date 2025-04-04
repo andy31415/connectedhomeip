@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/EthernetNetworkDiagnostics/AttributeIds.h>
+#include <clusters/EthernetNetworkDiagnostics/ClusterId.h>
 #include <clusters/EthernetNetworkDiagnostics/Enums.h>
 #include <clusters/EthernetNetworkDiagnostics/Structs.h>
 

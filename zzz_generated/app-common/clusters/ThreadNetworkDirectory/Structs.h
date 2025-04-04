@@ -53,6 +53,7 @@ using DecodableType = Type;
 
 } // namespace ThreadNetworkStruct
 } // namespace Structs
+} // namespace ThreadNetworkDirectory
 } // namespace Clusters
 } // namespace app
 } // namespace chip

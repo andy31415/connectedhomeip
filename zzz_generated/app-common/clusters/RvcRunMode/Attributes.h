@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/RvcRunMode/AttributeIds.h>
+#include <clusters/RvcRunMode/ClusterId.h>
 #include <clusters/RvcRunMode/Enums.h>
 #include <clusters/RvcRunMode/Structs.h>
 

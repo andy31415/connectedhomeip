@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace CarbonDioxideConcentrationMeasurement {} // namespace CarbonDioxideConcentrationMeasurement
+namespace CarbonDioxideConcentrationMeasurement {
+namespace Structs {} // namespace Structs
+} // namespace CarbonDioxideConcentrationMeasurement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

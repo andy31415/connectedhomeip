@@ -27,6 +27,7 @@ namespace ApplicationBasic {
 namespace Structs {
 namespace ApplicationStruct = Clusters::detail::Structs::ApplicationStruct;
 } // namespace Structs
+} // namespace ApplicationBasic
 } // namespace Clusters
 } // namespace app
 } // namespace chip

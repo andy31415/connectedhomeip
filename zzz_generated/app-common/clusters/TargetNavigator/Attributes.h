@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/TargetNavigator/AttributeIds.h>
+#include <clusters/TargetNavigator/ClusterId.h>
 #include <clusters/TargetNavigator/Enums.h>
 #include <clusters/TargetNavigator/Structs.h>
 

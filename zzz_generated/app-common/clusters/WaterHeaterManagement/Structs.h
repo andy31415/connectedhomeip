@@ -57,6 +57,7 @@ using DecodableType = Type;
 
 } // namespace WaterHeaterBoostInfoStruct
 } // namespace Structs
+} // namespace WaterHeaterManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/FanControl/ClusterId.h>
 #include <clusters/FanControl/CommandIds.h>
 #include <clusters/FanControl/Enums.h>
 #include <clusters/FanControl/Structs.h>

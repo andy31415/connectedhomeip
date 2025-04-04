@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/PumpConfigurationAndControl/ClusterId.h>
 #include <clusters/PumpConfigurationAndControl/CommandIds.h>
 #include <clusters/PumpConfigurationAndControl/Enums.h>
 #include <clusters/PumpConfigurationAndControl/Structs.h>

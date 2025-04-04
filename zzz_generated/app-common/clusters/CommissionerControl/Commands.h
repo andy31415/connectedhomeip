@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/CommissionerControl/ClusterId.h>
 #include <clusters/CommissionerControl/CommandIds.h>
 #include <clusters/CommissionerControl/Enums.h>
 #include <clusters/CommissionerControl/Structs.h>

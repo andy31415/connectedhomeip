@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/ThreadBorderRouterManagement/ClusterId.h>
 #include <clusters/ThreadBorderRouterManagement/CommandIds.h>
 #include <clusters/ThreadBorderRouterManagement/Enums.h>
 #include <clusters/ThreadBorderRouterManagement/Structs.h>

@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/EnergyPreference/AttributeIds.h>
+#include <clusters/EnergyPreference/ClusterId.h>
 #include <clusters/EnergyPreference/Enums.h>
 #include <clusters/EnergyPreference/Structs.h>
 

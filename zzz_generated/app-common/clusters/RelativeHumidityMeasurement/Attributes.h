@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/RelativeHumidityMeasurement/AttributeIds.h>
+#include <clusters/RelativeHumidityMeasurement/ClusterId.h>
 #include <clusters/RelativeHumidityMeasurement/Enums.h>
 #include <clusters/RelativeHumidityMeasurement/Structs.h>
 

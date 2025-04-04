@@ -49,6 +49,7 @@ using DecodableType = Type;
 
 } // namespace BalanceStruct
 } // namespace Structs
+} // namespace EnergyPreference
 } // namespace Clusters
 } // namespace app
 } // namespace chip

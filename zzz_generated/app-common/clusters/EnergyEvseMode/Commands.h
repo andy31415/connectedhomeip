@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/EnergyEvseMode/ClusterId.h>
 #include <clusters/EnergyEvseMode/CommandIds.h>
 #include <clusters/EnergyEvseMode/Enums.h>
 #include <clusters/EnergyEvseMode/Structs.h>

@@ -178,6 +178,7 @@ using DecodableType = Type;
 
 } // namespace SecurityPolicy
 } // namespace Structs
+} // namespace ThreadNetworkDiagnostics
 } // namespace Clusters
 } // namespace app
 } // namespace chip

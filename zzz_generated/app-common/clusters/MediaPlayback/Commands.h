@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/MediaPlayback/ClusterId.h>
 #include <clusters/MediaPlayback/CommandIds.h>
 #include <clusters/MediaPlayback/Enums.h>
 #include <clusters/MediaPlayback/Structs.h>

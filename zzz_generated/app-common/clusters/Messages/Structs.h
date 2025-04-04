@@ -94,6 +94,7 @@ public:
 
 } // namespace MessageStruct
 } // namespace Structs
+} // namespace Messages
 } // namespace Clusters
 } // namespace app
 } // namespace chip

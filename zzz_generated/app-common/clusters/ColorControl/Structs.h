@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace ColorControl {} // namespace ColorControl
+namespace ColorControl {
+namespace Structs {} // namespace Structs
+} // namespace ColorControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

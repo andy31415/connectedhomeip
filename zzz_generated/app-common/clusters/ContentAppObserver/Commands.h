@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/ContentAppObserver/ClusterId.h>
 #include <clusters/ContentAppObserver/CommandIds.h>
 #include <clusters/ContentAppObserver/Enums.h>
 #include <clusters/ContentAppObserver/Structs.h>

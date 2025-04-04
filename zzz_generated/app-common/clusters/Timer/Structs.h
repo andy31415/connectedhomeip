@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace Timer {} // namespace Timer
+namespace Timer {
+namespace Structs {} // namespace Structs
+} // namespace Timer
 } // namespace Clusters
 } // namespace app
 } // namespace chip

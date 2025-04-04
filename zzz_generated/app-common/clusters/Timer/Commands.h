@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/Timer/ClusterId.h>
 #include <clusters/Timer/CommandIds.h>
 #include <clusters/Timer/Enums.h>
 #include <clusters/Timer/Structs.h>

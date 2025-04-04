@@ -50,6 +50,7 @@ using DecodableType = Type;
 
 } // namespace ApplicationEPStruct
 } // namespace Structs
+} // namespace ApplicationLauncher
 } // namespace Clusters
 } // namespace app
 } // namespace chip

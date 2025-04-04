@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/PumpConfigurationAndControl/AttributeIds.h>
+#include <clusters/PumpConfigurationAndControl/ClusterId.h>
 #include <clusters/PumpConfigurationAndControl/Enums.h>
 #include <clusters/PumpConfigurationAndControl/Structs.h>
 

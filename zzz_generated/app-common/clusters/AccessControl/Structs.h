@@ -237,6 +237,7 @@ using DecodableType = Type;
 
 } // namespace AccessControlExtensionStruct
 } // namespace Structs
+} // namespace AccessControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

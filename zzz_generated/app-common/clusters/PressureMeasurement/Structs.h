@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace PressureMeasurement {} // namespace PressureMeasurement
+namespace PressureMeasurement {
+namespace Structs {} // namespace Structs
+} // namespace PressureMeasurement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

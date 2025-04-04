@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace RadonConcentrationMeasurement {} // namespace RadonConcentrationMeasurement
+namespace RadonConcentrationMeasurement {
+namespace Structs {} // namespace Structs
+} // namespace RadonConcentrationMeasurement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

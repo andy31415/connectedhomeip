@@ -132,6 +132,7 @@ using DecodableType = Type;
 
 } // namespace SceneInfoStruct
 } // namespace Structs
+} // namespace ScenesManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/UnitTesting/AttributeIds.h>
+#include <clusters/UnitTesting/ClusterId.h>
 #include <clusters/UnitTesting/Enums.h>
 #include <clusters/UnitTesting/Structs.h>
 

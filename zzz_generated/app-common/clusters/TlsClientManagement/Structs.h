@@ -57,6 +57,7 @@ using DecodableType = Type;
 
 } // namespace TLSEndpointStruct
 } // namespace Structs
+} // namespace TlsClientManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

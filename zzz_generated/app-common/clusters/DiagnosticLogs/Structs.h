@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace DiagnosticLogs {} // namespace DiagnosticLogs
+namespace DiagnosticLogs {
+namespace Structs {} // namespace Structs
+} // namespace DiagnosticLogs
 } // namespace Clusters
 } // namespace app
 } // namespace chip

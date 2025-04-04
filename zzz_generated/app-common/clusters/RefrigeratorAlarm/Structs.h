@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace RefrigeratorAlarm {} // namespace RefrigeratorAlarm
+namespace RefrigeratorAlarm {
+namespace Structs {} // namespace Structs
+} // namespace RefrigeratorAlarm
 } // namespace Clusters
 } // namespace app
 } // namespace chip

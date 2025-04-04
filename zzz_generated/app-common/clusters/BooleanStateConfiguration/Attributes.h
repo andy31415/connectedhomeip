@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/BooleanStateConfiguration/AttributeIds.h>
+#include <clusters/BooleanStateConfiguration/ClusterId.h>
 #include <clusters/BooleanStateConfiguration/Enums.h>
 #include <clusters/BooleanStateConfiguration/Structs.h>
 

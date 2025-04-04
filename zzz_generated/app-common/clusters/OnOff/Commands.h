@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/OnOff/ClusterId.h>
 #include <clusters/OnOff/CommandIds.h>
 #include <clusters/OnOff/Enums.h>
 #include <clusters/OnOff/Structs.h>

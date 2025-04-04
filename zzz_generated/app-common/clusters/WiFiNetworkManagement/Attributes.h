@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/WiFiNetworkManagement/AttributeIds.h>
+#include <clusters/WiFiNetworkManagement/ClusterId.h>
 #include <clusters/WiFiNetworkManagement/Enums.h>
 #include <clusters/WiFiNetworkManagement/Structs.h>
 

@@ -247,6 +247,7 @@ using DecodableType = Type;
 
 } // namespace LoadControlProgramStruct
 } // namespace Structs
+} // namespace DemandResponseLoadControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

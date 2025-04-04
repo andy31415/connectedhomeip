@@ -30,6 +30,10 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Structs.h>
+
+#include <clusters/TotalVolatileOrganicCompoundsConcentrationMeasurement/ClusterId.h>
+#include <clusters/TotalVolatileOrganicCompoundsConcentrationMeasurement/Events.h>
 #include <clusters/TotalVolatileOrganicCompoundsConcentrationMeasurement/Structs.h>
 
 namespace chip {

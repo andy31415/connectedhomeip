@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace TemperatureControl {} // namespace TemperatureControl
+namespace TemperatureControl {
+namespace Structs {} // namespace Structs
+} // namespace TemperatureControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

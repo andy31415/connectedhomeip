@@ -81,6 +81,7 @@ public:
 
 } // namespace ChargingTargetScheduleStruct
 } // namespace Structs
+} // namespace EnergyEvse
 } // namespace Clusters
 } // namespace app
 } // namespace chip

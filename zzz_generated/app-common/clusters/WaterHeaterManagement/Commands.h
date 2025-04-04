@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/WaterHeaterManagement/ClusterId.h>
 #include <clusters/WaterHeaterManagement/CommandIds.h>
 #include <clusters/WaterHeaterManagement/Enums.h>
 #include <clusters/WaterHeaterManagement/Structs.h>

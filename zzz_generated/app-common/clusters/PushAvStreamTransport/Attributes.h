@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/PushAvStreamTransport/AttributeIds.h>
+#include <clusters/PushAvStreamTransport/ClusterId.h>
 #include <clusters/PushAvStreamTransport/Enums.h>
 #include <clusters/PushAvStreamTransport/Structs.h>
 

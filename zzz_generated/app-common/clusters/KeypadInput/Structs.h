@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace KeypadInput {} // namespace KeypadInput
+namespace KeypadInput {
+namespace Structs {} // namespace Structs
+} // namespace KeypadInput
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -28,6 +28,7 @@ namespace Structs {
 namespace ModeTagStruct    = Clusters::detail::Structs::ModeTagStruct;
 namespace ModeOptionStruct = Clusters::detail::Structs::ModeOptionStruct;
 } // namespace Structs
+} // namespace DeviceEnergyManagementMode
 } // namespace Clusters
 } // namespace app
 } // namespace chip

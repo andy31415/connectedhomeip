@@ -30,6 +30,10 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Structs.h>
+
+#include <clusters/AudioOutput/ClusterId.h>
+#include <clusters/AudioOutput/Events.h>
 #include <clusters/AudioOutput/Structs.h>
 
 namespace chip {

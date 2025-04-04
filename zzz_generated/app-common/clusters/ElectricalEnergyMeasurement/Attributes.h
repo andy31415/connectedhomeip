@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/ElectricalEnergyMeasurement/AttributeIds.h>
+#include <clusters/ElectricalEnergyMeasurement/ClusterId.h>
 #include <clusters/ElectricalEnergyMeasurement/Enums.h>
 #include <clusters/ElectricalEnergyMeasurement/Structs.h>
 

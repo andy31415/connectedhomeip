@@ -30,6 +30,10 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Structs.h>
+
+#include <clusters/WaterHeaterManagement/ClusterId.h>
+#include <clusters/WaterHeaterManagement/Events.h>
 #include <clusters/WaterHeaterManagement/Structs.h>
 
 namespace chip {

@@ -82,6 +82,7 @@ public:
 
 } // namespace ModeOptionStruct
 } // namespace Structs
+} // namespace ModeSelect
 } // namespace Clusters
 } // namespace app
 } // namespace chip

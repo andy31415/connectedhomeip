@@ -305,6 +305,7 @@ using DecodableType = Type;
 
 } // namespace TestListStructOctet
 } // namespace Structs
+} // namespace UnitTesting
 } // namespace Clusters
 } // namespace app
 } // namespace chip

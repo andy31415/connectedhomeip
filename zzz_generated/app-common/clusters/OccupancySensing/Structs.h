@@ -51,6 +51,7 @@ using DecodableType = Type;
 
 } // namespace HoldTimeLimitsStruct
 } // namespace Structs
+} // namespace OccupancySensing
 } // namespace Clusters
 } // namespace app
 } // namespace chip

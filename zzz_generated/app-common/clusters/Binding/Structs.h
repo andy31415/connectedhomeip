@@ -63,6 +63,7 @@ using DecodableType = Type;
 
 } // namespace TargetStruct
 } // namespace Structs
+} // namespace Binding
 } // namespace Clusters
 } // namespace app
 } // namespace chip

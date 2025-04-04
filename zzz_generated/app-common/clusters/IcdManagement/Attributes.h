@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/IcdManagement/AttributeIds.h>
+#include <clusters/IcdManagement/ClusterId.h>
 #include <clusters/IcdManagement/Enums.h>
 #include <clusters/IcdManagement/Structs.h>
 

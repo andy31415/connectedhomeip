@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/TotalVolatileOrganicCompoundsConcentrationMeasurement/AttributeIds.h>
+#include <clusters/TotalVolatileOrganicCompoundsConcentrationMeasurement/ClusterId.h>
 #include <clusters/TotalVolatileOrganicCompoundsConcentrationMeasurement/Enums.h>
 #include <clusters/TotalVolatileOrganicCompoundsConcentrationMeasurement/Structs.h>
 

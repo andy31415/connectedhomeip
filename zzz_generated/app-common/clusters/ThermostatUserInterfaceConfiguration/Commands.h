@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/ThermostatUserInterfaceConfiguration/ClusterId.h>
 #include <clusters/ThermostatUserInterfaceConfiguration/CommandIds.h>
 #include <clusters/ThermostatUserInterfaceConfiguration/Enums.h>
 #include <clusters/ThermostatUserInterfaceConfiguration/Structs.h>

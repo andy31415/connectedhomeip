@@ -56,6 +56,7 @@ public:
 
 } // namespace MeteredQuantityStruct
 } // namespace Structs
+} // namespace CommodityMetering
 } // namespace Clusters
 } // namespace app
 } // namespace chip

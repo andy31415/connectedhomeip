@@ -24,6 +24,7 @@ namespace chip {
 namespace app {
 namespace Clusters {
 namespace TotalVolatileOrganicCompoundsConcentrationMeasurement {
+namespace Structs {} // namespace Structs
 } // namespace TotalVolatileOrganicCompoundsConcentrationMeasurement
 } // namespace Clusters
 } // namespace app

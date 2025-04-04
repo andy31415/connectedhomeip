@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/DoorLock/AttributeIds.h>
+#include <clusters/DoorLock/ClusterId.h>
 #include <clusters/DoorLock/Enums.h>
 #include <clusters/DoorLock/Structs.h>
 

@@ -30,6 +30,10 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Structs.h>
+
+#include <clusters/CarbonDioxideConcentrationMeasurement/ClusterId.h>
+#include <clusters/CarbonDioxideConcentrationMeasurement/Events.h>
 #include <clusters/CarbonDioxideConcentrationMeasurement/Structs.h>
 
 namespace chip {

@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/PulseWidthModulation/ClusterId.h>
 #include <clusters/PulseWidthModulation/CommandIds.h>
 #include <clusters/PulseWidthModulation/Enums.h>
 #include <clusters/PulseWidthModulation/Structs.h>

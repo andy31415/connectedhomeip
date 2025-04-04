@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/WiFiNetworkDiagnostics/ClusterId.h>
 #include <clusters/WiFiNetworkDiagnostics/CommandIds.h>
 #include <clusters/WiFiNetworkDiagnostics/Enums.h>
 #include <clusters/WiFiNetworkDiagnostics/Structs.h>

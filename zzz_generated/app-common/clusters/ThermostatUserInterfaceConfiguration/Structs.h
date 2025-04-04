@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace ThermostatUserInterfaceConfiguration {} // namespace ThermostatUserInterfaceConfiguration
+namespace ThermostatUserInterfaceConfiguration {
+namespace Structs {} // namespace Structs
+} // namespace ThermostatUserInterfaceConfiguration
 } // namespace Clusters
 } // namespace app
 } // namespace chip

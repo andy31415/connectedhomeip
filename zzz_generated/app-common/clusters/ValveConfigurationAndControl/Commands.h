@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/ValveConfigurationAndControl/ClusterId.h>
 #include <clusters/ValveConfigurationAndControl/CommandIds.h>
 #include <clusters/ValveConfigurationAndControl/Enums.h>
 #include <clusters/ValveConfigurationAndControl/Structs.h>

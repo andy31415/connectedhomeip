@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace AirQuality {} // namespace AirQuality
+namespace AirQuality {
+namespace Structs {} // namespace Structs
+} // namespace AirQuality
 } // namespace Clusters
 } // namespace app
 } // namespace chip

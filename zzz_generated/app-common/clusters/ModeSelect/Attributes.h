@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/ModeSelect/AttributeIds.h>
+#include <clusters/ModeSelect/ClusterId.h>
 #include <clusters/ModeSelect/Enums.h>
 #include <clusters/ModeSelect/Structs.h>
 

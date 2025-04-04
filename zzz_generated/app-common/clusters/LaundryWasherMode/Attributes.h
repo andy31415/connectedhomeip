@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/LaundryWasherMode/AttributeIds.h>
+#include <clusters/LaundryWasherMode/ClusterId.h>
 #include <clusters/LaundryWasherMode/Enums.h>
 #include <clusters/LaundryWasherMode/Structs.h>
 

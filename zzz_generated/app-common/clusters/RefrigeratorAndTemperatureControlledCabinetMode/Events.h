@@ -30,6 +30,10 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Structs.h>
+
+#include <clusters/RefrigeratorAndTemperatureControlledCabinetMode/ClusterId.h>
+#include <clusters/RefrigeratorAndTemperatureControlledCabinetMode/Events.h>
 #include <clusters/RefrigeratorAndTemperatureControlledCabinetMode/Structs.h>
 
 namespace chip {

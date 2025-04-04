@@ -307,6 +307,7 @@ using DecodableType = Type;
 
 } // namespace LineupInfoStruct
 } // namespace Structs
+} // namespace Channel
 } // namespace Clusters
 } // namespace app
 } // namespace chip

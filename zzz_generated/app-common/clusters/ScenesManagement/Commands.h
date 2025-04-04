@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/ScenesManagement/ClusterId.h>
 #include <clusters/ScenesManagement/CommandIds.h>
 #include <clusters/ScenesManagement/Enums.h>
 #include <clusters/ScenesManagement/Structs.h>

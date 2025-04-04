@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace SmokeCoAlarm {} // namespace SmokeCoAlarm
+namespace SmokeCoAlarm {
+namespace Structs {} // namespace Structs
+} // namespace SmokeCoAlarm
 } // namespace Clusters
 } // namespace app
 } // namespace chip

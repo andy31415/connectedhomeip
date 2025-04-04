@@ -49,6 +49,7 @@ using DecodableType = Type;
 
 } // namespace ChimeSoundStruct
 } // namespace Structs
+} // namespace Chime
 } // namespace Clusters
 } // namespace app
 } // namespace chip

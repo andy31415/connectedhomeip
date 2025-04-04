@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/WiFiNetworkManagement/ClusterId.h>
 #include <clusters/WiFiNetworkManagement/CommandIds.h>
 #include <clusters/WiFiNetworkManagement/Enums.h>
 #include <clusters/WiFiNetworkManagement/Structs.h>

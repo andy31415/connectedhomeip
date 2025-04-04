@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/MicrowaveOvenControl/ClusterId.h>
 #include <clusters/MicrowaveOvenControl/CommandIds.h>
 #include <clusters/MicrowaveOvenControl/Enums.h>
 #include <clusters/MicrowaveOvenControl/Structs.h>

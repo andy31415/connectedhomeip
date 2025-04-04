@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/OvenMode/AttributeIds.h>
+#include <clusters/OvenMode/ClusterId.h>
 #include <clusters/OvenMode/Enums.h>
 #include <clusters/OvenMode/Structs.h>
 

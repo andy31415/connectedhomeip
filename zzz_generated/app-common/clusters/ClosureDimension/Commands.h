@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/ClosureDimension/ClusterId.h>
 #include <clusters/ClosureDimension/CommandIds.h>
 #include <clusters/ClosureDimension/Enums.h>
 #include <clusters/ClosureDimension/Structs.h>

@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/LowPower/AttributeIds.h>
+#include <clusters/LowPower/ClusterId.h>
 #include <clusters/LowPower/Enums.h>
 #include <clusters/LowPower/Structs.h>
 

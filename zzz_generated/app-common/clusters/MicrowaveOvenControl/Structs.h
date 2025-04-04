@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace MicrowaveOvenControl {} // namespace MicrowaveOvenControl
+namespace MicrowaveOvenControl {
+namespace Structs {} // namespace Structs
+} // namespace MicrowaveOvenControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

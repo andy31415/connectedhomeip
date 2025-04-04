@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/SampleMei/ClusterId.h>
 #include <clusters/SampleMei/CommandIds.h>
 #include <clusters/SampleMei/Enums.h>
 #include <clusters/SampleMei/Structs.h>

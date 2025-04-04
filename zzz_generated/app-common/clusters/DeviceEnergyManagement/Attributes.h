@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/DeviceEnergyManagement/AttributeIds.h>
+#include <clusters/DeviceEnergyManagement/ClusterId.h>
 #include <clusters/DeviceEnergyManagement/Enums.h>
 #include <clusters/DeviceEnergyManagement/Structs.h>
 

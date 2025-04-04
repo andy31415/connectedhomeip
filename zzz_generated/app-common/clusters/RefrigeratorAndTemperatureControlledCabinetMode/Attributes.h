@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/RefrigeratorAndTemperatureControlledCabinetMode/AttributeIds.h>
+#include <clusters/RefrigeratorAndTemperatureControlledCabinetMode/ClusterId.h>
 #include <clusters/RefrigeratorAndTemperatureControlledCabinetMode/Enums.h>
 #include <clusters/RefrigeratorAndTemperatureControlledCabinetMode/Structs.h>
 

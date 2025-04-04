@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/HepaFilterMonitoring/AttributeIds.h>
+#include <clusters/HepaFilterMonitoring/ClusterId.h>
 #include <clusters/HepaFilterMonitoring/Enums.h>
 #include <clusters/HepaFilterMonitoring/Structs.h>
 

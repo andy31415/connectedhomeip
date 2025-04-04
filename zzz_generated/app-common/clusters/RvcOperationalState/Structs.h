@@ -28,6 +28,7 @@ namespace Structs {
 namespace ErrorStateStruct       = Clusters::detail::Structs::ErrorStateStruct;
 namespace OperationalStateStruct = Clusters::detail::Structs::OperationalStateStruct;
 } // namespace Structs
+} // namespace RvcOperationalState
 } // namespace Clusters
 } // namespace app
 } // namespace chip

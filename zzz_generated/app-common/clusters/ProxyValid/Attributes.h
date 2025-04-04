@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/ProxyValid/AttributeIds.h>
+#include <clusters/ProxyValid/ClusterId.h>
 #include <clusters/ProxyValid/Enums.h>
 #include <clusters/ProxyValid/Structs.h>
 

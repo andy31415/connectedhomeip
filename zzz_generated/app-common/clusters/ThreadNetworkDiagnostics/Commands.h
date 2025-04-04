@@ -32,6 +32,7 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/ThreadNetworkDiagnostics/ClusterId.h>
 #include <clusters/ThreadNetworkDiagnostics/CommandIds.h>
 #include <clusters/ThreadNetworkDiagnostics/Enums.h>
 #include <clusters/ThreadNetworkDiagnostics/Structs.h>

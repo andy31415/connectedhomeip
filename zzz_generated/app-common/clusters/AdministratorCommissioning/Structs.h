@@ -23,7 +23,9 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace AdministratorCommissioning {} // namespace AdministratorCommissioning
+namespace AdministratorCommissioning {
+namespace Structs {} // namespace Structs
+} // namespace AdministratorCommissioning
 } // namespace Clusters
 } // namespace app
 } // namespace chip

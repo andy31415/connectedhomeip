@@ -33,6 +33,7 @@
 #include <clusters/shared/Attributes.h>
 
 #include <clusters/RadonConcentrationMeasurement/AttributeIds.h>
+#include <clusters/RadonConcentrationMeasurement/ClusterId.h>
 #include <clusters/RadonConcentrationMeasurement/Enums.h>
 #include <clusters/RadonConcentrationMeasurement/Structs.h>
 
