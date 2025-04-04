@@ -19,492 +19,114 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/CameraAvStreamManagement/Structs.h>
+#include <clusters/CameraAvStreamManagement/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace CameraAvStreamManagement {
-namespace Structs {
-
-namespace VideoResolutionStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kWidth), width);
-    encoder.Encode(to_underlying(Fields::kHeight), height);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kWidth))
-        {
-            err = DataModel::Decode(reader, width);
-        }
-        else if (__context_tag == to_underlying(Fields::kHeight))
-        {
-            err = DataModel::Decode(reader, height);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::MaxConcurrentVideoEncoders::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxConcurrentVideoEncoders);
+    case Attributes::MaxEncodedPixelRate::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxEncodedPixelRate);
+    case Attributes::VideoSensorParams::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, videoSensorParams);
+    case Attributes::NightVisionCapable::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nightVisionCapable);
+    case Attributes::MinViewport::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minViewport);
+    case Attributes::RateDistortionTradeOffPoints::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rateDistortionTradeOffPoints);
+    case Attributes::MaxContentBufferSize::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxContentBufferSize);
+    case Attributes::MicrophoneCapabilities::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, microphoneCapabilities);
+    case Attributes::SpeakerCapabilities::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, speakerCapabilities);
+    case Attributes::TwoWayTalkSupport::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, twoWayTalkSupport);
+    case Attributes::SupportedSnapshotParams::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, supportedSnapshotParams);
+    case Attributes::MaxNetworkBandwidth::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxNetworkBandwidth);
+    case Attributes::CurrentFrameRate::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentFrameRate);
+    case Attributes::HDRModeEnabled::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, HDRModeEnabled);
+    case Attributes::SupportedStreamUsages::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, supportedStreamUsages);
+    case Attributes::AllocatedVideoStreams::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, allocatedVideoStreams);
+    case Attributes::AllocatedAudioStreams::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, allocatedAudioStreams);
+    case Attributes::AllocatedSnapshotStreams::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, allocatedSnapshotStreams);
+    case Attributes::RankedVideoStreamPrioritiesList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rankedVideoStreamPrioritiesList);
+    case Attributes::SoftRecordingPrivacyModeEnabled::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, softRecordingPrivacyModeEnabled);
+    case Attributes::SoftLivestreamPrivacyModeEnabled::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, softLivestreamPrivacyModeEnabled);
+    case Attributes::HardPrivacyModeOn::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, hardPrivacyModeOn);
+    case Attributes::NightVision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nightVision);
+    case Attributes::NightVisionIllum::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nightVisionIllum);
+    case Attributes::Viewport::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, viewport);
+    case Attributes::SpeakerMuted::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, speakerMuted);
+    case Attributes::SpeakerVolumeLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, speakerVolumeLevel);
+    case Attributes::SpeakerMaxLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, speakerMaxLevel);
+    case Attributes::SpeakerMinLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, speakerMinLevel);
+    case Attributes::MicrophoneMuted::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, microphoneMuted);
+    case Attributes::MicrophoneVolumeLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, microphoneVolumeLevel);
+    case Attributes::MicrophoneMaxLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, microphoneMaxLevel);
+    case Attributes::MicrophoneMinLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, microphoneMinLevel);
+    case Attributes::MicrophoneAGCEnabled::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, microphoneAGCEnabled);
+    case Attributes::ImageRotation::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, imageRotation);
+    case Attributes::ImageFlipHorizontal::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, imageFlipHorizontal);
+    case Attributes::ImageFlipVertical::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, imageFlipVertical);
+    case Attributes::LocalVideoRecordingEnabled::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, localVideoRecordingEnabled);
+    case Attributes::LocalSnapshotRecordingEnabled::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, localSnapshotRecordingEnabled);
+    case Attributes::StatusLightEnabled::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, statusLightEnabled);
+    case Attributes::StatusLightBrightness::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, statusLightBrightness);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace VideoResolutionStruct
-
-namespace VideoStreamStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kVideoStreamID), videoStreamID);
-    encoder.Encode(to_underlying(Fields::kStreamUsage), streamUsage);
-    encoder.Encode(to_underlying(Fields::kVideoCodec), videoCodec);
-    encoder.Encode(to_underlying(Fields::kMinFrameRate), minFrameRate);
-    encoder.Encode(to_underlying(Fields::kMaxFrameRate), maxFrameRate);
-    encoder.Encode(to_underlying(Fields::kMinResolution), minResolution);
-    encoder.Encode(to_underlying(Fields::kMaxResolution), maxResolution);
-    encoder.Encode(to_underlying(Fields::kMinBitRate), minBitRate);
-    encoder.Encode(to_underlying(Fields::kMaxBitRate), maxBitRate);
-    encoder.Encode(to_underlying(Fields::kMinFragmentLen), minFragmentLen);
-    encoder.Encode(to_underlying(Fields::kMaxFragmentLen), maxFragmentLen);
-    encoder.Encode(to_underlying(Fields::kWatermarkEnabled), watermarkEnabled);
-    encoder.Encode(to_underlying(Fields::kOSDEnabled), OSDEnabled);
-    encoder.Encode(to_underlying(Fields::kReferenceCount), referenceCount);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kVideoStreamID))
-        {
-            err = DataModel::Decode(reader, videoStreamID);
-        }
-        else if (__context_tag == to_underlying(Fields::kStreamUsage))
-        {
-            err = DataModel::Decode(reader, streamUsage);
-        }
-        else if (__context_tag == to_underlying(Fields::kVideoCodec))
-        {
-            err = DataModel::Decode(reader, videoCodec);
-        }
-        else if (__context_tag == to_underlying(Fields::kMinFrameRate))
-        {
-            err = DataModel::Decode(reader, minFrameRate);
-        }
-        else if (__context_tag == to_underlying(Fields::kMaxFrameRate))
-        {
-            err = DataModel::Decode(reader, maxFrameRate);
-        }
-        else if (__context_tag == to_underlying(Fields::kMinResolution))
-        {
-            err = DataModel::Decode(reader, minResolution);
-        }
-        else if (__context_tag == to_underlying(Fields::kMaxResolution))
-        {
-            err = DataModel::Decode(reader, maxResolution);
-        }
-        else if (__context_tag == to_underlying(Fields::kMinBitRate))
-        {
-            err = DataModel::Decode(reader, minBitRate);
-        }
-        else if (__context_tag == to_underlying(Fields::kMaxBitRate))
-        {
-            err = DataModel::Decode(reader, maxBitRate);
-        }
-        else if (__context_tag == to_underlying(Fields::kMinFragmentLen))
-        {
-            err = DataModel::Decode(reader, minFragmentLen);
-        }
-        else if (__context_tag == to_underlying(Fields::kMaxFragmentLen))
-        {
-            err = DataModel::Decode(reader, maxFragmentLen);
-        }
-        else if (__context_tag == to_underlying(Fields::kWatermarkEnabled))
-        {
-            err = DataModel::Decode(reader, watermarkEnabled);
-        }
-        else if (__context_tag == to_underlying(Fields::kOSDEnabled))
-        {
-            err = DataModel::Decode(reader, OSDEnabled);
-        }
-        else if (__context_tag == to_underlying(Fields::kReferenceCount))
-        {
-            err = DataModel::Decode(reader, referenceCount);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace VideoStreamStruct
-
-namespace SnapshotStreamStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kSnapshotStreamID), snapshotStreamID);
-    encoder.Encode(to_underlying(Fields::kImageCodec), imageCodec);
-    encoder.Encode(to_underlying(Fields::kFrameRate), frameRate);
-    encoder.Encode(to_underlying(Fields::kBitRate), bitRate);
-    encoder.Encode(to_underlying(Fields::kMinResolution), minResolution);
-    encoder.Encode(to_underlying(Fields::kMaxResolution), maxResolution);
-    encoder.Encode(to_underlying(Fields::kQuality), quality);
-    encoder.Encode(to_underlying(Fields::kReferenceCount), referenceCount);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kSnapshotStreamID))
-        {
-            err = DataModel::Decode(reader, snapshotStreamID);
-        }
-        else if (__context_tag == to_underlying(Fields::kImageCodec))
-        {
-            err = DataModel::Decode(reader, imageCodec);
-        }
-        else if (__context_tag == to_underlying(Fields::kFrameRate))
-        {
-            err = DataModel::Decode(reader, frameRate);
-        }
-        else if (__context_tag == to_underlying(Fields::kBitRate))
-        {
-            err = DataModel::Decode(reader, bitRate);
-        }
-        else if (__context_tag == to_underlying(Fields::kMinResolution))
-        {
-            err = DataModel::Decode(reader, minResolution);
-        }
-        else if (__context_tag == to_underlying(Fields::kMaxResolution))
-        {
-            err = DataModel::Decode(reader, maxResolution);
-        }
-        else if (__context_tag == to_underlying(Fields::kQuality))
-        {
-            err = DataModel::Decode(reader, quality);
-        }
-        else if (__context_tag == to_underlying(Fields::kReferenceCount))
-        {
-            err = DataModel::Decode(reader, referenceCount);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace SnapshotStreamStruct
-
-namespace SnapshotParamsStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kResolution), resolution);
-    encoder.Encode(to_underlying(Fields::kMaxFrameRate), maxFrameRate);
-    encoder.Encode(to_underlying(Fields::kImageCodec), imageCodec);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kResolution))
-        {
-            err = DataModel::Decode(reader, resolution);
-        }
-        else if (__context_tag == to_underlying(Fields::kMaxFrameRate))
-        {
-            err = DataModel::Decode(reader, maxFrameRate);
-        }
-        else if (__context_tag == to_underlying(Fields::kImageCodec))
-        {
-            err = DataModel::Decode(reader, imageCodec);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace SnapshotParamsStruct
-
-namespace RateDistortionTradeOffPointsStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kCodec), codec);
-    encoder.Encode(to_underlying(Fields::kResolution), resolution);
-    encoder.Encode(to_underlying(Fields::kMinBitRate), minBitRate);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kCodec))
-        {
-            err = DataModel::Decode(reader, codec);
-        }
-        else if (__context_tag == to_underlying(Fields::kResolution))
-        {
-            err = DataModel::Decode(reader, resolution);
-        }
-        else if (__context_tag == to_underlying(Fields::kMinBitRate))
-        {
-            err = DataModel::Decode(reader, minBitRate);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace RateDistortionTradeOffPointsStruct
-
-namespace AudioCapabilitiesStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kMaxNumberOfChannels), maxNumberOfChannels);
-    encoder.Encode(to_underlying(Fields::kSupportedCodecs), supportedCodecs);
-    encoder.Encode(to_underlying(Fields::kSupportedSampleRates), supportedSampleRates);
-    encoder.Encode(to_underlying(Fields::kSupportedBitDepths), supportedBitDepths);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kMaxNumberOfChannels))
-        {
-            err = DataModel::Decode(reader, maxNumberOfChannels);
-        }
-        else if (__context_tag == to_underlying(Fields::kSupportedCodecs))
-        {
-            err = DataModel::Decode(reader, supportedCodecs);
-        }
-        else if (__context_tag == to_underlying(Fields::kSupportedSampleRates))
-        {
-            err = DataModel::Decode(reader, supportedSampleRates);
-        }
-        else if (__context_tag == to_underlying(Fields::kSupportedBitDepths))
-        {
-            err = DataModel::Decode(reader, supportedBitDepths);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace AudioCapabilitiesStruct
-
-namespace AudioStreamStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kAudioStreamID), audioStreamID);
-    encoder.Encode(to_underlying(Fields::kStreamUsage), streamUsage);
-    encoder.Encode(to_underlying(Fields::kAudioCodec), audioCodec);
-    encoder.Encode(to_underlying(Fields::kChannelCount), channelCount);
-    encoder.Encode(to_underlying(Fields::kSampleRate), sampleRate);
-    encoder.Encode(to_underlying(Fields::kBitRate), bitRate);
-    encoder.Encode(to_underlying(Fields::kBitDepth), bitDepth);
-    encoder.Encode(to_underlying(Fields::kReferenceCount), referenceCount);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kAudioStreamID))
-        {
-            err = DataModel::Decode(reader, audioStreamID);
-        }
-        else if (__context_tag == to_underlying(Fields::kStreamUsage))
-        {
-            err = DataModel::Decode(reader, streamUsage);
-        }
-        else if (__context_tag == to_underlying(Fields::kAudioCodec))
-        {
-            err = DataModel::Decode(reader, audioCodec);
-        }
-        else if (__context_tag == to_underlying(Fields::kChannelCount))
-        {
-            err = DataModel::Decode(reader, channelCount);
-        }
-        else if (__context_tag == to_underlying(Fields::kSampleRate))
-        {
-            err = DataModel::Decode(reader, sampleRate);
-        }
-        else if (__context_tag == to_underlying(Fields::kBitRate))
-        {
-            err = DataModel::Decode(reader, bitRate);
-        }
-        else if (__context_tag == to_underlying(Fields::kBitDepth))
-        {
-            err = DataModel::Decode(reader, bitDepth);
-        }
-        else if (__context_tag == to_underlying(Fields::kReferenceCount))
-        {
-            err = DataModel::Decode(reader, referenceCount);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace AudioStreamStruct
-
-namespace VideoSensorParamsStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kSensorWidth), sensorWidth);
-    encoder.Encode(to_underlying(Fields::kSensorHeight), sensorHeight);
-    encoder.Encode(to_underlying(Fields::kMaxFPS), maxFPS);
-    encoder.Encode(to_underlying(Fields::kMaxHDRFPS), maxHDRFPS);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kSensorWidth))
-        {
-            err = DataModel::Decode(reader, sensorWidth);
-        }
-        else if (__context_tag == to_underlying(Fields::kSensorHeight))
-        {
-            err = DataModel::Decode(reader, sensorHeight);
-        }
-        else if (__context_tag == to_underlying(Fields::kMaxFPS))
-        {
-            err = DataModel::Decode(reader, maxFPS);
-        }
-        else if (__context_tag == to_underlying(Fields::kMaxHDRFPS))
-        {
-            err = DataModel::Decode(reader, maxHDRFPS);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace VideoSensorParamsStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace CameraAvStreamManagement
 } // namespace Clusters
 } // namespace app

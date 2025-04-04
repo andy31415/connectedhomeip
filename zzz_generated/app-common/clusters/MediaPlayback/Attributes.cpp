@@ -19,137 +19,54 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/MediaPlayback/Structs.h>
+#include <clusters/MediaPlayback/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace MediaPlayback {
-namespace Structs {
-
-namespace TrackAttributesStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kLanguageCode), languageCode);
-    encoder.Encode(to_underlying(Fields::kDisplayName), displayName);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kLanguageCode))
-        {
-            err = DataModel::Decode(reader, languageCode);
-        }
-        else if (__context_tag == to_underlying(Fields::kDisplayName))
-        {
-            err = DataModel::Decode(reader, displayName);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::CurrentState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentState);
+    case Attributes::StartTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, startTime);
+    case Attributes::Duration::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, duration);
+    case Attributes::SampledPosition::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, sampledPosition);
+    case Attributes::PlaybackSpeed::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, playbackSpeed);
+    case Attributes::SeekRangeEnd::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, seekRangeEnd);
+    case Attributes::SeekRangeStart::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, seekRangeStart);
+    case Attributes::ActiveAudioTrack::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activeAudioTrack);
+    case Attributes::AvailableAudioTracks::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, availableAudioTracks);
+    case Attributes::ActiveTextTrack::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activeTextTrack);
+    case Attributes::AvailableTextTracks::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, availableTextTracks);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace TrackAttributesStruct
-
-namespace TrackStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kId), id);
-    encoder.Encode(to_underlying(Fields::kTrackAttributes), trackAttributes);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kId))
-        {
-            err = DataModel::Decode(reader, id);
-        }
-        else if (__context_tag == to_underlying(Fields::kTrackAttributes))
-        {
-            err = DataModel::Decode(reader, trackAttributes);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace TrackStruct
-
-namespace PlaybackPositionStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kUpdatedAt), updatedAt);
-    encoder.Encode(to_underlying(Fields::kPosition), position);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kUpdatedAt))
-        {
-            err = DataModel::Decode(reader, updatedAt);
-        }
-        else if (__context_tag == to_underlying(Fields::kPosition))
-        {
-            err = DataModel::Decode(reader, position);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace PlaybackPositionStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace MediaPlayback
 } // namespace Clusters
 } // namespace app

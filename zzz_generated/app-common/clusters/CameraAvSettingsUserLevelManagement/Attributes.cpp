@@ -19,106 +19,50 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/CameraAvSettingsUserLevelManagement/Structs.h>
+#include <clusters/CameraAvSettingsUserLevelManagement/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace CameraAvSettingsUserLevelManagement {
-namespace Structs {
-
-namespace MPTZStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kPan), pan);
-    encoder.Encode(to_underlying(Fields::kTilt), tilt);
-    encoder.Encode(to_underlying(Fields::kZoom), zoom);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kPan))
-        {
-            err = DataModel::Decode(reader, pan);
-        }
-        else if (__context_tag == to_underlying(Fields::kTilt))
-        {
-            err = DataModel::Decode(reader, tilt);
-        }
-        else if (__context_tag == to_underlying(Fields::kZoom))
-        {
-            err = DataModel::Decode(reader, zoom);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::MPTZPosition::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, MPTZPosition);
+    case Attributes::MaxPresets::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxPresets);
+    case Attributes::MPTZPresets::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, MPTZPresets);
+    case Attributes::DPTZRelativeMove::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, DPTZRelativeMove);
+    case Attributes::ZoomMax::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, zoomMax);
+    case Attributes::TiltMin::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, tiltMin);
+    case Attributes::TiltMax::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, tiltMax);
+    case Attributes::PanMin::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, panMin);
+    case Attributes::PanMax::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, panMax);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace MPTZStruct
-
-namespace MPTZPresetStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kPresetID), presetID);
-    encoder.Encode(to_underlying(Fields::kName), name);
-    encoder.Encode(to_underlying(Fields::kSettings), settings);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kPresetID))
-        {
-            err = DataModel::Decode(reader, presetID);
-        }
-        else if (__context_tag == to_underlying(Fields::kName))
-        {
-            err = DataModel::Decode(reader, name);
-        }
-        else if (__context_tag == to_underlying(Fields::kSettings))
-        {
-            err = DataModel::Decode(reader, settings);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace MPTZPresetStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace CameraAvSettingsUserLevelManagement
 } // namespace Clusters
 } // namespace app

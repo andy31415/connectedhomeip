@@ -19,55 +19,52 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/GeneralCommissioning/Structs.h>
+#include <clusters/GeneralCommissioning/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace GeneralCommissioning {
-namespace Structs {
-
-namespace BasicCommissioningInfo {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kFailSafeExpiryLengthSeconds), failSafeExpiryLengthSeconds);
-    encoder.Encode(to_underlying(Fields::kMaxCumulativeFailsafeSeconds), maxCumulativeFailsafeSeconds);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kFailSafeExpiryLengthSeconds))
-        {
-            err = DataModel::Decode(reader, failSafeExpiryLengthSeconds);
-        }
-        else if (__context_tag == to_underlying(Fields::kMaxCumulativeFailsafeSeconds))
-        {
-            err = DataModel::Decode(reader, maxCumulativeFailsafeSeconds);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::Breadcrumb::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, breadcrumb);
+    case Attributes::BasicCommissioningInfo::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, basicCommissioningInfo);
+    case Attributes::RegulatoryConfig::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, regulatoryConfig);
+    case Attributes::LocationCapability::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, locationCapability);
+    case Attributes::SupportsConcurrentConnection::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, supportsConcurrentConnection);
+    case Attributes::TCAcceptedVersion::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, TCAcceptedVersion);
+    case Attributes::TCMinRequiredVersion::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, TCMinRequiredVersion);
+    case Attributes::TCAcknowledgements::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, TCAcknowledgements);
+    case Attributes::TCAcknowledgementsRequired::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, TCAcknowledgementsRequired);
+    case Attributes::TCUpdateDeadline::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, TCUpdateDeadline);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace BasicCommissioningInfo
-} // namespace Structs
+} // namespace Attributes
 } // namespace GeneralCommissioning
 } // namespace Clusters
 } // namespace app

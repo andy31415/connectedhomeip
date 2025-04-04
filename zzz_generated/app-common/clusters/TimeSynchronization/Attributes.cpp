@@ -19,193 +19,58 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/TimeSynchronization/Structs.h>
+#include <clusters/TimeSynchronization/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace TimeSynchronization {
-namespace Structs {
-
-namespace DSTOffsetStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kOffset), offset);
-    encoder.Encode(to_underlying(Fields::kValidStarting), validStarting);
-    encoder.Encode(to_underlying(Fields::kValidUntil), validUntil);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kOffset))
-        {
-            err = DataModel::Decode(reader, offset);
-        }
-        else if (__context_tag == to_underlying(Fields::kValidStarting))
-        {
-            err = DataModel::Decode(reader, validStarting);
-        }
-        else if (__context_tag == to_underlying(Fields::kValidUntil))
-        {
-            err = DataModel::Decode(reader, validUntil);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::UTCTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, UTCTime);
+    case Attributes::Granularity::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, granularity);
+    case Attributes::TimeSource::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, timeSource);
+    case Attributes::TrustedTimeSource::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, trustedTimeSource);
+    case Attributes::DefaultNTP::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, defaultNTP);
+    case Attributes::TimeZone::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, timeZone);
+    case Attributes::DSTOffset::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, DSTOffset);
+    case Attributes::LocalTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, localTime);
+    case Attributes::TimeZoneDatabase::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, timeZoneDatabase);
+    case Attributes::NTPServerAvailable::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, NTPServerAvailable);
+    case Attributes::TimeZoneListMaxSize::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, timeZoneListMaxSize);
+    case Attributes::DSTOffsetListMaxSize::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, DSTOffsetListMaxSize);
+    case Attributes::SupportsDNSResolve::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, supportsDNSResolve);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace DSTOffsetStruct
-
-namespace FabricScopedTrustedTimeSourceStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kNodeID), nodeID);
-    encoder.Encode(to_underlying(Fields::kEndpoint), endpoint);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kNodeID))
-        {
-            err = DataModel::Decode(reader, nodeID);
-        }
-        else if (__context_tag == to_underlying(Fields::kEndpoint))
-        {
-            err = DataModel::Decode(reader, endpoint);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace FabricScopedTrustedTimeSourceStruct
-
-namespace TimeZoneStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kOffset), offset);
-    encoder.Encode(to_underlying(Fields::kValidAt), validAt);
-    encoder.Encode(to_underlying(Fields::kName), name);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kOffset))
-        {
-            err = DataModel::Decode(reader, offset);
-        }
-        else if (__context_tag == to_underlying(Fields::kValidAt))
-        {
-            err = DataModel::Decode(reader, validAt);
-        }
-        else if (__context_tag == to_underlying(Fields::kName))
-        {
-            err = DataModel::Decode(reader, name);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace TimeZoneStruct
-
-namespace TrustedTimeSourceStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
-    encoder.Encode(to_underlying(Fields::kNodeID), nodeID);
-    encoder.Encode(to_underlying(Fields::kEndpoint), endpoint);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kFabricIndex))
-        {
-            err = DataModel::Decode(reader, fabricIndex);
-        }
-        else if (__context_tag == to_underlying(Fields::kNodeID))
-        {
-            err = DataModel::Decode(reader, nodeID);
-        }
-        else if (__context_tag == to_underlying(Fields::kEndpoint))
-        {
-            err = DataModel::Decode(reader, endpoint);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace TrustedTimeSourceStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace TimeSynchronization
 } // namespace Clusters
 } // namespace app

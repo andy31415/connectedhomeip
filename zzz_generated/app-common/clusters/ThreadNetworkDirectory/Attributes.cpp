@@ -19,65 +19,38 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/ThreadNetworkDirectory/Structs.h>
+#include <clusters/ThreadNetworkDirectory/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace ThreadNetworkDirectory {
-namespace Structs {
-
-namespace ThreadNetworkStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kExtendedPanID), extendedPanID);
-    encoder.Encode(to_underlying(Fields::kNetworkName), networkName);
-    encoder.Encode(to_underlying(Fields::kChannel), channel);
-    encoder.Encode(to_underlying(Fields::kActiveTimestamp), activeTimestamp);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kExtendedPanID))
-        {
-            err = DataModel::Decode(reader, extendedPanID);
-        }
-        else if (__context_tag == to_underlying(Fields::kNetworkName))
-        {
-            err = DataModel::Decode(reader, networkName);
-        }
-        else if (__context_tag == to_underlying(Fields::kChannel))
-        {
-            err = DataModel::Decode(reader, channel);
-        }
-        else if (__context_tag == to_underlying(Fields::kActiveTimestamp))
-        {
-            err = DataModel::Decode(reader, activeTimestamp);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::PreferredExtendedPanID::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, preferredExtendedPanID);
+    case Attributes::ThreadNetworks::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, threadNetworks);
+    case Attributes::ThreadNetworkTableSize::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, threadNetworkTableSize);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace ThreadNetworkStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace ThreadNetworkDirectory
 } // namespace Clusters
 } // namespace app

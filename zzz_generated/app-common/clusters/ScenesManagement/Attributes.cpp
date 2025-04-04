@@ -19,218 +19,36 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/ScenesManagement/Structs.h>
+#include <clusters/ScenesManagement/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace ScenesManagement {
-namespace Structs {
-
-namespace AttributeValuePairStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kAttributeID), attributeID);
-    encoder.Encode(to_underlying(Fields::kValueUnsigned8), valueUnsigned8);
-    encoder.Encode(to_underlying(Fields::kValueSigned8), valueSigned8);
-    encoder.Encode(to_underlying(Fields::kValueUnsigned16), valueUnsigned16);
-    encoder.Encode(to_underlying(Fields::kValueSigned16), valueSigned16);
-    encoder.Encode(to_underlying(Fields::kValueUnsigned32), valueUnsigned32);
-    encoder.Encode(to_underlying(Fields::kValueSigned32), valueSigned32);
-    encoder.Encode(to_underlying(Fields::kValueUnsigned64), valueUnsigned64);
-    encoder.Encode(to_underlying(Fields::kValueSigned64), valueSigned64);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kAttributeID))
-        {
-            err = DataModel::Decode(reader, attributeID);
-        }
-        else if (__context_tag == to_underlying(Fields::kValueUnsigned8))
-        {
-            err = DataModel::Decode(reader, valueUnsigned8);
-        }
-        else if (__context_tag == to_underlying(Fields::kValueSigned8))
-        {
-            err = DataModel::Decode(reader, valueSigned8);
-        }
-        else if (__context_tag == to_underlying(Fields::kValueUnsigned16))
-        {
-            err = DataModel::Decode(reader, valueUnsigned16);
-        }
-        else if (__context_tag == to_underlying(Fields::kValueSigned16))
-        {
-            err = DataModel::Decode(reader, valueSigned16);
-        }
-        else if (__context_tag == to_underlying(Fields::kValueUnsigned32))
-        {
-            err = DataModel::Decode(reader, valueUnsigned32);
-        }
-        else if (__context_tag == to_underlying(Fields::kValueSigned32))
-        {
-            err = DataModel::Decode(reader, valueSigned32);
-        }
-        else if (__context_tag == to_underlying(Fields::kValueUnsigned64))
-        {
-            err = DataModel::Decode(reader, valueUnsigned64);
-        }
-        else if (__context_tag == to_underlying(Fields::kValueSigned64))
-        {
-            err = DataModel::Decode(reader, valueSigned64);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::SceneTableSize::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, sceneTableSize);
+    case Attributes::FabricSceneInfo::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, fabricSceneInfo);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace AttributeValuePairStruct
-
-namespace ExtensionFieldSetStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kClusterID), clusterID);
-    encoder.Encode(to_underlying(Fields::kAttributeValueList), attributeValueList);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kClusterID))
-        {
-            err = DataModel::Decode(reader, clusterID);
-        }
-        else if (__context_tag == to_underlying(Fields::kAttributeValueList))
-        {
-            err = DataModel::Decode(reader, attributeValueList);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace ExtensionFieldSetStruct
-
-namespace SceneInfoStruct {
-CHIP_ERROR Type::EncodeForWrite(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    return DoEncode(aWriter, aTag, NullOptional);
-}
-
-CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIndex aAccessingFabricIndex) const
-{
-    return DoEncode(aWriter, aTag, MakeOptional(aAccessingFabricIndex));
-}
-
-CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
-{
-    bool includeSensitive = !aAccessingFabricIndex.HasValue() || (aAccessingFabricIndex.Value() == fabricIndex);
-
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-
-    encoder.Encode(to_underlying(Fields::kSceneCount), sceneCount);
-    if (includeSensitive)
-    {
-        encoder.Encode(to_underlying(Fields::kCurrentScene), currentScene);
-    }
-    if (includeSensitive)
-    {
-        encoder.Encode(to_underlying(Fields::kCurrentGroup), currentGroup);
-    }
-    if (includeSensitive)
-    {
-        encoder.Encode(to_underlying(Fields::kSceneValid), sceneValid);
-    }
-    encoder.Encode(to_underlying(Fields::kRemainingCapacity), remainingCapacity);
-    if (aAccessingFabricIndex.HasValue())
-    {
-        encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
-    }
-
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kSceneCount))
-        {
-            err = DataModel::Decode(reader, sceneCount);
-        }
-        else if (__context_tag == to_underlying(Fields::kCurrentScene))
-        {
-            err = DataModel::Decode(reader, currentScene);
-        }
-        else if (__context_tag == to_underlying(Fields::kCurrentGroup))
-        {
-            err = DataModel::Decode(reader, currentGroup);
-        }
-        else if (__context_tag == to_underlying(Fields::kSceneValid))
-        {
-            err = DataModel::Decode(reader, sceneValid);
-        }
-        else if (__context_tag == to_underlying(Fields::kRemainingCapacity))
-        {
-            err = DataModel::Decode(reader, remainingCapacity);
-        }
-        else if (__context_tag == to_underlying(Fields::kFabricIndex))
-        {
-            err = DataModel::Decode(reader, fabricIndex);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace SceneInfoStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace ScenesManagement
 } // namespace Clusters
 } // namespace app

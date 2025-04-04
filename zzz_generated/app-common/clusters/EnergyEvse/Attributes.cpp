@@ -19,101 +19,78 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/EnergyEvse/Structs.h>
+#include <clusters/EnergyEvse/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace EnergyEvse {
-namespace Structs {
-
-namespace ChargingTargetStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kTargetTimeMinutesPastMidnight), targetTimeMinutesPastMidnight);
-    encoder.Encode(to_underlying(Fields::kTargetSoC), targetSoC);
-    encoder.Encode(to_underlying(Fields::kAddedEnergy), addedEnergy);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kTargetTimeMinutesPastMidnight))
-        {
-            err = DataModel::Decode(reader, targetTimeMinutesPastMidnight);
-        }
-        else if (__context_tag == to_underlying(Fields::kTargetSoC))
-        {
-            err = DataModel::Decode(reader, targetSoC);
-        }
-        else if (__context_tag == to_underlying(Fields::kAddedEnergy))
-        {
-            err = DataModel::Decode(reader, addedEnergy);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::State::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, state);
+    case Attributes::SupplyState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, supplyState);
+    case Attributes::FaultState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, faultState);
+    case Attributes::ChargingEnabledUntil::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, chargingEnabledUntil);
+    case Attributes::DischargingEnabledUntil::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, dischargingEnabledUntil);
+    case Attributes::CircuitCapacity::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, circuitCapacity);
+    case Attributes::MinimumChargeCurrent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minimumChargeCurrent);
+    case Attributes::MaximumChargeCurrent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maximumChargeCurrent);
+    case Attributes::MaximumDischargeCurrent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maximumDischargeCurrent);
+    case Attributes::UserMaximumChargeCurrent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, userMaximumChargeCurrent);
+    case Attributes::RandomizationDelayWindow::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, randomizationDelayWindow);
+    case Attributes::NextChargeStartTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nextChargeStartTime);
+    case Attributes::NextChargeTargetTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nextChargeTargetTime);
+    case Attributes::NextChargeRequiredEnergy::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nextChargeRequiredEnergy);
+    case Attributes::NextChargeTargetSoC::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nextChargeTargetSoC);
+    case Attributes::ApproximateEVEfficiency::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, approximateEVEfficiency);
+    case Attributes::StateOfCharge::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, stateOfCharge);
+    case Attributes::BatteryCapacity::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batteryCapacity);
+    case Attributes::VehicleID::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, vehicleID);
+    case Attributes::SessionID::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, sessionID);
+    case Attributes::SessionDuration::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, sessionDuration);
+    case Attributes::SessionEnergyCharged::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, sessionEnergyCharged);
+    case Attributes::SessionEnergyDischarged::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, sessionEnergyDischarged);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace ChargingTargetStruct
-
-namespace ChargingTargetScheduleStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kDayOfWeekForSequence), dayOfWeekForSequence);
-    encoder.Encode(to_underlying(Fields::kChargingTargets), chargingTargets);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kDayOfWeekForSequence))
-        {
-            err = DataModel::Decode(reader, dayOfWeekForSequence);
-        }
-        else if (__context_tag == to_underlying(Fields::kChargingTargets))
-        {
-            err = DataModel::Decode(reader, chargingTargets);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace ChargingTargetScheduleStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace EnergyEvse
 } // namespace Clusters
 } // namespace app

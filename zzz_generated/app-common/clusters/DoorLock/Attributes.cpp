@@ -19,55 +19,122 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/DoorLock/Structs.h>
+#include <clusters/DoorLock/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace DoorLock {
-namespace Structs {
-
-namespace CredentialStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kCredentialType), credentialType);
-    encoder.Encode(to_underlying(Fields::kCredentialIndex), credentialIndex);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kCredentialType))
-        {
-            err = DataModel::Decode(reader, credentialType);
-        }
-        else if (__context_tag == to_underlying(Fields::kCredentialIndex))
-        {
-            err = DataModel::Decode(reader, credentialIndex);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::LockState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lockState);
+    case Attributes::LockType::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lockType);
+    case Attributes::ActuatorEnabled::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, actuatorEnabled);
+    case Attributes::DoorState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, doorState);
+    case Attributes::DoorOpenEvents::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, doorOpenEvents);
+    case Attributes::DoorClosedEvents::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, doorClosedEvents);
+    case Attributes::OpenPeriod::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, openPeriod);
+    case Attributes::NumberOfTotalUsersSupported::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, numberOfTotalUsersSupported);
+    case Attributes::NumberOfPINUsersSupported::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, numberOfPINUsersSupported);
+    case Attributes::NumberOfRFIDUsersSupported::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, numberOfRFIDUsersSupported);
+    case Attributes::NumberOfWeekDaySchedulesSupportedPerUser::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, numberOfWeekDaySchedulesSupportedPerUser);
+    case Attributes::NumberOfYearDaySchedulesSupportedPerUser::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, numberOfYearDaySchedulesSupportedPerUser);
+    case Attributes::NumberOfHolidaySchedulesSupported::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, numberOfHolidaySchedulesSupported);
+    case Attributes::MaxPINCodeLength::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxPINCodeLength);
+    case Attributes::MinPINCodeLength::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minPINCodeLength);
+    case Attributes::MaxRFIDCodeLength::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxRFIDCodeLength);
+    case Attributes::MinRFIDCodeLength::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minRFIDCodeLength);
+    case Attributes::CredentialRulesSupport::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, credentialRulesSupport);
+    case Attributes::NumberOfCredentialsSupportedPerUser::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, numberOfCredentialsSupportedPerUser);
+    case Attributes::Language::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, language);
+    case Attributes::LEDSettings::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, LEDSettings);
+    case Attributes::AutoRelockTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, autoRelockTime);
+    case Attributes::SoundVolume::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, soundVolume);
+    case Attributes::OperatingMode::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, operatingMode);
+    case Attributes::SupportedOperatingModes::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, supportedOperatingModes);
+    case Attributes::DefaultConfigurationRegister::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, defaultConfigurationRegister);
+    case Attributes::EnableLocalProgramming::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, enableLocalProgramming);
+    case Attributes::EnableOneTouchLocking::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, enableOneTouchLocking);
+    case Attributes::EnableInsideStatusLED::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, enableInsideStatusLED);
+    case Attributes::EnablePrivacyModeButton::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, enablePrivacyModeButton);
+    case Attributes::LocalProgrammingFeatures::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, localProgrammingFeatures);
+    case Attributes::WrongCodeEntryLimit::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, wrongCodeEntryLimit);
+    case Attributes::UserCodeTemporaryDisableTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, userCodeTemporaryDisableTime);
+    case Attributes::SendPINOverTheAir::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, sendPINOverTheAir);
+    case Attributes::RequirePINforRemoteOperation::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, requirePINforRemoteOperation);
+    case Attributes::ExpiringUserTimeout::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, expiringUserTimeout);
+    case Attributes::AliroReaderVerificationKey::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, aliroReaderVerificationKey);
+    case Attributes::AliroReaderGroupIdentifier::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, aliroReaderGroupIdentifier);
+    case Attributes::AliroReaderGroupSubIdentifier::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, aliroReaderGroupSubIdentifier);
+    case Attributes::AliroExpeditedTransactionSupportedProtocolVersions::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, aliroExpeditedTransactionSupportedProtocolVersions);
+    case Attributes::AliroGroupResolvingKey::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, aliroGroupResolvingKey);
+    case Attributes::AliroSupportedBLEUWBProtocolVersions::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, aliroSupportedBLEUWBProtocolVersions);
+    case Attributes::AliroBLEAdvertisingVersion::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, aliroBLEAdvertisingVersion);
+    case Attributes::NumberOfAliroCredentialIssuerKeysSupported::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, numberOfAliroCredentialIssuerKeysSupported);
+    case Attributes::NumberOfAliroEndpointKeysSupported::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, numberOfAliroEndpointKeysSupported);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace CredentialStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace DoorLock
 } // namespace Clusters
 } // namespace app

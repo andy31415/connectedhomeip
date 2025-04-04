@@ -19,484 +19,210 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/UnitTesting/Structs.h>
+#include <clusters/UnitTesting/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace UnitTesting {
-namespace Structs {
-
-namespace SimpleStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kA), a);
-    encoder.Encode(to_underlying(Fields::kB), b);
-    encoder.Encode(to_underlying(Fields::kC), c);
-    encoder.Encode(to_underlying(Fields::kD), d);
-    encoder.Encode(to_underlying(Fields::kE), e);
-    encoder.Encode(to_underlying(Fields::kF), f);
-    encoder.Encode(to_underlying(Fields::kG), g);
-    encoder.Encode(to_underlying(Fields::kH), h);
-    encoder.Encode(to_underlying(Fields::kI), i);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kA))
-        {
-            err = DataModel::Decode(reader, a);
-        }
-        else if (__context_tag == to_underlying(Fields::kB))
-        {
-            err = DataModel::Decode(reader, b);
-        }
-        else if (__context_tag == to_underlying(Fields::kC))
-        {
-            err = DataModel::Decode(reader, c);
-        }
-        else if (__context_tag == to_underlying(Fields::kD))
-        {
-            err = DataModel::Decode(reader, d);
-        }
-        else if (__context_tag == to_underlying(Fields::kE))
-        {
-            err = DataModel::Decode(reader, e);
-        }
-        else if (__context_tag == to_underlying(Fields::kF))
-        {
-            err = DataModel::Decode(reader, f);
-        }
-        else if (__context_tag == to_underlying(Fields::kG))
-        {
-            err = DataModel::Decode(reader, g);
-        }
-        else if (__context_tag == to_underlying(Fields::kH))
-        {
-            err = DataModel::Decode(reader, h);
-        }
-        else if (__context_tag == to_underlying(Fields::kI))
-        {
-            err = DataModel::Decode(reader, i);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::Boolean::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, boolean);
+    case Attributes::Bitmap8::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, bitmap8);
+    case Attributes::Bitmap16::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, bitmap16);
+    case Attributes::Bitmap32::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, bitmap32);
+    case Attributes::Bitmap64::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, bitmap64);
+    case Attributes::Int8u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int8u);
+    case Attributes::Int16u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int16u);
+    case Attributes::Int24u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int24u);
+    case Attributes::Int32u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int32u);
+    case Attributes::Int40u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int40u);
+    case Attributes::Int48u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int48u);
+    case Attributes::Int56u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int56u);
+    case Attributes::Int64u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int64u);
+    case Attributes::Int8s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int8s);
+    case Attributes::Int16s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int16s);
+    case Attributes::Int24s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int24s);
+    case Attributes::Int32s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int32s);
+    case Attributes::Int40s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int40s);
+    case Attributes::Int48s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int48s);
+    case Attributes::Int56s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int56s);
+    case Attributes::Int64s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, int64s);
+    case Attributes::Enum8::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, enum8);
+    case Attributes::Enum16::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, enum16);
+    case Attributes::FloatSingle::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, floatSingle);
+    case Attributes::FloatDouble::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, floatDouble);
+    case Attributes::OctetString::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, octetString);
+    case Attributes::ListInt8u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, listInt8u);
+    case Attributes::ListOctetString::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, listOctetString);
+    case Attributes::ListStructOctetString::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, listStructOctetString);
+    case Attributes::LongOctetString::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, longOctetString);
+    case Attributes::CharString::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, charString);
+    case Attributes::LongCharString::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, longCharString);
+    case Attributes::EpochUs::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, epochUs);
+    case Attributes::EpochS::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, epochS);
+    case Attributes::VendorId::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, vendorId);
+    case Attributes::ListNullablesAndOptionalsStruct::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, listNullablesAndOptionalsStruct);
+    case Attributes::EnumAttr::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, enumAttr);
+    case Attributes::StructAttr::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, structAttr);
+    case Attributes::RangeRestrictedInt8u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rangeRestrictedInt8u);
+    case Attributes::RangeRestrictedInt8s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rangeRestrictedInt8s);
+    case Attributes::RangeRestrictedInt16u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rangeRestrictedInt16u);
+    case Attributes::RangeRestrictedInt16s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rangeRestrictedInt16s);
+    case Attributes::ListLongOctetString::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, listLongOctetString);
+    case Attributes::ListFabricScoped::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, listFabricScoped);
+    case Attributes::TimedWriteBoolean::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, timedWriteBoolean);
+    case Attributes::GeneralErrorBoolean::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generalErrorBoolean);
+    case Attributes::ClusterErrorBoolean::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterErrorBoolean);
+    case Attributes::GlobalEnum::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, globalEnum);
+    case Attributes::GlobalStruct::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, globalStruct);
+    case Attributes::Unsupported::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, unsupported);
+    case Attributes::ReadFailureCode::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, readFailureCode);
+    case Attributes::FailureInt32U::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, failureInt32U);
+    case Attributes::NullableBoolean::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableBoolean);
+    case Attributes::NullableBitmap8::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableBitmap8);
+    case Attributes::NullableBitmap16::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableBitmap16);
+    case Attributes::NullableBitmap32::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableBitmap32);
+    case Attributes::NullableBitmap64::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableBitmap64);
+    case Attributes::NullableInt8u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt8u);
+    case Attributes::NullableInt16u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt16u);
+    case Attributes::NullableInt24u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt24u);
+    case Attributes::NullableInt32u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt32u);
+    case Attributes::NullableInt40u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt40u);
+    case Attributes::NullableInt48u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt48u);
+    case Attributes::NullableInt56u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt56u);
+    case Attributes::NullableInt64u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt64u);
+    case Attributes::NullableInt8s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt8s);
+    case Attributes::NullableInt16s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt16s);
+    case Attributes::NullableInt24s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt24s);
+    case Attributes::NullableInt32s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt32s);
+    case Attributes::NullableInt40s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt40s);
+    case Attributes::NullableInt48s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt48s);
+    case Attributes::NullableInt56s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt56s);
+    case Attributes::NullableInt64s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableInt64s);
+    case Attributes::NullableEnum8::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableEnum8);
+    case Attributes::NullableEnum16::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableEnum16);
+    case Attributes::NullableFloatSingle::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableFloatSingle);
+    case Attributes::NullableFloatDouble::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableFloatDouble);
+    case Attributes::NullableOctetString::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableOctetString);
+    case Attributes::NullableCharString::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableCharString);
+    case Attributes::NullableEnumAttr::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableEnumAttr);
+    case Attributes::NullableStruct::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableStruct);
+    case Attributes::NullableRangeRestrictedInt8u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableRangeRestrictedInt8u);
+    case Attributes::NullableRangeRestrictedInt8s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableRangeRestrictedInt8s);
+    case Attributes::NullableRangeRestrictedInt16u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableRangeRestrictedInt16u);
+    case Attributes::NullableRangeRestrictedInt16s::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableRangeRestrictedInt16s);
+    case Attributes::WriteOnlyInt8u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, writeOnlyInt8u);
+    case Attributes::NullableGlobalEnum::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableGlobalEnum);
+    case Attributes::NullableGlobalStruct::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nullableGlobalStruct);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    case Attributes::MeiInt8u::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, meiInt8u);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace SimpleStruct
-
-namespace TestFabricScoped {
-CHIP_ERROR Type::EncodeForWrite(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    return DoEncode(aWriter, aTag, NullOptional);
-}
-
-CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIndex aAccessingFabricIndex) const
-{
-    return DoEncode(aWriter, aTag, MakeOptional(aAccessingFabricIndex));
-}
-
-CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
-{
-    bool includeSensitive = !aAccessingFabricIndex.HasValue() || (aAccessingFabricIndex.Value() == fabricIndex);
-
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-
-    if (includeSensitive)
-    {
-        encoder.Encode(to_underlying(Fields::kFabricSensitiveInt8u), fabricSensitiveInt8u);
-    }
-    if (includeSensitive)
-    {
-        encoder.Encode(to_underlying(Fields::kOptionalFabricSensitiveInt8u), optionalFabricSensitiveInt8u);
-    }
-    if (includeSensitive)
-    {
-        encoder.Encode(to_underlying(Fields::kNullableFabricSensitiveInt8u), nullableFabricSensitiveInt8u);
-    }
-    if (includeSensitive)
-    {
-        encoder.Encode(to_underlying(Fields::kNullableOptionalFabricSensitiveInt8u), nullableOptionalFabricSensitiveInt8u);
-    }
-    if (includeSensitive)
-    {
-        encoder.Encode(to_underlying(Fields::kFabricSensitiveCharString), fabricSensitiveCharString);
-    }
-    if (includeSensitive)
-    {
-        encoder.Encode(to_underlying(Fields::kFabricSensitiveStruct), fabricSensitiveStruct);
-    }
-    if (includeSensitive)
-    {
-        encoder.Encode(to_underlying(Fields::kFabricSensitiveInt8uList), fabricSensitiveInt8uList);
-    }
-    if (aAccessingFabricIndex.HasValue())
-    {
-        encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
-    }
-
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kFabricSensitiveInt8u))
-        {
-            err = DataModel::Decode(reader, fabricSensitiveInt8u);
-        }
-        else if (__context_tag == to_underlying(Fields::kOptionalFabricSensitiveInt8u))
-        {
-            err = DataModel::Decode(reader, optionalFabricSensitiveInt8u);
-        }
-        else if (__context_tag == to_underlying(Fields::kNullableFabricSensitiveInt8u))
-        {
-            err = DataModel::Decode(reader, nullableFabricSensitiveInt8u);
-        }
-        else if (__context_tag == to_underlying(Fields::kNullableOptionalFabricSensitiveInt8u))
-        {
-            err = DataModel::Decode(reader, nullableOptionalFabricSensitiveInt8u);
-        }
-        else if (__context_tag == to_underlying(Fields::kFabricSensitiveCharString))
-        {
-            err = DataModel::Decode(reader, fabricSensitiveCharString);
-        }
-        else if (__context_tag == to_underlying(Fields::kFabricSensitiveStruct))
-        {
-            err = DataModel::Decode(reader, fabricSensitiveStruct);
-        }
-        else if (__context_tag == to_underlying(Fields::kFabricSensitiveInt8uList))
-        {
-            err = DataModel::Decode(reader, fabricSensitiveInt8uList);
-        }
-        else if (__context_tag == to_underlying(Fields::kFabricIndex))
-        {
-            err = DataModel::Decode(reader, fabricIndex);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace TestFabricScoped
-
-namespace NullablesAndOptionalsStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kNullableInt), nullableInt);
-    encoder.Encode(to_underlying(Fields::kOptionalInt), optionalInt);
-    encoder.Encode(to_underlying(Fields::kNullableOptionalInt), nullableOptionalInt);
-    encoder.Encode(to_underlying(Fields::kNullableString), nullableString);
-    encoder.Encode(to_underlying(Fields::kOptionalString), optionalString);
-    encoder.Encode(to_underlying(Fields::kNullableOptionalString), nullableOptionalString);
-    encoder.Encode(to_underlying(Fields::kNullableStruct), nullableStruct);
-    encoder.Encode(to_underlying(Fields::kOptionalStruct), optionalStruct);
-    encoder.Encode(to_underlying(Fields::kNullableOptionalStruct), nullableOptionalStruct);
-    encoder.Encode(to_underlying(Fields::kNullableList), nullableList);
-    encoder.Encode(to_underlying(Fields::kOptionalList), optionalList);
-    encoder.Encode(to_underlying(Fields::kNullableOptionalList), nullableOptionalList);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kNullableInt))
-        {
-            err = DataModel::Decode(reader, nullableInt);
-        }
-        else if (__context_tag == to_underlying(Fields::kOptionalInt))
-        {
-            err = DataModel::Decode(reader, optionalInt);
-        }
-        else if (__context_tag == to_underlying(Fields::kNullableOptionalInt))
-        {
-            err = DataModel::Decode(reader, nullableOptionalInt);
-        }
-        else if (__context_tag == to_underlying(Fields::kNullableString))
-        {
-            err = DataModel::Decode(reader, nullableString);
-        }
-        else if (__context_tag == to_underlying(Fields::kOptionalString))
-        {
-            err = DataModel::Decode(reader, optionalString);
-        }
-        else if (__context_tag == to_underlying(Fields::kNullableOptionalString))
-        {
-            err = DataModel::Decode(reader, nullableOptionalString);
-        }
-        else if (__context_tag == to_underlying(Fields::kNullableStruct))
-        {
-            err = DataModel::Decode(reader, nullableStruct);
-        }
-        else if (__context_tag == to_underlying(Fields::kOptionalStruct))
-        {
-            err = DataModel::Decode(reader, optionalStruct);
-        }
-        else if (__context_tag == to_underlying(Fields::kNullableOptionalStruct))
-        {
-            err = DataModel::Decode(reader, nullableOptionalStruct);
-        }
-        else if (__context_tag == to_underlying(Fields::kNullableList))
-        {
-            err = DataModel::Decode(reader, nullableList);
-        }
-        else if (__context_tag == to_underlying(Fields::kOptionalList))
-        {
-            err = DataModel::Decode(reader, optionalList);
-        }
-        else if (__context_tag == to_underlying(Fields::kNullableOptionalList))
-        {
-            err = DataModel::Decode(reader, nullableOptionalList);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace NullablesAndOptionalsStruct
-
-namespace NestedStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kA), a);
-    encoder.Encode(to_underlying(Fields::kB), b);
-    encoder.Encode(to_underlying(Fields::kC), c);
-    encoder.Encode(to_underlying(Fields::kD), d);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kA))
-        {
-            err = DataModel::Decode(reader, a);
-        }
-        else if (__context_tag == to_underlying(Fields::kB))
-        {
-            err = DataModel::Decode(reader, b);
-        }
-        else if (__context_tag == to_underlying(Fields::kC))
-        {
-            err = DataModel::Decode(reader, c);
-        }
-        else if (__context_tag == to_underlying(Fields::kD))
-        {
-            err = DataModel::Decode(reader, d);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace NestedStruct
-
-namespace NestedStructList {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kA), a);
-    encoder.Encode(to_underlying(Fields::kB), b);
-    encoder.Encode(to_underlying(Fields::kC), c);
-    encoder.Encode(to_underlying(Fields::kD), d);
-    encoder.Encode(to_underlying(Fields::kE), e);
-    encoder.Encode(to_underlying(Fields::kF), f);
-    encoder.Encode(to_underlying(Fields::kG), g);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kA))
-        {
-            err = DataModel::Decode(reader, a);
-        }
-        else if (__context_tag == to_underlying(Fields::kB))
-        {
-            err = DataModel::Decode(reader, b);
-        }
-        else if (__context_tag == to_underlying(Fields::kC))
-        {
-            err = DataModel::Decode(reader, c);
-        }
-        else if (__context_tag == to_underlying(Fields::kD))
-        {
-            err = DataModel::Decode(reader, d);
-        }
-        else if (__context_tag == to_underlying(Fields::kE))
-        {
-            err = DataModel::Decode(reader, e);
-        }
-        else if (__context_tag == to_underlying(Fields::kF))
-        {
-            err = DataModel::Decode(reader, f);
-        }
-        else if (__context_tag == to_underlying(Fields::kG))
-        {
-            err = DataModel::Decode(reader, g);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace NestedStructList
-
-namespace DoubleNestedStructList {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kA), a);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kA))
-        {
-            err = DataModel::Decode(reader, a);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace DoubleNestedStructList
-
-namespace TestListStructOctet {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kMember1), member1);
-    encoder.Encode(to_underlying(Fields::kMember2), member2);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kMember1))
-        {
-            err = DataModel::Decode(reader, member1);
-        }
-        else if (__context_tag == to_underlying(Fields::kMember2))
-        {
-            err = DataModel::Decode(reader, member2);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace TestListStructOctet
-} // namespace Structs
+} // namespace Attributes
 } // namespace UnitTesting
 } // namespace Clusters
 } // namespace app

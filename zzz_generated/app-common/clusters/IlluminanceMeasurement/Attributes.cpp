@@ -19,13 +19,42 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/IlluminanceMeasurement/Structs.h>
+#include <clusters/IlluminanceMeasurement/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace IlluminanceMeasurement {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::MeasuredValue::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, measuredValue);
+    case Attributes::MinMeasuredValue::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minMeasuredValue);
+    case Attributes::MaxMeasuredValue::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxMeasuredValue);
+    case Attributes::Tolerance::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, tolerance);
+    case Attributes::LightSensorType::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lightSensorType);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace IlluminanceMeasurement
 } // namespace Clusters
 } // namespace app

@@ -19,75 +19,44 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/WaterHeaterManagement/Structs.h>
+#include <clusters/WaterHeaterManagement/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace WaterHeaterManagement {
-namespace Structs {
-
-namespace WaterHeaterBoostInfoStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kDuration), duration);
-    encoder.Encode(to_underlying(Fields::kOneShot), oneShot);
-    encoder.Encode(to_underlying(Fields::kEmergencyBoost), emergencyBoost);
-    encoder.Encode(to_underlying(Fields::kTemporarySetpoint), temporarySetpoint);
-    encoder.Encode(to_underlying(Fields::kTargetPercentage), targetPercentage);
-    encoder.Encode(to_underlying(Fields::kTargetReheat), targetReheat);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kDuration))
-        {
-            err = DataModel::Decode(reader, duration);
-        }
-        else if (__context_tag == to_underlying(Fields::kOneShot))
-        {
-            err = DataModel::Decode(reader, oneShot);
-        }
-        else if (__context_tag == to_underlying(Fields::kEmergencyBoost))
-        {
-            err = DataModel::Decode(reader, emergencyBoost);
-        }
-        else if (__context_tag == to_underlying(Fields::kTemporarySetpoint))
-        {
-            err = DataModel::Decode(reader, temporarySetpoint);
-        }
-        else if (__context_tag == to_underlying(Fields::kTargetPercentage))
-        {
-            err = DataModel::Decode(reader, targetPercentage);
-        }
-        else if (__context_tag == to_underlying(Fields::kTargetReheat))
-        {
-            err = DataModel::Decode(reader, targetReheat);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::HeaterTypes::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, heaterTypes);
+    case Attributes::HeatDemand::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, heatDemand);
+    case Attributes::TankVolume::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, tankVolume);
+    case Attributes::EstimatedHeatRequired::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, estimatedHeatRequired);
+    case Attributes::TankPercentage::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, tankPercentage);
+    case Attributes::BoostState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, boostState);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace WaterHeaterBoostInfoStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace WaterHeaterManagement
 } // namespace Clusters
 } // namespace app

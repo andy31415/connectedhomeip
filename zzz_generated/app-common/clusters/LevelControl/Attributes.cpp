@@ -19,13 +19,60 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/LevelControl/Structs.h>
+#include <clusters/LevelControl/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace LevelControl {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::CurrentLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentLevel);
+    case Attributes::RemainingTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, remainingTime);
+    case Attributes::MinLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minLevel);
+    case Attributes::MaxLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxLevel);
+    case Attributes::CurrentFrequency::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentFrequency);
+    case Attributes::MinFrequency::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minFrequency);
+    case Attributes::MaxFrequency::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxFrequency);
+    case Attributes::Options::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, options);
+    case Attributes::OnOffTransitionTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, onOffTransitionTime);
+    case Attributes::OnLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, onLevel);
+    case Attributes::OnTransitionTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, onTransitionTime);
+    case Attributes::OffTransitionTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, offTransitionTime);
+    case Attributes::DefaultMoveRate::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, defaultMoveRate);
+    case Attributes::StartUpCurrentLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, startUpCurrentLevel);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace LevelControl
 } // namespace Clusters
 } // namespace app

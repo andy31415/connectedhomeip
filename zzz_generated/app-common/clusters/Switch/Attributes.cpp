@@ -19,13 +19,38 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/Switch/Structs.h>
+#include <clusters/Switch/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace Switch {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::NumberOfPositions::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, numberOfPositions);
+    case Attributes::CurrentPosition::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentPosition);
+    case Attributes::MultiPressMax::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, multiPressMax);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace Switch
 } // namespace Clusters
 } // namespace app

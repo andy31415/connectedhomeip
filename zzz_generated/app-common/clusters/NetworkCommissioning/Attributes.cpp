@@ -19,197 +19,54 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/NetworkCommissioning/Structs.h>
+#include <clusters/NetworkCommissioning/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace NetworkCommissioning {
-namespace Structs {
-
-namespace NetworkInfoStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kNetworkID), networkID);
-    encoder.Encode(to_underlying(Fields::kConnected), connected);
-    encoder.Encode(to_underlying(Fields::kNetworkIdentifier), networkIdentifier);
-    encoder.Encode(to_underlying(Fields::kClientIdentifier), clientIdentifier);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kNetworkID))
-        {
-            err = DataModel::Decode(reader, networkID);
-        }
-        else if (__context_tag == to_underlying(Fields::kConnected))
-        {
-            err = DataModel::Decode(reader, connected);
-        }
-        else if (__context_tag == to_underlying(Fields::kNetworkIdentifier))
-        {
-            err = DataModel::Decode(reader, networkIdentifier);
-        }
-        else if (__context_tag == to_underlying(Fields::kClientIdentifier))
-        {
-            err = DataModel::Decode(reader, clientIdentifier);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::MaxNetworks::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxNetworks);
+    case Attributes::Networks::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, networks);
+    case Attributes::ScanMaxTimeSeconds::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, scanMaxTimeSeconds);
+    case Attributes::ConnectMaxTimeSeconds::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, connectMaxTimeSeconds);
+    case Attributes::InterfaceEnabled::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, interfaceEnabled);
+    case Attributes::LastNetworkingStatus::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lastNetworkingStatus);
+    case Attributes::LastNetworkID::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lastNetworkID);
+    case Attributes::LastConnectErrorValue::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lastConnectErrorValue);
+    case Attributes::SupportedWiFiBands::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, supportedWiFiBands);
+    case Attributes::SupportedThreadFeatures::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, supportedThreadFeatures);
+    case Attributes::ThreadVersion::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, threadVersion);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace NetworkInfoStruct
-
-namespace ThreadInterfaceScanResultStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kPanId), panId);
-    encoder.Encode(to_underlying(Fields::kExtendedPanId), extendedPanId);
-    encoder.Encode(to_underlying(Fields::kNetworkName), networkName);
-    encoder.Encode(to_underlying(Fields::kChannel), channel);
-    encoder.Encode(to_underlying(Fields::kVersion), version);
-    encoder.Encode(to_underlying(Fields::kExtendedAddress), extendedAddress);
-    encoder.Encode(to_underlying(Fields::kRssi), rssi);
-    encoder.Encode(to_underlying(Fields::kLqi), lqi);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kPanId))
-        {
-            err = DataModel::Decode(reader, panId);
-        }
-        else if (__context_tag == to_underlying(Fields::kExtendedPanId))
-        {
-            err = DataModel::Decode(reader, extendedPanId);
-        }
-        else if (__context_tag == to_underlying(Fields::kNetworkName))
-        {
-            err = DataModel::Decode(reader, networkName);
-        }
-        else if (__context_tag == to_underlying(Fields::kChannel))
-        {
-            err = DataModel::Decode(reader, channel);
-        }
-        else if (__context_tag == to_underlying(Fields::kVersion))
-        {
-            err = DataModel::Decode(reader, version);
-        }
-        else if (__context_tag == to_underlying(Fields::kExtendedAddress))
-        {
-            err = DataModel::Decode(reader, extendedAddress);
-        }
-        else if (__context_tag == to_underlying(Fields::kRssi))
-        {
-            err = DataModel::Decode(reader, rssi);
-        }
-        else if (__context_tag == to_underlying(Fields::kLqi))
-        {
-            err = DataModel::Decode(reader, lqi);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace ThreadInterfaceScanResultStruct
-
-namespace WiFiInterfaceScanResultStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kSecurity), security);
-    encoder.Encode(to_underlying(Fields::kSsid), ssid);
-    encoder.Encode(to_underlying(Fields::kBssid), bssid);
-    encoder.Encode(to_underlying(Fields::kChannel), channel);
-    encoder.Encode(to_underlying(Fields::kWiFiBand), wiFiBand);
-    encoder.Encode(to_underlying(Fields::kRssi), rssi);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kSecurity))
-        {
-            err = DataModel::Decode(reader, security);
-        }
-        else if (__context_tag == to_underlying(Fields::kSsid))
-        {
-            err = DataModel::Decode(reader, ssid);
-        }
-        else if (__context_tag == to_underlying(Fields::kBssid))
-        {
-            err = DataModel::Decode(reader, bssid);
-        }
-        else if (__context_tag == to_underlying(Fields::kChannel))
-        {
-            err = DataModel::Decode(reader, channel);
-        }
-        else if (__context_tag == to_underlying(Fields::kWiFiBand))
-        {
-            err = DataModel::Decode(reader, wiFiBand);
-        }
-        else if (__context_tag == to_underlying(Fields::kRssi))
-        {
-            err = DataModel::Decode(reader, rssi);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace WiFiInterfaceScanResultStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace NetworkCommissioning
 } // namespace Clusters
 } // namespace app

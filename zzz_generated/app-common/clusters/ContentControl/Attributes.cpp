@@ -19,55 +19,48 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/ContentControl/Structs.h>
+#include <clusters/ContentControl/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace ContentControl {
-namespace Structs {
-
-namespace RatingNameStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kRatingName), ratingName);
-    encoder.Encode(to_underlying(Fields::kRatingNameDesc), ratingNameDesc);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kRatingName))
-        {
-            err = DataModel::Decode(reader, ratingName);
-        }
-        else if (__context_tag == to_underlying(Fields::kRatingNameDesc))
-        {
-            err = DataModel::Decode(reader, ratingNameDesc);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::Enabled::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, enabled);
+    case Attributes::OnDemandRatings::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, onDemandRatings);
+    case Attributes::OnDemandRatingThreshold::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, onDemandRatingThreshold);
+    case Attributes::ScheduledContentRatings::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, scheduledContentRatings);
+    case Attributes::ScheduledContentRatingThreshold::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, scheduledContentRatingThreshold);
+    case Attributes::ScreenDailyTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, screenDailyTime);
+    case Attributes::RemainingScreenTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, remainingScreenTime);
+    case Attributes::BlockUnrated::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, blockUnrated);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace RatingNameStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace ContentControl
 } // namespace Clusters
 } // namespace app

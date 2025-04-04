@@ -19,13 +19,40 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/DishwasherAlarm/Structs.h>
+#include <clusters/DishwasherAlarm/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace DishwasherAlarm {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::Mask::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, mask);
+    case Attributes::Latch::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, latch);
+    case Attributes::State::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, state);
+    case Attributes::Supported::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, supported);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace DishwasherAlarm
 } // namespace Clusters
 } // namespace app

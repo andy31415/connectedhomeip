@@ -19,96 +19,78 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/BasicInformation/Structs.h>
+#include <clusters/BasicInformation/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace BasicInformation {
-namespace Structs {
-
-namespace CapabilityMinimaStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kCaseSessionsPerFabric), caseSessionsPerFabric);
-    encoder.Encode(to_underlying(Fields::kSubscriptionsPerFabric), subscriptionsPerFabric);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kCaseSessionsPerFabric))
-        {
-            err = DataModel::Decode(reader, caseSessionsPerFabric);
-        }
-        else if (__context_tag == to_underlying(Fields::kSubscriptionsPerFabric))
-        {
-            err = DataModel::Decode(reader, subscriptionsPerFabric);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::DataModelRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, dataModelRevision);
+    case Attributes::VendorName::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, vendorName);
+    case Attributes::VendorID::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, vendorID);
+    case Attributes::ProductName::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, productName);
+    case Attributes::ProductID::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, productID);
+    case Attributes::NodeLabel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, nodeLabel);
+    case Attributes::Location::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, location);
+    case Attributes::HardwareVersion::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, hardwareVersion);
+    case Attributes::HardwareVersionString::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, hardwareVersionString);
+    case Attributes::SoftwareVersion::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, softwareVersion);
+    case Attributes::SoftwareVersionString::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, softwareVersionString);
+    case Attributes::ManufacturingDate::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, manufacturingDate);
+    case Attributes::PartNumber::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, partNumber);
+    case Attributes::ProductURL::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, productURL);
+    case Attributes::ProductLabel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, productLabel);
+    case Attributes::SerialNumber::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, serialNumber);
+    case Attributes::LocalConfigDisabled::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, localConfigDisabled);
+    case Attributes::Reachable::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, reachable);
+    case Attributes::UniqueID::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, uniqueID);
+    case Attributes::CapabilityMinima::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, capabilityMinima);
+    case Attributes::ProductAppearance::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, productAppearance);
+    case Attributes::SpecificationVersion::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, specificationVersion);
+    case Attributes::MaxPathsPerInvoke::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxPathsPerInvoke);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace CapabilityMinimaStruct
-
-namespace ProductAppearanceStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kFinish), finish);
-    encoder.Encode(to_underlying(Fields::kPrimaryColor), primaryColor);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kFinish))
-        {
-            err = DataModel::Decode(reader, finish);
-        }
-        else if (__context_tag == to_underlying(Fields::kPrimaryColor))
-        {
-            err = DataModel::Decode(reader, primaryColor);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace ProductAppearanceStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace BasicInformation
 } // namespace Clusters
 } // namespace app

@@ -19,328 +19,158 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/ThreadNetworkDiagnostics/Structs.h>
+#include <clusters/ThreadNetworkDiagnostics/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace ThreadNetworkDiagnostics {
-namespace Structs {
-
-namespace NeighborTableStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kExtAddress), extAddress);
-    encoder.Encode(to_underlying(Fields::kAge), age);
-    encoder.Encode(to_underlying(Fields::kRloc16), rloc16);
-    encoder.Encode(to_underlying(Fields::kLinkFrameCounter), linkFrameCounter);
-    encoder.Encode(to_underlying(Fields::kMleFrameCounter), mleFrameCounter);
-    encoder.Encode(to_underlying(Fields::kLqi), lqi);
-    encoder.Encode(to_underlying(Fields::kAverageRssi), averageRssi);
-    encoder.Encode(to_underlying(Fields::kLastRssi), lastRssi);
-    encoder.Encode(to_underlying(Fields::kFrameErrorRate), frameErrorRate);
-    encoder.Encode(to_underlying(Fields::kMessageErrorRate), messageErrorRate);
-    encoder.Encode(to_underlying(Fields::kRxOnWhenIdle), rxOnWhenIdle);
-    encoder.Encode(to_underlying(Fields::kFullThreadDevice), fullThreadDevice);
-    encoder.Encode(to_underlying(Fields::kFullNetworkData), fullNetworkData);
-    encoder.Encode(to_underlying(Fields::kIsChild), isChild);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kExtAddress))
-        {
-            err = DataModel::Decode(reader, extAddress);
-        }
-        else if (__context_tag == to_underlying(Fields::kAge))
-        {
-            err = DataModel::Decode(reader, age);
-        }
-        else if (__context_tag == to_underlying(Fields::kRloc16))
-        {
-            err = DataModel::Decode(reader, rloc16);
-        }
-        else if (__context_tag == to_underlying(Fields::kLinkFrameCounter))
-        {
-            err = DataModel::Decode(reader, linkFrameCounter);
-        }
-        else if (__context_tag == to_underlying(Fields::kMleFrameCounter))
-        {
-            err = DataModel::Decode(reader, mleFrameCounter);
-        }
-        else if (__context_tag == to_underlying(Fields::kLqi))
-        {
-            err = DataModel::Decode(reader, lqi);
-        }
-        else if (__context_tag == to_underlying(Fields::kAverageRssi))
-        {
-            err = DataModel::Decode(reader, averageRssi);
-        }
-        else if (__context_tag == to_underlying(Fields::kLastRssi))
-        {
-            err = DataModel::Decode(reader, lastRssi);
-        }
-        else if (__context_tag == to_underlying(Fields::kFrameErrorRate))
-        {
-            err = DataModel::Decode(reader, frameErrorRate);
-        }
-        else if (__context_tag == to_underlying(Fields::kMessageErrorRate))
-        {
-            err = DataModel::Decode(reader, messageErrorRate);
-        }
-        else if (__context_tag == to_underlying(Fields::kRxOnWhenIdle))
-        {
-            err = DataModel::Decode(reader, rxOnWhenIdle);
-        }
-        else if (__context_tag == to_underlying(Fields::kFullThreadDevice))
-        {
-            err = DataModel::Decode(reader, fullThreadDevice);
-        }
-        else if (__context_tag == to_underlying(Fields::kFullNetworkData))
-        {
-            err = DataModel::Decode(reader, fullNetworkData);
-        }
-        else if (__context_tag == to_underlying(Fields::kIsChild))
-        {
-            err = DataModel::Decode(reader, isChild);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::Channel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, channel);
+    case Attributes::RoutingRole::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, routingRole);
+    case Attributes::NetworkName::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, networkName);
+    case Attributes::PanId::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, panId);
+    case Attributes::ExtendedPanId::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, extendedPanId);
+    case Attributes::MeshLocalPrefix::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, meshLocalPrefix);
+    case Attributes::OverrunCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, overrunCount);
+    case Attributes::NeighborTable::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, neighborTable);
+    case Attributes::RouteTable::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, routeTable);
+    case Attributes::PartitionId::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, partitionId);
+    case Attributes::Weighting::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, weighting);
+    case Attributes::DataVersion::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, dataVersion);
+    case Attributes::StableDataVersion::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, stableDataVersion);
+    case Attributes::LeaderRouterId::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, leaderRouterId);
+    case Attributes::DetachedRoleCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, detachedRoleCount);
+    case Attributes::ChildRoleCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, childRoleCount);
+    case Attributes::RouterRoleCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, routerRoleCount);
+    case Attributes::LeaderRoleCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, leaderRoleCount);
+    case Attributes::AttachAttemptCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attachAttemptCount);
+    case Attributes::PartitionIdChangeCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, partitionIdChangeCount);
+    case Attributes::BetterPartitionAttachAttemptCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, betterPartitionAttachAttemptCount);
+    case Attributes::ParentChangeCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, parentChangeCount);
+    case Attributes::TxTotalCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txTotalCount);
+    case Attributes::TxUnicastCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txUnicastCount);
+    case Attributes::TxBroadcastCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txBroadcastCount);
+    case Attributes::TxAckRequestedCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txAckRequestedCount);
+    case Attributes::TxAckedCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txAckedCount);
+    case Attributes::TxNoAckRequestedCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txNoAckRequestedCount);
+    case Attributes::TxDataCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txDataCount);
+    case Attributes::TxDataPollCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txDataPollCount);
+    case Attributes::TxBeaconCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txBeaconCount);
+    case Attributes::TxBeaconRequestCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txBeaconRequestCount);
+    case Attributes::TxOtherCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txOtherCount);
+    case Attributes::TxRetryCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txRetryCount);
+    case Attributes::TxDirectMaxRetryExpiryCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txDirectMaxRetryExpiryCount);
+    case Attributes::TxIndirectMaxRetryExpiryCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txIndirectMaxRetryExpiryCount);
+    case Attributes::TxErrCcaCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txErrCcaCount);
+    case Attributes::TxErrAbortCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txErrAbortCount);
+    case Attributes::TxErrBusyChannelCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txErrBusyChannelCount);
+    case Attributes::RxTotalCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxTotalCount);
+    case Attributes::RxUnicastCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxUnicastCount);
+    case Attributes::RxBroadcastCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxBroadcastCount);
+    case Attributes::RxDataCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxDataCount);
+    case Attributes::RxDataPollCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxDataPollCount);
+    case Attributes::RxBeaconCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxBeaconCount);
+    case Attributes::RxBeaconRequestCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxBeaconRequestCount);
+    case Attributes::RxOtherCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxOtherCount);
+    case Attributes::RxAddressFilteredCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxAddressFilteredCount);
+    case Attributes::RxDestAddrFilteredCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxDestAddrFilteredCount);
+    case Attributes::RxDuplicatedCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxDuplicatedCount);
+    case Attributes::RxErrNoFrameCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxErrNoFrameCount);
+    case Attributes::RxErrUnknownNeighborCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxErrUnknownNeighborCount);
+    case Attributes::RxErrInvalidSrcAddrCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxErrInvalidSrcAddrCount);
+    case Attributes::RxErrSecCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxErrSecCount);
+    case Attributes::RxErrFcsCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxErrFcsCount);
+    case Attributes::RxErrOtherCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rxErrOtherCount);
+    case Attributes::ActiveTimestamp::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activeTimestamp);
+    case Attributes::PendingTimestamp::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, pendingTimestamp);
+    case Attributes::Delay::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, delay);
+    case Attributes::SecurityPolicy::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, securityPolicy);
+    case Attributes::ChannelPage0Mask::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, channelPage0Mask);
+    case Attributes::OperationalDatasetComponents::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, operationalDatasetComponents);
+    case Attributes::ActiveNetworkFaultsList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activeNetworkFaultsList);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace NeighborTableStruct
-
-namespace OperationalDatasetComponents {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kActiveTimestampPresent), activeTimestampPresent);
-    encoder.Encode(to_underlying(Fields::kPendingTimestampPresent), pendingTimestampPresent);
-    encoder.Encode(to_underlying(Fields::kMasterKeyPresent), masterKeyPresent);
-    encoder.Encode(to_underlying(Fields::kNetworkNamePresent), networkNamePresent);
-    encoder.Encode(to_underlying(Fields::kExtendedPanIdPresent), extendedPanIdPresent);
-    encoder.Encode(to_underlying(Fields::kMeshLocalPrefixPresent), meshLocalPrefixPresent);
-    encoder.Encode(to_underlying(Fields::kDelayPresent), delayPresent);
-    encoder.Encode(to_underlying(Fields::kPanIdPresent), panIdPresent);
-    encoder.Encode(to_underlying(Fields::kChannelPresent), channelPresent);
-    encoder.Encode(to_underlying(Fields::kPskcPresent), pskcPresent);
-    encoder.Encode(to_underlying(Fields::kSecurityPolicyPresent), securityPolicyPresent);
-    encoder.Encode(to_underlying(Fields::kChannelMaskPresent), channelMaskPresent);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kActiveTimestampPresent))
-        {
-            err = DataModel::Decode(reader, activeTimestampPresent);
-        }
-        else if (__context_tag == to_underlying(Fields::kPendingTimestampPresent))
-        {
-            err = DataModel::Decode(reader, pendingTimestampPresent);
-        }
-        else if (__context_tag == to_underlying(Fields::kMasterKeyPresent))
-        {
-            err = DataModel::Decode(reader, masterKeyPresent);
-        }
-        else if (__context_tag == to_underlying(Fields::kNetworkNamePresent))
-        {
-            err = DataModel::Decode(reader, networkNamePresent);
-        }
-        else if (__context_tag == to_underlying(Fields::kExtendedPanIdPresent))
-        {
-            err = DataModel::Decode(reader, extendedPanIdPresent);
-        }
-        else if (__context_tag == to_underlying(Fields::kMeshLocalPrefixPresent))
-        {
-            err = DataModel::Decode(reader, meshLocalPrefixPresent);
-        }
-        else if (__context_tag == to_underlying(Fields::kDelayPresent))
-        {
-            err = DataModel::Decode(reader, delayPresent);
-        }
-        else if (__context_tag == to_underlying(Fields::kPanIdPresent))
-        {
-            err = DataModel::Decode(reader, panIdPresent);
-        }
-        else if (__context_tag == to_underlying(Fields::kChannelPresent))
-        {
-            err = DataModel::Decode(reader, channelPresent);
-        }
-        else if (__context_tag == to_underlying(Fields::kPskcPresent))
-        {
-            err = DataModel::Decode(reader, pskcPresent);
-        }
-        else if (__context_tag == to_underlying(Fields::kSecurityPolicyPresent))
-        {
-            err = DataModel::Decode(reader, securityPolicyPresent);
-        }
-        else if (__context_tag == to_underlying(Fields::kChannelMaskPresent))
-        {
-            err = DataModel::Decode(reader, channelMaskPresent);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace OperationalDatasetComponents
-
-namespace RouteTableStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kExtAddress), extAddress);
-    encoder.Encode(to_underlying(Fields::kRloc16), rloc16);
-    encoder.Encode(to_underlying(Fields::kRouterId), routerId);
-    encoder.Encode(to_underlying(Fields::kNextHop), nextHop);
-    encoder.Encode(to_underlying(Fields::kPathCost), pathCost);
-    encoder.Encode(to_underlying(Fields::kLQIIn), LQIIn);
-    encoder.Encode(to_underlying(Fields::kLQIOut), LQIOut);
-    encoder.Encode(to_underlying(Fields::kAge), age);
-    encoder.Encode(to_underlying(Fields::kAllocated), allocated);
-    encoder.Encode(to_underlying(Fields::kLinkEstablished), linkEstablished);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kExtAddress))
-        {
-            err = DataModel::Decode(reader, extAddress);
-        }
-        else if (__context_tag == to_underlying(Fields::kRloc16))
-        {
-            err = DataModel::Decode(reader, rloc16);
-        }
-        else if (__context_tag == to_underlying(Fields::kRouterId))
-        {
-            err = DataModel::Decode(reader, routerId);
-        }
-        else if (__context_tag == to_underlying(Fields::kNextHop))
-        {
-            err = DataModel::Decode(reader, nextHop);
-        }
-        else if (__context_tag == to_underlying(Fields::kPathCost))
-        {
-            err = DataModel::Decode(reader, pathCost);
-        }
-        else if (__context_tag == to_underlying(Fields::kLQIIn))
-        {
-            err = DataModel::Decode(reader, LQIIn);
-        }
-        else if (__context_tag == to_underlying(Fields::kLQIOut))
-        {
-            err = DataModel::Decode(reader, LQIOut);
-        }
-        else if (__context_tag == to_underlying(Fields::kAge))
-        {
-            err = DataModel::Decode(reader, age);
-        }
-        else if (__context_tag == to_underlying(Fields::kAllocated))
-        {
-            err = DataModel::Decode(reader, allocated);
-        }
-        else if (__context_tag == to_underlying(Fields::kLinkEstablished))
-        {
-            err = DataModel::Decode(reader, linkEstablished);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace RouteTableStruct
-
-namespace SecurityPolicy {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kRotationTime), rotationTime);
-    encoder.Encode(to_underlying(Fields::kFlags), flags);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kRotationTime))
-        {
-            err = DataModel::Decode(reader, rotationTime);
-        }
-        else if (__context_tag == to_underlying(Fields::kFlags))
-        {
-            err = DataModel::Decode(reader, flags);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace SecurityPolicy
-} // namespace Structs
+} // namespace Attributes
 } // namespace ThreadNetworkDiagnostics
 } // namespace Clusters
 } // namespace app

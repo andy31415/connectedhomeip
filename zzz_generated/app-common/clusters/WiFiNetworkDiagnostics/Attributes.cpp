@@ -19,13 +19,58 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/WiFiNetworkDiagnostics/Structs.h>
+#include <clusters/WiFiNetworkDiagnostics/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace WiFiNetworkDiagnostics {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::Bssid::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, bssid);
+    case Attributes::SecurityType::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, securityType);
+    case Attributes::WiFiVersion::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, wiFiVersion);
+    case Attributes::ChannelNumber::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, channelNumber);
+    case Attributes::Rssi::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rssi);
+    case Attributes::BeaconLostCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, beaconLostCount);
+    case Attributes::BeaconRxCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, beaconRxCount);
+    case Attributes::PacketMulticastRxCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, packetMulticastRxCount);
+    case Attributes::PacketMulticastTxCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, packetMulticastTxCount);
+    case Attributes::PacketUnicastRxCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, packetUnicastRxCount);
+    case Attributes::PacketUnicastTxCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, packetUnicastTxCount);
+    case Attributes::CurrentMaxRate::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentMaxRate);
+    case Attributes::OverrunCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, overrunCount);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace WiFiNetworkDiagnostics
 } // namespace Clusters
 } // namespace app

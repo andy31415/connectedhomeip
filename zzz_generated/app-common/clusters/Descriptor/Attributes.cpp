@@ -19,65 +19,42 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/Descriptor/Structs.h>
+#include <clusters/Descriptor/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace Descriptor {
-namespace Structs {
-
-namespace SemanticTagStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kMfgCode), mfgCode);
-    encoder.Encode(to_underlying(Fields::kNamespaceID), namespaceID);
-    encoder.Encode(to_underlying(Fields::kTag), tag);
-    encoder.Encode(to_underlying(Fields::kLabel), label);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kMfgCode))
-        {
-            err = DataModel::Decode(reader, mfgCode);
-        }
-        else if (__context_tag == to_underlying(Fields::kNamespaceID))
-        {
-            err = DataModel::Decode(reader, namespaceID);
-        }
-        else if (__context_tag == to_underlying(Fields::kTag))
-        {
-            err = DataModel::Decode(reader, tag);
-        }
-        else if (__context_tag == to_underlying(Fields::kLabel))
-        {
-            err = DataModel::Decode(reader, label);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::DeviceTypeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, deviceTypeList);
+    case Attributes::ServerList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, serverList);
+    case Attributes::ClientList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clientList);
+    case Attributes::PartsList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, partsList);
+    case Attributes::TagList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, tagList);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace SemanticTagStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace Descriptor
 } // namespace Clusters
 } // namespace app

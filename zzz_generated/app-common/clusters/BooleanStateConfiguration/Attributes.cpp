@@ -19,13 +19,48 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/BooleanStateConfiguration/Structs.h>
+#include <clusters/BooleanStateConfiguration/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace BooleanStateConfiguration {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::CurrentSensitivityLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentSensitivityLevel);
+    case Attributes::SupportedSensitivityLevels::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, supportedSensitivityLevels);
+    case Attributes::DefaultSensitivityLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, defaultSensitivityLevel);
+    case Attributes::AlarmsActive::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, alarmsActive);
+    case Attributes::AlarmsSuppressed::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, alarmsSuppressed);
+    case Attributes::AlarmsEnabled::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, alarmsEnabled);
+    case Attributes::AlarmsSupported::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, alarmsSupported);
+    case Attributes::SensorFault::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, sensorFault);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace BooleanStateConfiguration
 } // namespace Clusters
 } // namespace app

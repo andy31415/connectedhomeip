@@ -19,85 +19,50 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/GeneralDiagnostics/Structs.h>
+#include <clusters/GeneralDiagnostics/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace GeneralDiagnostics {
-namespace Structs {
-
-namespace NetworkInterface {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kName), name);
-    encoder.Encode(to_underlying(Fields::kIsOperational), isOperational);
-    encoder.Encode(to_underlying(Fields::kOffPremiseServicesReachableIPv4), offPremiseServicesReachableIPv4);
-    encoder.Encode(to_underlying(Fields::kOffPremiseServicesReachableIPv6), offPremiseServicesReachableIPv6);
-    encoder.Encode(to_underlying(Fields::kHardwareAddress), hardwareAddress);
-    encoder.Encode(to_underlying(Fields::kIPv4Addresses), IPv4Addresses);
-    encoder.Encode(to_underlying(Fields::kIPv6Addresses), IPv6Addresses);
-    encoder.Encode(to_underlying(Fields::kType), type);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kName))
-        {
-            err = DataModel::Decode(reader, name);
-        }
-        else if (__context_tag == to_underlying(Fields::kIsOperational))
-        {
-            err = DataModel::Decode(reader, isOperational);
-        }
-        else if (__context_tag == to_underlying(Fields::kOffPremiseServicesReachableIPv4))
-        {
-            err = DataModel::Decode(reader, offPremiseServicesReachableIPv4);
-        }
-        else if (__context_tag == to_underlying(Fields::kOffPremiseServicesReachableIPv6))
-        {
-            err = DataModel::Decode(reader, offPremiseServicesReachableIPv6);
-        }
-        else if (__context_tag == to_underlying(Fields::kHardwareAddress))
-        {
-            err = DataModel::Decode(reader, hardwareAddress);
-        }
-        else if (__context_tag == to_underlying(Fields::kIPv4Addresses))
-        {
-            err = DataModel::Decode(reader, IPv4Addresses);
-        }
-        else if (__context_tag == to_underlying(Fields::kIPv6Addresses))
-        {
-            err = DataModel::Decode(reader, IPv6Addresses);
-        }
-        else if (__context_tag == to_underlying(Fields::kType))
-        {
-            err = DataModel::Decode(reader, type);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::NetworkInterfaces::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, networkInterfaces);
+    case Attributes::RebootCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, rebootCount);
+    case Attributes::UpTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, upTime);
+    case Attributes::TotalOperationalHours::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, totalOperationalHours);
+    case Attributes::BootReason::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, bootReason);
+    case Attributes::ActiveHardwareFaults::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activeHardwareFaults);
+    case Attributes::ActiveRadioFaults::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activeRadioFaults);
+    case Attributes::ActiveNetworkFaults::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activeNetworkFaults);
+    case Attributes::TestEventTriggersEnabled::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, testEventTriggersEnabled);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace NetworkInterface
-} // namespace Structs
+} // namespace Attributes
 } // namespace GeneralDiagnostics
 } // namespace Clusters
 } // namespace app

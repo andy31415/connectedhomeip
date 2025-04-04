@@ -19,75 +19,36 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/TlsClientManagement/Structs.h>
+#include <clusters/TlsClientManagement/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace TlsClientManagement {
-namespace Structs {
-
-namespace TLSEndpointStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kEndpointID), endpointID);
-    encoder.Encode(to_underlying(Fields::kHostname), hostname);
-    encoder.Encode(to_underlying(Fields::kPort), port);
-    encoder.Encode(to_underlying(Fields::kCaid), caid);
-    encoder.Encode(to_underlying(Fields::kCcdid), ccdid);
-    encoder.Encode(to_underlying(Fields::kStatus), status);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kEndpointID))
-        {
-            err = DataModel::Decode(reader, endpointID);
-        }
-        else if (__context_tag == to_underlying(Fields::kHostname))
-        {
-            err = DataModel::Decode(reader, hostname);
-        }
-        else if (__context_tag == to_underlying(Fields::kPort))
-        {
-            err = DataModel::Decode(reader, port);
-        }
-        else if (__context_tag == to_underlying(Fields::kCaid))
-        {
-            err = DataModel::Decode(reader, caid);
-        }
-        else if (__context_tag == to_underlying(Fields::kCcdid))
-        {
-            err = DataModel::Decode(reader, ccdid);
-        }
-        else if (__context_tag == to_underlying(Fields::kStatus))
-        {
-            err = DataModel::Decode(reader, status);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::MaxProvisioned::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxProvisioned);
+    case Attributes::ProvisionedEndpoints::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, provisionedEndpoints);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace TLSEndpointStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace TlsClientManagement
 } // namespace Clusters
 } // namespace app

@@ -19,13 +19,60 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/BallastConfiguration/Structs.h>
+#include <clusters/BallastConfiguration/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace BallastConfiguration {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::PhysicalMinLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, physicalMinLevel);
+    case Attributes::PhysicalMaxLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, physicalMaxLevel);
+    case Attributes::BallastStatus::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, ballastStatus);
+    case Attributes::MinLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minLevel);
+    case Attributes::MaxLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxLevel);
+    case Attributes::IntrinsicBallastFactor::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, intrinsicBallastFactor);
+    case Attributes::BallastFactorAdjustment::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, ballastFactorAdjustment);
+    case Attributes::LampQuantity::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lampQuantity);
+    case Attributes::LampType::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lampType);
+    case Attributes::LampManufacturer::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lampManufacturer);
+    case Attributes::LampRatedHours::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lampRatedHours);
+    case Attributes::LampBurnHours::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lampBurnHours);
+    case Attributes::LampAlarmMode::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lampAlarmMode);
+    case Attributes::LampBurnHoursTripPoint::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lampBurnHoursTripPoint);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace BallastConfiguration
 } // namespace Clusters
 } // namespace app

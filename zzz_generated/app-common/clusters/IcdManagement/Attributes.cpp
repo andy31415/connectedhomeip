@@ -19,91 +19,52 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/IcdManagement/Structs.h>
+#include <clusters/IcdManagement/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace IcdManagement {
-namespace Structs {
-
-namespace MonitoringRegistrationStruct {
-CHIP_ERROR Type::EncodeForWrite(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    return DoEncode(aWriter, aTag, NullOptional);
-}
-
-CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIndex aAccessingFabricIndex) const
-{
-    return DoEncode(aWriter, aTag, MakeOptional(aAccessingFabricIndex));
-}
-
-CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
-{
-    bool includeSensitive = !aAccessingFabricIndex.HasValue() || (aAccessingFabricIndex.Value() == fabricIndex);
-
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-
-    if (includeSensitive)
+    switch (path.mAttributeId)
     {
-        encoder.Encode(to_underlying(Fields::kCheckInNodeID), checkInNodeID);
-    }
-    if (includeSensitive)
-    {
-        encoder.Encode(to_underlying(Fields::kMonitoredSubject), monitoredSubject);
-    }
-    if (includeSensitive)
-    {
-        encoder.Encode(to_underlying(Fields::kClientType), clientType);
-    }
-    if (aAccessingFabricIndex.HasValue())
-    {
-        encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
-    }
-
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kCheckInNodeID))
-        {
-            err = DataModel::Decode(reader, checkInNodeID);
-        }
-        else if (__context_tag == to_underlying(Fields::kMonitoredSubject))
-        {
-            err = DataModel::Decode(reader, monitoredSubject);
-        }
-        else if (__context_tag == to_underlying(Fields::kClientType))
-        {
-            err = DataModel::Decode(reader, clientType);
-        }
-        else if (__context_tag == to_underlying(Fields::kFabricIndex))
-        {
-            err = DataModel::Decode(reader, fabricIndex);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::IdleModeDuration::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, idleModeDuration);
+    case Attributes::ActiveModeDuration::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activeModeDuration);
+    case Attributes::ActiveModeThreshold::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activeModeThreshold);
+    case Attributes::RegisteredClients::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, registeredClients);
+    case Attributes::ICDCounter::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, ICDCounter);
+    case Attributes::ClientsSupportedPerFabric::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clientsSupportedPerFabric);
+    case Attributes::UserActiveModeTriggerHint::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, userActiveModeTriggerHint);
+    case Attributes::UserActiveModeTriggerInstruction::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, userActiveModeTriggerInstruction);
+    case Attributes::OperatingMode::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, operatingMode);
+    case Attributes::MaximumCheckInBackOff::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maximumCheckInBackOff);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace MonitoringRegistrationStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace IcdManagement
 } // namespace Clusters
 } // namespace app

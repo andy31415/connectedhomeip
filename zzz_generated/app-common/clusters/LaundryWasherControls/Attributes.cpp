@@ -19,13 +19,40 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/LaundryWasherControls/Structs.h>
+#include <clusters/LaundryWasherControls/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace LaundryWasherControls {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::SpinSpeeds::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, spinSpeeds);
+    case Attributes::SpinSpeedCurrent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, spinSpeedCurrent);
+    case Attributes::NumberOfRinses::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, numberOfRinses);
+    case Attributes::SupportedRinses::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, supportedRinses);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace LaundryWasherControls
 } // namespace Clusters
 } // namespace app

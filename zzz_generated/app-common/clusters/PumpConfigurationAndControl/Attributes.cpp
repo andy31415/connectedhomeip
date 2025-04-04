@@ -19,13 +19,78 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/PumpConfigurationAndControl/Structs.h>
+#include <clusters/PumpConfigurationAndControl/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace PumpConfigurationAndControl {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::MaxPressure::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxPressure);
+    case Attributes::MaxSpeed::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxSpeed);
+    case Attributes::MaxFlow::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxFlow);
+    case Attributes::MinConstPressure::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minConstPressure);
+    case Attributes::MaxConstPressure::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxConstPressure);
+    case Attributes::MinCompPressure::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minCompPressure);
+    case Attributes::MaxCompPressure::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxCompPressure);
+    case Attributes::MinConstSpeed::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minConstSpeed);
+    case Attributes::MaxConstSpeed::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxConstSpeed);
+    case Attributes::MinConstFlow::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minConstFlow);
+    case Attributes::MaxConstFlow::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxConstFlow);
+    case Attributes::MinConstTemp::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minConstTemp);
+    case Attributes::MaxConstTemp::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxConstTemp);
+    case Attributes::PumpStatus::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, pumpStatus);
+    case Attributes::EffectiveOperationMode::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, effectiveOperationMode);
+    case Attributes::EffectiveControlMode::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, effectiveControlMode);
+    case Attributes::Capacity::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, capacity);
+    case Attributes::Speed::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, speed);
+    case Attributes::LifetimeRunningHours::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lifetimeRunningHours);
+    case Attributes::Power::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, power);
+    case Attributes::LifetimeEnergyConsumed::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lifetimeEnergyConsumed);
+    case Attributes::OperationMode::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, operationMode);
+    case Attributes::ControlMode::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, controlMode);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace PumpConfigurationAndControl
 } // namespace Clusters
 } // namespace app

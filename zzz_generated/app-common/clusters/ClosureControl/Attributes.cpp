@@ -19,111 +19,52 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/ClosureControl/Structs.h>
+#include <clusters/ClosureControl/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace ClosureControl {
-namespace Structs {
-
-namespace OverallStateStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kPositioning), positioning);
-    encoder.Encode(to_underlying(Fields::kLatching), latching);
-    encoder.Encode(to_underlying(Fields::kSpeed), speed);
-    encoder.Encode(to_underlying(Fields::kExtraInfo), extraInfo);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kPositioning))
-        {
-            err = DataModel::Decode(reader, positioning);
-        }
-        else if (__context_tag == to_underlying(Fields::kLatching))
-        {
-            err = DataModel::Decode(reader, latching);
-        }
-        else if (__context_tag == to_underlying(Fields::kSpeed))
-        {
-            err = DataModel::Decode(reader, speed);
-        }
-        else if (__context_tag == to_underlying(Fields::kExtraInfo))
-        {
-            err = DataModel::Decode(reader, extraInfo);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::CountdownTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, countdownTime);
+    case Attributes::MainState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, mainState);
+    case Attributes::CurrentErrorList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentErrorList);
+    case Attributes::OverallState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, overallState);
+    case Attributes::OverallTarget::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, overallTarget);
+    case Attributes::RestingProcedure::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, restingProcedure);
+    case Attributes::TriggerCondition::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, triggerCondition);
+    case Attributes::TriggerPosition::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, triggerPosition);
+    case Attributes::WaitingDelay::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, waitingDelay);
+    case Attributes::KickoffTimer::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, kickoffTimer);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace OverallStateStruct
-
-namespace OverallTargetStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kTagPosition), tagPosition);
-    encoder.Encode(to_underlying(Fields::kTagLatch), tagLatch);
-    encoder.Encode(to_underlying(Fields::kSpeed), speed);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kTagPosition))
-        {
-            err = DataModel::Decode(reader, tagPosition);
-        }
-        else if (__context_tag == to_underlying(Fields::kTagLatch))
-        {
-            err = DataModel::Decode(reader, tagLatch);
-        }
-        else if (__context_tag == to_underlying(Fields::kSpeed))
-        {
-            err = DataModel::Decode(reader, speed);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace OverallTargetStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace ClosureControl
 } // namespace Clusters
 } // namespace app

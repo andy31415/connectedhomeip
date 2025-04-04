@@ -19,60 +19,60 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/OccupancySensing/Structs.h>
+#include <clusters/OccupancySensing/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace OccupancySensing {
-namespace Structs {
-
-namespace HoldTimeLimitsStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kHoldTimeMin), holdTimeMin);
-    encoder.Encode(to_underlying(Fields::kHoldTimeMax), holdTimeMax);
-    encoder.Encode(to_underlying(Fields::kHoldTimeDefault), holdTimeDefault);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kHoldTimeMin))
-        {
-            err = DataModel::Decode(reader, holdTimeMin);
-        }
-        else if (__context_tag == to_underlying(Fields::kHoldTimeMax))
-        {
-            err = DataModel::Decode(reader, holdTimeMax);
-        }
-        else if (__context_tag == to_underlying(Fields::kHoldTimeDefault))
-        {
-            err = DataModel::Decode(reader, holdTimeDefault);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::Occupancy::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, occupancy);
+    case Attributes::OccupancySensorType::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, occupancySensorType);
+    case Attributes::OccupancySensorTypeBitmap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, occupancySensorTypeBitmap);
+    case Attributes::HoldTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, holdTime);
+    case Attributes::HoldTimeLimits::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, holdTimeLimits);
+    case Attributes::PIROccupiedToUnoccupiedDelay::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, PIROccupiedToUnoccupiedDelay);
+    case Attributes::PIRUnoccupiedToOccupiedDelay::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, PIRUnoccupiedToOccupiedDelay);
+    case Attributes::PIRUnoccupiedToOccupiedThreshold::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, PIRUnoccupiedToOccupiedThreshold);
+    case Attributes::UltrasonicOccupiedToUnoccupiedDelay::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, ultrasonicOccupiedToUnoccupiedDelay);
+    case Attributes::UltrasonicUnoccupiedToOccupiedDelay::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, ultrasonicUnoccupiedToOccupiedDelay);
+    case Attributes::UltrasonicUnoccupiedToOccupiedThreshold::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, ultrasonicUnoccupiedToOccupiedThreshold);
+    case Attributes::PhysicalContactOccupiedToUnoccupiedDelay::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, physicalContactOccupiedToUnoccupiedDelay);
+    case Attributes::PhysicalContactUnoccupiedToOccupiedDelay::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, physicalContactUnoccupiedToOccupiedDelay);
+    case Attributes::PhysicalContactUnoccupiedToOccupiedThreshold::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, physicalContactUnoccupiedToOccupiedThreshold);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace HoldTimeLimitsStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace OccupancySensing
 } // namespace Clusters
 } // namespace app

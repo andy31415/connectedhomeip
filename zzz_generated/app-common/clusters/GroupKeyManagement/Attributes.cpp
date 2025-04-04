@@ -19,214 +19,40 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/GroupKeyManagement/Structs.h>
+#include <clusters/GroupKeyManagement/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace GroupKeyManagement {
-namespace Structs {
-
-namespace GroupInfoMapStruct {
-CHIP_ERROR Type::EncodeForWrite(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    return DoEncode(aWriter, aTag, NullOptional);
-}
-
-CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIndex aAccessingFabricIndex) const
-{
-    return DoEncode(aWriter, aTag, MakeOptional(aAccessingFabricIndex));
-}
-
-CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
-{
-
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-
-    encoder.Encode(to_underlying(Fields::kGroupId), groupId);
-    encoder.Encode(to_underlying(Fields::kEndpoints), endpoints);
-    encoder.Encode(to_underlying(Fields::kGroupName), groupName);
-    if (aAccessingFabricIndex.HasValue())
+    switch (path.mAttributeId)
     {
-        encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
-    }
-
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kGroupId))
-        {
-            err = DataModel::Decode(reader, groupId);
-        }
-        else if (__context_tag == to_underlying(Fields::kEndpoints))
-        {
-            err = DataModel::Decode(reader, endpoints);
-        }
-        else if (__context_tag == to_underlying(Fields::kGroupName))
-        {
-            err = DataModel::Decode(reader, groupName);
-        }
-        else if (__context_tag == to_underlying(Fields::kFabricIndex))
-        {
-            err = DataModel::Decode(reader, fabricIndex);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::GroupKeyMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, groupKeyMap);
+    case Attributes::GroupTable::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, groupTable);
+    case Attributes::MaxGroupsPerFabric::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxGroupsPerFabric);
+    case Attributes::MaxGroupKeysPerFabric::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxGroupKeysPerFabric);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace GroupInfoMapStruct
-
-namespace GroupKeyMapStruct {
-CHIP_ERROR Type::EncodeForWrite(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    return DoEncode(aWriter, aTag, NullOptional);
-}
-
-CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIndex aAccessingFabricIndex) const
-{
-    return DoEncode(aWriter, aTag, MakeOptional(aAccessingFabricIndex));
-}
-
-CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
-{
-
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-
-    encoder.Encode(to_underlying(Fields::kGroupId), groupId);
-    encoder.Encode(to_underlying(Fields::kGroupKeySetID), groupKeySetID);
-    if (aAccessingFabricIndex.HasValue())
-    {
-        encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
-    }
-
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kGroupId))
-        {
-            err = DataModel::Decode(reader, groupId);
-        }
-        else if (__context_tag == to_underlying(Fields::kGroupKeySetID))
-        {
-            err = DataModel::Decode(reader, groupKeySetID);
-        }
-        else if (__context_tag == to_underlying(Fields::kFabricIndex))
-        {
-            err = DataModel::Decode(reader, fabricIndex);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace GroupKeyMapStruct
-
-namespace GroupKeySetStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kGroupKeySetID), groupKeySetID);
-    encoder.Encode(to_underlying(Fields::kGroupKeySecurityPolicy), groupKeySecurityPolicy);
-    encoder.Encode(to_underlying(Fields::kEpochKey0), epochKey0);
-    encoder.Encode(to_underlying(Fields::kEpochStartTime0), epochStartTime0);
-    encoder.Encode(to_underlying(Fields::kEpochKey1), epochKey1);
-    encoder.Encode(to_underlying(Fields::kEpochStartTime1), epochStartTime1);
-    encoder.Encode(to_underlying(Fields::kEpochKey2), epochKey2);
-    encoder.Encode(to_underlying(Fields::kEpochStartTime2), epochStartTime2);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kGroupKeySetID))
-        {
-            err = DataModel::Decode(reader, groupKeySetID);
-        }
-        else if (__context_tag == to_underlying(Fields::kGroupKeySecurityPolicy))
-        {
-            err = DataModel::Decode(reader, groupKeySecurityPolicy);
-        }
-        else if (__context_tag == to_underlying(Fields::kEpochKey0))
-        {
-            err = DataModel::Decode(reader, epochKey0);
-        }
-        else if (__context_tag == to_underlying(Fields::kEpochStartTime0))
-        {
-            err = DataModel::Decode(reader, epochStartTime0);
-        }
-        else if (__context_tag == to_underlying(Fields::kEpochKey1))
-        {
-            err = DataModel::Decode(reader, epochKey1);
-        }
-        else if (__context_tag == to_underlying(Fields::kEpochStartTime1))
-        {
-            err = DataModel::Decode(reader, epochStartTime1);
-        }
-        else if (__context_tag == to_underlying(Fields::kEpochKey2))
-        {
-            err = DataModel::Decode(reader, epochKey2);
-        }
-        else if (__context_tag == to_underlying(Fields::kEpochStartTime2))
-        {
-            err = DataModel::Decode(reader, epochStartTime2);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace GroupKeySetStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace GroupKeyManagement
 } // namespace Clusters
 } // namespace app

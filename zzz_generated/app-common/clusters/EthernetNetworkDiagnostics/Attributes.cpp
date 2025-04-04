@@ -19,13 +19,50 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/EthernetNetworkDiagnostics/Structs.h>
+#include <clusters/EthernetNetworkDiagnostics/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace EthernetNetworkDiagnostics {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::PHYRate::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, PHYRate);
+    case Attributes::FullDuplex::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, fullDuplex);
+    case Attributes::PacketRxCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, packetRxCount);
+    case Attributes::PacketTxCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, packetTxCount);
+    case Attributes::TxErrCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, txErrCount);
+    case Attributes::CollisionCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, collisionCount);
+    case Attributes::OverrunCount::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, overrunCount);
+    case Attributes::CarrierDetect::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, carrierDetect);
+    case Attributes::TimeSinceReset::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, timeSinceReset);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace EthernetNetworkDiagnostics
 } // namespace Clusters
 } // namespace app

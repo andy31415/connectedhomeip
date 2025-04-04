@@ -19,76 +19,40 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/OtaSoftwareUpdateRequestor/Structs.h>
+#include <clusters/OtaSoftwareUpdateRequestor/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace OtaSoftwareUpdateRequestor {
-namespace Structs {
-
-namespace ProviderLocation {
-CHIP_ERROR Type::EncodeForWrite(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    return DoEncode(aWriter, aTag, NullOptional);
-}
-
-CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIndex aAccessingFabricIndex) const
-{
-    return DoEncode(aWriter, aTag, MakeOptional(aAccessingFabricIndex));
-}
-
-CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
-{
-
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-
-    encoder.Encode(to_underlying(Fields::kProviderNodeID), providerNodeID);
-    encoder.Encode(to_underlying(Fields::kEndpoint), endpoint);
-    if (aAccessingFabricIndex.HasValue())
+    switch (path.mAttributeId)
     {
-        encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
-    }
-
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kProviderNodeID))
-        {
-            err = DataModel::Decode(reader, providerNodeID);
-        }
-        else if (__context_tag == to_underlying(Fields::kEndpoint))
-        {
-            err = DataModel::Decode(reader, endpoint);
-        }
-        else if (__context_tag == to_underlying(Fields::kFabricIndex))
-        {
-            err = DataModel::Decode(reader, fabricIndex);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::DefaultOTAProviders::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, defaultOTAProviders);
+    case Attributes::UpdatePossible::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, updatePossible);
+    case Attributes::UpdateState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, updateState);
+    case Attributes::UpdateStateProgress::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, updateStateProgress);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace ProviderLocation
-} // namespace Structs
+} // namespace Attributes
 } // namespace OtaSoftwareUpdateRequestor
 } // namespace Clusters
 } // namespace app

@@ -19,163 +19,44 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/OperationalCredentials/Structs.h>
+#include <clusters/OperationalCredentials/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace OperationalCredentials {
-namespace Structs {
-
-namespace FabricDescriptorStruct {
-CHIP_ERROR Type::EncodeForWrite(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    return DoEncode(aWriter, aTag, NullOptional);
-}
-
-CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIndex aAccessingFabricIndex) const
-{
-    return DoEncode(aWriter, aTag, MakeOptional(aAccessingFabricIndex));
-}
-
-CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
-{
-
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-
-    encoder.Encode(to_underlying(Fields::kRootPublicKey), rootPublicKey);
-    encoder.Encode(to_underlying(Fields::kVendorID), vendorID);
-    encoder.Encode(to_underlying(Fields::kFabricID), fabricID);
-    encoder.Encode(to_underlying(Fields::kNodeID), nodeID);
-    encoder.Encode(to_underlying(Fields::kLabel), label);
-    encoder.Encode(to_underlying(Fields::kVIDVerificationStatement), VIDVerificationStatement);
-    if (aAccessingFabricIndex.HasValue())
+    switch (path.mAttributeId)
     {
-        encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
-    }
-
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kRootPublicKey))
-        {
-            err = DataModel::Decode(reader, rootPublicKey);
-        }
-        else if (__context_tag == to_underlying(Fields::kVendorID))
-        {
-            err = DataModel::Decode(reader, vendorID);
-        }
-        else if (__context_tag == to_underlying(Fields::kFabricID))
-        {
-            err = DataModel::Decode(reader, fabricID);
-        }
-        else if (__context_tag == to_underlying(Fields::kNodeID))
-        {
-            err = DataModel::Decode(reader, nodeID);
-        }
-        else if (__context_tag == to_underlying(Fields::kLabel))
-        {
-            err = DataModel::Decode(reader, label);
-        }
-        else if (__context_tag == to_underlying(Fields::kVIDVerificationStatement))
-        {
-            err = DataModel::Decode(reader, VIDVerificationStatement);
-        }
-        else if (__context_tag == to_underlying(Fields::kFabricIndex))
-        {
-            err = DataModel::Decode(reader, fabricIndex);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::NOCs::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, NOCs);
+    case Attributes::Fabrics::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, fabrics);
+    case Attributes::SupportedFabrics::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, supportedFabrics);
+    case Attributes::CommissionedFabrics::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, commissionedFabrics);
+    case Attributes::TrustedRootCertificates::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, trustedRootCertificates);
+    case Attributes::CurrentFabricIndex::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentFabricIndex);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace FabricDescriptorStruct
-
-namespace NOCStruct {
-CHIP_ERROR Type::EncodeForWrite(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    return DoEncode(aWriter, aTag, NullOptional);
-}
-
-CHIP_ERROR Type::EncodeForRead(TLV::TLVWriter & aWriter, TLV::Tag aTag, FabricIndex aAccessingFabricIndex) const
-{
-    return DoEncode(aWriter, aTag, MakeOptional(aAccessingFabricIndex));
-}
-
-CHIP_ERROR Type::DoEncode(TLV::TLVWriter & aWriter, TLV::Tag aTag, const Optional<FabricIndex> & aAccessingFabricIndex) const
-{
-
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-
-    encoder.Encode(to_underlying(Fields::kNoc), noc);
-    encoder.Encode(to_underlying(Fields::kIcac), icac);
-    encoder.Encode(to_underlying(Fields::kVvsc), vvsc);
-    if (aAccessingFabricIndex.HasValue())
-    {
-        encoder.Encode(to_underlying(Fields::kFabricIndex), fabricIndex);
-    }
-
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kNoc))
-        {
-            err = DataModel::Decode(reader, noc);
-        }
-        else if (__context_tag == to_underlying(Fields::kIcac))
-        {
-            err = DataModel::Decode(reader, icac);
-        }
-        else if (__context_tag == to_underlying(Fields::kVvsc))
-        {
-            err = DataModel::Decode(reader, vvsc);
-        }
-        else if (__context_tag == to_underlying(Fields::kFabricIndex))
-        {
-            err = DataModel::Decode(reader, fabricIndex);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace NOCStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace OperationalCredentials
 } // namespace Clusters
 } // namespace app

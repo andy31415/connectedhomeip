@@ -19,126 +19,38 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/Actions/Structs.h>
+#include <clusters/Actions/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace Actions {
-namespace Structs {
-
-namespace ActionStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kActionID), actionID);
-    encoder.Encode(to_underlying(Fields::kName), name);
-    encoder.Encode(to_underlying(Fields::kType), type);
-    encoder.Encode(to_underlying(Fields::kEndpointListID), endpointListID);
-    encoder.Encode(to_underlying(Fields::kSupportedCommands), supportedCommands);
-    encoder.Encode(to_underlying(Fields::kState), state);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kActionID))
-        {
-            err = DataModel::Decode(reader, actionID);
-        }
-        else if (__context_tag == to_underlying(Fields::kName))
-        {
-            err = DataModel::Decode(reader, name);
-        }
-        else if (__context_tag == to_underlying(Fields::kType))
-        {
-            err = DataModel::Decode(reader, type);
-        }
-        else if (__context_tag == to_underlying(Fields::kEndpointListID))
-        {
-            err = DataModel::Decode(reader, endpointListID);
-        }
-        else if (__context_tag == to_underlying(Fields::kSupportedCommands))
-        {
-            err = DataModel::Decode(reader, supportedCommands);
-        }
-        else if (__context_tag == to_underlying(Fields::kState))
-        {
-            err = DataModel::Decode(reader, state);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::ActionList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, actionList);
+    case Attributes::EndpointLists::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, endpointLists);
+    case Attributes::SetupURL::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, setupURL);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace ActionStruct
-
-namespace EndpointListStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kEndpointListID), endpointListID);
-    encoder.Encode(to_underlying(Fields::kName), name);
-    encoder.Encode(to_underlying(Fields::kType), type);
-    encoder.Encode(to_underlying(Fields::kEndpoints), endpoints);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kEndpointListID))
-        {
-            err = DataModel::Decode(reader, endpointListID);
-        }
-        else if (__context_tag == to_underlying(Fields::kName))
-        {
-            err = DataModel::Decode(reader, name);
-        }
-        else if (__context_tag == to_underlying(Fields::kType))
-        {
-            err = DataModel::Decode(reader, type);
-        }
-        else if (__context_tag == to_underlying(Fields::kEndpoints))
-        {
-            err = DataModel::Decode(reader, endpoints);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace EndpointListStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace Actions
 } // namespace Clusters
 } // namespace app

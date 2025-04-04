@@ -19,13 +19,54 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/ValveConfigurationAndControl/Structs.h>
+#include <clusters/ValveConfigurationAndControl/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace ValveConfigurationAndControl {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::OpenDuration::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, openDuration);
+    case Attributes::DefaultOpenDuration::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, defaultOpenDuration);
+    case Attributes::AutoCloseTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, autoCloseTime);
+    case Attributes::RemainingDuration::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, remainingDuration);
+    case Attributes::CurrentState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentState);
+    case Attributes::TargetState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, targetState);
+    case Attributes::CurrentLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentLevel);
+    case Attributes::TargetLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, targetLevel);
+    case Attributes::DefaultOpenLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, defaultOpenLevel);
+    case Attributes::ValveFault::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, valveFault);
+    case Attributes::LevelStep::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, levelStep);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace ValveConfigurationAndControl
 } // namespace Clusters
 } // namespace app

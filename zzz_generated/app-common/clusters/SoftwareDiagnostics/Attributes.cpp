@@ -19,70 +19,40 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/SoftwareDiagnostics/Structs.h>
+#include <clusters/SoftwareDiagnostics/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace SoftwareDiagnostics {
-namespace Structs {
-
-namespace ThreadMetricsStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kId), id);
-    encoder.Encode(to_underlying(Fields::kName), name);
-    encoder.Encode(to_underlying(Fields::kStackFreeCurrent), stackFreeCurrent);
-    encoder.Encode(to_underlying(Fields::kStackFreeMinimum), stackFreeMinimum);
-    encoder.Encode(to_underlying(Fields::kStackSize), stackSize);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kId))
-        {
-            err = DataModel::Decode(reader, id);
-        }
-        else if (__context_tag == to_underlying(Fields::kName))
-        {
-            err = DataModel::Decode(reader, name);
-        }
-        else if (__context_tag == to_underlying(Fields::kStackFreeCurrent))
-        {
-            err = DataModel::Decode(reader, stackFreeCurrent);
-        }
-        else if (__context_tag == to_underlying(Fields::kStackFreeMinimum))
-        {
-            err = DataModel::Decode(reader, stackFreeMinimum);
-        }
-        else if (__context_tag == to_underlying(Fields::kStackSize))
-        {
-            err = DataModel::Decode(reader, stackSize);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::ThreadMetrics::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, threadMetrics);
+    case Attributes::CurrentHeapFree::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentHeapFree);
+    case Attributes::CurrentHeapUsed::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentHeapUsed);
+    case Attributes::CurrentHeapHighWatermark::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentHeapHighWatermark);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace ThreadMetricsStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace SoftwareDiagnostics
 } // namespace Clusters
 } // namespace app

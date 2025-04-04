@@ -19,121 +19,36 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/Messages/Structs.h>
+#include <clusters/Messages/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace Messages {
-namespace Structs {
-
-namespace MessageResponseOptionStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kMessageResponseID), messageResponseID);
-    encoder.Encode(to_underlying(Fields::kLabel), label);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kMessageResponseID))
-        {
-            err = DataModel::Decode(reader, messageResponseID);
-        }
-        else if (__context_tag == to_underlying(Fields::kLabel))
-        {
-            err = DataModel::Decode(reader, label);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::Messages::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, messages);
+    case Attributes::ActiveMessageIDs::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activeMessageIDs);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace MessageResponseOptionStruct
-
-namespace MessageStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kMessageID), messageID);
-    encoder.Encode(to_underlying(Fields::kPriority), priority);
-    encoder.Encode(to_underlying(Fields::kMessageControl), messageControl);
-    encoder.Encode(to_underlying(Fields::kStartTime), startTime);
-    encoder.Encode(to_underlying(Fields::kDuration), duration);
-    encoder.Encode(to_underlying(Fields::kMessageText), messageText);
-    encoder.Encode(to_underlying(Fields::kResponses), responses);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kMessageID))
-        {
-            err = DataModel::Decode(reader, messageID);
-        }
-        else if (__context_tag == to_underlying(Fields::kPriority))
-        {
-            err = DataModel::Decode(reader, priority);
-        }
-        else if (__context_tag == to_underlying(Fields::kMessageControl))
-        {
-            err = DataModel::Decode(reader, messageControl);
-        }
-        else if (__context_tag == to_underlying(Fields::kStartTime))
-        {
-            err = DataModel::Decode(reader, startTime);
-        }
-        else if (__context_tag == to_underlying(Fields::kDuration))
-        {
-            err = DataModel::Decode(reader, duration);
-        }
-        else if (__context_tag == to_underlying(Fields::kMessageText))
-        {
-            err = DataModel::Decode(reader, messageText);
-        }
-        else if (__context_tag == to_underlying(Fields::kResponses))
-        {
-            err = DataModel::Decode(reader, responses);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace MessageStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace Messages
 } // namespace Clusters
 } // namespace app

@@ -19,121 +19,40 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/CommodityPrice/Structs.h>
+#include <clusters/CommodityPrice/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace CommodityPrice {
-namespace Structs {
-
-namespace CommodityPriceComponentStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kPrice), price);
-    encoder.Encode(to_underlying(Fields::kSource), source);
-    encoder.Encode(to_underlying(Fields::kDescription), description);
-    encoder.Encode(to_underlying(Fields::kTariffComponentID), tariffComponentID);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kPrice))
-        {
-            err = DataModel::Decode(reader, price);
-        }
-        else if (__context_tag == to_underlying(Fields::kSource))
-        {
-            err = DataModel::Decode(reader, source);
-        }
-        else if (__context_tag == to_underlying(Fields::kDescription))
-        {
-            err = DataModel::Decode(reader, description);
-        }
-        else if (__context_tag == to_underlying(Fields::kTariffComponentID))
-        {
-            err = DataModel::Decode(reader, tariffComponentID);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::TariffUnit::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, tariffUnit);
+    case Attributes::Currency::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currency);
+    case Attributes::CurrentPrice::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentPrice);
+    case Attributes::PriceForecast::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, priceForecast);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace CommodityPriceComponentStruct
-
-namespace CommodityPriceStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kPeriodStart), periodStart);
-    encoder.Encode(to_underlying(Fields::kPeriodEnd), periodEnd);
-    encoder.Encode(to_underlying(Fields::kPrice), price);
-    encoder.Encode(to_underlying(Fields::kDescription), description);
-    encoder.Encode(to_underlying(Fields::kComponents), components);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kPeriodStart))
-        {
-            err = DataModel::Decode(reader, periodStart);
-        }
-        else if (__context_tag == to_underlying(Fields::kPeriodEnd))
-        {
-            err = DataModel::Decode(reader, periodEnd);
-        }
-        else if (__context_tag == to_underlying(Fields::kPrice))
-        {
-            err = DataModel::Decode(reader, price);
-        }
-        else if (__context_tag == to_underlying(Fields::kDescription))
-        {
-            err = DataModel::Decode(reader, description);
-        }
-        else if (__context_tag == to_underlying(Fields::kComponents))
-        {
-            err = DataModel::Decode(reader, components);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace CommodityPriceStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace CommodityPrice
 } // namespace Clusters
 } // namespace app

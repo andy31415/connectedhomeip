@@ -19,13 +19,58 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/SmokeCoAlarm/Structs.h>
+#include <clusters/SmokeCoAlarm/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace SmokeCoAlarm {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::ExpressedState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, expressedState);
+    case Attributes::SmokeState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, smokeState);
+    case Attributes::COState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, COState);
+    case Attributes::BatteryAlert::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batteryAlert);
+    case Attributes::DeviceMuted::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, deviceMuted);
+    case Attributes::TestInProgress::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, testInProgress);
+    case Attributes::HardwareFaultAlert::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, hardwareFaultAlert);
+    case Attributes::EndOfServiceAlert::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, endOfServiceAlert);
+    case Attributes::InterconnectSmokeAlarm::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, interconnectSmokeAlarm);
+    case Attributes::InterconnectCOAlarm::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, interconnectCOAlarm);
+    case Attributes::ContaminationState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, contaminationState);
+    case Attributes::SmokeSensitivityLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, smokeSensitivityLevel);
+    case Attributes::ExpiryDate::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, expiryDate);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace SmokeCoAlarm
 } // namespace Clusters
 } // namespace app

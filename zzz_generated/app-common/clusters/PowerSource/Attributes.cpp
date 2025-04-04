@@ -19,137 +19,96 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/PowerSource/Structs.h>
+#include <clusters/PowerSource/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace PowerSource {
-namespace Structs {
-
-namespace BatChargeFaultChangeType {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kCurrent), current);
-    encoder.Encode(to_underlying(Fields::kPrevious), previous);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kCurrent))
-        {
-            err = DataModel::Decode(reader, current);
-        }
-        else if (__context_tag == to_underlying(Fields::kPrevious))
-        {
-            err = DataModel::Decode(reader, previous);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::Status::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, status);
+    case Attributes::Order::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, order);
+    case Attributes::Description::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, description);
+    case Attributes::WiredAssessedInputVoltage::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, wiredAssessedInputVoltage);
+    case Attributes::WiredAssessedInputFrequency::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, wiredAssessedInputFrequency);
+    case Attributes::WiredCurrentType::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, wiredCurrentType);
+    case Attributes::WiredAssessedCurrent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, wiredAssessedCurrent);
+    case Attributes::WiredNominalVoltage::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, wiredNominalVoltage);
+    case Attributes::WiredMaximumCurrent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, wiredMaximumCurrent);
+    case Attributes::WiredPresent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, wiredPresent);
+    case Attributes::ActiveWiredFaults::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activeWiredFaults);
+    case Attributes::BatVoltage::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batVoltage);
+    case Attributes::BatPercentRemaining::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batPercentRemaining);
+    case Attributes::BatTimeRemaining::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batTimeRemaining);
+    case Attributes::BatChargeLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batChargeLevel);
+    case Attributes::BatReplacementNeeded::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batReplacementNeeded);
+    case Attributes::BatReplaceability::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batReplaceability);
+    case Attributes::BatPresent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batPresent);
+    case Attributes::ActiveBatFaults::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activeBatFaults);
+    case Attributes::BatReplacementDescription::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batReplacementDescription);
+    case Attributes::BatCommonDesignation::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batCommonDesignation);
+    case Attributes::BatANSIDesignation::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batANSIDesignation);
+    case Attributes::BatIECDesignation::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batIECDesignation);
+    case Attributes::BatApprovedChemistry::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batApprovedChemistry);
+    case Attributes::BatCapacity::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batCapacity);
+    case Attributes::BatQuantity::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batQuantity);
+    case Attributes::BatChargeState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batChargeState);
+    case Attributes::BatTimeToFullCharge::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batTimeToFullCharge);
+    case Attributes::BatFunctionalWhileCharging::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batFunctionalWhileCharging);
+    case Attributes::BatChargingCurrent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, batChargingCurrent);
+    case Attributes::ActiveBatChargeFaults::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activeBatChargeFaults);
+    case Attributes::EndpointList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, endpointList);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace BatChargeFaultChangeType
-
-namespace BatFaultChangeType {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kCurrent), current);
-    encoder.Encode(to_underlying(Fields::kPrevious), previous);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kCurrent))
-        {
-            err = DataModel::Decode(reader, current);
-        }
-        else if (__context_tag == to_underlying(Fields::kPrevious))
-        {
-            err = DataModel::Decode(reader, previous);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace BatFaultChangeType
-
-namespace WiredFaultChangeType {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kCurrent), current);
-    encoder.Encode(to_underlying(Fields::kPrevious), previous);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kCurrent))
-        {
-            err = DataModel::Decode(reader, current);
-        }
-        else if (__context_tag == to_underlying(Fields::kPrevious))
-        {
-            err = DataModel::Decode(reader, previous);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace WiredFaultChangeType
-} // namespace Structs
+} // namespace Attributes
 } // namespace PowerSource
 } // namespace Clusters
 } // namespace app

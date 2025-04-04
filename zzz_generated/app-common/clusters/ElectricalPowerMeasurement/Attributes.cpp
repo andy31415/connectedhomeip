@@ -19,141 +19,70 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/ElectricalPowerMeasurement/Structs.h>
+#include <clusters/ElectricalPowerMeasurement/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace ElectricalPowerMeasurement {
-namespace Structs {
-
-namespace HarmonicMeasurementStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kOrder), order);
-    encoder.Encode(to_underlying(Fields::kMeasurement), measurement);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kOrder))
-        {
-            err = DataModel::Decode(reader, order);
-        }
-        else if (__context_tag == to_underlying(Fields::kMeasurement))
-        {
-            err = DataModel::Decode(reader, measurement);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::PowerMode::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, powerMode);
+    case Attributes::NumberOfMeasurementTypes::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, numberOfMeasurementTypes);
+    case Attributes::Accuracy::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, accuracy);
+    case Attributes::Ranges::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, ranges);
+    case Attributes::Voltage::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, voltage);
+    case Attributes::ActiveCurrent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activeCurrent);
+    case Attributes::ReactiveCurrent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, reactiveCurrent);
+    case Attributes::ApparentCurrent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, apparentCurrent);
+    case Attributes::ActivePower::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, activePower);
+    case Attributes::ReactivePower::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, reactivePower);
+    case Attributes::ApparentPower::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, apparentPower);
+    case Attributes::RMSVoltage::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, RMSVoltage);
+    case Attributes::RMSCurrent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, RMSCurrent);
+    case Attributes::RMSPower::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, RMSPower);
+    case Attributes::Frequency::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, frequency);
+    case Attributes::HarmonicCurrents::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, harmonicCurrents);
+    case Attributes::HarmonicPhases::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, harmonicPhases);
+    case Attributes::PowerFactor::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, powerFactor);
+    case Attributes::NeutralCurrent::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, neutralCurrent);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace HarmonicMeasurementStruct
-
-namespace MeasurementRangeStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
-{
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kMeasurementType), measurementType);
-    encoder.Encode(to_underlying(Fields::kMin), min);
-    encoder.Encode(to_underlying(Fields::kMax), max);
-    encoder.Encode(to_underlying(Fields::kStartTimestamp), startTimestamp);
-    encoder.Encode(to_underlying(Fields::kEndTimestamp), endTimestamp);
-    encoder.Encode(to_underlying(Fields::kMinTimestamp), minTimestamp);
-    encoder.Encode(to_underlying(Fields::kMaxTimestamp), maxTimestamp);
-    encoder.Encode(to_underlying(Fields::kStartSystime), startSystime);
-    encoder.Encode(to_underlying(Fields::kEndSystime), endSystime);
-    encoder.Encode(to_underlying(Fields::kMinSystime), minSystime);
-    encoder.Encode(to_underlying(Fields::kMaxSystime), maxSystime);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
-    {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kMeasurementType))
-        {
-            err = DataModel::Decode(reader, measurementType);
-        }
-        else if (__context_tag == to_underlying(Fields::kMin))
-        {
-            err = DataModel::Decode(reader, min);
-        }
-        else if (__context_tag == to_underlying(Fields::kMax))
-        {
-            err = DataModel::Decode(reader, max);
-        }
-        else if (__context_tag == to_underlying(Fields::kStartTimestamp))
-        {
-            err = DataModel::Decode(reader, startTimestamp);
-        }
-        else if (__context_tag == to_underlying(Fields::kEndTimestamp))
-        {
-            err = DataModel::Decode(reader, endTimestamp);
-        }
-        else if (__context_tag == to_underlying(Fields::kMinTimestamp))
-        {
-            err = DataModel::Decode(reader, minTimestamp);
-        }
-        else if (__context_tag == to_underlying(Fields::kMaxTimestamp))
-        {
-            err = DataModel::Decode(reader, maxTimestamp);
-        }
-        else if (__context_tag == to_underlying(Fields::kStartSystime))
-        {
-            err = DataModel::Decode(reader, startSystime);
-        }
-        else if (__context_tag == to_underlying(Fields::kEndSystime))
-        {
-            err = DataModel::Decode(reader, endSystime);
-        }
-        else if (__context_tag == to_underlying(Fields::kMinSystime))
-        {
-            err = DataModel::Decode(reader, minSystime);
-        }
-        else if (__context_tag == to_underlying(Fields::kMaxSystime))
-        {
-            err = DataModel::Decode(reader, maxSystime);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
-    }
-}
-
-} // namespace MeasurementRangeStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace ElectricalPowerMeasurement
 } // namespace Clusters
 } // namespace app

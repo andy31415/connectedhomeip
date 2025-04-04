@@ -19,13 +19,44 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/TemperatureControl/Structs.h>
+#include <clusters/TemperatureControl/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace TemperatureControl {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::TemperatureSetpoint::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, temperatureSetpoint);
+    case Attributes::MinTemperature::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minTemperature);
+    case Attributes::MaxTemperature::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxTemperature);
+    case Attributes::Step::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, step);
+    case Attributes::SelectedTemperatureLevel::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, selectedTemperatureLevel);
+    case Attributes::SupportedTemperatureLevels::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, supportedTemperatureLevels);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace TemperatureControl
 } // namespace Clusters
 } // namespace app

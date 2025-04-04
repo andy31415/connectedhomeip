@@ -19,55 +19,44 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/ActivatedCarbonFilterMonitoring/Structs.h>
+#include <clusters/ActivatedCarbonFilterMonitoring/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace ActivatedCarbonFilterMonitoring {
-namespace Structs {
-
-namespace ReplacementProductStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kProductIdentifierType), productIdentifierType);
-    encoder.Encode(to_underlying(Fields::kProductIdentifierValue), productIdentifierValue);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kProductIdentifierType))
-        {
-            err = DataModel::Decode(reader, productIdentifierType);
-        }
-        else if (__context_tag == to_underlying(Fields::kProductIdentifierValue))
-        {
-            err = DataModel::Decode(reader, productIdentifierValue);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::Condition::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, condition);
+    case Attributes::DegradationDirection::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, degradationDirection);
+    case Attributes::ChangeIndication::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, changeIndication);
+    case Attributes::InPlaceIndicator::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, inPlaceIndicator);
+    case Attributes::LastChangedTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, lastChangedTime);
+    case Attributes::ReplacementProductList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, replacementProductList);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace ReplacementProductStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace ActivatedCarbonFilterMonitoring
 } // namespace Clusters
 } // namespace app

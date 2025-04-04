@@ -19,13 +19,44 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/RvcOperationalState/Structs.h>
+#include <clusters/RvcOperationalState/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace RvcOperationalState {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::PhaseList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, phaseList);
+    case Attributes::CurrentPhase::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentPhase);
+    case Attributes::CountdownTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, countdownTime);
+    case Attributes::OperationalStateList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, operationalStateList);
+    case Attributes::OperationalState::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, operationalState);
+    case Attributes::OperationalError::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, operationalError);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace RvcOperationalState
 } // namespace Clusters
 } // namespace app

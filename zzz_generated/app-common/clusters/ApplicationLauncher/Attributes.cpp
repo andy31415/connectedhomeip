@@ -19,55 +19,36 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/ApplicationLauncher/Structs.h>
+#include <clusters/ApplicationLauncher/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace ApplicationLauncher {
-namespace Structs {
-
-namespace ApplicationEPStruct {
-CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
 {
-    DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kApplication), application);
-    encoder.Encode(to_underlying(Fields::kEndpoint), endpoint);
-    return encoder.Finalize();
-}
-
-CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
-{
-    detail::StructDecodeIterator __iterator(reader);
-    while (true)
+    switch (path.mAttributeId)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
-
-        if (__context_tag == to_underlying(Fields::kApplication))
-        {
-            err = DataModel::Decode(reader, application);
-        }
-        else if (__context_tag == to_underlying(Fields::kEndpoint))
-        {
-            err = DataModel::Decode(reader, endpoint);
-        }
-        else
-        {
-        }
-
-        ReturnErrorOnFailure(err);
+    case Attributes::CatalogList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, catalogList);
+    case Attributes::CurrentApp::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, currentApp);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
     }
 }
-
-} // namespace ApplicationEPStruct
-} // namespace Structs
+} // namespace Attributes
 } // namespace ApplicationLauncher
 } // namespace Clusters
 } // namespace app

@@ -19,13 +19,50 @@
 
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
-#include <clusters/MicrowaveOvenControl/Structs.h>
+#include <clusters/MicrowaveOvenControl/Attributes.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace MicrowaveOvenControl {
-namespace Structs {} // namespace Structs
+namespace Attributes {
+CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const ConcreteAttributePath & path)
+{
+    switch (path.mAttributeId)
+    {
+    case Attributes::CookTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, cookTime);
+    case Attributes::MaxCookTime::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxCookTime);
+    case Attributes::PowerSetting::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, powerSetting);
+    case Attributes::MinPower::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, minPower);
+    case Attributes::MaxPower::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, maxPower);
+    case Attributes::PowerStep::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, powerStep);
+    case Attributes::SupportedWatts::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, supportedWatts);
+    case Attributes::SelectedWattIndex::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, selectedWattIndex);
+    case Attributes::WattRating::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, wattRating);
+    case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, generatedCommandList);
+    case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, acceptedCommandList);
+    case Attributes::AttributeList::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, attributeList);
+    case Attributes::FeatureMap::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, featureMap);
+    case Attributes::ClusterRevision::TypeInfo::GetAttributeId():
+        return DataModel::Decode(reader, clusterRevision);
+    default:
+        return CHIP_NO_ERROR;
+    }
+}
+} // namespace Attributes
 } // namespace MicrowaveOvenControl
 } // namespace Clusters
 } // namespace app
