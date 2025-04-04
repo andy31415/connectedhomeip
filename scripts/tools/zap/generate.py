@@ -362,6 +362,25 @@ def main():
             else:
                 del os.environ['TEMP']
 
+        # Post-process fixes: zap needs some fixes from
+        # https://github.com/project-chip/zap/pull/1569
+        #
+        # While that is going on, we need to post-process outputs
+        renames = {
+            '../../clusters/Pm2.5ConcentrationMeasurement': '../../clusters/Pm25ConcentrationMeasurement',
+        }
+        for src, dest in renames.items():
+            srcDir = f'{cmdLineArgs.outputDir}/{src}'
+            if not os.path.exists(srcDir):
+                continue
+            print(f"Moving files from {srcDir} INTO {cmdLineArgs.outputDir}/{dest}")
+            # move all files
+            for name in glob.glob(f'{srcDir}/*'):
+                os.rename(name, f'{cmdLineArgs.outputDir}/{dest}/{os.path.basename(name)}')
+            os.rmdir(srcDir)
+
+
+
     if cmdLineArgs.prettify_output:
         prettifiers = [
             runClangPrettifier,
