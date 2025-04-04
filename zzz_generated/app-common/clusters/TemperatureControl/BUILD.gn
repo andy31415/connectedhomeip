@@ -30,9 +30,13 @@ source_set("enums") {
 
 source_set("elements") {
   sources = [
+    "Attributes.cpp",
     "Attributes.h",
+    "Commands.cpp",
     "Commands.h",
+    "Events.cpp",
     "Events.h",
+    "Structs.cpp",
     "Structs.h",
   ]
   deps = [
