@@ -1,10 +1,7 @@
 {{> header}}
 #pragma once
 
-// TODO:
-//   - global things must exist somewhere: add includes
-//   - shared things must exist somewhere: add includes
-
+#include <clusters/shared/Enums.h>
 #include <stdint.h>
 
 namespace chip {

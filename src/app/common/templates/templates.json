@@ -102,6 +102,11 @@
 
 
         {
+            "path": "../../zap-templates/templates/app/shared-cluster-enums-header.zapt",
+            "name": "Shared enumerations header",
+            "output": "../../clusters/shared/Enums.h"
+        },
+        {
             "path": "../../zap-templates/templates/app/cluster-enums-header.zapt",
             "name": "Cluster-specific enumerations header",
             "iterator": "availableCluster",

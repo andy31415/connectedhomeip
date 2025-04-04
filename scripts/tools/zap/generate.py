@@ -285,6 +285,7 @@ def runClangPrettifier(templates_file, output_dir):
         clangOutputs = []
         for path in rawPaths:
             clangOutputs.extend(expandPlaceholderWildcards(path))
+        clangOutputs = list(set(clangOutputs)) # unique paths in case of glob overlap
 
         if clangOutputs:
             # NOTE: clang-format differs output in time. We generally would be
