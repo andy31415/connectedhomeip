@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/WakeOnLan/AttributeIds.h>
+#include <clusters/WakeOnLan/Enums.h>
+#include <clusters/WakeOnLan/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

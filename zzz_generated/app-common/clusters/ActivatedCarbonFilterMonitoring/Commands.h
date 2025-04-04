@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/ActivatedCarbonFilterMonitoring/CommandIds.h>
+#include <clusters/ActivatedCarbonFilterMonitoring/Enums.h>
+#include <clusters/ActivatedCarbonFilterMonitoring/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

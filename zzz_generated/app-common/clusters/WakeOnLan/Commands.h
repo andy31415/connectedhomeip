@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/WakeOnLan/CommandIds.h>
+#include <clusters/WakeOnLan/Enums.h>
+#include <clusters/WakeOnLan/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

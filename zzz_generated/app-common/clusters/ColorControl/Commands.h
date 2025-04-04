@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/ColorControl/CommandIds.h>
+#include <clusters/ColorControl/Enums.h>
+#include <clusters/ColorControl/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

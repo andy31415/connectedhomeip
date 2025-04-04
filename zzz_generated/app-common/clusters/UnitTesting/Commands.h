@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/UnitTesting/CommandIds.h>
+#include <clusters/UnitTesting/Enums.h>
+#include <clusters/UnitTesting/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

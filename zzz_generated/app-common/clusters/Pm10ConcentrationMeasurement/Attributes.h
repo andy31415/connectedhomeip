@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/Pm10ConcentrationMeasurement/AttributeIds.h>
+#include <clusters/Pm10ConcentrationMeasurement/Enums.h>
+#include <clusters/Pm10ConcentrationMeasurement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

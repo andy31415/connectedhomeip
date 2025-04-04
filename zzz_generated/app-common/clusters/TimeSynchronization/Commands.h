@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/TimeSynchronization/CommandIds.h>
+#include <clusters/TimeSynchronization/Enums.h>
+#include <clusters/TimeSynchronization/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

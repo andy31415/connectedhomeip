@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/OzoneConcentrationMeasurement/AttributeIds.h>
+#include <clusters/OzoneConcentrationMeasurement/Enums.h>
+#include <clusters/OzoneConcentrationMeasurement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

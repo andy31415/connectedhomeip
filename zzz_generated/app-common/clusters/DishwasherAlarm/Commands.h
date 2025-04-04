@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/DishwasherAlarm/CommandIds.h>
+#include <clusters/DishwasherAlarm/Enums.h>
+#include <clusters/DishwasherAlarm/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

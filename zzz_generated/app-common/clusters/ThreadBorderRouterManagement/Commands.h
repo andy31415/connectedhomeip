@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/ThreadBorderRouterManagement/CommandIds.h>
+#include <clusters/ThreadBorderRouterManagement/Enums.h>
+#include <clusters/ThreadBorderRouterManagement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

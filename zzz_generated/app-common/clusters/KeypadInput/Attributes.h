@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/KeypadInput/AttributeIds.h>
+#include <clusters/KeypadInput/Enums.h>
+#include <clusters/KeypadInput/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

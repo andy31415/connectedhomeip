@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/OtaSoftwareUpdateRequestor/AttributeIds.h>
+#include <clusters/OtaSoftwareUpdateRequestor/Enums.h>
+#include <clusters/OtaSoftwareUpdateRequestor/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

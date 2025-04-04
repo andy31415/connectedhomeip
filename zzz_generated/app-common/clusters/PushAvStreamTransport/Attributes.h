@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/PushAvStreamTransport/AttributeIds.h>
+#include <clusters/PushAvStreamTransport/Enums.h>
+#include <clusters/PushAvStreamTransport/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

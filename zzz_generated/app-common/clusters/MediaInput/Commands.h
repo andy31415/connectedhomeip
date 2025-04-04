@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/MediaInput/CommandIds.h>
+#include <clusters/MediaInput/Enums.h>
+#include <clusters/MediaInput/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

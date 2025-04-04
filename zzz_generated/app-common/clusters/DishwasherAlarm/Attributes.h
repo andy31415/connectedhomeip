@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/DishwasherAlarm/AttributeIds.h>
+#include <clusters/DishwasherAlarm/Enums.h>
+#include <clusters/DishwasherAlarm/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

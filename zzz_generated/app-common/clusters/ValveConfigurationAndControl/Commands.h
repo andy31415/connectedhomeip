@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/ValveConfigurationAndControl/CommandIds.h>
+#include <clusters/ValveConfigurationAndControl/Enums.h>
+#include <clusters/ValveConfigurationAndControl/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

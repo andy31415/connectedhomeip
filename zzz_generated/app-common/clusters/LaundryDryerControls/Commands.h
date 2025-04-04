@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/LaundryDryerControls/CommandIds.h>
+#include <clusters/LaundryDryerControls/Enums.h>
+#include <clusters/LaundryDryerControls/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

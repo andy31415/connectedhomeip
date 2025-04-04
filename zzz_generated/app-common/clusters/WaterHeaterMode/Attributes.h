@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/WaterHeaterMode/AttributeIds.h>
+#include <clusters/WaterHeaterMode/Enums.h>
+#include <clusters/WaterHeaterMode/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

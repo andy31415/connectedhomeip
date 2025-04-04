@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/AirQuality/CommandIds.h>
+#include <clusters/AirQuality/Enums.h>
+#include <clusters/AirQuality/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

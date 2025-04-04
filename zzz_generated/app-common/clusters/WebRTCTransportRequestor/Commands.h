@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/WebRTCTransportRequestor/CommandIds.h>
+#include <clusters/WebRTCTransportRequestor/Enums.h>
+#include <clusters/WebRTCTransportRequestor/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

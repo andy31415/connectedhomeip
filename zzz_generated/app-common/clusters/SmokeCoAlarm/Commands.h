@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/SmokeCoAlarm/CommandIds.h>
+#include <clusters/SmokeCoAlarm/Enums.h>
+#include <clusters/SmokeCoAlarm/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

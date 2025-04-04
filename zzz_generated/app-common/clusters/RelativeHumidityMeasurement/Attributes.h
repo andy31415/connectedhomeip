@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/RelativeHumidityMeasurement/AttributeIds.h>
+#include <clusters/RelativeHumidityMeasurement/Enums.h>
+#include <clusters/RelativeHumidityMeasurement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

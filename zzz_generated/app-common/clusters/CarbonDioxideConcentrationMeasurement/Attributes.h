@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/CarbonDioxideConcentrationMeasurement/AttributeIds.h>
+#include <clusters/CarbonDioxideConcentrationMeasurement/Enums.h>
+#include <clusters/CarbonDioxideConcentrationMeasurement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/CameraAvStreamManagement/CommandIds.h>
+#include <clusters/CameraAvStreamManagement/Enums.h>
+#include <clusters/CameraAvStreamManagement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

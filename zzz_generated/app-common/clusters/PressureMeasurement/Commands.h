@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/PressureMeasurement/CommandIds.h>
+#include <clusters/PressureMeasurement/Enums.h>
+#include <clusters/PressureMeasurement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

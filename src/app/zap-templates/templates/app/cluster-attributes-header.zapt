@@ -15,6 +15,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/{{asUpperCamelCase name}}/AttributeIds.h>
+#include <clusters/{{asUpperCamelCase name}}/Enums.h>
+#include <clusters/{{asUpperCamelCase name}}/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

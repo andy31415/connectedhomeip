@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/OvenMode/CommandIds.h>
+#include <clusters/OvenMode/Enums.h>
+#include <clusters/OvenMode/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/RvcOperationalState/AttributeIds.h>
+#include <clusters/RvcOperationalState/Enums.h>
+#include <clusters/RvcOperationalState/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

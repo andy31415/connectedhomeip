@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/AudioOutput/AttributeIds.h>
+#include <clusters/AudioOutput/Enums.h>
+#include <clusters/AudioOutput/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

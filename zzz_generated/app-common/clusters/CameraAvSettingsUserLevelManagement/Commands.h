@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/CameraAvSettingsUserLevelManagement/CommandIds.h>
+#include <clusters/CameraAvSettingsUserLevelManagement/Enums.h>
+#include <clusters/CameraAvSettingsUserLevelManagement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

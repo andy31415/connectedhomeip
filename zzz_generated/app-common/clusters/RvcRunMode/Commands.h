@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/RvcRunMode/CommandIds.h>
+#include <clusters/RvcRunMode/Enums.h>
+#include <clusters/RvcRunMode/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

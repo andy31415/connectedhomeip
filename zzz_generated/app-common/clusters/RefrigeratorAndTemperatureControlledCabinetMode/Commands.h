@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/RefrigeratorAndTemperatureControlledCabinetMode/CommandIds.h>
+#include <clusters/RefrigeratorAndTemperatureControlledCabinetMode/Enums.h>
+#include <clusters/RefrigeratorAndTemperatureControlledCabinetMode/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

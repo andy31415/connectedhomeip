@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/ElectricalEnergyMeasurement/CommandIds.h>
+#include <clusters/ElectricalEnergyMeasurement/Enums.h>
+#include <clusters/ElectricalEnergyMeasurement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

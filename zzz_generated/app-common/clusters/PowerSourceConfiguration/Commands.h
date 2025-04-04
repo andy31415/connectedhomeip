@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/PowerSourceConfiguration/CommandIds.h>
+#include <clusters/PowerSourceConfiguration/Enums.h>
+#include <clusters/PowerSourceConfiguration/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/BallastConfiguration/AttributeIds.h>
+#include <clusters/BallastConfiguration/Enums.h>
+#include <clusters/BallastConfiguration/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

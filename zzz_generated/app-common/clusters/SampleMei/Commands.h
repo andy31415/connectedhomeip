@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/SampleMei/CommandIds.h>
+#include <clusters/SampleMei/Enums.h>
+#include <clusters/SampleMei/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/ProxyValid/CommandIds.h>
+#include <clusters/ProxyValid/Enums.h>
+#include <clusters/ProxyValid/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

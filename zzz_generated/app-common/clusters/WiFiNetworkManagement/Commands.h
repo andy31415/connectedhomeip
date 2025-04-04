@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/WiFiNetworkManagement/CommandIds.h>
+#include <clusters/WiFiNetworkManagement/Enums.h>
+#include <clusters/WiFiNetworkManagement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/MicrowaveOvenControl/CommandIds.h>
+#include <clusters/MicrowaveOvenControl/Enums.h>
+#include <clusters/MicrowaveOvenControl/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

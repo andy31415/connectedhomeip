@@ -20,6 +20,7 @@
 
 #include <app/ConcreteAttributePath.h>
 #include <app/EventLoggingTypes.h>
+#include <app/common/GlobalIds.h>
 #include <app/data-model/DecodableList.h>
 #include <app/data-model/Decode.h>
 #include <app/data-model/Encode.h>
@@ -96,5 +97,6 @@ struct TypeInfo
 
 } // namespace Attributes
 } // namespace Globals
+} // namespace Clusters
 } // namespace app
 } // namespace chip

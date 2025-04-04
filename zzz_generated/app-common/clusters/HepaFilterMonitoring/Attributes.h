@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/HepaFilterMonitoring/AttributeIds.h>
+#include <clusters/HepaFilterMonitoring/Enums.h>
+#include <clusters/HepaFilterMonitoring/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

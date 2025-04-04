@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/Thermostat/AttributeIds.h>
+#include <clusters/Thermostat/Enums.h>
+#include <clusters/Thermostat/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

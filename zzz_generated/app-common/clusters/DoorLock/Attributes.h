@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/DoorLock/AttributeIds.h>
+#include <clusters/DoorLock/Enums.h>
+#include <clusters/DoorLock/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

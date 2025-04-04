@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/TlsClientManagement/AttributeIds.h>
+#include <clusters/TlsClientManagement/Enums.h>
+#include <clusters/TlsClientManagement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

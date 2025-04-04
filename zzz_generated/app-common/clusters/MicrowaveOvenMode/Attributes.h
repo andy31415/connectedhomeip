@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/MicrowaveOvenMode/AttributeIds.h>
+#include <clusters/MicrowaveOvenMode/Enums.h>
+#include <clusters/MicrowaveOvenMode/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

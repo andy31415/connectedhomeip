@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/OvenCavityOperationalState/AttributeIds.h>
+#include <clusters/OvenCavityOperationalState/Enums.h>
+#include <clusters/OvenCavityOperationalState/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

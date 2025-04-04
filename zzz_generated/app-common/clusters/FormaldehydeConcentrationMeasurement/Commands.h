@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/FormaldehydeConcentrationMeasurement/CommandIds.h>
+#include <clusters/FormaldehydeConcentrationMeasurement/Enums.h>
+#include <clusters/FormaldehydeConcentrationMeasurement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

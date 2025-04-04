@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/RadonConcentrationMeasurement/CommandIds.h>
+#include <clusters/RadonConcentrationMeasurement/Enums.h>
+#include <clusters/RadonConcentrationMeasurement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

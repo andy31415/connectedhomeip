@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/EthernetNetworkDiagnostics/AttributeIds.h>
+#include <clusters/EthernetNetworkDiagnostics/Enums.h>
+#include <clusters/EthernetNetworkDiagnostics/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

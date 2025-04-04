@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Structs.h>
 
+#include <clusters/TlsCertificateManagement/CommandIds.h>
+#include <clusters/TlsCertificateManagement/Enums.h>
+#include <clusters/TlsCertificateManagement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

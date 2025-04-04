@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/CommodityTariff/AttributeIds.h>
+#include <clusters/CommodityTariff/Enums.h>
+#include <clusters/CommodityTariff/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

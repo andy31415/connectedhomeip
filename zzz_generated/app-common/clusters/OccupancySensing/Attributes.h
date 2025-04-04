@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/OccupancySensing/AttributeIds.h>
+#include <clusters/OccupancySensing/Enums.h>
+#include <clusters/OccupancySensing/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

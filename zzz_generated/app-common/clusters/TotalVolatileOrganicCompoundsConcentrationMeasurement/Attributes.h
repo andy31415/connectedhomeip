@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/TotalVolatileOrganicCompoundsConcentrationMeasurement/AttributeIds.h>
+#include <clusters/TotalVolatileOrganicCompoundsConcentrationMeasurement/Enums.h>
+#include <clusters/TotalVolatileOrganicCompoundsConcentrationMeasurement/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

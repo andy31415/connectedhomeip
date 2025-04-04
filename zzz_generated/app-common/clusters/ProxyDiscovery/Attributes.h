@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/ProxyDiscovery/AttributeIds.h>
+#include <clusters/ProxyDiscovery/Enums.h>
+#include <clusters/ProxyDiscovery/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {

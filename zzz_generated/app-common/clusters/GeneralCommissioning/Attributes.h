@@ -32,6 +32,10 @@
 
 #include <clusters/shared/Attributes.h>
 
+#include <clusters/GeneralCommissioning/AttributeIds.h>
+#include <clusters/GeneralCommissioning/Enums.h>
+#include <clusters/GeneralCommissioning/Structs.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {
