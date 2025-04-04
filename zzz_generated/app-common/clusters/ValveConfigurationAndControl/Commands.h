@@ -121,6 +121,7 @@ public:
 };
 }; // namespace Close
 } // namespace Commands
+} // namespace ValveConfigurationAndControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

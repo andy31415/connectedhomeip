@@ -122,6 +122,7 @@ public:
 };
 }; // namespace EnableDisableAlarm
 } // namespace Commands
+} // namespace BooleanStateConfiguration
 } // namespace Clusters
 } // namespace app
 } // namespace chip

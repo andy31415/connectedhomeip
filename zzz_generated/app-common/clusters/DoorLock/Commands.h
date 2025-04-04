@@ -1229,6 +1229,7 @@ public:
 };
 }; // namespace ClearAliroReaderConfig
 } // namespace Commands
+} // namespace DoorLock
 } // namespace Clusters
 } // namespace app
 } // namespace chip

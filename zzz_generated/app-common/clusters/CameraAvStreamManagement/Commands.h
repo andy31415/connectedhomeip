@@ -656,6 +656,7 @@ public:
 };
 }; // namespace CaptureSnapshotResponse
 } // namespace Commands
+} // namespace CameraAvStreamManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

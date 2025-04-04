@@ -353,6 +353,7 @@ public:
 };
 }; // namespace CancelRequest
 } // namespace Commands
+} // namespace DeviceEnergyManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

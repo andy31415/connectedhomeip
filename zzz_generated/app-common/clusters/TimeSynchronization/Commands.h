@@ -276,6 +276,7 @@ public:
 };
 }; // namespace SetDefaultNTP
 } // namespace Commands
+} // namespace TimeSynchronization
 } // namespace Clusters
 } // namespace app
 } // namespace chip

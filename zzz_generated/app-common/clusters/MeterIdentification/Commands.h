@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace MeterIdentification {} // namespace Clusters
+namespace MeterIdentification {} // namespace MeterIdentification
+} // namespace Clusters
 } // namespace app
 } // namespace chip

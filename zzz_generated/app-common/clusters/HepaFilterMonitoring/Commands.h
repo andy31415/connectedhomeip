@@ -81,6 +81,7 @@ public:
 };
 }; // namespace ResetCondition
 } // namespace Commands
+} // namespace HepaFilterMonitoring
 } // namespace Clusters
 } // namespace app
 } // namespace chip

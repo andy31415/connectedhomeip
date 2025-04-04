@@ -228,6 +228,7 @@ public:
 };
 }; // namespace SetPendingDatasetRequest
 } // namespace Commands
+} // namespace ThreadBorderRouterManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

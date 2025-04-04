@@ -435,6 +435,7 @@ public:
 };
 }; // namespace AddGroupIfIdentifying
 } // namespace Commands
+} // namespace Groups
 } // namespace Clusters
 } // namespace app
 } // namespace chip

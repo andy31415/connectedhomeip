@@ -389,6 +389,7 @@ public:
 };
 }; // namespace CancelRecordProgram
 } // namespace Commands
+} // namespace Channel
 } // namespace Clusters
 } // namespace app
 } // namespace chip

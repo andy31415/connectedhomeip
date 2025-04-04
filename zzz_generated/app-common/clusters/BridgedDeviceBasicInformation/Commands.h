@@ -88,6 +88,7 @@ public:
 };
 }; // namespace KeepActive
 } // namespace Commands
+} // namespace BridgedDeviceBasicInformation
 } // namespace Clusters
 } // namespace app
 } // namespace chip

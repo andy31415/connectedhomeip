@@ -183,6 +183,7 @@ public:
 };
 }; // namespace ReverseOpenCommissioningWindow
 } // namespace Commands
+} // namespace CommissionerControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

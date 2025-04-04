@@ -125,6 +125,7 @@ public:
 };
 }; // namespace ChangeToModeResponse
 } // namespace Commands
+} // namespace OvenMode
 } // namespace Clusters
 } // namespace app
 } // namespace chip

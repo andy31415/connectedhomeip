@@ -81,6 +81,7 @@ public:
 };
 }; // namespace ResetWatermarks
 } // namespace Commands
+} // namespace SoftwareDiagnostics
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace ElectricalEnergyMeasurement {} // namespace Clusters
+namespace ElectricalEnergyMeasurement {} // namespace ElectricalEnergyMeasurement
+} // namespace Clusters
 } // namespace app
 } // namespace chip

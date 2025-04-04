@@ -373,6 +373,7 @@ public:
 };
 }; // namespace EndSession
 } // namespace Commands
+} // namespace WebRTCTransportProvider
 } // namespace Clusters
 } // namespace app
 } // namespace chip

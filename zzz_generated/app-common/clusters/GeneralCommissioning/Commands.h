@@ -361,6 +361,7 @@ public:
 };
 }; // namespace SetTCAcknowledgementsResponse
 } // namespace Commands
+} // namespace GeneralCommissioning
 } // namespace Clusters
 } // namespace app
 } // namespace chip

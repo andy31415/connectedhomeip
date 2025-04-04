@@ -125,6 +125,7 @@ public:
 };
 }; // namespace ChangeToModeResponse
 } // namespace Commands
+} // namespace RvcRunMode
 } // namespace Clusters
 } // namespace app
 } // namespace chip

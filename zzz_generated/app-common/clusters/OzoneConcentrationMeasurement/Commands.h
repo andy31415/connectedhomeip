@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace OzoneConcentrationMeasurement {} // namespace Clusters
+namespace OzoneConcentrationMeasurement {} // namespace OzoneConcentrationMeasurement
+} // namespace Clusters
 } // namespace app
 } // namespace chip

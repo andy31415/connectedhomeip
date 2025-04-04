@@ -248,6 +248,7 @@ public:
 };
 }; // namespace StayActiveResponse
 } // namespace Commands
+} // namespace IcdManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

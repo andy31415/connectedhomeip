@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace ApplicationBasic {} // namespace Clusters
+namespace ApplicationBasic {} // namespace ApplicationBasic
+} // namespace Clusters
 } // namespace app
 } // namespace chip

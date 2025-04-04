@@ -180,6 +180,7 @@ public:
 };
 }; // namespace LauncherResponse
 } // namespace Commands
+} // namespace ContentLauncher
 } // namespace Clusters
 } // namespace app
 } // namespace chip

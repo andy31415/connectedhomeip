@@ -191,6 +191,7 @@ public:
 };
 }; // namespace RenameInput
 } // namespace Commands
+} // namespace MediaInput
 } // namespace Clusters
 } // namespace app
 } // namespace chip

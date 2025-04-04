@@ -122,6 +122,7 @@ public:
 };
 }; // namespace SendKeyResponse
 } // namespace Commands
+} // namespace KeypadInput
 } // namespace Clusters
 } // namespace app
 } // namespace chip

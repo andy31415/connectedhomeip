@@ -362,6 +362,7 @@ public:
 };
 }; // namespace FindTransportResponse
 } // namespace Commands
+} // namespace PushAvStreamTransport
 } // namespace Clusters
 } // namespace app
 } // namespace chip

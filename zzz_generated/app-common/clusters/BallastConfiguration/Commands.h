@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace BallastConfiguration {} // namespace Clusters
+namespace BallastConfiguration {} // namespace BallastConfiguration
+} // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -447,6 +447,7 @@ public:
 };
 }; // namespace MoveToClosestFrequency
 } // namespace Commands
+} // namespace LevelControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

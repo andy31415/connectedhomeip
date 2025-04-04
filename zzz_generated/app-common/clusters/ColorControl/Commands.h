@@ -967,6 +967,7 @@ public:
 };
 }; // namespace StepColorTemperature
 } // namespace Commands
+} // namespace ColorControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

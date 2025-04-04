@@ -85,6 +85,7 @@ public:
 };
 }; // namespace ChangeToMode
 } // namespace Commands
+} // namespace ModeSelect
 } // namespace Clusters
 } // namespace app
 } // namespace chip

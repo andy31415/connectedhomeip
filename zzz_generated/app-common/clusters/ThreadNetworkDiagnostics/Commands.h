@@ -81,6 +81,7 @@ public:
 };
 }; // namespace ResetCounts
 } // namespace Commands
+} // namespace ThreadNetworkDiagnostics
 } // namespace Clusters
 } // namespace app
 } // namespace chip

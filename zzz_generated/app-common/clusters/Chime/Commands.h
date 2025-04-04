@@ -81,6 +81,7 @@ public:
 };
 }; // namespace PlayChimeSound
 } // namespace Commands
+} // namespace Chime
 } // namespace Clusters
 } // namespace app
 } // namespace chip

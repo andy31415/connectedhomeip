@@ -122,6 +122,7 @@ public:
 };
 }; // namespace ModifyEnabledAlarms
 } // namespace Commands
+} // namespace DishwasherAlarm
 } // namespace Clusters
 } // namespace app
 } // namespace chip

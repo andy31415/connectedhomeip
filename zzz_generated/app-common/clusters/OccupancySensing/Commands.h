@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace OccupancySensing {} // namespace Clusters
+namespace OccupancySensing {} // namespace OccupancySensing
+} // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -81,6 +81,7 @@ public:
 };
 }; // namespace ResetCounts
 } // namespace Commands
+} // namespace EthernetNetworkDiagnostics
 } // namespace Clusters
 } // namespace app
 } // namespace chip

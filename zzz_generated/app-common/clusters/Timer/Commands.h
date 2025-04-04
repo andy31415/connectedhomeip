@@ -192,6 +192,7 @@ public:
 };
 }; // namespace ReduceTime
 } // namespace Commands
+} // namespace Timer
 } // namespace Clusters
 } // namespace app
 } // namespace chip

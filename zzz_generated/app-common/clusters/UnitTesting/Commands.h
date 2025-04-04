@@ -1808,6 +1808,7 @@ public:
 };
 }; // namespace TestDifferentVendorMeiResponse
 } // namespace Commands
+} // namespace UnitTesting
 } // namespace Clusters
 } // namespace app
 } // namespace chip

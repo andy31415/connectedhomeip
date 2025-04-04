@@ -81,6 +81,7 @@ public:
 };
 }; // namespace MfgSpecificPing
 } // namespace Commands
+} // namespace BasicInformation
 } // namespace Clusters
 } // namespace app
 } // namespace chip

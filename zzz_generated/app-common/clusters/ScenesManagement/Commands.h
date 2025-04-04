@@ -693,6 +693,7 @@ public:
 };
 }; // namespace CopySceneResponse
 } // namespace Commands
+} // namespace ScenesManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

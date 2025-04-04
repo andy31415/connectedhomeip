@@ -263,6 +263,7 @@ public:
 };
 }; // namespace OnWithTimedOff
 } // namespace Commands
+} // namespace OnOff
 } // namespace Clusters
 } // namespace app
 } // namespace chip

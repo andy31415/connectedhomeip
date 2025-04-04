@@ -241,6 +241,7 @@ public:
 };
 }; // namespace PayloadTestResponse
 } // namespace Commands
+} // namespace GeneralDiagnostics
 } // namespace Clusters
 } // namespace app
 } // namespace chip

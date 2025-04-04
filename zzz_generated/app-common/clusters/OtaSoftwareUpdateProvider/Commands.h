@@ -284,6 +284,7 @@ public:
 };
 }; // namespace NotifyUpdateApplied
 } // namespace Commands
+} // namespace OtaSoftwareUpdateProvider
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -202,6 +202,7 @@ public:
 };
 }; // namespace SkipAreaResponse
 } // namespace Commands
+} // namespace ServiceArea
 } // namespace Clusters
 } // namespace app
 } // namespace chip

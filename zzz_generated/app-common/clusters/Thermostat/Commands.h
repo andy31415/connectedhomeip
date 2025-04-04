@@ -413,6 +413,7 @@ public:
 };
 }; // namespace AtomicRequest
 } // namespace Commands
+} // namespace Thermostat
 } // namespace Clusters
 } // namespace app
 } // namespace chip

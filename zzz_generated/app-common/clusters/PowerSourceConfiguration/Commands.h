@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace PowerSourceConfiguration {} // namespace Clusters
+namespace PowerSourceConfiguration {} // namespace PowerSourceConfiguration
+} // namespace Clusters
 } // namespace app
 } // namespace chip

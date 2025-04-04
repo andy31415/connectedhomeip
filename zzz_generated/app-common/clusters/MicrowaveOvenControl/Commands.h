@@ -134,6 +134,7 @@ public:
 };
 }; // namespace AddMoreTime
 } // namespace Commands
+} // namespace MicrowaveOvenControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

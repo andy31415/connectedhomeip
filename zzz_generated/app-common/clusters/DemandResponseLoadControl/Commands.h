@@ -232,6 +232,7 @@ public:
 };
 }; // namespace ClearLoadControlEventsRequest
 } // namespace Commands
+} // namespace DemandResponseLoadControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

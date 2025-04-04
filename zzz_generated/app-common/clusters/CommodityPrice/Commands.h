@@ -196,6 +196,7 @@ public:
 };
 }; // namespace GetDetailedForecastResponse
 } // namespace Commands
+} // namespace CommodityPrice
 } // namespace Clusters
 } // namespace app
 } // namespace chip

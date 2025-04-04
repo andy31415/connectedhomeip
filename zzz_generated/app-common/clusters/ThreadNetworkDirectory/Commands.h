@@ -196,6 +196,7 @@ public:
 };
 }; // namespace OperationalDatasetResponse
 } // namespace Commands
+} // namespace ThreadNetworkDirectory
 } // namespace Clusters
 } // namespace app
 } // namespace chip

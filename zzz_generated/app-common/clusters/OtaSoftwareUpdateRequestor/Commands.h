@@ -97,6 +97,7 @@ public:
 };
 }; // namespace AnnounceOTAProvider
 } // namespace Commands
+} // namespace OtaSoftwareUpdateRequestor
 } // namespace Clusters
 } // namespace app
 } // namespace chip

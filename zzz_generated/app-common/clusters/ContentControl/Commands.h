@@ -441,6 +441,7 @@ public:
 };
 }; // namespace SetScheduledContentRatingThreshold
 } // namespace Commands
+} // namespace ContentControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

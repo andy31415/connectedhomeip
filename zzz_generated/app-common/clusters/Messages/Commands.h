@@ -140,6 +140,7 @@ public:
 };
 }; // namespace CancelMessagesRequest
 } // namespace Commands
+} // namespace Messages
 } // namespace Clusters
 } // namespace app
 } // namespace chip

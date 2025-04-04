@@ -125,6 +125,7 @@ public:
 };
 }; // namespace RenameOutput
 } // namespace Commands
+} // namespace AudioOutput
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace Switch {} // namespace Clusters
+namespace Switch {} // namespace Switch
+} // namespace Clusters
 } // namespace app
 } // namespace chip

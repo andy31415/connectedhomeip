@@ -125,6 +125,7 @@ public:
 };
 }; // namespace ChangeToModeResponse
 } // namespace Commands
+} // namespace LaundryWasherMode
 } // namespace Clusters
 } // namespace app
 } // namespace chip

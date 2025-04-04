@@ -118,6 +118,7 @@ public:
 };
 }; // namespace NetworkPassphraseResponse
 } // namespace Commands
+} // namespace WiFiNetworkManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

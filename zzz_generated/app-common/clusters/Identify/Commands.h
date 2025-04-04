@@ -125,6 +125,7 @@ public:
 };
 }; // namespace TriggerEffect
 } // namespace Commands
+} // namespace Identify
 } // namespace Clusters
 } // namespace app
 } // namespace chip

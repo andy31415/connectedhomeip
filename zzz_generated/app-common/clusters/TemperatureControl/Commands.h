@@ -88,6 +88,7 @@ public:
 };
 }; // namespace SetTemperature
 } // namespace Commands
+} // namespace TemperatureControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

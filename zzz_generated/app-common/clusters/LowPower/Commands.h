@@ -81,6 +81,7 @@ public:
 };
 }; // namespace Sleep
 } // namespace Commands
+} // namespace LowPower
 } // namespace Clusters
 } // namespace app
 } // namespace chip

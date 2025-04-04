@@ -167,6 +167,7 @@ public:
 };
 }; // namespace RevokeCommissioning
 } // namespace Commands
+} // namespace AdministratorCommissioning
 } // namespace Clusters
 } // namespace app
 } // namespace chip

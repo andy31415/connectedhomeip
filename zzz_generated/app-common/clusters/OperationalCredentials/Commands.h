@@ -648,6 +648,7 @@ public:
 };
 }; // namespace SignVIDVerificationResponse
 } // namespace Commands
+} // namespace OperationalCredentials
 } // namespace Clusters
 } // namespace app
 } // namespace chip

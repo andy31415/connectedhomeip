@@ -615,6 +615,7 @@ public:
 };
 }; // namespace RemoveClientCertificate
 } // namespace Commands
+} // namespace TlsCertificateManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

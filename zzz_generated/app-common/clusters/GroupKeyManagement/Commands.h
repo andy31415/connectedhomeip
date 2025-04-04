@@ -266,6 +266,7 @@ public:
 };
 }; // namespace KeySetReadAllIndicesResponse
 } // namespace Commands
+} // namespace GroupKeyManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

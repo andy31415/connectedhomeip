@@ -184,6 +184,7 @@ public:
 };
 }; // namespace GoHome
 } // namespace Commands
+} // namespace RvcOperationalState
 } // namespace Clusters
 } // namespace app
 } // namespace chip

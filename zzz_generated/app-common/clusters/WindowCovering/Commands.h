@@ -295,6 +295,7 @@ public:
 };
 }; // namespace GoToTiltPercentage
 } // namespace Commands
+} // namespace WindowCovering
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -128,6 +128,7 @@ public:
 };
 }; // namespace NavigateTargetResponse
 } // namespace Commands
+} // namespace TargetNavigator
 } // namespace Clusters
 } // namespace app
 } // namespace chip

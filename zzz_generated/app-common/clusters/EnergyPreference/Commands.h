@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace EnergyPreference {} // namespace Clusters
+namespace EnergyPreference {} // namespace EnergyPreference
+} // namespace Clusters
 } // namespace app
 } // namespace chip

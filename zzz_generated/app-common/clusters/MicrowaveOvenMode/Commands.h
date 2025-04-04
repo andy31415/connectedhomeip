@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace MicrowaveOvenMode {} // namespace Clusters
+namespace MicrowaveOvenMode {} // namespace MicrowaveOvenMode
+} // namespace Clusters
 } // namespace app
 } // namespace chip

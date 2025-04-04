@@ -337,6 +337,7 @@ public:
 };
 }; // namespace ClearTargets
 } // namespace Commands
+} // namespace EnergyEvse
 } // namespace Clusters
 } // namespace app
 } // namespace chip

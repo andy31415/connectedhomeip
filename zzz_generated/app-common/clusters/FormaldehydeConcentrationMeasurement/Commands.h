@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace FormaldehydeConcentrationMeasurement {} // namespace Clusters
+namespace FormaldehydeConcentrationMeasurement {} // namespace FormaldehydeConcentrationMeasurement
+} // namespace Clusters
 } // namespace app
 } // namespace chip

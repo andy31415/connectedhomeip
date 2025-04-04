@@ -81,6 +81,7 @@ public:
 };
 }; // namespace SelfTestRequest
 } // namespace Commands
+} // namespace SmokeCoAlarm
 } // namespace Clusters
 } // namespace app
 } // namespace chip

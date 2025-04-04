@@ -245,6 +245,7 @@ public:
 };
 }; // namespace RemoveEndpoint
 } // namespace Commands
+} // namespace TlsClientManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

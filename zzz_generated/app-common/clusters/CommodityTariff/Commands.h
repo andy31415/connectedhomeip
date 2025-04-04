@@ -202,6 +202,7 @@ public:
 };
 }; // namespace GetDayEntryResponse
 } // namespace Commands
+} // namespace CommodityTariff
 } // namespace Clusters
 } // namespace app
 } // namespace chip

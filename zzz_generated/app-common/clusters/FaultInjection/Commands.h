@@ -140,6 +140,7 @@ public:
 };
 }; // namespace FailRandomlyAtFault
 } // namespace Commands
+} // namespace FaultInjection
 } // namespace Clusters
 } // namespace app
 } // namespace chip

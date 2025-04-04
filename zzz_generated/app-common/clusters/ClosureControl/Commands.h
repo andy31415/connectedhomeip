@@ -236,6 +236,7 @@ public:
 };
 }; // namespace CancelFallback
 } // namespace Commands
+} // namespace ClosureControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

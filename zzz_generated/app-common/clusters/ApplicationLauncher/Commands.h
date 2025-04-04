@@ -202,6 +202,7 @@ public:
 };
 }; // namespace LauncherResponse
 } // namespace Commands
+} // namespace ApplicationLauncher
 } // namespace Clusters
 } // namespace app
 } // namespace chip

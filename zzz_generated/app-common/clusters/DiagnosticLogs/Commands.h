@@ -137,6 +137,7 @@ public:
 };
 }; // namespace RetrieveLogsResponse
 } // namespace Commands
+} // namespace DiagnosticLogs
 } // namespace Clusters
 } // namespace app
 } // namespace chip

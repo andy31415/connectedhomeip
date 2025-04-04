@@ -122,6 +122,7 @@ public:
 };
 }; // namespace ReviewFabricRestrictionsResponse
 } // namespace Commands
+} // namespace AccessControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

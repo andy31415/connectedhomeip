@@ -273,6 +273,7 @@ public:
 };
 }; // namespace RemoveZone
 } // namespace Commands
+} // namespace ZoneManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace PowerTopology {} // namespace Clusters
+namespace PowerTopology {} // namespace PowerTopology
+} // namespace Clusters
 } // namespace app
 } // namespace chip

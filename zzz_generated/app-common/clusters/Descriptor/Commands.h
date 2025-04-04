@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace Descriptor {} // namespace Clusters
+namespace Descriptor {} // namespace Descriptor
+} // namespace Clusters
 } // namespace app
 } // namespace chip

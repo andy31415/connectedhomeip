@@ -202,6 +202,7 @@ public:
 };
 }; // namespace Logout
 } // namespace Commands
+} // namespace AccountLogin
 } // namespace Clusters
 } // namespace app
 } // namespace chip

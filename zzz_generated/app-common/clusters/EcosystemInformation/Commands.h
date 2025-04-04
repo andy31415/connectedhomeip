@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace EcosystemInformation {} // namespace Clusters
+namespace EcosystemInformation {} // namespace EcosystemInformation
+} // namespace Clusters
 } // namespace app
 } // namespace chip

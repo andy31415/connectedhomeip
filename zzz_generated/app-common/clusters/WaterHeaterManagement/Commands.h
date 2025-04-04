@@ -118,6 +118,7 @@ public:
 };
 }; // namespace CancelBoost
 } // namespace Commands
+} // namespace WaterHeaterManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

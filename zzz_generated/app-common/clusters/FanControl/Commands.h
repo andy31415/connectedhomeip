@@ -91,6 +91,7 @@ public:
 };
 }; // namespace Step
 } // namespace Commands
+} // namespace FanControl
 } // namespace Clusters
 } // namespace app
 } // namespace chip

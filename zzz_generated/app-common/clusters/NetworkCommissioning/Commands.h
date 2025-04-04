@@ -521,6 +521,7 @@ public:
 };
 }; // namespace QueryIdentityResponse
 } // namespace Commands
+} // namespace NetworkCommissioning
 } // namespace Clusters
 } // namespace app
 } // namespace chip

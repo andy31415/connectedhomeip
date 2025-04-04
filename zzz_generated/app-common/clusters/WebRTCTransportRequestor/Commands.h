@@ -214,6 +214,7 @@ public:
 };
 }; // namespace End
 } // namespace Commands
+} // namespace WebRTCTransportRequestor
 } // namespace Clusters
 } // namespace app
 } // namespace chip

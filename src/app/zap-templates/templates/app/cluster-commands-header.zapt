@@ -89,6 +89,7 @@ public:
 } // namespace Commands
 {{/last}}
 {{/zcl_commands}}
+} // namespace {{asUpperCamelCase name}}
 } // namespace Clusters
 } // namespace app
 } // namespace chip

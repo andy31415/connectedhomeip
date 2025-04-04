@@ -158,6 +158,7 @@ public:
 };
 }; // namespace AddArguments
 } // namespace Commands
+} // namespace SampleMei
 } // namespace Clusters
 } // namespace app
 } // namespace chip

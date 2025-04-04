@@ -217,6 +217,7 @@ public:
 };
 }; // namespace OperationalCommandResponse
 } // namespace Commands
+} // namespace OvenCavityOperationalState
 } // namespace Clusters
 } // namespace app
 } // namespace chip

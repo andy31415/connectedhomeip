@@ -581,6 +581,7 @@ public:
 };
 }; // namespace DeactivateTextTrack
 } // namespace Commands
+} // namespace MediaPlayback
 } // namespace Clusters
 } // namespace app
 } // namespace chip

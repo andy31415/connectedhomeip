@@ -131,6 +131,7 @@ public:
 };
 }; // namespace ContentAppMessageResponse
 } // namespace Commands
+} // namespace ContentAppObserver
 } // namespace Clusters
 } // namespace app
 } // namespace chip

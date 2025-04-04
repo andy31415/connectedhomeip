@@ -543,6 +543,7 @@ public:
 };
 }; // namespace DisableActionWithDuration
 } // namespace Commands
+} // namespace Actions
 } // namespace Clusters
 } // namespace app
 } // namespace chip

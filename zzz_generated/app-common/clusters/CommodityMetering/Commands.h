@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace CommodityMetering {} // namespace Clusters
+namespace CommodityMetering {} // namespace CommodityMetering
+} // namespace Clusters
 } // namespace app
 } // namespace chip

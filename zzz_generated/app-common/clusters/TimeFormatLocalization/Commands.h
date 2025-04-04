@@ -40,6 +40,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace TimeFormatLocalization {} // namespace Clusters
+namespace TimeFormatLocalization {} // namespace TimeFormatLocalization
+} // namespace Clusters
 } // namespace app
 } // namespace chip

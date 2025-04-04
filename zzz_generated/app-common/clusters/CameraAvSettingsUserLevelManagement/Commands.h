@@ -334,6 +334,7 @@ public:
 };
 }; // namespace DPTZRelativeMove
 } // namespace Commands
+} // namespace CameraAvSettingsUserLevelManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip
