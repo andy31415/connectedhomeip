@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/OvenCavityOperationalState/ClusterId.h>
-#include <clusters/OvenCavityOperationalState/Events.h>
+#include <clusters/OvenCavityOperationalState/EventIds.h>
 #include <clusters/OvenCavityOperationalState/Structs.h>
 
 namespace chip {

@@ -16,7 +16,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/{{asUpperCamelCase name}}/ClusterId.h>
-#include <clusters/{{asUpperCamelCase name}}/Events.h>
+#include <clusters/{{asUpperCamelCase name}}/EventIds.h>
 #include <clusters/{{asUpperCamelCase name}}/Structs.h>
 
 namespace chip {

@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/LaundryWasherMode/ClusterId.h>
-#include <clusters/LaundryWasherMode/Events.h>
+#include <clusters/LaundryWasherMode/EventIds.h>
 #include <clusters/LaundryWasherMode/Structs.h>
 
 namespace chip {

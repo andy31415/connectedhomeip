@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/RadonConcentrationMeasurement/ClusterId.h>
-#include <clusters/RadonConcentrationMeasurement/Events.h>
+#include <clusters/RadonConcentrationMeasurement/EventIds.h>
 #include <clusters/RadonConcentrationMeasurement/Structs.h>
 
 namespace chip {

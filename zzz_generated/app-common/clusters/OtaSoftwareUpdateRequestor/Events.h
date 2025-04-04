@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/OtaSoftwareUpdateRequestor/ClusterId.h>
-#include <clusters/OtaSoftwareUpdateRequestor/Events.h>
+#include <clusters/OtaSoftwareUpdateRequestor/EventIds.h>
 #include <clusters/OtaSoftwareUpdateRequestor/Structs.h>
 
 namespace chip {

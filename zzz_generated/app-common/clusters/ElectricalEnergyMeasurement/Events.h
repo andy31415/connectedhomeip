@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/ElectricalEnergyMeasurement/ClusterId.h>
-#include <clusters/ElectricalEnergyMeasurement/Events.h>
+#include <clusters/ElectricalEnergyMeasurement/EventIds.h>
 #include <clusters/ElectricalEnergyMeasurement/Structs.h>
 
 namespace chip {

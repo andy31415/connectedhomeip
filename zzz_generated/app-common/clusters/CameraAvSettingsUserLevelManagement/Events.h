@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/CameraAvSettingsUserLevelManagement/ClusterId.h>
-#include <clusters/CameraAvSettingsUserLevelManagement/Events.h>
+#include <clusters/CameraAvSettingsUserLevelManagement/EventIds.h>
 #include <clusters/CameraAvSettingsUserLevelManagement/Structs.h>
 
 namespace chip {

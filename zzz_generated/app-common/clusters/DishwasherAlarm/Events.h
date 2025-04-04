@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/DishwasherAlarm/ClusterId.h>
-#include <clusters/DishwasherAlarm/Events.h>
+#include <clusters/DishwasherAlarm/EventIds.h>
 #include <clusters/DishwasherAlarm/Structs.h>
 
 namespace chip {

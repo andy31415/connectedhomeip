@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/MicrowaveOvenControl/ClusterId.h>
-#include <clusters/MicrowaveOvenControl/Events.h>
+#include <clusters/MicrowaveOvenControl/EventIds.h>
 #include <clusters/MicrowaveOvenControl/Structs.h>
 
 namespace chip {

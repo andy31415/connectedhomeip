@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/OccupancySensing/ClusterId.h>
-#include <clusters/OccupancySensing/Events.h>
+#include <clusters/OccupancySensing/EventIds.h>
 #include <clusters/OccupancySensing/Structs.h>
 
 namespace chip {

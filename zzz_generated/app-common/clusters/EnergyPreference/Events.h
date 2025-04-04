@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/EnergyPreference/ClusterId.h>
-#include <clusters/EnergyPreference/Events.h>
+#include <clusters/EnergyPreference/EventIds.h>
 #include <clusters/EnergyPreference/Structs.h>
 
 namespace chip {

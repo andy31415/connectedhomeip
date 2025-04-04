@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/TemperatureControl/ClusterId.h>
-#include <clusters/TemperatureControl/Events.h>
+#include <clusters/TemperatureControl/EventIds.h>
 #include <clusters/TemperatureControl/Structs.h>
 
 namespace chip {

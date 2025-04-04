@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/CommodityPrice/ClusterId.h>
-#include <clusters/CommodityPrice/Events.h>
+#include <clusters/CommodityPrice/EventIds.h>
 #include <clusters/CommodityPrice/Structs.h>
 
 namespace chip {

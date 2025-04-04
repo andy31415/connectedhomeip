@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/TimeSynchronization/ClusterId.h>
-#include <clusters/TimeSynchronization/Events.h>
+#include <clusters/TimeSynchronization/EventIds.h>
 #include <clusters/TimeSynchronization/Structs.h>
 
 namespace chip {

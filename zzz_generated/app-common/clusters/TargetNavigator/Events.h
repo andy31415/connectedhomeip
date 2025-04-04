@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/TargetNavigator/ClusterId.h>
-#include <clusters/TargetNavigator/Events.h>
+#include <clusters/TargetNavigator/EventIds.h>
 #include <clusters/TargetNavigator/Structs.h>
 
 namespace chip {

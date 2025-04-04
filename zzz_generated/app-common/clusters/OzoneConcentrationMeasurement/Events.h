@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/OzoneConcentrationMeasurement/ClusterId.h>
-#include <clusters/OzoneConcentrationMeasurement/Events.h>
+#include <clusters/OzoneConcentrationMeasurement/EventIds.h>
 #include <clusters/OzoneConcentrationMeasurement/Structs.h>
 
 namespace chip {

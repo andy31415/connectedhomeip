@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/Pm1ConcentrationMeasurement/ClusterId.h>
-#include <clusters/Pm1ConcentrationMeasurement/Events.h>
+#include <clusters/Pm1ConcentrationMeasurement/EventIds.h>
 #include <clusters/Pm1ConcentrationMeasurement/Structs.h>
 
 namespace chip {

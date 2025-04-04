@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/WebRTCTransportRequestor/ClusterId.h>
-#include <clusters/WebRTCTransportRequestor/Events.h>
+#include <clusters/WebRTCTransportRequestor/EventIds.h>
 #include <clusters/WebRTCTransportRequestor/Structs.h>
 
 namespace chip {

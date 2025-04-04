@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/FanControl/ClusterId.h>
-#include <clusters/FanControl/Events.h>
+#include <clusters/FanControl/EventIds.h>
 #include <clusters/FanControl/Structs.h>
 
 namespace chip {

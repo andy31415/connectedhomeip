@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/DoorLock/ClusterId.h>
-#include <clusters/DoorLock/Events.h>
+#include <clusters/DoorLock/EventIds.h>
 #include <clusters/DoorLock/Structs.h>
 
 namespace chip {

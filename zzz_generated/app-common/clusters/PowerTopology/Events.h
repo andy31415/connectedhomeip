@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/PowerTopology/ClusterId.h>
-#include <clusters/PowerTopology/Events.h>
+#include <clusters/PowerTopology/EventIds.h>
 #include <clusters/PowerTopology/Structs.h>
 
 namespace chip {

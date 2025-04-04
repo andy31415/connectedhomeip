@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/TotalVolatileOrganicCompoundsConcentrationMeasurement/ClusterId.h>
-#include <clusters/TotalVolatileOrganicCompoundsConcentrationMeasurement/Events.h>
+#include <clusters/TotalVolatileOrganicCompoundsConcentrationMeasurement/EventIds.h>
 #include <clusters/TotalVolatileOrganicCompoundsConcentrationMeasurement/Structs.h>
 
 namespace chip {

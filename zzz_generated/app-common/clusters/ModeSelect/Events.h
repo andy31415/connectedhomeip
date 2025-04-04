@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/ModeSelect/ClusterId.h>
-#include <clusters/ModeSelect/Events.h>
+#include <clusters/ModeSelect/EventIds.h>
 #include <clusters/ModeSelect/Structs.h>
 
 namespace chip {

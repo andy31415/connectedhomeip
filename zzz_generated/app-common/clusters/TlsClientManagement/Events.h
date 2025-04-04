@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/TlsClientManagement/ClusterId.h>
-#include <clusters/TlsClientManagement/Events.h>
+#include <clusters/TlsClientManagement/EventIds.h>
 #include <clusters/TlsClientManagement/Structs.h>
 
 namespace chip {

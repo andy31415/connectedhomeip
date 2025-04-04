@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/TlsCertificateManagement/ClusterId.h>
-#include <clusters/TlsCertificateManagement/Events.h>
+#include <clusters/TlsCertificateManagement/EventIds.h>
 #include <clusters/TlsCertificateManagement/Structs.h>
 
 namespace chip {

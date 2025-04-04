@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/WaterHeaterManagement/ClusterId.h>
-#include <clusters/WaterHeaterManagement/Events.h>
+#include <clusters/WaterHeaterManagement/EventIds.h>
 #include <clusters/WaterHeaterManagement/Structs.h>
 
 namespace chip {

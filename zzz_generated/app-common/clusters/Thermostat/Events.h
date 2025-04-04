@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/Thermostat/ClusterId.h>
-#include <clusters/Thermostat/Events.h>
+#include <clusters/Thermostat/EventIds.h>
 #include <clusters/Thermostat/Structs.h>
 
 namespace chip {

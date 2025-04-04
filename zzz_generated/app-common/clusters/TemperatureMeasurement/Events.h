@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/TemperatureMeasurement/ClusterId.h>
-#include <clusters/TemperatureMeasurement/Events.h>
+#include <clusters/TemperatureMeasurement/EventIds.h>
 #include <clusters/TemperatureMeasurement/Structs.h>
 
 namespace chip {

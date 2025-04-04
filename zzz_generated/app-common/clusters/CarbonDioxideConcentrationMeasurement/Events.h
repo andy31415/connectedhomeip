@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/CarbonDioxideConcentrationMeasurement/ClusterId.h>
-#include <clusters/CarbonDioxideConcentrationMeasurement/Events.h>
+#include <clusters/CarbonDioxideConcentrationMeasurement/EventIds.h>
 #include <clusters/CarbonDioxideConcentrationMeasurement/Structs.h>
 
 namespace chip {

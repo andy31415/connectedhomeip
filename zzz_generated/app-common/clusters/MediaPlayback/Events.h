@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/MediaPlayback/ClusterId.h>
-#include <clusters/MediaPlayback/Events.h>
+#include <clusters/MediaPlayback/EventIds.h>
 #include <clusters/MediaPlayback/Structs.h>
 
 namespace chip {

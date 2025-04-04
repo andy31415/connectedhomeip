@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/UnitLocalization/ClusterId.h>
-#include <clusters/UnitLocalization/Events.h>
+#include <clusters/UnitLocalization/EventIds.h>
 #include <clusters/UnitLocalization/Structs.h>
 
 namespace chip {

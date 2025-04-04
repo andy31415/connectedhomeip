@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/ProxyConfiguration/ClusterId.h>
-#include <clusters/ProxyConfiguration/Events.h>
+#include <clusters/ProxyConfiguration/EventIds.h>
 #include <clusters/ProxyConfiguration/Structs.h>
 
 namespace chip {

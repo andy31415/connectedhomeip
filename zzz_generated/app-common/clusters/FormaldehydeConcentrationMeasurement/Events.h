@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/FormaldehydeConcentrationMeasurement/ClusterId.h>
-#include <clusters/FormaldehydeConcentrationMeasurement/Events.h>
+#include <clusters/FormaldehydeConcentrationMeasurement/EventIds.h>
 #include <clusters/FormaldehydeConcentrationMeasurement/Structs.h>
 
 namespace chip {

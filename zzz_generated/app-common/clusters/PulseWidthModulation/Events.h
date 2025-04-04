@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/PulseWidthModulation/ClusterId.h>
-#include <clusters/PulseWidthModulation/Events.h>
+#include <clusters/PulseWidthModulation/EventIds.h>
 #include <clusters/PulseWidthModulation/Structs.h>
 
 namespace chip {

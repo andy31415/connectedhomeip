@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/HepaFilterMonitoring/ClusterId.h>
-#include <clusters/HepaFilterMonitoring/Events.h>
+#include <clusters/HepaFilterMonitoring/EventIds.h>
 #include <clusters/HepaFilterMonitoring/Structs.h>
 
 namespace chip {

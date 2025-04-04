@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/AirQuality/ClusterId.h>
-#include <clusters/AirQuality/Events.h>
+#include <clusters/AirQuality/EventIds.h>
 #include <clusters/AirQuality/Structs.h>
 
 namespace chip {

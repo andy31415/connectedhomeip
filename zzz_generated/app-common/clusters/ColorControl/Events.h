@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/ColorControl/ClusterId.h>
-#include <clusters/ColorControl/Events.h>
+#include <clusters/ColorControl/EventIds.h>
 #include <clusters/ColorControl/Structs.h>
 
 namespace chip {

@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/KeypadInput/ClusterId.h>
-#include <clusters/KeypadInput/Events.h>
+#include <clusters/KeypadInput/EventIds.h>
 #include <clusters/KeypadInput/Structs.h>
 
 namespace chip {

@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/ThreadNetworkDirectory/ClusterId.h>
-#include <clusters/ThreadNetworkDirectory/Events.h>
+#include <clusters/ThreadNetworkDirectory/EventIds.h>
 #include <clusters/ThreadNetworkDirectory/Structs.h>
 
 namespace chip {

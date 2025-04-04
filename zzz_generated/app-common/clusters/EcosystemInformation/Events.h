@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/EcosystemInformation/ClusterId.h>
-#include <clusters/EcosystemInformation/Events.h>
+#include <clusters/EcosystemInformation/EventIds.h>
 #include <clusters/EcosystemInformation/Structs.h>
 
 namespace chip {

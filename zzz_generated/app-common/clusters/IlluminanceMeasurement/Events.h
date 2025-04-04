@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/IlluminanceMeasurement/ClusterId.h>
-#include <clusters/IlluminanceMeasurement/Events.h>
+#include <clusters/IlluminanceMeasurement/EventIds.h>
 #include <clusters/IlluminanceMeasurement/Structs.h>
 
 namespace chip {

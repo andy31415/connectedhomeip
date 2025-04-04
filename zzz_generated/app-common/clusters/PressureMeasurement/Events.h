@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/PressureMeasurement/ClusterId.h>
-#include <clusters/PressureMeasurement/Events.h>
+#include <clusters/PressureMeasurement/EventIds.h>
 #include <clusters/PressureMeasurement/Structs.h>
 
 namespace chip {

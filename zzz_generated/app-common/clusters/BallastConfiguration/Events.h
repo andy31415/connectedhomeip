@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/BallastConfiguration/ClusterId.h>
-#include <clusters/BallastConfiguration/Events.h>
+#include <clusters/BallastConfiguration/EventIds.h>
 #include <clusters/BallastConfiguration/Structs.h>
 
 namespace chip {

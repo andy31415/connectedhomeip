@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/ApplicationLauncher/ClusterId.h>
-#include <clusters/ApplicationLauncher/Events.h>
+#include <clusters/ApplicationLauncher/EventIds.h>
 #include <clusters/ApplicationLauncher/Structs.h>
 
 namespace chip {

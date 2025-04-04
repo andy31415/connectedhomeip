@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/PushAvStreamTransport/ClusterId.h>
-#include <clusters/PushAvStreamTransport/Events.h>
+#include <clusters/PushAvStreamTransport/EventIds.h>
 #include <clusters/PushAvStreamTransport/Structs.h>
 
 namespace chip {

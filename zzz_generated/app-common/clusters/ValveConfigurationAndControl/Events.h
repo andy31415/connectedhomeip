@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/ValveConfigurationAndControl/ClusterId.h>
-#include <clusters/ValveConfigurationAndControl/Events.h>
+#include <clusters/ValveConfigurationAndControl/EventIds.h>
 #include <clusters/ValveConfigurationAndControl/Structs.h>
 
 namespace chip {

@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/RefrigeratorAlarm/ClusterId.h>
-#include <clusters/RefrigeratorAlarm/Events.h>
+#include <clusters/RefrigeratorAlarm/EventIds.h>
 #include <clusters/RefrigeratorAlarm/Structs.h>
 
 namespace chip {

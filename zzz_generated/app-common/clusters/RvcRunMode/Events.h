@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/RvcRunMode/ClusterId.h>
-#include <clusters/RvcRunMode/Events.h>
+#include <clusters/RvcRunMode/EventIds.h>
 #include <clusters/RvcRunMode/Structs.h>
 
 namespace chip {

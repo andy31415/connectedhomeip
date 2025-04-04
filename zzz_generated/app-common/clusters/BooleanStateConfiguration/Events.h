@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/BooleanStateConfiguration/ClusterId.h>
-#include <clusters/BooleanStateConfiguration/Events.h>
+#include <clusters/BooleanStateConfiguration/EventIds.h>
 #include <clusters/BooleanStateConfiguration/Structs.h>
 
 namespace chip {

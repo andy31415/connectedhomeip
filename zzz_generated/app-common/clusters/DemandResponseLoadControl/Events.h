@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/DemandResponseLoadControl/ClusterId.h>
-#include <clusters/DemandResponseLoadControl/Events.h>
+#include <clusters/DemandResponseLoadControl/EventIds.h>
 #include <clusters/DemandResponseLoadControl/Structs.h>
 
 namespace chip {

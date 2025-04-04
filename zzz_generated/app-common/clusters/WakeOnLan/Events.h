@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/WakeOnLan/ClusterId.h>
-#include <clusters/WakeOnLan/Events.h>
+#include <clusters/WakeOnLan/EventIds.h>
 #include <clusters/WakeOnLan/Structs.h>
 
 namespace chip {

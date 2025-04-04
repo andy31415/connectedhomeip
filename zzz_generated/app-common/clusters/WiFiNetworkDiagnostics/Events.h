@@ -33,7 +33,7 @@
 #include <clusters/shared/Structs.h>
 
 #include <clusters/WiFiNetworkDiagnostics/ClusterId.h>
-#include <clusters/WiFiNetworkDiagnostics/Events.h>
+#include <clusters/WiFiNetworkDiagnostics/EventIds.h>
 #include <clusters/WiFiNetworkDiagnostics/Structs.h>
 
 namespace chip {
