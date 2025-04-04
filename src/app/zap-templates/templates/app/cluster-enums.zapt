@@ -1,14 +1,13 @@
 {{> header}}
-
 #pragma once
 
 #include <stdint.h>
 
+// TODO: shared and global enums header include
 
 namespace chip {
 namespace app {
 namespace Clusters {
-
 namespace detail {
 // Enums shared across multiple clusters.
 {{#zcl_enums}}
@@ -68,37 +67,11 @@ k{{asUpperCamelCase label}} = {{asHex mask}},
 {{/zcl_bitmaps}}
 
 } // namespace Globals
-
-{{#zcl_clusters}}
-namespace {{asUpperCamelCase name}} {
-{{#zcl_enums}}
-
-{{#if has_more_than_one_cluster}}
-using {{asUpperCamelCase name}} = Clusters::detail::{{asUpperCamelCase name}};
-{{else}}
-{{> cluster_enums_enum ns=(asUpperCamelCase ../name)}}
-
-{{/if}}
-{{/zcl_enums}}
-{{#zcl_bitmaps}}
-
-{{#if has_more_than_one_cluster}}
-using {{asUpperCamelCase name}} = Clusters::detail::{{asUpperCamelCase name}};
-{{else}}
-// Bitmap for {{label}}
-enum class {{asType label}} : {{asUnderlyingZclType name}} {
-{{#zcl_bitmap_items}}
-k{{asUpperCamelCase label}} = {{asHex mask}},
-{{/zcl_bitmap_items}}
-};
-{{/if}}
-{{/zcl_bitmaps}}
-} // namespace {{asUpperCamelCase name}}
-
-{{/zcl_clusters}}
 } // namespace Clusters
 } // namespace app
 } // namespace chip
 
-// Included at the end, so all our definitions above are available.
-#include <app/common/CompatEnumNames.h>
+{{#zcl_clusters}}
+#include <clusters/{{asUpperCamelCase name}}/Enums.h>
+{{/zcl_clusters}}
+
