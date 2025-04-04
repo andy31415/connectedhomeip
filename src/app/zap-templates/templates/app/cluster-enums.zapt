@@ -5,3 +5,6 @@
 #include <clusters/{{asUpperCamelCase name}}/Enums.h>
 {{/zcl_clusters}}
 
+// Included at the end, so all our definitions above are available.
+#include <app/common/CompatEnumNames.h>
+

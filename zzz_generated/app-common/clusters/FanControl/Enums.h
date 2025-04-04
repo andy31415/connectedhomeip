@@ -112,6 +112,3 @@ enum class WindBitmap : uint8_t
 } // namespace Clusters
 } // namespace app
 } // namespace chip
-
-// Included at the end, so all our definitions above are available.
-#include <app/common/CompatEnumNames.h>

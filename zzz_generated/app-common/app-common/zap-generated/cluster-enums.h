@@ -155,3 +155,6 @@
 #include <clusters/WiFiNetworkManagement/Enums.h>
 #include <clusters/WindowCovering/Enums.h>
 #include <clusters/ZoneManagement/Enums.h>
+
+// Included at the end, so all our definitions above are available.
+#include <app/common/CompatEnumNames.h>

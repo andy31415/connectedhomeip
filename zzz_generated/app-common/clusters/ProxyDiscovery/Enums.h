@@ -28,6 +28,3 @@ namespace ProxyDiscovery {} // namespace ProxyDiscovery
 } // namespace Clusters
 } // namespace app
 } // namespace chip
-
-// Included at the end, so all our definitions above are available.
-#include <app/common/CompatEnumNames.h>
