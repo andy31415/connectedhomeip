@@ -25,7 +25,6 @@
 #include <app/data-model/Encode.h>
 #include <app/data-model/List.h>
 #include <app/data-model/NullObject.h>
-#include <app/util/basic-types.h>
 #include <lib/core/ClusterEnums.h>
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
@@ -550,5 +549,6 @@ using DecodableType = Type;
 
 } // namespace Structs
 } // namespace Globals
+} // namespace Clusters
 } // namespace app
 } // namespace chip

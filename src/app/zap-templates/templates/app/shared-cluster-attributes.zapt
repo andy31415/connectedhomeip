@@ -8,7 +8,6 @@
 #include <app/data-model/NullObject.h>
 #include <app/ConcreteAttributePath.h>
 #include <app/EventLoggingTypes.h>
-#include <app/util/basic-types.h>
 #include <lib/core/ClusterEnums.h>
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
