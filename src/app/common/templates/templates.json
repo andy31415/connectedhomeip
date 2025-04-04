@@ -156,7 +156,7 @@
       "output": "../../clusters/{name:touppercamelcase}/Structs.cpp"
     },
     {
-      "path": "../../zap-templates/templates/app/cluster-structs-src.zapt",
+      "path": "../../zap-templates/templates/app/cluster-attributes-src.zapt",
       "name": "Cluster-specific attributes implementations",
       "iterator": "availableCluster",
       "output": "../../clusters/{name:touppercamelcase}/Attributes.cpp"
