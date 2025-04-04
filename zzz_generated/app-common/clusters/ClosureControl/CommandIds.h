@@ -28,6 +28,6 @@ inline constexpr CommandId Id = 0x00000004;
 } // namespace CancelFallback
 } // namespace Commands
 } // namespace ClosureControl
-} // namespace Clusters
 } // namespace app
+} // namespace Clusters
 } // namespace chip

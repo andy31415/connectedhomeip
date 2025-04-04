@@ -22,7 +22,7 @@ namespace Attributes {
 namespace MaxRootCertificates {
 inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .attributeId    = TlsCertificateManagement::Attributes::MaxRootCertificates::Id,
-    .flags          = BitFlags<DataModel::AttributeQualityFlags>{},
+    .flags          = BitFlags<DataModel::AttributeQualityFlags>{  },
     .readPrivilege  = Access::Privilege::kView,
     .writePrivilege = std::nullopt,
 };
@@ -38,7 +38,7 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
 namespace MaxClientCertificates {
 inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .attributeId    = TlsCertificateManagement::Attributes::MaxClientCertificates::Id,
-    .flags          = BitFlags<DataModel::AttributeQualityFlags>{},
+    .flags          = BitFlags<DataModel::AttributeQualityFlags>{  },
     .readPrivilege  = Access::Privilege::kView,
     .writePrivilege = std::nullopt,
 };
@@ -51,6 +51,7 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .writePrivilege = std::nullopt,
 };
 } // namespace ProvisionedClientCertificates
+
 
 } // namespace Attributes
 
@@ -93,7 +94,7 @@ inline constexpr DataModel::AcceptedCommandEntry kMetatadaEntry = {
 namespace ProvisionClientCertificate {
 inline constexpr DataModel::AcceptedCommandEntry kMetatadaEntry = {
     .commandId       = TlsCertificateManagement::Commands::ProvisionClientCertificate::Id,
-    .flags           = BitFlags<DataModel::CommandQualityFlags>{},
+    .flags           = BitFlags<DataModel::CommandQualityFlags>{  },
     .invokePrivilege = Access::Privilege::kAdminister,
 };
 } // namespace ProvisionClientCertificate
@@ -121,6 +122,6 @@ inline constexpr DataModel::AcceptedCommandEntry kMetatadaEntry = {
 
 } // namespace Commands
 } // namespace TlsCertificateManagement
-} // namespace clusters
 } // namespace app
+} // namespace Clusters
 } // namespace chip

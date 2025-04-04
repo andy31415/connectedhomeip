@@ -22,7 +22,7 @@ namespace Attributes {
 namespace MaxProvisioned {
 inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .attributeId    = TlsClientManagement::Attributes::MaxProvisioned::Id,
-    .flags          = BitFlags<DataModel::AttributeQualityFlags>{},
+    .flags          = BitFlags<DataModel::AttributeQualityFlags>{  },
     .readPrivilege  = Access::Privilege::kView,
     .writePrivilege = std::nullopt,
 };
@@ -35,6 +35,7 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .writePrivilege = std::nullopt,
 };
 } // namespace ProvisionedEndpoints
+
 
 } // namespace Attributes
 
@@ -63,6 +64,6 @@ inline constexpr DataModel::AcceptedCommandEntry kMetatadaEntry = {
 
 } // namespace Commands
 } // namespace TlsClientManagement
-} // namespace clusters
 } // namespace app
+} // namespace Clusters
 } // namespace chip

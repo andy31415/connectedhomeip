@@ -36,6 +36,7 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
 };
 } // namespace ActiveMessageIDs
 
+
 } // namespace Attributes
 
 namespace Commands {
@@ -56,6 +57,6 @@ inline constexpr DataModel::AcceptedCommandEntry kMetatadaEntry = {
 
 } // namespace Commands
 } // namespace Messages
-} // namespace clusters
 } // namespace app
+} // namespace Clusters
 } // namespace chip

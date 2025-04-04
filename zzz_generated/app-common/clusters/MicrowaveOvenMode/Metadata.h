@@ -30,16 +30,19 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
 namespace CurrentMode {
 inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .attributeId    = MicrowaveOvenMode::Attributes::CurrentMode::Id,
-    .flags          = BitFlags<DataModel::AttributeQualityFlags>{},
+    .flags          = BitFlags<DataModel::AttributeQualityFlags>{  },
     .readPrivilege  = Access::Privilege::kView,
     .writePrivilege = std::nullopt,
 };
 } // namespace CurrentMode
 
+
 } // namespace Attributes
 
-namespace Commands {} // namespace Commands
+namespace Commands {
+
+} // namespace Commands
 } // namespace MicrowaveOvenMode
-} // namespace clusters
 } // namespace app
+} // namespace Clusters
 } // namespace chip

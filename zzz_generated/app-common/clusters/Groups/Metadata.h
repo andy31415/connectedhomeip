@@ -22,11 +22,12 @@ namespace Attributes {
 namespace NameSupport {
 inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .attributeId    = Groups::Attributes::NameSupport::Id,
-    .flags          = BitFlags<DataModel::AttributeQualityFlags>{},
+    .flags          = BitFlags<DataModel::AttributeQualityFlags>{  },
     .readPrivilege  = Access::Privilege::kView,
     .writePrivilege = std::nullopt,
 };
 } // namespace NameSupport
+
 
 } // namespace Attributes
 
@@ -76,6 +77,6 @@ inline constexpr DataModel::AcceptedCommandEntry kMetatadaEntry = {
 
 } // namespace Commands
 } // namespace Groups
-} // namespace clusters
 } // namespace app
+} // namespace Clusters
 } // namespace chip

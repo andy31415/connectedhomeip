@@ -18,6 +18,16 @@ source_set("ids") {
   ]
 }
 
+source_set("enums") {
+  sources = [
+    "Enums.h",
+    "EnumsCheck.h",
+  ]
+  deps = [
+    "${chip_root}/zzz_generated/app-common/clusters/shared:enums",
+  ]
+}
+
 source_set("metadata") {
   sources = [ "Metadata.h" ]
   deps = [

@@ -60,10 +60,13 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
 };
 } // namespace TagList
 
+
 } // namespace Attributes
 
-namespace Commands {} // namespace Commands
+namespace Commands {
+
+} // namespace Commands
 } // namespace Descriptor
-} // namespace clusters
 } // namespace app
+} // namespace Clusters
 } // namespace chip

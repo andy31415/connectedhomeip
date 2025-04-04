@@ -28,6 +28,7 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
 };
 } // namespace CurrentSessions
 
+
 } // namespace Attributes
 
 namespace Commands {
@@ -69,6 +70,6 @@ inline constexpr DataModel::AcceptedCommandEntry kMetatadaEntry = {
 
 } // namespace Commands
 } // namespace WebRTCTransportProvider
-} // namespace clusters
 } // namespace app
+} // namespace Clusters
 } // namespace chip
