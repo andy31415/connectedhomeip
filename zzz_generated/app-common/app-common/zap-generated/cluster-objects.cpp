@@ -23,7 +23,6 @@
 
 namespace chip {
 namespace app {
-namespace Clusters {
 
 bool CommandNeedsTimedInvoke(ClusterId aCluster, CommandId aCommand)
 {
