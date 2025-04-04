@@ -30,60 +30,65 @@ namespace Clusters {
 namespace AccessControl {
 
 // Enum for AccessControlEntryAuthModeEnum
-enum class AccessControlEntryAuthModeEnum : uint8_t {
-kPase = 0x01,
-kCase = 0x02,
-kGroup = 0x03,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 0,
+enum class AccessControlEntryAuthModeEnum : uint8_t
+{
+    kPase  = 0x01,
+    kCase  = 0x02,
+    kGroup = 0x03,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 0,
 };
 
 // Enum for AccessControlEntryPrivilegeEnum
-enum class AccessControlEntryPrivilegeEnum : uint8_t {
-kView = 0x01,
-kProxyView = 0x02,
-kOperate = 0x03,
-kManage = 0x04,
-kAdminister = 0x05,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 0,
+enum class AccessControlEntryPrivilegeEnum : uint8_t
+{
+    kView       = 0x01,
+    kProxyView  = 0x02,
+    kOperate    = 0x03,
+    kManage     = 0x04,
+    kAdminister = 0x05,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 0,
 };
 
 // Enum for AccessRestrictionTypeEnum
-enum class AccessRestrictionTypeEnum : uint8_t {
-kAttributeAccessForbidden = 0x00,
-kAttributeWriteForbidden = 0x01,
-kCommandForbidden = 0x02,
-kEventForbidden = 0x03,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 4,
+enum class AccessRestrictionTypeEnum : uint8_t
+{
+    kAttributeAccessForbidden = 0x00,
+    kAttributeWriteForbidden  = 0x01,
+    kCommandForbidden         = 0x02,
+    kEventForbidden           = 0x03,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 4,
 };
 
 // Enum for ChangeTypeEnum
-enum class ChangeTypeEnum : uint8_t {
-kChanged = 0x00,
-kAdded = 0x01,
-kRemoved = 0x02,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 3,
+enum class ChangeTypeEnum : uint8_t
+{
+    kChanged = 0x00,
+    kAdded   = 0x01,
+    kRemoved = 0x02,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 3,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kExtension = 0x1,
-kManagedDevice = 0x2,
+enum class Feature : uint32_t
+{
+    kExtension     = 0x1,
+    kManagedDevice = 0x2,
 };
 } // namespace AccessControl
 } // namespace Clusters

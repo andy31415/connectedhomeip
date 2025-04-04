@@ -30,18 +30,20 @@ namespace Clusters {
 namespace DishwasherAlarm {
 
 // Bitmap for AlarmBitmap
-enum class AlarmBitmap : uint32_t {
-kInflowError = 0x1,
-kDrainError = 0x2,
-kDoorError = 0x4,
-kTempTooLow = 0x8,
-kTempTooHigh = 0x10,
-kWaterLevelError = 0x20,
+enum class AlarmBitmap : uint32_t
+{
+    kInflowError     = 0x1,
+    kDrainError      = 0x2,
+    kDoorError       = 0x4,
+    kTempTooLow      = 0x8,
+    kTempTooHigh     = 0x10,
+    kWaterLevelError = 0x20,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kReset = 0x1,
+enum class Feature : uint32_t
+{
+    kReset = 0x1,
 };
 } // namespace DishwasherAlarm
 } // namespace Clusters

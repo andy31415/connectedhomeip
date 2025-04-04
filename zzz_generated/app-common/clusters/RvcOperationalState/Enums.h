@@ -30,40 +30,42 @@ namespace Clusters {
 namespace RvcOperationalState {
 
 // Enum for ErrorStateEnum
-enum class ErrorStateEnum : uint8_t {
-kNoError = 0x00,
-kUnableToStartOrResume = 0x01,
-kUnableToCompleteOperation = 0x02,
-kCommandInvalidInState = 0x03,
-kFailedToFindChargingDock = 0x40,
-kStuck = 0x41,
-kDustBinMissing = 0x42,
-kDustBinFull = 0x43,
-kWaterTankEmpty = 0x44,
-kWaterTankMissing = 0x45,
-kWaterTankLidOpen = 0x46,
-kMopCleaningPadMissing = 0x47,
-// kUnknownEnumValue intentionally not defined. This enum never goes
-// through DataModel::Decode, likely because it is a part of a derived
-// cluster. As a result having kUnknownEnumValue in this enum is error
-// prone, and was removed. See
-// src/app/common/templates/config-data.yaml.
+enum class ErrorStateEnum : uint8_t
+{
+    kNoError                   = 0x00,
+    kUnableToStartOrResume     = 0x01,
+    kUnableToCompleteOperation = 0x02,
+    kCommandInvalidInState     = 0x03,
+    kFailedToFindChargingDock  = 0x40,
+    kStuck                     = 0x41,
+    kDustBinMissing            = 0x42,
+    kDustBinFull               = 0x43,
+    kWaterTankEmpty            = 0x44,
+    kWaterTankMissing          = 0x45,
+    kWaterTankLidOpen          = 0x46,
+    kMopCleaningPadMissing     = 0x47,
+    // kUnknownEnumValue intentionally not defined. This enum never goes
+    // through DataModel::Decode, likely because it is a part of a derived
+    // cluster. As a result having kUnknownEnumValue in this enum is error
+    // prone, and was removed. See
+    // src/app/common/templates/config-data.yaml.
 };
 
 // Enum for OperationalStateEnum
-enum class OperationalStateEnum : uint8_t {
-kStopped = 0x00,
-kRunning = 0x01,
-kPaused = 0x02,
-kError = 0x03,
-kSeekingCharger = 0x40,
-kCharging = 0x41,
-kDocked = 0x42,
-// kUnknownEnumValue intentionally not defined. This enum never goes
-// through DataModel::Decode, likely because it is a part of a derived
-// cluster. As a result having kUnknownEnumValue in this enum is error
-// prone, and was removed. See
-// src/app/common/templates/config-data.yaml.
+enum class OperationalStateEnum : uint8_t
+{
+    kStopped        = 0x00,
+    kRunning        = 0x01,
+    kPaused         = 0x02,
+    kError          = 0x03,
+    kSeekingCharger = 0x40,
+    kCharging       = 0x41,
+    kDocked         = 0x42,
+    // kUnknownEnumValue intentionally not defined. This enum never goes
+    // through DataModel::Decode, likely because it is a part of a derived
+    // cluster. As a result having kUnknownEnumValue in this enum is error
+    // prone, and was removed. See
+    // src/app/common/templates/config-data.yaml.
 };
 } // namespace RvcOperationalState
 } // namespace Clusters

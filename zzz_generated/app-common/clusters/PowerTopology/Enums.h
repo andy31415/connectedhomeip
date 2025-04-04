@@ -30,11 +30,12 @@ namespace Clusters {
 namespace PowerTopology {
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kNodeTopology = 0x1,
-kTreeTopology = 0x2,
-kSetTopology = 0x4,
-kDynamicPowerFlow = 0x8,
+enum class Feature : uint32_t
+{
+    kNodeTopology     = 0x1,
+    kTreeTopology     = 0x2,
+    kSetTopology      = 0x4,
+    kDynamicPowerFlow = 0x8,
 };
 } // namespace PowerTopology
 } // namespace Clusters

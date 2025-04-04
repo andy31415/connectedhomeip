@@ -30,29 +30,31 @@ namespace Clusters {
 namespace RefrigeratorAndTemperatureControlledCabinetMode {
 
 // Enum for ModeTag
-enum class ModeTag : uint16_t {
-kAuto = 0x00,
-kQuick = 0x01,
-kQuiet = 0x02,
-kLowNoise = 0x03,
-kLowEnergy = 0x04,
-kVacation = 0x05,
-kMin = 0x06,
-kMax = 0x07,
-kNight = 0x08,
-kDay = 0x09,
-kRapidCool = 0x4000,
-kRapidFreeze = 0x4001,
-// kUnknownEnumValue intentionally not defined. This enum never goes
-// through DataModel::Decode, likely because it is a part of a derived
-// cluster. As a result having kUnknownEnumValue in this enum is error
-// prone, and was removed. See
-// src/app/common/templates/config-data.yaml.
+enum class ModeTag : uint16_t
+{
+    kAuto        = 0x00,
+    kQuick       = 0x01,
+    kQuiet       = 0x02,
+    kLowNoise    = 0x03,
+    kLowEnergy   = 0x04,
+    kVacation    = 0x05,
+    kMin         = 0x06,
+    kMax         = 0x07,
+    kNight       = 0x08,
+    kDay         = 0x09,
+    kRapidCool   = 0x4000,
+    kRapidFreeze = 0x4001,
+    // kUnknownEnumValue intentionally not defined. This enum never goes
+    // through DataModel::Decode, likely because it is a part of a derived
+    // cluster. As a result having kUnknownEnumValue in this enum is error
+    // prone, and was removed. See
+    // src/app/common/templates/config-data.yaml.
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kOnOff = 0x1,
+enum class Feature : uint32_t
+{
+    kOnOff = 0x1,
 };
 } // namespace RefrigeratorAndTemperatureControlledCabinetMode
 } // namespace Clusters

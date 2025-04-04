@@ -30,12 +30,13 @@ namespace Clusters {
 namespace CameraAvSettingsUserLevelManagement {
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kDigitalPTZ = 0x1,
-kMechanicalPan = 0x2,
-kMechanicalTilt = 0x4,
-kMechanicalZoom = 0x8,
-kMechanicalPresets = 0x10,
+enum class Feature : uint32_t
+{
+    kDigitalPTZ        = 0x1,
+    kMechanicalPan     = 0x2,
+    kMechanicalTilt    = 0x4,
+    kMechanicalZoom    = 0x8,
+    kMechanicalPresets = 0x10,
 };
 } // namespace CameraAvSettingsUserLevelManagement
 } // namespace Clusters

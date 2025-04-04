@@ -30,41 +30,44 @@ namespace Clusters {
 namespace OtaSoftwareUpdateProvider {
 
 // Enum for ApplyUpdateActionEnum
-enum class ApplyUpdateActionEnum : uint8_t {
-kProceed = 0x00,
-kAwaitNextAction = 0x01,
-kDiscontinue = 0x02,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 3,
+enum class ApplyUpdateActionEnum : uint8_t
+{
+    kProceed         = 0x00,
+    kAwaitNextAction = 0x01,
+    kDiscontinue     = 0x02,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 3,
 };
 
 // Enum for DownloadProtocolEnum
-enum class DownloadProtocolEnum : uint8_t {
-kBDXSynchronous = 0x00,
-kBDXAsynchronous = 0x01,
-kHttps = 0x02,
-kVendorSpecific = 0x03,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 4,
+enum class DownloadProtocolEnum : uint8_t
+{
+    kBDXSynchronous  = 0x00,
+    kBDXAsynchronous = 0x01,
+    kHttps           = 0x02,
+    kVendorSpecific  = 0x03,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 4,
 };
 
 // Enum for StatusEnum
-enum class StatusEnum : uint8_t {
-kUpdateAvailable = 0x00,
-kBusy = 0x01,
-kNotAvailable = 0x02,
-kDownloadProtocolNotSupported = 0x03,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 4,
+enum class StatusEnum : uint8_t
+{
+    kUpdateAvailable              = 0x00,
+    kBusy                         = 0x01,
+    kNotAvailable                 = 0x02,
+    kDownloadProtocolNotSupported = 0x03,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 4,
 };
 } // namespace OtaSoftwareUpdateProvider
 } // namespace Clusters

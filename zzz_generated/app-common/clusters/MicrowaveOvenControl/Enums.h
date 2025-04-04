@@ -30,10 +30,11 @@ namespace Clusters {
 namespace MicrowaveOvenControl {
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kPowerAsNumber = 0x1,
-kPowerInWatts = 0x2,
-kPowerNumberLimits = 0x4,
+enum class Feature : uint32_t
+{
+    kPowerAsNumber     = 0x1,
+    kPowerInWatts      = 0x2,
+    kPowerNumberLimits = 0x4,
 };
 } // namespace MicrowaveOvenControl
 } // namespace Clusters

@@ -27,8 +27,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace ThreadNetworkDirectory {
-} // namespace ThreadNetworkDirectory
+namespace ThreadNetworkDirectory {} // namespace ThreadNetworkDirectory
 } // namespace Clusters
 } // namespace app
 } // namespace chip

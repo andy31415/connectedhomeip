@@ -27,8 +27,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace Chime {
-} // namespace Chime
+namespace Chime {} // namespace Chime
 } // namespace Clusters
 } // namespace app
 } // namespace chip

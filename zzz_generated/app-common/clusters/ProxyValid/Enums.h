@@ -27,8 +27,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace ProxyValid {
-} // namespace ProxyValid
+namespace ProxyValid {} // namespace ProxyValid
 } // namespace Clusters
 } // namespace app
 } // namespace chip

@@ -30,8 +30,9 @@ namespace Clusters {
 namespace ModeSelect {
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kOnOff = 0x1,
+enum class Feature : uint32_t
+{
+    kOnOff = 0x1,
 };
 } // namespace ModeSelect
 } // namespace Clusters

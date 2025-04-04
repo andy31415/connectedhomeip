@@ -30,20 +30,22 @@ namespace Clusters {
 namespace UnitLocalization {
 
 // Enum for TempUnitEnum
-enum class TempUnitEnum : uint8_t {
-kFahrenheit = 0x00,
-kCelsius = 0x01,
-kKelvin = 0x02,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 3,
+enum class TempUnitEnum : uint8_t
+{
+    kFahrenheit = 0x00,
+    kCelsius    = 0x01,
+    kKelvin     = 0x02,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 3,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kTemperatureUnit = 0x1,
+enum class Feature : uint32_t
+{
+    kTemperatureUnit = 0x1,
 };
 } // namespace UnitLocalization
 } // namespace Clusters

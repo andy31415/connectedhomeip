@@ -27,8 +27,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace AccountLogin {
-} // namespace AccountLogin
+namespace AccountLogin {} // namespace AccountLogin
 } // namespace Clusters
 } // namespace app
 } // namespace chip

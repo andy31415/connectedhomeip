@@ -30,8 +30,9 @@ namespace Clusters {
 namespace Descriptor {
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kTagList = 0x1,
+enum class Feature : uint32_t
+{
+    kTagList = 0x1,
 };
 } // namespace Descriptor
 } // namespace Clusters

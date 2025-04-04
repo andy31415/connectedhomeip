@@ -30,47 +30,50 @@ namespace Clusters {
 namespace OtaSoftwareUpdateRequestor {
 
 // Enum for AnnouncementReasonEnum
-enum class AnnouncementReasonEnum : uint8_t {
-kSimpleAnnouncement = 0x00,
-kUpdateAvailable = 0x01,
-kUrgentUpdateAvailable = 0x02,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 3,
+enum class AnnouncementReasonEnum : uint8_t
+{
+    kSimpleAnnouncement    = 0x00,
+    kUpdateAvailable       = 0x01,
+    kUrgentUpdateAvailable = 0x02,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 3,
 };
 
 // Enum for ChangeReasonEnum
-enum class ChangeReasonEnum : uint8_t {
-kUnknown = 0x00,
-kSuccess = 0x01,
-kFailure = 0x02,
-kTimeOut = 0x03,
-kDelayByProvider = 0x04,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 5,
+enum class ChangeReasonEnum : uint8_t
+{
+    kUnknown         = 0x00,
+    kSuccess         = 0x01,
+    kFailure         = 0x02,
+    kTimeOut         = 0x03,
+    kDelayByProvider = 0x04,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 5,
 };
 
 // Enum for UpdateStateEnum
-enum class UpdateStateEnum : uint8_t {
-kUnknown = 0x00,
-kIdle = 0x01,
-kQuerying = 0x02,
-kDelayedOnQuery = 0x03,
-kDownloading = 0x04,
-kApplying = 0x05,
-kDelayedOnApply = 0x06,
-kRollingBack = 0x07,
-kDelayedOnUserConsent = 0x08,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 9,
+enum class UpdateStateEnum : uint8_t
+{
+    kUnknown              = 0x00,
+    kIdle                 = 0x01,
+    kQuerying             = 0x02,
+    kDelayedOnQuery       = 0x03,
+    kDownloading          = 0x04,
+    kApplying             = 0x05,
+    kDelayedOnApply       = 0x06,
+    kRollingBack          = 0x07,
+    kDelayedOnUserConsent = 0x08,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 9,
 };
 } // namespace OtaSoftwareUpdateRequestor
 } // namespace Clusters

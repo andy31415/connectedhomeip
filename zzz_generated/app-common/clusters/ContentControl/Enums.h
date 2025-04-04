@@ -30,12 +30,13 @@ namespace Clusters {
 namespace ContentControl {
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kScreenTime = 0x1,
-kPINManagement = 0x2,
-kBlockUnrated = 0x4,
-kOnDemandContentRating = 0x8,
-kScheduledContentRating = 0x10,
+enum class Feature : uint32_t
+{
+    kScreenTime             = 0x1,
+    kPINManagement          = 0x2,
+    kBlockUnrated           = 0x4,
+    kOnDemandContentRating  = 0x8,
+    kScheduledContentRating = 0x10,
 };
 } // namespace ContentControl
 } // namespace Clusters

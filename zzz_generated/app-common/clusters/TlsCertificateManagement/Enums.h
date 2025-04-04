@@ -27,8 +27,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace TlsCertificateManagement {
-} // namespace TlsCertificateManagement
+namespace TlsCertificateManagement {} // namespace TlsCertificateManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

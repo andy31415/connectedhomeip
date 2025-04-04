@@ -30,13 +30,14 @@ namespace Clusters {
 namespace Switch {
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kLatchingSwitch = 0x1,
-kMomentarySwitch = 0x2,
-kMomentarySwitchRelease = 0x4,
-kMomentarySwitchLongPress = 0x8,
-kMomentarySwitchMultiPress = 0x10,
-kActionSwitch = 0x20,
+enum class Feature : uint32_t
+{
+    kLatchingSwitch            = 0x1,
+    kMomentarySwitch           = 0x2,
+    kMomentarySwitchRelease    = 0x4,
+    kMomentarySwitchLongPress  = 0x8,
+    kMomentarySwitchMultiPress = 0x10,
+    kActionSwitch              = 0x20,
 };
 } // namespace Switch
 } // namespace Clusters

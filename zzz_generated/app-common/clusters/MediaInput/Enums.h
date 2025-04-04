@@ -30,29 +30,31 @@ namespace Clusters {
 namespace MediaInput {
 
 // Enum for InputTypeEnum
-enum class InputTypeEnum : uint8_t {
-kInternal = 0x00,
-kAux = 0x01,
-kCoax = 0x02,
-kComposite = 0x03,
-kHdmi = 0x04,
-kInput = 0x05,
-kLine = 0x06,
-kOptical = 0x07,
-kVideo = 0x08,
-kScart = 0x09,
-kUsb = 0x0A,
-kOther = 0x0B,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 12,
+enum class InputTypeEnum : uint8_t
+{
+    kInternal  = 0x00,
+    kAux       = 0x01,
+    kCoax      = 0x02,
+    kComposite = 0x03,
+    kHdmi      = 0x04,
+    kInput     = 0x05,
+    kLine      = 0x06,
+    kOptical   = 0x07,
+    kVideo     = 0x08,
+    kScart     = 0x09,
+    kUsb       = 0x0A,
+    kOther     = 0x0B,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 12,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kNameUpdates = 0x1,
+enum class Feature : uint32_t
+{
+    kNameUpdates = 0x1,
 };
 } // namespace MediaInput
 } // namespace Clusters

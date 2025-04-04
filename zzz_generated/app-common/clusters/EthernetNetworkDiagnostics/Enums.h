@@ -30,28 +30,30 @@ namespace Clusters {
 namespace EthernetNetworkDiagnostics {
 
 // Enum for PHYRateEnum
-enum class PHYRateEnum : uint8_t {
-kRate10M = 0x00,
-kRate100M = 0x01,
-kRate1G = 0x02,
-kRate25g = 0x03,
-kRate5G = 0x04,
-kRate10G = 0x05,
-kRate40G = 0x06,
-kRate100G = 0x07,
-kRate200G = 0x08,
-kRate400G = 0x09,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 10,
+enum class PHYRateEnum : uint8_t
+{
+    kRate10M  = 0x00,
+    kRate100M = 0x01,
+    kRate1G   = 0x02,
+    kRate25g  = 0x03,
+    kRate5G   = 0x04,
+    kRate10G  = 0x05,
+    kRate40G  = 0x06,
+    kRate100G = 0x07,
+    kRate200G = 0x08,
+    kRate400G = 0x09,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 10,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kPacketCounts = 0x1,
-kErrorCounts = 0x2,
+enum class Feature : uint32_t
+{
+    kPacketCounts = 0x1,
+    kErrorCounts  = 0x2,
 };
 } // namespace EthernetNetworkDiagnostics
 } // namespace Clusters

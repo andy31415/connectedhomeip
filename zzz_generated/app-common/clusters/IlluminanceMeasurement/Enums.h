@@ -30,14 +30,15 @@ namespace Clusters {
 namespace IlluminanceMeasurement {
 
 // Enum for LightSensorTypeEnum
-enum class LightSensorTypeEnum : uint8_t {
-kPhotodiode = 0x00,
-kCmos = 0x01,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 2,
+enum class LightSensorTypeEnum : uint8_t
+{
+    kPhotodiode = 0x00,
+    kCmos       = 0x01,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 2,
 };
 } // namespace IlluminanceMeasurement
 } // namespace Clusters

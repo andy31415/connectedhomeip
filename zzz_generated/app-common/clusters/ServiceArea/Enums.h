@@ -30,49 +30,53 @@ namespace Clusters {
 namespace ServiceArea {
 
 // Enum for OperationalStatusEnum
-enum class OperationalStatusEnum : uint8_t {
-kPending = 0x00,
-kOperating = 0x01,
-kSkipped = 0x02,
-kCompleted = 0x03,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 4,
+enum class OperationalStatusEnum : uint8_t
+{
+    kPending   = 0x00,
+    kOperating = 0x01,
+    kSkipped   = 0x02,
+    kCompleted = 0x03,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 4,
 };
 
 // Enum for SelectAreasStatus
-enum class SelectAreasStatus : uint8_t {
-kSuccess = 0x00,
-kUnsupportedArea = 0x01,
-kInvalidInMode = 0x02,
-kInvalidSet = 0x03,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 4,
+enum class SelectAreasStatus : uint8_t
+{
+    kSuccess         = 0x00,
+    kUnsupportedArea = 0x01,
+    kInvalidInMode   = 0x02,
+    kInvalidSet      = 0x03,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 4,
 };
 
 // Enum for SkipAreaStatus
-enum class SkipAreaStatus : uint8_t {
-kSuccess = 0x00,
-kInvalidAreaList = 0x01,
-kInvalidInMode = 0x02,
-kInvalidSkippedArea = 0x03,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 4,
+enum class SkipAreaStatus : uint8_t
+{
+    kSuccess            = 0x00,
+    kInvalidAreaList    = 0x01,
+    kInvalidInMode      = 0x02,
+    kInvalidSkippedArea = 0x03,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 4,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kSelectWhileRunning = 0x1,
-kProgressReporting = 0x2,
-kMaps = 0x4,
+enum class Feature : uint32_t
+{
+    kSelectWhileRunning = 0x1,
+    kProgressReporting  = 0x2,
+    kMaps               = 0x4,
 };
 } // namespace ServiceArea
 } // namespace Clusters

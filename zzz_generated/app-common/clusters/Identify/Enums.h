@@ -30,43 +30,46 @@ namespace Clusters {
 namespace Identify {
 
 // Enum for EffectIdentifierEnum
-enum class EffectIdentifierEnum : uint8_t {
-kBlink = 0x00,
-kBreathe = 0x01,
-kOkay = 0x02,
-kChannelChange = 0x0B,
-kFinishEffect = 0xFE,
-kStopEffect = 0xFF,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 3,
+enum class EffectIdentifierEnum : uint8_t
+{
+    kBlink         = 0x00,
+    kBreathe       = 0x01,
+    kOkay          = 0x02,
+    kChannelChange = 0x0B,
+    kFinishEffect  = 0xFE,
+    kStopEffect    = 0xFF,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 3,
 };
 
 // Enum for EffectVariantEnum
-enum class EffectVariantEnum : uint8_t {
-kDefault = 0x00,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 1,
+enum class EffectVariantEnum : uint8_t
+{
+    kDefault = 0x00,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 1,
 };
 
 // Enum for IdentifyTypeEnum
-enum class IdentifyTypeEnum : uint8_t {
-kNone = 0x00,
-kLightOutput = 0x01,
-kVisibleIndicator = 0x02,
-kAudibleBeep = 0x03,
-kDisplay = 0x04,
-kActuator = 0x05,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 6,
+enum class IdentifyTypeEnum : uint8_t
+{
+    kNone             = 0x00,
+    kLightOutput      = 0x01,
+    kVisibleIndicator = 0x02,
+    kAudibleBeep      = 0x03,
+    kDisplay          = 0x04,
+    kActuator         = 0x05,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 6,
 };
 } // namespace Identify
 } // namespace Clusters

@@ -32,11 +32,12 @@ namespace ElectricalEnergyMeasurement {
 using MeasurementTypeEnum = Clusters::detail::MeasurementTypeEnum;
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kImportedEnergy = 0x1,
-kExportedEnergy = 0x2,
-kCumulativeEnergy = 0x4,
-kPeriodicEnergy = 0x8,
+enum class Feature : uint32_t
+{
+    kImportedEnergy   = 0x1,
+    kExportedEnergy   = 0x2,
+    kCumulativeEnergy = 0x4,
+    kPeriodicEnergy   = 0x8,
 };
 } // namespace ElectricalEnergyMeasurement
 } // namespace Clusters

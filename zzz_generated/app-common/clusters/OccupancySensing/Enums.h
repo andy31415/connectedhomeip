@@ -30,40 +30,44 @@ namespace Clusters {
 namespace OccupancySensing {
 
 // Enum for OccupancySensorTypeEnum
-enum class OccupancySensorTypeEnum : uint8_t {
-kPir = 0x00,
-kUltrasonic = 0x01,
-kPIRAndUltrasonic = 0x02,
-kPhysicalContact = 0x03,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 4,
+enum class OccupancySensorTypeEnum : uint8_t
+{
+    kPir              = 0x00,
+    kUltrasonic       = 0x01,
+    kPIRAndUltrasonic = 0x02,
+    kPhysicalContact  = 0x03,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 4,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kOther = 0x1,
-kPassiveInfrared = 0x2,
-kUltrasonic = 0x4,
-kPhysicalContact = 0x8,
-kActiveInfrared = 0x10,
-kRadar = 0x20,
-kRFSensing = 0x40,
-kVision = 0x80,
+enum class Feature : uint32_t
+{
+    kOther           = 0x1,
+    kPassiveInfrared = 0x2,
+    kUltrasonic      = 0x4,
+    kPhysicalContact = 0x8,
+    kActiveInfrared  = 0x10,
+    kRadar           = 0x20,
+    kRFSensing       = 0x40,
+    kVision          = 0x80,
 };
 
 // Bitmap for OccupancyBitmap
-enum class OccupancyBitmap : uint8_t {
-kOccupied = 0x1,
+enum class OccupancyBitmap : uint8_t
+{
+    kOccupied = 0x1,
 };
 
 // Bitmap for OccupancySensorTypeBitmap
-enum class OccupancySensorTypeBitmap : uint8_t {
-kPir = 0x1,
-kUltrasonic = 0x2,
-kPhysicalContact = 0x4,
+enum class OccupancySensorTypeBitmap : uint8_t
+{
+    kPir             = 0x1,
+    kUltrasonic      = 0x2,
+    kPhysicalContact = 0x4,
 };
 } // namespace OccupancySensing
 } // namespace Clusters

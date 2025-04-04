@@ -27,8 +27,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace FixedLabel {
-} // namespace FixedLabel
+namespace FixedLabel {} // namespace FixedLabel
 } // namespace Clusters
 } // namespace app
 } // namespace chip

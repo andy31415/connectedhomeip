@@ -27,8 +27,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace FlowMeasurement {
-} // namespace FlowMeasurement
+namespace FlowMeasurement {} // namespace FlowMeasurement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

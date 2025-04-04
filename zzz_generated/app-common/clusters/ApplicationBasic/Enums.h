@@ -30,16 +30,17 @@ namespace Clusters {
 namespace ApplicationBasic {
 
 // Enum for ApplicationStatusEnum
-enum class ApplicationStatusEnum : uint8_t {
-kStopped = 0x00,
-kActiveVisibleFocus = 0x01,
-kActiveHidden = 0x02,
-kActiveVisibleNotFocus = 0x03,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 4,
+enum class ApplicationStatusEnum : uint8_t
+{
+    kStopped               = 0x00,
+    kActiveVisibleFocus    = 0x01,
+    kActiveHidden          = 0x02,
+    kActiveVisibleNotFocus = 0x03,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 4,
 };
 } // namespace ApplicationBasic
 } // namespace Clusters

@@ -30,8 +30,9 @@ namespace Clusters {
 namespace PressureMeasurement {
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kExtended = 0x1,
+enum class Feature : uint32_t
+{
+    kExtended = 0x1,
 };
 } // namespace PressureMeasurement
 } // namespace Clusters

@@ -16,6 +16,7 @@
 #
 
 import argparse
+import glob
 import json
 import os
 import shutil
@@ -24,7 +25,7 @@ import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Generator
 
 from clang_format import getClangFormatBinary
 from zap_execution import ZapTool
@@ -247,6 +248,28 @@ def runGeneration(cmdLineArgs):
     if matter_name:
         extractGeneratedIdl(output_dir, matter_name)
 
+def expandPlaceholderWildcards(path: str) -> Generator[str, None, None]:
+    """
+    Generates expanded path lists from ZAP output paths.
+    ZAP allows to use iterators (see https://github.com/project-chip/zap/blob/master/docs/sdk-integration.md#individual-template)
+    and then paths may include placeholders such as '{name}'.
+
+    If such placehoders exist in `path` this method will do a filesystem glob
+    to select the actual outputs.
+    """
+    if '{' not in path:
+        yield path
+        return
+
+    while '{' in path:
+        s = path.find('{')
+        e = path.find('}')
+        path = path[:s] + '*' + path[e+1:]
+
+    # path is a glob target, expand it
+    for result in glob.glob(path, include_hidden=True):
+        yield result
+
 
 def runClangPrettifier(templates_file, output_dir):
     listOfSupportedFileExtensions = [
@@ -256,10 +279,14 @@ def runClangPrettifier(templates_file, output_dir):
         jsonData = json.loads(Path(templates_file).read_text())
         outputs = [(os.path.join(output_dir, template['output']))
                    for template in jsonData['templates']]
-        clangOutputs = list(filter(lambda filepath: os.path.splitext(
+        rawPaths = list(filter(lambda filepath: os.path.splitext(
             filepath)[1] in listOfSupportedFileExtensions, outputs))
 
-        if len(clangOutputs) > 0:
+        clangOutputs = []
+        for path in rawPaths:
+            clangOutputs.extend(expandPlaceholderWildcards(path))
+
+        if clangOutputs:
             # NOTE: clang-format differs output in time. We generally would be
             #       compatible only with pigweed provided clang-format (which is
             #       tracking non-released clang).

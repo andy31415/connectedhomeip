@@ -27,8 +27,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace Binding {
-} // namespace Binding
+namespace Binding {} // namespace Binding
 } // namespace Clusters
 } // namespace app
 } // namespace chip

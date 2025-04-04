@@ -30,22 +30,25 @@ namespace Clusters {
 namespace BooleanStateConfiguration {
 
 // Bitmap for AlarmModeBitmap
-enum class AlarmModeBitmap : uint8_t {
-kVisual = 0x1,
-kAudible = 0x2,
+enum class AlarmModeBitmap : uint8_t
+{
+    kVisual  = 0x1,
+    kAudible = 0x2,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kVisual = 0x1,
-kAudible = 0x2,
-kAlarmSuppress = 0x4,
-kSensitivityLevel = 0x8,
+enum class Feature : uint32_t
+{
+    kVisual           = 0x1,
+    kAudible          = 0x2,
+    kAlarmSuppress    = 0x4,
+    kSensitivityLevel = 0x8,
 };
 
 // Bitmap for SensorFaultBitmap
-enum class SensorFaultBitmap : uint16_t {
-kGeneralFault = 0x1,
+enum class SensorFaultBitmap : uint16_t
+{
+    kGeneralFault = 0x1,
 };
 } // namespace BooleanStateConfiguration
 } // namespace Clusters

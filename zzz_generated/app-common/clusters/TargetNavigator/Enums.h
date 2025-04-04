@@ -30,15 +30,16 @@ namespace Clusters {
 namespace TargetNavigator {
 
 // Enum for StatusEnum
-enum class StatusEnum : uint8_t {
-kSuccess = 0x00,
-kTargetNotFound = 0x01,
-kNotAllowed = 0x02,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 3,
+enum class StatusEnum : uint8_t
+{
+    kSuccess        = 0x00,
+    kTargetNotFound = 0x01,
+    kNotAllowed     = 0x02,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 3,
 };
 } // namespace TargetNavigator
 } // namespace Clusters

@@ -30,60 +30,66 @@ namespace Clusters {
 namespace OnOff {
 
 // Enum for DelayedAllOffEffectVariantEnum
-enum class DelayedAllOffEffectVariantEnum : uint8_t {
-kDelayedOffFastFade = 0x00,
-kNoFade = 0x01,
-kDelayedOffSlowFade = 0x02,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 3,
+enum class DelayedAllOffEffectVariantEnum : uint8_t
+{
+    kDelayedOffFastFade = 0x00,
+    kNoFade             = 0x01,
+    kDelayedOffSlowFade = 0x02,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 3,
 };
 
 // Enum for DyingLightEffectVariantEnum
-enum class DyingLightEffectVariantEnum : uint8_t {
-kDyingLightFadeOff = 0x00,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 1,
+enum class DyingLightEffectVariantEnum : uint8_t
+{
+    kDyingLightFadeOff = 0x00,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 1,
 };
 
 // Enum for EffectIdentifierEnum
-enum class EffectIdentifierEnum : uint8_t {
-kDelayedAllOff = 0x00,
-kDyingLight = 0x01,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 2,
+enum class EffectIdentifierEnum : uint8_t
+{
+    kDelayedAllOff = 0x00,
+    kDyingLight    = 0x01,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 2,
 };
 
 // Enum for StartUpOnOffEnum
-enum class StartUpOnOffEnum : uint8_t {
-kOff = 0x00,
-kOn = 0x01,
-kToggle = 0x02,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 3,
+enum class StartUpOnOffEnum : uint8_t
+{
+    kOff    = 0x00,
+    kOn     = 0x01,
+    kToggle = 0x02,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 3,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kLighting = 0x1,
-kDeadFrontBehavior = 0x2,
-kOffOnly = 0x4,
+enum class Feature : uint32_t
+{
+    kLighting          = 0x1,
+    kDeadFrontBehavior = 0x2,
+    kOffOnly           = 0x4,
 };
 
 // Bitmap for OnOffControlBitmap
-enum class OnOffControlBitmap : uint8_t {
-kAcceptOnlyWhenOn = 0x1,
+enum class OnOffControlBitmap : uint8_t
+{
+    kAcceptOnlyWhenOn = 0x1,
 };
 } // namespace OnOff
 } // namespace Clusters

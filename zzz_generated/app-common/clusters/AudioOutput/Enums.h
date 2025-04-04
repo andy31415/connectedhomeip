@@ -30,23 +30,25 @@ namespace Clusters {
 namespace AudioOutput {
 
 // Enum for OutputTypeEnum
-enum class OutputTypeEnum : uint8_t {
-kHdmi = 0x00,
-kBt = 0x01,
-kOptical = 0x02,
-kHeadphone = 0x03,
-kInternal = 0x04,
-kOther = 0x05,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 6,
+enum class OutputTypeEnum : uint8_t
+{
+    kHdmi      = 0x00,
+    kBt        = 0x01,
+    kOptical   = 0x02,
+    kHeadphone = 0x03,
+    kInternal  = 0x04,
+    kOther     = 0x05,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 6,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kNameUpdates = 0x1,
+enum class Feature : uint32_t
+{
+    kNameUpdates = 0x1,
 };
 } // namespace AudioOutput
 } // namespace Clusters

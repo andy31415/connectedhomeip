@@ -30,8 +30,9 @@ namespace Clusters {
 namespace SoftwareDiagnostics {
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kWatermarks = 0x1,
+enum class Feature : uint32_t
+{
+    kWatermarks = 0x1,
 };
 } // namespace SoftwareDiagnostics
 } // namespace Clusters

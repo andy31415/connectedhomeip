@@ -30,88 +30,95 @@ namespace Clusters {
 namespace CommodityTariff {
 
 // Enum for AuxiliaryLoadSettingEnum
-enum class AuxiliaryLoadSettingEnum : uint8_t {
-kOff = 0x00,
-kOn = 0x01,
-kNone = 0x02,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 3,
+enum class AuxiliaryLoadSettingEnum : uint8_t
+{
+    kOff  = 0x00,
+    kOn   = 0x01,
+    kNone = 0x02,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 3,
 };
 
 // Enum for BlockModeEnum
-enum class BlockModeEnum : uint8_t {
-kNoBlock = 0x00,
-kCombined = 0x01,
-kIndividual = 0x02,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 3,
+enum class BlockModeEnum : uint8_t
+{
+    kNoBlock    = 0x00,
+    kCombined   = 0x01,
+    kIndividual = 0x02,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 3,
 };
 
 // Enum for DayEntryRandomizationTypeEnum
-enum class DayEntryRandomizationTypeEnum : uint8_t {
-kNone = 0x00,
-kFixed = 0x01,
-kRandom = 0x02,
-kRandomPositive = 0x03,
-kRandomNegative = 0x04,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 5,
+enum class DayEntryRandomizationTypeEnum : uint8_t
+{
+    kNone           = 0x00,
+    kFixed          = 0x01,
+    kRandom         = 0x02,
+    kRandomPositive = 0x03,
+    kRandomNegative = 0x04,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 5,
 };
 
 // Enum for DayTypeEnum
-enum class DayTypeEnum : uint8_t {
-kStandard = 0x00,
-kHoliday = 0x01,
-kDynamic = 0x02,
-kEvent = 0x03,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 4,
+enum class DayTypeEnum : uint8_t
+{
+    kStandard = 0x00,
+    kHoliday  = 0x01,
+    kDynamic  = 0x02,
+    kEvent    = 0x03,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 4,
 };
 
 // Enum for PeakPeriodSeverityEnum
-enum class PeakPeriodSeverityEnum : uint8_t {
-kUnused = 0x00,
-kLow = 0x01,
-kMedium = 0x02,
-kHigh = 0x03,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 4,
+enum class PeakPeriodSeverityEnum : uint8_t
+{
+    kUnused = 0x00,
+    kLow    = 0x01,
+    kMedium = 0x02,
+    kHigh   = 0x03,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 4,
 };
 
 // Bitmap for DayPatternDayOfWeekBitmap
-enum class DayPatternDayOfWeekBitmap : uint8_t {
-kSunday = 0x1,
-kMonday = 0x2,
-kTuesday = 0x4,
-kWednesday = 0x8,
-kThursday = 0x10,
-kFriday = 0x20,
-kSaturday = 0x40,
+enum class DayPatternDayOfWeekBitmap : uint8_t
+{
+    kSunday    = 0x1,
+    kMonday    = 0x2,
+    kTuesday   = 0x4,
+    kWednesday = 0x8,
+    kThursday  = 0x10,
+    kFriday    = 0x20,
+    kSaturday  = 0x40,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kPricing = 0x1,
-kFriendlyCredit = 0x2,
-kAuxiliaryLoad = 0x4,
-kPeakPeriod = 0x8,
-kPowerThreshold = 0x10,
-kRandomization = 0x20,
+enum class Feature : uint32_t
+{
+    kPricing        = 0x1,
+    kFriendlyCredit = 0x2,
+    kAuxiliaryLoad  = 0x4,
+    kPeakPeriod     = 0x8,
+    kPowerThreshold = 0x10,
+    kRandomization  = 0x20,
 };
 } // namespace CommodityTariff
 } // namespace Clusters

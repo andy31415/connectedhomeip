@@ -27,8 +27,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace UserLabel {
-} // namespace UserLabel
+namespace UserLabel {} // namespace UserLabel
 } // namespace Clusters
 } // namespace app
 } // namespace chip

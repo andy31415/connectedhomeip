@@ -30,38 +30,42 @@ namespace Clusters {
 namespace LevelControl {
 
 // Enum for MoveModeEnum
-enum class MoveModeEnum : uint8_t {
-kUp = 0x00,
-kDown = 0x01,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 2,
+enum class MoveModeEnum : uint8_t
+{
+    kUp   = 0x00,
+    kDown = 0x01,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 2,
 };
 
 // Enum for StepModeEnum
-enum class StepModeEnum : uint8_t {
-kUp = 0x00,
-kDown = 0x01,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 2,
+enum class StepModeEnum : uint8_t
+{
+    kUp   = 0x00,
+    kDown = 0x01,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 2,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kOnOff = 0x1,
-kLighting = 0x2,
-kFrequency = 0x4,
+enum class Feature : uint32_t
+{
+    kOnOff     = 0x1,
+    kLighting  = 0x2,
+    kFrequency = 0x4,
 };
 
 // Bitmap for OptionsBitmap
-enum class OptionsBitmap : uint8_t {
-kExecuteIfOff = 0x1,
-kCoupleColorTempToLevel = 0x2,
+enum class OptionsBitmap : uint8_t
+{
+    kExecuteIfOff           = 0x1,
+    kCoupleColorTempToLevel = 0x2,
 };
 } // namespace LevelControl
 } // namespace Clusters

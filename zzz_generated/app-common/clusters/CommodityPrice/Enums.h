@@ -30,14 +30,16 @@ namespace Clusters {
 namespace CommodityPrice {
 
 // Bitmap for CommodityPriceDetailBitmap
-enum class CommodityPriceDetailBitmap : uint16_t {
-kDescription = 0x1,
-kComponents = 0x2,
+enum class CommodityPriceDetailBitmap : uint16_t
+{
+    kDescription = 0x1,
+    kComponents  = 0x2,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kForecasting = 0x1,
+enum class Feature : uint32_t
+{
+    kForecasting = 0x1,
 };
 } // namespace CommodityPrice
 } // namespace Clusters

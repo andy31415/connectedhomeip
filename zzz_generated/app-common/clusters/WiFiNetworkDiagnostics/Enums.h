@@ -30,64 +30,69 @@ namespace Clusters {
 namespace WiFiNetworkDiagnostics {
 
 // Enum for AssociationFailureCauseEnum
-enum class AssociationFailureCauseEnum : uint8_t {
-kUnknown = 0x00,
-kAssociationFailed = 0x01,
-kAuthenticationFailed = 0x02,
-kSsidNotFound = 0x03,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 4,
+enum class AssociationFailureCauseEnum : uint8_t
+{
+    kUnknown              = 0x00,
+    kAssociationFailed    = 0x01,
+    kAuthenticationFailed = 0x02,
+    kSsidNotFound         = 0x03,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 4,
 };
 
 // Enum for ConnectionStatusEnum
-enum class ConnectionStatusEnum : uint8_t {
-kConnected = 0x00,
-kNotConnected = 0x01,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 2,
+enum class ConnectionStatusEnum : uint8_t
+{
+    kConnected    = 0x00,
+    kNotConnected = 0x01,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 2,
 };
 
 // Enum for SecurityTypeEnum
-enum class SecurityTypeEnum : uint8_t {
-kUnspecified = 0x00,
-kNone = 0x01,
-kWep = 0x02,
-kWpa = 0x03,
-kWpa2 = 0x04,
-kWpa3 = 0x05,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 6,
+enum class SecurityTypeEnum : uint8_t
+{
+    kUnspecified = 0x00,
+    kNone        = 0x01,
+    kWep         = 0x02,
+    kWpa         = 0x03,
+    kWpa2        = 0x04,
+    kWpa3        = 0x05,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 6,
 };
 
 // Enum for WiFiVersionEnum
-enum class WiFiVersionEnum : uint8_t {
-kA = 0x00,
-kB = 0x01,
-kG = 0x02,
-kN = 0x03,
-kAc = 0x04,
-kAx = 0x05,
-kAh = 0x06,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 7,
+enum class WiFiVersionEnum : uint8_t
+{
+    kA  = 0x00,
+    kB  = 0x01,
+    kG  = 0x02,
+    kN  = 0x03,
+    kAc = 0x04,
+    kAx = 0x05,
+    kAh = 0x06,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 7,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kPacketCounts = 0x1,
-kErrorCounts = 0x2,
+enum class Feature : uint32_t
+{
+    kPacketCounts = 0x1,
+    kErrorCounts  = 0x2,
 };
 } // namespace WiFiNetworkDiagnostics
 } // namespace Clusters

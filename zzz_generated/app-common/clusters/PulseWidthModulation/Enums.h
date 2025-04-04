@@ -27,8 +27,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace PulseWidthModulation {
-} // namespace PulseWidthModulation
+namespace PulseWidthModulation {} // namespace PulseWidthModulation
 } // namespace Clusters
 } // namespace app
 } // namespace chip

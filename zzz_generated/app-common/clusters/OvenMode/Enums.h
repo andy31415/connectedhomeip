@@ -30,36 +30,38 @@ namespace Clusters {
 namespace OvenMode {
 
 // Enum for ModeTag
-enum class ModeTag : uint16_t {
-kAuto = 0x00,
-kQuick = 0x01,
-kQuiet = 0x02,
-kLowNoise = 0x03,
-kLowEnergy = 0x04,
-kVacation = 0x05,
-kMin = 0x06,
-kMax = 0x07,
-kNight = 0x08,
-kDay = 0x09,
-kBake = 0x4000,
-kConvection = 0x4001,
-kGrill = 0x4002,
-kRoast = 0x4003,
-kClean = 0x4004,
-kConvectionBake = 0x4005,
-kConvectionRoast = 0x4006,
-kWarming = 0x4007,
-kProofing = 0x4008,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 10,
+enum class ModeTag : uint16_t
+{
+    kAuto            = 0x00,
+    kQuick           = 0x01,
+    kQuiet           = 0x02,
+    kLowNoise        = 0x03,
+    kLowEnergy       = 0x04,
+    kVacation        = 0x05,
+    kMin             = 0x06,
+    kMax             = 0x07,
+    kNight           = 0x08,
+    kDay             = 0x09,
+    kBake            = 0x4000,
+    kConvection      = 0x4001,
+    kGrill           = 0x4002,
+    kRoast           = 0x4003,
+    kClean           = 0x4004,
+    kConvectionBake  = 0x4005,
+    kConvectionRoast = 0x4006,
+    kWarming         = 0x4007,
+    kProofing        = 0x4008,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 10,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kOnOff = 0x1,
+enum class Feature : uint32_t
+{
+    kOnOff = 0x1,
 };
 } // namespace OvenMode
 } // namespace Clusters

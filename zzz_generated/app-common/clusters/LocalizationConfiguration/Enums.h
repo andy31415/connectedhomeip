@@ -27,8 +27,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace LocalizationConfiguration {
-} // namespace LocalizationConfiguration
+namespace LocalizationConfiguration {} // namespace LocalizationConfiguration
 } // namespace Clusters
 } // namespace app
 } // namespace chip

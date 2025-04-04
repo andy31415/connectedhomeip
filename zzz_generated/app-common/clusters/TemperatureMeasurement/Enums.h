@@ -27,8 +27,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace TemperatureMeasurement {
-} // namespace TemperatureMeasurement
+namespace TemperatureMeasurement {} // namespace TemperatureMeasurement
 } // namespace Clusters
 } // namespace app
 } // namespace chip

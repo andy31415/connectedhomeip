@@ -30,17 +30,18 @@ namespace Clusters {
 namespace FaultInjection {
 
 // Enum for FaultType
-enum class FaultType : uint8_t {
-kUnspecified = 0x00,
-kSystemFault = 0x01,
-kInetFault = 0x02,
-kChipFault = 0x03,
-kCertFault = 0x04,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 5,
+enum class FaultType : uint8_t
+{
+    kUnspecified = 0x00,
+    kSystemFault = 0x01,
+    kInetFault   = 0x02,
+    kChipFault   = 0x03,
+    kCertFault   = 0x04,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 5,
 };
 } // namespace FaultInjection
 } // namespace Clusters

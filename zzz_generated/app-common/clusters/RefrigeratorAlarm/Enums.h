@@ -30,8 +30,9 @@ namespace Clusters {
 namespace RefrigeratorAlarm {
 
 // Bitmap for AlarmBitmap
-enum class AlarmBitmap : uint32_t {
-kDoorOpen = 0x1,
+enum class AlarmBitmap : uint32_t
+{
+    kDoorOpen = 0x1,
 };
 } // namespace RefrigeratorAlarm
 } // namespace Clusters

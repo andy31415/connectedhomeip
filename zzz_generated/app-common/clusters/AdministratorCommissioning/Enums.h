@@ -30,32 +30,35 @@ namespace Clusters {
 namespace AdministratorCommissioning {
 
 // Enum for CommissioningWindowStatusEnum
-enum class CommissioningWindowStatusEnum : uint8_t {
-kWindowNotOpen = 0x00,
-kEnhancedWindowOpen = 0x01,
-kBasicWindowOpen = 0x02,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 3,
+enum class CommissioningWindowStatusEnum : uint8_t
+{
+    kWindowNotOpen      = 0x00,
+    kEnhancedWindowOpen = 0x01,
+    kBasicWindowOpen    = 0x02,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 3,
 };
 
 // Enum for StatusCode
-enum class StatusCode : uint8_t {
-kBusy = 0x02,
-kPAKEParameterError = 0x03,
-kWindowNotOpen = 0x04,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 0,
+enum class StatusCode : uint8_t
+{
+    kBusy               = 0x02,
+    kPAKEParameterError = 0x03,
+    kWindowNotOpen      = 0x04,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 0,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kBasic = 0x1,
+enum class Feature : uint32_t
+{
+    kBasic = 0x1,
 };
 } // namespace AdministratorCommissioning
 } // namespace Clusters

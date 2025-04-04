@@ -30,73 +30,78 @@ namespace Clusters {
 namespace TimeSynchronization {
 
 // Enum for GranularityEnum
-enum class GranularityEnum : uint8_t {
-kNoTimeGranularity = 0x00,
-kMinutesGranularity = 0x01,
-kSecondsGranularity = 0x02,
-kMillisecondsGranularity = 0x03,
-kMicrosecondsGranularity = 0x04,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 5,
+enum class GranularityEnum : uint8_t
+{
+    kNoTimeGranularity       = 0x00,
+    kMinutesGranularity      = 0x01,
+    kSecondsGranularity      = 0x02,
+    kMillisecondsGranularity = 0x03,
+    kMicrosecondsGranularity = 0x04,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 5,
 };
 
 // Enum for StatusCode
-enum class StatusCode : uint8_t {
-kTimeNotAccepted = 0x02,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 0,
+enum class StatusCode : uint8_t
+{
+    kTimeNotAccepted = 0x02,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 0,
 };
 
 // Enum for TimeSourceEnum
-enum class TimeSourceEnum : uint8_t {
-kNone = 0x00,
-kUnknown = 0x01,
-kAdmin = 0x02,
-kNodeTimeCluster = 0x03,
-kNonMatterSNTP = 0x04,
-kNonMatterNTP = 0x05,
-kMatterSNTP = 0x06,
-kMatterNTP = 0x07,
-kMixedNTP = 0x08,
-kNonMatterSNTPNTS = 0x09,
-kNonMatterNTPNTS = 0x0A,
-kMatterSNTPNTS = 0x0B,
-kMatterNTPNTS = 0x0C,
-kMixedNTPNTS = 0x0D,
-kCloudSource = 0x0E,
-kPtp = 0x0F,
-kGnss = 0x10,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 17,
+enum class TimeSourceEnum : uint8_t
+{
+    kNone             = 0x00,
+    kUnknown          = 0x01,
+    kAdmin            = 0x02,
+    kNodeTimeCluster  = 0x03,
+    kNonMatterSNTP    = 0x04,
+    kNonMatterNTP     = 0x05,
+    kMatterSNTP       = 0x06,
+    kMatterNTP        = 0x07,
+    kMixedNTP         = 0x08,
+    kNonMatterSNTPNTS = 0x09,
+    kNonMatterNTPNTS  = 0x0A,
+    kMatterSNTPNTS    = 0x0B,
+    kMatterNTPNTS     = 0x0C,
+    kMixedNTPNTS      = 0x0D,
+    kCloudSource      = 0x0E,
+    kPtp              = 0x0F,
+    kGnss             = 0x10,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 17,
 };
 
 // Enum for TimeZoneDatabaseEnum
-enum class TimeZoneDatabaseEnum : uint8_t {
-kFull = 0x00,
-kPartial = 0x01,
-kNone = 0x02,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 3,
+enum class TimeZoneDatabaseEnum : uint8_t
+{
+    kFull    = 0x00,
+    kPartial = 0x01,
+    kNone    = 0x02,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 3,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kTimeZone = 0x1,
-kNTPClient = 0x2,
-kNTPServer = 0x4,
-kTimeSyncClient = 0x8,
+enum class Feature : uint32_t
+{
+    kTimeZone       = 0x1,
+    kNTPClient      = 0x2,
+    kNTPServer      = 0x4,
+    kTimeSyncClient = 0x8,
 };
 } // namespace TimeSynchronization
 } // namespace Clusters

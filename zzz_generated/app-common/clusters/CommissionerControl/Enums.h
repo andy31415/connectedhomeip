@@ -30,8 +30,9 @@ namespace Clusters {
 namespace CommissionerControl {
 
 // Bitmap for SupportedDeviceCategoryBitmap
-enum class SupportedDeviceCategoryBitmap : uint32_t {
-kFabricSynchronization = 0x1,
+enum class SupportedDeviceCategoryBitmap : uint32_t
+{
+    kFabricSynchronization = 0x1,
 };
 } // namespace CommissionerControl
 } // namespace Clusters

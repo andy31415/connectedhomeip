@@ -36,10 +36,11 @@ using DegradationDirectionEnum = Clusters::detail::DegradationDirectionEnum;
 using ProductIdentifierTypeEnum = Clusters::detail::ProductIdentifierTypeEnum;
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kCondition = 0x1,
-kWarning = 0x2,
-kReplacementProductList = 0x4,
+enum class Feature : uint32_t
+{
+    kCondition              = 0x1,
+    kWarning                = 0x2,
+    kReplacementProductList = 0x4,
 };
 } // namespace ActivatedCarbonFilterMonitoring
 } // namespace Clusters

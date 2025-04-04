@@ -30,13 +30,15 @@ namespace Clusters {
 namespace ScenesManagement {
 
 // Bitmap for CopyModeBitmap
-enum class CopyModeBitmap : uint8_t {
-kCopyAllScenes = 0x1,
+enum class CopyModeBitmap : uint8_t
+{
+    kCopyAllScenes = 0x1,
 };
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kSceneNames = 0x1,
+enum class Feature : uint32_t
+{
+    kSceneNames = 0x1,
 };
 } // namespace ScenesManagement
 } // namespace Clusters

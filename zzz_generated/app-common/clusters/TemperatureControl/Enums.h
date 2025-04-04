@@ -30,10 +30,11 @@ namespace Clusters {
 namespace TemperatureControl {
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kTemperatureNumber = 0x1,
-kTemperatureLevel = 0x2,
-kTemperatureStep = 0x4,
+enum class Feature : uint32_t
+{
+    kTemperatureNumber = 0x1,
+    kTemperatureLevel  = 0x2,
+    kTemperatureStep   = 0x4,
 };
 } // namespace TemperatureControl
 } // namespace Clusters

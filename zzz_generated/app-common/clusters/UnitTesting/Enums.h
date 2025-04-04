@@ -30,55 +30,61 @@ namespace Clusters {
 namespace UnitTesting {
 
 // Enum for SimpleEnum
-enum class SimpleEnum : uint8_t {
-kUnspecified = 0x00,
-kValueA = 0x01,
-kValueB = 0x02,
-kValueC = 0x03,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 4,
+enum class SimpleEnum : uint8_t
+{
+    kUnspecified = 0x00,
+    kValueA      = 0x01,
+    kValueB      = 0x02,
+    kValueC      = 0x03,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 4,
 };
 
 // Bitmap for Bitmap16MaskMap
-enum class Bitmap16MaskMap : uint16_t {
-kMaskVal1 = 0x1,
-kMaskVal2 = 0x2,
-kMaskVal3 = 0x4,
-kMaskVal4 = 0x4000,
+enum class Bitmap16MaskMap : uint16_t
+{
+    kMaskVal1 = 0x1,
+    kMaskVal2 = 0x2,
+    kMaskVal3 = 0x4,
+    kMaskVal4 = 0x4000,
 };
 
 // Bitmap for Bitmap32MaskMap
-enum class Bitmap32MaskMap : uint32_t {
-kMaskVal1 = 0x1,
-kMaskVal2 = 0x2,
-kMaskVal3 = 0x4,
-kMaskVal4 = 0x40000000,
+enum class Bitmap32MaskMap : uint32_t
+{
+    kMaskVal1 = 0x1,
+    kMaskVal2 = 0x2,
+    kMaskVal3 = 0x4,
+    kMaskVal4 = 0x40000000,
 };
 
 // Bitmap for Bitmap64MaskMap
-enum class Bitmap64MaskMap : uint64_t {
-kMaskVal1 = 0x1,
-kMaskVal2 = 0x2,
-kMaskVal3 = 0x4,
-kMaskVal4 = 0x4000000000000000,
+enum class Bitmap64MaskMap : uint64_t
+{
+    kMaskVal1 = 0x1,
+    kMaskVal2 = 0x2,
+    kMaskVal3 = 0x4,
+    kMaskVal4 = 0x4000000000000000,
 };
 
 // Bitmap for Bitmap8MaskMap
-enum class Bitmap8MaskMap : uint8_t {
-kMaskVal1 = 0x1,
-kMaskVal2 = 0x2,
-kMaskVal3 = 0x4,
-kMaskVal4 = 0x40,
+enum class Bitmap8MaskMap : uint8_t
+{
+    kMaskVal1 = 0x1,
+    kMaskVal2 = 0x2,
+    kMaskVal3 = 0x4,
+    kMaskVal4 = 0x40,
 };
 
 // Bitmap for SimpleBitmap
-enum class SimpleBitmap : uint8_t {
-kValueA = 0x1,
-kValueB = 0x2,
-kValueC = 0x4,
+enum class SimpleBitmap : uint8_t
+{
+    kValueA = 0x1,
+    kValueB = 0x2,
+    kValueC = 0x4,
 };
 } // namespace UnitTesting
 } // namespace Clusters

@@ -30,13 +30,15 @@ namespace Clusters {
 namespace Groups {
 
 // Bitmap for Feature
-enum class Feature : uint32_t {
-kGroupNames = 0x1,
+enum class Feature : uint32_t
+{
+    kGroupNames = 0x1,
 };
 
 // Bitmap for NameSupportBitmap
-enum class NameSupportBitmap : uint8_t {
-kGroupNames = 0x80,
+enum class NameSupportBitmap : uint8_t
+{
+    kGroupNames = 0x80,
 };
 } // namespace Groups
 } // namespace Clusters

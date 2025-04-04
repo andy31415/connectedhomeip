@@ -30,71 +30,76 @@ namespace Clusters {
 namespace Actions {
 
 // Enum for ActionErrorEnum
-enum class ActionErrorEnum : uint8_t {
-kUnknown = 0x00,
-kInterrupted = 0x01,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 2,
+enum class ActionErrorEnum : uint8_t
+{
+    kUnknown     = 0x00,
+    kInterrupted = 0x01,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 2,
 };
 
 // Enum for ActionStateEnum
-enum class ActionStateEnum : uint8_t {
-kInactive = 0x00,
-kActive = 0x01,
-kPaused = 0x02,
-kDisabled = 0x03,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 4,
+enum class ActionStateEnum : uint8_t
+{
+    kInactive = 0x00,
+    kActive   = 0x01,
+    kPaused   = 0x02,
+    kDisabled = 0x03,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 4,
 };
 
 // Enum for ActionTypeEnum
-enum class ActionTypeEnum : uint8_t {
-kOther = 0x00,
-kScene = 0x01,
-kSequence = 0x02,
-kAutomation = 0x03,
-kException = 0x04,
-kNotification = 0x05,
-kAlarm = 0x06,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 7,
+enum class ActionTypeEnum : uint8_t
+{
+    kOther        = 0x00,
+    kScene        = 0x01,
+    kSequence     = 0x02,
+    kAutomation   = 0x03,
+    kException    = 0x04,
+    kNotification = 0x05,
+    kAlarm        = 0x06,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 7,
 };
 
 // Enum for EndpointListTypeEnum
-enum class EndpointListTypeEnum : uint8_t {
-kOther = 0x00,
-kRoom = 0x01,
-kZone = 0x02,
-// All received enum values that are not listed above will be mapped
-// to kUnknownEnumValue. This is a helper enum value that should only
-// be used by code to process how it handles receiving and unknown
-// enum value. This specific should never be transmitted.
-kUnknownEnumValue = 3,
+enum class EndpointListTypeEnum : uint8_t
+{
+    kOther = 0x00,
+    kRoom  = 0x01,
+    kZone  = 0x02,
+    // All received enum values that are not listed above will be mapped
+    // to kUnknownEnumValue. This is a helper enum value that should only
+    // be used by code to process how it handles receiving and unknown
+    // enum value. This specific should never be transmitted.
+    kUnknownEnumValue = 3,
 };
 
 // Bitmap for CommandBits
-enum class CommandBits : uint16_t {
-kInstantAction = 0x1,
-kInstantActionWithTransition = 0x2,
-kStartAction = 0x4,
-kStartActionWithDuration = 0x8,
-kStopAction = 0x10,
-kPauseAction = 0x20,
-kPauseActionWithDuration = 0x40,
-kResumeAction = 0x80,
-kEnableAction = 0x100,
-kEnableActionWithDuration = 0x200,
-kDisableAction = 0x400,
-kDisableActionWithDuration = 0x800,
+enum class CommandBits : uint16_t
+{
+    kInstantAction               = 0x1,
+    kInstantActionWithTransition = 0x2,
+    kStartAction                 = 0x4,
+    kStartActionWithDuration     = 0x8,
+    kStopAction                  = 0x10,
+    kPauseAction                 = 0x20,
+    kPauseActionWithDuration     = 0x40,
+    kResumeAction                = 0x80,
+    kEnableAction                = 0x100,
+    kEnableActionWithDuration    = 0x200,
+    kDisableAction               = 0x400,
+    kDisableActionWithDuration   = 0x800,
 };
 } // namespace Actions
 } // namespace Clusters
