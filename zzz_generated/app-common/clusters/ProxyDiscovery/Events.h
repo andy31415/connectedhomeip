@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/ProxyDiscovery/ClusterId.h>
+#include <clusters/ProxyDiscovery/Enums.h>
 #include <clusters/ProxyDiscovery/EventIds.h>
 #include <clusters/ProxyDiscovery/Structs.h>
 

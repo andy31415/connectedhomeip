@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/OtaSoftwareUpdateProvider/ClusterId.h>
+#include <clusters/OtaSoftwareUpdateProvider/Enums.h>
 #include <clusters/OtaSoftwareUpdateProvider/EventIds.h>
 #include <clusters/OtaSoftwareUpdateProvider/Structs.h>
 

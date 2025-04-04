@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/ScenesManagement/ClusterId.h>
+#include <clusters/ScenesManagement/Enums.h>
 #include <clusters/ScenesManagement/EventIds.h>
 #include <clusters/ScenesManagement/Structs.h>
 

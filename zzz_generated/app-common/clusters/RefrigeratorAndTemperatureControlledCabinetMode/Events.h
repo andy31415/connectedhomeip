@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/RefrigeratorAndTemperatureControlledCabinetMode/ClusterId.h>
+#include <clusters/RefrigeratorAndTemperatureControlledCabinetMode/Enums.h>
 #include <clusters/RefrigeratorAndTemperatureControlledCabinetMode/EventIds.h>
 #include <clusters/RefrigeratorAndTemperatureControlledCabinetMode/Structs.h>
 

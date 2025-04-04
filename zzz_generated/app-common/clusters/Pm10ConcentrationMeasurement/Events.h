@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/Pm10ConcentrationMeasurement/ClusterId.h>
+#include <clusters/Pm10ConcentrationMeasurement/Enums.h>
 #include <clusters/Pm10ConcentrationMeasurement/EventIds.h>
 #include <clusters/Pm10ConcentrationMeasurement/Structs.h>
 

@@ -21,8 +21,6 @@
 #include <app/data-model/StructDecodeIterator.h>
 #include <app/data-model/WrappedStructEncoder.h>
 
-#include <variant>
-
 namespace chip {
 namespace app {
 namespace Clusters {

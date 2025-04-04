@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/ValveConfigurationAndControl/ClusterId.h>
+#include <clusters/ValveConfigurationAndControl/Enums.h>
 #include <clusters/ValveConfigurationAndControl/EventIds.h>
 #include <clusters/ValveConfigurationAndControl/Structs.h>
 

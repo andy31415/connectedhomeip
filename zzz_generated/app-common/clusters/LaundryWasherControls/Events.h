@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/LaundryWasherControls/ClusterId.h>
+#include <clusters/LaundryWasherControls/Enums.h>
 #include <clusters/LaundryWasherControls/EventIds.h>
 #include <clusters/LaundryWasherControls/Structs.h>
 

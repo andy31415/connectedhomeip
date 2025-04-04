@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/KeypadInput/ClusterId.h>
+#include <clusters/KeypadInput/Enums.h>
 #include <clusters/KeypadInput/EventIds.h>
 #include <clusters/KeypadInput/Structs.h>
 

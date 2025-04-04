@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/AudioOutput/ClusterId.h>
+#include <clusters/AudioOutput/Enums.h>
 #include <clusters/AudioOutput/EventIds.h>
 #include <clusters/AudioOutput/Structs.h>
 

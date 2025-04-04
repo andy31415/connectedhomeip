@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/WiFiNetworkDiagnostics/ClusterId.h>
+#include <clusters/WiFiNetworkDiagnostics/Enums.h>
 #include <clusters/WiFiNetworkDiagnostics/EventIds.h>
 #include <clusters/WiFiNetworkDiagnostics/Structs.h>
 

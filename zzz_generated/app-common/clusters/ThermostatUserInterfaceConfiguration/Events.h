@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/ThermostatUserInterfaceConfiguration/ClusterId.h>
+#include <clusters/ThermostatUserInterfaceConfiguration/Enums.h>
 #include <clusters/ThermostatUserInterfaceConfiguration/EventIds.h>
 #include <clusters/ThermostatUserInterfaceConfiguration/Structs.h>
 

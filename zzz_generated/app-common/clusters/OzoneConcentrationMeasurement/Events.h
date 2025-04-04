@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/OzoneConcentrationMeasurement/ClusterId.h>
+#include <clusters/OzoneConcentrationMeasurement/Enums.h>
 #include <clusters/OzoneConcentrationMeasurement/EventIds.h>
 #include <clusters/OzoneConcentrationMeasurement/Structs.h>
 

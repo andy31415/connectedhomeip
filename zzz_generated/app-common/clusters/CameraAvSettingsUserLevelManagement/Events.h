@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/CameraAvSettingsUserLevelManagement/ClusterId.h>
+#include <clusters/CameraAvSettingsUserLevelManagement/Enums.h>
 #include <clusters/CameraAvSettingsUserLevelManagement/EventIds.h>
 #include <clusters/CameraAvSettingsUserLevelManagement/Structs.h>
 

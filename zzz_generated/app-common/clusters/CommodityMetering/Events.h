@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/CommodityMetering/ClusterId.h>
+#include <clusters/CommodityMetering/Enums.h>
 #include <clusters/CommodityMetering/EventIds.h>
 #include <clusters/CommodityMetering/Structs.h>
 

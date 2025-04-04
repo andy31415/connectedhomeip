@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/ModeSelect/ClusterId.h>
+#include <clusters/ModeSelect/Enums.h>
 #include <clusters/ModeSelect/EventIds.h>
 #include <clusters/ModeSelect/Structs.h>
 

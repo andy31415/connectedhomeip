@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/WaterHeaterManagement/ClusterId.h>
+#include <clusters/WaterHeaterManagement/Enums.h>
 #include <clusters/WaterHeaterManagement/EventIds.h>
 #include <clusters/WaterHeaterManagement/Structs.h>
 

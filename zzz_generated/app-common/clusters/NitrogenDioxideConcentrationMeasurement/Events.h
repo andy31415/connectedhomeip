@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/NitrogenDioxideConcentrationMeasurement/ClusterId.h>
+#include <clusters/NitrogenDioxideConcentrationMeasurement/Enums.h>
 #include <clusters/NitrogenDioxideConcentrationMeasurement/EventIds.h>
 #include <clusters/NitrogenDioxideConcentrationMeasurement/Structs.h>
 

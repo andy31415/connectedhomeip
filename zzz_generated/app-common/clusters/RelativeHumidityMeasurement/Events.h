@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/RelativeHumidityMeasurement/ClusterId.h>
+#include <clusters/RelativeHumidityMeasurement/Enums.h>
 #include <clusters/RelativeHumidityMeasurement/EventIds.h>
 #include <clusters/RelativeHumidityMeasurement/Structs.h>
 

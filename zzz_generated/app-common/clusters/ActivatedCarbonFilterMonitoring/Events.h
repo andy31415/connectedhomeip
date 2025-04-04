@@ -30,9 +30,11 @@
 #include <lib/support/BitMask.h>
 #include <protocols/interaction_model/Constants.h>
 
+#include <clusters/shared/Enums.h>
 #include <clusters/shared/Structs.h>
 
 #include <clusters/ActivatedCarbonFilterMonitoring/ClusterId.h>
+#include <clusters/ActivatedCarbonFilterMonitoring/Enums.h>
 #include <clusters/ActivatedCarbonFilterMonitoring/EventIds.h>
 #include <clusters/ActivatedCarbonFilterMonitoring/Structs.h>
 
