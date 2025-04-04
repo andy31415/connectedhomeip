@@ -6,3 +6,11 @@ source_set("enums") {
     "EnumsCheck.h",
   ]
 }
+
+source_set("elements") {
+  sources = [
+    "Attributes.h",
+    "Structs.h",
+    "Structs.cpp",
+  ]
+}

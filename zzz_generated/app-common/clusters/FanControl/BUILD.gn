@@ -28,6 +28,18 @@ source_set("enums") {
   ]
 }
 
+source_set("elements") {
+  sources = [
+    "Attributes.h",
+    "Commands.h",
+    "Events.h",
+    "Structs.h",
+  ]
+  deps = [
+    "${chip_root}/zzz_generated/app-common/clusters/shared:elements",
+  ]
+}
+
 source_set("metadata") {
   sources = [ "Metadata.h" ]
   deps = [
@@ -41,5 +53,7 @@ source_set("FanControl") {
   public_deps = [
     ":ids",
     ":metadata",
+    ":enums",
+    ":elements",
   ]
 }
