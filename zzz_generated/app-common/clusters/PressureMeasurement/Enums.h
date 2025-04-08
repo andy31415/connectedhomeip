@@ -19,7 +19,7 @@
 #pragma once
 
 #include <clusters/shared/Enums.h>
-#include <stdint.h>
+#include <cstdint>
 
 namespace chip {
 namespace app {
