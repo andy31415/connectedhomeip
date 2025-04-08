@@ -4,8 +4,8 @@
 // based on src/controller/data_model/controller-clusters.matter
 #pragma once
 
-#include <lib/core/DataModelTypes.h>
 #include <app/common/GlobalIds.h>
+#include <lib/core/DataModelTypes.h>
 
 namespace chip {
 namespace app {
@@ -201,6 +201,12 @@ inline constexpr AttributeId Id = 0x0000003D;
 namespace ActiveNetworkFaultsList {
 inline constexpr AttributeId Id = 0x0000003E;
 } // namespace ActiveNetworkFaultsList
+namespace ExtAddress {
+inline constexpr AttributeId Id = 0x0000003F;
+} // namespace ExtAddress
+namespace Rloc16 {
+inline constexpr AttributeId Id = 0x00000040;
+} // namespace Rloc16
 namespace GeneratedCommandList {
 inline constexpr AttributeId Id = Globals::Attributes::GeneratedCommandList::Id;
 } // namespace GeneratedCommandList
@@ -222,6 +228,6 @@ inline constexpr AttributeId Id = Globals::Attributes::ClusterRevision::Id;
 
 } // namespace Attributes
 } // namespace ThreadNetworkDiagnostics
-} // namespace app
 } // namespace Clusters
+} // namespace app
 } // namespace chip

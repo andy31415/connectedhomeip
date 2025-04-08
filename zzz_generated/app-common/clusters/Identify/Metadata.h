@@ -22,7 +22,7 @@ namespace Attributes {
 namespace IdentifyTime {
 inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .attributeId    = Identify::Attributes::IdentifyTime::Id,
-    .flags          = BitFlags<DataModel::AttributeQualityFlags>{  },
+    .flags          = BitFlags<DataModel::AttributeQualityFlags>{},
     .readPrivilege  = Access::Privilege::kView,
     .writePrivilege = Access::Privilege::kOperate,
 };
@@ -30,12 +30,11 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
 namespace IdentifyType {
 inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .attributeId    = Identify::Attributes::IdentifyType::Id,
-    .flags          = BitFlags<DataModel::AttributeQualityFlags>{  },
+    .flags          = BitFlags<DataModel::AttributeQualityFlags>{},
     .readPrivilege  = Access::Privilege::kView,
     .writePrivilege = std::nullopt,
 };
 } // namespace IdentifyType
-
 
 } // namespace Attributes
 
@@ -43,20 +42,20 @@ namespace Commands {
 namespace Identify {
 inline constexpr DataModel::AcceptedCommandEntry kMetatadaEntry = {
     .commandId       = Identify::Commands::Identify::Id,
-    .flags           = BitFlags<DataModel::CommandQualityFlags>{  },
+    .flags           = BitFlags<DataModel::CommandQualityFlags>{},
     .invokePrivilege = Access::Privilege::kManage,
 };
 } // namespace Identify
 namespace TriggerEffect {
 inline constexpr DataModel::AcceptedCommandEntry kMetatadaEntry = {
     .commandId       = Identify::Commands::TriggerEffect::Id,
-    .flags           = BitFlags<DataModel::CommandQualityFlags>{  },
+    .flags           = BitFlags<DataModel::CommandQualityFlags>{},
     .invokePrivilege = Access::Privilege::kManage,
 };
 } // namespace TriggerEffect
 
 } // namespace Commands
 } // namespace Identify
+} // namespace clusters
 } // namespace app
-} // namespace Clusters
 } // namespace chip

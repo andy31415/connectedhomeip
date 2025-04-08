@@ -36,13 +36,10 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
 };
 } // namespace ActiveEndpoints
 
-
 } // namespace Attributes
 
-namespace Commands {
-
-} // namespace Commands
+namespace Commands {} // namespace Commands
 } // namespace PowerTopology
+} // namespace clusters
 } // namespace app
-} // namespace Clusters
 } // namespace chip

@@ -37,10 +37,10 @@ enum class Fields : uint8_t
 struct Type
 {
 public:
-    Optional<PositioningEnum> positioning;
-    Optional<LatchingEnum> latching;
-    Optional<Globals::ThreeLevelAutoEnum> speed;
-    Optional<uint32_t> extraInfo;
+    Optional<DataModel::Nullable<PositioningEnum>> positioning;
+    Optional<DataModel::Nullable<LatchingEnum>> latching;
+    Optional<DataModel::Nullable<Globals::ThreeLevelAutoEnum>> speed;
+    Optional<DataModel::Nullable<uint32_t>> extraInfo;
 
     CHIP_ERROR Decode(TLV::TLVReader & reader);
 
@@ -55,16 +55,16 @@ using DecodableType = Type;
 namespace OverallTargetStruct {
 enum class Fields : uint8_t
 {
-    kTagPosition = 0,
-    kTagLatch    = 1,
-    kSpeed       = 2,
+    kPosition = 0,
+    kLatch    = 1,
+    kSpeed    = 2,
 };
 
 struct Type
 {
 public:
-    Optional<TagPositionEnum> tagPosition;
-    Optional<TagLatchEnum> tagLatch;
+    Optional<TargetPositionEnum> position;
+    Optional<TargetLatchEnum> latch;
     Optional<Globals::ThreeLevelAutoEnum> speed;
 
     CHIP_ERROR Decode(TLV::TLVReader & reader);

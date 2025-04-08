@@ -16,7 +16,7 @@ namespace app {
 namespace clusters {
 namespace ServiceArea {
 
-inline constexpr uint32_t kRevision = 1;
+inline constexpr uint32_t kRevision = 2;
 
 namespace Attributes {
 namespace SupportedAreas {
@@ -46,7 +46,7 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
 namespace CurrentArea {
 inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .attributeId    = ServiceArea::Attributes::CurrentArea::Id,
-    .flags          = BitFlags<DataModel::AttributeQualityFlags>{  },
+    .flags          = BitFlags<DataModel::AttributeQualityFlags>{},
     .readPrivilege  = Access::Privilege::kView,
     .writePrivilege = std::nullopt,
 };
@@ -54,7 +54,7 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
 namespace EstimatedEndTime {
 inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .attributeId    = ServiceArea::Attributes::EstimatedEndTime::Id,
-    .flags          = BitFlags<DataModel::AttributeQualityFlags>{  },
+    .flags          = BitFlags<DataModel::AttributeQualityFlags>{},
     .readPrivilege  = Access::Privilege::kView,
     .writePrivilege = std::nullopt,
 };
@@ -68,27 +68,26 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
 };
 } // namespace Progress
 
-
 } // namespace Attributes
 
 namespace Commands {
 namespace SelectAreas {
 inline constexpr DataModel::AcceptedCommandEntry kMetatadaEntry = {
     .commandId       = ServiceArea::Commands::SelectAreas::Id,
-    .flags           = BitFlags<DataModel::CommandQualityFlags>{  },
+    .flags           = BitFlags<DataModel::CommandQualityFlags>{},
     .invokePrivilege = Access::Privilege::kOperate,
 };
 } // namespace SelectAreas
 namespace SkipArea {
 inline constexpr DataModel::AcceptedCommandEntry kMetatadaEntry = {
     .commandId       = ServiceArea::Commands::SkipArea::Id,
-    .flags           = BitFlags<DataModel::CommandQualityFlags>{  },
+    .flags           = BitFlags<DataModel::CommandQualityFlags>{},
     .invokePrivilege = Access::Privilege::kOperate,
 };
 } // namespace SkipArea
 
 } // namespace Commands
 } // namespace ServiceArea
+} // namespace clusters
 } // namespace app
-} // namespace Clusters
 } // namespace chip

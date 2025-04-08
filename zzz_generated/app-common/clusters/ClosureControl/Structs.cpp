@@ -82,8 +82,8 @@ namespace OverallTargetStruct {
 CHIP_ERROR Type::Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const
 {
     DataModel::WrappedStructEncoder encoder{ aWriter, aTag };
-    encoder.Encode(to_underlying(Fields::kTagPosition), tagPosition);
-    encoder.Encode(to_underlying(Fields::kTagLatch), tagLatch);
+    encoder.Encode(to_underlying(Fields::kPosition), position);
+    encoder.Encode(to_underlying(Fields::kLatch), latch);
     encoder.Encode(to_underlying(Fields::kSpeed), speed);
     return encoder.Finalize();
 }
@@ -102,13 +102,13 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
         CHIP_ERROR err              = CHIP_NO_ERROR;
         const uint8_t __context_tag = std::get<uint8_t>(__element);
 
-        if (__context_tag == to_underlying(Fields::kTagPosition))
+        if (__context_tag == to_underlying(Fields::kPosition))
         {
-            err = DataModel::Decode(reader, tagPosition);
+            err = DataModel::Decode(reader, position);
         }
-        else if (__context_tag == to_underlying(Fields::kTagLatch))
+        else if (__context_tag == to_underlying(Fields::kLatch))
         {
-            err = DataModel::Decode(reader, tagLatch);
+            err = DataModel::Decode(reader, latch);
         }
         else if (__context_tag == to_underlying(Fields::kSpeed))
         {

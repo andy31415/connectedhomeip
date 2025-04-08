@@ -59,16 +59,6 @@ struct Type;
 struct DecodableType;
 } // namespace Calibrate
 
-namespace ConfigureFallback {
-struct Type;
-struct DecodableType;
-} // namespace ConfigureFallback
-
-namespace CancelFallback {
-struct Type;
-struct DecodableType;
-} // namespace CancelFallback
-
 } // namespace Commands
 
 namespace Commands {
@@ -103,9 +93,9 @@ public:
 namespace MoveTo {
 enum class Fields : uint8_t
 {
-    kTag   = 0,
-    kLatch = 1,
-    kSpeed = 2,
+    kPosition = 0,
+    kLatch    = 1,
+    kSpeed    = 2,
 };
 
 struct Type
@@ -115,8 +105,8 @@ public:
     static constexpr CommandId GetCommandId() { return Commands::MoveTo::Id; }
     static constexpr ClusterId GetClusterId() { return Clusters::ClosureControl::Id; }
 
-    Optional<TagPositionEnum> tag;
-    Optional<TagLatchEnum> latch;
+    Optional<TargetPositionEnum> position;
+    Optional<TargetLatchEnum> latch;
     Optional<Globals::ThreeLevelAutoEnum> speed;
 
     CHIP_ERROR Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const;
@@ -132,8 +122,8 @@ public:
     static constexpr CommandId GetCommandId() { return Commands::MoveTo::Id; }
     static constexpr ClusterId GetClusterId() { return Clusters::ClosureControl::Id; }
 
-    Optional<TagPositionEnum> tag;
-    Optional<TagLatchEnum> latch;
+    Optional<TargetPositionEnum> position;
+    Optional<TargetLatchEnum> latch;
     Optional<Globals::ThreeLevelAutoEnum> speed;
     CHIP_ERROR Decode(TLV::TLVReader & reader);
 };
@@ -166,75 +156,6 @@ public:
     CHIP_ERROR Decode(TLV::TLVReader & reader);
 };
 }; // namespace Calibrate
-namespace ConfigureFallback {
-enum class Fields : uint8_t
-{
-    kRestingProcedure = 0,
-    kTriggerCondition = 1,
-    kTriggerPosition  = 2,
-    kWaitingDelay     = 3,
-};
-
-struct Type
-{
-public:
-    // Use GetCommandId instead of commandId directly to avoid naming conflict with CommandIdentification in ExecutionOfACommand
-    static constexpr CommandId GetCommandId() { return Commands::ConfigureFallback::Id; }
-    static constexpr ClusterId GetClusterId() { return Clusters::ClosureControl::Id; }
-
-    Optional<RestingProcedureEnum> restingProcedure;
-    Optional<TriggerConditionEnum> triggerCondition;
-    Optional<TriggerPositionEnum> triggerPosition;
-    Optional<uint32_t> waitingDelay;
-
-    CHIP_ERROR Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const;
-
-    using ResponseType = DataModel::NullObjectType;
-
-    static constexpr bool MustUseTimedInvoke() { return false; }
-};
-
-struct DecodableType
-{
-public:
-    static constexpr CommandId GetCommandId() { return Commands::ConfigureFallback::Id; }
-    static constexpr ClusterId GetClusterId() { return Clusters::ClosureControl::Id; }
-
-    Optional<RestingProcedureEnum> restingProcedure;
-    Optional<TriggerConditionEnum> triggerCondition;
-    Optional<TriggerPositionEnum> triggerPosition;
-    Optional<uint32_t> waitingDelay;
-    CHIP_ERROR Decode(TLV::TLVReader & reader);
-};
-}; // namespace ConfigureFallback
-namespace CancelFallback {
-enum class Fields : uint8_t
-{
-};
-
-struct Type
-{
-public:
-    // Use GetCommandId instead of commandId directly to avoid naming conflict with CommandIdentification in ExecutionOfACommand
-    static constexpr CommandId GetCommandId() { return Commands::CancelFallback::Id; }
-    static constexpr ClusterId GetClusterId() { return Clusters::ClosureControl::Id; }
-
-    CHIP_ERROR Encode(TLV::TLVWriter & aWriter, TLV::Tag aTag) const;
-
-    using ResponseType = DataModel::NullObjectType;
-
-    static constexpr bool MustUseTimedInvoke() { return false; }
-};
-
-struct DecodableType
-{
-public:
-    static constexpr CommandId GetCommandId() { return Commands::CancelFallback::Id; }
-    static constexpr ClusterId GetClusterId() { return Clusters::ClosureControl::Id; }
-
-    CHIP_ERROR Decode(TLV::TLVReader & reader);
-};
-}; // namespace CancelFallback
 } // namespace Commands
 } // namespace ClosureControl
 } // namespace Clusters

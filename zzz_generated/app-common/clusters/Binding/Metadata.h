@@ -28,13 +28,10 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
 };
 } // namespace Binding
 
-
 } // namespace Attributes
 
-namespace Commands {
-
-} // namespace Commands
+namespace Commands {} // namespace Commands
 } // namespace Binding
+} // namespace clusters
 } // namespace app
-} // namespace Clusters
 } // namespace chip

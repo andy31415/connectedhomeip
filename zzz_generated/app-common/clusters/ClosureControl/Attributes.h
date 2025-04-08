@@ -107,66 +107,6 @@ struct TypeInfo
     static constexpr bool MustUseTimedWrite() { return false; }
 };
 } // namespace OverallTarget
-namespace RestingProcedure {
-struct TypeInfo
-{
-    using Type             = chip::app::Clusters::ClosureControl::RestingProcedureEnum;
-    using DecodableType    = chip::app::Clusters::ClosureControl::RestingProcedureEnum;
-    using DecodableArgType = chip::app::Clusters::ClosureControl::RestingProcedureEnum;
-
-    static constexpr ClusterId GetClusterId() { return Clusters::ClosureControl::Id; }
-    static constexpr AttributeId GetAttributeId() { return Attributes::RestingProcedure::Id; }
-    static constexpr bool MustUseTimedWrite() { return false; }
-};
-} // namespace RestingProcedure
-namespace TriggerCondition {
-struct TypeInfo
-{
-    using Type             = chip::app::Clusters::ClosureControl::TriggerConditionEnum;
-    using DecodableType    = chip::app::Clusters::ClosureControl::TriggerConditionEnum;
-    using DecodableArgType = chip::app::Clusters::ClosureControl::TriggerConditionEnum;
-
-    static constexpr ClusterId GetClusterId() { return Clusters::ClosureControl::Id; }
-    static constexpr AttributeId GetAttributeId() { return Attributes::TriggerCondition::Id; }
-    static constexpr bool MustUseTimedWrite() { return false; }
-};
-} // namespace TriggerCondition
-namespace TriggerPosition {
-struct TypeInfo
-{
-    using Type             = chip::app::Clusters::ClosureControl::TriggerPositionEnum;
-    using DecodableType    = chip::app::Clusters::ClosureControl::TriggerPositionEnum;
-    using DecodableArgType = chip::app::Clusters::ClosureControl::TriggerPositionEnum;
-
-    static constexpr ClusterId GetClusterId() { return Clusters::ClosureControl::Id; }
-    static constexpr AttributeId GetAttributeId() { return Attributes::TriggerPosition::Id; }
-    static constexpr bool MustUseTimedWrite() { return false; }
-};
-} // namespace TriggerPosition
-namespace WaitingDelay {
-struct TypeInfo
-{
-    using Type             = uint32_t;
-    using DecodableType    = uint32_t;
-    using DecodableArgType = uint32_t;
-
-    static constexpr ClusterId GetClusterId() { return Clusters::ClosureControl::Id; }
-    static constexpr AttributeId GetAttributeId() { return Attributes::WaitingDelay::Id; }
-    static constexpr bool MustUseTimedWrite() { return false; }
-};
-} // namespace WaitingDelay
-namespace KickoffTimer {
-struct TypeInfo
-{
-    using Type             = uint32_t;
-    using DecodableType    = uint32_t;
-    using DecodableArgType = uint32_t;
-
-    static constexpr ClusterId GetClusterId() { return Clusters::ClosureControl::Id; }
-    static constexpr AttributeId GetAttributeId() { return Attributes::KickoffTimer::Id; }
-    static constexpr bool MustUseTimedWrite() { return false; }
-};
-} // namespace KickoffTimer
 namespace GeneratedCommandList {
 struct TypeInfo : public Clusters::Globals::Attributes::GeneratedCommandList::TypeInfo
 {
@@ -212,14 +152,6 @@ struct TypeInfo
         Attributes::CurrentErrorList::TypeInfo::DecodableType currentErrorList;
         Attributes::OverallState::TypeInfo::DecodableType overallState;
         Attributes::OverallTarget::TypeInfo::DecodableType overallTarget;
-        Attributes::RestingProcedure::TypeInfo::DecodableType restingProcedure =
-            static_cast<chip::app::Clusters::ClosureControl::RestingProcedureEnum>(0);
-        Attributes::TriggerCondition::TypeInfo::DecodableType triggerCondition =
-            static_cast<chip::app::Clusters::ClosureControl::TriggerConditionEnum>(0);
-        Attributes::TriggerPosition::TypeInfo::DecodableType triggerPosition =
-            static_cast<chip::app::Clusters::ClosureControl::TriggerPositionEnum>(0);
-        Attributes::WaitingDelay::TypeInfo::DecodableType waitingDelay = static_cast<uint32_t>(0);
-        Attributes::KickoffTimer::TypeInfo::DecodableType kickoffTimer = static_cast<uint32_t>(0);
         Attributes::GeneratedCommandList::TypeInfo::DecodableType generatedCommandList;
         Attributes::AcceptedCommandList::TypeInfo::DecodableType acceptedCommandList;
         Attributes::AttributeList::TypeInfo::DecodableType attributeList;

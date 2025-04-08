@@ -40,16 +40,6 @@ CHIP_ERROR TypeInfo::DecodableType::Decode(TLV::TLVReader & reader, const Concre
         return DataModel::Decode(reader, overallState);
     case Attributes::OverallTarget::TypeInfo::GetAttributeId():
         return DataModel::Decode(reader, overallTarget);
-    case Attributes::RestingProcedure::TypeInfo::GetAttributeId():
-        return DataModel::Decode(reader, restingProcedure);
-    case Attributes::TriggerCondition::TypeInfo::GetAttributeId():
-        return DataModel::Decode(reader, triggerCondition);
-    case Attributes::TriggerPosition::TypeInfo::GetAttributeId():
-        return DataModel::Decode(reader, triggerPosition);
-    case Attributes::WaitingDelay::TypeInfo::GetAttributeId():
-        return DataModel::Decode(reader, waitingDelay);
-    case Attributes::KickoffTimer::TypeInfo::GetAttributeId():
-        return DataModel::Decode(reader, kickoffTimer);
     case Attributes::GeneratedCommandList::TypeInfo::GetAttributeId():
         return DataModel::Decode(reader, generatedCommandList);
     case Attributes::AcceptedCommandList::TypeInfo::GetAttributeId():
