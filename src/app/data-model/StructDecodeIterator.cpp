@@ -21,7 +21,7 @@ namespace app {
 namespace Clusters {
 namespace detail {
 
-StructDecodeIterator::EntryElement StructDecodeIterator::Next()
+CHIP_ERROR StructDecodeIterator::Next(uint8_t &context_tag)
 {
     if (!mEntered)
     {
@@ -46,10 +46,14 @@ StructDecodeIterator::EntryElement StructDecodeIterator::Next()
         }
 
         // we know context tags are 8-bit
-        return static_cast<uint8_t>(TLV::TagNumFromTag(tag));
+        context_tag = static_cast<uint8_t>(TLV::TagNumFromTag(tag));
+        return CHIP_NO_ERROR;
     }
 
-    return mReader.ExitContainer(mOuter);
+    // we get here IFF error is CHIP_ERROR_END_OF_TLV. We exist the container but
+    // forward the the `end of tlv` as a final marker
+    ReturnErrorOnFailure(mReader.ExitContainer(mOuter));
+    return CHIP_ERROR_END_OF_TLV;
 }
 
 } // namespace detail

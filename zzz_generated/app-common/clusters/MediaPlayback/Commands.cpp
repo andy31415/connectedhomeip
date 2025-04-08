@@ -38,11 +38,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace Play.
@@ -58,11 +59,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace Pause.
@@ -78,11 +80,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace Stop.
@@ -98,11 +101,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace StartOver.
@@ -118,11 +122,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace Previous.
@@ -138,11 +143,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace Next.
@@ -159,14 +165,10 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
 
         if (__context_tag == to_underlying(Fields::kAudioAdvanceUnmuted))
         {
@@ -193,14 +195,10 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
 
         if (__context_tag == to_underlying(Fields::kAudioAdvanceUnmuted))
         {
@@ -227,14 +225,10 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
 
         if (__context_tag == to_underlying(Fields::kDeltaPositionMilliseconds))
         {
@@ -261,14 +255,10 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
 
         if (__context_tag == to_underlying(Fields::kDeltaPositionMilliseconds))
         {
@@ -296,14 +286,10 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
 
         if (__context_tag == to_underlying(Fields::kStatus))
         {
@@ -334,14 +320,10 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
 
         if (__context_tag == to_underlying(Fields::kPosition))
         {
@@ -369,14 +351,10 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
 
         if (__context_tag == to_underlying(Fields::kTrackID))
         {
@@ -407,14 +385,10 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
-
-        CHIP_ERROR err              = CHIP_NO_ERROR;
-        const uint8_t __context_tag = std::get<uint8_t>(__element);
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
 
         if (__context_tag == to_underlying(Fields::kTrackID))
         {
@@ -440,11 +414,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace DeactivateTextTrack.

@@ -39,11 +39,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace SupplyVoltageLow.
@@ -60,11 +61,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace SupplyVoltageHigh.
@@ -81,11 +83,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace PowerMissingPhase.
@@ -102,11 +105,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace SystemPressureLow.
@@ -123,11 +127,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace SystemPressureHigh.
@@ -144,11 +149,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace DryRunning.
@@ -165,11 +171,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace MotorTemperatureHigh.
@@ -186,11 +193,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace PumpMotorFatalFailure.
@@ -207,11 +215,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace ElectronicTemperatureHigh.
@@ -228,11 +237,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace PumpBlocked.
@@ -249,11 +259,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace SensorFailure.
@@ -270,11 +281,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace ElectronicNonFatalFailure.
@@ -291,11 +303,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace ElectronicFatalFailure.
@@ -312,11 +325,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace GeneralFault.
@@ -333,11 +347,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace Leakage.
@@ -354,11 +369,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace AirDetection.
@@ -375,11 +391,12 @@ CHIP_ERROR DecodableType::Decode(TLV::TLVReader & reader)
     detail::StructDecodeIterator __iterator(reader);
     while (true)
     {
-        auto __element = __iterator.Next();
-        if (std::holds_alternative<CHIP_ERROR>(__element))
-        {
-            return std::get<CHIP_ERROR>(__element);
-        }
+        uint8_t __context_tag = 0;
+        CHIP_ERROR err        = __iterator.Next(__context_tag);
+        VerifyOrReturnError(err != CHIP_ERROR_END_OF_TLV, CHIP_NO_ERROR);
+        ReturnErrorOnFailure(err);
+
+        ReturnErrorOnFailure(err);
     }
 }
 } // namespace TurbineOperation.
