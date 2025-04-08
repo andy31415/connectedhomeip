@@ -25,7 +25,7 @@ import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Generator
+from typing import Generator, Optional
 
 from clang_format import getClangFormatBinary
 from zap_execution import ZapTool
@@ -248,6 +248,7 @@ def runGeneration(cmdLineArgs):
     if matter_name:
         extractGeneratedIdl(output_dir, matter_name)
 
+
 def expandPlaceholderWildcards(path: str) -> Generator[str, None, None]:
     """
     Generates expanded path lists from ZAP output paths.
@@ -285,7 +286,7 @@ def runClangPrettifier(templates_file, output_dir):
         clangOutputs = []
         for path in rawPaths:
             clangOutputs.extend(expandPlaceholderWildcards(path))
-        clangOutputs = list(set(clangOutputs)) # unique paths in case of glob overlap
+        clangOutputs = list(set(clangOutputs))  # unique paths in case of glob overlap
 
         if clangOutputs:
             # NOTE: clang-format differs output in time. We generally would be
@@ -378,8 +379,6 @@ def main():
             for name in glob.glob(f'{srcDir}/*'):
                 os.rename(name, f'{cmdLineArgs.outputDir}/{dest}/{os.path.basename(name)}')
             os.rmdir(srcDir)
-
-
 
     if cmdLineArgs.prettify_output:
         prettifiers = [
