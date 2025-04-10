@@ -19,6 +19,7 @@
 #include <clusters/OtaSoftwareUpdateProvider/Commands.h>
 #include <clusters/OtaSoftwareUpdateProvider/Ids.h>
 #include <clusters/OtaSoftwareUpdateProvider/Metadata.h>
+#include <optional>
 
 namespace chip {
 namespace app {
@@ -34,8 +35,8 @@ constexpr size_t kUpdateTokenMinLength = 8;   // The expected length of the Upda
 using Protocols::InteractionModel::Status;
 using namespace OtaSoftwareUpdateProvider::Commands;
 
-DataModel::ActionReturnStatus OtaProviderCluster::ReadAttribute(const DataModel::ReadAttributeRequest & request,
-                                                                AttributeValueEncoder & encoder)
+DataModel::ActionReturnStatus OtaProviderServer::ReadAttribute(const DataModel::ReadAttributeRequest & request,
+                                                               AttributeValueEncoder & encoder)
 {
     switch (request.path.mAttributeId)
     {
@@ -49,8 +50,8 @@ DataModel::ActionReturnStatus OtaProviderCluster::ReadAttribute(const DataModel:
     return Status::UnsupportedAttribute;
 }
 
-CHIP_ERROR OtaProviderCluster::AcceptedCommands(const ConcreteClusterPath & path,
-                                                DataModel::ListBuilder<DataModel::AcceptedCommandEntry> & builder)
+CHIP_ERROR OtaProviderServer::AcceptedCommands(const ConcreteClusterPath & path,
+                                               DataModel::ListBuilder<DataModel::AcceptedCommandEntry> & builder)
 {
     static constexpr DataModel::AcceptedCommandEntry kEntries[] = {
         QueryImage::kMetatadaEntry,
@@ -59,7 +60,7 @@ CHIP_ERROR OtaProviderCluster::AcceptedCommands(const ConcreteClusterPath & path
     };
     return builder.ReferenceExisting({ kEntries, MATTER_ARRAY_SIZE(kEntries) });
 }
-CHIP_ERROR OtaProviderCluster::GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder)
+CHIP_ERROR OtaProviderServer::GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder)
 {
     static constexpr CommandId kEntries[] = {
         OtaSoftwareUpdateProvider::Commands::QueryImageResponse::Id,
@@ -68,33 +69,95 @@ CHIP_ERROR OtaProviderCluster::GeneratedCommands(const ConcreteClusterPath & pat
     return builder.ReferenceExisting({ kEntries, MATTER_ARRAY_SIZE(kEntries) });
 }
 
-std::optional<DataModel::ActionReturnStatus> OtaProviderCluster::InvokeCommand(const DataModel::InvokeRequest & request,
-                                                                               chip::TLV::TLVReader & input_arguments,
-                                                                               CommandHandler * handler)
+std::optional<DataModel::ActionReturnStatus> OtaProviderServer::InvokeCommand(const DataModel::InvokeRequest & request,
+                                                                              chip::TLV::TLVReader & input_arguments,
+                                                                              CommandHandler * handler)
 {
     switch (request.path.mCommandId)
     {
     case QueryImage::Id: {
         QueryImage::DecodableType data;
         ReturnErrorOnFailure(data.Decode(input_arguments));
-        return HandleQueryImage(request.path, data, handler);
+        return QueryImage(request.path, data, handler);
     }
-    case ApplyUpdateRequest::Id:
-    case NotifyUpdateApplied::Id:
-        break;
+    case ApplyUpdateRequest::Id:{
+        ApplyUpdateRequest::DecodableType data;
+        ReturnErrorOnFailure(data.Decode(input_arguments));
+        return ApplyUpdateRequest(request.path, data, handler);
+    }
+    case NotifyUpdateApplied::Id:{
+        NotifyUpdateApplied::DecodableType data;
+        ReturnErrorOnFailure(data.Decode(input_arguments));
+        return NotifyUpdateApplied(request.path, data, handler);
+    }
     }
 
     return Status::UnsupportedCommand;
 }
 
 std::optional<DataModel::ActionReturnStatus>
-OtaProviderCluster::HandleQueryImage(const ConcreteCommandPath & commandPath,
-                                     const OtaSoftwareUpdateProvider::Commands::QueryImage::DecodableType & commandData,
+OtaProviderLogic::ApplyUpdateRequest(const ConcreteCommandPath & commandPath,
+                                     const OtaSoftwareUpdateProvider::Commands::ApplyUpdateRequest::DecodableType & commandData,
                                      app::CommandHandler * handler)
 {
     if (mDelegate == nullptr)
     {
-        ChipLogError(Zcl, "No OTAProviderDelegate set for ep:%u", mPath.mEndpointId);
+        ChipLogError(Zcl, "No OTAProviderDelegate set for ep:%u", commandPath.mEndpointId);
+        return Status::UnsupportedCommand;
+    }
+    auto & updateToken  = commandData.updateToken;
+
+    ChipLogProgress(Zcl, "OTA Provider received ApplyUpdateRequest");
+    ChipLogDetail(Zcl, "  Update Token: %u", static_cast<unsigned int>(commandData.updateToken.size()));
+    ChipLogDetail(Zcl, "  New Version: %" PRIu32, commandData.newVersion);
+
+    if (updateToken.size() > kUpdateTokenMaxLength || updateToken.size() < kUpdateTokenMinLength)
+    {
+        ChipLogError(Zcl, "expected size %u for UpdateToken, got %u", static_cast<unsigned int>(kUpdateTokenMaxLength),
+                     static_cast<unsigned int>(updateToken.size()));
+        return Status::InvalidCommand;
+    }
+
+    mDelegate->HandleApplyUpdateRequest(handler, commandPath, commandData);
+    return std::nullopt;
+}
+
+std::optional<DataModel::ActionReturnStatus>
+OtaProviderLogic::NotifyUpdateApplied(const ConcreteCommandPath & commandPath,
+                                      const OtaSoftwareUpdateProvider::Commands::NotifyUpdateApplied::DecodableType & commandData,
+                                      app::CommandHandler * handler)
+{
+    if (mDelegate == nullptr)
+    {
+        ChipLogError(Zcl, "No OTAProviderDelegate set for ep:%u", commandPath.mEndpointId);
+        return Status::UnsupportedCommand;
+    }
+
+    auto & updateToken  = commandData.updateToken;
+
+    ChipLogProgress(Zcl, "OTA Provider received NotifyUpdateApplied");
+    ChipLogDetail(Zcl, "  Update Token: %u", static_cast<unsigned int>(commandData.updateToken.size()));
+    ChipLogDetail(Zcl, "  Software Version: %" PRIu32, commandData.softwareVersion);
+
+    if (updateToken.size() > kUpdateTokenMaxLength || updateToken.size() < kUpdateTokenMinLength)
+    {
+        ChipLogError(Zcl, "expected size %u for UpdateToken, got %u", static_cast<unsigned int>(kUpdateTokenMaxLength),
+                     static_cast<unsigned int>(updateToken.size()));
+        return Status::InvalidCommand;
+    }
+
+    mDelegate->HandleNotifyUpdateApplied(handler, commandPath, commandData);
+    return std::nullopt;
+}
+
+std::optional<DataModel::ActionReturnStatus>
+OtaProviderLogic::QueryImage(const ConcreteCommandPath & commandPath,
+                             const OtaSoftwareUpdateProvider::Commands::QueryImage::DecodableType & commandData,
+                             app::CommandHandler * handler)
+{
+    if (mDelegate == nullptr)
+    {
+        ChipLogError(Zcl, "No OTAProviderDelegate set for ep:%u", commandPath.mEndpointId);
         return Status::UnsupportedCommand;
     }
     auto & vendorId            = commandData.vendorID;

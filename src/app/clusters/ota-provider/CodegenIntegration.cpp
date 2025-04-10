@@ -48,7 +48,7 @@ using namespace chip::app::Clusters;
 static constexpr size_t kOtaProviderMaxClusterCount =
     MATTER_DM_OTA_SOFTWARE_UPDATE_PROVIDER_CLUSTER_SERVER_ENDPOINT_COUNT + CHIP_DEVICE_CONFIG_DYNAMIC_ENDPOINT_COUNT;
 
-std::array<OtaProviderCluster, kOtaProviderMaxClusterCount> mClusters;
+std::array<OtaProviderServer, kOtaProviderMaxClusterCount> mClusters;
 std::array<ServerClusterRegistration, kOtaProviderMaxClusterCount> mRegistrations;
 
 void emberAfOtaSoftwareUpdateProviderClusterServerInitCallback(chip::EndpointId endpoint)

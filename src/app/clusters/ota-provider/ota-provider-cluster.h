@@ -26,12 +26,39 @@ namespace chip {
 namespace app {
 namespace Clusters {
 
-class OtaProviderCluster : public DefaultServerCluster
+/// Type-safe implementation for callbacks for the OTA Provider server
+class OtaProviderLogic
 {
 public:
-    OtaProviderCluster() : DefaultServerCluster({ kInvalidEndpointId, OtaSoftwareUpdateProvider::Id }) {}
-
     void SetDelegate(OTAProviderDelegate * delegate) { mDelegate = delegate; }
+
+    std::optional<DataModel::ActionReturnStatus>
+    ApplyUpdateRequest(const ConcreteCommandPath & commandPath,
+                     const OtaSoftwareUpdateProvider::Commands::ApplyUpdateRequest::DecodableType & commandData,
+                     app::CommandHandler * handler);
+
+    std::optional<DataModel::ActionReturnStatus>
+    NotifyUpdateApplied(const ConcreteCommandPath & commandPath,
+                     const OtaSoftwareUpdateProvider::Commands::NotifyUpdateApplied::DecodableType & commandData,
+                     app::CommandHandler * handler);
+
+    std::optional<DataModel::ActionReturnStatus>
+    QueryImage(const ConcreteCommandPath & commandPath,
+                     const OtaSoftwareUpdateProvider::Commands::QueryImage::DecodableType & commandData,
+                     app::CommandHandler * handler);
+
+private:
+    OTAProviderDelegate * mDelegate = nullptr;
+};
+
+/// Integration of OTA provider logic within the matter data model
+///
+/// Translates between matter calls and OTA logic
+class OtaProviderServer : public DefaultServerCluster, private OtaProviderLogic
+{
+public:
+    OtaProviderServer() : DefaultServerCluster({ kInvalidEndpointId, OtaSoftwareUpdateProvider::Id }) {}
+
     void SetEndpointId(EndpointId endpoint) { mPath.mEndpointId = endpoint; }
 
     // Server cluster implementation
@@ -45,14 +72,6 @@ public:
     std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
                                                                chip::TLV::TLVReader & input_arguments,
                                                                CommandHandler * handler) override;
-
-private:
-    OTAProviderDelegate * mDelegate = nullptr;
-
-    std::optional<DataModel::ActionReturnStatus>
-    HandleQueryImage(const ConcreteCommandPath & commandPath,
-                     const OtaSoftwareUpdateProvider::Commands::QueryImage::DecodableType & commandData,
-                     app::CommandHandler * handler);
 };
 
 } // namespace Clusters
