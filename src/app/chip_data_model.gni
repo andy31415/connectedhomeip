@@ -283,6 +283,11 @@ template("chip_data_model") {
       } else if (cluster == "ota-provider") {
         deps += [ "${_app_root}/clusters/${cluster}"]
         sources += [ "${_app_root}/clusters/${cluster}/EmberIntegration.cpp"]
+
+        # TODO: these have to get removed one by one
+        sources += [ 
+          "${_app_root}/clusters/${cluster}/ota-provider.cpp"
+        ]
       } else if (cluster == "ota-requestor") {
         sources += [
           # TODO - align name of folder ?
