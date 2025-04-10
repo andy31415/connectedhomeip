@@ -16,5 +16,58 @@
  */
 #include <app/clusters/ota-provider/ota-provider-cluster.h>
 
-// FIXME: implement
+#include <clusters/OtaSoftwareUpdateProvider/Ids.h>
 
+namespace chip {
+namespace app {
+namespace Clusters {
+
+using Protocols::InteractionModel::Status;
+
+DataModel::ActionReturnStatus OtaProviderCluster::ReadAttribute(const DataModel::ReadAttributeRequest & request,
+                                                                AttributeValueEncoder & encoder)
+{
+    switch (request.path.mAttributeId)
+    {
+    case Globals::Attributes::FeatureMap::Id:
+        // No features defined for the cluster ...
+        return encoder.Encode<uint32_t>(0);
+    case Globals::Attributes::ClusterRevision::Id:
+        // TODO: this should be code generated!
+        return encoder.Encode<uint32_t>(1);
+    }
+
+    return Status::UnsupportedAttribute;
+}
+
+CHIP_ERROR OtaProviderCluster::AcceptedCommands(const ConcreteClusterPath & path,
+                                                DataModel::ListBuilder<DataModel::AcceptedCommandEntry> & builder)
+{
+    static constexpr DataModel::AcceptedCommandEntry kEntries[] = {
+        // FIXME: this needs code generation
+        //   QueryImage
+        //   ApplyUpdateRequest
+        //   NotifyUpdateApplied
+    };
+    return builder.ReferenceExisting({ kEntries, MATTER_ARRAY_SIZE(kEntries) });
+}
+CHIP_ERROR OtaProviderCluster::GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder)
+{
+    static constexpr CommandId kEntries[] = {
+        OtaSoftwareUpdateProvider::Commands::QueryImageResponse::Id,
+        OtaSoftwareUpdateProvider::Commands::ApplyUpdateResponse::Id,
+    };
+    return builder.ReferenceExisting({ kEntries, MATTER_ARRAY_SIZE(kEntries) });
+}
+
+std::optional<DataModel::ActionReturnStatus> OtaProviderCluster::InvokeCommand(const DataModel::InvokeRequest & request,
+                                                                               chip::TLV::TLVReader & input_arguments,
+                                                                               CommandHandler * handler)
+{
+    // TODO: implement
+    return Status::UnsupportedCommand;
+}
+
+} // namespace Clusters
+} // namespace app
+} // namespace chip

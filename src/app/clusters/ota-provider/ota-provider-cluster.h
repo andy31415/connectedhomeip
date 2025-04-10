@@ -17,6 +17,7 @@
 #pragma once
 
 #include <app/server-cluster/DefaultServerCluster.h>
+#include <clusters/OtaSoftwareUpdateProvider/ClusterId.h>
 
 namespace chip {
 namespace app {
@@ -25,9 +26,22 @@ namespace Clusters {
 class OtaProviderCluster : public DefaultServerCluster
 {
 public:
-    // TODO: what do we need to override?
+    OtaProviderCluster() : DefaultServerCluster({ kInvalidEndpointId, OtaSoftwareUpdateProvider::Id }) {}
+
+    DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request,
+                                                AttributeValueEncoder & encoder) override;
+
+    CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path,
+                                DataModel::ListBuilder<DataModel::AcceptedCommandEntry> & builder) override;
+    CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder) override;
+
+    std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
+                                                               chip::TLV::TLVReader & input_arguments,
+                                                               CommandHandler * handler) override;
+
 private:
     // TODO: what members are needed here?
+    //   we likely need PATHS!
 };
 
 } // namespace Clusters
