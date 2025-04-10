@@ -12,6 +12,7 @@ namespace Clusters {
 namespace DemandResponseLoadControl {
 
 inline constexpr ClusterId Id = 0x00000096;
+inline constexpr uint32_t Revision = 0x00000004;
 
 } // namespace DemandResponseLoadControl
 } // namespace Clusters

@@ -12,6 +12,7 @@ namespace Clusters {
 namespace PowerSourceConfiguration {
 
 inline constexpr ClusterId Id = 0x0000002E;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace PowerSourceConfiguration
 } // namespace Clusters

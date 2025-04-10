@@ -12,6 +12,7 @@ namespace Clusters {
 namespace OzoneConcentrationMeasurement {
 
 inline constexpr ClusterId Id = 0x00000415;
+inline constexpr uint32_t Revision = 0x00000003;
 
 } // namespace OzoneConcentrationMeasurement
 } // namespace Clusters

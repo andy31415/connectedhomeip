@@ -12,6 +12,7 @@ namespace Clusters {
 namespace OperationalCredentials {
 
 inline constexpr ClusterId Id = 0x0000003E;
+inline constexpr uint32_t Revision = 0x00000002;
 
 } // namespace OperationalCredentials
 } // namespace Clusters

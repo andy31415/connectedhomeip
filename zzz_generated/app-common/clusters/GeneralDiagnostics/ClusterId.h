@@ -12,6 +12,7 @@ namespace Clusters {
 namespace GeneralDiagnostics {
 
 inline constexpr ClusterId Id = 0x00000033;
+inline constexpr uint32_t Revision = 0x00000002;
 
 } // namespace GeneralDiagnostics
 } // namespace Clusters

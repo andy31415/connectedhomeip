@@ -12,6 +12,7 @@ namespace Clusters {
 namespace FlowMeasurement {
 
 inline constexpr ClusterId Id = 0x00000404;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace FlowMeasurement
 } // namespace Clusters

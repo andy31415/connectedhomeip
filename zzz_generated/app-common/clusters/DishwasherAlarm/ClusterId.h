@@ -12,6 +12,7 @@ namespace Clusters {
 namespace DishwasherAlarm {
 
 inline constexpr ClusterId Id = 0x0000005D;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace DishwasherAlarm
 } // namespace Clusters

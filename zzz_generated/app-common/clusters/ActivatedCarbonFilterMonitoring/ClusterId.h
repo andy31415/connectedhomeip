@@ -12,6 +12,7 @@ namespace Clusters {
 namespace ActivatedCarbonFilterMonitoring {
 
 inline constexpr ClusterId Id = 0x00000072;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace ActivatedCarbonFilterMonitoring
 } // namespace Clusters

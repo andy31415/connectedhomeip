@@ -12,6 +12,7 @@ namespace Clusters {
 namespace FaultInjection {
 
 inline constexpr ClusterId Id = 0xFFF1FC06;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace FaultInjection
 } // namespace Clusters

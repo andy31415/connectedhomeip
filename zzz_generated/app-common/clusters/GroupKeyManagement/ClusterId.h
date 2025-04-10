@@ -12,6 +12,7 @@ namespace Clusters {
 namespace GroupKeyManagement {
 
 inline constexpr ClusterId Id = 0x0000003F;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace GroupKeyManagement
 } // namespace Clusters

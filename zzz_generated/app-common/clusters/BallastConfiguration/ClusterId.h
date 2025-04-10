@@ -12,6 +12,7 @@ namespace Clusters {
 namespace BallastConfiguration {
 
 inline constexpr ClusterId Id = 0x00000301;
+inline constexpr uint32_t Revision = 0x00000004;
 
 } // namespace BallastConfiguration
 } // namespace Clusters

@@ -12,6 +12,7 @@ namespace Clusters {
 namespace BridgedDeviceBasicInformation {
 
 inline constexpr ClusterId Id = 0x00000039;
+inline constexpr uint32_t Revision = 0x00000003;
 
 } // namespace BridgedDeviceBasicInformation
 } // namespace Clusters

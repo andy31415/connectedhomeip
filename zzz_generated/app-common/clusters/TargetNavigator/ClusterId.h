@@ -12,6 +12,7 @@ namespace Clusters {
 namespace TargetNavigator {
 
 inline constexpr ClusterId Id = 0x00000505;
+inline constexpr uint32_t Revision = 0x00000002;
 
 } // namespace TargetNavigator
 } // namespace Clusters

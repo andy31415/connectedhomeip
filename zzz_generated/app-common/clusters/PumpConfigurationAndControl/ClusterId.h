@@ -12,6 +12,7 @@ namespace Clusters {
 namespace PumpConfigurationAndControl {
 
 inline constexpr ClusterId Id = 0x00000200;
+inline constexpr uint32_t Revision = 0x00000004;
 
 } // namespace PumpConfigurationAndControl
 } // namespace Clusters

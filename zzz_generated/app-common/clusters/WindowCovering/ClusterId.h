@@ -12,6 +12,7 @@ namespace Clusters {
 namespace WindowCovering {
 
 inline constexpr ClusterId Id = 0x00000102;
+inline constexpr uint32_t Revision = 0x00000005;
 
 } // namespace WindowCovering
 } // namespace Clusters

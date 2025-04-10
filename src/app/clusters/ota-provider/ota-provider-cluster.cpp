@@ -31,10 +31,9 @@ DataModel::ActionReturnStatus OtaProviderCluster::ReadAttribute(const DataModel:
     {
     case Globals::Attributes::FeatureMap::Id:
         // No features defined for the cluster ...
-        return encoder.Encode<uint32_t>(0);
+        return encoder.Encode(0);
     case Globals::Attributes::ClusterRevision::Id:
-        // TODO: this should be code generated!
-        return encoder.Encode<uint32_t>(1);
+        return encoder.Encode(OtaSoftwareUpdateProvider::Revision);
     }
 
     return Status::UnsupportedAttribute;

@@ -12,6 +12,7 @@ namespace Clusters {
 namespace CarbonMonoxideConcentrationMeasurement {
 
 inline constexpr ClusterId Id = 0x0000040C;
+inline constexpr uint32_t Revision = 0x00000003;
 
 } // namespace CarbonMonoxideConcentrationMeasurement
 } // namespace Clusters

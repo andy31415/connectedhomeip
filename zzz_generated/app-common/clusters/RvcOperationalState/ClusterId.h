@@ -12,6 +12,7 @@ namespace Clusters {
 namespace RvcOperationalState {
 
 inline constexpr ClusterId Id = 0x00000061;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace RvcOperationalState
 } // namespace Clusters

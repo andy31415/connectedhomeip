@@ -12,6 +12,7 @@ namespace Clusters {
 namespace Pm25ConcentrationMeasurement {
 
 inline constexpr ClusterId Id = 0x0000042A;
+inline constexpr uint32_t Revision = 0x00000003;
 
 } // namespace Pm25ConcentrationMeasurement
 } // namespace Clusters

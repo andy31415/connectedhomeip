@@ -12,6 +12,7 @@ namespace Clusters {
 namespace ValveConfigurationAndControl {
 
 inline constexpr ClusterId Id = 0x00000081;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace ValveConfigurationAndControl
 } // namespace Clusters

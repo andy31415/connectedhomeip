@@ -12,6 +12,7 @@ namespace Clusters {
 namespace AccessControl {
 
 inline constexpr ClusterId Id = 0x0000001F;
+inline constexpr uint32_t Revision = 0x00000002;
 
 } // namespace AccessControl
 } // namespace Clusters

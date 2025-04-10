@@ -12,6 +12,7 @@ namespace Clusters {
 namespace LevelControl {
 
 inline constexpr ClusterId Id = 0x00000008;
+inline constexpr uint32_t Revision = 0x00000006;
 
 } // namespace LevelControl
 } // namespace Clusters

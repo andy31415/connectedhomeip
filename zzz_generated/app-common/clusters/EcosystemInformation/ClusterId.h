@@ -12,6 +12,7 @@ namespace Clusters {
 namespace EcosystemInformation {
 
 inline constexpr ClusterId Id = 0x00000750;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace EcosystemInformation
 } // namespace Clusters

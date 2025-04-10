@@ -12,6 +12,7 @@ namespace Clusters {
 namespace TotalVolatileOrganicCompoundsConcentrationMeasurement {
 
 inline constexpr ClusterId Id = 0x0000042E;
+inline constexpr uint32_t Revision = 0x00000003;
 
 } // namespace TotalVolatileOrganicCompoundsConcentrationMeasurement
 } // namespace Clusters

@@ -12,6 +12,7 @@ namespace Clusters {
 namespace FanControl {
 
 inline constexpr ClusterId Id = 0x00000202;
+inline constexpr uint32_t Revision = 0x00000005;
 
 } // namespace FanControl
 } // namespace Clusters

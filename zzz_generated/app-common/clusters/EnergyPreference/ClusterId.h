@@ -12,6 +12,7 @@ namespace Clusters {
 namespace EnergyPreference {
 
 inline constexpr ClusterId Id = 0x0000009B;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace EnergyPreference
 } // namespace Clusters

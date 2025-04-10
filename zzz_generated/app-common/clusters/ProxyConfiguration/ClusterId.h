@@ -12,6 +12,7 @@ namespace Clusters {
 namespace ProxyConfiguration {
 
 inline constexpr ClusterId Id = 0x00000042;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace ProxyConfiguration
 } // namespace Clusters

@@ -12,6 +12,7 @@ namespace Clusters {
 namespace Thermostat {
 
 inline constexpr ClusterId Id = 0x00000201;
+inline constexpr uint32_t Revision = 0x00000007;
 
 } // namespace Thermostat
 } // namespace Clusters

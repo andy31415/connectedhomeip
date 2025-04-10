@@ -12,6 +12,7 @@ namespace Clusters {
 namespace ContentControl {
 
 inline constexpr ClusterId Id = 0x0000050F;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace ContentControl
 } // namespace Clusters

@@ -12,6 +12,7 @@ namespace Clusters {
 namespace TimeSynchronization {
 
 inline constexpr ClusterId Id = 0x00000038;
+inline constexpr uint32_t Revision = 0x00000002;
 
 } // namespace TimeSynchronization
 } // namespace Clusters

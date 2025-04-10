@@ -12,6 +12,7 @@ namespace Clusters {
 namespace ZoneManagement {
 
 inline constexpr ClusterId Id = 0x00000550;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace ZoneManagement
 } // namespace Clusters

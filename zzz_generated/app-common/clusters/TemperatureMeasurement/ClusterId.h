@@ -12,6 +12,7 @@ namespace Clusters {
 namespace TemperatureMeasurement {
 
 inline constexpr ClusterId Id = 0x00000402;
+inline constexpr uint32_t Revision = 0x00000004;
 
 } // namespace TemperatureMeasurement
 } // namespace Clusters

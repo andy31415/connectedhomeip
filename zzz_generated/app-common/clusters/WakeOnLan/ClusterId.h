@@ -12,6 +12,7 @@ namespace Clusters {
 namespace WakeOnLan {
 
 inline constexpr ClusterId Id = 0x00000503;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace WakeOnLan
 } // namespace Clusters

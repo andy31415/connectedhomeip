@@ -12,6 +12,7 @@ namespace Clusters {
 namespace Descriptor {
 
 inline constexpr ClusterId Id = 0x0000001D;
+inline constexpr uint32_t Revision = 0x00000002;
 
 } // namespace Descriptor
 } // namespace Clusters

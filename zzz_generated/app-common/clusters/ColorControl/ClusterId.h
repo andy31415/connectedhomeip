@@ -12,6 +12,7 @@ namespace Clusters {
 namespace ColorControl {
 
 inline constexpr ClusterId Id = 0x00000300;
+inline constexpr uint32_t Revision = 0x00000007;
 
 } // namespace ColorControl
 } // namespace Clusters

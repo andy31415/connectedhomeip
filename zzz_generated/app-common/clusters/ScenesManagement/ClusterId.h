@@ -12,6 +12,7 @@ namespace Clusters {
 namespace ScenesManagement {
 
 inline constexpr ClusterId Id = 0x00000062;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace ScenesManagement
 } // namespace Clusters

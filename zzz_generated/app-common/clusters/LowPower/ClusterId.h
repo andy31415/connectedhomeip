@@ -12,6 +12,7 @@ namespace Clusters {
 namespace LowPower {
 
 inline constexpr ClusterId Id = 0x00000508;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace LowPower
 } // namespace Clusters

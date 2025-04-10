@@ -12,6 +12,7 @@ namespace Clusters {
 namespace ApplicationLauncher {
 
 inline constexpr ClusterId Id = 0x0000050C;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace ApplicationLauncher
 } // namespace Clusters

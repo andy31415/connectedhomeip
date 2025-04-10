@@ -12,6 +12,7 @@ namespace Clusters {
 namespace SampleMei {
 
 inline constexpr ClusterId Id = 0xFFF1FC20;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace SampleMei
 } // namespace Clusters

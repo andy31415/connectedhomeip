@@ -12,6 +12,7 @@ namespace Clusters {
 namespace MicrowaveOvenControl {
 
 inline constexpr ClusterId Id = 0x0000005F;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace MicrowaveOvenControl
 } // namespace Clusters

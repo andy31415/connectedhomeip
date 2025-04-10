@@ -12,6 +12,7 @@ namespace Clusters {
 namespace Channel {
 
 inline constexpr ClusterId Id = 0x00000504;
+inline constexpr uint32_t Revision = 0x00000002;
 
 } // namespace Channel
 } // namespace Clusters

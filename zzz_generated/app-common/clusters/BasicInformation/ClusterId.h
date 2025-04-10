@@ -12,6 +12,7 @@ namespace Clusters {
 namespace BasicInformation {
 
 inline constexpr ClusterId Id = 0x00000028;
+inline constexpr uint32_t Revision = 0x00000003;
 
 } // namespace BasicInformation
 } // namespace Clusters

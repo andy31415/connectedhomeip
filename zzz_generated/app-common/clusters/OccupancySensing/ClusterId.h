@@ -12,6 +12,7 @@ namespace Clusters {
 namespace OccupancySensing {
 
 inline constexpr ClusterId Id = 0x00000406;
+inline constexpr uint32_t Revision = 0x00000005;
 
 } // namespace OccupancySensing
 } // namespace Clusters

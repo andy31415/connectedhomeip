@@ -12,6 +12,7 @@ namespace Clusters {
 namespace MediaInput {
 
 inline constexpr ClusterId Id = 0x00000507;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace MediaInput
 } // namespace Clusters

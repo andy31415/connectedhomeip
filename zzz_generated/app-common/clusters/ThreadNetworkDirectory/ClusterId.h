@@ -12,6 +12,7 @@ namespace Clusters {
 namespace ThreadNetworkDirectory {
 
 inline constexpr ClusterId Id = 0x00000453;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace ThreadNetworkDirectory
 } // namespace Clusters

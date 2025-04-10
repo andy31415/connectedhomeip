@@ -12,6 +12,7 @@ namespace Clusters {
 namespace MeterIdentification {
 
 inline constexpr ClusterId Id = 0x00000B06;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace MeterIdentification
 } // namespace Clusters

@@ -12,6 +12,7 @@ namespace Clusters {
 namespace DoorLock {
 
 inline constexpr ClusterId Id = 0x00000101;
+inline constexpr uint32_t Revision = 0x00000007;
 
 } // namespace DoorLock
 } // namespace Clusters

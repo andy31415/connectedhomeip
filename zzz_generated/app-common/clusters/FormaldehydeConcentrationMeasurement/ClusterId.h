@@ -12,6 +12,7 @@ namespace Clusters {
 namespace FormaldehydeConcentrationMeasurement {
 
 inline constexpr ClusterId Id = 0x0000042B;
+inline constexpr uint32_t Revision = 0x00000003;
 
 } // namespace FormaldehydeConcentrationMeasurement
 } // namespace Clusters

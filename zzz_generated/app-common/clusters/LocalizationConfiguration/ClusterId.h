@@ -12,6 +12,7 @@ namespace Clusters {
 namespace LocalizationConfiguration {
 
 inline constexpr ClusterId Id = 0x0000002B;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace LocalizationConfiguration
 } // namespace Clusters

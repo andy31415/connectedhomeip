@@ -12,6 +12,7 @@ namespace Clusters {
 namespace EnergyEvseMode {
 
 inline constexpr ClusterId Id = 0x0000009D;
+inline constexpr uint32_t Revision = 0x00000002;
 
 } // namespace EnergyEvseMode
 } // namespace Clusters

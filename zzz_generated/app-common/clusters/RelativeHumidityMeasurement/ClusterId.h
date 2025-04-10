@@ -12,6 +12,7 @@ namespace Clusters {
 namespace RelativeHumidityMeasurement {
 
 inline constexpr ClusterId Id = 0x00000405;
+inline constexpr uint32_t Revision = 0x00000003;
 
 } // namespace RelativeHumidityMeasurement
 } // namespace Clusters

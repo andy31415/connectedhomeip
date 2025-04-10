@@ -12,6 +12,7 @@ namespace Clusters {
 namespace UnitTesting {
 
 inline constexpr ClusterId Id = 0xFFF1FC05;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace UnitTesting
 } // namespace Clusters

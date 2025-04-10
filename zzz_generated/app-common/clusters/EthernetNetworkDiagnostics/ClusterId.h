@@ -12,6 +12,7 @@ namespace Clusters {
 namespace EthernetNetworkDiagnostics {
 
 inline constexpr ClusterId Id = 0x00000037;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace EthernetNetworkDiagnostics
 } // namespace Clusters

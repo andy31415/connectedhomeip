@@ -12,6 +12,7 @@ namespace Clusters {
 namespace LaundryWasherMode {
 
 inline constexpr ClusterId Id = 0x00000051;
+inline constexpr uint32_t Revision = 0x00000002;
 
 } // namespace LaundryWasherMode
 } // namespace Clusters

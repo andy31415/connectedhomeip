@@ -12,6 +12,7 @@ namespace Clusters {
 namespace RadonConcentrationMeasurement {
 
 inline constexpr ClusterId Id = 0x0000042F;
+inline constexpr uint32_t Revision = 0x00000003;
 
 } // namespace RadonConcentrationMeasurement
 } // namespace Clusters

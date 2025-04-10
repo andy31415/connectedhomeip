@@ -12,6 +12,7 @@ namespace Clusters {
 namespace PowerTopology {
 
 inline constexpr ClusterId Id = 0x0000009C;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace PowerTopology
 } // namespace Clusters

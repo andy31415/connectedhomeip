@@ -12,6 +12,7 @@ namespace Clusters {
 namespace BooleanState {
 
 inline constexpr ClusterId Id = 0x00000045;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace BooleanState
 } // namespace Clusters

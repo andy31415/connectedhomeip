@@ -12,6 +12,7 @@ namespace Clusters {
 namespace OvenCavityOperationalState {
 
 inline constexpr ClusterId Id = 0x00000048;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace OvenCavityOperationalState
 } // namespace Clusters

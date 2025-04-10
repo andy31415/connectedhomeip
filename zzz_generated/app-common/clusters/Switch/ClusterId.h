@@ -12,6 +12,7 @@ namespace Clusters {
 namespace Switch {
 
 inline constexpr ClusterId Id = 0x0000003B;
+inline constexpr uint32_t Revision = 0x00000002;
 
 } // namespace Switch
 } // namespace Clusters

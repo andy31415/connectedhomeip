@@ -12,6 +12,7 @@ namespace Clusters {
 namespace IcdManagement {
 
 inline constexpr ClusterId Id = 0x00000046;
+inline constexpr uint32_t Revision = 0x00000003;
 
 } // namespace IcdManagement
 } // namespace Clusters

@@ -12,6 +12,7 @@ namespace Clusters {
 namespace RvcRunMode {
 
 inline constexpr ClusterId Id = 0x00000054;
+inline constexpr uint32_t Revision = 0x00000003;
 
 } // namespace RvcRunMode
 } // namespace Clusters

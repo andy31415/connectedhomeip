@@ -12,6 +12,7 @@ namespace Clusters {
 namespace Identify {
 
 inline constexpr ClusterId Id = 0x00000003;
+inline constexpr uint32_t Revision = 0x00000004;
 
 } // namespace Identify
 } // namespace Clusters

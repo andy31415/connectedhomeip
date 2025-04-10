@@ -12,6 +12,7 @@ namespace Clusters {
 namespace CommodityPrice {
 
 inline constexpr ClusterId Id = 0x00000095;
+inline constexpr uint32_t Revision = 0x00000004;
 
 } // namespace CommodityPrice
 } // namespace Clusters

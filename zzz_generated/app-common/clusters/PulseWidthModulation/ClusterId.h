@@ -12,6 +12,7 @@ namespace Clusters {
 namespace PulseWidthModulation {
 
 inline constexpr ClusterId Id = 0x0000001C;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace PulseWidthModulation
 } // namespace Clusters

@@ -12,6 +12,7 @@ namespace Clusters {
 namespace OvenMode {
 
 inline constexpr ClusterId Id = 0x00000049;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace OvenMode
 } // namespace Clusters

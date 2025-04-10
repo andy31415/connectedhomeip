@@ -12,6 +12,7 @@ namespace Clusters {
 namespace AccountLogin {
 
 inline constexpr ClusterId Id = 0x0000050E;
+inline constexpr uint32_t Revision = 0x00000002;
 
 } // namespace AccountLogin
 } // namespace Clusters

@@ -12,6 +12,7 @@ namespace Clusters {
 namespace RefrigeratorAlarm {
 
 inline constexpr ClusterId Id = 0x00000057;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace RefrigeratorAlarm
 } // namespace Clusters

@@ -12,6 +12,7 @@ namespace Clusters {
 namespace WaterHeaterMode {
 
 inline constexpr ClusterId Id = 0x0000009E;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace WaterHeaterMode
 } // namespace Clusters

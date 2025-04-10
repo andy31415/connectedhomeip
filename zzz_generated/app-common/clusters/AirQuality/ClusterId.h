@@ -12,6 +12,7 @@ namespace Clusters {
 namespace AirQuality {
 
 inline constexpr ClusterId Id = 0x0000005B;
+inline constexpr uint32_t Revision = 0x00000001;
 
 } // namespace AirQuality
 } // namespace Clusters

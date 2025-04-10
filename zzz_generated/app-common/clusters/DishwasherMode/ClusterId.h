@@ -12,6 +12,7 @@ namespace Clusters {
 namespace DishwasherMode {
 
 inline constexpr ClusterId Id = 0x00000059;
+inline constexpr uint32_t Revision = 0x00000002;
 
 } // namespace DishwasherMode
 } // namespace Clusters

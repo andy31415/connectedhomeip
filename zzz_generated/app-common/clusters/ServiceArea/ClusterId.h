@@ -12,6 +12,7 @@ namespace Clusters {
 namespace ServiceArea {
 
 inline constexpr ClusterId Id = 0x00000150;
+inline constexpr uint32_t Revision = 0x00000002;
 
 } // namespace ServiceArea
 } // namespace Clusters

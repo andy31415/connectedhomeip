@@ -12,6 +12,7 @@ namespace Clusters {
 namespace IlluminanceMeasurement {
 
 inline constexpr ClusterId Id = 0x00000400;
+inline constexpr uint32_t Revision = 0x00000003;
 
 } // namespace IlluminanceMeasurement
 } // namespace Clusters
