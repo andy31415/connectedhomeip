@@ -30,11 +30,12 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
 namespace CurrentMode {
 inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .attributeId    = EnergyEvseMode::Attributes::CurrentMode::Id,
-    .flags          = BitFlags<DataModel::AttributeQualityFlags>{},
+    .flags          = BitFlags<DataModel::AttributeQualityFlags>{  },
     .readPrivilege  = Access::Privilege::kView,
     .writePrivilege = std::nullopt,
 };
 } // namespace CurrentMode
+
 
 } // namespace Attributes
 
@@ -42,7 +43,7 @@ namespace Commands {
 namespace ChangeToMode {
 inline constexpr DataModel::AcceptedCommandEntry kMetatadaEntry = {
     .commandId       = EnergyEvseMode::Commands::ChangeToMode::Id,
-    .flags           = BitFlags<DataModel::CommandQualityFlags>{},
+    .flags           = BitFlags<DataModel::CommandQualityFlags>{  },
     .invokePrivilege = Access::Privilege::kOperate,
 };
 } // namespace ChangeToMode

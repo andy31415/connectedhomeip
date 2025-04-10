@@ -22,15 +22,18 @@ namespace Attributes {
 namespace AirQuality {
 inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .attributeId    = AirQuality::Attributes::AirQuality::Id,
-    .flags          = BitFlags<DataModel::AttributeQualityFlags>{},
+    .flags          = BitFlags<DataModel::AttributeQualityFlags>{  },
     .readPrivilege  = Access::Privilege::kView,
     .writePrivilege = std::nullopt,
 };
 } // namespace AirQuality
 
+
 } // namespace Attributes
 
-namespace Commands {} // namespace Commands
+namespace Commands {
+
+} // namespace Commands
 } // namespace AirQuality
 } // namespace Clusters
 } // namespace app

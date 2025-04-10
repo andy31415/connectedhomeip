@@ -3,6 +3,16 @@
 #include <app-common/zap-generated/cluster-objects.h>
 #include <app/data-model/WrappedStructEncoder.h>
 
+// Includes below are because the compiler seems to be able to optimize better if all
+// structures are visible in one compilation unit (saves aroud 500 bytes of flash on
+// a lighting app when compared to individual cpp compilation)
+{{#zcl_clusters}}
+#include <clusters/{{asUpperCamelCase name}}/Attributes.cpp>
+#include <clusters/{{asUpperCamelCase name}}/Commands.cpp>
+#include <clusters/{{asUpperCamelCase name}}/Events.cpp>
+#include <clusters/{{asUpperCamelCase name}}/Structs.cpp>
+{{/zcl_clusters}}
+
 namespace chip {
 namespace app {
 

@@ -30,11 +30,12 @@ inline constexpr DataModel::AttributeEntry kMetadataEntry = {
 namespace CurrentOutput {
 inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .attributeId    = AudioOutput::Attributes::CurrentOutput::Id,
-    .flags          = BitFlags<DataModel::AttributeQualityFlags>{},
+    .flags          = BitFlags<DataModel::AttributeQualityFlags>{  },
     .readPrivilege  = Access::Privilege::kView,
     .writePrivilege = std::nullopt,
 };
 } // namespace CurrentOutput
+
 
 } // namespace Attributes
 
@@ -42,14 +43,14 @@ namespace Commands {
 namespace SelectOutput {
 inline constexpr DataModel::AcceptedCommandEntry kMetatadaEntry = {
     .commandId       = AudioOutput::Commands::SelectOutput::Id,
-    .flags           = BitFlags<DataModel::CommandQualityFlags>{},
+    .flags           = BitFlags<DataModel::CommandQualityFlags>{  },
     .invokePrivilege = Access::Privilege::kOperate,
 };
 } // namespace SelectOutput
 namespace RenameOutput {
 inline constexpr DataModel::AcceptedCommandEntry kMetatadaEntry = {
     .commandId       = AudioOutput::Commands::RenameOutput::Id,
-    .flags           = BitFlags<DataModel::CommandQualityFlags>{},
+    .flags           = BitFlags<DataModel::CommandQualityFlags>{  },
     .invokePrivilege = Access::Privilege::kManage,
 };
 } // namespace RenameOutput

@@ -22,15 +22,18 @@ namespace Attributes {
 namespace StateValue {
 inline constexpr DataModel::AttributeEntry kMetadataEntry = {
     .attributeId    = BooleanState::Attributes::StateValue::Id,
-    .flags          = BitFlags<DataModel::AttributeQualityFlags>{},
+    .flags          = BitFlags<DataModel::AttributeQualityFlags>{  },
     .readPrivilege  = Access::Privilege::kView,
     .writePrivilege = std::nullopt,
 };
 } // namespace StateValue
 
+
 } // namespace Attributes
 
-namespace Commands {} // namespace Commands
+namespace Commands {
+
+} // namespace Commands
 } // namespace BooleanState
 } // namespace Clusters
 } // namespace app
