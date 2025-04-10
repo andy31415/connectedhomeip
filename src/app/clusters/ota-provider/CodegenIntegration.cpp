@@ -25,11 +25,10 @@
 
 #include <lib/support/Span.h>
 
-#include "ota-provider-delegate.h"
 #include "CodegenIntegration.h"
+#include "ota-provider-delegate.h"
 
-
-/// this is the ACTUAL INTEGRATION 
+/// this is the ACTUAL INTEGRATION
 //////////////////////// BEGIN ////////////////////////////////////
 
 #include <app/clusters/ota-provider/ota-provider-cluster.h>
@@ -42,18 +41,23 @@
 #define MATTER_DM_OTA_SOFTWARE_UPDATE_PROVIDER_CLUSTER_SERVER_ENDPOINT_COUNT 0
 #endif // MATTER_DM_OTA_SOFTWARE_UPDATE_PROVIDER_CLUSTER_SERVER_ENDPOINT_COUNT
 
-
 using namespace chip::app::Clusters;
 static constexpr size_t kOtaProviderMaxClusterCount =
     MATTER_DM_OTA_SOFTWARE_UPDATE_PROVIDER_CLUSTER_SERVER_ENDPOINT_COUNT + CHIP_DEVICE_CONFIG_DYNAMIC_ENDPOINT_COUNT;
 
 std::array<OtaProviderCluster, kOtaProviderMaxClusterCount> mClusters;
 
+void emberAfOtaSoftwareUpdateProviderClusterServerInitCallback(chip::EndpointId endpoint)
+{
+    // TODO
+}
 
-
+void emberAfOtaSoftwareUpdateProviderClusterShutdownCallback(chip::EndpointId endpoint)
+{
+    // TODO
+}
 
 //////////////////////// END ////////////////////////////////////
-
 
 using namespace chip;
 using namespace chip::app::Clusters;

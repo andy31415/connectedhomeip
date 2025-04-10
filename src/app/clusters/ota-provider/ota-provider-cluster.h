@@ -16,6 +16,8 @@
  */
 #pragma once
 
+#include <app/clusters/ota-provider/ota-provider-delegate.h>
+
 #include <app/server-cluster/DefaultServerCluster.h>
 #include <clusters/OtaSoftwareUpdateProvider/ClusterId.h>
 
@@ -28,9 +30,13 @@ class OtaProviderCluster : public DefaultServerCluster
 public:
     OtaProviderCluster() : DefaultServerCluster({ kInvalidEndpointId, OtaSoftwareUpdateProvider::Id }) {}
 
+    void SetDelegate(OTAProviderDelegate * delegate) { mDelegate = delegate; }
+    void SetEndpointId(EndpointId endpoint) { mPath.mEndpointId = endpoint; }
+
+    // Server cluster implementation
+
     DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request,
                                                 AttributeValueEncoder & encoder) override;
-
     CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path,
                                 DataModel::ListBuilder<DataModel::AcceptedCommandEntry> & builder) override;
     CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, DataModel::ListBuilder<CommandId> & builder) override;
@@ -40,8 +46,7 @@ public:
                                                                CommandHandler * handler) override;
 
 private:
-    // TODO: what members are needed here?
-    //   we likely need PATHS!
+    OTAProviderDelegate * mDelegate = nullptr;
 };
 
 } // namespace Clusters

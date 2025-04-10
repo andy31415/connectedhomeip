@@ -55,6 +55,7 @@ CommandHandlerInterfaceOnlyClusters:
     - WebRTC Transport Requestor
     - General Commissioning
     - General Diagnostics
+    - OTA Software Update Provider
     - Software Diagnostics
     - Wi-Fi Network Diagnostics
     - Camera AV Settings User Level Management
@@ -72,13 +73,13 @@ ClustersWithInitFunctions:
     - Localization Configuration
     - Occupancy Sensing
     - On/Off
+    - OTA Software Update Provider
     - Pump Configuration and Control
     - Time Format Localization
     - Thermostat
     - Mode Select
     - Sample MEI
     - Scenes Management
-    - OTA Provider
 
 ClustersWithAttributeChangedFunctions:
     - Bridged Device Basic
