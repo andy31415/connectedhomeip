@@ -32,6 +32,7 @@
 //////////////////////// BEGIN ////////////////////////////////////
 
 #include <app/clusters/ota-provider/ota-provider-cluster.h>
+#include <data-model-providers/codegen/CodegenDataModelProvider.h>
 #include <data-model-providers/codegen/Instance.h>
 
 #include <array>
@@ -41,20 +42,56 @@
 #define MATTER_DM_OTA_SOFTWARE_UPDATE_PROVIDER_CLUSTER_SERVER_ENDPOINT_COUNT 0
 #endif // MATTER_DM_OTA_SOFTWARE_UPDATE_PROVIDER_CLUSTER_SERVER_ENDPOINT_COUNT
 
+using namespace chip::app;
 using namespace chip::app::Clusters;
+
 static constexpr size_t kOtaProviderMaxClusterCount =
     MATTER_DM_OTA_SOFTWARE_UPDATE_PROVIDER_CLUSTER_SERVER_ENDPOINT_COUNT + CHIP_DEVICE_CONFIG_DYNAMIC_ENDPOINT_COUNT;
 
 std::array<OtaProviderCluster, kOtaProviderMaxClusterCount> mClusters;
+std::array<ServerClusterRegistration, kOtaProviderMaxClusterCount> mRegistrations;
 
 void emberAfOtaSoftwareUpdateProviderClusterServerInitCallback(chip::EndpointId endpoint)
 {
-    // TODO
+    uint16_t arrayIndex = emberAfGetClusterServerEndpointIndex(
+        endpoint, OtaSoftwareUpdateProvider::Id, MATTER_DM_OTA_SOFTWARE_UPDATE_PROVIDER_CLUSTER_SERVER_ENDPOINT_COUNT);
+
+    if (arrayIndex >= kOtaProviderMaxClusterCount)
+    {
+        ChipLogError(AppServer, "Endpoint startup: OTA endpoint %u unsupported", endpoint);
+        return;
+    }
+    mClusters[arrayIndex].SetEndpointId(endpoint);
+    // TODO: codegen cast should be fixed
+
+    auto * instance = static_cast<CodegenDataModelProvider *>(chip::app::CodegenDataModelProviderInstance(nullptr));
+
+    mRegistrations[arrayIndex].serverClusterInterface = &mClusters[arrayIndex];
+
+    CHIP_ERROR err = instance->Registry().Register(mRegistrations[arrayIndex]);
+    if (err != CHIP_NO_ERROR)
+    {
+        ChipLogError(AppServer, "Failed to register OTA on endpoint %u: %" CHIP_ERROR_FORMAT, endpoint, err.Format());
+    }
 }
 
 void emberAfOtaSoftwareUpdateProviderClusterShutdownCallback(chip::EndpointId endpoint)
 {
-    // TODO
+    uint16_t arrayIndex = emberAfGetClusterServerEndpointIndex(
+        endpoint, OtaSoftwareUpdateProvider::Id, MATTER_DM_OTA_SOFTWARE_UPDATE_PROVIDER_CLUSTER_SERVER_ENDPOINT_COUNT);
+
+    if (arrayIndex >= kOtaProviderMaxClusterCount)
+    {
+        ChipLogError(AppServer, "Endpoint startup: OTA endpoint %u unsupported", endpoint);
+        return;
+    }
+
+    auto * instance = static_cast<CodegenDataModelProvider *>(chip::app::CodegenDataModelProviderInstance(nullptr));
+    CHIP_ERROR err  = instance->Registry().Unregister(&mClusters[arrayIndex]);
+    if (err != CHIP_NO_ERROR)
+    {
+        ChipLogError(AppServer, "Failed to unregister OTA on endpoint %u: %" CHIP_ERROR_FORMAT, endpoint, err.Format());
+    }
 }
 
 //////////////////////// END ////////////////////////////////////
