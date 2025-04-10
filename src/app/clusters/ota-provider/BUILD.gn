@@ -33,5 +33,6 @@ source_set("ota-provider") {
   ]
   deps = [
     "${chip_root}/src/app/server-cluster",
+    "${chip_root}/zzz_generated/app-common/clusters/OtaSoftwareUpdateProvider",
   ]
 }

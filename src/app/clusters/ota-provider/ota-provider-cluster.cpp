@@ -17,12 +17,14 @@
 #include <app/clusters/ota-provider/ota-provider-cluster.h>
 
 #include <clusters/OtaSoftwareUpdateProvider/Ids.h>
+#include <clusters/OtaSoftwareUpdateProvider/Metadata.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
 
 using Protocols::InteractionModel::Status;
+using namespace OtaSoftwareUpdateProvider::Commands;
 
 DataModel::ActionReturnStatus OtaProviderCluster::ReadAttribute(const DataModel::ReadAttributeRequest & request,
                                                                 AttributeValueEncoder & encoder)
@@ -43,10 +45,9 @@ CHIP_ERROR OtaProviderCluster::AcceptedCommands(const ConcreteClusterPath & path
                                                 DataModel::ListBuilder<DataModel::AcceptedCommandEntry> & builder)
 {
     static constexpr DataModel::AcceptedCommandEntry kEntries[] = {
-        // FIXME: this needs code generation
-        //   QueryImage
-        //   ApplyUpdateRequest
-        //   NotifyUpdateApplied
+        QueryImage::kMetatadaEntry,
+        ApplyUpdateRequest::kMetatadaEntry,
+        NotifyUpdateApplied::kMetatadaEntry,
     };
     return builder.ReferenceExisting({ kEntries, MATTER_ARRAY_SIZE(kEntries) });
 }
