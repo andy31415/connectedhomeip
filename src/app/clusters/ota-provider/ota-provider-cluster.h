@@ -61,6 +61,8 @@ public:
 
     void SetEndpointId(EndpointId endpoint) { mPath.mEndpointId = endpoint; }
 
+    using OtaProviderLogic::SetDelegate;
+
     // Server cluster implementation
 
     DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request,
