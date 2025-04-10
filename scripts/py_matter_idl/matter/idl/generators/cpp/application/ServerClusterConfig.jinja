@@ -15,15 +15,15 @@ namespace chip {
 namespace app {
 namespace Clusters {
 namespace {{ cluster_name }} {
-namespace EmberApplicationConfig {
+namespace StaticApplicationConfig {
 
 {% if config.feature_bitmap_type -%}
 using FeatureBitmapType = Feature;
 {%- else -%}
-using FeatureBitmapType = uint32_t;
+using FeatureBitmapType = Clusters::StaticApplicationConfig::NoFeatureFlagsDefined;
 {%- endif %}
 
-inline constexpr std::array<EmberApplicationConfig::ClusterConfiguration<FeatureBitmapType>, {{config.endpoint_configs | length}}> kEmberClusterConfig = { {
+inline constexpr std::array<Clusters::StaticApplicationConfig::ClusterConfiguration<FeatureBitmapType>, {{config.endpoint_configs | length}}> kFixedClusterConfig = { {
 {%- for endpoint_config in config.endpoint_configs %}
     {
         .endpointNumber = {{ endpoint_config.endpoint_number }},
@@ -38,7 +38,7 @@ inline constexpr std::array<EmberApplicationConfig::ClusterConfiguration<Feature
 {%- endfor %}
 } };
 
-} // namespace EmberApplicationConfig
+} // namespace StaticApplicationConfig
 } // namespace {{ cluster_name }}
 } // namespace Clusters
 } // namespace app

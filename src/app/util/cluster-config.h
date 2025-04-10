@@ -23,7 +23,7 @@
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace EmberApplicationConfig {
+namespace StaticApplicationConfig {
 
 /// An enumeration acting as a placeholder of "no features defined
 /// for a cluster, enforcing that the feature map type is always
@@ -41,7 +41,7 @@ struct ClusterConfiguration
     BitFlags<FeatureEnumType> featureMap;
 };
 
-} // namespace EmberApplicationConfig
+} // namespace StaticApplicationConfig
 } // namespace Clusters
 } // namespace app
 } // namespace chip
