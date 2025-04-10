@@ -20,6 +20,7 @@
 
 #include <app/server-cluster/DefaultServerCluster.h>
 #include <clusters/OtaSoftwareUpdateProvider/ClusterId.h>
+#include <clusters/OtaSoftwareUpdateProvider/Commands.h>
 
 namespace chip {
 namespace app {
@@ -47,6 +48,11 @@ public:
 
 private:
     OTAProviderDelegate * mDelegate = nullptr;
+
+    std::optional<DataModel::ActionReturnStatus>
+    HandleQueryImage(const ConcreteCommandPath & commandPath,
+                     const OtaSoftwareUpdateProvider::Commands::QueryImage::DecodableType & commandData,
+                     app::CommandHandler * handler);
 };
 
 } // namespace Clusters

@@ -16,12 +16,20 @@
  */
 #include <app/clusters/ota-provider/ota-provider-cluster.h>
 
+#include <clusters/OtaSoftwareUpdateProvider/Commands.h>
 #include <clusters/OtaSoftwareUpdateProvider/Ids.h>
 #include <clusters/OtaSoftwareUpdateProvider/Metadata.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
+
+namespace {
+constexpr size_t kLocationLen          = 2;   // The expected length of the location parameter in QueryImage
+constexpr size_t kMaxMetadataLen       = 512; // The maximum length of Metadata in any OTA Provider command
+constexpr size_t kUpdateTokenMaxLength = 32;  // The expected length of the Update Token parameter used in multiple commands
+constexpr size_t kUpdateTokenMinLength = 8;   // The expected length of the Update Token parameter used in multiple commands
+} // namespace
 
 using Protocols::InteractionModel::Status;
 using namespace OtaSoftwareUpdateProvider::Commands;
@@ -64,8 +72,90 @@ std::optional<DataModel::ActionReturnStatus> OtaProviderCluster::InvokeCommand(c
                                                                                chip::TLV::TLVReader & input_arguments,
                                                                                CommandHandler * handler)
 {
-    // TODO: implement
+    switch (request.path.mCommandId)
+    {
+    case QueryImage::Id: {
+        QueryImage::DecodableType data;
+        ReturnErrorOnFailure(data.Decode(input_arguments));
+        return HandleQueryImage(request.path, data, handler);
+    }
+    case ApplyUpdateRequest::Id:
+    case NotifyUpdateApplied::Id:
+        break;
+    }
+
     return Status::UnsupportedCommand;
+}
+
+std::optional<DataModel::ActionReturnStatus>
+OtaProviderCluster::HandleQueryImage(const ConcreteCommandPath & commandPath,
+                                     const OtaSoftwareUpdateProvider::Commands::QueryImage::DecodableType & commandData,
+                                     app::CommandHandler * handler)
+{
+    if (mDelegate == nullptr)
+    {
+        ChipLogError(Zcl, "No OTAProviderDelegate set for ep:%u", mPath.mEndpointId);
+        return Status::UnsupportedCommand;
+    }
+    auto & vendorId            = commandData.vendorID;
+    auto & productId           = commandData.productID;
+    auto & hardwareVersion     = commandData.hardwareVersion;
+    auto & softwareVersion     = commandData.softwareVersion;
+    auto & protocolsSupported  = commandData.protocolsSupported;
+    auto & location            = commandData.location;
+    auto & requestorCanConsent = commandData.requestorCanConsent;
+    auto & metadataForProvider = commandData.metadataForProvider;
+
+    (void) vendorId;
+    (void) productId;
+    (void) softwareVersion;
+
+    ChipLogProgress(Zcl, "OTA Provider received QueryImage");
+    ChipLogDetail(Zcl, "  VendorID: 0x%x", vendorId);
+    ChipLogDetail(Zcl, "  ProductID: %u", productId);
+    ChipLogDetail(Zcl, "  SoftwareVersion: %" PRIu32, softwareVersion);
+    ChipLogDetail(Zcl, "  ProtocolsSupported: [");
+    auto protocolIter = protocolsSupported.begin();
+    while (protocolIter.Next())
+    {
+        ChipLogDetail(Zcl, "    %u", to_underlying(protocolIter.GetValue()));
+    }
+    ChipLogDetail(Zcl, "  ]");
+    if (hardwareVersion.HasValue())
+    {
+        ChipLogDetail(Zcl, "  HardwareVersion: %u", hardwareVersion.Value());
+    }
+    if (location.HasValue())
+    {
+        ChipLogDetail(Zcl, "  Location: %.*s", static_cast<int>(location.Value().size()), location.Value().data());
+    }
+    if (requestorCanConsent.HasValue())
+    {
+        ChipLogDetail(Zcl, "  RequestorCanConsent: %u", requestorCanConsent.Value());
+    }
+    if (metadataForProvider.HasValue())
+    {
+        ChipLogDetail(Zcl, "  MetadataForProvider: %u", static_cast<unsigned int>(metadataForProvider.Value().size()));
+    }
+
+    if (location.HasValue() && location.Value().size() != kLocationLen)
+    {
+        ChipLogError(Zcl, "location param length %u != expected length %u", static_cast<unsigned int>(location.Value().size()),
+                     static_cast<unsigned int>(kLocationLen));
+        return Status::InvalidCommand;
+    }
+
+    if (metadataForProvider.HasValue() && metadataForProvider.Value().size() > kMaxMetadataLen)
+    {
+        ChipLogError(Zcl, "metadata size %u exceeds max %u", static_cast<unsigned int>(metadataForProvider.Value().size()),
+                     static_cast<unsigned int>(kMaxMetadataLen));
+        return Status::InvalidCommand;
+    }
+
+    mDelegate->HandleQueryImage(handler, commandPath, commandData);
+
+    // delegate directly uses command object
+    return std::nullopt;
 }
 
 } // namespace Clusters
