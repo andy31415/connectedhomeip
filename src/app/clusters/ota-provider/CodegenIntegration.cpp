@@ -1,6 +1,5 @@
 /*
- *
- *    Copyright (c) 2021 Project CHIP Authors
+ *    Copyright (c) 2025 Project CHIP Authors
  *    All rights reserved.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +14,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 #include <app-common/zap-generated/callback.h>
 #include <app-common/zap-generated/cluster-objects.h>
 #include <app/CommandHandler.h>
@@ -28,7 +26,34 @@
 #include <lib/support/Span.h>
 
 #include "ota-provider-delegate.h"
-#include "ota-provider.h"
+#include "CodegenIntegration.h"
+
+
+/// this is the ACTUAL INTEGRATION 
+//////////////////////// BEGIN ////////////////////////////////////
+
+#include <app/clusters/ota-provider/ota-provider-cluster.h>
+#include <data-model-providers/codegen/Instance.h>
+
+#include <array>
+
+// TODO: metadata updates here please
+#ifndef MATTER_DM_OTA_SOFTWARE_UPDATE_PROVIDER_CLUSTER_SERVER_ENDPOINT_COUNT
+#define MATTER_DM_OTA_SOFTWARE_UPDATE_PROVIDER_CLUSTER_SERVER_ENDPOINT_COUNT 0
+#endif // MATTER_DM_OTA_SOFTWARE_UPDATE_PROVIDER_CLUSTER_SERVER_ENDPOINT_COUNT
+
+
+using namespace chip::app::Clusters;
+static constexpr size_t kOtaProviderMaxClusterCount =
+    MATTER_DM_OTA_SOFTWARE_UPDATE_PROVIDER_CLUSTER_SERVER_ENDPOINT_COUNT + CHIP_DEVICE_CONFIG_DYNAMIC_ENDPOINT_COUNT;
+
+std::array<OtaProviderCluster, kOtaProviderMaxClusterCount> mClusters;
+
+
+
+
+//////////////////////// END ////////////////////////////////////
+
 
 using namespace chip;
 using namespace chip::app::Clusters;

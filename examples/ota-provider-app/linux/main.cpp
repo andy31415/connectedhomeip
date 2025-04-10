@@ -18,7 +18,7 @@
 
 #include <app/clusters/ota-provider/DefaultOTAProviderUserConsent.h>
 #include <app/clusters/ota-provider/ota-provider-delegate.h>
-#include <app/clusters/ota-provider/ota-provider.h>
+#include <app/clusters/ota-provider/CodegenIntegration.h>
 #include <app/server/Server.h>
 #include <app/util/util.h>
 #include <json/json.h>

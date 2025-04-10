@@ -14,11 +14,22 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#pragma once
 
-#include "ota-provider.h"
+#include <app/server-cluster/DefaultServerCluster.h>
 
-// TODO:
-//    - include static configuration and make decisions there ...
-//    - allocate sufficient objects/structures/registrations to cover all ember
-//      endpoints
+namespace chip {
+namespace app {
+namespace Clusters {
 
+class OtaProviderCluster : public DefaultServerCluster
+{
+public:
+    // TODO: what do we need to override?
+private:
+    // TODO: what members are needed here?
+};
+
+} // namespace Clusters
+} // namespace app
+} // namespace chip

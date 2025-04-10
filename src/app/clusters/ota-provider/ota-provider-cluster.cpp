@@ -1,6 +1,5 @@
 /*
- *
- *    Copyright (c) 2021 Project CHIP Authors
+ *    Copyright (c) 2025 Project CHIP Authors
  *    All rights reserved.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,19 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include <app/clusters/ota-provider/ota-provider-cluster.h>
 
-#pragma once
+// FIXME: implement
 
-#include "ota-provider-delegate.h"
-
-namespace chip {
-namespace app {
-namespace Clusters {
-namespace OTAProvider {
-
-void SetDelegate(chip::EndpointId endpointId, OTAProviderDelegate * delegate);
-
-}
-} // namespace Clusters
-} // namespace app
-} // namespace chip

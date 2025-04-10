@@ -77,6 +77,7 @@ ClustersWithInitFunctions:
     - Mode Select
     - Sample MEI
     - Scenes Management
+    - OTA Provider
 
 ClustersWithAttributeChangedFunctions:
     - Bridged Device Basic
