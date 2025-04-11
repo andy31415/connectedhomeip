@@ -21,15 +21,15 @@ source_set("user-consent") {
   ]
 
   deps = [
-    "${chip_root}/src/lib/core:error",
     "${chip_root}/src/app:user-consent",
+    "${chip_root}/src/lib/core:error",
   ]
 }
 
 source_set("ota-provider") {
   sources = [
-    "ota-provider-cluster.h",
     "ota-provider-cluster.cpp",
+    "ota-provider-cluster.h",
   ]
   deps = [
     "${chip_root}/src/app/server-cluster",

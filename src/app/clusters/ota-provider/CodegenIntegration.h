@@ -28,7 +28,7 @@ namespace OTAProvider {
 /// Sets the given delegate on an endpoint configured via code-generation
 void SetDelegate(chip::EndpointId endpointId, OTAProviderDelegate * delegate);
 
-}
+} // namespace OTAProvider
 } // namespace Clusters
 } // namespace app
 } // namespace chip

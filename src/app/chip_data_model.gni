@@ -281,8 +281,8 @@ template("chip_data_model") {
         ]
         deps += [ "${chip_root}/src/controller" ]
       } else if (cluster == "ota-provider") {
-        deps += [ "${_app_root}/clusters/${cluster}"]
-        sources += [ "${_app_root}/clusters/${cluster}/CodegenIntegration.cpp"]
+        deps += [ "${_app_root}/clusters/${cluster}" ]
+        sources += [ "${_app_root}/clusters/${cluster}/CodegenIntegration.cpp" ]
       } else if (cluster == "ota-requestor") {
         sources += [
           # TODO - align name of folder ?

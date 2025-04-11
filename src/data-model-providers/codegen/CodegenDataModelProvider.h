@@ -45,7 +45,7 @@ class CodegenDataModelProvider : public DataModel::Provider
 {
 public:
     // access to the typed global singleton of this class.
-    static CodegenDataModelProvider& Instance();
+    static CodegenDataModelProvider & Instance();
 
     /// clears out internal caching. Especially useful in unit tests,
     /// where path caching does not really apply (the same path may result in different outcomes)

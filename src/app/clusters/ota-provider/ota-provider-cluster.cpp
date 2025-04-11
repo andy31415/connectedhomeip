@@ -80,12 +80,12 @@ std::optional<DataModel::ActionReturnStatus> OtaProviderServer::InvokeCommand(co
         ReturnErrorOnFailure(data.Decode(input_arguments));
         return QueryImage(request.path, data, handler);
     }
-    case ApplyUpdateRequest::Id:{
+    case ApplyUpdateRequest::Id: {
         ApplyUpdateRequest::DecodableType data;
         ReturnErrorOnFailure(data.Decode(input_arguments));
         return ApplyUpdateRequest(request.path, data, handler);
     }
-    case NotifyUpdateApplied::Id:{
+    case NotifyUpdateApplied::Id: {
         NotifyUpdateApplied::DecodableType data;
         ReturnErrorOnFailure(data.Decode(input_arguments));
         return NotifyUpdateApplied(request.path, data, handler);
@@ -105,7 +105,7 @@ OtaProviderLogic::ApplyUpdateRequest(const ConcreteCommandPath & commandPath,
         ChipLogError(Zcl, "No OTAProviderDelegate set for ep:%u", commandPath.mEndpointId);
         return Status::UnsupportedCommand;
     }
-    auto & updateToken  = commandData.updateToken;
+    auto & updateToken = commandData.updateToken;
 
     ChipLogProgress(Zcl, "OTA Provider received ApplyUpdateRequest");
     ChipLogDetail(Zcl, "  Update Token: %u", static_cast<unsigned int>(commandData.updateToken.size()));
@@ -133,7 +133,7 @@ OtaProviderLogic::NotifyUpdateApplied(const ConcreteCommandPath & commandPath,
         return Status::UnsupportedCommand;
     }
 
-    auto & updateToken  = commandData.updateToken;
+    auto & updateToken = commandData.updateToken;
 
     ChipLogProgress(Zcl, "OTA Provider received NotifyUpdateApplied");
     ChipLogDetail(Zcl, "  Update Token: %u", static_cast<unsigned int>(commandData.updateToken.size()));

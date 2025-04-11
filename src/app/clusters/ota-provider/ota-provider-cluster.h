@@ -34,18 +34,17 @@ public:
 
     std::optional<DataModel::ActionReturnStatus>
     ApplyUpdateRequest(const ConcreteCommandPath & commandPath,
-                     const OtaSoftwareUpdateProvider::Commands::ApplyUpdateRequest::DecodableType & commandData,
-                     app::CommandHandler * handler);
+                       const OtaSoftwareUpdateProvider::Commands::ApplyUpdateRequest::DecodableType & commandData,
+                       app::CommandHandler * handler);
 
     std::optional<DataModel::ActionReturnStatus>
     NotifyUpdateApplied(const ConcreteCommandPath & commandPath,
-                     const OtaSoftwareUpdateProvider::Commands::NotifyUpdateApplied::DecodableType & commandData,
-                     app::CommandHandler * handler);
+                        const OtaSoftwareUpdateProvider::Commands::NotifyUpdateApplied::DecodableType & commandData,
+                        app::CommandHandler * handler);
 
     std::optional<DataModel::ActionReturnStatus>
     QueryImage(const ConcreteCommandPath & commandPath,
-                     const OtaSoftwareUpdateProvider::Commands::QueryImage::DecodableType & commandData,
-                     app::CommandHandler * handler);
+               const OtaSoftwareUpdateProvider::Commands::QueryImage::DecodableType & commandData, app::CommandHandler * handler);
 
 private:
     OTAProviderDelegate * mDelegate = nullptr;
