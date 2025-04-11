@@ -16,7 +16,7 @@
  */
 #pragma once
 
-#include "lib/core/CHIPPersistentStorageDelegate.h"
+#include <lib/core/CHIPPersistentStorageDelegate.h>
 #include <app/data-model-provider/Provider.h>
 
 namespace chip {
