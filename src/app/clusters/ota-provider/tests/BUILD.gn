@@ -14,32 +14,23 @@
 
 import("//build_overrides/build.gni")
 import("//build_overrides/chip.gni")
+import("//build_overrides/pigweed.gni")
 
-source_set("user-consent") {
-  sources = [
-    "DefaultOTAProviderUserConsent.h",
-    "OTAProviderUserConsentDelegate.h",
+import("${chip_root}/build/chip/chip_test_suite.gni")
+
+
+chip_test_suite("tests") {
+  test_sources = [
+    "TestOtaProviderCluster.cpp",
   ]
 
-  deps = [
-    "${chip_root}/src/app:user-consent",
-    "${chip_root}/src/lib/core:error",
-  ]
-}
+  sources = []
 
-source_set("ota-provider") {
-  sources = [
-    "ota-provider-cluster.cpp",
-    "ota-provider-cluster.h",
-    "ota-provider-delegate.h",
-  ]
+  cflags = [ "-Wconversion" ]
+
   public_deps = [
-    "${chip_root}/src/app:command-handler",
-    "${chip_root}/src/app/data-model",
-    "${chip_root}/src/app:paths",
-    "${chip_root}/src/app/server-cluster",
-    "${chip_root}/src/lib/core:types",
-    "${chip_root}/zzz_generated/app-common/clusters/OtaSoftwareUpdateProvider",
+    "${chip_root}/src/app/clusters/ota-provider",
+    "${chip_root}/src/lib/core:string-builder-adapters",
+    "${chip_root}/src/lib/support",
   ]
-  public_configs = [ "${chip_root}/src:includes" ]
 }
