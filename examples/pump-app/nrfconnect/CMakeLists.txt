@@ -39,6 +39,7 @@ include(${CHIP_ROOT}/src/app/chip_data_model.cmake)
 
 target_include_directories(app PRIVATE
                            main/include
+                           ${CHIP_ROOT}/examples/common
                            ${GEN_DIR}/app-common
                            ${GEN_DIR}/pump-app
                            ${NRFCONNECT_COMMON}/util/include
