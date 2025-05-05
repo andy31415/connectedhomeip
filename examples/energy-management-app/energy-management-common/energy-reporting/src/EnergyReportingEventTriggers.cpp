@@ -21,9 +21,6 @@
 #include <event-triggers/EnergyReportingTestEventTriggerHandler.h>
 
 using namespace chip;
-using namespace chip::app::Clusters;
-using namespace chip::app::Clusters::ElectricalEnergyMeasurement;
-using namespace chip::app::Clusters::ElectricalEnergyMeasurement::Structs;
 
 void SetTestEventTrigger_FakeReadingsLoadStart()
 {
