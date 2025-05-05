@@ -19,6 +19,7 @@
 #include "GenericFaultTestEventTriggerHandler.h"
 
 #include <app/clusters/general-diagnostics-server/general-diagnostics-server.h>
+#include <clusters/GeneralDiagnostics/Events.h>
 #include <lib/support/CodeUtils.h>
 
 using namespace ::chip::DeviceLayer;

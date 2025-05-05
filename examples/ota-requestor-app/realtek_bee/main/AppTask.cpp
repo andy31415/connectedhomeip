@@ -30,11 +30,11 @@
 #include <app/TestEventTriggerDelegate.h>
 #include <app/clusters/identify-server/identify-server.h>
 #include <app/clusters/network-commissioning/network-commissioning.h>
-#include <app/clusters/ota-requestor/OTATestEventTriggerHandler.h>
 #include <app/util/endpoint-config-api.h>
 #include <credentials/DeviceAttestationCredsProvider.h>
 #include <credentials/examples/DeviceAttestationCredsExample.h>
 #include <data-model-providers/codegen/Instance.h>
+#include <event-triggers/OTATestEventTriggerHandler.h>
 #include <inet/EndPointStateOpenThread.h>
 #include <lib/core/ErrorStr.h>
 #include <platform/CHIPDeviceLayer.h>

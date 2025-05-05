@@ -71,7 +71,7 @@
 
 #if CHIP_DEVICE_CONFIG_ENABLE_OTA_REQUESTOR
 #include <app/TestEventTriggerDelegate.h>
-#include <app/clusters/ota-requestor/OTATestEventTriggerHandler.h>
+#include <event-triggers/OTATestEventTriggerHandler.h>
 #endif
 
 #include <signal.h>

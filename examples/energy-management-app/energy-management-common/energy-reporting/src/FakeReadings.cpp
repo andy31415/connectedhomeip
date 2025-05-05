@@ -20,11 +20,11 @@
 #include <EnergyManagementAppCommonMain.h>
 
 #include <EnergyTimeUtils.h>
-#include <app/clusters/device-energy-management-server/DeviceEnergyManagementTestEventTriggerHandler.h>
-#include <app/clusters/electrical-energy-measurement-server/EnergyReportingTestEventTriggerHandler.h>
 #include <app/clusters/electrical-energy-measurement-server/electrical-energy-measurement-server.h>
 #include <app/clusters/power-source-server/power-source-server.h>
 #include <app/server/Server.h>
+#include <event-triggers/DeviceEnergyManagementTestEventTriggerHandler.h>
+#include <event-triggers/EnergyReportingTestEventTriggerHandler.h>
 
 #include <app-common/zap-generated/attributes/Accessors.h>
 #include <protocols/interaction_model/StatusCode.h>

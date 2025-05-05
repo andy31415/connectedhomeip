@@ -22,30 +22,30 @@
 #include <app/InteractionModelEngine.h>
 #include <app/TestEventTriggerDelegate.h>
 #include <app/clusters/network-commissioning/network-commissioning.h>
-#include <app/clusters/ota-requestor/OTATestEventTriggerHandler.h>
-#include <app/clusters/water-heater-management-server/WaterHeaterManagementTestEventTriggerHandler.h>
 #include <app/server/Dnssd.h>
 #include <app/server/Server.h>
 #include <data-model-providers/codegen/Instance.h>
+#include <event-triggers/OTATestEventTriggerHandler.h>
+#include <event-triggers/WaterHeaterManagementTestEventTriggerHandler.h>
 #include <platform/ESP32/NetworkCommissioningDriver.h>
 
 #if CONFIG_CHIP_DEVICE_CONFIG_ENABLE_ENERGY_EVSE_TRIGGER
-#include <app/clusters/energy-evse-server/EnergyEvseTestEventTriggerHandler.h>
+#include <event-triggers/EnergyEvseTestEventTriggerHandler.h>
 #endif
 #if CONFIG_CHIP_DEVICE_CONFIG_ENABLE_ENERGY_REPORTING_TRIGGER
-#include <app/clusters/electrical-energy-measurement-server/EnergyReportingTestEventTriggerHandler.h>
+#include <event-triggers/EnergyReportingTestEventTriggerHandler.h>
 #endif
 #if CONFIG_CHIP_DEVICE_CONFIG_ENABLE_WATER_HEATER_MANAGEMENT_TRIGGER
-#include <app/clusters/water-heater-management-server/WaterHeaterManagementTestEventTriggerHandler.h>
+#include <event-triggers/WaterHeaterManagementTestEventTriggerHandler.h>
 #endif
 #if CONFIG_CHIP_DEVICE_CONFIG_ENABLE_DEVICE_ENERGY_MANAGEMENT_TRIGGER
-#include <app/clusters/device-energy-management-server/DeviceEnergyManagementTestEventTriggerHandler.h>
+#include <event-triggers/DeviceEnergyManagementTestEventTriggerHandler.h>
 #endif
 #if CONFIG_CHIP_DEVICE_CONFIG_ENABLE_COMMODITY_PRICE_TRIGGER
-#include <app/clusters/commodity-price-server/CommodityPriceTestEventTriggerHandler.h>
+#include <event-triggers/CommodityPriceTestEventTriggerHandler.h>
 #endif
 #if CONFIG_CHIP_DEVICE_CONFIG_ENABLE_ELECTRICAL_GRID_CONDITIONS_TRIGGER
-#include <app/clusters/electrical-grid-conditions-server/ElectricalGridConditionsTestEventTriggerHandler.h>
+#include <event-triggers/ElectricalGridConditionsTestEventTriggerHandler.h>
 #endif
 
 #ifdef CONFIG_ENABLE_CHIP_SHELL

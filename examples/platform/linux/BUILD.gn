@@ -42,52 +42,6 @@ config("app-main-config") {
   include_dirs = [ "." ]
 }
 
-source_set("ota-test-event-trigger") {
-  sources = [
-    "${chip_root}/src/app/clusters/ota-requestor/OTATestEventTriggerHandler.h",
-  ]
-}
-
-source_set("wifi-diagnostics-test-event-trigger") {
-  sources = [ "${chip_root}/src/app/clusters/wifi-network-diagnostics-server/WiFiDiagnosticsTestEventTriggerHandler.h" ]
-}
-
-source_set("smco-test-event-trigger") {
-  sources = [ "${chip_root}/src/app/clusters/smoke-co-alarm-server/SmokeCOTestEventTriggerHandler.h" ]
-}
-
-source_set("boolean-state-configuration-test-event-trigger") {
-  sources = [ "${chip_root}/src/app/clusters/boolean-state-configuration-server/BooleanStateConfigurationTestEventTriggerHandler.h" ]
-}
-
-source_set("commodity-price-test-event-trigger") {
-  sources = [ "${chip_root}/src/app/clusters/commodity-price-server/CommodityPriceTestEventTriggerHandler.h" ]
-}
-
-source_set("electrical-grid-conditions-test-event-trigger") {
-  sources = [ "${chip_root}/src/app/clusters/electrical-grid-conditions-server/ElectricalGridConditionsTestEventTriggerHandler.h" ]
-}
-
-source_set("energy-evse-test-event-trigger") {
-  sources = [ "${chip_root}/src/app/clusters/energy-evse-server/EnergyEvseTestEventTriggerHandler.h" ]
-}
-
-source_set("energy-reporting-test-event-trigger") {
-  sources = [ "${chip_root}/src/app/clusters/electrical-energy-measurement-server/EnergyReportingTestEventTriggerHandler.h" ]
-}
-
-source_set("meter-identification-test-event-trigger") {
-  sources = [ "${chip_root}/src/app/clusters/meter-identification-server/MeterIdentificationTestEventTriggerHandler.h" ]
-}
-
-source_set("water-heater-management-test-event-trigger") {
-  sources = [ "${chip_root}/src/app/clusters/water-heater-management-server/WaterHeaterManagementTestEventTriggerHandler.h" ]
-}
-
-source_set("device-energy-management-test-event-trigger") {
-  sources = [ "${chip_root}/src/app/clusters/device-energy-management-server/DeviceEnergyManagementTestEventTriggerHandler.h" ]
-}
-
 source_set("app-main") {
   defines = [
     "ENABLE_TRACING=${matter_enable_tracing_support}",
@@ -112,24 +66,13 @@ source_set("app-main") {
   ]
 
   public_deps = [
-    ":boolean-state-configuration-test-event-trigger",
     ":commissioner-main",
-    ":commodity-price-test-event-trigger",
-    ":device-energy-management-test-event-trigger",
-    ":electrical-grid-conditions-test-event-trigger",
-    ":energy-evse-test-event-trigger",
-    ":energy-reporting-test-event-trigger",
-    ":meter-identification-test-event-trigger",
-    ":smco-test-event-trigger",
-    ":water-heater-management-test-event-trigger",
-    ":wifi-diagnostics-test-event-trigger",
     "${chip_root}/src/data-model-providers/codegen:instance-header",
     "${chip_root}/src/lib",
     "${chip_root}/src/platform/logging:stdio",
   ]
   deps = [
-    ":ota-test-event-trigger",
-    "${chip_root}/examples/common/event-triggers:software-diagnostics",
+    "${chip_root}/examples/common/event-triggers",
     "${chip_root}/examples/providers:device_info_provider",
     "${chip_root}/src/app/server",
     "${chip_root}/src/app/tests/suites/credentials:dac_provider",

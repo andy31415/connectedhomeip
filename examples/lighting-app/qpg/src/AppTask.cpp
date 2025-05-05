@@ -31,12 +31,12 @@
 
 #include <app-common/zap-generated/attributes/Accessors.h>
 #include <app/TestEventTriggerDelegate.h>
-#include <app/clusters/general-diagnostics-server/GenericFaultTestEventTriggerHandler.h>
 #include <app/clusters/general-diagnostics-server/general-diagnostics-server.h>
 #include <app/clusters/identify-server/identify-server.h>
 #include <app/clusters/on-off-server/on-off-server.h>
 #include <app/util/persistence/DefaultAttributePersistenceProvider.h>
 #include <data-model-providers/codegen/Instance.h>
+#include <event-triggers/GenericFaultTestEventTriggerHandler.h>
 #include <lib/core/CHIPError.h>
 #include <lib/core/CHIPPersistentStorageDelegate.h>
 #include <setup_payload/OnboardingCodesUtil.h>

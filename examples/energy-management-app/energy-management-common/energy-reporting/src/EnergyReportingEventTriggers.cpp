@@ -18,7 +18,7 @@
 
 #include "FakeReadings.h"
 
-#include <app/clusters/electrical-energy-measurement-server/EnergyReportingTestEventTriggerHandler.h>
+#include <event-triggers/EnergyReportingTestEventTriggerHandler.h>
 
 using namespace chip;
 using namespace chip::app::Clusters;

@@ -16,7 +16,7 @@
  *    limitations under the License.
  */
 
-#include <app/clusters/meter-identification-server/MeterIdentificationTestEventTriggerHandler.h>
+#include <event-triggers/MeterIdentificationTestEventTriggerHandler.h>
 #include <meter-identification-instance.h>
 
 using namespace chip;

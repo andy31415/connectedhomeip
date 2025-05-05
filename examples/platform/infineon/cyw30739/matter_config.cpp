@@ -36,10 +36,10 @@
 #ifdef BOARD_ENABLE_I2C
 #include "wiced_hal_i2c.h"
 #endif
-#include <app/clusters/ota-requestor/OTATestEventTriggerHandler.h>
 #include <app/server/Server.h>
 #include <credentials/examples/DeviceAttestationCredsExample.h>
 #include <data-model-providers/codegen/Instance.h>
+#include <event-triggers/OTATestEventTriggerHandler.h>
 #include <inet/EndPointStateOpenThread.h>
 #include <lib/shell/Engine.h>
 #include <lib/support/CHIPPlatformMemory.h>

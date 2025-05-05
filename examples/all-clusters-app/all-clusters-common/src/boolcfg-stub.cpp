@@ -15,8 +15,8 @@
  *    limitations under the License.
  */
 
-#include <app/clusters/boolean-state-configuration-server/BooleanStateConfigurationTestEventTriggerHandler.h>
 #include <app/clusters/boolean-state-configuration-server/boolean-state-configuration-server.h>
+#include <event-triggers/BooleanStateConfigurationTestEventTriggerHandler.h>
 
 #include <platform/CHIPDeviceLayer.h>
 

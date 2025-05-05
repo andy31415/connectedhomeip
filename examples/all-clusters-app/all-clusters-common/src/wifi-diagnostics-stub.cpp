@@ -16,8 +16,8 @@
  */
 
 #include <app-common/zap-generated/cluster-enums.h>
-#include <app/clusters/wifi-network-diagnostics-server/WiFiDiagnosticsTestEventTriggerHandler.h>
 #include <app/clusters/wifi-network-diagnostics-server/wifi-network-diagnostics-server.h>
+#include <event-triggers/WiFiDiagnosticsTestEventTriggerHandler.h>
 #include <platform/CHIPDeviceLayer.h>
 #include <platform/DiagnosticDataProvider.h>
 

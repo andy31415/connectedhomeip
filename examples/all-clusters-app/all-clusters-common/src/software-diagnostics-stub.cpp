@@ -14,9 +14,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include <event-triggers/SoftwareDiagnosticsTestEventTriggerHandler.h>
 
 #include <app/clusters/software-diagnostics-server/software-diagnostics-server.h>
-#include <event-triggers/SoftwareDiagnosticsTestEventTriggerHandler.h>
+#include <clusters/SoftwareDiagnostics/Events.h>
 #include <lib/support/CHIPMemString.h>
 #include <platform/CHIPDeviceLayer.h>
 #include <platform/DiagnosticDataProvider.h>

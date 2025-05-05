@@ -18,7 +18,6 @@
 #pragma once
 
 #include <app/TestEventTriggerDelegate.h>
-#include <clusters/SoftwareDiagnostics/Events.h>
 
 /**
  * @brief User handler for handling the test event trigger

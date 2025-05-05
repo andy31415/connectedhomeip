@@ -296,8 +296,6 @@ template("chip_data_model") {
           "${_app_root}/clusters/${cluster}/DefaultOTARequestorUserConsent.h",
           "${_app_root}/clusters/${cluster}/ExtendedOTARequestorDriver.cpp",
           "${_app_root}/clusters/${cluster}/OTARequestorStorage.h",
-          "${_app_root}/clusters/${cluster}/OTATestEventTriggerHandler.cpp",
-          "${_app_root}/clusters/${cluster}/OTATestEventTriggerHandler.h",
         ]
 
         # TODO: DefaultOTARequestor depends on controller, however the cluster server itself does not.
@@ -369,14 +367,11 @@ template("chip_data_model") {
         sources += [
           "${_app_root}/clusters/${cluster}/${cluster}.cpp",
           "${_app_root}/clusters/${cluster}/${cluster}.h",
-          "${_app_root}/clusters/${cluster}/SmokeCOTestEventTriggerHandler.h",
         ]
       } else if (cluster == "boolean-state-configuration-server") {
         sources += [
           "${_app_root}/clusters/${cluster}/${cluster}.cpp",
           "${_app_root}/clusters/${cluster}/${cluster}.h",
-          "${_app_root}/clusters/${cluster}/BooleanStateConfigurationTestEventTriggerHandler.cpp",
-          "${_app_root}/clusters/${cluster}/BooleanStateConfigurationTestEventTriggerHandler.h",
         ]
       } else if (cluster == "air-quality-server") {
         sources += [
@@ -387,13 +382,11 @@ template("chip_data_model") {
         sources += [
           "${_app_root}/clusters/${cluster}/${cluster}.cpp",
           "${_app_root}/clusters/${cluster}/${cluster}.h",
-          "${_app_root}/clusters/${cluster}/CommodityPriceTestEventTriggerHandler.h",
         ]
       } else if (cluster == "energy-evse-server") {
         sources += [
           "${_app_root}/clusters/${cluster}/${cluster}.cpp",
           "${_app_root}/clusters/${cluster}/${cluster}.h",
-          "${_app_root}/clusters/${cluster}/EnergyEvseTestEventTriggerHandler.h",
         ]
       } else if (cluster == "diagnostic-logs-server") {
         sources += [
@@ -407,13 +400,11 @@ template("chip_data_model") {
         sources += [
           "${_app_root}/clusters/${cluster}/${cluster}.cpp",
           "${_app_root}/clusters/${cluster}/${cluster}.h",
-          "${_app_root}/clusters/${cluster}/EnergyReportingTestEventTriggerHandler.h",
         ]
       } else if (cluster == "device-energy-management-server") {
         sources += [
           "${_app_root}/clusters/${cluster}/${cluster}.cpp",
           "${_app_root}/clusters/${cluster}/${cluster}.h",
-          "${_app_root}/clusters/${cluster}/DeviceEnergyManagementTestEventTriggerHandler.h",
         ]
       } else if (cluster == "thread-network-diagnostics-server") {
         sources += [
@@ -440,13 +431,11 @@ template("chip_data_model") {
         sources += [
           "${_app_root}/clusters/${cluster}/${cluster}.cpp",
           "${_app_root}/clusters/${cluster}/${cluster}.h",
-          "${_app_root}/clusters/${cluster}/MeterIdentificationTestEventTriggerHandler.h",
         ]
       } else if (cluster == "water-heater-management-server") {
         sources += [
           "${_app_root}/clusters/${cluster}/${cluster}.cpp",
           "${_app_root}/clusters/${cluster}/${cluster}.h",
-          "${_app_root}/clusters/${cluster}/WaterHeaterManagementTestEventTriggerHandler.h",
         ]
       } else if (cluster == "thread-network-directory-server") {
         sources += [
@@ -507,7 +496,6 @@ template("chip_data_model") {
         sources += [
           "${_app_root}/clusters/${cluster}/${cluster}.cpp",
           "${_app_root}/clusters/${cluster}/${cluster}.h",
-          "${_app_root}/clusters/${cluster}/ElectricalGridConditionsTestEventTriggerHandler.h",
         ]
       } else if (cluster == "operational-credentials-server") {
         sources += [ "${_app_root}/clusters/operational-credentials-server/operational-credentials-server.cpp" ]

@@ -18,8 +18,8 @@
 
 #include "ElectricalGridConditionsMain.h"
 #include "EnergyTimeUtils.h"
-#include <app/clusters/electrical-grid-conditions-server/ElectricalGridConditionsTestEventTriggerHandler.h>
 #include <app/util/af-types.h>
+#include <event-triggers/ElectricalGridConditionsTestEventTriggerHandler.h>
 
 using namespace chip;
 using namespace chip::app;

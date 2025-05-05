@@ -49,16 +49,16 @@
 #include <app/TestEventTriggerDelegate.h>
 
 #if SL_MATTER_CONFIG_ENABLE_ENERGY_EVSE_TRIGGER
-#include <app/clusters/energy-evse-server/EnergyEvseTestEventTriggerHandler.h>
+#include <event-triggers/EnergyEvseTestEventTriggerHandler.h>
 #endif
 #if SL_MATTER_CONFIG_ENABLE_ENERGY_REPORTING_TRIGGER
-#include <app/clusters/electrical-energy-measurement-server/EnergyReportingTestEventTriggerHandler.h>
+#include <event-triggers/EnergyReportingTestEventTriggerHandler.h>
 #endif
 #if SL_MATTER_CONFIG_ENABLE_WATER_HEATER_MANAGEMENT_TRIGGER
-#include <app/clusters/water-heater-management-server/WaterHeaterManagementTestEventTriggerHandler.h>
+#include <event-triggers/WaterHeaterManagementTestEventTriggerHandler.h>
 #endif
 #if SL_MATTER_CONFIG_ENABLE_DEVICE_ENERGY_MANAGEMENT_TRIGGER
-#include <app/clusters/device-energy-management-server/DeviceEnergyManagementTestEventTriggerHandler.h>
+#include <event-triggers/DeviceEnergyManagementTestEventTriggerHandler.h>
 #endif
 
 #endif // SL_MATTER_TEST_EVENT_TRIGGER_ENABLED

@@ -93,7 +93,7 @@
 
 #ifdef SMOKE_CO_ALARM
 #include <app/TestEventTriggerDelegate.h>
-#include <app/clusters/smoke-co-alarm-server/SmokeCOTestEventTriggerHandler.h>
+#include <event-triggers/SmokeCOTestEventTriggerHandler.h>
 #endif
 
 #if CHIP_CONFIG_ENABLE_ICD_SERVER

@@ -18,7 +18,7 @@
 
 #include <EVSEManufacturerImpl.h>
 
-#include <app/clusters/energy-evse-server/EnergyEvseTestEventTriggerHandler.h>
+#include <event-triggers/EnergyEvseTestEventTriggerHandler.h>
 
 using namespace chip;
 using namespace chip::app;

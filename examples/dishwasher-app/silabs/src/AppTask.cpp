@@ -38,8 +38,8 @@
 #include "ElectricalSensorManager.h"
 #include "operational-state-delegate-impl.h"
 
-#include <app/clusters/device-energy-management-server/DeviceEnergyManagementTestEventTriggerHandler.h>
-#include <app/clusters/electrical-energy-measurement-server/EnergyReportingTestEventTriggerHandler.h>
+#include <event-triggers/DeviceEnergyManagementTestEventTriggerHandler.h>
+#include <event-triggers/EnergyReportingTestEventTriggerHandler.h>
 
 #define APP_FUNCTION_BUTTON 0
 #define APP_CONTROL_BUTTON 1

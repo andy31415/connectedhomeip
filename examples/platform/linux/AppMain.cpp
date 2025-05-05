@@ -74,37 +74,37 @@
 #include <event-triggers/SoftwareDiagnosticsTestEventTriggerHandler.h>
 #endif
 #if CHIP_DEVICE_CONFIG_ENABLE_WIFI_DIAGNOSTIC_TRIGGER
-#include <app/clusters/wifi-network-diagnostics-server/WiFiDiagnosticsTestEventTriggerHandler.h>
+#include <event-triggers/WiFiDiagnosticsTestEventTriggerHandler.h>
 #endif
 #if CHIP_DEVICE_CONFIG_ENABLE_OTA_REQUESTOR
-#include <app/clusters/ota-requestor/OTATestEventTriggerHandler.h>
+#include <event-triggers/OTATestEventTriggerHandler.h>
 #endif
 #if CHIP_DEVICE_CONFIG_ENABLE_SMOKE_CO_TRIGGER
-#include <app/clusters/smoke-co-alarm-server/SmokeCOTestEventTriggerHandler.h>
+#include <event-triggers/SmokeCOTestEventTriggerHandler.h>
 #endif
 #if CHIP_DEVICE_CONFIG_ENABLE_BOOLEAN_STATE_CONFIGURATION_TRIGGER
-#include <app/clusters/boolean-state-configuration-server/BooleanStateConfigurationTestEventTriggerHandler.h>
+#include <event-triggers/BooleanStateConfigurationTestEventTriggerHandler.h>
 #endif
 #if CHIP_DEVICE_CONFIG_ENABLE_COMMODITY_PRICE_TRIGGER
-#include <app/clusters/commodity-price-server/CommodityPriceTestEventTriggerHandler.h>
+#include <event-triggers/CommodityPriceTestEventTriggerHandler.h>
 #endif
 #if CHIP_DEVICE_CONFIG_ENABLE_ELECTRICAL_GRID_CONDITIONS_TRIGGER
-#include <app/clusters/electrical-grid-conditions-server/ElectricalGridConditionsTestEventTriggerHandler.h>
+#include <event-triggers/ElectricalGridConditionsTestEventTriggerHandler.h>
 #endif
 #if CHIP_DEVICE_CONFIG_ENABLE_ENERGY_EVSE_TRIGGER
-#include <app/clusters/energy-evse-server/EnergyEvseTestEventTriggerHandler.h>
+#include <event-triggers/EnergyEvseTestEventTriggerHandler.h>
 #endif
 #if CHIP_DEVICE_CONFIG_ENABLE_ENERGY_REPORTING_TRIGGER
-#include <app/clusters/electrical-energy-measurement-server/EnergyReportingTestEventTriggerHandler.h>
+#include <event-triggers/EnergyReportingTestEventTriggerHandler.h>
 #endif
 #if CHIP_DEVICE_CONFIG_ENABLE_METER_IDENTIFICATION_TRIGGER
-#include <app/clusters/meter-identification-server/MeterIdentificationTestEventTriggerHandler.h>
+#include <event-triggers/MeterIdentificationTestEventTriggerHandler.h>
 #endif
 #if CHIP_DEVICE_CONFIG_ENABLE_WATER_HEATER_MANAGEMENT_TRIGGER
-#include <app/clusters/water-heater-management-server/WaterHeaterManagementTestEventTriggerHandler.h>
+#include <event-triggers/WaterHeaterManagementTestEventTriggerHandler.h>
 #endif
 #if CHIP_DEVICE_CONFIG_ENABLE_DEVICE_ENERGY_MANAGEMENT_TRIGGER
-#include <app/clusters/device-energy-management-server/DeviceEnergyManagementTestEventTriggerHandler.h>
+#include <event-triggers/DeviceEnergyManagementTestEventTriggerHandler.h>
 #endif
 #if CHIP_CONFIG_ENABLE_ICD_SERVER
 #include <app/icd/server/ICDManager.h> // nogncheck

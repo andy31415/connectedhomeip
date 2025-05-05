@@ -20,14 +20,38 @@ config("include-config") {
   include_dirs = [ "../" ]
 }
 
-source_set("software-diagnostics") {
-  sources = [ "SoftwareDiagnosticsTestEventTriggerHandler.h" ]
+source_set("event-triggers") {
+  sources = [
+    "BooleanStateConfigurationTestEventTriggerHandler.cpp",
+    "BooleanStateConfigurationTestEventTriggerHandler.h",
+    "CommodityPriceTestEventTriggerHandler.h",
+    "DeviceEnergyManagementTestEventTriggerHandler.h",
+    "ElectricalGridConditionsTestEventTriggerHandler.h",
+    "EnergyEvseTestEventTriggerHandler.h",
+    "EnergyReportingTestEventTriggerHandler.h",
+    "GenericFaultTestEventTriggerHandler.cpp",
+    "GenericFaultTestEventTriggerHandler.h",
+    "MeterIdentificationTestEventTriggerHandler.h",
+    "OTATestEventTriggerHandler.cpp",
+    "OTATestEventTriggerHandler.h",
+    "SmokeCOTestEventTriggerHandler.h",
+    "SoftwareDiagnosticsTestEventTriggerHandler.h",
+    "WaterHeaterManagementTestEventTriggerHandler.h",
+    "WiFiDiagnosticsTestEventTriggerHandler.h",
+  ]
+
   public_deps = [
     "${chip_root}/src/app:generic-test-event-trigger-handler",
     "${chip_root}/src/lib/core:error",
     "${chip_root}/src/lib/support",
     "${chip_root}/src/lib/support:span",
+    "${chip_root}/zzz_generated/app-common/clusters/GeneralDiagnostics",
     "${chip_root}/zzz_generated/app-common/clusters/SoftwareDiagnostics",
+
+    # NOTE: these are currently highly coupled assuming implementations
+    #       for clusters exist. In particular they access:
+    #        - GeneralDiagnostics::Instance
+    #        - GetRequestorInstance for OTA
   ]
   public_configs = [ ":include-config" ]
 }

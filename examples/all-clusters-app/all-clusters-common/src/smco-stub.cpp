@@ -15,8 +15,8 @@
  *    limitations under the License.
  */
 
-#include <app/clusters/smoke-co-alarm-server/SmokeCOTestEventTriggerHandler.h>
 #include <app/clusters/smoke-co-alarm-server/smoke-co-alarm-server.h>
+#include <event-triggers/SmokeCOTestEventTriggerHandler.h>
 
 #include <platform/CHIPDeviceLayer.h>
 

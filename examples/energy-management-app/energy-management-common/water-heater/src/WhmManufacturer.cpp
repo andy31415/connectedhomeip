@@ -21,8 +21,8 @@
 #include <water-heater-mode.h>
 
 #include <app-common/zap-generated/attributes/Accessors.h>
-#include <app/clusters/water-heater-management-server/WaterHeaterManagementTestEventTriggerHandler.h>
 #include <app/clusters/water-heater-management-server/water-heater-management-server.h>
+#include <event-triggers/WaterHeaterManagementTestEventTriggerHandler.h>
 
 using namespace chip;
 using namespace chip::app::Clusters::WaterHeaterManagement;

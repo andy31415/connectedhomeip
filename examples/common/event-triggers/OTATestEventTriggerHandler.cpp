@@ -1,6 +1,7 @@
 /*
  *
- *    Copyright (c) 2023 Project CHIP Authors
+ *    Copyright (c) 2022 Project CHIP Authors
+ *    All rights reserved.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,18 +16,24 @@
  *    limitations under the License.
  */
 
-#include "BooleanStateConfigurationTestEventTriggerHandler.h"
+#include "OTATestEventTriggerHandler.h"
 
-using namespace chip::app::Clusters::BooleanStateConfiguration;
+#include <app/clusters/ota-requestor/OTARequestorInterface.h>
+#include <lib/support/CodeUtils.h>
 
 namespace chip {
 
-CHIP_ERROR BooleanStateConfigurationTestEventTriggerHandler::HandleEventTrigger(uint64_t eventTrigger)
+CHIP_ERROR OTATestEventTriggerHandler::HandleEventTrigger(uint64_t eventTrigger)
 {
-    if (HandleBooleanStateConfigurationTestEventTrigger(eventTrigger))
+    if ((eventTrigger & ~kOtaQueryFabricIndexMask) == kOtaQueryTrigger)
     {
-        return CHIP_NO_ERROR;
+        OTARequestorInterface * requestor = GetRequestorInstance();
+        const FabricIndex fabricIndex     = eventTrigger & kOtaQueryFabricIndexMask;
+
+        VerifyOrReturnError(requestor != nullptr, CHIP_ERROR_INCORRECT_STATE);
+        return requestor->TriggerImmediateQuery(fabricIndex);
     }
+
     return CHIP_ERROR_INVALID_ARGUMENT;
 }
 

@@ -18,8 +18,8 @@
 
 #include "CommodityPriceMain.h"
 #include "EnergyTimeUtils.h"
-#include <app/clusters/commodity-price-server/CommodityPriceTestEventTriggerHandler.h>
 #include <app/util/af-types.h>
+#include <event-triggers/CommodityPriceTestEventTriggerHandler.h>
 
 using namespace chip;
 using namespace chip::app;
