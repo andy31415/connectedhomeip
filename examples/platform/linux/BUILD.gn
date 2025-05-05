@@ -48,10 +48,6 @@ source_set("ota-test-event-trigger") {
   ]
 }
 
-source_set("software-diagnostics-test-event-trigger") {
-  sources = [ "${chip_root}/src/app/clusters/software-diagnostics-server/SoftwareDiagnosticsTestEventTriggerHandler.h" ]
-}
-
 source_set("wifi-diagnostics-test-event-trigger") {
   sources = [ "${chip_root}/src/app/clusters/wifi-network-diagnostics-server/WiFiDiagnosticsTestEventTriggerHandler.h" ]
 }
@@ -125,7 +121,6 @@ source_set("app-main") {
     ":energy-reporting-test-event-trigger",
     ":meter-identification-test-event-trigger",
     ":smco-test-event-trigger",
-    ":software-diagnostics-test-event-trigger",
     ":water-heater-management-test-event-trigger",
     ":wifi-diagnostics-test-event-trigger",
     "${chip_root}/src/data-model-providers/codegen:instance-header",
@@ -134,6 +129,7 @@ source_set("app-main") {
   ]
   deps = [
     ":ota-test-event-trigger",
+    "${chip_root}/examples/common/event-triggers:software-diagnostics",
     "${chip_root}/examples/providers:device_info_provider",
     "${chip_root}/src/app/server",
     "${chip_root}/src/app/tests/suites/credentials:dac_provider",
