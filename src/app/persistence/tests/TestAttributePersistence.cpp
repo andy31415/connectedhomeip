@@ -33,6 +33,7 @@ using namespace chip;
 using namespace chip::app;
 using namespace chip::app::Testing;
 using namespace chip::app::Storage;
+using namespace chip::app::Persistence;
 
 TEST(TestAttributePersistence, TestLoadAndStoreNativeEndian)
 {
@@ -60,7 +61,7 @@ TEST(TestAttributePersistence, TestLoadAndStoreNativeEndian)
     {
         uint32_t valueRead = 0;
 
-        ASSERT_TRUE(persistence.LoadNativeEndianValue(path, valueRead, kOtherValue));
+        ASSERT_TRUE(persistence.Load<NativeEndian<uint32_t>>(path, valueRead, kOtherValue));
         ASSERT_EQ(valueRead, kValueToStore);
     }
 
@@ -68,7 +69,7 @@ TEST(TestAttributePersistence, TestLoadAndStoreNativeEndian)
     {
         uint32_t valueRead = 0;
 
-        ASSERT_FALSE(persistence.LoadNativeEndianValue(wrongPath, valueRead, kOtherValue));
+        ASSERT_FALSE(persistence.Load<NativeEndian<uint32_t>>(wrongPath, valueRead, kOtherValue));
         ASSERT_EQ(valueRead, kOtherValue);
     }
 
@@ -79,7 +80,7 @@ TEST(TestAttributePersistence, TestLoadAndStoreNativeEndian)
                   CHIP_NO_ERROR);
 
         uint32_t valueRead = 0;
-        ASSERT_FALSE(persistence.LoadNativeEndianValue(path, valueRead, kOtherValue));
+        ASSERT_FALSE(persistence.Load<NativeEndian<uint32_t>>(path, valueRead, kOtherValue));
         ASSERT_EQ(valueRead, kOtherValue);
     }
 }
@@ -107,7 +108,7 @@ TEST(TestAttributePersistence, TestLoadAndStoreString)
         char bufferRead[16];
         ShortPascalString stringRead(bufferRead);
 
-        ASSERT_TRUE(persistence.Load(path, stringRead, std::nullopt));
+        ASSERT_TRUE(persistence.Load<String<ShortPascalString>>(path, stringRead, ""_span));
         ASSERT_TRUE(stringRead.Content().data_equal("hello"_span));
     }
 
@@ -117,7 +118,7 @@ TEST(TestAttributePersistence, TestLoadAndStoreString)
         char bufferRead[16];
         ShortPascalString stringRead(bufferRead);
 
-        ASSERT_FALSE(persistence.Load(wrongPath, stringRead, "default"_span));
+        ASSERT_FALSE(persistence.Load<String<ShortPascalString>>(wrongPath, stringRead, "default"_span));
         ASSERT_TRUE(stringRead.Content().data_equal("default"_span));
     }
 }
@@ -140,13 +141,13 @@ TEST(TestAttributePersistence, TestNativeRawValueViaDecoder)
     {
         WriteOperation writeOp(path);
         AttributeValueDecoder decoder = writeOp.DecoderFor(kValueToStore);
-        EXPECT_EQ(persistence.StoreNativeEndianValue(path, decoder, valueRead), CHIP_NO_ERROR);
+        EXPECT_EQ(persistence.Store<NativeEndian<uint32_t>>(path, decoder, valueRead), CHIP_NO_ERROR);
         EXPECT_EQ(valueRead, kValueToStore);
     }
 
     {
         valueRead = 0;
-        ASSERT_TRUE(persistence.LoadNativeEndianValue(path, valueRead, kOtherValue));
+        ASSERT_TRUE(persistence.Load<NativeEndian<uint32_t>>(path, valueRead, kOtherValue));
         ASSERT_EQ(valueRead, kValueToStore);
     }
 
@@ -156,14 +157,14 @@ TEST(TestAttributePersistence, TestNativeRawValueViaDecoder)
         uint16_t smallValue   = 0;
         const uint16_t kOther = 123u;
 
-        ASSERT_FALSE(persistence.LoadNativeEndianValue(path, smallValue, kOther));
+        ASSERT_FALSE(persistence.Load<NativeEndian<uint16_t>>(path, smallValue, kOther));
         ASSERT_EQ(smallValue, kOther);
     }
     {
         uint64_t largeValue   = 0;
         const uint64_t kOther = 0x1122334455667788ull;
 
-        ASSERT_FALSE(persistence.LoadNativeEndianValue(path, largeValue, kOther));
+        ASSERT_FALSE(persistence.Load<Persistence::NativeEndian<uint64_t>>(path, largeValue, kOther));
         ASSERT_EQ(largeValue, kOther);
     }
 }
@@ -194,7 +195,7 @@ TEST(TestAttributePersistence, TestStringViaDecoder)
         char bufferRead[32];
         ShortPascalString stringRead(bufferRead);
 
-        ASSERT_TRUE(persistence.Load(path, stringRead, std::nullopt));
+        ASSERT_TRUE(persistence.Load<String<ShortPascalString>>(path, stringRead, ""_span));
         ASSERT_TRUE(stringRead.Content().data_equal("hello world"_span));
     }
 }
@@ -226,7 +227,7 @@ TEST(TestAttributePersistence, TestByteStringViaDecoder)
         uint8_t bufferRead[32];
         ShortPascalBytes bytesRead(bufferRead);
 
-        ASSERT_TRUE(persistence.Load(path, bytesRead, std::nullopt));
+        ASSERT_TRUE(persistence.Load<String<ShortPascalBytes>>(path, bytesRead, ByteSpan()));
         ASSERT_TRUE(bytesRead.Content().data_equal(ByteSpan(binary_data)));
     }
 }
@@ -245,7 +246,7 @@ TEST(TestAttributePersistence, TestByteStringLoadWithDefaults)
     uint8_t bufferRead[32];
     ShortPascalBytes bytesRead(bufferRead);
 
-    ASSERT_FALSE(persistence.Load(path, bytesRead, ByteSpan(default_binary_data)));
+    ASSERT_FALSE(persistence.Load<String<ShortPascalBytes>>(path, bytesRead, ByteSpan(default_binary_data)));
     ASSERT_TRUE(bytesRead.Content().data_equal(ByteSpan(default_binary_data)));
 }
 
@@ -262,7 +263,7 @@ TEST(TestAttributePersistence, TestCharStringLoadWithDefaults)
     char bufferRead[32];
     ShortPascalString stringRead(bufferRead);
 
-    ASSERT_FALSE(persistence.Load(path, stringRead, "default value"_span));
+    ASSERT_FALSE(persistence.Load<String<ShortPascalString>>(path, stringRead, "default value"_span));
     ASSERT_TRUE(stringRead.Content().data_equal("default value"_span));
 }
 
@@ -296,7 +297,7 @@ TEST(TestAttributePersistence, TestStoreNullByteString)
 
         const uint8_t default_binary_data[] = { 1, 2, 3 };
 
-        ASSERT_FALSE(persistence.Load(path2, bytesRead, ByteSpan(default_binary_data)));
+        ASSERT_FALSE(persistence.Load<String<ShortPascalBytes>>(path2, bytesRead, ByteSpan(default_binary_data)));
         ASSERT_TRUE(bytesRead.Content().data_equal(ByteSpan(default_binary_data)));
     }
 }
@@ -329,7 +330,7 @@ TEST(TestAttributePersistence, TestStoreNullCharString)
         char bufferRead[32];
         ShortPascalString stringRead(bufferRead);
 
-        ASSERT_FALSE(persistence.Load(path2, stringRead, "default value"_span));
+        ASSERT_FALSE(persistence.Load<String<ShortPascalString>>(path2, stringRead, "default value"_span));
         ASSERT_TRUE(stringRead.Content().data_equal("default value"_span));
     }
 }
@@ -357,7 +358,7 @@ TEST(TestAttributePersistence, TestLoadInvalidPascalString)
         char bufferRead[5]; // need 6 bytes here...
         ShortPascalString stringRead(bufferRead);
 
-        ASSERT_FALSE(persistence.Load(path, stringRead, "def"_span));
+        ASSERT_FALSE(persistence.Load<String<ShortPascalString>>(path, stringRead, "def"_span));
         ASSERT_TRUE(stringRead.Content().data_equal("def"_span));
     }
 
@@ -369,7 +370,7 @@ TEST(TestAttributePersistence, TestLoadInvalidPascalString)
         char bufferRead[5]; // need 6 bytes here...
         ShortPascalString stringRead(bufferRead);
 
-        ASSERT_FALSE(persistence.Load(path, stringRead, "default"_span));
+        ASSERT_FALSE(persistence.Load<String<ShortPascalString>>(path, stringRead, "default"_span));
 
         // default could not be set (too long)
         ASSERT_TRUE(stringRead.IsNull());
@@ -400,7 +401,7 @@ TEST(TestAttributePersistence, TestInvalidPascalLengthStored)
         char bufferRead[16];
         ShortPascalString stringRead(bufferRead);
 
-        ASSERT_FALSE(persistence.Load(path, stringRead, "default"_span));
+        ASSERT_FALSE(persistence.Load<String<ShortPascalString>>(path, stringRead, "default"_span));
         ASSERT_TRUE(stringRead.Content().data_equal("default"_span));
     }
 }

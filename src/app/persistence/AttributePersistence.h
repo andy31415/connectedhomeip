@@ -15,15 +15,69 @@
  */
 #pragma once
 
+#include "lib/core/CHIPError.h"
 #include <app/AttributeValueDecoder.h>
+#include <app/ConcreteAttributePath.h>
 #include <app/data-model-provider/ActionReturnStatus.h>
 #include <app/persistence/AttributePersistenceProvider.h>
 #include <app/persistence/PascalString.h>
+#include <lib/support/CodeUtils.h>
+#include <lib/support/Span.h>
 
-#include <optional>
 #include <type_traits>
 
 namespace chip::app {
+
+namespace Persistence {
+
+/// Handles integer values encode/decode:
+///   - values are stored in NATIVE endianness
+template <typename T, typename std::enable_if<std::is_arithmetic_v<T>>::type * = nullptr>
+struct NativeEndian
+{
+    static CHIP_ERROR Decode(AttributeValueDecoder & decoder, T & value) { return decoder.Decode(value); }
+    static ByteSpan ValueToStore(const T & value) { return { reinterpret_cast<const uint8_t *>(&value), sizeof(value) }; }
+    static MutableByteSpan StartLoad(T & value) { return { reinterpret_cast<uint8_t *>(&value), sizeof(value) }; }
+    static bool FinalizeLoad(T & value, ByteSpan actualDataLoaded) { return actualDataLoaded.size() == sizeof(T); }
+    static void LoadDefault(T & value, const T & default_value) { value = default_value; }
+};
+
+/// Handles reading/writing of pascal strings
+template <typename PASCAL_TYPE>
+struct String
+{
+    static CHIP_ERROR Decode(AttributeValueDecoder & decoder, PASCAL_TYPE & value)
+    {
+        DataModel::Nullable<typename PASCAL_TYPE::ValueType> valueSpan;
+        ReturnErrorOnFailure(decoder.Decode(valueSpan));
+        if (valueSpan.IsNull())
+        {
+            value.SetNull();
+        }
+        else
+        {
+            VerifyOrReturnError(value.SetValue(valueSpan.Value()), CHIP_IM_GLOBAL_STATUS(ConstraintError));
+        }
+        return CHIP_NO_ERROR;
+    }
+    static ByteSpan ValueToStore(const PASCAL_TYPE & value) { return value.ContentWithLenPrefix(); }
+    static MutableByteSpan StartLoad(PASCAL_TYPE & value) { return value.RawFullBuffer(); }
+    static bool FinalizeLoad(PASCAL_TYPE & value, ByteSpan actualDataLoaded)
+    {
+        // Byte span could be of any type. Reinterpret it
+        return PASCAL_TYPE::IsValid(
+            { reinterpret_cast<typename PASCAL_TYPE::ValueType::pointer>(actualDataLoaded.data()), actualDataLoaded.size() });
+    }
+    static void LoadDefault(PASCAL_TYPE & value, const typename PASCAL_TYPE::ValueType & default_value)
+    {
+        if (!value.SetValue(default_value))
+        {
+            value.SetNull();
+        }
+    }
+};
+
+}; // namespace Persistence
 
 /// Provides functionality for handling attribute persistence via
 /// an AttributePersistenceProvider.
@@ -32,102 +86,77 @@ namespace chip::app {
 /// have known (strong) types and their load/decode logic is often
 /// similar and reusable. This class implements the logic of handling
 /// such attributes, so that it can be reused across cluster implementations.
+///
+/// Usage example:
+///
+///   uint32 mValue;
+///   ConcreteAttributePath path;
+///   AttributePersistence persistence(persistenceProvider);
+///
+///
+///   persistence.Store<NativeEndian>(path, mValue);
+///   persistence.Load<NativeEndian>(path, mValue, 1234);
+///
+///
 class AttributePersistence
 {
 public:
     AttributePersistence(AttributePersistenceProvider & provider) : mProvider(provider) {}
 
-    /// Loads a native-endianness stored value into `T` from the persistence provider.
+    /// Store the given value in persistent storage.
     ///
-    /// If load fails, `false` is returned and data is filled with `valueOnLoadFailure`.
-    ///
-    /// Error reason for load failure is logged (or nothing logged in case "Value not found" is the
-    /// reason for the load failure).
-    template <typename T, typename std::enable_if<std::is_arithmetic_v<T>>::type * = nullptr>
-    bool LoadNativeEndianValue(const ConcreteAttributePath & path, T & value, const T & valueOnLoadFailure)
+    /// Generally just converts the value into data bytes and stores them as-is
+    template <typename ENCODER, typename T>
+    CHIP_ERROR Store(const ConcreteAttributePath & path, AttributeValueDecoder & decoder, T & value)
     {
-        return InternalRawLoadNativeEndianValue(path, &value, &valueOnLoadFailure, sizeof(T));
+        ReturnErrorOnFailure(ENCODER::Decode(decoder, value));
+        return mProvider.WriteValue(path, ENCODER::ValueToStore(value));
     }
 
-    /// Loads a short pascal string from persistent storage
+    /// Load a value from persistent storage.
     ///
-    /// If load fails, `false` is returned and data is filled with `valueOnLoadFailure`.
-    ///
-    /// Error reason for load failure is logged (or nothing logged in case "Value not found" is the
-    /// reason for the load failure).
-    ///
-    /// if valueOnLoadFailure cannot be set into value, value will be set to NULL (which never fails)
-    bool Load(const ConcreteAttributePath & path, Storage::ShortPascalString & value, std::optional<CharSpan> valueOnLoadFailure);
-    bool Load(const ConcreteAttributePath & path, Storage::ShortPascalBytes & value, std::optional<ByteSpan> valueOnLoadFailure);
-
-    /// Interprets the `buffer` value as a `StringType` (generally ShortPascalString or similar) for the purposes of loading
-    template <size_t N>
-    bool LoadPascalString(const ConcreteAttributePath & path, char (&buffer)[N], std::optional<CharSpan> valueOnLoadFailure)
+    /// If value cannot be loaded, false is returned and value is set to `default_value`
+    template <typename DECODER, typename T, typename DEFAULT>
+    bool Load(const ConcreteAttributePath & path, T & value, const DEFAULT & default_value)
     {
-
-        Storage::ShortPascalString value(buffer);
-        return Load(path, value, valueOnLoadFailure);
+        MutableByteSpan data = DECODER::StartLoad(value);
+        if (!VerifySuccessLogOnFailure(path, mProvider.ReadValue(path, data)))
+        {
+            DECODER::LoadDefault(value, default_value);
+            return false;
+        }
+        if (!DECODER::FinalizeLoad(value, data))
+        {
+            DECODER::LoadDefault(value, default_value);
+            return false;
+        }
+        return true;
     }
-
-    template <size_t N>
-    bool LoadPascalString(const ConcreteAttributePath & path, uint8_t (&buffer)[N], std::optional<ByteSpan> valueOnLoadFailure)
-    {
-
-        Storage::ShortPascalBytes value(buffer);
-        return Load(path, value, valueOnLoadFailure);
-    }
-
-    /// Performs all the steps of:
-    ///   - decode the given char span
-    ///   - store it in the given pascal string
-    ///   - write the value to persistent storage as a "prefixed value"
-    ///
-    /// Will store/support NULL values.
-    ///
-    DataModel::ActionReturnStatus Store(const ConcreteAttributePath & path, AttributeValueDecoder & decoder,
-                                        Storage::ShortPascalString & value);
-    DataModel::ActionReturnStatus Store(const ConcreteAttributePath & path, AttributeValueDecoder & decoder,
-                                        Storage::ShortPascalBytes & value);
 
     /// helper to not create a separate ShortPascalString out of a buffer.
     template <size_t N>
-    DataModel::ActionReturnStatus StorePascalString(const ConcreteAttributePath & path, AttributeValueDecoder & decoder,
-                                                    char (&buffer)[N])
+    CHIP_ERROR StorePascalString(const ConcreteAttributePath & path, AttributeValueDecoder & decoder, char (&buffer)[N])
     {
         Storage::ShortPascalString value(buffer);
-        return Store(path, decoder, value);
+        return Store<Persistence::String<Storage::ShortPascalString>>(path, decoder, value);
     }
 
     /// helper to not create a separate ShortPascalBytes out of a buffer.
     template <size_t N>
-    DataModel::ActionReturnStatus StorePascalString(const ConcreteAttributePath & path, AttributeValueDecoder & decoder,
-                                                    uint8_t (&buffer)[N])
+    CHIP_ERROR StorePascalString(const ConcreteAttributePath & path, AttributeValueDecoder & decoder, uint8_t (&buffer)[N])
     {
         Storage::ShortPascalBytes value(buffer);
-        return Store(path, decoder, value);
-    }
-
-    /// Performs all the steps of:
-    ///   - decode the given raw data
-    ///   - write to storage
-    template <typename T, typename std::enable_if<std::is_arithmetic_v<T>>::type * = nullptr>
-    DataModel::ActionReturnStatus StoreNativeEndianValue(const ConcreteAttributePath & path, AttributeValueDecoder & decoder,
-                                                         T & value)
-    {
-        ReturnErrorOnFailure(decoder.Decode(value));
-        return mProvider.WriteValue(path, { reinterpret_cast<const uint8_t *>(&value), sizeof(value) });
+        return Store<Persistence::String<Storage::ShortPascalBytes>>(path, decoder, value);
     }
 
 private:
     AttributePersistenceProvider & mProvider;
 
-    /// Loads a raw value of size `size` into the memory pointed to by `data`.
-    /// If load fails, `false` is returned and data is filled with `valueOnLoadFailure`.
+    /// Help to debug attribute load errors.
     ///
-    /// Error reason for load failure is logged (or nothing logged in case "Value not found" is the
-    /// reason for the load failure).
-    bool InternalRawLoadNativeEndianValue(const ConcreteAttributePath & path, void * data, const void * valueOnLoadFailure,
-                                          size_t size);
+    /// returns true if `err` is CHIP_NO_ERROR.
+    /// Otherwise returns false and logs if  err is not CHIP_ERROR_PERSISTED_STORAGE_VALUE_NOT_FOUND
+    static bool VerifySuccessLogOnFailure(const ConcreteAttributePath & path, CHIP_ERROR err);
 };
 
 } // namespace chip::app
