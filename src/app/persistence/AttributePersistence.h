@@ -89,13 +89,13 @@ struct String
 ///
 /// Usage example:
 ///
-///   uint32 mValue;
+///   uint32_t mValue;
 ///   ConcreteAttributePath path;
 ///   AttributePersistence persistence(persistenceProvider);
 ///
 ///
-///   persistence.Store<NativeEndian>(path, mValue);
-///   persistence.Load<NativeEndian>(path, mValue, 1234);
+///   persistence.Store<NativeEndian<uint32_t>>(path, mValue);
+///   persistence.Load<NativeEndian<uint32_t>>(path, mValue, 1234);
 ///
 ///
 class AttributePersistence
