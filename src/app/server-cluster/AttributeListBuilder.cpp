@@ -56,5 +56,17 @@ CHIP_ERROR AttributeListBuilder::Append(Span<const DataModel::AttributeEntry> ma
     return mBuilder.ReferenceExisting(DefaultServerCluster::GlobalAttributes());
 }
 
+bool IsEnabled(AttributeId id, Span<const AttributeListBuilder::OptionalAttributeEntry> optionalAttributes)
+{
+    for (auto item : optionalAttributes)
+    {
+        if (item.metadata.attributeId == id)
+        {
+            return item.enabled;
+        }
+    }
+    return false;
+}
+
 } // namespace app
 } // namespace chip

@@ -58,5 +58,7 @@ private:
     ReadOnlyBufferBuilder<DataModel::AttributeEntry> & mBuilder;
 };
 
+bool IsEnabled(AttributeId id, Span<const AttributeListBuilder::OptionalAttributeEntry> optionalAttributes);
+
 } // namespace app
 } // namespace chip

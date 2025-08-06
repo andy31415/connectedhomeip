@@ -14,6 +14,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app/server-cluster/AttributeListBuilder.h"
+#include "clusters/SoftwareDiagnostics/Metadata.h"
 #include <app/clusters/software-diagnostics-server/software-diagnostics-cluster.h>
 #include <app/clusters/software-diagnostics-server/software-diagnostics-logic.h>
 #include <app/static-cluster-config/SoftwareDiagnostics.h>
@@ -60,14 +62,26 @@ constexpr bool IsAttributeEnabled(EndpointId endpointId, AttributeId attributeId
 void emberAfSoftwareDiagnosticsClusterInitCallback(EndpointId endpointId)
 {
     VerifyOrReturn(endpointId == kRootEndpointId);
-    const SoftwareDiagnosticsEnabledAttributes enabledAttributes{
-        .enableThreadMetrics     = IsAttributeEnabled(kRootEndpointId, Attributes::ThreadMetrics::Id),
-        .enableCurrentHeapFree   = IsAttributeEnabled(kRootEndpointId, Attributes::CurrentHeapFree::Id),
-        .enableCurrentHeapUsed   = IsAttributeEnabled(kRootEndpointId, Attributes::CurrentHeapUsed::Id),
-        .enableCurrentWatermarks = IsAttributeEnabled(kRootEndpointId, Attributes::CurrentHeapHighWatermark::Id),
+    static const AttributeListBuilder::OptionalAttributeEntry optionalAttributes[] = {
+        {
+            .enabled  = IsAttributeEnabled(kRootEndpointId, Attributes::ThreadMetrics::Id),
+            .metadata = Attributes::ThreadMetrics::kMetadataEntry,
+        },
+        {
+            .enabled  = IsAttributeEnabled(kRootEndpointId, Attributes::CurrentHeapFree::Id),
+            .metadata = Attributes::CurrentHeapFree::kMetadataEntry,
+        },
+        {
+            .enabled  = IsAttributeEnabled(kRootEndpointId, Attributes::CurrentHeapUsed::Id),
+            .metadata = Attributes::CurrentHeapUsed::kMetadataEntry,
+        },
+        {
+            .enabled  = IsAttributeEnabled(kRootEndpointId, Attributes::CurrentHeapHighWatermark::Id),
+            .metadata = Attributes::CurrentHeapHighWatermark::kMetadataEntry,
+        },
     };
 
-    gServer.Create(enabledAttributes);
+    gServer.Create(optionalAttributes);
 
     CHIP_ERROR err = CodegenDataModelProvider::Instance().Registry().Register(gServer.Registration());
     if (err != CHIP_NO_ERROR)
