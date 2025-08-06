@@ -20,21 +20,27 @@
 #include <app/data-model-provider/MetadataTypes.h>
 #include <app/data-model-provider/tests/ReadTesting.h>
 #include <app/data-model-provider/tests/WriteTesting.h>
+#include <app/data-model/Decode.h>
 #include <app/server-cluster/DefaultServerCluster.h>
 #include <app/server-cluster/testing/TestServerClusterContext.h>
+#include <clusters/BasicInformation/Attributes.h>
 #include <clusters/BasicInformation/Enums.h>
 #include <clusters/BasicInformation/Metadata.h>
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
 #include <lib/support/BitFlags.h>
+#include <lib/support/CHIPMemString.h>
 #include <lib/support/ReadOnlyBuffer.h>
 #include <lib/support/Span.h>
+#include <platform/DeviceInstanceInfoProvider.h>
 #include <platform/NetworkCommissioning.h>
 #include <protocols/interaction_model/Constants.h>
 
 namespace {
 
 using namespace chip;
+using namespace chip::app::Testing;
+using namespace chip::DeviceLayer;
 using namespace chip::app::Clusters;
 using namespace chip::app::Clusters::BasicInformation;
 using namespace chip::app::Clusters::BasicInformation::Attributes;
@@ -43,8 +49,7 @@ using chip::app::AttributeValueDecoder;
 using chip::app::DataModel::AcceptedCommandEntry;
 using chip::app::DataModel::ActionReturnStatus;
 using chip::app::DataModel::AttributeEntry;
-using chip::app::Testing::kAdminSubjectDescriptor;
-using chip::app::Testing::WriteOperation;
+using chip::Platform::CopyString;
 using chip::Protocols::InteractionModel::Status;
 using chip::Test::TestServerClusterContext;
 
@@ -55,12 +60,116 @@ struct TestBasicInformationCluster : public ::testing::Test
     static void TearDownTestSuite() { chip::Platform::MemoryShutdown(); }
 };
 
+// Implements a fake device info provider, with everything hardcoded.
+class FakeDeviceInfoProvider : public DeviceInstanceInfoProvider
+{
+public:
+    CHIP_ERROR GetVendorName(char * buf, size_t bufSize) override
+    {
+        CopyString(buf, bufSize, "FakeVendor");
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR GetVendorId(uint16_t & vendorId) override
+    {
+        vendorId = 1234;
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR GetProductName(char * buf, size_t bufSize) override
+    {
+        CopyString(buf, bufSize, "FakeProduct");
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR GetProductId(uint16_t & productId) override
+    {
+        productId = 5678;
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR GetPartNumber(char * buf, size_t bufSize) override
+    {
+        CopyString(buf, bufSize, "PN123456");
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR GetProductURL(char * buf, size_t bufSize) override
+    {
+        CopyString(buf, bufSize, "http://fake.example.com");
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR GetProductLabel(char * buf, size_t bufSize) override
+    {
+        CopyString(buf, bufSize, "FakeLabel");
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR GetSerialNumber(char * buf, size_t bufSize) override
+    {
+        CopyString(buf, bufSize, "SN987654");
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR GetManufacturingDate(uint16_t & year, uint8_t & month, uint8_t & day) override
+    {
+        year  = 2025;
+        month = 1;
+        day   = 15;
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR GetHardwareVersion(uint16_t & hardwareVersion) override
+    {
+        hardwareVersion = 2;
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR GetHardwareVersionString(char * buf, size_t bufSize) override
+    {
+        CopyString(buf, bufSize, "2.0");
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR GetRotatingDeviceIdUniqueId(MutableByteSpan & uniqueIdSpan) override
+    {
+        const uint8_t uniqueId[] = {
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
+        };
+        VerifyOrReturnError(uniqueIdSpan.size() >= sizeof(uniqueId), CHIP_ERROR_BUFFER_TOO_SMALL);
+        memcpy(uniqueIdSpan.data(), uniqueId, sizeof(uniqueId));
+        uniqueIdSpan.reduce_size(sizeof(uniqueId));
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR GetProductFinish(app::Clusters::BasicInformation::ProductFinishEnum * finish) override
+    {
+        *finish = app::Clusters::BasicInformation::ProductFinishEnum::kSatin;
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR GetProductPrimaryColor(app::Clusters::BasicInformation::ColorEnum * primaryColor) override
+    {
+        *primaryColor = app::Clusters::BasicInformation::ColorEnum::kBlue;
+        return CHIP_NO_ERROR;
+    }
+};
+
+/// has to be global: setters of this info are "sticky" (cannot be reset back to nullptr)
+FakeDeviceInfoProvider gInfoProvider;
+
 /// Ensures that the basic info instance was startup/shutdown correctly given the
 /// internal context of this class.
 struct StartupClusterScope
 {
     TestServerClusterContext context;
-    StartupClusterScope() { VerifyOrDie(BasicInformationCluster::Instance().Startup(context.Get()) == CHIP_NO_ERROR); }
+
+    StartupClusterScope()
+    {
+        SetDeviceInstanceInfoProvider(&gInfoProvider);
+        VerifyOrDie(BasicInformationCluster::Instance().Startup(context.Get()) == CHIP_NO_ERROR);
+    }
     ~StartupClusterScope() { BasicInformationCluster::Instance().Shutdown(); }
 };
 
@@ -209,6 +318,80 @@ TEST_F(TestBasicInformationCluster, TestWriteLocationConstraint)
     {
         AttributeValueDecoder decoder = write.DecoderFor("a"_span);
         EXPECT_EQ(BasicInformationCluster::Instance().WriteAttribute(write.GetRequest(), decoder), Status::ConstraintError);
+    }
+}
+
+TEST_F(TestBasicInformationCluster, TestNodeLabelRW)
+{
+    StartupClusterScope scope;
+
+    // Read back and verify NodeLabel
+    const char * newNodeLabel = "TestLabel123";
+    {
+        WriteOperation write(kRootEndpointId, BasicInformation::Id, NodeLabel::Id);
+        write.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        auto decoder = write.DecoderFor<CharSpan>(CharSpan::fromCharString(newNodeLabel));
+        ASSERT_EQ(BasicInformationCluster::Instance().WriteAttribute(write.GetRequest(), decoder), CHIP_NO_ERROR);
+    }
+    {
+        ReadOperation read({ kRootEndpointId, BasicInformation::Id, NodeLabel::Id });
+        read.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        auto encoder = read.StartEncoding();
+        ASSERT_EQ(BasicInformationCluster::Instance().ReadAttribute(read.GetRequest(), *encoder), CHIP_NO_ERROR);
+        ASSERT_EQ(read.FinishEncoding(), CHIP_NO_ERROR);
+        std::vector<DecodedAttributeData> decodedData;
+        ASSERT_EQ(read.GetEncodedIBs().Decode(decodedData), CHIP_NO_ERROR);
+        ASSERT_EQ(decodedData.size(), 1u);
+        NodeLabel::TypeInfo::DecodableType val;
+        ASSERT_EQ(chip::app::DataModel::Decode(decodedData[0].dataReader, val), CHIP_NO_ERROR);
+        ASSERT_TRUE(val.data_equal(CharSpan::fromCharString(newNodeLabel)));
+    }
+}
+
+TEST_F(TestBasicInformationCluster, TestLocalConfigRW)
+{
+    StartupClusterScope scope;
+
+    // check that writing true to local config disabled works
+    {
+        WriteOperation write(kRootEndpointId, BasicInformation::Id, LocalConfigDisabled::Id);
+        write.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        auto decoder = write.DecoderFor<bool>(true);
+        ASSERT_EQ(BasicInformationCluster::Instance().WriteAttribute(write.GetRequest(), decoder), CHIP_NO_ERROR);
+    }
+    {
+        ReadOperation read({ kRootEndpointId, BasicInformation::Id, LocalConfigDisabled::Id });
+        read.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        auto encoder = read.StartEncoding();
+        ASSERT_EQ(BasicInformationCluster::Instance().ReadAttribute(read.GetRequest(), *encoder), CHIP_NO_ERROR);
+        ASSERT_EQ(read.FinishEncoding(), CHIP_NO_ERROR);
+        std::vector<DecodedAttributeData> decodedData;
+        ASSERT_EQ(read.GetEncodedIBs().Decode(decodedData), CHIP_NO_ERROR);
+        ASSERT_EQ(decodedData.size(), 1u);
+        LocalConfigDisabled::TypeInfo::DecodableType val;
+        ASSERT_EQ(chip::app::DataModel::Decode(decodedData[0].dataReader, val), CHIP_NO_ERROR);
+        ASSERT_EQ(val, true);
+    }
+
+    // check that writing false to local config disabled works
+    {
+        WriteOperation write(kRootEndpointId, BasicInformation::Id, LocalConfigDisabled::Id);
+        write.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        auto decoder = write.DecoderFor<bool>(false);
+        ASSERT_EQ(BasicInformationCluster::Instance().WriteAttribute(write.GetRequest(), decoder), CHIP_NO_ERROR);
+    }
+    {
+        ReadOperation read({ kRootEndpointId, BasicInformation::Id, LocalConfigDisabled::Id });
+        read.SetSubjectDescriptor(kAdminSubjectDescriptor);
+        auto encoder = read.StartEncoding();
+        ASSERT_EQ(BasicInformationCluster::Instance().ReadAttribute(read.GetRequest(), *encoder), CHIP_NO_ERROR);
+        ASSERT_EQ(read.FinishEncoding(), CHIP_NO_ERROR);
+        std::vector<DecodedAttributeData> decodedData;
+        ASSERT_EQ(read.GetEncodedIBs().Decode(decodedData), CHIP_NO_ERROR);
+        ASSERT_EQ(decodedData.size(), 1u);
+        LocalConfigDisabled::TypeInfo::DecodableType val;
+        ASSERT_EQ(chip::app::DataModel::Decode(decodedData[0].dataReader, val), CHIP_NO_ERROR);
+        ASSERT_EQ(val, false);
     }
 }
 
