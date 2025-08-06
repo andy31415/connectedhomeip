@@ -51,12 +51,15 @@ public:
         mContext{
             .provider           = &mTestProvider,
             .storage            = &mTestStorage,
+            .attributeStorage   = &mDefaultAttributePersistenceProvider,
             .interactionContext = &mTestContext,
         }
     {
         mTestContext.eventsGenerator         = &mTestEventsGenerator;
         mTestContext.dataModelChangeListener = &mTestDataModelChangeListener;
         mTestContext.actionContext           = &mNullActionContext;
+
+        mDefaultAttributePersistenceProvider.Init(&mTestStorage);
     }
 
     /// Get a stable pointer to the underlying context
@@ -65,14 +68,11 @@ public:
     /// Create a new context bound to this test context
     app::ServerClusterContext Create()
     {
-        mDefaultAttributePersistenceProvider.Init(&mTestStorage);
-
         return {
             .provider           = &mTestProvider,
             .storage            = &mTestStorage,
             .attributeStorage   = &mDefaultAttributePersistenceProvider,
             .interactionContext = &mTestContext,
-
         };
     };
 
