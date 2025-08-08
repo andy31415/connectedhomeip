@@ -107,6 +107,14 @@ private:
     }
 };
 
+template <const DataModel::AttributeEntry &... OptionalAttributeEntries>
+struct EntrySpan
+{
+    // To be able to Span over the list of attributes, we need to have them in an array.
+    static constexpr DataModel::AttributeEntry kOptionalAttributes[] = { OptionalAttributeEntries... };
+    static_assert(sizeof...(OptionalAttributeEntries) < 32, "At most 32 optional attributes are supported");
+};
+
 /// A specialization of AttributeSet that provides checked calls to `Set`.
 ///
 /// Specifically it requires that attributes are declared as part of the template
@@ -137,13 +145,8 @@ private:
 template <const DataModel::AttributeEntry &... OptionalAttributeEntries>
 class OptionalAttributeSet : public AttributeSet
 {
-private:
-    // To be able to Span over the list of attributes, we need to have them in an array.
-    static constexpr DataModel::AttributeEntry kOptionalAttributes[] = { OptionalAttributeEntries... };
-    static_assert(sizeof...(OptionalAttributeEntries) < 32, "At most 32 optional attributes are supported");
-
 public:
-    OptionalAttributeSet() : AttributeSet(Span(kOptionalAttributes)) {}
+    OptionalAttributeSet() : AttributeSet(Span(EntrySpan<OptionalAttributeEntries...>::kOptionalAttributes)) {}
 
     template <uint32_t ATTRIBUTE_ID>
     constexpr OptionalAttributeSet & Set(bool value = true)
