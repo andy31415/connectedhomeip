@@ -38,19 +38,21 @@ struct GeneralDiagnosticsFunctionsConfig
 class GeneralDiagnosticsCluster : public DefaultServerCluster
 {
 public:
-    using OptionalAttributes =
-        chip::app::OptionalAttributeSet<GeneralDiagnostics::Attributes::TotalOperationalHours::kMetadataEntry, //
-                                        GeneralDiagnostics::Attributes::BootReason::kMetadataEntry,            //
-                                        GeneralDiagnostics::Attributes::ActiveHardwareFaults::kMetadataEntry,  //
-                                        GeneralDiagnostics::Attributes::ActiveRadioFaults::kMetadataEntry,     //
-                                        GeneralDiagnostics::Attributes::ActiveNetworkFaults::kMetadataEntry,   //
-                                        // NOTE: Uptime is optional in the XML, however mandatory since revision 2.
-                                        //       it will be forced as mandatory by the cluster constructor
-                                        GeneralDiagnostics::Attributes::UpTime::kMetadataEntry>;
+    class OptionalAttributes : public AttributeSet
+    {
+    public:
+        OptionalAttributes();
+        OptionalAttributes & Set(AttributeId id, bool value = true)
+        {
+            (void) AttributeSet::Set(id, value);
+            return *this;
+        }
+    };
 
     GeneralDiagnosticsCluster(OptionalAttributes optionalAttributes) :
         DefaultServerCluster({ kRootEndpointId, GeneralDiagnostics::Id }),
-        mOptionalAttributes(optionalAttributes.Set<GeneralDiagnostics::Attributes::UpTime::Id>())
+        // Uptime is optional in the XML, however it is mandatory since revision 2.
+        mOptionalAttributes(optionalAttributes.Set(GeneralDiagnostics::Attributes::UpTime::Id))
     {}
 
     CHIP_ERROR Startup(ServerClusterContext & context) override;

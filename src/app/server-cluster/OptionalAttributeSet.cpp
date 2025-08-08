@@ -36,5 +36,21 @@ CHIP_ERROR AttributeSet::AppendEnabled(ReadOnlyBufferBuilder<DataModel::Attribut
     return CHIP_NO_ERROR;
 }
 
+unsigned AttributeSet::GetIndex(AttributeId id) const
+{
+    unsigned idx = 0;
+    for (const auto entry : mSupportedAttributes)
+    {
+        if (entry.attributeId == id)
+        {
+            return idx;
+        }
+        idx++;
+    }
+
+    // should NOT happen, but who knows ...
+    return kInvalidIndex;
+}
+
 } // namespace app
 } // namespace chip

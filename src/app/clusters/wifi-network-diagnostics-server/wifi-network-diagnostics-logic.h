@@ -30,15 +30,17 @@ namespace chip::app::Clusters {
 class WiFiDiagnosticsServerLogic : public DeviceLayer::WiFiDiagnosticsDelegate
 {
 public:
-    using OptionalAttributes =
-        chip::app::OptionalAttributeSet<WiFiNetworkDiagnostics::Attributes::CurrentMaxRate::kMetadataEntry,
-                                        WiFiNetworkDiagnostics::Attributes::BeaconLostCount::kMetadataEntry,
-                                        WiFiNetworkDiagnostics::Attributes::OverrunCount::kMetadataEntry,
-                                        WiFiNetworkDiagnostics::Attributes::BeaconRxCount::kMetadataEntry,
-                                        WiFiNetworkDiagnostics::Attributes::PacketMulticastRxCount::kMetadataEntry,
-                                        WiFiNetworkDiagnostics::Attributes::PacketUnicastRxCount::kMetadataEntry,
-                                        WiFiNetworkDiagnostics::Attributes::PacketMulticastTxCount::kMetadataEntry,
-                                        WiFiNetworkDiagnostics::Attributes::PacketUnicastTxCount::kMetadataEntry>;
+    class OptionalAttributes : public AttributeSet
+    {
+    public:
+        OptionalAttributes();
+
+        OptionalAttributes & Set(AttributeId id, bool value = true)
+        {
+            AttributeSet::Set(id, value);
+            return *this;
+        }
+    };
 
     WiFiDiagnosticsServerLogic(EndpointId endpointId, DeviceLayer::DiagnosticDataProvider & diagnosticProvider,
                                const OptionalAttributes & optionalAttributes,

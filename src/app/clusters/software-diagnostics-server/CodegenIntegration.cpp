@@ -45,11 +45,11 @@ void emberAfSoftwareDiagnosticsClusterInitCallback(EndpointId endpointId)
     VerifyOrReturn(endpointId == kRootEndpointId);
 
     gServer.Create(SoftwareDiagnosticsLogic::OptionalAttributes()
-                       .Set<ThreadMetrics::Id>(emberAfContainsAttribute(endpointId, SoftwareDiagnostics::Id, ThreadMetrics::Id))
-                       .Set<CurrentHeapFree::Id>(emberAfContainsAttribute(endpointId, SoftwareDiagnostics::Id, CurrentHeapFree::Id))
-                       .Set<CurrentHeapUsed::Id>(emberAfContainsAttribute(endpointId, SoftwareDiagnostics::Id, CurrentHeapUsed::Id))
-                       .Set<CurrentHeapHighWatermark::Id>(
-                           emberAfContainsAttribute(endpointId, SoftwareDiagnostics::Id, CurrentHeapHighWatermark::Id)));
+                       .Set(ThreadMetrics::Id, emberAfContainsAttribute(endpointId, SoftwareDiagnostics::Id, ThreadMetrics::Id))
+                       .Set(CurrentHeapFree::Id, emberAfContainsAttribute(endpointId, SoftwareDiagnostics::Id, CurrentHeapFree::Id))
+                       .Set(CurrentHeapUsed::Id, emberAfContainsAttribute(endpointId, SoftwareDiagnostics::Id, CurrentHeapUsed::Id))
+                       .Set(CurrentHeapHighWatermark::Id,
+                            emberAfContainsAttribute(endpointId, SoftwareDiagnostics::Id, CurrentHeapHighWatermark::Id)));
 
     CHIP_ERROR err = CodegenDataModelProvider::Instance().Registry().Register(gServer.Registration());
     if (err != CHIP_NO_ERROR)

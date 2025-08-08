@@ -108,15 +108,15 @@ CHIP_ERROR WiFiDiagnosticsServerCluster::Attributes(const ConcreteClusterPath & 
 
     // These flags are fully controlled by the feature map
     const bool hasErrorCounts(featureFlags.Has(Feature::kErrorCounts));
-    optionalAttributes.Set<BeaconLostCount::Id>(hasErrorCounts);
-    optionalAttributes.Set<OverrunCount::Id>(hasErrorCounts);
+    optionalAttributes.Set(BeaconLostCount::Id, hasErrorCounts);
+    optionalAttributes.Set(OverrunCount::Id, hasErrorCounts);
 
     const bool hasPacketCounts = featureFlags.Has(Feature::kPacketCounts);
-    optionalAttributes.Set<BeaconRxCount::Id>(hasPacketCounts);
-    optionalAttributes.Set<PacketMulticastRxCount::Id>(hasPacketCounts);
-    optionalAttributes.Set<PacketMulticastTxCount::Id>(hasPacketCounts);
-    optionalAttributes.Set<PacketUnicastRxCount::Id>(hasPacketCounts);
-    optionalAttributes.Set<PacketUnicastTxCount::Id>(hasPacketCounts);
+    optionalAttributes.Set(BeaconRxCount::Id, hasPacketCounts);
+    optionalAttributes.Set(PacketMulticastRxCount::Id, hasPacketCounts);
+    optionalAttributes.Set(PacketMulticastTxCount::Id, hasPacketCounts);
+    optionalAttributes.Set(PacketUnicastRxCount::Id, hasPacketCounts);
+    optionalAttributes.Set(PacketUnicastTxCount::Id, hasPacketCounts);
 
     return attributeListBuilder.Append(Span(kMandatoryMetadata), optionalAttributes);
 }

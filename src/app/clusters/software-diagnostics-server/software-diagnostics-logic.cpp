@@ -62,9 +62,18 @@ private:
     DeviceLayer::DiagnosticDataProvider & mProvider;
 };
 
+const DataModel::AttributeEntry kOptionalAttributes[] = {
+    SoftwareDiagnostics::Attributes::ThreadMetrics::kMetadataEntry,
+    SoftwareDiagnostics::Attributes::CurrentHeapFree::kMetadataEntry,
+    SoftwareDiagnostics::Attributes::CurrentHeapUsed::kMetadataEntry,
+    SoftwareDiagnostics::Attributes::CurrentHeapHighWatermark::kMetadataEntry
+};
+
 } // namespace
 
 using namespace chip::app::Clusters::SoftwareDiagnostics;
+
+SoftwareDiagnosticsLogic::OptionalAttributes::OptionalAttributes() : AttributeSet(Span(kOptionalAttributes)) {}
 
 CHIP_ERROR SoftwareDiagnosticsLogic::ReadThreadMetrics(AttributeValueEncoder & encoder) const
 {

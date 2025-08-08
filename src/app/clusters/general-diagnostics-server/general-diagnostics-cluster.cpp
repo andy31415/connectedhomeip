@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 
+#include "app/data-model-provider/MetadataTypes.h"
 #include <app-common/zap-generated/cluster-objects.h>
 #include <app/clusters/general-diagnostics-server/general-diagnostics-cluster.h>
 #include <app/server-cluster/AttributeListBuilder.h>
@@ -209,11 +210,25 @@ HandlePayloadTestRequest(CommandHandler & handler, const ConcreteCommandPath & c
     }
     return std::nullopt;
 }
+
+DataModel::AttributeEntry kSupportedOptionalAttributes[] = {
+    TotalOperationalHours::kMetadataEntry, //
+    BootReason::kMetadataEntry,            //
+    ActiveHardwareFaults::kMetadataEntry,  //
+    ActiveRadioFaults::kMetadataEntry,     //
+    ActiveNetworkFaults::kMetadataEntry,   //
+    // NOTE: Uptime is optional in the XML, however mandatory since revision 2.
+    //       it will be forced as mandatory by the cluster constructor
+    UpTime::kMetadataEntry
+};
+
 } // namespace
 
 namespace chip {
 namespace app {
 namespace Clusters {
+
+GeneralDiagnosticsCluster::OptionalAttributes::OptionalAttributes() : AttributeSet(Span(kSupportedOptionalAttributes)) {}
 
 CHIP_ERROR GeneralDiagnosticsCluster::Startup(ServerClusterContext & context)
 {

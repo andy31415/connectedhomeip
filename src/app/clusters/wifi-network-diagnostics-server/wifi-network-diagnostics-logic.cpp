@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 
+#include "app/data-model-provider/MetadataTypes.h"
 #include <app/EventLogging.h>
 #include <app/clusters/wifi-network-diagnostics-server/wifi-network-diagnostics-logic.h>
 #include <clusters/WiFiNetworkDiagnostics/Attributes.h>
@@ -31,6 +32,20 @@ using chip::DeviceLayer::GetDiagnosticDataProvider;
 namespace chip {
 namespace app {
 namespace Clusters {
+namespace {
+const DataModel::AttributeEntry kOptionalAttributes[] = {
+    WiFiNetworkDiagnostics::Attributes::CurrentMaxRate::kMetadataEntry,
+    WiFiNetworkDiagnostics::Attributes::BeaconLostCount::kMetadataEntry,
+    WiFiNetworkDiagnostics::Attributes::OverrunCount::kMetadataEntry,
+    WiFiNetworkDiagnostics::Attributes::BeaconRxCount::kMetadataEntry,
+    WiFiNetworkDiagnostics::Attributes::PacketMulticastRxCount::kMetadataEntry,
+    WiFiNetworkDiagnostics::Attributes::PacketUnicastRxCount::kMetadataEntry,
+    WiFiNetworkDiagnostics::Attributes::PacketMulticastTxCount::kMetadataEntry,
+    WiFiNetworkDiagnostics::Attributes::PacketUnicastTxCount::kMetadataEntry
+};
+
+} // namespace
+WiFiDiagnosticsServerLogic::OptionalAttributes::OptionalAttributes() : AttributeSet(Span(kOptionalAttributes)) {}
 
 CHIP_ERROR WiFiDiagnosticsServerLogic::ReadWiFiBssId(AttributeValueEncoder & aEncoder)
 {

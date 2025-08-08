@@ -49,112 +49,59 @@ struct IsOneOf<T>
 ///
 /// This clas is defined to work only for at most 32 attributes as it uses an internal
 /// 32-bit set to flag attrbutes as enabled or not.
-///
-/// The implementation of the class generally is a wrapper over a bitset with a
-/// `IsSet()` method. Configurations should use the OptionalAttributeSet<...> class.
 class AttributeSet
 {
 public:
     AttributeSet()                                       = default;
-    AttributeSet(const AttributeSet & other)             = default;
     AttributeSet(AttributeSet && other)                  = default;
-    AttributeSet & operator=(const AttributeSet & other) = default;
     AttributeSet & operator=(AttributeSet && other)      = default;
+    AttributeSet(const AttributeSet & other)             = default;
+    AttributeSet & operator=(const AttributeSet & other) = default;
 
     AttributeSet(Span<const DataModel::AttributeEntry> supportedAttributes) : mSupportedAttributes(supportedAttributes) {}
 
     // Checks if an attribute ID is set.
-    constexpr bool IsSet(AttributeId id) const { return (mSetBits & (1u << GetIndex(id))) != 0; }
+    bool IsSet(AttributeId id) const
+    {
+        const unsigned index = GetIndex(id);
+        return (index != kInvalidIndex) && ((mSetBits & (1u << index)) != 0);
+    }
 
     constexpr bool empty() const { return mSetBits == 0; }
 
     /// Append all enabled attributes to the given builder
     CHIP_ERROR AppendEnabled(ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) const;
 
-protected:
-    constexpr AttributeSet & Set(AttributeId id, bool value)
+    /// Sets the given attribute enabled status.
+    ///
+    /// MUST be called for valid attribute IDs for this set only. If an invalid ID
+    /// is passed in, no changes to the set occur.
+    AttributeSet & Set(AttributeId id, bool value = true)
     {
-        if (value)
+        const unsigned index = GetIndex(id);
+        if (index != kInvalidIndex)
         {
-            mSetBits |= static_cast<uint32_t>((static_cast<uint32_t>(1) << GetIndex(id)));
-        }
-        else
-        {
-            mSetBits &= ~static_cast<uint32_t>((static_cast<uint32_t>(1) << GetIndex(id)));
+            if (value)
+            {
+                mSetBits |= static_cast<uint32_t>(1u << index);
+            }
+            else
+            {
+                mSetBits &= ~static_cast<uint32_t>(1u << index);
+            }
         }
         return *this;
     }
 
 private:
+    static constexpr unsigned kInvalidIndex = 32;
+
     // Set bits according to the supported attributes.
     // Specifically every bit here corresponds to the underlying span
     uint32_t mSetBits = 0;
     Span<const DataModel::AttributeEntry> mSupportedAttributes;
 
-    constexpr unsigned GetIndex(AttributeId id) const
-    {
-        unsigned idx = 0;
-        for (const auto entry : mSupportedAttributes)
-        {
-            if (entry.attributeId == id)
-            {
-                return idx;
-            }
-            idx++;
-        }
-        // should NEVER happen
-        chipDie();
-    }
-};
-
-template <const DataModel::AttributeEntry &... OptionalAttributeEntries>
-struct EntrySpan
-{
-    // To be able to Span over the list of attributes, we need to have them in an array.
-    static constexpr DataModel::AttributeEntry kOptionalAttributes[] = { OptionalAttributeEntries... };
-    static_assert(sizeof...(OptionalAttributeEntries) < 32, "At most 32 optional attributes are supported");
-};
-
-/// A specialization of AttributeSet that provides checked calls to `Set`.
-///
-/// Specifically it requires that attributes are declared as part of the template
-/// parameter pack.
-///
-/// NOTE: this will NOT work for all possible attributes/clusters, only for clusters
-///       whose optional attributes all have IDs under 32. Static asserts are in place
-///       to ensure that arguments to the template are valid.
-///
-/// Example usage:
-///
-///    namespace chip::app::Clusters::GeneralDiagnostics {
-///
-///    using OptionalAttributes = chip::app::OptionalAttributeSet<
-///        Attributes::TotalOperationalHours::Id,
-///        Attributes::BootReason::Id,
-///        Attributes::ActiveHardwareFaults::Id
-///    >;
-///
-///    } // namespace chip::app::Clusters::GeneralDiagnostics
-///
-/// After this, one can:
-///
-///   GeneralDiagnostics::OptionalAttributes()
-///      .Set<GeneralDiagnostics::Attributes::TotalOperationalHours::Id>()
-///      .Set<GeneralDiagnostics::Attributes::BootReason::Id>();
-///
-template <const DataModel::AttributeEntry &... OptionalAttributeEntries>
-class OptionalAttributeSet : public AttributeSet
-{
-public:
-    OptionalAttributeSet() : AttributeSet(Span(EntrySpan<OptionalAttributeEntries...>::kOptionalAttributes)) {}
-
-    template <uint32_t ATTRIBUTE_ID>
-    constexpr OptionalAttributeSet & Set(bool value = true)
-    {
-        static_assert(((ATTRIBUTE_ID == OptionalAttributeEntries.attributeId) || ...), "attribute MUST be optional");
-        (void) AttributeSet::Set(ATTRIBUTE_ID, value);
-        return *this;
-    }
+    unsigned GetIndex(AttributeId id) const;
 };
 
 } // namespace app

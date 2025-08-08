@@ -30,18 +30,21 @@ TEST(TestOptionalAttributeSet, TestBasicAttributeSet)
     static constexpr DataModel::AttributeEntry kMeta1(1, {}, std::nullopt, std::nullopt);
     static constexpr DataModel::AttributeEntry kMeta2(2, {}, std::nullopt, std::nullopt);
     static constexpr DataModel::AttributeEntry kMeta3(3, {}, std::nullopt, std::nullopt);
-    OptionalAttributeSet<kMeta1, kMeta2, kMeta3> set;
+
+    const DataModel::AttributeEntry span[] = { kMeta1, kMeta2, kMeta3 };
+
+    AttributeSet set(Span{ span });
 
     EXPECT_FALSE(set.IsSet(1));
     EXPECT_FALSE(set.IsSet(2));
     EXPECT_FALSE(set.IsSet(3));
 
-    set.Set<1>();
+    set.Set(1);
     EXPECT_TRUE(set.IsSet(1));
     EXPECT_FALSE(set.IsSet(2));
     EXPECT_FALSE(set.IsSet(3));
 
-    set.Set<3>();
+    set.Set(3);
     EXPECT_TRUE(set.IsSet(1));
     EXPECT_FALSE(set.IsSet(2));
     EXPECT_TRUE(set.IsSet(3));
@@ -54,24 +57,30 @@ TEST(TestOptionalAttributeSet, TestOptionalAttributeSet)
     static constexpr DataModel::AttributeEntry kAttr5(5, {}, std::nullopt, std::nullopt);
     static constexpr DataModel::AttributeEntry kAttr7(7, {}, std::nullopt, std::nullopt);
 
-    using Supported = OptionalAttributeSet<kAttr1, kAttr3, kAttr5, kAttr7>;
+    const DataModel::AttributeEntry span[] = { kAttr1, kAttr3, kAttr5, kAttr7 };
 
-    Supported supported;
+    AttributeSet supported(Span{ span });
 
     EXPECT_FALSE(supported.IsSet(1));
+    EXPECT_FALSE(supported.IsSet(2)); // invalid
     EXPECT_FALSE(supported.IsSet(3));
+    EXPECT_FALSE(supported.IsSet(4)); // invalid
     EXPECT_FALSE(supported.IsSet(5));
     EXPECT_FALSE(supported.IsSet(7));
 
-    supported.Set<1>();
+    supported.Set(1);
     EXPECT_TRUE(supported.IsSet(1));
 
-    supported.Set<5>();
+    supported.Set(5);
     EXPECT_TRUE(supported.IsSet(5));
+    supported.Set(5, false);
+    EXPECT_FALSE(supported.IsSet(5));
 
-    // These would not compile
-    // supported.Set<2>();
-    // supported.Set<4>();
+    // These are noops
+    supported.Set(2);
+    EXPECT_FALSE(supported.IsSet(2));
+    supported.Set(4);
+    EXPECT_FALSE(supported.IsSet(4));
 }
 
 } // namespace

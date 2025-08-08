@@ -33,11 +33,16 @@ namespace Clusters {
 class SoftwareDiagnosticsLogic
 {
 public:
-    using OptionalAttributes =
-        chip::app::OptionalAttributeSet<SoftwareDiagnostics::Attributes::ThreadMetrics::kMetadataEntry,
-                                        SoftwareDiagnostics::Attributes::CurrentHeapFree::kMetadataEntry,
-                                        SoftwareDiagnostics::Attributes::CurrentHeapUsed::kMetadataEntry,
-                                        SoftwareDiagnostics::Attributes::CurrentHeapHighWatermark::kMetadataEntry>;
+    class OptionalAttributes : public AttributeSet
+    {
+    public:
+        OptionalAttributes();
+        OptionalAttributes & Set(AttributeId id, bool value = true)
+        {
+            (void) AttributeSet::Set(id, value);
+            return *this;
+        }
+    };
 
     SoftwareDiagnosticsLogic(const OptionalAttributes & optionalAttributes) : mOptionalAttributes(optionalAttributes) {}
     virtual ~SoftwareDiagnosticsLogic() = default;

@@ -71,9 +71,15 @@ TEST_F(TestAttributeListBuilder, Append)
         static constexpr AttributeEntry optional2_meta(11, kNoFlags, Access::Privilege::kView, std::nullopt);
         static constexpr AttributeEntry optional3_meta(12, kNoFlags, Access::Privilege::kView, std::nullopt);
 
-        OptionalAttributeSet<optional1_meta, optional2_meta, optional3_meta> optionalAttributes;
-        optionalAttributes.Set<10>();
-        optionalAttributes.Set<12>();
+        const AttributeEntry kEntries[] = {
+            optional1_meta,
+            optional2_meta,
+            optional3_meta,
+        };
+
+        AttributeSet optionalAttributes(Span{ kEntries });
+        optionalAttributes.Set(10);
+        optionalAttributes.Set(12);
 
         ReadOnlyBufferBuilder<AttributeEntry> builder;
         ASSERT_EQ(AttributeListBuilder(builder).Append({}, optionalAttributes), CHIP_NO_ERROR);
@@ -93,8 +99,13 @@ TEST_F(TestAttributeListBuilder, Append)
         static constexpr AttributeEntry optional1_meta(10, kNoFlags, Access::Privilege::kView, std::nullopt);
         static constexpr AttributeEntry optional2_meta(11, kNoFlags, Access::Privilege::kView, std::nullopt);
 
-        OptionalAttributeSet<optional1_meta, optional2_meta> optionalAttributes;
-        optionalAttributes.Set<10>();
+        const AttributeEntry kEntries[] = {
+            optional1_meta,
+            optional2_meta,
+        };
+
+        AttributeSet optionalAttributes(Span{ kEntries });
+        optionalAttributes.Set(10);
 
         ReadOnlyBufferBuilder<AttributeEntry> builder;
         ASSERT_EQ(AttributeListBuilder(builder).Append(Span(mandatory), optionalAttributes), CHIP_NO_ERROR);
