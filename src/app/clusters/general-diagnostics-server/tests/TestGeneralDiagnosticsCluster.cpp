@@ -75,7 +75,7 @@ TEST_F(TestGeneralDiagnosticsCluster, CompileTest)
         .enablePayloadSnaphot = true,
     };
 
-    GeneralDiagnosticsClusterFullConfigurable clusterWithTimeAndPayload(optionalAttributeSet, functionsConfig);
+    GeneralDiagnosticsClusterFullConfigurable clusterWithTimeAndPayload(optionalAttributes, functionsConfig);
     ASSERT_EQ(clusterWithTimeAndPayload.GetClusterFlags({ kRootEndpointId, GeneralDiagnostics::Id }),
               BitFlags<ClusterQualityFlags>());
 }
