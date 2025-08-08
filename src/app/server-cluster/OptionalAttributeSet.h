@@ -16,7 +16,10 @@
  */
 #pragma once
 
+#include <app/data-model-provider/MetadataTypes.h>
 #include <lib/core/DataModelTypes.h>
+#include <lib/support/ReadOnlyBuffer.h>
+#include <lib/support/Span.h>
 
 namespace chip {
 namespace app {
@@ -44,12 +47,8 @@ struct IsOneOf<T>
 /// need checking for and also affect what attributes are being returned by
 /// server cluster implementations
 ///
-/// This class implements the common case where attribute IDs can fit
-/// within a 32-bit bitset as most attributes start with low IDs and are incremented
-/// by one.
-///
-/// NOTE: this will NOT work for all possible attributes/clusters, only for clusters
-///       whose optionnal attributes all have IDs under 32.
+/// This clas is defined to work only for at most 32 attributes as it uses an internal
+/// 32-bit set to flag attrbutes as enabled or not.
 ///
 /// The implementation of the class generally is a wrapper over a bitset with a
 /// `IsSet()` method. Configurations should use the OptionalAttributeSet<...> class.
@@ -62,12 +61,15 @@ public:
     AttributeSet & operator=(const AttributeSet & other) = default;
     AttributeSet & operator=(AttributeSet && other)      = default;
 
+    AttributeSet(Span<const DataModel::AttributeEntry> supportedAttributes) : mSupportedAttributes(supportedAttributes) {}
+
     // Checks if an attribute ID is set.
-    //
-    // NOTE: this does NOT validate that the ID is < 32 because all the Set functions
-    //       generally are asserted on this (forceset as well as subclasses).
-    //       This MUST be called with id < 32.
-    constexpr bool IsSet(AttributeId id) const { return (mSetBits & (1u << id)) != 0; }
+    constexpr bool IsSet(AttributeId id) const { return (mSetBits & (1u << GetIndex(id))) != 0; }
+
+    constexpr bool empty() const { return mSetBits == 0; }
+
+    /// Append all enabled attributes to the given builder
+    CHIP_ERROR AppendEnabled(ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) const;
 
     /// Exposes a "force attribute bit set" without extra validation,
     /// so that clusters can enforce specific bits to be set.
@@ -77,25 +79,36 @@ public:
     constexpr AttributeSet & ForceSet()
     {
         static_assert(id < 32, "Attribute ID must be settable");
-        return Set(id, true);
+        return Set(id);
     }
 
 protected:
-    constexpr AttributeSet & Set(AttributeId id, bool value = true)
+    constexpr AttributeSet & Set(AttributeId id)
     {
-        if (value)
-        {
-            mSetBits |= static_cast<uint32_t>((static_cast<uint32_t>(1) << id));
-        }
-        else
-        {
-            mSetBits &= ~static_cast<uint32_t>((static_cast<uint32_t>(1) << id));
-        }
+        mSetBits |= static_cast<uint32_t>((static_cast<uint32_t>(1) << GetIndex(id)));
         return *this;
     }
 
 private:
+    // Set bits according to the supported attributes.
+    // Specifically every bit here corresponds to the underlying span
     uint32_t mSetBits = 0;
+    Span<const DataModel::AttributeEntry> mSupportedAttributes;
+
+    constexpr unsigned GetIndex(AttributeId id) const
+    {
+        unsigned idx = 0;
+        for (const auto entry : mSupportedAttributes)
+        {
+            if (entry.attributeId == id)
+            {
+                return idx;
+            }
+            idx++;
+        }
+        // should NEVER happen
+        chipDie();
+    }
 };
 
 /// A specialization of AttributeSet that provides checked calls to `Set`.
@@ -135,13 +148,11 @@ template <AttributeId... OptionalAttributeIds>
 class OptionalAttributeSet : public AttributeSet
 {
 public:
-    OptionalAttributeSet(const AttributeSet & initialValue) : AttributeSet(initialValue) {}
     OptionalAttributeSet() = default;
 
     template <uint32_t ATTRIBUTE_ID>
     constexpr OptionalAttributeSet & Set(bool value = true)
     {
-        static_assert(ATTRIBUTE_ID < 32, "Cluster attribute bits supports attributes up to 31");
         static_assert(Internal::IsOneOf<ATTRIBUTE_ID, OptionalAttributeIds...>::value, "attribute MUST be optional");
         (void) AttributeSet::Set(ATTRIBUTE_ID, value);
         return *this;

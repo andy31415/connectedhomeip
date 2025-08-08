@@ -42,10 +42,9 @@ public:
     ///
     /// It allows for one calkl that will add to the buffer all of:
     ///   - mandatoryAttributes (all of them)
-    ///   - optionalAttributes IF AND ONLY IF enabledOptionalAttributes is set for them
+    ///   - any enabled optional attributes
     ///   - GlobalAttributes()  (all of them)
-    CHIP_ERROR Append(Span<const DataModel::AttributeEntry> mandatoryAttributes,
-                      Span<const DataModel::AttributeEntry> optionalAttributes, const AttributeSet & enabledOptionalAttributes);
+    CHIP_ERROR Append(Span<const DataModel::AttributeEntry> mandatoryAttributes, const AttributeSet & enabledOptionalAttributes);
 
 private:
     ReadOnlyBufferBuilder<DataModel::AttributeEntry> & mBuilder;

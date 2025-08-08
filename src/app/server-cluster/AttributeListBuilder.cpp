@@ -22,38 +22,16 @@ namespace chip {
 namespace app {
 
 CHIP_ERROR AttributeListBuilder::Append(Span<const DataModel::AttributeEntry> mandatoryAttributes,
-                                        Span<const DataModel::AttributeEntry> optionalAttributes,
                                         const AttributeSet & enabledOptionalAttributes)
 {
-    // determine how much data to append. This should only be called if generally we have something to append
-    size_t append_size = mandatoryAttributes.size();
-    for (const auto & entry : optionalAttributes)
+    if (!mandatoryAttributes.empty())
     {
-        if (enabledOptionalAttributes.IsSet(entry.attributeId))
-        {
-            append_size++;
-        }
-    }
-
-    if (append_size > 0)
-    {
-        // NOTE: ReferenceExisting will APPEND data (and use heap) when some data already
-        //       exists in the builder. This is why we ensure AppendCapacity for everything
-        //       so that we do not perform extra allocations.
-        ReturnErrorOnFailure(mBuilder.EnsureAppendCapacity(append_size + DefaultServerCluster::GlobalAttributes().size()));
         ReturnErrorOnFailure(mBuilder.ReferenceExisting(mandatoryAttributes));
-
-        for (const auto & entry : optionalAttributes)
-        {
-            if (enabledOptionalAttributes.IsSet(entry.attributeId))
-            {
-                ReturnErrorOnFailure(mBuilder.Append(entry));
-            }
-        }
     }
-
-    // NOTE: ReferenceExisting will APPEND data (and use heap) when some data already
-    //       exists in the builder.
+    if (!enabledOptionalAttributes.empty())
+    {
+        ReturnErrorOnFailure(enabledOptionalAttributes.AppendEnabled(mBuilder));
+    }
     return mBuilder.ReferenceExisting(DefaultServerCluster::GlobalAttributes());
 }
 
