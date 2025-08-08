@@ -19,8 +19,8 @@
 #include <app/AttributeValueEncoder.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <app/server-cluster/OptionalAttributeSet.h>
-#include <clusters/SoftwareDiagnostics/Attributes.h>
 #include <clusters/SoftwareDiagnostics/Enums.h>
+#include <clusters/SoftwareDiagnostics/Metadata.h>
 #include <lib/core/CHIPError.h>
 #include <lib/support/ReadOnlyBuffer.h>
 #include <platform/DiagnosticDataProvider.h>
@@ -33,11 +33,13 @@ namespace Clusters {
 class SoftwareDiagnosticsLogic
 {
 public:
-    using OptionalAttributeSet = chip::app::OptionalAttributeSet<
-        SoftwareDiagnostics::Attributes::ThreadMetrics::Id, SoftwareDiagnostics::Attributes::CurrentHeapFree::Id,
-        SoftwareDiagnostics::Attributes::CurrentHeapUsed::Id, SoftwareDiagnostics::Attributes::CurrentHeapHighWatermark::Id>;
+    using OptionalAttributes =
+        chip::app::OptionalAttributeSet<SoftwareDiagnostics::Attributes::ThreadMetrics::kMetadataEntry,
+                                        SoftwareDiagnostics::Attributes::CurrentHeapFree::kMetadataEntry,
+                                        SoftwareDiagnostics::Attributes::CurrentHeapUsed::kMetadataEntry,
+                                        SoftwareDiagnostics::Attributes::CurrentHeapHighWatermark::kMetadataEntry>;
 
-    SoftwareDiagnosticsLogic(const OptionalAttributeSet & optionalAttributeSet) : mOptionalAttributeSet(optionalAttributeSet) {}
+    SoftwareDiagnosticsLogic(const OptionalAttributes & optionalAttributes) : mOptionalAttributes(optionalAttributes) {}
     virtual ~SoftwareDiagnosticsLogic() = default;
 
     CHIP_ERROR GetCurrentHeapFree(uint64_t & out) const { return DeviceLayer::GetDiagnosticDataProvider().GetCurrentHeapFree(out); }
@@ -55,7 +57,7 @@ public:
     {
         return BitFlags<SoftwareDiagnostics::Feature>().Set(
             SoftwareDiagnostics::Feature::kWatermarks,
-            mOptionalAttributeSet.IsSet(SoftwareDiagnostics::Attributes::CurrentHeapHighWatermark::Id) &&
+            mOptionalAttributes.IsSet(SoftwareDiagnostics::Attributes::CurrentHeapHighWatermark::Id) &&
                 DeviceLayer::GetDiagnosticDataProvider().SupportsWatermarks());
     }
 
@@ -70,7 +72,7 @@ public:
     CHIP_ERROR AcceptedCommands(ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder);
 
 private:
-    const OptionalAttributeSet mOptionalAttributeSet;
+    const OptionalAttributes mOptionalAttributes;
 };
 
 } // namespace Clusters

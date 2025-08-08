@@ -32,7 +32,7 @@ class WiFiDiagnosticsServerCluster : public DefaultServerCluster
 {
 public:
     WiFiDiagnosticsServerCluster(EndpointId endpointId, DeviceLayer::DiagnosticDataProvider & diagnosticProvider,
-                                 const WiFiDiagnosticsServerLogic::OptionalAttributeSet & optionalAttributeSet,
+                                 const WiFiDiagnosticsServerLogic::OptionalAttributes & optionalAttributeSet,
                                  BitFlags<WiFiNetworkDiagnostics::Feature> featureFlags) :
         DefaultServerCluster({ endpointId, WiFiNetworkDiagnostics::Id }),
         mLogic(endpointId, diagnosticProvider, optionalAttributeSet, featureFlags)

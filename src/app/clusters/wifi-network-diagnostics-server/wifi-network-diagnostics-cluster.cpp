@@ -104,43 +104,21 @@ CHIP_ERROR WiFiDiagnosticsServerCluster::Attributes(const ConcreteClusterPath & 
 
     const BitFlags<WiFiNetworkDiagnostics::Feature> featureFlags = mLogic.GetFeatureFlags();
 
-    const DataModel::AttributeEntry optionalAttributes[] = {
-        BeaconLostCount::kMetadataEntry,        //
-        OverrunCount::kMetadataEntry,           //
-        BeaconRxCount::kMetadataEntry,          //
-        PacketMulticastRxCount::kMetadataEntry, //
-        PacketMulticastTxCount::kMetadataEntry, //
-        PacketUnicastRxCount::kMetadataEntry,   //
-        PacketUnicastTxCount::kMetadataEntry,   //
-        CurrentMaxRate::kMetadataEntry,         //
-    };
+    WiFiDiagnosticsServerLogic::OptionalAttributes optionalAttributes(mLogic.GetOptionalAttributes());
 
-    chip::app::OptionalAttributeSet<WiFiNetworkDiagnostics::Attributes::CurrentMaxRate::Id,         //
-                                    WiFiNetworkDiagnostics::Attributes::BeaconLostCount::Id,        //
-                                    WiFiNetworkDiagnostics::Attributes::OverrunCount::Id,           //
-                                    WiFiNetworkDiagnostics::Attributes::BeaconRxCount::Id,          //
-                                    WiFiNetworkDiagnostics::Attributes::PacketMulticastRxCount::Id, //
-                                    WiFiNetworkDiagnostics::Attributes::PacketUnicastRxCount::Id,   //
-                                    WiFiNetworkDiagnostics::Attributes::PacketMulticastTxCount::Id, //
-                                    WiFiNetworkDiagnostics::Attributes::PacketUnicastTxCount::Id    //
-                                    >
-        optionalAttributeSet(mLogic.GetOptionalAttributeSet());
+    // These flags are fully controlled by the feature map
+    const bool hasErrorCounts(featureFlags.Has(Feature::kErrorCounts));
+    optionalAttributes.Set<BeaconLostCount::Id>(hasErrorCounts);
+    optionalAttributes.Set<OverrunCount::Id>(hasErrorCounts);
 
-    if (featureFlags.Has(Feature::kErrorCounts))
-    {
-        optionalAttributeSet.Set<BeaconLostCount::Id>();
-        optionalAttributeSet.Set<OverrunCount::Id>();
-    }
+    const bool hasPacketCounts = featureFlags.Has(Feature::kPacketCounts);
+    optionalAttributes.Set<BeaconRxCount::Id>(hasPacketCounts);
+    optionalAttributes.Set<PacketMulticastRxCount::Id>(hasPacketCounts);
+    optionalAttributes.Set<PacketMulticastTxCount::Id>(hasPacketCounts);
+    optionalAttributes.Set<PacketUnicastRxCount::Id>(hasPacketCounts);
+    optionalAttributes.Set<PacketUnicastTxCount::Id>(hasPacketCounts);
 
-    if (featureFlags.Has(Feature::kPacketCounts))
-    {
-        optionalAttributeSet.Set<BeaconRxCount::Id>();
-        optionalAttributeSet.Set<PacketMulticastRxCount::Id>();
-        optionalAttributeSet.Set<PacketMulticastTxCount::Id>();
-        optionalAttributeSet.Set<PacketUnicastRxCount::Id>();
-        optionalAttributeSet.Set<PacketUnicastTxCount::Id>();
-    }
-    return attributeListBuilder.Append(Span(kMandatoryMetadata), Span(optionalAttributes), optionalAttributeSet);
+    return attributeListBuilder.Append(Span(kMandatoryMetadata), optionalAttributes);
 }
 
 CHIP_ERROR WiFiDiagnosticsServerCluster::AcceptedCommands(const ConcreteClusterPath & path,

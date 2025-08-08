@@ -38,19 +38,19 @@ struct GeneralDiagnosticsFunctionsConfig
 class GeneralDiagnosticsCluster : public DefaultServerCluster
 {
 public:
-    using OptionalAttributeSet =
-        chip::app::OptionalAttributeSet<GeneralDiagnostics::Attributes::TotalOperationalHours::Metadata, //
-                                        GeneralDiagnostics::Attributes::BootReason::Metadata,            //
-                                        GeneralDiagnostics::Attributes::ActiveHardwareFaults::Metadata,  //
-                                        GeneralDiagnostics::Attributes::ActiveRadioFaults::Metadata,     //
-                                        GeneralDiagnostics::Attributes::ActiveNetworkFaults::Metadata    //
+    using OptionalAttributes =
+        chip::app::OptionalAttributeSet<GeneralDiagnostics::Attributes::TotalOperationalHours::kMetadataEntry, //
+                                        GeneralDiagnostics::Attributes::BootReason::kMetadataEntry,            //
+                                        GeneralDiagnostics::Attributes::ActiveHardwareFaults::kMetadataEntry,  //
+                                        GeneralDiagnostics::Attributes::ActiveRadioFaults::kMetadataEntry,     //
+                                        GeneralDiagnostics::Attributes::ActiveNetworkFaults::kMetadataEntry,   //
                                         // NOTE: Uptime is optional in the XML, however mandatory since revision 2.
                                         //       it will be forced as mandatory by the cluster constructor
-                                        >;
+                                        GeneralDiagnostics::Attributes::UpTime::kMetadataEntry>;
 
-    GeneralDiagnosticsCluster(OptionalAttributeSet optionalAttributeSet) :
+    GeneralDiagnosticsCluster(OptionalAttributes optionalAttributes) :
         DefaultServerCluster({ kRootEndpointId, GeneralDiagnostics::Id }),
-        mOptionalAttributeSet(optionalAttributeSet.ForceSet<GeneralDiagnostics::Attributes::UpTime::Id>())
+        mOptionalAttributes(optionalAttributes.Set<GeneralDiagnostics::Attributes::UpTime::Id>())
     {}
 
     CHIP_ERROR Startup(ServerClusterContext & context) override;
@@ -121,14 +121,14 @@ public:
     }
 
 private:
-    const OptionalAttributeSet mOptionalAttributeSet;
+    const OptionalAttributes mOptionalAttributes;
     CHIP_ERROR ReadNetworkInterfaces(AttributeValueEncoder & aEncoder);
 };
 
 class GeneralDiagnosticsClusterFullConfigurable : public GeneralDiagnosticsCluster
 {
 public:
-    GeneralDiagnosticsClusterFullConfigurable(const GeneralDiagnosticsCluster::OptionalAttributeSet & optionalAttributeSet,
+    GeneralDiagnosticsClusterFullConfigurable(const GeneralDiagnosticsCluster::OptionalAttributes & optionalAttributeSet,
                                               const GeneralDiagnosticsFunctionsConfig & functionsConfig) :
         GeneralDiagnosticsCluster(optionalAttributeSet),
         mFunctionConfig(functionsConfig)

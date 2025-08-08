@@ -318,18 +318,7 @@ CHIP_ERROR GeneralDiagnosticsCluster::Attributes(const ConcreteClusterPath & pat
                                                  ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder)
 {
     AttributeListBuilder listBuilder(builder);
-
-    static constexpr DataModel::AttributeEntry optionalAttributeEntries[] = {
-        GeneralDiagnostics::Attributes::TotalOperationalHours::kMetadataEntry,
-        GeneralDiagnostics::Attributes::BootReason::kMetadataEntry,
-        GeneralDiagnostics::Attributes::ActiveHardwareFaults::kMetadataEntry,
-        GeneralDiagnostics::Attributes::ActiveRadioFaults::kMetadataEntry,
-        GeneralDiagnostics::Attributes::ActiveNetworkFaults::kMetadataEntry,
-        GeneralDiagnostics::Attributes::UpTime::kMetadataEntry,
-    };
-
-    return listBuilder.Append(Span(GeneralDiagnostics::Attributes::kMandatoryMetadata), Span(optionalAttributeEntries),
-                              mOptionalAttributeSet);
+    return listBuilder.Append(Span(GeneralDiagnostics::Attributes::kMandatoryMetadata), mOptionalAttributes);
 }
 
 CHIP_ERROR GeneralDiagnosticsCluster::AcceptedCommands(const ConcreteClusterPath & path,

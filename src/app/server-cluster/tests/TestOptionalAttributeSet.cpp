@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app/data-model-provider/MetadataTypes.h"
 #include <pw_unit_test/framework.h>
 
 #include <app/server-cluster/OptionalAttributeSet.h>
@@ -24,26 +25,23 @@ using namespace chip::app;
 
 namespace {
 
-TEST(TestOptionalAttributeSet, TestAttributeSet)
+TEST(TestOptionalAttributeSet, TestBasicAttributeSet)
 {
-    constexpr DataModel::AttributeEntry kAttrs[] = {
-        DataModel::AttributeEntry(1, {}, std::nullopt, std::nullopt),
-        DataModel::AttributeEntry(2, {}, std::nullopt, std::nullopt),
-        DataModel::AttributeEntry(3, {}, std::nullopt, std::nullopt),
-    };
-    AttributeSet set((Span(kAttrs)));
-
+    static constexpr DataModel::AttributeEntry kMeta1(1, {}, std::nullopt, std::nullopt);
+    static constexpr DataModel::AttributeEntry kMeta2(2, {}, std::nullopt, std::nullopt);
+    static constexpr DataModel::AttributeEntry kMeta3(3, {}, std::nullopt, std::nullopt);
+    OptionalAttributeSet<kMeta1, kMeta2, kMeta3> set;
 
     EXPECT_FALSE(set.IsSet(1));
     EXPECT_FALSE(set.IsSet(2));
     EXPECT_FALSE(set.IsSet(3));
 
-    set.ForceSet<1>();
+    set.Set<1>();
     EXPECT_TRUE(set.IsSet(1));
     EXPECT_FALSE(set.IsSet(2));
     EXPECT_FALSE(set.IsSet(3));
 
-    set.ForceSet<3>();
+    set.Set<3>();
     EXPECT_TRUE(set.IsSet(1));
     EXPECT_FALSE(set.IsSet(2));
     EXPECT_TRUE(set.IsSet(3));
@@ -74,22 +72,6 @@ TEST(TestOptionalAttributeSet, TestOptionalAttributeSet)
     // These would not compile
     // supported.Set<2>();
     // supported.Set<4>();
-}
-
-TEST(TestOptionalAttributeSet, TestEmptyOptionalAttributeSet)
-{
-    using Supported = OptionalAttributeSet<>;
-
-    Supported supported;
-    (void) supported;
-
-    // The following calls would not compile:
-    // supported.Set<1>();
-    // supported.Set<2>();
-    //
-    // The following calls would CHIP_DIE() at runtime:
-    // EXPECT_FALSE(supported.IsSet(1));
-    // EXPECT_FALSE(supported.IsSet(2));
 }
 
 } // namespace

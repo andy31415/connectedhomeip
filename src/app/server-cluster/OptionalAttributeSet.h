@@ -71,21 +71,17 @@ public:
     /// Append all enabled attributes to the given builder
     CHIP_ERROR AppendEnabled(ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) const;
 
-    /// Exposes a "force attribute bit set" without extra validation,
-    /// so that clusters can enforce specific bits to be set.
-    ///
-    /// This is NOT intended as a generic set, use `OptionalAttributeSet` to configure values.
-    template <AttributeId id>
-    constexpr AttributeSet & ForceSet()
-    {
-        static_assert(id < 32, "Attribute ID must be settable");
-        return Set(id);
-    }
-
 protected:
-    constexpr AttributeSet & Set(AttributeId id)
+    constexpr AttributeSet & Set(AttributeId id, bool value)
     {
-        mSetBits |= static_cast<uint32_t>((static_cast<uint32_t>(1) << GetIndex(id)));
+        if (value)
+        {
+            mSetBits |= static_cast<uint32_t>((static_cast<uint32_t>(1) << GetIndex(id)));
+        }
+        else
+        {
+            mSetBits &= ~static_cast<uint32_t>((static_cast<uint32_t>(1) << GetIndex(id)));
+        }
         return *this;
     }
 
@@ -124,7 +120,7 @@ private:
 ///
 ///    namespace chip::app::Clusters::GeneralDiagnostics {
 ///
-///    using OptionalAttributeSet = chip::app::OptionalAttributeSet<
+///    using OptionalAttributes = chip::app::OptionalAttributeSet<
 ///        Attributes::TotalOperationalHours::Id,
 ///        Attributes::BootReason::Id,
 ///        Attributes::ActiveHardwareFaults::Id
@@ -134,22 +130,17 @@ private:
 ///
 /// After this, one can:
 ///
-///   GeneralDiagnostics::OptionalAttributeSet()
+///   GeneralDiagnostics::OptionalAttributes()
 ///      .Set<GeneralDiagnostics::Attributes::TotalOperationalHours::Id>()
 ///      .Set<GeneralDiagnostics::Attributes::BootReason::Id>();
 ///
-/// Cluster implementations can then store a
-///   Constructor(const GeneralDiagnostics::OptionalAttributeSet& optionalAttributeSet) :
-///   mOptionalAttributeSet(optionalAttributeSet) {...}
-///
-/// where:
-///   const AttributeSet mOptionalAttributeSet;
 template <const DataModel::AttributeEntry &... OptionalAttributeEntries>
 class OptionalAttributeSet : public AttributeSet
 {
 private:
     // To be able to Span over the list of attributes, we need to have them in an array.
     static constexpr DataModel::AttributeEntry kOptionalAttributes[] = { OptionalAttributeEntries... };
+    static_assert(sizeof...(OptionalAttributeEntries) < 32, "At most 32 optional attributes are supported");
 
 public:
     OptionalAttributeSet() : AttributeSet(Span(kOptionalAttributes)) {}
@@ -158,10 +149,7 @@ public:
     constexpr OptionalAttributeSet & Set(bool value = true)
     {
         static_assert(((ATTRIBUTE_ID == OptionalAttributeEntries.attributeId) || ...), "attribute MUST be optional");
-        if (value)
-        {
-            (void) AttributeSet::Set(ATTRIBUTE_ID);
-        }
+        (void) AttributeSet::Set(ATTRIBUTE_ID, value);
         return *this;
     }
 };

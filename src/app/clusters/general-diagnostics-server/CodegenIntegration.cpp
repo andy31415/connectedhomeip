@@ -49,8 +49,8 @@ void emberAfGeneralDiagnosticsClusterInitCallback(EndpointId endpointId)
 {
     VerifyOrDie(endpointId == kRootEndpointId);
 
-    GeneralDiagnosticsCluster::OptionalAttributeSet optionalAttributeSet =
-        GeneralDiagnosticsCluster::OptionalAttributeSet()
+    GeneralDiagnosticsCluster::OptionalAttributes optionalAttributeSet =
+        GeneralDiagnosticsCluster::OptionalAttributes()
             .Set<TotalOperationalHours::Id>(emberAfContainsAttribute(endpointId, GeneralDiagnostics::Id, TotalOperationalHours::Id))
             .Set<BootReason::Id>(emberAfContainsAttribute(endpointId, GeneralDiagnostics::Id, BootReason::Id))
             .Set<ActiveHardwareFaults::Id>(emberAfContainsAttribute(endpointId, GeneralDiagnostics::Id, ActiveHardwareFaults::Id))

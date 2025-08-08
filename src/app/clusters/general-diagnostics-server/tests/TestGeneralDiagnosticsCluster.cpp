@@ -65,9 +65,9 @@ struct TestGeneralDiagnosticsCluster : public ::testing::Test
 
 TEST_F(TestGeneralDiagnosticsCluster, CompileTest)
 {
-    const GeneralDiagnosticsCluster::OptionalAttributeSet optionalAttributeSet;
+    const GeneralDiagnosticsCluster::OptionalAttributes optionalAttributes;
 
-    GeneralDiagnosticsCluster cluster(optionalAttributeSet);
+    GeneralDiagnosticsCluster cluster(optionalAttributes);
     ASSERT_EQ(cluster.GetClusterFlags({ kRootEndpointId, GeneralDiagnostics::Id }), BitFlags<ClusterQualityFlags>());
 
     const GeneralDiagnosticsFunctionsConfig functionsConfig{
@@ -87,7 +87,7 @@ TEST_F(TestGeneralDiagnosticsCluster, AttributesTest)
         class NullProvider : public DeviceLayer::DiagnosticDataProvider
         {
         };
-        const GeneralDiagnosticsCluster::OptionalAttributeSet optionalAttributeSet;
+        const GeneralDiagnosticsCluster::OptionalAttributes optionalAttributeSet;
         ScopedDiagnosticsProvider<NullProvider> nullProvider;
         GeneralDiagnosticsCluster cluster(optionalAttributeSet);
 
@@ -168,13 +168,12 @@ TEST_F(TestGeneralDiagnosticsCluster, AttributesTest)
         };
 
         // Enable all the optional attributes
-        const GeneralDiagnosticsCluster::OptionalAttributeSet optionalAttributeSet =
-            GeneralDiagnosticsCluster::OptionalAttributeSet()
-                .Set<TotalOperationalHours::Id>()
-                .Set<BootReason::Id>()
-                .Set<ActiveHardwareFaults::Id>()
-                .Set<ActiveRadioFaults::Id>()
-                .Set<ActiveNetworkFaults::Id>();
+        const GeneralDiagnosticsCluster::OptionalAttributes optionalAttributeSet = GeneralDiagnosticsCluster::OptionalAttributes()
+                                                                                       .Set<TotalOperationalHours::Id>()
+                                                                                       .Set<BootReason::Id>()
+                                                                                       .Set<ActiveHardwareFaults::Id>()
+                                                                                       .Set<ActiveRadioFaults::Id>()
+                                                                                       .Set<ActiveNetworkFaults::Id>();
 
         ScopedDiagnosticsProvider<AllProvider> nullProvider;
         GeneralDiagnosticsCluster cluster(optionalAttributeSet);

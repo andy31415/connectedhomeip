@@ -20,8 +20,8 @@
 
 #include <app/AttributeValueEncoder.h>
 #include <app/server-cluster/OptionalAttributeSet.h>
-#include <clusters/WiFiNetworkDiagnostics/Attributes.h>
 #include <clusters/WiFiNetworkDiagnostics/Enums.h>
+#include <clusters/WiFiNetworkDiagnostics/Metadata.h>
 #include <lib/core/DataModelTypes.h>
 #include <platform/DiagnosticDataProvider.h>
 
@@ -30,19 +30,21 @@ namespace chip::app::Clusters {
 class WiFiDiagnosticsServerLogic : public DeviceLayer::WiFiDiagnosticsDelegate
 {
 public:
-    using OptionalAttributeSet = chip::app::OptionalAttributeSet<
-        WiFiNetworkDiagnostics::Attributes::CurrentMaxRate::Id, WiFiNetworkDiagnostics::Attributes::BeaconLostCount::Id,
-        WiFiNetworkDiagnostics::Attributes::OverrunCount::Id, WiFiNetworkDiagnostics::Attributes::BeaconRxCount::Id,
-        WiFiNetworkDiagnostics::Attributes::PacketMulticastRxCount::Id,
-        WiFiNetworkDiagnostics::Attributes::PacketUnicastRxCount::Id,
-        WiFiNetworkDiagnostics::Attributes::PacketMulticastTxCount::Id,
-        WiFiNetworkDiagnostics::Attributes::PacketUnicastTxCount::Id>;
+    using OptionalAttributes =
+        chip::app::OptionalAttributeSet<WiFiNetworkDiagnostics::Attributes::CurrentMaxRate::kMetadataEntry,
+                                        WiFiNetworkDiagnostics::Attributes::BeaconLostCount::kMetadataEntry,
+                                        WiFiNetworkDiagnostics::Attributes::OverrunCount::kMetadataEntry,
+                                        WiFiNetworkDiagnostics::Attributes::BeaconRxCount::kMetadataEntry,
+                                        WiFiNetworkDiagnostics::Attributes::PacketMulticastRxCount::kMetadataEntry,
+                                        WiFiNetworkDiagnostics::Attributes::PacketUnicastRxCount::kMetadataEntry,
+                                        WiFiNetworkDiagnostics::Attributes::PacketMulticastTxCount::kMetadataEntry,
+                                        WiFiNetworkDiagnostics::Attributes::PacketUnicastTxCount::kMetadataEntry>;
 
     WiFiDiagnosticsServerLogic(EndpointId endpointId, DeviceLayer::DiagnosticDataProvider & diagnosticProvider,
-                               const OptionalAttributeSet & optionalAttributeSet,
+                               const OptionalAttributes & optionalAttributes,
                                BitFlags<WiFiNetworkDiagnostics::Feature> featureFlags) :
         mEndpointId(endpointId),
-        mDiagnosticProvider(diagnosticProvider), mOptionalAttributeSet(optionalAttributeSet), mFeatureFlags(featureFlags)
+        mDiagnosticProvider(diagnosticProvider), mOptionalAttributes(optionalAttributes), mFeatureFlags(featureFlags)
     {
         mDiagnosticProvider.SetWiFiDiagnosticsDelegate(this);
     }
@@ -90,12 +92,12 @@ public:
     // Getter methods for private members
     EndpointId GetEndpointId() const { return mEndpointId; }
     const BitFlags<WiFiNetworkDiagnostics::Feature> & GetFeatureFlags() const { return mFeatureFlags; }
-    const OptionalAttributeSet & GetOptionalAttributeSet() const { return mOptionalAttributeSet; }
+    const OptionalAttributes & GetOptionalAttributes() const { return mOptionalAttributes; }
 
 private:
     EndpointId mEndpointId;
     DeviceLayer::DiagnosticDataProvider & mDiagnosticProvider;
-    const OptionalAttributeSet mOptionalAttributeSet;
+    const OptionalAttributes mOptionalAttributes;
     const BitFlags<WiFiNetworkDiagnostics::Feature> mFeatureFlags;
 };
 

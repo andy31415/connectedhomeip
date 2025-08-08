@@ -42,7 +42,7 @@ namespace Clusters {
 class SoftwareDiagnosticsServerCluster : public DefaultServerCluster, public SoftwareDiagnostics::SoftwareFaultListener
 {
 public:
-    SoftwareDiagnosticsServerCluster(const SoftwareDiagnosticsLogic::OptionalAttributeSet & optionalAttributeSet) :
+    SoftwareDiagnosticsServerCluster(const SoftwareDiagnosticsLogic::OptionalAttributes & optionalAttributeSet) :
         DefaultServerCluster({ kRootEndpointId, SoftwareDiagnostics::Id }), mLogic(optionalAttributeSet)
     {}
 
