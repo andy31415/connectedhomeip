@@ -14,20 +14,25 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include <pw_unit_test/framework.h>
 
 #include <app/server-cluster/OptionalAttributeSet.h>
 #include <lib/core/DataModelTypes.h>
-#include <pw_unit_test/framework.h>
 
-namespace chip::app {
-
+using namespace chip;
 using namespace chip::app;
 
 namespace {
 
 TEST(TestOptionalAttributeSet, TestAttributeSet)
 {
-    AttributeSet set;
+    constexpr DataModel::AttributeEntry kAttrs[] = {
+        DataModel::AttributeEntry(1, {}, std::nullopt, std::nullopt),
+        DataModel::AttributeEntry(2, {}, std::nullopt, std::nullopt),
+        DataModel::AttributeEntry(3, {}, std::nullopt, std::nullopt),
+    };
+    AttributeSet set((Span(kAttrs)));
+
 
     EXPECT_FALSE(set.IsSet(1));
     EXPECT_FALSE(set.IsSet(2));
@@ -46,7 +51,12 @@ TEST(TestOptionalAttributeSet, TestAttributeSet)
 
 TEST(TestOptionalAttributeSet, TestOptionalAttributeSet)
 {
-    using Supported = OptionalAttributeSet<1, 3, 5, 7>;
+    static constexpr DataModel::AttributeEntry kAttr1(1, {}, std::nullopt, std::nullopt);
+    static constexpr DataModel::AttributeEntry kAttr3(3, {}, std::nullopt, std::nullopt);
+    static constexpr DataModel::AttributeEntry kAttr5(5, {}, std::nullopt, std::nullopt);
+    static constexpr DataModel::AttributeEntry kAttr7(7, {}, std::nullopt, std::nullopt);
+
+    using Supported = OptionalAttributeSet<kAttr1, kAttr3, kAttr5, kAttr7>;
 
     Supported supported;
 
@@ -64,10 +74,6 @@ TEST(TestOptionalAttributeSet, TestOptionalAttributeSet)
     // These would not compile
     // supported.Set<2>();
     // supported.Set<4>();
-
-    // We can check unsupported flags
-    EXPECT_FALSE(supported.IsSet(2));
-    EXPECT_FALSE(supported.IsSet(4));
 }
 
 TEST(TestOptionalAttributeSet, TestEmptyOptionalAttributeSet)
@@ -75,15 +81,15 @@ TEST(TestOptionalAttributeSet, TestEmptyOptionalAttributeSet)
     using Supported = OptionalAttributeSet<>;
 
     Supported supported;
+    (void) supported;
 
-    // can query attributes that are not supported
-    EXPECT_FALSE(supported.IsSet(1));
-    EXPECT_FALSE(supported.IsSet(2));
-
-    // These would not compile
+    // The following calls would not compile:
     // supported.Set<1>();
     // supported.Set<2>();
+    //
+    // The following calls would CHIP_DIE() at runtime:
+    // EXPECT_FALSE(supported.IsSet(1));
+    // EXPECT_FALSE(supported.IsSet(2));
 }
 
 } // namespace
-} // namespace chip::app

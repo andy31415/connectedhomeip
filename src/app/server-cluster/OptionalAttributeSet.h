@@ -144,17 +144,24 @@ private:
 ///
 /// where:
 ///   const AttributeSet mOptionalAttributeSet;
-template <AttributeId... OptionalAttributeIds>
+template <const DataModel::AttributeEntry &... OptionalAttributeEntries>
 class OptionalAttributeSet : public AttributeSet
 {
+private:
+    // To be able to Span over the list of attributes, we need to have them in an array.
+    static constexpr DataModel::AttributeEntry kOptionalAttributes[] = { OptionalAttributeEntries... };
+
 public:
-    OptionalAttributeSet() = default;
+    OptionalAttributeSet() : AttributeSet(Span(kOptionalAttributes)) {}
 
     template <uint32_t ATTRIBUTE_ID>
     constexpr OptionalAttributeSet & Set(bool value = true)
     {
-        static_assert(Internal::IsOneOf<ATTRIBUTE_ID, OptionalAttributeIds...>::value, "attribute MUST be optional");
-        (void) AttributeSet::Set(ATTRIBUTE_ID, value);
+        static_assert(((ATTRIBUTE_ID == OptionalAttributeEntries.attributeId) || ...), "attribute MUST be optional");
+        if (value)
+        {
+            (void) AttributeSet::Set(ATTRIBUTE_ID);
+        }
         return *this;
     }
 };
