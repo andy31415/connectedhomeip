@@ -35,7 +35,7 @@ namespace Clusters {
 namespace ResourceMonitoring {
 
 ResourceMonitoringCluster::ResourceMonitoringCluster(
-    Delegate* aDelegate,
+    ResourceMonitoringDelegate* aDelegate,
     EndpointId aEndpointId,
     ClusterId aClusterId,
     uint32_t aFeatureMap,
@@ -336,10 +336,9 @@ CHIP_ERROR ResourceMonitoringCluster::Startup(ServerClusterContext & context)
 }
 
 // This method is called by the interaction model engine when a command destined for this instance is received.
- std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
+ std::optional<DataModel::ActionReturnStatus> ResourceMonitoringCluster::InvokeCommand(const DataModel::InvokeRequest & request,
                                                                chip::TLV::TLVReader & input_arguments,
                                                                CommandHandler * handler)
-// void Instance::InvokeCommand(HandlerContext & handlerContext)
 {
     ChipLogDetail(Zcl, "ResourceMonitoring Instance::InvokeCommand");
     switch (request.path.mCommandId)
@@ -356,46 +355,16 @@ CHIP_ERROR ResourceMonitoringCluster::Startup(ServerClusterContext & context)
     return Status::UnsupportedCommand;
 }
 
-std::optional<DataModel::ActionReturnStatus> ResourceMonitoringCluster::ResetCondition(const ConcreteClusterPath & commandPath,
+std::optional<DataModel::ActionReturnStatus> ResourceMonitoringCluster::ResetCondition(const ConcreteCommandPath & commandPath,
                                                                  const ResourceMonitoring::Commands::ResetCondition::DecodableType & commandData,
                                                                  CommandHandler * handler)
 {
     Status resetConditionStatus = mDelegate->OnResetCondition();
-    // ctx.mCommandHandler.AddStatus(ctx.mRequestPath, resetConditionStatus);
 
-    handler->AddStatus({commandPath.mClusterId, commandPath.mClusterId}, resetConditionStatus);
-
+    handler->AddStatus(commandPath, resetConditionStatus);
 
     return std::nullopt;
-} 
-
-template <typename RequestT, typename FuncT>
-void ResourceMonitoring::HandleCommand(const DataModel::InvokeRequest & request, const CommandHandler & handler, chip::TLV::TLVReader & arguments, FuncT && func)
-// void ResourceMonitoring::HandleCommand(HandlerContext & handlerContext, FuncT && func)
-{
-    ChipLogDetail(Zcl, "ResourceMonitoring: HandleCommand");
-    if (handlerContext.mCommandHandled || (request.mCommandId != RequestT::GetCommandId()))
-    {
-        return;
-    }
-
-    RequestT requestPayload;
-
-    // If the command matches what the caller is looking for, let's mark this as being handled
-    // even if errors happen after this. This ensures that we don't execute any fall-back strategies
-    // to handle this command since at this point, the caller is taking responsibility for handling
-    // the command in its entirety, warts and all.
-    handlerContext.SetCommandHandled();
-
-    if (DataModel::Decode(handlerContext.mPayload, requestPayload) != CHIP_NO_ERROR)
-    {
-        handlerContext.mCommandHandler.AddStatus(handlerContext.mRequestPath, Protocols::InteractionModel::Status::InvalidCommand);
-        return;
-    }
-
-    std::forward<FuncT>(func(handlerContext, requestPayload));
 }
-
 
 CHIP_ERROR ResourceMonitoringCluster::AcceptedCommands(const ConcreteClusterPath & cluster,
                                               ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder)
@@ -435,7 +404,7 @@ DataModel::Nullable<uint32_t> ResourceMonitoringCluster::GetLastChangedTime() co
 }
 
 
-Protocols::InteractionModel::Status Delegate::OnResetCondition()
+Protocols::InteractionModel::Status ResourceMonitoringDelegate::OnResetCondition()
 {
     ChipLogDetail(Zcl, "ResourceMonitoringServer::OnResetCondition()");
 
@@ -479,13 +448,13 @@ Protocols::InteractionModel::Status Delegate::OnResetCondition()
     return status;
 }
 
-Protocols::InteractionModel::Status Delegate::PreResetCondition()
+Protocols::InteractionModel::Status ResourceMonitoringDelegate::PreResetCondition()
 {
     ChipLogDetail(Zcl, "ResourceMonitoringServer::PreResetCondition()");
     return Protocols::InteractionModel::Status::Success;
 }
 
-Protocols::InteractionModel::Status Delegate::PostResetCondition()
+Protocols::InteractionModel::Status ResourceMonitoringDelegate::PostResetCondition()
 {
     ChipLogDetail(Zcl, "ResourceMonitoringServer::PostResetCondition()");
     return Protocols::InteractionModel::Status::Success;
