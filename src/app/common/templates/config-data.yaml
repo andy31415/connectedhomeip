@@ -71,7 +71,7 @@ CommandHandlerInterfaceOnlyClusters:
     - Zone Management
     - Soil Measurement
     - Basic Information
-    - Hepa Filter Monitoring
+    - HEPA Filter Monitoring
     - Activated Carbon Filter Monitoring
 
 # We need a more configurable way of deciding which clusters have which init functions....
