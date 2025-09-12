@@ -83,7 +83,7 @@ PushAvStreamTransportManager::AllocatePushTransport(const TransportOptionsStruct
     mMediaController->RegisterTransport(mTransportMap[connectionID].get(), transportOptions.videoStreamID.Value().Value(),
                                         transportOptions.audioStreamID.Value().Value());
 
-    // mMediaController->SetPreRollLength(mTransportMap[connectionID].get(), mTransportMap[connectionID].get()->GetPreRollLength());
+    mMediaController->SetPreRollLength(mTransportMap[connectionID].get(), mTransportMap[connectionID].get()->GetPreRollLength());
 #ifdef TLS_CLUSTER_ENABLED
     // TODO: get TLS endpointId from PAVST cluster
     auto & tlsClientManager = mCameraDevice->GetTLSClientMgmtDelegate();
@@ -321,6 +321,40 @@ Protocols::InteractionModel::Status PushAvStreamTransportManager::SelectAudioStr
     }
 
     return Status::Failure;
+}
+
+Protocols::InteractionModel::Status PushAvStreamTransportManager::ValidateZoneId(uint16_t zoneId)
+{
+    if (mCameraDevice == nullptr)
+    {
+        ChipLogError(Camera, "CameraDeviceInterface not initialized");
+        return Status::Failure;
+    }
+    auto & zones = mCameraDevice->GetZoneManagementDelegate().GetZoneMgmtServer()->GetZones();
+
+    for (const auto & zone : zones)
+    {
+        if (zone.zoneID == zoneId)
+        {
+            return Status::Success;
+        }
+    }
+    return Status::Failure;
+}
+
+bool PushAvStreamTransportManager::ValidateMotionZoneSize(uint16_t zoneSize)
+{
+    if (mCameraDevice == nullptr)
+    {
+        ChipLogError(Camera, "CameraDeviceInterface not initialized");
+        return false;
+    }
+    auto maxZones = mCameraDevice->GetZoneManagementDelegate().GetZoneMgmtServer()->GetMaxZones();
+    if (zoneSize >= maxZones)
+    {
+        return false;
+    }
+    return true;
 }
 
 Protocols::InteractionModel::Status PushAvStreamTransportManager::ValidateVideoStream(uint16_t videoStreamId)
