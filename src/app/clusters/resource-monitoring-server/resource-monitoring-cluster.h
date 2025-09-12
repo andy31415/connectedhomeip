@@ -1,6 +1,5 @@
 /*
- *
- *    Copyright (c) 2023 Project CHIP Authors
+ *    Copyright (c) 2025 Project CHIP Authors
  *    All rights reserved.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,13 +14,14 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 #pragma once
 
+#include <app/server-cluster/DefaultServerCluster.h>
 #include <app/AttributeAccessInterface.h>
 #include <app/CommandHandlerInterface.h>
 #include <app/ConcreteAttributePath.h>
 #include <app/ConcreteClusterPath.h>
+#include <app/server-cluster/OptionalAttributeSet.h>
 #include <app/clusters/resource-monitoring-server/replacement-product-list-manager.h>
 #include <app/clusters/resource-monitoring-server/resource-monitoring-cluster-objects.h>
 #include <app/data-model/Nullable.h>
@@ -29,6 +29,7 @@
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
 #include <protocols/interaction_model/StatusCode.h>
+#include <clusters/HepaFilterMonitoring/Enums.h>
 #include <stdint.h>
 
 namespace chip {
@@ -36,50 +37,49 @@ namespace app {
 namespace Clusters {
 namespace ResourceMonitoring {
 
-// forward declarations
-class Delegate;
 
-class Instance : public CommandHandlerInterface, public AttributeAccessInterface
+// forward declarations
+class ResourceMonitoringDelegate;
+
+class ResourceMonitoringCluster : public DefaultServerCluster
 {
 
 public:
-    /**
-     * Creates a resource monitoring cluster instance. The Init() method needs to be called for this instance to be registered and
+
+    using OptionalAttributeSet = chip::app::OptionalAttributeSet<
+        EthernetNetworkDiagnostics::Attributes::CarrierDetect::Id, EthernetNetworkDiagnostics::Attributes::FullDuplex::Id,
+        EthernetNetworkDiagnostics::Attributes::PHYRate::Id, EthernetNetworkDiagnostics::Attributes::TimeSinceReset::Id>;
+
+     /**
+     * Creates a resource monitoring cluster object. The Init() method needs to be called for this instance to be registered and
      * called by the interaction model at the appropriate times.
      *
-     * @param aDelegate A pointer to the delegate to be used by this server.
-     * Note: the caller must ensure that the delegate lives throughout the instance's lifetime.
      * @param aEndpointId                       The endpoint on which this cluster exists. This must match the zap configuration.
      * @param aClusterId                        The ID of the ResourceMonitoring aliased cluster to be instantiated.
      * @param aFeatureMap                       The feature map of the cluster.
      * @param aDegradationDirection             The degradation direction of the cluster.
-     * @param aResetConditionCommandSupported   Whether the ResetCondition command is supported by the cluster.
+     * @param aResetConditionCommandSupported   Whether the ResetCondition command is supported by the cluster.                    
      */
-    Instance(Delegate * aDelegate, EndpointId aEndpointId, ClusterId aClusterId, uint32_t aFeatureMap,
-             ResourceMonitoring::Attributes::DegradationDirection::TypeInfo::Type aDegradationDirection,
-             bool aResetConditionCommandSupported);
+    ResourceMonitoringCluster(
+        EndpointId aEndpointId,
+        ClusterId aClusterId,
+        const BitFlags<ResourceMonitoring::Feature> enabledFeatures,
+        OptionalAttributeSet optionalAttributeSet,
+        ResourceMonitoring::Attributes::DegradationDirection::TypeInfo::Type aDegradationDirection,
+        bool aResetConditionCommandSupported
+    );
 
-    ~Instance() override;
+    CHIP_ERROR Startup(ServerClusterContext & context) override;
 
-    // Not copyable or movable
-    Instance(const Instance &)             = delete;
-    Instance & operator=(const Instance &) = delete;
-    Instance(Instance &&)                  = delete;
-    Instance & operator=(Instance &&)      = delete;
+    void SetReplacementProductListManagerInstance(ResourceMonitoring::ReplacementProductListManager * instance);
 
-    /**
-     * Initialise the Resource Monitoring cluster.
-     *
-     * @die                                     If the cluster ID given is not a valid Resource Monitoring cluster ID.
-     * @die                                     If the endpoint and cluster ID have not been enabled in zap.
-     * @return CHIP_ERROR_INVALID_ARGUMENT      If the CommandHandler or Attribute Handler could not be registered.
-     * @return CHIP_ERROR_INCORRECT_STATE       If the CommandHandler was already registered
-     * @return CHIP_ERROR_INCORRECT_STATE       If the AttributeAccessInterfaceRegistry::Register fails.
-     * @return CHIP_ERROR                       If the AppInit() method returned an error. This is application specific.
-     *
-     * @return CHIP_NO_ERROR                    If the cluster was initialised successfully.
-     */
-    CHIP_ERROR Init();
+    // Server cluster implementation
+    DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request,
+                                                AttributeValueEncoder & encoder) override;
+    DataModel::ActionReturnStatus WriteAttribute(const DataModel::WriteAttributeRequest & request,
+                                                 AttributeValueDecoder & decoder) override;
+
+    CHIP_ERROR Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) override;
 
     /**
      * Checks if the given feature is supported by the cluster.
@@ -90,13 +90,28 @@ public:
      */
     bool HasFeature(ResourceMonitoring::Feature aFeature) const;
 
-    // Attribute setters
-    Protocols::InteractionModel::Status UpdateCondition(uint8_t aNewCondition);
-    Protocols::InteractionModel::Status UpdateChangeIndication(ChangeIndicationEnum aNewChangeIndication);
-    Protocols::InteractionModel::Status UpdateInPlaceIndicator(bool aNewInPlaceIndicator);
-    Protocols::InteractionModel::Status UpdateLastChangedTime(DataModel::Nullable<uint32_t> aNewLastChangedTime);
+    /**
+     * Checks if the given attribute is supported by the cluster.
+     * @param attributeId  The aAttributeId to check.
+     *
+     * @return true     If the attribute is supported.
+     * @return false    If the attribute is not supported.
+     */
+    bool HasOptionalAttribute(AttributeId aAttributeId) const;
 
-    void SetReplacementProductListManagerInstance(ReplacementProductListManager * instance);
+    void UpdateCondition(uint8_t newCondition);
+    void UpdateChangeIndication(chip::app::Clusters::ResourceMonitoring::ChangeIndicationEnum newChangeIndication);
+    void UpdateInPlaceIndicator(bool newInPlaceIndicator);
+    void UpdateLastChangedTime(DataModel::Nullable<uint32_t> newLastChangedTime);
+
+    /**
+     * Sets delegate to passed ResourceMonitoringDelegate pointer. If this is not nullptr, subsequent action is to set instance
+     * pointer in the delegate to this (ResourceMonitoringCluster) instance.
+     *
+     * @param aDelegate A pointer to the delegate to be used by this server.
+     * Note: the caller must ensure that the delegate lives throughout the instance's lifetime.
+     */
+    CHIP_ERROR SetDelegate(ResourceMonitoringDelegate* aDelegate);
 
     // Attribute getters
     uint8_t GetCondition() const;
@@ -105,71 +120,68 @@ public:
     bool GetInPlaceIndicator() const;
     DataModel::Nullable<uint32_t> GetLastChangedTime() const;
 
-    EndpointId GetEndpointId() const { return mEndpointId; }
-    ClusterId GetClusterId() const { return mClusterId; }
+    EndpointId GetEndpointId() const { return mPath.mEndpointId; }
+    ClusterId GetClusterId() const { return mPath.mClusterId; }
+
+    std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
+                                                               chip::TLV::TLVReader & input_arguments,
+                                                               CommandHandler * handler) override;    
+
+    CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & cluster,
+                                        ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override;       
 
 private:
-    Delegate * mDelegate;
+    ResourceMonitoringDelegate * mDelegate;
 
-    EndpointId mEndpointId{};
-    ClusterId mClusterId{};
+    void LoadPersistentAttributes();    
 
-    // attribute Data Store
+    ResourceMonitoring::ReplacementProductListManager * GetReplacementProductListManagerInstance();
+    
+    CHIP_ERROR ReadReplaceableProductList(AttributeValueEncoder & encoder);
+
+    DataModel::ActionReturnStatus WriteImpl(const DataModel::WriteAttributeRequest & request,
+                                           AttributeValueDecoder & decoder);
+
+    std::optional<DataModel::ActionReturnStatus> ResetCondition(const ConcreteCommandPath & commandPath,
+                                                                 const ResourceMonitoring::Commands::ResetCondition::DecodableType & commandData,
+                                                                 CommandHandler * handler);
+
     chip::Percent mCondition                       = 100;
     DegradationDirectionEnum mDegradationDirection = DegradationDirectionEnum::kDown;
     ChangeIndicationEnum mChangeIndication         = ChangeIndicationEnum::kOk;
     bool mInPlaceIndicator                         = true;
     DataModel::Nullable<uint32_t> mLastChangedTime;
     ReplacementProductListManager * mReplacementProductListManager = nullptr;
+    
+    bool mResetConditionCommandSupported{false};
 
-    uint32_t mFeatureMap;
+    const BitFlags<ResourceMonitoring::Feature> mEnabledFeatures;
+    const OptionalAttributeSet mOptionalAttributeSet;
+};
 
-    bool mResetConditionCommandSupported = false;
-
-    ReplacementProductListManager * GetReplacementProductListManagerInstance();
-
-    CHIP_ERROR ReadReplaceableProductList(AttributeValueEncoder & aEncoder);
-
-    // CommandHandlerInterface
-    void InvokeCommand(HandlerContext & ctx) override;
-    CHIP_ERROR RetrieveAcceptedCommands(const ConcreteClusterPath & cluster,
-                                        ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override;
-
-    // AttributeAccessInterface
-    CHIP_ERROR Read(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) override;
-    CHIP_ERROR Write(const ConcreteDataAttributePath & aPath, AttributeValueDecoder & aDecoder) override;
-
-    template <typename RequestT, typename FuncT>
-    void HandleCommand(HandlerContext & handlerContext, FuncT func);
-
-    void LoadPersistentAttributes();
-
-    /**
-     * Internal method to handle the ResetCondition command.
-     */
-    void HandleResetCondition(HandlerContext & ctx,
-                              const ResourceMonitoring::Commands::ResetCondition::DecodableType & commandData);
-}; // class Instance
-
-class Delegate
+class ResourceMonitoringDelegate
 {
-    friend class Instance;
+    friend class ResourceMonitoringCluster;
 
 private:
-    Instance * mInstance = nullptr;
 
+    ResourceMonitoringCluster * mInstance = nullptr;
     /**
      * This method is used by the SDK to set the instance pointer. This is done during the instantiation of an Instance object.
      * @param aInstance A pointer to the Instance object related to this delegate object.
      */
-    void SetInstance(Instance * aInstance) { mInstance = aInstance; }
+    void SetInstance(ResourceMonitoringCluster * aInstance) { mInstance = aInstance; }
+
+    friend class ResourceMonitoringCluster;
 
 protected:
-    Instance * GetInstance() { return mInstance; }
+
+    ResourceMonitoringCluster * GetInstance() { return mInstance; }
 
 public:
-    Delegate()          = default;
-    virtual ~Delegate() = default;
+
+    ResourceMonitoringDelegate()          = default;
+    virtual ~ResourceMonitoringDelegate() = default;
 
     // The following methods should be overridden by the SDK user to implement the business logic of their application
 

@@ -118,6 +118,12 @@ public:
     /// In case of errors, this method will log the error and return (error state is not
     /// returned to the caller as it is generally not actionable/fixable)
     static void UnregisterServer(const UnregisterServerOptions & options, Delegate & delegate);
+
+
+    /// Fetch the featuremap from ember for the given endpoint/cluster
+    ///
+    /// on error 0 is returned
+    static uint32_t LoadFeatureMap(EndpointId endpointId, ClusterId clusterId);
 };
 
 } // namespace chip::app
