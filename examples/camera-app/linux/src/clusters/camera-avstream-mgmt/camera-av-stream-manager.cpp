@@ -144,6 +144,18 @@ CHIP_ERROR CameraAVStreamManager::ValidateStreamUsage(StreamUsageEnum streamUsag
     return CHIP_NO_ERROR;
 }
 
+const std::vector<chip::app::Clusters::CameraAvStreamManagement::VideoStreamStruct> &
+CameraAVStreamManager::GetAllocatedVideoStreams() const
+{
+    return GetCameraAVStreamMgmtServer()->GetAllocatedVideoStreams();
+}
+
+const std::vector<chip::app::Clusters::CameraAvStreamManagement::AudioStreamStruct> &
+CameraAVStreamManager::GetAllocatedAudioStreams() const
+{
+    return GetCameraAVStreamMgmtServer()->GetAllocatedAudioStreams();
+}
+
 CHIP_ERROR CameraAVStreamManager::ValidateVideoStreamID(uint16_t videoStreamId)
 {
     const std::vector<VideoStreamStruct> & allocatedVideoStreams = GetCameraAVStreamMgmtServer()->GetAllocatedVideoStreams();
@@ -305,18 +317,6 @@ Protocols::InteractionModel::Status CameraAVStreamManager::VideoStreamDeallocate
     {
         if (stream.videoStreamParams.videoStreamID == streamID && stream.isAllocated)
         {
-            if (stream.videoStreamParams.referenceCount > 0)
-            {
-                ChipLogError(Camera, "Video stream with ID: %d still in use", streamID);
-                return Status::InvalidInState;
-            }
-
-            if (stream.videoStreamParams.streamUsage == Globals::StreamUsageEnum::kInternal)
-            {
-                ChipLogError(Camera, "Video stream with ID: %d is Internal", streamID);
-                return Status::DynamicConstraintError;
-            }
-
             // Stop the video stream
             mCameraDeviceHAL->GetCameraHALInterface().StopVideoStream(streamID);
 
@@ -328,7 +328,7 @@ Protocols::InteractionModel::Status CameraAVStreamManager::VideoStreamDeallocate
         }
     }
 
-    ChipLogError(Camera, "Allocated video stream with ID: %d not found", streamID);
+    ChipLogError(Camera, "Allocated video stream with ID: %d not found internally", streamID);
 
     return Status::NotFound;
 }
@@ -369,18 +369,6 @@ Protocols::InteractionModel::Status CameraAVStreamManager::AudioStreamDeallocate
     {
         if (stream.audioStreamParams.audioStreamID == streamID && stream.isAllocated)
         {
-            if (stream.audioStreamParams.referenceCount > 0)
-            {
-                ChipLogError(Camera, "Audio stream with ID: %d still in use", streamID);
-                return Status::InvalidInState;
-            }
-
-            if (stream.audioStreamParams.streamUsage == Globals::StreamUsageEnum::kInternal)
-            {
-                ChipLogError(Camera, "Audio stream with ID: %d is Internal", streamID);
-                return Status::DynamicConstraintError;
-            }
-
             // Stop the audio stream
             mCameraDeviceHAL->GetCameraHALInterface().StopAudioStream(streamID);
 
@@ -390,12 +378,12 @@ Protocols::InteractionModel::Status CameraAVStreamManager::AudioStreamDeallocate
         }
     }
 
-    ChipLogError(Camera, "Allocated audio stream with ID: %d not found", streamID);
+    ChipLogError(Camera, "Allocated audio stream with ID: %d not found internally", streamID);
 
     return Status::NotFound;
 }
 
-Protocols::InteractionModel::Status CameraAVStreamManager::SnapshotStreamAllocate(const SnapshotStreamStruct & allocateArgs,
+Protocols::InteractionModel::Status CameraAVStreamManager::SnapshotStreamAllocate(const SnapshotStreamAllocateArgs & allocateArgs,
                                                                                   uint16_t & outStreamID)
 {
     outStreamID = kInvalidStreamID;
@@ -417,8 +405,6 @@ Protocols::InteractionModel::Status CameraAVStreamManager::SnapshotStreamAllocat
 
                 // Start the snapshot stream for serving.
                 mCameraDeviceHAL->GetCameraHALInterface().StartSnapshotStream(outStreamID);
-
-                return Status::Success;
             }
             else
             {
@@ -426,6 +412,13 @@ Protocols::InteractionModel::Status CameraAVStreamManager::SnapshotStreamAllocat
             }
             return Status::Success;
         }
+    }
+
+    // If no pre-allocated stream matches, try allocating a new one.
+    if (mCameraDeviceHAL->GetCameraHALInterface().AllocateSnapshotStream(allocateArgs, outStreamID) == CameraError::SUCCESS)
+    {
+        mCameraDeviceHAL->GetCameraHALInterface().StartSnapshotStream(outStreamID);
+        return Status::Success;
     }
 
     return Status::DynamicConstraintError;
