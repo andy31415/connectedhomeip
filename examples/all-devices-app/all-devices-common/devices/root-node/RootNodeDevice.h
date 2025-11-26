@@ -16,7 +16,7 @@
  */
 #pragma once
 
-#include <app/clusters/access-control-server/access-control-cluster.h>
+#include <app/clusters/access-control-server/AccessControlCluster.h>
 #include <app/clusters/administrator-commissioning-server/AdministratorCommissioningCluster.h>
 #include <app/clusters/basic-information/BasicInformationCluster.h>
 #include <app/clusters/general-commissioning-server/BreadCrumbTracker.h>
