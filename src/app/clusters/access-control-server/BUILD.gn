@@ -29,8 +29,8 @@ source_set("arl-encoder") {
 
 source_set("access-control-server") {
   sources = [
-    "access-control-cluster.cpp",
-    "access-control-cluster.h",
+    "AccessControlCluster.cpp",
+    "AccessControlCluster.h",
   ]
 
   public_deps = [

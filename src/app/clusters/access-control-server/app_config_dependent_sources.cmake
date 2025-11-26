@@ -25,6 +25,6 @@ TARGET_SOURCES(
   PRIVATE
     "${CLUSTER_DIR}/ArlEncoder.cpp"
     "${CLUSTER_DIR}/ArlEncoder.h"
-    "${CLUSTER_DIR}/access-control-cluster.h"
-    "${CLUSTER_DIR}/access-control-cluster.cpp"
+    "${CLUSTER_DIR}/AccessControlCluster.h"
+    "${CLUSTER_DIR}/AccessControlCluster.cpp"
 )

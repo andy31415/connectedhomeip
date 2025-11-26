@@ -22,7 +22,7 @@
 #endif
 
 #include <app-common/zap-generated/cluster-objects.h>
-#include <app/clusters/access-control-server/access-control-cluster.h>
+#include <app/clusters/access-control-server/AccessControlCluster.h>
 #include <app/server-cluster/AttributeListBuilder.h>
 #include <app/server-cluster/DefaultServerCluster.h>
 #include <app/server/Server.h>

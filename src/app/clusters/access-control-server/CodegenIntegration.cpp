@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-#include <app/clusters/access-control-server/access-control-cluster.h>
+#include <app/clusters/access-control-server/AccessControlCluster.h>
 #include <app/static-cluster-config/AccessControl.h>
 #include <app/util/config.h>
 #include <data-model-providers/codegen/ClusterIntegration.h>
