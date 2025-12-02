@@ -48,7 +48,7 @@ public:
         /// - Is called *after* the current value is changed (i.e. `IsOn` returns the new value).
         /// - will be called on startup *after* the previous value is loaded from NVRAM.
         /// - Can safely call "SetOn" (it will not trigger a recursive delegate call)
-        void OnOffChanged(OnOffCluster & cluster, ChangeReason reason);
+        virtual void OnOffChanged(OnOffCluster & cluster, ChangeReason reason) = 0;
     };
 
     // a subset of supported features. In particular Lighting is not supported

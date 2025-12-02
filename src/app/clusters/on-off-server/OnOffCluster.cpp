@@ -68,7 +68,7 @@ std::optional<DataModel::ActionReturnStatus> OnOffCluster::InvokeCommand(const D
 CHIP_ERROR OnOffCluster::AcceptedCommands(const ConcreteClusterPath & path,
                                           ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder)
 {
-    if (!mFeatures.Has(Feature::kDeadFrontBehavior))
+    if (!mFeatures.Has(Feature::kOffOnly))
     {
         ReturnErrorOnFailure(builder.AppendElements({
             Commands::On::kMetadataEntry,
@@ -86,12 +86,12 @@ CHIP_ERROR OnOffCluster::AcceptedCommands(const ConcreteClusterPath & path,
 void OnOffCluster::SetOn(bool value)
 {
     VerifyOrReturn(value != mOn);
+    mOn = value;
     if (mContext != nullptr)
     {
         LogErrorOnFailure(mContext->attributeStorage.WriteValue({ mPath.mEndpointId, OnOff::Id, Attributes::OnOff::Id },
                                                                 { reinterpret_cast<uint8_t *>(&mOn), sizeof(mOn) }));
     }
-    mOn = value;
     NotifyAttributeChanged(Attributes::OnOff::Id);
 }
 
