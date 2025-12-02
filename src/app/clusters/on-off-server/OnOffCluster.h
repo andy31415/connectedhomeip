@@ -34,6 +34,7 @@ public:
     public:
         enum class ChangeReason
         {
+            kUnknown = 0,
             kStartup,
             kOffCommand,
             kOnCommand,
@@ -46,7 +47,7 @@ public:
         ///
         /// - Is called *after* the current value is changed (i.e. `IsOn` returns the new value).
         /// - will be called on startup *after* the previous value is loaded from NVRAM.
-        /// - Can safel call "SetOn" (it will not trigger a delegate call)
+        /// - Can safely call "SetOn" (it will not trigger a recursive delegate call)
         void OnOffChanged(OnOffCluster & cluster, ChangeReason reason);
     };
 
@@ -63,7 +64,12 @@ public:
         DefaultServerCluster({ endpointId, OnOff::Id }), mFeatures(features), mDelegate(delegate)
     {}
 
+    Delegate &GetDelegate() const { return mDelegate; }
+
     bool IsOn() const { return mOn; }
+
+    /// Set the current `OnOff` value. This *does not* trigger a delegate call
+    /// and instead directly updates the on/off value.
     void SetOn(bool value);
 
     /// ServerClusterInterface Implementation
