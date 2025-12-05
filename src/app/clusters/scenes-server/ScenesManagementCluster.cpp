@@ -45,16 +45,16 @@ Protocols::InteractionModel::Status ResponseStatus(CHIP_ERROR err)
     // TODO : Properly fix mapping between error types (issue https://github.com/project-chip/connectedhomeip/issues/26885)
     if (CHIP_ERROR_NOT_FOUND == err)
     {
-        return Protocols::InteractionModel::Status::NotFound;
+        return Status::NotFound;
     }
     if (CHIP_ERROR_NO_MEMORY == err)
     {
-        return Protocols::InteractionModel::Status::ResourceExhausted;
+        return Status::ResourceExhausted;
     }
     if (CHIP_IM_GLOBAL_STATUS(UnsupportedAttribute) == err)
     {
         // TODO: Confirm if we need to add UnsupportedAttribute status as a return for Scene Commands
-        return Protocols::InteractionModel::Status::InvalidCommand;
+        return Status::InvalidCommand;
     }
     return StatusIB(err).mStatus;
 }
@@ -424,7 +424,7 @@ std::optional<DataModel::ActionReturnStatus> ScenesManagementCluster::InvokeComm
         return std::nullopt;
     }
     default:
-        return Protocols::InteractionModel::Status::UnsupportedCommand;
+        return Status::UnsupportedCommand;
     }
 }
 
@@ -453,7 +453,7 @@ DataModel::ActionReturnStatus ScenesManagementCluster::ReadAttribute(const DataM
         });
     }
     default:
-        return Protocols::InteractionModel::Status::UnsupportedAttribute;
+        return Status::UnsupportedAttribute;
     }
 }
 
@@ -598,20 +598,20 @@ AddSceneResponse::Type ScenesManagementCluster::HandleAddScene(FabricIndex fabri
     if (req.transitionTime > scenes::kScenesMaxTransitionTime || req.sceneName.size() > scenes::kSceneNameMaxLength ||
         req.sceneID == scenes::kUndefinedSceneId)
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::ConstraintError);
+        response.status = to_underlying(Status::ConstraintError);
         return response;
     }
 
     // Verify Endpoint in group
     if (nullptr == mGroupProvider)
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::UnsupportedCommand);
+        response.status = to_underlying(Status::UnsupportedCommand);
         return response;
     }
 
     if (0 != req.groupID && !mGroupProvider->HasEndpoint(fabricIndex, req.groupID, mPath.mEndpointId))
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
+        response.status = to_underlying(Status::InvalidCommand);
         return response;
     }
 
@@ -668,7 +668,7 @@ AddSceneResponse::Type ScenesManagementCluster::HandleAddScene(FabricIndex fabri
 
     if (0 == capacity)
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::ResourceExhausted);
+        response.status = to_underlying(Status::ResourceExhausted);
         return response;
     }
 
@@ -681,7 +681,7 @@ AddSceneResponse::Type ScenesManagementCluster::HandleAddScene(FabricIndex fabri
         response);
 
     // Write response
-    response.status = to_underlying(Protocols::InteractionModel::Status::Success);
+    response.status = to_underlying(Status::Success);
     return response;
 }
 
@@ -713,7 +713,7 @@ ViewSceneResponse::Type ScenesManagementCluster::HandleViewScene(FabricIndex fab
 
     if (0 != req.groupID && !mGroupProvider->HasEndpoint(fabricIndex, req.groupID, mPath.mEndpointId))
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
+        response.status = to_underlying(Status::InvalidCommand);
         return response;
     }
 
@@ -750,7 +750,7 @@ ViewSceneResponse::Type ScenesManagementCluster::HandleViewScene(FabricIndex fab
         }
     }
 
-    response.status = to_underlying(Protocols::InteractionModel::Status::Success);
+    response.status = to_underlying(Status::Success);
     response.transitionTime.SetValue(scene.mStorageData.mSceneTransitionTimeMs);
 
     response.sceneName.SetValue(CharSpan(scene.mStorageData.mName, scene.mStorageData.mNameLength));
@@ -814,7 +814,7 @@ ScenesManagementCluster::HandleRemoveScene(FabricIndex fabricIndex,
         ValidateSuccess(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), sceneValid), response),
         response);
 
-    response.status = to_underlying(Protocols::InteractionModel::Status::Success);
+    response.status = to_underlying(Status::Success);
     return response;
 }
 
@@ -838,7 +838,7 @@ ScenesManagementCluster::HandleRemoveAllScenes(FabricIndex fabricIndex,
     }
     if (0 != req.groupID && !mGroupProvider->HasEndpoint(fabricIndex, req.groupID, mPath.mEndpointId))
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
+        response.status = to_underlying(Status::InvalidCommand);
         return response;
     }
 
@@ -857,7 +857,7 @@ ScenesManagementCluster::HandleRemoveAllScenes(FabricIndex fabricIndex,
         ValidateSuccess(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), sceneValid), response),
         response);
 
-    response.status = to_underlying(Protocols::InteractionModel::Status::Success);
+    response.status = to_underlying(Status::Success);
     return response;
 }
 
@@ -873,13 +873,13 @@ ScenesManagementCluster::HandleStoreScene(FabricIndex fabricIndex,
     // Verify the attributes are respecting constraints
     if (req.sceneID == scenes::kUndefinedSceneId)
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::ConstraintError);
+        response.status = to_underlying(Status::ConstraintError);
         return response;
     }
 
     VerifyOrReturnValue(ValidateSuccess(StoreSceneParse(fabricIndex, req.groupID, req.sceneID), response), response);
 
-    response.status = to_underlying(Protocols::InteractionModel::Status::Success);
+    response.status = to_underlying(Status::Success);
     return response;
 }
 
@@ -894,16 +894,9 @@ ScenesManagementCluster::HandleRecallScene(FabricIndex fabricIndex,
 
     CHIP_ERROR err = RecallSceneParse(fabricIndex, req.groupID, req.sceneID, req.transitionTime);
 
-    if (CHIP_NO_ERROR == err)
-    {
-        return Protocols::InteractionModel::Status::Success;
-    }
-
-    if (CHIP_ERROR_NOT_FOUND == err)
-    {
-        // TODO : implement proper mapping between CHIP_ERROR and IM Status
-        return Protocols::InteractionModel::Status::NotFound;
-    }
+    // TODO : implement proper mapping between CHIP_ERROR and IM Status
+    VerifyOrReturnValue(CHIP_NO_ERROR != err, Status::Success);
+    VerifyOrReturnValue(CHIP_ERROR_NOT_FOUND != err, Status::NotFound);
 
     return StatusIB(err).mStatus;
 }
@@ -925,7 +918,7 @@ ScenesManagementCluster::HandleGetSceneMembership(FabricIndex fabricIndex,
 
     if (0 != req.groupID && !mGroupProvider->HasEndpoint(fabricIndex, req.groupID, mPath.mEndpointId))
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
+        response.status = to_underlying(Status::InvalidCommand);
         return response;
     }
 
@@ -945,7 +938,7 @@ ScenesManagementCluster::HandleGetSceneMembership(FabricIndex fabricIndex,
     response.sceneList.SetValue(sceneList);
 
     // Write response
-    response.status = to_underlying(Protocols::InteractionModel::Status::Success);
+    response.status = to_underlying(Status::Success);
     return response;
 }
 
@@ -960,7 +953,7 @@ ScenesManagementCluster::HandleCopyScene(FabricIndex fabricIndex, const ScenesMa
     // Verify the attributes are respecting constraints
     if (req.sceneIdentifierFrom == scenes::kUndefinedSceneId || req.sceneIdentifierTo == scenes::kUndefinedSceneId)
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::ResourceExhausted);
+        response.status = to_underlying(Status::ResourceExhausted);
         return response;
     }
 
@@ -974,7 +967,7 @@ ScenesManagementCluster::HandleCopyScene(FabricIndex fabricIndex, const ScenesMa
     if ((0 != req.groupIdentifierFrom && !mGroupProvider->HasEndpoint(fabricIndex, req.groupIdentifierFrom, mPath.mEndpointId)) ||
         (0 != req.groupIdentifierTo && !mGroupProvider->HasEndpoint(fabricIndex, req.groupIdentifierTo, mPath.mEndpointId)))
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
+        response.status = to_underlying(Status::InvalidCommand);
         return response;
     }
 
@@ -985,7 +978,7 @@ ScenesManagementCluster::HandleCopyScene(FabricIndex fabricIndex, const ScenesMa
 
     if (0 == capacity)
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::ResourceExhausted);
+        response.status = to_underlying(Status::ResourceExhausted);
         return response;
     }
 
@@ -1019,7 +1012,7 @@ ScenesManagementCluster::HandleCopyScene(FabricIndex fabricIndex, const ScenesMa
                                 response);
         }
 
-        response.status = to_underlying(Protocols::InteractionModel::Status::Success);
+        response.status = to_underlying(Status::Success);
         return response;
     }
 
@@ -1035,7 +1028,7 @@ ScenesManagementCluster::HandleCopyScene(FabricIndex fabricIndex, const ScenesMa
         ValidateSuccess(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), Optional<bool>()), response),
         response);
 
-    response.status = to_underlying(Protocols::InteractionModel::Status::Success);
+    response.status = to_underlying(Status::Success);
     return response;
 }
 
