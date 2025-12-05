@@ -131,15 +131,16 @@ private:
                                                                  const ScenesManagement::Commands::ViewScene::DecodableType & req);
 
     ScenesManagement::Commands::RemoveSceneResponse::Type
-    HandleRemoveScene(CommandHandler * handler, const ScenesManagement::Commands::RemoveScene::DecodableType & req);
+    HandleRemoveScene(FabricIndex fabricIndex, const ScenesManagement::Commands::RemoveScene::DecodableType & req);
 
     ScenesManagement::Commands::RemoveAllScenesResponse::Type
-    HandleRemoveAllScenes(CommandHandler * handler, const ScenesManagement::Commands::RemoveAllScenes::DecodableType & req);
+    HandleRemoveAllScenes(FabricIndex fabricIndex, const ScenesManagement::Commands::RemoveAllScenes::DecodableType & req);
 
-    std::optional<DataModel::ActionReturnStatus>
-    HandleStoreScene(CommandHandler * handler, const ScenesManagement::Commands::StoreScene::DecodableType & req);
+    ScenesManagement::Commands::StoreSceneResponse::Type
+    HandleStoreScene(FabricIndex fabricIndex, const ScenesManagement::Commands::StoreScene::DecodableType & req);
 
-    Protocols::InteractionModel::Status HandleRecallScene(const ScenesManagement::Commands::RecallScene::DecodableType & req);
+    Protocols::InteractionModel::Status HandleRecallScene(FabricIndex fabricIndex,
+                                                          const ScenesManagement::Commands::RecallScene::DecodableType & req);
 
     std::optional<DataModel::ActionReturnStatus>
     HandleGetSceneMembership(CommandHandler * handler, const ScenesManagement::Commands::GetSceneMembership::DecodableType & req);

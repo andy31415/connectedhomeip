@@ -614,18 +614,25 @@ std::optional<DataModel::ActionReturnStatus> ScenesManagementCluster::InvokeComm
     case RemoveScene::Id: {
         RemoveScene::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        handler->AddResponse(request.path, HandleRemoveScene(handler, request_data));
+        handler->AddResponse(request.path, HandleRemoveScene(handler->GetAccessingFabricIndex(), request_data));
     }
     case RemoveAllScenes::Id: {
         RemoveAllScenes::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        handler->AddResponse(request.path, HandleRemoveAllScenes(handler, request_data));
+        handler->AddResponse(request.path, HandleRemoveAllScenes(handler->GetAccessingFabricIndex(), request_data));
         return std::nullopt;
     }
     case StoreScene::Id: {
         StoreScene::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        return HandleStoreScene(handler, request_data);
+        handler->AddResponse(request.path, HandleStoreScene(handler->GetAccessingFabricIndex(), request_data));
+        return std::nullopt;
+    }
+    case RecallScene::Id: {
+        RecallScene::DecodableType request_data;
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        handler->AddResponse(request.path, HandleRecallScene(handler->GetAccessingFabricIndex(), request_data));
+        return std::nullopt;
     }
     case GetSceneMembership::Id: {
         GetSceneMembership::DecodableType request_data;
@@ -785,7 +792,7 @@ void ScenesServer::HandleViewScene(HandlerContext & ctx, const Commands::ViewSce
 #endif
 
 RemoveSceneResponse::Type
-ScenesManagementCluster::HandleRemoveScene(CommandHandler * handler,
+ScenesManagementCluster::HandleRemoveScene(FabricIndex fabricIndex,
                                            const ScenesManagement::Commands::RemoveScene::DecodableType & req)
 {
     MATTER_TRACE_SCOPE("RemoveScene", "Scenes");
@@ -814,41 +821,37 @@ ScenesManagementCluster::HandleRemoveScene(CommandHandler * handler,
         response.status = to_underlying(Status::Failure);
         return response;
     }
-    if (0 != req.groupID && !mGroupProvider->HasEndpoint(handler->GetAccessingFabricIndex(), req.groupID, mPath.mEndpointId))
+    if (0 != req.groupID && !mGroupProvider->HasEndpoint(fabricIndex, req.groupID, mPath.mEndpointId))
     {
         response.status = to_underlying(Status::InvalidCommand);
         return response;
     }
 
     //  Gets the scene from the table
-    VerifyOrReturnValue(
-        ValidateSuccess(sceneTable->GetSceneTableEntry(handler->GetAccessingFabricIndex(), scene.mStorageId, scene), response),
-        response);
+    VerifyOrReturnValue(ValidateSuccess(sceneTable->GetSceneTableEntry(fabricIndex, scene.mStorageId, scene), response), response);
 
     // Remove the scene from the scene table
-    VerifyOrReturnValue(
-        ValidateSuccess(sceneTable->RemoveSceneTableEntry(handler->GetAccessingFabricIndex(), scene.mStorageId), response),
-        response);
+    VerifyOrReturnValue(ValidateSuccess(sceneTable->RemoveSceneTableEntry(fabricIndex, scene.mStorageId), response), response);
 
     // Update SceneInfoStruct Attributes
-    SceneInfoStruct::Type * sceneInfo = GetSceneInfoStruct(handler->GetAccessingFabricIndex());
+    SceneInfoStruct::Type * sceneInfo = GetSceneInfoStruct(fabricIndex);
     Optional<bool> sceneValid;
     if (nullptr != sceneInfo && req.groupID == sceneInfo->currentGroup && req.sceneID == sceneInfo->currentScene)
     {
         sceneValid.Emplace(false);
     }
 
-    VerifyOrReturnValue(ValidateSuccess(UpdateFabricSceneInfo(mPath.mEndpointId, handler->GetAccessingFabricIndex(),
-                                                              Optional<GroupId>(), Optional<SceneId>(), sceneValid),
-                                        response),
-                        response);
+    VerifyOrReturnValue(
+        ValidateSuccess(UpdateFabricSceneInfo(mPath.mEndpointId, fabricIndex, Optional<GroupId>(), Optional<SceneId>(), sceneValid),
+                        response),
+        response);
 
     response.status = to_underlying(Protocols::InteractionModel::Status::Success);
     return response;
 }
 
 RemoveAllScenesResponse::Type
-ScenesManagementCluster::HandleRemoveAllScenes(CommandHandler * handler,
+ScenesManagementCluster::HandleRemoveAllScenes(FabricIndex fabricIndex,
                                                const ScenesManagement::Commands::RemoveAllScenes::DecodableType & req)
 {
     MATTER_TRACE_SCOPE("RemoveAllScenes", "Scenes");
@@ -865,17 +868,16 @@ ScenesManagementCluster::HandleRemoveAllScenes(CommandHandler * handler,
         response.status = to_underlying(Status::Failure);
         return response;
     }
-    if (0 != req.groupID && !mGroupProvider->HasEndpoint(handler->GetAccessingFabricIndex(), req.groupID, mPath.mEndpointId))
+    if (0 != req.groupID && !mGroupProvider->HasEndpoint(fabricIndex, req.groupID, mPath.mEndpointId))
     {
         response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
         return response;
     }
 
-    VerifyOrReturnValue(
-        ValidateSuccess(sceneTable->DeleteAllScenesInGroup(handler->GetAccessingFabricIndex(), req.groupID), response), response);
+    VerifyOrReturnValue(ValidateSuccess(sceneTable->DeleteAllScenesInGroup(fabricIndex, req.groupID), response), response);
 
     // Update Attributes
-    SceneInfoStruct::Type * sceneInfo = GetSceneInfoStruct(handler->GetAccessingFabricIndex());
+    SceneInfoStruct::Type * sceneInfo = GetSceneInfoStruct(fabricIndex);
 
     Optional<bool> sceneValid;
     if (nullptr != sceneInfo && req.groupID == sceneInfo->currentGroup)
@@ -883,23 +885,21 @@ ScenesManagementCluster::HandleRemoveAllScenes(CommandHandler * handler,
         sceneValid.Emplace(false);
     }
 
-    VerifyOrReturnValue(ValidateSuccess(UpdateFabricSceneInfo(mPath.mEndpointId, handler->GetAccessingFabricIndex(),
-                                                              Optional<GroupId>(), Optional<SceneId>(), sceneValid),
-                                        response),
-                        response);
+    VerifyOrReturnValue(
+        ValidateSuccess(UpdateFabricSceneInfo(mPath.mEndpointId, fabricIndex, Optional<GroupId>(), Optional<SceneId>(), sceneValid),
+                        response),
+        response);
 
     response.status = to_underlying(Protocols::InteractionModel::Status::Success);
     return response;
 }
 
-#if 0
-
-void ScenesServer::HandleStoreScene(HandlerContext & ctx, const Commands::StoreScene::DecodableType & req)
+ScenesManagement::Commands::StoreSceneResponse::Type
+ScenesManagementCluster::HandleStoreScene(FabricIndex fabricIndex,
+                                          const ScenesManagement::Commands::StoreScene::DecodableType & req)
 {
     MATTER_TRACE_SCOPE("StoreScene", "Scenes");
-    Commands::StoreSceneResponse::Type response;
-
-    // Response data
+    StoreSceneResponse::Type response;
     response.groupID = req.groupID;
     response.sceneID = req.sceneID;
 
@@ -907,47 +907,42 @@ void ScenesServer::HandleStoreScene(HandlerContext & ctx, const Commands::StoreS
     if (req.sceneID == scenes::kUndefinedSceneId)
     {
         response.status = to_underlying(Protocols::InteractionModel::Status::ConstraintError);
-        ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-        return;
+        return response;
     }
 
-    CHIP_ERROR err = StoreSceneParse(ctx.mCommandHandler.GetAccessingFabricIndex(), ctx.mRequestPath.mEndpointId, req.groupID,
-                                     req.sceneID, mGroupProvider);
+    VerifyOrReturnValue(
+        ValidateSuccess(StoreSceneParse(fabricIndex, mPath.mEndpointId, req.groupID, req.sceneID, mGroupProvider), response),
+        response);
 
-    ReturnOnFailure(AddResponseOnError(ctx, response, err));
     response.status = to_underlying(Protocols::InteractionModel::Status::Success);
-    ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
+    return response;
 }
 
-void ScenesServer::HandleRecallScene(HandlerContext & ctx, const Commands::RecallScene::DecodableType & req)
+Protocols::InteractionModel::Status
+ScenesManagementCluster::HandleRecallScene(FabricIndex fabricIndex,
+                                           const ScenesManagement::Commands::RecallScene::DecodableType & req)
 {
     MATTER_TRACE_SCOPE("RecallScene", "Scenes");
 
     // Verify the attributes are respecting constraints
-    if (req.sceneID == scenes::kUndefinedSceneId)
-    {
-        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Protocols::InteractionModel::Status::ConstraintError);
-        return;
-    }
+    VerifyOrReturnError(req.sceneID != scenes::kUndefinedSceneId, Status::ConstraintError);
 
-    CHIP_ERROR err = RecallSceneParse(ctx.mCommandHandler.GetAccessingFabricIndex(), ctx.mRequestPath.mEndpointId, req.groupID,
-                                      req.sceneID, req.transitionTime, mGroupProvider);
+    CHIP_ERROR err = RecallSceneParse(fabricIndex, mPath.mEndpointId, req.groupID, req.sceneID, req.transitionTime, mGroupProvider);
 
     if (CHIP_NO_ERROR == err)
     {
-        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Protocols::InteractionModel::Status::Success);
-        return;
+        return Protocols::InteractionModel::Status::Success;
     }
 
     if (CHIP_ERROR_NOT_FOUND == err)
     {
         // TODO : implement proper mapping between CHIP_ERROR and IM Status
-        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Protocols::InteractionModel::Status::NotFound);
-        return;
+        return Protocols::InteractionModel::Status::NotFound;
     }
 
-    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, StatusIB(err).mStatus);
+    return StatusIB(err).mStatus;
 }
+#if 0
 
 void ScenesServer::HandleGetSceneMembership(HandlerContext & ctx, const Commands::GetSceneMembership::DecodableType & req)
 {
