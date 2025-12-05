@@ -19,13 +19,13 @@
 #include "ScenesManagementCluster.h"
 
 #include <clusters/ScenesManagement/Metadata.h>
-#include <optional>
 #include <tracing/macros.h>
+
+#include <optional>
 
 using SceneTableEntry   = chip::scenes::DefaultSceneTableImpl::SceneTableEntry;
 using SceneStorageId    = chip::scenes::DefaultSceneTableImpl::SceneStorageId;
 using SceneData         = chip::scenes::DefaultSceneTableImpl::SceneData;
-using HandlerContext    = chip::app::CommandHandlerInterface::HandlerContext;
 using ExtensionFieldSet = chip::scenes::ExtensionFieldSet;
 using GroupDataProvider = chip::Credentials::GroupDataProvider;
 using SceneTable        = chip::scenes::SceneTable<chip::scenes::ExtensionFieldSetsImpl>;
@@ -36,9 +36,7 @@ using namespace chip::app::Clusters::ScenesManagement::Attributes;
 using namespace chip::app::Clusters::ScenesManagement::Commands;
 using namespace chip::app::Clusters::ScenesManagement::Structs;
 
-namespace chip {
-namespace app {
-namespace Clusters {
+namespace chip::app::Clusters {
 
 namespace {
 
@@ -71,38 +69,15 @@ bool ValidateSuccess(CHIP_ERROR err, ResponseType & resp)
     return false;
 }
 
-/// @brief Generate and add a response to a command handler context depending on an InteractionModel::Status
-/// @tparam ResponseType Type of response, depends on the command
-/// @param ctx Command Handler context where to add reponse
-/// @param resp Response to add in ctx
-/// @param status Status to verify
-/// @return InteractionModel::Status -> CHIP_ERROR
-template <typename ResponseType>
-CHIP_ERROR AddResponseOnError(CommandHandlerInterface::HandlerContext & ctx, ResponseType & resp, Status status)
-{
-    // TODO: this seems odd: we convert `status` to a CHIP_ERROR and then back to status. This seems
-    //       potentially lossy and not ideal.
-    return AddResponseOnError(ctx, resp, StatusIB(status).ToChipError());
-}
+} // namespace
 
-/// @brief Helper function to update the FabricSceneInfo attribute for a given Endpoint and fabric
-/// @param endpoint Endpoint to update
-/// @param fabric Fabric to update
-/// @param group Group to update, if not provided, will be assigned 0 for a new SceneInfoStruct or keep previous value for an
-/// existing one
-/// @param scene Scene to update, if not provided, will be assigned 0 for a new SceneInfoStruct or keep previous value for an
-/// existing one
-/// @param sceneValid sceneValid status, if not provided, will be assigned false for a new SceneInfoStruct or keep previous
-/// value for an existing one
-/// @return
-CHIP_ERROR UpdateFabricSceneInfo(EndpointId endpoint, FabricIndex fabric, Optional<GroupId> group, Optional<SceneId> scene,
-                                 Optional<bool> sceneValid)
+CHIP_ERROR ScenesManagementCluster::UpdateFabricSceneInfo(FabricIndex fabric, Optional<GroupId> group, Optional<SceneId> scene,
+                                                          Optional<bool> sceneValid)
 {
-    VerifyOrReturnError(kInvalidEndpointId != endpoint, CHIP_ERROR_INVALID_ARGUMENT);
     VerifyOrReturnError(kUndefinedFabricIndex != fabric, CHIP_ERROR_INVALID_ARGUMENT);
 
-    SceneTable * sceneTable                    = scenes::GetSceneTableImpl(endpoint);
-    Structs::SceneInfoStruct::Type * sceneInfo = ScenesServer::Instance().GetSceneInfoStruct(endpoint, fabric);
+    SceneTable * sceneTable           = scenes::GetSceneTableImpl(mPath.mEndpointId);
+    SceneInfoStruct::Type * sceneInfo = GetSceneInfoStruct(fabric);
     if (nullptr != sceneInfo)
     {
         if (group.HasValue())
@@ -126,7 +101,7 @@ CHIP_ERROR UpdateFabricSceneInfo(EndpointId endpoint, FabricIndex fabric, Option
     else
     {
         // If we couldn't find a SceneInfoStruct for the fabric, create one
-        Structs::SceneInfoStruct::Type newSceneInfo;
+        SceneInfoStruct::Type newSceneInfo;
         newSceneInfo.fabricIndex = fabric;
 
         newSceneInfo.currentGroup = group.ValueOr(0);
@@ -135,14 +110,13 @@ CHIP_ERROR UpdateFabricSceneInfo(EndpointId endpoint, FabricIndex fabric, Option
 
         ReturnErrorOnFailure(sceneTable->GetFabricSceneCount(fabric, newSceneInfo.sceneCount));
         ReturnErrorOnFailure(sceneTable->GetRemainingCapacity(fabric, newSceneInfo.remainingCapacity));
-        ReturnErrorOnFailure(ScenesServer::Instance().SetSceneInfoStruct(endpoint, fabric, newSceneInfo));
+        ReturnErrorOnFailure(SetSceneInfoStruct(fabric, newSceneInfo));
     }
 
-    MatterReportingAttributeChangeCallback(endpoint, Id, Attributes::FabricSceneInfo::Id);
+    NotifyAttributeChanged(ScenesManagement::Attributes::FabricSceneInfo::Id);
+
     return CHIP_NO_ERROR;
 }
-
-} // namespace
 
 SceneInfoStruct::Type * ScenesManagementCluster::FabricSceneInfo::GetSceneInfoStruct(FabricIndex fabric)
 {
@@ -306,206 +280,19 @@ void ScenesServer::Shutdown()
     mGroupProvider = nullptr;
     mIsInitialized = false;
 }
+#endif
 
-template <typename CommandData, typename ResponseType>
-void AddSceneParse(CommandHandlerInterface::HandlerContext & ctx, const CommandData & req, GroupDataProvider * groupProvider)
-{
-    ResponseType response;
-    uint16_t endpointTableSize = 0;
-
-    ReturnOnFailure(
-        AddResponseOnError(ctx, response, Attributes::SceneTableSize::Get(ctx.mRequestPath.mEndpointId, &endpointTableSize)));
-
-    // Get Scene Table Instance
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(ctx.mRequestPath.mEndpointId, endpointTableSize);
-
-    // Response data
-    response.groupID = req.groupID;
-    response.sceneID = req.sceneID;
-
-    // Verify the attributes are respecting constraints
-    if (req.transitionTime > scenes::kScenesMaxTransitionTime || req.sceneName.size() > scenes::kSceneNameMaxLength ||
-        req.sceneID == scenes::kUndefinedSceneId)
-    {
-        response.status = to_underlying(Protocols::InteractionModel::Status::ConstraintError);
-        ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-        return;
-    }
-
-    // Verify Endpoint in group
-    VerifyOrReturn(nullptr != groupProvider);
-    if (0 != req.groupID &&
-        !groupProvider->HasEndpoint(ctx.mCommandHandler.GetAccessingFabricIndex(), req.groupID, ctx.mRequestPath.mEndpointId))
-    {
-        response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
-        ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-        return;
-    }
-
-    uint32_t featureMap = 0;
-    ReturnOnFailure(AddResponseOnError(ctx, response, Attributes::FeatureMap::Get(ctx.mRequestPath.mEndpointId, &featureMap)));
-
-    SceneData storageData(CharSpan(), req.transitionTime);
-    if (featureMap & to_underlying(Feature::kSceneNames))
-    {
-        storageData.SetName(req.sceneName);
-    }
-
-    auto fieldSetIter = req.extensionFieldSetStructs.begin();
-    uint8_t EFSCount  = 0;
-    // Goes through all EFS in command
-    while (fieldSetIter.Next() && EFSCount < scenes::kMaxClustersPerScene)
-    {
-        scenes::ExtensionFieldSet tempEFS;
-        tempEFS.mID = fieldSetIter.GetValue().clusterID;
-
-        MutableByteSpan buff_span(tempEFS.mBytesBuffer);
-
-        // Check if a handler is registered for the EFS's cluster
-        for (auto & handler : sceneTable->mHandlerList)
-        {
-            if (handler.SupportsCluster(ctx.mRequestPath.mEndpointId, tempEFS.mID))
-            {
-                ReturnOnFailure(AddResponseOnError(
-                    ctx, response, handler.SerializeAdd(ctx.mRequestPath.mEndpointId, fieldSetIter.GetValue(), buff_span)));
-                break;
-            }
-        }
-
-        static_assert(sizeof(tempEFS.mBytesBuffer) <= UINT8_MAX, "Serialized EFS number of bytes must fit in a uint8");
-        tempEFS.mUsedBytes = static_cast<uint8_t>(buff_span.size());
-
-        if (!tempEFS.IsEmpty())
-        {
-            TEMPORARY_RETURN_IGNORED storageData.mExtensionFieldSets.InsertFieldSet(tempEFS);
-        }
-    }
-    ReturnOnFailure(AddResponseOnError(ctx, response, fieldSetIter.GetStatus()));
-
-    // Create scene from data and ID
-    SceneTableEntry scene(SceneStorageId(req.sceneID, req.groupID), storageData);
-
-    // Get Capacity
-    VerifyOrReturn(nullptr != sceneTable);
-    uint8_t capacity = 0;
-    ReturnOnFailure(AddResponseOnError(ctx, response,
-                                       sceneTable->GetRemainingCapacity(ctx.mCommandHandler.GetAccessingFabricIndex(), capacity)));
-
-    if (0 == capacity)
-    {
-        response.status = to_underlying(Protocols::InteractionModel::Status::ResourceExhausted);
-        ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-        return;
-    }
-
-    //  Insert in table
-    ReturnOnFailure(
-        AddResponseOnError(ctx, response, sceneTable->SetSceneTableEntry(ctx.mCommandHandler.GetAccessingFabricIndex(), scene)));
-
-    // Update FabricSceneInfo
-    ReturnOnFailure(
-        AddResponseOnError(ctx, response,
-                           UpdateFabricSceneInfo(ctx.mRequestPath.mEndpointId, ctx.mCommandHandler.GetAccessingFabricIndex(),
-                                                 Optional<GroupId>(), Optional<SceneId>(), Optional<bool>())));
-
-    // Write response
-    response.status = to_underlying(Protocols::InteractionModel::Status::Success);
-    ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-}
-
-template <typename CommandData, typename ResponseType>
-void ViewSceneParse(HandlerContext & ctx, const CommandData & req, GroupDataProvider * groupProvider)
-{
-    ResponseType response;
-
-    uint16_t endpointTableSize = 0;
-
-    ReturnOnFailure(
-        AddResponseOnError(ctx, response, Attributes::SceneTableSize::Get(ctx.mRequestPath.mEndpointId, &endpointTableSize)));
-
-    // Get Scene Table Instance
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(ctx.mRequestPath.mEndpointId, endpointTableSize);
-
-    // Response data
-    response.groupID = req.groupID;
-    response.sceneID = req.sceneID;
-
-    // Verify the attributes are respecting constraints
-    if (req.sceneID == scenes::kUndefinedSceneId)
-    {
-        response.status = to_underlying(Protocols::InteractionModel::Status::ConstraintError);
-        ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-        return;
-    }
-
-    // Verify Endpoint in group
-    VerifyOrReturn(nullptr != groupProvider);
-    if (0 != req.groupID &&
-        !groupProvider->HasEndpoint(ctx.mCommandHandler.GetAccessingFabricIndex(), req.groupID, ctx.mRequestPath.mEndpointId))
-    {
-        response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
-        ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-        return;
-    }
-
-    SceneTableEntry scene;
-
-    //  Gets the scene from the table
-    ReturnOnFailure(AddResponseOnError(ctx, response,
-                                       sceneTable->GetSceneTableEntry(ctx.mCommandHandler.GetAccessingFabricIndex(),
-                                                                      SceneStorageId(req.sceneID, req.groupID), scene)));
-
-    // Response Extension Field Sets buffer
-    Structs::ExtensionFieldSetStruct::Type responseEFSBuffer[scenes::kMaxClustersPerScene];
-    uint8_t deserializedEFSCount = 0;
-
-    // Adds extension field sets to the scene
-    for (uint8_t i = 0; i < scene.mStorageData.mExtensionFieldSets.GetFieldSetCount(); i++)
-    {
-        // gets data from the field in the scene
-        ExtensionFieldSet tempField;
-        TEMPORARY_RETURN_IGNORED scene.mStorageData.mExtensionFieldSets.GetFieldSetAtPosition(tempField, i);
-        ByteSpan efsSpan(tempField.mBytesBuffer, tempField.mUsedBytes);
-
-        // This should only find one handle per cluster
-        for (auto & handler : sceneTable->mHandlerList)
-        {
-            if (handler.SupportsCluster(ctx.mRequestPath.mEndpointId, tempField.mID))
-            {
-                ReturnOnFailure(AddResponseOnError(
-                    ctx, response,
-                    handler.Deserialize(ctx.mRequestPath.mEndpointId, tempField.mID, efsSpan, responseEFSBuffer[i])));
-                deserializedEFSCount++;
-                break;
-            }
-        }
-    }
-
-    response.status = to_underlying(Protocols::InteractionModel::Status::Success);
-    response.transitionTime.SetValue(scene.mStorageData.mSceneTransitionTimeMs);
-
-    response.sceneName.SetValue(CharSpan(scene.mStorageData.mName, scene.mStorageData.mNameLength));
-    Span<Structs::ExtensionFieldSetStruct::Type> responseEFSSpan(responseEFSBuffer, deserializedEFSCount);
-    response.extensionFieldSetStructs.SetValue(responseEFSSpan);
-
-    ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-}
-
-CHIP_ERROR StoreSceneParse(const FabricIndex & fabricIdx, const EndpointId & endpointID, const GroupId & groupID,
-                           const SceneId & sceneID, GroupDataProvider * groupProvider)
+CHIP_ERROR ScenesManagementCluster::StoreSceneParse(const FabricIndex & fabricIdx, const GroupId & groupID, const SceneId & sceneID)
 {
     // Make the current fabric's SceneValid false before storing a scene
-    ScenesServer::Instance().MakeSceneInvalid(endpointID, fabricIdx);
-
-    uint16_t endpointTableSize = 0;
-    ReturnErrorOnFailure(StatusIB(Attributes::SceneTableSize::Get(endpointID, &endpointTableSize)).ToChipError());
+    MakeSceneInvalid(fabricIdx);
 
     // Get Scene Table Instance
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(endpointID, endpointTableSize);
+    SceneTable * sceneTable = scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize);
 
     // Verify Endpoint in group
-    VerifyOrReturnError(nullptr != groupProvider, CHIP_ERROR_INTERNAL);
-    if (0 != groupID && !groupProvider->HasEndpoint(fabricIdx, groupID, endpointID))
+    VerifyOrReturnError(nullptr != mGroupProvider, CHIP_ERROR_INTERNAL);
+    if (0 != groupID && !mGroupProvider->HasEndpoint(fabricIdx, groupID, mPath.mEndpointId))
     {
         return CHIP_IM_GLOBAL_STATUS(InvalidCommand);
     }
@@ -527,10 +314,8 @@ CHIP_ERROR StoreSceneParse(const FabricIndex & fabricIdx, const EndpointId & end
     }
     else
     {
-        uint32_t featureMap = 0;
-        ReturnErrorOnFailure(StatusIB(Attributes::FeatureMap::Get(endpointID, &featureMap)).ToChipError());
         // Check if we still support scenes name in case an OTA changed that, if we don't, set name to empty
-        if (!(featureMap & to_underlying(Feature::kSceneNames)))
+        if (!mFeatures.Has(ScenesManagement::Feature::kSceneNames))
         {
             scene.mStorageData.SetName(CharSpan());
         }
@@ -543,28 +328,22 @@ CHIP_ERROR StoreSceneParse(const FabricIndex & fabricIdx, const EndpointId & end
     ReturnErrorOnFailure(sceneTable->SetSceneTableEntry(fabricIdx, scene));
 
     // Update SceneInfo Attribute
-    ReturnErrorOnFailure(UpdateFabricSceneInfo(endpointID, fabricIdx, MakeOptional(groupID), MakeOptional(sceneID),
-                                               MakeOptional(static_cast<bool>(true))));
-
-    return CHIP_NO_ERROR;
+    return UpdateFabricSceneInfo(fabricIdx, MakeOptional(groupID), MakeOptional(sceneID), MakeOptional(static_cast<bool>(true)));
 }
 
-CHIP_ERROR RecallSceneParse(const FabricIndex & fabricIdx, const EndpointId & endpointID, const GroupId & groupID,
-                            const SceneId & sceneID, const Optional<DataModel::Nullable<uint32_t>> & transitionTime,
-                            GroupDataProvider * groupProvider)
+CHIP_ERROR ScenesManagementCluster::RecallSceneParse(const FabricIndex & fabricIdx, const GroupId & groupID,
+                                                     const SceneId & sceneID,
+                                                     const Optional<DataModel::Nullable<uint32_t>> & transitionTime)
 {
     // Make SceneValid false for all fabrics before recalling a scene
-    ScenesServer::Instance().MakeSceneInvalidForAllFabrics(endpointID);
-
-    uint16_t endpointTableSize = 0;
-    ReturnErrorOnFailure(StatusIB(Attributes::SceneTableSize::Get(endpointID, &endpointTableSize)).ToChipError());
+    MakeSceneInvalidForAllFabrics();
 
     // Get Scene Table Instance
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(endpointID, endpointTableSize);
+    SceneTable * sceneTable = scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize);
 
     // Verify Endpoint in group
-    VerifyOrReturnError(nullptr != groupProvider, CHIP_ERROR_INTERNAL);
-    if (0 != groupID && !groupProvider->HasEndpoint(fabricIdx, groupID, endpointID))
+    VerifyOrReturnError(nullptr != mGroupProvider, CHIP_ERROR_INTERNAL);
+    if (0 != groupID && !mGroupProvider->HasEndpoint(fabricIdx, groupID, mPath.mEndpointId))
     {
         return CHIP_IM_GLOBAL_STATUS(InvalidCommand);
     }
@@ -588,12 +367,8 @@ CHIP_ERROR RecallSceneParse(const FabricIndex & fabricIdx, const EndpointId & en
     ReturnErrorOnFailure(sceneTable->SceneApplyEFS(scene));
 
     // Update FabricSceneInfo, at this point the scene is considered valid
-    ReturnErrorOnFailure(
-        UpdateFabricSceneInfo(endpointID, fabricIdx, Optional<GroupId>(groupID), Optional<SceneId>(sceneID), Optional<bool>(true)));
-
-    return CHIP_NO_ERROR;
+    return UpdateFabricSceneInfo(fabricIdx, Optional<GroupId>(groupID), Optional<SceneId>(sceneID), Optional<bool>(true));
 }
-#endif
 
 std::optional<DataModel::ActionReturnStatus> ScenesManagementCluster::InvokeCommand(const DataModel::InvokeRequest & request,
                                                                                     chip::TLV::TLVReader & input_arguments,
@@ -604,17 +379,20 @@ std::optional<DataModel::ActionReturnStatus> ScenesManagementCluster::InvokeComm
     case AddScene::Id: {
         AddScene::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        return HandleAddScene(handler, request_data);
+        handler->AddResponse(request.path, HandleAddScene(handler->GetAccessingFabricIndex(), request_data));
+        return std::nullopt;
     }
     case ViewScene::Id: {
         ViewScene::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        return HandleViewScene(handler, request_data);
+        handler->AddResponse(request.path, HandleViewScene(handler->GetAccessingFabricIndex(), request_data));
+        return std::nullopt;
     }
     case RemoveScene::Id: {
         RemoveScene::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
         handler->AddResponse(request.path, HandleRemoveScene(handler->GetAccessingFabricIndex(), request_data));
+        return std::nullopt;
     }
     case RemoveAllScenes::Id: {
         RemoveAllScenes::DecodableType request_data;
@@ -637,12 +415,14 @@ std::optional<DataModel::ActionReturnStatus> ScenesManagementCluster::InvokeComm
     case GetSceneMembership::Id: {
         GetSceneMembership::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        return HandleGetSceneMembership(handler, request_data);
+        handler->AddResponse(request.path, HandleGetSceneMembership(handler->GetAccessingFabricIndex(), request_data));
+        return std::nullopt;
     }
     case CopyScene::Id: {
         CopyScene::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        return HandleCopyScene(handler, request_data);
+        handler->AddResponse(request.path, HandleCopyScene(handler->GetAccessingFabricIndex(), request_data));
+        return std::nullopt;
     }
     default:
         return Protocols::InteractionModel::Status::UnsupportedCommand;
@@ -679,19 +459,47 @@ DataModel::ActionReturnStatus ScenesManagementCluster::ReadAttribute(const DataM
 }
 
 #if 0
+using namespace chip;
+using namespace chip::app::Clusters;
+using namespace chip::app::Clusters::ScenesManagement;
 
-Structs::SceneInfoStruct::Type * ScenesServer::GetSceneInfoStruct(EndpointId endpoint, FabricIndex fabric)
+void emberAfScenesManagementClusterServerInitCallback(EndpointId endpoint)
 {
-    Structs::SceneInfoStruct::Type * sceneInfoStruct = mFabricSceneInfo.GetSceneInfoStruct(endpoint, fabric);
-    return sceneInfoStruct;
+    // Initialize the FabricSceneInfo by getting the number of scenes and the remaining capacity for storing fabric scene data
+    for (auto & info : chip::Server::GetInstance().GetFabricTable())
+    {
+        auto fabric = info.GetFabricIndex();
+        TEMPORARY_RETURN_IGNORED UpdateFabricSceneInfo(endpoint, fabric, Optional<GroupId>(), Optional<SceneId>(),
+                                                       Optional<bool>());
+    }
 }
 
-CHIP_ERROR ScenesServer::SetSceneInfoStruct(EndpointId endpoint, FabricIndex fabric,
-                                            Structs::SceneInfoStruct::Type & sceneInfoStruct)
+void MatterScenesManagementClusterServerShutdownCallback(EndpointId endpoint)
 {
-    ReturnErrorOnFailure(mFabricSceneInfo.SetSceneInfoStruct(endpoint, fabric, sceneInfoStruct));
-    return CHIP_NO_ERROR;
+    uint16_t endpointTableSize = 0;
+    VerifyOrReturn(Status::Success == Attributes::SceneTableSize::Get(endpoint, &endpointTableSize));
+
+    // Get Scene Table Instance
+    SceneTable * sceneTable = scenes::GetSceneTableImpl(endpoint, endpointTableSize);
+    TEMPORARY_RETURN_IGNORED sceneTable->RemoveEndpoint();
 }
+
+void MatterScenesManagementPluginServerInitCallback()
+{
+    CHIP_ERROR err = ScenesServer::Instance().Init();
+    if (err != CHIP_NO_ERROR)
+    {
+        ChipLogError(Zcl, "ScenesServer::Instance().Init() error: %" CHIP_ERROR_FORMAT, err.Format());
+    }
+}
+
+void MatterScenesManagementPluginServerShutdownCallback()
+{
+    ScenesServer::Instance().Shutdown();
+}
+#endif
+
+#if 0
 
 void ScenesServer::GroupWillBeRemoved(FabricIndex aFabricIx, EndpointId aEndpointId, GroupId aGroupId)
 {
@@ -775,21 +583,183 @@ void ScenesServer::RemoveFabric(EndpointId aEndpointId, FabricIndex aFabricIndex
     TEMPORARY_RETURN_IGNORED sceneTable->RemoveFabric(aFabricIndex);
     mFabricSceneInfo.ClearSceneInfoStruct(aEndpointId, aFabricIndex);
 }
-
-void ScenesServer::HandleAddScene(HandlerContext & ctx, const Commands::AddScene::DecodableType & req)
-{
-    MATTER_TRACE_SCOPE("AddScene", "Scenes");
-    AddSceneParse<Commands::AddScene::DecodableType, Commands::AddSceneResponse::Type>(ctx, req, mGroupProvider);
-}
 #endif
-#if 0
 
-void ScenesServer::HandleViewScene(HandlerContext & ctx, const Commands::ViewScene::DecodableType & req)
+AddSceneResponse::Type ScenesManagementCluster::HandleAddScene(FabricIndex fabricIndex,
+                                                               const ScenesManagement::Commands::AddScene::DecodableType & req)
+{
+    AddSceneResponse::Type response;
+    response.groupID = req.groupID;
+    response.sceneID = req.sceneID;
+
+    // Get Scene Table Instance
+    SceneTable * sceneTable = scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize);
+
+    // Verify the attributes are respecting constraints
+    if (req.transitionTime > scenes::kScenesMaxTransitionTime || req.sceneName.size() > scenes::kSceneNameMaxLength ||
+        req.sceneID == scenes::kUndefinedSceneId)
+    {
+        response.status = to_underlying(Protocols::InteractionModel::Status::ConstraintError);
+        return response;
+    }
+
+    // Verify Endpoint in group
+    if (nullptr == mGroupProvider)
+    {
+        response.status = to_underlying(Protocols::InteractionModel::Status::UnsupportedCommand);
+        return response;
+    }
+
+    if (0 != req.groupID && !mGroupProvider->HasEndpoint(fabricIndex, req.groupID, mPath.mEndpointId))
+    {
+        response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
+        return response;
+    }
+
+    SceneData storageData(CharSpan(), req.transitionTime);
+    if (mFeatures.Has(ScenesManagement::Feature::kSceneNames))
+    {
+        storageData.SetName(req.sceneName);
+    }
+
+    auto fieldSetIter = req.extensionFieldSetStructs.begin();
+    uint8_t EFSCount  = 0;
+    // Goes through all EFS in command
+    while (fieldSetIter.Next() && EFSCount < scenes::kMaxClustersPerScene)
+    {
+        scenes::ExtensionFieldSet tempEFS;
+        tempEFS.mID = fieldSetIter.GetValue().clusterID;
+
+        MutableByteSpan buff_span(tempEFS.mBytesBuffer);
+
+        // Check if a handler is registered for the EFS's cluster
+        for (auto & handler : sceneTable->mHandlerList)
+        {
+            if (handler.SupportsCluster(mPath.mEndpointId, tempEFS.mID))
+            {
+                VerifyOrReturnValue(
+                    ValidateSuccess(handler.SerializeAdd(mPath.mEndpointId, fieldSetIter.GetValue(), buff_span), response),
+                    response);
+                break;
+            }
+        }
+
+        static_assert(sizeof(tempEFS.mBytesBuffer) <= UINT8_MAX, "Serialized EFS number of bytes must fit in a uint8");
+        tempEFS.mUsedBytes = static_cast<uint8_t>(buff_span.size());
+
+        if (!tempEFS.IsEmpty())
+        {
+            TEMPORARY_RETURN_IGNORED storageData.mExtensionFieldSets.InsertFieldSet(tempEFS);
+        }
+    }
+    VerifyOrReturnValue(ValidateSuccess(fieldSetIter.GetStatus(), response), response);
+
+    // Create scene from data and ID
+    SceneTableEntry scene(SceneStorageId(req.sceneID, req.groupID), storageData);
+
+    // Get Capacity
+    if (nullptr == sceneTable)
+    {
+        response.status = to_underlying(Status::Failure);
+        return response;
+    }
+
+    uint8_t capacity = 0;
+    VerifyOrReturnValue(ValidateSuccess(sceneTable->GetRemainingCapacity(fabricIndex, capacity), response), response);
+
+    if (0 == capacity)
+    {
+        response.status = to_underlying(Protocols::InteractionModel::Status::ResourceExhausted);
+        return response;
+    }
+
+    //  Insert in table
+    VerifyOrReturnValue(ValidateSuccess(sceneTable->SetSceneTableEntry(fabricIndex, scene), response), response);
+
+    // Update FabricSceneInfo
+    VerifyOrReturnValue(
+        ValidateSuccess(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), Optional<bool>()), response),
+        response);
+
+    // Write response
+    response.status = to_underlying(Protocols::InteractionModel::Status::Success);
+    return response;
+}
+
+ViewSceneResponse::Type ScenesManagementCluster::HandleViewScene(FabricIndex fabricIndex,
+                                                                 const ScenesManagement::Commands::ViewScene::DecodableType & req)
 {
     MATTER_TRACE_SCOPE("ViewScene", "Scenes");
-    ViewSceneParse<Commands::ViewScene::DecodableType, Commands::ViewSceneResponse::Type>(ctx, req, mGroupProvider);
+
+    ViewSceneResponse::Type response;
+    response.groupID = req.groupID;
+    response.sceneID = req.sceneID;
+
+    // Get Scene Table Instance
+    SceneTable * sceneTable = scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize);
+
+    // Verify the attributes are respecting constraints
+    if (req.sceneID == scenes::kUndefinedSceneId)
+    {
+        response.status = to_underlying(Status::ConstraintError);
+        return response;
+    }
+
+    // Verify Endpoint in group
+    if (nullptr == mGroupProvider)
+    {
+        response.status = to_underlying(Status::Failure);
+        return response;
+    }
+
+    if (0 != req.groupID && !mGroupProvider->HasEndpoint(fabricIndex, req.groupID, mPath.mEndpointId))
+    {
+        response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
+        return response;
+    }
+
+    SceneTableEntry scene;
+
+    //  Gets the scene from the table
+    VerifyOrReturnValue(
+        ValidateSuccess(sceneTable->GetSceneTableEntry(fabricIndex, SceneStorageId(req.sceneID, req.groupID), scene), response),
+        response);
+
+    // Response Extension Field Sets buffer
+    ExtensionFieldSetStruct::Type responseEFSBuffer[scenes::kMaxClustersPerScene];
+    uint8_t deserializedEFSCount = 0;
+
+    // Adds extension field sets to the scene
+    for (uint8_t i = 0; i < scene.mStorageData.mExtensionFieldSets.GetFieldSetCount(); i++)
+    {
+        // gets data from the field in the scene
+        ExtensionFieldSet tempField;
+        TEMPORARY_RETURN_IGNORED scene.mStorageData.mExtensionFieldSets.GetFieldSetAtPosition(tempField, i);
+        ByteSpan efsSpan(tempField.mBytesBuffer, tempField.mUsedBytes);
+
+        // This should only find one handle per cluster
+        for (auto & handler : sceneTable->mHandlerList)
+        {
+            if (handler.SupportsCluster(mPath.mEndpointId, tempField.mID))
+            {
+                VerifyOrReturnValue(
+                    ValidateSuccess(handler.Deserialize(mPath.mEndpointId, tempField.mID, efsSpan, responseEFSBuffer[i]), response),
+                    response);
+                deserializedEFSCount++;
+                break;
+            }
+        }
+    }
+
+    response.status = to_underlying(Protocols::InteractionModel::Status::Success);
+    response.transitionTime.SetValue(scene.mStorageData.mSceneTransitionTimeMs);
+
+    response.sceneName.SetValue(CharSpan(scene.mStorageData.mName, scene.mStorageData.mNameLength));
+    Span<ExtensionFieldSetStruct::Type> responseEFSSpan(responseEFSBuffer, deserializedEFSCount);
+    response.extensionFieldSetStructs.SetValue(responseEFSSpan);
+
+    return response;
 }
-#endif
 
 RemoveSceneResponse::Type
 ScenesManagementCluster::HandleRemoveScene(FabricIndex fabricIndex,
@@ -842,8 +812,7 @@ ScenesManagementCluster::HandleRemoveScene(FabricIndex fabricIndex,
     }
 
     VerifyOrReturnValue(
-        ValidateSuccess(UpdateFabricSceneInfo(mPath.mEndpointId, fabricIndex, Optional<GroupId>(), Optional<SceneId>(), sceneValid),
-                        response),
+        ValidateSuccess(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), sceneValid), response),
         response);
 
     response.status = to_underlying(Protocols::InteractionModel::Status::Success);
@@ -886,8 +855,7 @@ ScenesManagementCluster::HandleRemoveAllScenes(FabricIndex fabricIndex,
     }
 
     VerifyOrReturnValue(
-        ValidateSuccess(UpdateFabricSceneInfo(mPath.mEndpointId, fabricIndex, Optional<GroupId>(), Optional<SceneId>(), sceneValid),
-                        response),
+        ValidateSuccess(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), sceneValid), response),
         response);
 
     response.status = to_underlying(Protocols::InteractionModel::Status::Success);
@@ -927,7 +895,7 @@ ScenesManagementCluster::HandleRecallScene(FabricIndex fabricIndex,
     // Verify the attributes are respecting constraints
     VerifyOrReturnError(req.sceneID != scenes::kUndefinedSceneId, Status::ConstraintError);
 
-    CHIP_ERROR err = RecallSceneParse(fabricIndex, mPath.mEndpointId, req.groupID, req.sceneID, req.transitionTime, mGroupProvider);
+    CHIP_ERROR err = RecallSceneParse(fabricIndex, req.groupID, req.sceneID, req.transitionTime);
 
     if (CHIP_NO_ERROR == err)
     {
@@ -942,68 +910,53 @@ ScenesManagementCluster::HandleRecallScene(FabricIndex fabricIndex,
 
     return StatusIB(err).mStatus;
 }
-#if 0
 
-void ScenesServer::HandleGetSceneMembership(HandlerContext & ctx, const Commands::GetSceneMembership::DecodableType & req)
+ScenesManagement::Commands::GetSceneMembershipResponse::Type
+ScenesManagementCluster::HandleGetSceneMembership(FabricIndex fabricIndex,
+                                                  const ScenesManagement::Commands::GetSceneMembership::DecodableType & req)
 {
     MATTER_TRACE_SCOPE("GetSceneMembership", "Scenes");
-    Commands::GetSceneMembershipResponse::Type response;
-
-    uint16_t endpointTableSize = 0;
-    ReturnOnFailure(
-        AddResponseOnError(ctx, response, Attributes::SceneTableSize::Get(ctx.mRequestPath.mEndpointId, &endpointTableSize)));
-
-    // Get Scene Table Instance
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(ctx.mRequestPath.mEndpointId, endpointTableSize);
-
-    // Response data
+    GetSceneMembershipResponse::Type response;
     response.groupID = req.groupID;
 
-    // Scene Table interface data
-    SceneId scenesInGroup[scenes::kMaxScenesPerFabric];
-    Span<SceneId> sceneList = Span<SceneId>(scenesInGroup);
-    SceneTableEntry scene;
-
     // Verify Endpoint in group
-    VerifyOrReturn(nullptr != mGroupProvider);
-    if (0 != req.groupID &&
-        !mGroupProvider->HasEndpoint(ctx.mCommandHandler.GetAccessingFabricIndex(), req.groupID, ctx.mRequestPath.mEndpointId))
+    if (nullptr != mGroupProvider)
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
-        ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-        return;
+        response.status = to_underlying(Status::Failure);
+        return response;
     }
 
-    uint8_t capacity = 0;
+    if (0 != req.groupID && !mGroupProvider->HasEndpoint(fabricIndex, req.groupID, mPath.mEndpointId))
+    {
+        response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
+        return response;
+    }
+
+    uint8_t capacity        = 0;
+    SceneTable * sceneTable = scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize);
+
     // Get Capacity
-    ReturnOnFailure(AddResponseOnError(ctx, response,
-                                       sceneTable->GetRemainingCapacity(ctx.mCommandHandler.GetAccessingFabricIndex(), capacity)));
+    VerifyOrReturnValue(ValidateSuccess(sceneTable->GetRemainingCapacity(fabricIndex, capacity), response), response);
     response.capacity.SetNonNull(capacity);
 
     // populate scene list
-    ReturnOnFailure(AddResponseOnError(
-        ctx, response, sceneTable->GetAllSceneIdsInGroup(ctx.mCommandHandler.GetAccessingFabricIndex(), req.groupID, sceneList)));
+    SceneId scenesInGroup[scenes::kMaxScenesPerFabric];
+    auto sceneList = Span<SceneId>(scenesInGroup);
+    VerifyOrReturnError(ValidateSuccess(sceneTable->GetAllSceneIdsInGroup(fabricIndex, req.groupID, sceneList), response),
+                        response);
 
     response.sceneList.SetValue(sceneList);
 
     // Write response
     response.status = to_underlying(Protocols::InteractionModel::Status::Success);
-    ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
+    return response;
 }
 
-void ScenesServer::HandleCopyScene(HandlerContext & ctx, const Commands::CopyScene::DecodableType & req)
+ScenesManagement::Commands::CopySceneResponse::Type
+ScenesManagementCluster::HandleCopyScene(FabricIndex fabricIndex, const ScenesManagement::Commands::CopyScene::DecodableType & req)
 {
     MATTER_TRACE_SCOPE("CopyScene", "Scenes");
-    Commands::CopySceneResponse::Type response;
-
-    uint16_t endpointTableSize = 0;
-    ReturnOnFailure(
-        AddResponseOnError(ctx, response, Attributes::SceneTableSize::Get(ctx.mRequestPath.mEndpointId, &endpointTableSize)));
-
-    // Get Scene Table Instance
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(ctx.mRequestPath.mEndpointId, endpointTableSize);
-
-    // Response data
+    CopySceneResponse::Type response;
     response.groupIdentifierFrom = req.groupIdentifierFrom;
     response.sceneIdentifierFrom = req.sceneIdentifierFrom;
 
@@ -1011,34 +964,32 @@ void ScenesServer::HandleCopyScene(HandlerContext & ctx, const Commands::CopySce
     if (req.sceneIdentifierFrom == scenes::kUndefinedSceneId || req.sceneIdentifierTo == scenes::kUndefinedSceneId)
     {
         response.status = to_underlying(Protocols::InteractionModel::Status::ResourceExhausted);
-        ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-        return;
+        return response;
     }
 
     // Verify Endpoint in group
-    VerifyOrReturn(nullptr != mGroupProvider);
-    if ((0 != req.groupIdentifierFrom &&
-         !mGroupProvider->HasEndpoint(ctx.mCommandHandler.GetAccessingFabricIndex(), req.groupIdentifierFrom,
-                                      ctx.mRequestPath.mEndpointId)) ||
-        (0 != req.groupIdentifierTo &&
-         !mGroupProvider->HasEndpoint(ctx.mCommandHandler.GetAccessingFabricIndex(), req.groupIdentifierTo,
-                                      ctx.mRequestPath.mEndpointId)))
+    if (nullptr != mGroupProvider)
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
-        ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-        return;
+        response.status = to_underlying(Status::Failure);
+        return response;
     }
 
-    uint8_t capacity = 0;
-    // Get Capacity
-    ReturnOnFailure(AddResponseOnError(ctx, response,
-                                       sceneTable->GetRemainingCapacity(ctx.mCommandHandler.GetAccessingFabricIndex(), capacity)));
+    if ((0 != req.groupIdentifierFrom && !mGroupProvider->HasEndpoint(fabricIndex, req.groupIdentifierFrom, mPath.mEndpointId)) ||
+        (0 != req.groupIdentifierTo && !mGroupProvider->HasEndpoint(fabricIndex, req.groupIdentifierTo, mPath.mEndpointId)))
+    {
+        response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
+        return response;
+    }
+
+    SceneTable * sceneTable = scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize);
+    uint8_t capacity        = 0;
+
+    VerifyOrReturnValue(ValidateSuccess(sceneTable->GetRemainingCapacity(fabricIndex, capacity), response), response);
 
     if (0 == capacity)
     {
         response.status = to_underlying(Protocols::InteractionModel::Status::ResourceExhausted);
-        ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-        return;
+        return response;
     }
 
     // Checks if we copy a single scene or all of them
@@ -1049,96 +1000,46 @@ void ScenesServer::HandleCopyScene(HandlerContext & ctx, const Commands::CopySce
         Span<SceneId> sceneList = Span<SceneId>(scenesInGroup);
 
         // populate scene list
-        ReturnOnFailure(AddResponseOnError(
-            ctx, response,
-            sceneTable->GetAllSceneIdsInGroup(ctx.mCommandHandler.GetAccessingFabricIndex(), req.groupIdentifierFrom, sceneList)));
+        VerifyOrReturnValue(
+            ValidateSuccess(sceneTable->GetAllSceneIdsInGroup(fabricIndex, req.groupIdentifierFrom, sceneList), response),
+            response);
 
         for (auto & sceneId : sceneList)
         {
             SceneTableEntry scene(SceneStorageId(sceneId, req.groupIdentifierFrom));
             //  Insert in table
-            ReturnOnFailure(AddResponseOnError(
-                ctx, response,
-                sceneTable->GetSceneTableEntry(ctx.mCommandHandler.GetAccessingFabricIndex(), scene.mStorageId, scene)));
+            VerifyOrReturnValue(ValidateSuccess(sceneTable->GetSceneTableEntry(fabricIndex, scene.mStorageId, scene), response),
+                                response);
 
             scene.mStorageId = SceneStorageId(sceneId, req.groupIdentifierTo);
 
-            ReturnOnFailure(AddResponseOnError(
-                ctx, response, sceneTable->SetSceneTableEntry(ctx.mCommandHandler.GetAccessingFabricIndex(), scene)));
+            VerifyOrReturnValue(ValidateSuccess(sceneTable->SetSceneTableEntry(fabricIndex, scene), response), response);
 
             // Update SceneInfoStruct Attributes after each insert in case we hit max capacity in the middle of the loop
-            ReturnOnFailure(AddResponseOnError(
-                ctx, response,
-                UpdateFabricSceneInfo(ctx.mRequestPath.mEndpointId, ctx.mCommandHandler.GetAccessingFabricIndex(),
-                                      Optional<GroupId>(), Optional<SceneId>(), Optional<bool>() /* = sceneValid*/)));
+            VerifyOrReturnValue(ValidateSuccess(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(),
+                                                                      Optional<bool>() /* = sceneValid*/),
+                                                response),
+                                response);
         }
 
         response.status = to_underlying(Protocols::InteractionModel::Status::Success);
-        ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-        return;
+        return response;
     }
 
     SceneTableEntry scene(SceneStorageId(req.sceneIdentifierFrom, req.groupIdentifierFrom));
-    ReturnOnFailure(AddResponseOnError(
-        ctx, response, sceneTable->GetSceneTableEntry(ctx.mCommandHandler.GetAccessingFabricIndex(), scene.mStorageId, scene)));
+    VerifyOrReturnValue(ValidateSuccess(sceneTable->GetSceneTableEntry(fabricIndex, scene.mStorageId, scene), response), response);
 
     scene.mStorageId = SceneStorageId(req.sceneIdentifierTo, req.groupIdentifierTo);
 
-    ReturnOnFailure(
-        AddResponseOnError(ctx, response, sceneTable->SetSceneTableEntry(ctx.mCommandHandler.GetAccessingFabricIndex(), scene)));
+    VerifyOrReturnValue(ValidateSuccess(sceneTable->SetSceneTableEntry(fabricIndex, scene), response), response);
 
     // Update Attributes
-    ReturnOnFailure(
-        AddResponseOnError(ctx, response,
-                           UpdateFabricSceneInfo(ctx.mRequestPath.mEndpointId, ctx.mCommandHandler.GetAccessingFabricIndex(),
-                                                 Optional<GroupId>(), Optional<SceneId>(), Optional<bool>())));
+    VerifyOrReturnValue(
+        ValidateSuccess(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), Optional<bool>()), response),
+        response);
 
     response.status = to_underlying(Protocols::InteractionModel::Status::Success);
-    ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-}
-#endif
-
-} // namespace Clusters
-} // namespace app
-} // namespace chip
-
-#if 0
-using namespace chip;
-using namespace chip::app::Clusters;
-using namespace chip::app::Clusters::ScenesManagement;
-
-void emberAfScenesManagementClusterServerInitCallback(EndpointId endpoint)
-{
-    // Initialize the FabricSceneInfo by getting the number of scenes and the remaining capacity for storing fabric scene data
-    for (auto & info : chip::Server::GetInstance().GetFabricTable())
-    {
-        auto fabric = info.GetFabricIndex();
-        TEMPORARY_RETURN_IGNORED UpdateFabricSceneInfo(endpoint, fabric, Optional<GroupId>(), Optional<SceneId>(),
-                                                       Optional<bool>());
-    }
+    return response;
 }
 
-void MatterScenesManagementClusterServerShutdownCallback(EndpointId endpoint)
-{
-    uint16_t endpointTableSize = 0;
-    VerifyOrReturn(Status::Success == Attributes::SceneTableSize::Get(endpoint, &endpointTableSize));
-
-    // Get Scene Table Instance
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(endpoint, endpointTableSize);
-    TEMPORARY_RETURN_IGNORED sceneTable->RemoveEndpoint();
-}
-
-void MatterScenesManagementPluginServerInitCallback()
-{
-    CHIP_ERROR err = ScenesServer::Instance().Init();
-    if (err != CHIP_NO_ERROR)
-    {
-        ChipLogError(Zcl, "ScenesServer::Instance().Init() error: %" CHIP_ERROR_FORMAT, err.Format());
-    }
-}
-
-void MatterScenesManagementPluginServerShutdownCallback()
-{
-    ScenesServer::Instance().Shutdown();
-}
-#endif
+} // namespace chip::app::Clusters

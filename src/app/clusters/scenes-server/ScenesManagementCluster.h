@@ -28,17 +28,15 @@
 
 namespace chip::app::Clusters {
 
-class ScenesManagementCluster : public DefaultServerCluster
-{
+class ScenesManagementCluster : public DefaultServerCluster {
 public:
     static constexpr uint8_t kScenesServerMaxFabricCount = CHIP_CONFIG_MAX_FABRICS;
-    static constexpr SceneId kGlobalSceneId              = 0x00;
-    static constexpr GroupId kGlobalSceneGroupId         = 0x0000;
+    static constexpr SceneId kGlobalSceneId = 0x00;
+    static constexpr GroupId kGlobalSceneGroupId = 0x0000;
 
     using SceneInfoStructType = ScenesManagement::Structs::SceneInfoStruct::Type;
 
-    class FabricSceneInfo
-    {
+    class FabricSceneInfo {
     public:
         Span<SceneInfoStructType> GetFabricSceneInfo() { return { mSceneInfoStructs, mSceneInfoStructsCount }; }
 
@@ -70,36 +68,34 @@ public:
     };
 
     /// Injected dependencies of this cluster
-    struct Context
-    {
+    struct Context {
         Credentials::GroupDataProvider * groupDataProvider;
         const BitMask<ScenesManagement::Feature> features;
         uint16_t sceneTableSize;
         const bool supportsCopyScene;
     };
 
-    ScenesManagementCluster(EndpointId endpointId, const Context & context) :
-        DefaultServerCluster({ endpointId, ScenesManagement::Id }), mFeatures(context.features),
-        mSceneTableSize(context.sceneTableSize), mSupportCopyScenes(context.supportsCopyScene),
-        mGroupProvider(context.groupDataProvider)
-    {}
+    ScenesManagementCluster(EndpointId endpointId, const Context & context)
+        : DefaultServerCluster({ endpointId, ScenesManagement::Id })
+        , mFeatures(context.features)
+        , mSceneTableSize(context.sceneTableSize)
+        , mSupportCopyScenes(context.supportsCopyScene)
+        , mGroupProvider(context.groupDataProvider)
+    {
+    }
 
     // ServerClusterInterface/DefaultServerCluster implementation
     CHIP_ERROR Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) override;
     DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request,
-                                                AttributeValueEncoder & encoder) override;
+        AttributeValueEncoder & encoder) override;
     CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path,
-                                ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override;
+        ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override;
     CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<CommandId> & builder) override;
     std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
-                                                               chip::TLV::TLVReader & input_arguments,
-                                                               CommandHandler * handler) override;
+        chip::TLV::TLVReader & input_arguments,
+        CommandHandler * handler) override;
 
     // TODO: which of these should be kept???
-
-    // SceneInfoStruct Accessors
-    SceneInfoStructType * GetSceneInfoStruct(FabricIndex fabric);
-    CHIP_ERROR SetSceneInfoStruct(FabricIndex fabric, SceneInfoStructType & sceneInfoStruct);
 
     // Callbacks
     void GroupWillBeRemoved(FabricIndex aFabricIx, GroupId aGroupId);
@@ -123,12 +119,29 @@ private:
     Credentials::GroupDataProvider * mGroupProvider = nullptr;
     FabricSceneInfo mFabricSceneInfo;
 
-    //  Command handlers
-    std::optional<DataModel::ActionReturnStatus> HandleAddScene(CommandHandler * handler,
-                                                                const ScenesManagement::Commands::AddScene::DecodableType & req);
+    SceneInfoStructType * GetSceneInfoStruct(FabricIndex fabric)
+    {
+        return mFabricSceneInfo.GetSceneInfoStruct(fabric);
+    }
 
-    std::optional<DataModel::ActionReturnStatus> HandleViewScene(CommandHandler * handler,
-                                                                 const ScenesManagement::Commands::ViewScene::DecodableType & req);
+    CHIP_ERROR SetSceneInfoStruct(FabricIndex fabric, SceneInfoStructType & sceneInfoStruct)
+    {
+        return mFabricSceneInfo.SetSceneInfoStruct(fabric, sceneInfoStruct);
+    }
+
+    CHIP_ERROR UpdateFabricSceneInfo(FabricIndex fabric, Optional<GroupId> group, Optional<SceneId> scene, Optional<bool> sceneValid);
+
+    CHIP_ERROR StoreSceneParse(const FabricIndex & fabricIdx, const GroupId & groupID, const SceneId & sceneID);
+
+    CHIP_ERROR RecallSceneParse(const FabricIndex & fabricIdx, const GroupId & groupID,
+        const SceneId & sceneID, const Optional<DataModel::Nullable<uint32_t>> & transitionTime);
+
+    //  Command handlers
+    ScenesManagement::Commands::AddSceneResponse::Type
+    HandleAddScene(FabricIndex fabricIndex, const ScenesManagement::Commands::AddScene::DecodableType & req);
+
+    ScenesManagement::Commands::ViewSceneResponse::Type
+    HandleViewScene(FabricIndex fabricIndex, const ScenesManagement::Commands::ViewScene::DecodableType & req);
 
     ScenesManagement::Commands::RemoveSceneResponse::Type
     HandleRemoveScene(FabricIndex fabricIndex, const ScenesManagement::Commands::RemoveScene::DecodableType & req);
@@ -140,13 +153,13 @@ private:
     HandleStoreScene(FabricIndex fabricIndex, const ScenesManagement::Commands::StoreScene::DecodableType & req);
 
     Protocols::InteractionModel::Status HandleRecallScene(FabricIndex fabricIndex,
-                                                          const ScenesManagement::Commands::RecallScene::DecodableType & req);
+        const ScenesManagement::Commands::RecallScene::DecodableType & req);
 
-    std::optional<DataModel::ActionReturnStatus>
-    HandleGetSceneMembership(CommandHandler * handler, const ScenesManagement::Commands::GetSceneMembership::DecodableType & req);
+    ScenesManagement::Commands::GetSceneMembershipResponse::Type
+    HandleGetSceneMembership(FabricIndex fabricIndex, const ScenesManagement::Commands::GetSceneMembership::DecodableType & req);
 
-    std::optional<DataModel::ActionReturnStatus> HandleCopyScene(CommandHandler * handler,
-                                                                 const ScenesManagement::Commands::CopyScene::DecodableType & req);
+    ScenesManagement::Commands::CopySceneResponse::Type
+    HandleCopyScene(FabricIndex fabricIndex, const ScenesManagement::Commands::CopyScene::DecodableType & req);
 };
 
 } // namespace chip::app::Clusters
