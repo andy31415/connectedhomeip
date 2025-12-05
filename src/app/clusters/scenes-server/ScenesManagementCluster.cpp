@@ -409,8 +409,7 @@ std::optional<DataModel::ActionReturnStatus> ScenesManagementCluster::InvokeComm
     case RecallScene::Id: {
         RecallScene::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        handler->AddResponse(request.path, HandleRecallScene(handler->GetAccessingFabricIndex(), request_data));
-        return std::nullopt;
+        return HandleRecallScene(handler->GetAccessingFabricIndex(), request_data);
     }
     case GetSceneMembership::Id: {
         GetSceneMembership::DecodableType request_data;
@@ -878,9 +877,7 @@ ScenesManagementCluster::HandleStoreScene(FabricIndex fabricIndex,
         return response;
     }
 
-    VerifyOrReturnValue(
-        ValidateSuccess(StoreSceneParse(fabricIndex, mPath.mEndpointId, req.groupID, req.sceneID, mGroupProvider), response),
-        response);
+    VerifyOrReturnValue(ValidateSuccess(StoreSceneParse(fabricIndex, req.groupID, req.sceneID), response), response);
 
     response.status = to_underlying(Protocols::InteractionModel::Status::Success);
     return response;
