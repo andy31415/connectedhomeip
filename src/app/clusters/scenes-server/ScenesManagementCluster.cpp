@@ -16,23 +16,9 @@
  *    limitations under the License.
  */
 
-#include "scenes-server.h"
+#include "ScenesManagementCluster.h"
 
-#include <app-common/zap-generated/attributes/Accessors.h>
-#include <app-common/zap-generated/cluster-objects.h>
-#include <app/AttributeAccessInterfaceRegistry.h>
-#include <app/CommandHandlerInterface.h>
-#include <app/CommandHandlerInterfaceRegistry.h>
-#include <app/InteractionModelEngine.h>
-#include <app/clusters/scenes-server/SceneTableImpl.h>
-#include <app/reporting/reporting.h>
-#include <app/server/Server.h>
-#include <credentials/GroupDataProvider.h>
-#include <data-model-providers/codegen/CodegenDataModelProvider.h>
-#include <lib/support/CommonIterator.h>
-#include <lib/support/Span.h>
-#include <lib/support/logging/CHIPLogging.h>
-#include <platform/PlatformManager.h>
+#include <clusters/ScenesManagement/Metadata.h>
 #include <tracing/macros.h>
 
 using SceneTableEntry   = chip::scenes::DefaultSceneTableImpl::SceneTableEntry;
@@ -43,13 +29,15 @@ using ExtensionFieldSet = chip::scenes::ExtensionFieldSet;
 using GroupDataProvider = chip::Credentials::GroupDataProvider;
 using SceneTable        = chip::scenes::SceneTable<chip::scenes::ExtensionFieldSetsImpl>;
 using AuthMode          = chip::Access::AuthMode;
-using ScenesServer      = chip::app::Clusters::ScenesManagement::ScenesServer;
 using chip::Protocols::InteractionModel::Status;
+
+using namespace chip::app::Clusters::ScenesManagement::Attributes;
+using namespace chip::app::Clusters::ScenesManagement::Commands;
+using namespace chip::app::Clusters::ScenesManagement::Structs;
 
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace ScenesManagement {
 
 namespace {
 
@@ -162,35 +150,11 @@ CHIP_ERROR UpdateFabricSceneInfo(EndpointId endpoint, FabricIndex fabric, Option
 
 } // namespace
 
-/// @brief Gets the SceneInfoStruct array associated to an endpoint
-/// @param endpoint target endpoint
-/// @return Optional with no value not found, Span of SceneInfoStruct
-Span<Structs::SceneInfoStruct::Type> ScenesServer::FabricSceneInfo::GetFabricSceneInfo(EndpointId endpoint)
+SceneInfoStruct::Type * ScenesManagementCluster::FabricSceneInfo::GetSceneInfoStruct(FabricIndex fabric)
 {
-    size_t endpointIndex = 0;
-    Span<Structs::SceneInfoStruct::Type> fabricSceneInfoSpan;
-    CHIP_ERROR status = FindFabricSceneInfoIndex(endpoint, endpointIndex);
-    if (CHIP_NO_ERROR == status)
-    {
-        fabricSceneInfoSpan =
-            Span<Structs::SceneInfoStruct::Type>(&mSceneInfoStructs[endpointIndex][0], mSceneInfoStructsCount[endpointIndex]);
-    }
-    return fabricSceneInfoSpan;
-}
-
-/// @brief Gets the SceneInfoStruct for a specific fabric for a specific endpoint
-/// @param endpoint target endpoint
-/// @param fabric target fabric
-/// @param index
-/// @return Nullptr if not found, pointer to the SceneInfoStruct otherwise
-Structs::SceneInfoStruct::Type * ScenesServer::FabricSceneInfo::GetSceneInfoStruct(EndpointId endpoint, FabricIndex fabric)
-{
-    size_t endpointIndex = 0;
-    VerifyOrReturnValue(CHIP_NO_ERROR == FindFabricSceneInfoIndex(endpoint, endpointIndex), nullptr);
     uint8_t sceneInfoStructIndex = 0;
-    VerifyOrReturnValue(CHIP_NO_ERROR == FindSceneInfoStructIndex(fabric, endpointIndex, sceneInfoStructIndex), nullptr);
-
-    return &mSceneInfoStructs[endpointIndex][sceneInfoStructIndex];
+    VerifyOrReturnValue(CHIP_NO_ERROR == FindSceneInfoStructIndex(fabric, sceneInfoStructIndex), nullptr);
+    return &mSceneInfoStructs[sceneInfoStructIndex];
 }
 
 /// @brief Sets the SceneInfoStruct for a specific fabric for a specific endpoint
@@ -199,97 +163,56 @@ Structs::SceneInfoStruct::Type * ScenesServer::FabricSceneInfo::GetSceneInfoStru
 /// @param [in] sceneInfoStruct SceneInfoStruct to set
 /// @return CHIP_NO_ERROR, CHIP_ERROR_NOT_FOUND if the endpoint is not found, CHIP_ERROR_NO_MEMORY if the number of fabrics is
 /// exceeded, CHIP_ERROR_INVALID_ARGUMENT if invalid fabric or endpoint
-CHIP_ERROR ScenesServer::FabricSceneInfo::SetSceneInfoStruct(EndpointId endpoint, FabricIndex fabric,
-                                                             Structs::SceneInfoStruct::Type & sceneInfoStruct)
+CHIP_ERROR ScenesManagementCluster::FabricSceneInfo::SetSceneInfoStruct(FabricIndex fabric,
+                                                                        const SceneInfoStruct::Type & sceneInfoStruct)
 {
-    VerifyOrReturnError(kInvalidEndpointId != endpoint, CHIP_ERROR_INVALID_ARGUMENT);
     VerifyOrReturnError(kUndefinedFabricIndex != fabric, CHIP_ERROR_INVALID_ARGUMENT);
 
-    size_t endpointIndex = 0;
-    ReturnErrorOnFailure(FindFabricSceneInfoIndex(endpoint, endpointIndex));
     uint8_t sceneInfoStructIndex = 0;
-    if (CHIP_ERROR_NOT_FOUND == FindSceneInfoStructIndex(fabric, endpointIndex, sceneInfoStructIndex))
+    if (CHIP_ERROR_NOT_FOUND == FindSceneInfoStructIndex(fabric, sceneInfoStructIndex))
     {
-        VerifyOrReturnError(mSceneInfoStructsCount[endpointIndex] < MATTER_ARRAY_SIZE(mSceneInfoStructs[endpointIndex]),
-                            CHIP_ERROR_NO_MEMORY);
-        sceneInfoStructIndex = mSceneInfoStructsCount[endpointIndex];
-
-        // Increment number of populated ScenesInfoStructs
-        mSceneInfoStructsCount[endpointIndex]++;
+        VerifyOrReturnError(mSceneInfoStructsCount < MATTER_ARRAY_SIZE(mSceneInfoStructs), CHIP_ERROR_NO_MEMORY);
+        sceneInfoStructIndex = mSceneInfoStructsCount;
+        mSceneInfoStructsCount++;
     }
-    mSceneInfoStructs[endpointIndex][sceneInfoStructIndex] = sceneInfoStruct;
-
+    mSceneInfoStructs[sceneInfoStructIndex] = sceneInfoStruct;
     return CHIP_NO_ERROR;
 }
 
-/// @brief Clears the SceneInfoStruct associated to a fabric and compresses the array to leave uninitialised structs at the end
-/// @param[in] endpoint target endpoint
-/// @param[in] fabric target fabric
-void ScenesServer::FabricSceneInfo::ClearSceneInfoStruct(EndpointId endpoint, FabricIndex fabric)
+void ScenesManagementCluster::FabricSceneInfo::ClearSceneInfoStruct(FabricIndex fabric)
 {
-    size_t endpointIndex = 0;
-    ReturnOnFailure(FindFabricSceneInfoIndex(endpoint, endpointIndex));
     uint8_t sceneInfoStructIndex = 0;
-    ReturnOnFailure(FindSceneInfoStructIndex(fabric, endpointIndex, sceneInfoStructIndex));
+    ReturnOnFailure(FindSceneInfoStructIndex(fabric, sceneInfoStructIndex));
 
     uint8_t nextIndex = static_cast<uint8_t>(sceneInfoStructIndex + 1);
-    uint8_t moveNum   = static_cast<uint8_t>(MATTER_ARRAY_SIZE(mSceneInfoStructs[endpointIndex]) - nextIndex);
+    uint8_t moveNum   = static_cast<uint8_t>(MATTER_ARRAY_SIZE(mSceneInfoStructs) - nextIndex);
     // Compress the endpoint's SceneInfoStruct array
     if (moveNum)
     {
         for (size_t i = 0; i < moveNum; ++i)
         {
-            mSceneInfoStructs[endpointIndex][sceneInfoStructIndex + i] = mSceneInfoStructs[endpointIndex][nextIndex + i];
+            mSceneInfoStructs[sceneInfoStructIndex + i] = mSceneInfoStructs[nextIndex + i];
         }
     }
 
     // Decrement the SceneInfoStruct count
-    mSceneInfoStructsCount[endpointIndex]--;
+    mSceneInfoStructsCount--;
 
     // Clear the last populated SceneInfoStruct
-    mSceneInfoStructs[endpointIndex][mSceneInfoStructsCount[endpointIndex]].fabricIndex       = kUndefinedFabricIndex;
-    mSceneInfoStructs[endpointIndex][mSceneInfoStructsCount[endpointIndex]].sceneCount        = 0;
-    mSceneInfoStructs[endpointIndex][mSceneInfoStructsCount[endpointIndex]].currentScene      = 0;
-    mSceneInfoStructs[endpointIndex][mSceneInfoStructsCount[endpointIndex]].currentGroup      = 0;
-    mSceneInfoStructs[endpointIndex][mSceneInfoStructsCount[endpointIndex]].remainingCapacity = 0;
+    mSceneInfoStructs[mSceneInfoStructsCount].fabricIndex       = kUndefinedFabricIndex;
+    mSceneInfoStructs[mSceneInfoStructsCount].sceneCount        = 0;
+    mSceneInfoStructs[mSceneInfoStructsCount].currentScene      = 0;
+    mSceneInfoStructs[mSceneInfoStructsCount].currentGroup      = 0;
+    mSceneInfoStructs[mSceneInfoStructsCount].remainingCapacity = 0;
 }
 
-/// @brief Returns the index of the FabricSceneInfo associated to an endpoint
-/// @param[in] endpoint target endpoint
-/// @param[out] endpointIndex index of the corresponding FabricSceneInfo for an endpoint, corresponds to a row in the
-/// mSceneInfoStructs array,
-/// @return CHIP_NO_ERROR or CHIP_ERROR_NOT_FOUND, CHIP_ERROR_INVALID_ARGUMENT if invalid endpoint
-CHIP_ERROR ScenesServer::FabricSceneInfo::FindFabricSceneInfoIndex(EndpointId endpoint, size_t & endpointIndex)
+CHIP_ERROR ScenesManagementCluster::FabricSceneInfo::FindSceneInfoStructIndex(FabricIndex fabric, uint8_t & index)
 {
-    VerifyOrReturnError(kInvalidEndpointId != endpoint, CHIP_ERROR_INVALID_ARGUMENT);
-
-    uint16_t index =
-        emberAfGetClusterServerEndpointIndex(endpoint, ScenesManagement::Id, MATTER_DM_SCENES_CLUSTER_SERVER_ENDPOINT_COUNT);
-
-    if (index < MATTER_ARRAY_SIZE(mSceneInfoStructs))
-    {
-        endpointIndex = index;
-        return CHIP_NO_ERROR;
-    }
-    return CHIP_ERROR_NOT_FOUND;
-}
-
-/// @brief Returns the SceneInfoStruct associated to a fabric
-/// @param[in] fabric target fabric index
-/// @param[in] endpointIndex index of the corresponding FabricSceneInfo for an endpoint, corresponds to a row in the
-/// mSceneInfoStructs array
-/// @param[out] index index of the corresponding SceneInfoStruct if found, otherwise the index value will be invalid and
-/// should not be used. This is safe to store in a uint8_t because the index is guaranteed to be smaller than
-/// CHIP_CONFIG_MAX_FABRICS.
-/// @return CHIP_NO_ERROR or CHIP_ERROR_NOT_FOUND, CHIP_ERROR_INVALID_ARGUMENT if invalid fabric or endpointIndex are provided
-CHIP_ERROR ScenesServer::FabricSceneInfo::FindSceneInfoStructIndex(FabricIndex fabric, size_t endpointIndex, uint8_t & index)
-{
-    VerifyOrReturnError(endpointIndex < MATTER_ARRAY_SIZE(mSceneInfoStructs), CHIP_ERROR_INVALID_ARGUMENT);
     VerifyOrReturnError(kUndefinedFabricIndex != fabric, CHIP_ERROR_INVALID_ARGUMENT);
 
     index = 0;
 
-    for (auto & info : mSceneInfoStructs[endpointIndex])
+    for (auto & info : mSceneInfoStructs)
     {
         if (info.fabricIndex == fabric)
         {
@@ -301,14 +224,55 @@ CHIP_ERROR ScenesServer::FabricSceneInfo::FindSceneInfoStructIndex(FabricIndex f
     return CHIP_ERROR_NOT_FOUND;
 }
 
-ScenesServer ScenesServer::mInstance;
-
-ScenesServer & ScenesServer::Instance()
+CHIP_ERROR ScenesManagementCluster::Attributes(const ConcreteClusterPath & path,
+                                               ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder)
 {
-    return mInstance;
+    return builder.ReferenceExisting(ScenesManagement::Attributes::kMandatoryMetadata);
 }
-void ReportAttributeOnAllEndpoints(AttributeId attribute) {}
 
+CHIP_ERROR ScenesManagementCluster::AcceptedCommands(const ConcreteClusterPath & path,
+                                                     ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder)
+{
+    if (mSupportCopyScenes)
+    {
+        ReturnErrorOnFailure(builder.EnsureAppendCapacity(1));
+        ReturnErrorOnFailure(builder.Append(CopyScene::kMetadataEntry));
+    }
+
+    static constexpr DataModel::AcceptedCommandEntry kCommands[] = {
+        AddScene::kMetadataEntry,           //
+        ViewScene::kMetadataEntry,          //
+        RemoveScene::kMetadataEntry,        //
+        RemoveAllScenes::kMetadataEntry,    //
+        StoreScene::kMetadataEntry,         //
+        RecallScene::kMetadataEntry,        //
+        GetSceneMembership::kMetadataEntry, //
+    };
+
+    return builder.ReferenceExisting(kCommands);
+}
+
+CHIP_ERROR ScenesManagementCluster::GeneratedCommands(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<CommandId> & builder)
+{
+    if (mSupportCopyScenes)
+    {
+        ReturnErrorOnFailure(builder.EnsureAppendCapacity(1));
+        ReturnErrorOnFailure(builder.Append(CopySceneResponse::Id));
+    }
+
+    static constexpr CommandId kCommands[] = {
+        AddSceneResponse::Id,           //
+        ViewSceneResponse::Id,          //
+        RemoveSceneResponse::Id,        //
+        RemoveAllScenesResponse::Id,    //
+        StoreSceneResponse::Id,         //
+        GetSceneMembershipResponse::Id, //
+    };
+
+    return builder.ReferenceExisting(kCommands);
+}
+
+#if 0
 class ScenesClusterFabricDelegate : public chip::FabricTable::Delegate
 {
     void OnFabricRemoved(const FabricTable & fabricTable, FabricIndex fabricIndex) override
@@ -635,61 +599,69 @@ CHIP_ERROR RecallSceneParse(const FabricIndex & fabricIdx, const EndpointId & en
 
     return CHIP_NO_ERROR;
 }
+#endif
 
-// CommandHanlerInterface
-void ScenesServer::InvokeCommand(HandlerContext & ctxt)
+std::optional<DataModel::ActionReturnStatus> ScenesManagementCluster::InvokeCommand(const DataModel::InvokeRequest & request,
+                                                                                    chip::TLV::TLVReader & input_arguments,
+                                                                                    CommandHandler * handler)
 {
-    switch (ctxt.mRequestPath.mCommandId)
+    switch (request.path.mCommandId)
     {
-    case Commands::AddScene::Id:
-        HandleCommand<Commands::AddScene::DecodableType>(
-            ctxt, [this](HandlerContext & ctx, const auto & req) { HandleAddScene(ctx, req); });
-        return;
-    case Commands::ViewScene::Id:
-        HandleCommand<Commands::ViewScene::DecodableType>(
-            ctxt, [this](HandlerContext & ctx, const auto & req) { HandleViewScene(ctx, req); });
-        return;
-    case Commands::RemoveScene::Id:
-        HandleCommand<Commands::RemoveScene::DecodableType>(
-            ctxt, [this](HandlerContext & ctx, const auto & req) { HandleRemoveScene(ctx, req); });
-        return;
-    case Commands::RemoveAllScenes::Id:
-        HandleCommand<Commands::RemoveAllScenes::DecodableType>(
-            ctxt, [this](HandlerContext & ctx, const auto & req) { HandleRemoveAllScenes(ctx, req); });
-        return;
-    case Commands::StoreScene::Id:
-        HandleCommand<Commands::StoreScene::DecodableType>(
-            ctxt, [this](HandlerContext & ctx, const auto & req) { HandleStoreScene(ctx, req); });
-        return;
-    case Commands::RecallScene::Id:
-        HandleCommand<Commands::RecallScene::DecodableType>(
-            ctxt, [this](HandlerContext & ctx, const auto & req) { HandleRecallScene(ctx, req); });
-        return;
-    case Commands::GetSceneMembership::Id:
-        HandleCommand<Commands::GetSceneMembership::DecodableType>(
-            ctxt, [this](HandlerContext & ctx, const auto & req) { HandleGetSceneMembership(ctx, req); });
-        return;
-    case Commands::CopyScene::Id:
-        HandleCommand<Commands::CopyScene::DecodableType>(
-            ctxt, [this](HandlerContext & ctx, const auto & req) { HandleCopyScene(ctx, req); });
-        return;
+    case AddScene::Id: {
+        AddScene::DecodableType request_data;
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        return HandleAddScene(handler, request_data);
+    }
+    case ViewScene::Id: {
+        ViewScene::DecodableType request_data;
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        return HandleViewScene(handler, request_data);
+    }
+    case RemoveScene::Id: {
+        RemoveScene::DecodableType request_data;
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        return HandleRemoveScene(handler, request_data);
+    }
+    case RemoveAllScenes::Id: {
+        RemoveAllScenes::DecodableType request_data;
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        return HandleRemoveAllScenes(handler, request_data);
+    }
+    case StoreScene::Id: {
+        StoreScene::DecodableType request_data;
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        return HandleStoreScene(handler, request_data);
+    }
+    case GetSceneMembership::Id: {
+        GetSceneMembership::DecodableType request_data;
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        return HandleGetSceneMembership(handler, request_data);
+    }
+    case CopyScene::Id: {
+        CopyScene::DecodableType request_data;
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        return HandleCopyScene(handler, request_data);
+    }
+    default:
+        return Protocols::InteractionModel::Status::UnsupportedCommand;
     }
 }
 
-// AttributeAccessInterface
-CHIP_ERROR ScenesServer::Read(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder)
+DataModel::ActionReturnStatus ScenesManagementCluster::ReadAttribute(const DataModel::ReadAttributeRequest & request,
+                                                                     AttributeValueEncoder & encoder)
 {
-    uint16_t endpointTableSize = 0;
-    ReturnErrorOnFailure(StatusIB(Attributes::SceneTableSize::Get(aPath.mEndpointId, &endpointTableSize)).ToChipError());
-
-    // Get Scene Table Instance
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(aPath.mEndpointId, endpointTableSize);
-
-    switch (aPath.mAttributeId)
+    switch (request.path.mAttributeId)
     {
-    case Attributes::FabricSceneInfo::Id: {
-        return aEncoder.EncodeList([&, sceneTable](const auto & encoder) -> CHIP_ERROR {
-            Span<Structs::SceneInfoStruct::Type> fabricSceneInfoSpan = mFabricSceneInfo.GetFabricSceneInfo(aPath.mEndpointId);
+    case ClusterRevision::Id:
+        return encoder.Encode(ScenesManagement::kRevision);
+    case FeatureMap::Id:
+        return encoder.Encode(mFeatures);
+    case SceneTableSize::Id:
+        return encoder.Encode(mSceneTableSize);
+    case ScenesManagement::Attributes::FabricSceneInfo::Id: {
+        SceneTable * sceneTable = scenes::GetSceneTableImpl(request.path.mEndpointId, mSceneTableSize);
+        return encoder.EncodeList([&, sceneTable](const auto & encoder) -> CHIP_ERROR {
+            Span<SceneInfoStruct::Type> fabricSceneInfoSpan = mFabricSceneInfo.GetFabricSceneInfo();
             for (auto & info : fabricSceneInfoSpan)
             {
                 // Update the SceneInfoStruct's Capacity in case it's capacity was limited by other fabrics
@@ -700,9 +672,11 @@ CHIP_ERROR ScenesServer::Read(const ConcreteReadAttributePath & aPath, Attribute
         });
     }
     default:
-        return CHIP_NO_ERROR;
+        return Protocols::InteractionModel::Status::UnsupportedAttribute;
     }
 }
+
+#if 0
 
 Structs::SceneInfoStruct::Type * ScenesServer::GetSceneInfoStruct(EndpointId endpoint, FabricIndex fabric)
 {
@@ -805,76 +779,71 @@ void ScenesServer::HandleAddScene(HandlerContext & ctx, const Commands::AddScene
     MATTER_TRACE_SCOPE("AddScene", "Scenes");
     AddSceneParse<Commands::AddScene::DecodableType, Commands::AddSceneResponse::Type>(ctx, req, mGroupProvider);
 }
+#endif
+#if 0
 
 void ScenesServer::HandleViewScene(HandlerContext & ctx, const Commands::ViewScene::DecodableType & req)
 {
     MATTER_TRACE_SCOPE("ViewScene", "Scenes");
     ViewSceneParse<Commands::ViewScene::DecodableType, Commands::ViewSceneResponse::Type>(ctx, req, mGroupProvider);
 }
+#endif
 
-void ScenesServer::HandleRemoveScene(HandlerContext & ctx, const Commands::RemoveScene::DecodableType & req)
+std::optional<DataModel::ActionReturnStatus>
+ScenesManagementCluster::HandleRemoveScene(CommandHandler * handler,
+                                           const ScenesManagement::Commands::RemoveScene::DecodableType & req)
 {
     MATTER_TRACE_SCOPE("RemoveScene", "Scenes");
-    Commands::RemoveSceneResponse::Type response;
-
-    uint16_t endpointTableSize = 0;
-    ReturnOnFailure(
-        AddResponseOnError(ctx, response, Attributes::SceneTableSize::Get(ctx.mRequestPath.mEndpointId, &endpointTableSize)));
 
     // Get Scene Table Instance
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(ctx.mRequestPath.mEndpointId, endpointTableSize);
-
-    // Response data
-    response.groupID = req.groupID;
-    response.sceneID = req.sceneID;
+    SceneTable * sceneTable = scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize);
 
     // Verify the attributes are respecting constraints
     if (req.sceneID == scenes::kUndefinedSceneId)
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::ConstraintError);
-        ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-        return;
+        return Status::ConstraintError;
     }
 
     // Scene Table interface data
     SceneTableEntry scene(SceneStorageId(req.sceneID, req.groupID));
 
     // Verify Endpoint in group
-    VerifyOrReturn(nullptr != mGroupProvider);
-    if (0 != req.groupID &&
-        !mGroupProvider->HasEndpoint(ctx.mCommandHandler.GetAccessingFabricIndex(), req.groupID, ctx.mRequestPath.mEndpointId))
+    VerifyOrReturnError(nullptr != mGroupProvider, Status::Failure);
+    if (0 != req.groupID && !mGroupProvider->HasEndpoint(handler->GetAccessingFabricIndex(), req.groupID, mPath.mEndpointId))
     {
-        response.status = to_underlying(Protocols::InteractionModel::Status::InvalidCommand);
-        ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-        return;
+        return Status::InvalidCommand;
     }
 
     //  Gets the scene from the table
-    ReturnOnFailure(AddResponseOnError(
-        ctx, response, sceneTable->GetSceneTableEntry(ctx.mCommandHandler.GetAccessingFabricIndex(), scene.mStorageId, scene)));
+    ReturnErrorOnFailure(sceneTable->GetSceneTableEntry(handler->GetAccessingFabricIndex(), scene.mStorageId, scene));
 
     // Remove the scene from the scene table
-    ReturnOnFailure(AddResponseOnError(
-        ctx, response, sceneTable->RemoveSceneTableEntry(ctx.mCommandHandler.GetAccessingFabricIndex(), scene.mStorageId)));
+    ReturnErrorOnFailure(sceneTable->RemoveSceneTableEntry(handler->GetAccessingFabricIndex(), scene.mStorageId));
 
     // Update SceneInfoStruct Attributes
-    Structs::SceneInfoStruct::Type * sceneInfo =
-        GetSceneInfoStruct(ctx.mRequestPath.mEndpointId, ctx.mCommandHandler.GetAccessingFabricIndex());
+    SceneInfoStruct::Type * sceneInfo = GetSceneInfoStruct(handler->GetAccessingFabricIndex());
     Optional<bool> sceneValid;
     if (nullptr != sceneInfo && req.groupID == sceneInfo->currentGroup && req.sceneID == sceneInfo->currentScene)
     {
         sceneValid.Emplace(false);
     }
 
-    ReturnOnFailure(
-        AddResponseOnError(ctx, response,
-                           UpdateFabricSceneInfo(ctx.mRequestPath.mEndpointId, ctx.mCommandHandler.GetAccessingFabricIndex(),
-                                                 Optional<GroupId>(), Optional<SceneId>(), sceneValid)));
+    ReturnErrorOnFailure(UpdateFabricSceneInfo(mPath.mEndpointId, handler->GetAccessingFabricIndex(), Optional<GroupId>(),
+                                               Optional<SceneId>(), sceneValid));
 
     // Write response
-    response.status = to_underlying(Protocols::InteractionModel::Status::Success);
+    RemoveSceneResponse::Type response;
+
+    response.groupID = req.groupID;
+    response.sceneID = req.sceneID;
+    response.status  = to_underlying(Protocols::InteractionModel::Status::Success);
+
     ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
+
+    return std::nullopt;
 }
+
+#if 0
 
 void ScenesServer::HandleRemoveAllScenes(HandlerContext & ctx, const Commands::RemoveAllScenes::DecodableType & req)
 {
@@ -1131,12 +1100,13 @@ void ScenesServer::HandleCopyScene(HandlerContext & ctx, const Commands::CopySce
     response.status = to_underlying(Protocols::InteractionModel::Status::Success);
     ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
 }
+#endif
 
-} // namespace ScenesManagement
 } // namespace Clusters
 } // namespace app
 } // namespace chip
 
+#if 0
 using namespace chip;
 using namespace chip::app::Clusters;
 using namespace chip::app::Clusters::ScenesManagement;
@@ -1175,3 +1145,4 @@ void MatterScenesManagementPluginServerShutdownCallback()
 {
     ScenesServer::Instance().Shutdown();
 }
+#endif

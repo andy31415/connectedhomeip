@@ -17,120 +17,127 @@
 
 #pragma once
 
-#include <app-common/zap-generated/cluster-objects.h>
-#include <app/AttributeAccessInterface.h>
-#include <app/CommandHandlerInterface.h>
-#include <app/ConcreteCommandPath.h>
 #include <app/clusters/scenes-server/SceneTableImpl.h>
-#include <app/data-model/DecodableList.h>
-#include <app/data-model/Nullable.h>
-#include <app/util/attribute-storage.h>
-#include <app/util/config.h>
+#include <app/server-cluster/DefaultServerCluster.h>
+#include <clusters/ScenesManagement/AttributeIds.h>
+#include <clusters/ScenesManagement/ClusterId.h>
+#include <clusters/ScenesManagement/Structs.h>
 #include <credentials/GroupDataProvider.h>
+#include <limits>
 
-namespace chip {
-namespace app {
-namespace Clusters {
-namespace ScenesManagement {
+namespace chip::app::Clusters {
 
-class ScenesServer : public CommandHandlerInterface, public AttributeAccessInterface
+class ScenesManagementCluster : public DefaultServerCluster
 {
 public:
-    static constexpr size_t kScenesServerMaxEndpointCount =
-        MATTER_DM_SCENES_CLUSTER_SERVER_ENDPOINT_COUNT + CHIP_DEVICE_CONFIG_DYNAMIC_ENDPOINT_COUNT;
-    static_assert(kScenesServerMaxEndpointCount <= kEmberInvalidEndpointIndex, "Scenes endpoint count error");
     static constexpr uint8_t kScenesServerMaxFabricCount = CHIP_CONFIG_MAX_FABRICS;
     static constexpr SceneId kGlobalSceneId              = 0x00;
     static constexpr GroupId kGlobalSceneGroupId         = 0x0000;
 
-    // FabricSceneInfo
+    using SceneInfoStructType = ScenesManagement::Structs::SceneInfoStruct::Type;
+
     class FabricSceneInfo
     {
     public:
-        Span<Structs::SceneInfoStruct::Type> GetFabricSceneInfo(EndpointId endpoint);
-        Structs::SceneInfoStruct::Type * GetSceneInfoStruct(EndpointId endpoint, FabricIndex fabric);
-        CHIP_ERROR SetSceneInfoStruct(EndpointId endpoint, FabricIndex fabric, Structs::SceneInfoStruct::Type & sceneInfoStruct);
-        void ClearSceneInfoStruct(EndpointId endpoint, FabricIndex fabric);
+        Span<SceneInfoStructType> GetFabricSceneInfo() { return { mSceneInfoStructs, mSceneInfoStructsCount }; }
+
+        /// Gets the SceneInfoStruct for a specific fabric.
+        ///
+        /// returns nullptr if not found
+        SceneInfoStructType * GetSceneInfoStruct(FabricIndex fabric);
+
+        /// Sets the SceneInfoStruct for a specific fabric for a specific endpoint.
+        CHIP_ERROR SetSceneInfoStruct(FabricIndex fabric, const SceneInfoStructType & sceneInfoStruct);
+
+        /// Clears the SceneInfoStruct associated to a fabric and compresses the array to leave uninitialised structs at the end.
+        void ClearSceneInfoStruct(FabricIndex fabric);
 
     private:
-        /// @brief Returns the index of the FabricSceneInfo associated to an endpoint
-        /// @param[in] endpoint target endpoint
-        /// @param[out] endpointIndex index of the corresponding FabricSceneInfo for an endpoint, corresponds to a row in the
-        /// mSceneInfoStructs array,
-        /// @return CHIP_NO_ERROR or CHIP_ERROR_NOT_FOUND, CHIP_ERROR_INVALID_ARGUMENT if invalid endpoint
-        CHIP_ERROR FindFabricSceneInfoIndex(EndpointId endpoint, size_t & endpointIndex);
+        static_assert(kScenesServerMaxFabricCount <= std::numeric_limits<uint8_t>::max());
 
-        /// @brief Returns the SceneInfoStruct associated to a fabric
+        /// Returns the SceneInfoStruct associated to a fabric
+        ///
         /// @param[in] fabric target fabric index
-        /// @param[in] endpointIndex index of the corresponding FabricSceneInfo for an endpoint, corresponds to a row in the
-        /// mSceneInfoStructs array
         /// @param[out] index index of the corresponding SceneInfoStruct if found, otherwise the index value will be invalid and
         /// should not be used. This is safe to store in a uint8_t because the index is guaranteed to be smaller than
         /// CHIP_CONFIG_MAX_FABRICS.
+        ///
         /// @return CHIP_NO_ERROR or CHIP_ERROR_NOT_FOUND, CHIP_ERROR_INVALID_ARGUMENT if invalid fabric or endpoint
-        CHIP_ERROR FindSceneInfoStructIndex(FabricIndex fabric, size_t endpointIndex, uint8_t & index);
-
-        Structs::SceneInfoStruct::Type mSceneInfoStructs[kScenesServerMaxEndpointCount][kScenesServerMaxFabricCount];
-        uint8_t mSceneInfoStructsCount[kScenesServerMaxEndpointCount] = { 0 };
+        CHIP_ERROR FindSceneInfoStructIndex(FabricIndex fabric, uint8_t & index);
+        SceneInfoStructType mSceneInfoStructs[kScenesServerMaxFabricCount];
+        uint8_t mSceneInfoStructsCount = 0;
     };
 
-    static ScenesServer & Instance();
+    /// Injected dependencies of this cluster
+    struct Context
+    {
+        Credentials::GroupDataProvider * groupDataProvider;
+        const BitMask<ScenesManagement::Feature> features;
+        uint16_t sceneTableSize;
+        const bool supportsCopyScene;
+    };
 
-    CHIP_ERROR Init();
-    void Shutdown();
+    ScenesManagementCluster(EndpointId endpointId, const Context & context) :
+        DefaultServerCluster({ endpointId, ScenesManagement::Id }), mFeatures(context.features),
+        mSceneTableSize(context.sceneTableSize), mSupportCopyScenes(context.supportsCopyScene),
+        mGroupProvider(context.groupDataProvider)
+    {}
 
-    // CommandHandlerInterface
-    void InvokeCommand(HandlerContext & ctx) override;
+    // ServerClusterInterface/DefaultServerCluster implementation
+    CHIP_ERROR Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) override;
+    DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request,
+                                                AttributeValueEncoder & encoder) override;
+    CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path,
+                                ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override;
+    CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<CommandId> & builder) override;
+    std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
+                                                               chip::TLV::TLVReader & input_arguments,
+                                                               CommandHandler * handler) override;
 
-    // AttributeAccessInterface
-    CHIP_ERROR Read(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) override;
+    // TODO: which of these should be kept???
 
     // SceneInfoStruct Accessors
-    Structs::SceneInfoStruct::Type * GetSceneInfoStruct(EndpointId endpoint, FabricIndex fabric);
-    CHIP_ERROR SetSceneInfoStruct(EndpointId endpoint, FabricIndex fabric, Structs::SceneInfoStruct::Type & sceneInfoStruct);
+    SceneInfoStructType * GetSceneInfoStruct(FabricIndex fabric);
+    CHIP_ERROR SetSceneInfoStruct(FabricIndex fabric, SceneInfoStructType & sceneInfoStruct);
 
     // Callbacks
-    void GroupWillBeRemoved(FabricIndex aFabricIx, EndpointId aEndpointId, GroupId aGroupId);
-    void MakeSceneInvalid(EndpointId aEndpointId, FabricIndex aFabricIx);
-    void MakeSceneInvalidForAllFabrics(EndpointId aEndpointId);
-    void StoreCurrentScene(FabricIndex aFabricIx, EndpointId aEndpointId, GroupId aGroupId, SceneId aSceneId);
-    void RecallScene(FabricIndex aFabricIx, EndpointId aEndpointId, GroupId aGroupId, SceneId aSceneId);
+    void GroupWillBeRemoved(FabricIndex aFabricIx, GroupId aGroupId);
+    void MakeSceneInvalid(FabricIndex aFabricIx);
+    void MakeSceneInvalidForAllFabrics();
+    void StoreCurrentScene(FabricIndex aFabricIx, GroupId aGroupId, SceneId aSceneId);
+    void RecallScene(FabricIndex aFabricIx, GroupId aGroupId, SceneId aSceneId);
 
     // Handlers for extension field sets
-    bool IsHandlerRegistered(EndpointId aEndpointId, scenes::SceneHandler * handler);
-    void RegisterSceneHandler(EndpointId aEndpointId, scenes::SceneHandler * handler);
-    void UnregisterSceneHandler(EndpointId aEndpointId, scenes::SceneHandler * handler);
+    bool IsHandlerRegistered(scenes::SceneHandler * handler);
+    void RegisterSceneHandler(scenes::SceneHandler * handler);
+    void UnregisterSceneHandler(scenes::SceneHandler * handler);
 
     // Fabric
-    void RemoveFabric(EndpointId aEndpointId, FabricIndex aFabricIndex);
+    void RemoveFabric(FabricIndex aFabricIndex);
 
 private:
-    ScenesServer() : CommandHandlerInterface(Optional<EndpointId>(), Id), AttributeAccessInterface(Optional<EndpointId>(), Id) {}
-    ~ScenesServer() { Shutdown(); }
-
-    bool mIsInitialized = false;
-
-    //  Command handlers
-    void HandleAddScene(HandlerContext & ctx, const Commands::AddScene::DecodableType & req);
-    void HandleViewScene(HandlerContext & ctx, const Commands::ViewScene::DecodableType & req);
-    void HandleRemoveScene(HandlerContext & ctx, const Commands::RemoveScene::DecodableType & req);
-    void HandleRemoveAllScenes(HandlerContext & ctx, const Commands::RemoveAllScenes::DecodableType & req);
-    void HandleStoreScene(HandlerContext & ctx, const Commands::StoreScene::DecodableType & req);
-    void HandleRecallScene(HandlerContext & ctx, const Commands::RecallScene::DecodableType & req);
-    void HandleGetSceneMembership(HandlerContext & ctx, const Commands::GetSceneMembership::DecodableType & req);
-    void HandleCopyScene(HandlerContext & ctx, const Commands::CopyScene::DecodableType & req);
-
-    // Group Data Provider
+    const BitMask<ScenesManagement::Feature> mFeatures;
+    const uint16_t mSceneTableSize;
+    bool mSupportCopyScenes;
     Credentials::GroupDataProvider * mGroupProvider = nullptr;
-
-    // FabricSceneInfo
     FabricSceneInfo mFabricSceneInfo;
 
-    // Instance
-    static ScenesServer mInstance;
+    //  Command handlers
+    std::optional<DataModel::ActionReturnStatus> HandleAddScene(CommandHandler * handler,
+                                                                const ScenesManagement::Commands::AddScene::DecodableType & req);
+    std::optional<DataModel::ActionReturnStatus> HandleViewScene(CommandHandler * handler,
+                                                                 const ScenesManagement::Commands::ViewScene::DecodableType & req);
+    std::optional<DataModel::ActionReturnStatus>
+    HandleRemoveScene(CommandHandler * handler, const ScenesManagement::Commands::RemoveScene::DecodableType & req);
+    std::optional<DataModel::ActionReturnStatus>
+    HandleRemoveAllScenes(CommandHandler * handler, const ScenesManagement::Commands::RemoveAllScenes::DecodableType & req);
+    std::optional<DataModel::ActionReturnStatus>
+    HandleStoreScene(CommandHandler * handler, const ScenesManagement::Commands::StoreScene::DecodableType & req);
+    Protocols::InteractionModel::Status HandleRecallScene(const ScenesManagement::Commands::RecallScene::DecodableType & req);
+    std::optional<DataModel::ActionReturnStatus>
+    HandleGetSceneMembership(CommandHandler * handler, const ScenesManagement::Commands::GetSceneMembership::DecodableType & req);
+    std::optional<DataModel::ActionReturnStatus> HandleCopyScene(CommandHandler * handler,
+                                                                 const ScenesManagement::Commands::CopyScene::DecodableType & req);
 };
 
-} // namespace ScenesManagement
-} // namespace Clusters
-} // namespace app
-} // namespace chip
+} // namespace chip::app::Clusters
