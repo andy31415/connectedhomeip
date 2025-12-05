@@ -21,6 +21,7 @@
 #include <app/server-cluster/DefaultServerCluster.h>
 #include <clusters/ScenesManagement/AttributeIds.h>
 #include <clusters/ScenesManagement/ClusterId.h>
+#include <clusters/ScenesManagement/Commands.h>
 #include <clusters/ScenesManagement/Structs.h>
 #include <credentials/GroupDataProvider.h>
 #include <limits>
@@ -125,17 +126,24 @@ private:
     //  Command handlers
     std::optional<DataModel::ActionReturnStatus> HandleAddScene(CommandHandler * handler,
                                                                 const ScenesManagement::Commands::AddScene::DecodableType & req);
+
     std::optional<DataModel::ActionReturnStatus> HandleViewScene(CommandHandler * handler,
                                                                  const ScenesManagement::Commands::ViewScene::DecodableType & req);
-    std::optional<DataModel::ActionReturnStatus>
+
+    ScenesManagement::Commands::RemoveSceneResponse::Type
     HandleRemoveScene(CommandHandler * handler, const ScenesManagement::Commands::RemoveScene::DecodableType & req);
-    std::optional<DataModel::ActionReturnStatus>
+
+    ScenesManagement::Commands::RemoveAllScenesResponse::Type
     HandleRemoveAllScenes(CommandHandler * handler, const ScenesManagement::Commands::RemoveAllScenes::DecodableType & req);
+
     std::optional<DataModel::ActionReturnStatus>
     HandleStoreScene(CommandHandler * handler, const ScenesManagement::Commands::StoreScene::DecodableType & req);
+
     Protocols::InteractionModel::Status HandleRecallScene(const ScenesManagement::Commands::RecallScene::DecodableType & req);
+
     std::optional<DataModel::ActionReturnStatus>
     HandleGetSceneMembership(CommandHandler * handler, const ScenesManagement::Commands::GetSceneMembership::DecodableType & req);
+
     std::optional<DataModel::ActionReturnStatus> HandleCopyScene(CommandHandler * handler,
                                                                  const ScenesManagement::Commands::CopyScene::DecodableType & req);
 };
