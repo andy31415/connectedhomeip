@@ -42,8 +42,8 @@ source_set("scenes") {
 
 source_set("scenes-server") {
   sources = [
-    "ScenesManagementCluster.h",
     "ScenesManagementCluster.cpp",
+    "ScenesManagementCluster.h",
   ]
 
   public_deps = [

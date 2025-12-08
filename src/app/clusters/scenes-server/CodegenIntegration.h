@@ -19,12 +19,13 @@
 
 namespace chip::app::Clusters::ScenesManagement {
 
-class ScenesServer {
+class ScenesServer
+{
 public:
-    static constexpr SceneId kGlobalSceneId = 0x00;
+    static constexpr SceneId kGlobalSceneId      = 0x00;
     static constexpr GroupId kGlobalSceneGroupId = 0x0000;
 
-    ScenesServer() = default;
+    ScenesServer()  = default;
     ~ScenesServer() = default;
 
     static ScenesServer & Instance();
@@ -47,7 +48,6 @@ public:
 
 /// Returns the cluster instance on the given endpoint or nullptr if the cluster does not exist
 /// or was not yet initialized
-ScenesManagementCluster *FindClusterOnEndpoint(EndpointId endpointId);
-
+ScenesManagementCluster * FindClusterOnEndpoint(EndpointId endpointId);
 
 } // namespace chip::app::Clusters::ScenesManagement
