@@ -19,6 +19,7 @@
 #include "ScenesManagementCluster.h"
 
 #include <app/clusters/scenes-server/SceneTableImpl.h>
+#include <app/server-cluster/AttributeListBuilder.h>
 #include <app/server-cluster/DefaultServerCluster.h>
 #include <clusters/ScenesManagement/Metadata.h>
 #include <lib/core/CHIPError.h>
@@ -199,7 +200,8 @@ CHIP_ERROR ScenesManagementCluster::FabricSceneInfo::FindSceneInfoStructIndex(Fa
 CHIP_ERROR ScenesManagementCluster::Attributes(const ConcreteClusterPath & path,
                                                ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder)
 {
-    return builder.ReferenceExisting(ScenesManagement::Attributes::kMandatoryMetadata);
+    AttributeListBuilder listBuilder(builder);
+    return listBuilder.Append(Span(kMandatoryMetadata), {}, {});
 }
 
 CHIP_ERROR ScenesManagementCluster::AcceptedCommands(const ConcreteClusterPath & path,
