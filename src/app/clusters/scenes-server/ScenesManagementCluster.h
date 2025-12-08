@@ -102,6 +102,14 @@ public:
     // FabricTable::Delegate implementation
     void OnFabricRemoved(const FabricTable & fabricTable, FabricIndex fabricIndex) override;
 
+    // Ingeration methods for other cluster integrations
+    CHIP_ERROR GroupWillBeRemoved(FabricIndex aFabricIdx, GroupId aGroupId);
+    CHIP_ERROR MakeSceneInvalid(FabricIndex aFabricIdx);
+    CHIP_ERROR StoreCurrentScene(FabricIndex aFabricIx, GroupId aGroupId, SceneId aSceneId);
+    CHIP_ERROR RecallScene(FabricIndex aFabricIx, GroupId aGroupId, SceneId aSceneId);
+    CHIP_ERROR RemoveFabric(FabricIndex aFabricIndex);
+    CHIP_ERROR MakeSceneInvalidForAllFabrics();
+
 private:
     const BitMask<ScenesManagement::Feature> mFeatures;
     const uint16_t mSceneTableSize;

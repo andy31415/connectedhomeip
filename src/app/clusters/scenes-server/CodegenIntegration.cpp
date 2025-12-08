@@ -13,11 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 #include <app/clusters/scenes-server/CodegenIntegration.h>
 
+#include <app-common/zap-generated/attributes/Accessors.h>
 #include <app/clusters/scenes-server/SceneTable.h>
 #include <app/clusters/scenes-server/SceneTableImpl.h>
+#include <app/clusters/scenes-server/ScenesManagementCluster.h>
+#include <app/server/Server.h>
 #include <app/static-cluster-config/ScenesManagement.h>
+#include <app/util/endpoint-config-api.h>
 #include <data-model-providers/codegen/ClusterIntegration.h>
 #include <data-model-providers/codegen/CodegenDataModelProvider.h>
 
@@ -28,10 +33,68 @@ namespace chip::app::Clusters::ScenesManagement {
 namespace {
 
 constexpr size_t kScenesmanagementFixedClusterCount = StaticApplicationConfig::kFixedClusterConfig.size();
-constexpr size_t kScenesmanagementMaxClusterCount   = kScenesmanagementFixedClusterCount + CHIP_DEVICE_CONFIG_DYNAMIC_ENDPOINT_COUNT;
+constexpr size_t kScenesmanagementMaxClusterCount = kScenesmanagementFixedClusterCount + CHIP_DEVICE_CONFIG_DYNAMIC_ENDPOINT_COUNT;
 
 LazyRegisteredServerCluster<ScenesManagementCluster> gServers[kScenesmanagementMaxClusterCount];
 
+class IntegrationDelegate : public CodegenClusterIntegration::Delegate
+{
+public:
+    ServerClusterRegistration & CreateRegistration(EndpointId endpointId, unsigned clusterInstanceIndex,
+                                                   uint32_t optionalAttributeBits, uint32_t featureMap) override
+    {
+        uint16_t endpointTableSize = 0;
+        VerifyOrDie(Attributes::SceneTableSize::Get(endpointId, &endpointTableSize) ==
+                    Protocols::InteractionModel::Status::Success);
+
+        const EmberAfCluster * cluster = emberAfFindServerCluster(endpointId, ScenesManagement::Id);
+        bool supportsCopyScene         = false;
+        if (cluster->acceptedCommandList != nullptr)
+        {
+            for (const CommandId * cmd = cluster->acceptedCommandList; *cmd != kInvalidCommandId; cmd++)
+            {
+                if (*cmd == ScenesManagement::Commands::CopyScene::Id)
+                {
+                    supportsCopyScene = true;
+                    break;
+                }
+            }
+        }
+
+        gServers[clusterInstanceIndex].Create(endpointId,
+                                              ScenesManagementCluster::Context{
+                                                  .groupDataProvider = Credentials::GetGroupDataProvider(),
+                                                  .fabricTable       = &Server::GetInstance().GetFabricTable(),
+                                                  .features          = BitMask<ScenesManagement::Feature>(featureMap),
+                                                  .sceneTableSize    = endpointTableSize,
+                                                  .supportsCopyScene = supportsCopyScene,
+                                              });
+        return gServers[clusterInstanceIndex].Registration();
+    }
+
+    ServerClusterInterface * FindRegistration(unsigned clusterInstanceIndex) override
+    {
+        VerifyOrReturnValue(gServers[clusterInstanceIndex].IsConstructed(), nullptr);
+        return &gServers[clusterInstanceIndex].Cluster();
+    }
+
+    void ReleaseRegistration(unsigned clusterInstanceIndex) override { gServers[clusterInstanceIndex].Destroy(); }
+};
+
+} // namespace
+//
+ScenesManagementCluster * FindClusterOnEndpoint(EndpointId endpointId)
+{
+    IntegrationDelegate integrationDelegate;
+    ServerClusterInterface * cluster = CodegenClusterIntegration::FindClusterOnEndpoint(
+        {
+            .endpointId                = endpointId,
+            .clusterId                 = ScenesManagement::Id,
+            .fixedClusterInstanceCount = kScenesmanagementFixedClusterCount,
+            .maxClusterInstanceCount   = kScenesmanagementMaxClusterCount,
+        },
+        integrationDelegate);
+    return static_cast<ScenesManagementCluster *>(cluster);
 }
 
 ScenesServer & ScenesServer::Instance()
@@ -66,64 +129,85 @@ void ScenesServer::UnregisterSceneHandler(EndpointId aEndpointId, scenes::SceneH
     }
 }
 
-// TODO: figure these out!!!
-
 void ScenesServer::GroupWillBeRemoved(FabricIndex aFabricIx, EndpointId aEndpointId, GroupId aGroupId)
 {
-    // Get Scene Table Instance
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(aEndpointId);
-    VerifyOrReturn(nullptr != sceneTable);
+    ScenesManagementCluster * cluster = FindClusterOnEndpoint(aEndpointId);
+    VerifyOrReturn(cluster != nullptr);
 
-    Structs::SceneInfoStruct::Type * sceneInfo = mFabricSceneInfo.GetSceneInfoStruct(aEndpointId, aFabricIx);
-    chip::GroupId currentGroup                 = (nullptr != sceneInfo) ? sceneInfo->currentGroup : 0x0000;
-
-    // If currentGroup is what is being removed, we can't possibly still have a valid scene,
-    // because the scene we have (if any) will also be removed.
-    if (aGroupId == currentGroup)
-    {
-        TEMPORARY_RETURN_IGNORED MakeSceneInvalid(aEndpointId, aFabricIx);
-    }
-
-    VerifyOrReturn(nullptr != mGroupProvider);
-    if (0 != aGroupId && !mGroupProvider->HasEndpoint(aFabricIx, aGroupId, aEndpointId))
-    {
-        return;
-    }
-
-    TEMPORARY_RETURN_IGNORED sceneTable->DeleteAllScenesInGroup(aFabricIx, aGroupId);
+    TEMPORARY_RETURN_IGNORED cluster->GroupWillBeRemoved(aFabricIx, aGroupId);
 }
 
 void ScenesServer::MakeSceneInvalid(EndpointId aEndpointId, FabricIndex aFabricIx)
 {
-    TEMPORARY_RETURN_IGNORED UpdateFabricSceneInfo(aEndpointId, aFabricIx, Optional<GroupId>(), Optional<SceneId>(),
-                                                   Optional<bool>(false));
+    ScenesManagementCluster * cluster = FindClusterOnEndpoint(aEndpointId);
+    VerifyOrReturn(cluster != nullptr);
+
+    TEMPORARY_RETURN_IGNORED cluster->MakeSceneInvalid(aFabricIx);
 }
 
 void ScenesServer::MakeSceneInvalidForAllFabrics(EndpointId aEndpointId)
 {
-    for (auto & info : chip::Server::GetInstance().GetFabricTable())
-    {
-        TEMPORARY_RETURN_IGNORED MakeSceneInvalid(aEndpointId, info.GetFabricIndex());
-    }
+    ScenesManagementCluster * cluster = FindClusterOnEndpoint(aEndpointId);
+    VerifyOrReturn(cluster != nullptr);
+    TEMPORARY_RETURN_IGNORED cluster->MakeSceneInvalidForAllFabrics();
 }
 
 void ScenesServer::StoreCurrentScene(FabricIndex aFabricIx, EndpointId aEndpointId, GroupId aGroupId, SceneId aSceneId)
 {
-    TEMPORARY_RETURN_IGNORED StoreSceneParse(aFabricIx, aEndpointId, aGroupId, aSceneId, mGroupProvider);
+    ScenesManagementCluster * cluster = FindClusterOnEndpoint(aEndpointId);
+    VerifyOrReturn(cluster != nullptr);
+    TEMPORARY_RETURN_IGNORED cluster->StoreCurrentScene(aFabricIx, aGroupId, aSceneId);
 }
 
 void ScenesServer::RecallScene(FabricIndex aFabricIx, EndpointId aEndpointId, GroupId aGroupId, SceneId aSceneId)
 {
-    Optional<DataModel::Nullable<uint32_t>> transitionTime;
-
-    TEMPORARY_RETURN_IGNORED RecallSceneParse(aFabricIx, aEndpointId, aGroupId, aSceneId, transitionTime, mGroupProvider);
+    ScenesManagementCluster * cluster = FindClusterOnEndpoint(aEndpointId);
+    VerifyOrReturn(cluster != nullptr);
+    TEMPORARY_RETURN_IGNORED cluster->RecallScene(aFabricIx, aGroupId, aSceneId);
 }
 
 void ScenesServer::RemoveFabric(EndpointId aEndpointId, FabricIndex aFabricIndex)
 {
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(aEndpointId);
-    TEMPORARY_RETURN_IGNORED sceneTable->RemoveFabric(aFabricIndex);
-    mFabricSceneInfo.ClearSceneInfoStruct(aEndpointId, aFabricIndex);
+    ScenesManagementCluster * cluster = FindClusterOnEndpoint(aEndpointId);
+    VerifyOrReturn(cluster != nullptr);
+    TEMPORARY_RETURN_IGNORED cluster->RemoveFabric(aFabricIndex);
 }
 
 } // namespace chip::app::Clusters::ScenesManagement
+
+using namespace chip;
+using namespace chip::app;
+using namespace chip::app::Clusters;
+using namespace chip::app::Clusters::ScenesManagement;
+
+void MatterScenesManagementClusterInitCallback(EndpointId endpointId)
+{
+    IntegrationDelegate integrationDelegate;
+
+    CodegenClusterIntegration::RegisterServer(
+        {
+            .endpointId                = endpointId,
+            .clusterId                 = ScenesManagement::Id,
+            .fixedClusterInstanceCount = kScenesmanagementFixedClusterCount,
+            .maxClusterInstanceCount   = kScenesmanagementMaxClusterCount,
+            .fetchFeatureMap           = true,
+            .fetchOptionalAttributes   = false,
+        },
+        integrationDelegate);
+}
+
+void MatterScenesManagementClusterShutdownCallback(EndpointId endpointId)
+{
+    IntegrationDelegate integrationDelegate;
+
+    CodegenClusterIntegration::UnregisterServer(
+        {
+            .endpointId                = endpointId,
+            .clusterId                 = ScenesManagement::Id,
+            .fixedClusterInstanceCount = kScenesmanagementFixedClusterCount,
+            .maxClusterInstanceCount   = kScenesmanagementMaxClusterCount,
+        },
+        integrationDelegate);
+}
+
+void MatterScenesManagementPluginServerInitCallback() {}

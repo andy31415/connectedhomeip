@@ -42,7 +42,12 @@ public:
     void UnregisterSceneHandler(EndpointId endpointId, scenes::SceneHandler * handler);
 
     // Fabric
-    void RemoveFabric(FabricIndex aFabricIndex);
+    void RemoveFabric(EndpointId aEndpointId, FabricIndex aFabricIndex);
 };
+
+/// Returns the cluster instance on the given endpoint or nullptr if the cluster does not exist
+/// or was not yet initialized
+ScenesManagementCluster *FindClusterOnEndpoint(EndpointId endpointId);
+
 
 } // namespace chip::app::Clusters::ScenesManagement

@@ -244,7 +244,7 @@ CHIP_ERROR ScenesManagementCluster::GeneratedCommands(const ConcreteClusterPath 
     return builder.ReferenceExisting(kCommands);
 }
 
-void ScenesManagementCluster::OnFabricRemoved(const FabricTable & fabricTable, FabricIndex fabricIndex) override
+void ScenesManagementCluster::OnFabricRemoved(const FabricTable & fabricTable, FabricIndex fabricIndex)
 {
     SceneTable * sceneTable = scenes::GetSceneTableImpl();
     VerifyOrReturn(nullptr != sceneTable);
@@ -252,39 +252,10 @@ void ScenesManagementCluster::OnFabricRemoved(const FabricTable & fabricTable, F
     TEMPORARY_RETURN_IGNORED sceneTable->RemoveFabric(fabricIndex);
 }
 
-#if 0
-CHIP_ERROR ScenesServer::Init()
-{
-    // Prevents re-initializing
-    VerifyOrReturnError(!mIsInitialized, CHIP_ERROR_INCORRECT_STATE);
-
-    ReturnErrorOnFailure(CommandHandlerInterfaceRegistry::Instance().RegisterCommandHandler(this));
-    VerifyOrReturnError(AttributeAccessInterfaceRegistry::Instance().Register(this), CHIP_ERROR_INCORRECT_STATE);
-    mGroupProvider = Credentials::GetGroupDataProvider();
-
-    SceneTable * sceneTable = scenes::GetSceneTableImpl();
-    ReturnErrorOnFailure(sceneTable->Init(Server::GetInstance().GetPersistentStorage(), CodegenDataModelProvider::Instance()));
-    ReturnErrorOnFailure(Server::GetInstance().GetFabricTable().AddFabricDelegate(&gFabricDelegate));
-
-    mIsInitialized = true;
-    return CHIP_NO_ERROR;
-}
-
-void ScenesServer::Shutdown()
-{
-    Server::GetInstance().GetFabricTable().RemoveFabricDelegate(&gFabricDelegate);
-    TEMPORARY_RETURN_IGNORED CommandHandlerInterfaceRegistry::Instance().UnregisterCommandHandler(this);
-    AttributeAccessInterfaceRegistry::Instance().Unregister(this);
-
-    mGroupProvider = nullptr;
-    mIsInitialized = false;
-}
-#endif
-
 CHIP_ERROR ScenesManagementCluster::StoreSceneParse(const FabricIndex & fabricIdx, const GroupId & groupID, const SceneId & sceneID)
 {
     // Make the current fabric's SceneValid false before storing a scene
-    MakeSceneInvalid(fabricIdx);
+    ReturnErrorOnFailure(MakeSceneInvalid(fabricIdx));
 
     // Get Scene Table Instance
     SceneTable * sceneTable = scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize);
@@ -330,12 +301,21 @@ CHIP_ERROR ScenesManagementCluster::StoreSceneParse(const FabricIndex & fabricId
     return UpdateFabricSceneInfo(fabricIdx, MakeOptional(groupID), MakeOptional(sceneID), MakeOptional(static_cast<bool>(true)));
 }
 
+CHIP_ERROR ScenesManagementCluster::MakeSceneInvalidForAllFabrics()
+{
+    for (auto & info : *mFabricTable)
+    {
+        ReturnErrorOnFailure(MakeSceneInvalid(info.GetFabricIndex()));
+    }
+    return CHIP_NO_ERROR;
+}
+
 CHIP_ERROR ScenesManagementCluster::RecallSceneParse(const FabricIndex & fabricIdx, const GroupId & groupID,
                                                      const SceneId & sceneID,
                                                      const Optional<DataModel::Nullable<uint32_t>> & transitionTime)
 {
     // Make SceneValid false for all fabrics before recalling a scene
-    MakeSceneInvalidForAllFabrics();
+    ReturnErrorOnFailure(MakeSceneInvalidForAllFabrics());
 
     // Get Scene Table Instance
     SceneTable * sceneTable = scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize);
@@ -483,65 +463,54 @@ void ScenesManagementCluster::Shutdown()
     DefaultServerCluster::Shutdown();
 }
 
-#if 0
-
-void ScenesServer::GroupWillBeRemoved(FabricIndex aFabricIx, EndpointId aEndpointId, GroupId aGroupId)
+CHIP_ERROR ScenesManagementCluster::GroupWillBeRemoved(FabricIndex aFabricIdx, GroupId aGroupId)
 {
     // Get Scene Table Instance
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(aEndpointId);
-    VerifyOrReturn(nullptr != sceneTable);
+    SceneTable * sceneTable = scenes::GetSceneTableImpl(mPath.mEndpointId);
+    VerifyOrReturnError(nullptr != sceneTable, CHIP_ERROR_INTERNAL);
 
-    Structs::SceneInfoStruct::Type * sceneInfo = mFabricSceneInfo.GetSceneInfoStruct(aEndpointId, aFabricIx);
-    chip::GroupId currentGroup                 = (nullptr != sceneInfo) ? sceneInfo->currentGroup : 0x0000;
+    SceneInfoStruct::Type * sceneInfo = mFabricSceneInfo.GetSceneInfoStruct(aFabricIdx);
+    chip::GroupId currentGroup        = (nullptr != sceneInfo) ? sceneInfo->currentGroup : 0x0000;
 
     // If currentGroup is what is being removed, we can't possibly still have a valid scene,
     // because the scene we have (if any) will also be removed.
     if (aGroupId == currentGroup)
     {
-        TEMPORARY_RETURN_IGNORED MakeSceneInvalid(aEndpointId, aFabricIx);
+        ReturnErrorOnFailure(MakeSceneInvalid(aFabricIdx));
     }
 
-    VerifyOrReturn(nullptr != mGroupProvider);
-    if (0 != aGroupId && !mGroupProvider->HasEndpoint(aFabricIx, aGroupId, aEndpointId))
+    VerifyOrReturnError(nullptr != mGroupProvider, CHIP_ERROR_INCORRECT_STATE);
+    if (0 != aGroupId && !mGroupProvider->HasEndpoint(aFabricIdx, aGroupId, mPath.mEndpointId))
     {
-        return;
+        return CHIP_NO_ERROR;
     }
 
-    TEMPORARY_RETURN_IGNORED sceneTable->DeleteAllScenesInGroup(aFabricIx, aGroupId);
+    return sceneTable->DeleteAllScenesInGroup(aFabricIdx, aGroupId);
 }
 
-void ScenesServer::MakeSceneInvalid(EndpointId aEndpointId, FabricIndex aFabricIx)
+CHIP_ERROR ScenesManagementCluster::MakeSceneInvalid(FabricIndex aFabricIdx)
 {
-    TEMPORARY_RETURN_IGNORED UpdateFabricSceneInfo(aEndpointId, aFabricIx, Optional<GroupId>(), Optional<SceneId>(),
-                                                   Optional<bool>(false));
+    return UpdateFabricSceneInfo(aFabricIdx, Optional<GroupId>(), Optional<SceneId>(), Optional<bool>(false));
 }
 
-void ScenesServer::MakeSceneInvalidForAllFabrics(EndpointId aEndpointId)
+CHIP_ERROR ScenesManagementCluster::StoreCurrentScene(FabricIndex aFabricIx, GroupId aGroupId, SceneId aSceneId)
 {
-    for (auto & info : chip::Server::GetInstance().GetFabricTable())
-    {
-        TEMPORARY_RETURN_IGNORED MakeSceneInvalid(aEndpointId, info.GetFabricIndex());
-    }
+    return StoreSceneParse(aFabricIx, aGroupId, aSceneId);
 }
 
-void ScenesServer::StoreCurrentScene(FabricIndex aFabricIx, EndpointId aEndpointId, GroupId aGroupId, SceneId aSceneId)
-{
-    TEMPORARY_RETURN_IGNORED StoreSceneParse(aFabricIx, aEndpointId, aGroupId, aSceneId, mGroupProvider);
-}
-void ScenesServer::RecallScene(FabricIndex aFabricIx, EndpointId aEndpointId, GroupId aGroupId, SceneId aSceneId)
+CHIP_ERROR ScenesManagementCluster::RecallScene(FabricIndex aFabricIx, GroupId aGroupId, SceneId aSceneId)
 {
     Optional<DataModel::Nullable<uint32_t>> transitionTime;
-
-    TEMPORARY_RETURN_IGNORED RecallSceneParse(aFabricIx, aEndpointId, aGroupId, aSceneId, transitionTime, mGroupProvider);
+    return RecallSceneParse(aFabricIx, aGroupId, aSceneId, transitionTime);
 }
 
-void ScenesServer::RemoveFabric(EndpointId aEndpointId, FabricIndex aFabricIndex)
+CHIP_ERROR ScenesManagementCluster::RemoveFabric(FabricIndex aFabricIndex)
 {
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(aEndpointId);
-    TEMPORARY_RETURN_IGNORED sceneTable->RemoveFabric(aFabricIndex);
-    mFabricSceneInfo.ClearSceneInfoStruct(aEndpointId, aFabricIndex);
+    SceneTable * sceneTable = scenes::GetSceneTableImpl(mPath.mEndpointId);
+    ReturnErrorOnFailure(sceneTable->RemoveFabric(aFabricIndex));
+    mFabricSceneInfo.ClearSceneInfoStruct(aFabricIndex);
+    return CHIP_NO_ERROR;
 }
-#endif
 
 AddSceneResponse::Type ScenesManagementCluster::HandleAddScene(FabricIndex fabricIndex,
                                                                const ScenesManagement::Commands::AddScene::DecodableType & req)
