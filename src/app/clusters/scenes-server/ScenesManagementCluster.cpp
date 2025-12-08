@@ -455,13 +455,20 @@ CHIP_ERROR ScenesManagementCluster::Startup(ServerClusterContext & context)
     return DefaultServerCluster::Startup(context);
 }
 
+CHIP_ERROR ScenesManagementCluster::ClearPersistentData()
+{
+    // For the persistent storage to be likely correct, we enfoce cluster to be started up
+    VerifyOrReturnError(mContext != nullptr, CHIP_ERROR_INCORRECT_STATE);
+    return scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize)->RemoveEndpoint();
+}
+
 void ScenesManagementCluster::Shutdown()
 {
     mFabricTable->RemoveFabricDelegate(this);
 
     // TODO: Dynamic clusters probably would want a clear of scenes data,
     //       however non-dynamic bits should not delete persistent storage
-    // LogErrorOnFailure(scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize)->RemoveEndpoint());
+    // LogErrorOnFailure(ClearPersistentData());
 
     DefaultServerCluster::Shutdown();
 }

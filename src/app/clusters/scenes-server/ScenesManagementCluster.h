@@ -101,6 +101,11 @@ public:
     // FabricTable::Delegate implementation
     void OnFabricRemoved(const FabricTable & fabricTable, FabricIndex fabricIndex) override;
 
+    /// Removes the data persisted for this cluster
+    ///
+    /// MUST be called while started up.
+    CHIP_ERROR ClearPersistentData();
+
     // Ingeration methods for other cluster integrations
     CHIP_ERROR GroupWillBeRemoved(FabricIndex aFabricIdx, GroupId aGroupId);
     CHIP_ERROR MakeSceneInvalid(FabricIndex aFabricIdx);
