@@ -91,6 +91,10 @@ void MatterUserLabelClusterInitCallback(chip::EndpointId endpointId);
 
 void MatterUserLabelClusterShutdownCallback(chip::EndpointId endpointId);
 
+void MatterScenesManagementClusterInitCallback(chip::EndpointId endpointId);
+
+void MatterScenesManagementClusterShutdownCallback(chip::EndpointId endpointId);
+
 void MatterOccupancySensingClusterInitCallback(chip::EndpointId endpointId);
 
 void MatterOccupancySensingClusterShutdownCallback(chip::EndpointId endpointId);

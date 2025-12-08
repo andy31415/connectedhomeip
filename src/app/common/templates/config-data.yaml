@@ -167,6 +167,7 @@ CodeDrivenClusters:
     - Occupancy Sensing
     - Operational Credentials
     - Push AV Stream Transport
+    - Scenes Management
     - Software Diagnostics
     - Time Format Localization
     - Time Synchronization
