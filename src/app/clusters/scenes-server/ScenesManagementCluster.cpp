@@ -363,8 +363,10 @@ std::optional<DataModel::ActionReturnStatus> ScenesManagementCluster::InvokeComm
     }
     case ViewScene::Id: {
         ViewScene::DecodableType request_data;
+        std::array<ExtensionFieldSetStruct::Type, scenes::kMaxClustersPerScene> responseEFSBuffer;
+
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        handler->AddResponse(request.path, HandleViewScene(handler->GetAccessingFabricIndex(), request_data));
+        handler->AddResponse(request.path, HandleViewScene(handler->GetAccessingFabricIndex(), request_data, responseEFSBuffer));
         return std::nullopt;
     }
     case RemoveScene::Id: {
@@ -623,8 +625,9 @@ AddSceneResponse::Type ScenesManagementCluster::HandleAddScene(FabricIndex fabri
     return response;
 }
 
-ViewSceneResponse::Type ScenesManagementCluster::HandleViewScene(FabricIndex fabricIndex,
-                                                                 const ScenesManagement::Commands::ViewScene::DecodableType & req)
+ViewSceneResponse::Type ScenesManagementCluster::HandleViewScene(
+    FabricIndex fabricIndex, const ScenesManagement::Commands::ViewScene::DecodableType & req,
+    std::array<ScenesManagement::Structs::ExtensionFieldSetStruct::Type, scenes::kMaxClustersPerScene> & responseEFSBuffer)
 {
     MATTER_TRACE_SCOPE("ViewScene", "Scenes");
 
@@ -663,7 +666,6 @@ ViewSceneResponse::Type ScenesManagementCluster::HandleViewScene(FabricIndex fab
         response);
 
     // Response Extension Field Sets buffer
-    ExtensionFieldSetStruct::Type responseEFSBuffer[scenes::kMaxClustersPerScene];
     uint8_t deserializedEFSCount = 0;
 
     // Adds extension field sets to the scene
@@ -690,9 +692,9 @@ ViewSceneResponse::Type ScenesManagementCluster::HandleViewScene(FabricIndex fab
 
     response.status = to_underlying(Status::Success);
     response.transitionTime.SetValue(scene.mStorageData.mSceneTransitionTimeMs);
-
     response.sceneName.SetValue(CharSpan(scene.mStorageData.mName, scene.mStorageData.mNameLength));
-    Span<ExtensionFieldSetStruct::Type> responseEFSSpan(responseEFSBuffer, deserializedEFSCount);
+
+    Span<ExtensionFieldSetStruct::Type> responseEFSSpan(responseEFSBuffer.data(), deserializedEFSCount);
     response.extensionFieldSetStructs.SetValue(responseEFSSpan);
 
     return response;

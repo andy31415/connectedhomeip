@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include "ExtensionFieldSets.h"
 #include <app/clusters/scenes-server/SceneTableImpl.h>
 #include <app/server-cluster/DefaultServerCluster.h>
 #include <clusters/ScenesManagement/AttributeIds.h>
@@ -141,8 +142,13 @@ private:
     ScenesManagement::Commands::AddSceneResponse::Type
     HandleAddScene(FabricIndex fabricIndex, const ScenesManagement::Commands::AddScene::DecodableType & req);
 
-    ScenesManagement::Commands::ViewSceneResponse::Type
-    HandleViewScene(FabricIndex fabricIndex, const ScenesManagement::Commands::ViewScene::DecodableType & req);
+    /// Handles view scene
+    ///
+    /// space for the extension field set struct is available in efsBufferSpace (so  that the returned command
+    /// storage space is valid)
+    ScenesManagement::Commands::ViewSceneResponse::Type HandleViewScene(
+        FabricIndex fabricIndex, const ScenesManagement::Commands::ViewScene::DecodableType & req,
+        std::array<ScenesManagement::Structs::ExtensionFieldSetStruct::Type, scenes::kMaxClustersPerScene> & responseEFSBuffer);
 
     ScenesManagement::Commands::RemoveSceneResponse::Type
     HandleRemoveScene(FabricIndex fabricIndex, const ScenesManagement::Commands::RemoveScene::DecodableType & req);
