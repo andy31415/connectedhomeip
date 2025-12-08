@@ -396,10 +396,7 @@
             "FeatureMap",
             "ClusterRevision"
         ],
-        "Scenes Management": [
-            "ClusterRevision",
-            "FabricSceneInfo"
-        ],
+        "Scenes Management": ["ClusterRevision", "FabricSceneInfo"],
         "Software Diagnostics": [
             "ClusterRevision",
             "CurrentHeapFree",

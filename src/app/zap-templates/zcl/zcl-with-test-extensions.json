@@ -397,9 +397,7 @@
             "FeatureMap",
             "ClusterRevision"
         ],
-        "Scenes Management": [
-            "ClusterRevision"
-        ],
+        "Scenes Management": ["ClusterRevision"],
         "Software Diagnostics": [
             "ClusterRevision",
             "CurrentHeapFree",
