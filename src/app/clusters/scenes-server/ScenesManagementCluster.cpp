@@ -458,8 +458,11 @@ CHIP_ERROR ScenesManagementCluster::Startup(ServerClusterContext & context)
 void ScenesManagementCluster::Shutdown()
 {
     mFabricTable->RemoveFabricDelegate(this);
-    // TODO: why do this?
-    LogErrorOnFailure(scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize)->RemoveEndpoint());
+
+    // TODO: Dynamic clusters probably would want a clear of scenes data,
+    //       however non-dynamic bits should not delete persistent storage
+    // LogErrorOnFailure(scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize)->RemoveEndpoint());
+
     DefaultServerCluster::Shutdown();
 }
 
