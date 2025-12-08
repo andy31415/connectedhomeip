@@ -170,7 +170,8 @@ class AccessChecker(MatterBaseTest, BasicCompositionTests):
 
                 if GlobalAttributeIds.ATTRIBUTE_LIST_ID not in device_cluster_data:
                     location = ClusterPathLocation(endpoint_id=0, cluster_id=cluster_id)
-                    self.record_error(test_name="Access Checker", location=location, problem="Cluster does not have the AttributeList attribute")
+                    self.record_error(test_name="Access Checker", location=location,
+                                      problem="Cluster does not have the AttributeList attribute")
                 else:
                     # discard MEI attributes as we do not have access information for them.
                     attrs[cluster_id].update(
@@ -178,7 +179,8 @@ class AccessChecker(MatterBaseTest, BasicCompositionTests):
 
                 if GlobalAttributeIds.ACCEPTED_COMMAND_LIST_ID not in device_cluster_data:
                     location = ClusterPathLocation(endpoint_id=0, cluster_id=cluster_id)
-                    self.record_error(test_name="Access Checker", location=location, problem="Cluster does not have the AcceptedCommandList attribute")
+                    self.record_error(test_name="Access Checker", location=location,
+                                      problem="Cluster does not have the AcceptedCommandList attribute")
                 else:
                     cmds[cluster_id].update(
                         {id for id in device_cluster_data[GlobalAttributeIds.ACCEPTED_COMMAND_LIST_ID] if is_standard_command_id(id)})
