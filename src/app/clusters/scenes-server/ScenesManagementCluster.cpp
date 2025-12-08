@@ -723,7 +723,7 @@ ScenesManagementCluster::HandleRemoveScene(FabricIndex fabricIndex,
     SceneTableEntry scene(SceneStorageId(req.sceneID, req.groupID));
 
     // Verify Endpoint in group
-    if (nullptr != mGroupProvider)
+    if (nullptr == mGroupProvider)
     {
         response.status = to_underlying(Status::Failure);
         return response;
@@ -769,7 +769,7 @@ ScenesManagementCluster::HandleRemoveAllScenes(FabricIndex fabricIndex,
     SceneTable * sceneTable = scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize);
 
     // Verify Endpoint in group
-    if (nullptr != mGroupProvider)
+    if (nullptr == mGroupProvider)
     {
         response.status = to_underlying(Status::Failure);
         return response;
@@ -848,7 +848,7 @@ ScenesManagementCluster::HandleGetSceneMembership(FabricIndex fabricIndex,
     response.groupID = req.groupID;
 
     // Verify Endpoint in group
-    if (nullptr != mGroupProvider)
+    if (nullptr == mGroupProvider)
     {
         response.status = to_underlying(Status::Failure);
         return response;
@@ -896,7 +896,7 @@ ScenesManagementCluster::HandleCopyScene(FabricIndex fabricIndex, const ScenesMa
     }
 
     // Verify Endpoint in group
-    if (nullptr != mGroupProvider)
+    if (nullptr == mGroupProvider)
     {
         response.status = to_underlying(Status::Failure);
         return response;
