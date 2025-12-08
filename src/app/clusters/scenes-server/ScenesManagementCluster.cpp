@@ -18,7 +18,11 @@
 
 #include "ScenesManagementCluster.h"
 
+#include <app/clusters/scenes-server/SceneTableImpl.h>
+#include <app/server-cluster/DefaultServerCluster.h>
 #include <clusters/ScenesManagement/Metadata.h>
+#include <lib/core/CHIPError.h>
+#include <lib/support/CodeUtils.h>
 #include <tracing/macros.h>
 
 #include <optional>
@@ -240,20 +244,15 @@ CHIP_ERROR ScenesManagementCluster::GeneratedCommands(const ConcreteClusterPath 
     return builder.ReferenceExisting(kCommands);
 }
 
-#if 0
-class ScenesClusterFabricDelegate : public chip::FabricTable::Delegate
+void ScenesManagementCluster::OnFabricRemoved(const FabricTable & fabricTable, FabricIndex fabricIndex) override
 {
-    void OnFabricRemoved(const FabricTable & fabricTable, FabricIndex fabricIndex) override
-    {
-        SceneTable * sceneTable = scenes::GetSceneTableImpl();
-        VerifyOrReturn(nullptr != sceneTable);
-        // The implementation of SceneTable::RemoveFabric() must not call back into the FabricTable
-        TEMPORARY_RETURN_IGNORED sceneTable->RemoveFabric(fabricIndex);
-    }
-};
+    SceneTable * sceneTable = scenes::GetSceneTableImpl();
+    VerifyOrReturn(nullptr != sceneTable);
+    // The implementation of SceneTable::RemoveFabric() must not call back into the FabricTable
+    TEMPORARY_RETURN_IGNORED sceneTable->RemoveFabric(fabricIndex);
+}
 
-static ScenesClusterFabricDelegate gFabricDelegate;
-
+#if 0
 CHIP_ERROR ScenesServer::Init()
 {
     // Prevents re-initializing
@@ -457,46 +456,32 @@ DataModel::ActionReturnStatus ScenesManagementCluster::ReadAttribute(const DataM
     }
 }
 
-#if 0
-using namespace chip;
-using namespace chip::app::Clusters;
-using namespace chip::app::Clusters::ScenesManagement;
-
-void emberAfScenesManagementClusterServerInitCallback(EndpointId endpoint)
+CHIP_ERROR ScenesManagementCluster::Startup(ServerClusterContext & context)
 {
-    // Initialize the FabricSceneInfo by getting the number of scenes and the remaining capacity for storing fabric scene data
-    for (auto & info : chip::Server::GetInstance().GetFabricTable())
+    SceneTable * sceneTable = scenes::GetSceneTableImpl();
+
+    // NOTE: this re-sets the storage delegate and provider on a SHARED GLOBAL member.
+    //       Generally safe(the same values should be used within an entire cluster) but will not work well
+    //       if multiple stacks work in parallel.
+    ReturnErrorOnFailure(sceneTable->Init(context.storage, context.provider));
+    ReturnErrorOnFailure(mFabricTable->AddFabricDelegate(this));
+
+    for (const FabricInfo & info : *mFabricTable)
     {
-        auto fabric = info.GetFabricIndex();
-        TEMPORARY_RETURN_IGNORED UpdateFabricSceneInfo(endpoint, fabric, Optional<GroupId>(), Optional<SceneId>(),
-                                                       Optional<bool>());
+        FabricIndex fabric = info.GetFabricIndex();
+        LogErrorOnFailure(UpdateFabricSceneInfo(fabric, Optional<GroupId>(), Optional<SceneId>(), Optional<bool>()));
     }
+
+    return DefaultServerCluster::Startup(context);
 }
 
-void MatterScenesManagementClusterServerShutdownCallback(EndpointId endpoint)
+void ScenesManagementCluster::Shutdown()
 {
-    uint16_t endpointTableSize = 0;
-    VerifyOrReturn(Status::Success == Attributes::SceneTableSize::Get(endpoint, &endpointTableSize));
-
-    // Get Scene Table Instance
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(endpoint, endpointTableSize);
-    TEMPORARY_RETURN_IGNORED sceneTable->RemoveEndpoint();
+    mFabricTable->RemoveFabricDelegate(this);
+    // TODO: why do this?
+    LogErrorOnFailure(scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize)->RemoveEndpoint());
+    DefaultServerCluster::Shutdown();
 }
-
-void MatterScenesManagementPluginServerInitCallback()
-{
-    CHIP_ERROR err = ScenesServer::Instance().Init();
-    if (err != CHIP_NO_ERROR)
-    {
-        ChipLogError(Zcl, "ScenesServer::Instance().Init() error: %" CHIP_ERROR_FORMAT, err.Format());
-    }
-}
-
-void MatterScenesManagementPluginServerShutdownCallback()
-{
-    ScenesServer::Instance().Shutdown();
-}
-#endif
 
 #if 0
 
@@ -548,32 +533,6 @@ void ScenesServer::RecallScene(FabricIndex aFabricIx, EndpointId aEndpointId, Gr
     Optional<DataModel::Nullable<uint32_t>> transitionTime;
 
     TEMPORARY_RETURN_IGNORED RecallSceneParse(aFabricIx, aEndpointId, aGroupId, aSceneId, transitionTime, mGroupProvider);
-}
-
-bool ScenesServer::IsHandlerRegistered(EndpointId aEndpointId, scenes::SceneHandler * handler)
-{
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(aEndpointId);
-    return sceneTable->mHandlerList.Contains(handler);
-}
-
-void ScenesServer::RegisterSceneHandler(EndpointId aEndpointId, scenes::SceneHandler * handler)
-{
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(aEndpointId);
-
-    if (!IsHandlerRegistered(aEndpointId, handler))
-    {
-        sceneTable->RegisterHandler(handler);
-    }
-}
-
-void ScenesServer::UnregisterSceneHandler(EndpointId aEndpointId, scenes::SceneHandler * handler)
-{
-    SceneTable * sceneTable = scenes::GetSceneTableImpl(aEndpointId);
-
-    if (IsHandlerRegistered(aEndpointId, handler))
-    {
-        sceneTable->UnregisterHandler(handler);
-    }
 }
 
 void ScenesServer::RemoveFabric(EndpointId aEndpointId, FabricIndex aFabricIndex)
