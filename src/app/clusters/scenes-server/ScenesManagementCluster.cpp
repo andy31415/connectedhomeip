@@ -45,7 +45,7 @@ namespace chip::app::Clusters {
 
 namespace {
 
-Protocols::InteractionModel::Status ResponseStatus(CHIP_ERROR err)
+constexpr Protocols::InteractionModel::Status ResponseStatus(CHIP_ERROR err)
 {
     // TODO : Properly fix mapping between error types (issue https://github.com/project-chip/connectedhomeip/issues/26885)
     if (CHIP_ERROR_NOT_FOUND == err)
@@ -64,15 +64,14 @@ Protocols::InteractionModel::Status ResponseStatus(CHIP_ERROR err)
     return StatusIB(err).mStatus;
 }
 
-/// Returns true if err is CHIP_NO_ERROR.
-/// Otherwise it fills resp.status with the underlying error code.
-template <typename ResponseType>
-bool ValidateSuccess(CHIP_ERROR err, ResponseType & resp)
-{
-    VerifyOrReturnValue(CHIP_NO_ERROR != err, true);
-    resp.status = to_underlying(ResponseStatus(err));
-    return false;
-}
+/// A very common pattern of:
+///   - if error (i.e. NOT CHIP_NO_ERROR), then set response status and return response
+#define SuccessOrReturnWithFailureStatus(err_expr, response)                                                                       \
+    if (CHIP_ERROR __err = err_expr; __err != CHIP_NO_ERROR)                                                                       \
+    {                                                                                                                              \
+        response.status = to_underlying(ResponseStatus(__err));                                                                    \
+        return response;                                                                                                           \
+    }
 
 } // namespace
 
@@ -579,9 +578,8 @@ AddSceneResponse::Type ScenesManagementCluster::HandleAddScene(FabricIndex fabri
         {
             if (handler.SupportsCluster(mPath.mEndpointId, tempEFS.mID))
             {
-                VerifyOrReturnValue(
-                    ValidateSuccess(handler.SerializeAdd(mPath.mEndpointId, fieldSetIter.GetValue(), buff_span), response),
-                    response);
+                SuccessOrReturnWithFailureStatus(handler.SerializeAdd(mPath.mEndpointId, fieldSetIter.GetValue(), buff_span),
+                                                 response);
                 break;
             }
         }
@@ -594,7 +592,7 @@ AddSceneResponse::Type ScenesManagementCluster::HandleAddScene(FabricIndex fabri
             TEMPORARY_RETURN_IGNORED storageData.mExtensionFieldSets.InsertFieldSet(tempEFS);
         }
     }
-    VerifyOrReturnValue(ValidateSuccess(fieldSetIter.GetStatus(), response), response);
+    SuccessOrReturnWithFailureStatus(fieldSetIter.GetStatus(), response);
 
     // Create scene from data and ID
     SceneTableEntry scene(SceneStorageId(req.sceneID, req.groupID), storageData);
@@ -607,7 +605,7 @@ AddSceneResponse::Type ScenesManagementCluster::HandleAddScene(FabricIndex fabri
     }
 
     uint8_t capacity = 0;
-    VerifyOrReturnValue(ValidateSuccess(sceneTable->GetRemainingCapacity(fabricIndex, capacity), response), response);
+    SuccessOrReturnWithFailureStatus(sceneTable->GetRemainingCapacity(fabricIndex, capacity), response);
 
     if (0 == capacity)
     {
@@ -616,12 +614,11 @@ AddSceneResponse::Type ScenesManagementCluster::HandleAddScene(FabricIndex fabri
     }
 
     //  Insert in table
-    VerifyOrReturnValue(ValidateSuccess(sceneTable->SetSceneTableEntry(fabricIndex, scene), response), response);
+    SuccessOrReturnWithFailureStatus(sceneTable->SetSceneTableEntry(fabricIndex, scene), response);
 
     // Update FabricSceneInfo
-    VerifyOrReturnValue(
-        ValidateSuccess(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), Optional<bool>()), response),
-        response);
+    SuccessOrReturnWithFailureStatus(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), Optional<bool>()),
+                                     response);
 
     // Write response
     response.status = to_underlying(Status::Success);
@@ -663,10 +660,9 @@ ViewSceneResponse::Type ScenesManagementCluster::HandleViewScene(
 
     SceneTableEntry scene;
 
-    //  Gets the scene from the table
-    VerifyOrReturnValue(
-        ValidateSuccess(sceneTable->GetSceneTableEntry(fabricIndex, SceneStorageId(req.sceneID, req.groupID), scene), response),
-        response);
+    // Gets the scene from the table
+    SuccessOrReturnWithFailureStatus(sceneTable->GetSceneTableEntry(fabricIndex, SceneStorageId(req.sceneID, req.groupID), scene),
+                                     response);
 
     // Response Extension Field Sets buffer
     uint8_t deserializedEFSCount = 0;
@@ -684,9 +680,8 @@ ViewSceneResponse::Type ScenesManagementCluster::HandleViewScene(
         {
             if (handler.SupportsCluster(mPath.mEndpointId, tempField.mID))
             {
-                VerifyOrReturnValue(
-                    ValidateSuccess(handler.Deserialize(mPath.mEndpointId, tempField.mID, efsSpan, responseEFSBuffer[i]), response),
-                    response);
+                SuccessOrReturnWithFailureStatus(
+                    handler.Deserialize(mPath.mEndpointId, tempField.mID, efsSpan, responseEFSBuffer[i]), response);
                 deserializedEFSCount++;
                 break;
             }
@@ -740,10 +735,10 @@ ScenesManagementCluster::HandleRemoveScene(FabricIndex fabricIndex,
     }
 
     //  Gets the scene from the table
-    VerifyOrReturnValue(ValidateSuccess(sceneTable->GetSceneTableEntry(fabricIndex, scene.mStorageId, scene), response), response);
+    SuccessOrReturnWithFailureStatus(sceneTable->GetSceneTableEntry(fabricIndex, scene.mStorageId, scene), response);
 
     // Remove the scene from the scene table
-    VerifyOrReturnValue(ValidateSuccess(sceneTable->RemoveSceneTableEntry(fabricIndex, scene.mStorageId), response), response);
+    SuccessOrReturnWithFailureStatus(sceneTable->RemoveSceneTableEntry(fabricIndex, scene.mStorageId), response);
 
     // Update SceneInfoStruct Attributes
     SceneInfoStruct::Type * sceneInfo = GetSceneInfoStruct(fabricIndex);
@@ -753,9 +748,8 @@ ScenesManagementCluster::HandleRemoveScene(FabricIndex fabricIndex,
         sceneValid.Emplace(false);
     }
 
-    VerifyOrReturnValue(
-        ValidateSuccess(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), sceneValid), response),
-        response);
+    SuccessOrReturnWithFailureStatus(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), sceneValid),
+                                     response);
 
     response.status = to_underlying(Status::Success);
     return response;
@@ -785,7 +779,7 @@ ScenesManagementCluster::HandleRemoveAllScenes(FabricIndex fabricIndex,
         return response;
     }
 
-    VerifyOrReturnValue(ValidateSuccess(sceneTable->DeleteAllScenesInGroup(fabricIndex, req.groupID), response), response);
+    SuccessOrReturnWithFailureStatus(sceneTable->DeleteAllScenesInGroup(fabricIndex, req.groupID), response);
 
     // Update Attributes
     SceneInfoStruct::Type * sceneInfo = GetSceneInfoStruct(fabricIndex);
@@ -796,9 +790,8 @@ ScenesManagementCluster::HandleRemoveAllScenes(FabricIndex fabricIndex,
         sceneValid.Emplace(false);
     }
 
-    VerifyOrReturnValue(
-        ValidateSuccess(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), sceneValid), response),
-        response);
+    SuccessOrReturnWithFailureStatus(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), sceneValid),
+                                     response);
 
     response.status = to_underlying(Status::Success);
     return response;
@@ -820,7 +813,7 @@ ScenesManagementCluster::HandleStoreScene(FabricIndex fabricIndex,
         return response;
     }
 
-    VerifyOrReturnValue(ValidateSuccess(StoreSceneParse(fabricIndex, req.groupID, req.sceneID), response), response);
+    SuccessOrReturnWithFailureStatus(StoreSceneParse(fabricIndex, req.groupID, req.sceneID), response);
 
     response.status = to_underlying(Status::Success);
     return response;
@@ -869,14 +862,13 @@ ScenesManagementCluster::HandleGetSceneMembership(FabricIndex fabricIndex,
     SceneTable * sceneTable = scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize);
 
     // Get Capacity
-    VerifyOrReturnValue(ValidateSuccess(sceneTable->GetRemainingCapacity(fabricIndex, capacity), response), response);
+    SuccessOrReturnWithFailureStatus(sceneTable->GetRemainingCapacity(fabricIndex, capacity), response);
     response.capacity.SetNonNull(capacity);
 
     // populate scene list
     SceneId scenesInGroup[scenes::kMaxScenesPerFabric];
     auto sceneList = Span<SceneId>(scenesInGroup);
-    VerifyOrReturnError(ValidateSuccess(sceneTable->GetAllSceneIdsInGroup(fabricIndex, req.groupID, sceneList), response),
-                        response);
+    SuccessOrReturnWithFailureStatus(sceneTable->GetAllSceneIdsInGroup(fabricIndex, req.groupID, sceneList), response);
 
     response.sceneList.SetValue(sceneList);
 
@@ -917,7 +909,7 @@ ScenesManagementCluster::HandleCopyScene(FabricIndex fabricIndex, const ScenesMa
     SceneTable * sceneTable = scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize);
     uint8_t capacity        = 0;
 
-    VerifyOrReturnValue(ValidateSuccess(sceneTable->GetRemainingCapacity(fabricIndex, capacity), response), response);
+    SuccessOrReturnWithFailureStatus(sceneTable->GetRemainingCapacity(fabricIndex, capacity), response);
 
     if (0 == capacity)
     {
@@ -933,26 +925,23 @@ ScenesManagementCluster::HandleCopyScene(FabricIndex fabricIndex, const ScenesMa
         Span<SceneId> sceneList = Span<SceneId>(scenesInGroup);
 
         // populate scene list
-        VerifyOrReturnValue(
-            ValidateSuccess(sceneTable->GetAllSceneIdsInGroup(fabricIndex, req.groupIdentifierFrom, sceneList), response),
-            response);
+        SuccessOrReturnWithFailureStatus(sceneTable->GetAllSceneIdsInGroup(fabricIndex, req.groupIdentifierFrom, sceneList),
+                                         response);
 
         for (auto & sceneId : sceneList)
         {
             SceneTableEntry scene(SceneStorageId(sceneId, req.groupIdentifierFrom));
             //  Insert in table
-            VerifyOrReturnValue(ValidateSuccess(sceneTable->GetSceneTableEntry(fabricIndex, scene.mStorageId, scene), response),
-                                response);
+            SuccessOrReturnWithFailureStatus(sceneTable->GetSceneTableEntry(fabricIndex, scene.mStorageId, scene), response);
 
             scene.mStorageId = SceneStorageId(sceneId, req.groupIdentifierTo);
 
-            VerifyOrReturnValue(ValidateSuccess(sceneTable->SetSceneTableEntry(fabricIndex, scene), response), response);
+            SuccessOrReturnWithFailureStatus(sceneTable->SetSceneTableEntry(fabricIndex, scene), response);
 
             // Update SceneInfoStruct Attributes after each insert in case we hit max capacity in the middle of the loop
-            VerifyOrReturnValue(ValidateSuccess(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(),
-                                                                      Optional<bool>() /* = sceneValid*/),
-                                                response),
-                                response);
+            SuccessOrReturnWithFailureStatus(
+                UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), Optional<bool>() /* = sceneValid*/),
+                response);
         }
 
         response.status = to_underlying(Status::Success);
@@ -960,17 +949,15 @@ ScenesManagementCluster::HandleCopyScene(FabricIndex fabricIndex, const ScenesMa
     }
 
     SceneTableEntry scene(SceneStorageId(req.sceneIdentifierFrom, req.groupIdentifierFrom));
-    VerifyOrReturnValue(ValidateSuccess(sceneTable->GetSceneTableEntry(fabricIndex, scene.mStorageId, scene), response), response);
+    SuccessOrReturnWithFailureStatus(sceneTable->GetSceneTableEntry(fabricIndex, scene.mStorageId, scene), response);
 
     scene.mStorageId = SceneStorageId(req.sceneIdentifierTo, req.groupIdentifierTo);
 
-    VerifyOrReturnValue(ValidateSuccess(sceneTable->SetSceneTableEntry(fabricIndex, scene), response), response);
+    SuccessOrReturnWithFailureStatus(sceneTable->SetSceneTableEntry(fabricIndex, scene), response);
 
     // Update Attributes
-    VerifyOrReturnValue(
-        ValidateSuccess(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), Optional<bool>()), response),
-        response);
-
+    SuccessOrReturnWithFailureStatus(UpdateFabricSceneInfo(fabricIndex, Optional<GroupId>(), Optional<SceneId>(), Optional<bool>()),
+                                     response);
     response.status = to_underlying(Status::Success);
     return response;
 }
