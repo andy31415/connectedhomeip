@@ -368,7 +368,8 @@ std::optional<DataModel::ActionReturnStatus> ScenesManagementCluster::InvokeComm
         std::array<ExtensionFieldSetStruct::Type, scenes::kMaxClustersPerScene> responseEFSBuffer;
 
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        handler->AddResponse(request.path, HandleViewScene(handler->GetAccessingFabricIndex(), request_data, scene, responseEFSBuffer));
+        handler->AddResponse(request.path,
+                             HandleViewScene(handler->GetAccessingFabricIndex(), request_data, scene, responseEFSBuffer));
         return std::nullopt;
     }
     case RemoveScene::Id: {
@@ -396,8 +397,11 @@ std::optional<DataModel::ActionReturnStatus> ScenesManagementCluster::InvokeComm
     }
     case GetSceneMembership::Id: {
         GetSceneMembership::DecodableType request_data;
+        std::array<SceneId, scenes::kMaxScenesPerFabric> scenesInGroup;
+
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        handler->AddResponse(request.path, HandleGetSceneMembership(handler->GetAccessingFabricIndex(), request_data));
+        handler->AddResponse(request.path,
+                             HandleGetSceneMembership(handler->GetAccessingFabricIndex(), request_data, scenesInGroup));
         return std::nullopt;
     }
     case CopyScene::Id: {
@@ -627,8 +631,7 @@ AddSceneResponse::Type ScenesManagementCluster::HandleAddScene(FabricIndex fabri
 }
 
 ViewSceneResponse::Type ScenesManagementCluster::HandleViewScene(
-    FabricIndex fabricIndex, const ScenesManagement::Commands::ViewScene::DecodableType & req,
-    SceneTableEntry &scene,
+    FabricIndex fabricIndex, const ScenesManagement::Commands::ViewScene::DecodableType & req, SceneTableEntry & scene,
     std::array<ScenesManagement::Structs::ExtensionFieldSetStruct::Type, scenes::kMaxClustersPerScene> & responseEFSBuffer)
 {
     MATTER_TRACE_SCOPE("ViewScene", "Scenes");
@@ -690,7 +693,7 @@ ViewSceneResponse::Type ScenesManagementCluster::HandleViewScene(
 
     response.status = to_underlying(Status::Success);
     response.transitionTime.SetValue(scene.mStorageData.mSceneTransitionTimeMs);
-    response.sceneName.SetValue(CharSpan(scene.mStorageData.mName, scene.mStorageData.mNameLength));
+    response.sceneName.SetValue({ scene.mStorageData.mName, scene.mStorageData.mNameLength });
     response.extensionFieldSetStructs.SetValue({ responseEFSBuffer.data(), deserializedEFSCount });
 
     return response;
@@ -837,7 +840,8 @@ ScenesManagementCluster::HandleRecallScene(FabricIndex fabricIndex,
 
 ScenesManagement::Commands::GetSceneMembershipResponse::Type
 ScenesManagementCluster::HandleGetSceneMembership(FabricIndex fabricIndex,
-                                                  const ScenesManagement::Commands::GetSceneMembership::DecodableType & req)
+                                                  const ScenesManagement::Commands::GetSceneMembership::DecodableType & req,
+                                                  std::array<SceneId, scenes::kMaxScenesPerFabric> & scenesInGroup)
 {
     MATTER_TRACE_SCOPE("GetSceneMembership", "Scenes");
     GetSceneMembershipResponse::Type response;
@@ -864,7 +868,6 @@ ScenesManagementCluster::HandleGetSceneMembership(FabricIndex fabricIndex,
     response.capacity.SetNonNull(capacity);
 
     // populate scene list
-    SceneId scenesInGroup[scenes::kMaxScenesPerFabric];
     auto sceneList = Span<SceneId>(scenesInGroup);
     SuccessOrReturnWithFailureStatus(sceneTable->GetAllSceneIdsInGroup(fabricIndex, req.groupID, sceneList), response);
 
