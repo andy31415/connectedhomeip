@@ -207,8 +207,7 @@ void MatterScenesManagementClusterShutdownCallback(EndpointId endpointId, Matter
             .fixedClusterInstanceCount = kScenesmanagementFixedClusterCount,
             .maxClusterInstanceCount   = kScenesmanagementMaxClusterCount,
         },
-        integrationDelegate,
-        shutdownType);
+        integrationDelegate, shutdownType);
 }
 
 void MatterScenesManagementPluginServerInitCallback() {}
