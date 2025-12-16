@@ -145,8 +145,10 @@ private:
 
     /// Handles view scene
     ///
-    /// space for the extension field set struct is available in efsBufferSpace (so  that the returned command
-    /// storage space is valid)
+    /// Returned type contains non-owned memory (spans) and the memory backing for these is offered
+    /// by the input arguments:
+    ///   - scene (for its name char span)
+    ///   - responseEFSBuffer (for extensionFieldSetStructs)
     ScenesManagement::Commands::ViewSceneResponse::Type HandleViewScene(
         FabricIndex fabricIndex, const ScenesManagement::Commands::ViewScene::DecodableType & req,
         chip::scenes::DefaultSceneTableImpl::SceneTableEntry & scene,
