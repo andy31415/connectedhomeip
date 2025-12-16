@@ -183,7 +183,7 @@ void MatterClusterServerShutdownCallback(EndpointId endpoint, ClusterId clusterI
         MatterBooleanStateClusterShutdownCallback(endpoint, shutdownType);
         break;
     case app::Clusters::ScenesManagement::Id:
-        MatterScenesManagementClusterShutdownCallback(endpoint);
+        MatterScenesManagementClusterShutdownCallback(endpoint, shutdownType);
         break;
     case app::Clusters::HepaFilterMonitoring::Id:
         MatterHepaFilterMonitoringClusterShutdownCallback(endpoint, shutdownType);

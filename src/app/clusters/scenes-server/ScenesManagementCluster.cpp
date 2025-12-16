@@ -466,15 +466,16 @@ CHIP_ERROR ScenesManagementCluster::ClearPersistentData()
     return scenes::GetSceneTableImpl(mPath.mEndpointId, mSceneTableSize)->RemoveEndpoint();
 }
 
-void ScenesManagementCluster::Shutdown()
+void ScenesManagementCluster::Shutdown(ClusterShutdownType shutdownType)
 {
     mFabricTable->RemoveFabricDelegate(this);
 
-    // TODO: Dynamic clusters probably would want a clear of scenes data,
-    //       however non-dynamic bits should not delete persistent storage
-    // LogErrorOnFailure(ClearPersistentData());
+    if (shutdownType == ClusterShutdownType::kPermanentRemove)
+    {
+        LogErrorOnFailure(ClearPersistentData());
+    }
 
-    DefaultServerCluster::Shutdown();
+    DefaultServerCluster::Shutdown(shutdownType);
 }
 
 CHIP_ERROR ScenesManagementCluster::GroupWillBeRemoved(FabricIndex aFabricIdx, GroupId aGroupId)
