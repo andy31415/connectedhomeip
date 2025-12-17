@@ -20,6 +20,7 @@
 #include "ExtensionFieldSets.h"
 #include <app/clusters/scenes-server/ExtensionFieldSetsImpl.h>
 #include <app/clusters/scenes-server/SceneTable.h>
+#include <app/clusters/scenes-server/SceneTableImpl.h>
 #include <app/server-cluster/DefaultServerCluster.h>
 #include <clusters/ScenesManagement/AttributeIds.h>
 #include <clusters/ScenesManagement/ClusterId.h>
