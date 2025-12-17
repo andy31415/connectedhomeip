@@ -227,6 +227,9 @@ public:
     virtual CHIP_ERROR Init(PersistentStorageDelegate & storage, app::DataModel::Provider & dataModel) = 0;
     virtual void Finish()                                                                              = 0;
 
+    // Table size
+    virtual uint16_t GetTableSize() const = 0;
+
     // Global scene count
     virtual CHIP_ERROR GetEndpointSceneCount(uint8_t & scene_count)                         = 0;
     virtual CHIP_ERROR GetFabricSceneCount(FabricIndex fabric_index, uint8_t & scene_count) = 0;

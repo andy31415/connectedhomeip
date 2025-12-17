@@ -322,6 +322,7 @@ CHIP_ERROR DefaultSceneTableImpl::ServerClusters(ReadOnlyBufferBuilder<app::Data
 
 void DefaultSceneTableImpl::SetTableSize(uint16_t endpointSceneTableSize)
 {
+    mCurrentTableSize = endpointSceneTableSize;
     FabricTableImpl::SetTableSize(endpointSceneTableSize, static_cast<uint16_t>((endpointSceneTableSize - 1) / 2));
 }
 

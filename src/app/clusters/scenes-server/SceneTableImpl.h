@@ -88,6 +88,8 @@ public:
     CHIP_ERROR RemoveFabric(FabricIndex fabric_index) override;
     CHIP_ERROR RemoveEndpoint() override;
 
+    uint16_t GetTableSize() const override { return mCurrentTableSize; }
+
     void SetTableSize(uint16_t endpointSceneTableSize);
 
 protected:
@@ -107,6 +109,7 @@ protected:
 
 private:
     app::DataModel::Provider * mDataModel = nullptr;
+    uint16_t mCurrentTableSize = kMaxScenesPerEndpoint;
 }; // class DefaultSceneTableImpl
 
 /// @brief Gets a pointer to the instance of Scene Table Impl, providing EndpointId and Table Size for said endpoint

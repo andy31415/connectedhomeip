@@ -22,6 +22,7 @@
 #include <app/clusters/scenes-server/ScenesManagementCluster.h>
 #include <app/server/Server.h>
 #include <app/static-cluster-config/ScenesManagement.h>
+#include <app/util/attribute-storage.h>
 #include <app/util/endpoint-config-api.h>
 #include <data-model-providers/codegen/ClusterIntegration.h>
 #include <data-model-providers/codegen/CodegenDataModelProvider.h>
@@ -32,10 +33,29 @@ namespace chip::app::Clusters::ScenesManagement {
 
 namespace {
 
+class DefaultScenesManagementTableProvider : public ScenesManagementTableProvider
+{
+public:
+    void SetParameters(EndpointId endpointId, uint16_t endpointTableSize)
+    {
+        mEndpointId         = endpointId;
+        mEnddpointTableSize = endpointTableSize;
+    }
+    EndpointId GetEndpointId() const { return mEndpointId; }
+
+    ScenesManagementSceneTable * Take() override { return scenes::GetSceneTableImpl(mEndpointId, mEnddpointTableSize); }
+    void Release(ScenesManagementSceneTable *) override {}
+
+private:
+    EndpointId mEndpointId       = kInvalidEndpointId;
+    uint16_t mEnddpointTableSize = scenes::kMaxScenesPerEndpoint;
+};
+
 constexpr size_t kScenesmanagementFixedClusterCount = StaticApplicationConfig::kFixedClusterConfig.size();
 constexpr size_t kScenesmanagementMaxClusterCount = kScenesmanagementFixedClusterCount + CHIP_DEVICE_CONFIG_DYNAMIC_ENDPOINT_COUNT;
 
 LazyRegisteredServerCluster<ScenesManagementCluster> gServers[kScenesmanagementMaxClusterCount];
+DefaultScenesManagementTableProvider gTableProviders[kScenesmanagementMaxClusterCount];
 
 class IntegrationDelegate : public CodegenClusterIntegration::Delegate
 {
@@ -61,13 +81,14 @@ public:
             }
         }
 
+        gTableProviders[clusterInstanceIndex].SetParameters(endpointId, endpointTableSize);
         gServers[clusterInstanceIndex].Create(endpointId,
                                               ScenesManagementCluster::Context{
-                                                  .groupDataProvider = Credentials::GetGroupDataProvider(),
-                                                  .fabricTable       = &Server::GetInstance().GetFabricTable(),
-                                                  .features          = BitMask<ScenesManagement::Feature>(featureMap),
-                                                  .sceneTableSize    = endpointTableSize,
-                                                  .supportsCopyScene = supportsCopyScene,
+                                                  .groupDataProvider  = Credentials::GetGroupDataProvider(),
+                                                  .fabricTable        = &Server::GetInstance().GetFabricTable(),
+                                                  .features           = BitMask<ScenesManagement::Feature>(featureMap),
+                                                  .sceneTableProvider = gTableProviders[clusterInstanceIndex],
+                                                  .supportsCopyScene  = supportsCopyScene,
                                               });
         return gServers[clusterInstanceIndex].Registration();
     }
@@ -82,7 +103,7 @@ public:
 };
 
 } // namespace
-//
+
 ScenesManagementCluster * FindClusterOnEndpoint(EndpointId endpointId)
 {
     IntegrationDelegate integrationDelegate;

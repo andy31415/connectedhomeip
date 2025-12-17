@@ -31,15 +31,24 @@
 
 namespace chip::app::Clusters {
 
-class ScenesManagementCluster : public DefaultServerCluster, public FabricTable::Delegate
-{
+using ScenesManagementSceneTable = scenes::SceneTable<scenes::ExtensionFieldSetsImpl>;
+
+/// Provides access to a single scene table. Specifically it allows a single object
+/// re-use for scenes management
+class ScenesManagementTableProvider {
+public:
+    virtual ~ScenesManagementTableProvider() = default;
+    virtual ScenesManagementSceneTable * Take() = 0;
+    virtual void Release(ScenesManagementSceneTable *) = 0;
+};
+
+class ScenesManagementCluster : public DefaultServerCluster, public FabricTable::Delegate {
 public:
     static constexpr uint8_t kScenesServerMaxFabricCount = CHIP_CONFIG_MAX_FABRICS;
 
     using SceneInfoStructType = ScenesManagement::Structs::SceneInfoStruct::Type;
 
-    class FabricSceneInfo
-    {
+    class FabricSceneInfo {
     public:
         Span<SceneInfoStructType> GetFabricSceneInfo() { return { mSceneInfoStructs, mSceneInfoStructsCount }; }
 
@@ -71,33 +80,36 @@ public:
     };
 
     /// Injected dependencies of this cluster
-    struct Context
-    {
+    struct Context {
         Credentials::GroupDataProvider * groupDataProvider;
         FabricTable * fabricTable;
         const BitMask<ScenesManagement::Feature> features;
-        uint16_t sceneTableSize;
+        ScenesManagementTableProvider & sceneTableProvider;
         const bool supportsCopyScene;
     };
 
-    ScenesManagementCluster(EndpointId endpointId, const Context & context) :
-        DefaultServerCluster({ endpointId, ScenesManagement::Id }), mFeatures(context.features),
-        mSceneTableSize(context.sceneTableSize), mSupportCopyScenes(context.supportsCopyScene),
-        mGroupProvider(context.groupDataProvider), mFabricTable{ context.fabricTable }
-    {}
+    ScenesManagementCluster(EndpointId endpointId, const Context & context)
+        : DefaultServerCluster({ endpointId, ScenesManagement::Id })
+        , mFeatures(context.features)
+        , mGroupProvider(context.groupDataProvider)
+        , mFabricTable { context.fabricTable }
+        , mSceneTableProvider(context.sceneTableProvider)
+        , mSupportCopyScenes(context.supportsCopyScene)
+    {
+    }
 
     // ServerClusterInterface/DefaultServerCluster implementation
     CHIP_ERROR Startup(ServerClusterContext & context) override;
     void Shutdown(ClusterShutdownType shutdownType) override;
     CHIP_ERROR Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) override;
     DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request,
-                                                AttributeValueEncoder & encoder) override;
+        AttributeValueEncoder & encoder) override;
     CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path,
-                                ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override;
+        ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override;
     CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<CommandId> & builder) override;
     std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
-                                                               chip::TLV::TLVReader & input_arguments,
-                                                               CommandHandler * handler) override;
+        chip::TLV::TLVReader & input_arguments,
+        CommandHandler * handler) override;
 
     // FabricTable::Delegate implementation
     void OnFabricRemoved(const FabricTable & fabricTable, FabricIndex fabricIndex) override;
@@ -117,11 +129,11 @@ public:
 
 private:
     const BitMask<ScenesManagement::Feature> mFeatures;
-    const uint16_t mSceneTableSize;
-    bool mSupportCopyScenes;
     Credentials::GroupDataProvider * mGroupProvider = nullptr;
-    FabricTable * mFabricTable                      = nullptr;
+    FabricTable * mFabricTable = nullptr;
+    ScenesManagementTableProvider & mSceneTableProvider;
     FabricSceneInfo mFabricSceneInfo;
+    bool mSupportCopyScenes;
 
     SceneInfoStructType * GetSceneInfoStruct(FabricIndex fabric) { return mFabricSceneInfo.GetSceneInfoStruct(fabric); }
 
@@ -131,12 +143,12 @@ private:
     }
 
     CHIP_ERROR UpdateFabricSceneInfo(FabricIndex fabric, Optional<GroupId> group, Optional<SceneId> scene,
-                                     Optional<bool> sceneValid);
+        Optional<bool> sceneValid);
 
     CHIP_ERROR StoreSceneParse(const FabricIndex & fabricIdx, const GroupId & groupID, const SceneId & sceneID);
 
     CHIP_ERROR RecallSceneParse(const FabricIndex & fabricIdx, const GroupId & groupID, const SceneId & sceneID,
-                                const Optional<DataModel::Nullable<uint32_t>> & transitionTime);
+        const Optional<DataModel::Nullable<uint32_t>> & transitionTime);
 
     //  Command handlers
     ScenesManagement::Commands::AddSceneResponse::Type
@@ -163,7 +175,7 @@ private:
     HandleStoreScene(FabricIndex fabricIndex, const ScenesManagement::Commands::StoreScene::DecodableType & req);
 
     Protocols::InteractionModel::Status HandleRecallScene(FabricIndex fabricIndex,
-                                                          const ScenesManagement::Commands::RecallScene::DecodableType & req);
+        const ScenesManagement::Commands::RecallScene::DecodableType & req);
 
     /// Handles getting the scene membership
     /// Returned type contains non-owned memory (spans) and the memory backing for these is offered
@@ -171,7 +183,7 @@ private:
     ///   - ScenesInGroup for the `sceneList` value of the response
     ScenesManagement::Commands::GetSceneMembershipResponse::Type
     HandleGetSceneMembership(FabricIndex fabricIndex, const ScenesManagement::Commands::GetSceneMembership::DecodableType & req,
-                             std::array<SceneId, scenes::kMaxScenesPerFabric> & scenesInGroup);
+        std::array<SceneId, scenes::kMaxScenesPerFabric> & scenesInGroup);
 
     ScenesManagement::Commands::CopySceneResponse::Type
     HandleCopyScene(FabricIndex fabricIndex, const ScenesManagement::Commands::CopyScene::DecodableType & req);
