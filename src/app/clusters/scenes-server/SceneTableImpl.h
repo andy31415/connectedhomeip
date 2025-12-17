@@ -109,7 +109,7 @@ protected:
 
 private:
     app::DataModel::Provider * mDataModel = nullptr;
-    uint16_t mCurrentTableSize = kMaxScenesPerEndpoint;
+    uint16_t mCurrentTableSize            = kMaxScenesPerEndpoint;
 }; // class DefaultSceneTableImpl
 
 /// @brief Gets a pointer to the instance of Scene Table Impl, providing EndpointId and Table Size for said endpoint

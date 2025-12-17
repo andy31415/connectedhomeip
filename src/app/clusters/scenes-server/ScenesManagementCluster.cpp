@@ -18,7 +18,7 @@
 
 #include "ScenesManagementCluster.h"
 
-#include <app/clusters/scenes-server/SceneTableImpl.h>
+#include <app/clusters/scenes-server/SceneTable.h>
 #include <app/server-cluster/AttributeListBuilder.h>
 #include <app/server-cluster/DefaultServerCluster.h>
 #include <clusters/ScenesManagement/Metadata.h>
@@ -28,12 +28,12 @@
 
 #include <optional>
 
-using SceneTableEntry   = chip::scenes::DefaultSceneTableImpl::SceneTableEntry;
-using SceneStorageId    = chip::scenes::DefaultSceneTableImpl::SceneStorageId;
-using SceneData         = chip::scenes::DefaultSceneTableImpl::SceneData;
+using SceneTable        = chip::scenes::SceneTable<chip::scenes::ExtensionFieldSetsImpl>;
+using SceneTableEntry   = SceneTable::SceneTableEntry;
+using SceneStorageId    = SceneTable::SceneStorageId;
+using SceneData         = SceneTable::SceneData;
 using ExtensionFieldSet = chip::scenes::ExtensionFieldSet;
 using GroupDataProvider = chip::Credentials::GroupDataProvider;
-using SceneTable        = chip::scenes::SceneTable<chip::scenes::ExtensionFieldSetsImpl>;
 using AuthMode          = chip::Access::AuthMode;
 using chip::Protocols::InteractionModel::Status;
 
