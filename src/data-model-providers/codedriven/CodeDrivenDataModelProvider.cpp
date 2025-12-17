@@ -80,8 +80,7 @@ CHIP_ERROR CodeDrivenDataModelProvider::Shutdown()
     // Remove all endpoints. This will trigger Shutdown() on associated clusters.
     while (mEndpointInterfaceRegistry.begin() != mEndpointInterfaceRegistry.end())
     {
-        if (RemoveEndpoint(mEndpointInterfaceRegistry.begin()->GetEndpointEntry().id, ClusterShutdownType::kClusterShutdown) !=
-            CHIP_NO_ERROR)
+        if (RemoveEndpoint(mEndpointInterfaceRegistry.begin()->GetEndpointEntry().id) != CHIP_NO_ERROR)
         {
             had_failure = true;
         }
@@ -91,7 +90,7 @@ CHIP_ERROR CodeDrivenDataModelProvider::Shutdown()
     while (mServerClusterRegistry.AllServerClusterInstances().begin() != mServerClusterRegistry.AllServerClusterInstances().end())
     {
         ServerClusterInterface * clusterToRemove = *mServerClusterRegistry.AllServerClusterInstances().begin();
-        if (mServerClusterRegistry.Unregister(clusterToRemove, ClusterShutdownType::kClusterShutdown) != CHIP_NO_ERROR)
+        if (mServerClusterRegistry.Unregister(clusterToRemove) != CHIP_NO_ERROR)
         {
             had_failure = true;
         }

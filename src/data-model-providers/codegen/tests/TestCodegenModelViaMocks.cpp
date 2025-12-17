@@ -2225,7 +2225,7 @@ TEST_F(TestCodegenModelViaMocks, AttributeAccessInterfaceTakesPrecedenceOverServ
         ASSERT_TRUE(model.WriteAttribute(test.GetRequest(), decoder).IsSuccess());
     }
 
-    EXPECT_SUCCESS(model.Registry().Unregister(&fakeClusterServer, ClusterShutdownType::kClusterShutdown));
+    EXPECT_SUCCESS(model.Registry().Unregister(&fakeClusterServer));
 }
 
 TEST_F(TestCodegenModelViaMocks, AAISkippedIfNoEmberMetadata)
@@ -2267,7 +2267,7 @@ TEST_F(TestCodegenModelViaMocks, AAISkippedIfNoEmberMetadata)
         ASSERT_TRUE(model.WriteAttribute(test.GetRequest(), decoder).IsSuccess());
     }
 
-    EXPECT_SUCCESS(model.Registry().Unregister(&fakeClusterServer, ClusterShutdownType::kClusterShutdown));
+    EXPECT_SUCCESS(model.Registry().Unregister(&fakeClusterServer));
 }
 
 TEST_F(TestCodegenModelViaMocks, EmberAttributeWriteBasicTypes)
@@ -2782,7 +2782,7 @@ TEST_F(TestCodegenModelViaMocks, ServerClusterInterfacesWrite)
         ASSERT_TRUE(result.has_value() && result->IsSuccess());
     }
 
-    EXPECT_SUCCESS(model.Registry().Unregister(&fakeClusterServer, ClusterShutdownType::kClusterShutdown));
+    EXPECT_SUCCESS(model.Registry().Unregister(&fakeClusterServer));
 }
 
 TEST_F(TestCodegenModelViaMocks, ServerClusterInterfacesRead)
@@ -2810,7 +2810,7 @@ TEST_F(TestCodegenModelViaMocks, ServerClusterInterfacesRead)
                   CHIP_NO_ERROR);
     }
 
-    EXPECT_SUCCESS(model.Registry().Unregister(&fakeClusterServer, ClusterShutdownType::kClusterShutdown));
+    EXPECT_SUCCESS(model.Registry().Unregister(&fakeClusterServer));
 }
 
 TEST_F(TestCodegenModelViaMocks, ServerClusterInterfacesRegistration)
@@ -2896,7 +2896,7 @@ TEST_F(TestCodegenModelViaMocks, ServerClusterInterfacesRegistration)
         ASSERT_TRUE(result.has_value() && result->GetUnderlyingError() == CHIP_ERROR_INCORRECT_STATE);
     }
 
-    EXPECT_SUCCESS(model.Registry().Unregister(&fakeClusterServer, ClusterShutdownType::kClusterShutdown));
+    EXPECT_SUCCESS(model.Registry().Unregister(&fakeClusterServer));
 }
 
 TEST_F(TestCodegenModelViaMocks, EventInfo)
@@ -2930,7 +2930,7 @@ TEST_F(TestCodegenModelViaMocks, EventInfo)
     ASSERT_EQ(model.EventInfo({ kMockEndpoint1, MockClusterId(1), kTestEventId }, entry), CHIP_NO_ERROR);
     ASSERT_EQ(entry.readPrivilege, Access::Privilege::kAdminister);
 
-    EXPECT_SUCCESS(model.Registry().Unregister(&fakeClusterServer, ClusterShutdownType::kClusterShutdown));
+    EXPECT_SUCCESS(model.Registry().Unregister(&fakeClusterServer));
 
     // once unregistered, go back to the default
     ASSERT_EQ(model.EventInfo({ kMockEndpoint1, MockClusterId(2), kTestEventId }, entry), CHIP_NO_ERROR);
@@ -3014,7 +3014,7 @@ TEST_F(TestCodegenModelViaMocks, ServerClusterInterfacesListClusters)
     }
     EXPECT_TRUE(updatedClusterFound);
 
-    EXPECT_SUCCESS(model.Registry().Unregister(&fakeClusterServer, ClusterShutdownType::kClusterShutdown));
+    EXPECT_SUCCESS(model.Registry().Unregister(&fakeClusterServer));
     EXPECT_SUCCESS(model.Shutdown());
 }
 #if CHIP_CONFIG_USE_ENDPOINT_UNIQUE_ID
