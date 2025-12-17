@@ -23,9 +23,19 @@
 #include <app/server/Server.h>
 #include <app/static-cluster-config/ScenesManagement.h>
 #include <app/util/attribute-storage.h>
+#include <app/util/config.h>
 #include <app/util/endpoint-config-api.h>
 #include <data-model-providers/codegen/ClusterIntegration.h>
 #include <data-model-providers/codegen/CodegenDataModelProvider.h>
+
+// Cluster configuration sets values based on this. Ensure config is valid.
+// This means it is NOT sufficient to just set the SCENES_MANAGEMENT_TABLE_SIZE in ZAP, but rather
+// the CHIP_CONFIG must be updated
+
+#if defined(SCENES_MANAGEMENT_TABLE_SIZE) && SCENES_MANAGEMENT_TABLE_SIZE
+static_assert(chip::scenes::kMaxScenesPerEndpoint == SCENES_MANAGEMENT_TABLE_SIZE,
+              "ZAP configration and CHIP_CONFIG_MAX_SCENES_TABLE_SIZE must be identical.");
+#endif
 
 using SceneTable = chip::scenes::SceneTable<chip::scenes::ExtensionFieldSetsImpl>;
 
