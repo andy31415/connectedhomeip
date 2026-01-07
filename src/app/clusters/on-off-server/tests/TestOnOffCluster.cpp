@@ -1,0 +1,191 @@
+/*
+ *
+ *    Copyright (c) 2025 Project CHIP Authors
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+#include <app/clusters/on-off-server/OnOffCluster.h>
+#include <clusters/OnOff/Metadata.h>
+#include <pw_unit_test/framework.h>
+
+#include <app/DefaultSafeAttributePersistenceProvider.h>
+#include <app/SafeAttributePersistenceProvider.h>
+#include <app/server-cluster/testing/AttributeTesting.h>
+#include <app/server-cluster/testing/ClusterTester.h>
+#include <app/server-cluster/testing/TestServerClusterContext.h>
+#include <app/server-cluster/testing/ValidateGlobalAttributes.h>
+
+using namespace chip;
+using namespace chip::app;
+using namespace chip::app::Clusters;
+using namespace chip::app::Clusters::OnOff;
+using namespace chip::Testing;
+
+using chip::Testing::IsAcceptedCommandsListEqualTo;
+using chip::Testing::IsAttributesListEqualTo;
+
+namespace {
+
+constexpr EndpointId kTestEndpointId = 1;
+
+class MockOnOffDelegate : public OnOffDelegate
+{
+public:
+    bool mOnOff = false;
+    bool mCalled = false;
+
+    void OnOnOffChanged(bool on) override
+    {
+        mOnOff = on;
+        mCalled = true;
+    }
+};
+
+struct TestOnOffCluster : public ::testing::Test
+{
+    static void SetUpTestSuite() { ASSERT_EQ(Platform::MemoryInit(), CHIP_NO_ERROR); }
+    static void TearDownTestSuite() { Platform::MemoryShutdown(); }
+
+    void SetUp() override
+    {
+        VerifyOrDie(mPersistenceProvider.Init(&mClusterTester.GetServerClusterContext().storage) == CHIP_NO_ERROR);
+        app::SetSafeAttributePersistenceProvider(&mPersistenceProvider);
+        EXPECT_EQ(mCluster.Startup(mClusterTester.GetServerClusterContext()), CHIP_NO_ERROR);
+    }
+
+    void TearDown() override { app::SetSafeAttributePersistenceProvider(nullptr); }
+
+    MockOnOffDelegate mMockDelegate;
+
+    OnOffCluster mCluster{ kTestEndpointId, mMockDelegate };
+
+    ClusterTester mClusterTester{ mCluster };
+
+    app::DefaultSafeAttributePersistenceProvider mPersistenceProvider;
+};
+
+TEST_F(TestOnOffCluster, TestAttributesList)
+{
+    std::vector<DataModel::AttributeEntry> mandatoryAttributes(Attributes::kMandatoryMetadata.begin(),
+                                                               Attributes::kMandatoryMetadata.end());
+    EXPECT_TRUE(IsAttributesListEqualTo(mCluster, mandatoryAttributes));
+}
+
+TEST_F(TestOnOffCluster, TestAcceptedCommands)
+{
+    EXPECT_TRUE(IsAcceptedCommandsListEqualTo(mCluster,
+                                              {
+                                                  Commands::Off::kMetadataEntry,
+                                                  Commands::On::kMetadataEntry,
+                                                  Commands::Toggle::kMetadataEntry,
+                                              }));
+}
+
+TEST_F(TestOnOffCluster, TestReadAttributes)
+{
+    // Test Read OnOff (Default false)
+    bool onOff = true;
+    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::OnOff::Id, onOff), CHIP_NO_ERROR);
+    EXPECT_FALSE(onOff);
+
+    // Test Read ClusterRevision
+    uint16_t revision = 0;
+    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::ClusterRevision::Id, revision), CHIP_NO_ERROR);
+    EXPECT_EQ(revision, kRevision);
+
+    // Test Read FeatureMap
+    uint32_t featureMap = 1;
+    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::FeatureMap::Id, featureMap), CHIP_NO_ERROR);
+    EXPECT_EQ(featureMap, 0u);
+}
+
+TEST_F(TestOnOffCluster, TestWriteAttributes)
+{
+    // OnOff is ReadOnly for writes
+    EXPECT_EQ(mClusterTester.WriteAttribute(Attributes::OnOff::Id, true), Protocols::InteractionModel::Status::UnsupportedAttribute);
+}
+
+TEST_F(TestOnOffCluster, TestCommands)
+{
+    // 1. On Command
+    EXPECT_TRUE(mClusterTester.Invoke<Commands::On::Type>(Commands::On::Type()).IsSuccess());
+    EXPECT_TRUE(mMockDelegate.mCalled);
+    EXPECT_TRUE(mMockDelegate.mOnOff);
+    mMockDelegate.mCalled = false;
+
+    // Verify Attribute
+    bool onOff = false;
+    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::OnOff::Id, onOff), CHIP_NO_ERROR);
+    EXPECT_TRUE(onOff);
+
+    // 2. Off Command
+    EXPECT_TRUE(mClusterTester.Invoke<Commands::Off::Type>(Commands::Off::Type()).IsSuccess());
+    EXPECT_TRUE(mMockDelegate.mCalled);
+    EXPECT_FALSE(mMockDelegate.mOnOff);
+    mMockDelegate.mCalled = false;
+
+    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::OnOff::Id, onOff), CHIP_NO_ERROR);
+    EXPECT_FALSE(onOff);
+
+    // 3. Toggle Command (from Off to On)
+    EXPECT_TRUE(mClusterTester.Invoke<Commands::Toggle::Type>(Commands::Toggle::Type()).IsSuccess());
+    EXPECT_TRUE(mMockDelegate.mCalled);
+    EXPECT_TRUE(mMockDelegate.mOnOff);
+    mMockDelegate.mCalled = false;
+
+    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::OnOff::Id, onOff), CHIP_NO_ERROR);
+    EXPECT_TRUE(onOff);
+
+    // 4. Toggle Command (from On to Off)
+    EXPECT_TRUE(mClusterTester.Invoke<Commands::Toggle::Type>(Commands::Toggle::Type()).IsSuccess());
+    EXPECT_TRUE(mMockDelegate.mCalled);
+    EXPECT_FALSE(mMockDelegate.mOnOff);
+
+    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::OnOff::Id, onOff), CHIP_NO_ERROR);
+    EXPECT_FALSE(onOff);
+}
+
+TEST_F(TestOnOffCluster, TestPersistence)
+{
+    TestServerClusterContext context;
+    app::DefaultSafeAttributePersistenceProvider persistenceProvider;
+    EXPECT_EQ(persistenceProvider.Init(&context.Get().storage), CHIP_NO_ERROR);
+    app::SetSafeAttributePersistenceProvider(&persistenceProvider);
+    MockOnOffDelegate mockDelegate;
+
+    // 1. Initial startup, set to ON
+    {
+        OnOffCluster cluster(kTestEndpointId, mockDelegate);
+        EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
+        chip::Testing::ClusterTester tester(cluster);
+
+        EXPECT_TRUE(tester.Invoke<Commands::On::Type>(Commands::On::Type()).IsSuccess());
+        bool onOff = false;
+        EXPECT_EQ(tester.ReadAttribute(Attributes::OnOff::Id, onOff), CHIP_NO_ERROR);
+        EXPECT_TRUE(onOff);
+    }
+
+    // 2. Restart, verify ON
+    {
+        OnOffCluster cluster(kTestEndpointId, mockDelegate);
+        EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
+        chip::Testing::ClusterTester tester(cluster);
+
+        bool onOff = false;
+        EXPECT_EQ(tester.ReadAttribute(Attributes::OnOff::Id, onOff), CHIP_NO_ERROR);
+        EXPECT_TRUE(onOff);
+    }
+}
+
+} // namespace
