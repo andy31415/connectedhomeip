@@ -98,16 +98,9 @@ CHIP_ERROR OnOffCluster::SetOnOff(bool on)
     NotifyAttributeChanged(Attributes::OnOff::Id);
 
     // Persist
-    if (mContext)
-    {
-        if (CHIP_ERROR err = mContext->attributeStorage.WriteValue(
-                ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
-                ByteSpan(reinterpret_cast<const uint8_t *>(&mOnOff), sizeof(mOnOff)));
-            err != CHIP_NO_ERROR)
-        {
-            ChipLogError(Zcl, "Failed to persist OnOff: %" CHIP_ERROR_FORMAT, err.Format());
-        }
-    }
+    LogErrorOnFailure(mContext->attributeStorage.WriteValue(
+        ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
+        ByteSpan(reinterpret_cast<const uint8_t *>(&mOnOff), sizeof(mOnOff))));
 
     mDelegate.OnOnOffChanged(mOnOff);
 
@@ -122,11 +115,11 @@ std::optional<DataModel::ActionReturnStatus> OnOffCluster::InvokeCommand(const D
     switch (request.path.mCommandId)
     {
     case Commands::Off::Id:
-        return DataModel::ActionReturnStatus(SetOnOff(false));
+        return SetOnOff(false);
     case Commands::On::Id:
-        return DataModel::ActionReturnStatus(SetOnOff(true));
+        return SetOnOff(true);
     case Commands::Toggle::Id:
-        return DataModel::ActionReturnStatus(SetOnOff(!mOnOff));
+        return SetOnOff(!mOnOff);
     default:
         return Status::UnsupportedCommand;
     }

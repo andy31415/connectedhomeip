@@ -154,20 +154,8 @@ DataModel::ActionReturnStatus OnOffLightingCluster::WriteAttribute(const DataMod
         return Status::Success;
     }
     case Attributes::StartUpOnOff::Id: {
-        // Use helper if context available, otherwise just decode
-        if (mContext)
-        {
-             AttributePersistence persistence(mContext->attributeStorage);
-             return persistence.DecodeAndStoreNativeEndianValue(request.path, decoder, mStartUpOnOff);
-        }
-        else
-        {
-             DataModel::Nullable<StartUpOnOffEnum> value;
-             ReturnErrorOnFailure(decoder.Decode(value));
-             mStartUpOnOff = value;
-             NotifyAttributeChanged(Attributes::StartUpOnOff::Id);
-             return Status::Success;
-        }
+        AttributePersistence persistence(mContext->attributeStorage);
+        return persistence.DecodeAndStoreNativeEndianValue(request.path, decoder, mStartUpOnOff);
     }
     default:
         return OnOffCluster::WriteAttribute(request, decoder);
@@ -216,10 +204,7 @@ void OnOffLightingCluster::TimerFired()
             mOffWaitTime = 0;
             // Best effort update logic
             // Since SetOnOff triggers storage writes etc, we just use it.
-            if (SetOnOff(false) != CHIP_NO_ERROR)
-            {
-                ChipLogError(Zcl, "Failed to set OnOff to false in TimerFired");
-            }
+            LogErrorOnFailure(SetOnOff(false));
             NotifyAttributeChanged(Attributes::OffWaitTime::Id);
             on = false; // Updated state
         }
@@ -247,38 +232,31 @@ void OnOffLightingCluster::UpdateTimer()
     if ((on && mOnTime > 0) || (!on && mOffWaitTime > 0))
     {
          // 100ms = 1/10th second
-         if (mTimerDelegate.StartTimer(this, System::Clock::Milliseconds32(100)) != CHIP_NO_ERROR)
-         {
-             ChipLogError(Zcl, "Failed to start OnOff timer");
-         }
+         LogErrorOnFailure(mTimerDelegate.StartTimer(this, System::Clock::Milliseconds32(100)));
     }
 }
 
 DataModel::ActionReturnStatus OnOffLightingCluster::HandleOff()
 {
-    DataModel::ActionReturnStatus status(SetOnOff(false));
-    if (status.IsSuccess())
-    {
-        mOnTime = 0;
-        NotifyAttributeChanged(Attributes::OnTime::Id);
-        UpdateTimer();
-    }
-    return status;
+    ReturnErrorOnFailure(SetOnOff(false));
+
+    mOnTime = 0;
+    NotifyAttributeChanged(Attributes::OnTime::Id);
+    UpdateTimer();
+    return Status::Success;
 }
 
 DataModel::ActionReturnStatus OnOffLightingCluster::HandleOn()
 {
-    DataModel::ActionReturnStatus status(SetOnOff(true));
-    if (status.IsSuccess())
+    ReturnErrorOnFailure(SetOnOff(true));
+
+    if (mOnTime == 0)
     {
-        if (mOnTime == 0)
-        {
-            mOffWaitTime = 0;
-            NotifyAttributeChanged(Attributes::OffWaitTime::Id);
-        }
-        UpdateTimer();
+        mOffWaitTime = 0;
+        NotifyAttributeChanged(Attributes::OffWaitTime::Id);
     }
-    return status;
+    UpdateTimer();
+    return Status::Success;
 }
 
 DataModel::ActionReturnStatus OnOffLightingCluster::HandleToggle()
@@ -304,15 +282,13 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOffWithEffect(const Da
         // Store global scene (Placeholder: Scenes not implemented yet)
         mGlobalSceneControl = false;
         NotifyAttributeChanged(Attributes::GlobalSceneControl::Id);
-        
-        DataModel::ActionReturnStatus status(SetOnOff(false));
-        if (status.IsSuccess())
-        {
-            mOnTime = 0;
-            NotifyAttributeChanged(Attributes::OnTime::Id);
-        }
+
+        ReturnErrorOnFailure(SetOnOff(false));
+
+        mOnTime = 0;
+        NotifyAttributeChanged(Attributes::OnTime::Id);
         UpdateTimer();
-        return status;
+        return Status::Success;
     }
     else
     {
@@ -329,22 +305,19 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOnWithRecallGlobalScen
     
     // Recall global scene (Placeholder)
     // For now just turn On.
-    DataModel::ActionReturnStatus status(SetOnOff(true));
-    
+    ReturnErrorOnFailure(SetOnOff(true));
+
     mGlobalSceneControl = true;
     NotifyAttributeChanged(Attributes::GlobalSceneControl::Id);
-    
-    if (status.IsSuccess())
+
+    if (mOnTime == 0)
     {
-        if (mOnTime == 0)
-        {
-            mOffWaitTime = 0;
-            NotifyAttributeChanged(Attributes::OffWaitTime::Id);
-        }
-        UpdateTimer();
+        mOffWaitTime = 0;
+        NotifyAttributeChanged(Attributes::OffWaitTime::Id);
     }
-    
-    return status;
+    UpdateTimer();
+
+    return Status::Success;
 }
 
 DataModel::ActionReturnStatus OnOffLightingCluster::HandleOnWithTimedOff(chip::TLV::TLVReader & input_arguments)
@@ -370,10 +343,7 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOnWithTimedOff(chip::T
         NotifyAttributeChanged(Attributes::OffWaitTime::Id);
         
         // This command turns the device ON.
-        if (SetOnOff(true) != CHIP_NO_ERROR)
-        {
-            ChipLogError(Zcl, "Failed to set OnOff to true in HandleOnWithTimedOff");
-        }
+        LogErrorOnFailure(SetOnOff(true));
     }
     
     UpdateTimer();
