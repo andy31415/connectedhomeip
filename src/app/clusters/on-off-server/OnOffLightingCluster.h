@@ -33,8 +33,7 @@ namespace chip::app::Clusters::OnOff {
 class OnOffLightingCluster : public OnOffCluster, public TimerContext
 {
 public:
-    OnOffLightingCluster(EndpointId endpointId, OnOffDelegate & delegate, TimerDelegate & timerDelegate,
-                         BitMask<Feature> featureMap = BitMask<Feature>(Feature::kLighting));
+    OnOffLightingCluster(EndpointId endpointId, OnOffDelegate & delegate, TimerDelegate & timerDelegate);
 
     ~OnOffLightingCluster() override;
 

@@ -26,10 +26,8 @@ using chip::Protocols::InteractionModel::Status;
 
 namespace chip::app::Clusters::OnOff {
 
-OnOffLightingCluster::OnOffLightingCluster(EndpointId endpointId, OnOffDelegate & delegate, TimerDelegate & timerDelegate,
-                                           BitMask<Feature> featureMap) :
-    OnOffCluster(endpointId, delegate, featureMap),
-    mTimerDelegate(timerDelegate)
+OnOffLightingCluster::OnOffLightingCluster(EndpointId endpointId, OnOffDelegate & delegate, TimerDelegate & timerDelegate) :
+    OnOffCluster(endpointId, delegate, Feature::kLighting, Feature::kLighting), mTimerDelegate(timerDelegate)
 {}
 
 OnOffLightingCluster::~OnOffLightingCluster()
@@ -135,9 +133,6 @@ DataModel::ActionReturnStatus OnOffLightingCluster::WriteAttribute(const DataMod
 {
     switch (request.path.mAttributeId)
     {
-    case Attributes::GlobalSceneControl::Id:
-        return Status::UnsupportedWrite; // Read-only
-
     case Attributes::OnTime::Id: {
         uint16_t value;
         ReturnErrorOnFailure(decoder.Decode(value));

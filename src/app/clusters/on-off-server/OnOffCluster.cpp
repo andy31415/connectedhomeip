@@ -28,8 +28,15 @@ using chip::Protocols::InteractionModel::Status;
 namespace chip::app::Clusters::OnOff {
 
 OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap) :
-    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }), mDelegate(delegate), mFeatureMap(featureMap)
+    OnOffCluster(endpointId, delegate, featureMap, { Feature::kDeadFrontBehavior, Feature::kOffOnly })
 {}
+
+OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap,
+                           BitMask<Feature> supportedFeatures) :
+    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }), mDelegate(delegate), mFeatureMap(featureMap)
+{
+    VerifyOrDie(supportedFeatures.HasAll(featureMap));
+}
 
 CHIP_ERROR OnOffCluster::Startup(ServerClusterContext & context)
 {
@@ -81,13 +88,6 @@ DataModel::ActionReturnStatus OnOffCluster::ReadAttribute(const DataModel::ReadA
     default:
         return Protocols::InteractionModel::Status::UnsupportedAttribute;
     }
-}
-
-DataModel::ActionReturnStatus OnOffCluster::WriteAttribute(const DataModel::WriteAttributeRequest & request,
-                                                           AttributeValueDecoder & decoder)
-{
-    // OnOff is ReadOnly.
-    return Protocols::InteractionModel::Status::UnsupportedAttribute;
 }
 
 CHIP_ERROR OnOffCluster::SetOnOff(bool on)

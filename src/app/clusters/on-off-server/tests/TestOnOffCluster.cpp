@@ -110,13 +110,6 @@ TEST_F(TestOnOffCluster, TestReadAttributes)
     EXPECT_EQ(featureMap, 0u);
 }
 
-TEST_F(TestOnOffCluster, TestWriteAttributes)
-{
-    // OnOff is ReadOnly for writes
-    EXPECT_EQ(mClusterTester.WriteAttribute(Attributes::OnOff::Id, true),
-              Protocols::InteractionModel::Status::UnsupportedAttribute);
-}
-
 TEST_F(TestOnOffCluster, TestCommands)
 {
     // 1. On Command

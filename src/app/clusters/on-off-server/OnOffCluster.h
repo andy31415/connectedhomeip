@@ -56,14 +56,18 @@ public:
 
     DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request,
                                                 AttributeValueEncoder & encoder) override;
-    DataModel::ActionReturnStatus WriteAttribute(const DataModel::WriteAttributeRequest & request,
-                                                 AttributeValueDecoder & decoder) override;
 
     std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
                                                                chip::TLV::TLVReader & input_arguments,
                                                                CommandHandler * handler) override;
 
 protected:
+    /// Allows derived classes to specify the subset of OnOff features they implement.
+    /// Validates that requested 'featureMap' does not exceed implementation capabilities.
+    ///
+    /// This will VerifyOrDie that featureMap is a subset of supportedFeatures.
+    OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap, BitMask<Feature> supportedFeatures);
+
     OnOffDelegate & mDelegate;
     BitMask<Feature> mFeatureMap;
 
