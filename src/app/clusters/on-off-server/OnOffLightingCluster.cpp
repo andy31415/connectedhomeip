@@ -71,7 +71,7 @@ CHIP_ERROR OnOffLightingCluster::Startup(ServerClusterContext & context)
 
         if (targetState != GetOnOff())
         {
-            ReturnErrorOnFailure(SetOnOff(targetState));
+            LogErrorOnFailure(SetOnOff(targetState));
         }
     }
 
