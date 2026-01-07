@@ -235,4 +235,19 @@ TEST_F(TestOffOnlyOnOffCluster, TestInvokeCommands)
               Protocols::InteractionModel::Status::UnsupportedCommand);
 }
 
+TEST(TestOnOffClusterSafety, TestLightingStartupFails)
+{
+    TestServerClusterContext context;
+    app::DefaultSafeAttributePersistenceProvider persistenceProvider;
+    EXPECT_EQ(persistenceProvider.Init(&context.Get().storage), CHIP_NO_ERROR);
+    app::SetSafeAttributePersistenceProvider(&persistenceProvider);
+
+    MockOnOffDelegate mockDelegate;
+    OnOffCluster cluster(kTestEndpointId, mockDelegate, BitMask<Feature>(Feature::kLighting));
+
+    EXPECT_EQ(cluster.Startup(context.Get()), CHIP_ERROR_NOT_IMPLEMENTED);
+
+    app::SetSafeAttributePersistenceProvider(nullptr);
+}
+
 } // namespace

@@ -28,6 +28,9 @@
 
 namespace chip::app::Clusters::OnOff {
 
+/// Implements an On/Off server cluster.
+///
+/// *DOES NOT* support the Lighting feature (to keep this implementation small)
 class OnOffCluster : public DefaultServerCluster
 {
 public:
