@@ -19,6 +19,7 @@ source_set("on-off-server") {
   sources = [
     "OnOffCluster.cpp",
     "OnOffCluster.h",
+    "OnOffDelegate.h",
   ]
 
   public_deps = [

@@ -24,12 +24,12 @@
 #include <app-common/zap-generated/ids/Commands.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 
+#include "OnOffDelegate.h"
+
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace OnOff {
-
-class OnOffDelegate;
 
 class OnOffCluster : public DefaultServerCluster
 {
@@ -85,33 +85,6 @@ private:
     // Helpers
     // Loads all the persistent attributes from the KVS.
     void LoadPersistentAttributes();
-};
-
-/** @brief
- *  Defines methods for implementing application-specific logic for the OnOff Cluster.
- */
-class OnOffDelegate
-{
-public:
-    OnOffDelegate() = default;
-
-    virtual ~OnOffDelegate() = default;
-
-    /**
-     * @brief Called when the OnOff attribute has changed.
-     * The delegate should update the hardware state to match the new value.
-     *
-     * @param on The new OnOff state.
-     */
-    virtual void OnOnOffChanged(bool on) = 0;
-
-protected:
-    friend class OnOffCluster;
-
-    OnOffCluster * mOnOffCluster = nullptr;
-
-    void SetOnOffCluster(OnOffCluster * onOffCluster) { mOnOffCluster = onOffCluster; }
-    OnOffCluster * GetOnOffCluster() const { return mOnOffCluster; }
 };
 
 } // namespace OnOff

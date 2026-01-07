@@ -36,12 +36,10 @@ namespace OnOff {
 OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate) :
     DefaultServerCluster({ endpointId, Clusters::OnOff::Id }), mDelegate(delegate)
 {
-    mDelegate.SetOnOffCluster(this);
 }
 
 OnOffCluster::~OnOffCluster()
 {
-    mDelegate.SetOnOffCluster(nullptr);
 }
 
 CHIP_ERROR OnOffCluster::Startup(ServerClusterContext & context)
