@@ -32,14 +32,14 @@ class OnOffCluster : public DefaultServerCluster
 {
 public:
     /// The delegate must outlive the cluster instance.
-    OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate);
+    OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap = {});
     ~OnOffCluster() override = default;
 
     /// Sets the OnOff attribute.
     ///
     /// This also handles writing the new value into non-volatile storage and
     /// notifying the delegate.
-    Protocols::InteractionModel::Status SetOnOff(bool on);
+    CHIP_ERROR SetOnOff(bool on);
 
     bool GetOnOff() const;
 
@@ -62,6 +62,7 @@ public:
 
 private:
     OnOffDelegate & mDelegate;
+    BitMask<Feature> mFeatureMap;
 
     // Attribute local storage
     bool mOnOff = false;

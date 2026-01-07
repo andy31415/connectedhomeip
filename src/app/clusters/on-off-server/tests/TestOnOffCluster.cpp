@@ -189,4 +189,50 @@ TEST_F(TestOnOffCluster, TestPersistence)
     }
 }
 
+struct TestOffOnlyOnOffCluster : public ::testing::Test
+{
+    static void SetUpTestSuite() { ASSERT_EQ(Platform::MemoryInit(), CHIP_NO_ERROR); }
+    static void TearDownTestSuite() { Platform::MemoryShutdown(); }
+
+    void SetUp() override
+    {
+        VerifyOrDie(mPersistenceProvider.Init(&mClusterTester.GetServerClusterContext().storage) == CHIP_NO_ERROR);
+        app::SetSafeAttributePersistenceProvider(&mPersistenceProvider);
+        EXPECT_EQ(mCluster.Startup(mClusterTester.GetServerClusterContext()), CHIP_NO_ERROR);
+    }
+
+    void TearDown() override { app::SetSafeAttributePersistenceProvider(nullptr); }
+
+    MockOnOffDelegate mMockDelegate;
+    OnOffCluster mCluster{ kTestEndpointId, mMockDelegate, BitMask<Feature>(Feature::kOffOnly) };
+    ClusterTester mClusterTester{ mCluster };
+    app::DefaultSafeAttributePersistenceProvider mPersistenceProvider;
+};
+
+TEST_F(TestOffOnlyOnOffCluster, TestFeatureMap)
+{
+    uint32_t featureMap = 0;
+    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::FeatureMap::Id, featureMap), CHIP_NO_ERROR);
+    EXPECT_EQ(featureMap, static_cast<uint32_t>(Feature::kOffOnly));
+}
+
+TEST_F(TestOffOnlyOnOffCluster, TestAcceptedCommands)
+{
+    EXPECT_TRUE(IsAcceptedCommandsListEqualTo(mCluster, { Commands::Off::kMetadataEntry }));
+}
+
+TEST_F(TestOffOnlyOnOffCluster, TestInvokeCommands)
+{
+    // Off should still work
+    EXPECT_TRUE(mClusterTester.Invoke<Commands::Off::Type>(Commands::Off::Type()).IsSuccess());
+
+    // On should fail with UnsupportedCommand
+    EXPECT_EQ(mClusterTester.Invoke<Commands::On::Type>(Commands::On::Type()).status,
+              Protocols::InteractionModel::Status::UnsupportedCommand);
+
+    // Toggle should fail with UnsupportedCommand
+    EXPECT_EQ(mClusterTester.Invoke<Commands::Toggle::Type>(Commands::Toggle::Type()).status,
+              Protocols::InteractionModel::Status::UnsupportedCommand);
+}
+
 } // namespace

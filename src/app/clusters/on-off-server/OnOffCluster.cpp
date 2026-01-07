@@ -27,8 +27,8 @@ using chip::Protocols::InteractionModel::Status;
 
 namespace chip::app::Clusters::OnOff {
 
-OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate) :
-    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }), mDelegate(delegate)
+OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap) :
+    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }), mDelegate(delegate), mFeatureMap(featureMap)
 {}
 
 CHIP_ERROR OnOffCluster::Startup(ServerClusterContext & context)
@@ -45,12 +45,20 @@ CHIP_ERROR OnOffCluster::Startup(ServerClusterContext & context)
 CHIP_ERROR OnOffCluster::AcceptedCommands(const ConcreteClusterPath & path,
                                           ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder)
 {
-    static constexpr DataModel::AcceptedCommandEntry kAcceptedCommands[] = {
+    if (mFeatureMap.Has(Feature::kOffOnly))
+    {
+        static constexpr DataModel::AcceptedCommandEntry kOffOnlyCommands[] = {
+            Commands::Off::kMetadataEntry,
+        };
+        return builder.ReferenceExisting(kOffOnlyCommands);
+    }
+
+    static constexpr DataModel::AcceptedCommandEntry kAllCommands[] = {
         Commands::Off::kMetadataEntry,
         Commands::On::kMetadataEntry,
         Commands::Toggle::kMetadataEntry,
     };
-    return builder.ReferenceExisting(kAcceptedCommands);
+    return builder.ReferenceExisting(kAllCommands);
 }
 
 CHIP_ERROR OnOffCluster::Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder)
@@ -67,7 +75,7 @@ DataModel::ActionReturnStatus OnOffCluster::ReadAttribute(const DataModel::ReadA
     case Attributes::ClusterRevision::Id:
         return encoder.Encode(kRevision);
     case Attributes::FeatureMap::Id:
-        return encoder.Encode(static_cast<uint32_t>(0)); // No features yet
+        return encoder.Encode(mFeatureMap.Raw());
     case Attributes::OnOff::Id:
         return encoder.Encode(mOnOff);
     default:
@@ -82,9 +90,10 @@ DataModel::ActionReturnStatus OnOffCluster::WriteAttribute(const DataModel::Writ
     return Protocols::InteractionModel::Status::UnsupportedAttribute;
 }
 
-Status OnOffCluster::SetOnOff(bool on)
+CHIP_ERROR OnOffCluster::SetOnOff(bool on)
 {
-    VerifyOrReturnValue(mOnOff != on, Status::Success);
+    VerifyOrReturnError(mOnOff != on, CHIP_NO_ERROR);
+
     mOnOff = on;
     NotifyAttributeChanged(Attributes::OnOff::Id);
 
@@ -101,21 +110,23 @@ Status OnOffCluster::SetOnOff(bool on)
     }
 
     mDelegate.OnOnOffChanged(mOnOff);
-    return Status::Success;
+
+    return CHIP_NO_ERROR;
 }
 
 std::optional<DataModel::ActionReturnStatus> OnOffCluster::InvokeCommand(const DataModel::InvokeRequest & request,
                                                                          chip::TLV::TLVReader & input_arguments,
                                                                          CommandHandler * handler)
 {
+    // Note: OffOnly feature validation is handled by the Interaction Model by checking the AcceptedCommands list.
     switch (request.path.mCommandId)
     {
     case Commands::Off::Id:
-        return SetOnOff(false);
+        return DataModel::ActionReturnStatus(SetOnOff(false));
     case Commands::On::Id:
-        return SetOnOff(true);
+        return DataModel::ActionReturnStatus(SetOnOff(true));
     case Commands::Toggle::Id:
-        return SetOnOff(!mOnOff);
+        return DataModel::ActionReturnStatus(SetOnOff(!mOnOff));
     default:
         return Status::UnsupportedCommand;
     }
