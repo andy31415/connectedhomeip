@@ -38,10 +38,6 @@ OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate) :
 {
 }
 
-OnOffCluster::~OnOffCluster()
-{
-}
-
 CHIP_ERROR OnOffCluster::Startup(ServerClusterContext & context)
 {
     ReturnErrorOnFailure(DefaultServerCluster::Startup(context));

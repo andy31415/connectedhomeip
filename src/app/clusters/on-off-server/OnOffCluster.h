@@ -34,32 +34,19 @@ namespace OnOff {
 class OnOffCluster : public DefaultServerCluster
 {
 public:
-    /**
-     * Creates an OnOff Cluster instance.
-     * @param endpointId The endpoint on which this cluster exists.
-     * @param delegate A reference to the delegate to be used by this server.
-     * Note: the caller must ensure that the delegate lives throughout the instance's lifetime.
-     */
+    /// The delegate must outlive the cluster instance.
     OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate);
-    ~OnOffCluster() override;
+    ~OnOffCluster() override = default;
 
-    // Attribute Setters
-    /**
-     * Sets the OnOff attribute. Note, this also handles writing the new value into non-volatile storage.
-     * @param on The value to which the OnOff is to be set.
-     * @return Returns Success if successful, otherwise an error status.
-     */
+    /// Sets the OnOff attribute.
+    ///
+    /// This also handles writing the new value into non-volatile storage and
+    /// notifying the delegate.
     Protocols::InteractionModel::Status SetOnOff(bool on);
 
-    // Attribute Getters
-    /**
-     * @return The Current OnOff state.
-     */
     bool GetOnOff() const;
 
-    /**
-     * @brief ServerClusterInterface methods.
-     */
+    // ServerClusterInterface methods
     CHIP_ERROR Startup(ServerClusterContext & context) override;
 
     CHIP_ERROR Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) override;
@@ -82,7 +69,6 @@ private:
     // Attribute local storage
     bool mOnOff = false;
 
-    // Helpers
     // Loads all the persistent attributes from the KVS.
     void LoadPersistentAttributes();
 };

@@ -25,20 +25,14 @@ namespace app {
 namespace Clusters {
 namespace OnOff {
 
-/** @brief
- *  Defines methods for implementing application-specific logic for the OnOff Cluster.
- */
+/// Interface for implementing application-specific logic for the OnOff Cluster.
 class OnOffDelegate
 {
 public:
     virtual ~OnOffDelegate() = default;
 
-    /**
-     * @brief Called when the OnOff attribute has changed.
-     * The delegate should update the hardware state to match the new value.
-     *
-     * @param on The new OnOff state.
-     */
+    /// Called when the OnOff attribute has changed.
+    /// The delegate should update the hardware state to match the new value.
     virtual void OnOnOffChanged(bool on) = 0;
 };
 
