@@ -33,8 +33,7 @@ namespace chip::app::Clusters::OnOff {
 class OnOffLightingCluster : public OnOffCluster, public TimerContext
 {
 public:
-    OnOffLightingCluster(EndpointId endpointId, OnOffDelegate & delegate,
-                         TimerDelegate & timerDelegate,
+    OnOffLightingCluster(EndpointId endpointId, OnOffDelegate & delegate, TimerDelegate & timerDelegate,
                          BitMask<Feature> featureMap = BitMask<Feature>(Feature::kLighting));
 
     ~OnOffLightingCluster() override;
@@ -65,18 +64,19 @@ private:
 
     // Lighting Attributes
     bool mGlobalSceneControl = true;
-    uint16_t mOnTime = 0;
-    uint16_t mOffWaitTime = 0;
+    uint16_t mOnTime         = 0;
+    uint16_t mOffWaitTime    = 0;
     DataModel::Nullable<StartUpOnOffEnum> mStartUpOnOff;
 
     // Timer logic
     void UpdateTimer();
 
     // Command Handlers
-    DataModel::ActionReturnStatus HandleOffWithEffect(const DataModel::InvokeRequest & request, chip::TLV::TLVReader & input_arguments);
+    DataModel::ActionReturnStatus HandleOffWithEffect(const DataModel::InvokeRequest & request,
+                                                      chip::TLV::TLVReader & input_arguments);
     DataModel::ActionReturnStatus HandleOnWithRecallGlobalScene();
     DataModel::ActionReturnStatus HandleOnWithTimedOff(chip::TLV::TLVReader & input_arguments);
-    
+
     // Wrappers for basic commands to add lighting side effects
     DataModel::ActionReturnStatus HandleOn();
     DataModel::ActionReturnStatus HandleOff();

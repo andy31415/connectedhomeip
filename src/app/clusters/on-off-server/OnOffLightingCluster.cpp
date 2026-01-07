@@ -26,8 +26,7 @@ using chip::Protocols::InteractionModel::Status;
 
 namespace chip::app::Clusters::OnOff {
 
-OnOffLightingCluster::OnOffLightingCluster(EndpointId endpointId, OnOffDelegate & delegate,
-                                           TimerDelegate & timerDelegate,
+OnOffLightingCluster::OnOffLightingCluster(EndpointId endpointId, OnOffDelegate & delegate, TimerDelegate & timerDelegate,
                                            BitMask<Feature> featureMap) :
     OnOffCluster(endpointId, delegate, featureMap),
     mTimerDelegate(timerDelegate)
@@ -44,12 +43,13 @@ CHIP_ERROR OnOffLightingCluster::Startup(ServerClusterContext & context)
     ReturnErrorOnFailure(OnOffCluster::Startup(context));
 
     AttributePersistence attributePersistence(context.attributeStorage);
-    
+
     // Load StartUpOnOff
     // Default to Null if not found
     DataModel::Nullable<StartUpOnOffEnum> defaultVal;
     defaultVal.SetNull();
-    attributePersistence.LoadNativeEndianValue(ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::StartUpOnOff::Id), mStartUpOnOff, defaultVal);
+    attributePersistence.LoadNativeEndianValue(
+        ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::StartUpOnOff::Id), mStartUpOnOff, defaultVal);
 
     // Apply StartUpOnOff behavior
     if (!mStartUpOnOff.IsNull())
@@ -81,7 +81,7 @@ CHIP_ERROR OnOffLightingCluster::Startup(ServerClusterContext & context)
 }
 
 CHIP_ERROR OnOffLightingCluster::AcceptedCommands(const ConcreteClusterPath & path,
-                                          ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder)
+                                                  ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder)
 {
     static constexpr DataModel::AcceptedCommandEntry kLightingCommands[] = {
         Commands::Off::kMetadataEntry,
@@ -94,25 +94,26 @@ CHIP_ERROR OnOffLightingCluster::AcceptedCommands(const ConcreteClusterPath & pa
     return builder.ReferenceExisting(kLightingCommands);
 }
 
-CHIP_ERROR OnOffLightingCluster::Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder)
+CHIP_ERROR OnOffLightingCluster::Attributes(const ConcreteClusterPath & path,
+                                            ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder)
 {
     AttributeListBuilder listBuilder(builder);
-    
+
     // Base attributes
     ReturnErrorOnFailure(OnOffCluster::Attributes(path, builder));
-    
+
     static const DataModel::AttributeEntry kLightingAttributes[] = {
         Attributes::GlobalSceneControl::kMetadataEntry,
         Attributes::OnTime::kMetadataEntry,
         Attributes::OffWaitTime::kMetadataEntry,
         Attributes::StartUpOnOff::kMetadataEntry,
     };
-    
+
     return listBuilder.Append(Span<const DataModel::AttributeEntry>(kLightingAttributes), {});
 }
 
 DataModel::ActionReturnStatus OnOffLightingCluster::ReadAttribute(const DataModel::ReadAttributeRequest & request,
-                                                          AttributeValueEncoder & encoder)
+                                                                  AttributeValueEncoder & encoder)
 {
     switch (request.path.mAttributeId)
     {
@@ -130,13 +131,13 @@ DataModel::ActionReturnStatus OnOffLightingCluster::ReadAttribute(const DataMode
 }
 
 DataModel::ActionReturnStatus OnOffLightingCluster::WriteAttribute(const DataModel::WriteAttributeRequest & request,
-                                                           AttributeValueDecoder & decoder)
+                                                                   AttributeValueDecoder & decoder)
 {
     switch (request.path.mAttributeId)
     {
     case Attributes::GlobalSceneControl::Id:
         return Status::UnsupportedWrite; // Read-only
-        
+
     case Attributes::OnTime::Id: {
         uint16_t value;
         ReturnErrorOnFailure(decoder.Decode(value));
@@ -163,8 +164,8 @@ DataModel::ActionReturnStatus OnOffLightingCluster::WriteAttribute(const DataMod
 }
 
 std::optional<DataModel::ActionReturnStatus> OnOffLightingCluster::InvokeCommand(const DataModel::InvokeRequest & request,
-                                                                         chip::TLV::TLVReader & input_arguments,
-                                                                         CommandHandler * handler)
+                                                                                 chip::TLV::TLVReader & input_arguments,
+                                                                                 CommandHandler * handler)
 {
     switch (request.path.mCommandId)
     {
@@ -192,7 +193,7 @@ CHIP_ERROR OnOffLightingCluster::SetOnOff(bool on)
 
 void OnOffLightingCluster::TimerFired()
 {
-    bool on = GetOnOff();
+    bool on      = GetOnOff();
     bool changed = false;
 
     if (on && mOnTime > 0)
@@ -231,8 +232,8 @@ void OnOffLightingCluster::UpdateTimer()
     bool on = GetOnOff();
     if ((on && mOnTime > 0) || (!on && mOffWaitTime > 0))
     {
-         // 100ms = 1/10th second
-         LogErrorOnFailure(mTimerDelegate.StartTimer(this, System::Clock::Milliseconds32(100)));
+        // 100ms = 1/10th second
+        LogErrorOnFailure(mTimerDelegate.StartTimer(this, System::Clock::Milliseconds32(100)));
     }
 }
 
@@ -266,13 +267,12 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleToggle()
     {
         return HandleOff();
     }
-    else
-    {
-        return HandleOn();
-    }
+
+    return HandleOn();
 }
 
-DataModel::ActionReturnStatus OnOffLightingCluster::HandleOffWithEffect(const DataModel::InvokeRequest & request, chip::TLV::TLVReader & input_arguments)
+DataModel::ActionReturnStatus OnOffLightingCluster::HandleOffWithEffect(const DataModel::InvokeRequest & request,
+                                                                        chip::TLV::TLVReader & input_arguments)
 {
     Commands::OffWithEffect::DecodableType commandData;
     ReturnErrorOnFailure(DataModel::Decode(input_arguments, commandData));
@@ -290,10 +290,8 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOffWithEffect(const Da
         UpdateTimer();
         return Status::Success;
     }
-    else
-    {
-        return HandleOff();
-    }
+
+    return HandleOff();
 }
 
 DataModel::ActionReturnStatus OnOffLightingCluster::HandleOnWithRecallGlobalScene()
@@ -302,7 +300,7 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOnWithRecallGlobalScen
     {
         return Status::Success; // Discard
     }
-    
+
     // Recall global scene (Placeholder)
     // For now just turn On.
     ReturnErrorOnFailure(SetOnOff(true));
@@ -337,15 +335,15 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOnWithTimedOff(chip::T
     }
     else
     {
-        mOnTime = std::max(mOnTime, static_cast<uint16_t>(commandData.onTime));
+        mOnTime      = std::max(mOnTime, static_cast<uint16_t>(commandData.onTime));
         mOffWaitTime = commandData.offWaitTime;
         NotifyAttributeChanged(Attributes::OnTime::Id);
         NotifyAttributeChanged(Attributes::OffWaitTime::Id);
-        
+
         // This command turns the device ON.
         LogErrorOnFailure(SetOnOff(true));
     }
-    
+
     UpdateTimer();
     return Status::Success;
 }

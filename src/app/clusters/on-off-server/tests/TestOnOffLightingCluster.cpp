@@ -17,8 +17,8 @@
 
 #include <app/clusters/on-off-server/OnOffLightingCluster.h>
 #include <clusters/OnOff/Metadata.h>
-#include <pw_unit_test/framework.h>
 #include <lib/support/TimerDelegate.h>
+#include <pw_unit_test/framework.h>
 
 #include <app/DefaultSafeAttributePersistenceProvider.h>
 #include <app/SafeAttributePersistenceProvider.h>
@@ -56,14 +56,14 @@ public:
 class MockTimerDelegate : public TimerDelegate
 {
 public:
-    TimerContext * mContext = nullptr;
+    TimerContext * mContext         = nullptr;
     System::Clock::Timeout mTimeout = System::Clock::kZero;
-    bool mIsActive = false;
+    bool mIsActive                  = false;
 
     CriticalFailure StartTimer(TimerContext * context, System::Clock::Timeout aTimeout) override
     {
-        mContext = context;
-        mTimeout = aTimeout;
+        mContext  = context;
+        mTimeout  = aTimeout;
         mIsActive = true;
         return CHIP_NO_ERROR;
     }
@@ -76,10 +76,7 @@ public:
         }
     }
 
-    bool IsTimerActive(TimerContext * context) override
-    {
-        return mIsActive && (mContext == context);
-    }
+    bool IsTimerActive(TimerContext * context) override { return mIsActive && (mContext == context); }
 
     System::Clock::Timestamp GetCurrentMonotonicTimestamp() override
     {
@@ -148,7 +145,7 @@ TEST_F(TestOnOffLightingCluster, TestOnWithTimedOff)
     // 1. Turn On with Timed Off (OnTime = 10, OffWaitTime = 20)
     Commands::OnWithTimedOff::Type command;
     command.onOffControl.SetField(OnOffControlBitmap::kAcceptOnlyWhenOn, 0); // Unconditional
-    command.onTime = 10;
+    command.onTime      = 10;
     command.offWaitTime = 20;
 
     EXPECT_TRUE(mClusterTester.Invoke(command).IsSuccess());
