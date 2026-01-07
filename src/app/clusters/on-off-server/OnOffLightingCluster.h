@@ -1,6 +1,6 @@
 /*
  *
- *    Copyright (c) 2025 Project CHIP Authors
+ *    Copyright (c) 2026 Project CHIP Authors
  *    All rights reserved.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,35 +18,27 @@
 
 #pragma once
 
-#include <app-common/zap-generated/cluster-objects.h>
-#include <app-common/zap-generated/ids/Attributes.h>
-#include <app-common/zap-generated/ids/Clusters.h>
-#include <app-common/zap-generated/ids/Commands.h>
-#include <app/server-cluster/DefaultServerCluster.h>
-
-#include "OnOffDelegate.h"
+#include "OnOffCluster.h"
+#include <lib/support/TimerDelegate.h>
 
 namespace chip::app::Clusters::OnOff {
 
-/// Implements an On/Off server cluster.
+/// Implements the On/Off cluster with Lighting features.
 ///
-/// *DOES NOT* support the Lighting feature (to keep this implementation small)
-class OnOffCluster : public DefaultServerCluster
+/// This includes:
+/// - GlobalSceneControl
+/// - OnTime / OffWaitTime
+/// - StartUpOnOff
+/// - Timed commands
+class OnOffLightingCluster : public OnOffCluster, public TimerContext
 {
 public:
-    /// The delegate must outlive the cluster instance.
-    OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap = {});
-    ~OnOffCluster() override = default;
+    OnOffLightingCluster(EndpointId endpointId, OnOffDelegate & delegate,
+                         TimerDelegate & timerDelegate,
+                         BitMask<Feature> featureMap = BitMask<Feature>(Feature::kLighting));
 
-    /// Sets the OnOff attribute.
-    ///
-    /// This also handles writing the new value into non-volatile storage and
-    /// notifying the delegate.
-    virtual CHIP_ERROR SetOnOff(bool on);
+    ~OnOffLightingCluster() override;
 
-    virtual bool GetOnOff() const;
-
-    // ServerClusterInterface methods
     CHIP_ERROR Startup(ServerClusterContext & context) override;
 
     CHIP_ERROR Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) override;
@@ -63,12 +55,32 @@ public:
                                                                chip::TLV::TLVReader & input_arguments,
                                                                CommandHandler * handler) override;
 
-protected:
-    OnOffDelegate & mDelegate;
-    BitMask<Feature> mFeatureMap;
+    CHIP_ERROR SetOnOff(bool on) override;
 
-    // Attribute local storage
-    bool mOnOff = false;
+    // TimerContext
+    void TimerFired() override;
+
+private:
+    TimerDelegate & mTimerDelegate;
+
+    // Lighting Attributes
+    bool mGlobalSceneControl = true;
+    uint16_t mOnTime = 0;
+    uint16_t mOffWaitTime = 0;
+    DataModel::Nullable<StartUpOnOffEnum> mStartUpOnOff;
+
+    // Timer logic
+    void UpdateTimer();
+
+    // Command Handlers
+    DataModel::ActionReturnStatus HandleOffWithEffect(const DataModel::InvokeRequest & request, chip::TLV::TLVReader & input_arguments);
+    DataModel::ActionReturnStatus HandleOnWithRecallGlobalScene();
+    DataModel::ActionReturnStatus HandleOnWithTimedOff(chip::TLV::TLVReader & input_arguments);
+    
+    // Wrappers for basic commands to add lighting side effects
+    DataModel::ActionReturnStatus HandleOn();
+    DataModel::ActionReturnStatus HandleOff();
+    DataModel::ActionReturnStatus HandleToggle();
 };
 
 } // namespace chip::app::Clusters::OnOff

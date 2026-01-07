@@ -33,10 +33,6 @@ OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitM
 
 CHIP_ERROR OnOffCluster::Startup(ServerClusterContext & context)
 {
-    // this class does NOT implement lighting (significantly more complex
-    // so we provide a simpler on-off functionality for now).
-    VerifyOrReturnError(!mFeatureMap.Has(Feature::kLighting), CHIP_ERROR_NOT_IMPLEMENTED);
-
     ReturnErrorOnFailure(DefaultServerCluster::Startup(context));
 
     AttributePersistence attributePersistence(context.attributeStorage);
