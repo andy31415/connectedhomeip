@@ -34,7 +34,11 @@ OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate) :
 CHIP_ERROR OnOffCluster::Startup(ServerClusterContext & context)
 {
     ReturnErrorOnFailure(DefaultServerCluster::Startup(context));
-    LoadPersistentAttributes(context);
+    
+    AttributePersistence attributePersistence(context.attributeStorage);
+    attributePersistence.LoadNativeEndianValue(ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
+                                               mOnOff, false);
+
     return CHIP_NO_ERROR;
 }
 
@@ -53,13 +57,6 @@ CHIP_ERROR OnOffCluster::Attributes(const ConcreteClusterPath & path, ReadOnlyBu
 {
     AttributeListBuilder listBuilder(builder);
     return listBuilder.Append(Span(Attributes::kMandatoryMetadata), {});
-}
-
-void OnOffCluster::LoadPersistentAttributes(ServerClusterContext & context)
-{
-    AttributePersistence attributePersistence(context.attributeStorage);
-    attributePersistence.LoadNativeEndianValue(ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
-                                               mOnOff, false);
 }
 
 DataModel::ActionReturnStatus OnOffCluster::ReadAttribute(const DataModel::ReadAttributeRequest & request,

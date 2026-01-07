@@ -65,9 +65,6 @@ private:
 
     // Attribute local storage
     bool mOnOff = false;
-
-    // Loads all the persistent attributes from the KVS.
-    void LoadPersistentAttributes(ServerClusterContext & context);
 };
 
 } // namespace chip::app::Clusters::OnOff
