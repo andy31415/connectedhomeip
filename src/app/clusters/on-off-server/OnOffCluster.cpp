@@ -20,6 +20,7 @@
 #include <app/persistence/AttributePersistence.h>
 #include <app/server-cluster/AttributeListBuilder.h>
 #include <clusters/OnOff/Metadata.h>
+#include <lib/support/CodeUtils.h>
 #include <lib/support/logging/CHIPLogging.h>
 
 using chip::Protocols::InteractionModel::Status;
@@ -83,25 +84,23 @@ DataModel::ActionReturnStatus OnOffCluster::WriteAttribute(const DataModel::Writ
 
 Status OnOffCluster::SetOnOff(bool on)
 {
-    if (mOnOff != on)
+    VerifyOrReturnValue(mOnOff != on, Status::Success);
+    mOnOff = on;
+    NotifyAttributeChanged(Attributes::OnOff::Id);
+
+    // Persist
+    if (mContext)
     {
-        mOnOff = on;
-        NotifyAttributeChanged(Attributes::OnOff::Id);
-
-        // Persist
-        if (mContext)
+        if (CHIP_ERROR err = mContext->attributeStorage.WriteValue(
+                ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
+                ByteSpan(reinterpret_cast<const uint8_t *>(&mOnOff), sizeof(mOnOff)));
+            err != CHIP_NO_ERROR)
         {
-            if (CHIP_ERROR err = mContext->attributeStorage.WriteValue(
-                    ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
-                    ByteSpan(reinterpret_cast<const uint8_t *>(&mOnOff), sizeof(mOnOff)));
-                err != CHIP_NO_ERROR)
-            {
-                ChipLogError(Zcl, "Failed to persist OnOff: %" CHIP_ERROR_FORMAT, err.Format());
-            }
+            ChipLogError(Zcl, "Failed to persist OnOff: %" CHIP_ERROR_FORMAT, err.Format());
         }
-
-        mDelegate.OnOnOffChanged(mOnOff);
     }
+
+    mDelegate.OnOnOffChanged(mOnOff);
     return Status::Success;
 }
 
