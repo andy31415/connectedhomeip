@@ -18,11 +18,11 @@
 
 #pragma once
 
-#include <app/server-cluster/DefaultServerCluster.h>
 #include <app-common/zap-generated/cluster-objects.h>
 #include <app-common/zap-generated/ids/Attributes.h>
-#include <app-common/zap-generated/ids/Commands.h>
 #include <app-common/zap-generated/ids/Clusters.h>
+#include <app-common/zap-generated/ids/Commands.h>
+#include <app/server-cluster/DefaultServerCluster.h>
 
 #include "OnOffDelegate.h"
 

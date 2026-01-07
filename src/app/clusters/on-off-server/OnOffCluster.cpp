@@ -28,13 +28,12 @@ namespace chip::app::Clusters::OnOff {
 
 OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate) :
     DefaultServerCluster({ endpointId, Clusters::OnOff::Id }), mDelegate(delegate)
-{
-}
+{}
 
 CHIP_ERROR OnOffCluster::Startup(ServerClusterContext & context)
 {
     ReturnErrorOnFailure(DefaultServerCluster::Startup(context));
-    
+
     AttributePersistence attributePersistence(context.attributeStorage);
     attributePersistence.LoadNativeEndianValue(ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
                                                mOnOff, false);
@@ -88,18 +87,19 @@ Status OnOffCluster::SetOnOff(bool on)
     {
         mOnOff = on;
         NotifyAttributeChanged(Attributes::OnOff::Id);
-        
+
         // Persist
         if (mContext)
         {
-             if (CHIP_ERROR err = mContext->attributeStorage.WriteValue(
-                ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
-                ByteSpan(reinterpret_cast<const uint8_t *>(&mOnOff), sizeof(mOnOff))); err != CHIP_NO_ERROR)
-             {
-                 ChipLogError(Zcl, "Failed to persist OnOff: %" CHIP_ERROR_FORMAT, err.Format());
-             }
+            if (CHIP_ERROR err = mContext->attributeStorage.WriteValue(
+                    ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
+                    ByteSpan(reinterpret_cast<const uint8_t *>(&mOnOff), sizeof(mOnOff)));
+                err != CHIP_NO_ERROR)
+            {
+                ChipLogError(Zcl, "Failed to persist OnOff: %" CHIP_ERROR_FORMAT, err.Format());
+            }
         }
-        
+
         mDelegate.OnOnOffChanged(mOnOff);
     }
     return Status::Success;

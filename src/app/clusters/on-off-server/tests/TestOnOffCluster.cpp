@@ -42,12 +42,12 @@ constexpr EndpointId kTestEndpointId = 1;
 class MockOnOffDelegate : public OnOffDelegate
 {
 public:
-    bool mOnOff = false;
+    bool mOnOff  = false;
     bool mCalled = false;
 
     void OnOnOffChanged(bool on) override
     {
-        mOnOff = on;
+        mOnOff  = on;
         mCalled = true;
     }
 };
@@ -113,7 +113,8 @@ TEST_F(TestOnOffCluster, TestReadAttributes)
 TEST_F(TestOnOffCluster, TestWriteAttributes)
 {
     // OnOff is ReadOnly for writes
-    EXPECT_EQ(mClusterTester.WriteAttribute(Attributes::OnOff::Id, true), Protocols::InteractionModel::Status::UnsupportedAttribute);
+    EXPECT_EQ(mClusterTester.WriteAttribute(Attributes::OnOff::Id, true),
+              Protocols::InteractionModel::Status::UnsupportedAttribute);
 }
 
 TEST_F(TestOnOffCluster, TestCommands)
