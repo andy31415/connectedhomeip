@@ -17,21 +17,14 @@
 
 #include "OnOffCluster.h"
 
-#include <app/SafeAttributePersistenceProvider.h>
+#include <app/persistence/AttributePersistence.h>
 #include <app/server-cluster/AttributeListBuilder.h>
 #include <clusters/OnOff/Metadata.h>
 #include <lib/support/logging/CHIPLogging.h>
 
-using namespace chip;
-using namespace chip::app;
-using namespace chip::app::Clusters;
-using namespace chip::app::Clusters::OnOff;
 using chip::Protocols::InteractionModel::Status;
 
-namespace chip {
-namespace app {
-namespace Clusters {
-namespace OnOff {
+namespace chip::app::Clusters::OnOff {
 
 OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate) :
     DefaultServerCluster({ endpointId, Clusters::OnOff::Id }), mDelegate(delegate)
@@ -41,7 +34,7 @@ OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate) :
 CHIP_ERROR OnOffCluster::Startup(ServerClusterContext & context)
 {
     ReturnErrorOnFailure(DefaultServerCluster::Startup(context));
-    LoadPersistentAttributes();
+    LoadPersistentAttributes(context);
     return CHIP_NO_ERROR;
 }
 
@@ -62,15 +55,11 @@ CHIP_ERROR OnOffCluster::Attributes(const ConcreteClusterPath & path, ReadOnlyBu
     return listBuilder.Append(Span(Attributes::kMandatoryMetadata), {});
 }
 
-void OnOffCluster::LoadPersistentAttributes()
+void OnOffCluster::LoadPersistentAttributes(ServerClusterContext & context)
 {
-    bool storedOnOff = false;
-    CHIP_ERROR err = GetSafeAttributePersistenceProvider()->ReadScalarValue(
-        ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id), storedOnOff);
-    if (err == CHIP_NO_ERROR)
-    {
-        mOnOff = storedOnOff;
-    }
+    AttributePersistence attributePersistence(context.attributeStorage);
+    attributePersistence.LoadNativeEndianValue(ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
+                                               mOnOff, false);
 }
 
 DataModel::ActionReturnStatus OnOffCluster::ReadAttribute(const DataModel::ReadAttributeRequest & request,
@@ -104,8 +93,15 @@ Status OnOffCluster::SetOnOff(bool on)
         NotifyAttributeChanged(Attributes::OnOff::Id);
         
         // Persist
-        TEMPORARY_RETURN_IGNORED GetSafeAttributePersistenceProvider()->WriteScalarValue(
-            { mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id }, mOnOff);
+        if (mContext)
+        {
+             if (CHIP_ERROR err = mContext->attributeStorage.WriteValue(
+                ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
+                ByteSpan(reinterpret_cast<const uint8_t *>(&mOnOff), sizeof(mOnOff))); err != CHIP_NO_ERROR)
+             {
+                 ChipLogError(Zcl, "Failed to persist OnOff: %" CHIP_ERROR_FORMAT, err.Format());
+             }
+        }
         
         mDelegate.OnOnOffChanged(mOnOff);
     }
@@ -119,11 +115,11 @@ std::optional<DataModel::ActionReturnStatus> OnOffCluster::InvokeCommand(const D
     switch (request.path.mCommandId)
     {
     case Commands::Off::Id:
-        return DataModel::ActionReturnStatus(SetOnOff(false));
+        return SetOnOff(false);
     case Commands::On::Id:
-        return DataModel::ActionReturnStatus(SetOnOff(true));
+        return SetOnOff(true);
     case Commands::Toggle::Id:
-        return DataModel::ActionReturnStatus(SetOnOff(!mOnOff));
+        return SetOnOff(!mOnOff);
     default:
         return Status::UnsupportedCommand;
     }
@@ -134,7 +130,4 @@ bool OnOffCluster::GetOnOff() const
     return mOnOff;
 }
 
-} // namespace OnOff
-} // namespace Clusters
-} // namespace app
-} // namespace chip
+} // namespace chip::app::Clusters::OnOff

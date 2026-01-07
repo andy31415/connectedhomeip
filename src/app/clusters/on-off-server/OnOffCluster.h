@@ -26,10 +26,7 @@
 
 #include "OnOffDelegate.h"
 
-namespace chip {
-namespace app {
-namespace Clusters {
-namespace OnOff {
+namespace chip::app::Clusters::OnOff {
 
 class OnOffCluster : public DefaultServerCluster
 {
@@ -70,10 +67,7 @@ private:
     bool mOnOff = false;
 
     // Loads all the persistent attributes from the KVS.
-    void LoadPersistentAttributes();
+    void LoadPersistentAttributes(ServerClusterContext & context);
 };
 
-} // namespace OnOff
-} // namespace Clusters
-} // namespace app
-} // namespace chip
+} // namespace chip::app::Clusters::OnOff

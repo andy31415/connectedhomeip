@@ -20,10 +20,7 @@
 
 #include <lib/support/CommonIterator.h>
 
-namespace chip {
-namespace app {
-namespace Clusters {
-namespace OnOff {
+namespace chip::app::Clusters::OnOff {
 
 /// Interface for implementing application-specific logic for the OnOff Cluster.
 class OnOffDelegate
@@ -36,7 +33,4 @@ public:
     virtual void OnOnOffChanged(bool on) = 0;
 };
 
-} // namespace OnOff
-} // namespace Clusters
-} // namespace app
-} // namespace chip
+} // namespace chip::app::Clusters::OnOff
