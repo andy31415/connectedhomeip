@@ -40,10 +40,14 @@ OnOffLightingCluster::~OnOffLightingCluster()
 
 CHIP_ERROR OnOffLightingCluster::Startup(ServerClusterContext & context)
 {
-    // Call base startup to load OnOff
-    ReturnErrorOnFailure(OnOffCluster::Startup(context));
+    // NOTE: direct base class is NOT called, because we want to give the delegate
+    //       the correct on-off clusters setup.
+    ReturnErrorOnFailure(DefaultServerCluster::Startup(context));
 
     AttributePersistence attributePersistence(context.attributeStorage);
+
+    attributePersistence.LoadNativeEndianValue(ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
+                                               mOnOff, false);
 
     // Load StartUpOnOff
     // Default to Null if not found
@@ -71,12 +75,10 @@ CHIP_ERROR OnOffLightingCluster::Startup(ServerClusterContext & context)
             // Invalid value, keep previous
             break;
         }
-
-        if (targetState != GetOnOff())
-        {
-            LogErrorOnFailure(SetOnOff(targetState));
-        }
+        mOnOff = targetState;
     }
+
+    mDelegate.OnOffStartup(mOnOff);
 
     return CHIP_NO_ERROR;
 }
