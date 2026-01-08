@@ -44,11 +44,17 @@ class MockOnOffDelegate : public OnOffDelegate
 public:
     bool mOnOff  = false;
     bool mCalled = false;
+    bool mStartupCalled = false;
 
     void OnOnOffChanged(bool on) override
     {
         mOnOff  = on;
         mCalled = true;
+    }
+
+    void OnOffStartup(bool on) override {
+        mOnOff = on;
+        mStartupCalled = true;
     }
 };
 

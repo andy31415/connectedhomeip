@@ -1,6 +1,5 @@
 /*
- *
- *    Copyright (c) 2025 Project CHIP Authors
+ *    Copyright (c) 2026 Project CHIP Authors
  *    All rights reserved.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,10 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 #pragma once
-
-#include <lib/support/CommonIterator.h>
 
 namespace chip::app::Clusters::OnOff {
 
@@ -28,8 +24,16 @@ class OnOffDelegate
 public:
     virtual ~OnOffDelegate() = default;
 
+    /// Cluster was started up with this given on/off value.
+    ///
+    /// For lighting applications, the value will be according to the startup
+    /// enum (i.e. it would be forced on or off or togggled)
+    virtual void OnOffStartup(bool on) = 0;
+
     /// Called when the OnOff attribute has changed.
     /// The delegate should update the hardware state to match the new value.
+    ///
+    /// This is NOT called as part of startup.
     virtual void OnOnOffChanged(bool on) = 0;
 };
 

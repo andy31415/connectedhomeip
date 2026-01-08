@@ -47,6 +47,8 @@ CHIP_ERROR OnOffCluster::Startup(ServerClusterContext & context)
     attributePersistence.LoadNativeEndianValue(ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
                                                mOnOff, false);
 
+    mDelegate.OnOffStartup(mOnOff);
+
     return CHIP_NO_ERROR;
 }
 
