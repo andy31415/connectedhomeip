@@ -42,8 +42,8 @@ constexpr EndpointId kTestEndpointId = 1;
 class MockOnOffDelegate : public OnOffDelegate
 {
 public:
-    bool mOnOff  = false;
-    bool mCalled = false;
+    bool mOnOff         = false;
+    bool mCalled        = false;
     bool mStartupCalled = false;
 
     void OnOnOffChanged(bool on) override
@@ -52,8 +52,9 @@ public:
         mCalled = true;
     }
 
-    void OnOffStartup(bool on) override {
-        mOnOff = on;
+    void OnOffStartup(bool on) override
+    {
+        mOnOff         = on;
         mStartupCalled = true;
     }
 };

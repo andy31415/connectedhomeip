@@ -34,7 +34,8 @@ OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitM
 
 OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap,
                            BitMask<Feature> supportedFeatures) :
-    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }), mDelegate(delegate), mFeatureMap(featureMap)
+    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }),
+    mDelegate(delegate), mFeatureMap(featureMap)
 {
     VerifyOrDie(supportedFeatures.HasAll(featureMap));
 
