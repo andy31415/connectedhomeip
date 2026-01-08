@@ -42,6 +42,8 @@ CHIP_ERROR OnOffLightingCluster::Startup(ServerClusterContext & context)
 {
     // NOTE: direct base class is NOT called, because we want to give the delegate
     //       the correct on-off clusters setup.
+    //
+    // NOLINTNEXTLINE(bugprone-parent-virtual-call)
     ReturnErrorOnFailure(DefaultServerCluster::Startup(context));
 
     AttributePersistence attributePersistence(context.attributeStorage);
