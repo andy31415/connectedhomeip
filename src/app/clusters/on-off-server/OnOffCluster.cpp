@@ -1,6 +1,5 @@
 /*
- *
- *    Copyright (c) 2025 Project CHIP Authors
+ *    Copyright (c) 2026 Project CHIP Authors
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,7 +18,9 @@
 
 #include <app/persistence/AttributePersistence.h>
 #include <app/server-cluster/AttributeListBuilder.h>
+#include <clusters/OnOff/Enums.h>
 #include <clusters/OnOff/Metadata.h>
+#include <lib/core/CHIPError.h>
 #include <lib/support/CodeUtils.h>
 #include <lib/support/logging/CHIPLogging.h>
 
@@ -33,10 +34,12 @@ OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitM
 
 OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap,
                            BitMask<Feature> supportedFeatures) :
-    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }),
-    mDelegate(delegate), mFeatureMap(featureMap)
+    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }), mDelegate(delegate), mFeatureMap(featureMap)
 {
     VerifyOrDie(supportedFeatures.HasAll(featureMap));
+
+    // Feature validity check: offonly does not support any of the other features.
+    VerifyOrDie(!featureMap.Has(Feature::kOffOnly) || featureMap.HasOnly(Feature::kOffOnly));
 }
 
 CHIP_ERROR OnOffCluster::Startup(ServerClusterContext & context)
