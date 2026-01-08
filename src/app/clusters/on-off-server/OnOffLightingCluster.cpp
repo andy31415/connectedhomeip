@@ -15,6 +15,7 @@
  */
 
 #include "OnOffLightingCluster.h"
+#include "app/data-model-provider/ActionReturnStatus.h"
 
 #include <app/persistence/AttributePersistence.h>
 #include <app/server-cluster/AttributeListBuilder.h>
@@ -135,21 +136,27 @@ DataModel::ActionReturnStatus OnOffLightingCluster::ReadAttribute(const DataMode
 DataModel::ActionReturnStatus OnOffLightingCluster::WriteAttribute(const DataModel::WriteAttributeRequest & request,
                                                                    AttributeValueDecoder & decoder)
 {
+    return NotifyAttributeChangedIfSuccess(request.path.mAttributeId, WriteImpl(request, decoder));
+}
+
+DataModel::ActionReturnStatus OnOffLightingCluster::WriteImpl(const DataModel::WriteAttributeRequest & request,
+                                                                   AttributeValueDecoder & decoder)
+{
     switch (request.path.mAttributeId)
     {
     case Attributes::OnTime::Id: {
         uint16_t value;
         ReturnErrorOnFailure(decoder.Decode(value));
+        VerifyOrReturnValue(mOnTime != value, DataModel::ActionReturnStatus::FixedStatus::kWriteSuccessNoOp);
         mOnTime = value;
-        NotifyAttributeChanged(Attributes::OnTime::Id);
         UpdateTimer();
         return Status::Success;
     }
     case Attributes::OffWaitTime::Id: {
         uint16_t value;
         ReturnErrorOnFailure(decoder.Decode(value));
+        VerifyOrReturnValue(mOffWaitTime != value, DataModel::ActionReturnStatus::FixedStatus::kWriteSuccessNoOp);
         mOffWaitTime = value;
-        NotifyAttributeChanged(Attributes::OffWaitTime::Id);
         UpdateTimer();
         return Status::Success;
     }
@@ -158,7 +165,7 @@ DataModel::ActionReturnStatus OnOffLightingCluster::WriteAttribute(const DataMod
         return persistence.DecodeAndStoreNativeEndianValue(request.path, decoder, mStartUpOnOff);
     }
     default:
-        return OnOffCluster::WriteAttribute(request, decoder);
+        return Protocols::InteractionModel::Status::UnsupportedWrite;
     }
 }
 

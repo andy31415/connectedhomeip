@@ -72,6 +72,8 @@ private:
     uint16_t mOffWaitTime = 0;
     DataModel::Nullable<StartUpOnOffEnum> mStartUpOnOff;
 
+    DataModel::ActionReturnStatus WriteImpl(const DataModel::WriteAttributeRequest & request, AttributeValueDecoder & decoder);
+
     // Timer logic
     void UpdateTimer();
 
