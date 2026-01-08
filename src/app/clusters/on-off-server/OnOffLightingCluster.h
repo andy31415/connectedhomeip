@@ -29,10 +29,11 @@ namespace chip::app::Clusters::OnOff {
 /// - OnTime / OffWaitTime
 /// - StartUpOnOff
 /// - Timed commands
-class OnOffLightingCluster : public OnOffCluster, public TimerContext {
+class OnOffLightingCluster : public OnOffCluster, public TimerContext
+{
 public:
     OnOffLightingCluster(EndpointId endpointId, OnOffDelegate & delegate, TimerDelegate & timerDelegate,
-        BitMask<Feature> featureMap = Feature::kLighting);
+                         BitMask<Feature> featureMap = Feature::kLighting);
 
     ~OnOffLightingCluster() override;
 
@@ -41,16 +42,16 @@ public:
     CHIP_ERROR Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) override;
 
     CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path,
-        ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override;
+                                ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override;
 
     DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request,
-        AttributeValueEncoder & encoder) override;
+                                                AttributeValueEncoder & encoder) override;
     DataModel::ActionReturnStatus WriteAttribute(const DataModel::WriteAttributeRequest & request,
-        AttributeValueDecoder & decoder) override;
+                                                 AttributeValueDecoder & decoder) override;
 
     std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
-        chip::TLV::TLVReader & input_arguments,
-        CommandHandler * handler) override;
+                                                               chip::TLV::TLVReader & input_arguments,
+                                                               CommandHandler * handler) override;
 
     /// Sets the on off value, however it is specific for needs other integrations.
     ///
@@ -68,8 +69,8 @@ private:
 
     // Lighting Attributes
     bool mGlobalSceneControl = true;
-    uint16_t mOnTime = 0;
-    uint16_t mOffWaitTime = 0;
+    uint16_t mOnTime         = 0;
+    uint16_t mOffWaitTime    = 0;
     DataModel::Nullable<StartUpOnOffEnum> mStartUpOnOff;
 
     DataModel::ActionReturnStatus WriteImpl(const DataModel::WriteAttributeRequest & request, AttributeValueDecoder & decoder);
@@ -79,7 +80,7 @@ private:
 
     // Command Handlers
     DataModel::ActionReturnStatus HandleOffWithEffect(const DataModel::InvokeRequest & request,
-        chip::TLV::TLVReader & input_arguments);
+                                                      chip::TLV::TLVReader & input_arguments);
     DataModel::ActionReturnStatus HandleOnWithRecallGlobalScene();
     DataModel::ActionReturnStatus HandleOnWithTimedOff(chip::TLV::TLVReader & input_arguments);
 
