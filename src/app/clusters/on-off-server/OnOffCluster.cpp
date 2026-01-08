@@ -132,9 +132,4 @@ std::optional<DataModel::ActionReturnStatus> OnOffCluster::InvokeCommand(const D
     }
 }
 
-bool OnOffCluster::GetOnOff() const
-{
-    return mOnOff;
-}
-
 } // namespace chip::app::Clusters::OnOff

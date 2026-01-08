@@ -15,9 +15,11 @@
  */
 
 #include "OnOffLightingCluster.h"
+
 #include <app/persistence/AttributePersistence.h>
 #include <app/server-cluster/AttributeListBuilder.h>
 #include <clusters/OnOff/Metadata.h>
+#include <lib/core/CHIPError.h>
 #include <lib/support/CodeUtils.h>
 #include <lib/support/logging/CHIPLogging.h>
 
@@ -182,9 +184,23 @@ std::optional<DataModel::ActionReturnStatus> OnOffLightingCluster::InvokeCommand
     }
 }
 
-CHIP_ERROR OnOffLightingCluster::SetOnOff(bool on)
+CHIP_ERROR OnOffLightingCluster::SetOnOffWithTimeReset(bool on)
 {
-    return OnOffCluster::SetOnOff(on);
+    ReturnErrorOnFailure(SetOnOff(on));
+
+    if (!on && (mOnTime != 0))
+    {
+        mOnTime = 0;
+        NotifyAttributeChanged(Attributes::OnTime::Id);
+    }
+
+    if (on && (mOffWaitTime != 0))
+    {
+        mOffWaitTime = 0;
+        NotifyAttributeChanged(Attributes::OffWaitTime::Id);
+    }
+
+    return CHIP_NO_ERROR;
 }
 
 void OnOffLightingCluster::TimerFired()

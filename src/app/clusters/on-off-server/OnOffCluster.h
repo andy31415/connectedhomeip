@@ -41,9 +41,8 @@ public:
     ///
     /// This also handles writing the new value into non-volatile storage and
     /// notifying the delegate.
-    virtual CHIP_ERROR SetOnOff(bool on);
-
-    virtual bool GetOnOff() const;
+    CHIP_ERROR SetOnOff(bool on);
+    bool GetOnOff() const { return mOnOff; }
 
     // ServerClusterInterface methods
     CHIP_ERROR Startup(ServerClusterContext & context) override;
