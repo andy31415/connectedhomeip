@@ -145,7 +145,6 @@ DataModel::ActionReturnStatus OnOffLightingCluster::WriteImpl(const DataModel::W
     switch (request.path.mAttributeId)
     {
     case Attributes::OnTime::Id: {
-
         uint16_t value;
         ReturnErrorOnFailure(decoder.Decode(value));
         VerifyOrReturnValue(mOnTime != value, DataModel::ActionReturnStatus::FixedStatus::kWriteSuccessNoOp);
