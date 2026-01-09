@@ -21,7 +21,7 @@
 namespace chip::app::Clusters::OnOff {
 
 /// Interface for implementing application-specific logic for the OnOff Cluster.
-class OnOffDelegate : public IntrusiveListNodeBase<>
+class OnOffDelegate : public IntrusiveListNodeBase<IntrusiveMode::AutoUnlink>
 {
 public:
     virtual ~OnOffDelegate() = default;

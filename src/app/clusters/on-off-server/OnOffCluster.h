@@ -35,7 +35,7 @@ class OnOffCluster : public DefaultServerCluster
 {
 public:
     /// The delegate must outlive the cluster instance.
-    OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap = {});
+    OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap = {});
     ~OnOffCluster() override;
 
     void AddDelegate(OnOffDelegate * delegate) { mDelegates.PushBack(delegate); }
@@ -68,9 +68,9 @@ protected:
     /// Validates that requested 'featureMap' does not exceed implementation capabilities.
     ///
     /// This will VerifyOrDie that featureMap is a subset of supportedFeatures.
-    OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap, BitMask<Feature> supportedFeatures);
+    OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap, BitMask<Feature> supportedFeatures);
 
-    IntrusiveList<OnOffDelegate> mDelegates;
+    IntrusiveList<OnOffDelegate, IntrusiveMode::AutoUnlink> mDelegates;
     BitMask<Feature> mFeatureMap;
 
     // Attribute local storage

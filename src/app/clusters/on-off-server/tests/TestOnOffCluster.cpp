@@ -68,6 +68,7 @@ struct TestOnOffCluster : public ::testing::Test
     {
         VerifyOrDie(mPersistenceProvider.Init(&mClusterTester.GetServerClusterContext().storage) == CHIP_NO_ERROR);
         app::SetSafeAttributePersistenceProvider(&mPersistenceProvider);
+        mCluster.AddDelegate(&mMockDelegate);
         EXPECT_EQ(mCluster.Startup(mClusterTester.GetServerClusterContext()), CHIP_NO_ERROR);
     }
 
@@ -75,7 +76,7 @@ struct TestOnOffCluster : public ::testing::Test
 
     MockOnOffDelegate mMockDelegate;
 
-    OnOffCluster mCluster{ kTestEndpointId, mMockDelegate };
+    OnOffCluster mCluster{ kTestEndpointId };
 
     ClusterTester mClusterTester{ mCluster };
 
@@ -167,7 +168,8 @@ TEST_F(TestOnOffCluster, TestPersistence)
 
     // 1. Initial startup, set to ON
     {
-        OnOffCluster cluster(kTestEndpointId, mockDelegate);
+        OnOffCluster cluster(kTestEndpointId);
+        cluster.AddDelegate(&mockDelegate);
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
         chip::Testing::ClusterTester tester(cluster);
 
@@ -179,7 +181,8 @@ TEST_F(TestOnOffCluster, TestPersistence)
 
     // 2. Restart, verify ON
     {
-        OnOffCluster cluster(kTestEndpointId, mockDelegate);
+        OnOffCluster cluster(kTestEndpointId);
+        cluster.AddDelegate(&mockDelegate);
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
         chip::Testing::ClusterTester tester(cluster);
 
@@ -198,13 +201,14 @@ struct TestOffOnlyOnOffCluster : public ::testing::Test
     {
         VerifyOrDie(mPersistenceProvider.Init(&mClusterTester.GetServerClusterContext().storage) == CHIP_NO_ERROR);
         app::SetSafeAttributePersistenceProvider(&mPersistenceProvider);
+        mCluster.AddDelegate(&mMockDelegate);
         EXPECT_EQ(mCluster.Startup(mClusterTester.GetServerClusterContext()), CHIP_NO_ERROR);
     }
 
     void TearDown() override { app::SetSafeAttributePersistenceProvider(nullptr); }
 
     MockOnOffDelegate mMockDelegate;
-    OnOffCluster mCluster{ kTestEndpointId, mMockDelegate, BitMask<Feature>(Feature::kOffOnly) };
+    OnOffCluster mCluster{ kTestEndpointId, BitMask<Feature>(Feature::kOffOnly) };
     ClusterTester mClusterTester{ mCluster };
     app::DefaultSafeAttributePersistenceProvider mPersistenceProvider;
 };

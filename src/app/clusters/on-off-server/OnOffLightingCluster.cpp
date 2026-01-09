@@ -28,10 +28,8 @@ using chip::Protocols::InteractionModel::Status;
 
 namespace chip::app::Clusters::OnOff {
 
-OnOffLightingCluster::OnOffLightingCluster(EndpointId endpointId, OnOffDelegate & delegate, TimerDelegate & timerDelegate,
-                                           BitMask<Feature> featureMap) :
-    OnOffCluster(endpointId, delegate, featureMap, { Feature::kLighting, Feature::kDeadFrontBehavior }),
-    mTimerDelegate(timerDelegate)
+OnOffLightingCluster::OnOffLightingCluster(EndpointId endpointId, TimerDelegate & timerDelegate, BitMask<Feature> featureMap) :
+    OnOffCluster(endpointId, featureMap, { Feature::kLighting, Feature::kDeadFrontBehavior }), mTimerDelegate(timerDelegate)
 {}
 
 OnOffLightingCluster::~OnOffLightingCluster()

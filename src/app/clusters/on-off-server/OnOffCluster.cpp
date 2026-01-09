@@ -28,20 +28,17 @@ using chip::Protocols::InteractionModel::Status;
 
 namespace chip::app::Clusters::OnOff {
 
-OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap) :
-    OnOffCluster(endpointId, delegate, featureMap, { Feature::kDeadFrontBehavior, Feature::kOffOnly })
+OnOffCluster::OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap) :
+    OnOffCluster(endpointId, featureMap, { Feature::kDeadFrontBehavior, Feature::kOffOnly })
 {}
 
-OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap,
-                           BitMask<Feature> supportedFeatures) :
-    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }),
-    mFeatureMap(featureMap)
+OnOffCluster::OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap, BitMask<Feature> supportedFeatures) :
+    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }), mFeatureMap(featureMap)
 {
     VerifyOrDie(supportedFeatures.HasAll(featureMap));
 
     // Feature validity check: offonly does not support any of the other features.
     VerifyOrDie(!featureMap.Has(Feature::kOffOnly) || featureMap.HasOnly(Feature::kOffOnly));
-    mDelegates.PushBack(&delegate);
 }
 
 OnOffCluster::~OnOffCluster()

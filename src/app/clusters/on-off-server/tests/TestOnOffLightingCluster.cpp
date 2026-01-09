@@ -109,6 +109,7 @@ struct TestOnOffLightingCluster : public ::testing::Test
     {
         VerifyOrDie(mPersistenceProvider.Init(&mClusterTester.GetServerClusterContext().storage) == CHIP_NO_ERROR);
         app::SetSafeAttributePersistenceProvider(&mPersistenceProvider);
+        mCluster.AddDelegate(&mMockDelegate);
         EXPECT_EQ(mCluster.Startup(mClusterTester.GetServerClusterContext()), CHIP_NO_ERROR);
     }
 
@@ -117,7 +118,7 @@ struct TestOnOffLightingCluster : public ::testing::Test
     MockOnOffDelegate mMockDelegate;
     MockTimerDelegate mMockTimerDelegate;
 
-    OnOffLightingCluster mCluster{ kTestEndpointId, mMockDelegate, mMockTimerDelegate };
+    OnOffLightingCluster mCluster{ kTestEndpointId, mMockTimerDelegate };
 
     ClusterTester mClusterTester{ mCluster };
 
