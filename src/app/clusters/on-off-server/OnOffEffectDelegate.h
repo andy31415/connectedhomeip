@@ -17,23 +17,17 @@
 #pragma once
 
 #include <app-common/zap-generated/cluster-enums.h>
-#include <stdint.h>
 
-namespace chip {
-namespace app {
-namespace Clusters {
-namespace OnOff {
+#include <cstdint>
+
+namespace chip::app::Clusters::OnOff {
 
 /// Interface for handling lighting effects.
-class OnOffEffectDelegate
-{
+class OnOffEffectDelegate {
 public:
     virtual ~OnOffEffectDelegate() = default;
 
     virtual void TriggerEffect(EffectIdentifierEnum effectId, uint8_t effectVariant) = 0;
 };
 
-} // namespace OnOff
-} // namespace Clusters
-} // namespace app
-} // namespace chip
+} // namespace chip::app::Clusters::OnOff

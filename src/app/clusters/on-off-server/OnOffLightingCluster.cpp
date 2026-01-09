@@ -15,8 +15,8 @@
  */
 
 #include <app/clusters/on-off-server/OnOffLightingCluster.h>
-#include <app/data-model-provider/ActionReturnStatus.h>
 
+#include <app/data-model-provider/ActionReturnStatus.h>
 #include <app/persistence/AttributePersistence.h>
 #include <app/server-cluster/AttributeListBuilder.h>
 #include <clusters/OnOff/Metadata.h>
