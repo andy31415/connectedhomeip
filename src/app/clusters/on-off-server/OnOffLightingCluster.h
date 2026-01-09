@@ -19,7 +19,7 @@
 
 #include <app/clusters/on-off-server/OnOffCluster.h>
 #include <app/clusters/on-off-server/OnOffEffectDelegate.h>
-#include <app/clusters/on-off-server/OnOffSceneInteractor.h>
+#include <app/clusters/on-off-server/OnOffGlobalSceneDelegate.h>
 #include <lib/support/TimerDelegate.h>
 
 namespace chip::app::Clusters::OnOff {
@@ -35,7 +35,7 @@ class OnOffLightingCluster : public OnOffCluster, public TimerContext
 {
 public:
     OnOffLightingCluster(EndpointId endpointId, TimerDelegate & timerDelegate, OnOffEffectDelegate & effectDelegate,
-                         SceneInteractor * sceneInteractor = nullptr, BitMask<Feature> featureMap = Feature::kLighting);
+                         OnOffGlobalSceneDelegate * globalSceneDelegate = nullptr, BitMask<Feature> featureMap = Feature::kLighting);
 
     ~OnOffLightingCluster() override;
 
@@ -68,7 +68,7 @@ public:
 
 private:
     OnOffEffectDelegate & mEffectDelegate;
-    SceneInteractor * mSceneInteractor;
+    OnOffGlobalSceneDelegate * mGlobalSceneDelegate;
 
     // Lighting Attributes
     bool mGlobalSceneControl = true;

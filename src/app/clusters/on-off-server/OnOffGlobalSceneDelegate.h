@@ -22,18 +22,21 @@
 
 namespace chip::app::Clusters::OnOff {
 
-/// Provides support for scene functionality and interactions
+/// Provides support for Global Scene functionality and interactions
 /// for the On/Off cluster with lighting support.
-///
-/// Specifically it provides the ability to store/recall scenes
-/// as required by the specification for Lighting On/Off cluster interactions.
-class SceneInteractor
+class OnOffGlobalSceneDelegate
 {
 public:
-    virtual ~SceneInteractor() = default;
+    virtual ~OnOffGlobalSceneDelegate() = default;
 
-    virtual CHIP_ERROR StoreCurrentGlobalScene(FabricIndex fabricIndex) = 0;
-    virtual CHIP_ERROR RecallGlobalScene(FabricIndex fabricIndex)       = 0;
+    // Stores the current cluster state into the Global Scene for the endpoint.
+    virtual CHIP_ERROR StoreCurrentGlobalScene(EndpointId endpointId, FabricIndex fabricIndex) = 0;
+
+    // Recalls the Global Scene for the endpoint.
+    virtual CHIP_ERROR RecallGlobalScene(EndpointId endpointId, FabricIndex fabricIndex) = 0;
+
+    // Marks the scene as invalid for the endpoint.
+    virtual void MarkSceneInvalid(EndpointId endpointId) = 0;
 };
 
 } // namespace chip::app::Clusters::OnOff
