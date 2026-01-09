@@ -191,4 +191,78 @@ TEST_F(TestOnOffLightingCluster, TestOffWithEffect)
     EXPECT_FALSE(mMockDelegate.mOnOff);
 }
 
+TEST_F(TestOnOffLightingCluster, TestTimerCancellation)
+{
+    // 1. OnWithTimedOff (OnTime=10, OffWaitTime=0)
+    Commands::OnWithTimedOff::Type command;
+    command.onOffControl.SetField(OnOffControlBitmap::kAcceptOnlyWhenOn, 0);
+    command.onTime      = 10;
+    command.offWaitTime = 0;
+
+    EXPECT_TRUE(mClusterTester.Invoke(command).IsSuccess());
+    EXPECT_TRUE(mMockTimerDelegate.IsTimerActive(&mCluster));
+
+    // 2. Send Off
+    EXPECT_TRUE(mClusterTester.Invoke(Commands::Off::Type()).IsSuccess());
+    EXPECT_FALSE(mMockDelegate.mOnOff);
+
+    // Timer should be cancelled (because OffWaitTime is 0)
+    EXPECT_FALSE(mMockTimerDelegate.IsTimerActive(&mCluster));
+}
+
+TEST_F(TestOnOffLightingCluster, TestOffWaitTime)
+{
+    // 1. OnWithTimedOff (OnTime=10, OffWaitTime=5)
+    Commands::OnWithTimedOff::Type command;
+    command.onOffControl.SetField(OnOffControlBitmap::kAcceptOnlyWhenOn, 0);
+    command.onTime      = 10;
+    command.offWaitTime = 5;
+
+    EXPECT_TRUE(mClusterTester.Invoke(command).IsSuccess());
+
+    // 2. Send Off (Manually)
+    EXPECT_TRUE(mClusterTester.Invoke(Commands::Off::Type()).IsSuccess());
+    EXPECT_FALSE(mMockDelegate.mOnOff);
+
+    // Timer should be ACTIVE (for OffWaitTime)
+    EXPECT_TRUE(mMockTimerDelegate.IsTimerActive(&mCluster));
+
+    // 3. Advance clock 5 ticks
+    for (int i = 0; i < 5; ++i)
+    {
+        mMockTimerDelegate.AdvanceClock(System::Clock::Milliseconds32(100));
+    }
+
+    // Timer should stop
+    EXPECT_FALSE(mMockTimerDelegate.IsTimerActive(&mCluster));
+
+    // OffWaitTime should be 0
+    uint16_t offWaitTime = 1;
+    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::OffWaitTime::Id, offWaitTime), CHIP_NO_ERROR);
+    EXPECT_EQ(offWaitTime, 0);
+}
+
+TEST_F(TestOnOffLightingCluster, TestGlobalSceneControl)
+{
+    // 1. Initial State: GlobalSceneControl = true
+    bool globalSceneControl = false;
+    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::GlobalSceneControl::Id, globalSceneControl), CHIP_NO_ERROR);
+    EXPECT_TRUE(globalSceneControl);
+
+    // 2. OffWithEffect -> Should set GlobalSceneControl = false
+    Commands::OffWithEffect::Type offCommand;
+    offCommand.effectIdentifier = EffectIdentifierEnum::kDyingLight;
+    offCommand.effectVariant    = 0;
+    EXPECT_TRUE(mClusterTester.Invoke(offCommand).IsSuccess());
+
+    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::GlobalSceneControl::Id, globalSceneControl), CHIP_NO_ERROR);
+    EXPECT_FALSE(globalSceneControl);
+
+    // 3. OnWithRecallGlobalScene -> Should set GlobalSceneControl = true
+    EXPECT_TRUE(mClusterTester.Invoke(Commands::OnWithRecallGlobalScene::Type()).IsSuccess());
+
+    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::GlobalSceneControl::Id, globalSceneControl), CHIP_NO_ERROR);
+    EXPECT_TRUE(globalSceneControl);
+}
+
 } // namespace
