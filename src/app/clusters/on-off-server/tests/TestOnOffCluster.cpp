@@ -313,4 +313,61 @@ TEST_F(TestOnOffCluster, TestSceneInvalidAttribute)
     EXPECT_EQ(mCluster.ApplyScene(kTestEndpointId, Clusters::OnOff::Id, serializedBytes, 0), CHIP_ERROR_INVALID_ARGUMENT);
 }
 
+TEST_F(TestOnOffCluster, TestSceneTransition)
+{
+    // 1. Start ON
+    EXPECT_TRUE(mClusterTester.Invoke(Commands::On::Type()).IsSuccess());
+    EXPECT_TRUE(mMockDelegate.mOnOff);
+
+    // 2. Serialize Save (ON state)
+    uint8_t buffer[128];
+    MutableByteSpan serializedBytes(buffer);
+    EXPECT_EQ(mCluster.SerializeSave(kTestEndpointId, Clusters::OnOff::Id, serializedBytes), CHIP_NO_ERROR);
+
+    // 3. Turn OFF
+    EXPECT_TRUE(mClusterTester.Invoke(Commands::Off::Type()).IsSuccess());
+    EXPECT_FALSE(mMockDelegate.mOnOff);
+
+    // 4. Apply Scene (Restore ON) with 1000ms transition
+    EXPECT_EQ(mCluster.ApplyScene(kTestEndpointId, Clusters::OnOff::Id, serializedBytes, 1000), CHIP_NO_ERROR);
+
+    // Should still be OFF (transition pending)
+    EXPECT_FALSE(mMockDelegate.mOnOff);
+
+    // 5. Advance Clock (1000ms)
+    mMockTimerDelegate.AdvanceClock(System::Clock::Milliseconds64(1000));
+
+    // Should be ON
+    EXPECT_TRUE(mMockDelegate.mOnOff);
+}
+
+TEST_F(TestOnOffCluster, TestSceneTransitionCancellation)
+{
+    // 1. Setup: Start OFF
+    EXPECT_TRUE(mClusterTester.Invoke(Commands::Off::Type()).IsSuccess());
+    EXPECT_FALSE(mMockDelegate.mOnOff);
+
+    // 2. Serialize Save (ON state)
+    uint8_t buffer[128];
+    MutableByteSpan serializedBytes(buffer);
+    EXPECT_EQ(mCluster.SetOnOff(true), CHIP_NO_ERROR); // Manually set to save ON
+    EXPECT_EQ(mCluster.SerializeSave(kTestEndpointId, Clusters::OnOff::Id, serializedBytes), CHIP_NO_ERROR);
+    EXPECT_EQ(mCluster.SetOnOff(false), CHIP_NO_ERROR); // Back to OFF
+
+    // 3. Apply Scene (Restore ON) with 1000ms transition
+    EXPECT_EQ(mCluster.ApplyScene(kTestEndpointId, Clusters::OnOff::Id, serializedBytes, 1000), CHIP_NO_ERROR);
+    EXPECT_FALSE(mMockDelegate.mOnOff);
+    EXPECT_TRUE(mCluster.IsSceneTransitionPending());
+
+    // 4. Send "Off" Command -> Should cancel transition
+    EXPECT_TRUE(mClusterTester.Invoke(Commands::Off::Type()).IsSuccess());
+    EXPECT_FALSE(mCluster.IsSceneTransitionPending());
+
+    // 5. Advance Clock (1000ms)
+    mMockTimerDelegate.AdvanceClock(System::Clock::Milliseconds64(1000));
+
+    // Should STILL be OFF
+    EXPECT_FALSE(mMockDelegate.mOnOff);
+}
+
 } // namespace

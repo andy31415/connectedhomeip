@@ -51,6 +51,9 @@ public:
     CHIP_ERROR SetOnOff(bool on);
     bool GetOnOff() const { return mOnOff; }
 
+    /// Returns true if a scene transition is currently in progress.
+    bool IsSceneTransitionPending() const { return mTimerDelegate.IsTimerActive(const_cast<SceneTransitionTimer *>(&mSceneTimer)); }
+
     // ServerClusterInterface methods
     CHIP_ERROR Startup(ServerClusterContext & context) override;
 
@@ -88,6 +91,23 @@ protected:
 
     // Timer support
     TimerDelegate & mTimerDelegate;
+
+private:
+    class SceneTransitionTimer : public TimerContext
+    {
+    public:
+        SceneTransitionTimer(OnOffCluster & cluster) : mCluster(cluster) {}
+
+        void Start(uint32_t timeMs, bool targetValue);
+        void Cancel();
+        void TimerFired() override;
+
+    private:
+        OnOffCluster & mCluster;
+        bool mTargetValue = false;
+    };
+
+    SceneTransitionTimer mSceneTimer;
 };
 
 } // namespace chip::app::Clusters::OnOff

@@ -52,7 +52,7 @@ OnOffCluster::OnOffCluster(EndpointId endpointId, TimerDelegate & timerDelegate,
 OnOffCluster::OnOffCluster(EndpointId endpointId, TimerDelegate & timerDelegate, BitMask<Feature> featureMap,
                            BitMask<Feature> supportedFeatures) :
     DefaultServerCluster({ endpointId, Clusters::OnOff::Id }),
-    DefaultSceneHandlerImpl(sValidator), mFeatureMap(featureMap), mTimerDelegate(timerDelegate)
+    DefaultSceneHandlerImpl(sValidator), mFeatureMap(featureMap), mTimerDelegate(timerDelegate), mSceneTimer(*this)
 {
     VerifyOrDie(supportedFeatures.HasAll(featureMap));
 
@@ -62,6 +62,7 @@ OnOffCluster::OnOffCluster(EndpointId endpointId, TimerDelegate & timerDelegate,
 
 OnOffCluster::~OnOffCluster()
 {
+    mSceneTimer.Cancel();
     mDelegates.Clear();
 }
 
@@ -124,6 +125,8 @@ DataModel::ActionReturnStatus OnOffCluster::ReadAttribute(const DataModel::ReadA
 
 CHIP_ERROR OnOffCluster::SetOnOff(bool on)
 {
+    mSceneTimer.Cancel();
+
     VerifyOrReturnError(mOnOff != on, CHIP_NO_ERROR);
 
     mOnOff = on;
@@ -203,9 +206,35 @@ CHIP_ERROR OnOffCluster::ApplyScene(EndpointId endpoint, ClusterId cluster, cons
         VerifyOrReturnError(decodePair.attributeID == Attributes::OnOff::Id, CHIP_ERROR_INVALID_ARGUMENT);
         VerifyOrReturnError(decodePair.valueUnsigned8.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
 
-        ReturnErrorOnFailure(SetOnOff(static_cast<bool>(decodePair.valueUnsigned8.Value())));
+        bool targetValue = static_cast<bool>(decodePair.valueUnsigned8.Value());
+
+        if (timeMs > 0)
+        {
+            mSceneTimer.Cancel();
+            mSceneTimer.Start(timeMs, targetValue);
+        }
+        else
+        {
+            ReturnErrorOnFailure(SetOnOff(targetValue));
+        }
     }
     return pair_iterator.GetStatus();
+}
+
+void OnOffCluster::SceneTransitionTimer::Start(uint32_t timeMs, bool targetValue)
+{
+    mTargetValue = targetValue;
+    LogErrorOnFailure(mCluster.mTimerDelegate.StartTimer(this, System::Clock::Milliseconds32(timeMs)));
+}
+
+void OnOffCluster::SceneTransitionTimer::Cancel()
+{
+    mCluster.mTimerDelegate.CancelTimer(this);
+}
+
+void OnOffCluster::SceneTransitionTimer::TimerFired()
+{
+    LogErrorOnFailure(mCluster.SetOnOff(mTargetValue));
 }
 
 } // namespace chip::app::Clusters::OnOff
