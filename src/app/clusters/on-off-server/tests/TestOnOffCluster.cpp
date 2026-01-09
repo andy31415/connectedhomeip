@@ -268,4 +268,25 @@ TEST_F(TestOnOffCluster, TestMultipleDelegates)
     EXPECT_TRUE(secondaryDelegate.mOnOff); // Should remain true (last state)
 }
 
+TEST_F(TestOnOffCluster, TestSceneSupport)
+{
+    // 1. Setup: Turn ON
+    EXPECT_TRUE(mClusterTester.Invoke<Commands::On::Type>(Commands::On::Type()).IsSuccess());
+    EXPECT_TRUE(mMockDelegate.mOnOff);
+
+    // 2. Serialize Save
+    uint8_t buffer[128];
+    MutableByteSpan serializedBytes(buffer);
+    EXPECT_EQ(mCluster.SerializeSave(kTestEndpointId, Clusters::OnOff::Id, serializedBytes), CHIP_NO_ERROR);
+    EXPECT_GT(serializedBytes.size(), 0u);
+
+    // 3. Turn OFF
+    EXPECT_TRUE(mClusterTester.Invoke<Commands::Off::Type>(Commands::Off::Type()).IsSuccess());
+    EXPECT_FALSE(mMockDelegate.mOnOff);
+
+    // 4. Apply Scene (Restore ON)
+    EXPECT_EQ(mCluster.ApplyScene(kTestEndpointId, Clusters::OnOff::Id, serializedBytes, 0), CHIP_NO_ERROR);
+    EXPECT_TRUE(mMockDelegate.mOnOff);
+}
+
 } // namespace

@@ -25,17 +25,22 @@
 #include <lib/support/IntrusiveList.h>
 
 #include <app/clusters/on-off-server/OnOffDelegate.h>
+#include <app/clusters/scenes-server/SceneHandlerImpl.h>
 
 namespace chip::app::Clusters::OnOff {
 
 /// Implements an On/Off server cluster.
 ///
 /// *DOES NOT* support the Lighting feature (to keep this implementation small)
-class OnOffCluster : public DefaultServerCluster
+class OnOffCluster : public DefaultServerCluster,
+                     public scenes::DefaultSceneHandlerImpl,
+                     public scenes::AttributeValuePairValidator
 {
 public:
     OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap = {});
     ~OnOffCluster() override;
+
+    // ... existing public methods ...
 
     void AddDelegate(OnOffDelegate * delegate) { mDelegates.PushBack(delegate); }
     void RemoveDelegate(OnOffDelegate * delegate) { mDelegates.Remove(delegate); }
@@ -61,6 +66,16 @@ public:
     std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
                                                                chip::TLV::TLVReader & input_arguments,
                                                                CommandHandler * handler) override;
+
+    // SceneHandler implementation
+    bool SupportsCluster(EndpointId endpoint, ClusterId cluster) override;
+    CHIP_ERROR SerializeSave(EndpointId endpoint, ClusterId cluster, MutableByteSpan & serializedBytes) override;
+    CHIP_ERROR ApplyScene(EndpointId endpoint, ClusterId cluster, const ByteSpan & serializedBytes,
+                          scenes::TransitionTimeMs timeMs) override;
+
+    // AttributeValuePairValidator implementation
+    CHIP_ERROR Validate(const app::ConcreteClusterPath & clusterPath,
+                        scenes::AttributeValuePairValidator::AttributeValuePairType & value) override;
 
 protected:
     /// Allows derived classes to specify the subset of OnOff features they implement.

@@ -33,7 +33,8 @@ OnOffCluster::OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap) :
 {}
 
 OnOffCluster::OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap, BitMask<Feature> supportedFeatures) :
-    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }), mFeatureMap(featureMap)
+    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }),
+    DefaultSceneHandlerImpl(static_cast<scenes::AttributeValuePairValidator &>(*this)), mFeatureMap(featureMap)
 {
     VerifyOrDie(supportedFeatures.HasAll(featureMap));
 
@@ -139,6 +140,60 @@ std::optional<DataModel::ActionReturnStatus> OnOffCluster::InvokeCommand(const D
     default:
         return Status::UnsupportedCommand;
     }
+}
+
+bool OnOffCluster::SupportsCluster(EndpointId endpoint, ClusterId cluster)
+{
+    return (cluster == Clusters::OnOff::Id) && (endpoint == mPath.mEndpointId);
+}
+
+CHIP_ERROR OnOffCluster::SerializeSave(EndpointId endpoint, ClusterId cluster, MutableByteSpan & serializedBytes)
+{
+    using AttributeValuePair = ScenesManagement::Structs::AttributeValuePairStruct::Type;
+
+    if (!SupportsCluster(endpoint, cluster))
+    {
+        return CHIP_ERROR_INVALID_ARGUMENT;
+    }
+
+    AttributeValuePair pairs[1];
+    pairs[0].attributeID = Attributes::OnOff::Id;
+    pairs[0].valueUnsigned8.SetValue(mOnOff);
+
+    app::DataModel::List<AttributeValuePair> attributeValueList(pairs);
+    return EncodeAttributeValueList(attributeValueList, serializedBytes);
+}
+
+CHIP_ERROR OnOffCluster::ApplyScene(EndpointId endpoint, ClusterId cluster, const ByteSpan & serializedBytes,
+                                    scenes::TransitionTimeMs timeMs)
+{
+    app::DataModel::DecodableList<ScenesManagement::Structs::AttributeValuePairStruct::DecodableType> attributeValueList;
+
+    if (!SupportsCluster(endpoint, cluster))
+    {
+        return CHIP_ERROR_INVALID_ARGUMENT;
+    }
+
+    ReturnErrorOnFailure(DecodeAttributeValueList(serializedBytes, attributeValueList));
+
+    auto pair_iterator = attributeValueList.begin();
+    while (pair_iterator.Next())
+    {
+        auto & decodePair = pair_iterator.GetValue();
+        if (decodePair.attributeID == Attributes::OnOff::Id && decodePair.valueUnsigned8.HasValue())
+        {
+            ReturnErrorOnFailure(SetOnOff(static_cast<bool>(decodePair.valueUnsigned8.Value())));
+        }
+    }
+    return pair_iterator.GetStatus();
+}
+
+CHIP_ERROR OnOffCluster::Validate(const app::ConcreteClusterPath & clusterPath,
+                                  scenes::AttributeValuePairValidator::AttributeValuePairType & value)
+{
+    VerifyOrReturnError(clusterPath.mClusterId == Clusters::OnOff::Id, CHIP_ERROR_INVALID_ARGUMENT);
+    VerifyOrReturnError(value.attributeID == Attributes::OnOff::Id, CHIP_ERROR_INVALID_ARGUMENT);
+    return CHIP_NO_ERROR;
 }
 
 } // namespace chip::app::Clusters::OnOff

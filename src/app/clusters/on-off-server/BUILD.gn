@@ -26,6 +26,7 @@ source_set("on-off-server") {
 
   public_deps = [
     "${chip_root}/src/app:attribute-persistence",
+    "${chip_root}/src/app/clusters/scenes-server:scenes",
     "${chip_root}/src/app/data-model-provider",
     "${chip_root}/src/app/server-cluster",
     "${chip_root}/src/lib/support",
