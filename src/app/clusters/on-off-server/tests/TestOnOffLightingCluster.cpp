@@ -16,6 +16,7 @@
  */
 
 #include <app/clusters/on-off-server/OnOffLightingCluster.h>
+#include <app/clusters/on-off-server/OnOffSceneInteractor.h>
 #include <clusters/OnOff/Metadata.h>
 #include <lib/support/TimerDelegateMock.h>
 #include <pw_unit_test/framework.h>
@@ -35,10 +36,36 @@ using namespace chip::Testing;
 
 using chip::Testing::IsAcceptedCommandsListEqualTo;
 using chip::Testing::IsAttributesListEqualTo;
+using chip::Protocols::InteractionModel::Status;
 
 namespace {
 
 constexpr EndpointId kTestEndpointId = 1;
+
+class MockSceneInteractor : public SceneInteractor
+{
+public:
+    struct Call
+    {
+        FabricIndex fabricIndex;
+        GroupId groupId;
+        SceneId sceneId;
+    };
+    std::vector<Call> storeCalls;
+    std::vector<Call> recallCalls;
+
+    CHIP_ERROR StoreCurrentScene(FabricIndex fabricIndex, GroupId groupId, SceneId sceneId) override
+    {
+        storeCalls.push_back({ fabricIndex, groupId, sceneId });
+        return CHIP_NO_ERROR;
+    }
+
+    CHIP_ERROR RecallScene(FabricIndex fabricIndex, GroupId groupId, SceneId sceneId) override
+    {
+        recallCalls.push_back({ fabricIndex, groupId, sceneId });
+        return CHIP_NO_ERROR;
+    }
+};
 
 class MockOnOffDelegate : public OnOffDelegate
 {
@@ -93,8 +120,9 @@ struct TestOnOffLightingCluster : public ::testing::Test
     MockOnOffDelegate mMockDelegate;
     TimerDelegateMock mMockTimerDelegate;
     MockOnOffEffectDelegate mMockEffectDelegate;
+    MockSceneInteractor mMockSceneInteractor;
 
-    OnOffLightingCluster mCluster{ kTestEndpointId, mMockTimerDelegate, mMockEffectDelegate };
+    OnOffLightingCluster mCluster{ kTestEndpointId, mMockTimerDelegate, mMockEffectDelegate, &mMockSceneInteractor };
 
     ClusterTester mClusterTester{ mCluster };
 
@@ -258,11 +286,21 @@ TEST_F(TestOnOffLightingCluster, TestGlobalSceneControl)
     EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::GlobalSceneControl::Id, globalSceneControl), CHIP_NO_ERROR);
     EXPECT_FALSE(globalSceneControl);
 
+    // Verify StoreCurrentScene was called
+    EXPECT_EQ(mMockSceneInteractor.storeCalls.size(), 1u);
+    EXPECT_EQ(mMockSceneInteractor.storeCalls[0].groupId, 0);
+    EXPECT_EQ(mMockSceneInteractor.storeCalls[0].sceneId, 0);
+
     // 3. OnWithRecallGlobalScene -> Should set GlobalSceneControl = true
     EXPECT_TRUE(mClusterTester.Invoke(Commands::OnWithRecallGlobalScene::Type()).IsSuccess());
 
     EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::GlobalSceneControl::Id, globalSceneControl), CHIP_NO_ERROR);
     EXPECT_TRUE(globalSceneControl);
+
+    // Verify RecallScene was called
+    EXPECT_EQ(mMockSceneInteractor.recallCalls.size(), 1u);
+    EXPECT_EQ(mMockSceneInteractor.recallCalls[0].groupId, 0);
+    EXPECT_EQ(mMockSceneInteractor.recallCalls[0].sceneId, 0);
 }
 
 } // namespace

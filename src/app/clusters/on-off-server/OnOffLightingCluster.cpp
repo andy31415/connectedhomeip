@@ -29,9 +29,10 @@ using chip::Protocols::InteractionModel::Status;
 namespace chip::app::Clusters::OnOff {
 
 OnOffLightingCluster::OnOffLightingCluster(EndpointId endpointId, TimerDelegate & timerDelegate,
-                                           OnOffEffectDelegate & effectDelegate, BitMask<Feature> featureMap) :
+                                           OnOffEffectDelegate & effectDelegate, SceneInteractor * sceneInteractor,
+                                           BitMask<Feature> featureMap) :
     OnOffCluster(endpointId, timerDelegate, featureMap, { Feature::kLighting, Feature::kDeadFrontBehavior }),
-    mEffectDelegate(effectDelegate)
+    mEffectDelegate(effectDelegate), mSceneInteractor(sceneInteractor)
 {}
 
 OnOffLightingCluster::~OnOffLightingCluster()
@@ -187,7 +188,7 @@ std::optional<DataModel::ActionReturnStatus> OnOffLightingCluster::InvokeCommand
     case Commands::OffWithEffect::Id:
         return HandleOffWithEffect(request, input_arguments);
     case Commands::OnWithRecallGlobalScene::Id:
-        return HandleOnWithRecallGlobalScene();
+        return HandleOnWithRecallGlobalScene(request);
     case Commands::OnWithTimedOff::Id:
         return HandleOnWithTimedOff(input_arguments);
     default:
@@ -302,7 +303,12 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOffWithEffect(const Da
 
     if (mGlobalSceneControl)
     {
-        // Store global scene (Placeholder: Scenes not implemented yet)
+        // Store global scene (Group 0, Scene 0)
+        if (mSceneInteractor != nullptr && request.subjectDescriptor != nullptr)
+        {
+            LogErrorOnFailure(mSceneInteractor->StoreCurrentScene(request.subjectDescriptor->fabricIndex, 0, 0));
+        }
+
         mGlobalSceneControl = false;
         NotifyAttributeChanged(Attributes::GlobalSceneControl::Id);
 
@@ -319,16 +325,30 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOffWithEffect(const Da
     return HandleOff();
 }
 
-DataModel::ActionReturnStatus OnOffLightingCluster::HandleOnWithRecallGlobalScene()
+DataModel::ActionReturnStatus OnOffLightingCluster::HandleOnWithRecallGlobalScene(const DataModel::InvokeRequest & request)
 {
     if (mGlobalSceneControl)
     {
         return Status::Success; // Discard
     }
 
-    // Recall global scene (Placeholder)
-    // For now just turn On.
-    ReturnErrorOnFailure(SetOnOff(true));
+    // Recall global scene (Group 0, Scene 0)
+    if (mSceneInteractor != nullptr && request.subjectDescriptor != nullptr)
+    {
+        CHIP_ERROR err = mSceneInteractor->RecallScene(request.subjectDescriptor->fabricIndex, 0, 0);
+        if (err != CHIP_NO_ERROR)
+        {
+            // If recall fails, we still proceed to turn ON per spec?
+            // Spec says: "If the GlobalSceneControl attribute is FALSE, the OnWithRecallGlobalScene command SHALL recall the global scene... If the scene cannot be recalled... it SHALL set the OnOff attribute to TRUE."
+            // So we just log and proceed.
+            ChipLogError(Zcl, "Failed to recall global scene: %" CHIP_ERROR_FORMAT, err.Format());
+            ReturnErrorOnFailure(SetOnOff(true));
+        }
+    }
+    else
+    {
+        ReturnErrorOnFailure(SetOnOff(true));
+    }
 
     mGlobalSceneControl = true;
     NotifyAttributeChanged(Attributes::GlobalSceneControl::Id);

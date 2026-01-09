@@ -228,7 +228,10 @@ public:
             return result;
         }
 
-        const app::DataModel::InvokeRequest invokeRequest = { .path = { paths[0].mEndpointId, paths[0].mClusterId, commandId } };
+        Access::SubjectDescriptor subjectDescriptor{ .fabricIndex = mHandler.GetAccessingFabricIndex() };
+        app::DataModel::InvokeRequest invokeRequest;
+        invokeRequest.path              = { paths[0].mEndpointId, paths[0].mClusterId, commandId };
+        invokeRequest.subjectDescriptor = &subjectDescriptor;
 
         TLV::TLVWriter writer;
         writer.Init(mTlvBuffer);

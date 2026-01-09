@@ -19,6 +19,7 @@
 
 #include <app/clusters/on-off-server/OnOffCluster.h>
 #include <app/clusters/on-off-server/OnOffEffectDelegate.h>
+#include <app/clusters/on-off-server/OnOffSceneInteractor.h>
 #include <lib/support/TimerDelegate.h>
 
 namespace chip::app::Clusters::OnOff {
@@ -34,7 +35,7 @@ class OnOffLightingCluster : public OnOffCluster, public TimerContext
 {
 public:
     OnOffLightingCluster(EndpointId endpointId, TimerDelegate & timerDelegate, OnOffEffectDelegate & effectDelegate,
-                         BitMask<Feature> featureMap = Feature::kLighting);
+                         SceneInteractor * sceneInteractor = nullptr, BitMask<Feature> featureMap = Feature::kLighting);
 
     ~OnOffLightingCluster() override;
 
@@ -67,6 +68,7 @@ public:
 
 private:
     OnOffEffectDelegate & mEffectDelegate;
+    SceneInteractor * mSceneInteractor;
 
     // Lighting Attributes
     bool mGlobalSceneControl = true;
@@ -82,7 +84,7 @@ private:
     // Command Handlers
     DataModel::ActionReturnStatus HandleOffWithEffect(const DataModel::InvokeRequest & request,
                                                       chip::TLV::TLVReader & input_arguments);
-    DataModel::ActionReturnStatus HandleOnWithRecallGlobalScene();
+    DataModel::ActionReturnStatus HandleOnWithRecallGlobalScene(const DataModel::InvokeRequest & request);
     DataModel::ActionReturnStatus HandleOnWithTimedOff(chip::TLV::TLVReader & input_arguments);
 
     // Wrappers for basic commands to add lighting side effects
