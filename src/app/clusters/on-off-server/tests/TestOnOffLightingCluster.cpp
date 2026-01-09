@@ -34,9 +34,9 @@ using namespace chip::app::Clusters;
 using namespace chip::app::Clusters::OnOff;
 using namespace chip::Testing;
 
+using chip::Protocols::InteractionModel::Status;
 using chip::Testing::IsAcceptedCommandsListEqualTo;
 using chip::Testing::IsAttributesListEqualTo;
-using chip::Protocols::InteractionModel::Status;
 
 namespace {
 

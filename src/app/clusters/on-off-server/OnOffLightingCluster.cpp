@@ -339,8 +339,8 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOnWithRecallGlobalScen
         if (err != CHIP_NO_ERROR)
         {
             // If recall fails, we still proceed to turn ON per spec?
-            // Spec says: "If the GlobalSceneControl attribute is FALSE, the OnWithRecallGlobalScene command SHALL recall the global scene... If the scene cannot be recalled... it SHALL set the OnOff attribute to TRUE."
-            // So we just log and proceed.
+            // Spec says: "If the GlobalSceneControl attribute is FALSE, the OnWithRecallGlobalScene command SHALL recall the global
+            // scene... If the scene cannot be recalled... it SHALL set the OnOff attribute to TRUE." So we just log and proceed.
             ChipLogError(Zcl, "Failed to recall global scene: %" CHIP_ERROR_FORMAT, err.Format());
             ReturnErrorOnFailure(SetOnOff(true));
         }
