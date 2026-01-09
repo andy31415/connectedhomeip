@@ -22,11 +22,13 @@ source_set("scenes") {
     "ExtensionFieldSets.h",
     "ExtensionFieldSetsImpl.cpp",
     "ExtensionFieldSetsImpl.h",
+    "Constants.h",
     "SceneHandlerImpl.cpp",
     "SceneHandlerImpl.h",
     "SceneTable.h",
     "SceneTableImpl.cpp",
     "SceneTableImpl.h",
+    "ScenesIntegrationDelegate.h",
   ]
 
   deps = [ "${chip_root}/src/app" ]

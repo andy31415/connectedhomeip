@@ -42,7 +42,7 @@ namespace {
 
 constexpr EndpointId kTestEndpointId = 1;
 
-class MockScenesIntegrationDelegate : public Scenes::ScenesIntegrationDelegate
+class MockScenesIntegrationDelegate : public chip::scenes::ScenesIntegrationDelegate
 {
 public:
     struct Call
@@ -54,14 +54,16 @@ public:
     int markInvalidCalls = 0;
     int groupWillBeRemovedCalls = 0;
 
-    void GroupWillBeRemoved(FabricIndex fabricIndex, GroupId groupId) override
+    CHIP_ERROR GroupWillBeRemoved(FabricIndex fabricIndex, GroupId groupId) override
     {
         groupWillBeRemovedCalls++;
+        return CHIP_NO_ERROR;
     }
 
-    void MarkSceneInvalid() override
+    CHIP_ERROR MakeSceneInvalidForAllFabrics() override
     {
         markInvalidCalls++;
+        return CHIP_NO_ERROR;
     }
 
     CHIP_ERROR StoreCurrentGlobalScene(FabricIndex fabricIndex) override

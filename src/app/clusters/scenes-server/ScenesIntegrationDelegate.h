@@ -20,7 +20,7 @@
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
 
-namespace chip::app::Clusters::Scenes {
+namespace chip::scenes {
 
 /// Delegate interface for clusters to integrate with the Scenes cluster functionality.
 ///
@@ -48,11 +48,11 @@ public:
     // Notifies that a group is about to be removed from the given fabric.
     // Clusters using this delegate should remove any scene entries associated with this group and fabric on the endpoint
     // associated with this delegate instance.
-    virtual void GroupWillBeRemoved(FabricIndex fabricIndex, GroupId groupId) = 0;
+    virtual CHIP_ERROR GroupWillBeRemoved(FabricIndex fabricIndex, GroupId groupId) = 0;
 
     // Marks all scenes on the associated endpoint as invalid for all fabrics.
     // This is typically called when the cluster's state changes outside of a scene recall.
-    virtual void MarkSceneInvalid() = 0;
+    virtual CHIP_ERROR MakeSceneInvalidForAllFabrics() = 0;
 };
 
-} // namespace chip::app::Clusters::Scenes
+} // namespace chip::scenes

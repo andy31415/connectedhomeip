@@ -29,7 +29,7 @@ using chip::Protocols::InteractionModel::Status;
 namespace chip::app::Clusters::OnOff {
 
 OnOffLightingCluster::OnOffLightingCluster(EndpointId endpointId, TimerDelegate & timerDelegate,
-                                           OnOffEffectDelegate & effectDelegate, Scenes::ScenesIntegrationDelegate * scenesIntegrationDelegate,
+                                           OnOffEffectDelegate & effectDelegate, chip::scenes::ScenesIntegrationDelegate * scenesIntegrationDelegate,
                                            BitMask<Feature> featureMap) :
     OnOffCluster(endpointId, timerDelegate, featureMap, { Feature::kLighting, Feature::kDeadFrontBehavior }),
     mEffectDelegate(effectDelegate), mScenesIntegrationDelegate(scenesIntegrationDelegate)
@@ -268,7 +268,7 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOff()
 
     if (wasOn && mScenesIntegrationDelegate != nullptr)
     {
-        mScenesIntegrationDelegate->MarkSceneInvalid();
+        LogErrorOnFailure(mScenesIntegrationDelegate->MakeSceneInvalidForAllFabrics());
     }
 
     mOnTime = 0;
@@ -284,7 +284,7 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOn()
 
     if (wasOff && mScenesIntegrationDelegate != nullptr)
     {
-        mScenesIntegrationDelegate->MarkSceneInvalid();
+        LogErrorOnFailure(mScenesIntegrationDelegate->MakeSceneInvalidForAllFabrics());
     }
 
     if (mOnTime == 0)
