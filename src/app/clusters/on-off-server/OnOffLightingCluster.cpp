@@ -38,8 +38,6 @@ OnOffLightingCluster::OnOffLightingCluster(EndpointId endpointId, TimerDelegate 
 
 {}
 
-
-
 OnOffLightingCluster::~OnOffLightingCluster()
 {
     mTimerDelegate.CancelTimer(this);

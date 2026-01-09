@@ -289,4 +289,24 @@ TEST_F(TestOnOffCluster, TestSceneSupport)
     EXPECT_TRUE(mMockDelegate.mOnOff);
 }
 
+TEST_F(TestOnOffCluster, TestSceneInvalidAttribute)
+{
+    using AttributeValuePair = ScenesManagement::Structs::AttributeValuePairStruct::Type;
+
+    // Construct invalid data (Wrong Attribute ID)
+    AttributeValuePair pairs[1];
+    pairs[0].attributeID = Attributes::OnOff::Id + 1; // Invalid ID
+    pairs[0].valueUnsigned8.SetValue(1);
+
+    uint8_t buffer[128];
+    MutableByteSpan serializedBytes(buffer);
+    app::DataModel::List<AttributeValuePair> attributeValueList(pairs);
+
+    // Encode invalid list
+    EXPECT_EQ(mCluster.EncodeAttributeValueList(attributeValueList, serializedBytes), CHIP_NO_ERROR);
+
+    // Apply Scene should fail
+    EXPECT_EQ(mCluster.ApplyScene(kTestEndpointId, Clusters::OnOff::Id, serializedBytes, 0), CHIP_ERROR_INVALID_ARGUMENT);
+}
+
 } // namespace

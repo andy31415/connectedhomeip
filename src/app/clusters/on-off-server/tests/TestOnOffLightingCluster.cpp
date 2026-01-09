@@ -221,7 +221,7 @@ TEST_F(TestOnOffLightingCluster, TestOffWithEffect)
     command.effectVariant    = 10;
 
     EXPECT_TRUE(mClusterTester.Invoke(command).IsSuccess());
-    
+
     // Check Effect Delegate
     EXPECT_TRUE(mMockEffectDelegate.mCalled);
     EXPECT_EQ(mMockEffectDelegate.mEffectId, EffectIdentifierEnum::kDyingLight);

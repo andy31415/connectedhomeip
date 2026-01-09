@@ -197,10 +197,13 @@ CHIP_ERROR OnOffCluster::ApplyScene(EndpointId endpoint, ClusterId cluster, cons
     while (pair_iterator.Next())
     {
         auto & decodePair = pair_iterator.GetValue();
-        if (decodePair.attributeID == Attributes::OnOff::Id && decodePair.valueUnsigned8.HasValue())
-        {
-            ReturnErrorOnFailure(SetOnOff(static_cast<bool>(decodePair.valueUnsigned8.Value())));
-        }
+
+        // Match codegen strictness: verify attribute ID is strictly OnOff and value is present
+        VerifyOrReturnError(decodePair.attributeID == Attributes::OnOff::Id, CHIP_ERROR_INVALID_ARGUMENT);
+        VerifyOrReturnError(decodePair.valueUnsigned8.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
+
+        // TODO: Implement transition time support (currently applies immediately)
+        ReturnErrorOnFailure(SetOnOff(static_cast<bool>(decodePair.valueUnsigned8.Value())));
     }
     return pair_iterator.GetStatus();
 }

@@ -32,8 +32,7 @@ namespace chip::app::Clusters::OnOff {
 /// Implements an On/Off server cluster.
 ///
 /// *DOES NOT* support the Lighting feature (to keep this implementation small)
-class OnOffCluster : public DefaultServerCluster,
-                     public scenes::DefaultSceneHandlerImpl
+class OnOffCluster : public DefaultServerCluster, public scenes::DefaultSceneHandlerImpl
 {
 public:
     OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap = {});
