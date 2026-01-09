@@ -37,8 +37,6 @@ public:
     OnOffCluster(EndpointId endpointId, TimerDelegate & timerDelegate, BitMask<Feature> featureMap = {});
     ~OnOffCluster() override;
 
-    // ... existing public methods ...
-
     void AddDelegate(OnOffDelegate * delegate) { mDelegates.PushBack(delegate); }
     void RemoveDelegate(OnOffDelegate * delegate) { mDelegates.Remove(delegate); }
 
