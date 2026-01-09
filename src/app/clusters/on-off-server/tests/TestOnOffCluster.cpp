@@ -36,6 +36,19 @@ using namespace chip::Testing;
 using chip::Testing::IsAcceptedCommandsListEqualTo;
 using chip::Testing::IsAttributesListEqualTo;
 
+namespace chip::app::Clusters::OnOff {
+class OnOffClusterTestAccess
+{
+public:
+    OnOffClusterTestAccess(OnOffCluster & cluster) : mCluster(cluster) {}
+
+    bool IsSceneTransitionPending() { return mCluster.mTimerDelegate.IsTimerActive(&mCluster.mSceneTimer); }
+
+private:
+    OnOffCluster & mCluster;
+};
+} // namespace chip::app::Clusters::OnOff
+
 namespace {
 
 constexpr EndpointId kTestEndpointId = 1;
@@ -357,11 +370,11 @@ TEST_F(TestOnOffCluster, TestSceneTransitionCancellation)
     // 3. Apply Scene (Restore ON) with 1000ms transition
     EXPECT_EQ(mCluster.ApplyScene(kTestEndpointId, Clusters::OnOff::Id, serializedBytes, 1000), CHIP_NO_ERROR);
     EXPECT_FALSE(mMockDelegate.mOnOff);
-    EXPECT_TRUE(mCluster.IsSceneTransitionPending());
+    EXPECT_TRUE(OnOffClusterTestAccess(mCluster).IsSceneTransitionPending());
 
     // 4. Send "Off" Command -> Should cancel transition
     EXPECT_TRUE(mClusterTester.Invoke(Commands::Off::Type()).IsSuccess());
-    EXPECT_FALSE(mCluster.IsSceneTransitionPending());
+    EXPECT_FALSE(OnOffClusterTestAccess(mCluster).IsSceneTransitionPending());
 
     // 5. Advance Clock (1000ms)
     mMockTimerDelegate.AdvanceClock(System::Clock::Milliseconds64(1000));
