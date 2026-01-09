@@ -24,20 +24,12 @@ namespace app {
 namespace Clusters {
 namespace OnOff {
 
-/**
- * Interface for handling lighting effects.
- */
+/// Interface for handling lighting effects.
 class OnOffEffectDelegate
 {
 public:
     virtual ~OnOffEffectDelegate() = default;
 
-    /**
-     * @brief Trigger a specific effect.
-     *
-     * @param effectId The identifier of the effect to trigger.
-     * @param effectVariant The variant of the effect.
-     */
     virtual void TriggerEffect(EffectIdentifierEnum effectId, uint8_t effectVariant) = 0;
 };
 

@@ -24,7 +24,7 @@
 #include <app/server-cluster/DefaultServerCluster.h>
 #include <lib/support/IntrusiveList.h>
 
-#include "OnOffDelegate.h"
+#include <app/clusters/on-off-server/OnOffDelegate.h>
 
 namespace chip::app::Clusters::OnOff {
 
@@ -34,7 +34,6 @@ namespace chip::app::Clusters::OnOff {
 class OnOffCluster : public DefaultServerCluster
 {
 public:
-    /// The delegate must outlive the cluster instance.
     OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap = {});
     ~OnOffCluster() override;
 

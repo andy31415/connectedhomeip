@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include "OnOffCluster.h"
-#include "OnOffEffectDelegate.h"
+#include <app/clusters/on-off-server/OnOffCluster.h>
+#include <app/clusters/on-off-server/OnOffEffectDelegate.h>
 #include <lib/support/TimerDelegate.h>
 
 namespace chip::app::Clusters::OnOff {

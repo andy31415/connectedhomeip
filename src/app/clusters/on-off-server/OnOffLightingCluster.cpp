@@ -14,8 +14,8 @@
  *    limitations under the License.
  */
 
-#include "OnOffLightingCluster.h"
-#include "app/data-model-provider/ActionReturnStatus.h"
+#include <app/clusters/on-off-server/OnOffLightingCluster.h>
+#include <app/data-model-provider/ActionReturnStatus.h>
 
 #include <app/persistence/AttributePersistence.h>
 #include <app/server-cluster/AttributeListBuilder.h>

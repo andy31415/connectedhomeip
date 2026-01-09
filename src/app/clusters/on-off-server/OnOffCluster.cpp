@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-#include "OnOffCluster.h"
+#include <app/clusters/on-off-server/OnOffCluster.h>
 
 #include <app/persistence/AttributePersistence.h>
 #include <app/server-cluster/AttributeListBuilder.h>
