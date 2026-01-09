@@ -235,4 +235,33 @@ TEST_F(TestOffOnlyOnOffCluster, TestInvokeCommands)
               Protocols::InteractionModel::Status::UnsupportedCommand);
 }
 
+TEST_F(TestOnOffCluster, TestMultipleDelegates)
+{
+    MockOnOffDelegate secondaryDelegate;
+    mCluster.AddDelegate(&secondaryDelegate);
+
+    // 1. On Command - Both should be called
+    EXPECT_TRUE(mClusterTester.Invoke<Commands::On::Type>(Commands::On::Type()).IsSuccess());
+
+    EXPECT_TRUE(mMockDelegate.mCalled);
+    EXPECT_TRUE(mMockDelegate.mOnOff);
+    mMockDelegate.mCalled = false;
+
+    EXPECT_TRUE(secondaryDelegate.mCalled);
+    EXPECT_TRUE(secondaryDelegate.mOnOff);
+    secondaryDelegate.mCalled = false;
+
+    // 2. Remove secondary delegate
+    mCluster.RemoveDelegate(&secondaryDelegate);
+
+    // 3. Off Command - Only primary should be called
+    EXPECT_TRUE(mClusterTester.Invoke<Commands::Off::Type>(Commands::Off::Type()).IsSuccess());
+
+    EXPECT_TRUE(mMockDelegate.mCalled);
+    EXPECT_FALSE(mMockDelegate.mOnOff);
+
+    EXPECT_FALSE(secondaryDelegate.mCalled);
+    EXPECT_TRUE(secondaryDelegate.mOnOff); // Should remain true (last state)
+}
+
 } // namespace

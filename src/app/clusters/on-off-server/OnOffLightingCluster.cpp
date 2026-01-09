@@ -78,7 +78,10 @@ CHIP_ERROR OnOffLightingCluster::Startup(ServerClusterContext & context)
         mOnOff = targetState;
     }
 
-    mDelegate.OnOffStartup(mOnOff);
+    for (auto & delegate : mDelegates)
+    {
+        delegate.OnOffStartup(mOnOff);
+    }
 
     return CHIP_NO_ERROR;
 }

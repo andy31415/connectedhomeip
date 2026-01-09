@@ -22,6 +22,7 @@
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app-common/zap-generated/ids/Commands.h>
 #include <app/server-cluster/DefaultServerCluster.h>
+#include <lib/support/IntrusiveList.h>
 
 #include "OnOffDelegate.h"
 
@@ -35,7 +36,10 @@ class OnOffCluster : public DefaultServerCluster
 public:
     /// The delegate must outlive the cluster instance.
     OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap = {});
-    ~OnOffCluster() override = default;
+    ~OnOffCluster() override;
+
+    void AddDelegate(OnOffDelegate * delegate) { mDelegates.PushBack(delegate); }
+    void RemoveDelegate(OnOffDelegate * delegate) { mDelegates.Remove(delegate); }
 
     /// Sets the OnOff attribute.
     ///
@@ -66,7 +70,7 @@ protected:
     /// This will VerifyOrDie that featureMap is a subset of supportedFeatures.
     OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap, BitMask<Feature> supportedFeatures);
 
-    OnOffDelegate & mDelegate;
+    IntrusiveList<OnOffDelegate> mDelegates;
     BitMask<Feature> mFeatureMap;
 
     // Attribute local storage

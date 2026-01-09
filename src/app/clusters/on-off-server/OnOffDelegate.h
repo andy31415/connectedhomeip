@@ -16,10 +16,12 @@
  */
 #pragma once
 
+#include <lib/support/IntrusiveList.h>
+
 namespace chip::app::Clusters::OnOff {
 
 /// Interface for implementing application-specific logic for the OnOff Cluster.
-class OnOffDelegate
+class OnOffDelegate : public IntrusiveListNodeBase<>
 {
 public:
     virtual ~OnOffDelegate() = default;

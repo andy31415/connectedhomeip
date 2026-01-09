@@ -35,12 +35,18 @@ OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitM
 OnOffCluster::OnOffCluster(EndpointId endpointId, OnOffDelegate & delegate, BitMask<Feature> featureMap,
                            BitMask<Feature> supportedFeatures) :
     DefaultServerCluster({ endpointId, Clusters::OnOff::Id }),
-    mDelegate(delegate), mFeatureMap(featureMap)
+    mFeatureMap(featureMap)
 {
     VerifyOrDie(supportedFeatures.HasAll(featureMap));
 
     // Feature validity check: offonly does not support any of the other features.
     VerifyOrDie(!featureMap.Has(Feature::kOffOnly) || featureMap.HasOnly(Feature::kOffOnly));
+    mDelegates.PushBack(&delegate);
+}
+
+OnOffCluster::~OnOffCluster()
+{
+    mDelegates.Clear();
 }
 
 CHIP_ERROR OnOffCluster::Startup(ServerClusterContext & context)
@@ -51,7 +57,10 @@ CHIP_ERROR OnOffCluster::Startup(ServerClusterContext & context)
     attributePersistence.LoadNativeEndianValue(ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
                                                mOnOff, false);
 
-    mDelegate.OnOffStartup(mOnOff);
+    for (auto & delegate : mDelegates)
+    {
+        delegate.OnOffStartup(mOnOff);
+    }
 
     return CHIP_NO_ERROR;
 }
@@ -109,7 +118,10 @@ CHIP_ERROR OnOffCluster::SetOnOff(bool on)
         mContext->attributeStorage.WriteValue(ConcreteAttributePath(mPath.mEndpointId, Clusters::OnOff::Id, Attributes::OnOff::Id),
                                               ByteSpan(reinterpret_cast<const uint8_t *>(&mOnOff), sizeof(mOnOff))));
 
-    mDelegate.OnOnOffChanged(mOnOff);
+    for (auto & delegate : mDelegates)
+    {
+        delegate.OnOnOffChanged(mOnOff);
+    }
 
     return CHIP_NO_ERROR;
 }
