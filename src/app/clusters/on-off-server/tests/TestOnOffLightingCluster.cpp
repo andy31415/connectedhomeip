@@ -100,6 +100,21 @@ public:
     }
 };
 
+class MockOnOffEffectDelegate : public OnOffEffectDelegate
+{
+public:
+    EffectIdentifierEnum mEffectId = EffectIdentifierEnum::kDelayedAllOff;
+    uint8_t mEffectVariant         = 0;
+    bool mCalled                   = false;
+
+    void TriggerEffect(EffectIdentifierEnum effectId, uint8_t effectVariant) override
+    {
+        mEffectId      = effectId;
+        mEffectVariant = effectVariant;
+        mCalled        = true;
+    }
+};
+
 struct TestOnOffLightingCluster : public ::testing::Test
 {
     static void SetUpTestSuite() { ASSERT_EQ(Platform::MemoryInit(), CHIP_NO_ERROR); }
@@ -117,8 +132,9 @@ struct TestOnOffLightingCluster : public ::testing::Test
 
     MockOnOffDelegate mMockDelegate;
     MockTimerDelegate mMockTimerDelegate;
+    MockOnOffEffectDelegate mMockEffectDelegate;
 
-    OnOffLightingCluster mCluster{ kTestEndpointId, mMockTimerDelegate };
+    OnOffLightingCluster mCluster{ kTestEndpointId, mMockTimerDelegate, mMockEffectDelegate };
 
     ClusterTester mClusterTester{ mCluster };
 
@@ -191,6 +207,28 @@ TEST_F(TestOnOffLightingCluster, TestOnWithTimedOff)
 
     EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::OffWaitTime::Id, offWaitTime), CHIP_NO_ERROR);
     EXPECT_EQ(offWaitTime, 0);
+}
+
+TEST_F(TestOnOffLightingCluster, TestOffWithEffect)
+{
+    // 1. Turn On first
+    EXPECT_TRUE(mClusterTester.Invoke(Commands::On::Type()).IsSuccess());
+    EXPECT_TRUE(mMockDelegate.mOnOff);
+
+    // 2. Off With Effect
+    Commands::OffWithEffect::Type command;
+    command.effectIdentifier = EffectIdentifierEnum::kDyingLight;
+    command.effectVariant    = 10;
+
+    EXPECT_TRUE(mClusterTester.Invoke(command).IsSuccess());
+    
+    // Check Effect Delegate
+    EXPECT_TRUE(mMockEffectDelegate.mCalled);
+    EXPECT_EQ(mMockEffectDelegate.mEffectId, EffectIdentifierEnum::kDyingLight);
+    EXPECT_EQ(mMockEffectDelegate.mEffectVariant, 10);
+
+    // Check State (Should be OFF)
+    EXPECT_FALSE(mMockDelegate.mOnOff);
 }
 
 } // namespace

@@ -18,6 +18,7 @@
 #pragma once
 
 #include "OnOffCluster.h"
+#include "OnOffEffectDelegate.h"
 #include <lib/support/TimerDelegate.h>
 
 namespace chip::app::Clusters::OnOff {
@@ -32,7 +33,8 @@ namespace chip::app::Clusters::OnOff {
 class OnOffLightingCluster : public OnOffCluster, public TimerContext
 {
 public:
-    OnOffLightingCluster(EndpointId endpointId, TimerDelegate & timerDelegate, BitMask<Feature> featureMap = Feature::kLighting);
+    OnOffLightingCluster(EndpointId endpointId, TimerDelegate & timerDelegate, OnOffEffectDelegate & effectDelegate,
+                         BitMask<Feature> featureMap = Feature::kLighting);
 
     ~OnOffLightingCluster() override;
 
@@ -65,6 +67,7 @@ public:
 
 private:
     TimerDelegate & mTimerDelegate;
+    OnOffEffectDelegate & mEffectDelegate;
 
     // Lighting Attributes
     bool mGlobalSceneControl = true;

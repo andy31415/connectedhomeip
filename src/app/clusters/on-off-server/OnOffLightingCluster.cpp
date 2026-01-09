@@ -28,9 +28,17 @@ using chip::Protocols::InteractionModel::Status;
 
 namespace chip::app::Clusters::OnOff {
 
-OnOffLightingCluster::OnOffLightingCluster(EndpointId endpointId, TimerDelegate & timerDelegate, BitMask<Feature> featureMap) :
-    OnOffCluster(endpointId, featureMap, { Feature::kLighting, Feature::kDeadFrontBehavior }), mTimerDelegate(timerDelegate)
+OnOffLightingCluster::OnOffLightingCluster(EndpointId endpointId, TimerDelegate & timerDelegate,
+
+                                           OnOffEffectDelegate & effectDelegate, BitMask<Feature> featureMap) :
+
+    OnOffCluster(endpointId, featureMap, { Feature::kLighting, Feature::kDeadFrontBehavior }),
+
+    mTimerDelegate(timerDelegate), mEffectDelegate(effectDelegate)
+
 {}
+
+
 
 OnOffLightingCluster::~OnOffLightingCluster()
 {
@@ -303,6 +311,8 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOffWithEffect(const Da
         // Store global scene (Placeholder: Scenes not implemented yet)
         mGlobalSceneControl = false;
         NotifyAttributeChanged(Attributes::GlobalSceneControl::Id);
+
+        mEffectDelegate.TriggerEffect(commandData.effectIdentifier, commandData.effectVariant);
 
         ReturnErrorOnFailure(SetOnOff(false));
 
