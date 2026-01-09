@@ -17,7 +17,7 @@
 
 #include <app/clusters/on-off-server/OnOffLightingCluster.h>
 #include <clusters/OnOff/Metadata.h>
-#include <lib/support/TimerDelegate.h>
+#include <lib/support/TimerDelegateMock.h>
 #include <pw_unit_test/framework.h>
 
 #include <app/DefaultSafeAttributePersistenceProvider.h>
@@ -60,46 +60,6 @@ public:
     }
 };
 
-class MockTimerDelegate : public TimerDelegate
-{
-public:
-    TimerContext * mContext         = nullptr;
-    System::Clock::Timeout mTimeout = System::Clock::kZero;
-    bool mIsActive                  = false;
-
-    CriticalFailure StartTimer(TimerContext * context, System::Clock::Timeout aTimeout) override
-    {
-        mContext  = context;
-        mTimeout  = aTimeout;
-        mIsActive = true;
-        return CHIP_NO_ERROR;
-    }
-
-    void CancelTimer(TimerContext * context) override
-    {
-        if (mContext == context)
-        {
-            mIsActive = false;
-        }
-    }
-
-    bool IsTimerActive(TimerContext * context) override { return mIsActive && (mContext == context); }
-
-    System::Clock::Timestamp GetCurrentMonotonicTimestamp() override
-    {
-        return System::Clock::kZero; // Simple mock
-    }
-
-    // Helper to fire the timer
-    void FireTimer()
-    {
-        if (mIsActive && mContext)
-        {
-            mContext->TimerFired();
-        }
-    }
-};
-
 class MockOnOffEffectDelegate : public OnOffEffectDelegate
 {
 public:
@@ -131,7 +91,7 @@ struct TestOnOffLightingCluster : public ::testing::Test
     void TearDown() override { app::SetSafeAttributePersistenceProvider(nullptr); }
 
     MockOnOffDelegate mMockDelegate;
-    MockTimerDelegate mMockTimerDelegate;
+    TimerDelegateMock mMockTimerDelegate;
     MockOnOffEffectDelegate mMockEffectDelegate;
 
     OnOffLightingCluster mCluster{ kTestEndpointId, mMockTimerDelegate, mMockEffectDelegate };
@@ -174,7 +134,7 @@ TEST_F(TestOnOffLightingCluster, TestOnWithTimedOff)
 
     EXPECT_TRUE(mClusterTester.Invoke(command).IsSuccess());
     EXPECT_TRUE(mMockDelegate.mOnOff); // Should be ON
-    EXPECT_TRUE(mMockTimerDelegate.mIsActive);
+    EXPECT_TRUE(mMockTimerDelegate.IsTimerActive(&mCluster));
 
     // Verify Attributes
     uint16_t onTime = 0;
@@ -185,8 +145,8 @@ TEST_F(TestOnOffLightingCluster, TestOnWithTimedOff)
     EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::OffWaitTime::Id, offWaitTime), CHIP_NO_ERROR);
     EXPECT_EQ(offWaitTime, 20);
 
-    // 2. Fire Timer (simulate 1 tick)
-    mMockTimerDelegate.FireTimer();
+    // 2. Advance Clock (simulate 1 tick of 100ms)
+    mMockTimerDelegate.AdvanceClock(System::Clock::Milliseconds32(100));
 
     // OnTime should decrement
     EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::OnTime::Id, onTime), CHIP_NO_ERROR);
@@ -195,7 +155,7 @@ TEST_F(TestOnOffLightingCluster, TestOnWithTimedOff)
     // 3. Exhaust OnTime
     for (int i = 0; i < 9; ++i)
     {
-        mMockTimerDelegate.FireTimer();
+        mMockTimerDelegate.AdvanceClock(System::Clock::Milliseconds32(100));
     }
 
     EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::OnTime::Id, onTime), CHIP_NO_ERROR);

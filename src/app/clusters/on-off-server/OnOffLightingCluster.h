@@ -66,7 +66,6 @@ public:
     void TimerFired() override;
 
 private:
-    TimerDelegate & mTimerDelegate;
     OnOffEffectDelegate & mEffectDelegate;
 
     // Lighting Attributes

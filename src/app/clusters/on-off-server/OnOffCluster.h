@@ -23,6 +23,7 @@
 #include <app-common/zap-generated/ids/Commands.h>
 #include <app/server-cluster/DefaultServerCluster.h>
 #include <lib/support/IntrusiveList.h>
+#include <lib/support/TimerDelegate.h>
 
 #include <app/clusters/on-off-server/OnOffDelegate.h>
 #include <app/clusters/scenes-server/SceneHandlerImpl.h>
@@ -35,7 +36,7 @@ namespace chip::app::Clusters::OnOff {
 class OnOffCluster : public DefaultServerCluster, public scenes::DefaultSceneHandlerImpl
 {
 public:
-    OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap = {});
+    OnOffCluster(EndpointId endpointId, TimerDelegate & timerDelegate, BitMask<Feature> featureMap = {});
     ~OnOffCluster() override;
 
     // ... existing public methods ...
@@ -76,13 +77,17 @@ protected:
     /// Validates that requested 'featureMap' does not exceed implementation capabilities.
     ///
     /// This will VerifyOrDie that featureMap is a subset of supportedFeatures.
-    OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap, BitMask<Feature> supportedFeatures);
+    OnOffCluster(EndpointId endpointId, TimerDelegate & timerDelegate, BitMask<Feature> featureMap,
+                 BitMask<Feature> supportedFeatures);
 
     IntrusiveList<OnOffDelegate, IntrusiveMode::AutoUnlink> mDelegates;
     BitMask<Feature> mFeatureMap;
 
     // Attribute local storage
     bool mOnOff = false;
+
+    // Timer support
+    TimerDelegate & mTimerDelegate;
 };
 
 } // namespace chip::app::Clusters::OnOff

@@ -17,6 +17,7 @@
 
 #include <app/clusters/on-off-server/OnOffCluster.h>
 #include <clusters/OnOff/Metadata.h>
+#include <lib/support/TimerDelegateMock.h>
 #include <pw_unit_test/framework.h>
 
 #include <app/DefaultSafeAttributePersistenceProvider.h>
@@ -75,8 +76,9 @@ struct TestOnOffCluster : public ::testing::Test
     void TearDown() override { app::SetSafeAttributePersistenceProvider(nullptr); }
 
     MockOnOffDelegate mMockDelegate;
+    TimerDelegateMock mMockTimerDelegate;
 
-    OnOffCluster mCluster{ kTestEndpointId };
+    OnOffCluster mCluster{ kTestEndpointId, mMockTimerDelegate };
 
     ClusterTester mClusterTester{ mCluster };
 
@@ -165,10 +167,11 @@ TEST_F(TestOnOffCluster, TestPersistence)
     EXPECT_EQ(persistenceProvider.Init(&context.Get().storage), CHIP_NO_ERROR);
     app::SetSafeAttributePersistenceProvider(&persistenceProvider);
     MockOnOffDelegate mockDelegate;
+    TimerDelegateMock mockTimerDelegate;
 
     // 1. Initial startup, set to ON
     {
-        OnOffCluster cluster(kTestEndpointId);
+        OnOffCluster cluster(kTestEndpointId, mockTimerDelegate);
         cluster.AddDelegate(&mockDelegate);
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
         chip::Testing::ClusterTester tester(cluster);
@@ -181,7 +184,7 @@ TEST_F(TestOnOffCluster, TestPersistence)
 
     // 2. Restart, verify ON
     {
-        OnOffCluster cluster(kTestEndpointId);
+        OnOffCluster cluster(kTestEndpointId, mockTimerDelegate);
         cluster.AddDelegate(&mockDelegate);
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
         chip::Testing::ClusterTester tester(cluster);
@@ -208,7 +211,8 @@ struct TestOffOnlyOnOffCluster : public ::testing::Test
     void TearDown() override { app::SetSafeAttributePersistenceProvider(nullptr); }
 
     MockOnOffDelegate mMockDelegate;
-    OnOffCluster mCluster{ kTestEndpointId, BitMask<Feature>(Feature::kOffOnly) };
+    TimerDelegateMock mMockTimerDelegate;
+    OnOffCluster mCluster{ kTestEndpointId, mMockTimerDelegate, BitMask<Feature>(Feature::kOffOnly) };
     ClusterTester mClusterTester{ mCluster };
     app::DefaultSafeAttributePersistenceProvider mPersistenceProvider;
 };

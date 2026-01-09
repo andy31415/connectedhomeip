@@ -18,12 +18,11 @@
 
 #include <app/persistence/AttributePersistence.h>
 #include <app/server-cluster/AttributeListBuilder.h>
-#include <clusters/OnOff/Enums.h>
 #include <clusters/OnOff/Metadata.h>
-#include <lib/core/CHIPError.h>
 #include <lib/support/CodeUtils.h>
 #include <lib/support/logging/CHIPLogging.h>
 
+using namespace chip::app::Clusters::OnOff;
 using chip::Protocols::InteractionModel::Status;
 
 namespace chip::app::Clusters::OnOff {
@@ -46,12 +45,14 @@ OnOffValidator sValidator;
 
 } // namespace
 
-OnOffCluster::OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap) :
-    OnOffCluster(endpointId, featureMap, { Feature::kDeadFrontBehavior, Feature::kOffOnly })
+OnOffCluster::OnOffCluster(EndpointId endpointId, TimerDelegate & timerDelegate, BitMask<Feature> featureMap) :
+    OnOffCluster(endpointId, timerDelegate, featureMap, { Feature::kDeadFrontBehavior, Feature::kOffOnly })
 {}
 
-OnOffCluster::OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap, BitMask<Feature> supportedFeatures) :
-    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }), DefaultSceneHandlerImpl(sValidator), mFeatureMap(featureMap)
+OnOffCluster::OnOffCluster(EndpointId endpointId, TimerDelegate & timerDelegate, BitMask<Feature> featureMap,
+                           BitMask<Feature> supportedFeatures) :
+    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }),
+    DefaultSceneHandlerImpl(sValidator), mFeatureMap(featureMap), mTimerDelegate(timerDelegate)
 {
     VerifyOrDie(supportedFeatures.HasAll(featureMap));
 
@@ -202,7 +203,6 @@ CHIP_ERROR OnOffCluster::ApplyScene(EndpointId endpoint, ClusterId cluster, cons
         VerifyOrReturnError(decodePair.attributeID == Attributes::OnOff::Id, CHIP_ERROR_INVALID_ARGUMENT);
         VerifyOrReturnError(decodePair.valueUnsigned8.HasValue(), CHIP_ERROR_INVALID_ARGUMENT);
 
-        // TODO: Implement transition time support (currently applies immediately)
         ReturnErrorOnFailure(SetOnOff(static_cast<bool>(decodePair.valueUnsigned8.Value())));
     }
     return pair_iterator.GetStatus();
