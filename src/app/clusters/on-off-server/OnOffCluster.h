@@ -31,7 +31,8 @@ namespace chip::app::Clusters::OnOff {
 /// Implements an On/Off server cluster.
 ///
 /// *DOES NOT* support the Lighting feature (to keep this implementation small)
-class OnOffCluster : public DefaultServerCluster, public scenes::DefaultSceneHandlerImpl {
+class OnOffCluster : public DefaultServerCluster, public scenes::DefaultSceneHandlerImpl
+{
 public:
     OnOffCluster(EndpointId endpointId, TimerDelegate & timerDelegate, BitMask<Feature> featureMap = {});
     ~OnOffCluster() override;
@@ -54,20 +55,20 @@ public:
     CHIP_ERROR Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) override;
 
     CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path,
-        ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override;
+                                ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override;
 
     DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request,
-        AttributeValueEncoder & encoder) override;
+                                                AttributeValueEncoder & encoder) override;
 
     std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
-        chip::TLV::TLVReader & input_arguments,
-        CommandHandler * handler) override;
+                                                               chip::TLV::TLVReader & input_arguments,
+                                                               CommandHandler * handler) override;
 
     // SceneHandler implementation
     bool SupportsCluster(EndpointId endpoint, ClusterId cluster) override;
     CHIP_ERROR SerializeSave(EndpointId endpoint, ClusterId cluster, MutableByteSpan & serializedBytes) override;
     CHIP_ERROR ApplyScene(EndpointId endpoint, ClusterId cluster, const ByteSpan & serializedBytes,
-        scenes::TransitionTimeMs timeMs) override;
+                          scenes::TransitionTimeMs timeMs) override;
 
 protected:
     /// Allows derived classes to specify the subset of OnOff features they implement.
@@ -75,7 +76,7 @@ protected:
     ///
     /// This will VerifyOrDie that featureMap is a subset of supportedFeatures.
     OnOffCluster(EndpointId endpointId, TimerDelegate & timerDelegate, BitMask<Feature> featureMap,
-        BitMask<Feature> supportedFeatures);
+                 BitMask<Feature> supportedFeatures);
 
     IntrusiveList<OnOffDelegate, IntrusiveMode::AutoUnlink> mDelegates;
     BitMask<Feature> mFeatureMap;
@@ -87,12 +88,10 @@ protected:
     TimerDelegate & mTimerDelegate;
 
 private:
-    class SceneTransitionTimer : public TimerContext {
+    class SceneTransitionTimer : public TimerContext
+    {
     public:
-        SceneTransitionTimer(OnOffCluster & cluster)
-            : mCluster(cluster)
-        {
-        }
+        SceneTransitionTimer(OnOffCluster & cluster) : mCluster(cluster) {}
 
         void Start(uint32_t timeMs, bool targetValue);
         void Cancel();

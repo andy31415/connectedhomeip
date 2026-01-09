@@ -23,7 +23,8 @@
 namespace chip::app::Clusters::OnOff {
 
 /// Interface for handling lighting effects.
-class OnOffEffectDelegate {
+class OnOffEffectDelegate
+{
 public:
     virtual ~OnOffEffectDelegate() = default;
 
