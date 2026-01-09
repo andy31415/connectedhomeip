@@ -35,7 +35,8 @@ class OnOffLightingCluster : public OnOffCluster, public TimerContext
 {
 public:
     OnOffLightingCluster(EndpointId endpointId, TimerDelegate & timerDelegate, OnOffEffectDelegate & effectDelegate,
-                         chip::scenes::ScenesIntegrationDelegate * scenesIntegrationDelegate = nullptr, BitMask<Feature> featureMap = Feature::kLighting);
+                         chip::scenes::ScenesIntegrationDelegate * scenesIntegrationDelegate = nullptr,
+                         BitMask<Feature> featureMap                                         = Feature::kLighting);
 
     ~OnOffLightingCluster() override;
 

@@ -51,7 +51,7 @@ public:
     };
     std::vector<Call> storeCalls;
     std::vector<Call> recallCalls;
-    int markInvalidCalls = 0;
+    int markInvalidCalls        = 0;
     int groupWillBeRemovedCalls = 0;
 
     CHIP_ERROR GroupWillBeRemoved(FabricIndex fabricIndex, GroupId groupId) override

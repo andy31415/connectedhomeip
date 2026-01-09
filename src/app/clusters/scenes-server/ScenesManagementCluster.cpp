@@ -546,7 +546,8 @@ CHIP_ERROR ScenesManagementCluster::GroupWillBeRemoved(FabricIndex aFabricIdx, G
 
     if (0 != aGroupId && !mGroupProvider->HasEndpoint(aFabricIdx, aGroupId, mPath.mEndpointId))
     {
-        return CHIP_NO_ERROR;;
+        return CHIP_NO_ERROR;
+        ;
     }
 
     return sceneTable->DeleteAllScenesInGroup(aFabricIdx, aGroupId);

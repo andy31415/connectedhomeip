@@ -29,7 +29,8 @@ using chip::Protocols::InteractionModel::Status;
 namespace chip::app::Clusters::OnOff {
 
 OnOffLightingCluster::OnOffLightingCluster(EndpointId endpointId, TimerDelegate & timerDelegate,
-                                           OnOffEffectDelegate & effectDelegate, chip::scenes::ScenesIntegrationDelegate * scenesIntegrationDelegate,
+                                           OnOffEffectDelegate & effectDelegate,
+                                           chip::scenes::ScenesIntegrationDelegate * scenesIntegrationDelegate,
                                            BitMask<Feature> featureMap) :
     OnOffCluster(endpointId, timerDelegate, featureMap, { Feature::kLighting, Feature::kDeadFrontBehavior }),
     mEffectDelegate(effectDelegate), mScenesIntegrationDelegate(scenesIntegrationDelegate)
