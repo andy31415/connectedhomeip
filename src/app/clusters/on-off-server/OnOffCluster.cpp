@@ -28,13 +28,30 @@ using chip::Protocols::InteractionModel::Status;
 
 namespace chip::app::Clusters::OnOff {
 
+namespace {
+
+class OnOffValidator : public scenes::AttributeValuePairValidator
+{
+public:
+    CHIP_ERROR Validate(const app::ConcreteClusterPath & clusterPath,
+                        scenes::AttributeValuePairValidator::AttributeValuePairType & value) override
+    {
+        VerifyOrReturnError(clusterPath.mClusterId == Clusters::OnOff::Id, CHIP_ERROR_INVALID_ARGUMENT);
+        VerifyOrReturnError(value.attributeID == Attributes::OnOff::Id, CHIP_ERROR_INVALID_ARGUMENT);
+        return CHIP_NO_ERROR;
+    }
+};
+
+OnOffValidator sValidator;
+
+} // namespace
+
 OnOffCluster::OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap) :
     OnOffCluster(endpointId, featureMap, { Feature::kDeadFrontBehavior, Feature::kOffOnly })
 {}
 
 OnOffCluster::OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap, BitMask<Feature> supportedFeatures) :
-    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }),
-    DefaultSceneHandlerImpl(static_cast<scenes::AttributeValuePairValidator &>(*this)), mFeatureMap(featureMap)
+    DefaultServerCluster({ endpointId, Clusters::OnOff::Id }), DefaultSceneHandlerImpl(sValidator), mFeatureMap(featureMap)
 {
     VerifyOrDie(supportedFeatures.HasAll(featureMap));
 
@@ -186,14 +203,6 @@ CHIP_ERROR OnOffCluster::ApplyScene(EndpointId endpoint, ClusterId cluster, cons
         }
     }
     return pair_iterator.GetStatus();
-}
-
-CHIP_ERROR OnOffCluster::Validate(const app::ConcreteClusterPath & clusterPath,
-                                  scenes::AttributeValuePairValidator::AttributeValuePairType & value)
-{
-    VerifyOrReturnError(clusterPath.mClusterId == Clusters::OnOff::Id, CHIP_ERROR_INVALID_ARGUMENT);
-    VerifyOrReturnError(value.attributeID == Attributes::OnOff::Id, CHIP_ERROR_INVALID_ARGUMENT);
-    return CHIP_NO_ERROR;
 }
 
 } // namespace chip::app::Clusters::OnOff

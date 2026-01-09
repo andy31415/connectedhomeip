@@ -33,8 +33,7 @@ namespace chip::app::Clusters::OnOff {
 ///
 /// *DOES NOT* support the Lighting feature (to keep this implementation small)
 class OnOffCluster : public DefaultServerCluster,
-                     public scenes::DefaultSceneHandlerImpl,
-                     public scenes::AttributeValuePairValidator
+                     public scenes::DefaultSceneHandlerImpl
 {
 public:
     OnOffCluster(EndpointId endpointId, BitMask<Feature> featureMap = {});
@@ -72,10 +71,6 @@ public:
     CHIP_ERROR SerializeSave(EndpointId endpoint, ClusterId cluster, MutableByteSpan & serializedBytes) override;
     CHIP_ERROR ApplyScene(EndpointId endpoint, ClusterId cluster, const ByteSpan & serializedBytes,
                           scenes::TransitionTimeMs timeMs) override;
-
-    // AttributeValuePairValidator implementation
-    CHIP_ERROR Validate(const app::ConcreteClusterPath & clusterPath,
-                        scenes::AttributeValuePairValidator::AttributeValuePairType & value) override;
 
 protected:
     /// Allows derived classes to specify the subset of OnOff features they implement.
