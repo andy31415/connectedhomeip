@@ -16,7 +16,7 @@
  */
 
 #include <app/clusters/on-off-server/OnOffLightingCluster.h>
-#include <app/clusters/on-off-server/OnOffGlobalSceneDelegate.h>
+#include <app/clusters/scenes-server/ScenesIntegrationDelegate.h>
 #include <clusters/OnOff/Metadata.h>
 #include <lib/support/TimerDelegateMock.h>
 #include <pw_unit_test/framework.h>
@@ -42,32 +42,37 @@ namespace {
 
 constexpr EndpointId kTestEndpointId = 1;
 
-class MockOnOffGlobalSceneDelegate : public OnOffGlobalSceneDelegate
+class MockScenesIntegrationDelegate : public Scenes::ScenesIntegrationDelegate
 {
 public:
     struct Call
     {
-        EndpointId endpointId;
         FabricIndex fabricIndex;
     };
     std::vector<Call> storeCalls;
     std::vector<Call> recallCalls;
-    std::vector<EndpointId> markInvalidCalls;
+    int markInvalidCalls = 0;
+    int groupWillBeRemovedCalls = 0;
 
-    void MarkSceneInvalid(EndpointId endpointId) override
+    void GroupWillBeRemoved(FabricIndex fabricIndex, GroupId groupId) override
     {
-        markInvalidCalls.push_back(endpointId);
+        groupWillBeRemovedCalls++;
     }
 
-    CHIP_ERROR StoreCurrentGlobalScene(EndpointId endpointId, FabricIndex fabricIndex) override
+    void MarkSceneInvalid() override
     {
-        storeCalls.push_back({ endpointId, fabricIndex });
+        markInvalidCalls++;
+    }
+
+    CHIP_ERROR StoreCurrentGlobalScene(FabricIndex fabricIndex) override
+    {
+        storeCalls.push_back({ fabricIndex });
         return CHIP_NO_ERROR;
     }
 
-    CHIP_ERROR RecallGlobalScene(EndpointId endpointId, FabricIndex fabricIndex) override
+    CHIP_ERROR RecallGlobalScene(FabricIndex fabricIndex) override
     {
-        recallCalls.push_back({ endpointId, fabricIndex });
+        recallCalls.push_back({ fabricIndex });
         return CHIP_NO_ERROR;
     }
 };
@@ -125,9 +130,9 @@ struct TestOnOffLightingCluster : public ::testing::Test
     MockOnOffDelegate mMockDelegate;
     TimerDelegateMock mMockTimerDelegate;
     MockOnOffEffectDelegate mMockEffectDelegate;
-    MockOnOffGlobalSceneDelegate mMockGlobalSceneDelegate;
+    MockScenesIntegrationDelegate mMockScenesIntegrationDelegate;
 
-    OnOffLightingCluster mCluster{ kTestEndpointId, mMockTimerDelegate, mMockEffectDelegate, &mMockGlobalSceneDelegate };
+    OnOffLightingCluster mCluster{ kTestEndpointId, mMockTimerDelegate, mMockEffectDelegate, &mMockScenesIntegrationDelegate };
 
     ClusterTester mClusterTester{ mCluster };
 
@@ -224,8 +229,7 @@ TEST_F(TestOnOffLightingCluster, TestOffWithEffect)
     EXPECT_FALSE(mMockDelegate.mOnOff);
 
     // Check MarkSceneInvalid was called
-    EXPECT_EQ(mMockGlobalSceneDelegate.markInvalidCalls.size(), 1u);
-    EXPECT_EQ(mMockGlobalSceneDelegate.markInvalidCalls[0], kTestEndpointId);
+    EXPECT_EQ(mMockScenesIntegrationDelegate.markInvalidCalls, 1);
 }
 
 TEST_F(TestOnOffLightingCluster, TestTimerCancellation)
@@ -296,8 +300,8 @@ TEST_F(TestOnOffLightingCluster, TestGlobalSceneControl)
     EXPECT_FALSE(globalSceneControl);
 
     // Verify StoreCurrentScene was called
-    EXPECT_EQ(mMockGlobalSceneDelegate.storeCalls.size(), 1u);
-    EXPECT_EQ(mMockGlobalSceneDelegate.storeCalls[0].endpointId, kTestEndpointId);
+    EXPECT_EQ(mMockScenesIntegrationDelegate.storeCalls.size(), 1u);
+    // We don't have a great way to check the fabric index here, so we just check the call was made.
 
     // 3. OnWithRecallGlobalScene -> Should set GlobalSceneControl = true
     EXPECT_TRUE(mClusterTester.Invoke(Commands::OnWithRecallGlobalScene::Type()).IsSuccess());
@@ -306,8 +310,8 @@ TEST_F(TestOnOffLightingCluster, TestGlobalSceneControl)
     EXPECT_TRUE(globalSceneControl);
 
     // Verify RecallScene was called
-    EXPECT_EQ(mMockGlobalSceneDelegate.recallCalls.size(), 1u);
-    EXPECT_EQ(mMockGlobalSceneDelegate.recallCalls[0].endpointId, kTestEndpointId);
+    EXPECT_EQ(mMockScenesIntegrationDelegate.recallCalls.size(), 1u);
+    // We don't have a great way to check the fabric index here, so we just check the call was made.
 }
 
 } // namespace

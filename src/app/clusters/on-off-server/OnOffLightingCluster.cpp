@@ -29,10 +29,10 @@ using chip::Protocols::InteractionModel::Status;
 namespace chip::app::Clusters::OnOff {
 
 OnOffLightingCluster::OnOffLightingCluster(EndpointId endpointId, TimerDelegate & timerDelegate,
-                                           OnOffEffectDelegate & effectDelegate, OnOffGlobalSceneDelegate * globalSceneDelegate,
+                                           OnOffEffectDelegate & effectDelegate, Scenes::ScenesIntegrationDelegate * scenesIntegrationDelegate,
                                            BitMask<Feature> featureMap) :
     OnOffCluster(endpointId, timerDelegate, featureMap, { Feature::kLighting, Feature::kDeadFrontBehavior }),
-    mEffectDelegate(effectDelegate), mGlobalSceneDelegate(globalSceneDelegate)
+    mEffectDelegate(effectDelegate), mScenesIntegrationDelegate(scenesIntegrationDelegate)
 {}
 
 OnOffLightingCluster::~OnOffLightingCluster()
@@ -266,9 +266,9 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOff()
     bool wasOn = GetOnOff();
     ReturnErrorOnFailure(SetOnOff(false));
 
-    if (wasOn && mGlobalSceneDelegate != nullptr)
+    if (wasOn && mScenesIntegrationDelegate != nullptr)
     {
-        mGlobalSceneDelegate->MarkSceneInvalid(mPath.mEndpointId);
+        mScenesIntegrationDelegate->MarkSceneInvalid();
     }
 
     mOnTime = 0;
@@ -282,9 +282,9 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOn()
     bool wasOff = !GetOnOff();
     ReturnErrorOnFailure(SetOnOff(true));
 
-    if (wasOff && mGlobalSceneDelegate != nullptr)
+    if (wasOff && mScenesIntegrationDelegate != nullptr)
     {
-        mGlobalSceneDelegate->MarkSceneInvalid(mPath.mEndpointId);
+        mScenesIntegrationDelegate->MarkSceneInvalid();
     }
 
     if (mOnTime == 0)
@@ -315,9 +315,9 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOffWithEffect(const Da
 
     if (mGlobalSceneControl)
     {
-        if (mGlobalSceneDelegate != nullptr)
+        if (mScenesIntegrationDelegate != nullptr)
         {
-            LogErrorOnFailure(mGlobalSceneDelegate->StoreCurrentGlobalScene(mPath.mEndpointId, request.subjectDescriptor->fabricIndex));
+            LogErrorOnFailure(mScenesIntegrationDelegate->StoreCurrentGlobalScene(request.subjectDescriptor->fabricIndex));
         }
 
         mGlobalSceneControl = false;
@@ -345,9 +345,9 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOnWithRecallGlobalScen
         return Status::Success; // Discard
     }
 
-    if (mGlobalSceneDelegate != nullptr)
+    if (mScenesIntegrationDelegate != nullptr)
     {
-        CHIP_ERROR err = mGlobalSceneDelegate->RecallGlobalScene(mPath.mEndpointId, request.subjectDescriptor->fabricIndex);
+        CHIP_ERROR err = mScenesIntegrationDelegate->RecallGlobalScene(request.subjectDescriptor->fabricIndex);
         if (err != CHIP_NO_ERROR)
         {
             // Spec requirement:
