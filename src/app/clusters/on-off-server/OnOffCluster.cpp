@@ -33,7 +33,7 @@ class OnOffValidator : public scenes::AttributeValuePairValidator
 {
 public:
     CHIP_ERROR Validate(const app::ConcreteClusterPath & clusterPath,
-                        scenes::AttributeValuePairValidator::AttributeValuePairType & value) override
+                        AttributeValuePairValidator::AttributeValuePairType & value) override
     {
         VerifyOrReturnError(clusterPath.mClusterId == Clusters::OnOff::Id, CHIP_ERROR_INVALID_ARGUMENT);
         VerifyOrReturnError(value.attributeID == Attributes::OnOff::Id, CHIP_ERROR_INVALID_ARGUMENT);
