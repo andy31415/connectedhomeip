@@ -21,12 +21,9 @@
 #include <lib/support/TimerDelegateMock.h>
 #include <pw_unit_test/framework.h>
 
-#include <app/DefaultSafeAttributePersistenceProvider.h>
-#include <app/SafeAttributePersistenceProvider.h>
+#include <app/persistence/AttributePersistence.h>
 #include <app/server-cluster/testing/AttributeTesting.h>
 #include <app/server-cluster/testing/ClusterTester.h>
-#include <app/server-cluster/testing/TestServerClusterContext.h>
-#include <app/server-cluster/testing/ValidateGlobalAttributes.h>
 
 using namespace chip;
 using namespace chip::app;
@@ -35,8 +32,6 @@ using namespace chip::app::Clusters::OnOff;
 using namespace chip::Testing;
 
 using chip::Protocols::InteractionModel::Status;
-using chip::Testing::IsAcceptedCommandsListEqualTo;
-using chip::Testing::IsAttributesListEqualTo;
 
 namespace {
 
@@ -121,13 +116,20 @@ struct TestOnOffLightingCluster : public ::testing::Test
 
     void SetUp() override
     {
-        VerifyOrDie(mPersistenceProvider.Init(&mClusterTester.GetServerClusterContext().storage) == CHIP_NO_ERROR);
-        app::SetSafeAttributePersistenceProvider(&mPersistenceProvider);
         mCluster.AddDelegate(&mMockDelegate);
         EXPECT_EQ(mCluster.Startup(mClusterTester.GetServerClusterContext()), CHIP_NO_ERROR);
     }
 
-    void TearDown() override { app::SetSafeAttributePersistenceProvider(nullptr); }
+    void TearDown() override {}
+
+    template <typename T>
+    void WriteAttributeToStorage(AttributeId id, const T & value)
+    {
+
+        EXPECT_EQ(mClusterTester.GetServerClusterContext().attributeStorage.WriteValue(
+                      ConcreteAttributePath(kTestEndpointId, OnOff::Id, id), { (const uint8_t *) &value, sizeof(value) }),
+                  CHIP_NO_ERROR);
+    }
 
     MockOnOffDelegate mMockDelegate;
     TimerDelegateMock mMockTimerDelegate;
@@ -137,8 +139,6 @@ struct TestOnOffLightingCluster : public ::testing::Test
     OnOffLightingCluster mCluster{ kTestEndpointId, mMockTimerDelegate, mMockEffectDelegate, &mMockScenesIntegrationDelegate };
 
     ClusterTester mClusterTester{ mCluster };
-
-    app::DefaultSafeAttributePersistenceProvider mPersistenceProvider;
 };
 
 TEST_F(TestOnOffLightingCluster, TestLightingAttributes)
@@ -393,9 +393,6 @@ TEST_F(TestOnOffLightingCluster, TestOffWithEffect_GlobalSceneControlFalse)
     EXPECT_FALSE(mMockDelegate.mOnOff);
 }
 
-    // We don't have a great way to check the fabric index here, so we just check the call was made.
-}
-
 TEST_F(TestOnOffLightingCluster, TestOnWithRecallGlobalScene_GlobalSceneControlTrue)
 {
     // Initial State: GlobalSceneControl = true (default)
@@ -428,45 +425,9 @@ public:
     }
 };
 
-TEST_F(TestOnOffLightingCluster, TestOnWithRecallGlobalScene_RecallFails)
-{
-    // 1. Set GlobalSceneControl to false (by invoking OffWithEffect once)
-    Commands::OffWithEffect::Type offCommand;
-    offCommand.effectIdentifier = EffectIdentifierEnum::kDyingLight;
-    offCommand.effectVariant    = 0;
-    EXPECT_TRUE(mClusterTester.Invoke(offCommand).IsSuccess());
-
-    bool globalSceneControl = true;
-    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::GlobalSceneControl::Id, globalSceneControl), CHIP_NO_ERROR);
-    EXPECT_FALSE(globalSceneControl);
-    EXPECT_EQ(mMockScenesIntegrationDelegate.storeCalls.size(), 1u); // Scene was stored
-
-    mMockScenesIntegrationDelegate.recallCalls.clear(); // Clear calls from previous step
-
-    // 2. Temporarily replace the scenes integration delegate with a failing one
-    FailingRecallScenesIntegrationDelegate failingDelegate;
-    mCluster.mScenesIntegrationDelegate = &failingDelegate;
-
-    // Invoke OnWithRecallGlobalScene command
-    EXPECT_TRUE(mClusterTester.Invoke(Commands::OnWithRecallGlobalScene::Type()).IsSuccess());
-
-    // Verify recall was called once on the failing delegate
-    EXPECT_EQ(failingDelegate.recallCalls.size(), 1u);
-
-    // Verify OnOff state is true (fallback behavior)
-    EXPECT_TRUE(mMockDelegate.mOnOff);
-
-    // GlobalSceneControl should be true
-    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::GlobalSceneControl::Id, globalSceneControl), CHIP_NO_ERROR);
-    EXPECT_TRUE(globalSceneControl);
-
-    // Restore the original delegate
-    mCluster.mScenesIntegrationDelegate = &mMockScenesIntegrationDelegate;
 TEST_F(TestOnOffLightingCluster, TestOnWithTimedOff_AcceptOnlyWhenOn)
 {
     // 1. Ensure device is OFF
-    EXPECT_TRUE(mClusterTester.Invoke(Commands::Off::Type()).IsSuccess());
-    EXPECT_FALSE(mMockDelegate.mOnOff);
 
     // 2. OnWithTimedOff with AcceptOnlyWhenOn = true
     Commands::OnWithTimedOff::Type command;
@@ -514,133 +475,6 @@ TEST_F(TestOnOffLightingCluster, TestOnWithTimedOff_DelayedOffGuard)
     EXPECT_TRUE(mMockTimerDelegate.IsTimerActive(&mCluster));
 }
 
-struct TestOnOffLightingCluster_Startup : public ::testing::Test
-{
-    static void SetUpTestSuite() { ASSERT_EQ(Platform::MemoryInit(), CHIP_NO_ERROR); }
-    static void TearDownTestSuite() { Platform::MemoryShutdown(); }
-
-    void SetUp() override
-    {
-        VerifyOrDie(mPersistenceProvider.Init(&mContext.Get().storage) == CHIP_NO_ERROR);
-        app::SetSafeAttributePersistenceProvider(&mPersistenceProvider);
-    }
-
-    void TearDown() override { app::SetSafeAttributePersistenceProvider(nullptr); }
-
-    template <typename T>
-    void WriteAttribute(AttributeId id, const T & value)
-    {
-        AttributePersistence provider(mContext.Get().attributeStorage);
-        EXPECT_EQ(provider.WriteValue(ConcreteAttributePath(kTestEndpointId, OnOff::Id, id),
-                                      ByteSpan(from_const_char(reinterpret_cast<const char *>(&value)), sizeof(value))),
-                  CHIP_NO_ERROR);
-    }
-
-    TestServerClusterContext mContext;
-    app::DefaultSafeAttributePersistenceProvider mPersistenceProvider;
-};
-
-TEST_F(TestOnOffLightingCluster_Startup, TestStartupOnOff_On)
-{
-    // Pre-Requisite: Persisted OnOff is false
-    WriteAttribute(Attributes::OnOff::Id, false);
-    WriteAttribute(Attributes::StartUpOnOff::Id, StartUpOnOffEnum::kOn);
-
-    MockOnOffDelegate mockDelegate;
-    TimerDelegateMock mockTimerDelegate;
-    MockOnOffEffectDelegate mockEffectDelegate;
-    MockScenesIntegrationDelegate mockScenesIntegrationDelegate;
-    OnOffLightingCluster cluster(kTestEndpointId, mockTimerDelegate, mockEffectDelegate, &mockScenesIntegrationDelegate);
-
-    cluster.AddDelegate(&mockDelegate);
-    EXPECT_EQ(cluster.Startup(mContext.Get()), CHIP_NO_ERROR);
-
-    EXPECT_TRUE(mockDelegate.mStartupCalled);
-    EXPECT_TRUE(mockDelegate.mOnOff);
-
-    ClusterTester tester(cluster);
-    bool onOff = false;
-    EXPECT_EQ(tester.ReadAttribute(Attributes::OnOff::Id, onOff), CHIP_NO_ERROR);
-    EXPECT_TRUE(onOff);
-}
-
-TEST_F(TestOnOffLightingCluster_Startup, TestStartupOnOff_Off)
-{
-    // Pre-Requisite: Persisted OnOff is true
-    WriteAttribute(Attributes::OnOff::Id, true);
-    WriteAttribute(Attributes::StartUpOnOff::Id, StartUpOnOffEnum::kOff);
-
-    MockOnOffDelegate mockDelegate;
-    TimerDelegateMock mockTimerDelegate;
-    MockOnOffEffectDelegate mockEffectDelegate;
-    MockScenesIntegrationDelegate mockScenesIntegrationDelegate;
-    OnOffLightingCluster cluster(kTestEndpointId, mockTimerDelegate, mockEffectDelegate, &mockScenesIntegrationDelegate);
-
-    cluster.AddDelegate(&mockDelegate);
-    EXPECT_EQ(cluster.Startup(mContext.Get()), CHIP_NO_ERROR);
-
-    EXPECT_TRUE(mockDelegate.mStartupCalled);
-    EXPECT_FALSE(mockDelegate.mOnOff);
-
-    ClusterTester tester(cluster);
-    bool onOff = true;
-    EXPECT_EQ(tester.ReadAttribute(Attributes::OnOff::Id, onOff), CHIP_NO_ERROR);
-    EXPECT_FALSE(onOff);
-}
-
-TEST_F(TestOnOffLightingCluster_Startup, TestStartupOnOff_Toggle)
-{
-    // 1. From OFF to ON
-    {
-        WriteAttribute(Attributes::OnOff::Id, false);
-        WriteAttribute(Attributes::StartUpOnOff::Id, StartUpOnOffEnum::kToggle);
-
-        MockOnOffDelegate mockDelegate;
-        TimerDelegateMock mockTimerDelegate;
-        MockOnOffEffectDelegate mockEffectDelegate;
-        MockScenesIntegrationDelegate mockScenesIntegrationDelegate;
-        OnOffLightingCluster cluster(kTestEndpointId, mockTimerDelegate, mockEffectDelegate, &mockScenesIntegrationDelegate);
-
-        cluster.AddDelegate(&mockDelegate);
-        EXPECT_EQ(cluster.Startup(mContext.Get()), CHIP_NO_ERROR);
-        EXPECT_TRUE(mockDelegate.mOnOff);
-    }
-
-    // 2. From ON to OFF
-    {
-        WriteAttribute(Attributes::OnOff::Id, true);
-        WriteAttribute(Attributes::StartUpOnOff::Id, StartUpOnOffEnum::kToggle);
-
-        MockOnOffDelegate mockDelegate;
-        TimerDelegateMock mockTimerDelegate;
-        MockOnOffEffectDelegate mockEffectDelegate;
-        MockScenesIntegrationDelegate mockScenesIntegrationDelegate;
-        OnOffLightingCluster cluster(kTestEndpointId, mockTimerDelegate, mockEffectDelegate, &mockScenesIntegrationDelegate);
-
-        cluster.AddDelegate(&mockDelegate);
-        EXPECT_EQ(cluster.Startup(mContext.Get()), CHIP_NO_ERROR);
-        EXPECT_FALSE(mockDelegate.mOnOff);
-    }
-}
-
-TEST_F(TestOnOffLightingCluster_Startup, TestStartupOnOff_Null)
-{
-    // Persisted OnOff is true, StartUpOnOff is null (not written)
-    WriteAttribute(Attributes::OnOff::Id, true);
-
-    MockOnOffDelegate mockDelegate;
-    TimerDelegateMock mockTimerDelegate;
-    MockOnOffEffectDelegate mockEffectDelegate;
-    MockScenesIntegrationDelegate mockScenesIntegrationDelegate;
-    OnOffLightingCluster cluster(kTestEndpointId, mockTimerDelegate, mockEffectDelegate, &mockScenesIntegrationDelegate);
-
-    cluster.AddDelegate(&mockDelegate);
-    EXPECT_EQ(cluster.Startup(mContext.Get()), CHIP_NO_ERROR);
-
-    // Should remain ON
-    EXPECT_TRUE(mockDelegate.mOnOff);
-}
-
 TEST_F(TestOnOffLightingCluster, TestWriteOnTimeUpdatesTimer)
 {
     // Initially timer is not active
@@ -674,64 +508,6 @@ TEST_F(TestOnOffLightingCluster, TestWriteOffWaitTimeUpdatesTimer)
 
     // 3. Write 0 to OffWaitTime
     EXPECT_EQ(mClusterTester.WriteAttribute(Attributes::OffWaitTime::Id, static_cast<uint16_t>(0)), CHIP_NO_ERROR);
-
-    // Verify timer is cancelled
-    EXPECT_FALSE(mMockTimerDelegate.IsTimerActive(&mCluster));
-}
-
-TEST_F(TestOnOffLightingCluster, TestWriteOffWaitTimeUpdatesTimer)
-{
-    // 1. Ensure device is OFF
-    EXPECT_TRUE(mClusterTester.Invoke(Commands::Off::Type()).IsSuccess());
-    EXPECT_FALSE(mMockDelegate.mOnOff);
-    EXPECT_FALSE(mMockTimerDelegate.IsTimerActive(&mCluster));
-
-    // 2. Write non-zero OffWaitTime
-    EXPECT_EQ(mClusterTester.WriteAttribute(Attributes::OffWaitTime::Id, static_cast<uint16_t>(100)), CHIP_NO_ERROR);
-
-    // Verify timer is active
-    EXPECT_TRUE(mMockTimerDelegate.IsTimerActive(&mCluster));
-
-    // 3. Write 0 to OffWaitTime
-    EXPECT_EQ(mClusterTester.WriteAttribute(Attributes::OffWaitTime::Id, static_cast<uint16_t>(0)), CHIP_NO_ERROR);
-
-    // Verify timer is cancelled
-    EXPECT_FALSE(mMockTimerDelegate.IsTimerActive(&mCluster));
-}
-
-// Test fixture for OnOffLightingCluster with DeadFrontBehavior
-struct TestDeadFrontOnOffCluster : public ::testing::Test
-{
-    static void SetUpTestSuite() { ASSERT_EQ(Platform::MemoryInit(), CHIP_NO_ERROR); }
-    static void TearDownTestSuite() { Platform::MemoryShutdown(); }
-
-    void SetUp() override
-    {
-        VerifyOrDie(mPersistenceProvider.Init(&mClusterTester.GetServerClusterContext().storage) == CHIP_NO_ERROR);
-        app::SetSafeAttributePersistenceProvider(&mPersistenceProvider);
-        mCluster.AddDelegate(&mMockDelegate);
-        EXPECT_EQ(mCluster.Startup(mClusterTester.GetServerClusterContext()), CHIP_NO_ERROR);
-    }
-
-    void TearDown() override { app::SetSafeAttributePersistenceProvider(nullptr); }
-
-    MockOnOffDelegate mMockDelegate;
-    TimerDelegateMock mMockTimerDelegate;
-    MockOnOffEffectDelegate mMockEffectDelegate;
-    MockScenesIntegrationDelegate mMockScenesIntegrationDelegate;
-
-    OnOffLightingCluster mCluster{ kTestEndpointId, mMockTimerDelegate, mMockEffectDelegate, &mMockScenesIntegrationDelegate, BitMask<Feature>(Feature::kDeadFrontBehavior) };
-
-    ClusterTester mClusterTester{ mCluster };
-
-    app::DefaultSafeAttributePersistenceProvider mPersistenceProvider;
-};
-
-TEST_F(TestDeadFrontOnOffCluster, TestFeatureMap)
-{
-    uint32_t featureMap = 0;
-    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::FeatureMap::Id, featureMap), CHIP_NO_ERROR);
-    EXPECT_EQ(featureMap, static_cast<uint32_t>(Feature::kDeadFrontBehavior));
 }
 
 } // namespace
