@@ -103,15 +103,9 @@ class OnOffLightingClusterTestAccess
 public:
     OnOffLightingClusterTestAccess(OnOffLightingCluster & cluster) : mCluster(cluster) {}
 
-    void SetOnTime(uint16_t onTime)
-    {
-        mCluster.mOnTime = onTime;
-    }
+    void SetOnTime(uint16_t onTime) { mCluster.mOnTime = onTime; }
 
-    void SetOffWaitTime(uint16_t offWaitTime)
-    {
-        mCluster.mOffWaitTime = offWaitTime;
-    }
+    void SetOffWaitTime(uint16_t offWaitTime) { mCluster.mOffWaitTime = offWaitTime; }
 
 private:
     OnOffLightingCluster & mCluster;

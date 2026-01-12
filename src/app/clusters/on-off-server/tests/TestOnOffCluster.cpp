@@ -217,7 +217,6 @@ struct TestOffOnlyOnOffCluster : public ::testing::Test
     TimerDelegateMock mMockTimerDelegate;
     OnOffCluster mCluster{ kTestEndpointId, mMockTimerDelegate, BitMask<Feature>(Feature::kOffOnly) };
     ClusterTester mClusterTester{ mCluster };
-
 };
 
 TEST_F(TestOffOnlyOnOffCluster, TestFeatureMap)
