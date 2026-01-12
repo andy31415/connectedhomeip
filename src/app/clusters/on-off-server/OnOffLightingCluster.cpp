@@ -321,10 +321,16 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOffWithEffect(const Da
             LogErrorOnFailure(mScenesIntegrationDelegate->StoreCurrentGlobalScene(request.subjectDescriptor->fabricIndex));
         }
 
+        DataModel::ActionReturnStatus status = mEffectDelegate.TriggerEffect(commandData.effectIdentifier, commandData.effectVariant);
+        VerifyOrReturnValue(status.IsSuccess(), status);
+
         mGlobalSceneControl = false;
         NotifyAttributeChanged(Attributes::GlobalSceneControl::Id);
 
-        mEffectDelegate.TriggerEffect(commandData.effectIdentifier, commandData.effectVariant);
+        ReturnErrorOnFailure(SetOnOff(false));
+
+        mOnTime = 0;
+        NotifyAttributeChanged(Attributes::GlobalSceneControl::Id);
 
         ReturnErrorOnFailure(SetOnOff(false));
 

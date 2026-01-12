@@ -17,6 +17,7 @@
 #pragma once
 
 #include <app-common/zap-generated/cluster-enums.h>
+#include <app/data-model-provider/ActionReturnStatus.h>
 
 #include <cstdint>
 
@@ -28,7 +29,28 @@ class OnOffEffectDelegate
 public:
     virtual ~OnOffEffectDelegate() = default;
 
-    virtual void TriggerEffect(EffectIdentifierEnum effectId, uint8_t effectVariant) = 0;
+    virtual DataModel::ActionReturnStatus TriggerEffect(EffectIdentifierEnum effectId, uint8_t effectVariant)
+    {
+        switch (effectId)
+        {
+        case EffectIdentifierEnum::kDelayedAllOff:
+            return TriggerDelayedAllOff();
+        case EffectIdentifierEnum::kDyingLight:
+            return TriggerDyingLight();
+        default:
+            return Protocols::InteractionModel::Status::InvalidCommand;
+        }
+    }
+
+    virtual DataModel::ActionReturnStatus TriggerDelayedAllOff()
+    {
+        return Protocols::InteractionModel::Status::UnsupportedCommand;
+    }
+
+    virtual DataModel::ActionReturnStatus TriggerDyingLight()
+    {
+        return Protocols::InteractionModel::Status::UnsupportedCommand;
+    }
 };
 
 } // namespace chip::app::Clusters::OnOff

@@ -98,14 +98,21 @@ class MockOnOffEffectDelegate : public OnOffEffectDelegate
 {
 public:
     EffectIdentifierEnum mEffectId = EffectIdentifierEnum::kDelayedAllOff;
-    uint8_t mEffectVariant         = 0;
     bool mCalled                   = false;
+    DataModel::ActionReturnStatus mReturnStatus = Status::Success;
 
-    void TriggerEffect(EffectIdentifierEnum effectId, uint8_t effectVariant) override
+    DataModel::ActionReturnStatus TriggerDelayedAllOff() override
     {
-        mEffectId      = effectId;
-        mEffectVariant = effectVariant;
-        mCalled        = true;
+        mEffectId = EffectIdentifierEnum::kDelayedAllOff;
+        mCalled   = true;
+        return mReturnStatus;
+    }
+
+    DataModel::ActionReturnStatus TriggerDyingLight() override
+    {
+        mEffectId = EffectIdentifierEnum::kDyingLight;
+        mCalled   = true;
+        return mReturnStatus;
     }
 };
 
@@ -218,20 +225,49 @@ TEST_F(TestOnOffLightingCluster, TestOffWithEffect)
     // 2. Off With Effect
     Commands::OffWithEffect::Type command;
     command.effectIdentifier = EffectIdentifierEnum::kDyingLight;
-    command.effectVariant    = 10;
+    command.effectVariant    = 0; // Variant is not used for DyingLight
 
     EXPECT_TRUE(mClusterTester.Invoke(command).IsSuccess());
 
     // Check Effect Delegate
     EXPECT_TRUE(mMockEffectDelegate.mCalled);
     EXPECT_EQ(mMockEffectDelegate.mEffectId, EffectIdentifierEnum::kDyingLight);
-    EXPECT_EQ(mMockEffectDelegate.mEffectVariant, 10);
 
     // Check State (Should be OFF)
     EXPECT_FALSE(mMockDelegate.mOnOff);
 
     // Check MarkSceneInvalid was called
     EXPECT_EQ(mMockScenesIntegrationDelegate.markInvalidCalls, 1);
+}
+
+TEST_F(TestOnOffLightingCluster, TestOffWithEffect_DelegateFails)
+{
+    // 1. Turn On first
+    EXPECT_TRUE(mClusterTester.Invoke(Commands::On::Type()).IsSuccess());
+    EXPECT_TRUE(mMockDelegate.mOnOff);
+
+    // 2. Setup mock to fail
+    mMockEffectDelegate.mReturnStatus = Status::Failure;
+
+    // 3. Off With Effect
+    Commands::OffWithEffect::Type command;
+    command.effectIdentifier = EffectIdentifierEnum::kDelayedAllOff;
+    command.effectVariant    = 0;
+
+    auto result = mClusterTester.Invoke(command);
+    EXPECT_EQ(result.status, Status::Failure);
+
+    // Check Effect Delegate was called
+    EXPECT_TRUE(mMockEffectDelegate.mCalled);
+    EXPECT_EQ(mMockEffectDelegate.mEffectId, EffectIdentifierEnum::kDelayedAllOff);
+
+    // Check State is still ON, because effect failed
+    EXPECT_TRUE(mMockDelegate.mOnOff);
+
+    // Global Scene control should not have changed
+    bool globalSceneControl = false;
+    EXPECT_EQ(mClusterTester.ReadAttribute(Attributes::GlobalSceneControl::Id, globalSceneControl), CHIP_NO_ERROR);
+    EXPECT_TRUE(globalSceneControl);
 }
 
 TEST_F(TestOnOffLightingCluster, TestTimerCancellation)
