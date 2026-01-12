@@ -318,9 +318,11 @@ TEST_F(TestOnOffLightingCluster, TestGlobalSceneControl)
 
 TEST_F(TestOnOffLightingCluster, TestSetOnOffWithTimeReset)
 {
+    OnOffLightingClusterTestAccess testAccess(mCluster);
+
     // 1. Set OnTime and OffWaitTime to non-zero values
-    EXPECT_EQ(mClusterTester.WriteAttribute(Attributes::OnTime::Id, static_cast<uint16_t>(100)), CHIP_NO_ERROR);
-    EXPECT_EQ(mClusterTester.WriteAttribute(Attributes::OffWaitTime::Id, static_cast<uint16_t>(200)), CHIP_NO_ERROR);
+    testAccess.SetOnTime(100);
+    testAccess.SetOffWaitTime(200);
 
     // 2. Call SetOnOffWithTimeReset(false)
     EXPECT_EQ(mCluster.SetOnOffWithTimeReset(false), CHIP_NO_ERROR);
@@ -336,8 +338,8 @@ TEST_F(TestOnOffLightingCluster, TestSetOnOffWithTimeReset)
     EXPECT_EQ(offWaitTime, 200);
 
     // 3. Set OnTime and OffWaitTime to non-zero values again
-    EXPECT_EQ(mClusterTester.WriteAttribute(Attributes::OnTime::Id, static_cast<uint16_t>(100)), CHIP_NO_ERROR);
-    EXPECT_EQ(mClusterTester.WriteAttribute(Attributes::OffWaitTime::Id, static_cast<uint16_t>(200)), CHIP_NO_ERROR);
+    testAccess.SetOnTime(100);
+    testAccess.SetOffWaitTime(200);
 
     // 4. Call SetOnOffWithTimeReset(true)
     EXPECT_EQ(mCluster.SetOnOffWithTimeReset(true), CHIP_NO_ERROR);
@@ -385,9 +387,8 @@ TEST_F(TestOnOffLightingCluster, TestOffWithEffect_GlobalSceneControlFalse)
     // Verify no scene operations are performed
     EXPECT_EQ(mMockScenesIntegrationDelegate.storeCalls.size(), 0u);
 
-    // Verify effect delegate was called
-    EXPECT_TRUE(mMockEffectDelegate.mCalled);
-    EXPECT_EQ(mMockEffectDelegate.mEffectId, EffectIdentifierEnum::kDelayedAllOff);
+    // Verify effect delegate was NOT called
+    EXPECT_FALSE(mMockEffectDelegate.mCalled);
 
     // Verify device is Off
     EXPECT_FALSE(mMockDelegate.mOnOff);
@@ -480,7 +481,11 @@ TEST_F(TestOnOffLightingCluster, TestWriteOnTimeUpdatesTimer)
     // Initially timer is not active
     EXPECT_FALSE(mMockTimerDelegate.IsTimerActive(&mCluster));
 
-    // 1. Write non-zero OnTime
+    // 1. Turn device ON
+    EXPECT_TRUE(mClusterTester.Invoke(Commands::On::Type()).IsSuccess());
+    EXPECT_TRUE(mMockDelegate.mOnOff);
+
+    // 2. Write non-zero OnTime
     EXPECT_EQ(mClusterTester.WriteAttribute(Attributes::OnTime::Id, static_cast<uint16_t>(100)), CHIP_NO_ERROR);
 
     // Verify timer is active

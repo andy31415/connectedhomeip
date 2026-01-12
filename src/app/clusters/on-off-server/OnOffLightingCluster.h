@@ -24,6 +24,8 @@
 
 namespace chip::app::Clusters::OnOff {
 
+class OnOffLightingClusterTestAccess;
+
 /// Implements the On/Off cluster with Lighting features.
 ///
 /// This includes:
@@ -68,6 +70,8 @@ public:
     void TimerFired() override;
 
 private:
+    friend class OnOffLightingClusterTestAccess;
+
     OnOffEffectDelegate & mEffectDelegate;
     chip::scenes::ScenesIntegrationDelegate * mScenesIntegrationDelegate;
 
@@ -92,6 +96,25 @@ private:
     DataModel::ActionReturnStatus HandleOn();
     DataModel::ActionReturnStatus HandleOff();
     DataModel::ActionReturnStatus HandleToggle();
+};
+
+class OnOffLightingClusterTestAccess
+{
+public:
+    OnOffLightingClusterTestAccess(OnOffLightingCluster & cluster) : mCluster(cluster) {}
+
+    void SetOnTime(uint16_t onTime)
+    {
+        mCluster.mOnTime = onTime;
+    }
+
+    void SetOffWaitTime(uint16_t offWaitTime)
+    {
+        mCluster.mOffWaitTime = offWaitTime;
+    }
+
+private:
+    OnOffLightingCluster & mCluster;
 };
 
 } // namespace chip::app::Clusters::OnOff
