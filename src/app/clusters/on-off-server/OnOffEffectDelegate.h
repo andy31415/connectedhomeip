@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include <app-common/zap-generated/cluster-enums.h>
 #include <app/data-model-provider/ActionReturnStatus.h>
+#include <clusters/OnOff/Enums.h>
 
 #include <cstdint>
 
