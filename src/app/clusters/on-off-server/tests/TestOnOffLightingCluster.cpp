@@ -604,7 +604,7 @@ TEST_F(TestOnOffLightingCluster, TestWriteInvalidStartUpOnOff)
 
     // 2. Attempt to write an invalid enum value
     DataModel::Nullable<uint8_t> invalidValue = 0x99;
-    DataModel::ActionReturnStatus result = mClusterTester.WriteAttribute(Attributes::StartUpOnOff::Id, invalidValue);
+    DataModel::ActionReturnStatus result      = mClusterTester.WriteAttribute(Attributes::StartUpOnOff::Id, invalidValue);
     EXPECT_TRUE(result.IsError());
     EXPECT_EQ(result, Status::ConstraintError);
 
