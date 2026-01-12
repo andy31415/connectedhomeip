@@ -329,8 +329,6 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOffWithEffect(const Da
         ReturnErrorOnFailure(SetOnOff(false));
 
         mOnTime = 0;
-
-        mOnTime = 0;
         NotifyAttributeChanged(Attributes::OnTime::Id);
         UpdateTimer();
         return Status::Success;

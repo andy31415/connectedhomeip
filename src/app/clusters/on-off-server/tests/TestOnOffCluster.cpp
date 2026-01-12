@@ -20,8 +20,6 @@
 #include <lib/support/TimerDelegateMock.h>
 #include <pw_unit_test/framework.h>
 
-#include <app/DefaultSafeAttributePersistenceProvider.h>
-#include <app/SafeAttributePersistenceProvider.h>
 #include <app/server-cluster/testing/AttributeTesting.h>
 #include <app/server-cluster/testing/ClusterTester.h>
 #include <app/server-cluster/testing/TestServerClusterContext.h>
@@ -80,13 +78,11 @@ struct TestOnOffCluster : public ::testing::Test
 
     void SetUp() override
     {
-        VerifyOrDie(mPersistenceProvider.Init(&mClusterTester.GetServerClusterContext().storage) == CHIP_NO_ERROR);
-        app::SetSafeAttributePersistenceProvider(&mPersistenceProvider);
         mCluster.AddDelegate(&mMockDelegate);
         EXPECT_EQ(mCluster.Startup(mClusterTester.GetServerClusterContext()), CHIP_NO_ERROR);
     }
 
-    void TearDown() override { app::SetSafeAttributePersistenceProvider(nullptr); }
+    void TearDown() override {}
 
     MockOnOffDelegate mMockDelegate;
     TimerDelegateMock mMockTimerDelegate;
@@ -94,8 +90,6 @@ struct TestOnOffCluster : public ::testing::Test
     OnOffCluster mCluster{ kTestEndpointId, mMockTimerDelegate };
 
     ClusterTester mClusterTester{ mCluster };
-
-    app::DefaultSafeAttributePersistenceProvider mPersistenceProvider;
 };
 
 TEST_F(TestOnOffCluster, TestAttributesList)
@@ -173,21 +167,18 @@ TEST_F(TestOnOffCluster, TestCommands)
     EXPECT_FALSE(onOff);
 }
 
-TEST_F(TestOnOffCluster, TestPersistence)
+TEST_F(TestOnOffCluster, TestNoPersistence)
 {
-    TestServerClusterContext context;
-    app::DefaultSafeAttributePersistenceProvider persistenceProvider;
-    EXPECT_EQ(persistenceProvider.Init(&context.Get().storage), CHIP_NO_ERROR);
-    app::SetSafeAttributePersistenceProvider(&persistenceProvider);
     MockOnOffDelegate mockDelegate;
     TimerDelegateMock mockTimerDelegate;
 
     // 1. Initial startup, set to ON
     {
+        TestServerClusterContext context;
         OnOffCluster cluster(kTestEndpointId, mockTimerDelegate);
         cluster.AddDelegate(&mockDelegate);
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
-        chip::Testing::ClusterTester tester(cluster);
+        chip::Testing::ClusterTester tester(cluster); // Uses its own context
 
         EXPECT_TRUE(tester.Invoke<Commands::On::Type>(Commands::On::Type()).IsSuccess());
         bool onOff = false;
@@ -195,16 +186,17 @@ TEST_F(TestOnOffCluster, TestPersistence)
         EXPECT_TRUE(onOff);
     }
 
-    // 2. Restart, verify ON
+    // 2. Restart, verify state is NOT persisted (should be default OFF)
     {
+        TestServerClusterContext context;
         OnOffCluster cluster(kTestEndpointId, mockTimerDelegate);
         cluster.AddDelegate(&mockDelegate);
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
-        chip::Testing::ClusterTester tester(cluster);
+        chip::Testing::ClusterTester tester(cluster); // Uses its own context
 
-        bool onOff = false;
+        bool onOff = true; // Initialize to true to ensure it's changed
         EXPECT_EQ(tester.ReadAttribute(Attributes::OnOff::Id, onOff), CHIP_NO_ERROR);
-        EXPECT_TRUE(onOff);
+        EXPECT_FALSE(onOff); // Expect default value FALSE
     }
 }
 
@@ -215,19 +207,17 @@ struct TestOffOnlyOnOffCluster : public ::testing::Test
 
     void SetUp() override
     {
-        VerifyOrDie(mPersistenceProvider.Init(&mClusterTester.GetServerClusterContext().storage) == CHIP_NO_ERROR);
-        app::SetSafeAttributePersistenceProvider(&mPersistenceProvider);
         mCluster.AddDelegate(&mMockDelegate);
         EXPECT_EQ(mCluster.Startup(mClusterTester.GetServerClusterContext()), CHIP_NO_ERROR);
     }
 
-    void TearDown() override { app::SetSafeAttributePersistenceProvider(nullptr); }
+    void TearDown() override {}
 
     MockOnOffDelegate mMockDelegate;
     TimerDelegateMock mMockTimerDelegate;
     OnOffCluster mCluster{ kTestEndpointId, mMockTimerDelegate, BitMask<Feature>(Feature::kOffOnly) };
     ClusterTester mClusterTester{ mCluster };
-    app::DefaultSafeAttributePersistenceProvider mPersistenceProvider;
+
 };
 
 TEST_F(TestOffOnlyOnOffCluster, TestFeatureMap)
