@@ -311,6 +311,7 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleToggle()
 DataModel::ActionReturnStatus OnOffLightingCluster::HandleOffWithEffect(const DataModel::InvokeRequest & request,
                                                                         chip::TLV::TLVReader & input_arguments)
 {
+
     Commands::OffWithEffect::DecodableType commandData;
     ReturnErrorOnFailure(DataModel::Decode(input_arguments, commandData));
 
@@ -318,11 +319,13 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOffWithEffect(const Da
     {
         if (mScenesIntegrationDelegate != nullptr)
         {
-            LogErrorOnFailure(mScenesIntegrationDelegate->StoreCurrentGlobalScene(request.subjectDescriptor->fabricIndex));
+            const FabricIndex fabricIndex = request.subjectDescriptor->fabricIndex;
+            LogErrorOnFailure(mScenesIntegrationDelegate->StoreCurrentGlobalScene(fabricIndex));
         }
 
         DataModel::ActionReturnStatus status =
             mEffectDelegate.TriggerEffect(commandData.effectIdentifier, commandData.effectVariant);
+
         VerifyOrReturnValue(status.IsSuccess(), status);
 
         mGlobalSceneControl = false;
@@ -348,7 +351,8 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOnWithRecallGlobalScen
 
     if (mScenesIntegrationDelegate != nullptr)
     {
-        CHIP_ERROR err = mScenesIntegrationDelegate->RecallGlobalScene(request.subjectDescriptor->fabricIndex);
+        const FabricIndex fabricIndex = request.subjectDescriptor->fabricIndex;
+        CHIP_ERROR err                = mScenesIntegrationDelegate->RecallGlobalScene(fabricIndex);
         if (err != CHIP_NO_ERROR)
         {
             // Spec requirement:
@@ -389,7 +393,7 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOnWithTimedOff(chip::T
 
     if (mOffWaitTime > 0 && !GetOnOff())
     {
-        mOffWaitTime = std::min(mOffWaitTime, static_cast<uint16_t>(commandData.offWaitTime));
+        mOffWaitTime = std::min(mOffWaitTime, commandData.offWaitTime);
         NotifyAttributeChanged(Attributes::OffWaitTime::Id);
     }
     else

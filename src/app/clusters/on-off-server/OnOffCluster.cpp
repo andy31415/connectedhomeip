@@ -146,8 +146,7 @@ CHIP_ERROR OnOffCluster::SetOnOff(bool on)
 }
 
 std::optional<DataModel::ActionReturnStatus> OnOffCluster::InvokeCommand(const DataModel::InvokeRequest & request,
-                                                                         chip::TLV::TLVReader & input_arguments,
-                                                                         CommandHandler * handler)
+                                                                         TLV::TLVReader & input_arguments, CommandHandler * handler)
 {
     // Note: OffOnly feature validation is handled by the Interaction Model by checking the AcceptedCommands list.
     switch (request.path.mCommandId)
