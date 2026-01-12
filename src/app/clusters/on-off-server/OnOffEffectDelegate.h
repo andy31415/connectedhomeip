@@ -42,15 +42,9 @@ public:
         }
     }
 
-    virtual DataModel::ActionReturnStatus TriggerDelayedAllOff()
-    {
-        return Protocols::InteractionModel::Status::UnsupportedCommand;
-    }
+    virtual DataModel::ActionReturnStatus TriggerDelayedAllOff() { return Protocols::InteractionModel::Status::UnsupportedCommand; }
 
-    virtual DataModel::ActionReturnStatus TriggerDyingLight()
-    {
-        return Protocols::InteractionModel::Status::UnsupportedCommand;
-    }
+    virtual DataModel::ActionReturnStatus TriggerDyingLight() { return Protocols::InteractionModel::Status::UnsupportedCommand; }
 };
 
 } // namespace chip::app::Clusters::OnOff

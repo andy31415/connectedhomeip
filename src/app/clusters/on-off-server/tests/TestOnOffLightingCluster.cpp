@@ -97,8 +97,8 @@ public:
 class MockOnOffEffectDelegate : public OnOffEffectDelegate
 {
 public:
-    EffectIdentifierEnum mEffectId = EffectIdentifierEnum::kDelayedAllOff;
-    bool mCalled                   = false;
+    EffectIdentifierEnum mEffectId              = EffectIdentifierEnum::kDelayedAllOff;
+    bool mCalled                                = false;
     DataModel::ActionReturnStatus mReturnStatus = Status::Success;
 
     DataModel::ActionReturnStatus TriggerDelayedAllOff() override

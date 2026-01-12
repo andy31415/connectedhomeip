@@ -321,7 +321,8 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOffWithEffect(const Da
             LogErrorOnFailure(mScenesIntegrationDelegate->StoreCurrentGlobalScene(request.subjectDescriptor->fabricIndex));
         }
 
-        DataModel::ActionReturnStatus status = mEffectDelegate.TriggerEffect(commandData.effectIdentifier, commandData.effectVariant);
+        DataModel::ActionReturnStatus status =
+            mEffectDelegate.TriggerEffect(commandData.effectIdentifier, commandData.effectVariant);
         VerifyOrReturnValue(status.IsSuccess(), status);
 
         mGlobalSceneControl = false;
