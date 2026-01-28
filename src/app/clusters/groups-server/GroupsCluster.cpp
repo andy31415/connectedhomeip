@@ -332,7 +332,7 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::ViewGroup(const Grou
 exit:
     response.groupID = groupId;
     response.status  = to_underlying(status);
-    handler->AddResponse({ mPath.mEndpointId, mPath.mClusterId, Commands::RemoveGroup::Id }, response);
+    handler->AddResponse({ mPath.mEndpointId, mPath.mClusterId, Commands::ViewGroup::Id }, response);
     return std::nullopt;
 }
 
