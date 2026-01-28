@@ -24,7 +24,7 @@ source_set("groups-server") {
     "${chip_root}/src/app/server-cluster",
     "${chip_root}/src/credentials",
     "${chip_root}/src/tracing:macros",
-    "${chip_root}/zzz_generated/app-common/clusters/Groups",
     "${chip_root}/zzz_generated/app-common/clusters/GroupKeyManagement",
+    "${chip_root}/zzz_generated/app-common/clusters/Groups",
   ]
 }
