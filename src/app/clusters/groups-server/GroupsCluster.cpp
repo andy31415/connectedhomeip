@@ -63,9 +63,7 @@ struct GroupMembershipResponse
     static constexpr ClusterId GetClusterId() { return Groups::Id; }
 
     GroupMembershipResponse(const Commands::GetGroupMembership::DecodableType & data, chip::EndpointId endpoint,
-                            GroupDataProvider::EndpointIterator * iter) :
-        mCommandData(data),
-        mEndpoint(endpoint), mIterator(iter)
+                            GroupDataProvider::EndpointIterator * iter) : mCommandData(data), mEndpoint(endpoint), mIterator(iter)
     {}
 
     const Commands::GetGroupMembership::DecodableType & mCommandData;
@@ -305,6 +303,12 @@ Protocols::InteractionModel::Status GroupsCluster::RemoveGroup(const Groups::Com
         ChipLogDetail(Zcl, "ERR: Failed to remove mapping (end:%d, group:0x%x), err:%" CHIP_ERROR_FORMAT, mPath.mEndpointId,
                       input.groupID, err.Format());
         return Status::NotFound;
+    }
+
+    if (mScenesIntegration != nullptr)
+    {
+        // If a group is removed the scenes associated with that group SHOULD be removed.
+        LogErrorOnFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, input.groupID));
     }
 
     NotifyGroupTableChanged();
