@@ -18,10 +18,11 @@
 
 namespace chip::app::Clusters {
 
-class IdentifyIntegrationDelegate {
+class IdentifyIntegrationDelegate
+{
 public:
     virtual ~IdentifyIntegrationDelegate() = default;
-    virtual bool IsIdentifying() = 0;
+    virtual bool IsIdentifying()           = 0;
 };
 
 } // namespace chip::app::Clusters

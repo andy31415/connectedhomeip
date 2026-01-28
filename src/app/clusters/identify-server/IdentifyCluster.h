@@ -132,9 +132,7 @@ public:
      */
     void TimerFired() override;
 
-    bool IsIdentifying() override {
-        return mIdentifyTime > 0;
-    }
+    bool IsIdentifying() override { return mIdentifyTime > 0; }
 
     /**
      * @brief Stops the identification process.
