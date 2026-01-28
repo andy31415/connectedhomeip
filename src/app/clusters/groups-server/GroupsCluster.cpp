@@ -261,7 +261,7 @@ void GroupsCluster::NotifyGroupTableChanged()
     //       has changed. We should support only one cluster or another really...
     VerifyOrReturn(mContext != nullptr);
     mContext->interactionContext.dataModelChangeListener.MarkDirty(
-        { mPath.mEndpointId, GroupKeyManagement::Id, GroupKeyManagement::Attributes::GroupTable::Id });
+        { kRootEndpointId, GroupKeyManagement::Id, GroupKeyManagement::Attributes::GroupTable::Id });
 }
 
 Protocols::InteractionModel::Status GroupsCluster::AddGroup(chip::GroupId groupID, chip::CharSpan groupName,
