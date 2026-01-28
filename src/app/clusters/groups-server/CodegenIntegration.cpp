@@ -38,7 +38,10 @@ public:
     ServerClusterRegistration & CreateRegistration(EndpointId endpointId, unsigned clusterInstanceIndex,
                                                    uint32_t optionalAttributeBits, uint32_t featureMap) override
     {
-        gServers[clusterInstanceIndex].Create(endpointId);
+        Credentials::GroupDataProvider *groupDataProvider = Credentials::GetGroupDataProvider();
+        VerifyOrDie(groupDataProvider != nullptr);
+
+        gServers[clusterInstanceIndex].Create(endpointId, *groupDataProvider);
         return gServers[clusterInstanceIndex].Registration();
     }
 

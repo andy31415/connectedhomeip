@@ -16,15 +16,42 @@
 #include <app/clusters/groups-server/GroupsCluster.h>
 
 #include <app/server-cluster/AttributeListBuilder.h>
+#include <clusters/GroupKeyManagement/Ids.h>
 #include <clusters/Groups/Attributes.h>
 #include <clusters/Groups/Commands.h>
 #include <clusters/Groups/Metadata.h>
 #include <clusters/Groups/Structs.h>
 
 using namespace chip::app::Clusters::Groups;
+using chip::Credentials::GroupDataProvider;
 using chip::Protocols::InteractionModel::Status;
 
 namespace chip::app::Clusters {
+namespace {
+
+/**
+ * @brief Checks if there are key set associated with the given GroupId
+ */
+bool KeyExists(GroupDataProvider & provider, FabricIndex fabricIndex, GroupId groupId)
+{
+    GroupDataProvider::GroupKey entry;
+
+    auto it    = provider.IterateGroupKeys(fabricIndex);
+    bool found = false;
+    while (!found && it->Next(entry))
+    {
+        if (entry.group_id == groupId)
+        {
+            GroupDataProvider::KeySet keys;
+            found = (CHIP_NO_ERROR == provider.GetKeySet(fabricIndex, entry.keyset_id, keys));
+        }
+    }
+    it->Release();
+
+    return found;
+}
+
+} // namespace
 
 CHIP_ERROR GroupsCluster::Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder)
 {
@@ -87,24 +114,78 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
                                                                           chip::TLV::TLVReader & input_arguments,
                                                                           CommandHandler * handler)
 {
-    // TODO: implement
-    return Status::UnsupportedCommand;
+    using namespace Commands;
+
+    switch (request.path.mCommandId)
+    {
+    case AddGroup::Id: {
+        AddGroup::DecodableType request_data;
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        return HandleGroupAdd(request_data, handler);
+    }
+    case ViewGroup::Id: {
+        ViewGroup::DecodableType request_data;
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        // FIXME: implement
+        return Status::UnsupportedCommand;
+    }
+    case GetGroupMembership::Id: {
+        GetGroupMembership::DecodableType request_data;
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        // FIXME: implement
+        return Status::UnsupportedCommand;
+    }
+    case RemoveGroup::Id: {
+        RemoveGroup::DecodableType request_data;
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        // FIXME: implement
+        return Status::UnsupportedCommand;
+    }
+    case RemoveAllGroups::Id: {
+        RemoveAllGroups::DecodableType request_data;
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        // FIXME: implement
+        return Status::UnsupportedCommand;
+    }
+    case AddGroupIfIdentifying::Id: {
+        AddGroupIfIdentifying::DecodableType request_data;
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        // FIXME: implement
+        return Status::UnsupportedCommand;
+    }
+    default:
+        return Status::UnsupportedCommand;
+    }
+}
+
+std::optional<DataModel::ActionReturnStatus> GroupsCluster::HandleGroupAdd(const Groups::Commands::AddGroup::DecodableType & input,
+                                                                           CommandHandler * handler)
+{
+    VerifyOrReturnError(IsValidGroupId(input.groupID), Status::ConstraintError);
+    VerifyOrReturnError(input.groupName.size() <= GroupDataProvider::GroupInfo::kGroupNameMax, Status::ConstraintError);
+
+    const FabricIndex fabricIndex = handler->GetAccessingFabricIndex();
+
+    VerifyOrReturnError(KeyExists(mGroupDataProvider, fabricIndex, input.groupID), Status::UnsupportedAccess);
+
+    // Add a new entry to the GroupTable
+    ReturnErrorOnFailure(
+        mGroupDataProvider.SetGroupInfo(fabricIndex, GroupDataProvider::GroupInfo(input.groupID, input.groupName)));
+    ReturnErrorOnFailure(mGroupDataProvider.AddEndpoint(fabricIndex, input.groupID, mPath.mEndpointId));
+
+    // TODO: This seems a bit coupled: we are notifying in this cluster that ANOTHER cluster
+    //       has changed. We should support only one cluster or another really...
+    if (mContext != nullptr)
+    {
+        mContext->interactionContext.dataModelChangeListener.MarkDirty(
+            { mPath.mEndpointId, GroupKeyManagement::Id, GroupKeyManagement::Attributes::GroupTable::Id });
+    }
+    return Status::Success;
 }
 
 } // namespace chip::app::Clusters
 
 #if 0
-#include <app-common/zap-generated/attributes/Accessors.h>
-#include <app-common/zap-generated/cluster-objects.h>
-#include <app-common/zap-generated/ids/Clusters.h>
-#include <app/CommandHandler.h>
-#include <app/clusters/identify-server/CodegenIntegration.h>
-#include <app/reporting/reporting.h>
-#include <app/util/config.h>
-#include <credentials/GroupDataProvider.h>
-#include <inttypes.h>
-#include <lib/support/CodeUtils.h>
-#include <tracing/macros.h>
 
 #ifdef MATTER_DM_PLUGIN_SCENES_MANAGEMENT
 #include <app/clusters/scenes-server/scenes-server.h> // nogncheck
@@ -126,41 +207,6 @@ static bool emberAfIsDeviceIdentifying(EndpointId endpoint)
 #else
     return false;
 #endif
-}
-
-/**
- * @brief Checks if group-endpoint association exist for the given fabric
- */
-static bool GroupExists(FabricIndex fabricIndex, EndpointId endpointId, GroupId groupId)
-{
-    GroupDataProvider * provider = GetGroupDataProvider();
-    VerifyOrReturnError(nullptr != provider, false);
-
-    return provider->HasEndpoint(fabricIndex, groupId, endpointId);
-}
-
-/**
- * @brief Checks if there are key set associated with the given GroupId
- */
-static bool KeyExists(FabricIndex fabricIndex, GroupId groupId)
-{
-    GroupDataProvider * provider = GetGroupDataProvider();
-    VerifyOrReturnError(nullptr != provider, false);
-    GroupDataProvider::GroupKey entry;
-
-    auto it    = provider->IterateGroupKeys(fabricIndex);
-    bool found = false;
-    while (!found && it->Next(entry))
-    {
-        if (entry.group_id == groupId)
-        {
-            GroupDataProvider::KeySet keys;
-            found = (CHIP_NO_ERROR == provider->GetKeySet(fabricIndex, entry.keyset_id, keys));
-        }
-    }
-    it->Release();
-
-    return found;
 }
 
 static Status GroupAdd(FabricIndex fabricIndex, EndpointId endpointId, GroupId groupId, const CharSpan & groupName)

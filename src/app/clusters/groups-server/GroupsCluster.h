@@ -17,14 +17,18 @@
 #pragma once
 
 #include <app/server-cluster/DefaultServerCluster.h>
+#include <clusters/Groups/Commands.h>
 #include <clusters/Groups/Ids.h>
+#include <credentials/GroupDataProvider.h>
 
 namespace chip::app::Clusters {
 
 class GroupsCluster : public DefaultServerCluster
 {
 public:
-    GroupsCluster(EndpointId endpointId) : DefaultServerCluster({ endpointId, Groups::Id }) {}
+    GroupsCluster(EndpointId endpointId, Credentials::GroupDataProvider & groupDataProvider) :
+        DefaultServerCluster({ endpointId, Groups::Id }), mGroupDataProvider(groupDataProvider)
+    {}
 
     // ServerClusterInterface
     CHIP_ERROR Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) override;
@@ -37,6 +41,12 @@ public:
     std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
                                                                chip::TLV::TLVReader & input_arguments,
                                                                CommandHandler * handler) override;
+
+private:
+    Credentials::GroupDataProvider & mGroupDataProvider;
+
+    std::optional<DataModel::ActionReturnStatus> HandleGroupAdd(const Groups::Commands::AddGroup::DecodableType & input,
+                                                                CommandHandler * handler);
 };
 
 } // namespace chip::app::Clusters
