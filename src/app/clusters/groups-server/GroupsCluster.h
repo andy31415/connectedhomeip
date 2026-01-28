@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include <app/clusters/scenes-server/ScenesIntegrationDelegate.h>
 #include <app/server-cluster/DefaultServerCluster.h>
 #include <clusters/Groups/Commands.h>
 #include <clusters/Groups/Ids.h>
@@ -28,8 +29,10 @@ namespace chip::app::Clusters {
 class GroupsCluster : public DefaultServerCluster
 {
 public:
-    GroupsCluster(EndpointId endpointId, Credentials::GroupDataProvider & groupDataProvider) :
-        DefaultServerCluster({ endpointId, Groups::Id }), mGroupDataProvider(groupDataProvider)
+    GroupsCluster(EndpointId endpointId, Credentials::GroupDataProvider & groupDataProvider,
+                  scenes::ScenesIntegrationDelegate * scenesIntegration) :
+        DefaultServerCluster({ endpointId, Groups::Id }),
+        mGroupDataProvider(groupDataProvider)
     {}
 
     // ServerClusterInterface
@@ -46,6 +49,7 @@ public:
 
 private:
     Credentials::GroupDataProvider & mGroupDataProvider;
+    scenes::ScenesIntegrationDelegate * mScenesIngeration; // if null, no scenes integration
 
     Protocols::InteractionModel::Status HandleAddGroup(const Groups::Commands::AddGroup::DecodableType & input,
                                                        FabricIndex fabricIndex);
@@ -55,6 +59,7 @@ private:
                                                                  CommandHandler * handler);
     std::optional<DataModel::ActionReturnStatus>
     HandleGetGroupMembership(const Groups::Commands::GetGroupMembership::DecodableType & input, CommandHandler * handler);
+    std::optional<DataModel::ActionReturnStatus> HandleRemoveAllGroups(FabricIndex fabricIndex);
 
     void NotifyGroupTableChanged();
 };

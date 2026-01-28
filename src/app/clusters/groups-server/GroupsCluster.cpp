@@ -15,6 +15,7 @@
  */
 #include <app/clusters/groups-server/GroupsCluster.h>
 
+#include <app/clusters/scenes-server/Constants.h>
 #include <app/server-cluster/AttributeListBuilder.h>
 #include <clusters/GroupKeyManagement/Ids.h>
 #include <clusters/Groups/Attributes.h>
@@ -228,10 +229,7 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
         return std::nullopt;
     }
     case RemoveAllGroups::Id: {
-        RemoveAllGroups::DecodableType request_data;
-        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        // FIXME: implement
-        return Status::UnsupportedCommand;
+        return HandleRemoveAllGroups(request.GetAccessingFabricIndex());
     }
     case AddGroupIfIdentifying::Id: {
         AddGroupIfIdentifying::DecodableType request_data;
@@ -333,7 +331,32 @@ GroupsCluster::HandleGetGroupMembership(const Groups::Commands::GetGroupMembersh
     return std::nullopt;
 }
 
-// TODO: RemoveAllGroups
+std::optional<DataModel::ActionReturnStatus> GroupsCluster::HandleRemoveAllGroups(FabricIndex fabricIndex)
+{
+    MATTER_TRACE_SCOPE("RemoveAllGroups", "Groups");
+
+    if (mScenesIngeration != nullptr)
+    {
+        GroupDataProvider::EndpointIterator * iter = mGroupDataProvider.IterateEndpoints(fabricIndex);
+        GroupDataProvider::GroupEndpoint mapping;
+
+        VerifyOrReturnError(nullptr != iter, Status::Failure);
+        while (iter->Next(mapping))
+        {
+            if (mPath.mEndpointId == mapping.endpoint_id)
+            {
+                LogErrorOnFailure(mScenesIngeration->GroupWillBeRemoved(fabricIndex, mapping.group_id));
+            }
+        }
+        iter->Release();
+        LogErrorOnFailure(mScenesIngeration->GroupWillBeRemoved(fabricIndex, scenes::kGlobalSceneGroupId));
+    }
+
+    LogErrorOnFailure(mGroupDataProvider.RemoveEndpoint(fabricIndex, mPath.mEndpointId));
+    NotifyGroupTableChanged();
+    return Status::Success;
+}
+
 // TODO: AddGroupIfIdentifying
 
 } // namespace chip::app::Clusters
@@ -360,47 +383,6 @@ static bool emberAfIsDeviceIdentifying(EndpointId endpoint)
 #else
     return false;
 #endif
-}
-
-bool emberAfGroupsClusterRemoveAllGroupsCallback(app::CommandHandler * commandObj, const app::ConcreteCommandPath & commandPath,
-                                                 const Commands::RemoveAllGroups::DecodableType & commandData)
-{
-    MATTER_TRACE_SCOPE("RemoveAllGroups", "Groups");
-    auto fabricIndex = commandObj->GetAccessingFabricIndex();
-    auto * provider  = GetGroupDataProvider();
-    Status status    = Status::Failure;
-
-    VerifyOrExit(nullptr != provider, status = Status::Failure);
-
-#ifdef MATTER_DM_PLUGIN_SCENES_MANAGEMENT
-    {
-        GroupDataProvider::EndpointIterator * iter = provider->IterateEndpoints(fabricIndex);
-        GroupDataProvider::GroupEndpoint mapping;
-
-        VerifyOrExit(nullptr != iter, status = Status::Failure);
-        while (iter->Next(mapping))
-        {
-            if (commandPath.mEndpointId == mapping.endpoint_id)
-            {
-                ScenesManagement::ScenesServer::Instance().GroupWillBeRemoved(fabricIndex, mapping.endpoint_id, mapping.group_id);
-            }
-        }
-        iter->Release();
-        ScenesManagement::ScenesServer::Instance().GroupWillBeRemoved(fabricIndex, commandPath.mEndpointId,
-                                                                      ScenesManagement::ScenesServer::kGlobalSceneGroupId);
-    }
-#endif
-
-    TEMPORARY_RETURN_IGNORED provider->RemoveEndpoint(fabricIndex, commandPath.mEndpointId);
-    status = Status::Success;
-    MatterReportingAttributeChangeCallback(kRootEndpointId, GroupKeyManagement::Id, GroupKeyManagement::Attributes::GroupTable::Id);
-exit:
-    commandObj->AddStatus(commandPath, status);
-    if (Status::Success != status)
-    {
-        ChipLogDetail(Zcl, "GroupsCluster: RemoveAllGroups failed: 0x%x", to_underlying(status));
-    }
-    return true;
 }
 
 bool emberAfGroupsClusterAddGroupIfIdentifyingCallback(app::CommandHandler * commandObj,

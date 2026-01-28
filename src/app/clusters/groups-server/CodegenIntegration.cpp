@@ -14,11 +14,15 @@
  *    limitations under the License.
  */
 
-#include "app/PluginApplicationCallbacks.h"
 #include <app/clusters/groups-server/GroupsCluster.h>
 #include <app/static-cluster-config/Groups.h>
+#include <app/util/config.h>
 #include <data-model-providers/codegen/ClusterIntegration.h>
 #include <data-model-providers/codegen/CodegenDataModelProvider.h>
+
+#ifdef MATTER_DM_PLUGIN_SCENES_MANAGEMENT
+#include <app/clusters/scenes-server/CodegenIntegration.h>
+#endif
 
 using namespace chip;
 using namespace chip::app;
@@ -41,7 +45,12 @@ public:
         Credentials::GroupDataProvider * groupDataProvider = Credentials::GetGroupDataProvider();
         VerifyOrDie(groupDataProvider != nullptr);
 
-        gServers[clusterInstanceIndex].Create(endpointId, *groupDataProvider);
+        scenes::ScenesIntegrationDelegate * scenesIntegration = nullptr;
+#ifdef MATTER_DM_PLUGIN_SCENES_MANAGEMENT
+        scenesIntegration = ScenesManagement::FindClusterOnEndpoint(endpointId);
+#endif
+
+        gServers[clusterInstanceIndex].Create(endpointId, *groupDataProvider, scenesIntegration);
         return gServers[clusterInstanceIndex].Registration();
     }
 

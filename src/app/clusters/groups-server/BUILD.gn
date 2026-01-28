@@ -20,6 +20,7 @@ source_set("groups-server") {
   ]
 
   public_deps = [
+    "${chip_root}/src/app/clusters/scenes-server:scenes",
     "${chip_root}/src/app/server-cluster",
     "${chip_root}/src/credentials",
     "${chip_root}/src/tracing:macros",
