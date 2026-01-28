@@ -1,6 +1,5 @@
 /**
- *
- *    Copyright (c) 2020 Project CHIP Authors
+ *    Copyright (c) 2020-2026 Project CHIP Authors
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,6 +13,87 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include <app/clusters/groups-server/GroupsCluster.h>
+
+#include <app/server-cluster/AttributeListBuilder.h>
+#include <clusters/Groups/Attributes.h>
+#include <clusters/Groups/Commands.h>
+#include <clusters/Groups/Metadata.h>
+#include <clusters/Groups/Structs.h>
+
+using namespace chip::app::Clusters::Groups;
+using chip::Protocols::InteractionModel::Status;
+
+namespace chip::app::Clusters {
+
+CHIP_ERROR GroupsCluster::Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder)
+{
+    AttributeListBuilder listBuilder(builder);
+    return listBuilder.Append(Attributes::kMandatoryMetadata, {});
+}
+
+CHIP_ERROR GroupsCluster::AcceptedCommands(const ConcreteClusterPath & path,
+                                           ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder)
+{
+    using namespace Commands;
+
+    static constexpr DataModel::AcceptedCommandEntry kAcceptedCommands[] = {
+        AddGroup::kMetadataEntry,              //
+        ViewGroup::kMetadataEntry,             //
+        GetGroupMembership::kMetadataEntry,    //
+        RemoveGroup::kMetadataEntry,           //
+        RemoveAllGroups::kMetadataEntry,       //
+        AddGroupIfIdentifying::kMetadataEntry, //
+    };
+
+    return builder.ReferenceExisting(kAcceptedCommands);
+}
+
+CHIP_ERROR GroupsCluster::GeneratedCommands(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<CommandId> & builder)
+{
+    using namespace Commands;
+
+    static constexpr CommandId kGeneratedCommands[] = {
+        AddGroupResponse::Id,           //
+        ViewGroupResponse::Id,          //
+        GetGroupMembershipResponse::Id, //
+        RemoveGroupResponse::Id,        //
+    };
+
+    return builder.ReferenceExisting(kGeneratedCommands);
+}
+
+DataModel::ActionReturnStatus GroupsCluster::ReadAttribute(const DataModel::ReadAttributeRequest & request,
+                                                           AttributeValueEncoder & encoder)
+{
+    using namespace Attributes;
+
+    switch (request.path.mAttributeId)
+    {
+    case ClusterRevision::Id:
+        return encoder.Encode(kRevision);
+    case FeatureMap::Id:
+        // Group names is hardcoded (feature is M conformance in the spec)
+        return encoder.Encode(Feature::kGroupNames);
+    case NameSupport::Id:
+        // According to the spec, kGroupNames must be set (M conformance in the spec)
+        return encoder.Encode(NameSupportBitmap::kGroupNames);
+    default:
+        return Status::UnsupportedAttribute;
+    }
+}
+
+std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const DataModel::InvokeRequest & request,
+                                                                          chip::TLV::TLVReader & input_arguments,
+                                                                          CommandHandler * handler)
+{
+    // TODO: implement
+    return Status::UnsupportedCommand;
+}
+
+} // namespace chip::app::Clusters
+
+#if 0
 #include <app-common/zap-generated/attributes/Accessors.h>
 #include <app-common/zap-generated/cluster-objects.h>
 #include <app-common/zap-generated/ids/Clusters.h>
@@ -383,7 +463,4 @@ bool emberAfGroupsClusterEndpointInGroupCallback(chip::FabricIndex fabricIndex, 
     return GroupExists(fabricIndex, endpointId, groupId);
 }
 
-void emberAfPluginGroupsServerSetGroupNameCallback(EndpointId endpoint, GroupId groupId, const CharSpan & groupName) {}
-
-void MatterGroupsPluginServerInitCallback() {}
-void MatterGroupsPluginServerShutdownCallback() {}
+#endif
