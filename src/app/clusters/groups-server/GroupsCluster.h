@@ -49,6 +49,8 @@ private:
                                                        FabricIndex fabricIndex);
     Protocols::InteractionModel::Status HandleRemoveGroup(const Groups::Commands::RemoveGroup::DecodableType & input,
                                                           FabricIndex fabricIndex);
+    std::optional<DataModel::ActionReturnStatus> HandleViewGroup(const Groups::Commands::ViewGroup::DecodableType & input,
+                                                                 CommandHandler * handler);
 
     void NotifyGroupTableChanged();
 };

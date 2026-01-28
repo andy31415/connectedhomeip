@@ -21,6 +21,7 @@
 #include <clusters/Groups/Commands.h>
 #include <clusters/Groups/Metadata.h>
 #include <clusters/Groups/Structs.h>
+#include <tracing/macros.h>
 
 using namespace chip::app::Clusters::Groups;
 using chip::Credentials::GroupDataProvider;
@@ -126,13 +127,14 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
         response.groupID = request_data.groupID;
         response.status  = to_underlying(HandleAddGroup(request_data, request.GetAccessingFabricIndex()));
         handler->AddResponse(request.path, response);
+
         return std::nullopt;
     }
     case ViewGroup::Id: {
         ViewGroup::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        // FIXME: implement
-        return Status::UnsupportedCommand;
+
+        return HandleViewGroup(request_data, handler);
     }
     case GetGroupMembership::Id: {
         GetGroupMembership::DecodableType request_data;
@@ -185,13 +187,18 @@ Protocols::InteractionModel::Status GroupsCluster::HandleAddGroup(const Groups::
     VerifyOrReturnError(KeyExists(mGroupDataProvider, fabricIndex, input.groupID), Status::UnsupportedAccess);
 
     // Add a new entry to the GroupTable
-    if (CHIP_NO_ERROR != mGroupDataProvider.SetGroupInfo(fabricIndex, GroupDataProvider::GroupInfo(input.groupID, input.groupName)))
+    if (CHIP_ERROR err = mGroupDataProvider.SetGroupInfo(fabricIndex, GroupDataProvider::GroupInfo(input.groupID, input.groupName));
+        err != CHIP_NO_ERROR)
     {
+        ChipLogDetail(Zcl, "ERR: Failed to add mapping (end:%d, group:0x%x), err:%" CHIP_ERROR_FORMAT, mPath.mEndpointId,
+                      input.groupID, err.Format());
         return Status::ResourceExhausted;
     }
 
-    if (CHIP_NO_ERROR != mGroupDataProvider.AddEndpoint(fabricIndex, input.groupID, mPath.mEndpointId))
+    if (CHIP_ERROR err = mGroupDataProvider.AddEndpoint(fabricIndex, input.groupID, mPath.mEndpointId); err != CHIP_NO_ERROR)
     {
+        ChipLogDetail(Zcl, "ERR: Failed to add mapping (end:%d, group:0x%x), err:%" CHIP_ERROR_FORMAT, mPath.mEndpointId,
+                      input.groupID, err.Format());
         return Status::ResourceExhausted;
     }
     NotifyGroupTableChanged();
@@ -213,6 +220,29 @@ Protocols::InteractionModel::Status GroupsCluster::HandleRemoveGroup(const Group
 
     NotifyGroupTableChanged();
     return Status::Success;
+}
+
+std::optional<DataModel::ActionReturnStatus>
+GroupsCluster::HandleViewGroup(const Groups::Commands::ViewGroup::DecodableType & input, CommandHandler * handler)
+{
+    MATTER_TRACE_SCOPE("ViewGroup", "Groups");
+    auto fabricIndex = handler->GetAccessingFabricIndex();
+    auto groupId     = input.groupID;
+    GroupDataProvider::GroupInfo info;
+    Groups::Commands::ViewGroupResponse::Type response;
+    Status status = Status::NotFound;
+
+    VerifyOrExit(IsValidGroupId(groupId), status = Status::ConstraintError);
+    VerifyOrExit(mGroupDataProvider.HasEndpoint(fabricIndex, groupId, mPath.mEndpointId), status = Status::NotFound);
+    VerifyOrExit(CHIP_NO_ERROR == mGroupDataProvider.GetGroupInfo(fabricIndex, groupId, info), status = Status::NotFound);
+
+    response.groupName = CharSpan(info.name, strnlen(info.name, GroupDataProvider::GroupInfo::kGroupNameMax));
+    status             = Status::Success;
+exit:
+    response.groupID = groupId;
+    response.status  = to_underlying(status);
+    handler->AddResponse({ mPath.mEndpointId, mPath.mClusterId, Commands::RemoveGroup::Id }, response);
+    return std::nullopt;
 }
 
 } // namespace chip::app::Clusters
@@ -239,19 +269,6 @@ static bool emberAfIsDeviceIdentifying(EndpointId endpoint)
 #else
     return false;
 #endif
-}
-
-bool emberAfGroupsClusterAddGroupCallback(app::CommandHandler * commandObj, const app::ConcreteCommandPath & commandPath,
-                                          const Commands::AddGroup::DecodableType & commandData)
-{
-    MATTER_TRACE_SCOPE("AddGroup", "Groups");
-    auto fabricIndex = commandObj->GetAccessingFabricIndex();
-    Groups::Commands::AddGroupResponse::Type response;
-
-    response.groupID = commandData.groupID;
-    response.status  = to_underlying(GroupAdd(fabricIndex, commandPath.mEndpointId, commandData.groupID, commandData.groupName));
-    commandObj->AddResponse(commandPath, response);
-    return true;
 }
 
 bool emberAfGroupsClusterViewGroupCallback(app::CommandHandler * commandObj, const app::ConcreteCommandPath & commandPath,
