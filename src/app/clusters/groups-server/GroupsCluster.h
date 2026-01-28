@@ -56,15 +56,14 @@ private:
     Credentials::GroupDataProvider & mGroupDataProvider;
     scenes::ScenesIntegrationDelegate * mScenesIntegration;
 
-    Protocols::InteractionModel::Status HandleAddGroup(const Groups::Commands::AddGroup::DecodableType & input,
-                                                       FabricIndex fabricIndex);
-    Protocols::InteractionModel::Status HandleRemoveGroup(const Groups::Commands::RemoveGroup::DecodableType & input,
+    Protocols::InteractionModel::Status AddGroup(chip::GroupId groupID, chip::CharSpan groupName, FabricIndex fabricIndex);
+    Protocols::InteractionModel::Status RemoveGroup(const Groups::Commands::RemoveGroup::DecodableType & input,
                                                           FabricIndex fabricIndex);
-    std::optional<DataModel::ActionReturnStatus> HandleViewGroup(const Groups::Commands::ViewGroup::DecodableType & input,
+    std::optional<DataModel::ActionReturnStatus> ViewGroup(const Groups::Commands::ViewGroup::DecodableType & input,
                                                                  CommandHandler * handler);
     std::optional<DataModel::ActionReturnStatus>
-    HandleGetGroupMembership(const Groups::Commands::GetGroupMembership::DecodableType & input, CommandHandler * handler);
-    std::optional<DataModel::ActionReturnStatus> HandleRemoveAllGroups(FabricIndex fabricIndex);
+    GetGroupMembership(const Groups::Commands::GetGroupMembership::DecodableType & input, CommandHandler * handler);
+    std::optional<DataModel::ActionReturnStatus> RemoveAllGroups(FabricIndex fabricIndex);
 
     void NotifyGroupTableChanged();
 };

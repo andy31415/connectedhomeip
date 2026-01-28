@@ -63,9 +63,7 @@ struct GroupMembershipResponse
     static constexpr ClusterId GetClusterId() { return Groups::Id; }
 
     GroupMembershipResponse(const Commands::GetGroupMembership::DecodableType & data, chip::EndpointId endpoint,
-                            GroupDataProvider::EndpointIterator * iter) :
-        mCommandData(data),
-        mEndpoint(endpoint), mIterator(iter)
+                            GroupDataProvider::EndpointIterator * iter) : mCommandData(data), mEndpoint(endpoint), mIterator(iter)
     {}
 
     const Commands::GetGroupMembership::DecodableType & mCommandData;
@@ -196,46 +194,62 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
     switch (request.path.mCommandId)
     {
     case AddGroup::Id: {
+        MATTER_TRACE_SCOPE("AddGroup", "Groups");
         AddGroup::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
 
         Groups::Commands::AddGroupResponse::Type response;
         response.groupID = request_data.groupID;
-        response.status  = to_underlying(HandleAddGroup(request_data, request.GetAccessingFabricIndex()));
+        response.status  = to_underlying(AddGroup(request_data.groupID, request_data.groupName, request.GetAccessingFabricIndex()));
         handler->AddResponse(request.path, response);
 
         return std::nullopt;
     }
     case ViewGroup::Id: {
+        MATTER_TRACE_SCOPE("ViewGroup", "Groups");
         ViewGroup::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
 
-        return HandleViewGroup(request_data, handler);
+        return ViewGroup(request_data, handler);
     }
     case GetGroupMembership::Id: {
+        MATTER_TRACE_SCOPE("GetGroupMembership", "Groups");
         GetGroupMembership::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
 
-        return HandleGetGroupMembership(request_data, handler);
+        return GetGroupMembership(request_data, handler);
     }
     case RemoveGroup::Id: {
+        MATTER_TRACE_SCOPE("RemoveGroup", "Groups");
         RemoveGroup::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
 
         Groups::Commands::RemoveGroupResponse::Type response;
         response.groupID = request_data.groupID;
-        response.status  = to_underlying(HandleRemoveGroup(request_data, request.GetAccessingFabricIndex()));
+        response.status  = to_underlying(RemoveGroup(request_data, request.GetAccessingFabricIndex()));
         handler->AddResponse(request.path, response);
         return std::nullopt;
     }
     case RemoveAllGroups::Id: {
-        return HandleRemoveAllGroups(request.GetAccessingFabricIndex());
+        MATTER_TRACE_SCOPE("RemoveAllGroups", "Groups");
+        return RemoveAllGroups(request.GetAccessingFabricIndex());
     }
     case AddGroupIfIdentifying::Id: {
+        MATTER_TRACE_SCOPE("AddGroupIfIdentifying", "Groups");
         AddGroupIfIdentifying::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        // FIXME: implement
-        return Status::UnsupportedCommand;
+
+        // TODO: identify detection??
+        // if (is identifying) { return Status::Success; }
+        // #ifdef ZCL_USING_IDENTIFY_CLUSTER_SERVER
+        //     auto cluster = FindIdentifyClusterOnEndpoint(endpoint);
+        //     return cluster != nullptr && cluster->GetIdentifyTime() > 0;
+        // #else
+        //     return false;
+        // #endif
+
+        // AddGroupIfIdentifying is response `Y` in the spec: we return the status (not a structure, as opposed to AddGroup)
+        return AddGroup(request_data.groupID, request_data.groupName, request.GetAccessingFabricIndex());
     }
     default:
         return Status::UnsupportedCommand;
@@ -251,35 +265,35 @@ void GroupsCluster::NotifyGroupTableChanged()
         { mPath.mEndpointId, GroupKeyManagement::Id, GroupKeyManagement::Attributes::GroupTable::Id });
 }
 
-Protocols::InteractionModel::Status GroupsCluster::HandleAddGroup(const Groups::Commands::AddGroup::DecodableType & input,
-                                                                  FabricIndex fabricIndex)
+Protocols::InteractionModel::Status GroupsCluster::AddGroup(chip::GroupId groupID, chip::CharSpan groupName,
+                                                            FabricIndex fabricIndex)
 {
-    VerifyOrReturnError(IsValidGroupId(input.groupID), Status::ConstraintError);
-    VerifyOrReturnError(input.groupName.size() <= GroupDataProvider::GroupInfo::kGroupNameMax, Status::ConstraintError);
+    VerifyOrReturnError(IsValidGroupId(groupID), Status::ConstraintError);
+    VerifyOrReturnError(groupName.size() <= GroupDataProvider::GroupInfo::kGroupNameMax, Status::ConstraintError);
 
-    VerifyOrReturnError(KeyExists(mGroupDataProvider, fabricIndex, input.groupID), Status::UnsupportedAccess);
+    VerifyOrReturnError(KeyExists(mGroupDataProvider, fabricIndex, groupID), Status::UnsupportedAccess);
 
     // Add a new entry to the GroupTable
-    if (CHIP_ERROR err = mGroupDataProvider.SetGroupInfo(fabricIndex, GroupDataProvider::GroupInfo(input.groupID, input.groupName));
+    if (CHIP_ERROR err = mGroupDataProvider.SetGroupInfo(fabricIndex, GroupDataProvider::GroupInfo(groupID, groupName));
         err != CHIP_NO_ERROR)
     {
-        ChipLogDetail(Zcl, "ERR: Failed to add mapping (end:%d, group:0x%x), err:%" CHIP_ERROR_FORMAT, mPath.mEndpointId,
-                      input.groupID, err.Format());
+        ChipLogDetail(Zcl, "ERR: Failed to add mapping (end:%d, group:0x%x), err:%" CHIP_ERROR_FORMAT, mPath.mEndpointId, groupID,
+                      err.Format());
         return Status::ResourceExhausted;
     }
 
-    if (CHIP_ERROR err = mGroupDataProvider.AddEndpoint(fabricIndex, input.groupID, mPath.mEndpointId); err != CHIP_NO_ERROR)
+    if (CHIP_ERROR err = mGroupDataProvider.AddEndpoint(fabricIndex, groupID, mPath.mEndpointId); err != CHIP_NO_ERROR)
     {
-        ChipLogDetail(Zcl, "ERR: Failed to add mapping (end:%d, group:0x%x), err:%" CHIP_ERROR_FORMAT, mPath.mEndpointId,
-                      input.groupID, err.Format());
+        ChipLogDetail(Zcl, "ERR: Failed to add mapping (end:%d, group:0x%x), err:%" CHIP_ERROR_FORMAT, mPath.mEndpointId, groupID,
+                      err.Format());
         return Status::ResourceExhausted;
     }
     NotifyGroupTableChanged();
     return Status::Success;
 }
 
-Protocols::InteractionModel::Status GroupsCluster::HandleRemoveGroup(const Groups::Commands::RemoveGroup::DecodableType & input,
-                                                                     FabricIndex fabricIndex)
+Protocols::InteractionModel::Status GroupsCluster::RemoveGroup(const Groups::Commands::RemoveGroup::DecodableType & input,
+                                                               FabricIndex fabricIndex)
 {
     VerifyOrReturnError(IsValidGroupId(input.groupID), Status::ConstraintError);
     VerifyOrReturnError(mGroupDataProvider.HasEndpoint(fabricIndex, input.groupID, mPath.mEndpointId), Status::NotFound);
@@ -295,10 +309,9 @@ Protocols::InteractionModel::Status GroupsCluster::HandleRemoveGroup(const Group
     return Status::Success;
 }
 
-std::optional<DataModel::ActionReturnStatus>
-GroupsCluster::HandleViewGroup(const Groups::Commands::ViewGroup::DecodableType & input, CommandHandler * handler)
+std::optional<DataModel::ActionReturnStatus> GroupsCluster::ViewGroup(const Groups::Commands::ViewGroup::DecodableType & input,
+                                                                      CommandHandler * handler)
 {
-    MATTER_TRACE_SCOPE("ViewGroup", "Groups");
     auto fabricIndex = handler->GetAccessingFabricIndex();
     auto groupId     = input.groupID;
     GroupDataProvider::GroupInfo info;
@@ -319,9 +332,8 @@ exit:
 }
 
 std::optional<DataModel::ActionReturnStatus>
-GroupsCluster::HandleGetGroupMembership(const Groups::Commands::GetGroupMembership::DecodableType & input, CommandHandler * handler)
+GroupsCluster::GetGroupMembership(const Groups::Commands::GetGroupMembership::DecodableType & input, CommandHandler * handler)
 {
-    MATTER_TRACE_SCOPE("GetGroupMembership", "Groups");
     GroupDataProvider::EndpointIterator * iter = mGroupDataProvider.IterateEndpoints(handler->GetAccessingFabricIndex());
     VerifyOrReturnError(nullptr != iter, Status::Failure);
 
@@ -331,10 +343,8 @@ GroupsCluster::HandleGetGroupMembership(const Groups::Commands::GetGroupMembersh
     return std::nullopt;
 }
 
-std::optional<DataModel::ActionReturnStatus> GroupsCluster::HandleRemoveAllGroups(FabricIndex fabricIndex)
+std::optional<DataModel::ActionReturnStatus> GroupsCluster::RemoveAllGroups(FabricIndex fabricIndex)
 {
-    MATTER_TRACE_SCOPE("RemoveAllGroups", "Groups");
-
     if (mScenesIntegration != nullptr)
     {
         GroupDataProvider::EndpointIterator * iter = mGroupDataProvider.IterateEndpoints(fabricIndex);
@@ -357,46 +367,4 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::HandleRemoveAllGroup
     return Status::Success;
 }
 
-// TODO: AddGroupIfIdentifying
-
 } // namespace chip::app::Clusters
-
-#if 0
-
-// Is the device identifying?
-static bool emberAfIsDeviceIdentifying(EndpointId endpoint)
-{
-#ifdef ZCL_USING_IDENTIFY_CLUSTER_SERVER
-    auto cluster = FindIdentifyClusterOnEndpoint(endpoint);
-    return cluster != nullptr && cluster->GetIdentifyTime() > 0;
-#else
-    return false;
-#endif
-}
-
-bool emberAfGroupsClusterAddGroupIfIdentifyingCallback(app::CommandHandler * commandObj,
-                                                       const app::ConcreteCommandPath & commandPath,
-                                                       const Commands::AddGroupIfIdentifying::DecodableType & commandData)
-{
-    MATTER_TRACE_SCOPE("AddGroupIfIdentifying", "Groups");
-    auto fabricIndex = commandObj->GetAccessingFabricIndex();
-    auto groupId     = commandData.groupID;
-    auto groupName   = commandData.groupName;
-    auto endpointId  = commandPath.mEndpointId;
-
-    Status status;
-    if (!emberAfIsDeviceIdentifying(endpointId))
-    {
-        // If not identifying, ignore add group -> success; not a failure.
-        status = Status::Success;
-    }
-    else
-    {
-        status = GroupAdd(fabricIndex, endpointId, groupId, groupName);
-    }
-
-    commandObj->AddStatus(commandPath, status);
-    return true;
-}
-
-#endif
