@@ -345,11 +345,11 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::HandleRemoveAllGroup
         {
             if (mPath.mEndpointId == mapping.endpoint_id)
             {
-                LogErrorOnFailure(mScenesIngeration->GroupWillBeRemoved(fabricIndex, mapping.group_id));
+                LogErrorOnFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, mapping.group_id));
             }
         }
         iter->Release();
-        LogErrorOnFailure(mScenesIngeration->GroupWillBeRemoved(fabricIndex, scenes::kGlobalSceneGroupId));
+        LogErrorOnFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, scenes::kGlobalSceneGroupId));
     }
 
     LogErrorOnFailure(mGroupDataProvider.RemoveEndpoint(fabricIndex, mPath.mEndpointId));
@@ -362,17 +362,6 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::HandleRemoveAllGroup
 } // namespace chip::app::Clusters
 
 #if 0
-
-#ifdef MATTER_DM_PLUGIN_SCENES_MANAGEMENT
-#include <app/clusters/scenes-server/scenes-server.h> // nogncheck
-#endif                                                // MATTER_DM_PLUGIN_SCENES_MANAGEMENT
-
-using namespace chip;
-using namespace chip::app::Clusters;
-using namespace app::Clusters;
-using namespace app::Clusters::Groups;
-using namespace chip::Credentials;
-using Protocols::InteractionModel::Status;
 
 // Is the device identifying?
 static bool emberAfIsDeviceIdentifying(EndpointId endpoint)
