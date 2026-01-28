@@ -45,12 +45,16 @@ public:
         Credentials::GroupDataProvider * groupDataProvider = Credentials::GetGroupDataProvider();
         VerifyOrDie(groupDataProvider != nullptr);
 
-        scenes::ScenesIntegrationDelegate * scenesIntegration = nullptr;
+        gServers[clusterInstanceIndex].Create(endpointId,
+                                              GroupsCluster::Context{
+                                                  .groupDataProvider = *groupDataProvider,
 #ifdef MATTER_DM_PLUGIN_SCENES_MANAGEMENT
-        scenesIntegration = ScenesManagement::FindClusterOnEndpoint(endpointId);
+                                                  .scenesIntegration = ScenesManagement::FindClusterOnEndpoint(endpointId),
+#else
+                                                  .scenesIntegration = nullptr,
 #endif
 
-        gServers[clusterInstanceIndex].Create(endpointId, *groupDataProvider, scenesIntegration);
+                                              });
         return gServers[clusterInstanceIndex].Registration();
     }
 

@@ -335,7 +335,7 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::HandleRemoveAllGroup
 {
     MATTER_TRACE_SCOPE("RemoveAllGroups", "Groups");
 
-    if (mScenesIngeration != nullptr)
+    if (mScenesIntegration != nullptr)
     {
         GroupDataProvider::EndpointIterator * iter = mGroupDataProvider.IterateEndpoints(fabricIndex);
         GroupDataProvider::GroupEndpoint mapping;

@@ -29,10 +29,15 @@ namespace chip::app::Clusters {
 class GroupsCluster : public DefaultServerCluster
 {
 public:
-    GroupsCluster(EndpointId endpointId, Credentials::GroupDataProvider & groupDataProvider,
-                  scenes::ScenesIntegrationDelegate * scenesIntegration) :
-        DefaultServerCluster({ endpointId, Groups::Id }),
-        mGroupDataProvider(groupDataProvider)
+    struct Context
+    {
+        Credentials::GroupDataProvider & groupDataProvider;
+        scenes::ScenesIntegrationDelegate * scenesIntegration = nullptr; // if null, no scenes support
+    };
+
+    GroupsCluster(EndpointId endpointId, const Context & context) :
+        DefaultServerCluster({ endpointId, Groups::Id }), mGroupDataProvider(context.groupDataProvider),
+        mScenesIntegration(context.scenesIntegration)
     {}
 
     // ServerClusterInterface
@@ -49,7 +54,7 @@ public:
 
 private:
     Credentials::GroupDataProvider & mGroupDataProvider;
-    scenes::ScenesIntegrationDelegate * mScenesIngeration; // if null, no scenes integration
+    scenes::ScenesIntegrationDelegate * mScenesIntegration;
 
     Protocols::InteractionModel::Status HandleAddGroup(const Groups::Commands::AddGroup::DecodableType & input,
                                                        FabricIndex fabricIndex);
