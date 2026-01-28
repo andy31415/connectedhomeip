@@ -241,14 +241,11 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
         AddGroupIfIdentifying::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
 
-        // TODO: identify detection??
-        // if (is identifying) { return Status::Success; }
-        // #ifdef ZCL_USING_IDENTIFY_CLUSTER_SERVER
-        //     auto cluster = FindIdentifyClusterOnEndpoint(endpoint);
-        //     return cluster != nullptr && cluster->GetIdentifyTime() > 0;
-        // #else
-        //     return false;
-        // #endif
+        if ((mIdentifyIntegration == nullptr) || !mIdentifyIntegration->IsIdentifying())
+        {
+            // skip with success if we are not identifying
+            return Status::Success;
+        }
 
         // AddGroupIfIdentifying is response `Y` in the spec: we return the status (not a structure, as opposed to AddGroup)
         return AddGroup(request_data.groupID, request_data.groupName, request.GetAccessingFabricIndex());

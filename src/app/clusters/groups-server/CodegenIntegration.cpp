@@ -24,6 +24,10 @@
 #include <app/clusters/scenes-server/CodegenIntegration.h>
 #endif
 
+#ifdef ZCL_USING_IDENTIFY_CLUSTER_SERVER
+#include <app/clusters/identify-server/CodegenIntegration.h>
+#endif
+
 using namespace chip;
 using namespace chip::app;
 using namespace chip::app::Clusters;
@@ -52,6 +56,11 @@ public:
                                                   .scenesIntegration = ScenesManagement::FindClusterOnEndpoint(endpointId),
 #else
                                                   .scenesIntegration = nullptr,
+#endif
+#ifdef ZCL_USING_IDENTIFY_CLUSTER_SERVER
+                                                  .identifyIntegration = FindIdentifyClusterOnEndpoint(endpointId),
+#else
+                                                  .identifyIntegration = nullptr,
 #endif
 
                                               });

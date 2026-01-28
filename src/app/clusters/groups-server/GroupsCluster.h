@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include <app/clusters/identify-server/IdentifyIntegrationDelegate.h>
 #include <app/clusters/scenes-server/ScenesIntegrationDelegate.h>
 #include <app/server-cluster/DefaultServerCluster.h>
 #include <clusters/Groups/Commands.h>
@@ -33,11 +34,12 @@ public:
     {
         Credentials::GroupDataProvider & groupDataProvider;
         scenes::ScenesIntegrationDelegate * scenesIntegration = nullptr; // if null, no scenes support
+        IdentifyIntegrationDelegate * identifyIntegration     = nullptr; // if null, no identify support
     };
 
     GroupsCluster(EndpointId endpointId, const Context & context) :
         DefaultServerCluster({ endpointId, Groups::Id }), mGroupDataProvider(context.groupDataProvider),
-        mScenesIntegration(context.scenesIntegration)
+        mScenesIntegration(context.scenesIntegration), mIdentifyIntegration(context.identifyIntegration)
     {}
 
     // ServerClusterInterface
@@ -55,6 +57,7 @@ public:
 private:
     Credentials::GroupDataProvider & mGroupDataProvider;
     scenes::ScenesIntegrationDelegate * mScenesIntegration;
+    IdentifyIntegrationDelegate * mIdentifyIntegration;
 
     Protocols::InteractionModel::Status AddGroup(chip::GroupId groupID, chip::CharSpan groupName, FabricIndex fabricIndex);
     Protocols::InteractionModel::Status RemoveGroup(const Groups::Commands::RemoveGroup::DecodableType & input,
