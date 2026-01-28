@@ -21,6 +21,8 @@
 #include <clusters/Groups/Ids.h>
 #include <credentials/GroupDataProvider.h>
 
+#include <optional>
+
 namespace chip::app::Clusters {
 
 class GroupsCluster : public DefaultServerCluster
@@ -51,6 +53,8 @@ private:
                                                           FabricIndex fabricIndex);
     std::optional<DataModel::ActionReturnStatus> HandleViewGroup(const Groups::Commands::ViewGroup::DecodableType & input,
                                                                  CommandHandler * handler);
+    std::optional<DataModel::ActionReturnStatus>
+    HandleGetGroupMembership(const Groups::Commands::GetGroupMembership::DecodableType & input, CommandHandler * handler);
 
     void NotifyGroupTableChanged();
 };

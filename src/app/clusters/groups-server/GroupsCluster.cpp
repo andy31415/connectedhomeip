@@ -52,6 +52,81 @@ bool KeyExists(GroupDataProvider & provider, FabricIndex fabricIndex, GroupId gr
     return found;
 }
 
+struct GroupMembershipResponse
+{
+    // A null capacity means that it is unknown if any further groups MAY be added.
+    const chip::app::DataModel::Nullable<uint8_t> kCapacityUnknown;
+
+    // Use GetCommandId instead of commandId directly to avoid naming conflict with CommandIdentification in ExecutionOfACommand
+    static constexpr CommandId GetCommandId() { return Commands::GetGroupMembershipResponse::Id; }
+    static constexpr ClusterId GetClusterId() { return Groups::Id; }
+
+    GroupMembershipResponse(const Commands::GetGroupMembership::DecodableType & data, chip::EndpointId endpoint,
+                            GroupDataProvider::EndpointIterator * iter) :
+        mCommandData(data),
+        mEndpoint(endpoint), mIterator(iter)
+    {}
+
+    const Commands::GetGroupMembership::DecodableType & mCommandData;
+    chip::EndpointId mEndpoint                      = kInvalidEndpointId;
+    GroupDataProvider::EndpointIterator * mIterator = nullptr;
+
+    CHIP_ERROR Encode(TLV::TLVWriter & writer, TLV::Tag tag) const
+    {
+        TLV::TLVType outer;
+
+        ReturnErrorOnFailure(writer.StartContainer(tag, TLV::kTLVType_Structure, outer));
+
+        ReturnErrorOnFailure(app::DataModel::Encode(
+            writer, TLV::ContextTag(Commands::GetGroupMembershipResponse::Fields::kCapacity), kCapacityUnknown));
+        {
+            TLV::TLVType type;
+            ReturnErrorOnFailure(writer.StartContainer(TLV::ContextTag(Commands::GetGroupMembershipResponse::Fields::kGroupList),
+                                                       TLV::kTLVType_Array, type));
+            {
+                GroupDataProvider::GroupEndpoint mapping;
+                size_t requestedCount = 0;
+                ReturnErrorOnFailure(mCommandData.groupList.ComputeSize(&requestedCount));
+
+                if (0 == requestedCount)
+                {
+                    // 1.3.6.3.1. If the GroupList field is empty, the entity SHALL respond with all group identifiers of which the
+                    // entity is a member.
+                    while (mIterator && mIterator->Next(mapping))
+                    {
+                        if (mapping.endpoint_id == mEndpoint)
+                        {
+                            ReturnErrorOnFailure(app::DataModel::Encode(writer, TLV::AnonymousTag(), mapping.group_id));
+                            ChipLogDetail(Zcl, " 0x%02x", mapping.group_id);
+                        }
+                    }
+                }
+                else
+                {
+                    while (mIterator && mIterator->Next(mapping))
+                    {
+                        auto iter = mCommandData.groupList.begin();
+                        while (iter.Next())
+                        {
+                            if (mapping.endpoint_id == mEndpoint && mapping.group_id == iter.GetValue())
+                            {
+                                ReturnErrorOnFailure(app::DataModel::Encode(writer, TLV::AnonymousTag(), mapping.group_id));
+                                ChipLogDetail(Zcl, " 0x%02x", mapping.group_id);
+                                break;
+                            }
+                        }
+                        ReturnErrorOnFailure(iter.GetStatus());
+                    }
+                }
+                ChipLogDetail(Zcl, "]");
+            }
+            ReturnErrorOnFailure(writer.EndContainer(type));
+        }
+        ReturnErrorOnFailure(writer.EndContainer(outer));
+        return CHIP_NO_ERROR;
+    }
+};
+
 } // namespace
 
 CHIP_ERROR GroupsCluster::Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder)
@@ -139,8 +214,8 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
     case GetGroupMembership::Id: {
         GetGroupMembership::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        // FIXME: implement
-        return Status::UnsupportedCommand;
+
+        return HandleGetGroupMembership(request_data, handler);
     }
     case RemoveGroup::Id: {
         RemoveGroup::DecodableType request_data;
@@ -245,6 +320,22 @@ exit:
     return std::nullopt;
 }
 
+std::optional<DataModel::ActionReturnStatus>
+GroupsCluster::HandleGetGroupMembership(const Groups::Commands::GetGroupMembership::DecodableType & input, CommandHandler * handler)
+{
+    MATTER_TRACE_SCOPE("GetGroupMembership", "Groups");
+    GroupDataProvider::EndpointIterator * iter = mGroupDataProvider.IterateEndpoints(handler->GetAccessingFabricIndex());
+    VerifyOrReturnError(nullptr != iter, Status::Failure);
+
+    handler->AddResponse({ mPath.mEndpointId, mPath.mClusterId, Commands::GetGroupMembership::Id },
+                         GroupMembershipResponse(input, mPath.mEndpointId, iter));
+    iter->Release();
+    return std::nullopt;
+}
+
+// TODO: RemoveAllGroups
+// TODO: AddGroupIfIdentifying
+
 } // namespace chip::app::Clusters
 
 #if 0
@@ -269,158 +360,6 @@ static bool emberAfIsDeviceIdentifying(EndpointId endpoint)
 #else
     return false;
 #endif
-}
-
-bool emberAfGroupsClusterViewGroupCallback(app::CommandHandler * commandObj, const app::ConcreteCommandPath & commandPath,
-                                           const Commands::ViewGroup::DecodableType & commandData)
-{
-    MATTER_TRACE_SCOPE("ViewGroup", "Groups");
-    auto fabricIndex             = commandObj->GetAccessingFabricIndex();
-    auto groupId                 = commandData.groupID;
-    GroupDataProvider * provider = GetGroupDataProvider();
-    GroupDataProvider::GroupInfo info;
-    Groups::Commands::ViewGroupResponse::Type response;
-    CHIP_ERROR err = CHIP_NO_ERROR;
-    Status status  = Status::NotFound;
-
-    VerifyOrExit(IsValidGroupId(groupId), status = Status::ConstraintError);
-    VerifyOrExit(nullptr != provider, status = Status::Failure);
-    VerifyOrExit(provider->HasEndpoint(fabricIndex, groupId, commandPath.mEndpointId), status = Status::NotFound);
-
-    err = provider->GetGroupInfo(fabricIndex, groupId, info);
-    VerifyOrExit(CHIP_NO_ERROR == err, status = Status::NotFound);
-
-    response.groupName = CharSpan(info.name, strnlen(info.name, GroupDataProvider::GroupInfo::kGroupNameMax));
-    status             = Status::Success;
-exit:
-    response.groupID = groupId;
-    response.status  = to_underlying(status);
-    commandObj->AddResponse(commandPath, response);
-    return true;
-}
-
-struct GroupMembershipResponse
-{
-    // A null capacity means that it is unknown if any further groups MAY be added.
-    const chip::app::DataModel::Nullable<uint8_t> kCapacityUnknown;
-
-    // Use GetCommandId instead of commandId directly to avoid naming conflict with CommandIdentification in ExecutionOfACommand
-    static constexpr CommandId GetCommandId() { return Commands::GetGroupMembershipResponse::Id; }
-    static constexpr ClusterId GetClusterId() { return Groups::Id; }
-    static constexpr bool kIsFabricScoped = false;
-
-    GroupMembershipResponse(const Commands::GetGroupMembership::DecodableType & data, chip::EndpointId endpoint,
-                            GroupDataProvider::EndpointIterator * iter) :
-        mCommandData(data),
-        mEndpoint(endpoint), mIterator(iter)
-    {}
-
-    const Commands::GetGroupMembership::DecodableType & mCommandData;
-    chip::EndpointId mEndpoint                      = kInvalidEndpointId;
-    GroupDataProvider::EndpointIterator * mIterator = nullptr;
-
-    CHIP_ERROR Encode(TLV::TLVWriter & writer, TLV::Tag tag) const
-    {
-        TLV::TLVType outer;
-
-        ReturnErrorOnFailure(writer.StartContainer(tag, TLV::kTLVType_Structure, outer));
-
-        ReturnErrorOnFailure(app::DataModel::Encode(
-            writer, TLV::ContextTag(Commands::GetGroupMembershipResponse::Fields::kCapacity), kCapacityUnknown));
-        {
-            TLV::TLVType type;
-            ReturnErrorOnFailure(writer.StartContainer(TLV::ContextTag(Commands::GetGroupMembershipResponse::Fields::kGroupList),
-                                                       TLV::kTLVType_Array, type));
-            {
-                GroupDataProvider::GroupEndpoint mapping;
-                size_t requestedCount = 0;
-                ReturnErrorOnFailure(mCommandData.groupList.ComputeSize(&requestedCount));
-
-                if (0 == requestedCount)
-                {
-                    // 1.3.6.3.1. If the GroupList field is empty, the entity SHALL respond with all group identifiers of which the
-                    // entity is a member.
-                    while (mIterator && mIterator->Next(mapping))
-                    {
-                        if (mapping.endpoint_id == mEndpoint)
-                        {
-                            ReturnErrorOnFailure(app::DataModel::Encode(writer, TLV::AnonymousTag(), mapping.group_id));
-                            ChipLogDetail(Zcl, " 0x%02x", mapping.group_id);
-                        }
-                    }
-                }
-                else
-                {
-                    while (mIterator && mIterator->Next(mapping))
-                    {
-                        auto iter = mCommandData.groupList.begin();
-                        while (iter.Next())
-                        {
-                            if (mapping.endpoint_id == mEndpoint && mapping.group_id == iter.GetValue())
-                            {
-                                ReturnErrorOnFailure(app::DataModel::Encode(writer, TLV::AnonymousTag(), mapping.group_id));
-                                ChipLogDetail(Zcl, " 0x%02x", mapping.group_id);
-                                break;
-                            }
-                        }
-                        ReturnErrorOnFailure(iter.GetStatus());
-                    }
-                }
-                ChipLogDetail(Zcl, "]");
-            }
-            ReturnErrorOnFailure(writer.EndContainer(type));
-        }
-        ReturnErrorOnFailure(writer.EndContainer(outer));
-        return CHIP_NO_ERROR;
-    }
-};
-
-bool emberAfGroupsClusterGetGroupMembershipCallback(app::CommandHandler * commandObj, const app::ConcreteCommandPath & commandPath,
-                                                    const Commands::GetGroupMembership::DecodableType & commandData)
-{
-    MATTER_TRACE_SCOPE("GetGroupMembership", "Groups");
-    auto fabricIndex = commandObj->GetAccessingFabricIndex();
-    auto * provider  = GetGroupDataProvider();
-    Status status    = Status::Failure;
-
-    VerifyOrExit(nullptr != provider, status = Status::Failure);
-
-    {
-        GroupDataProvider::EndpointIterator * iter = nullptr;
-
-        iter = provider->IterateEndpoints(fabricIndex);
-        VerifyOrExit(nullptr != iter, status = Status::Failure);
-
-        commandObj->AddResponse(commandPath, GroupMembershipResponse(commandData, commandPath.mEndpointId, iter));
-        iter->Release();
-        status = Status::Success;
-    }
-
-exit:
-    if (Status::Success != status)
-    {
-        ChipLogDetail(Zcl, "GroupsCluster: GetGroupMembership failed: failed: 0x%x", to_underlying(status));
-        commandObj->AddStatus(commandPath, status);
-    }
-    return true;
-}
-
-bool emberAfGroupsClusterRemoveGroupCallback(app::CommandHandler * commandObj, const app::ConcreteCommandPath & commandPath,
-                                             const Commands::RemoveGroup::DecodableType & commandData)
-{
-    MATTER_TRACE_SCOPE("RemoveGroup", "Groups");
-    auto fabricIndex = commandObj->GetAccessingFabricIndex();
-    Groups::Commands::RemoveGroupResponse::Type response;
-
-#ifdef MATTER_DM_PLUGIN_SCENES_MANAGEMENT
-    // If a group is removed the scenes associated with that group SHOULD be removed.
-    ScenesManagement::ScenesServer::Instance().GroupWillBeRemoved(fabricIndex, commandPath.mEndpointId, commandData.groupID);
-#endif
-    response.groupID = commandData.groupID;
-    response.status  = to_underlying(GroupRemove(fabricIndex, commandPath.mEndpointId, commandData.groupID));
-
-    commandObj->AddResponse(commandPath, response);
-    return true;
 }
 
 bool emberAfGroupsClusterRemoveAllGroupsCallback(app::CommandHandler * commandObj, const app::ConcreteCommandPath & commandPath,
@@ -487,11 +426,6 @@ bool emberAfGroupsClusterAddGroupIfIdentifyingCallback(app::CommandHandler * com
 
     commandObj->AddStatus(commandPath, status);
     return true;
-}
-
-bool emberAfGroupsClusterEndpointInGroupCallback(chip::FabricIndex fabricIndex, EndpointId endpointId, GroupId groupId)
-{
-    return GroupExists(fabricIndex, endpointId, groupId);
 }
 
 #endif
