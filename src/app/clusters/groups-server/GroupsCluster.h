@@ -45,8 +45,12 @@ public:
 private:
     Credentials::GroupDataProvider & mGroupDataProvider;
 
-    std::optional<DataModel::ActionReturnStatus> HandleGroupAdd(const Groups::Commands::AddGroup::DecodableType & input,
-                                                                CommandHandler * handler);
+    Protocols::InteractionModel::Status HandleAddGroup(const Groups::Commands::AddGroup::DecodableType & input,
+                                                       FabricIndex fabricIndex);
+    Protocols::InteractionModel::Status HandleRemoveGroup(const Groups::Commands::RemoveGroup::DecodableType & input,
+                                                          FabricIndex fabricIndex);
+
+    void NotifyGroupTableChanged();
 };
 
 } // namespace chip::app::Clusters

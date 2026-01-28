@@ -121,7 +121,12 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
     case AddGroup::Id: {
         AddGroup::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        return HandleGroupAdd(request_data, handler);
+
+        Groups::Commands::AddGroupResponse::Type response;
+        response.groupID = request_data.groupID;
+        response.status  = to_underlying(HandleAddGroup(request_data, request.GetAccessingFabricIndex()));
+        handler->AddResponse(request.path, response);
+        return std::nullopt;
     }
     case ViewGroup::Id: {
         ViewGroup::DecodableType request_data;
@@ -138,8 +143,12 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
     case RemoveGroup::Id: {
         RemoveGroup::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
-        // FIXME: implement
-        return Status::UnsupportedCommand;
+
+        Groups::Commands::RemoveGroupResponse::Type response;
+        response.groupID = request_data.groupID;
+        response.status  = to_underlying(HandleRemoveGroup(request_data, request.GetAccessingFabricIndex()));
+        handler->AddResponse(request.path, response);
+        return std::nullopt;
     }
     case RemoveAllGroups::Id: {
         RemoveAllGroups::DecodableType request_data;
@@ -158,28 +167,51 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
     }
 }
 
-std::optional<DataModel::ActionReturnStatus> GroupsCluster::HandleGroupAdd(const Groups::Commands::AddGroup::DecodableType & input,
-                                                                           CommandHandler * handler)
+void GroupsCluster::NotifyGroupTableChanged()
+{
+    // TODO: This seems a bit coupled: we are notifying in this cluster that ANOTHER cluster
+    //       has changed. We should support only one cluster or another really...
+    VerifyOrReturn(mContext != nullptr);
+    mContext->interactionContext.dataModelChangeListener.MarkDirty(
+        { mPath.mEndpointId, GroupKeyManagement::Id, GroupKeyManagement::Attributes::GroupTable::Id });
+}
+
+Protocols::InteractionModel::Status GroupsCluster::HandleAddGroup(const Groups::Commands::AddGroup::DecodableType & input,
+                                                                  FabricIndex fabricIndex)
 {
     VerifyOrReturnError(IsValidGroupId(input.groupID), Status::ConstraintError);
     VerifyOrReturnError(input.groupName.size() <= GroupDataProvider::GroupInfo::kGroupNameMax, Status::ConstraintError);
 
-    const FabricIndex fabricIndex = handler->GetAccessingFabricIndex();
-
     VerifyOrReturnError(KeyExists(mGroupDataProvider, fabricIndex, input.groupID), Status::UnsupportedAccess);
 
     // Add a new entry to the GroupTable
-    ReturnErrorOnFailure(
-        mGroupDataProvider.SetGroupInfo(fabricIndex, GroupDataProvider::GroupInfo(input.groupID, input.groupName)));
-    ReturnErrorOnFailure(mGroupDataProvider.AddEndpoint(fabricIndex, input.groupID, mPath.mEndpointId));
-
-    // TODO: This seems a bit coupled: we are notifying in this cluster that ANOTHER cluster
-    //       has changed. We should support only one cluster or another really...
-    if (mContext != nullptr)
+    if (CHIP_NO_ERROR != mGroupDataProvider.SetGroupInfo(fabricIndex, GroupDataProvider::GroupInfo(input.groupID, input.groupName)))
     {
-        mContext->interactionContext.dataModelChangeListener.MarkDirty(
-            { mPath.mEndpointId, GroupKeyManagement::Id, GroupKeyManagement::Attributes::GroupTable::Id });
+        return Status::ResourceExhausted;
     }
+
+    if (CHIP_NO_ERROR != mGroupDataProvider.AddEndpoint(fabricIndex, input.groupID, mPath.mEndpointId))
+    {
+        return Status::ResourceExhausted;
+    }
+    NotifyGroupTableChanged();
+    return Status::Success;
+}
+
+Protocols::InteractionModel::Status GroupsCluster::HandleRemoveGroup(const Groups::Commands::RemoveGroup::DecodableType & input,
+                                                                     FabricIndex fabricIndex)
+{
+    VerifyOrReturnError(IsValidGroupId(input.groupID), Status::ConstraintError);
+    VerifyOrReturnError(mGroupDataProvider.HasEndpoint(fabricIndex, input.groupID, mPath.mEndpointId), Status::NotFound);
+
+    if (CHIP_ERROR err = mGroupDataProvider.RemoveEndpoint(fabricIndex, input.groupID, mPath.mEndpointId); err != CHIP_NO_ERROR)
+    {
+        ChipLogDetail(Zcl, "ERR: Failed to remove mapping (end:%d, group:0x%x), err:%" CHIP_ERROR_FORMAT, mPath.mEndpointId,
+                      input.groupID, err.Format());
+        return Status::NotFound;
+    }
+
+    NotifyGroupTableChanged();
     return Status::Success;
 }
 
@@ -207,70 +239,6 @@ static bool emberAfIsDeviceIdentifying(EndpointId endpoint)
 #else
     return false;
 #endif
-}
-
-static Status GroupAdd(FabricIndex fabricIndex, EndpointId endpointId, GroupId groupId, const CharSpan & groupName)
-{
-    VerifyOrReturnError(IsValidGroupId(groupId), Status::ConstraintError);
-    VerifyOrReturnError(groupName.size() <= GroupDataProvider::GroupInfo::kGroupNameMax, Status::ConstraintError);
-
-    GroupDataProvider * provider = GetGroupDataProvider();
-    VerifyOrReturnError(nullptr != provider, Status::NotFound);
-    VerifyOrReturnError(KeyExists(fabricIndex, groupId), Status::UnsupportedAccess);
-
-    // Add a new entry to the GroupTable
-    CHIP_ERROR err = provider->SetGroupInfo(fabricIndex, GroupDataProvider::GroupInfo(groupId, groupName));
-    if (CHIP_NO_ERROR == err)
-    {
-        err = provider->AddEndpoint(fabricIndex, groupId, endpointId);
-    }
-    if (CHIP_NO_ERROR == err)
-    {
-        MatterReportingAttributeChangeCallback(kRootEndpointId, GroupKeyManagement::Id,
-                                               GroupKeyManagement::Attributes::GroupTable::Id);
-        return Status::Success;
-    }
-
-    ChipLogDetail(Zcl, "ERR: Failed to add mapping (end:%d, group:0x%x), err:%" CHIP_ERROR_FORMAT, endpointId, groupId,
-                  err.Format());
-    return Status::ResourceExhausted;
-}
-
-static Status GroupRemove(FabricIndex fabricIndex, EndpointId endpointId, GroupId groupId)
-{
-    VerifyOrReturnError(IsValidGroupId(groupId), Status::ConstraintError);
-    VerifyOrReturnError(GroupExists(fabricIndex, endpointId, groupId), Status::NotFound);
-
-    GroupDataProvider * provider = GetGroupDataProvider();
-    VerifyOrReturnError(nullptr != provider, Status::NotFound);
-
-    CHIP_ERROR err = provider->RemoveEndpoint(fabricIndex, groupId, endpointId);
-    if (CHIP_NO_ERROR == err)
-    {
-        MatterReportingAttributeChangeCallback(kRootEndpointId, GroupKeyManagement::Id,
-                                               GroupKeyManagement::Attributes::GroupTable::Id);
-        return Status::Success;
-    }
-
-    ChipLogDetail(Zcl, "ERR: Failed to remove mapping (end:%d, group:0x%x), err:%" CHIP_ERROR_FORMAT, endpointId, groupId,
-                  err.Format());
-    return Status::NotFound;
-}
-
-void emberAfGroupsClusterServerInitCallback(EndpointId endpointId)
-{
-    // According to spec, highest bit (Group Names) MUST match feature bit 0 (Group Names)
-    Status status = Attributes::NameSupport::Set(endpointId, NameSupportBitmap::kGroupNames);
-    if (status != Status::Success)
-    {
-        ChipLogDetail(Zcl, "ERR: writing NameSupport %x", to_underlying(status));
-    }
-
-    status = Attributes::FeatureMap::Set(endpointId, static_cast<uint32_t>(Feature::kGroupNames));
-    if (status != Status::Success)
-    {
-        ChipLogDetail(Zcl, "ERR: writing group feature map %x", to_underlying(status));
-    }
 }
 
 bool emberAfGroupsClusterAddGroupCallback(app::CommandHandler * commandObj, const app::ConcreteCommandPath & commandPath,
