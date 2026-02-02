@@ -28,6 +28,19 @@ using namespace chip::app::Clusters::Groups;
 using chip::Credentials::GroupDataProvider;
 using chip::Protocols::InteractionModel::Status;
 
+// The macro LogErrorOnFailure generally logs file:line which makes the macro larger. We use here a smaller
+// marco (i.e. no line & file info) sine the underlying error would have the original cause and logs would contain
+// what call is being processed. This is to save about 100 bytes or so of flash.
+#define LogIfFailure(expr)                                                                                                         \
+    do                                                                                                                             \
+    {                                                                                                                              \
+        CHIP_ERROR __err = (expr);                                                                                                 \
+        if (__err != CHIP_NO_ERROR)                                                                                                \
+        {                                                                                                                          \
+            ChipLogError(NotSpecified, "Error: %" CHIP_ERROR_FORMAT, __err.Format());                                              \
+        }                                                                                                                          \
+    } while (false)
+
 namespace chip::app::Clusters {
 namespace {
 
@@ -321,7 +334,7 @@ Protocols::InteractionModel::Status GroupsCluster::RemoveGroup(const Groups::Com
     if (mScenesIntegration != nullptr)
     {
         // If a group is removed the scenes associated with that group SHOULD be removed.
-        LogErrorOnFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, input.groupID));
+        LogIfFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, input.groupID));
     }
 
     NotifyGroupTableChanged();
@@ -374,14 +387,14 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::RemoveAllGroups(Fabr
         {
             if (mPath.mEndpointId == mapping.endpoint_id)
             {
-                LogErrorOnFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, mapping.group_id));
+                LogIfFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, mapping.group_id));
             }
         }
         iter->Release();
-        LogErrorOnFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, scenes::kGlobalSceneGroupId));
+        LogIfFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, scenes::kGlobalSceneGroupId));
     }
 
-    LogErrorOnFailure(mGroupDataProvider.RemoveEndpoint(fabricIndex, mPath.mEndpointId));
+    LogIfFailure(mGroupDataProvider.RemoveEndpoint(fabricIndex, mPath.mEndpointId));
     NotifyGroupTableChanged();
     return Status::Success;
 }
