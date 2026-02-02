@@ -37,7 +37,7 @@ using chip::Protocols::InteractionModel::Status;
         CHIP_ERROR __err = (expr);                                                                                                 \
         if (__err != CHIP_NO_ERROR)                                                                                                \
         {                                                                                                                          \
-            ChipLogError(NotSpecified, "Error: %" CHIP_ERROR_FORMAT, __err.Format());                                              \
+            ChipLogError(AppServer, "Error: %" CHIP_ERROR_FORMAT, __err.Format());                                                 \
         }                                                                                                                          \
     } while (false)
 
