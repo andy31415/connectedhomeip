@@ -25,6 +25,7 @@
 #include <tracing/macros.h>
 
 using namespace chip::app::Clusters::Groups;
+
 using chip::Credentials::GroupDataProvider;
 using chip::Protocols::InteractionModel::Status;
 
@@ -234,6 +235,8 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
 {
     using namespace Commands;
 
+    const FabricIndex fabricIndex = request.GetAccessingFabricIndex();
+
     switch (request.path.mCommandId)
     {
     case AddGroup::Id: {
@@ -253,11 +256,10 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
         ViewGroup::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
 
-        const auto groupId     = request_data.groupID;
-        const auto fabricIndex = request.GetAccessingFabricIndex();
+        const GroupId groupId = request_data.groupID;
 
         Credentials::GroupDataProvider::GroupInfo info;
-        const auto status = [&]() {
+        const Status status = [&]() {
             VerifyOrReturnError(IsValidGroupId(groupId), Status::ConstraintError);
             VerifyOrReturnError(mGroupDataProvider.HasEndpoint(fabricIndex, groupId, mPath.mEndpointId), Status::NotFound);
 
@@ -299,8 +301,7 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
         RemoveGroup::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
 
-        const auto groupId     = request_data.groupID;
-        const auto fabricIndex = request.GetAccessingFabricIndex();
+        const GroupId groupId = request_data.groupID;
 
         handler->AddResponse(
             request.path,
@@ -332,7 +333,6 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
     }
     case RemoveAllGroups::Id: {
         MATTER_TRACE_SCOPE("RemoveAllGroups", "Groups");
-        const auto fabricIndex = request.GetAccessingFabricIndex();
 
         if (mScenesIntegration != nullptr)
         {
@@ -371,8 +371,7 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
     }
 }
 
-Protocols::InteractionModel::Status GroupsCluster::AddGroup(chip::GroupId groupID, chip::CharSpan groupName,
-                                                            FabricIndex fabricIndex)
+Status GroupsCluster::AddGroup(chip::GroupId groupID, chip::CharSpan groupName, FabricIndex fabricIndex)
 {
     VerifyOrReturnError(IsValidGroupId(groupID), Status::ConstraintError);
     VerifyOrReturnError(groupName.size() <= GroupDataProvider::GroupInfo::kGroupNameMax, Status::ConstraintError);
