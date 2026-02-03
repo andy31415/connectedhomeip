@@ -262,8 +262,7 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
         GroupDataProvider::EndpointIterator * iter = mGroupDataProvider.IterateEndpoints(handler->GetAccessingFabricIndex());
         VerifyOrReturnError(nullptr != iter, Status::Failure);
 
-        handler->AddResponse({ mPath.mEndpointId, mPath.mClusterId, Commands::GetGroupMembership::Id },
-                             GroupMembershipResponse(request_data, mPath.mEndpointId, iter));
+        handler->AddResponse(request.path, GroupMembershipResponse(request_data, mPath.mEndpointId, iter));
         iter->Release();
         return std::nullopt;
     }
