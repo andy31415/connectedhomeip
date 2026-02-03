@@ -242,7 +242,19 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
         ViewGroup::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
 
-        return ViewGroup(request_data, handler);
+        Credentials::GroupDataProvider::GroupInfo info;
+        auto status = ViewGroup(request_data.groupID, request.GetAccessingFabricIndex(), info);
+
+        ViewGroupResponse::Type response{
+            .status  = to_underlying(status),
+            .groupID = request_data.groupID,
+        };
+        if (status == Status::Success)
+        {
+            response.groupName = CharSpan(info.name, strnlen(info.name, GroupDataProvider::GroupInfo::kGroupNameMax));
+        }
+        handler->AddResponse({ mPath.mEndpointId, mPath.mClusterId, Commands::ViewGroup::Id }, response);
+        return std::nullopt;
     }
     case GetGroupMembership::Id: {
         MATTER_TRACE_SCOPE("GetGroupMembership", "Groups");
@@ -341,26 +353,18 @@ Protocols::InteractionModel::Status GroupsCluster::RemoveGroup(const Groups::Com
     return Status::Success;
 }
 
-std::optional<DataModel::ActionReturnStatus> GroupsCluster::ViewGroup(const Groups::Commands::ViewGroup::DecodableType & input,
-                                                                      CommandHandler * handler)
+Protocols::InteractionModel::Status GroupsCluster::ViewGroup(GroupId groupId, FabricIndex fabricIndex,
+                                                             Credentials::GroupDataProvider::GroupInfo & info)
 {
-    auto fabricIndex = handler->GetAccessingFabricIndex();
-    auto groupId     = input.groupID;
-    GroupDataProvider::GroupInfo info;
-    Groups::Commands::ViewGroupResponse::Type response;
-    Status status = Status::NotFound;
+    VerifyOrReturnError(IsValidGroupId(groupId), Status::ConstraintError);
+    VerifyOrReturnError(mGroupDataProvider.HasEndpoint(fabricIndex, groupId, mPath.mEndpointId), Status::NotFound);
 
-    VerifyOrExit(IsValidGroupId(groupId), status = Status::ConstraintError);
-    VerifyOrExit(mGroupDataProvider.HasEndpoint(fabricIndex, groupId, mPath.mEndpointId), status = Status::NotFound);
-    VerifyOrExit(CHIP_NO_ERROR == mGroupDataProvider.GetGroupInfo(fabricIndex, groupId, info), status = Status::NotFound);
+    if (mGroupDataProvider.GetGroupInfo(fabricIndex, groupId, info) != CHIP_NO_ERROR)
+    {
+        return Status::NotFound;
+    }
 
-    response.groupName = CharSpan(info.name, strnlen(info.name, GroupDataProvider::GroupInfo::kGroupNameMax));
-    status             = Status::Success;
-exit:
-    response.groupID = groupId;
-    response.status  = to_underlying(status);
-    handler->AddResponse({ mPath.mEndpointId, mPath.mClusterId, Commands::ViewGroup::Id }, response);
-    return std::nullopt;
+    return Status::Success;
 }
 
 std::optional<DataModel::ActionReturnStatus>

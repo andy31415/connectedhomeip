@@ -62,8 +62,8 @@ private:
     Protocols::InteractionModel::Status AddGroup(chip::GroupId groupID, chip::CharSpan groupName, FabricIndex fabricIndex);
     Protocols::InteractionModel::Status RemoveGroup(const Groups::Commands::RemoveGroup::DecodableType & input,
                                                     FabricIndex fabricIndex);
-    std::optional<DataModel::ActionReturnStatus> ViewGroup(const Groups::Commands::ViewGroup::DecodableType & input,
-                                                           CommandHandler * handler);
+    Protocols::InteractionModel::Status ViewGroup(GroupId groupID, FabricIndex fabricIndex,
+                                                  Credentials::GroupDataProvider::GroupInfo & info);
     std::optional<DataModel::ActionReturnStatus>
     GetGroupMembership(const Groups::Commands::GetGroupMembership::DecodableType & input, CommandHandler * handler);
     std::optional<DataModel::ActionReturnStatus> RemoveAllGroups(FabricIndex fabricIndex);
