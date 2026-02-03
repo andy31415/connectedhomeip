@@ -93,7 +93,9 @@ struct GroupMembershipResponse
     static constexpr ClusterId GetClusterId() { return Groups::Id; }
 
     GroupMembershipResponse(const Commands::GetGroupMembership::DecodableType & data, chip::EndpointId endpoint,
-                            GroupDataProvider::EndpointIterator * iter) : mCommandData(data), mEndpoint(endpoint), mIterator(iter)
+                            GroupDataProvider::EndpointIterator * iter) :
+        mCommandData(data),
+        mEndpoint(endpoint), mIterator(iter)
     {}
 
     const Commands::GetGroupMembership::DecodableType & mCommandData;
@@ -251,7 +253,7 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
         {
             response.groupName = CharSpan(info.name, strnlen(info.name, GroupDataProvider::GroupInfo::kGroupNameMax));
         }
-        handler->AddResponse({ mPath.mEndpointId, mPath.mClusterId, Commands::ViewGroup::Id }, response);
+        handler->AddResponse(request.path, response);
         return std::nullopt;
     }
     case GetGroupMembership::Id: {
