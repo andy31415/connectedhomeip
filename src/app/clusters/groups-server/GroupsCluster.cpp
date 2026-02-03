@@ -93,9 +93,7 @@ struct GroupMembershipResponse
     static constexpr ClusterId GetClusterId() { return Groups::Id; }
 
     GroupMembershipResponse(const Commands::GetGroupMembership::DecodableType & data, chip::EndpointId endpoint,
-                            GroupDataProvider::EndpointIterator * iter) :
-        mCommandData(data),
-        mEndpoint(endpoint), mIterator(iter)
+                            GroupDataProvider::EndpointIterator * iter) : mCommandData(data), mEndpoint(endpoint), mIterator(iter)
     {}
 
     const Commands::GetGroupMembership::DecodableType & mCommandData;
@@ -379,7 +377,7 @@ GroupsCluster::GetGroupMembership(const Groups::Commands::GetGroupMembership::De
     return std::nullopt;
 }
 
-std::optional<DataModel::ActionReturnStatus> GroupsCluster::RemoveAllGroups(FabricIndex fabricIndex)
+Protocols::InteractionModel::Status GroupsCluster::RemoveAllGroups(FabricIndex fabricIndex)
 {
     if (mScenesIntegration != nullptr)
     {

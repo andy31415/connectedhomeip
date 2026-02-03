@@ -66,7 +66,7 @@ private:
                                                   Credentials::GroupDataProvider::GroupInfo & info);
     std::optional<DataModel::ActionReturnStatus>
     GetGroupMembership(const Groups::Commands::GetGroupMembership::DecodableType & input, CommandHandler * handler);
-    std::optional<DataModel::ActionReturnStatus> RemoveAllGroups(FabricIndex fabricIndex);
+    Protocols::InteractionModel::Status RemoveAllGroups(FabricIndex fabricIndex);
 
     void NotifyGroupTableChanged();
 };
