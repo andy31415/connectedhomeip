@@ -139,7 +139,7 @@ protected:
     }
 
     GroupDataProviderImpl mGroupDataProvider;
-    chip::Crypto::DefaultSessionKeystore mSessionKeystore;
+    Crypto::DefaultSessionKeystore mSessionKeystore;
     MockIdentifyIntegrationDelegate mIdentifyDelegate;
     std::unique_ptr<GroupsCluster> mCluster;
     std::unique_ptr<ClusterTester> mClusterTester;

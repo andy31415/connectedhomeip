@@ -98,20 +98,20 @@ bool KeyExists(GroupDataProvider & provider, FabricIndex fabricIndex, GroupId gr
 struct GroupMembershipResponse
 {
     // A null capacity means that it is unknown if any further groups MAY be added.
-    const chip::app::DataModel::Nullable<uint8_t> kCapacityUnknown;
+    const DataModel::Nullable<uint8_t> kCapacityUnknown;
 
     // Use GetCommandId instead of commandId directly to avoid naming conflict with CommandIdentification in ExecutionOfACommand
     static constexpr CommandId GetCommandId() { return Commands::GetGroupMembershipResponse::Id; }
     static constexpr ClusterId GetClusterId() { return Groups::Id; }
 
-    GroupMembershipResponse(const Commands::GetGroupMembership::DecodableType & data, chip::EndpointId endpoint,
+    GroupMembershipResponse(const Commands::GetGroupMembership::DecodableType & data, EndpointId endpoint,
                             GroupDataProvider::EndpointIterator * iter) :
         mCommandData(data),
         mEndpoint(endpoint), mIterator(iter)
     {}
 
     const Commands::GetGroupMembership::DecodableType & mCommandData;
-    chip::EndpointId mEndpoint                      = kInvalidEndpointId;
+    EndpointId mEndpoint                            = kInvalidEndpointId;
     GroupDataProvider::EndpointIterator * mIterator = nullptr;
 
     CHIP_ERROR Encode(TLV::TLVWriter & writer, TLV::Tag tag) const
@@ -120,8 +120,8 @@ struct GroupMembershipResponse
 
         ReturnErrorOnFailure(writer.StartContainer(tag, TLV::kTLVType_Structure, outer));
 
-        ReturnErrorOnFailure(app::DataModel::Encode(
-            writer, TLV::ContextTag(Commands::GetGroupMembershipResponse::Fields::kCapacity), kCapacityUnknown));
+        ReturnErrorOnFailure(
+            DataModel::Encode(writer, TLV::ContextTag(Commands::GetGroupMembershipResponse::Fields::kCapacity), kCapacityUnknown));
         {
             TLV::TLVType type;
             ReturnErrorOnFailure(writer.StartContainer(TLV::ContextTag(Commands::GetGroupMembershipResponse::Fields::kGroupList),
@@ -153,7 +153,7 @@ struct GroupMembershipResponse
                     {
                         continue;
                     }
-                    ReturnErrorOnFailure(app::DataModel::Encode(writer, TLV::AnonymousTag(), mapping.group_id));
+                    ReturnErrorOnFailure(DataModel::Encode(writer, TLV::AnonymousTag(), mapping.group_id));
                     ChipLogDetail(Zcl, " 0x%02x", mapping.group_id);
                 }
                 ChipLogDetail(Zcl, "]");
@@ -224,9 +224,8 @@ DataModel::ActionReturnStatus GroupsCluster::ReadAttribute(const DataModel::Read
     }
 }
 
-std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const DataModel::InvokeRequest & request,
-                                                                          chip::TLV::TLVReader & input_arguments,
-                                                                          CommandHandler * handler)
+std::optional<DataModel::ActionReturnStatus>
+GroupsCluster::InvokeCommand(const DataModel::InvokeRequest & request, TLV::TLVReader & input_arguments, CommandHandler * handler)
 {
     using namespace Commands;
 
@@ -366,7 +365,7 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
     }
 }
 
-Status GroupsCluster::AddGroup(chip::GroupId groupID, chip::CharSpan groupName, FabricIndex fabricIndex)
+Status GroupsCluster::AddGroup(GroupId groupID, CharSpan groupName, FabricIndex fabricIndex)
 {
     VerifyOrReturnError(IsValidGroupId(groupID), Status::ConstraintError);
     VerifyOrReturnError(groupName.size() <= GroupDataProvider::GroupInfo::kGroupNameMax, Status::ConstraintError);
