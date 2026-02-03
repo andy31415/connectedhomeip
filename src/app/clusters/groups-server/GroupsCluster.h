@@ -64,8 +64,6 @@ private:
                                                     FabricIndex fabricIndex);
     Protocols::InteractionModel::Status ViewGroup(GroupId groupID, FabricIndex fabricIndex,
                                                   Credentials::GroupDataProvider::GroupInfo & info);
-    std::optional<DataModel::ActionReturnStatus>
-    GetGroupMembership(const Groups::Commands::GetGroupMembership::DecodableType & input, CommandHandler * handler);
     Protocols::InteractionModel::Status RemoveAllGroups(FabricIndex fabricIndex);
 
     void NotifyGroupTableChanged();

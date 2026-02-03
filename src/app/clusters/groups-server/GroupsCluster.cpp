@@ -93,9 +93,7 @@ struct GroupMembershipResponse
     static constexpr ClusterId GetClusterId() { return Groups::Id; }
 
     GroupMembershipResponse(const Commands::GetGroupMembership::DecodableType & data, chip::EndpointId endpoint,
-                            GroupDataProvider::EndpointIterator * iter) :
-        mCommandData(data),
-        mEndpoint(endpoint), mIterator(iter)
+                            GroupDataProvider::EndpointIterator * iter) : mCommandData(data), mEndpoint(endpoint), mIterator(iter)
     {}
 
     const Commands::GetGroupMembership::DecodableType & mCommandData;
@@ -261,7 +259,13 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
         GetGroupMembership::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
 
-        return GetGroupMembership(request_data, handler);
+        GroupDataProvider::EndpointIterator * iter = mGroupDataProvider.IterateEndpoints(handler->GetAccessingFabricIndex());
+        VerifyOrReturnError(nullptr != iter, Status::Failure);
+
+        handler->AddResponse({ mPath.mEndpointId, mPath.mClusterId, Commands::GetGroupMembership::Id },
+                             GroupMembershipResponse(request_data, mPath.mEndpointId, iter));
+        iter->Release();
+        return std::nullopt;
     }
     case RemoveGroup::Id: {
         MATTER_TRACE_SCOPE("RemoveGroup", "Groups");
@@ -365,18 +369,6 @@ Protocols::InteractionModel::Status GroupsCluster::ViewGroup(GroupId groupId, Fa
     }
 
     return Status::Success;
-}
-
-std::optional<DataModel::ActionReturnStatus>
-GroupsCluster::GetGroupMembership(const Groups::Commands::GetGroupMembership::DecodableType & input, CommandHandler * handler)
-{
-    GroupDataProvider::EndpointIterator * iter = mGroupDataProvider.IterateEndpoints(handler->GetAccessingFabricIndex());
-    VerifyOrReturnError(nullptr != iter, Status::Failure);
-
-    handler->AddResponse({ mPath.mEndpointId, mPath.mClusterId, Commands::GetGroupMembership::Id },
-                         GroupMembershipResponse(input, mPath.mEndpointId, iter));
-    iter->Release();
-    return std::nullopt;
 }
 
 Protocols::InteractionModel::Status GroupsCluster::RemoveAllGroups(FabricIndex fabricIndex)
