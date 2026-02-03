@@ -131,35 +131,30 @@ struct GroupMembershipResponse
                 size_t requestedCount = 0;
                 ReturnErrorOnFailure(mCommandData.groupList.ComputeSize(&requestedCount));
 
-                if (0 == requestedCount)
-                {
+                auto accept_group = [&](GroupId groupId) {
                     // 1.3.6.3.1. If the GroupList field is empty, the entity SHALL respond with all group identifiers of which the
                     // entity is a member.
-                    while (mIterator && mIterator->Next(mapping))
+                    VerifyOrReturnValue(0 != requestedCount, true);
+                    auto iter = mCommandData.groupList.begin();
+                    while (iter.Next())
                     {
-                        if (mapping.endpoint_id == mEndpoint)
-                        {
-                            ReturnErrorOnFailure(app::DataModel::Encode(writer, TLV::AnonymousTag(), mapping.group_id));
-                            ChipLogDetail(Zcl, " 0x%02x", mapping.group_id);
-                        }
+                        VerifyOrReturnValue(groupId != iter.GetValue(), true);
                     }
-                }
-                else
+                    return false;
+                };
+
+                while (mIterator && mIterator->Next(mapping))
                 {
-                    while (mIterator && mIterator->Next(mapping))
+                    if (mapping.endpoint_id != mEndpoint)
                     {
-                        auto iter = mCommandData.groupList.begin();
-                        while (iter.Next())
-                        {
-                            if (mapping.endpoint_id == mEndpoint && mapping.group_id == iter.GetValue())
-                            {
-                                ReturnErrorOnFailure(app::DataModel::Encode(writer, TLV::AnonymousTag(), mapping.group_id));
-                                ChipLogDetail(Zcl, " 0x%02x", mapping.group_id);
-                                break;
-                            }
-                        }
-                        ReturnErrorOnFailure(iter.GetStatus());
+                        continue;
                     }
+                    if (!accept_group(mapping.group_id))
+                    {
+                        continue;
+                    }
+                    ReturnErrorOnFailure(app::DataModel::Encode(writer, TLV::AnonymousTag(), mapping.group_id));
+                    ChipLogDetail(Zcl, " 0x%02x", mapping.group_id);
                 }
                 ChipLogDetail(Zcl, "]");
             }
