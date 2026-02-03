@@ -253,18 +253,33 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
         ViewGroup::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
 
-        Credentials::GroupDataProvider::GroupInfo info;
-        auto status = ViewGroup(request_data.groupID, request.GetAccessingFabricIndex(), info);
+        const auto groupId     = request_data.groupID;
+        const auto fabricIndex = request.GetAccessingFabricIndex();
 
-        ViewGroupResponse::Type response{
-            .status  = to_underlying(status),
-            .groupID = request_data.groupID,
-        };
-        if (status == Status::Success)
+        Credentials::GroupDataProvider::GroupInfo info;
+        const auto status = [&]() {
+            VerifyOrReturnError(IsValidGroupId(groupId), Status::ConstraintError);
+            VerifyOrReturnError(mGroupDataProvider.HasEndpoint(fabricIndex, groupId, mPath.mEndpointId), Status::NotFound);
+
+            if (mGroupDataProvider.GetGroupInfo(fabricIndex, groupId, info) != CHIP_NO_ERROR)
+            {
+                return Status::NotFound;
+            }
+
+            return Status::Success;
+        }();
+
+        if (status != Status::Success)
         {
-            response.groupName = CharSpan(info.name, strnlen(info.name, GroupDataProvider::GroupInfo::kGroupNameMax));
+            info.name[0] = 0;
         }
-        handler->AddResponse(request.path, response);
+
+        handler->AddResponse(request.path,
+                             ViewGroupResponse::Type{
+                                 .status    = to_underlying(status),
+                                 .groupID   = request_data.groupID,
+                                 .groupName = CharSpan(info.name, strnlen(info.name, GroupDataProvider::GroupInfo::kGroupNameMax)),
+                             });
         return std::nullopt;
     }
     case GetGroupMembership::Id: {
@@ -284,15 +299,61 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
         RemoveGroup::DecodableType request_data;
         ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
 
-        Groups::Commands::RemoveGroupResponse::Type response;
-        response.groupID = request_data.groupID;
-        response.status  = to_underlying(RemoveGroup(request_data, request.GetAccessingFabricIndex()));
-        handler->AddResponse(request.path, response);
+        const auto groupId     = request_data.groupID;
+        const auto fabricIndex = request.GetAccessingFabricIndex();
+
+        handler->AddResponse(
+            request.path,
+            Groups::Commands::RemoveGroupResponse::Type{
+                .status  = to_underlying([&]() {
+                    VerifyOrReturnError(IsValidGroupId(groupId), Status::ConstraintError);
+                    VerifyOrReturnError(mGroupDataProvider.HasEndpoint(fabricIndex, groupId, mPath.mEndpointId), Status::NotFound);
+
+                    if (CHIP_ERROR err = mGroupDataProvider.RemoveEndpoint(fabricIndex, groupId, mPath.mEndpointId);
+                        err != CHIP_NO_ERROR)
+                    {
+                        ChipLogDetail(Zcl, "ERR: Failed to remove mapping (end:%d, group:0x%x), err:%" CHIP_ERROR_FORMAT,
+                                       mPath.mEndpointId, groupId, err.Format());
+                        return Status::NotFound;
+                    }
+
+                    if (mScenesIntegration != nullptr)
+                    {
+                        // If a group is removed the scenes associated with that group SHOULD be removed.
+                        LogIfFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, groupId));
+                    }
+
+                    NotifyGroupTableChanged(mContext);
+                    return Status::Success;
+                }()),
+                .groupID = request_data.groupID,
+            });
         return std::nullopt;
     }
     case RemoveAllGroups::Id: {
         MATTER_TRACE_SCOPE("RemoveAllGroups", "Groups");
-        return RemoveAllGroups(request.GetAccessingFabricIndex());
+        const auto fabricIndex = request.GetAccessingFabricIndex();
+
+        if (mScenesIntegration != nullptr)
+        {
+            GroupDataProvider::EndpointIterator * iter = mGroupDataProvider.IterateEndpoints(fabricIndex);
+            GroupDataProvider::GroupEndpoint mapping;
+
+            VerifyOrReturnError(nullptr != iter, Status::Failure);
+            while (iter->Next(mapping))
+            {
+                if (mPath.mEndpointId == mapping.endpoint_id)
+                {
+                    LogIfFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, mapping.group_id));
+                }
+            }
+            iter->Release();
+            LogIfFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, scenes::kGlobalSceneGroupId));
+        }
+
+        LogIfFailure(mGroupDataProvider.RemoveEndpoint(fabricIndex, mPath.mEndpointId));
+        NotifyGroupTableChanged(mContext);
+        return Status::Success;
     }
     case AddGroupIfIdentifying::Id: {
         MATTER_TRACE_SCOPE("AddGroupIfIdentifying", "Groups");
@@ -333,67 +394,6 @@ Protocols::InteractionModel::Status GroupsCluster::AddGroup(chip::GroupId groupI
                       err.Format());
         return Status::ResourceExhausted;
     }
-    NotifyGroupTableChanged(mContext);
-    return Status::Success;
-}
-
-Protocols::InteractionModel::Status GroupsCluster::RemoveGroup(const Groups::Commands::RemoveGroup::DecodableType & input,
-                                                               FabricIndex fabricIndex)
-{
-    VerifyOrReturnError(IsValidGroupId(input.groupID), Status::ConstraintError);
-    VerifyOrReturnError(mGroupDataProvider.HasEndpoint(fabricIndex, input.groupID, mPath.mEndpointId), Status::NotFound);
-
-    if (CHIP_ERROR err = mGroupDataProvider.RemoveEndpoint(fabricIndex, input.groupID, mPath.mEndpointId); err != CHIP_NO_ERROR)
-    {
-        ChipLogDetail(Zcl, "ERR: Failed to remove mapping (end:%d, group:0x%x), err:%" CHIP_ERROR_FORMAT, mPath.mEndpointId,
-                      input.groupID, err.Format());
-        return Status::NotFound;
-    }
-
-    if (mScenesIntegration != nullptr)
-    {
-        // If a group is removed the scenes associated with that group SHOULD be removed.
-        LogIfFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, input.groupID));
-    }
-
-    NotifyGroupTableChanged(mContext);
-    return Status::Success;
-}
-
-Protocols::InteractionModel::Status GroupsCluster::ViewGroup(GroupId groupId, FabricIndex fabricIndex,
-                                                             Credentials::GroupDataProvider::GroupInfo & info)
-{
-    VerifyOrReturnError(IsValidGroupId(groupId), Status::ConstraintError);
-    VerifyOrReturnError(mGroupDataProvider.HasEndpoint(fabricIndex, groupId, mPath.mEndpointId), Status::NotFound);
-
-    if (mGroupDataProvider.GetGroupInfo(fabricIndex, groupId, info) != CHIP_NO_ERROR)
-    {
-        return Status::NotFound;
-    }
-
-    return Status::Success;
-}
-
-Protocols::InteractionModel::Status GroupsCluster::RemoveAllGroups(FabricIndex fabricIndex)
-{
-    if (mScenesIntegration != nullptr)
-    {
-        GroupDataProvider::EndpointIterator * iter = mGroupDataProvider.IterateEndpoints(fabricIndex);
-        GroupDataProvider::GroupEndpoint mapping;
-
-        VerifyOrReturnError(nullptr != iter, Status::Failure);
-        while (iter->Next(mapping))
-        {
-            if (mPath.mEndpointId == mapping.endpoint_id)
-            {
-                LogIfFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, mapping.group_id));
-            }
-        }
-        iter->Release();
-        LogIfFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, scenes::kGlobalSceneGroupId));
-    }
-
-    LogIfFailure(mGroupDataProvider.RemoveEndpoint(fabricIndex, mPath.mEndpointId));
     NotifyGroupTableChanged(mContext);
     return Status::Success;
 }

@@ -60,11 +60,6 @@ private:
     IdentifyIntegrationDelegate * mIdentifyIntegration;
 
     Protocols::InteractionModel::Status AddGroup(chip::GroupId groupID, chip::CharSpan groupName, FabricIndex fabricIndex);
-    Protocols::InteractionModel::Status RemoveGroup(const Groups::Commands::RemoveGroup::DecodableType & input,
-                                                    FabricIndex fabricIndex);
-    Protocols::InteractionModel::Status ViewGroup(GroupId groupID, FabricIndex fabricIndex,
-                                                  Credentials::GroupDataProvider::GroupInfo & info);
-    Protocols::InteractionModel::Status RemoveAllGroups(FabricIndex fabricIndex);
 };
 
 } // namespace chip::app::Clusters
