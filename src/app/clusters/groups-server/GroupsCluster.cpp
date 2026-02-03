@@ -44,6 +44,17 @@ using chip::Protocols::InteractionModel::Status;
 namespace chip::app::Clusters {
 namespace {
 
+constexpr AttributePathParams kGroupKeyGroupTableAttributePath{ kRootEndpointId, GroupKeyManagement::Id,
+                                                                GroupKeyManagement::Attributes::GroupTable::Id };
+
+void NotifyGroupTableChanged(ServerClusterContext * context)
+{
+    // TODO: This seems a bit coupled: we are notifying in this cluster that ANOTHER cluster
+    //       has changed. We should support only one cluster or another really...
+    VerifyOrReturn(context != nullptr);
+    context->interactionContext.dataModelChangeListener.MarkDirty(kGroupKeyGroupTableAttributePath);
+}
+
 class AutoReleaseIterator
 {
 public:
@@ -297,15 +308,6 @@ std::optional<DataModel::ActionReturnStatus> GroupsCluster::InvokeCommand(const 
     }
 }
 
-void GroupsCluster::NotifyGroupTableChanged()
-{
-    // TODO: This seems a bit coupled: we are notifying in this cluster that ANOTHER cluster
-    //       has changed. We should support only one cluster or another really...
-    VerifyOrReturn(mContext != nullptr);
-    mContext->interactionContext.dataModelChangeListener.MarkDirty(
-        { kRootEndpointId, GroupKeyManagement::Id, GroupKeyManagement::Attributes::GroupTable::Id });
-}
-
 Protocols::InteractionModel::Status GroupsCluster::AddGroup(chip::GroupId groupID, chip::CharSpan groupName,
                                                             FabricIndex fabricIndex)
 {
@@ -329,7 +331,7 @@ Protocols::InteractionModel::Status GroupsCluster::AddGroup(chip::GroupId groupI
                       err.Format());
         return Status::ResourceExhausted;
     }
-    NotifyGroupTableChanged();
+    NotifyGroupTableChanged(mContext);
     return Status::Success;
 }
 
@@ -352,7 +354,7 @@ Protocols::InteractionModel::Status GroupsCluster::RemoveGroup(const Groups::Com
         LogIfFailure(mScenesIntegration->GroupWillBeRemoved(fabricIndex, input.groupID));
     }
 
-    NotifyGroupTableChanged();
+    NotifyGroupTableChanged(mContext);
     return Status::Success;
 }
 
@@ -390,7 +392,7 @@ Protocols::InteractionModel::Status GroupsCluster::RemoveAllGroups(FabricIndex f
     }
 
     LogIfFailure(mGroupDataProvider.RemoveEndpoint(fabricIndex, mPath.mEndpointId));
-    NotifyGroupTableChanged();
+    NotifyGroupTableChanged(mContext);
     return Status::Success;
 }
 

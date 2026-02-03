@@ -65,8 +65,6 @@ private:
     Protocols::InteractionModel::Status ViewGroup(GroupId groupID, FabricIndex fabricIndex,
                                                   Credentials::GroupDataProvider::GroupInfo & info);
     Protocols::InteractionModel::Status RemoveAllGroups(FabricIndex fabricIndex);
-
-    void NotifyGroupTableChanged();
 };
 
 } // namespace chip::app::Clusters
