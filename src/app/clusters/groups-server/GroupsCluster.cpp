@@ -86,7 +86,8 @@ bool KeyExists(GroupDataProvider & provider, FabricIndex fabricIndex, GroupId gr
     GroupDataProvider::GroupKey key;
     while (it->Next(key))
     {
-        if (key.group_id == groupId)
+        Credentials::GroupDataProvider::KeySet keys;
+        if ((key.group_id == groupId) && (provider.GetKeySet(fabricIndex, key.keyset_id, keys) == CHIP_NO_ERROR))
         {
             return true;
         }
