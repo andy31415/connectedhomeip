@@ -252,6 +252,8 @@ def runGeneration(cmdLineArgs):
             if i < cmdLineArgs.retries - 1:
                 log.exception("Failure to generate, retrying (%d retries left)", cmdLineArgs.retries - i - 1)
                 continue
+            if cmdLineArgs.retries > 1:
+                log.error("Zap execution failure after %d retries", cmdLineArgs.retries)
             raise
 
     if cmdLineArgs.matter_file_name:
