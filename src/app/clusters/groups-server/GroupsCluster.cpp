@@ -30,7 +30,7 @@ using chip::Credentials::GroupDataProvider;
 using chip::Protocols::InteractionModel::Status;
 
 // The macro LogErrorOnFailure generally logs file:line which makes the macro larger. We use here a smaller
-// marco (i.e. no line & file info) sine the underlying error would have the original cause and logs would contain
+// macro (i.e. no line & file info) since the underlying error would have the original cause and logs would contain
 // what call is being processed. This is to save about 100 bytes or so of flash.
 #define LogIfFailure(expr)                                                                                                         \
     do                                                                                                                             \
