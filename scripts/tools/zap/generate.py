@@ -248,6 +248,7 @@ def runGeneration(cmdLineArgs):
     for i in range(cmdLineArgs.retries):
         try:
             tool.run('generate', *args)
+            break
         except subprocess.CalledProcessError:
             if i < cmdLineArgs.retries - 1:
                 log.exception("Failure to generate, retrying (%d retries left)", cmdLineArgs.retries - i - 1)
