@@ -51,15 +51,14 @@ public:
     DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request,
                                                 AttributeValueEncoder & encoder) override;
     std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
-                                                               chip::TLV::TLVReader & input_arguments,
-                                                               CommandHandler * handler) override;
+                                                               TLV::TLVReader & input_arguments, CommandHandler * handler) override;
 
 private:
     Credentials::GroupDataProvider & mGroupDataProvider;
     scenes::ScenesIntegrationDelegate * mScenesIntegration;
     IdentifyIntegrationDelegate * mIdentifyIntegration;
 
-    Protocols::InteractionModel::Status AddGroup(chip::GroupId groupID, chip::CharSpan groupName, FabricIndex fabricIndex);
+    Protocols::InteractionModel::Status AddGroup(GroupId groupID, CharSpan groupName, FabricIndex fabricIndex);
 };
 
 } // namespace chip::app::Clusters

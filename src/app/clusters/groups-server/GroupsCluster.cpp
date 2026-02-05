@@ -38,7 +38,7 @@ using chip::Protocols::InteractionModel::Status;
         CHIP_ERROR __err = (expr);                                                                                                 \
         if (__err != CHIP_NO_ERROR)                                                                                                \
         {                                                                                                                          \
-            ChipLogError(AppServer, "Error: %" CHIP_ERROR_FORMAT, __err.Format());                                                 \
+            ChipLogError(Zcl, "Error: %" CHIP_ERROR_FORMAT, __err.Format());                                                       \
         }                                                                                                                          \
     } while (false)
 
@@ -237,11 +237,11 @@ GroupsCluster::InvokeCommand(const DataModel::InvokeRequest & request, TLV::TLVR
     case AddGroup::Id: {
         MATTER_TRACE_SCOPE("AddGroup", "Groups");
         AddGroup::DecodableType request_data;
-        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, fabricIndex));
 
         Groups::Commands::AddGroupResponse::Type response;
         response.groupID = request_data.groupID;
-        response.status  = to_underlying(AddGroup(request_data.groupID, request_data.groupName, request.GetAccessingFabricIndex()));
+        response.status  = to_underlying(AddGroup(request_data.groupID, request_data.groupName, fabricIndex));
         handler->AddResponse(request.path, response);
 
         return std::nullopt;
@@ -249,7 +249,7 @@ GroupsCluster::InvokeCommand(const DataModel::InvokeRequest & request, TLV::TLVR
     case ViewGroup::Id: {
         MATTER_TRACE_SCOPE("ViewGroup", "Groups");
         ViewGroup::DecodableType request_data;
-        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, fabricIndex));
 
         const GroupId groupId = request_data.groupID;
 
@@ -282,9 +282,9 @@ GroupsCluster::InvokeCommand(const DataModel::InvokeRequest & request, TLV::TLVR
     case GetGroupMembership::Id: {
         MATTER_TRACE_SCOPE("GetGroupMembership", "Groups");
         GetGroupMembership::DecodableType request_data;
-        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, fabricIndex));
 
-        GroupDataProvider::EndpointIterator * iter = mGroupDataProvider.IterateEndpoints(handler->GetAccessingFabricIndex());
+        GroupDataProvider::EndpointIterator * iter = mGroupDataProvider.IterateEndpoints(fabricIndex);
         VerifyOrReturnError(nullptr != iter, Status::Failure);
 
         handler->AddResponse(request.path, GroupMembershipResponse(request_data, mPath.mEndpointId, iter));
@@ -294,7 +294,7 @@ GroupsCluster::InvokeCommand(const DataModel::InvokeRequest & request, TLV::TLVR
     case RemoveGroup::Id: {
         MATTER_TRACE_SCOPE("RemoveGroup", "Groups");
         RemoveGroup::DecodableType request_data;
-        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, fabricIndex));
 
         const GroupId groupId = request_data.groupID;
 
@@ -353,13 +353,13 @@ GroupsCluster::InvokeCommand(const DataModel::InvokeRequest & request, TLV::TLVR
     case AddGroupIfIdentifying::Id: {
         MATTER_TRACE_SCOPE("AddGroupIfIdentifying", "Groups");
         AddGroupIfIdentifying::DecodableType request_data;
-        ReturnErrorOnFailure(request_data.Decode(input_arguments, request.GetAccessingFabricIndex()));
+        ReturnErrorOnFailure(request_data.Decode(input_arguments, fabricIndex));
 
         // skip with success if we are not identifying
         VerifyOrReturnValue((mIdentifyIntegration != nullptr) && mIdentifyIntegration->IsIdentifying(), Status::Success);
 
         // AddGroupIfIdentifying is response `Y` in the spec: we return the status (not a structure, as opposed to AddGroup)
-        return AddGroup(request_data.groupID, request_data.groupName, request.GetAccessingFabricIndex());
+        return AddGroup(request_data.groupID, request_data.groupName, fabricIndex);
     }
     default:
         return Status::UnsupportedCommand;
@@ -386,6 +386,8 @@ Status GroupsCluster::AddGroup(GroupId groupID, CharSpan groupName, FabricIndex 
     {
         ChipLogDetail(Zcl, "ERR: Failed to add mapping (end:%d, group:0x%x), err:%" CHIP_ERROR_FORMAT, mPath.mEndpointId, groupID,
                       err.Format());
+        // best-effort undo the mapping we added above, to try to be a bit more atomic.
+        LogIfFailure(mGroupDataProvider.RemoveGroupInfo(fabricIndex, groupID));
         return Status::ResourceExhausted;
     }
     NotifyGroupTableChanged(mContext);
