@@ -261,7 +261,6 @@ public:
             {
                 value               = (value == "Yes") ? "No" : "Yes";
                 bool attributeValue = (value == "Yes");
-                ESP_LOGI(TAG, "Occupancy changed to : %s", value.c_str());
                 // update the current occupancy here for hardcoded endpoint 1
                 auto occupancy = app::Clusters::OccupancySensing::FindClusterOnEndpoint(1);
                 if (occupancy != nullptr)
