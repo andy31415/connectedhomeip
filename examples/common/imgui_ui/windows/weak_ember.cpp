@@ -20,6 +20,9 @@
 //
 // This is a WORKAROUND and should probably be fixed.
 //
+// See https://github.com/project-chip/connectedhomeip/issues/42984
+//
+
 #include <app/clusters/boolean-state-server/CodegenIntegration.h>
 #include <app/clusters/occupancy-sensor-server/OccupancySensingCluster.h>
 
@@ -45,6 +48,8 @@ __attribute__((weak)) OccupancySensingCluster * FindClusterOnEndpoint(EndpointId
     return nullptr;
 }
 
+} // namespace OccupancySensing
+
 namespace BooleanState {
 
 __attribute__((weak)) BooleanStateCluster * FindClusterOnEndpoint(EndpointId endpointId)
@@ -56,5 +61,4 @@ __attribute__((weak)) BooleanStateCluster * FindClusterOnEndpoint(EndpointId end
 
 } // namespace BooleanState
 
-} // namespace OccupancySensing
 } // namespace chip::app::Clusters
