@@ -103,7 +103,7 @@ void app_button_event_handler(const button_manager_button_t * button_mgr, button
                 return;
             }
 
-            bool occupied    = occupancy->GetOccupancy();
+            bool occupied    = occupancy->IsOccupied();
             uint8_t bitValue = occupied ? 1 : 0;
             printf("Button Holding Toggle: %d -> %d\n", bitValue, !bitValue);
             occupancy->SetOccupancy(!occupied);
