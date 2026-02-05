@@ -20,6 +20,7 @@
 //
 // This is a WORKAROUND and should probably be fixed.
 //
+#include <app/clusters/boolean-state-server/CodegenIntegration.h>
 #include <app/clusters/occupancy-sensor-server/OccupancySensingCluster.h>
 
 namespace {
@@ -34,7 +35,9 @@ struct LogNotAvailable
 
 } // namespace
 
-namespace chip::app::Clusters::OccupancySensing {
+namespace chip::app::Clusters {
+
+namespace OccupancySensing {
 
 __attribute__((weak)) OccupancySensingCluster * FindClusterOnEndpoint(EndpointId endpointId)
 {
@@ -42,4 +45,16 @@ __attribute__((weak)) OccupancySensingCluster * FindClusterOnEndpoint(EndpointId
     return nullptr;
 }
 
-} // namespace chip::app::Clusters::OccupancySensing
+namespace BooleanState {
+
+__attribute__((weak)) BooleanStateCluster * FindClusterOnEndpoint(EndpointId endpointId)
+{
+
+    static LogNotAvailable logger("Boolean State Cluster");
+    return nullptr;
+}
+
+} // namespace BooleanState
+
+} // namespace OccupancySensing
+} // namespace chip::app::Clusters
