@@ -546,7 +546,7 @@ void AppTask::OccupancyEventHandler(AppEvent * aEvent)
         return;
     }
 
-    MT793X_LOG("Lighting occupancy: %u", attributeValue);
+    MT793X_LOG("Lighting occupancy: %u", aEvent->OccupancytEvent.Present);
     cluster->SetOccupancy(aEvent->OccupancytEvent.Present);
 }
 
