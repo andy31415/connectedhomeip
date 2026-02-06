@@ -97,7 +97,7 @@ void app_button_event_handler(const button_manager_button_t * button_mgr, button
         {
             // update the current occupancy here for hardcoded endpoint 1
             auto occupancy = app::Clusters::OccupancySensing::FindClusterOnEndpoint(1);
-            if (occumancy == nullptr)
+            if (occupancy == nullptr)
             {
                 printf("No occupancy cluster found on endpoint 1\n");
                 return;
