@@ -123,7 +123,7 @@ public:
 
     uint32_t GetNumReportsInFlight() const { return mNumReportsInFlight; }
 
-    uint64_t GetDirtySetGeneration() const { return mDirtyGeneration; }
+    uint32_t GetDirtySetGeneration() const { return mDirtyGeneration; }
 
 #if CONFIG_BUILD_FOR_HOST_UNIT_TEST
     size_t GetGlobalDirtySetSize() { return mGlobalDirtySet.Allocated(); }
@@ -145,9 +145,11 @@ private:
 
     struct AttributePathParamsWithGeneration : public AttributePathParams
     {
-        AttributePathParamsWithGeneration() {}
+        AttributePathParamsWithGeneration() = default;
         AttributePathParamsWithGeneration(const AttributePathParams aPath) : AttributePathParams(aPath) {}
-        uint64_t mGeneration = 0;
+
+        // AttributePathParams is 32-bit aligned, so u32 seems reasonable since we do not use packed structs.
+        uint32_t mGeneration = 0;
     };
 
     /**
@@ -282,7 +284,7 @@ private:
      * Count it from 1, so 0 can be used in ReadHandler to indicate "the read handler has never
      * completed a report".
      */
-    uint64_t mDirtyGeneration = 1;
+    uint32_t mDirtyGeneration = 1;
 
 #if CONFIG_BUILD_FOR_HOST_UNIT_TEST
     uint32_t mReservedSize          = 0;

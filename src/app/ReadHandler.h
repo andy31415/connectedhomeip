@@ -545,15 +545,15 @@ private:
     // This allows us to reset the iterator to the beginning of the current
     // cluster instead of the beginning of the whole report in AttributePathIsDirty, without
     // permanently missing dirty any paths.
-    uint64_t mDirtyGeneration = 0;
+    uint32_t mDirtyGeneration = 0;
 
     // For subscriptions, we record the timestamp when we started to generate the last report.
     // The mCurrentReportsBeginGeneration records the timestamp for the current report, which won;t be used for checking if this
     // ReadHandler is dirty.
     // mPreviousReportsBeginGeneration will be set to mCurrentReportsBeginGeneration after we sent the last chunk of the current
     // report.
-    uint64_t mPreviousReportsBeginGeneration = 0;
-    uint64_t mCurrentReportsBeginGeneration  = 0;
+    uint32_t mPreviousReportsBeginGeneration = 0;
+    uint32_t mCurrentReportsBeginGeneration  = 0;
     /*
      *           (mDirtyGeneration = b > a, this is a dirty read handler)
      *        +- Start Report -> mCurrentReportsBeginGeneration = c
