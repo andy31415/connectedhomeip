@@ -148,7 +148,7 @@ bool AppOptions::HandleOptions(const char * program, OptionSet * options, int id
             using namespace chip::app::Clusters::TimeSynchronization;
             ForceTimeSource(TimeSourceEnum::kUnknown);
         }
-        long longValue = atol(value);
+        long longValue = atol(value); // NOLINT(bugprone-unchecked-string-to-number-conversion)
         if (longValue >= 0)
         {
             uint64_t override = uint64_t(longValue) * chip::kMicrosecondsPerSecond;
