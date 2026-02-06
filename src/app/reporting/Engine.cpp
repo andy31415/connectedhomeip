@@ -381,9 +381,10 @@ CHIP_ERROR Engine::BuildSingleReportDataAttributeReportIBs(ReportDataMessage::Bu
         ConcreteAttributePath readPath;
 
         ChipLogDetail(DataManagement,
-                      "Building Reports for ReadHandler with LastReportGeneration = 0x%08X"
-                      " DirtyGeneration = 0x%08X",
-                      apReadHandler->mPreviousReportsBeginGeneration, apReadHandler->mDirtyGeneration);
+                      "Building Reports for ReadHandler with LastReportGeneration = 0x%08lX"
+                      " DirtyGeneration = 0x%08lX",
+                      static_cast<long>(apReadHandler->mPreviousReportsBeginGeneration),
+                      static_cast<long>(apReadHandler->mDirtyGeneration));
 
         // This ReadHandler is not generating reports, so we reset the iterator for a clean start.
         if (!apReadHandler->IsReporting())
