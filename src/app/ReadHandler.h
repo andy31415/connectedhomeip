@@ -572,7 +572,7 @@ private:
 
     // When we don't have enough resources for a new subscription, the oldest subscription might be evicted by interaction model
     // engine, the "oldest" subscription is the subscription with the smallest generation.
-    uint64_t mTransactionStartGeneration = 0;
+    uint32_t mTransactionStartGeneration = 0;
 
     EventNumber mEventMin = 0;
 
