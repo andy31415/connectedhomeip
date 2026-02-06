@@ -33,7 +33,7 @@ static_assert(AreGenerationsInOrder(1, 100));
 static_assert(!AreGenerationsInOrder(100, 1));
 
 static_assert(AreGenerationsInOrder(0xFFFFFFAB, 120));
-static_assert(!AreGenerationsInOrder(120, 0xFFFFFFAb));
+static_assert(!AreGenerationsInOrder(120, 0xFFFFFFAB));
 
 static_assert(AreGenerationsInOrder(1, 0x7FFFFFFF));
 static_assert(!AreGenerationsInOrder(0x7FFFFFFF, 1));
