@@ -115,6 +115,7 @@ bool AppOptions::HandleOptions(const char * program, OptionSet * options, int id
     {
     case kOptionMinCommissioningTimeout: {
         auto & commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
+        // NOLINTNEXTLINE(bugprone-unchecked-string-to-number-conversion)
         commissionMgr.OverrideMinCommissioningTimeout(chip::System::Clock::Seconds16(static_cast<uint16_t>(atoi(value))));
         break;
     }
