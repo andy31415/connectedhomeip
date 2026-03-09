@@ -675,7 +675,7 @@ TEST_F(TestCodeDrivenDataModelProvider, WriteAttribute)
     auto path             = ConcreteDataAttributePath(1, 10, 1);
     uint32_t valueToWrite = 123;
     EXPECT_EQ(WriteU32Attribute(mProvider, path, valueToWrite), CHIP_NO_ERROR);
-    EXPECT_TRUE(testCluster.mLastWriteRequest.has_value());
+    ASSERT_TRUE(testCluster.mLastWriteRequest.has_value());
     EXPECT_EQ(testCluster.mLastWriteRequest->path, path);
 
     uint32_t readValue;
@@ -701,12 +701,9 @@ TEST_F(TestCodeDrivenDataModelProvider, InvokeCommand)
     chip::Access::SubjectDescriptor descriptor;
     DataModel::InvokeRequest request(ConcreteCommandPath(1, 10, 1), descriptor);
     auto result = mProvider.InvokeCommand(request, reader, nullptr);
-    EXPECT_TRUE(result.has_value());
-    if (result.has_value())
-    {
-        EXPECT_EQ(result.value().GetUnderlyingError(), CHIP_NO_ERROR);
-    }
-    EXPECT_TRUE(testCluster.mLastInvokeRequest.has_value());
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(result.value().GetUnderlyingError(), CHIP_NO_ERROR);
+    ASSERT_TRUE(testCluster.mLastInvokeRequest.has_value());
     EXPECT_EQ(testCluster.mLastInvokeRequest->path, request.path);
 }
 
