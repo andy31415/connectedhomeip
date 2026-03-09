@@ -23,7 +23,12 @@ namespace chip {
 namespace app {
 namespace Clusters {
 
-// Externally available alias for backward compatibility
+// Default alias for out-of-the-box SDK usage, binding the cluster to the standard
+// DeviceLayer policy (ConfigurationManager, DeviceInstanceInfoProvider, PlatformManager).
+//
+// Integrators that only need a subset of these capabilities, or that want to avoid
+// pulling in the full DeviceLayer dependency, should instantiate BasicInformationClusterImpl
+// directly with a custom policy instead.
 using BasicInformationCluster = BasicInformationClusterImpl<DeviceLayerBasicInformationPolicy>;
 
 extern template class BasicInformationClusterImpl<DeviceLayerBasicInformationPolicy>;
