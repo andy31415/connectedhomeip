@@ -116,8 +116,8 @@ DataModel::ActionReturnStatus RetrieveClusterData(DataModel::Provider * dataMode
 
     DataModel::ReadAttributeRequest readRequest = { { subjectDescriptor } };
 
-    readRequest.readFlags         = flags;
-    readRequest.path              = path;
+    readRequest.readFlags = flags;
+    readRequest.path      = path;
 
     DataModel::ServerClusterFinder serverClusterFinder(dataModel);
 

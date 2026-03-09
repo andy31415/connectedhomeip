@@ -426,9 +426,9 @@ Status CommandHandlerImpl::ProcessCommandDataIB(CommandDataIB::Parser & aCommand
 
     {
         Access::SubjectDescriptor subjectDescriptor = GetSubjectDescriptor();
-        DataModel::InvokeRequest request = { { subjectDescriptor } };
+        DataModel::InvokeRequest request            = { { subjectDescriptor } };
 
-        request.path              = concretePath;
+        request.path = concretePath;
         request.invokeFlags.Set(DataModel::InvokeFlags::kTimed, IsTimedInvoke());
 
         Status preCheckStatus = mpCallback->ValidateCommandCanBeDispatched(request);
@@ -529,9 +529,9 @@ Status CommandHandlerImpl::ProcessGroupCommandDataIB(CommandDataIB::Parser & aCo
 
         {
             Access::SubjectDescriptor subjectDescriptor = GetSubjectDescriptor();
-            DataModel::InvokeRequest request = { { subjectDescriptor } };
+            DataModel::InvokeRequest request            = { { subjectDescriptor } };
 
-            request.path              = concretePath;
+            request.path = concretePath;
             request.invokeFlags.Set(DataModel::InvokeFlags::kTimed, IsTimedInvoke());
 
             Status preCheckStatus = mpCallback->ValidateCommandCanBeDispatched(request);

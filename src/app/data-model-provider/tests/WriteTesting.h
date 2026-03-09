@@ -58,10 +58,10 @@ public:
 
     WriteOperation & SetSubjectDescriptor(const chip::Access::SubjectDescriptor & descriptor)
     {
-        auto path = mRequest->path;
+        auto path  = mRequest->path;
         auto flags = mRequest->writeFlags;
         mRequest.emplace(app::DataModel::WriteAttributeRequest{ { descriptor } });
-        mRequest->path = path;
+        mRequest->path       = path;
         mRequest->writeFlags = flags;
         return *this;
     }

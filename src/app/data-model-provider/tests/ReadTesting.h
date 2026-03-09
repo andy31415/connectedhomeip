@@ -145,10 +145,10 @@ public:
     ReadOperation & SetSubjectDescriptor(const chip::Access::SubjectDescriptor & descriptor)
     {
         VerifyOrDie(mState == State::kInitializing);
-        auto path = mRequest->path;
+        auto path  = mRequest->path;
         auto flags = mRequest->readFlags;
         mRequest.emplace(app::DataModel::ReadAttributeRequest{ { descriptor } });
-        mRequest->path = path;
+        mRequest->path      = path;
         mRequest->readFlags = flags;
         return *this;
     }

@@ -37,10 +37,7 @@ struct OperationRequest
 
     /// Accessing fabric index is the subjectDescriptor fabric index (if any).
     /// This is a readability convenience function.
-    FabricIndex GetAccessingFabricIndex() const
-    {
-        return subjectDescriptor.fabricIndex;
-    }
+    FabricIndex GetAccessingFabricIndex() const { return subjectDescriptor.fabricIndex; }
 };
 
 enum class ReadFlags : uint32_t
