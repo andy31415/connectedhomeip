@@ -166,7 +166,8 @@ TEST(TestDefaultServerCluster, InvokeDefault)
     FakeDefaultServerCluster cluster({ 1, 2 });
 
     TLV::TLVReader tlvReader;
-    InvokeRequest request;
+    chip::Access::SubjectDescriptor descriptor;
+    InvokeRequest request{ { descriptor } };
 
     request.path = { 0 /* endpoint */, 1 /* cluster */, 1234 /* command */ };
 

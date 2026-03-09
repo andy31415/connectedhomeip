@@ -101,7 +101,7 @@ public:
         {
             return DataModel::ActionReturnStatus(Protocols::InteractionModel::Status::UnsupportedAttribute);
         }
-        mLastReadRequest = request;
+        mLastReadRequest.emplace(request);
         return encoder.Encode(mAttributeValue);
     }
 
@@ -116,7 +116,7 @@ public:
         {
             return DataModel::ActionReturnStatus(Protocols::InteractionModel::Status::UnsupportedAttribute);
         }
-        mLastWriteRequest = request;
+        mLastWriteRequest.emplace(request);
         return decoder.Decode(mAttributeValue);
     }
 
@@ -131,7 +131,7 @@ public:
         {
             return DataModel::ActionReturnStatus(Protocols::InteractionModel::Status::UnsupportedCommand);
         }
-        mLastInvokeRequest = request;
+        mLastInvokeRequest.emplace(request);
         return DataModel::ActionReturnStatus(Protocols::InteractionModel::Status::Success);
     }
 
@@ -199,9 +199,9 @@ public:
     int startupCallCount  = 0;
     int shutdownCallCount = 0;
 
-    DataModel::ReadAttributeRequest mLastReadRequest;
-    DataModel::WriteAttributeRequest mLastWriteRequest;
-    DataModel::InvokeRequest mLastInvokeRequest;
+    std::optional<DataModel::ReadAttributeRequest> mLastReadRequest;
+    std::optional<DataModel::WriteAttributeRequest> mLastWriteRequest;
+    std::optional<DataModel::InvokeRequest> mLastInvokeRequest;
     uint32_t mAttributeValue = 42;
     std::vector<ConcreteClusterPath> mPaths;
     DataVersion mDataVersion;
@@ -675,7 +675,8 @@ TEST_F(TestCodeDrivenDataModelProvider, WriteAttribute)
     auto path             = ConcreteDataAttributePath(1, 10, 1);
     uint32_t valueToWrite = 123;
     EXPECT_EQ(WriteU32Attribute(mProvider, path, valueToWrite), CHIP_NO_ERROR);
-    EXPECT_EQ(testCluster.mLastWriteRequest.path, path);
+    EXPECT_TRUE(testCluster.mLastWriteRequest.has_value());
+    EXPECT_EQ(testCluster.mLastWriteRequest->path, path);
 
     uint32_t readValue;
     EXPECT_SUCCESS(ReadU32Attribute(mProvider, path, readValue));
@@ -697,14 +698,17 @@ TEST_F(TestCodeDrivenDataModelProvider, InvokeCommand)
     System::PacketBufferHandle buffer = System::PacketBufferHandle::New(128);
     TLV::TLVReader reader;
     reader.Init(buffer->Start(), buffer->DataLength());
-    DataModel::InvokeRequest request = { .path = ConcreteCommandPath(1, 10, 1) };
+    chip::Access::SubjectDescriptor descriptor;
+    DataModel::InvokeRequest request{ { descriptor } };
+    request.path = ConcreteCommandPath(1, 10, 1);
     auto result                      = mProvider.InvokeCommand(request, reader, nullptr);
     EXPECT_TRUE(result.has_value());
     if (result.has_value())
     {
         EXPECT_EQ(result.value().GetUnderlyingError(), CHIP_NO_ERROR);
     }
-    EXPECT_EQ(testCluster.mLastInvokeRequest.path, request.path);
+    EXPECT_TRUE(testCluster.mLastInvokeRequest.has_value());
+    EXPECT_EQ(testCluster.mLastInvokeRequest->path, request.path);
 }
 
 TEST_F(TestCodeDrivenDataModelProvider, IterateOverAttributes)
@@ -894,7 +898,9 @@ TEST_F(TestCodeDrivenDataModelProvider, InvokeCommandOnInvalidEndpoint)
     TLV::TLVReader reader;
     reader.Init(buffer->Start(), buffer->DataLength());
 
-    DataModel::InvokeRequest requestUnsupportedEndpoint = { .path = ConcreteCommandPath(5, 10, 1) };
+    chip::Access::SubjectDescriptor descriptor;
+    DataModel::InvokeRequest requestUnsupportedEndpoint{ { descriptor } };
+    requestUnsupportedEndpoint.path = ConcreteCommandPath(5, 10, 1);
     auto result                                         = mProvider.InvokeCommand(requestUnsupportedEndpoint, reader, nullptr);
     ASSERT_TRUE(result.has_value());
     if (result)
@@ -915,7 +921,9 @@ TEST_F(TestCodeDrivenDataModelProvider, InvokeCommandOnInvalidCluster)
     TLV::TLVReader reader;
     reader.Init(buffer->Start(), buffer->DataLength());
 
-    DataModel::InvokeRequest requestUnsupportedCluster = { .path = ConcreteCommandPath(1, 99, 1) };
+    chip::Access::SubjectDescriptor descriptor;
+    DataModel::InvokeRequest requestUnsupportedCluster{ { descriptor } };
+    requestUnsupportedCluster.path = ConcreteCommandPath(1, 99, 1);
     auto result                                        = mProvider.InvokeCommand(requestUnsupportedCluster, reader, nullptr);
     ASSERT_TRUE(result.has_value());
     if (result)

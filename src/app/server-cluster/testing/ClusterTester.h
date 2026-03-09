@@ -187,7 +187,7 @@ public:
         reader.Init(buffer, writer.GetLengthWritten());
         ReturnErrorOnFailure(reader.Next());
 
-        app::AttributeValueDecoder decoder(reader, *writeOp.GetRequest().subjectDescriptor);
+        app::AttributeValueDecoder decoder(reader, writeOp.GetRequest().subjectDescriptor);
 
         return mCluster.WriteAttribute(writeOp.GetRequest(), decoder);
     }
@@ -244,9 +244,8 @@ public:
 
         const Access::SubjectDescriptor subjectDescriptor = mHandler.GetSubjectDescriptor();
         const app::DataModel::InvokeRequest invokeRequest = [&]() {
-            app::DataModel::InvokeRequest req;
-            req.path              = { paths[0].mEndpointId, paths[0].mClusterId, commandId };
-            req.subjectDescriptor = &subjectDescriptor;
+            app::DataModel::InvokeRequest req{ { subjectDescriptor } };
+            req.path = { paths[0].mEndpointId, paths[0].mClusterId, commandId };
             return req;
         }();
 

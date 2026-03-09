@@ -387,7 +387,8 @@ TEST_F(TestCameraAVStreamManagementCluster, TestAcceptedCommands)
 TEST_F(TestCameraAVStreamManagementCluster, TestReadClusterRevisionAttribute)
 {
     // Create a mock attribute request for ClusterRevision
-    chip::app::DataModel::ReadAttributeRequest request;
+    chip::Access::SubjectDescriptor descriptor;
+    chip::app::DataModel::ReadAttributeRequest request{ { descriptor } };
     request.path.mEndpointId  = kTestEndpointId;
     request.path.mClusterId   = CameraAvStreamManagement::Id;
     request.path.mAttributeId = chip::app::Clusters::Globals::Attributes::ClusterRevision::Id;

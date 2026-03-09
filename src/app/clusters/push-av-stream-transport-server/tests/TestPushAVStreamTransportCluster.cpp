@@ -752,13 +752,14 @@ TEST_F(TestPushAVStreamTransportServerLogic, Test_AllocateTransport_AllocateTran
     ConcreteAttributePath path(1, Clusters::PushAvStreamTransport::Id,
                                Clusters::PushAvStreamTransport::Attributes::CurrentConnections::Id);
 
-    DataModel::ReadAttributeRequest request;
-    request.path = path;
-    request.readFlags.Set(DataModel::ReadFlags::kFabricFiltered);
-    DataVersion dataVersion(0);
     Access::SubjectDescriptor subjectDescriptor;
     FabricIndex peerFabricIndex   = 1;
     subjectDescriptor.fabricIndex = peerFabricIndex;
+
+    DataModel::ReadAttributeRequest request{ { subjectDescriptor } };
+    request.path = path;
+    request.readFlags.Set(DataModel::ReadFlags::kFabricFiltered);
+    DataVersion dataVersion(0);
     AttributeValueEncoder encoder(builder, subjectDescriptor, path, dataVersion, true);
 
     // Read the CurrentConnections attribute using the cluster's Read function

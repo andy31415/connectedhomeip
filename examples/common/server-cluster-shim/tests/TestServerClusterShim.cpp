@@ -503,7 +503,9 @@ TEST_F(TestServerClusterShim, EmberInvokeTest)
 
     {
         const ConcreteCommandPath kCommandPath(kMockEndpoint1, MockClusterId(1), kMockCommandId1);
-        const InvokeRequest kInvokeRequest{ .path = kCommandPath };
+        chip::Access::SubjectDescriptor descriptor;
+        InvokeRequest kInvokeRequest{ { descriptor } };
+        kInvokeRequest.path = kCommandPath;
         chip::TLV::TLVReader tlvReader;
 
         const uint32_t kDispatchCountPre = DispatchCount();
@@ -519,7 +521,9 @@ TEST_F(TestServerClusterShim, EmberInvokeTest)
 
     {
         const ConcreteCommandPath kCommandPath(kMockEndpoint1, MockClusterId(1), kMockCommandId2);
-        const InvokeRequest kInvokeRequest{ .path = kCommandPath };
+        chip::Access::SubjectDescriptor descriptor;
+        InvokeRequest kInvokeRequest{ { descriptor } };
+        kInvokeRequest.path = kCommandPath;
         chip::TLV::TLVReader tlvReader;
 
         const uint32_t kDispatchCountPre = DispatchCount();
