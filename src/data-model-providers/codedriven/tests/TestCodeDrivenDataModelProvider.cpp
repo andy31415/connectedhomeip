@@ -699,9 +699,8 @@ TEST_F(TestCodeDrivenDataModelProvider, InvokeCommand)
     TLV::TLVReader reader;
     reader.Init(buffer->Start(), buffer->DataLength());
     chip::Access::SubjectDescriptor descriptor;
-    DataModel::InvokeRequest request{ { descriptor } };
-    request.path = ConcreteCommandPath(1, 10, 1);
-    auto result  = mProvider.InvokeCommand(request, reader, nullptr);
+    DataModel::InvokeRequest request(ConcreteCommandPath(1, 10, 1), descriptor);
+    auto result = mProvider.InvokeCommand(request, reader, nullptr);
     EXPECT_TRUE(result.has_value());
     if (result.has_value())
     {
@@ -899,9 +898,8 @@ TEST_F(TestCodeDrivenDataModelProvider, InvokeCommandOnInvalidEndpoint)
     reader.Init(buffer->Start(), buffer->DataLength());
 
     chip::Access::SubjectDescriptor descriptor;
-    DataModel::InvokeRequest requestUnsupportedEndpoint{ { descriptor } };
-    requestUnsupportedEndpoint.path = ConcreteCommandPath(5, 10, 1);
-    auto result                     = mProvider.InvokeCommand(requestUnsupportedEndpoint, reader, nullptr);
+    DataModel::InvokeRequest requestUnsupportedEndpoint(ConcreteCommandPath(5, 10, 1), descriptor);
+    auto result = mProvider.InvokeCommand(requestUnsupportedEndpoint, reader, nullptr);
     ASSERT_TRUE(result.has_value());
     if (result)
     {
@@ -922,9 +920,8 @@ TEST_F(TestCodeDrivenDataModelProvider, InvokeCommandOnInvalidCluster)
     reader.Init(buffer->Start(), buffer->DataLength());
 
     chip::Access::SubjectDescriptor descriptor;
-    DataModel::InvokeRequest requestUnsupportedCluster{ { descriptor } };
-    requestUnsupportedCluster.path = ConcreteCommandPath(1, 99, 1);
-    auto result                    = mProvider.InvokeCommand(requestUnsupportedCluster, reader, nullptr);
+    DataModel::InvokeRequest requestUnsupportedCluster(ConcreteCommandPath(1, 99, 1), descriptor);
+    auto result = mProvider.InvokeCommand(requestUnsupportedCluster, reader, nullptr);
     ASSERT_TRUE(result.has_value());
     if (result)
     {

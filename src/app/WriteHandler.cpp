@@ -891,9 +891,8 @@ CHIP_ERROR WriteHandler::WriteClusterData(const Access::SubjectDescriptor & aSub
     DataModel::ActionReturnStatus status = CheckWriteAllowed(aSubject, aPath);
     if (status.IsSuccess())
     {
-        DataModel::WriteAttributeRequest request = { { aSubject } };
+        DataModel::WriteAttributeRequest request(aPath, aSubject);
 
-        request.path = aPath;
         request.writeFlags.Set(DataModel::WriteFlags::kTimed, IsTimedWrite());
 
         AttributeValueDecoder decoder(aData, aSubject);

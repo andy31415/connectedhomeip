@@ -756,8 +756,7 @@ TEST_F(TestPushAVStreamTransportServerLogic, Test_AllocateTransport_AllocateTran
     FabricIndex peerFabricIndex   = 1;
     subjectDescriptor.fabricIndex = peerFabricIndex;
 
-    DataModel::ReadAttributeRequest request{ { subjectDescriptor } };
-    request.path = path;
+    DataModel::ReadAttributeRequest request(path, subjectDescriptor);
     request.readFlags.Set(DataModel::ReadFlags::kFabricFiltered);
     DataVersion dataVersion(0);
     AttributeValueEncoder encoder(builder, subjectDescriptor, path, dataVersion, true);

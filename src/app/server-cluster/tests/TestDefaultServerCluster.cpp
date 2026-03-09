@@ -167,9 +167,7 @@ TEST(TestDefaultServerCluster, InvokeDefault)
 
     TLV::TLVReader tlvReader;
     chip::Access::SubjectDescriptor descriptor;
-    InvokeRequest request{ { descriptor } };
-
-    request.path = { 0 /* endpoint */, 1 /* cluster */, 1234 /* command */ };
+    InvokeRequest request({ 0 /* endpoint */, 1 /* cluster */, 1234 /* command */ }, descriptor);
 
     ASSERT_EQ(cluster.InvokeCommand(request, tlvReader, nullptr /* command handler, assumed unused here */),
               Status::UnsupportedCommand);

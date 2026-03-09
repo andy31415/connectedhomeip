@@ -134,8 +134,7 @@ public:
 
     ReadOperation(const app::ConcreteAttributePath & path)
     {
-        mRequest.emplace(app::DataModel::ReadAttributeRequest{ { kDenySubjectDescriptor } });
-        mRequest->path = path;
+        mRequest.emplace(app::DataModel::ReadAttributeRequest(path, kDenySubjectDescriptor));
     }
 
     ReadOperation(EndpointId endpoint, ClusterId cluster, AttributeId attribute) :
@@ -147,8 +146,7 @@ public:
         VerifyOrDie(mState == State::kInitializing);
         auto path  = mRequest->path;
         auto flags = mRequest->readFlags;
-        mRequest.emplace(app::DataModel::ReadAttributeRequest{ { descriptor } });
-        mRequest->path      = path;
+        mRequest.emplace(app::DataModel::ReadAttributeRequest(path, descriptor));
         mRequest->readFlags = flags;
         return *this;
     }

@@ -48,8 +48,7 @@ class WriteOperation
 public:
     WriteOperation(const app::ConcreteDataAttributePath & path)
     {
-        mRequest.emplace(app::DataModel::WriteAttributeRequest{ { kDenySubjectDescriptor } });
-        mRequest->path = path;
+        mRequest.emplace(app::DataModel::WriteAttributeRequest(path, kDenySubjectDescriptor));
     }
 
     WriteOperation(EndpointId endpoint, ClusterId cluster, AttributeId attribute) :
@@ -60,8 +59,7 @@ public:
     {
         auto path  = mRequest->path;
         auto flags = mRequest->writeFlags;
-        mRequest.emplace(app::DataModel::WriteAttributeRequest{ { descriptor } });
-        mRequest->path       = path;
+        mRequest.emplace(app::DataModel::WriteAttributeRequest(path, descriptor));
         mRequest->writeFlags = flags;
         return *this;
     }

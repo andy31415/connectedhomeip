@@ -1778,8 +1778,7 @@ void InteractionModelEngine::DispatchCommand(CommandHandlerImpl & apCommandObj, 
 {
     Access::SubjectDescriptor subjectDescriptor = apCommandObj.GetSubjectDescriptor();
 
-    DataModel::InvokeRequest request = { { subjectDescriptor } };
-    request.path                     = aCommandPath;
+    DataModel::InvokeRequest request(aCommandPath, subjectDescriptor);
     request.invokeFlags.Set(DataModel::InvokeFlags::kTimed, apCommandObj.IsTimedInvoke());
 
     std::optional<DataModel::ActionReturnStatus> status = GetDataModelProvider()->InvokeCommand(request, apPayload, &apCommandObj);

@@ -38,6 +38,9 @@ struct OperationRequest
     /// Accessing fabric index is the subjectDescriptor fabric index (if any).
     /// This is a readability convenience function.
     FabricIndex GetAccessingFabricIndex() const { return subjectDescriptor.fabricIndex; }
+
+protected:
+    OperationRequest(const Access::SubjectDescriptor & aSubjectDescriptor) : subjectDescriptor(aSubjectDescriptor) {}
 };
 
 enum class ReadFlags : uint32_t
@@ -57,6 +60,10 @@ struct ReadAttributeRequest : OperationRequest
 {
     ConcreteAttributePath path;
     BitFlags<ReadFlags> readFlags;
+
+    ReadAttributeRequest(const ConcreteAttributePath & aPath, const Access::SubjectDescriptor & aSubjectDescriptor) :
+        OperationRequest(aSubjectDescriptor), path(aPath)
+    {}
 };
 
 enum class WriteFlags : uint32_t
@@ -68,6 +75,10 @@ struct WriteAttributeRequest : OperationRequest
 {
     ConcreteDataAttributePath path; // NOTE: this also contains LIST operation options (i.e. "data" path type)
     BitFlags<WriteFlags> writeFlags;
+
+    WriteAttributeRequest(const ConcreteDataAttributePath & aPath, const Access::SubjectDescriptor & aSubjectDescriptor) :
+        OperationRequest(aSubjectDescriptor), path(aPath)
+    {}
 };
 
 enum class InvokeFlags : uint32_t
@@ -79,6 +90,10 @@ struct InvokeRequest : OperationRequest
 {
     ConcreteCommandPath path;
     BitFlags<InvokeFlags> invokeFlags;
+
+    InvokeRequest(const ConcreteCommandPath & aPath, const Access::SubjectDescriptor & aSubjectDescriptor) :
+        OperationRequest(aSubjectDescriptor), path(aPath)
+    {}
 };
 
 } // namespace DataModel

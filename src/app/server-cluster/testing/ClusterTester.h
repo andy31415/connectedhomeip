@@ -243,11 +243,8 @@ public:
         }
 
         const Access::SubjectDescriptor subjectDescriptor = mHandler.GetSubjectDescriptor();
-        const app::DataModel::InvokeRequest invokeRequest = [&]() {
-            app::DataModel::InvokeRequest req{ { subjectDescriptor } };
-            req.path = { paths[0].mEndpointId, paths[0].mClusterId, commandId };
-            return req;
-        }();
+        const app::DataModel::InvokeRequest invokeRequest({ paths[0].mEndpointId, paths[0].mClusterId, commandId },
+                                                          subjectDescriptor);
 
         TLV::TLVWriter writer;
         writer.Init(mTlvBuffer);

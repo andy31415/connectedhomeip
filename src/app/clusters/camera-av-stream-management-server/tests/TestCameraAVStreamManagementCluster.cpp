@@ -388,10 +388,9 @@ TEST_F(TestCameraAVStreamManagementCluster, TestReadClusterRevisionAttribute)
 {
     // Create a mock attribute request for ClusterRevision
     chip::Access::SubjectDescriptor descriptor;
-    chip::app::DataModel::ReadAttributeRequest request{ { descriptor } };
-    request.path.mEndpointId  = kTestEndpointId;
-    request.path.mClusterId   = CameraAvStreamManagement::Id;
-    request.path.mAttributeId = chip::app::Clusters::Globals::Attributes::ClusterRevision::Id;
+    chip::app::ConcreteAttributePath path(kTestEndpointId, CameraAvStreamManagement::Id,
+                                          chip::app::Clusters::Globals::Attributes::ClusterRevision::Id);
+    chip::app::DataModel::ReadAttributeRequest request(path, descriptor);
 
     // Create a buffer for encoding
     chip::Platform::ScopedMemoryBufferWithSize<uint8_t> buffer;
