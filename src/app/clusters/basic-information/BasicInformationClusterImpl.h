@@ -123,7 +123,7 @@ private:
 
     OptionalAttributesSet mEnabledOptionalAttributes;
 
-    Storage::String<32> mNodeLabel;
+    Storage::String<BasicInformation::Attributes::NodeLabel::TypeInfo::MaxLength()> mNodeLabel;
     Policy mPolicy;
 };
 
