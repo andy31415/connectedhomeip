@@ -72,8 +72,11 @@ public:
         DefaultServerCluster({ kRootEndpointId, BasicInformation::Id }), mEnabledOptionalAttributes(optionalAttributeSet),
         mPolicy(ctx)
     {
-        mEnabledOptionalAttributes
-            .template Set<BasicInformation::Attributes::UniqueID::Id>(); // Unless told otherwise, unique id is mandatory
+        // UniqueID is mandatory as of spec revision 4. We force it on here regardless
+        // of what optionalAttributeSet says, to prevent accidental non-certifiable configs.
+        // The only supported way to disable it is post-construction via OptionalAttributes(),
+        // which is reserved for legacy spec-version emulation in tests.
+        mEnabledOptionalAttributes.template Set<BasicInformation::Attributes::UniqueID::Id>();
     }
 
     OptionalAttributesSet & OptionalAttributes() { return mEnabledOptionalAttributes; }
