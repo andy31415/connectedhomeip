@@ -115,8 +115,9 @@ private:
     // is not changing the underlying data.
     DataModel::ActionReturnStatus WriteImpl(const DataModel::WriteAttributeRequest & request, AttributeValueDecoder & decoder);
 
-    // Reads a single device info string and handles error sanitization (clearing the buffer)
-    // if the attribute is optional and not implemented.
+    // Reads a single device info string using the provided getter and encodes it on success.
+    // The getter (Policy) is responsible for handling optional / unimplemented attributes,
+    // including any necessary error sanitization (e.g. clearing internal buffers).
     template <typename EncodeFunction>
     CHIP_ERROR ReadConfigurationString(EncodeFunction && getter, AttributeValueEncoder & encoder);
 
