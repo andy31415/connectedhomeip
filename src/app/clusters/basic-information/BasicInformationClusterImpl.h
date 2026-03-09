@@ -302,14 +302,15 @@ DataModel::ActionReturnStatus BasicInformationClusterImpl<Policy>::ReadAttribute
         return ReadConfigurationString([this](char * buf, size_t size) { return mPolicy.GetSoftwareVersionString(buf, size); },
                                        encoder);
     case ManufacturingDate::Id: {
-        constexpr size_t kMaxDateLength  = 8;     // YYYYMMDD
-        char manufacturingDateString[17] = { 0 }; // kMaxManufacturingDateLength around 16
+        constexpr size_t kMaxDateLength                   = 8;                                        // YYYYMMDD
+        constexpr size_t kMaxTotalLength                  = ManufacturingDate::TypeInfo::MaxLength(); // 16
+        constexpr size_t kMaxSuffixLength                 = kMaxTotalLength - kMaxDateLength;         // 8
+        char manufacturingDateString[kMaxTotalLength + 1] = { 0 };                                    // +1 for snprintf NUL
         uint16_t manufacturingYear;
         uint8_t manufacturingMonth;
         uint8_t manufacturingDayOfMonth;
         size_t totalManufacturingDateLen = 0;
-        MutableCharSpan vendorSuffixSpan(manufacturingDateString + kMaxDateLength,
-                                         sizeof(manufacturingDateString) - kMaxDateLength);
+        MutableCharSpan vendorSuffixSpan(manufacturingDateString + kMaxDateLength, kMaxSuffixLength);
         CHIP_ERROR status = mPolicy.GetManufacturingDate(manufacturingYear, manufacturingMonth, manufacturingDayOfMonth);
 
         if (status == CHIP_DEVICE_ERROR_CONFIG_NOT_FOUND || status == CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE)
