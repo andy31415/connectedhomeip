@@ -698,8 +698,8 @@ TEST_F(TestCodeDrivenDataModelProvider, InvokeCommand)
     System::PacketBufferHandle buffer = System::PacketBufferHandle::New(128);
     TLV::TLVReader reader;
     reader.Init(buffer->Start(), buffer->DataLength());
-    chip::Access::SubjectDescriptor descriptor;
-    DataModel::InvokeRequest request(ConcreteCommandPath(1, 10, 1), descriptor);
+
+    DataModel::InvokeRequest request(ConcreteCommandPath(1, 10, 1), chip::Testing::kAdminSubjectDescriptor);
     auto result = mProvider.InvokeCommand(request, reader, nullptr);
     ASSERT_TRUE(result.has_value());
     EXPECT_EQ(result.value().GetUnderlyingError(), CHIP_NO_ERROR);
@@ -894,8 +894,7 @@ TEST_F(TestCodeDrivenDataModelProvider, InvokeCommandOnInvalidEndpoint)
     TLV::TLVReader reader;
     reader.Init(buffer->Start(), buffer->DataLength());
 
-    chip::Access::SubjectDescriptor descriptor;
-    DataModel::InvokeRequest requestUnsupportedEndpoint(ConcreteCommandPath(5, 10, 1), descriptor);
+    DataModel::InvokeRequest requestUnsupportedEndpoint(ConcreteCommandPath(5, 10, 1), chip::Testing::kAdminSubjectDescriptor);
     auto result = mProvider.InvokeCommand(requestUnsupportedEndpoint, reader, nullptr);
     ASSERT_TRUE(result.has_value());
     if (result)
@@ -916,8 +915,7 @@ TEST_F(TestCodeDrivenDataModelProvider, InvokeCommandOnInvalidCluster)
     TLV::TLVReader reader;
     reader.Init(buffer->Start(), buffer->DataLength());
 
-    chip::Access::SubjectDescriptor descriptor;
-    DataModel::InvokeRequest requestUnsupportedCluster(ConcreteCommandPath(1, 99, 1), descriptor);
+    DataModel::InvokeRequest requestUnsupportedCluster(ConcreteCommandPath(1, 99, 1), chip::Testing::kAdminSubjectDescriptor);
     auto result = mProvider.InvokeCommand(requestUnsupportedCluster, reader, nullptr);
     ASSERT_TRUE(result.has_value());
     if (result)

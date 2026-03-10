@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 #include <app/data-model-provider/tests/ReadTesting.h>
+#include <app/data-model-provider/tests/TestConstants.h>
 #include <app/data-model-provider/tests/WriteTesting.h>
 #include <app/server-cluster/testing/TestServerClusterContext.h>
 #include <app/util/mock/Constants.h>
@@ -503,8 +504,8 @@ TEST_F(TestServerClusterShim, EmberInvokeTest)
 
     {
         const ConcreteCommandPath kCommandPath(kMockEndpoint1, MockClusterId(1), kMockCommandId1);
-        chip::Access::SubjectDescriptor descriptor;
-        InvokeRequest kInvokeRequest(kCommandPath, descriptor);
+
+        InvokeRequest kInvokeRequest(kCommandPath, chip::Testing::kAdminSubjectDescriptor);
         chip::TLV::TLVReader tlvReader;
 
         const uint32_t kDispatchCountPre = DispatchCount();
@@ -520,8 +521,8 @@ TEST_F(TestServerClusterShim, EmberInvokeTest)
 
     {
         const ConcreteCommandPath kCommandPath(kMockEndpoint1, MockClusterId(1), kMockCommandId2);
-        chip::Access::SubjectDescriptor descriptor;
-        InvokeRequest kInvokeRequest(kCommandPath, descriptor);
+
+        InvokeRequest kInvokeRequest(kCommandPath, chip::Testing::kAdminSubjectDescriptor);
         chip::TLV::TLVReader tlvReader;
 
         const uint32_t kDispatchCountPre = DispatchCount();
