@@ -17,6 +17,10 @@
 #pragma once
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdio>
+#include <cstring>
+
 #include <app/AttributeValueDecoder.h>
 #include <app/AttributeValueEncoder.h>
 #include <app/SpecificationDefinedRevisions.h>
@@ -32,9 +36,12 @@
 #include <clusters/BasicInformation/Events.h>
 #include <clusters/BasicInformation/Metadata.h>
 #include <clusters/BasicInformation/Structs.h>
+#include <lib/core/CHIPConfig.h>
 #include <lib/core/DataModelTypes.h>
+#include <lib/core/Optional.h>
 #include <lib/support/CodeUtils.h>
 #include <lib/support/Span.h>
+#include <lib/support/logging/CHIPLogging.h>
 #include <platform/CHIPDeviceError.h>
 #include <protocols/interaction_model/StatusCode.h>
 #include <tracing/macros.h>

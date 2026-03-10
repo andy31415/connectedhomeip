@@ -16,6 +16,10 @@
  */
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+
+#include <lib/support/Span.h>
 #include <platform/ConfigurationManager.h>
 #include <platform/DeviceInstanceInfoProvider.h>
 #include <platform/PlatformManager.h>
