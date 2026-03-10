@@ -84,7 +84,7 @@ public:
 
     WriteOperation & SetListOperation(app::ConcreteDataAttributePath::ListOperation listOp)
     {
-        mRequest.path.mListOp = listOp;
+        mRequest->path.mListOp = listOp;
         return *this;
     }
 
