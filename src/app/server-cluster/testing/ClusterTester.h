@@ -202,6 +202,8 @@ public:
             ReturnErrorOnFailure(chip::app::DataModel::Encode(writer, TLV::AnonymousTag(), value));
         }
 
+        ReturnErrorOnFailure(writer.Finalize());
+
         TLV::TLVReader reader;
         reader.Init(buffer, writer.GetLengthWritten());
         ReturnErrorOnFailure(reader.Next());
