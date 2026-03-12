@@ -15,6 +15,7 @@
  */
 #include <pw_unit_test/framework.h>
 
+#include "MockBasicInformationDelegate.h"
 #include <app/InteractionModelEngine.h>
 #include <app/clusters/basic-information/BasicInformationCluster.h>
 #include <app/data-model-provider/MetadataTypes.h>
@@ -27,7 +28,6 @@
 #include <lib/core/DataModelTypes.h>
 #include <lib/support/BitFlags.h>
 #include <lib/support/ReadOnlyBuffer.h>
-#include "MockBasicInformationDelegate.h"
 #include <platform/NetworkCommissioning.h>
 
 namespace {
@@ -40,10 +40,6 @@ using namespace chip::app::Clusters::BasicInformation::tests;
 
 using chip::app::DataModel::AcceptedCommandEntry;
 using chip::app::DataModel::AttributeEntry;
-
-
-
-
 
 // initialize memory as ReadOnlyBufferBuilder may allocate
 struct TestBasicInformationCluster : public ::testing::Test

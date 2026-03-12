@@ -64,12 +64,11 @@ public:
         DeviceLayer::DeviceInstanceInfoProvider * provider = DeviceLayer::GetDeviceInstanceInfoProvider();
         VerifyOrDie(provider != nullptr);
 
-        static chip::app::Clusters::BasicInformation::DeviceLayerBasicInformationDelegate delegate({
-            .deviceInstanceInfoProvider = *provider,
-            .configurationManager       = DeviceLayer::ConfigurationMgr(),
-            .platformManager            = DeviceLayer::PlatformMgr(),
-            .subscriptionsPerFabric     = InteractionModelEngine::GetInstance()->GetMinGuaranteedSubscriptionsPerFabric()
-        });
+        static chip::app::Clusters::BasicInformation::DeviceLayerBasicInformationDelegate delegate(
+            { .deviceInstanceInfoProvider = *provider,
+              .configurationManager       = DeviceLayer::ConfigurationMgr(),
+              .platformManager            = DeviceLayer::PlatformMgr(),
+              .subscriptionsPerFabric     = InteractionModelEngine::GetInstance()->GetMinGuaranteedSubscriptionsPerFabric() });
         gServer.Create(optionalAttributeSet, &delegate, DeviceLayer::PlatformMgr());
 
         // This disabling of the unique id attribute is here only for test purposes. The uniqe id attribute

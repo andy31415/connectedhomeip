@@ -45,7 +45,7 @@ static constexpr uint8_t kManufacturingMonth      = 6;
 static constexpr uint8_t kManufacturingDay        = 15;
 static constexpr ProductFinishEnum kProductFinish = ProductFinishEnum::kMatte;
 static constexpr ColorEnum kProductPrimaryColor   = ColorEnum::kBlack;
-static constexpr size_t kLocationLength        = 2;
+static constexpr size_t kLocationLength           = 2;
 static auto kUniqueId                             = "TEST_UNIQUE_ID_12345"_span;
 static auto kSoftwareVersionString                = "SW1.0"_span;
 static constexpr uint32_t kSoftwareVersion        = 1;
@@ -191,9 +191,9 @@ public: // Public for test access
     CHIP_ERROR mStoreConfigVersionReturn = CHIP_NO_ERROR;
 
 private:
-    const char * mManufacturingDateSuffix     = nullptr;
-    bool mLocalConfigDisabled                 = false;
-    char mLocation[kLocationLength + 1]     = "XX";
+    const char * mManufacturingDateSuffix = nullptr;
+    bool mLocalConfigDisabled             = false;
+    char mLocation[kLocationLength + 1]   = "XX";
 };
 
 } // namespace tests

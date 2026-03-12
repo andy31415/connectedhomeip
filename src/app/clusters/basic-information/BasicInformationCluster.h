@@ -52,9 +52,10 @@ public:
         BasicInformation::Attributes::UniqueID::Id //
         >;
 
-    BasicInformationCluster(OptionalAttributesSet optionalAttributeSet, BasicInformation::BasicInformationDelegate * delegate, DeviceLayer::PlatformManager & platformManager) :
-      DefaultServerCluster({ kRootEndpointId, BasicInformation::Id }), mEnabledOptionalAttributes(optionalAttributeSet),
-      mDelegate(delegate), mPlatformManager(platformManager)
+    BasicInformationCluster(OptionalAttributesSet optionalAttributeSet, BasicInformation::BasicInformationDelegate * delegate,
+                            DeviceLayer::PlatformManager & platformManager) :
+        DefaultServerCluster({ kRootEndpointId, BasicInformation::Id }),
+        mEnabledOptionalAttributes(optionalAttributeSet), mDelegate(delegate), mPlatformManager(platformManager)
 
     {
         mEnabledOptionalAttributes

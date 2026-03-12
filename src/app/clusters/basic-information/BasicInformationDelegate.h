@@ -54,7 +54,7 @@ public:
     // Setters
     virtual CHIP_ERROR SetLocalConfigDisabled(bool localConfigDisabled)         = 0;
     virtual CHIP_ERROR StoreConfigurationVersion(uint32_t configurationVersion) = 0;
-    virtual CHIP_ERROR StoreLocation(const CharSpan & code)                  = 0;
+    virtual CHIP_ERROR StoreLocation(const CharSpan & code)                     = 0;
 
     // Misc
     virtual uint16_t GetSubscriptionsPerFabric() const = 0;

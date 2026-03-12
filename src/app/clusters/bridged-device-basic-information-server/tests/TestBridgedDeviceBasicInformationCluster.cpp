@@ -17,6 +17,7 @@
 #include <pw_unit_test/framework.h>
 
 #include <app/clusters/basic-information/BasicInformationCluster.h>
+#include <app/clusters/basic-information/tests/MockBasicInformationDelegate.h>
 #include <app/clusters/bridged-device-basic-information-server/BasicInformationClusterProxy.h>
 #include <app/clusters/bridged-device-basic-information-server/BridgedDeviceBasicInformationCluster.h>
 #include <app/clusters/bridged-device-basic-information-server/BridgedDeviceBasicInformationDelegate.h>
@@ -43,10 +44,9 @@
 #include <lib/support/BitFlags.h>
 #include <lib/support/ReadOnlyBuffer.h>
 #include <lib/support/TimerDelegateMock.h>
-#include <protocols/interaction_model/Constants.h>
 #include <platform/PersistedStorage.h>
-#include <app/clusters/basic-information/tests/MockBasicInformationDelegate.h>
 #include <platform/PlatformManager.h>
+#include <protocols/interaction_model/Constants.h>
 #include <string>
 
 namespace {
