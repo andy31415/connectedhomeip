@@ -16,14 +16,13 @@
  */
 #pragma once
 
+#include <app/clusters/basic-information/BasicInformationDelegate.h>
 #include <app/persistence/String.h>
 #include <app/server-cluster/DefaultServerCluster.h>
 #include <app/server-cluster/OptionalAttributeSet.h>
 #include <clusters/BasicInformation/AttributeIds.h>
 #include <clusters/BasicInformation/ClusterId.h>
 #include <lib/core/DataModelTypes.h>
-#include <platform/ConfigurationManager.h>
-#include <platform/DeviceInstanceInfoProvider.h>
 #include <platform/PlatformManager.h>
 
 namespace chip {
@@ -38,15 +37,6 @@ namespace Clusters {
 class BasicInformationCluster : public DefaultServerCluster, public DeviceLayer::PlatformManagerDelegate
 {
 public:
-    // Define the Context struct with References
-    struct Context
-    {
-        DeviceLayer::DeviceInstanceInfoProvider & deviceInstanceInfoProvider;
-        DeviceLayer::ConfigurationManager & configurationManager;
-        DeviceLayer::PlatformManager & platformManager;
-        uint16_t subscriptionsPerFabric;
-    };
-
     using OptionalAttributesSet = chip::app::OptionalAttributeSet< //
         BasicInformation::Attributes::ManufacturingDate::Id,       //
         BasicInformation::Attributes::PartNumber::Id,              //
@@ -62,9 +52,10 @@ public:
         BasicInformation::Attributes::UniqueID::Id //
         >;
 
-    BasicInformationCluster(OptionalAttributesSet optionalAttributeSet, Context ctx) :
-        DefaultServerCluster({ kRootEndpointId, BasicInformation::Id }), mEnabledOptionalAttributes(optionalAttributeSet),
-        mClusterContext(ctx)
+    BasicInformationCluster(OptionalAttributesSet optionalAttributeSet, BasicInformation::BasicInformationDelegate * delegate, DeviceLayer::PlatformManager & platformManager) :
+      DefaultServerCluster({ kRootEndpointId, BasicInformation::Id }), mEnabledOptionalAttributes(optionalAttributeSet),
+      mDelegate(delegate), mPlatformManager(platformManager)
+
     {
         mEnabledOptionalAttributes
             .Set<BasicInformation::Attributes::UniqueID::Id>(); // Unless told otherwise, unique id is mandatory
@@ -109,7 +100,8 @@ private:
     OptionalAttributesSet mEnabledOptionalAttributes;
 
     Storage::String<32> mNodeLabel;
-    Context mClusterContext;
+    BasicInformation::BasicInformationDelegate * mDelegate;
+    DeviceLayer::PlatformManager & mPlatformManager;
 };
 
 } // namespace Clusters

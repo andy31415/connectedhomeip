@@ -19,6 +19,7 @@
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/InteractionModelEngine.h>
+#include <app/clusters/basic-information/DeviceLayerBasicInformationDelegate.h>
 #include <app/clusters/groupcast/GroupcastCluster.h>
 #include <app/clusters/groupcast/GroupcastContext.h>
 #include <lib/support/CHIPMem.h>
@@ -48,14 +49,13 @@ CHIP_ERROR RootNodeDevice::Register(EndpointId endpointId, CodeDrivenDataModelPr
             .Set<BasicInformation::Attributes::LocalConfigDisabled::Id>()
             .Set<BasicInformation::Attributes::Reachable::Id>();
 
-    mBasicInformationCluster.Create(
-        optionalAttributeSet,
-        BasicInformationCluster::Context{
-            .deviceInstanceInfoProvider = mContext.deviceInstanceInfoProvider,
-            .configurationManager       = mContext.configurationManager,
-            .platformManager            = mContext.platformManager,
-            .subscriptionsPerFabric     = InteractionModelEngine::GetInstance()->GetMinGuaranteedSubscriptionsPerFabric(),
-        });
+    static chip::app::Clusters::BasicInformation::DeviceLayerBasicInformationDelegate delegate({
+        .deviceInstanceInfoProvider = mContext.deviceInstanceInfoProvider,
+        .configurationManager       = mContext.configurationManager,
+        .platformManager            = mContext.platformManager,
+        .subscriptionsPerFabric     = InteractionModelEngine::GetInstance()->GetMinGuaranteedSubscriptionsPerFabric(),
+    });
+    mBasicInformationCluster.Create(optionalAttributeSet, &delegate, mContext.platformManager);
 
     ReturnErrorOnFailure(provider.AddCluster(mBasicInformationCluster.Registration()));
     mGeneralCommissioningCluster.Create(

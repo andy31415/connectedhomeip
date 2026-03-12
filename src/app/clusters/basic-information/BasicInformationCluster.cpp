@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 #include <app/clusters/basic-information/BasicInformationCluster.h>
+#include <app/clusters/basic-information/BasicInformationDelegate.h>
 
 #include <app/SpecificationDefinedRevisions.h>
 #include <app/persistence/AttributePersistence.h>
@@ -30,8 +31,9 @@
 #include <lib/core/DataModelTypes.h>
 #include <lib/support/CodeUtils.h>
 #include <lib/support/Span.h>
-#include <platform/DeviceInstanceInfoProvider.h>
+#include <platform/ConfigurationManager.h>
 #include <platform/PlatformManager.h>
+#include <platform/CHIPDeviceError.h>
 #include <protocols/interaction_model/StatusCode.h>
 #include <tracing/macros.h>
 
@@ -74,8 +76,7 @@ constexpr DataModel::AttributeEntry kMandatoryAttributes[] = {
 };
 
 constexpr size_t kExpectedFixedLocationLength = 2;
-static_assert(kExpectedFixedLocationLength == DeviceLayer::ConfigurationManager::kMaxLocationLength,
-              "Fixed location storage must be of size 2");
+
 
 CHIP_ERROR ClearNullTerminatedStringWhenUnimplemented(CHIP_ERROR status, char * strBuf)
 {
@@ -107,12 +108,12 @@ constexpr size_t kMaxStringLength = std::max({
 
 /// Reads a single device info string. Separate function to optimize for flash cost
 /// as querying strings seems to be a frequent operation.
-CHIP_ERROR ReadConfigurationString(DeviceInstanceInfoProvider & deviceInfoProvider,
-                                   CHIP_ERROR (DeviceInstanceInfoProvider::*getter)(char *, size_t), bool unimplementedAllowed,
+CHIP_ERROR ReadConfigurationString(BasicInformation::BasicInformationDelegate * delegate,
+                                   CHIP_ERROR (BasicInformation::BasicInformationDelegate::*getter)(char *, size_t), bool unimplementedAllowed,
                                    AttributeValueEncoder & encoder)
 {
     char buffer[kMaxStringLength + 1] = { 0 };
-    CHIP_ERROR status                 = ((deviceInfoProvider).*(getter))(buffer, sizeof(buffer));
+    CHIP_ERROR status                 = ((delegate)->*(getter))(buffer, sizeof(buffer));
     if (unimplementedAllowed)
     {
         status = ClearNullTerminatedStringWhenUnimplemented(status, buffer);
@@ -120,52 +121,52 @@ CHIP_ERROR ReadConfigurationString(DeviceInstanceInfoProvider & deviceInfoProvid
     return EncodeStringOnSuccess(status, encoder, buffer, kMaxStringLength);
 }
 
-inline CHIP_ERROR ReadVendorID(DeviceInstanceInfoProvider & deviceInfoProvider, AttributeValueEncoder & aEncoder)
+inline CHIP_ERROR ReadVendorID(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
 {
     uint16_t vendorId = 0;
-    ReturnErrorOnFailure(deviceInfoProvider.GetVendorId(vendorId));
+    ReturnErrorOnFailure(delegate->GetVendorId(vendorId));
     return aEncoder.Encode(vendorId);
 }
 
-inline CHIP_ERROR ReadProductID(DeviceInstanceInfoProvider & deviceInfoProvider, AttributeValueEncoder & aEncoder)
+inline CHIP_ERROR ReadProductID(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
 {
     uint16_t productId = 0;
-    ReturnErrorOnFailure(deviceInfoProvider.GetProductId(productId));
+    ReturnErrorOnFailure(delegate->GetProductId(productId));
     return aEncoder.Encode(productId);
 }
 
-inline CHIP_ERROR ReadLocalConfigDisabled(DeviceInstanceInfoProvider & deviceInfoProvider, AttributeValueEncoder & aEncoder)
+inline CHIP_ERROR ReadLocalConfigDisabled(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
 {
     bool localConfigDisabled = false;
-    ReturnErrorOnFailure(deviceInfoProvider.GetLocalConfigDisabled(localConfigDisabled));
+    ReturnErrorOnFailure(delegate->GetLocalConfigDisabled(localConfigDisabled));
     return aEncoder.Encode(localConfigDisabled);
 }
 
-inline CHIP_ERROR ReadHardwareVersion(DeviceInstanceInfoProvider & deviceInfoProvider, AttributeValueEncoder & aEncoder)
+inline CHIP_ERROR ReadHardwareVersion(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
 {
     uint16_t hardwareVersion = 0;
-    ReturnErrorOnFailure(deviceInfoProvider.GetHardwareVersion(hardwareVersion));
+    ReturnErrorOnFailure(delegate->GetHardwareVersion(hardwareVersion));
     return aEncoder.Encode(hardwareVersion);
 }
 
-inline CHIP_ERROR ReadSoftwareVersion(DeviceLayer::ConfigurationManager & configManager, AttributeValueEncoder & aEncoder)
+inline CHIP_ERROR ReadSoftwareVersion(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
 {
     uint32_t softwareVersion = 0;
-    ReturnErrorOnFailure(configManager.GetSoftwareVersion(softwareVersion));
+    ReturnErrorOnFailure(delegate->GetSoftwareVersion(softwareVersion));
     return aEncoder.Encode(softwareVersion);
 }
 
-inline CHIP_ERROR ReadSoftwareVersionString(DeviceLayer::ConfigurationManager & configManager, AttributeValueEncoder & aEncoder)
+inline CHIP_ERROR ReadSoftwareVersionString(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
 {
-    constexpr size_t kMaxLen                = DeviceLayer::ConfigurationManager::kMaxSoftwareVersionStringLength;
+    constexpr size_t kMaxLen                = BasicInformation::Attributes::SoftwareVersionString::TypeInfo::MaxLength();
     char softwareVersionString[kMaxLen + 1] = { 0 };
-    ReturnErrorOnFailure(configManager.GetSoftwareVersionString(softwareVersionString, sizeof(softwareVersionString)));
+    ReturnErrorOnFailure(delegate->GetSoftwareVersionString(softwareVersionString, sizeof(softwareVersionString)));
     return aEncoder.Encode(CharSpan(softwareVersionString, strnlen(softwareVersionString, kMaxLen)));
 }
 
-inline CHIP_ERROR ReadManufacturingDate(DeviceInstanceInfoProvider & deviceInfoProvider, AttributeValueEncoder & aEncoder)
+inline CHIP_ERROR ReadManufacturingDate(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
 {
-    constexpr size_t kMaxLen        = DeviceLayer::ConfigurationManager::kMaxManufacturingDateLength;
+    constexpr size_t kMaxLen        = BasicInformation::Attributes::ManufacturingDate::TypeInfo::MaxLength();
     constexpr size_t kMaxDateLength = 8; // YYYYMMDD
     static_assert(kMaxLen > kMaxDateLength, "kMaxLen must be greater than kMaxDateLength");
     char manufacturingDateString[kMaxLen + 1] = { 0 };
@@ -173,8 +174,8 @@ inline CHIP_ERROR ReadManufacturingDate(DeviceInstanceInfoProvider & deviceInfoP
     uint8_t manufacturingMonth;
     uint8_t manufacturingDayOfMonth;
     size_t totalManufacturingDateLen = 0;
-    MutableCharSpan vendorSuffixSpan(manufacturingDateString + kMaxDateLength, sizeof(manufacturingDateString) - kMaxDateLength);
-    CHIP_ERROR status = deviceInfoProvider.GetManufacturingDate(manufacturingYear, manufacturingMonth, manufacturingDayOfMonth);
+    MutableCharSpan vendorSuffixSpan(manufacturingDateString + kMaxDateLength, kMaxLen - kMaxDateLength);
+    CHIP_ERROR status = delegate->GetManufacturingDate(manufacturingYear, manufacturingMonth, manufacturingDayOfMonth);
 
     // TODO: Remove defaulting once proper runtime defaulting of unimplemented factory data is done
     if (status == CHIP_DEVICE_ERROR_CONFIG_NOT_FOUND || status == CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE)
@@ -192,7 +193,7 @@ inline CHIP_ERROR ReadManufacturingDate(DeviceInstanceInfoProvider & deviceInfoP
              manufacturingDayOfMonth);
 
     totalManufacturingDateLen = kMaxDateLength;
-    status                    = deviceInfoProvider.GetManufacturingDateSuffix(vendorSuffixSpan);
+    status                    = delegate->GetManufacturingDateSuffix(vendorSuffixSpan);
     if (status == CHIP_NO_ERROR)
     {
         totalManufacturingDateLen += vendorSuffixSpan.size();
@@ -203,28 +204,27 @@ inline CHIP_ERROR ReadManufacturingDate(DeviceInstanceInfoProvider & deviceInfoP
     return aEncoder.Encode(CharSpan(manufacturingDateString, totalManufacturingDateLen));
 }
 
-inline CHIP_ERROR ReadUniqueID(DeviceLayer::ConfigurationManager & configManager, AttributeValueEncoder & aEncoder)
+inline CHIP_ERROR ReadUniqueID(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
 {
-    constexpr size_t kMaxLen   = DeviceLayer::ConfigurationManager::kMaxUniqueIDLength;
+    constexpr size_t kMaxLen   = BasicInformation::Attributes::UniqueID::TypeInfo::MaxLength();
     char uniqueId[kMaxLen + 1] = { 0 };
 
-    CHIP_ERROR status = configManager.GetUniqueId(uniqueId, sizeof(uniqueId));
+    CHIP_ERROR status = delegate->GetUniqueId(uniqueId, sizeof(uniqueId));
     status            = ClearNullTerminatedStringWhenUnimplemented(status, uniqueId);
     return EncodeStringOnSuccess(status, aEncoder, uniqueId, kMaxLen);
 }
 
-inline CHIP_ERROR ReadCapabilityMinima(AttributeValueEncoder & aEncoder, DeviceInstanceInfoProvider & deviceInfoProvider,
-                                       uint16_t & subscriptionsPerFabric)
+inline CHIP_ERROR ReadCapabilityMinima(AttributeValueEncoder & aEncoder, BasicInformation::BasicInformationDelegate * delegate)
 {
     BasicInformation::Structs::CapabilityMinimaStruct::Type capabilityMinima;
 
     // TODO: These values must be set from something based on the SDK impl, but there are no such constants today.
     constexpr uint16_t kMinCaseSessionsPerFabricMandatedBySpec = 3;
 
-    auto capabilityMinimasFromDeviceInfo = deviceInfoProvider.GetSupportedCapabilityMinimaValues();
+    auto capabilityMinimasFromDeviceInfo = delegate->GetSupportedCapabilityMinimaValues();
 
     capabilityMinima.caseSessionsPerFabric  = kMinCaseSessionsPerFabricMandatedBySpec;
-    capabilityMinima.subscriptionsPerFabric = subscriptionsPerFabric;
+    capabilityMinima.subscriptionsPerFabric = delegate->GetSubscriptionsPerFabric();
     capabilityMinima.simultaneousInvocationsSupported =
         chip::MakeOptional<uint16_t>(capabilityMinimasFromDeviceInfo.simultaneousInvocationsSupported);
     capabilityMinima.simultaneousWritesSupported =
@@ -236,20 +236,20 @@ inline CHIP_ERROR ReadCapabilityMinima(AttributeValueEncoder & aEncoder, DeviceI
     return aEncoder.Encode(capabilityMinima);
 }
 
-inline CHIP_ERROR ReadConfigurationVersion(DeviceLayer::ConfigurationManager & configManager, AttributeValueEncoder & aEncoder)
+inline CHIP_ERROR ReadConfigurationVersion(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
 {
     uint32_t configurationVersion = 0;
-    ReturnErrorOnFailure(configManager.GetConfigurationVersion(configurationVersion));
+    ReturnErrorOnFailure(delegate->GetConfigurationVersion(configurationVersion));
     return aEncoder.Encode(configurationVersion);
 }
 
-inline CHIP_ERROR ReadLocation(DeviceLayer::ConfigurationManager & configManager, AttributeValueEncoder & aEncoder)
+inline CHIP_ERROR ReadLocation(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
 {
     char location[kExpectedFixedLocationLength + 1] = { 0 };
     size_t codeLen                                  = 0;
     CharSpan countryCodeSpan;
 
-    CHIP_ERROR err = configManager.GetCountryCode(location, sizeof(location), codeLen);
+    CHIP_ERROR err = delegate->GetCountryCode(location, sizeof(location), codeLen);
     if ((err != CHIP_NO_ERROR) || (codeLen != kExpectedFixedLocationLength))
     {
         countryCodeSpan = "XX"_span;
@@ -262,13 +262,13 @@ inline CHIP_ERROR ReadLocation(DeviceLayer::ConfigurationManager & configManager
     return aEncoder.Encode(countryCodeSpan);
 }
 
-inline CHIP_ERROR ReadProductAppearance(DeviceInstanceInfoProvider & deviceInfoProvider, AttributeValueEncoder & aEncoder)
+inline CHIP_ERROR ReadProductAppearance(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
 {
     ProductFinishEnum finish;
-    ReturnErrorOnFailure(deviceInfoProvider.GetProductFinish(&finish));
+    ReturnErrorOnFailure(delegate->GetProductFinish(&finish));
 
     ColorEnum color;
-    CHIP_ERROR colorStatus = deviceInfoProvider.GetProductPrimaryColor(&color);
+    CHIP_ERROR colorStatus = delegate->GetProductPrimaryColor(&color);
     if (colorStatus != CHIP_NO_ERROR && colorStatus != CHIP_ERROR_NOT_IMPLEMENTED)
     {
         return colorStatus;
@@ -297,8 +297,7 @@ DataModel::ActionReturnStatus BasicInformationCluster::ReadAttribute(const DataM
 {
     using namespace BasicInformation::Attributes;
 
-    auto & deviceInfoProvider = mClusterContext.deviceInstanceInfoProvider;
-    auto & configManager      = mClusterContext.configurationManager;
+
 
     switch (request.path.mAttributeId)
     {
@@ -315,56 +314,56 @@ DataModel::ActionReturnStatus BasicInformationCluster::ReadAttribute(const DataM
     case NodeLabel::Id:
         return encoder.Encode(mNodeLabel.Content());
     case LocalConfigDisabled::Id:
-        return ReadLocalConfigDisabled(deviceInfoProvider, encoder);
+        return ReadLocalConfigDisabled(mDelegate, encoder);
     case DataModelRevision::Id:
         return encoder.Encode(Revision::kDataModelRevision);
     case Location::Id:
-        return ReadLocation(configManager, encoder);
+        return ReadLocation(mDelegate, encoder);
     case VendorName::Id:
-        return ReadConfigurationString(deviceInfoProvider, &DeviceInstanceInfoProvider::GetVendorName,
+        return ReadConfigurationString(mDelegate, &BasicInformationDelegate::GetVendorName,
                                        false /* unimplementedAllowed */, encoder);
     case VendorID::Id:
-        return ReadVendorID(deviceInfoProvider, encoder);
+        return ReadVendorID(mDelegate, encoder);
     case ProductName::Id:
-        return ReadConfigurationString(deviceInfoProvider, &DeviceInstanceInfoProvider::GetProductName,
+        return ReadConfigurationString(mDelegate, &BasicInformationDelegate::GetProductName,
                                        false /* unimplementedAllowed */, encoder);
     case ProductID::Id:
-        return ReadProductID(deviceInfoProvider, encoder);
+        return ReadProductID(mDelegate, encoder);
     case HardwareVersion::Id:
-        return ReadHardwareVersion(deviceInfoProvider, encoder);
+        return ReadHardwareVersion(mDelegate, encoder);
     case HardwareVersionString::Id:
-        return ReadConfigurationString(deviceInfoProvider, &DeviceInstanceInfoProvider::GetHardwareVersionString,
+        return ReadConfigurationString(mDelegate, &BasicInformationDelegate::GetHardwareVersionString,
                                        false /* unimplementedAllowed */, encoder);
     case SoftwareVersion::Id:
-        return ReadSoftwareVersion(configManager, encoder);
+        return ReadSoftwareVersion(mDelegate, encoder);
     case SoftwareVersionString::Id:
-        return ReadSoftwareVersionString(configManager, encoder);
+        return ReadSoftwareVersionString(mDelegate, encoder);
     case ManufacturingDate::Id:
-        return ReadManufacturingDate(deviceInfoProvider, encoder);
+        return ReadManufacturingDate(mDelegate, encoder);
     case PartNumber::Id:
-        return ReadConfigurationString(deviceInfoProvider, &DeviceInstanceInfoProvider::GetPartNumber,
+        return ReadConfigurationString(mDelegate, &BasicInformationDelegate::GetPartNumber,
                                        true /* unimplementedAllowed */, encoder);
     case ProductURL::Id:
-        return ReadConfigurationString(deviceInfoProvider, &DeviceInstanceInfoProvider::GetProductURL,
+        return ReadConfigurationString(mDelegate, &BasicInformationDelegate::GetProductURL,
                                        true /* unimplementedAllowed */, encoder);
     case ProductLabel::Id:
-        return ReadConfigurationString(deviceInfoProvider, &DeviceInstanceInfoProvider::GetProductLabel,
+        return ReadConfigurationString(mDelegate, &BasicInformationDelegate::GetProductLabel,
                                        true /* unimplementedAllowed */, encoder);
     case SerialNumber::Id:
-        return ReadConfigurationString(deviceInfoProvider, &DeviceInstanceInfoProvider::GetSerialNumber,
+        return ReadConfigurationString(mDelegate, &BasicInformationDelegate::GetSerialNumber,
                                        true /* unimplementedAllowed */, encoder);
     case UniqueID::Id:
-        return ReadUniqueID(configManager, encoder);
+        return ReadUniqueID(mDelegate, encoder);
     case CapabilityMinima::Id:
-        return ReadCapabilityMinima(encoder, deviceInfoProvider, mClusterContext.subscriptionsPerFabric);
+        return ReadCapabilityMinima(encoder, mDelegate);
     case ProductAppearance::Id:
-        return ReadProductAppearance(deviceInfoProvider, encoder);
+        return ReadProductAppearance(mDelegate, encoder);
     case SpecificationVersion::Id:
         return encoder.Encode(Revision::kSpecificationVersion);
     case MaxPathsPerInvoke::Id:
         return encoder.Encode<uint16_t>(CHIP_CONFIG_MAX_PATHS_PER_INVOKE);
     case ConfigurationVersion::Id:
-        return ReadConfigurationVersion(configManager, encoder);
+        return ReadConfigurationVersion(mDelegate, encoder);
     case Reachable::Id:
         // On some platforms `true` is defined as a unsigned int and that gets
         // a ambigous TLVWriter::Put error. Hence the specialization.
@@ -383,8 +382,8 @@ DataModel::ActionReturnStatus BasicInformationCluster::WriteAttribute(const Data
 CHIP_ERROR BasicInformationCluster::IncreaseConfigurationVersion()
 {
     uint32_t globalConfig = 0;
-    ReturnErrorOnFailure(mClusterContext.configurationManager.GetConfigurationVersion(globalConfig));
-    ReturnErrorOnFailure(mClusterContext.configurationManager.StoreConfigurationVersion(globalConfig + 1));
+    ReturnErrorOnFailure(mDelegate->GetConfigurationVersion(globalConfig));
+    ReturnErrorOnFailure(mDelegate->StoreConfigurationVersion(globalConfig + 1));
     NotifyAttributeChanged(ConfigurationVersion::Id);
     return CHIP_NO_ERROR;
 }
@@ -402,7 +401,7 @@ DataModel::ActionReturnStatus BasicInformationCluster::WriteImpl(const DataModel
         CharSpan location;
         ReturnErrorOnFailure(decoder.Decode(location));
         VerifyOrReturnError(location.size() == kExpectedFixedLocationLength, Protocols::InteractionModel::Status::ConstraintError);
-        return mClusterContext.configurationManager.StoreCountryCode(location.data(), location.size());
+        return mDelegate->StoreCountryCode(location.data(), location.size());
     }
     case NodeLabel::Id: {
         CharSpan label;
@@ -411,11 +410,10 @@ DataModel::ActionReturnStatus BasicInformationCluster::WriteImpl(const DataModel
         return persistence.StoreString(request.path, mNodeLabel);
     }
     case LocalConfigDisabled::Id: {
-        auto & deviceInfoProvider = mClusterContext.deviceInstanceInfoProvider;
         bool localConfigDisabled  = false;
-        ReturnErrorOnFailure(deviceInfoProvider.GetLocalConfigDisabled(localConfigDisabled));
+        ReturnErrorOnFailure(mDelegate->GetLocalConfigDisabled(localConfigDisabled));
         auto decodeStatus = persistence.DecodeAndStoreNativeEndianValue(request.path, decoder, localConfigDisabled);
-        ReturnErrorOnFailure(deviceInfoProvider.SetLocalConfigDisabled(localConfigDisabled));
+        ReturnErrorOnFailure(mDelegate->SetLocalConfigDisabled(localConfigDisabled));
         return decodeStatus;
     }
     default:
@@ -458,9 +456,9 @@ CHIP_ERROR BasicInformationCluster::Startup(ServerClusterContext & context)
     // This prevents the cluster from overwriting a delegate that may have been explicitly
     // registered by the application logic. If a delegate is already present, this cluster
     // will simply not intercept the shutdown signal via this mechanism.
-    if (mClusterContext.platformManager.GetDelegate() == nullptr)
+    if (mPlatformManager.GetDelegate() == nullptr)
     {
-        mClusterContext.platformManager.SetDelegate(this);
+        mPlatformManager.SetDelegate(this);
     }
 
     AttributePersistence persistence(context.attributeStorage);
@@ -476,16 +474,16 @@ CHIP_ERROR BasicInformationCluster::Startup(ServerClusterContext & context)
 
     // Propagate the restored 'LocalConfigDisabled' state to the DeviceInstanceInfoProvider
     // so the underlying platform layer is aware of the configuration.
-    ReturnErrorOnFailure(mClusterContext.deviceInstanceInfoProvider.SetLocalConfigDisabled(localConfigDisabled));
+    ReturnErrorOnFailure(mDelegate->SetLocalConfigDisabled(localConfigDisabled));
 
     return CHIP_NO_ERROR;
 }
 
 void BasicInformationCluster::Shutdown(ClusterShutdownType shutdownType)
 {
-    if (mClusterContext.platformManager.GetDelegate() == this)
+    if (mPlatformManager.GetDelegate() == this)
     {
-        mClusterContext.platformManager.SetDelegate(nullptr);
+        mPlatformManager.SetDelegate(nullptr);
     }
     DefaultServerCluster::Shutdown(shutdownType);
 }

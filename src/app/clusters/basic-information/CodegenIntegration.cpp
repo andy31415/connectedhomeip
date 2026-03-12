@@ -17,6 +17,7 @@
 #include <app-common/zap-generated/attributes/Accessors.h>
 #include <app/InteractionModelEngine.h>
 #include <app/clusters/basic-information/BasicInformationCluster.h>
+#include <app/clusters/basic-information/DeviceLayerBasicInformationDelegate.h>
 #include <app/static-cluster-config/BasicInformation.h>
 #include <app/util/attribute-storage.h>
 #include <app/util/endpoint-config-api.h>
@@ -63,13 +64,13 @@ public:
         DeviceLayer::DeviceInstanceInfoProvider * provider = DeviceLayer::GetDeviceInstanceInfoProvider();
         VerifyOrDie(provider != nullptr);
 
-        BasicInformationCluster::Context context = {
+        static chip::app::Clusters::BasicInformation::DeviceLayerBasicInformationDelegate delegate({
             .deviceInstanceInfoProvider = *provider,
             .configurationManager       = DeviceLayer::ConfigurationMgr(),
             .platformManager            = DeviceLayer::PlatformMgr(),
             .subscriptionsPerFabric     = InteractionModelEngine::GetInstance()->GetMinGuaranteedSubscriptionsPerFabric()
-        };
-        gServer.Create(optionalAttributeSet, context);
+        });
+        gServer.Create(optionalAttributeSet, &delegate, DeviceLayer::PlatformMgr());
 
         // This disabling of the unique id attribute is here only for test purposes. The uniqe id attribute
         // is mandatory, but was optional in previous versions. It is forced to be enabled in the basic information

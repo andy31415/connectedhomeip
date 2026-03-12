@@ -13,7 +13,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "lib/core/Optional.h"
 #include <lib/support/tests/ExtraPwTestMacros.h>
 #include <pw_unit_test/framework.h>
 
@@ -45,6 +44,9 @@
 #include <lib/support/ReadOnlyBuffer.h>
 #include <lib/support/TimerDelegateMock.h>
 #include <protocols/interaction_model/Constants.h>
+#include <platform/PersistedStorage.h>
+#include <app/clusters/basic-information/tests/MockBasicInformationDelegate.h>
+#include <platform/PlatformManager.h>
 #include <string>
 
 namespace {
@@ -62,28 +64,11 @@ constexpr EndpointId kTestEndpointId = 1;
 class MockConfigurationManager : public DeviceLayer::ConfigurationManager
 {
 public:
-    CHIP_ERROR GetPrimaryMACAddress(MutableByteSpan & buf) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR GetPrimaryWiFiMACAddress(uint8_t * buf) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR GetPrimary802154MACAddress(uint8_t * buf) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR GetSoftwareVersionString(char * buf, size_t bufSize) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR GetSoftwareVersion(uint32_t & softwareVer) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
     CHIP_ERROR GetConfigurationVersion(uint32_t & configurationVer) override
     {
         configurationVer = mConfigurationVersion;
         return CHIP_NO_ERROR;
     }
-    CHIP_ERROR GetFirmwareBuildChipEpochTime(System::Clock::Seconds32 & buildTime) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-#if CHIP_ENABLE_ROTATING_DEVICE_ID && defined(CHIP_DEVICE_CONFIG_ROTATING_DEVICE_ID_UNIQUE_ID)
-    CHIP_ERROR GetLifetimeCounter(uint16_t & lifetimeCounter) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR IncrementLifetimeCounter() override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR SetRotatingDeviceIdUniqueId(const ByteSpan & uniqueIdSpan) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR GetRotatingDeviceIdUniqueId(MutableByteSpan & uniqueIdSpan) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-#endif
-    CHIP_ERROR GetRegulatoryLocation(uint8_t & location) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR GetCountryCode(char * buf, size_t bufSize, size_t & codeLen) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR StoreSerialNumber(const char * serialNum, size_t serialNumLen) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR StoreManufacturingDate(const char * mfgDate, size_t mfgDateLen) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR StoreSoftwareVersion(uint32_t softwareVer) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
     CHIP_ERROR StoreConfigurationVersion(uint32_t configurationVer) override
     {
         if (mReturnError != CHIP_NO_ERROR)
@@ -94,18 +79,12 @@ public:
         mStoreCalled++;
         return CHIP_NO_ERROR;
     }
-    CHIP_ERROR StoreHardwareVersion(uint16_t hardwareVer) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR StoreRegulatoryLocation(uint8_t location) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR StoreCountryCode(const char * code, size_t codeLen) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR GetRebootCount(uint32_t & rebootCount) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR StoreRebootCount(uint32_t rebootCount) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR GetTotalOperationalHours(uint32_t & totalOperationalHours) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR StoreTotalOperationalHours(uint32_t totalOperationalHours) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR GetBootReason(uint32_t & bootReason) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR StoreBootReason(uint32_t bootReason) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR GetUniqueId(char * buf, size_t bufSize) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR StoreUniqueId(const char * uniqueId, size_t uniqueIdLen) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-    CHIP_ERROR GenerateUniqueId(char * buf, size_t bufSize) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+#if CHIP_ENABLE_ROTATING_DEVICE_ID && defined(CHIP_DEVICE_CONFIG_ROTATING_DEVICE_ID_UNIQUE_ID)
+    CHIP_ERROR GetLifetimeCounter(uint16_t & lifetimeCounter) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR IncrementLifetimeCounter() override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR SetRotatingDeviceIdUniqueId(const ByteSpan & uniqueIdSpan) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetRotatingDeviceIdUniqueId(MutableByteSpan & uniqueIdSpan) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+#endif
     CHIP_ERROR GetFailSafeArmed(bool & val) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
     CHIP_ERROR SetFailSafeArmed(bool val) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
     CHIP_ERROR GetBLEDeviceIdentificationInfo(Ble::ChipBLEDeviceIdentificationInfo & deviceIdInfo) override
@@ -136,6 +115,44 @@ public:
     }
 
     void RunUnitTests() override {}
+
+    // Remaining pure virtuals from ConfigurationManager
+    CHIP_ERROR GetPrimaryMACAddress(MutableByteSpan & buf) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetPrimaryWiFiMACAddress(uint8_t * buf) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetPrimary802154MACAddress(uint8_t * buf) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetSoftwareVersionString(char * buf, size_t bufSize) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetSoftwareVersion(uint32_t & softwareVer) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetFirmwareBuildChipEpochTime(System::Clock::Seconds32 & buildTime) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetRegulatoryLocation(uint8_t & location) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetCountryCode(char * buf, size_t bufSize, size_t & codeLen) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR StoreSerialNumber(const char * serialNum, size_t serialNumLen) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR StoreManufacturingDate(const char * mfgDate, size_t mfgDateLen) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR StoreSoftwareVersion(uint32_t softwareVer) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR StoreHardwareVersion(uint16_t hardwareVer) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR StoreRegulatoryLocation(uint8_t location) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR StoreCountryCode(const char * code, size_t codeLen) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetRebootCount(uint32_t & rebootCount) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR StoreRebootCount(uint32_t rebootCount) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetTotalOperationalHours(uint32_t & totalOperationalHours) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR StoreTotalOperationalHours(uint32_t totalOperationalHours) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetBootReason(uint32_t & bootReason) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR StoreBootReason(uint32_t bootReason) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+
+    // Methods from DeviceInstanceInfoProvider that are now pure virtual in ConfigurationManager
+    CHIP_ERROR GetVendorName(char * buf, size_t bufSize) { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetVendorId(uint16_t & vendorId) { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetProductName(char * buf, size_t bufSize) { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetProductId(uint16_t & productId) { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetHardwareVersion(uint16_t & hardwareVersion) { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetHardwareVersionString(char * buf, size_t bufSize) { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetManufacturingDate(uint16_t & year, uint8_t & month, uint8_t & day) { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetPartNumber(char * buf, size_t bufSize) { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetProductURL(char * buf, size_t bufSize) { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetProductLabel(char * buf, size_t bufSize) { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetSerialNumber(char * buf, size_t bufSize) { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GetUniqueId(char * buf, size_t bufSize) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR StoreUniqueId(const char * uniqueId, size_t uniqueIdLen) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
+    CHIP_ERROR GenerateUniqueId(char * buf, size_t bufSize) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
 
     uint32_t mConfigurationVersion = 10;
     uint32_t mStoreCalled          = 0;
@@ -209,13 +226,6 @@ struct TestBridgedDeviceBasicInformationCluster : public ::testing::Test
 
     MockDeviceInstanceInfoProvider mDeviceInfoProvider;
     MockConfigurationManager mMockConfigManager;
-
-    BasicInformationCluster::Context mBasicInfoContext = {
-        .deviceInstanceInfoProvider = mDeviceInfoProvider,
-        .configurationManager       = mMockConfigManager,
-        .platformManager            = DeviceLayer::PlatformMgr(),
-        .subscriptionsPerFabric     = 1,
-    };
 
     TestServerClusterContext mContext;
     MockDelegate mDelegate;
@@ -1068,23 +1078,24 @@ TEST_F(TestBridgedDeviceBasicInformationCluster, TestNodeLabelPersistence)
 
 TEST_F(TestBridgedDeviceBasicInformationCluster, TestBasicInformationClusterProxy)
 {
-    BasicInformationCluster basicInfo(BasicInformationCluster::OptionalAttributesSet(), mBasicInfoContext);
+    BasicInformation::tests::MockBasicInformationDelegate mockDelegate;
+    BasicInformationCluster basicInfo(BasicInformationCluster::OptionalAttributesSet(), &mockDelegate, DeviceLayer::PlatformMgr());
 
-    // Initial value in our mock is 10
-    EXPECT_EQ(mMockConfigManager.mConfigurationVersion, 10u);
-    EXPECT_EQ(mMockConfigManager.mStoreCalled, 0u);
+    // Initial value in the mock delegate is 10
+    EXPECT_EQ(mockDelegate.mConfigurationVersion, 10u);
+    EXPECT_EQ(mockDelegate.mStoreConfigVersionCalled, 0u);
 
     BasicInformationClusterProxy proxy(basicInfo);
     EXPECT_EQ(proxy.IncreaseConfigurationVersion(), CHIP_NO_ERROR);
 
-    EXPECT_EQ(mMockConfigManager.mConfigurationVersion, 11u);
-    EXPECT_EQ(mMockConfigManager.mStoreCalled, 1u);
+    EXPECT_EQ(mockDelegate.mConfigurationVersion, 11u);
+    EXPECT_EQ(mockDelegate.mStoreConfigVersionCalled, 1u);
 
     // Test failure
-    mMockConfigManager.mReturnError = CHIP_ERROR_INTERNAL;
+    mockDelegate.mStoreConfigVersionReturn = CHIP_ERROR_INTERNAL;
     EXPECT_EQ(proxy.IncreaseConfigurationVersion(), CHIP_ERROR_INTERNAL);
-    EXPECT_EQ(mMockConfigManager.mConfigurationVersion, 11u);
-    EXPECT_EQ(mMockConfigManager.mStoreCalled, 1u);
+    EXPECT_EQ(mockDelegate.mConfigurationVersion, 12u); // Version should still increment before store fails
+    EXPECT_EQ(mockDelegate.mStoreConfigVersionCalled, 2u);
 }
 
 TEST_F(TestBridgedDeviceBasicInformationCluster, TestStartupPersistence)

@@ -18,6 +18,9 @@ source_set("basic-information") {
   sources = [
     "BasicInformationCluster.cpp",
     "BasicInformationCluster.h",
+    "BasicInformationDelegate.h",
+    "DeviceLayerBasicInformationDelegate.cpp",
+    "DeviceLayerBasicInformationDelegate.h",
   ]
   public_deps = [
     "${chip_root}/src/app:constants",

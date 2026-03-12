@@ -30,6 +30,7 @@
 #include <lib/support/TestPersistentStorageDelegate.h>
 #include <platform/ConfigurationManager.h>
 #include <platform/DeviceInstanceInfoProvider.h>
+#include "MockBasicInformationDelegate.h"
 #include <pw_unit_test/framework.h>
 
 namespace {
@@ -38,238 +39,10 @@ using namespace chip;
 using namespace chip::app;
 using namespace chip::app::Clusters;
 using namespace chip::app::Clusters::BasicInformation;
+using namespace chip::app::Clusters::BasicInformation::tests;
 
-static constexpr const char * kVendorName            = "TestVendor";
-static constexpr const char * kProductName           = "TestProduct";
-static constexpr const char * kHardwareVersionString = "HW1.0";
-static constexpr const char * kPartNumber            = "PART123";
-static constexpr const char * kProductURL            = "http://example.com";
-static constexpr const char * kProductLabel          = "Label123";
-static constexpr const char * kSerialNumber          = "SN123456";
-static constexpr uint16_t kVendorId                  = static_cast<uint16_t>(VendorId::TestVendor1);
-static constexpr uint16_t kProductId                 = 0x5678;
-static constexpr uint16_t kHardwareVersion           = 1;
-static constexpr uint16_t kManufacturingYear         = 2023;
-static constexpr uint8_t kManufacturingMonth         = 6;
-static constexpr uint8_t kManufacturingDay           = 15;
-static constexpr ProductFinishEnum kProductFinish    = ProductFinishEnum::kMatte;
-static constexpr ColorEnum kProductPrimaryColor      = ColorEnum::kBlack;
 
-// Helper function to safely copy strings and check for buffer size
-CHIP_ERROR SafeCopyString(char * buf, size_t bufSize, const char * source)
-{
-    if (strlen(source) >= bufSize)
-    {
-        return CHIP_ERROR_BUFFER_TOO_SMALL;
-    }
-    Platform::CopyString(buf, bufSize, source);
-    return CHIP_NO_ERROR;
-}
-// Mock DeviceInstanceInfoProvider for testing
-class MockDeviceInstanceInfoProvider : public DeviceLayer::DeviceInstanceInfoProvider
-{
-public:
-    CHIP_ERROR GetVendorName(char * buf, size_t bufSize) override { return SafeCopyString(buf, bufSize, kVendorName); }
 
-    CHIP_ERROR GetVendorId(uint16_t & vendorId) override
-    {
-        vendorId = kVendorId;
-        return CHIP_NO_ERROR;
-    }
-
-    CHIP_ERROR GetProductName(char * buf, size_t bufSize) override { return SafeCopyString(buf, bufSize, kProductName); }
-
-    CHIP_ERROR GetProductId(uint16_t & productId) override
-    {
-        productId = kProductId;
-        return CHIP_NO_ERROR;
-    }
-
-    CHIP_ERROR GetHardwareVersion(uint16_t & hardwareVersion) override
-    {
-        hardwareVersion = kHardwareVersion;
-        return CHIP_NO_ERROR;
-    }
-
-    CHIP_ERROR GetHardwareVersionString(char * buf, size_t bufSize) override
-    {
-        return SafeCopyString(buf, bufSize, kHardwareVersionString);
-    }
-
-    CHIP_ERROR GetManufacturingDate(uint16_t & year, uint8_t & month, uint8_t & day) override
-    {
-        year  = kManufacturingYear;
-        month = kManufacturingMonth;
-        day   = kManufacturingDay;
-        return CHIP_NO_ERROR;
-    }
-
-    CHIP_ERROR GetManufacturingDateSuffix(MutableCharSpan & suffixBuffer) override
-    {
-        if (mManufacturingDateSuffix == nullptr)
-        {
-            suffixBuffer.reduce_size(0);
-            return CHIP_NO_ERROR;
-        }
-        return CopyCharSpanToMutableCharSpan(CharSpan::fromCharString(mManufacturingDateSuffix), suffixBuffer);
-    }
-
-    CHIP_ERROR GetPartNumber(char * buf, size_t bufSize) override { return SafeCopyString(buf, bufSize, kPartNumber); }
-
-    CHIP_ERROR GetProductURL(char * buf, size_t bufSize) override { return SafeCopyString(buf, bufSize, kProductURL); }
-
-    CHIP_ERROR GetProductLabel(char * buf, size_t bufSize) override { return SafeCopyString(buf, bufSize, kProductLabel); }
-
-    CHIP_ERROR GetSerialNumber(char * buf, size_t bufSize) override { return SafeCopyString(buf, bufSize, kSerialNumber); }
-
-    CHIP_ERROR GetProductFinish(ProductFinishEnum * finish) override
-    {
-        *finish = kProductFinish;
-        return CHIP_NO_ERROR;
-    }
-
-    CHIP_ERROR GetProductPrimaryColor(ColorEnum * color) override
-    {
-        *color = kProductPrimaryColor;
-        return CHIP_NO_ERROR;
-    }
-
-    CHIP_ERROR GetRotatingDeviceIdUniqueId(MutableByteSpan & uniqueIdSpan) override { return CHIP_NO_ERROR; }
-
-    // NOTE: suffix lifetime MUST be longer than this object lifetime as just a pointer is kept.
-    void SetManufacturingDateSuffix(const char * suffix) { mManufacturingDateSuffix = suffix; }
-
-private:
-    const char * mManufacturingDateSuffix = nullptr;
-};
-
-static constexpr size_t kCountryCodeLength = 2;
-static constexpr const char * kUniqueId    = "TEST_UNIQUE_ID_12345";
-// Mock ConfigurationManager for testing
-class MockConfigurationManager : public chip::DeviceLayer::ConfigurationManager
-{
-public:
-    // ========================================================================
-    // Methods used by the Test Logic
-    // ========================================================================
-    CHIP_ERROR GetUniqueId(char * buf, size_t bufSize) override { return SafeCopyString(buf, bufSize, kUniqueId); }
-
-    CHIP_ERROR StoreCountryCode(const char * countryCode, size_t countryCodeLen) override
-    {
-        VerifyOrReturnError(countryCodeLen == kCountryCodeLength, CHIP_ERROR_INVALID_ARGUMENT);
-        Platform::CopyString(mCountryCode, sizeof(mCountryCode), countryCode);
-        return CHIP_NO_ERROR;
-    }
-
-    CHIP_ERROR GetCountryCode(char * buf, size_t bufSize, size_t & countryCodeLen) override
-    {
-        VerifyOrReturnError(bufSize > kCountryCodeLength, CHIP_ERROR_BUFFER_TOO_SMALL);
-        Platform::CopyString(buf, bufSize, mCountryCode);
-        countryCodeLen = kCountryCodeLength;
-        return CHIP_NO_ERROR;
-    }
-
-    // ========================================================================
-    // Stubs required to satisfy the ConfigurationManager Interface
-    // ========================================================================
-
-    CHIP_ERROR Init() override { return CHIP_NO_ERROR; }
-
-    CHIP_ERROR GetPrimaryMACAddress(MutableByteSpan & buf) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-    CHIP_ERROR GetPrimary802154MACAddress(uint8_t * buf) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-    CHIP_ERROR GetPrimaryWiFiMACAddress(uint8_t * buf) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-    CHIP_ERROR GetSoftwareVersion(uint32_t & softwareVersion) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR GetSoftwareVersionString(char * buf, size_t bufSize) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-    CHIP_ERROR GetFirmwareBuildChipEpochTime(System::Clock::Seconds32 & buildTime) override
-    {
-        return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE;
-    }
-
-    CHIP_ERROR StoreSerialNumber(const char * serialNum, size_t serialNumLen) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR StoreManufacturingDate(const char * mfgDate, size_t mfgDateLen) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR StoreSoftwareVersion(uint32_t softwareVer) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR StoreHardwareVersion(uint16_t hardwareVer) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR StoreRegulatoryLocation(uint8_t location) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR StoreUniqueId(const char * uniqueId, size_t uniqueIdLen) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR GenerateUniqueId(char * buf, size_t bufSize) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-
-    CHIP_ERROR GetFailSafeArmed(bool & val) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-    CHIP_ERROR SetFailSafeArmed(bool val) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-
-    CHIP_ERROR GetBLEDeviceIdentificationInfo(Ble::ChipBLEDeviceIdentificationInfo & deviceIdInfo) override
-    {
-        return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE;
-    }
-
-    void RunUnitTests() override {}
-    bool IsFullyProvisioned() override { return false; }
-    void LogDeviceConfig() override {}
-
-    bool IsCommissionableDeviceTypeEnabled() override { return false; }
-    CHIP_ERROR GetDeviceTypeId(uint32_t & deviceType) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-    bool IsCommissionableDeviceNameEnabled() override { return false; }
-    CHIP_ERROR GetCommissionableDeviceName(char * buf, size_t bufSize) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-
-    CHIP_ERROR GetInitialPairingHint(uint16_t & pairingHint) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-    CHIP_ERROR GetInitialPairingInstruction(char * buf, size_t bufSize) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-    CHIP_ERROR GetSecondaryPairingHint(uint16_t & pairingHint) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-    CHIP_ERROR GetSecondaryPairingInstruction(char * buf, size_t bufSize) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-#if CHIP_ENABLE_ROTATING_DEVICE_ID && defined(CHIP_DEVICE_CONFIG_ROTATING_DEVICE_ID_UNIQUE_ID)
-    CHIP_ERROR GetLifetimeCounter(uint16_t & lifetimeCounter) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-    CHIP_ERROR IncrementLifetimeCounter() override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-    CHIP_ERROR SetRotatingDeviceIdUniqueId(const ByteSpan & uniqueIdSpan) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-    CHIP_ERROR GetRotatingDeviceIdUniqueId(MutableByteSpan & uniqueIdSpan) override { return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE; }
-#endif
-
-    CHIP_ERROR ReadPersistedStorageValue(::chip::Platform::PersistedStorage::Key key, uint32_t & value) override
-    {
-        return CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE;
-    }
-    CHIP_ERROR WritePersistedStorageValue(::chip::Platform::PersistedStorage::Key key, uint32_t value) override
-    {
-        return CHIP_NO_ERROR;
-    }
-
-    CHIP_ERROR GetRebootCount(uint32_t & v) override
-    {
-        v = 0;
-        return CHIP_NO_ERROR;
-    }
-    CHIP_ERROR StoreRebootCount(uint32_t) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR GetTotalOperationalHours(uint32_t & v) override
-    {
-        v = 0;
-        return CHIP_NO_ERROR;
-    }
-    CHIP_ERROR StoreTotalOperationalHours(uint32_t) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR GetBootReason(uint32_t & v) override
-    {
-        v = 0;
-        return CHIP_NO_ERROR;
-    }
-    CHIP_ERROR StoreBootReason(uint32_t) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR GetRegulatoryLocation(uint8_t & loc) override
-    {
-        loc = 0;
-        return CHIP_NO_ERROR;
-    }
-    CHIP_ERROR GetLocationCapability(uint8_t & cap) override
-    {
-        cap = 0;
-        return CHIP_NO_ERROR;
-    }
-    CHIP_ERROR GetConfigurationVersion(uint32_t & v) override
-    {
-        v = 1;
-        return CHIP_NO_ERROR;
-    }
-    CHIP_ERROR StoreConfigurationVersion(uint32_t) override { return CHIP_NO_ERROR; }
-    bool CanFactoryReset() override { return false; }
-    void InitiateFactoryReset() override {}
-
-private:
-    char mCountryCode[kCountryCodeLength + 1] = "XX";
-};
 struct TestBasicInformationReadWrite : public ::testing::Test
 {
     static void SetUpTestSuite()
@@ -295,18 +68,11 @@ struct TestBasicInformationReadWrite : public ::testing::Test
         chip::Platform::MemoryShutdown();
     }
 
-    TestBasicInformationReadWrite() {}
+    TestBasicInformationReadWrite() = default;
     chip::Testing::TestServerClusterContext testContext;
     static DeviceLayer::DeviceInstanceInfoProvider * sDeviceInstanceInfoProviderBackup;
     // Context
-    MockDeviceInstanceInfoProvider mDeviceInfoProvider;
-    MockConfigurationManager mMockConfigurationManager;
-    BasicInformationCluster::Context mContext = {
-        .deviceInstanceInfoProvider = mDeviceInfoProvider,
-        .configurationManager       = mMockConfigurationManager,
-        .platformManager            = chip::DeviceLayer::PlatformMgr(),
-        .subscriptionsPerFabric     = InteractionModelEngine::GetInstance()->GetMinGuaranteedSubscriptionsPerFabric(),
-    };
+    tests::MockBasicInformationDelegate mMockDelegate;
 };
 
 DeviceLayer::DeviceInstanceInfoProvider * TestBasicInformationReadWrite::sDeviceInstanceInfoProviderBackup = nullptr;
@@ -314,7 +80,7 @@ DeviceLayer::DeviceInstanceInfoProvider * TestBasicInformationReadWrite::sDevice
 TEST_F(TestBasicInformationReadWrite, TestNodeLabelLoadAndSave)
 {
     const BasicInformationCluster::OptionalAttributesSet optionalAttributeSet;
-    BasicInformationCluster cluster(optionalAttributeSet, mContext);
+    BasicInformationCluster cluster(optionalAttributeSet, &mMockDelegate, chip::DeviceLayer::PlatformMgr());
     ASSERT_EQ(cluster.Startup(testContext.Get()), CHIP_NO_ERROR);
     chip::Testing::ClusterTester tester(cluster);
 
@@ -369,7 +135,7 @@ TEST_F(TestBasicInformationReadWrite, TestAllAttributesSpecCompliance)
 
     BasicInformationCluster::OptionalAttributesSet optionalAttributeSet;
     optionalAttributeSet.Set<Attributes::ManufacturingDate::Id>();
-    BasicInformationCluster cluster(optionalAttributeSet, mContext);
+    BasicInformationCluster cluster(optionalAttributeSet, &mMockDelegate, chip::DeviceLayer::PlatformMgr());
     chip::Testing::ClusterTester tester(cluster);
 
     // VendorName
@@ -443,10 +209,10 @@ TEST_F(TestBasicInformationReadWrite, TestAllAttributesSpecCompliance)
     {
         char buf[32];
         CharSpan val(buf);
-        mDeviceInfoProvider.SetManufacturingDateSuffix("ABCDEFGH");
+        mMockDelegate.SetManufacturingDateSuffix("ABCDEFGH");
         ASSERT_EQ(tester.ReadAttribute(Attributes::ManufacturingDate::Id, val), CHIP_NO_ERROR);
         EXPECT_TRUE(val.data_equal("20230615ABCDEFGH"_span));
-        mDeviceInfoProvider.SetManufacturingDateSuffix(nullptr);
+        mMockDelegate.SetManufacturingDateSuffix(nullptr);
     }
 
     // UniqueID (Mandatory in Rev 4+, so if it fails, cluster rev must be < 4)
@@ -495,7 +261,7 @@ TEST_F(TestBasicInformationReadWrite, TestAllAttributesSpecCompliance)
 TEST_F(TestBasicInformationReadWrite, TestWriteNodeLabel)
 {
     const BasicInformationCluster::OptionalAttributesSet optionalAttributeSet;
-    BasicInformationCluster cluster(optionalAttributeSet, mContext);
+    BasicInformationCluster cluster(optionalAttributeSet, &mMockDelegate, chip::DeviceLayer::PlatformMgr());
     ASSERT_EQ(cluster.Startup(testContext.Get()), CHIP_NO_ERROR);
     chip::Testing::ClusterTester tester(cluster);
 
@@ -517,7 +283,7 @@ TEST_F(TestBasicInformationReadWrite, TestWriteNodeLabel)
 TEST_F(TestBasicInformationReadWrite, TestWriteLocation)
 {
     const BasicInformationCluster::OptionalAttributesSet optionalAttributeSet;
-    BasicInformationCluster cluster(optionalAttributeSet, mContext);
+    BasicInformationCluster cluster(optionalAttributeSet, &mMockDelegate, chip::DeviceLayer::PlatformMgr());
     ASSERT_EQ(cluster.Startup(testContext.Get()), CHIP_NO_ERROR);
     chip::Testing::ClusterTester tester(cluster);
 
@@ -551,7 +317,7 @@ TEST_F(TestBasicInformationReadWrite, TestWriteLocalConfigDisabled)
 
     BasicInformationCluster::OptionalAttributesSet optionalAttributeSet;
     optionalAttributeSet.Set<Attributes::LocalConfigDisabled::Id>();
-    BasicInformationCluster cluster(optionalAttributeSet, mContext);
+    BasicInformationCluster cluster(optionalAttributeSet, &mMockDelegate, chip::DeviceLayer::PlatformMgr());
     ASSERT_EQ(cluster.Startup(testContext.Get()), CHIP_NO_ERROR);
     chip::Testing::ClusterTester tester(cluster);
 
