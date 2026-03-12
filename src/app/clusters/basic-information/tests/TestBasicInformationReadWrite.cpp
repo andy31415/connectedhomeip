@@ -207,10 +207,10 @@ TEST_F(TestBasicInformationReadWrite, TestAllAttributesSpecCompliance)
     {
         char buf[32];
         CharSpan val(buf);
-        mMockDelegate.SetManufacturingDateSuffix("ABCDEFGH");
+        strcpy(mMockDelegate.mManufacturingDate, "20230615ABCDEFGH");
         ASSERT_EQ(tester.ReadAttribute(Attributes::ManufacturingDate::Id, val), CHIP_NO_ERROR);
         EXPECT_TRUE(val.data_equal("20230615ABCDEFGH"_span));
-        mMockDelegate.SetManufacturingDateSuffix(nullptr);
+        strcpy(mMockDelegate.mManufacturingDate, "20230615"); // Reset
     }
 
     // UniqueID (Mandatory in Rev 4+, so if it fails, cluster rev must be < 4)

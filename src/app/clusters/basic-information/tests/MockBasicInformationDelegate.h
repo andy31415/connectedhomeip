@@ -86,29 +86,13 @@ public:
             return CopyCharSpanToMutableCharSpan(kSoftwareVersionString, buffer);
         case Attributes::UniqueID::Id:
             return CopyCharSpanToMutableCharSpan(kUniqueId, buffer);
+        case Attributes::ManufacturingDate::Id:
+            return CopyCharSpanToMutableCharSpan(CharSpan::fromCharString(mManufacturingDate), buffer);
         case Attributes::Location::Id:
             return CopyCharSpanToMutableCharSpan(CharSpan::fromCharString(mLocation), buffer);
         default:
             return CHIP_ERROR_INVALID_ARGUMENT;
         }
-    }
-
-    CHIP_ERROR GetManufacturingDate(uint16_t & year, uint8_t & month, uint8_t & day) override
-    {
-        year  = kManufacturingYear;
-        month = kManufacturingMonth;
-        day   = kManufacturingDay;
-        return CHIP_NO_ERROR;
-    }
-
-    CHIP_ERROR GetManufacturingDateSuffix(MutableCharSpan & suffixBuffer) override
-    {
-        if (mManufacturingDateSuffix == nullptr)
-        {
-            suffixBuffer.reduce_size(0);
-            return CHIP_NO_ERROR;
-        }
-        return CopyCharSpanToMutableCharSpan(CharSpan::fromCharString(mManufacturingDateSuffix), suffixBuffer);
     }
 
     CHIP_ERROR GetVendorId(uint16_t & vendorId) override
@@ -181,17 +165,15 @@ public:
         return CHIP_NO_ERROR;
     }
 
-    uint16_t GetSubscriptionsPerFabric() const override { return 3; }
-    // Helper for tests
-    void SetManufacturingDateSuffix(const char * suffix) { mManufacturingDateSuffix = suffix; }
-
 public: // Public for test access
     uint32_t mConfigurationVersion       = 10u;
     uint32_t mStoreConfigVersionCalled   = 0u;
     CHIP_ERROR mStoreConfigVersionReturn = CHIP_NO_ERROR;
+    char mManufacturingDate[17]   = "20230615"; // YYYYMMDD + optional suffix
+
+    uint16_t GetSubscriptionsPerFabric() const override { return 3; }
 
 private:
-    const char * mManufacturingDateSuffix = nullptr;
     bool mLocalConfigDisabled             = false;
     char mLocation[kLocationLength + 1]   = "XX";
 };

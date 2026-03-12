@@ -134,46 +134,6 @@ inline CHIP_ERROR ReadSoftwareVersion(BasicInformation::BasicInformationDelegate
     return aEncoder.Encode(softwareVersion);
 }
 
-inline CHIP_ERROR ReadManufacturingDate(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
-{
-    constexpr size_t kMaxLen        = BasicInformation::Attributes::ManufacturingDate::TypeInfo::MaxLength();
-    constexpr size_t kMaxDateLength = 8; // YYYYMMDD
-    static_assert(kMaxLen > kMaxDateLength, "kMaxLen must be greater than kMaxDateLength");
-    char manufacturingDateString[kMaxLen + 1] = { 0 };
-    uint16_t manufacturingYear;
-    uint8_t manufacturingMonth;
-    uint8_t manufacturingDayOfMonth;
-    size_t totalManufacturingDateLen = 0;
-    MutableCharSpan vendorSuffixSpan(manufacturingDateString + kMaxDateLength, kMaxLen - kMaxDateLength);
-    CHIP_ERROR status = delegate->GetManufacturingDate(manufacturingYear, manufacturingMonth, manufacturingDayOfMonth);
-
-    // TODO: Remove defaulting once proper runtime defaulting of unimplemented factory data is done
-    if (status == CHIP_DEVICE_ERROR_CONFIG_NOT_FOUND || status == CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE)
-    {
-        manufacturingYear       = 2020;
-        manufacturingMonth      = 1;
-        manufacturingDayOfMonth = 1;
-        vendorSuffixSpan.reduce_size(0);
-        status = CHIP_NO_ERROR;
-    }
-    ReturnErrorOnFailure(status);
-
-    // Format is YYYYMMDD
-    snprintf(manufacturingDateString, sizeof(manufacturingDateString), "%04u%02u%02u", manufacturingYear, manufacturingMonth,
-             manufacturingDayOfMonth);
-
-    totalManufacturingDateLen = kMaxDateLength;
-    status                    = delegate->GetManufacturingDateSuffix(vendorSuffixSpan);
-    if (status == CHIP_NO_ERROR)
-    {
-        totalManufacturingDateLen += vendorSuffixSpan.size();
-    }
-
-    VerifyOrDie(totalManufacturingDateLen <= kMaxLen);
-
-    return aEncoder.Encode(CharSpan(manufacturingDateString, totalManufacturingDateLen));
-}
-
 inline CHIP_ERROR ReadCapabilityMinima(AttributeValueEncoder & aEncoder, BasicInformation::BasicInformationDelegate * delegate)
 {
     BasicInformation::Structs::CapabilityMinimaStruct::Type capabilityMinima;
@@ -275,7 +235,7 @@ DataModel::ActionReturnStatus BasicInformationCluster::ReadAttribute(const DataM
     case SoftwareVersionString::Id:
         return ReadStringAttribute(mDelegate, SoftwareVersionString::Id, encoder);
     case ManufacturingDate::Id:
-        return ReadManufacturingDate(mDelegate, encoder);
+        return ReadStringAttribute(mDelegate, ManufacturingDate::Id, encoder);
     case PartNumber::Id:
         return ReadStringAttribute(mDelegate, PartNumber::Id, encoder);
     case ProductURL::Id:

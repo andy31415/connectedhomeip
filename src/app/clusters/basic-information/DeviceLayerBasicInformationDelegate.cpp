@@ -63,9 +63,55 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::GetStringAttribute(chip::Attribu
         err = mContext.configurationManager.GetSoftwareVersionString(buffer.data(), buffer.size());
         break;
     case UniqueID::Id:
-        err = mContext.configurationManager.GetUniqueId(buffer.data(), buffer.size());
-        break;
-    case Location::Id: {
+                err = mContext.configurationManager.GetUniqueId(buffer.data(), buffer.size());
+                break;
+            case ManufacturingDate::Id: {
+                constexpr size_t kMaxLen        = BasicInformation::Attributes::ManufacturingDate::TypeInfo::MaxLength();
+                constexpr size_t kMaxDateLength = 8; // YYYYMMDD
+                static_assert(kMaxLen > kMaxDateLength, "kMaxLen must be greater than kMaxDateLength");
+                uint16_t manufacturingYear;
+                uint8_t manufacturingMonth;
+                uint8_t manufacturingDayOfMonth;
+                size_t totalManufacturingDateLen = 0;
+
+                CHIP_ERROR status = mContext.deviceInstanceInfoProvider.GetManufacturingDate(manufacturingYear, manufacturingMonth, manufacturingDayOfMonth);
+
+                if (status == CHIP_DEVICE_ERROR_CONFIG_NOT_FOUND || status == CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE)
+                {
+                    // Default to an empty string if not found
+                    buffer.reduce_size(0);
+                    return CHIP_NO_ERROR;
+                }
+                ReturnErrorOnFailure(status);
+
+                if (buffer.size() < kMaxDateLength) {
+                    return CHIP_ERROR_BUFFER_TOO_SMALL;
+                }
+
+                // Format is YYYYMMDD
+                int written = snprintf(buffer.data(), buffer.size(), "%04u%02u%02u", manufacturingYear, manufacturingMonth,
+                         manufacturingDayOfMonth);
+                if (written < 0 || written >= static_cast<int>(buffer.size())) {
+                    return CHIP_ERROR_BUFFER_TOO_SMALL;
+                }
+                totalManufacturingDateLen = static_cast<size_t>(written);
+
+                if (buffer.size() > kMaxDateLength)
+                {
+                    MutableCharSpan vendorSuffixSpan(buffer.data() + kMaxDateLength, buffer.size() - kMaxDateLength);
+                    status = mContext.deviceInstanceInfoProvider.GetManufacturingDateSuffix(vendorSuffixSpan);
+                    if (status == CHIP_NO_ERROR)
+                    {
+                        totalManufacturingDateLen += vendorSuffixSpan.size();
+                    }
+                    // Suffix is optional, so errors other than NO_ERROR are ignored.
+                }
+
+                buffer.reduce_size(totalManufacturingDateLen);
+                return CHIP_NO_ERROR;
+            }
+            case Location::Id: {
+
         constexpr size_t kExpectedFixedLocationLength = 2;
         err = mContext.configurationManager.GetCountryCode(buffer.data(), buffer.size(), dataLen);
         if ((err != CHIP_NO_ERROR) || (dataLen != kExpectedFixedLocationLength))
@@ -87,16 +133,6 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::GetStringAttribute(chip::Attribu
     }
 
     return IgnoreUnimplemented(err, buffer.data(), buffer.size());
-}
-
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetManufacturingDate(uint16_t & year, uint8_t & month, uint8_t & day)
-{
-    return mContext.deviceInstanceInfoProvider.GetManufacturingDate(year, month, day);
-}
-
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetManufacturingDateSuffix(MutableCharSpan & suffixBuffer)
-{
-    return mContext.deviceInstanceInfoProvider.GetManufacturingDateSuffix(suffixBuffer);
 }
 
 CHIP_ERROR DeviceLayerBasicInformationDelegate::GetVendorId(uint16_t & vendorId)

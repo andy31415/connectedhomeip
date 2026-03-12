@@ -42,8 +42,6 @@ public:
 
     // BasicInformationDelegate Interface
     CHIP_ERROR GetStringAttribute(chip::AttributeId attributeId, MutableCharSpan & buffer) override;
-    CHIP_ERROR GetManufacturingDate(uint16_t & year, uint8_t & month, uint8_t & day) override;
-    CHIP_ERROR GetManufacturingDateSuffix(MutableCharSpan & suffixBuffer) override;
 
     CHIP_ERROR GetVendorId(uint16_t & vendorId) override;
     CHIP_ERROR GetProductId(uint16_t & productId) override;

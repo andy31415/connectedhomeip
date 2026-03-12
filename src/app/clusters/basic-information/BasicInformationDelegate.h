@@ -37,8 +37,6 @@ public:
 
     // String Getters
     virtual CHIP_ERROR GetStringAttribute(chip::AttributeId attributeId, MutableCharSpan & buffer) = 0;
-    virtual CHIP_ERROR GetManufacturingDate(uint16_t & year, uint8_t & month, uint8_t & day)       = 0;
-    virtual CHIP_ERROR GetManufacturingDateSuffix(MutableCharSpan & suffixBuffer)                  = 0;
 
     // Value Getters
     virtual CHIP_ERROR GetVendorId(uint16_t & vendorId)                                                               = 0;
