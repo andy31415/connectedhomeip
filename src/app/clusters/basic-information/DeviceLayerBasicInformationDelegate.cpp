@@ -36,49 +36,34 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::GetStringAttribute(chip::Attribu
     CHIP_ERROR err = CHIP_NO_ERROR;
     size_t dataLen = 0;
 
-    // Ensure buffer is null-terminated on entry for safety, as IgnoreUnimplemented relies on it.
-    if (buffer.size() > 0)
-    {
-        buffer.data()[0] = '\0';
-    }
-
     switch (attributeId)
     {
     case VendorName::Id:
-        err = IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetVendorName(buffer.data(), buffer.size()), buffer.data(),
-                                  buffer.size());
+        err = mContext.deviceInstanceInfoProvider.GetVendorName(buffer.data(), buffer.size());
         break;
     case ProductName::Id:
-        err = IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetProductName(buffer.data(), buffer.size()), buffer.data(),
-                                  buffer.size());
+        err = mContext.deviceInstanceInfoProvider.GetProductName(buffer.data(), buffer.size());
         break;
     case PartNumber::Id:
-        err = IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetPartNumber(buffer.data(), buffer.size()), buffer.data(),
-                                  buffer.size());
+        err = mContext.deviceInstanceInfoProvider.GetPartNumber(buffer.data(), buffer.size());
         break;
     case ProductURL::Id:
-        err = IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetProductURL(buffer.data(), buffer.size()), buffer.data(),
-                                  buffer.size());
+        err = mContext.deviceInstanceInfoProvider.GetProductURL(buffer.data(), buffer.size());
         break;
     case ProductLabel::Id:
-        err = IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetProductLabel(buffer.data(), buffer.size()), buffer.data(),
-                                  buffer.size());
+        err = mContext.deviceInstanceInfoProvider.GetProductLabel(buffer.data(), buffer.size());
         break;
     case SerialNumber::Id:
-        err = IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetSerialNumber(buffer.data(), buffer.size()), buffer.data(),
-                                  buffer.size());
+        err = mContext.deviceInstanceInfoProvider.GetSerialNumber(buffer.data(), buffer.size());
         break;
     case HardwareVersionString::Id:
-        err = IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetHardwareVersionString(buffer.data(), buffer.size()),
-                                  buffer.data(), buffer.size());
+        err = mContext.deviceInstanceInfoProvider.GetHardwareVersionString(buffer.data(), buffer.size());
         break;
     case SoftwareVersionString::Id:
-        err = IgnoreUnimplemented(mContext.configurationManager.GetSoftwareVersionString(buffer.data(), buffer.size()),
-                                  buffer.data(), buffer.size());
+        err = mContext.configurationManager.GetSoftwareVersionString(buffer.data(), buffer.size());
         break;
     case UniqueID::Id:
-        err = IgnoreUnimplemented(mContext.configurationManager.GetUniqueId(buffer.data(), buffer.size()), buffer.data(),
-                                  buffer.size());
+        err = mContext.configurationManager.GetUniqueId(buffer.data(), buffer.size());
         break;
     case Location::Id: {
         constexpr size_t kExpectedFixedLocationLength = 2;
@@ -101,7 +86,7 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::GetStringAttribute(chip::Attribu
         buffer.reduce_size(strlen(buffer.data()));
     }
 
-    return err;
+    return IgnoreUnimplemented(err, buffer.data(), buffer.size());
 }
 
 CHIP_ERROR DeviceLayerBasicInformationDelegate::GetManufacturingDate(uint16_t & year, uint8_t & month, uint8_t & day)
