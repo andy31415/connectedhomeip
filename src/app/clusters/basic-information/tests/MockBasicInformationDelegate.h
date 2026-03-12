@@ -169,13 +169,13 @@ public: // Public for test access
     uint32_t mConfigurationVersion       = 10u;
     uint32_t mStoreConfigVersionCalled   = 0u;
     CHIP_ERROR mStoreConfigVersionReturn = CHIP_NO_ERROR;
-    char mManufacturingDate[17]   = "20230615"; // YYYYMMDD + optional suffix
+    char mManufacturingDate[17]          = "20230615"; // YYYYMMDD + optional suffix
 
     uint16_t GetSubscriptionsPerFabric() const override { return 3; }
 
 private:
-    bool mLocalConfigDisabled             = false;
-    char mLocation[kLocationLength + 1]   = "XX";
+    bool mLocalConfigDisabled           = false;
+    char mLocation[kLocationLength + 1] = "XX";
 };
 
 } // namespace tests
