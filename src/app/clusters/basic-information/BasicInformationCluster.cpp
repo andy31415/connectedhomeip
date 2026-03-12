@@ -96,7 +96,7 @@ CHIP_ERROR ReadStringAttribute(BasicInformation::BasicInformationDelegate * dele
     ReturnErrorOnFailure(delegate->GetStringAttribute(attributeId, span));
 
     // explicit char span creation to not synthesize a writer for Span<char> on top of Span<const char>
-    return encoder.Encode(CharSpan{buffer, span.size()});
+    return encoder.Encode(CharSpan{ buffer, span.size() });
 }
 
 inline CHIP_ERROR ReadVendorID(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
