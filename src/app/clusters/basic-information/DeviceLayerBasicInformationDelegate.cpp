@@ -36,34 +36,40 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::GetStringAttribute(chip::Attribu
     CHIP_ERROR err = CHIP_NO_ERROR;
     size_t dataLen = 0;
 
+    // Ensure buffer is null-terminated on entry for safety, as IgnoreUnimplemented relies on it.
+    if (buffer.size() > 0)
+    {
+        buffer.data()[0] = '\0';
+    }
+
     switch (attributeId)
     {
     case VendorName::Id:
-        err = mContext.deviceInstanceInfoProvider.GetVendorName(buffer.data(), buffer.size());
+        err = IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetVendorName(buffer.data(), buffer.size()), buffer.data(), buffer.size());
         break;
     case ProductName::Id:
-        err = mContext.deviceInstanceInfoProvider.GetProductName(buffer.data(), buffer.size());
+        err = IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetProductName(buffer.data(), buffer.size()), buffer.data(), buffer.size());
         break;
     case PartNumber::Id:
-        err = mContext.deviceInstanceInfoProvider.GetPartNumber(buffer.data(), buffer.size());
+        err = IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetPartNumber(buffer.data(), buffer.size()), buffer.data(), buffer.size());
         break;
     case ProductURL::Id:
-        err = mContext.deviceInstanceInfoProvider.GetProductURL(buffer.data(), buffer.size());
+        err = IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetProductURL(buffer.data(), buffer.size()), buffer.data(), buffer.size());
         break;
     case ProductLabel::Id:
-        err = mContext.deviceInstanceInfoProvider.GetProductLabel(buffer.data(), buffer.size());
+        err = IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetProductLabel(buffer.data(), buffer.size()), buffer.data(), buffer.size());
         break;
     case SerialNumber::Id:
-        err = mContext.deviceInstanceInfoProvider.GetSerialNumber(buffer.data(), buffer.size());
+        err = IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetSerialNumber(buffer.data(), buffer.size()), buffer.data(), buffer.size());
         break;
     case HardwareVersionString::Id:
-        err = mContext.deviceInstanceInfoProvider.GetHardwareVersionString(buffer.data(), buffer.size());
+        err = IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetHardwareVersionString(buffer.data(), buffer.size()), buffer.data(), buffer.size());
         break;
     case SoftwareVersionString::Id:
-        err = mContext.configurationManager.GetSoftwareVersionString(buffer.data(), buffer.size());
+        err = IgnoreUnimplemented(mContext.configurationManager.GetSoftwareVersionString(buffer.data(), buffer.size()), buffer.data(), buffer.size());
         break;
     case UniqueID::Id:
-        err = mContext.configurationManager.GetUniqueId(buffer.data(), buffer.size());
+        err = IgnoreUnimplemented(mContext.configurationManager.GetUniqueId(buffer.data(), buffer.size()), buffer.data(), buffer.size());
         break;
     case Location::Id: {
         constexpr size_t kExpectedFixedLocationLength = 2;
@@ -84,12 +90,6 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::GetStringAttribute(chip::Attribu
     if (err == CHIP_NO_ERROR)
     {
         buffer.reduce_size(strlen(buffer.data()));
-    }
-    else if (err == CHIP_DEVICE_ERROR_CONFIG_NOT_FOUND || err == CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE)
-    {
-        // If the config is not found or the feature is unsupported, return an empty string.
-        buffer.reduce_size(0);
-        err = CHIP_NO_ERROR;
     }
 
     return err;
