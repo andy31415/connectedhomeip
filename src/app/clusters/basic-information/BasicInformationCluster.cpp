@@ -94,7 +94,9 @@ CHIP_ERROR ReadStringAttribute(BasicInformation::BasicInformationDelegate * dele
     char buffer[kMaxStringLength + 1];
     MutableCharSpan span(buffer, sizeof(buffer));
     ReturnErrorOnFailure(delegate->GetStringAttribute(attributeId, span));
-    return encoder.Encode(span);
+
+    // explicit char span creation to not synthesize a writer for Span<char> on top of Span<const char>
+    return encoder.Encode(CharSpan{buffer, span.size()});
 }
 
 inline CHIP_ERROR ReadVendorID(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
