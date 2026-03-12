@@ -137,8 +137,13 @@ DataModel::ActionReturnStatus BasicInformationCluster::ReadAttribute(const DataM
 {
     using namespace BasicInformation::Attributes;
 
-    enum class AttributeReadType { kString, kNumeric, kOther };
-    AttributeReadType readType = AttributeReadType::kOther;
+    enum class AttributeReadType
+    {
+        kString,
+        kNumeric,
+        kOther
+    };
+    AttributeReadType readType    = AttributeReadType::kOther;
     const AttributeId attributeId = request.path.mAttributeId;
 
     switch (attributeId)
