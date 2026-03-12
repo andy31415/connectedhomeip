@@ -31,9 +31,9 @@
 #include <lib/core/DataModelTypes.h>
 #include <lib/support/CodeUtils.h>
 #include <lib/support/Span.h>
+#include <platform/CHIPDeviceError.h>
 #include <platform/ConfigurationManager.h>
 #include <platform/PlatformManager.h>
-#include <platform/CHIPDeviceError.h>
 #include <protocols/interaction_model/StatusCode.h>
 #include <tracing/macros.h>
 
@@ -77,24 +77,6 @@ constexpr DataModel::AttributeEntry kMandatoryAttributes[] = {
 
 constexpr size_t kExpectedFixedLocationLength = 2;
 
-
-CHIP_ERROR ClearNullTerminatedStringWhenUnimplemented(CHIP_ERROR status, char * strBuf)
-{
-    if (status == CHIP_DEVICE_ERROR_CONFIG_NOT_FOUND || status == CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE)
-    {
-        *strBuf = '\0';
-        return CHIP_NO_ERROR;
-    }
-
-    return status;
-}
-
-CHIP_ERROR EncodeStringOnSuccess(CHIP_ERROR status, AttributeValueEncoder & encoder, const char * buf, size_t maxBufSize)
-{
-    ReturnErrorOnFailure(status);
-    return encoder.Encode(chip::CharSpan(buf, strnlen(buf, maxBufSize)));
-}
-
 constexpr size_t kMaxStringLength = std::max({
     DeviceLayer::ConfigurationManager::kMaxVendorNameLength,
     DeviceLayer::ConfigurationManager::kMaxHardwareVersionStringLength,
@@ -106,19 +88,13 @@ constexpr size_t kMaxStringLength = std::max({
     DeviceLayer::ConfigurationManager::kMaxUniqueIDLength,
 });
 
-/// Reads a single device info string. Separate function to optimize for flash cost
-/// as querying strings seems to be a frequent operation.
-CHIP_ERROR ReadConfigurationString(BasicInformation::BasicInformationDelegate * delegate,
-                                   CHIP_ERROR (BasicInformation::BasicInformationDelegate::*getter)(char *, size_t), bool unimplementedAllowed,
-                                   AttributeValueEncoder & encoder)
+CHIP_ERROR ReadStringAttribute(BasicInformation::BasicInformationDelegate * delegate, AttributeId attributeId,
+                               AttributeValueEncoder & encoder)
 {
-    char buffer[kMaxStringLength + 1] = { 0 };
-    CHIP_ERROR status                 = ((delegate)->*(getter))(buffer, sizeof(buffer));
-    if (unimplementedAllowed)
-    {
-        status = ClearNullTerminatedStringWhenUnimplemented(status, buffer);
-    }
-    return EncodeStringOnSuccess(status, encoder, buffer, kMaxStringLength);
+    char buffer[kMaxStringLength + 1];
+    MutableCharSpan span(buffer, sizeof(buffer));
+    ReturnErrorOnFailure(delegate->GetStringAttribute(attributeId, span));
+    return encoder.Encode(span);
 }
 
 inline CHIP_ERROR ReadVendorID(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
@@ -154,14 +130,6 @@ inline CHIP_ERROR ReadSoftwareVersion(BasicInformation::BasicInformationDelegate
     uint32_t softwareVersion = 0;
     ReturnErrorOnFailure(delegate->GetSoftwareVersion(softwareVersion));
     return aEncoder.Encode(softwareVersion);
-}
-
-inline CHIP_ERROR ReadSoftwareVersionString(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
-{
-    constexpr size_t kMaxLen                = BasicInformation::Attributes::SoftwareVersionString::TypeInfo::MaxLength();
-    char softwareVersionString[kMaxLen + 1] = { 0 };
-    ReturnErrorOnFailure(delegate->GetSoftwareVersionString(softwareVersionString, sizeof(softwareVersionString)));
-    return aEncoder.Encode(CharSpan(softwareVersionString, strnlen(softwareVersionString, kMaxLen)));
 }
 
 inline CHIP_ERROR ReadManufacturingDate(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
@@ -204,16 +172,6 @@ inline CHIP_ERROR ReadManufacturingDate(BasicInformation::BasicInformationDelega
     return aEncoder.Encode(CharSpan(manufacturingDateString, totalManufacturingDateLen));
 }
 
-inline CHIP_ERROR ReadUniqueID(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
-{
-    constexpr size_t kMaxLen   = BasicInformation::Attributes::UniqueID::TypeInfo::MaxLength();
-    char uniqueId[kMaxLen + 1] = { 0 };
-
-    CHIP_ERROR status = delegate->GetUniqueId(uniqueId, sizeof(uniqueId));
-    status            = ClearNullTerminatedStringWhenUnimplemented(status, uniqueId);
-    return EncodeStringOnSuccess(status, aEncoder, uniqueId, kMaxLen);
-}
-
 inline CHIP_ERROR ReadCapabilityMinima(AttributeValueEncoder & aEncoder, BasicInformation::BasicInformationDelegate * delegate)
 {
     BasicInformation::Structs::CapabilityMinimaStruct::Type capabilityMinima;
@@ -241,25 +199,6 @@ inline CHIP_ERROR ReadConfigurationVersion(BasicInformation::BasicInformationDel
     uint32_t configurationVersion = 0;
     ReturnErrorOnFailure(delegate->GetConfigurationVersion(configurationVersion));
     return aEncoder.Encode(configurationVersion);
-}
-
-inline CHIP_ERROR ReadLocation(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
-{
-    char location[kExpectedFixedLocationLength + 1] = { 0 };
-    size_t codeLen                                  = 0;
-    CharSpan countryCodeSpan;
-
-    CHIP_ERROR err = delegate->GetCountryCode(location, sizeof(location), codeLen);
-    if ((err != CHIP_NO_ERROR) || (codeLen != kExpectedFixedLocationLength))
-    {
-        countryCodeSpan = "XX"_span;
-        err             = CHIP_NO_ERROR;
-    }
-    else
-    {
-        countryCodeSpan = CharSpan{ location, codeLen };
-    }
-    return aEncoder.Encode(countryCodeSpan);
 }
 
 inline CHIP_ERROR ReadProductAppearance(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
@@ -297,8 +236,6 @@ DataModel::ActionReturnStatus BasicInformationCluster::ReadAttribute(const DataM
 {
     using namespace BasicInformation::Attributes;
 
-
-
     switch (request.path.mAttributeId)
     {
     case FeatureMap::Id:
@@ -318,42 +255,35 @@ DataModel::ActionReturnStatus BasicInformationCluster::ReadAttribute(const DataM
     case DataModelRevision::Id:
         return encoder.Encode(Revision::kDataModelRevision);
     case Location::Id:
-        return ReadLocation(mDelegate, encoder);
+        return ReadStringAttribute(mDelegate, Location::Id, encoder);
     case VendorName::Id:
-        return ReadConfigurationString(mDelegate, &BasicInformationDelegate::GetVendorName,
-                                       false /* unimplementedAllowed */, encoder);
+        return ReadStringAttribute(mDelegate, VendorName::Id, encoder);
     case VendorID::Id:
         return ReadVendorID(mDelegate, encoder);
     case ProductName::Id:
-        return ReadConfigurationString(mDelegate, &BasicInformationDelegate::GetProductName,
-                                       false /* unimplementedAllowed */, encoder);
+        return ReadStringAttribute(mDelegate, ProductName::Id, encoder);
     case ProductID::Id:
         return ReadProductID(mDelegate, encoder);
     case HardwareVersion::Id:
         return ReadHardwareVersion(mDelegate, encoder);
     case HardwareVersionString::Id:
-        return ReadConfigurationString(mDelegate, &BasicInformationDelegate::GetHardwareVersionString,
-                                       false /* unimplementedAllowed */, encoder);
+        return ReadStringAttribute(mDelegate, HardwareVersionString::Id, encoder);
     case SoftwareVersion::Id:
         return ReadSoftwareVersion(mDelegate, encoder);
     case SoftwareVersionString::Id:
-        return ReadSoftwareVersionString(mDelegate, encoder);
+        return ReadStringAttribute(mDelegate, SoftwareVersionString::Id, encoder);
     case ManufacturingDate::Id:
         return ReadManufacturingDate(mDelegate, encoder);
     case PartNumber::Id:
-        return ReadConfigurationString(mDelegate, &BasicInformationDelegate::GetPartNumber,
-                                       true /* unimplementedAllowed */, encoder);
+        return ReadStringAttribute(mDelegate, PartNumber::Id, encoder);
     case ProductURL::Id:
-        return ReadConfigurationString(mDelegate, &BasicInformationDelegate::GetProductURL,
-                                       true /* unimplementedAllowed */, encoder);
+        return ReadStringAttribute(mDelegate, ProductURL::Id, encoder);
     case ProductLabel::Id:
-        return ReadConfigurationString(mDelegate, &BasicInformationDelegate::GetProductLabel,
-                                       true /* unimplementedAllowed */, encoder);
+        return ReadStringAttribute(mDelegate, ProductLabel::Id, encoder);
     case SerialNumber::Id:
-        return ReadConfigurationString(mDelegate, &BasicInformationDelegate::GetSerialNumber,
-                                       true /* unimplementedAllowed */, encoder);
+        return ReadStringAttribute(mDelegate, SerialNumber::Id, encoder);
     case UniqueID::Id:
-        return ReadUniqueID(mDelegate, encoder);
+        return ReadStringAttribute(mDelegate, UniqueID::Id, encoder);
     case CapabilityMinima::Id:
         return ReadCapabilityMinima(encoder, mDelegate);
     case ProductAppearance::Id:
@@ -401,7 +331,7 @@ DataModel::ActionReturnStatus BasicInformationCluster::WriteImpl(const DataModel
         CharSpan location;
         ReturnErrorOnFailure(decoder.Decode(location));
         VerifyOrReturnError(location.size() == kExpectedFixedLocationLength, Protocols::InteractionModel::Status::ConstraintError);
-        return mDelegate->StoreCountryCode(location.data(), location.size());
+        return mDelegate->StoreLocation(location);
     }
     case NodeLabel::Id: {
         CharSpan label;
@@ -410,7 +340,7 @@ DataModel::ActionReturnStatus BasicInformationCluster::WriteImpl(const DataModel
         return persistence.StoreString(request.path, mNodeLabel);
     }
     case LocalConfigDisabled::Id: {
-        bool localConfigDisabled  = false;
+        bool localConfigDisabled = false;
         ReturnErrorOnFailure(mDelegate->GetLocalConfigDisabled(localConfigDisabled));
         auto decodeStatus = persistence.DecodeAndStoreNativeEndianValue(request.path, decoder, localConfigDisabled);
         ReturnErrorOnFailure(mDelegate->SetLocalConfigDisabled(localConfigDisabled));

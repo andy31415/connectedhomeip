@@ -16,6 +16,7 @@
 #pragma once
 
 #include <app/clusters/basic-information/BasicInformationDelegate.h>
+#include <clusters/BasicInformation/Attributes.h>
 #include <clusters/BasicInformation/Enums.h>
 #include <lib/support/CHIPMemString.h>
 #include <lib/support/Span.h>
@@ -29,25 +30,25 @@ namespace tests {
 
 using namespace chip::DeviceLayer;
 
-static constexpr const char * kVendorName            = "TestVendor";
-static constexpr const char * kProductName           = "TestProduct";
-static constexpr const char * kHardwareVersionString = "HW1.0";
-static constexpr const char * kPartNumber            = "PART123";
-static constexpr const char * kProductURL            = "http://example.com";
-static constexpr const char * kProductLabel          = "Label123";
-static constexpr const char * kSerialNumber          = "SN123456";
-static constexpr uint16_t kVendorId                  = static_cast<uint16_t>(VendorId::TestVendor1);
-static constexpr uint16_t kProductId                 = 0x5678;
-static constexpr uint16_t kHardwareVersion           = 1;
-static constexpr uint16_t kManufacturingYear         = 2023;
-static constexpr uint8_t kManufacturingMonth         = 6;
-static constexpr uint8_t kManufacturingDay           = 15;
-static constexpr ProductFinishEnum kProductFinish    = ProductFinishEnum::kMatte;
-static constexpr ColorEnum kProductPrimaryColor      = ColorEnum::kBlack;
-static constexpr size_t kCountryCodeLength = 2;
-static constexpr const char * kUniqueId    = "TEST_UNIQUE_ID_12345";
-static constexpr const char * kSoftwareVersionString = "SW1.0";
-static constexpr uint32_t kSoftwareVersion         = 1;
+static auto kVendorName                           = "TestVendor"_span;
+static auto kProductName                          = "TestProduct"_span;
+static auto kHardwareVersionString                = "HW1.0"_span;
+static auto kPartNumber                           = "PART123"_span;
+static auto kProductURL                           = "http://example.com"_span;
+static auto kProductLabel                         = "Label123"_span;
+static auto kSerialNumber                         = "SN123456"_span;
+static constexpr uint16_t kVendorId               = static_cast<uint16_t>(VendorId::TestVendor1);
+static constexpr uint16_t kProductId              = 0x5678;
+static constexpr uint16_t kHardwareVersion        = 1;
+static constexpr uint16_t kManufacturingYear      = 2023;
+static constexpr uint8_t kManufacturingMonth      = 6;
+static constexpr uint8_t kManufacturingDay        = 15;
+static constexpr ProductFinishEnum kProductFinish = ProductFinishEnum::kMatte;
+static constexpr ColorEnum kProductPrimaryColor   = ColorEnum::kBlack;
+static constexpr size_t kLocationLength        = 2;
+static auto kUniqueId                             = "TEST_UNIQUE_ID_12345"_span;
+static auto kSoftwareVersionString                = "SW1.0"_span;
+static constexpr uint32_t kSoftwareVersion        = 1;
 
 // Helper function to safely copy strings and check for buffer size
 inline CHIP_ERROR SafeCopyString(char * buf, size_t bufSize, const char * source)
@@ -63,21 +64,35 @@ inline CHIP_ERROR SafeCopyString(char * buf, size_t bufSize, const char * source
 class MockBasicInformationDelegate : public BasicInformationDelegate
 {
 public:
-    CHIP_ERROR GetVendorName(char * buf, size_t bufSize) override { return SafeCopyString(buf, bufSize, kVendorName); }
-    CHIP_ERROR GetProductName(char * buf, size_t bufSize) override { return SafeCopyString(buf, bufSize, kProductName); }
-    CHIP_ERROR GetPartNumber(char * buf, size_t bufSize) override { return SafeCopyString(buf, bufSize, kPartNumber); }
-    CHIP_ERROR GetProductURL(char * buf, size_t bufSize) override { return SafeCopyString(buf, bufSize, kProductURL); }
-    CHIP_ERROR GetProductLabel(char * buf, size_t bufSize) override { return SafeCopyString(buf, bufSize, kProductLabel); }
-    CHIP_ERROR GetSerialNumber(char * buf, size_t bufSize) override { return SafeCopyString(buf, bufSize, kSerialNumber); }
-    CHIP_ERROR GetHardwareVersionString(char * buf, size_t bufSize) override
+    CHIP_ERROR GetStringAttribute(chip::AttributeId attributeId, MutableCharSpan & buffer) override
     {
-        return SafeCopyString(buf, bufSize, kHardwareVersionString);
+        switch (attributeId)
+        {
+        case Attributes::VendorName::Id:
+            return CopyCharSpanToMutableCharSpan(kVendorName, buffer);
+        case Attributes::ProductName::Id:
+            return CopyCharSpanToMutableCharSpan(kProductName, buffer);
+        case Attributes::PartNumber::Id:
+            return CopyCharSpanToMutableCharSpan(kPartNumber, buffer);
+        case Attributes::ProductURL::Id:
+            return CopyCharSpanToMutableCharSpan(kProductURL, buffer);
+        case Attributes::ProductLabel::Id:
+            return CopyCharSpanToMutableCharSpan(kProductLabel, buffer);
+        case Attributes::SerialNumber::Id:
+            return CopyCharSpanToMutableCharSpan(kSerialNumber, buffer);
+        case Attributes::HardwareVersionString::Id:
+            return CopyCharSpanToMutableCharSpan(kHardwareVersionString, buffer);
+        case Attributes::SoftwareVersionString::Id:
+            return CopyCharSpanToMutableCharSpan(kSoftwareVersionString, buffer);
+        case Attributes::UniqueID::Id:
+            return CopyCharSpanToMutableCharSpan(kUniqueId, buffer);
+        case Attributes::Location::Id:
+            return CopyCharSpanToMutableCharSpan(CharSpan::fromCharString(mLocation), buffer);
+        default:
+            return CHIP_ERROR_INVALID_ARGUMENT;
+        }
     }
-    CHIP_ERROR GetSoftwareVersionString(char * buf, size_t bufSize) override
-    {
-        return SafeCopyString(buf, bufSize, kSoftwareVersionString);
-    }
-    CHIP_ERROR GetUniqueId(char * buf, size_t bufSize) override { return SafeCopyString(buf, bufSize, kUniqueId); }
+
     CHIP_ERROR GetManufacturingDate(uint16_t & year, uint8_t & month, uint8_t & day) override
     {
         year  = kManufacturingYear;
@@ -94,14 +109,6 @@ public:
             return CHIP_NO_ERROR;
         }
         return CopyCharSpanToMutableCharSpan(CharSpan::fromCharString(mManufacturingDateSuffix), suffixBuffer);
-    }
-
-    CHIP_ERROR GetCountryCode(char * buf, size_t bufSize, size_t & countryCodeLen) override
-    {
-        VerifyOrReturnError(bufSize > kCountryCodeLength, CHIP_ERROR_BUFFER_TOO_SMALL);
-        Platform::CopyString(buf, bufSize, mCountryCode);
-        countryCodeLen = kCountryCodeLength;
-        return CHIP_NO_ERROR;
     }
 
     CHIP_ERROR GetVendorId(uint16_t & vendorId) override
@@ -159,33 +166,34 @@ public:
         mLocalConfigDisabled = localConfigDisabled;
         return CHIP_NO_ERROR;
     }
+
     CHIP_ERROR StoreConfigurationVersion(uint32_t configurationVersion) override
     {
         mConfigurationVersion = configurationVersion;
         mStoreConfigVersionCalled++;
         return mStoreConfigVersionReturn;
     }
-    CHIP_ERROR StoreCountryCode(const char * code, size_t codeLen) override
+
+    CHIP_ERROR StoreLocation(const CharSpan & code) override
     {
-        VerifyOrReturnError(codeLen == kCountryCodeLength, CHIP_ERROR_INVALID_ARGUMENT);
-        Platform::CopyString(mCountryCode, sizeof(mCountryCode), code);
+        VerifyOrReturnError(code.size() == kLocationLength, CHIP_ERROR_INVALID_ARGUMENT);
+        Platform::CopyString(mLocation, sizeof(mLocation), code.data());
         return CHIP_NO_ERROR;
     }
 
     uint16_t GetSubscriptionsPerFabric() const override { return 3; }
-
     // Helper for tests
     void SetManufacturingDateSuffix(const char * suffix) { mManufacturingDateSuffix = suffix; }
 
 public: // Public for test access
-    uint32_t mConfigurationVersion = 10u;
-    uint32_t mStoreConfigVersionCalled = 0u;
+    uint32_t mConfigurationVersion       = 10u;
+    uint32_t mStoreConfigVersionCalled   = 0u;
     CHIP_ERROR mStoreConfigVersionReturn = CHIP_NO_ERROR;
 
 private:
-    const char * mManufacturingDateSuffix = nullptr;
-    char mCountryCode[kCountryCodeLength + 1] = "XX";
+    const char * mManufacturingDateSuffix     = nullptr;
     bool mLocalConfigDisabled                 = false;
+    char mLocation[kLocationLength + 1]     = "XX";
 };
 
 } // namespace tests

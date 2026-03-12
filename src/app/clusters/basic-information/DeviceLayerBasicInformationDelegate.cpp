@@ -15,7 +15,10 @@
  *    limitations under the License.
  */
 
+#include "lib/core/CHIPError.h"
+#include "lib/support/Span.h"
 #include <app/clusters/basic-information/DeviceLayerBasicInformationDelegate.h>
+#include <clusters/BasicInformation/Attributes.h>
 #include <clusters/BasicInformation/Enums.h>
 #include <platform/CHIPDeviceError.h>
 
@@ -26,49 +29,70 @@ namespace BasicInformation {
 
 using namespace DeviceLayer;
 
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetVendorName(char * buf, size_t bufSize)
+CHIP_ERROR DeviceLayerBasicInformationDelegate::GetStringAttribute(chip::AttributeId attributeId, MutableCharSpan & buffer)
 {
-    return mContext.deviceInstanceInfoProvider.GetVendorName(buf, bufSize);
-}
+    using namespace Attributes;
 
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetProductName(char * buf, size_t bufSize)
-{
-    return mContext.deviceInstanceInfoProvider.GetProductName(buf, bufSize);
-}
+    CHIP_ERROR err = CHIP_NO_ERROR;
+    size_t dataLen = 0;
 
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetPartNumber(char * buf, size_t bufSize)
-{
-    return IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetPartNumber(buf, bufSize), buf, bufSize);
-}
+    switch (attributeId)
+    {
+    case VendorName::Id:
+        err = mContext.deviceInstanceInfoProvider.GetVendorName(buffer.data(), buffer.size());
+        break;
+    case ProductName::Id:
+        err = mContext.deviceInstanceInfoProvider.GetProductName(buffer.data(), buffer.size());
+        break;
+    case PartNumber::Id:
+        err = mContext.deviceInstanceInfoProvider.GetPartNumber(buffer.data(), buffer.size());
+        break;
+    case ProductURL::Id:
+        err = mContext.deviceInstanceInfoProvider.GetProductURL(buffer.data(), buffer.size());
+        break;
+    case ProductLabel::Id:
+        err = mContext.deviceInstanceInfoProvider.GetProductLabel(buffer.data(), buffer.size());
+        break;
+    case SerialNumber::Id:
+        err = mContext.deviceInstanceInfoProvider.GetSerialNumber(buffer.data(), buffer.size());
+        break;
+    case HardwareVersionString::Id:
+        err = mContext.deviceInstanceInfoProvider.GetHardwareVersionString(buffer.data(), buffer.size());
+        break;
+    case SoftwareVersionString::Id:
+        err = mContext.configurationManager.GetSoftwareVersionString(buffer.data(), buffer.size());
+        break;
+    case UniqueID::Id:
+        err = mContext.configurationManager.GetUniqueId(buffer.data(), buffer.size());
+        break;
+    case Location::Id: {
+        constexpr size_t kExpectedFixedLocationLength = 2;
+        err = mContext.configurationManager.GetCountryCode(buffer.data(), buffer.size(), dataLen);
+        if ((err != CHIP_NO_ERROR) || (dataLen != kExpectedFixedLocationLength))
+        {
+            // Fallback that was here historically
+            return CopyCharSpanToMutableCharSpan("XX"_span, buffer);
+        }
 
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetProductURL(char * buf, size_t bufSize)
-{
-    return IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetProductURL(buf, bufSize), buf, bufSize);
-}
+        buffer.reduce_size(dataLen);
+        return err;
+    }
+    default:
+        return CHIP_ERROR_INVALID_ARGUMENT;
+    }
 
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetProductLabel(char * buf, size_t bufSize)
-{
-    return IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetProductLabel(buf, bufSize), buf, bufSize);
-}
+    if (err == CHIP_NO_ERROR)
+    {
+        buffer.reduce_size(strlen(buffer.data()));
+    }
+    else if (err == CHIP_DEVICE_ERROR_CONFIG_NOT_FOUND || err == CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE)
+    {
+        // If the config is not found or the feature is unsupported, return an empty string.
+        buffer.reduce_size(0);
+        err = CHIP_NO_ERROR;
+    }
 
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetSerialNumber(char * buf, size_t bufSize)
-{
-    return IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetSerialNumber(buf, bufSize), buf, bufSize);
-}
-
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetHardwareVersionString(char * buf, size_t bufSize)
-{
-    return mContext.deviceInstanceInfoProvider.GetHardwareVersionString(buf, bufSize);
-}
-
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetSoftwareVersionString(char * buf, size_t bufSize)
-{
-    return mContext.configurationManager.GetSoftwareVersionString(buf, bufSize);
-}
-
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetUniqueId(char * buf, size_t bufSize)
-{
-    return IgnoreUnimplemented(mContext.configurationManager.GetUniqueId(buf, bufSize), buf, bufSize);
+    return err;
 }
 
 CHIP_ERROR DeviceLayerBasicInformationDelegate::GetManufacturingDate(uint16_t & year, uint8_t & month, uint8_t & day)
@@ -79,11 +103,6 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::GetManufacturingDate(uint16_t & 
 CHIP_ERROR DeviceLayerBasicInformationDelegate::GetManufacturingDateSuffix(MutableCharSpan & suffixBuffer)
 {
     return mContext.deviceInstanceInfoProvider.GetManufacturingDateSuffix(suffixBuffer);
-}
-
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetCountryCode(char * buf, size_t bufSize, size_t & codeLen)
-{
-    return mContext.configurationManager.GetCountryCode(buf, bufSize, codeLen);
 }
 
 CHIP_ERROR DeviceLayerBasicInformationDelegate::GetVendorId(uint16_t & vendorId)
@@ -141,9 +160,9 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::StoreConfigurationVersion(uint32
     return mContext.configurationManager.StoreConfigurationVersion(configurationVersion);
 }
 
-CHIP_ERROR DeviceLayerBasicInformationDelegate::StoreCountryCode(const char * code, size_t codeLen)
+CHIP_ERROR DeviceLayerBasicInformationDelegate::StoreLocation(const CharSpan & code)
 {
-    return mContext.configurationManager.StoreCountryCode(code, codeLen);
+    return mContext.configurationManager.StoreCountryCode(code.data(), code.size());
 }
 
 uint16_t DeviceLayerBasicInformationDelegate::GetSubscriptionsPerFabric() const

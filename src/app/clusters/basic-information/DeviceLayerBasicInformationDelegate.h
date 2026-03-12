@@ -41,18 +41,9 @@ public:
     DeviceLayerBasicInformationDelegate(Context ctx) : mContext(ctx) {}
 
     // BasicInformationDelegate Interface
-    CHIP_ERROR GetVendorName(char * buf, size_t bufSize) override;
-    CHIP_ERROR GetProductName(char * buf, size_t bufSize) override;
-    CHIP_ERROR GetPartNumber(char * buf, size_t bufSize) override;
-    CHIP_ERROR GetProductURL(char * buf, size_t bufSize) override;
-    CHIP_ERROR GetProductLabel(char * buf, size_t bufSize) override;
-    CHIP_ERROR GetSerialNumber(char * buf, size_t bufSize) override;
-    CHIP_ERROR GetHardwareVersionString(char * buf, size_t bufSize) override;
-    CHIP_ERROR GetSoftwareVersionString(char * buf, size_t bufSize) override;
-    CHIP_ERROR GetUniqueId(char * buf, size_t bufSize) override;
+    CHIP_ERROR GetStringAttribute(chip::AttributeId attributeId, MutableCharSpan & buffer) override;
     CHIP_ERROR GetManufacturingDate(uint16_t & year, uint8_t & month, uint8_t & day) override;
     CHIP_ERROR GetManufacturingDateSuffix(MutableCharSpan & suffixBuffer) override;
-    CHIP_ERROR GetCountryCode(char * buf, size_t bufSize, size_t & codeLen) override;
 
     CHIP_ERROR GetVendorId(uint16_t & vendorId) override;
     CHIP_ERROR GetProductId(uint16_t & productId) override;
@@ -66,7 +57,7 @@ public:
 
     CHIP_ERROR SetLocalConfigDisabled(bool localConfigDisabled) override;
     CHIP_ERROR StoreConfigurationVersion(uint32_t configurationVersion) override;
-    CHIP_ERROR StoreCountryCode(const char * code, size_t codeLen) override;
+    CHIP_ERROR StoreLocation(const CharSpan & code) override;
 
     uint16_t GetSubscriptionsPerFabric() const override;
 

@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "MockBasicInformationDelegate.h"
 #include <app/InteractionModelEngine.h>
 #include <app/clusters/basic-information/BasicInformationCluster.h>
 #include <app/persistence/AttributePersistence.h>
@@ -30,7 +31,6 @@
 #include <lib/support/TestPersistentStorageDelegate.h>
 #include <platform/ConfigurationManager.h>
 #include <platform/DeviceInstanceInfoProvider.h>
-#include "MockBasicInformationDelegate.h"
 #include <pw_unit_test/framework.h>
 
 namespace {
@@ -40,8 +40,6 @@ using namespace chip::app;
 using namespace chip::app::Clusters;
 using namespace chip::app::Clusters::BasicInformation;
 using namespace chip::app::Clusters::BasicInformation::tests;
-
-
 
 struct TestBasicInformationReadWrite : public ::testing::Test
 {
@@ -143,7 +141,7 @@ TEST_F(TestBasicInformationReadWrite, TestAllAttributesSpecCompliance)
         char buf[64];
         CharSpan val(buf);
         ASSERT_EQ(tester.ReadAttribute(Attributes::VendorName::Id, val), CHIP_NO_ERROR);
-        EXPECT_TRUE(val.data_equal(CharSpan::fromCharString(kVendorName)));
+        EXPECT_TRUE(val.data_equal(kVendorName));
     }
 
     // VendorID
@@ -158,7 +156,7 @@ TEST_F(TestBasicInformationReadWrite, TestAllAttributesSpecCompliance)
         char buf[64];
         CharSpan val(buf);
         ASSERT_EQ(tester.ReadAttribute(Attributes::ProductName::Id, val), CHIP_NO_ERROR);
-        EXPECT_TRUE(val.data_equal(CharSpan::fromCharString(kProductName)));
+        EXPECT_TRUE(val.data_equal(kProductName));
     }
     // ProductID
     {
@@ -187,7 +185,7 @@ TEST_F(TestBasicInformationReadWrite, TestAllAttributesSpecCompliance)
         char buf[64];
         CharSpan val(buf);
         ASSERT_EQ(tester.ReadAttribute(Attributes::HardwareVersionString::Id, val), CHIP_NO_ERROR);
-        EXPECT_TRUE(val.data_equal(CharSpan::fromCharString(kHardwareVersionString)));
+        EXPECT_TRUE(val.data_equal(kHardwareVersionString));
     }
 
     // SoftwareVersion is read from ConfigurationManager
@@ -232,7 +230,7 @@ TEST_F(TestBasicInformationReadWrite, TestAllAttributesSpecCompliance)
         else
         {
             // If UniqueID is readable, it must match what the mock returns.
-            EXPECT_TRUE(val.data_equal(CharSpan::fromCharString(kUniqueId)));
+            EXPECT_TRUE(val.data_equal(kUniqueId));
             EXPECT_EQ(clusterRev, BasicInformation::kRevision);
         }
     }
@@ -290,8 +288,8 @@ TEST_F(TestBasicInformationReadWrite, TestWriteLocation)
     // --- Test Case 1: Write a valid 2-character location ---
     {
         CharSpan validLocation = "US"_span;
-        char readBuffer[8];
-        CharSpan readSpan(readBuffer);
+        char readBuffer[32];
+        CharSpan readSpan(readBuffer, sizeof(readBuffer));
         ASSERT_EQ(tester.WriteAttribute(Attributes::Location::Id, validLocation), CHIP_NO_ERROR);
         ASSERT_EQ(tester.ReadAttribute(Attributes::Location::Id, readSpan), CHIP_NO_ERROR);
         EXPECT_TRUE(readSpan.data_equal(validLocation));
