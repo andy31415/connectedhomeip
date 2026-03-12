@@ -99,18 +99,12 @@ CHIP_ERROR ReadStringAttribute(BasicInformation::BasicInformationDelegate * dele
     return encoder.Encode(CharSpan{ buffer, span.size() });
 }
 
-inline CHIP_ERROR ReadVendorID(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
+inline CHIP_ERROR ReadNumericAttribute(BasicInformation::BasicInformationDelegate * delegate, AttributeId attributeId,
+                                     AttributeValueEncoder & aEncoder)
 {
-    uint16_t vendorId = 0;
-    ReturnErrorOnFailure(delegate->GetVendorId(vendorId));
-    return aEncoder.Encode(vendorId);
-}
-
-inline CHIP_ERROR ReadProductID(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
-{
-    uint16_t productId = 0;
-    ReturnErrorOnFailure(delegate->GetProductId(productId));
-    return aEncoder.Encode(productId);
+    uint32_t value = 0;
+    ReturnErrorOnFailure(delegate->GetNumericAttribute(attributeId, value));
+    return aEncoder.Encode(value);
 }
 
 inline CHIP_ERROR ReadLocalConfigDisabled(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
@@ -118,20 +112,6 @@ inline CHIP_ERROR ReadLocalConfigDisabled(BasicInformation::BasicInformationDele
     bool localConfigDisabled = false;
     ReturnErrorOnFailure(delegate->GetLocalConfigDisabled(localConfigDisabled));
     return aEncoder.Encode(localConfigDisabled);
-}
-
-inline CHIP_ERROR ReadHardwareVersion(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
-{
-    uint16_t hardwareVersion = 0;
-    ReturnErrorOnFailure(delegate->GetHardwareVersion(hardwareVersion));
-    return aEncoder.Encode(hardwareVersion);
-}
-
-inline CHIP_ERROR ReadSoftwareVersion(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
-{
-    uint32_t softwareVersion = 0;
-    ReturnErrorOnFailure(delegate->GetSoftwareVersion(softwareVersion));
-    return aEncoder.Encode(softwareVersion);
 }
 
 inline CHIP_ERROR ReadCapabilityMinima(AttributeValueEncoder & aEncoder, BasicInformation::BasicInformationDelegate * delegate)
@@ -156,36 +136,10 @@ inline CHIP_ERROR ReadCapabilityMinima(AttributeValueEncoder & aEncoder, BasicIn
     return aEncoder.Encode(capabilityMinima);
 }
 
-inline CHIP_ERROR ReadConfigurationVersion(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
-{
-    uint32_t configurationVersion = 0;
-    ReturnErrorOnFailure(delegate->GetConfigurationVersion(configurationVersion));
-    return aEncoder.Encode(configurationVersion);
-}
-
 inline CHIP_ERROR ReadProductAppearance(BasicInformation::BasicInformationDelegate * delegate, AttributeValueEncoder & aEncoder)
 {
-    ProductFinishEnum finish;
-    ReturnErrorOnFailure(delegate->GetProductFinish(&finish));
-
-    ColorEnum color;
-    CHIP_ERROR colorStatus = delegate->GetProductPrimaryColor(&color);
-    if (colorStatus != CHIP_NO_ERROR && colorStatus != CHIP_ERROR_NOT_IMPLEMENTED)
-    {
-        return colorStatus;
-    }
-
     Structs::ProductAppearanceStruct::Type productAppearance;
-    productAppearance.finish = finish;
-    if (colorStatus == CHIP_NO_ERROR)
-    {
-        productAppearance.primaryColor.SetNonNull(color);
-    }
-    else
-    {
-        productAppearance.primaryColor.SetNull();
-    }
-
+    ReturnErrorOnFailure(delegate->GetProductAppearance(productAppearance));
     return aEncoder.Encode(productAppearance);
 }
 
@@ -221,17 +175,17 @@ DataModel::ActionReturnStatus BasicInformationCluster::ReadAttribute(const DataM
     case VendorName::Id:
         return ReadStringAttribute(mDelegate, VendorName::Id, encoder);
     case VendorID::Id:
-        return ReadVendorID(mDelegate, encoder);
+        return ReadNumericAttribute(mDelegate, VendorID::Id, encoder);
     case ProductName::Id:
         return ReadStringAttribute(mDelegate, ProductName::Id, encoder);
     case ProductID::Id:
-        return ReadProductID(mDelegate, encoder);
+        return ReadNumericAttribute(mDelegate, ProductID::Id, encoder);
     case HardwareVersion::Id:
-        return ReadHardwareVersion(mDelegate, encoder);
+        return ReadNumericAttribute(mDelegate, HardwareVersion::Id, encoder);
     case HardwareVersionString::Id:
         return ReadStringAttribute(mDelegate, HardwareVersionString::Id, encoder);
     case SoftwareVersion::Id:
-        return ReadSoftwareVersion(mDelegate, encoder);
+        return ReadNumericAttribute(mDelegate, SoftwareVersion::Id, encoder);
     case SoftwareVersionString::Id:
         return ReadStringAttribute(mDelegate, SoftwareVersionString::Id, encoder);
     case ManufacturingDate::Id:
@@ -255,7 +209,7 @@ DataModel::ActionReturnStatus BasicInformationCluster::ReadAttribute(const DataM
     case MaxPathsPerInvoke::Id:
         return encoder.Encode<uint16_t>(CHIP_CONFIG_MAX_PATHS_PER_INVOKE);
     case ConfigurationVersion::Id:
-        return ReadConfigurationVersion(mDelegate, encoder);
+        return ReadNumericAttribute(mDelegate, ConfigurationVersion::Id, encoder);
     case Reachable::Id:
         // On some platforms `true` is defined as a unsigned int and that gets
         // a ambigous TLVWriter::Put error. Hence the specialization.
@@ -274,7 +228,7 @@ DataModel::ActionReturnStatus BasicInformationCluster::WriteAttribute(const Data
 CHIP_ERROR BasicInformationCluster::IncreaseConfigurationVersion()
 {
     uint32_t globalConfig = 0;
-    ReturnErrorOnFailure(mDelegate->GetConfigurationVersion(globalConfig));
+    ReturnErrorOnFailure(mDelegate->GetNumericAttribute(Attributes::ConfigurationVersion::Id, globalConfig));
     ReturnErrorOnFailure(mDelegate->StoreConfigurationVersion(globalConfig + 1));
     NotifyAttributeChanged(ConfigurationVersion::Id);
     return CHIP_NO_ERROR;

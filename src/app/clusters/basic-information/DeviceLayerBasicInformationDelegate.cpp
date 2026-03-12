@@ -19,6 +19,7 @@
 #include "lib/support/Span.h"
 #include <app/clusters/basic-information/DeviceLayerBasicInformationDelegate.h>
 #include <clusters/BasicInformation/Attributes.h>
+#include <lib/support/logging/CHIPLogging.h>
 #include <clusters/BasicInformation/Enums.h>
 #include <platform/CHIPDeviceError.h>
 
@@ -138,44 +139,59 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::GetStringAttribute(chip::Attribu
     return IgnoreUnimplemented(err, buffer.data(), buffer.size());
 }
 
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetVendorId(uint16_t & vendorId)
+CHIP_ERROR DeviceLayerBasicInformationDelegate::GetNumericAttribute(chip::AttributeId attributeId, uint32_t & value)
 {
-    return mContext.deviceInstanceInfoProvider.GetVendorId(vendorId);
-}
+    using namespace Attributes;
+    CHIP_ERROR err = CHIP_NO_ERROR;
 
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetProductId(uint16_t & productId)
-{
-    return mContext.deviceInstanceInfoProvider.GetProductId(productId);
-}
+    switch (attributeId)
+    {
+    case VendorID::Id: {
+        uint16_t val;
+        err = mContext.deviceInstanceInfoProvider.GetVendorId(val);
+        if (err == CHIP_NO_ERROR) value = val;
+        break;
+    }
+    case ProductID::Id: {
+        uint16_t val;
+        err = mContext.deviceInstanceInfoProvider.GetProductId(val);
+        if (err == CHIP_NO_ERROR) value = val;
+        break;
+    }
+    case HardwareVersion::Id: {
+        uint16_t val;
+        err = mContext.deviceInstanceInfoProvider.GetHardwareVersion(val);
+        if (err == CHIP_NO_ERROR) value = val;
+        break;
+    }
+    case SoftwareVersion::Id: {
+        uint32_t val;
+        err = mContext.configurationManager.GetSoftwareVersion(val);
+        if (err == CHIP_NO_ERROR) value = val;
+        break;
+    }
+    case LocalConfigDisabled::Id: {
+        bool val;
+        err = mContext.deviceInstanceInfoProvider.GetLocalConfigDisabled(val);
+        if (err == CHIP_NO_ERROR) value = val;
+        break;
+    }
+    case ConfigurationVersion::Id: {
+        uint32_t val;
+        err = mContext.configurationManager.GetConfigurationVersion(val);
+        if (err == CHIP_NO_ERROR) value = val;
+        break;
+    }
+    default:
+        return CHIP_ERROR_INVALID_ARGUMENT;
+    }
 
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetHardwareVersion(uint16_t & hardwareVersion)
-{
-    return mContext.deviceInstanceInfoProvider.GetHardwareVersion(hardwareVersion);
-}
-
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetSoftwareVersion(uint32_t & softwareVersion)
-{
-    return mContext.configurationManager.GetSoftwareVersion(softwareVersion);
-}
-
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetProductFinish(ProductFinishEnum * finish)
-{
-    return mContext.deviceInstanceInfoProvider.GetProductFinish(finish);
-}
-
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetProductPrimaryColor(ColorEnum * primaryColor)
-{
-    return mContext.deviceInstanceInfoProvider.GetProductPrimaryColor(primaryColor);
+    return err;
 }
 
 CHIP_ERROR DeviceLayerBasicInformationDelegate::GetLocalConfigDisabled(bool & localConfigDisabled)
 {
     return mContext.deviceInstanceInfoProvider.GetLocalConfigDisabled(localConfigDisabled);
-}
-
-CHIP_ERROR DeviceLayerBasicInformationDelegate::GetConfigurationVersion(uint32_t & configurationVersion)
-{
-    return mContext.configurationManager.GetConfigurationVersion(configurationVersion);
 }
 
 DeviceInstanceInfoProvider::DeviceInfoCapabilityMinimas DeviceLayerBasicInformationDelegate::GetSupportedCapabilityMinimaValues()
@@ -214,6 +230,31 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::IgnoreUnimplemented(CHIP_ERROR s
         return CHIP_NO_ERROR;
     }
     return status;
+}
+
+CHIP_ERROR DeviceLayerBasicInformationDelegate::GetProductAppearance(Structs::ProductAppearanceStruct::Type & outProductAppearance)
+{
+    ProductFinishEnum finish;
+    ReturnErrorOnFailure(mContext.deviceInstanceInfoProvider.GetProductFinish(&finish));
+    outProductAppearance.finish = finish;
+
+    ColorEnum color;
+    CHIP_ERROR colorStatus = mContext.deviceInstanceInfoProvider.GetProductPrimaryColor(&color);
+
+    if (colorStatus == CHIP_NO_ERROR)
+    {
+        outProductAppearance.primaryColor.SetNonNull(color);
+    }
+    else if (colorStatus == CHIP_ERROR_NOT_IMPLEMENTED)
+    {
+        outProductAppearance.primaryColor.SetNull();
+    }
+    else
+    {
+        return colorStatus;
+    }
+
+    return CHIP_NO_ERROR;
 }
 
 } // namespace BasicInformation

@@ -42,15 +42,10 @@ public:
 
     // BasicInformationDelegate Interface
     CHIP_ERROR GetStringAttribute(chip::AttributeId attributeId, MutableCharSpan & buffer) override;
+    CHIP_ERROR GetNumericAttribute(chip::AttributeId attributeId, uint32_t & value) override;
 
-    CHIP_ERROR GetVendorId(uint16_t & vendorId) override;
-    CHIP_ERROR GetProductId(uint16_t & productId) override;
-    CHIP_ERROR GetHardwareVersion(uint16_t & hardwareVersion) override;
-    CHIP_ERROR GetSoftwareVersion(uint32_t & softwareVersion) override;
-    CHIP_ERROR GetProductFinish(ProductFinishEnum * finish) override;
-    CHIP_ERROR GetProductPrimaryColor(ColorEnum * primaryColor) override;
+    CHIP_ERROR GetProductAppearance(Structs::ProductAppearanceStruct::Type & outProductAppearance) override;
     CHIP_ERROR GetLocalConfigDisabled(bool & localConfigDisabled) override;
-    CHIP_ERROR GetConfigurationVersion(uint32_t & configurationVersion) override;
     DeviceLayer::DeviceInstanceInfoProvider::DeviceInfoCapabilityMinimas GetSupportedCapabilityMinimaValues() override;
 
     CHIP_ERROR SetLocalConfigDisabled(bool localConfigDisabled) override;

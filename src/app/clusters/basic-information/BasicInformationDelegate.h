@@ -16,10 +16,10 @@
  */
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
 
 #include <clusters/BasicInformation/Enums.h>
+#include <clusters/BasicInformation/Structs.h>
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
 #include <lib/support/Span.h>
@@ -38,15 +38,12 @@ public:
     // String Getters
     virtual CHIP_ERROR GetStringAttribute(chip::AttributeId attributeId, MutableCharSpan & buffer) = 0;
 
+    // Numeric Getters
+    virtual CHIP_ERROR GetNumericAttribute(chip::AttributeId attributeId, uint32_t & value) = 0;
+
     // Value Getters
-    virtual CHIP_ERROR GetVendorId(uint16_t & vendorId)                                                               = 0;
-    virtual CHIP_ERROR GetProductId(uint16_t & productId)                                                             = 0;
-    virtual CHIP_ERROR GetHardwareVersion(uint16_t & hardwareVersion)                                                 = 0;
-    virtual CHIP_ERROR GetSoftwareVersion(uint32_t & softwareVersion)                                                 = 0;
-    virtual CHIP_ERROR GetProductFinish(ProductFinishEnum * finish)                                                   = 0;
-    virtual CHIP_ERROR GetProductPrimaryColor(ColorEnum * primaryColor)                                               = 0;
+    virtual CHIP_ERROR GetProductAppearance(Structs::ProductAppearanceStruct::Type & outProductAppearance) = 0;
     virtual CHIP_ERROR GetLocalConfigDisabled(bool & localConfigDisabled)                                             = 0;
-    virtual CHIP_ERROR GetConfigurationVersion(uint32_t & configurationVersion)                                       = 0;
     virtual DeviceLayer::DeviceInstanceInfoProvider::DeviceInfoCapabilityMinimas GetSupportedCapabilityMinimaValues() = 0;
 
     // Setters

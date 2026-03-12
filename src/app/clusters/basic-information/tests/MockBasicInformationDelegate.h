@@ -95,44 +95,42 @@ public:
         }
     }
 
-    CHIP_ERROR GetVendorId(uint16_t & vendorId) override
+    CHIP_ERROR GetNumericAttribute(chip::AttributeId attributeId, uint64_t & value) override
     {
-        vendorId = kVendorId;
-        return CHIP_NO_ERROR;
+        switch (attributeId)
+        {
+        case Attributes::VendorID::Id:
+            value = kVendorId;
+            return CHIP_NO_ERROR;
+        case Attributes::ProductID::Id:
+            value = kProductId;
+            return CHIP_NO_ERROR;
+        case Attributes::HardwareVersion::Id:
+            value = kHardwareVersion;
+            return CHIP_NO_ERROR;
+        case Attributes::SoftwareVersion::Id:
+            value = kSoftwareVersion;
+            return CHIP_NO_ERROR;
+        case Attributes::LocalConfigDisabled::Id:
+            value = mLocalConfigDisabled;
+            return CHIP_NO_ERROR;
+        case Attributes::ConfigurationVersion::Id:
+            value = mConfigurationVersion;
+            return CHIP_NO_ERROR;
+        default:
+            return CHIP_ERROR_INVALID_ARGUMENT;
+        }
     }
-    CHIP_ERROR GetProductId(uint16_t & productId) override
+
+    CHIP_ERROR GetProductAppearance(Structs::ProductAppearanceStruct::Type & outProductAppearance) override
     {
-        productId = kProductId;
-        return CHIP_NO_ERROR;
-    }
-    CHIP_ERROR GetHardwareVersion(uint16_t & hardwareVersion) override
-    {
-        hardwareVersion = kHardwareVersion;
-        return CHIP_NO_ERROR;
-    }
-    CHIP_ERROR GetSoftwareVersion(uint32_t & softwareVersion) override
-    {
-        softwareVersion = kSoftwareVersion;
-        return CHIP_NO_ERROR;
-    }
-    CHIP_ERROR GetProductFinish(ProductFinishEnum * finish) override
-    {
-        *finish = kProductFinish;
-        return CHIP_NO_ERROR;
-    }
-    CHIP_ERROR GetProductPrimaryColor(ColorEnum * primaryColor) override
-    {
-        *primaryColor = kProductPrimaryColor;
+        outProductAppearance.finish = kProductFinish;
+        outProductAppearance.primaryColor.SetNonNull(kProductPrimaryColor);
         return CHIP_NO_ERROR;
     }
     CHIP_ERROR GetLocalConfigDisabled(bool & localConfigDisabled) override
     {
         localConfigDisabled = mLocalConfigDisabled;
-        return CHIP_NO_ERROR;
-    }
-    CHIP_ERROR GetConfigurationVersion(uint32_t & configurationVersion) override
-    {
-        configurationVersion = mConfigurationVersion;
         return CHIP_NO_ERROR;
     }
     DeviceInstanceInfoProvider::DeviceInfoCapabilityMinimas GetSupportedCapabilityMinimaValues() override
