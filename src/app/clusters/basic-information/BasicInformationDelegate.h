@@ -43,16 +43,13 @@ public:
 
     // Value Getters
     virtual CHIP_ERROR GetProductAppearance(Structs::ProductAppearanceStruct::Type & outProductAppearance) = 0;
-    virtual CHIP_ERROR GetLocalConfigDisabled(bool & localConfigDisabled)                                             = 0;
-    virtual DeviceLayer::DeviceInstanceInfoProvider::DeviceInfoCapabilityMinimas GetSupportedCapabilityMinimaValues() = 0;
+    virtual CHIP_ERROR GetLocalConfigDisabled(bool & localConfigDisabled)                                  = 0;
+    virtual CHIP_ERROR GetCapabilityMinima(Structs::CapabilityMinimaStruct::Type & outCapabilityMinima)    = 0;
 
     // Setters
     virtual CHIP_ERROR SetLocalConfigDisabled(bool localConfigDisabled)         = 0;
     virtual CHIP_ERROR StoreConfigurationVersion(uint32_t configurationVersion) = 0;
     virtual CHIP_ERROR StoreLocation(const CharSpan & code)                     = 0;
-
-    // Misc
-    virtual uint16_t GetSubscriptionsPerFabric() const = 0;
 };
 
 } // namespace BasicInformation

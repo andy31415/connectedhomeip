@@ -46,13 +46,11 @@ public:
 
     CHIP_ERROR GetProductAppearance(Structs::ProductAppearanceStruct::Type & outProductAppearance) override;
     CHIP_ERROR GetLocalConfigDisabled(bool & localConfigDisabled) override;
-    DeviceLayer::DeviceInstanceInfoProvider::DeviceInfoCapabilityMinimas GetSupportedCapabilityMinimaValues() override;
+    CHIP_ERROR GetCapabilityMinima(Structs::CapabilityMinimaStruct::Type & outCapabilityMinima) override;
 
     CHIP_ERROR SetLocalConfigDisabled(bool localConfigDisabled) override;
     CHIP_ERROR StoreConfigurationVersion(uint32_t configurationVersion) override;
     CHIP_ERROR StoreLocation(const CharSpan & code) override;
-
-    uint16_t GetSubscriptionsPerFabric() const override;
 
 private:
     CHIP_ERROR IgnoreUnimplemented(CHIP_ERROR status, char * buf, size_t bufSize);

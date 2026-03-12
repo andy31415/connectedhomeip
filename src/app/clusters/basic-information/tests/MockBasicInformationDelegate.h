@@ -95,7 +95,7 @@ public:
         }
     }
 
-    CHIP_ERROR GetNumericAttribute(chip::AttributeId attributeId, uint64_t & value) override
+    CHIP_ERROR GetNumericAttribute(chip::AttributeId attributeId, uint32_t & value) override
     {
         switch (attributeId)
         {
@@ -111,9 +111,9 @@ public:
         case Attributes::SoftwareVersion::Id:
             value = kSoftwareVersion;
             return CHIP_NO_ERROR;
-        case Attributes::LocalConfigDisabled::Id:
-            value = mLocalConfigDisabled;
-            return CHIP_NO_ERROR;
+        // case Attributes::LocalConfigDisabled::Id: // This is a bool, not handled here
+        //     value = mLocalConfigDisabled;
+        //     return CHIP_NO_ERROR;
         case Attributes::ConfigurationVersion::Id:
             value = mConfigurationVersion;
             return CHIP_NO_ERROR;
@@ -133,14 +133,20 @@ public:
         localConfigDisabled = mLocalConfigDisabled;
         return CHIP_NO_ERROR;
     }
-    DeviceInstanceInfoProvider::DeviceInfoCapabilityMinimas GetSupportedCapabilityMinimaValues() override
+
+    CHIP_ERROR GetCapabilityMinima(Structs::CapabilityMinimaStruct::Type & outCapabilityMinima) override
     {
-        return {
-            .simultaneousInvocationsSupported = CHIP_IM_MAX_NUM_COMMAND_HANDLER,
-            .simultaneousWritesSupported      = CHIP_IM_MAX_NUM_WRITE_HANDLER,
-            .readPathsSupported               = CHIP_IM_SERVER_MAX_NUM_PATH_GROUPS_FOR_READS,
-            .subscribePathsSupported          = CHIP_IM_SERVER_MAX_NUM_PATH_GROUPS_FOR_SUBSCRIPTIONS,
-        };
+        outCapabilityMinima.caseSessionsPerFabric  = 3;
+        outCapabilityMinima.subscriptionsPerFabric = 3;
+        outCapabilityMinima.simultaneousInvocationsSupported =
+            chip::MakeOptional<uint16_t>(static_cast<uint16_t>(CHIP_IM_MAX_NUM_COMMAND_HANDLER));
+        outCapabilityMinima.simultaneousWritesSupported =
+            chip::MakeOptional<uint16_t>(static_cast<uint16_t>(CHIP_IM_MAX_NUM_WRITE_HANDLER));
+        outCapabilityMinima.readPathsSupported =
+            chip::MakeOptional<uint16_t>(static_cast<uint16_t>(CHIP_IM_SERVER_MAX_NUM_PATH_GROUPS_FOR_READS));
+        outCapabilityMinima.subscribePathsSupported =
+            chip::MakeOptional<uint16_t>(static_cast<uint16_t>(CHIP_IM_SERVER_MAX_NUM_PATH_GROUPS_FOR_SUBSCRIPTIONS));
+        return CHIP_NO_ERROR;
     }
 
     CHIP_ERROR SetLocalConfigDisabled(bool localConfigDisabled) override
@@ -168,8 +174,6 @@ public: // Public for test access
     uint32_t mStoreConfigVersionCalled   = 0u;
     CHIP_ERROR mStoreConfigVersionReturn = CHIP_NO_ERROR;
     char mManufacturingDate[17]          = "20230615"; // YYYYMMDD + optional suffix
-
-    uint16_t GetSubscriptionsPerFabric() const override { return 3; }
 
 private:
     bool mLocalConfigDisabled           = false;

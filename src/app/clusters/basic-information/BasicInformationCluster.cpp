@@ -100,7 +100,7 @@ CHIP_ERROR ReadStringAttribute(BasicInformation::BasicInformationDelegate * dele
 }
 
 inline CHIP_ERROR ReadNumericAttribute(BasicInformation::BasicInformationDelegate * delegate, AttributeId attributeId,
-                                     AttributeValueEncoder & aEncoder)
+                                       AttributeValueEncoder & aEncoder)
 {
     uint32_t value = 0;
     ReturnErrorOnFailure(delegate->GetNumericAttribute(attributeId, value));
@@ -117,22 +117,7 @@ inline CHIP_ERROR ReadLocalConfigDisabled(BasicInformation::BasicInformationDele
 inline CHIP_ERROR ReadCapabilityMinima(AttributeValueEncoder & aEncoder, BasicInformation::BasicInformationDelegate * delegate)
 {
     BasicInformation::Structs::CapabilityMinimaStruct::Type capabilityMinima;
-
-    // TODO: These values must be set from something based on the SDK impl, but there are no such constants today.
-    constexpr uint16_t kMinCaseSessionsPerFabricMandatedBySpec = 3;
-
-    auto capabilityMinimasFromDeviceInfo = delegate->GetSupportedCapabilityMinimaValues();
-
-    capabilityMinima.caseSessionsPerFabric  = kMinCaseSessionsPerFabricMandatedBySpec;
-    capabilityMinima.subscriptionsPerFabric = delegate->GetSubscriptionsPerFabric();
-    capabilityMinima.simultaneousInvocationsSupported =
-        chip::MakeOptional<uint16_t>(capabilityMinimasFromDeviceInfo.simultaneousInvocationsSupported);
-    capabilityMinima.simultaneousWritesSupported =
-        chip::MakeOptional<uint16_t>(capabilityMinimasFromDeviceInfo.simultaneousWritesSupported);
-    capabilityMinima.readPathsSupported = chip::MakeOptional<uint16_t>(capabilityMinimasFromDeviceInfo.readPathsSupported);
-    capabilityMinima.subscribePathsSupported =
-        chip::MakeOptional<uint16_t>(capabilityMinimasFromDeviceInfo.subscribePathsSupported);
-
+    ReturnErrorOnFailure(delegate->GetCapabilityMinima(capabilityMinima));
     return aEncoder.Encode(capabilityMinima);
 }
 

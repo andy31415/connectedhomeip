@@ -19,8 +19,8 @@
 #include "lib/support/Span.h"
 #include <app/clusters/basic-information/DeviceLayerBasicInformationDelegate.h>
 #include <clusters/BasicInformation/Attributes.h>
-#include <lib/support/logging/CHIPLogging.h>
 #include <clusters/BasicInformation/Enums.h>
+#include <lib/support/logging/CHIPLogging.h>
 #include <platform/CHIPDeviceError.h>
 
 namespace chip {
@@ -149,37 +149,43 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::GetNumericAttribute(chip::Attrib
     case VendorID::Id: {
         uint16_t val;
         err = mContext.deviceInstanceInfoProvider.GetVendorId(val);
-        if (err == CHIP_NO_ERROR) value = val;
+        if (err == CHIP_NO_ERROR)
+            value = val;
         break;
     }
     case ProductID::Id: {
         uint16_t val;
         err = mContext.deviceInstanceInfoProvider.GetProductId(val);
-        if (err == CHIP_NO_ERROR) value = val;
+        if (err == CHIP_NO_ERROR)
+            value = val;
         break;
     }
     case HardwareVersion::Id: {
         uint16_t val;
         err = mContext.deviceInstanceInfoProvider.GetHardwareVersion(val);
-        if (err == CHIP_NO_ERROR) value = val;
+        if (err == CHIP_NO_ERROR)
+            value = val;
         break;
     }
     case SoftwareVersion::Id: {
         uint32_t val;
         err = mContext.configurationManager.GetSoftwareVersion(val);
-        if (err == CHIP_NO_ERROR) value = val;
+        if (err == CHIP_NO_ERROR)
+            value = val;
         break;
     }
     case LocalConfigDisabled::Id: {
         bool val;
         err = mContext.deviceInstanceInfoProvider.GetLocalConfigDisabled(val);
-        if (err == CHIP_NO_ERROR) value = val;
+        if (err == CHIP_NO_ERROR)
+            value = val;
         break;
     }
     case ConfigurationVersion::Id: {
         uint32_t val;
         err = mContext.configurationManager.GetConfigurationVersion(val);
-        if (err == CHIP_NO_ERROR) value = val;
+        if (err == CHIP_NO_ERROR)
+            value = val;
         break;
     }
     default:
@@ -194,9 +200,23 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::GetLocalConfigDisabled(bool & lo
     return mContext.deviceInstanceInfoProvider.GetLocalConfigDisabled(localConfigDisabled);
 }
 
-DeviceInstanceInfoProvider::DeviceInfoCapabilityMinimas DeviceLayerBasicInformationDelegate::GetSupportedCapabilityMinimaValues()
+CHIP_ERROR DeviceLayerBasicInformationDelegate::GetCapabilityMinima(Structs::CapabilityMinimaStruct::Type & outCapabilityMinima)
 {
-    return mContext.deviceInstanceInfoProvider.GetSupportedCapabilityMinimaValues();
+    constexpr uint16_t kMinCaseSessionsPerFabricMandatedBySpec = 3;
+
+    auto capabilityMinimasFromDeviceInfo = mContext.deviceInstanceInfoProvider.GetSupportedCapabilityMinimaValues();
+
+    outCapabilityMinima.caseSessionsPerFabric  = kMinCaseSessionsPerFabricMandatedBySpec;
+    outCapabilityMinima.subscriptionsPerFabric = mContext.subscriptionsPerFabric;
+    outCapabilityMinima.simultaneousInvocationsSupported =
+        chip::MakeOptional<uint16_t>(capabilityMinimasFromDeviceInfo.simultaneousInvocationsSupported);
+    outCapabilityMinima.simultaneousWritesSupported =
+        chip::MakeOptional<uint16_t>(capabilityMinimasFromDeviceInfo.simultaneousWritesSupported);
+    outCapabilityMinima.readPathsSupported = chip::MakeOptional<uint16_t>(capabilityMinimasFromDeviceInfo.readPathsSupported);
+    outCapabilityMinima.subscribePathsSupported =
+        chip::MakeOptional<uint16_t>(capabilityMinimasFromDeviceInfo.subscribePathsSupported);
+
+    return CHIP_NO_ERROR;
 }
 
 CHIP_ERROR DeviceLayerBasicInformationDelegate::SetLocalConfigDisabled(bool localConfigDisabled)
@@ -212,11 +232,6 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::StoreConfigurationVersion(uint32
 CHIP_ERROR DeviceLayerBasicInformationDelegate::StoreLocation(const CharSpan & code)
 {
     return mContext.configurationManager.StoreCountryCode(code.data(), code.size());
-}
-
-uint16_t DeviceLayerBasicInformationDelegate::GetSubscriptionsPerFabric() const
-{
-    return mContext.subscriptionsPerFabric;
 }
 
 CHIP_ERROR DeviceLayerBasicInformationDelegate::IgnoreUnimplemented(CHIP_ERROR status, char * buf, size_t bufSize)
