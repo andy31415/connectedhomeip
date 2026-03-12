@@ -137,11 +137,13 @@ DataModel::ActionReturnStatus BasicInformationCluster::ReadAttribute(const DataM
 {
     using namespace BasicInformation::Attributes;
 
-    switch (request.path.mAttributeId)
+    enum class AttributeReadType { kString, kNumeric, kOther };
+    AttributeReadType readType = AttributeReadType::kOther;
+    const AttributeId attributeId = request.path.mAttributeId;
+
+    switch (attributeId)
     {
     case FeatureMap::Id:
-        // Explicit specialization: TLVWriter.Put has specialization for various types
-        // but fails for `0u` with `unsigned int &` being ambigous.
         return encoder.Encode<uint32_t>(0);
     case ClusterRevision::Id:
         if (!mEnabledOptionalAttributes.IsSet(UniqueID::Id))
@@ -155,36 +157,6 @@ DataModel::ActionReturnStatus BasicInformationCluster::ReadAttribute(const DataM
         return ReadLocalConfigDisabled(mDelegate, encoder);
     case DataModelRevision::Id:
         return encoder.Encode(Revision::kDataModelRevision);
-    case Location::Id:
-        return ReadStringAttribute(mDelegate, Location::Id, encoder);
-    case VendorName::Id:
-        return ReadStringAttribute(mDelegate, VendorName::Id, encoder);
-    case VendorID::Id:
-        return ReadNumericAttribute(mDelegate, VendorID::Id, encoder);
-    case ProductName::Id:
-        return ReadStringAttribute(mDelegate, ProductName::Id, encoder);
-    case ProductID::Id:
-        return ReadNumericAttribute(mDelegate, ProductID::Id, encoder);
-    case HardwareVersion::Id:
-        return ReadNumericAttribute(mDelegate, HardwareVersion::Id, encoder);
-    case HardwareVersionString::Id:
-        return ReadStringAttribute(mDelegate, HardwareVersionString::Id, encoder);
-    case SoftwareVersion::Id:
-        return ReadNumericAttribute(mDelegate, SoftwareVersion::Id, encoder);
-    case SoftwareVersionString::Id:
-        return ReadStringAttribute(mDelegate, SoftwareVersionString::Id, encoder);
-    case ManufacturingDate::Id:
-        return ReadStringAttribute(mDelegate, ManufacturingDate::Id, encoder);
-    case PartNumber::Id:
-        return ReadStringAttribute(mDelegate, PartNumber::Id, encoder);
-    case ProductURL::Id:
-        return ReadStringAttribute(mDelegate, ProductURL::Id, encoder);
-    case ProductLabel::Id:
-        return ReadStringAttribute(mDelegate, ProductLabel::Id, encoder);
-    case SerialNumber::Id:
-        return ReadStringAttribute(mDelegate, SerialNumber::Id, encoder);
-    case UniqueID::Id:
-        return ReadStringAttribute(mDelegate, UniqueID::Id, encoder);
     case CapabilityMinima::Id:
         return ReadCapabilityMinima(encoder, mDelegate);
     case ProductAppearance::Id:
@@ -193,15 +165,49 @@ DataModel::ActionReturnStatus BasicInformationCluster::ReadAttribute(const DataM
         return encoder.Encode(Revision::kSpecificationVersion);
     case MaxPathsPerInvoke::Id:
         return encoder.Encode<uint16_t>(CHIP_CONFIG_MAX_PATHS_PER_INVOKE);
-    case ConfigurationVersion::Id:
-        return ReadNumericAttribute(mDelegate, ConfigurationVersion::Id, encoder);
     case Reachable::Id:
-        // On some platforms `true` is defined as a unsigned int and that gets
-        // a ambigous TLVWriter::Put error. Hence the specialization.
         return encoder.Encode<bool>(true);
+
+    // String Attributes
+    case Location::Id:
+    case VendorName::Id:
+    case ProductName::Id:
+    case HardwareVersionString::Id:
+    case SoftwareVersionString::Id:
+    case ManufacturingDate::Id:
+    case PartNumber::Id:
+    case ProductURL::Id:
+    case ProductLabel::Id:
+    case SerialNumber::Id:
+    case UniqueID::Id:
+        readType = AttributeReadType::kString;
+        break;
+
+    // Numeric Attributes
+    case VendorID::Id:
+    case ProductID::Id:
+    case HardwareVersion::Id:
+    case SoftwareVersion::Id:
+    case ConfigurationVersion::Id:
+        readType = AttributeReadType::kNumeric;
+        break;
+
     default:
         return Protocols::InteractionModel::Status::UnsupportedAttribute;
     }
+
+    if (readType == AttributeReadType::kString)
+    {
+        return ReadStringAttribute(mDelegate, attributeId, encoder);
+    }
+
+    if (readType == AttributeReadType::kNumeric)
+    {
+        return ReadNumericAttribute(mDelegate, attributeId, encoder);
+    }
+
+    // Should not be reached if kOther is not set for any fallthrough cases
+    return Protocols::InteractionModel::Status::UnsupportedAttribute;
 }
 
 DataModel::ActionReturnStatus BasicInformationCluster::WriteAttribute(const DataModel::WriteAttributeRequest & request,
