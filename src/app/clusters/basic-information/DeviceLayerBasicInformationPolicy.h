@@ -30,7 +30,7 @@ class DeviceLayerBasicInformationPolicy
 {
 public:
     // Base class for the cluster to inherit from, to satisfy PlatformManagerDelegate requirements
-    using DelegateBase = DeviceLayer::PlatformManagerDelegate;
+    using LifetimeDelegate = DeviceLayer::PlatformManagerDelegate;
 
     DeviceLayerBasicInformationPolicy(BasicInformationOptionalAttributesSet optionalAttributes,
                                       DeviceLayer::DeviceInstanceInfoProvider & deviceInstanceInfoProvider,

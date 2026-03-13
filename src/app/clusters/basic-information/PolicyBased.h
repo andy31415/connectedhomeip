@@ -53,8 +53,14 @@ namespace chip::app::Clusters::BasicInformation {
 /// centralizing its logic and state.
 ///
 /// It uses a Policy-based design to decouple from DeviceLayer and generic platform logic.
+///
+/// The template parameter `Policy` must provide a `LifetimeDelegate` type that defines the
+/// following methods:
+///
+/// - `void OnStartUp(uint32_t softwareVersion)`
+/// - `void OnShutDown()`
 template <typename Policy>
-class PolicyBased : public DefaultServerCluster, public Policy::DelegateBase
+class PolicyBased : public DefaultServerCluster, public Policy::LifetimeDelegate
 {
 public:
     template <typename... Args>
