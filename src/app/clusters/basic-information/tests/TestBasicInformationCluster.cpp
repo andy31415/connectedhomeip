@@ -147,25 +147,16 @@ TEST_F(TestBasicInformationCluster, TestAttributes)
                                         chip::DeviceLayer::PlatformMgr(),
                                         app::InteractionModelEngine::GetInstance()->GetMinGuaranteedSubscriptionsPerFabric());
 
-        EXPECT_TRUE(Testing::IsAttributesListEqualTo(cluster,
-                                                     {
-                                                         DataModelRevision::kMetadataEntry,
-                                                         VendorName::kMetadataEntry,
-                                                         VendorID::kMetadataEntry,
-                                                         ProductName::kMetadataEntry,
-                                                         ProductID::kMetadataEntry,
-                                                         NodeLabel::kMetadataEntry,
-                                                         Location::kMetadataEntry,
-                                                         HardwareVersion::kMetadataEntry,
-                                                         HardwareVersionString::kMetadataEntry,
-                                                         SoftwareVersion::kMetadataEntry,
-                                                         SoftwareVersionString::kMetadataEntry,
-                                                         CapabilityMinima::kMetadataEntry,
-                                                         SpecificationVersion::kMetadataEntry,
-                                                         MaxPathsPerInvoke::kMetadataEntry,
-                                                         ConfigurationVersion::kMetadataEntry,
-                                                         UniqueID::kMetadataEntry, // required in latest spec
-                                                     }));
+        EXPECT_TRUE(Testing::IsAttributesListEqualTo(
+            cluster,
+            {
+                DataModelRevision::kMetadataEntry, VendorName::kMetadataEntry, VendorID::kMetadataEntry,
+                ProductName::kMetadataEntry, ProductID::kMetadataEntry, NodeLabel::kMetadataEntry, Location::kMetadataEntry,
+                HardwareVersion::kMetadataEntry, HardwareVersionString::kMetadataEntry, SoftwareVersion::kMetadataEntry,
+                SoftwareVersionString::kMetadataEntry, CapabilityMinima::kMetadataEntry, SpecificationVersion::kMetadataEntry,
+                MaxPathsPerInvoke::kMetadataEntry, ConfigurationVersion::kMetadataEntry,
+                UniqueID::kMetadataEntry, // required in latest spec
+            }));
     }
 
     // Check that disabling unique id works
