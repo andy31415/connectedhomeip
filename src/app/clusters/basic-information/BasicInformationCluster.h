@@ -25,7 +25,7 @@ namespace chip::app::Clusters {
 // DeviceLayer policy (ConfigurationManager, DeviceInstanceInfoProvider, PlatformManager).
 //
 // Integrators that only need a subset of these capabilities, or that want to avoid
-// pulling in the full DeviceLayer dependency, should instantiate BasicInformationClusterImpl
+// pulling in the full DeviceLayer dependency, should instantiate BasicInformation::PolicyBased
 // directly with a custom policy instead.
 using BasicInformationCluster = BasicInformation::PolicyBased<DeviceLayerBasicInformationPolicy>;
 
