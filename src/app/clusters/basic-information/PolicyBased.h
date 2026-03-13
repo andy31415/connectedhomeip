@@ -47,19 +47,18 @@
 #include <protocols/interaction_model/StatusCode.h>
 #include <tracing/macros.h>
 
-namespace chip::app::Clusters {
+namespace chip::app::Clusters::BasicInformation {
 
 /// This class provides a code-driven implementation for the Basic Information cluster,
 /// centralizing its logic and state.
 ///
 /// It uses a Policy-based design to decouple from DeviceLayer and generic platform logic.
 template <typename Policy>
-class BasicInformationClusterImpl : public DefaultServerCluster, public Policy::DelegateBase
+class PolicyBased : public DefaultServerCluster, public Policy::DelegateBase
 {
 public:
     template <typename... Args>
-    BasicInformationClusterImpl(Args &&... args) :
-        DefaultServerCluster({ kRootEndpointId, BasicInformation::Id }), mPolicy(std::forward<Args>(args)...)
+    PolicyBased(Args &&... args) : DefaultServerCluster({ kRootEndpointId, Id }), mPolicy(std::forward<Args>(args)...)
     {}
 
     // Server cluster implementation
@@ -107,11 +106,11 @@ private:
     template <typename EncodeFunction>
     CHIP_ERROR ReadConfigurationString(EncodeFunction && getter, AttributeValueEncoder & encoder);
 
-    Storage::String<BasicInformation::Attributes::NodeLabel::TypeInfo::MaxLength()> mNodeLabel;
+    Storage::String<Attributes::NodeLabel::TypeInfo::MaxLength()> mNodeLabel;
     Policy mPolicy;
 };
 
-namespace BasicInformationClusterImplDetails {
+namespace details {
 // Unique ID became mandatory in 4. If we have no unique id, claim revision 3
 inline constexpr uint32_t kRevisionWithoutUniqueId = 3;
 
@@ -124,14 +123,14 @@ constexpr size_t kExpectedFixedLocationLength = 2;
 // The largest buffer size needed to read string attributes. This allows re-use of a common
 // buffer when reading any string attribute (saves code size).
 constexpr size_t kMaxStringLength = std::max({
-    BasicInformation::Attributes::VendorName::TypeInfo::MaxLength(),
-    BasicInformation::Attributes::ProductName::TypeInfo::MaxLength(),
-    BasicInformation::Attributes::HardwareVersionString::TypeInfo::MaxLength(),
-    BasicInformation::Attributes::SoftwareVersionString::TypeInfo::MaxLength(),
-    BasicInformation::Attributes::PartNumber::TypeInfo::MaxLength(),
-    BasicInformation::Attributes::ProductURL::TypeInfo::MaxLength(),
-    BasicInformation::Attributes::ProductLabel::TypeInfo::MaxLength(),
-    BasicInformation::Attributes::SerialNumber::TypeInfo::MaxLength(),
+    Attributes::VendorName::TypeInfo::MaxLength(),
+    Attributes::ProductName::TypeInfo::MaxLength(),
+    Attributes::HardwareVersionString::TypeInfo::MaxLength(),
+    Attributes::SoftwareVersionString::TypeInfo::MaxLength(),
+    Attributes::PartNumber::TypeInfo::MaxLength(),
+    Attributes::ProductURL::TypeInfo::MaxLength(),
+    Attributes::ProductLabel::TypeInfo::MaxLength(),
+    Attributes::SerialNumber::TypeInfo::MaxLength(),
 });
 
 inline CHIP_ERROR EncodeStringOnSuccess(CHIP_ERROR status, AttributeValueEncoder & encoder, const char * buf, size_t maxBufSize)
@@ -140,10 +139,10 @@ inline CHIP_ERROR EncodeStringOnSuccess(CHIP_ERROR status, AttributeValueEncoder
     return encoder.Encode(CharSpan(buf, strnlen(buf, maxBufSize)));
 }
 
-} // namespace BasicInformationClusterImplDetails
+} // namespace details
 
 template <typename Policy>
-CHIP_ERROR BasicInformationClusterImpl<Policy>::Startup(ServerClusterContext & context)
+CHIP_ERROR PolicyBased<Policy>::Startup(ServerClusterContext & context)
 {
     ReturnErrorOnFailure(DefaultServerCluster::Startup(context));
 
@@ -151,13 +150,11 @@ CHIP_ERROR BasicInformationClusterImpl<Policy>::Startup(ServerClusterContext & c
 
     AttributePersistence persistence(context.attributeStorage);
 
-    (void) persistence.LoadString({ kRootEndpointId, BasicInformation::Id, BasicInformation::Attributes::NodeLabel::Id },
-                                  mNodeLabel);
+    (void) persistence.LoadString({ kRootEndpointId, Id, Attributes::NodeLabel::Id }, mNodeLabel);
 
     bool localConfigDisabled = false;
-    (void) persistence.LoadNativeEndianValue<bool>(
-        { kRootEndpointId, BasicInformation::Id, BasicInformation::Attributes::LocalConfigDisabled::Id }, localConfigDisabled,
-        false);
+    (void) persistence.LoadNativeEndianValue<bool>({ kRootEndpointId, Id, Attributes::LocalConfigDisabled::Id },
+                                                   localConfigDisabled, false);
 
     ReturnErrorOnFailure(mPolicy.SetLocalConfigDisabled(localConfigDisabled));
 
@@ -165,35 +162,35 @@ CHIP_ERROR BasicInformationClusterImpl<Policy>::Startup(ServerClusterContext & c
 }
 
 template <typename Policy>
-void BasicInformationClusterImpl<Policy>::Shutdown(ClusterShutdownType shutdownType)
+void PolicyBased<Policy>::Shutdown(ClusterShutdownType shutdownType)
 {
     mPolicy.UnregisterPlatformDelegate(this);
     DefaultServerCluster::Shutdown(shutdownType);
 }
 
 template <typename Policy>
-void BasicInformationClusterImpl<Policy>::OnStartUp(uint32_t softwareVersion)
+void PolicyBased<Policy>::OnStartUp(uint32_t softwareVersion)
 {
     VerifyOrReturn(mContext != nullptr);
 
     MATTER_TRACE_INSTANT("OnStartUp", "BasicInfo");
     ChipLogDetail(Zcl, "Emitting StartUp event");
 
-    BasicInformation::Events::StartUp::Type event{ softwareVersion };
+    Events::StartUp::Type event{ softwareVersion };
 
     DataModel::EventsGenerator & eventsGenerator = mContext->interactionContext.eventsGenerator;
     eventsGenerator.GenerateEvent(event, kRootEndpointId);
 }
 
 template <typename Policy>
-void BasicInformationClusterImpl<Policy>::OnShutDown()
+void PolicyBased<Policy>::OnShutDown()
 {
     VerifyOrReturn(mContext != nullptr);
 
     MATTER_TRACE_INSTANT("OnShutDown", "BasicInfo");
     ChipLogDetail(Zcl, "Emitting ShutDown event");
 
-    BasicInformation::Events::ShutDown::Type event;
+    Events::ShutDown::Type event;
 
     DataModel::EventsGenerator & eventsGenerator = mContext->interactionContext.eventsGenerator;
     eventsGenerator.GenerateEvent(event, kRootEndpointId);
@@ -201,30 +198,29 @@ void BasicInformationClusterImpl<Policy>::OnShutDown()
 }
 
 template <typename Policy>
-CHIP_ERROR BasicInformationClusterImpl<Policy>::IncreaseConfigurationVersion()
+CHIP_ERROR PolicyBased<Policy>::IncreaseConfigurationVersion()
 {
     uint32_t globalConfig = 0;
     ReturnErrorOnFailure(mPolicy.GetConfigurationVersion(globalConfig));
     ReturnErrorOnFailure(mPolicy.StoreConfigurationVersion(globalConfig + 1));
-    NotifyAttributeChanged(BasicInformation::Attributes::ConfigurationVersion::Id);
+    NotifyAttributeChanged(Attributes::ConfigurationVersion::Id);
     return CHIP_NO_ERROR;
 }
 
 template <typename Policy>
 template <typename EncodeFunction>
-CHIP_ERROR BasicInformationClusterImpl<Policy>::ReadConfigurationString(EncodeFunction && getter, AttributeValueEncoder & encoder)
+CHIP_ERROR PolicyBased<Policy>::ReadConfigurationString(EncodeFunction && getter, AttributeValueEncoder & encoder)
 {
-    char buffer[BasicInformationClusterImplDetails::kMaxStringLength + 1];
+    char buffer[details::kMaxStringLength + 1];
     CHIP_ERROR status = getter(buffer, sizeof(buffer));
-    return BasicInformationClusterImplDetails::EncodeStringOnSuccess(status, encoder, buffer,
-                                                                     BasicInformationClusterImplDetails::kMaxStringLength);
+    return details::EncodeStringOnSuccess(status, encoder, buffer, details::kMaxStringLength);
 }
 
 template <typename Policy>
-DataModel::ActionReturnStatus BasicInformationClusterImpl<Policy>::ReadAttribute(const DataModel::ReadAttributeRequest & request,
-                                                                                 AttributeValueEncoder & encoder)
+DataModel::ActionReturnStatus PolicyBased<Policy>::ReadAttribute(const DataModel::ReadAttributeRequest & request,
+                                                                 AttributeValueEncoder & encoder)
 {
-    using namespace BasicInformation::Attributes;
+    using namespace Attributes;
 
     switch (request.path.mAttributeId)
     {
@@ -233,9 +229,9 @@ DataModel::ActionReturnStatus BasicInformationClusterImpl<Policy>::ReadAttribute
     case ClusterRevision::Id:
         if (!mPolicy.GetOptionalAttributes().IsSet(UniqueID::Id))
         {
-            return encoder.Encode(BasicInformationClusterImplDetails::kRevisionWithoutUniqueId);
+            return encoder.Encode(details::kRevisionWithoutUniqueId);
         }
-        return encoder.Encode(BasicInformation::kRevision);
+        return encoder.Encode(kRevision);
     case NodeLabel::Id:
         return encoder.Encode(mNodeLabel.Content());
     case LocalConfigDisabled::Id: {
@@ -246,10 +242,10 @@ DataModel::ActionReturnStatus BasicInformationClusterImpl<Policy>::ReadAttribute
     case DataModelRevision::Id:
         return encoder.Encode(Revision::kDataModelRevision);
     case Location::Id: {
-        char location[BasicInformationClusterImplDetails::kExpectedFixedLocationLength + 1] = { 0 };
-        size_t codeLen                                                                      = 0;
-        CHIP_ERROR err = mPolicy.GetCountryCode(location, sizeof(location), codeLen);
-        if ((err != CHIP_NO_ERROR) || (codeLen != BasicInformationClusterImplDetails::kExpectedFixedLocationLength))
+        char location[details::kExpectedFixedLocationLength + 1] = { 0 };
+        size_t codeLen                                           = 0;
+        CHIP_ERROR err                                           = mPolicy.GetCountryCode(location, sizeof(location), codeLen);
+        if ((err != CHIP_NO_ERROR) || (codeLen != details::kExpectedFixedLocationLength))
         {
             return encoder.Encode("XX"_span);
         }
@@ -328,13 +324,13 @@ DataModel::ActionReturnStatus BasicInformationClusterImpl<Policy>::ReadAttribute
     case SerialNumber::Id:
         return ReadConfigurationString([this](char * buf, size_t size) { return mPolicy.GetSerialNumber(buf, size); }, encoder);
     case UniqueID::Id: {
-        constexpr size_t kMaxLength   = BasicInformation::Attributes::UniqueID::TypeInfo::MaxLength();
+        constexpr size_t kMaxLength   = Attributes::UniqueID::TypeInfo::MaxLength();
         char uniqueId[kMaxLength + 1] = { 0 };
         CHIP_ERROR status             = mPolicy.GetUniqueId(uniqueId, sizeof(uniqueId));
-        return BasicInformationClusterImplDetails::EncodeStringOnSuccess(status, encoder, uniqueId, kMaxLength);
+        return details::EncodeStringOnSuccess(status, encoder, uniqueId, kMaxLength);
     }
     case CapabilityMinima::Id: {
-        BasicInformation::Structs::CapabilityMinimaStruct::Type capabilityMinima;
+        Structs::CapabilityMinimaStruct::Type capabilityMinima;
 
         // TODO: These values must be set from something based on the SDK impl
         constexpr uint16_t kMinCaseSessionsPerFabricMandatedBySpec = 3;
@@ -353,17 +349,17 @@ DataModel::ActionReturnStatus BasicInformationClusterImpl<Policy>::ReadAttribute
         return encoder.Encode(capabilityMinima);
     }
     case ProductAppearance::Id: {
-        BasicInformation::ProductFinishEnum finish;
+        ProductFinishEnum finish;
         ReturnErrorOnFailure(mPolicy.GetProductFinish(&finish));
 
-        BasicInformation::ColorEnum color;
+        ColorEnum color;
         CHIP_ERROR colorStatus = mPolicy.GetProductPrimaryColor(&color);
         if (colorStatus != CHIP_NO_ERROR && colorStatus != CHIP_ERROR_NOT_IMPLEMENTED)
         {
             return colorStatus;
         }
 
-        BasicInformation::Structs::ProductAppearanceStruct::Type productAppearance;
+        Structs::ProductAppearanceStruct::Type productAppearance;
         productAppearance.finish = finish;
         if (colorStatus == CHIP_NO_ERROR)
         {
@@ -393,17 +389,17 @@ DataModel::ActionReturnStatus BasicInformationClusterImpl<Policy>::ReadAttribute
 }
 
 template <typename Policy>
-DataModel::ActionReturnStatus BasicInformationClusterImpl<Policy>::WriteAttribute(const DataModel::WriteAttributeRequest & request,
-                                                                                  AttributeValueDecoder & decoder)
+DataModel::ActionReturnStatus PolicyBased<Policy>::WriteAttribute(const DataModel::WriteAttributeRequest & request,
+                                                                  AttributeValueDecoder & decoder)
 {
     return NotifyAttributeChangedIfSuccess(request.path.mAttributeId, WriteImpl(request, decoder));
 }
 
 template <typename Policy>
-DataModel::ActionReturnStatus BasicInformationClusterImpl<Policy>::WriteImpl(const DataModel::WriteAttributeRequest & request,
-                                                                             AttributeValueDecoder & decoder)
+DataModel::ActionReturnStatus PolicyBased<Policy>::WriteImpl(const DataModel::WriteAttributeRequest & request,
+                                                             AttributeValueDecoder & decoder)
 {
-    using namespace BasicInformation::Attributes;
+    using namespace Attributes;
 
     AttributePersistence persistence(mContext->attributeStorage);
 
@@ -412,7 +408,7 @@ DataModel::ActionReturnStatus BasicInformationClusterImpl<Policy>::WriteImpl(con
     case Location::Id: {
         CharSpan location;
         ReturnErrorOnFailure(decoder.Decode(location));
-        VerifyOrReturnError(location.size() == BasicInformationClusterImplDetails::kExpectedFixedLocationLength,
+        VerifyOrReturnError(location.size() == details::kExpectedFixedLocationLength,
                             Protocols::InteractionModel::Status::ConstraintError);
         return mPolicy.StoreCountryCode(location.data(), location.size());
     }
@@ -435,13 +431,13 @@ DataModel::ActionReturnStatus BasicInformationClusterImpl<Policy>::WriteImpl(con
 }
 
 template <typename Policy>
-CHIP_ERROR BasicInformationClusterImpl<Policy>::Attributes(const ConcreteClusterPath & path,
-                                                           ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder)
+CHIP_ERROR PolicyBased<Policy>::Attributes(const ConcreteClusterPath & path,
+                                           ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder)
 {
-    using namespace BasicInformation::Attributes;
+    using namespace Attributes;
 
     // TODO: MetadataEntry for these are static constants in the generated code.
-    // They are available as BasicInformation::Attributes::X::kMetadataEntry
+    // They are available as Attributes::X::kMetadataEntry
 
     static constexpr DataModel::AttributeEntry optionalAttributes[] = {
         ManufacturingDate::kMetadataEntry,   //
@@ -482,4 +478,4 @@ CHIP_ERROR BasicInformationClusterImpl<Policy>::Attributes(const ConcreteCluster
     return listBuilder.Append(Span(mandatoryAttributes), Span(optionalAttributes), mPolicy.GetOptionalAttributes());
 }
 
-} // namespace chip::app::Clusters
+} // namespace chip::app::Clusters::BasicInformation

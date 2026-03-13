@@ -16,8 +16,8 @@
  */
 #pragma once
 
-#include <app/clusters/basic-information/BasicInformationClusterImpl.h>
 #include <app/clusters/basic-information/DeviceLayerBasicInformationPolicy.h>
+#include <app/clusters/basic-information/PolicyBased.h>
 
 namespace chip::app::Clusters {
 
@@ -27,8 +27,6 @@ namespace chip::app::Clusters {
 // Integrators that only need a subset of these capabilities, or that want to avoid
 // pulling in the full DeviceLayer dependency, should instantiate BasicInformationClusterImpl
 // directly with a custom policy instead.
-using BasicInformationCluster = BasicInformationClusterImpl<DeviceLayerBasicInformationPolicy>;
-
-extern template class BasicInformationClusterImpl<DeviceLayerBasicInformationPolicy>;
+using BasicInformationCluster = BasicInformation::PolicyBased<DeviceLayerBasicInformationPolicy>;
 
 } // namespace chip::app::Clusters
