@@ -20,6 +20,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
+#include <utility>
 
 #include <app/AttributeValueDecoder.h>
 #include <app/AttributeValueEncoder.h>
