@@ -38,18 +38,19 @@ the following sequence of PRs:
             API functions, delegate classes, and other definitions. To maintain
             backward compatibility while moving to a code-driven model, we
             recommend the following:
-        -   Rename `<name>-server.h` to `CodegenIntegration.h`. This file will
-            be responsible for maintaining the legacy API integration logic that
-            interacts with the generated code.
+        -   Create a new `CodegenIntegration.h` header and move the
+            implementation portions of `<name>-server.h` into it. This new file
+            will be responsible for maintaining the legacy API integration logic
+            that interacts with the generated code.
         -   If `<name>-server.h` contains delegate classes or other distinct
             components (e.g., `class FooDelegate`), move them into their own
             header files (e.g., `FooDelegate.h`). A good rule of thumb is that
             `class Bar` should live in `Bar.h`.
-        -   After moving the contents, update the original `<name>-server.h` to
-            be a wrapper that simply includes the new headers
-            (`CodegenIntegration.h`, `FooDelegate.h`, etc.). This preserves the
-            include paths for existing code while allowing the implementation to
-            evolve.
+        -   After moving the implementation out of `<name>-server.h`, update
+            `<name>-server.h` itself to be a wrapper that simply includes the
+            new headers (`CodegenIntegration.h`, `FooDelegate.h`, etc.). This
+            preserves the include paths for existing code while allowing the
+            implementation to evolve.
 
     -   **Why:** This prevents `git diff` from becoming confused and showing the
         entire file as deleted and recreated, making the actual code changes
