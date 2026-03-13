@@ -53,8 +53,6 @@ public:
     CHIP_ERROR StoreLocation(const CharSpan & code) override;
 
 private:
-    CHIP_ERROR IgnoreUnimplemented(CHIP_ERROR status, char * buf, size_t bufSize);
-
     Context mContext;
 };
 

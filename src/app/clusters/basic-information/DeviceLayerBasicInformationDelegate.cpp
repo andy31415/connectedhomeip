@@ -27,6 +27,20 @@ namespace chip {
 namespace app {
 namespace Clusters {
 namespace BasicInformation {
+namespace {
+// Clears the buffer and returns CHIP_NO_ERROR if input status is not-implemented.
+// Otherwise just returns status as-is.
+CHIP_ERROR IgnoreUnimplemented(CHIP_ERROR status, MutableCharSpan & buffer)
+{
+    if (status == CHIP_DEVICE_ERROR_CONFIG_NOT_FOUND || status == CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE)
+    {
+        buffer.reduce_size(0);
+        return CHIP_NO_ERROR;
+    }
+    return status;
+}
+
+} // namespace
 
 using namespace DeviceLayer;
 
@@ -136,7 +150,7 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::GetStringAttribute(chip::Attribu
         buffer.reduce_size(strlen(buffer.data()));
     }
 
-    return IgnoreUnimplemented(err, buffer.data(), buffer.size());
+    return IgnoreUnimplemented(err, buffer);
 }
 
 CHIP_ERROR DeviceLayerBasicInformationDelegate::GetNumericAttribute(chip::AttributeId attributeId, uint32_t & value)
@@ -232,19 +246,6 @@ CHIP_ERROR DeviceLayerBasicInformationDelegate::StoreConfigurationVersion(uint32
 CHIP_ERROR DeviceLayerBasicInformationDelegate::StoreLocation(const CharSpan & code)
 {
     return mContext.configurationManager.StoreCountryCode(code.data(), code.size());
-}
-
-CHIP_ERROR DeviceLayerBasicInformationDelegate::IgnoreUnimplemented(CHIP_ERROR status, char * buf, size_t bufSize)
-{
-    if (status == CHIP_DEVICE_ERROR_CONFIG_NOT_FOUND || status == CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE)
-    {
-        if (bufSize > 0)
-        {
-            buf[0] = 0;
-        }
-        return CHIP_NO_ERROR;
-    }
-    return status;
 }
 
 CHIP_ERROR DeviceLayerBasicInformationDelegate::GetProductAppearance(Structs::ProductAppearanceStruct::Type & outProductAppearance)
