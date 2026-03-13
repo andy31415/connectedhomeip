@@ -24,6 +24,7 @@
 #include <app/AttributeValueDecoder.h>
 #include <app/AttributeValueEncoder.h>
 #include <app/SpecificationDefinedRevisions.h>
+#include <app/clusters/basic-information/BasicInformationOptionalAttributes.h>
 #include <app/persistence/AttributePersistence.h>
 #include <app/persistence/String.h>
 #include <app/server-cluster/AttributeListBuilder.h>
@@ -46,9 +47,7 @@
 #include <protocols/interaction_model/StatusCode.h>
 #include <tracing/macros.h>
 
-namespace chip {
-namespace app {
-namespace Clusters {
+namespace chip::app::Clusters {
 
 /// This class provides a code-driven implementation for the Basic Information cluster,
 /// centralizing its logic and state.
@@ -58,35 +57,10 @@ template <typename Policy>
 class BasicInformationClusterImpl : public DefaultServerCluster, public Policy::DelegateBase
 {
 public:
-    using Context = typename Policy::Context;
-
-    using OptionalAttributesSet = chip::app::OptionalAttributeSet< //
-        BasicInformation::Attributes::ManufacturingDate::Id,       //
-        BasicInformation::Attributes::PartNumber::Id,              //
-        BasicInformation::Attributes::ProductURL::Id,              //
-        BasicInformation::Attributes::ProductLabel::Id,            //
-        BasicInformation::Attributes::SerialNumber::Id,            //
-        BasicInformation::Attributes::LocalConfigDisabled::Id,     //
-        BasicInformation::Attributes::Reachable::Id,               //
-        BasicInformation::Attributes::ProductAppearance::Id,       //
-        // Old specification versions had UniqueID as optional, so this
-        // appears here even though MANDATORY in the latest spec. We
-        // default it enabled (to decrease chances of error)
-        BasicInformation::Attributes::UniqueID::Id //
-        >;
-
-    BasicInformationClusterImpl(OptionalAttributesSet optionalAttributeSet, Context ctx) :
-        DefaultServerCluster({ kRootEndpointId, BasicInformation::Id }), mEnabledOptionalAttributes(optionalAttributeSet),
-        mPolicy(ctx)
-    {
-        // UniqueID is mandatory as of spec revision 4. We force it on here regardless
-        // of what optionalAttributeSet says, to prevent accidental non-certifiable configs.
-        // The only supported way to disable it is post-construction via OptionalAttributes(),
-        // which is reserved for legacy spec-version emulation in tests.
-        mEnabledOptionalAttributes.template Set<BasicInformation::Attributes::UniqueID::Id>();
-    }
-
-    OptionalAttributesSet & OptionalAttributes() { return mEnabledOptionalAttributes; }
+    template <typename... Args>
+    BasicInformationClusterImpl(Args &&... args) :
+        DefaultServerCluster({ kRootEndpointId, BasicInformation::Id }), mPolicy(std::forward<Args>(args)...)
+    {}
 
     // Server cluster implementation
     CHIP_ERROR Startup(ServerClusterContext & context) override;
@@ -110,6 +84,8 @@ public:
      */
     void OnStartUp(uint32_t softwareVersion) override;
 
+    BasicInformationOptionalAttributesSet & GetOptionalAttributes() { return mPolicy.GetOptionalAttributes(); }
+
     void OnShutDown() override;
 
     // ConfigurationVersionDelegate, however NOT overridable to save
@@ -130,8 +106,6 @@ private:
     // including any necessary error sanitization (e.g. clearing internal buffers).
     template <typename EncodeFunction>
     CHIP_ERROR ReadConfigurationString(EncodeFunction && getter, AttributeValueEncoder & encoder);
-
-    OptionalAttributesSet mEnabledOptionalAttributes;
 
     Storage::String<BasicInformation::Attributes::NodeLabel::TypeInfo::MaxLength()> mNodeLabel;
     Policy mPolicy;
@@ -163,7 +137,7 @@ constexpr size_t kMaxStringLength = std::max({
 inline CHIP_ERROR EncodeStringOnSuccess(CHIP_ERROR status, AttributeValueEncoder & encoder, const char * buf, size_t maxBufSize)
 {
     ReturnErrorOnFailure(status);
-    return encoder.Encode(chip::CharSpan(buf, strnlen(buf, maxBufSize)));
+    return encoder.Encode(CharSpan(buf, strnlen(buf, maxBufSize)));
 }
 
 } // namespace BasicInformationClusterImplDetails
@@ -257,7 +231,7 @@ DataModel::ActionReturnStatus BasicInformationClusterImpl<Policy>::ReadAttribute
     case FeatureMap::Id:
         return encoder.Encode<uint32_t>(0);
     case ClusterRevision::Id:
-        if (!mEnabledOptionalAttributes.IsSet(UniqueID::Id))
+        if (!mPolicy.GetOptionalAttributes().IsSet(UniqueID::Id))
         {
             return encoder.Encode(BasicInformationClusterImplDetails::kRevisionWithoutUniqueId);
         }
@@ -370,12 +344,11 @@ DataModel::ActionReturnStatus BasicInformationClusterImpl<Policy>::ReadAttribute
         capabilityMinima.caseSessionsPerFabric  = kMinCaseSessionsPerFabricMandatedBySpec;
         capabilityMinima.subscriptionsPerFabric = mPolicy.GetSubscriptionsPerFabric();
         capabilityMinima.simultaneousInvocationsSupported =
-            chip::MakeOptional<uint16_t>(capabilityMinimasFromPolicy.simultaneousInvocationsSupported);
+            MakeOptional<uint16_t>(capabilityMinimasFromPolicy.simultaneousInvocationsSupported);
         capabilityMinima.simultaneousWritesSupported =
-            chip::MakeOptional<uint16_t>(capabilityMinimasFromPolicy.simultaneousWritesSupported);
-        capabilityMinima.readPathsSupported = chip::MakeOptional<uint16_t>(capabilityMinimasFromPolicy.readPathsSupported);
-        capabilityMinima.subscribePathsSupported =
-            chip::MakeOptional<uint16_t>(capabilityMinimasFromPolicy.subscribePathsSupported);
+            MakeOptional<uint16_t>(capabilityMinimasFromPolicy.simultaneousWritesSupported);
+        capabilityMinima.readPathsSupported      = MakeOptional<uint16_t>(capabilityMinimasFromPolicy.readPathsSupported);
+        capabilityMinima.subscribePathsSupported = MakeOptional<uint16_t>(capabilityMinimasFromPolicy.subscribePathsSupported);
 
         return encoder.Encode(capabilityMinima);
     }
@@ -506,9 +479,7 @@ CHIP_ERROR BasicInformationClusterImpl<Policy>::Attributes(const ConcreteCluster
 
     AttributeListBuilder listBuilder(builder);
 
-    return listBuilder.Append(Span(mandatoryAttributes), Span(optionalAttributes), mEnabledOptionalAttributes);
+    return listBuilder.Append(Span(mandatoryAttributes), Span(optionalAttributes), mPolicy.GetOptionalAttributes());
 }
 
-} // namespace Clusters
-} // namespace app
-} // namespace chip
+} // namespace chip::app::Clusters

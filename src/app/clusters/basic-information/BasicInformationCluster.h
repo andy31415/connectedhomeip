@@ -19,9 +19,7 @@
 #include <app/clusters/basic-information/BasicInformationClusterImpl.h>
 #include <app/clusters/basic-information/DeviceLayerBasicInformationPolicy.h>
 
-namespace chip {
-namespace app {
-namespace Clusters {
+namespace chip::app::Clusters {
 
 // Default alias for out-of-the-box SDK usage, binding the cluster to the standard
 // DeviceLayer policy (ConfigurationManager, DeviceInstanceInfoProvider, PlatformManager).
@@ -33,6 +31,4 @@ using BasicInformationCluster = BasicInformationClusterImpl<DeviceLayerBasicInfo
 
 extern template class BasicInformationClusterImpl<DeviceLayerBasicInformationPolicy>;
 
-} // namespace Clusters
-} // namespace app
-} // namespace chip
+} // namespace chip::app::Clusters

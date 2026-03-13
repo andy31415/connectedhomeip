@@ -16,17 +16,15 @@
  */
 #pragma once
 
+#include <app/clusters/basic-information/BasicInformationOptionalAttributes.h>
 #include <cstddef>
 #include <cstdint>
-
 #include <lib/support/Span.h>
 #include <platform/ConfigurationManager.h>
 #include <platform/DeviceInstanceInfoProvider.h>
 #include <platform/PlatformManager.h>
 
-namespace chip {
-namespace app {
-namespace Clusters {
+namespace chip::app::Clusters {
 
 class DeviceLayerBasicInformationPolicy
 {
@@ -34,147 +32,144 @@ public:
     // Base class for the cluster to inherit from, to satisfy PlatformManagerDelegate requirements
     using DelegateBase = DeviceLayer::PlatformManagerDelegate;
 
-    struct Context
+    DeviceLayerBasicInformationPolicy(BasicInformationOptionalAttributesSet optionalAttributes,
+                                      DeviceLayer::DeviceInstanceInfoProvider & deviceInstanceInfoProvider,
+                                      DeviceLayer::ConfigurationManager & configurationManager,
+                                      DeviceLayer::PlatformManager & platformManager, uint16_t subscriptionsPerFabric) :
+        mOptionalAttributes(optionalAttributes),
+        mDeviceInstanceInfoProvider(deviceInstanceInfoProvider), mConfigurationManager(configurationManager),
+        mPlatformManager(platformManager), mSubscriptionsPerFabric(subscriptionsPerFabric)
     {
-        DeviceLayer::DeviceInstanceInfoProvider & deviceInstanceInfoProvider;
-        DeviceLayer::ConfigurationManager & configurationManager;
-        DeviceLayer::PlatformManager & platformManager;
-        uint16_t subscriptionsPerFabric;
-    };
-
-    DeviceLayerBasicInformationPolicy(Context ctx) : mContext(ctx) {}
-
-    // Delegated methods
-    CHIP_ERROR GetVendorName(char * buf, size_t bufSize) { return mContext.deviceInstanceInfoProvider.GetVendorName(buf, bufSize); }
-
-    CHIP_ERROR GetVendorId(uint16_t & vendorId) const { return mContext.deviceInstanceInfoProvider.GetVendorId(vendorId); }
-
-    CHIP_ERROR GetProductName(char * buf, size_t bufSize)
-    {
-        return mContext.deviceInstanceInfoProvider.GetProductName(buf, bufSize);
+        // UniqueID is mandatory as of spec revision 4. We force it on here regardless
+        // of what optionalAttributeSet says, to prevent accidental non-certifiable configs.
+        mOptionalAttributes.template Set<BasicInformation::Attributes::UniqueID::Id>();
     }
 
-    CHIP_ERROR GetProductId(uint16_t & productId) const { return mContext.deviceInstanceInfoProvider.GetProductId(productId); }
+    const BasicInformationOptionalAttributesSet & GetOptionalAttributes() const { return mOptionalAttributes; }
+    BasicInformationOptionalAttributesSet & GetOptionalAttributes() { return mOptionalAttributes; }
+
+    // Delegated methods
+    CHIP_ERROR GetVendorName(char * buf, size_t bufSize) { return mDeviceInstanceInfoProvider.GetVendorName(buf, bufSize); }
+
+    CHIP_ERROR GetVendorId(uint16_t & vendorId) const { return mDeviceInstanceInfoProvider.GetVendorId(vendorId); }
+
+    CHIP_ERROR GetProductName(char * buf, size_t bufSize) { return mDeviceInstanceInfoProvider.GetProductName(buf, bufSize); }
+
+    CHIP_ERROR GetProductId(uint16_t & productId) const { return mDeviceInstanceInfoProvider.GetProductId(productId); }
 
     CHIP_ERROR GetPartNumber(char * buf, size_t bufSize)
     {
-        return IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetPartNumber(buf, bufSize), buf, bufSize);
+        return IgnoreUnimplemented(mDeviceInstanceInfoProvider.GetPartNumber(buf, bufSize), buf, bufSize);
     }
 
     CHIP_ERROR GetProductURL(char * buf, size_t bufSize)
     {
-        return IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetProductURL(buf, bufSize), buf, bufSize);
+        return IgnoreUnimplemented(mDeviceInstanceInfoProvider.GetProductURL(buf, bufSize), buf, bufSize);
     }
 
     CHIP_ERROR GetProductLabel(char * buf, size_t bufSize)
     {
-        return IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetProductLabel(buf, bufSize), buf, bufSize);
+        return IgnoreUnimplemented(mDeviceInstanceInfoProvider.GetProductLabel(buf, bufSize), buf, bufSize);
     }
 
     CHIP_ERROR GetSerialNumber(char * buf, size_t bufSize)
     {
-        return IgnoreUnimplemented(mContext.deviceInstanceInfoProvider.GetSerialNumber(buf, bufSize), buf, bufSize);
+        return IgnoreUnimplemented(mDeviceInstanceInfoProvider.GetSerialNumber(buf, bufSize), buf, bufSize);
     }
 
     CHIP_ERROR GetManufacturingDate(uint16_t & year, uint8_t & month, uint8_t & day)
     {
-        return mContext.deviceInstanceInfoProvider.GetManufacturingDate(year, month, day);
+        return mDeviceInstanceInfoProvider.GetManufacturingDate(year, month, day);
     }
 
     CHIP_ERROR GetManufacturingDateSuffix(MutableCharSpan & suffixBuffer)
     {
-        return mContext.deviceInstanceInfoProvider.GetManufacturingDateSuffix(suffixBuffer);
+        return mDeviceInstanceInfoProvider.GetManufacturingDateSuffix(suffixBuffer);
     }
 
     CHIP_ERROR GetHardwareVersion(uint16_t & hardwareVersion)
     {
-        return mContext.deviceInstanceInfoProvider.GetHardwareVersion(hardwareVersion);
+        return mDeviceInstanceInfoProvider.GetHardwareVersion(hardwareVersion);
     }
 
     CHIP_ERROR GetHardwareVersionString(char * buf, size_t bufSize)
     {
-        return mContext.deviceInstanceInfoProvider.GetHardwareVersionString(buf, bufSize);
+        return mDeviceInstanceInfoProvider.GetHardwareVersionString(buf, bufSize);
     }
 
     CHIP_ERROR GetProductFinish(app::Clusters::BasicInformation::ProductFinishEnum * finish)
     {
-        return mContext.deviceInstanceInfoProvider.GetProductFinish(finish);
+        return mDeviceInstanceInfoProvider.GetProductFinish(finish);
     }
 
     CHIP_ERROR GetProductPrimaryColor(app::Clusters::BasicInformation::ColorEnum * primaryColor)
     {
-        return mContext.deviceInstanceInfoProvider.GetProductPrimaryColor(primaryColor);
+        return mDeviceInstanceInfoProvider.GetProductPrimaryColor(primaryColor);
     }
 
     CHIP_ERROR GetLocalConfigDisabled(bool & localConfigDisabled)
     {
-        return mContext.deviceInstanceInfoProvider.GetLocalConfigDisabled(localConfigDisabled);
+        return mDeviceInstanceInfoProvider.GetLocalConfigDisabled(localConfigDisabled);
     }
 
     CHIP_ERROR SetLocalConfigDisabled(bool localConfigDisabled)
     {
-        return mContext.deviceInstanceInfoProvider.SetLocalConfigDisabled(localConfigDisabled);
+        return mDeviceInstanceInfoProvider.SetLocalConfigDisabled(localConfigDisabled);
     }
 
     DeviceLayer::DeviceInstanceInfoProvider::DeviceInfoCapabilityMinimas GetSupportedCapabilityMinimaValues()
     {
-        return mContext.deviceInstanceInfoProvider.GetSupportedCapabilityMinimaValues();
+        return mDeviceInstanceInfoProvider.GetSupportedCapabilityMinimaValues();
     }
 
     // ConfigurationManager delegated methods
-    CHIP_ERROR GetSoftwareVersion(uint32_t & softwareVersion)
-    {
-        return mContext.configurationManager.GetSoftwareVersion(softwareVersion);
-    }
+    CHIP_ERROR GetSoftwareVersion(uint32_t & softwareVersion) { return mConfigurationManager.GetSoftwareVersion(softwareVersion); }
 
     CHIP_ERROR GetSoftwareVersionString(char * buf, size_t bufSize)
     {
-        return mContext.configurationManager.GetSoftwareVersionString(buf, bufSize);
+        return mConfigurationManager.GetSoftwareVersionString(buf, bufSize);
     }
 
     CHIP_ERROR GetUniqueId(char * buf, size_t bufSize)
     {
-        return IgnoreUnimplemented(mContext.configurationManager.GetUniqueId(buf, bufSize), buf, bufSize);
+        return IgnoreUnimplemented(mConfigurationManager.GetUniqueId(buf, bufSize), buf, bufSize);
     }
 
     CHIP_ERROR GetConfigurationVersion(uint32_t & configurationVersion)
     {
-        return mContext.configurationManager.GetConfigurationVersion(configurationVersion);
+        return mConfigurationManager.GetConfigurationVersion(configurationVersion);
     }
 
     CHIP_ERROR StoreConfigurationVersion(uint32_t configurationVersion)
     {
-        return mContext.configurationManager.StoreConfigurationVersion(configurationVersion);
+        return mConfigurationManager.StoreConfigurationVersion(configurationVersion);
     }
 
     CHIP_ERROR GetCountryCode(char * buf, size_t bufSize, size_t & codeLen)
     {
-        return mContext.configurationManager.GetCountryCode(buf, bufSize, codeLen);
+        return mConfigurationManager.GetCountryCode(buf, bufSize, codeLen);
     }
 
-    CHIP_ERROR StoreCountryCode(const char * code, size_t codeLen)
-    {
-        return mContext.configurationManager.StoreCountryCode(code, codeLen);
-    }
+    CHIP_ERROR StoreCountryCode(const char * code, size_t codeLen) { return mConfigurationManager.StoreCountryCode(code, codeLen); }
 
     // PlatformManagerDelegate logic
     void RegisterPlatformDelegate(DeviceLayer::PlatformManagerDelegate * delegate)
     {
-        if (mContext.platformManager.GetDelegate() == nullptr)
+        if (mPlatformManager.GetDelegate() == nullptr)
         {
-            mContext.platformManager.SetDelegate(delegate);
+            mPlatformManager.SetDelegate(delegate);
         }
     }
 
     void UnregisterPlatformDelegate(DeviceLayer::PlatformManagerDelegate * delegate)
     {
-        if (mContext.platformManager.GetDelegate() == delegate)
+        if (mPlatformManager.GetDelegate() == delegate)
         {
-            mContext.platformManager.SetDelegate(nullptr);
+            mPlatformManager.SetDelegate(nullptr);
         }
     }
 
-    uint16_t GetSubscriptionsPerFabric() const { return mContext.subscriptionsPerFabric; }
+    uint16_t GetSubscriptionsPerFabric() const { return mSubscriptionsPerFabric; }
 
 private:
     CHIP_ERROR IgnoreUnimplemented(CHIP_ERROR status, char * buf, size_t bufSize)
@@ -190,9 +185,11 @@ private:
         return status;
     }
 
-    Context mContext;
+    BasicInformationOptionalAttributesSet mOptionalAttributes;
+    DeviceLayer::DeviceInstanceInfoProvider & mDeviceInstanceInfoProvider;
+    DeviceLayer::ConfigurationManager & mConfigurationManager;
+    DeviceLayer::PlatformManager & mPlatformManager;
+    uint16_t mSubscriptionsPerFabric;
 };
 
-} // namespace Clusters
-} // namespace app
-} // namespace chip
+} // namespace chip::app::Clusters
