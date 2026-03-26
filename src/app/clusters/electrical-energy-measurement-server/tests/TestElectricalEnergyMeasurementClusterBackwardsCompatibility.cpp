@@ -195,7 +195,6 @@ TEST_F(TestElectricalEnergyMeasurementClusterBackwardsCompatibility, TestCodegen
         EXPECT_EQ(SetMeasurementAccuracy(kTestEndpointId, accuracy), CHIP_NO_ERROR);
 
         // Verify the value was set
-        Structs::MeasurementAccuracyStruct::Type readAccuracy;
         cluster->GetMeasurementAccuracy(readAccuracy);
         // Verify that the MeasurementAccuracyStruct is not erased by the empty accuracyRanges
         EXPECT_EQ(readAccuracy.measurementType, MeasurementTypeEnum::kApparentEnergy);
