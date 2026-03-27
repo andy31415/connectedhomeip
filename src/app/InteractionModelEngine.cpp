@@ -1973,10 +1973,13 @@ DataModel::Provider * InteractionModelEngine::SetDataModelProvider(DataModel::Pr
             .dataModelChangeListener = mReportingEngine,
             .actionContext           = *this,
         });
+
         if (err != CHIP_NO_ERROR)
         {
             ChipLogError(InteractionModel, "Failure on interaction model startup: %" CHIP_ERROR_FORMAT, err.Format());
         }
+        // Register to the new model
+        mDataModelProvider->RegisterAttributeChangeListener(mReportingEngine);
     }
 
     return oldModel;

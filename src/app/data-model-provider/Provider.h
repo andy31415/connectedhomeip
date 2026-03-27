@@ -118,33 +118,50 @@ public:
     ///     convenience to make writing Invoke calls easier.
     virtual std::optional<ActionReturnStatus> InvokeCommand(const InvokeRequest & request, chip::TLV::TLVReader & input_arguments,
                                                             CommandHandler * handler) = 0;
-
+\
     // -- Attribute Change Listener Management --
     void RegisterAttributeChangeListener(AttributeChangeListener & listener)
     {
-        // Note: IntrusiveList asserts if listener is already in a list.
-        mAttributeChangeListeners.PushBack(&listener);
+        listener.SetNextAttributeChangeListener(mAttributeChangeListenersHead);
+        mAttributeChangeListenersHead = &listener;
     }
 
     void UnregisterAttributeChangeListener(AttributeChangeListener & listener)
     {
-        // Note: AutoUnlink in ~AttributeChangeListener also handles removal.
-        // This method is for explicit unregistration before destruction.
-        // IntrusiveList::Remove() will assert if the listener is not in the list.
-        mAttributeChangeListeners.Remove(&listener);
+        if (mAttributeChangeListenersHead == &listener)
+        {
+            mAttributeChangeListenersHead = listener.GetNextAttributeChangeListener();
+            listener.SetNextAttributeChangeListener(nullptr);
+            return;
+        }
+
+        AttributeChangeListener * current = mAttributeChangeListenersHead;
+        while (current && (current->GetNextAttributeChangeListener() != &listener))
+        {
+            current = current->GetNextAttributeChangeListener();
+        }
+
+        if (current)
+        {
+            current->SetNextAttributeChangeListener(listener.GetNextAttributeChangeListener());
+            listener.SetNextAttributeChangeListener(nullptr);
+        }
     }
 
     void NotifyAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type)
     {
-        for (auto & listener : mAttributeChangeListeners)
+        AttributeChangeListener * current = mAttributeChangeListenersHead;
+        while (current)
         {
-            listener.OnAttributeChanged(path, type);
+            current->OnAttributeChanged(path, type);
+            current = current->GetNextAttributeChangeListener();
         }
     }
     // -- End Attribute Change Listener Management --
 
+
 private:
-    IntrusiveList<AttributeChangeListener, IntrusiveMode::AutoUnlink> mAttributeChangeListeners;
+    AttributeChangeListener * mAttributeChangeListenersHead = nullptr;
 };
 
 } // namespace DataModel

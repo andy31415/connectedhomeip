@@ -1262,6 +1262,17 @@ void Engine::MarkDirty(const AttributePathParams & path)
     }
 }
 
+void Engine::OnAttributeChanged(const ConcreteAttributePath & path, DataModel::AttributeChangeType type)
+{
+    VerifyOrReturn(type == DataModel::AttributeChangeType::kReportable);
+
+    CHIP_ERROR err = SetDirty({ path.mEndpointId, path.mClusterId, path.mAttributeId });
+    if (err != CHIP_NO_ERROR)
+    {
+        ChipLogError(DataManagement, "Failed to set path dirty: %" CHIP_ERROR_FORMAT, err.Format());
+    }
+}
+
 } // namespace reporting
 } // namespace app
 } // namespace chip

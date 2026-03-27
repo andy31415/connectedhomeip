@@ -18,11 +18,11 @@
 #pragma once
 
 #include <app/ConcreteAttributePath.h>
-#include <lib/support/IntrusiveList.h>
 
 namespace chip::app::DataModel {
 
-enum class AttributeChangeType {
+enum class AttributeChangeType
+{
     kReportable, // Change should be reported to subscribers
     kQuiet       // Change is minor or configured not to be reported
 };
@@ -46,13 +46,19 @@ enum class AttributeChangeType {
 ///   caller. If an action taken in the callback fails (e.g., hardware
 ///   actuation), the listener is responsible for any corrective measures,
 ///   such as reverting the attribute state in the DataModel::Provider.
-class AttributeChangeListener : public IntrusiveListNodeBase<IntrusiveMode::AutoUnlink>
+class AttributeChangeListener
 {
 public:
     virtual ~AttributeChangeListener() = default;
 
     /// Called after an attribute's value has changed.
     virtual void OnAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type) = 0;
+
+    AttributeChangeListener * GetNextAttributeChangeListener() const { return mNextAttributeChange; }
+    void SetNextAttributeChangeListener(AttributeChangeListener * next) { mNextAttributeChange = next; }
+
+private:
+    AttributeChangeListener * mNextAttributeChange = nullptr;
 };
 
 } // namespace chip::app::DataModel
