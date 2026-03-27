@@ -1975,7 +1975,6 @@ DataModel::Provider * InteractionModelEngine::SetDataModelProvider(DataModel::Pr
     {
         CHIP_ERROR err = mDataModelProvider->Startup({
             .eventsGenerator         = EventManagement::GetInstance(),
-            .dataModelChangeListener = mReportingEngine,
             .actionContext           = *this,
         });
 
