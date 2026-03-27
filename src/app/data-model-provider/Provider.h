@@ -20,6 +20,7 @@
 #include <lib/core/TLVReader.h>
 #include <lib/core/TLVWriter.h>
 
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/AttributeValueDecoder.h>
 #include <app/AttributeValueEncoder.h>
 #include <app/CommandHandler.h>
@@ -28,6 +29,7 @@
 #include <app/data-model-provider/Context.h>
 #include <app/data-model-provider/OperationTypes.h>
 #include <app/data-model-provider/ProviderMetadataTree.h>
+#include <lib/support/IntrusiveList.h>
 
 namespace chip {
 namespace app {
@@ -116,6 +118,33 @@ public:
     ///     convenience to make writing Invoke calls easier.
     virtual std::optional<ActionReturnStatus> InvokeCommand(const InvokeRequest & request, chip::TLV::TLVReader & input_arguments,
                                                             CommandHandler * handler) = 0;
+
+    // -- Attribute Change Listener Management --
+    void RegisterAttributeChangeListener(AttributeChangeListener & listener)
+    {
+        // Note: IntrusiveList asserts if listener is already in a list.
+        mAttributeChangeListeners.PushBack(&listener);
+    }
+
+    void UnregisterAttributeChangeListener(AttributeChangeListener & listener)
+    {
+        // Note: AutoUnlink in ~AttributeChangeListener also handles removal.
+        // This method is for explicit unregistration before destruction.
+        // IntrusiveList::Remove() will assert if the listener is not in the list.
+        mAttributeChangeListeners.Remove(&listener);
+    }
+
+    void NotifyAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type)
+    {
+        for (auto & listener : mAttributeChangeListeners)
+        {
+            listener.OnAttributeChanged(path, type);
+        }
+    }
+    // -- End Attribute Change Listener Management --
+
+private:
+    IntrusiveList<AttributeChangeListener, IntrusiveMode::AutoUnlink> mAttributeChangeListeners;
 };
 
 } // namespace DataModel
