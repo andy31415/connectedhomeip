@@ -356,20 +356,12 @@ chip::Span<const EmberAfDeviceType> emberAfDeviceTypeListFromEndpointIndex(unsig
 //
 CHIP_ERROR emberAfSetDeviceTypeList(chip::EndpointId endpoint, chip::Span<const EmberAfDeviceType> deviceTypeList);
 
-/// Returns a change listener that uses the global InteractionModelEngine
-/// instance to report dirty paths
-chip::app::DataModel::ProviderChangeListener * emberAfGlobalInteractionModelAttributesChangedListener();
-
 /// Mark the given attribute as having changed:
 ///   - increases the cluster data version for the given cluster
-///   - uses `listener` to `MarkDirty` the given path. This is typically done to mark an
-///     attribute as dirty within the matter attribute reporting engine, so that subscriptions
-///     receive updated attribute values for a cluster.
 ///
 /// This is a convenience function to make it clear when a `emberAfDataVersionStorage` increase
 /// and a `ProviderChangeListener::MarkDirty` always occur in lock-step.
-void emberAfAttributeChanged(chip::EndpointId endpoint, chip::ClusterId clusterId, chip::AttributeId attributeId,
-                             chip::app::DataModel::ProviderChangeListener * listener);
+void emberAfAttributeChanged(chip::EndpointId endpoint, chip::ClusterId clusterId, chip::AttributeId attributeId);
 
 /// Mark attributes on the given endpoint as having changed.
 ///

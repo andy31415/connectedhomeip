@@ -36,6 +36,7 @@
 #include <app/ConcreteCommandPath.h>
 #include <app/GlobalAttributes.h>
 #include <app/MessageDef/ReportDataMessage.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/data-model-provider/MetadataLookup.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <app/data-model-provider/OperationTypes.h>
@@ -160,16 +161,20 @@ struct TestCodegenModelViaMocks : public ::testing::Test
     static void TearDownTestSuite() { chip::Platform::MemoryShutdown(); }
 };
 
-class TestProviderChangeListener : public ProviderChangeListener
+class TestAttributeChangeListener : public AttributeChangeListener
 {
 public:
-    void MarkDirty(const AttributePathParams & path) override { mDirtyList.push_back(path); }
+    void OnAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type) override
+    {
+        VerifyOrReturn(type == AttributeChangeType::kReportable);
+        mDirtyList.push_back(path);
+    }
 
-    std::vector<AttributePathParams> & DirtyList() { return mDirtyList; }
-    const std::vector<AttributePathParams> & DirtyList() const { return mDirtyList; }
+    std::vector<ConcreteAttributePath> & DirtyList() { return mDirtyList; }
+    const std::vector<ConcreteAttributePath> & DirtyList() const { return mDirtyList; }
 
 private:
-    std::vector<AttributePathParams> mDirtyList;
+    std::vector<ConcreteAttributePath> mDirtyList;
 };
 
 class TestActionContext : public ActionContext
@@ -185,15 +190,19 @@ public:
     {
         SetPersistentStorageDelegate(&mStorageDelegate);
         EXPECT_SUCCESS(Startup({
-            .eventsGenerator         = mEventGenerator,
-            .dataModelChangeListener = mChangeListener,
-            .actionContext           = mActionContext,
+            .eventsGenerator = mEventGenerator,
+            .actionContext   = mActionContext,
         }));
+        RegisterAttributeChangeListener(mChangeListener);
     }
-    ~CodegenDataModelProviderWithContext() override { EXPECT_SUCCESS(Shutdown()); }
+    ~CodegenDataModelProviderWithContext() override
+    {
+        UnregisterAttributeChangeListener(mChangeListener);
+        EXPECT_SUCCESS(Shutdown());
+    }
 
-    TestProviderChangeListener & ChangeListener() { return mChangeListener; }
-    const TestProviderChangeListener & ChangeListener() const { return mChangeListener; }
+    TestAttributeChangeListener & ChangeListener() { return mChangeListener; }
+    const TestAttributeChangeListener & ChangeListener() const { return mChangeListener; }
 
 private:
     // Test cases that explicitly manage the provider should not use this sub-class
@@ -201,7 +210,7 @@ private:
     using CodegenDataModelProvider::Startup;
 
     LogOnlyEvents mEventGenerator;
-    TestProviderChangeListener mChangeListener;
+    TestAttributeChangeListener mChangeListener;
     TestActionContext mActionContext;
     TestPersistentStorageDelegate mStorageDelegate;
 };

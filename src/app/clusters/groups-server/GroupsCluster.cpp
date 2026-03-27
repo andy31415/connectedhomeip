@@ -1,7 +1,7 @@
-/**
- *    Copyright (c) 2020-2026 Project CHIP Authors
+/*
+ *    Copyright(c) 2020 - 2026 Project CHIP Authors
  *
- *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    Licensed under the Apache License, Version 2.0(the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
@@ -52,10 +52,13 @@ constexpr AttributePathParams kGroupKeyGroupTableAttributePath{ kRootEndpointId,
 
 void NotifyGroupTableChanged(ServerClusterContext * context)
 {
+    VerifyOrReturn(context != nullptr);
+
     // TODO: This seems a bit coupled: we are notifying in this cluster that ANOTHER cluster
     //       has changed. We should support only one cluster or another really...
-    VerifyOrReturn(context != nullptr);
-    context->interactionContext.dataModelChangeListener.MarkDirty(kGroupKeyGroupTableAttributePath);
+    const ConcreteAttributePath kGroupKeyGroupTableAttributePath(kRootEndpointId, GroupKeyManagement::Id,
+                                                                 GroupKeyManagement::Attributes::GroupTable::Id);
+    context->provider.NotifyAttributeChanged(kGroupKeyGroupTableAttributePath, DataModel::AttributeChangeType::kReportable);
 }
 
 class AutoReleaseIterator

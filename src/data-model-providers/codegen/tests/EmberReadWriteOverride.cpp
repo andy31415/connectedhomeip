@@ -130,11 +130,6 @@ Status emAfWriteAttributeExternal(const chip::app::ConcreteAttributePath & path,
         (*(version))++;
     }
 
-    if (input.changeListener != nullptr)
-    {
-        input.changeListener->MarkDirty(chip::app::AttributePathParams(path.mEndpointId, path.mClusterId, path.mAttributeId));
-    }
-
     return Status::Success;
 }
 

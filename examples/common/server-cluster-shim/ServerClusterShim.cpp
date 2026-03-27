@@ -326,10 +326,13 @@ ActionReturnStatus ServerClusterShim::WriteAttribute(const WriteAttributeRequest
     {
         if (*aai_result == CHIP_NO_ERROR)
         {
-            // TODO: this is awkward since it provides AAI no control over this, specifically
-            //       AAI may not want to increase versions for some attributes that are Q
-            emberAfAttributeChanged(request.path.mEndpointId, request.path.mClusterId, request.path.mAttributeId,
-                                    &mContext->interactionContext.dataModelChangeListener);
+            // AAI write was successful. We still need to bump the version and notify our listeners.
+            DataVersion * version = emberAfDataVersionStorage({ request.path.mEndpointId, request.path.mClusterId });
+            if (version != nullptr)
+            {
+                (*version)++;
+            }
+            mContext->provider.NotifyAttributeChanged(request.path, DataModel::AttributeChangeType::kReportable);
         }
         return *aai_result;
     }
@@ -348,7 +351,6 @@ ActionReturnStatus ServerClusterShim::WriteAttribute(const WriteAttributeRequest
 
     Protocols::InteractionModel::Status status;
     EmberAfWriteDataInput dataInput(dataBuffer.data(), attributeMetadata->attributeType);
-    dataInput.SetChangeListener(&mContext->interactionContext.dataModelChangeListener);
     // TODO: dataInput.SetMarkDirty() should be according to `ChangesOmmited`
 
     if (request.subjectDescriptor.authMode == Access::AuthMode::kInternalDeviceAccess)

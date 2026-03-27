@@ -32,7 +32,6 @@ namespace DataModel {
 struct InteractionModelContext
 {
     EventsGenerator & eventsGenerator;
-    ProviderChangeListener & dataModelChangeListener;
     ActionContext & actionContext;
 };
 

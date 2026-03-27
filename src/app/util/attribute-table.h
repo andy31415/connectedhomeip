@@ -47,22 +47,11 @@ struct EmberAfWriteDataInput
     //     kYes - always called
     chip::app::MarkAttributeDirty markDirty = chip::app::MarkAttributeDirty::kIfChanged;
 
-    // Listener called when when the written data is consided changed/dirty.
-    // This being called depends on settings of `markDirty` combined with the actual contents of dataPtr
-    // vs the contents of the current attribute storage.
-    chip::app::DataModel::ProviderChangeListener * changeListener = nullptr;
-
     EmberAfWriteDataInput(uint8_t * data, EmberAfAttributeType type) : dataPtr(data), dataType(type) {}
 
     EmberAfWriteDataInput & SetMarkDirty(chip::app::MarkAttributeDirty value)
     {
         markDirty = value;
-        return *this;
-    }
-
-    EmberAfWriteDataInput & SetChangeListener(chip::app::DataModel::ProviderChangeListener * listener)
-    {
-        changeListener = listener;
         return *this;
     }
 };

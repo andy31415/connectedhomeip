@@ -30,6 +30,7 @@
 
 #include <app-common/zap-generated/attribute-type.h>
 #include <app-common/zap-generated/ids/Attributes.h>
+#include <app/InteractionModelEngine.h>
 #include <app/MessageDef/AttributeDataIB.h>
 #include <app/MessageDef/AttributeReportIB.h>
 #include <app/MessageDef/AttributeStatusIB.h>
@@ -391,11 +392,11 @@ chip::Span<const EmberAfDeviceType> emberAfDeviceTypeListFromEndpointIndex(unsig
     return GetMockNodeConfig().endpoints[index].deviceTypes();
 }
 
-void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, AttributeId attributeId,
-                             DataModel::ProviderChangeListener * listener)
+void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, AttributeId attributeId)
 {
     dataVersion++;
-    listener->MarkDirty(AttributePathParams(endpoint, clusterId, attributeId));
+    InteractionModelEngine::GetInstance()->GetDataModelProvider()->NotifyAttributeChanged(
+        { endpoint, clusterId, attributeId }, DataModel::AttributeChangeType::kReportable);
 }
 
 void emberAfEndpointChanged(EndpointId endpoint, DataModel::ProviderChangeListener * listener)

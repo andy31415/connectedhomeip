@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "data-model-providers/codegen/CodegenDataModelProvider.h"
 #include "lib/support/Span.h"
 #include <app/util/attribute-storage.h>
 
@@ -1002,7 +1003,7 @@ bool emberAfEndpointEnableDisable(EndpointId endpoint, bool enable, MatterCluste
         if (enable)
         {
             initializeEndpoint(&(emAfEndpoints[index]));
-            emberAfEndpointChanged(endpoint, emberAfGlobalInteractionModelAttributesChangedListener());
+            emberAfEndpointChanged(endpoint);
         }
         else
         {
@@ -1010,11 +1011,13 @@ bool emberAfEndpointEnableDisable(EndpointId endpoint, bool enable, MatterCluste
             emAfEndpoints[index].bitmask.Clear(EmberAfEndpointOptions::isEnabled);
         }
 
+        // The Descriptor cluster on Endpoint 0 subscribing to OnEndpointChanged events.
+        //
+        // NOTE: this should eventually be refactored for descriptor cluster to detect these changes
         EndpointId parentEndpointId = emberAfParentEndpointFromIndex(index);
         while (parentEndpointId != kInvalidEndpointId)
         {
-            emberAfAttributeChanged(parentEndpointId, Clusters::Descriptor::Id, Clusters::Descriptor::Attributes::PartsList::Id,
-                                    emberAfGlobalInteractionModelAttributesChangedListener());
+            emberAfAttributeChanged(parentEndpointId, Clusters::Descriptor::Id, Clusters::Descriptor::Attributes::PartsList::Id);
             uint16_t parentIndex = emberAfIndexFromEndpoint(parentEndpointId);
             if (parentIndex == kEmberInvalidEndpointIndex)
             {
@@ -1024,8 +1027,7 @@ bool emberAfEndpointEnableDisable(EndpointId endpoint, bool enable, MatterCluste
             parentEndpointId = emberAfParentEndpointFromIndex(parentIndex);
         }
 
-        emberAfAttributeChanged(/* endpoint = */ 0, Clusters::Descriptor::Id, Clusters::Descriptor::Attributes::PartsList::Id,
-                                emberAfGlobalInteractionModelAttributesChangedListener());
+        emberAfAttributeChanged(/* endpoint = */ 0, Clusters::Descriptor::Id, Clusters::Descriptor::Attributes::PartsList::Id);
     }
 
     emberMetadataStructureGeneration++;
@@ -1595,13 +1597,7 @@ DataVersion * emberAfDataVersionStorage(const ConcreteClusterPath & aConcreteClu
     return ep.dataVersions + clusterIndex;
 }
 
-DataModel::ProviderChangeListener * emberAfGlobalInteractionModelAttributesChangedListener()
-{
-    return &InteractionModelEngine::GetInstance()->GetReportingEngine();
-}
-
-void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, AttributeId attributeId,
-                             DataModel::ProviderChangeListener * listener)
+void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, AttributeId attributeId)
 {
     // Increase cluster data path
     DataVersion * version = emberAfDataVersionStorage(ConcreteClusterPath(endpoint, clusterId));
@@ -1616,11 +1612,11 @@ void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, Attribute
         ChipLogDetail(DataManagement, "Endpoint %x, Cluster " ChipLogFormatMEI " update version to %" PRIx32, endpoint,
                       ChipLogValueMEI(clusterId), *(version));
     }
-
-    listener->MarkDirty(AttributePathParams(endpoint, clusterId, attributeId));
+    CodegenDataModelProvider::Instance().NotifyAttributeChanged({ endpoint, clusterId, attributeId },
+                                                                AttributeChangeType::kReportable);
 }
 
-void emberAfEndpointChanged(EndpointId endpoint, DataModel::ProviderChangeListener * listener)
+void emberAfEndpointChanged(EndpointId endpoint)
 {
-    listener->MarkDirty(AttributePathParams(endpoint));
+    CodegenDataModelProvider::Instance().NotifyEndpointChanged(endpoint);
 }

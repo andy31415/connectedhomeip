@@ -22,8 +22,8 @@
 #include <app/persistence/DefaultAttributePersistenceProvider.h>
 #include <app/server-cluster/ServerClusterContext.h>
 #include <app/server-cluster/testing/EmptyProvider.h>
+#include <app/server-cluster/testing/TestAttributeChangeListener.h>
 #include <app/server-cluster/testing/TestEventGenerator.h>
-#include <app/server-cluster/testing/TestProviderChangeListener.h>
 #include <lib/support/TestPersistentStorageDelegate.h>
 #include <protocols/interaction_model/StatusCode.h>
 
@@ -49,9 +49,8 @@ class TestServerClusterContext
 public:
     TestServerClusterContext() :
         mTestContext{
-            .eventsGenerator         = mTestEventsGenerator,
-            .dataModelChangeListener = mTestDataModelChangeListener,
-            .actionContext           = mNullActionContext,
+            .eventsGenerator = mTestEventsGenerator,
+            .actionContext   = mNullActionContext,
         },
         mContext{
             .provider           = mTestProvider,
@@ -60,6 +59,7 @@ public:
             .interactionContext = mTestContext,
         }
     {
+        mTestProvider.RegisterAttributeChangeListener(mChangeListener);
         SuccessOrDie(mDefaultAttributePersistenceProvider.Init(&mTestStorage));
     }
 
@@ -67,7 +67,7 @@ public:
     app::ServerClusterContext & Get() { return mContext; }
 
     LogOnlyEvents & EventsGenerator() { return mTestEventsGenerator; }
-    TestProviderChangeListener & ChangeListener() { return mTestDataModelChangeListener; }
+    TestAttributeChangeListener & ChangeListener() { return mChangeListener; };
     TestPersistentStorageDelegate & StorageDelegate() { return mTestStorage; }
     app::DefaultAttributePersistenceProvider & AttributePersistenceProvider() { return mDefaultAttributePersistenceProvider; }
     app::DataModel::InteractionModelContext & ImContext() { return mTestContext; }
@@ -75,7 +75,7 @@ public:
 private:
     NullActionContext mNullActionContext;
     LogOnlyEvents mTestEventsGenerator;
-    TestProviderChangeListener mTestDataModelChangeListener;
+    TestAttributeChangeListener mChangeListener;
     EmptyProvider mTestProvider;
     TestPersistentStorageDelegate mTestStorage;
     app::DefaultAttributePersistenceProvider mDefaultAttributePersistenceProvider;

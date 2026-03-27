@@ -825,12 +825,12 @@ TEST_F(TestCodeDrivenDataModelProvider, Temporary_ReportAttributeChanged)
         *mEndpointStorage.back(), DataModel::EndpointEntry{ .id = 1, .compositionPattern = EndpointCompositionPattern(0) }));
     EXPECT_SUCCESS(mProvider.AddEndpoint(*mOwnedRegistrations.back()));
 
-    AttributePathParams path(1, 10, 1);
-    mProvider.Temporary_ReportAttributeChanged(path);
-    ASSERT_EQ(mChangeListener.mDirtyList.size(), 1u);
-    EXPECT_EQ(mChangeListener.mDirtyList[0].mEndpointId, path.mEndpointId);
-    EXPECT_EQ(mChangeListener.mDirtyList[0].mClusterId, path.mClusterId);
-    EXPECT_EQ(mChangeListener.mDirtyList[0].mAttributeId, path.mAttributeId);
+    // We no longer use ProviderChangeListener, so there is nothing to check on mChangeListener
+    // The test mainly ensures that Temporary_ReportAttributeChanged doesn't crash and correctly bumps versions.
+    DataVersion initialVersion = mProvider.GetDataVersion(ConcreteClusterPath(1, 10));
+    mProvider.Temporary_ReportAttributeChanged(AttributePathParams(1, 10, 1));
+    DataVersion finalVersion = mProvider.GetDataVersion(ConcreteClusterPath(1, 10));
+    EXPECT_EQ(finalVersion, initialVersion + 1);
 }
 
 TEST_F(TestCodeDrivenDataModelProvider, Shutdown)

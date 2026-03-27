@@ -1974,8 +1974,8 @@ DataModel::Provider * InteractionModelEngine::SetDataModelProvider(DataModel::Pr
     if (mDataModelProvider != nullptr)
     {
         CHIP_ERROR err = mDataModelProvider->Startup({
-            .eventsGenerator         = EventManagement::GetInstance(),
-            .actionContext           = *this,
+            .eventsGenerator = EventManagement::GetInstance(),
+            .actionContext   = *this,
         });
 
         if (err != CHIP_NO_ERROR)

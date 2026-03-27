@@ -131,9 +131,6 @@ public:
     size_t GetGlobalDirtySetSize() { return mGlobalDirtySet.Allocated(); }
 #endif
 
-    /* ProviderChangeListener implementation */
-    void MarkDirty(const AttributePathParams & path) override;
-
     // DataModel::AttributeChangeListener implementation
     void OnAttributeChanged(const ConcreteAttributePath & path, DataModel::AttributeChangeType type) override;
     void OnEndpointChanged(EndpointId endpointId) override;
