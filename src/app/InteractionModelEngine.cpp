@@ -285,6 +285,11 @@ void InteractionModelEngine::Shutdown()
         }
     }
 
+    if (mDataModelProvider != nullptr)
+    {
+        mDataModelProvider->UnregisterAttributeChangeListener(mReportingEngine);
+    }
+
     mReportingEngine.Shutdown();
     mAttributePathPool.ReleaseAll();
     mEventPathPool.ReleaseAll();
