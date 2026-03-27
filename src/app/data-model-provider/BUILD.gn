@@ -85,4 +85,3 @@ source_set("string-builder-adapters") {
     "${chip_root}/src/lib/core:string-builder-adapters",
   ]
 }
-

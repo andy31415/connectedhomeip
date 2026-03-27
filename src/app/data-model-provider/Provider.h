@@ -20,10 +20,10 @@
 #include <lib/core/TLVReader.h>
 #include <lib/core/TLVWriter.h>
 
-#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/AttributeValueDecoder.h>
 #include <app/AttributeValueEncoder.h>
 #include <app/CommandHandler.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 
 #include <app/data-model-provider/ActionReturnStatus.h>
 #include <app/data-model-provider/Context.h>
@@ -118,7 +118,7 @@ public:
     ///     convenience to make writing Invoke calls easier.
     virtual std::optional<ActionReturnStatus> InvokeCommand(const InvokeRequest & request, chip::TLV::TLVReader & input_arguments,
                                                             CommandHandler * handler) = 0;
-\
+
     // -- Attribute Change Listener Management --
     void RegisterAttributeChangeListener(AttributeChangeListener & listener)
     {
@@ -158,7 +158,6 @@ public:
         }
     }
     // -- End Attribute Change Listener Management --
-
 
 private:
     AttributeChangeListener * mAttributeChangeListenersHead = nullptr;

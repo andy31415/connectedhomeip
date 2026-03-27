@@ -36,20 +36,47 @@ class TestProvider : public Provider
 public:
     // Implement pure virtuals from ProviderMetadataTree
     CHIP_ERROR Endpoints(ReadOnlyBufferBuilder<EndpointEntry> & builder) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR DeviceTypes(EndpointId endpointId, ReadOnlyBufferBuilder<DeviceTypeEntry> & builder) override { return CHIP_NO_ERROR; }
+    CHIP_ERROR DeviceTypes(EndpointId endpointId, ReadOnlyBufferBuilder<DeviceTypeEntry> & builder) override
+    {
+        return CHIP_NO_ERROR;
+    }
     CHIP_ERROR ClientClusters(EndpointId endpointId, ReadOnlyBufferBuilder<ClusterId> & builder) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR ServerClusters(EndpointId endpointId, ReadOnlyBufferBuilder<ServerClusterEntry> & builder) override { return CHIP_NO_ERROR; }
+    CHIP_ERROR ServerClusters(EndpointId endpointId, ReadOnlyBufferBuilder<ServerClusterEntry> & builder) override
+    {
+        return CHIP_NO_ERROR;
+    }
     CHIP_ERROR EventInfo(const ConcreteEventPath & path, EventEntry & eventInfo) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<AttributeEntry> & builder) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<CommandId> & builder) override { return CHIP_NO_ERROR; }
-    CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<AcceptedCommandEntry> & builder) override { return CHIP_NO_ERROR; }
+    CHIP_ERROR Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<AttributeEntry> & builder) override
+    {
+        return CHIP_NO_ERROR;
+    }
+    CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<CommandId> & builder) override
+    {
+        return CHIP_NO_ERROR;
+    }
+    CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<AcceptedCommandEntry> & builder) override
+    {
+        return CHIP_NO_ERROR;
+    }
     void Temporary_ReportAttributeChanged(const AttributePathParams & path) override {}
 
     // Implement pure virtuals from Provider
-    ActionReturnStatus ReadAttribute(const ReadAttributeRequest & request, AttributeValueEncoder & encoder) override { return Status::Success; }
-    ActionReturnStatus WriteAttribute(const WriteAttributeRequest & request, AttributeValueDecoder & decoder) override { return Status::Success; }
-    void ListAttributeWriteNotification(const ConcreteAttributePath & aPath, ListWriteOperation opType, FabricIndex accessingFabric) override {}
-    std::optional<ActionReturnStatus> InvokeCommand(const InvokeRequest & request, chip::TLV::TLVReader & input_arguments, CommandHandler * handler) override { return Status::Success; }
+    ActionReturnStatus ReadAttribute(const ReadAttributeRequest & request, AttributeValueEncoder & encoder) override
+    {
+        return Status::Success;
+    }
+    ActionReturnStatus WriteAttribute(const WriteAttributeRequest & request, AttributeValueDecoder & decoder) override
+    {
+        return Status::Success;
+    }
+    void ListAttributeWriteNotification(const ConcreteAttributePath & aPath, ListWriteOperation opType,
+                                        FabricIndex accessingFabric) override
+    {}
+    std::optional<ActionReturnStatus> InvokeCommand(const InvokeRequest & request, chip::TLV::TLVReader & input_arguments,
+                                                    CommandHandler * handler) override
+    {
+        return Status::Success;
+    }
 };
 
 // Mock Listener
