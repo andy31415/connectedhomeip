@@ -157,6 +157,16 @@ public:
             current = current->GetNextAttributeChangeListener();
         }
     }
+
+    void NotifyEndpointChanged(EndpointId endpointId)
+    {
+        AttributeChangeListener * current = mAttributeChangeListenersHead;
+        while (current)
+        {
+            current->OnEndpointChanged(endpointId);
+            current = current->GetNextAttributeChangeListener();
+        }
+    }
     // -- End Attribute Change Listener Management --
 
 private:

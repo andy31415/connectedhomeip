@@ -100,6 +100,9 @@ DataModel::ActionReturnStatus CodegenDataModelProvider::WriteAttribute(const Dat
                 //       AAI may not want to increase versions for some attributes that are Q
                 emberAfAttributeChanged(request.path.mEndpointId, request.path.mClusterId, request.path.mAttributeId,
                                         &mContext->dataModelChangeListener);
+                // Dual notification during transition. This call notifies AttributeChangeListeners.
+                // ProviderChangeListener notification above will be removed eventually.
+                NotifyAttributeChanged(request.path, DataModel::AttributeChangeType::kReportable);
             }
             return *aai_result;
         }
@@ -200,14 +203,20 @@ void CodegenDataModelProvider::Temporary_ReportAttributeChanged(const AttributeP
 
     if (path.mClusterId != kInvalidClusterId)
     {
-        emberAfAttributeChanged(path.mEndpointId, path.mClusterId, path.mAttributeId, &mContext->dataModelChangeListener);
+        DataVersion * version = emberAfDataVersionStorage({ path.mEndpointId, path.mClusterId });
+        if (version != nullptr)
+        {
+            (*version)++;
+        }
+        this->NotifyAttributeChanged({ path.mEndpointId, path.mClusterId, path.mAttributeId },
+                                     DataModel::AttributeChangeType::kReportable);
     }
     else
     {
-        // When the path has wildcard cluster Id, call the emberAfEndpointChanged to mark attributes on the given endpoint
-        // as having changing, but do NOT increase/alter any cluster data versions, as this happens when a bridged endpoint is
-        // added or removed from a bridge and the cluster data is not changed during the process.
-        emberAfEndpointChanged(path.mEndpointId, &mContext->dataModelChangeListener);
+        // Endpoint-level change (e.g., bridged device add/remove).
+        // Expectation here is that there is no cluster version bump as the entire
+        // endpoint changed.
+        NotifyEndpointChanged(path.mEndpointId);
     }
 }
 

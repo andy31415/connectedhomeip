@@ -1253,15 +1253,6 @@ void Engine::ScheduleUrgentEventDeliverySync(Optional<FabricIndex> fabricIndex)
     Run();
 }
 
-void Engine::MarkDirty(const AttributePathParams & path)
-{
-    CHIP_ERROR err = SetDirty(path);
-    if (err != CHIP_NO_ERROR)
-    {
-        ChipLogError(DataManagement, "Failed to set path dirty: %" CHIP_ERROR_FORMAT, err.Format());
-    }
-}
-
 void Engine::OnAttributeChanged(const ConcreteAttributePath & path, DataModel::AttributeChangeType type)
 {
     VerifyOrReturn(type == DataModel::AttributeChangeType::kReportable);
@@ -1270,6 +1261,15 @@ void Engine::OnAttributeChanged(const ConcreteAttributePath & path, DataModel::A
     if (err != CHIP_NO_ERROR)
     {
         ChipLogError(DataManagement, "Failed to set path dirty: %" CHIP_ERROR_FORMAT, err.Format());
+    }
+}
+
+void Engine::OnEndpointChanged(EndpointId endpointId)
+{
+    CHIP_ERROR err = SetDirty(AttributePathParams(endpointId));
+    if (err != CHIP_NO_ERROR)
+    {
+        ChipLogError(DataManagement, "Failed to set endpoint %u dirty: %" CHIP_ERROR_FORMAT, endpointId, err.Format());
     }
 }
 
