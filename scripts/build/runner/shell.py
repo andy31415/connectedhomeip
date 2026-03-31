@@ -69,13 +69,14 @@ class ShellRunner:
     def StartCommandExecution(self):
         pass
 
-    def Run(self, cmd, title=None, dedup=False):
+    def Run(self, cmd, title=None, dedup=False, quiet=False):
 
-        if title:
+        if title and not quiet:
             log.info(title)
 
         if dedup and self.deduplicator.is_duplicate(cmd):
-            log.info("Skipping duplicate command...")
+            if not quiet:
+                log.info("Skipping duplicate command...")
             return
 
         outpipe = LogPipe(logging.INFO)
@@ -88,4 +89,5 @@ class ShellRunner:
             code = s.wait()
             if code != 0:
                 raise SubcommandException(cmd, code)
-            log.info('Command %r completed', cmd)
+            if not quiet:
+                log.info('Command %r completed', cmd)

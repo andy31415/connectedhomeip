@@ -81,6 +81,11 @@ def ValidateTargetNames(context, parameter, values):
     is_flag=True,
     help='Pass verbose flag to ninja.')
 @click.option(
+    '--quiet',
+    default=False,
+    is_flag=True,
+    help='Pass quiet flag to ninja.')
+@click.option(
     '--target',
     default=[],
     multiple=True,
@@ -149,7 +154,7 @@ def ValidateTargetNames(context, parameter, values):
         'Set pigweed command launcher. E.g.: "--pw-command-launcher=ccache" '
         'for using ccache when building examples.'))
 @click.pass_context
-def main(context, log_level, verbose, target, build_profile, enable_link_map_file, repo,
+def main(context, log_level, verbose, quiet, target, build_profile, enable_link_map_file, repo,
          out_prefix, ninja_jobs, pregen_dir, clean, dry_run, dry_run_output,
          enable_flashbundle, log_timestamps, pw_command_launcher):
     # Ensures somewhat pretty logging of what is going on
@@ -170,7 +175,7 @@ before running this script.
         runner = ShellRunner(root=repo)
 
     context.obj = build.Context(
-        repository_path=repo, output_prefix=out_prefix, verbose=verbose,
+        repository_path=repo, output_prefix=out_prefix, verbose=verbose, quiet=quiet,
         ninja_jobs=ninja_jobs, runner=runner
     )
 
