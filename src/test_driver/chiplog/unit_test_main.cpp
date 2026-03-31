@@ -21,6 +21,8 @@
 #include <lib/support/CHIPPlatformMemory.h>
 #include <lib/support/logging/CHIPLogging.h>
 
+#include "lib/support/logging/Constants.h"
+#include "lib/support/logging/TextOnlyLogging.h"
 #include "pw_unit_test/event_handler.h"
 #include "pw_unit_test/framework.h"
 
@@ -207,6 +209,18 @@ int main(int argc, char ** argv)
     // Make the binary compatible with pw_unit_test:googletest. Has no effect
     // when using pw_unit_test:light.
     testing::InitGoogleTest(&argc, argv);
+
+    if (gQuiet)
+    {
+        // Extra quiet - not even errors as we sometimes purposefully test failure cases in logs
+        // and errors are noise compared to assertion errors.
+        //
+        // That being said, errors in case of unit test failures likely help debug, so when
+        // something goes wrong we likely will want to re-run the test without quiet. This is
+        // not done automatically currently.
+        Logging::SetLogFilter(Logging::kLogCategory_None);
+    }
+
     ChipLogHandler handler(gQuiet);
 
     pw::unit_test::RegisterEventHandler(&handler);
