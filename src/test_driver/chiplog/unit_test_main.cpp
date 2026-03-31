@@ -212,13 +212,13 @@ int main(int argc, char ** argv)
 
     if (gQuiet)
     {
-        // Extra quiet - not even errors as we sometimes purposefully test failure cases in logs
-        // and errors are noise compared to assertion errors.
+        // Extra quiet - not even warnings are logged, as we sometimes purposefully test failure cases.
+        // Errors are reported since we use errors themselves for logging right now.
         //
         // That being said, errors in case of unit test failures likely help debug, so when
         // something goes wrong we likely will want to re-run the test without quiet. This is
         // not done automatically currently.
-        Logging::SetLogFilter(Logging::kLogCategory_None);
+        Logging::SetLogFilter(Logging::kLogCategory_Error);
     }
 
     ChipLogHandler handler(gQuiet);
