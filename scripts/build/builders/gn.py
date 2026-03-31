@@ -72,7 +72,7 @@ class GnBuilder(Builder):
         ]
 
         if self.quiet:
-            cmd.append('--quiet')
+            cmd.append("--ninja-extra-args=--quiet")
 
         if args := self.GnBuildArgs():
             cmd += ['--args=%s' % ' '.join(args)]
