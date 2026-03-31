@@ -178,6 +178,7 @@ public:
     /// Called when a disabled test case is encountered.
     void TestCaseDisabled(const TestCase & test) override
     {
+        VerifyOrReturn(!mQuiet);
         ChipLogProgress(Test, "Skipping disabled test %s.%s", test.suite_name, test.test_name);
     }
 
