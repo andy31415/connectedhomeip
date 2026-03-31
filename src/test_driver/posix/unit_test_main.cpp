@@ -41,7 +41,7 @@ ArgParser::OptionDef gProgramCustomOptionDefs[] = {
 };
 
 const char gProgramCustomOptionHelp[] = "  --quiet\n"
-                                        "       Output only failures/assert errors \n"
+                                        "       Output only failures and assertion errors.\n"
                                         "\n";
 
 bool HandleCustomOption(const char * aProgram, ArgParser::OptionSet * aOptions, int aIdentifier, const char * aName,
