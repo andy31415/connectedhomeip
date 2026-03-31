@@ -41,7 +41,7 @@ ArgParser::OptionDef gProgramCustomOptionDefs[] = {
 };
 
 const char gProgramCustomOptionHelp[] = "  --quiet\n"
-                                        "       Oputput only failures/assert errors \n"
+                                        "       Output only failures/assert errors \n"
                                         "\n";
 
 bool HandleCustomOption(const char * aProgram, ArgParser::OptionSet * aOptions, int aIdentifier, const char * aName,
@@ -62,7 +62,6 @@ bool HandleCustomOption(const char * aProgram, ArgParser::OptionSet * aOptions, 
 
 ArgParser::OptionSet gProgramCustomOptions = { HandleCustomOption, gProgramCustomOptionDefs, "GENERAL OPTIONS",
                                                gProgramCustomOptionHelp };
-ArgParser::OptionSet * gAllOptions[]       = { &gProgramCustomOptions, nullptr };
 
 class ChipLogHandler : public pw::unit_test::EventHandler
 {
@@ -72,8 +71,8 @@ public:
     void TestProgramStart(const ProgramSummary & program_summary) override
     {
         VerifyOrReturn(!mQuiet);
-        printf("[==========] Running %d tests from %d test suite%s.\n", program_summary.tests_to_run,
-                        program_summary.test_suites, program_summary.test_suites > 1 ? "s" : "");
+        printf("[==========] Running %d tests from %d test suite%s.\n", program_summary.tests_to_run, program_summary.test_suites,
+               program_summary.test_suites > 1 ? "s" : "");
     }
 
     void EnvironmentsSetUpEnd() override
@@ -106,15 +105,15 @@ public:
     {
         VerifyOrReturn(!mQuiet);
         printf("[==========] %d / %d tests from %d test suite%s ran.\n",
-                        program_summary.tests_to_run - program_summary.tests_summary.skipped_tests -
-                            program_summary.tests_summary.disabled_tests,
-                        program_summary.tests_to_run, program_summary.test_suites, program_summary.test_suites > 1 ? "s" : "");
+               program_summary.tests_to_run - program_summary.tests_summary.skipped_tests -
+                   program_summary.tests_summary.disabled_tests,
+               program_summary.tests_to_run, program_summary.test_suites, program_summary.test_suites > 1 ? "s" : "");
         printf("[  PASSED  ] %d test(s).\n", program_summary.tests_summary.passed_tests);
 
         if (program_summary.tests_summary.skipped_tests || program_summary.tests_summary.disabled_tests)
         {
             printf("[ DISABLED ] %d test(s).\n",
-                            program_summary.tests_summary.skipped_tests + program_summary.tests_summary.disabled_tests);
+                   program_summary.tests_summary.skipped_tests + program_summary.tests_summary.disabled_tests);
         }
 
         if (program_summary.tests_summary.failed_tests)
@@ -202,7 +201,11 @@ private:
 int main(int argc, char ** argv)
 {
     SuccessOrDie(Platform::MemoryInit());
-    if (!ArgParser::ParseArgs(argv[0], argc, argv, gAllOptions))
+
+    ArgParser::HelpOptions helpOptions(argv[0], "Usage: unit_test_main [options]", "1.0");
+    ArgParser::OptionSet * allOptions[] = { &helpOptions, &gProgramCustomOptions, nullptr };
+
+    if (!ArgParser::ParseArgs(argv[0], argc, argv, allOptions))
     {
         return 1;
     }
