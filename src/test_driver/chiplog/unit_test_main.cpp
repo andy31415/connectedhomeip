@@ -17,9 +17,9 @@
 #include <string_view>
 
 #include <lib/support/CHIPArgParser.hpp>
-#include <lib/support/logging/CHIPLogging.h>
 #include <lib/support/CHIPMem.h>
 #include <lib/support/CHIPPlatformMemory.h>
+#include <lib/support/logging/CHIPLogging.h>
 
 #include "pw_unit_test/event_handler.h"
 #include "pw_unit_test/framework.h"

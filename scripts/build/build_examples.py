@@ -20,12 +20,13 @@ import os
 import shlex
 import sys
 
-import build
 import click
 import coloredlogs
 from builders.builder import BuilderOptions, BuildProfile
 from runner import PrintOnlyRunner, ShellRunner
 from runner.shell import SubcommandException
+
+import build
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
