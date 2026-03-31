@@ -30,6 +30,7 @@ import build
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
+log = logging.getLogger(__name__)
 
 # Supported log levels, mapping string values required for argument
 # parsing into logging constants
@@ -252,7 +253,7 @@ def cmd_build(context, copy_artifacts_to, create_archives):
     try:
         context.obj.Build()
     except SubcommandException as e:
-        logging.error("Command '%s' failed with error code %d", shlex.join(e.command), e.returncode)
+        log.error("Command '%s' failed with error code %d", shlex.join(e.command), e.returncode)
         sys.exit(1)
 
     if copy_artifacts_to:
