@@ -17,6 +17,7 @@
 import json
 import logging
 import os
+import shlex
 import sys
 
 import build
@@ -24,6 +25,7 @@ import click
 import coloredlogs
 from builders.builder import BuilderOptions, BuildProfile
 from runner import PrintOnlyRunner, ShellRunner
+from runner.shell import SubcommandException
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
@@ -241,7 +243,11 @@ def cmd_targets(context, format, completion_prefix):
     help='Prefix of compressed archives of the generated files.')
 @click.pass_context
 def cmd_build(context, copy_artifacts_to, create_archives):
-    context.obj.Build()
+    try:
+        context.obj.Build()
+    except SubcommandException as e:
+        logging.error("Command '%s' failed with error code %d", shlex.join(e.command), e.returncode)
+        sys.exit(1)
 
     if copy_artifacts_to:
         context.obj.CopyArtifactsTo(copy_artifacts_to)

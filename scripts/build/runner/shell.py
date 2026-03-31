@@ -22,6 +22,13 @@ from .command_dedup import CommandDedup
 log = logging.getLogger(__name__)
 
 
+class SubcommandException(Exception):
+    def __init__(self, command, returncode) -> None:
+        self.command = command
+        self.returncode = returncode
+        super().__init__('Command %r failed: %d' % (command, returncode))
+
+
 class LogPipe(threading.Thread):
 
     def __init__(self, level):
@@ -80,5 +87,5 @@ class ShellRunner:
             errpipe.close()
             code = s.wait()
             if code != 0:
-                raise Exception('Command %r failed: %d' % (cmd, code))
+                raise SubcommandException(cmd, code)
             log.info('Command %r completed', cmd)
