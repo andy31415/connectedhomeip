@@ -16,7 +16,7 @@ import("//build_overrides/build.gni")
 import("//build_overrides/chip.gni")
 import("//build_overrides/pigweed.gni")
 
-source_set("chiplog") {
+source_set("posix") {
   public_deps = [
     "$dir_pw_unit_test",
     "$dir_pw_unit_test:googletest_style_event_handler",

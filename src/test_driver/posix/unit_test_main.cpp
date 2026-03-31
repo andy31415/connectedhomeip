@@ -72,54 +72,54 @@ public:
     void TestProgramStart(const ProgramSummary & program_summary) override
     {
         VerifyOrReturn(!mQuiet);
-        ChipLogProgress(Test, "[==========] Running %d tests from %d test suite%s.", program_summary.tests_to_run,
+        printf("[==========] Running %d tests from %d test suite%s.\n", program_summary.tests_to_run,
                         program_summary.test_suites, program_summary.test_suites > 1 ? "s" : "");
     }
 
     void EnvironmentsSetUpEnd() override
     {
         VerifyOrReturn(!mQuiet);
-        ChipLogProgress(Test, "[----------] Global test environments setup.");
+        printf("[----------] Global test environments setup.\n");
     }
 
     void TestSuiteStart(const TestSuite & test_suite) override
     {
         VerifyOrReturn(!mQuiet);
-        ChipLogProgress(Test, "[----------] %d tests from %s.", test_suite.test_to_run_count, test_suite.name);
+        printf("[----------] %d tests from %s.\n", test_suite.test_to_run_count, test_suite.name);
     }
 
     void TestSuiteEnd(const TestSuite & test_suite) override
     {
         VerifyOrReturn(!mQuiet);
-        ChipLogProgress(Test, "[----------] %d tests from %s.", test_suite.test_to_run_count, test_suite.name);
+        printf("[----------] %d tests from %s.\n", test_suite.test_to_run_count, test_suite.name);
     }
 
     /// Called after environment teardown for each iteration of tests ends.
     void EnvironmentsTearDownEnd() override
     {
         VerifyOrReturn(!mQuiet);
-        ChipLogProgress(Test, "[----------] Global test environments tear-down.");
+        printf("[----------] Global test environments tear-down.\n");
     }
 
     /// Called after all test activities have ended.
     void TestProgramEnd(const ProgramSummary & program_summary) override
     {
         VerifyOrReturn(!mQuiet);
-        ChipLogProgress(Test, "[==========] %d / %d tests from %d test suite%s ran.",
+        printf("[==========] %d / %d tests from %d test suite%s ran.\n",
                         program_summary.tests_to_run - program_summary.tests_summary.skipped_tests -
                             program_summary.tests_summary.disabled_tests,
                         program_summary.tests_to_run, program_summary.test_suites, program_summary.test_suites > 1 ? "s" : "");
-        ChipLogProgress(Test, "[  PASSED  ] %d test(s).", program_summary.tests_summary.passed_tests);
+        printf("[  PASSED  ] %d test(s).\n", program_summary.tests_summary.passed_tests);
 
         if (program_summary.tests_summary.skipped_tests || program_summary.tests_summary.disabled_tests)
         {
-            ChipLogProgress(Test, "[ DISABLED ] %d test(s).",
+            printf("[ DISABLED ] %d test(s).\n",
                             program_summary.tests_summary.skipped_tests + program_summary.tests_summary.disabled_tests);
         }
 
         if (program_summary.tests_summary.failed_tests)
         {
-            ChipLogError(Test, "[  FAILED  ] %d test(s).", program_summary.tests_summary.failed_tests);
+            printf("[  FAILED  ] %d test(s).\n", program_summary.tests_summary.failed_tests);
         }
     }
 
@@ -127,30 +127,30 @@ public:
     void RunAllTestsStart() override
     {
         VerifyOrReturn(!mQuiet);
-        ChipLogProgress(Test, "[==========] Running all tests.");
+        printf("[==========] Running all tests.\n");
     }
 
     /// Called after all tests are run.
     void RunAllTestsEnd(const RunTestsSummary & run_tests_summary) override
     {
         VerifyOrReturn(!mQuiet);
-        ChipLogProgress(Test, "[==========] Done running all tests.");
-        ChipLogProgress(Test, "[  PASSED  ] %d test(s).", run_tests_summary.passed_tests);
+        printf("[==========] Done running all tests.\n");
+        printf("[  PASSED  ] %d test(s).\n", run_tests_summary.passed_tests);
 
         if (run_tests_summary.skipped_tests)
         {
-            ChipLogProgress(Test, "[ DISABLED ] %d test(s).", run_tests_summary.skipped_tests);
+            printf("[ DISABLED ] %d test(s).\n", run_tests_summary.skipped_tests);
         }
         if (run_tests_summary.failed_tests)
         {
-            ChipLogError(Test, "[  FAILED  ] %d test(s).", run_tests_summary.failed_tests);
+            printf("[  FAILED  ] %d test(s).\n", run_tests_summary.failed_tests);
         }
     }
 
     void TestCaseStart(const TestCase & test_case) override
     {
         VerifyOrReturn(!mQuiet);
-        ChipLogProgress(Test, "[ RUN      ] %s.%s", test_case.suite_name, test_case.test_name);
+        printf("[ RUN      ] %s.%s\n", test_case.suite_name, test_case.test_name);
     }
 
     void TestCaseEnd(const TestCase & test_case, TestResult result) override
@@ -160,16 +160,16 @@ public:
         case TestResult::kSuccess:
             if (!mQuiet)
             {
-                ChipLogProgress(Test, "[       OK ] %s.%s", test_case.suite_name, test_case.test_name);
+                printf("[       OK ] %s.%s\n", test_case.suite_name, test_case.test_name);
             }
             break;
         case TestResult::kFailure:
-            ChipLogError(Test, "[  FAILED  ] %s.%s", test_case.suite_name, test_case.test_name);
+            printf("[  FAILED  ] %s.%s\n", test_case.suite_name, test_case.test_name);
             break;
         case TestResult::kSkipped:
             if (!mQuiet)
             {
-                ChipLogProgress(Test, "[ DISABLED ] %s.%s", test_case.suite_name, test_case.test_name);
+                printf("[ DISABLED ] %s.%s\n", test_case.suite_name, test_case.test_name);
             }
             break;
         }
@@ -179,7 +179,7 @@ public:
     void TestCaseDisabled(const TestCase & test) override
     {
         VerifyOrReturn(!mQuiet);
-        ChipLogProgress(Test, "Skipping disabled test %s.%s", test.suite_name, test.test_name);
+        printf("Skipping disabled test %s.%s\n", test.suite_name, test.test_name);
     }
 
     /// Called after each expect or assert statement within a test case with the
@@ -188,9 +188,9 @@ public:
     {
         VerifyOrReturn(!expectation.success);
 
-        ChipLogError(Test, "%s:%d: Failure", expectation.file_name, expectation.line_number);
-        ChipLogError(Test, "      Expected: %s", expectation.expression);
-        ChipLogError(Test, "      Actual:   %s", expectation.evaluated_expression);
+        printf("%s:%d: Failure\n", expectation.file_name, expectation.line_number);
+        printf("      Expected: %s\n", expectation.expression);
+        printf("      Actual:   %s\n", expectation.evaluated_expression);
     }
 
 private:
@@ -213,12 +213,8 @@ int main(int argc, char ** argv)
 
     if (gQuiet)
     {
-        // Extra quiet - not even warnings are logged, as we sometimes purposefully test failure cases.
-        // Errors are reported since we use errors themselves for logging right now.
-        //
-        // That being said, errors in case of unit test failures likely help debug, so when
-        // something goes wrong we likely will want to re-run the test without quiet. This is
-        // not done automatically currently.
+        // Extra quiet - we keep errors since those likely help debug failures, however
+        // the rest are hidden.
         Logging::SetLogFilter(Logging::kLogCategory_Error);
     }
 
