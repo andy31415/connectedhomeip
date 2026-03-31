@@ -14,4 +14,4 @@
 # limitations under the License.
 #
 # Runs the underlying test passing in a "quiet" command line flag
-"$@" --quiet
+exec "$@" --quiet
