@@ -47,9 +47,6 @@ namespace {
 
 [[maybe_unused]] constexpr uint32_t kGroupsClusterRevisionBeforeGroupcast = 4;
 
-constexpr AttributePathParams kGroupKeyGroupTableAttributePath{ kRootEndpointId, GroupKeyManagement::Id,
-                                                                GroupKeyManagement::Attributes::GroupTable::Id };
-
 void NotifyGroupTableChanged(ServerClusterContext * context)
 {
     VerifyOrReturn(context != nullptr);
