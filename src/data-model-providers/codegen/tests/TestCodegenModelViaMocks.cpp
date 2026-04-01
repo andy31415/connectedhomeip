@@ -1032,8 +1032,8 @@ void TestEmberScalarTypeWrite(const typename NumericAttributeTraits<T>::WorkingT
         EXPECT_EQ(actual, value);
         ASSERT_EQ(model.ChangeListener().DirtyList().size(), 1u);
         EXPECT_EQ(model.ChangeListener().DirtyList()[0],
-                  AttributePathParams(test.GetRequest().path.mEndpointId, test.GetRequest().path.mClusterId,
-                                      test.GetRequest().path.mAttributeId));
+                  ConcreteAttributePath(test.GetRequest().path.mEndpointId, test.GetRequest().path.mClusterId,
+                                        test.GetRequest().path.mAttributeId));
 
         // reset for the next test
         model.ChangeListener().DirtyList().clear();
@@ -1054,8 +1054,8 @@ void TestEmberScalarTypeWrite(const typename NumericAttributeTraits<T>::WorkingT
         // dirty: we changed the value to null
         ASSERT_EQ(model.ChangeListener().DirtyList().size(), 1u);
         EXPECT_EQ(model.ChangeListener().DirtyList()[0],
-                  AttributePathParams(test.GetRequest().path.mEndpointId, test.GetRequest().path.mClusterId,
-                                      test.GetRequest().path.mAttributeId));
+                  ConcreteAttributePath(test.GetRequest().path.mEndpointId, test.GetRequest().path.mClusterId,
+                                        test.GetRequest().path.mAttributeId));
     }
 
     // nullable test
@@ -1080,8 +1080,8 @@ void TestEmberScalarTypeWrite(const typename NumericAttributeTraits<T>::WorkingT
         // dirty a 2nd time when we moved from null to a real value
         ASSERT_EQ(model.ChangeListener().DirtyList().size(), 2u);
         EXPECT_EQ(model.ChangeListener().DirtyList()[1],
-                  AttributePathParams(test.GetRequest().path.mEndpointId, test.GetRequest().path.mClusterId,
-                                      test.GetRequest().path.mAttributeId));
+                  ConcreteAttributePath(test.GetRequest().path.mEndpointId, test.GetRequest().path.mClusterId,
+                                        test.GetRequest().path.mAttributeId));
     }
 }
 
@@ -2613,8 +2613,7 @@ TEST_F(TestCodegenModelViaMocks, EmberWriteAttributeAccessInterfaceTest)
     // AAI marks dirty paths
     ASSERT_EQ(model.ChangeListener().DirtyList().size(), 1u);
     EXPECT_EQ(model.ChangeListener().DirtyList()[0],
-              AttributePathParams(kStructPath.mEndpointId, kStructPath.mClusterId, kStructPath.mAttributeId));
-
+              ConcreteAttributePath(kStructPath.mEndpointId, kStructPath.mClusterId, kStructPath.mAttributeId));
     // AAI does not prevent read/write of regular attributes
     // validate that once AAI is added, we still can go through writing regular bits (i.e.
     // AAI returning "unknown" has fallback to ember)

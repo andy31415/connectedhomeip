@@ -367,7 +367,7 @@ void emberAfAttributeChanged(chip::EndpointId endpoint, chip::ClusterId clusterI
 ///
 /// Schedules reporting engine to consider the endpoint dirty, however does NOT increase/alter
 /// any cluster data versions.
-void emberAfEndpointChanged(chip::EndpointId endpoint, chip::app::DataModel::ProviderChangeListener * listener);
+void emberAfEndpointChanged(chip::EndpointId endpoint);
 
 /// Maintains a increasing index of structural changes within ember
 /// that determine if existing "indexes" and metadata pointers within ember

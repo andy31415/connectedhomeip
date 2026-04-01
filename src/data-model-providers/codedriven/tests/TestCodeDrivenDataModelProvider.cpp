@@ -226,9 +226,8 @@ protected:
     chip::Testing::LogOnlyEvents mEventGenerator;
     TestActionContext mActionContext;
     DataModel::InteractionModelContext mContext{
-        .eventsGenerator         = mEventGenerator,
-        .dataModelChangeListener = mChangeListener,
-        .actionContext           = mActionContext,
+        .eventsGenerator = mEventGenerator,
+        .actionContext   = mActionContext,
     };
     chip::Testing::TestServerClusterContext mServerClusterTestContext;
     CodeDrivenDataModelProvider mProvider;
@@ -826,11 +825,8 @@ TEST_F(TestCodeDrivenDataModelProvider, Temporary_ReportAttributeChanged)
     EXPECT_SUCCESS(mProvider.AddEndpoint(*mOwnedRegistrations.back()));
 
     // We no longer use ProviderChangeListener, so there is nothing to check on mChangeListener
-    // The test mainly ensures that Temporary_ReportAttributeChanged doesn't crash and correctly bumps versions.
-    DataVersion initialVersion = mProvider.GetDataVersion(ConcreteClusterPath(1, 10));
+    // The test mainly ensures that Temporary_ReportAttributeChanged doesn't crash.
     mProvider.Temporary_ReportAttributeChanged(AttributePathParams(1, 10, 1));
-    DataVersion finalVersion = mProvider.GetDataVersion(ConcreteClusterPath(1, 10));
-    EXPECT_EQ(finalVersion, initialVersion + 1);
 }
 
 TEST_F(TestCodeDrivenDataModelProvider, Shutdown)

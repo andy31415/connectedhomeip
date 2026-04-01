@@ -1613,7 +1613,7 @@ void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, Attribute
                       ChipLogValueMEI(clusterId), *(version));
     }
     CodegenDataModelProvider::Instance().NotifyAttributeChanged({ endpoint, clusterId, attributeId },
-                                                                AttributeChangeType::kReportable);
+                                                                chip::app::DataModel::AttributeChangeType::kReportable);
 }
 
 void emberAfEndpointChanged(EndpointId endpoint)
