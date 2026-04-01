@@ -85,5 +85,30 @@ private:
     app::ServerClusterContext mContext;
 };
 
+/// RAII class to register a TestAttributeChangeListener from a TestServerClusterContext
+/// with a specific DataModel::Provider for the scope of this object's lifetime.
+class ScopedAttributeChangeListenerRegistration
+{
+public:
+    ScopedAttributeChangeListenerRegistration(app::DataModel::Provider & provider, TestServerClusterContext & context) :
+        mProvider(provider), mContext(context)
+    {
+        mProvider.RegisterAttributeChangeListener(mContext.ChangeListener());
+    }
+
+    ~ScopedAttributeChangeListenerRegistration()
+    {
+        mProvider.UnregisterAttributeChangeListener(mContext.ChangeListener());
+    }
+
+    // Non-copyable
+    ScopedAttributeChangeListenerRegistration(const ScopedAttributeChangeListenerRegistration &) = delete;
+    ScopedAttributeChangeListenerRegistration & operator=(const ScopedAttributeChangeListenerRegistration &) = delete;
+
+private:
+    app::DataModel::Provider & mProvider;
+    TestServerClusterContext & mContext;
+};
+
 } // namespace Testing
 } // namespace chip
