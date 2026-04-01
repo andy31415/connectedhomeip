@@ -402,9 +402,7 @@ public:
     // TODO: Add methods to test AttributeChangeListener notifications.
     std::vector<app::ConcreteAttributePath> & GetDirtyList()
     {
-        // FIXME: implement
-        static std::vector<app::ConcreteAttributePath> emptyTODO;
-        return emptyTODO;
+        return mTestServerClusterContext.ChangeListener().DirtyList();
     }
 
     // Returns true if the given attribute appears in the dirty list.
