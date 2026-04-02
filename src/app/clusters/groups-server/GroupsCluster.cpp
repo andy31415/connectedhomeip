@@ -110,7 +110,9 @@ struct GroupMembershipResponse
     static constexpr ClusterId GetClusterId() { return Groups::Id; }
 
     GroupMembershipResponse(const Commands::GetGroupMembership::DecodableType & data, EndpointId endpoint,
-                            GroupDataProvider::EndpointIterator * iter) : mCommandData(data), mEndpoint(endpoint), mIterator(iter)
+                            GroupDataProvider::EndpointIterator * iter) :
+        mCommandData(data),
+        mEndpoint(endpoint), mIterator(iter)
     {}
 
     const Commands::GetGroupMembership::DecodableType & mCommandData;
