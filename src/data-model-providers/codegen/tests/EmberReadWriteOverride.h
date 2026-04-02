@@ -35,7 +35,7 @@ chip::ByteSpan GetEmberBuffer();
 
 /// Defines the provider used to notify of attribute writes.
 ///
-/// Ember has NotifyAttributeChange logic in embertAfWriteAttribute. Since
+/// Ember has NotifyAttributeChange logic in emberAfWriteAttribute. Since
 /// these classes override the write logic, we make change notifications be
 /// reported to this given provider.
 class TestNotifiedProvider

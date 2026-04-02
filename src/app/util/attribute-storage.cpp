@@ -1621,7 +1621,6 @@ void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, Attribute
     const ConcreteAttributePath path(endpoint, clusterId, attributeId);
 
     emberAfIncreaseDataVersion(path);
-    // Increase cluster data path
     CodegenDataModelProvider::Instance().NotifyAttributeChanged(path, chip::app::DataModel::AttributeChangeType::kReportable);
 }
 
