@@ -826,8 +826,7 @@ TEST_F(TestCodeDrivenDataModelProvider, Temporary_ReportAttributeChanged)
 
     // We no longer use ProviderChangeListener, so there is nothing to check on mChangeListener
     // The test mainly ensures that Temporary_ReportAttributeChanged doesn't crash.
-    mProvider.NotifyAttributeChanged({1, 10, 1}, AttributeChangeType::kReportable);
-
+    mProvider.NotifyAttributeChanged({ 1, 10, 1 }, AttributeChangeType::kReportable);
 }
 
 TEST_F(TestCodeDrivenDataModelProvider, Shutdown)
