@@ -14,6 +14,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app/ConcreteAttributePath.h"
+#include "app/ConcreteClusterPath.h"
 #include <app/util/attribute-storage.h>
 
 #include <app/AttributeAccessInterfaceRegistry.h>
@@ -1597,23 +1599,30 @@ DataVersion * emberAfDataVersionStorage(const ConcreteClusterPath & aConcreteClu
     return ep.dataVersions + clusterIndex;
 }
 
-void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, AttributeId attributeId)
+void emberAfIncreaseDataVersion(const chip::app::ConcreteClusterPath & aConcreteClusterPath)
 {
-    // Increase cluster data path
-    DataVersion * version = emberAfDataVersionStorage(ConcreteClusterPath(endpoint, clusterId));
+
+    DataVersion * version = emberAfDataVersionStorage(aConcreteClusterPath);
     if (version == nullptr)
     {
-        ChipLogError(DataManagement, "Endpoint %x, Cluster " ChipLogFormatMEI " not found in IncreaseClusterDataVersion!", endpoint,
-                     ChipLogValueMEI(clusterId));
+        ChipLogError(DataManagement, "Endpoint %x, Cluster " ChipLogFormatMEI " not found in emberAfIncreaseDataVersion!",
+                     aConcreteClusterPath.mEndpointId, ChipLogValueMEI(aConcreteClusterPath.mClusterId));
     }
     else
     {
         (*(version))++;
-        ChipLogDetail(DataManagement, "Endpoint %x, Cluster " ChipLogFormatMEI " update version to %" PRIx32, endpoint,
-                      ChipLogValueMEI(clusterId), *(version));
+        ChipLogDetail(DataManagement, "Endpoint %x, Cluster " ChipLogFormatMEI " update version to %" PRIx32,
+                      aConcreteClusterPath.mEndpointId, ChipLogValueMEI(aConcreteClusterPath.mClusterId), *version);
     }
-    CodegenDataModelProvider::Instance().NotifyAttributeChanged({ endpoint, clusterId, attributeId },
-                                                                chip::app::DataModel::AttributeChangeType::kReportable);
+}
+
+void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, AttributeId attributeId)
+{
+    const ConcreteAttributePath path(endpoint, clusterId, attributeId);
+
+    emberAfIncreaseDataVersion(path);
+    // Increase cluster data path
+    CodegenDataModelProvider::Instance().NotifyAttributeChanged(path, chip::app::DataModel::AttributeChangeType::kReportable);
 }
 
 void emberAfEndpointChanged(EndpointId endpoint)

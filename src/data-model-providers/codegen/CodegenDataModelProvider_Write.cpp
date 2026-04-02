@@ -17,14 +17,15 @@
 #include <data-model-providers/codegen/CodegenDataModelProvider.h>
 
 #include <access/AccessControl.h>
-#include <app-common/zap-generated/attribute-type.h>
 #include <app/AttributeAccessInterface.h>
 #include <app/AttributeAccessInterfaceRegistry.h>
-#include <app/GlobalAttributes.h>
-#include <app/RequiredPrivilege.h>
-#include <app/data-model-provider/ProviderChangeListener.h>
+#include <app-common/zap-generated/attribute-type.h>
+#include <app/ConcreteAttributePath.h>
 #include <app/data-model/FabricScoped.h>
+#include <app/data-model-provider/ProviderChangeListener.h>
+#include <app/GlobalAttributes.h>
 #include <app/reporting/reporting.h>
+#include <app/RequiredPrivilege.h>
 #include <app/util/af-types.h>
 #include <app/util/attribute-metadata.h>
 #include <app/util/attribute-storage-detail.h>
@@ -97,11 +98,7 @@ DataModel::ActionReturnStatus CodegenDataModelProvider::WriteAttribute(const Dat
             if (*aai_result == CHIP_NO_ERROR)
             {
                 // AAI write was successful. We still need to bump the version and notify our listeners.
-                DataVersion * version = emberAfDataVersionStorage({ request.path.mEndpointId, request.path.mClusterId });
-                if (version != nullptr)
-                {
-                    (*version)++;
-                }
+                emberAfIncreaseDataVersion(request.path);
                 NotifyAttributeChanged(request.path, DataModel::AttributeChangeType::kReportable);
             }
             return *aai_result;
@@ -202,13 +199,9 @@ void CodegenDataModelProvider::Temporary_ReportAttributeChanged(const AttributeP
 
     if (path.mClusterId != kInvalidClusterId)
     {
-        DataVersion * version = emberAfDataVersionStorage({ path.mEndpointId, path.mClusterId });
-        if (version != nullptr)
-        {
-            (*version)++;
-        }
-        NotifyAttributeChanged({ path.mEndpointId, path.mClusterId, path.mAttributeId },
-                               DataModel::AttributeChangeType::kReportable);
+        const ConcreteAttributePath attributePath{ path.mEndpointId, path.mClusterId, path.mAttributeId };
+        emberAfIncreaseDataVersion(attributePath);
+        NotifyAttributeChanged(attributePath, DataModel::AttributeChangeType::kReportable);
     }
     else
     {

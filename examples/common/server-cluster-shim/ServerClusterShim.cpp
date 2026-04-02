@@ -327,11 +327,7 @@ ActionReturnStatus ServerClusterShim::WriteAttribute(const WriteAttributeRequest
         if (*aai_result == CHIP_NO_ERROR)
         {
             // AAI write was successful. We still need to bump the version and notify our listeners.
-            DataVersion * version = emberAfDataVersionStorage({ request.path.mEndpointId, request.path.mClusterId });
-            if (version != nullptr)
-            {
-                (*version)++;
-            }
+            emberAfIncreaseDataVersion(request.path);
             mContext->provider.NotifyAttributeChanged(request.path, DataModel::AttributeChangeType::kReportable);
         }
         return *aai_result;
