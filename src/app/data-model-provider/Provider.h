@@ -29,7 +29,6 @@
 #include <app/data-model-provider/Context.h>
 #include <app/data-model-provider/OperationTypes.h>
 #include <app/data-model-provider/ProviderMetadataTree.h>
-#include <lib/support/IntrusiveList.h>
 
 namespace chip {
 namespace app {
