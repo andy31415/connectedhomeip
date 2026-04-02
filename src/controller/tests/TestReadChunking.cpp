@@ -701,7 +701,6 @@ TEST_F(TestReadChunking, TestDynamicEndpoint)
 
     // Initialize the ember side server logic
     engine->SetDataModelProvider(CodegenDataModelProviderInstance(nullptr /* delegate */));
-    CodegenDataModelProviderInstance(nullptr)->RegisterAttributeChangeListener(engine->GetReportingEngine());
     InitDataModelHandler();
 
     // Register our fake dynamic endpoint.
@@ -776,7 +775,6 @@ TEST_F(TestReadChunking, TestDynamicEndpoint)
 
     EXPECT_EQ(GetExchangeManager().GetNumActiveExchanges(), 0u);
 
-    CodegenDataModelProviderInstance(nullptr)->UnregisterAttributeChangeListener(engine->GetReportingEngine());
     emberAfClearDynamicEndpoint(0);
 }
 /*

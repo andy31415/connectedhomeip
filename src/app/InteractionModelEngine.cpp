@@ -284,12 +284,6 @@ void InteractionModelEngine::Shutdown()
             writeHandler.Close();
         }
     }
-
-    if (mDataModelProvider != nullptr)
-    {
-        mDataModelProvider->UnregisterAttributeChangeListener(mReportingEngine);
-    }
-
     mReportingEngine.Shutdown();
     mAttributePathPool.ReleaseAll();
     mEventPathPool.ReleaseAll();
@@ -1963,6 +1957,7 @@ DataModel::Provider * InteractionModelEngine::SetDataModelProvider(DataModel::Pr
     DataModel::Provider * oldModel = mDataModelProvider;
     if (oldModel != nullptr)
     {
+        oldModel->UnregisterAttributeChangeListener(mReportingEngine);
         CHIP_ERROR err = oldModel->Shutdown();
         if (err != CHIP_NO_ERROR)
         {
