@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <app/ConcreteClusterPath.h>
 #include <app/data-model-provider/ProviderChangeListener.h>
 #include <app/util/af-types.h>
 #include <app/util/attribute-metadata.h>
