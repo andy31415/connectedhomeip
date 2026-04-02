@@ -1,7 +1,7 @@
-/*
- *    Copyright(c) 2020 - 2026 Project CHIP Authors
+/**
+ *    Copyright (c) 2020-2026 Project CHIP Authors
  *
- *    Licensed under the Apache License, Version 2.0(the "License");
+ *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app/ConcreteAttributePath.h"
 #include <app/clusters/groups-server/GroupsCluster.h>
 
 #include <app/clusters/scenes-server/Constants.h>
@@ -49,12 +50,13 @@ namespace {
 
 void NotifyGroupTableChanged(ServerClusterContext * context)
 {
-    VerifyOrReturn(context != nullptr);
-
     // TODO: This seems a bit coupled: we are notifying in this cluster that ANOTHER cluster
     //       has changed. We should support only one cluster or another really...
-    const ConcreteAttributePath kGroupKeyGroupTableAttributePath(kRootEndpointId, GroupKeyManagement::Id,
-                                                                 GroupKeyManagement::Attributes::GroupTable::Id);
+    VerifyOrReturn(context != nullptr);
+
+    const ConcreteAttributePath kGroupKeyGroupTableAttributePath{ kRootEndpointId, GroupKeyManagement::Id,
+                                                                  GroupKeyManagement::Attributes::GroupTable::Id };
+
     context->provider.NotifyAttributeChanged(kGroupKeyGroupTableAttributePath, DataModel::AttributeChangeType::kReportable);
 }
 
@@ -108,9 +110,7 @@ struct GroupMembershipResponse
     static constexpr ClusterId GetClusterId() { return Groups::Id; }
 
     GroupMembershipResponse(const Commands::GetGroupMembership::DecodableType & data, EndpointId endpoint,
-                            GroupDataProvider::EndpointIterator * iter) :
-        mCommandData(data),
-        mEndpoint(endpoint), mIterator(iter)
+                            GroupDataProvider::EndpointIterator * iter) : mCommandData(data), mEndpoint(endpoint), mIterator(iter)
     {}
 
     const Commands::GetGroupMembership::DecodableType & mCommandData;
