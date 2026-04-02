@@ -153,8 +153,9 @@ public:
         AttributeChangeListener * current = mAttributeChangeListenersHead;
         while (current)
         {
+            AttributeChangeListener * next = current->GetNextAttributeChangeListener();
             current->OnAttributeChanged(path, type);
-            current = current->GetNextAttributeChangeListener();
+            current = next;
         }
     }
 
@@ -163,8 +164,9 @@ public:
         AttributeChangeListener * current = mAttributeChangeListenersHead;
         while (current)
         {
+            AttributeChangeListener * next = current->GetNextAttributeChangeListener();
             current->OnEndpointChanged(endpointId);
-            current = current->GetNextAttributeChangeListener();
+            current = next;
         }
     }
     // -- End Attribute Change Listener Management --
