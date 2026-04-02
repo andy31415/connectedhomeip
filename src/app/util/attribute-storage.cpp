@@ -18,8 +18,8 @@
 
 #include <app/AttributeAccessInterfaceRegistry.h>
 #include <app/CommandHandlerInterfaceRegistry.h>
-#include <app/data-model-provider/ProviderChangeListener.h>
 #include <app/InteractionModelEngine.h>
+#include <app/data-model-provider/ProviderChangeListener.h>
 #include <app/persistence/AttributePersistenceProvider.h>
 #include <app/persistence/AttributePersistenceProviderInstance.h>
 #include <app/persistence/PascalString.h>
@@ -35,8 +35,8 @@
 #include <lib/core/CHIPConfig.h>
 #include <lib/core/CHIPError.h>
 #include <lib/support/CodeUtils.h>
-#include <lib/support/logging/CHIPLogging.h>
 #include <lib/support/Span.h>
+#include <lib/support/logging/CHIPLogging.h>
 #include <platform/LockTracker.h>
 #include <protocols/interaction_model/StatusCode.h>
 
