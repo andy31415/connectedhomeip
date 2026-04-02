@@ -17,15 +17,15 @@
 #include <data-model-providers/codegen/CodegenDataModelProvider.h>
 
 #include <access/AccessControl.h>
+#include <app-common/zap-generated/attribute-type.h>
 #include <app/AttributeAccessInterface.h>
 #include <app/AttributeAccessInterfaceRegistry.h>
-#include <app-common/zap-generated/attribute-type.h>
 #include <app/ConcreteAttributePath.h>
-#include <app/data-model/FabricScoped.h>
-#include <app/data-model-provider/ProviderChangeListener.h>
 #include <app/GlobalAttributes.h>
-#include <app/reporting/reporting.h>
 #include <app/RequiredPrivilege.h>
+#include <app/data-model-provider/ProviderChangeListener.h>
+#include <app/data-model/FabricScoped.h>
+#include <app/reporting/reporting.h>
 #include <app/util/af-types.h>
 #include <app/util/attribute-metadata.h>
 #include <app/util/attribute-storage-detail.h>
