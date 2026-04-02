@@ -322,7 +322,10 @@ void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, Attribute
 
 void emberAfEndpointChanged(EndpointId endpoint)
 {
-    InteractionModelEngine::GetInstance()->GetDataModelProvider()->NotifyEndpointChanged(endpoint);
+    if (auto provider = InteractionModelEngine::GetInstance()->GetDataModelProvider(); provider != nullptr)
+    {
+        provider->NotifyEndpointChanged(endpoint);
+    }
 }
 
 DataVersion * emberAfDataVersionStorage(const ConcreteClusterPath & aConcreteClusterPath)
