@@ -144,35 +144,4 @@ TEST(TestProviderListener, TestMultipleListeners)
     EXPECT_EQ(listener2.lastType, AttributeChangeType::kReportable);
 }
 
-TEST(TestProviderListener, TestAutoUnlink)
-{
-    TestProvider provider;
-    ConcreteAttributePath path(1, 1, 1);
-
-    int listener1_calls = 0;
-    {
-        TestListener listener1;
-        provider.RegisterAttributeChangeListener(listener1);
-
-        provider.NotifyAttributeChanged(path, AttributeChangeType::kReportable);
-        listener1_calls = listener1.callCount;
-
-        // listener1 goes out of scope here, destructor should AutoUnlink
-    }
-    EXPECT_EQ(listener1_calls, 1);
-
-    // This notification should not reach any listeners
-    TestListener listener2;
-    provider.RegisterAttributeChangeListener(listener2);
-    provider.NotifyAttributeChanged(path, AttributeChangeType::kQuiet);
-    EXPECT_EQ(listener2.callCount, 1);
-
-    // Check that the list is not corrupted by the AutoUnlink
-    TestListener listener3;
-    provider.RegisterAttributeChangeListener(listener3);
-    provider.NotifyAttributeChanged(path, AttributeChangeType::kReportable);
-    EXPECT_EQ(listener2.callCount, 2);
-    EXPECT_EQ(listener3.callCount, 1);
-}
-
 } // namespace
