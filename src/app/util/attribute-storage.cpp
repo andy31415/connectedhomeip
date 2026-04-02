@@ -14,14 +14,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "data-model-providers/codegen/CodegenDataModelProvider.h"
-#include "lib/support/Span.h"
 #include <app/util/attribute-storage.h>
 
 #include <app/AttributeAccessInterfaceRegistry.h>
 #include <app/CommandHandlerInterfaceRegistry.h>
-#include <app/InteractionModelEngine.h>
 #include <app/data-model-provider/ProviderChangeListener.h>
+#include <app/InteractionModelEngine.h>
 #include <app/persistence/AttributePersistenceProvider.h>
 #include <app/persistence/AttributePersistenceProviderInstance.h>
 #include <app/persistence/PascalString.h>
@@ -33,10 +31,12 @@
 #include <app/util/ember-strings.h>
 #include <app/util/endpoint-config-api.h>
 #include <app/util/generic-callbacks.h>
+#include <data-model-providers/codegen/CodegenDataModelProvider.h>
 #include <lib/core/CHIPConfig.h>
 #include <lib/core/CHIPError.h>
 #include <lib/support/CodeUtils.h>
 #include <lib/support/logging/CHIPLogging.h>
+#include <lib/support/Span.h>
 #include <platform/LockTracker.h>
 #include <protocols/interaction_model/StatusCode.h>
 
