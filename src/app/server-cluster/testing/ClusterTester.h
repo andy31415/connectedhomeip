@@ -403,7 +403,7 @@ public:
     std::vector<app::ConcreteAttributePath> & GetDirtyList() { return mTestServerClusterContext.ChangeListener().DirtyList(); }
 
     // Returns true if the given attribute appears in the dirty list.
-    // Will construct the attribute path using the first path returned by `GetPaths()` othe cluster
+    // Will construct the attribute path using the first path returned by `GetPaths()` on the cluster
     // Will VerifyOrDie that `GetPaths()` returns exactly one path.
     bool IsAttributeDirty(AttributeId attributeId)
     {
