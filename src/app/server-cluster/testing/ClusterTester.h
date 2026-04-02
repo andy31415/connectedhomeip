@@ -400,10 +400,7 @@ public:
     }
 
     // TODO: Add methods to test AttributeChangeListener notifications.
-    std::vector<app::ConcreteAttributePath> & GetDirtyList()
-    {
-        return mTestServerClusterContext.ChangeListener().DirtyList();
-    }
+    std::vector<app::ConcreteAttributePath> & GetDirtyList() { return mTestServerClusterContext.ChangeListener().DirtyList(); }
 
     // Returns true if the given attribute appears in the dirty list.
     // Will construct the attribute path using the first path returned by `GetPaths()` othe cluster

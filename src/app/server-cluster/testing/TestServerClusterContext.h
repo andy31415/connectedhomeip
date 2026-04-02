@@ -96,13 +96,10 @@ public:
         mProvider.RegisterAttributeChangeListener(mContext.ChangeListener());
     }
 
-    ~ScopedAttributeChangeListenerRegistration()
-    {
-        mProvider.UnregisterAttributeChangeListener(mContext.ChangeListener());
-    }
+    ~ScopedAttributeChangeListenerRegistration() { mProvider.UnregisterAttributeChangeListener(mContext.ChangeListener()); }
 
     // Non-copyable
-    ScopedAttributeChangeListenerRegistration(const ScopedAttributeChangeListenerRegistration &) = delete;
+    ScopedAttributeChangeListenerRegistration(const ScopedAttributeChangeListenerRegistration &)             = delete;
     ScopedAttributeChangeListenerRegistration & operator=(const ScopedAttributeChangeListenerRegistration &) = delete;
 
 private:

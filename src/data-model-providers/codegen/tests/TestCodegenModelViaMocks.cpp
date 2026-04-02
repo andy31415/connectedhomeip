@@ -186,7 +186,7 @@ public:
 class CodegenDataModelProviderWithContext : public CodegenDataModelProvider
 {
 public:
-    CodegenDataModelProviderWithContext()
+    CodegenDataModelProviderWithContext() : mTestNotifier(this)
     {
         SetPersistentStorageDelegate(&mStorageDelegate);
         EXPECT_SUCCESS(Startup({
@@ -213,6 +213,7 @@ private:
     TestAttributeChangeListener mChangeListener;
     TestActionContext mActionContext;
     TestPersistentStorageDelegate mStorageDelegate;
+    TestNotifiedProvider mTestNotifier;
 };
 
 class MockAccessControl : public Access::AccessControl::Delegate, public Access::AccessControl::DeviceTypeResolver
