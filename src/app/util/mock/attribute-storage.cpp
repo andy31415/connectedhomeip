@@ -392,6 +392,11 @@ chip::Span<const EmberAfDeviceType> emberAfDeviceTypeListFromEndpointIndex(unsig
     return GetMockNodeConfig().endpoints[index].deviceTypes();
 }
 
+void emberAfIncreaseDataVersion(const chip::app::ConcreteClusterPath & aConcreteClusterPath)
+{
+    dataVersion++;
+}
+
 void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, AttributeId attributeId)
 {
     dataVersion++;

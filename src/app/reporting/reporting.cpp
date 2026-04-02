@@ -34,7 +34,7 @@ void MatterReportingAttributeChangeCallback(EndpointId endpoint, ClusterId clust
     DataModel::Provider * provider = InteractionModelEngine::GetInstance()->GetDataModelProvider();
     VerifyOrReturn(provider != nullptr);
 
-    provider->Temporary_ReportAttributeChanged(AttributePathParams(endpoint, clusterId, attributeId));
+    provider->NotifyAttributeChanged({ endpoint, clusterId, attributeId }, DataModel::AttributeChangeType::kReportable);
 }
 
 void MatterReportingAttributeChangeCallback(const ConcreteAttributePath & aPath)
@@ -46,7 +46,7 @@ void MatterReportingAttributeChangeCallback(const ConcreteAttributePath & aPath)
     DataModel::Provider * provider = InteractionModelEngine::GetInstance()->GetDataModelProvider();
     VerifyOrReturn(provider != nullptr);
 
-    provider->Temporary_ReportAttributeChanged(AttributePathParams(aPath.mEndpointId, aPath.mClusterId, aPath.mAttributeId));
+    provider->NotifyAttributeChanged(aPath, DataModel::AttributeChangeType::kReportable);
 }
 
 void MatterReportingAttributeChangeCallback(EndpointId endpoint)
@@ -57,6 +57,5 @@ void MatterReportingAttributeChangeCallback(EndpointId endpoint)
 
     DataModel::Provider * provider = InteractionModelEngine::GetInstance()->GetDataModelProvider();
     VerifyOrReturn(provider != nullptr);
-
-    provider->Temporary_ReportAttributeChanged(AttributePathParams(endpoint));
+    provider->NotifyEndpointChanged(endpoint);
 }
