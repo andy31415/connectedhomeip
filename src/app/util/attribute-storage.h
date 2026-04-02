@@ -357,10 +357,11 @@ chip::Span<const EmberAfDeviceType> emberAfDeviceTypeListFromEndpointIndex(unsig
 CHIP_ERROR emberAfSetDeviceTypeList(chip::EndpointId endpoint, chip::Span<const EmberAfDeviceType> deviceTypeList);
 
 /// Mark the given attribute as having changed:
-///   - increases the cluster data version for the given cluster
+///   - Increases the cluster data version for the given cluster.
+///   - Notifies registered AttributeChangeListeners via the active DataModel::Provider.
 ///
-/// This is a convenience function to make it clear when a `emberAfDataVersionStorage` increase
-/// and a `ProviderChangeListener::MarkDirty` always occur in lock-step.
+/// This function is used by codegen attribute writes to ensure the data version is
+/// incremented and subscribers are notified of the change.
 void emberAfAttributeChanged(chip::EndpointId endpoint, chip::ClusterId clusterId, chip::AttributeId attributeId);
 
 /// Mark attributes on the given endpoint as having changed.
