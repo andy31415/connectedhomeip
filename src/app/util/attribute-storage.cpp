@@ -1621,4 +1621,3 @@ void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, Attribute
     emberAfIncreaseDataVersion(path);
     CodegenDataModelProvider::Instance().NotifyAttributeChanged(path, chip::app::DataModel::AttributeChangeType::kReportable);
 }
-
