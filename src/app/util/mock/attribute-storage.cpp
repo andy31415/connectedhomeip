@@ -34,7 +34,6 @@
 #include <app/MessageDef/AttributeDataIB.h>
 #include <app/MessageDef/AttributeReportIB.h>
 #include <app/MessageDef/AttributeStatusIB.h>
-#include <app/data-model-provider/ProviderChangeListener.h>
 #include <app/util/attribute-storage.h>
 #include <app/util/endpoint-config-api.h>
 #include <app/util/mock/Constants.h>
@@ -395,8 +394,14 @@ chip::Span<const EmberAfDeviceType> emberAfDeviceTypeListFromEndpointIndex(unsig
 void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, AttributeId attributeId)
 {
     dataVersion++;
-    InteractionModelEngine::GetInstance()->GetDataModelProvider()->NotifyAttributeChanged(
-        { endpoint, clusterId, attributeId }, DataModel::AttributeChangeType::kReportable);
+
+    InteractionModelEngine * interactionmodelEngine = InteractionModelEngine::GetInstance();
+    VerifyOrReturn(interactionmodelEngine != nullptr);
+
+    DataModel::Provider * dataModelProvider = interactionmodelEngine->GetDataModelProvider();
+    VerifyOrReturn(dataModelProvider != nullptr);
+
+    dataModelProvider->NotifyAttributeChanged({ endpoint, clusterId, attributeId }, DataModel::AttributeChangeType::kReportable);
 }
 
 unsigned emberAfMetadataStructureGeneration()

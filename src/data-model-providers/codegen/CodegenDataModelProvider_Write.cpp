@@ -23,7 +23,6 @@
 #include <app/ConcreteAttributePath.h>
 #include <app/GlobalAttributes.h>
 #include <app/RequiredPrivilege.h>
-#include <app/data-model-provider/ProviderChangeListener.h>
 #include <app/data-model/FabricScoped.h>
 #include <app/reporting/reporting.h>
 #include <app/util/af-types.h>

@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "app/data-model-provider/AttributeChangeListener.h"
 #include <pw_unit_test/framework.h>
 
 #include <app/data-model-provider/MetadataTypes.h>
@@ -42,11 +43,11 @@ using namespace chip::app;
 using namespace chip::app::DataModel;
 using namespace chip::Testing;
 
-class TestProviderChangeListener : public DataModel::ProviderChangeListener
+class TestProviderChangeListener : public DataModel::AttributeChangeListener
 {
 public:
-    void MarkDirty(const AttributePathParams & path) override { mDirtyList.push_back(path); }
-    std::vector<AttributePathParams> mDirtyList;
+    void OnAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type) override { mDirtyList.push_back(path); }
+    std::vector<ConcreteAttributePath> mDirtyList;
 };
 
 class TestActionContext : public DataModel::ActionContext
@@ -238,10 +239,12 @@ protected:
         mProvider(mServerClusterTestContext.StorageDelegate(), mServerClusterTestContext.AttributePersistenceProvider())
     {
         EXPECT_EQ(mProvider.Startup(mContext), CHIP_NO_ERROR);
+        mProvider.RegisterAttributeChangeListener(mChangeListener);
     }
 
     ~TestCodeDrivenDataModelProvider() override
     {
+        mProvider.UnregisterAttributeChangeListener(mChangeListener);
         EXPECT_SUCCESS(mProvider.Shutdown());
         mEndpointStorage.clear();
         mOwnedRegistrations.clear();
@@ -825,6 +828,7 @@ TEST_F(TestCodeDrivenDataModelProvider, NotifyAttributeChanged)
     EXPECT_SUCCESS(mProvider.AddEndpoint(*mOwnedRegistrations.back()));
 
     mProvider.NotifyAttributeChanged({ 1, 10, 1 }, AttributeChangeType::kReportable);
+    mProvider.RegisterAttributeChangeListener(mChangeListener);
     ASSERT_EQ(mChangeListener.mDirtyList.size(), 1u);
     EXPECT_EQ(mChangeListener.mDirtyList[0].mEndpointId, 1u);
     EXPECT_EQ(mChangeListener.mDirtyList[0].mClusterId, 10u);

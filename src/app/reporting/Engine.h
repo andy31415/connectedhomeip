@@ -28,7 +28,6 @@
 #include <app/EventReporter.h>
 #include <app/MessageDef/ReportDataMessage.h>
 #include <app/ReadHandler.h>
-#include <app/data-model-provider/ProviderChangeListener.h>
 #include <app/reporting/Generations.h>
 #include <app/util/basic-types.h>
 #include <lib/core/CHIPCore.h>

@@ -34,7 +34,6 @@
 #include <app/MessageDef/StatusIB.h>
 #include <app/WriteHandler.h>
 #include <app/clusters/ota-provider/OTAProviderCluster.h>
-#include <app/data-model-provider/ProviderChangeListener.h>
 #include <app/data-model/Decode.h>
 #include <app/util/attribute-storage.h>
 #include <app/util/attribute-table.h>

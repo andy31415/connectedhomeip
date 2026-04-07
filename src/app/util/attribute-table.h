@@ -18,7 +18,6 @@
 #pragma once
 
 #include <app/ConcreteAttributePath.h>
-#include <app/data-model-provider/ProviderChangeListener.h>
 #include <app/util/MarkAttributeDirty.h>
 #include <app/util/attribute-metadata.h>
 #include <lib/core/DataModelTypes.h>
