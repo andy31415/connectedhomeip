@@ -192,25 +192,5 @@ void CodegenDataModelProvider::ListAttributeWriteNotification(const ConcreteAttr
     }
 }
 
-void CodegenDataModelProvider::Temporary_ReportAttributeChanged(const AttributePathParams & path)
-{
-    // we must be started up to process changes since we use the context
-    VerifyOrReturn(mContext.has_value());
-
-    if (path.mClusterId != kInvalidClusterId)
-    {
-        const ConcreteAttributePath attributePath{ path.mEndpointId, path.mClusterId, path.mAttributeId };
-        emberAfIncreaseDataVersion(attributePath);
-        NotifyAttributeChanged(attributePath, DataModel::AttributeChangeType::kReportable);
-    }
-    else
-    {
-        // Endpoint-level change (e.g., bridged device add/remove).
-        // Expectation here is that there is no cluster version bump as the entire
-        // endpoint changed.
-        NotifyEndpointChanged(path.mEndpointId);
-    }
-}
-
 } // namespace app
 } // namespace chip

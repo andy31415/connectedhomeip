@@ -41,7 +41,7 @@ struct EmberAfWriteDataInput
     // The data type that dataPtr points to
     EmberAfAttributeType dataType;
 
-    // Controls when `changeListener` is called to flag an attribute dirty. It allows for things like:
+    // Controls when an attribute is marked dirty (via emberAfAttributeChanged)
     //     kIfChanged - only if the dataPtr contains a different value than what currenty exists
     //     kNo - never called
     //     kYes - always called

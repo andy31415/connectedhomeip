@@ -812,7 +812,7 @@ TEST_F(TestCodeDrivenDataModelProvider, ListAttributeWriteNotification)
     }
 }
 
-TEST_F(TestCodeDrivenDataModelProvider, Temporary_ReportAttributeChanged)
+TEST_F(TestCodeDrivenDataModelProvider, NotifyAttributeChanged)
 {
     static MockServerCluster testCluster({ 1, 10 }, 1, {});
     static ServerClusterRegistration registration(testCluster);
@@ -824,9 +824,11 @@ TEST_F(TestCodeDrivenDataModelProvider, Temporary_ReportAttributeChanged)
         *mEndpointStorage.back(), DataModel::EndpointEntry{ .id = 1, .compositionPattern = EndpointCompositionPattern(0) }));
     EXPECT_SUCCESS(mProvider.AddEndpoint(*mOwnedRegistrations.back()));
 
-    // We no longer use ProviderChangeListener, so there is nothing to check on mChangeListener
-    // The test mainly ensures that Temporary_ReportAttributeChanged doesn't crash.
     mProvider.NotifyAttributeChanged({ 1, 10, 1 }, AttributeChangeType::kReportable);
+    ASSERT_EQ(mChangeListener.mDirtyList.size(), 1u);
+    EXPECT_EQ(mChangeListener.mDirtyList[0].mEndpointId, 1u);
+    EXPECT_EQ(mChangeListener.mDirtyList[0].mClusterId, 10u);
+    EXPECT_EQ(mChangeListener.mDirtyList[0].mAttributeId, 1u);
 }
 
 TEST_F(TestCodeDrivenDataModelProvider, Shutdown)

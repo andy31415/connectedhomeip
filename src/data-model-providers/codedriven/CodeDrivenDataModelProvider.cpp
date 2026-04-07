@@ -244,26 +244,6 @@ CHIP_ERROR CodeDrivenDataModelProvider::EndpointUniqueID(EndpointId endpointId, 
 }
 #endif
 
-void CodeDrivenDataModelProvider::Temporary_ReportAttributeChanged(const AttributePathParams & path)
-{
-    // we must be started up to process changes since we use the context
-    VerifyOrReturn(mInteractionModelContext.has_value());
-
-    if (path.mClusterId != kInvalidClusterId)
-    {
-        // Attribute-specific change.
-        // No data version to bump in the provider itself for code-driven clusters.
-        // The cluster implementation is responsible for managing its own version.
-        NotifyAttributeChanged({ path.mEndpointId, path.mClusterId, path.mAttributeId },
-                               DataModel::AttributeChangeType::kReportable);
-    }
-    else
-    {
-        // Endpoint-level change (e.g., bridged device add/remove).
-        NotifyEndpointChanged(path.mEndpointId);
-    }
-}
-
 CHIP_ERROR CodeDrivenDataModelProvider::AddEndpoint(EndpointInterfaceRegistration & registration)
 {
     VerifyOrReturnError(registration.endpointEntry.id != kInvalidEndpointId, CHIP_ERROR_INVALID_ARGUMENT);

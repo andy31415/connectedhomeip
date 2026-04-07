@@ -58,7 +58,6 @@ public:
     {
         return CHIP_NO_ERROR;
     }
-    void Temporary_ReportAttributeChanged(const AttributePathParams & path) override {}
 
     // Implement pure virtuals from Provider
     ActionReturnStatus ReadAttribute(const ReadAttributeRequest & request, AttributeValueEncoder & encoder) override
