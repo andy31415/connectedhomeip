@@ -98,18 +98,12 @@ unsigned emberMetadataStructureGeneration = 0;
 // we need this data block for the defaults
 #if (defined(GENERATED_DEFAULTS) && GENERATED_DEFAULTS_COUNT)
 constexpr const uint8_t generatedDefaults[] = GENERATED_DEFAULTS;
-#define ZAP_LONG_DEFAULTS_INDEX(index)                                                                                             \
-    {                                                                                                                              \
-        &generatedDefaults[index]                                                                                                  \
-    }
+#define ZAP_LONG_DEFAULTS_INDEX(index) { &generatedDefaults[index] }
 #endif // GENERATED_DEFAULTS
 
 #if (defined(GENERATED_MIN_MAX_DEFAULTS) && GENERATED_MIN_MAX_DEFAULT_COUNT)
 constexpr const EmberAfAttributeMinMaxValue minMaxDefaults[] = GENERATED_MIN_MAX_DEFAULTS;
-#define ZAP_MIN_MAX_DEFAULTS_INDEX(index)                                                                                          \
-    {                                                                                                                              \
-        &minMaxDefaults[index]                                                                                                     \
-    }
+#define ZAP_MIN_MAX_DEFAULTS_INDEX(index) { &minMaxDefaults[index] }
 #endif // GENERATED_MIN_MAX_DEFAULTS
 
 #ifdef GENERATED_FUNCTION_ARRAYS
@@ -681,70 +675,66 @@ Status emAfReadOrWriteAttribute(const EmberAfAttributeSearchRecord * attRecord, 
                                 *metadata = am;
                             }
 
+                            uint8_t * attributeLocation = attributeData + attributeOffsetIndex;
+                            uint8_t *src, *dst;
+                            if (write)
                             {
-                                uint8_t * attributeLocation = attributeData + attributeOffsetIndex;
-                                uint8_t *src, *dst;
+                                src = buffer;
+                                dst = attributeLocation;
+                                if (!emberAfAttributeWriteAccessCallback(attRecord->endpoint, attRecord->clusterId,
+                                                                         am->attributeId))
+                                {
+                                    return Status::UnsupportedAccess;
+                                }
+                            }
+                            else
+                            {
+                                if (buffer == nullptr)
+                                {
+                                    return Status::Success;
+                                }
+
+                                src = attributeLocation;
+                                dst = buffer;
+                                if (!emberAfAttributeReadAccessCallback(attRecord->endpoint, attRecord->clusterId, am->attributeId))
+                                {
+                                    return Status::UnsupportedAccess;
+                                }
+                            }
+
+                            // Is the attribute externally stored?
+                            if (am->mask & MATTER_ATTRIBUTE_FLAG_EXTERNAL_STORAGE)
+                            {
                                 if (write)
                                 {
-                                    src = buffer;
-                                    dst = attributeLocation;
-                                    if (!emberAfAttributeWriteAccessCallback(attRecord->endpoint, attRecord->clusterId,
-                                                                             am->attributeId))
-                                    {
-                                        return Status::UnsupportedAccess;
-                                    }
+                                    return emberAfExternalAttributeWriteCallback(attRecord->endpoint, attRecord->clusterId, am,
+                                                                                 buffer);
                                 }
-                                else
+
+                                if (readLength < emberAfAttributeSize(am))
                                 {
-                                    if (buffer == nullptr)
-                                    {
-                                        return Status::Success;
-                                    }
-
-                                    src = attributeLocation;
-                                    dst = buffer;
-                                    if (!emberAfAttributeReadAccessCallback(attRecord->endpoint, attRecord->clusterId,
-                                                                            am->attributeId))
-                                    {
-                                        return Status::UnsupportedAccess;
-                                    }
+                                    // Prevent a potential buffer overflow
+                                    return Status::ResourceExhausted;
                                 }
 
-                                // Is the attribute externally stored?
-                                if (am->mask & MATTER_ATTRIBUTE_FLAG_EXTERNAL_STORAGE)
-                                {
-                                    if (write)
-                                    {
-                                        return emberAfExternalAttributeWriteCallback(attRecord->endpoint, attRecord->clusterId, am,
-                                                                                     buffer);
-                                    }
-
-                                    if (readLength < emberAfAttributeSize(am))
-                                    {
-                                        // Prevent a potential buffer overflow
-                                        return Status::ResourceExhausted;
-                                    }
-
-                                    return emberAfExternalAttributeReadCallback(attRecord->endpoint, attRecord->clusterId, am,
-                                                                                buffer, emberAfAttributeSize(am));
-                                }
-
-                                // Internal storage is only supported for fixed endpoints
-                                if (!isDynamicEndpoint)
-                                {
-                                    return typeSensitiveMemCopy(attRecord->clusterId, dst, src, am, write, readLength);
-                                }
-
-                                return Status::Failure;
+                                return emberAfExternalAttributeReadCallback(attRecord->endpoint, attRecord->clusterId, am, buffer,
+                                                                            emberAfAttributeSize(am));
                             }
-                        }
-                        else
-                        { // Not the attribute we are looking for
-                            // Increase the index if attribute is not externally stored
-                            if (!(am->mask & MATTER_ATTRIBUTE_FLAG_EXTERNAL_STORAGE))
+
+                            // Internal storage is only supported for fixed endpoints
+                            if (!isDynamicEndpoint)
                             {
-                                attributeOffsetIndex = static_cast<uint16_t>(attributeOffsetIndex + emberAfAttributeSize(am));
+                                return typeSensitiveMemCopy(attRecord->clusterId, dst, src, am, write, readLength);
                             }
+
+                            return Status::Failure;
+                        }
+
+                        // Not the attribute we are looking for
+                        // Increase the index if attribute is not externally stored
+                        if (!(am->mask & MATTER_ATTRIBUTE_FLAG_EXTERNAL_STORAGE))
+                        {
+                            attributeOffsetIndex = static_cast<uint16_t>(attributeOffsetIndex + emberAfAttributeSize(am));
                         }
                     }
 
