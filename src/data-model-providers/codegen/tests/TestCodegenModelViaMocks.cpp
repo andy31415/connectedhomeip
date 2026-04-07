@@ -646,8 +646,8 @@ public:
         chip::Platform::MemoryShutdown();
     }
 
-    void SetUp() override { 
-        StartUpWith(gTestNodeConfig); 
+    void SetUp() override {
+        StartUpWith(gTestNodeConfig);
     }
 
     void TearDown() override
