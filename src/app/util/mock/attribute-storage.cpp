@@ -404,11 +404,6 @@ void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, Attribute
         { endpoint, clusterId, attributeId }, DataModel::AttributeChangeType::kReportable);
 }
 
-void emberAfEndpointChanged(EndpointId endpoint, DataModel::ProviderChangeListener * listener)
-{
-    listener->MarkDirty(AttributePathParams(endpoint));
-}
-
 unsigned emberAfMetadataStructureGeneration()
 {
     return metadataStructureGeneration;

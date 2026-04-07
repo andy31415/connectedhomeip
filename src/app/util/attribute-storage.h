@@ -370,12 +370,6 @@ CHIP_ERROR emberAfSetDeviceTypeList(chip::EndpointId endpoint, chip::Span<const 
 /// incremented and subscribers are notified of the change.
 void emberAfAttributeChanged(chip::EndpointId endpoint, chip::ClusterId clusterId, chip::AttributeId attributeId);
 
-/// Mark attributes on the given endpoint as having changed.
-///
-/// Schedules reporting engine to consider the endpoint dirty, however does NOT increase/alter
-/// any cluster data versions.
-void emberAfEndpointChanged(chip::EndpointId endpoint);
-
 /// Maintains a increasing index of structural changes within ember
 /// that determine if existing "indexes" and metadata pointers within ember
 /// are still valid or not.

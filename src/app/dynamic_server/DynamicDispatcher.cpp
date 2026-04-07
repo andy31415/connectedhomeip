@@ -325,14 +325,6 @@ void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, Attribute
         { endpoint, clusterId, attributeId }, DataModel::AttributeChangeType::kReportable);
 }
 
-void emberAfEndpointChanged(EndpointId endpoint)
-{
-    if (auto provider = InteractionModelEngine::GetInstance()->GetDataModelProvider(); provider != nullptr)
-    {
-        provider->NotifyEndpointChanged(endpoint);
-    }
-}
-
 DataVersion * emberAfDataVersionStorage(const ConcreteClusterPath & aConcreteClusterPath)
 {
     return &gMockDataVersion;

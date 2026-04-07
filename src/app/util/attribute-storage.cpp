@@ -1003,7 +1003,6 @@ bool emberAfEndpointEnableDisable(EndpointId endpoint, bool enable, MatterCluste
         if (enable)
         {
             initializeEndpoint(&(emAfEndpoints[index]));
-            emberAfEndpointChanged(endpoint);
         }
         else
         {
@@ -1027,6 +1026,7 @@ bool emberAfEndpointEnableDisable(EndpointId endpoint, bool enable, MatterCluste
             parentEndpointId = emberAfParentEndpointFromIndex(parentIndex);
         }
 
+        CodegenDataModelProvider::Instance().NotifyEndpointChanged(endpoint);
         emberAfAttributeChanged(/* endpoint = */ 0, Clusters::Descriptor::Id, Clusters::Descriptor::Attributes::PartsList::Id);
     }
 
@@ -1622,7 +1622,3 @@ void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, Attribute
     CodegenDataModelProvider::Instance().NotifyAttributeChanged(path, chip::app::DataModel::AttributeChangeType::kReportable);
 }
 
-void emberAfEndpointChanged(EndpointId endpoint)
-{
-    CodegenDataModelProvider::Instance().NotifyEndpointChanged(endpoint);
-}
