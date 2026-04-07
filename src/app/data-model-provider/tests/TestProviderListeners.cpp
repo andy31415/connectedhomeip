@@ -1,4 +1,3 @@
-// src/app/data-model-provider/tests/TestProviderListeners.cpp
 /*
  *    Copyright (c) 2026 Project CHIP Authors
  *    All rights reserved.
