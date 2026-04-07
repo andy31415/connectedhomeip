@@ -646,9 +646,7 @@ public:
         chip::Platform::MemoryShutdown();
     }
 
-    void SetUp() override {
-        StartUpWith(gTestNodeConfig);
-    }
+    void SetUp() override { StartUpWith(gTestNodeConfig); }
 
     void TearDown() override
     {
@@ -676,7 +674,7 @@ public:
 private:
     void StartUpWith(const MockNodeConfig & config)
     {
-        mNodeConfig = std::make_unique<UseMockNodeConfig>(config);
+        mNodeConfig           = std::make_unique<UseMockNodeConfig>(config);
         mTestNotifiedProvider = std::make_unique<TestNotifiedProvider>(&CodegenDataModelProvider::Instance());
 
         CodegenDataModelProvider & provider = CodegenDataModelProvider::Instance();
