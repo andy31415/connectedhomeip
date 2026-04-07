@@ -313,11 +313,6 @@ CHIP_ERROR GetSemanticTagForEndpointAtIndex(EndpointId endpoint, size_t index,
     return CHIP_ERROR_NOT_FOUND;
 }
 
-void emberAfIncreaseDataVersion(const chip::app::ConcreteClusterPath & aConcreteClusterPath)
-{
-    gMockDataVersion++;
-}
-
 void emberAfAttributeChanged(EndpointId endpoint, ClusterId clusterId, AttributeId attributeId)
 {
     gMockDataVersion++;

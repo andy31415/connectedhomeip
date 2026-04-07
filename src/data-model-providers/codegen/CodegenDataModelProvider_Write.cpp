@@ -98,8 +98,8 @@ DataModel::ActionReturnStatus CodegenDataModelProvider::WriteAttribute(const Dat
             if (*aai_result == CHIP_NO_ERROR)
             {
                 // AAI write was successful. We still need to bump the version and notify our listeners.
-                emberAfIncreaseDataVersion(request.path);
-                NotifyAttributeChanged(request.path, DataModel::AttributeChangeType::kReportable);
+                // ember attribute changed will increase version and call back the global codegen provider (which should be `this`)
+                emberAfAttributeChanged(request.path.mEndpointId, request.path.mClusterId, request.path.mAttributeId);
             }
             return *aai_result;
         }

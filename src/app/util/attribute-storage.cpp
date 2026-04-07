@@ -84,6 +84,8 @@ static uint8_t emberAfClusterCountByIndex(uint16_t endpointIndex, bool server);
 // enabled.
 static bool emberAfEndpointIsEnabled(EndpointId endpoint);
 
+static void emberAfIncreaseDataVersion(const chip::app::ConcreteClusterPath & aConcreteClusterPath);
+
 namespace {
 
 uint16_t emberEndpointCount = 0;
