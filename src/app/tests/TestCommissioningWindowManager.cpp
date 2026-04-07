@@ -237,6 +237,9 @@ private:
     static GlobalAttributeChangeListener mListener;
 };
 
+chip::app::CodegenDataModelProvider TestCommissioningWindowManager::mModel;
+GlobalAttributeChangeListener TestCommissioningWindowManager::mListener;
+
 void TestCommissioningWindowManager::ServiceEvents()
 {
     DrainAndServiceIO();
