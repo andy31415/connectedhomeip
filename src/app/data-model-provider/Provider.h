@@ -118,57 +118,11 @@ public:
     virtual std::optional<ActionReturnStatus> InvokeCommand(const InvokeRequest & request, chip::TLV::TLVReader & input_arguments,
                                                             CommandHandler * handler) = 0;
 
-    // -- Attribute Change Listener Management --
-    void RegisterAttributeChangeListener(AttributeChangeListener & listener)
-    {
-        listener.SetNextAttributeChangeListener(mAttributeChangeListenersHead);
-        mAttributeChangeListenersHead = &listener;
-    }
-
-    void UnregisterAttributeChangeListener(AttributeChangeListener & listener)
-    {
-        if (mAttributeChangeListenersHead == &listener)
-        {
-            mAttributeChangeListenersHead = listener.GetNextAttributeChangeListener();
-            listener.SetNextAttributeChangeListener(nullptr);
-            return;
-        }
-
-        AttributeChangeListener * current = mAttributeChangeListenersHead;
-        while (current && (current->GetNextAttributeChangeListener() != &listener))
-        {
-            current = current->GetNextAttributeChangeListener();
-        }
-
-        if (current)
-        {
-            current->SetNextAttributeChangeListener(listener.GetNextAttributeChangeListener());
-            listener.SetNextAttributeChangeListener(nullptr);
-        }
-    }
-
-    void NotifyAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type)
-    {
-        AttributeChangeListener * current = mAttributeChangeListenersHead;
-        while (current)
-        {
-            AttributeChangeListener * next = current->GetNextAttributeChangeListener();
-            current->OnAttributeChanged(path, type);
-            current = next;
-        }
-    }
-
-    void NotifyEndpointChanged(EndpointId endpointId)
-    {
-        AttributeChangeListener * current = mAttributeChangeListenersHead;
-        while (current)
-        {
-            AttributeChangeListener * next = current->GetNextAttributeChangeListener();
-            current->OnEndpointChanged(endpointId);
-            current = next;
-        }
-    }
-    // -- End Attribute Change Listener Management --
+    // Attribute Change Listener Management
+    void RegisterAttributeChangeListener(AttributeChangeListener & listener);
+    void UnregisterAttributeChangeListener(AttributeChangeListener & listener);
+    void NotifyAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type);
+    void NotifyEndpointChanged(EndpointId endpointId);
 
 private:
     AttributeChangeListener * mAttributeChangeListenersHead = nullptr;
