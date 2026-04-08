@@ -471,7 +471,7 @@
  *    If asserted (1), enable runtime log level configuration.
  */
 #ifndef CHIP_LOG_FILTERING
-#define CHIP_LOG_FILTERING 1
+#define CHIP_LOG_FILTERING 0
 #endif
 
 /**
