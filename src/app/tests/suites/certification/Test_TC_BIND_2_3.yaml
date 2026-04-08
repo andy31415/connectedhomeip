@@ -231,15 +231,18 @@ tests:
           "Step 9b: TH1 sends Groupcast JoinGroup command with GroupID=1,
           Endpoints=[EP1], KeySetID=0x01a1, Key=Key1 to TH2 endpoint 0."
       verification: |
-          ./chip-tool groupcast join-group 0x1 "[1]" 0x01a1 2 0 --Key hex:b0b1b2b3b4b5b6b7b8b9babbbcbdbebf --UseAuxiliaryACL 1
+          Run this command for DUT in chip-tool:
+          ./chip-tool groupcast join-group 0x1 [] 0x1a1 74 0 --Key "d0d1d2d3d4d5d6d7d8d9dadbdcdddedf"
 
-          On TH1(Chip-tool), Verify the success response for JoinGroup
+          Run this command for lighting app TH2 in chip-tool:
+          ./chip-tool groupcast join-group 0x1 [1] 0x1a1 2 0 --Key "d0d1d2d3d4d5d6d7d8d9dadbdcdddedf"
+          TH2 responds with SUCCESS
 
-          [1775125551.899] [13658:13660] [DMG]
-          [1775125551.899] [13658:13660] [DMG]                                 StatusIB =
-          [1775125551.899] [13658:13660] [DMG]                                 {
-          [1775125551.899] [13658:13660] [DMG]                                         status = 0x00 (SUCCESS),
-          [1775125551.899] [13658:13660] [DMG]                                 },
+          Run this commands on chip-tool TH1 so it can uses the Key also
+          ./chip-tool groupsettings add-group 0x1 grp1 --addressPolicy 0
+          ./chip-tool groupsettings add-keysets 0x01a1 0 0x000000000021dfe0 hex:d0d1d2d3d4d5d6d7d8d9dadbdcdddedf
+          ./chip-tool groupsettings bind-keyset 0x1 0x01a1
+
       disabled: true
 
     - label:
