@@ -828,7 +828,6 @@ TEST_F(TestCodeDrivenDataModelProvider, NotifyAttributeChanged)
     EXPECT_SUCCESS(mProvider.AddEndpoint(*mOwnedRegistrations.back()));
 
     mProvider.NotifyAttributeChanged({ 1, 10, 1 }, AttributeChangeType::kReportable);
-    mProvider.RegisterAttributeChangeListener(mChangeListener);
     ASSERT_EQ(mChangeListener.mDirtyList.size(), 1u);
     EXPECT_EQ(mChangeListener.mDirtyList[0].mEndpointId, 1u);
     EXPECT_EQ(mChangeListener.mDirtyList[0].mClusterId, 10u);
