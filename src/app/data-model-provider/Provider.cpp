@@ -51,6 +51,13 @@ void Provider::NotifyAttributeChanged(const ConcreteAttributePath & path, Attrib
     AttributeChangeListener * current = mAttributeChangeListenersHead;
     while (current)
     {
+        // Keep next before we call ON, so that we allow current to remove itself from the list
+        // in the middle of the processing. This is all we guarantee, and we explicitly do
+        // not guarantee that removing others (say `next`) is actually working (and will
+        // not work well).
+        //
+        // Detecting these cases would be more expensive in both flash and RAM, so we do
+        // not do it at this point.
         AttributeChangeListener * next = current->GetNextAttributeChangeListener();
         current->OnAttributeChanged(path, type);
         current = next;
@@ -62,6 +69,13 @@ void Provider::NotifyEndpointChanged(EndpointId endpointId)
     AttributeChangeListener * current = mAttributeChangeListenersHead;
     while (current)
     {
+        // Keep next before we call ON, so that we allow current to remove itself from the list
+        // in the middle of the processing. This is all we guarantee, and we explicitly do
+        // not guarantee that removing others (say `next`) is actually working (and will
+        // not work well).
+        //
+        // Detecting these cases would be more expensive in both flash and RAM, so we do
+        // not do it at this point.
         AttributeChangeListener * next = current->GetNextAttributeChangeListener();
         current->OnEndpointChanged(endpointId);
         current = next;

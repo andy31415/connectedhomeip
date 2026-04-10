@@ -119,6 +119,12 @@ public:
                                                             CommandHandler * handler) = 0;
 
     // Attribute Change Listener Management
+    //
+    // IMPORTANT:
+    //   For resource efficiency (flash, ram), attribute change listeners are implemented like a simple list.
+    //   Handlers of `On*` limitations:
+    //     - MUST NOT call UnregisterAttributeChangeListener EXCEPT self (which IS supported)
+    //     - MAY call RegisterAttributeChangeListener to register more listeners.
     void RegisterAttributeChangeListener(AttributeChangeListener & listener);
     void UnregisterAttributeChangeListener(AttributeChangeListener & listener);
     void NotifyAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type);

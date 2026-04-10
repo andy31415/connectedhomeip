@@ -42,6 +42,9 @@ enum class AttributeChangeType
 /// - Synchronous: Called inline during the attribute update process.
 ///   Implementations should be wary of re-entrancy or recursive calls if
 ///   they modify cluster state within the callback.
+///     * you may also choose to defer cluster modifications to a separate
+///       scheduled task. That would not cause recursive calls, howevever
+///       not entering loops has to still be checked for.
 /// - Fire-and-forget: There is no mechanism to report failure back to the
 ///   caller. If an action taken in the callback fails (e.g., hardware
 ///   actuation), the listener is responsible for any corrective measures,
@@ -52,10 +55,22 @@ public:
     virtual ~AttributeChangeListener() = default;
 
     /// Called after an attribute's value has changed.
+    ///
+    /// IMPORTANT:
+    ///   See guarantees in `Provider.h` however generally this:
+    ///     - MAY call Provider::RegisterAttributeChangeListener
+    ///     - MUST NOT call Provider::UnregisterAttributeChangeListener EXCEPT `this`.
+    ///       any other unregister should be deferred to a separate scheduled work.
     virtual void OnAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type) = 0;
 
     /// Called when an endpoint's structure or composition changes
     /// (e.g., clusters added/removed, or for bridged device changes).
+    ///
+    /// IMPORTANT:
+    ///   See guarantees in `Provider.h` however generally this:
+    ///     - MAY call Provider::RegisterAttributeChangeListener
+    ///     - MUST NOT call Provider::UnregisterAttributeChangeListener EXCEPT `this`.
+    ///       any other unregister should be deferred to a separate scheduled work.
     virtual void OnEndpointChanged(EndpointId endpointId)
     { /* Default no-op */
     }
