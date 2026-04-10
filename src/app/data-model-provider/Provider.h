@@ -128,7 +128,7 @@ public:
     void RegisterAttributeChangeListener(AttributeChangeListener & listener);
     void UnregisterAttributeChangeListener(AttributeChangeListener & listener);
     void NotifyAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type);
-    void NotifyEndpointChanged(EndpointId endpointId);
+    void NotifyEndpointChanged(EndpointId endpointId, EndpointChangeType type);
 
 private:
     AttributeChangeListener * mAttributeChangeListenersHead = nullptr;

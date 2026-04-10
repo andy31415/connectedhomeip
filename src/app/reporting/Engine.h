@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "app/data-model-provider/AttributeChangeListener.h"
 #include <access/AccessControl.h>
 #include <app/EventReporter.h>
 #include <app/MessageDef/ReportDataMessage.h>
@@ -132,7 +133,7 @@ public:
 
     // DataModel::AttributeChangeListener implementation
     void OnAttributeChanged(const ConcreteAttributePath & path, DataModel::AttributeChangeType type) override;
-    void OnEndpointChanged(EndpointId endpointId) override;
+    void OnEndpointChanged(EndpointId endpointId, DataModel::EndpointChangeType type) override;
 
 private:
     /**

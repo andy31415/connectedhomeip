@@ -64,7 +64,7 @@ void Provider::NotifyAttributeChanged(const ConcreteAttributePath & path, Attrib
     }
 }
 
-void Provider::NotifyEndpointChanged(EndpointId endpointId)
+void Provider::NotifyEndpointChanged(EndpointId endpointId, EndpointChangeType type)
 {
     AttributeChangeListener * current = mAttributeChangeListenersHead;
     while (current)
@@ -77,7 +77,7 @@ void Provider::NotifyEndpointChanged(EndpointId endpointId)
         // Detecting these cases would be more expensive in both flash and RAM, so we do
         // not do it at this point.
         AttributeChangeListener * next = current->GetNextAttributeChangeListener();
-        current->OnEndpointChanged(endpointId);
+        current->OnEndpointChanged(endpointId, type);
         current = next;
     }
 }

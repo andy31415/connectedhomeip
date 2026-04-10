@@ -48,6 +48,14 @@ enum class AttributeChangeType
     kQuiet       // Change is minor or configured not to be reported
 };
 
+/// Help listeners for endpoint changes to make a quick decision about
+/// what happened to an endpoint. This is because this is often cheaper
+/// to have at call time compared to querying a DataModel::Provider for example
+enum class EndpointChangeType {
+    kAdded,
+    kRemoved,
+};
+
 /// Interface for components wishing to be notified of attribute changes.
 ///
 /// Implement this interface to receive callbacks when attributes are modified
@@ -92,9 +100,7 @@ public:
     ///     - MAY call Provider::RegisterAttributeChangeListener
     ///     - MUST NOT call Provider::UnregisterAttributeChangeListener EXCEPT `this`.
     ///       any other unregister should be deferred to a separate scheduled work.
-    virtual void OnEndpointChanged(EndpointId endpointId)
-    { /* Default no-op */
-    }
+    virtual void OnEndpointChanged(EndpointId endpointId, EndpointChangeType type){}
 
     AttributeChangeListener * GetNextAttributeChangeListener() const { return mNextAttributeChange; }
     void SetNextAttributeChangeListener(AttributeChangeListener * next) { mNextAttributeChange = next; }

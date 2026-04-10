@@ -39,7 +39,7 @@ public:
         }
     }
 
-    void OnEndpointChanged(EndpointId endpointId) override { mChangedEndpoints.push_back(endpointId); }
+    void OnEndpointChanged(EndpointId endpointId, app::DataModel::EndpointChangeType type) override { mChangedEndpoints.push_back(endpointId); }
 
     std::vector<app::ConcreteAttributePath> & DirtyList() { return mDirtyList; }
     const std::vector<app::ConcreteAttributePath> & DirtyList() const { return mDirtyList; }

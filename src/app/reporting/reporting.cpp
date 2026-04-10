@@ -49,7 +49,7 @@ void MatterReportingAttributeChangeCallback(const ConcreteAttributePath & aPath)
     provider->NotifyAttributeChanged(aPath, DataModel::AttributeChangeType::kReportable);
 }
 
-void MatterReportingAttributeChangeCallback(EndpointId endpoint)
+void MatterReportingAttributeChangeCallback(EndpointId endpoint, DataModel::EndpointChangeType type)
 {
     // Attribute writes have asserted this already, but this assert should catch
     // applications notifying about changes from their end.
@@ -57,5 +57,5 @@ void MatterReportingAttributeChangeCallback(EndpointId endpoint)
 
     DataModel::Provider * provider = InteractionModelEngine::GetInstance()->GetDataModelProvider();
     VerifyOrReturn(provider != nullptr);
-    provider->NotifyEndpointChanged(endpoint);
+    provider->NotifyEndpointChanged(endpoint, type);
 }

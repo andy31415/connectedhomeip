@@ -25,6 +25,7 @@
 #include <app/InteractionModelEngine.h>
 #include <app/MessageDef/StatusIB.h>
 #include <app/data-model-provider/ActionReturnStatus.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/data-model-provider/MetadataLookup.h>
 #include <app/data-model-provider/MetadataTypes.h>
 #include <app/data-model-provider/Provider.h>
@@ -1264,7 +1265,7 @@ void Engine::OnAttributeChanged(const ConcreteAttributePath & path, DataModel::A
     }
 }
 
-void Engine::OnEndpointChanged(EndpointId endpointId)
+void Engine::OnEndpointChanged(EndpointId endpointId, DataModel::EndpointChangeType type)
 {
     CHIP_ERROR err = SetDirty(AttributePathParams(endpointId));
     if (err != CHIP_NO_ERROR)
