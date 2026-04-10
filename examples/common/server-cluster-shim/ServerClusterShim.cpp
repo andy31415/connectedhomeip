@@ -346,7 +346,7 @@ ActionReturnStatus ServerClusterShim::WriteAttribute(const WriteAttributeRequest
 
     Protocols::InteractionModel::Status status;
     EmberAfWriteDataInput dataInput(dataBuffer.data(), attributeMetadata->attributeType);
-    // TODO: dataInput.SetMarkDirty() should be according to `ChangesOmmited`
+    // TODO: dataInput.SetMarkDirty() should be according to `ChangesOmitted`
 
     if (request.subjectDescriptor.authMode == Access::AuthMode::kInternalDeviceAccess)
     {
