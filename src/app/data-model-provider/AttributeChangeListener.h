@@ -38,7 +38,7 @@ namespace chip::app::DataModel {
 ///    a network packet would be sent reporting the packet count)
 ///
 /// As such we will have constants that say:
-///   - kReportable: important/large change, reported to subscribes by matter IM
+///   - kReportable: important/large change, reported to subscribers by Matter IM
 ///   - kQuiet: value changed, would be visible on a `ReadAttribute` however it
 ///     is not reported to subscribers.
 ///
