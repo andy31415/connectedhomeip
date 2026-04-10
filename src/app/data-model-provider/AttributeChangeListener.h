@@ -51,7 +51,8 @@ enum class AttributeChangeType
 /// Help listeners for endpoint changes to make a quick decision about
 /// what happened to an endpoint. This is because this is often cheaper
 /// to have at call time compared to querying a DataModel::Provider for example
-enum class EndpointChangeType {
+enum class EndpointChangeType
+{
     kAdded,
     kRemoved,
 };
@@ -100,7 +101,7 @@ public:
     ///     - MAY call Provider::RegisterAttributeChangeListener
     ///     - MUST NOT call Provider::UnregisterAttributeChangeListener EXCEPT `this`.
     ///       any other unregister should be deferred to a separate scheduled work.
-    virtual void OnEndpointChanged(EndpointId endpointId, EndpointChangeType type){}
+    virtual void OnEndpointChanged(EndpointId endpointId, EndpointChangeType type) {}
 
     AttributeChangeListener * GetNextAttributeChangeListener() const { return mNextAttributeChange; }
     void SetNextAttributeChangeListener(AttributeChangeListener * next) { mNextAttributeChange = next; }
