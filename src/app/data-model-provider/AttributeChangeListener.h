@@ -73,7 +73,7 @@ enum class EndpointChangeType
 ///   Implementations should be wary of re-entrancy or recursive calls if
 ///   they modify cluster state within the callback.
 ///     * you may also choose to defer cluster modifications to a separate
-///       scheduled task. That would not cause recursive calls, howevever
+///       scheduled task. That would not cause recursive calls, however
 ///       not entering loops has to still be checked for.
 /// - Fire-and-forget: There is no mechanism to report failure back to the
 ///   caller. If an action taken in the callback fails (e.g., hardware
