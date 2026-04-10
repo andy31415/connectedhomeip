@@ -26,6 +26,11 @@ void Provider::RegisterAttributeChangeListener(AttributeChangeListener & listene
 
 void Provider::UnregisterAttributeChangeListener(AttributeChangeListener & listener)
 {
+    if (&listener == mNextListenerToProcess)
+    {
+        mNextListenerToProcess = listener.GetNextAttributeChangeListener();
+    }
+
     if (mAttributeChangeListenersHead == &listener)
     {
         mAttributeChangeListenersHead = listener.GetNextAttributeChangeListener();
@@ -48,37 +53,23 @@ void Provider::UnregisterAttributeChangeListener(AttributeChangeListener & liste
 
 void Provider::NotifyAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type)
 {
-    AttributeChangeListener * current = mAttributeChangeListenersHead;
-    while (current)
+    mNextListenerToProcess = mAttributeChangeListenersHead;
+    while (mNextListenerToProcess)
     {
-        // Keep next before we call ON, so that we allow current to remove itself from the list
-        // in the middle of the processing. This is all we guarantee, and we explicitly do
-        // not guarantee that removing others (say `next`) is actually working (and will
-        // not work well).
-        //
-        // Detecting these cases would be more expensive in both flash and RAM, so we do
-        // not do it at this point.
-        AttributeChangeListener * next = current->GetNextAttributeChangeListener();
+        AttributeChangeListener * current = mNextListenerToProcess;
+        mNextListenerToProcess = current->GetNextAttributeChangeListener();
         current->OnAttributeChanged(path, type);
-        current = next;
     }
 }
 
 void Provider::NotifyEndpointChanged(EndpointId endpointId, EndpointChangeType type)
 {
-    AttributeChangeListener * current = mAttributeChangeListenersHead;
-    while (current)
+    mNextListenerToProcess = mAttributeChangeListenersHead;
+    while (mNextListenerToProcess)
     {
-        // Keep next before we call ON, so that we allow current to remove itself from the list
-        // in the middle of the processing. This is all we guarantee, and we explicitly do
-        // not guarantee that removing others (say `next`) is actually working (and will
-        // not work well).
-        //
-        // Detecting these cases would be more expensive in both flash and RAM, so we do
-        // not do it at this point.
-        AttributeChangeListener * next = current->GetNextAttributeChangeListener();
+        AttributeChangeListener * current = mNextListenerToProcess;
+        mNextListenerToProcess = current->GetNextAttributeChangeListener();
         current->OnEndpointChanged(endpointId, type);
-        current = next;
     }
 }
 

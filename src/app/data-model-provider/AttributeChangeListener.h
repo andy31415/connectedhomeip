@@ -85,22 +85,10 @@ public:
     virtual ~AttributeChangeListener() = default;
 
     /// Called after an attribute's value has changed.
-    ///
-    /// IMPORTANT:
-    ///   See guarantees in `Provider.h` however generally this:
-    ///     - MAY call Provider::RegisterAttributeChangeListener
-    ///     - MUST NOT call Provider::UnregisterAttributeChangeListener EXCEPT `this`.
-    ///       any other unregister should be deferred to a separate scheduled work.
     virtual void OnAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type) = 0;
 
     /// Called when an endpoint's structure or composition changes
     /// (e.g., clusters added/removed, or for bridged device changes).
-    ///
-    /// IMPORTANT:
-    ///   See guarantees in `Provider.h` however generally this:
-    ///     - MAY call Provider::RegisterAttributeChangeListener
-    ///     - MUST NOT call Provider::UnregisterAttributeChangeListener EXCEPT `this`.
-    ///       any other unregister should be deferred to a separate scheduled work.
     virtual void OnEndpointChanged(EndpointId endpointId, EndpointChangeType type) {}
 
     AttributeChangeListener * GetNextAttributeChangeListener() const { return mNextAttributeChange; }
