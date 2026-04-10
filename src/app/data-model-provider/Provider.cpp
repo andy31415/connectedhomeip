@@ -57,7 +57,7 @@ void Provider::NotifyAttributeChanged(const ConcreteAttributePath & path, Attrib
     while (mNextListenerToProcess)
     {
         AttributeChangeListener * current = mNextListenerToProcess;
-        mNextListenerToProcess = current->GetNextAttributeChangeListener();
+        mNextListenerToProcess            = current->GetNextAttributeChangeListener();
         current->OnAttributeChanged(path, type);
     }
 }
@@ -68,7 +68,7 @@ void Provider::NotifyEndpointChanged(EndpointId endpointId, EndpointChangeType t
     while (mNextListenerToProcess)
     {
         AttributeChangeListener * current = mNextListenerToProcess;
-        mNextListenerToProcess = current->GetNextAttributeChangeListener();
+        mNextListenerToProcess            = current->GetNextAttributeChangeListener();
         current->OnEndpointChanged(endpointId, type);
     }
 }
