@@ -28,7 +28,7 @@ namespace chip::app::DataModel {
 ///    may actuate hardware.
 ///
 /// 2. Matter Interaction model identifies things that are reported (i.e.
-///    generate traffic on the network and is visible to subscribes) and
+///    generate traffic on the network and is visible to subscribers) and
 ///    quiet changes (i.e. not reported).
 ///
 ///    Examples of quiet changes are things that fluctuate (like a voltage
