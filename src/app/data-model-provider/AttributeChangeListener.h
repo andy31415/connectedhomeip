@@ -21,6 +21,27 @@
 
 namespace chip::app::DataModel {
 
+/// Describes the level of an attribute change. The existence of this is to
+/// allow listeners to cater to two types of consumers:
+///
+/// 1. Applications generally care about ALL changes to a value, since they
+///    may actuate hardware.
+///
+/// 2. Matter Interaction model identifies things that are reported (i.e.
+///    generate traffic on the network and is visible to subscribes) and
+///    quiet changes (i.e. not reported).
+///
+///    Examples of quiet changes are things that fluctuate (like a voltage
+///    measurement) where we only report "large changes" or things that
+///    continusouly change (e.g. a current time would change, or a network
+///    packet count would increase as soon as a network packet is sent, and
+///    a network packet would be send reporting the packet count)
+///
+/// As such we will have constants that say:
+///   - kReportable: important/large change, reported to subscribes by matter IM
+///   - kQuiet: value changed, would be visible on a `ReadAttribute` however it
+///     is not reported to subscribers.
+///
 enum class AttributeChangeType
 {
     kReportable, // Change should be reported to subscribers
