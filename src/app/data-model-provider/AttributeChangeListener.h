@@ -35,7 +35,7 @@ namespace chip::app::DataModel {
 ///    measurement) where we only report "large changes" or things that
 ///    continusouly change (e.g. a current time would change, or a network
 ///    packet count would increase as soon as a network packet is sent, and
-///    a network packet would be send reporting the packet count)
+///    a network packet would be sent reporting the packet count)
 ///
 /// As such we will have constants that say:
 ///   - kReportable: important/large change, reported to subscribes by matter IM
