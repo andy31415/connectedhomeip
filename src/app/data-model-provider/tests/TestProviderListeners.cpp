@@ -146,7 +146,7 @@ TEST(TestProviderListener, TestUnregisterNextListener)
 {
     TestProvider provider;
     TestListener listener1;
-    
+
     class UnregisteringListener : public TestListener
     {
     public:
@@ -161,17 +161,17 @@ TEST(TestProviderListener, TestUnregisterNextListener)
             }
         }
     };
-    
+
     UnregisteringListener listenerHead;
     listenerHead.provider = &provider;
     listenerHead.target   = &listener1;
-    
+
     provider.RegisterAttributeChangeListener(listener1);
     provider.RegisterAttributeChangeListener(listenerHead);
-    
+
     ConcreteAttributePath path(1, 1, 1);
     provider.NotifyAttributeChanged(path, AttributeChangeType::kReportable);
-    
+
     EXPECT_EQ(listenerHead.callCount, 1);
     EXPECT_EQ(listener1.callCount, 0);
 }
@@ -179,7 +179,7 @@ TEST(TestProviderListener, TestUnregisterNextListener)
 TEST(TestProviderListener, TestUnregisterSelf)
 {
     TestProvider provider;
-    
+
     class SelfUnregisteringListener : public TestListener
     {
     public:
@@ -190,17 +190,17 @@ TEST(TestProviderListener, TestUnregisterSelf)
             provider->UnregisterAttributeChangeListener(*this);
         }
     };
-    
+
     SelfUnregisteringListener listener;
     listener.provider = &provider;
-    
+
     provider.RegisterAttributeChangeListener(listener);
-    
+
     ConcreteAttributePath path(1, 1, 1);
     provider.NotifyAttributeChanged(path, AttributeChangeType::kReportable);
-    
+
     EXPECT_EQ(listener.callCount, 1);
-    
+
     provider.NotifyAttributeChanged(path, AttributeChangeType::kReportable);
     EXPECT_EQ(listener.callCount, 1);
 }
@@ -209,7 +209,7 @@ TEST(TestProviderListener, TestUnregisterPreviousListener)
 {
     TestProvider provider;
     TestListener listener1;
-    
+
     class UnregisteringListener : public TestListener
     {
     public:
@@ -224,22 +224,22 @@ TEST(TestProviderListener, TestUnregisterPreviousListener)
             }
         }
     };
-    
+
     UnregisteringListener listenerTail;
     listenerTail.provider = &provider;
     listenerTail.target   = &listener1;
-    
+
     provider.RegisterAttributeChangeListener(listenerTail);
     provider.RegisterAttributeChangeListener(listener1);
-    
+
     ConcreteAttributePath path(1, 1, 1);
     provider.NotifyAttributeChanged(path, AttributeChangeType::kReportable);
-    
+
     EXPECT_EQ(listener1.callCount, 1);
     EXPECT_EQ(listenerTail.callCount, 1);
-    
+
     provider.NotifyAttributeChanged(path, AttributeChangeType::kReportable);
-    
+
     EXPECT_EQ(listener1.callCount, 1);
     EXPECT_EQ(listenerTail.callCount, 2);
 }
