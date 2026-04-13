@@ -13,8 +13,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-#include "lib/core/CHIPError.h"
 #include <pw_unit_test/framework.h>
 
 #include <app/clusters/soil-measurement-server/SoilMeasurementCluster.h>
