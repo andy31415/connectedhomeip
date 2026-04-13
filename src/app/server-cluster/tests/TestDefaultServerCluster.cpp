@@ -281,4 +281,39 @@ TEST(TestDefaultServerCluster, SetAttributeValueNullable)
     ASSERT_TRUE(cluster.TestSetAttributeValue(attr, DataModel::NullNullable, 1));
     ASSERT_TRUE(attr.IsNull());
     ASSERT_EQ(context.ChangeListener().DirtyList().size(), 1u);
+    context.ChangeListener().DirtyList().clear();
+
+    // Test setting with another Nullable object
+    DataModel::Nullable<uint32_t> otherAttr;
+
+    // Initial state: null
+    ASSERT_TRUE(otherAttr.IsNull());
+
+    // Set attr to a value first so it's not null
+    ASSERT_TRUE(cluster.TestSetAttributeValue(attr, 789u, 1));
+    context.ChangeListener().DirtyList().clear();
+
+    // Set with null Nullable -> should return true, changed
+    ASSERT_TRUE(cluster.TestSetAttributeValue(attr, otherAttr, 1));
+    ASSERT_TRUE(attr.IsNull());
+    ASSERT_EQ(context.ChangeListener().DirtyList().size(), 1u);
+    context.ChangeListener().DirtyList().clear();
+
+    // Set with same null Nullable -> should return false, no change
+    ASSERT_FALSE(cluster.TestSetAttributeValue(attr, otherAttr, 1));
+    ASSERT_TRUE(context.ChangeListener().DirtyList().empty());
+
+    // Set otherAttr to a value
+    otherAttr.SetNonNull(999u);
+
+    // Set with non-null Nullable -> should return true, changed
+    ASSERT_TRUE(cluster.TestSetAttributeValue(attr, otherAttr, 1));
+    ASSERT_FALSE(attr.IsNull());
+    ASSERT_EQ(attr.Value(), 999u);
+    ASSERT_EQ(context.ChangeListener().DirtyList().size(), 1u);
+    context.ChangeListener().DirtyList().clear();
+
+    // Set with same non-null Nullable -> should return false, no change
+    ASSERT_FALSE(cluster.TestSetAttributeValue(attr, otherAttr, 1));
+    ASSERT_TRUE(context.ChangeListener().DirtyList().empty());
 }
