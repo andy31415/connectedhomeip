@@ -15,6 +15,7 @@
  */
 
 #include "SoilMeasurementCluster.h"
+#include "lib/core/CHIPError.h"
 #include <app/server-cluster/AttributeListBuilder.h>
 #include <clusters/SoilMeasurement/Metadata.h>
 
@@ -58,18 +59,14 @@ CHIP_ERROR SoilMeasurementCluster::Attributes(const ConcreteClusterPath & path,
 CHIP_ERROR
 SoilMeasurementCluster::SetSoilMoistureMeasuredValue(const SoilMoistureMeasuredValue::TypeInfo::Type & soilMoistureMeasuredValue)
 {
-    VerifyOrReturnError(mSoilMoistureMeasuredValue != soilMoistureMeasuredValue, CHIP_NO_ERROR);
-
     if (!soilMoistureMeasuredValue.IsNull())
     {
         VerifyOrReturnError(soilMoistureMeasuredValue.Value() >= mSoilMoistureMeasurementLimits.minMeasuredValue &&
                                 soilMoistureMeasuredValue.Value() <= mSoilMoistureMeasurementLimits.maxMeasuredValue,
-                            CHIP_ERROR_INVALID_ARGUMENT);
+                            CHIP_IM_GLOBAL_STATUS(ConstraintError));
     }
 
-    mSoilMoistureMeasuredValue = soilMoistureMeasuredValue;
-
-    NotifyAttributeChanged(SoilMoistureMeasuredValue::Id);
+    SetAttributeValue(mSoilMoistureMeasuredValue, soilMoistureMeasuredValue, SoilMoistureMeasuredValue::Id);
 
     return CHIP_NO_ERROR;
 }

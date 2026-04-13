@@ -18,6 +18,7 @@
 
 #include <access/Privilege.h>
 #include <app/ConcreteClusterPath.h>
+#include <app/data-model/Nullable.h>
 #include <app/server-cluster/ServerClusterInterface.h>
 #include <lib/core/CHIPError.h>
 
@@ -134,6 +135,24 @@ protected:
     ///
     /// Will return `status`
     DataModel::ActionReturnStatus NotifyAttributeChangedIfSuccess(AttributeId attributeId, DataModel::ActionReturnStatus status);
+
+    template <typename T>
+    bool SetAttributeValue(DataModel::Nullable<T> & dest, decltype(DataModel::NullNullable), AttributeId attributeId)
+    {
+        VerifyOrReturnValue(!dest.IsNull(), false);
+        dest.SetNull();
+        NotifyAttributeChanged(attributeId);
+        return true;
+    }
+
+    template <typename T>
+    bool SetAttributeValue(DataModel::Nullable<T> & dest, const T & value, AttributeId attributeId)
+    {
+        VerifyOrReturnValue(dest.IsNull() || dest.Value() != value, false);
+        dest.SetNonNull(value);
+        NotifyAttributeChanged(attributeId);
+        return true;
+    }
 
 private:
     DataVersion mDataVersion; // will be random-initialized as per spec

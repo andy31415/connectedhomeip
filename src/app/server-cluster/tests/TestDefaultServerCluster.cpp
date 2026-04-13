@@ -69,6 +69,12 @@ public:
     {
         return NotifyAttributeChangedIfSuccess(attributeId, status);
     }
+
+    template <typename T, typename U>
+    bool TestSetAttributeValue(T & dest, U && value, AttributeId attributeId)
+    {
+        return SetAttributeValue(dest, std::forward<U>(value), attributeId);
+    }
 };
 
 } // namespace
@@ -232,4 +238,47 @@ TEST(TestDefaultServerCluster, NotifyAttributeChangedIfSuccess)
     ASSERT_EQ(cluster.TestNotifyAttributeChangedIfSuccess(345, Status::Failure), Status::Failure);
     ASSERT_EQ(cluster.GetDataVersion({ kEndpointId, kClusterId }), oldVersion);
     ASSERT_TRUE(context.ChangeListener().DirtyList().empty());
+}
+
+TEST(TestDefaultServerCluster, SetAttributeValueNullable)
+{
+    constexpr ClusterId kEndpointId = 321;
+    constexpr ClusterId kClusterId  = 1122;
+    FakeDefaultServerCluster cluster({ kEndpointId, kClusterId });
+
+    TestServerClusterContext context;
+    ASSERT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
+
+    DataModel::Nullable<uint32_t> attr;
+
+    // Initial state: null
+    ASSERT_TRUE(attr.IsNull());
+
+    // Set to null when already null -> should return false, no change
+    ASSERT_FALSE(cluster.TestSetAttributeValue(attr, DataModel::NullNullable, 1));
+    ASSERT_TRUE(attr.IsNull());
+    ASSERT_TRUE(context.ChangeListener().DirtyList().empty());
+
+    // Set to value -> should return true, changed
+    ASSERT_TRUE(cluster.TestSetAttributeValue(attr, 123u, 1));
+    ASSERT_FALSE(attr.IsNull());
+    ASSERT_EQ(attr.Value(), 123u);
+    ASSERT_EQ(context.ChangeListener().DirtyList().size(), 1u);
+    ASSERT_EQ(context.ChangeListener().DirtyList()[0], AttributePathParams(kEndpointId, kClusterId, 1));
+    context.ChangeListener().DirtyList().clear();
+
+    // Set to same value -> should return false, no change
+    ASSERT_FALSE(cluster.TestSetAttributeValue(attr, 123u, 1));
+    ASSERT_TRUE(context.ChangeListener().DirtyList().empty());
+
+    // Set to different value -> should return true, changed
+    ASSERT_TRUE(cluster.TestSetAttributeValue(attr, 456u, 1));
+    ASSERT_EQ(attr.Value(), 456u);
+    ASSERT_EQ(context.ChangeListener().DirtyList().size(), 1u);
+    context.ChangeListener().DirtyList().clear();
+
+    // Set to null -> should return true, changed
+    ASSERT_TRUE(cluster.TestSetAttributeValue(attr, DataModel::NullNullable, 1));
+    ASSERT_TRUE(attr.IsNull());
+    ASSERT_EQ(context.ChangeListener().DirtyList().size(), 1u);
 }
