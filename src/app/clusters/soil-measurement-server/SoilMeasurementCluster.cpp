@@ -15,7 +15,6 @@
  */
 
 #include "SoilMeasurementCluster.h"
-#include "lib/core/CHIPError.h"
 #include <app/server-cluster/AttributeListBuilder.h>
 #include <clusters/SoilMeasurement/Metadata.h>
 
