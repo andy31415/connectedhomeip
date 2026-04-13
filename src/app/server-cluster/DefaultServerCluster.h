@@ -131,11 +131,6 @@ protected:
         return true;
     }
 
-    /// Marks that a specific attribute has changed value, if `status` is success.
-    ///
-    /// Will return `status`
-    DataModel::ActionReturnStatus NotifyAttributeChangedIfSuccess(AttributeId attributeId, DataModel::ActionReturnStatus status);
-
     template <typename T>
     bool SetAttributeValue(DataModel::Nullable<T> & dest, decltype(DataModel::NullNullable), AttributeId attributeId)
     {
@@ -153,6 +148,11 @@ protected:
         NotifyAttributeChanged(attributeId);
         return true;
     }
+
+    /// Marks that a specific attribute has changed value, if `status` is success.
+    ///
+    /// Will return `status`
+    DataModel::ActionReturnStatus NotifyAttributeChangedIfSuccess(AttributeId attributeId, DataModel::ActionReturnStatus status);
 
 private:
     DataVersion mDataVersion; // will be random-initialized as per spec
