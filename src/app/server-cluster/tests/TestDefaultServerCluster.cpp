@@ -242,7 +242,7 @@ TEST(TestDefaultServerCluster, NotifyAttributeChangedIfSuccess)
 
 TEST(TestDefaultServerCluster, SetAttributeValueNullable)
 {
-    constexpr ClusterId kEndpointId = 321;
+    constexpr EndpointId kEndpointId = 321;
     constexpr ClusterId kClusterId  = 1122;
     FakeDefaultServerCluster cluster({ kEndpointId, kClusterId });
 
