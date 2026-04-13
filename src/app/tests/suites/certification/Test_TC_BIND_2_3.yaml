@@ -218,12 +218,6 @@ tests:
           endpoint, skip to step 10. Otherwise, TH1 reads the DUT Groupcast
           featuremap attribute."
       verification: |
-          Run this command for DUT in chip-tool:
-          ./chip-tool groupcast read feature-map 74 0
-
-          TH1 receives the featuremap attribute and verify that Sender feature (bit 1) is set.
-          [1775574668.300] [2974038:2974040] [TOO] Endpoint: 0 Cluster: 0x0000_0065 Attribute 0x0000_FFFC DataVersion: 347818230
-          [1775574668.304] [2974038:2974040] [TOO]   FeatureMap: 2
 
       disabled: true
 
