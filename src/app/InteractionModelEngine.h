@@ -180,13 +180,8 @@ public:
      */
     void ShutdownAllSubscriptionHandlers();
 
-    uint32_t GetNumActiveReadHandlers() const;
-    uint32_t GetNumActiveReadHandlers(ReadHandler::InteractionType type) const;
-
-    /**
-     * Returns the number of active readhandlers with a specific type on a specific fabric.
-     */
-    uint32_t GetNumActiveReadHandlers(ReadHandler::InteractionType type, FabricIndex fabricIndex) const;
+    uint32_t GetNumActiveReadHandlers(std::optional<ReadHandler::InteractionType> type = std::nullopt,
+                                      std::optional<FabricIndex> fabricIndex           = std::nullopt) const;
 
     uint32_t GetNumActiveWriteHandlers() const;
 

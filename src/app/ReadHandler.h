@@ -63,11 +63,6 @@ namespace app {
 // Forward declare the Engine (which is in a different namespace) to be able to use
 // it as a friend class below.
 //
-// TODO: this pattern is VERY questionable: this tries to lock down an API
-//       between public/private while having quite a few classes direct access as friend.
-//
-//       This needs additional design.
-//
 namespace reporting {
 class Engine;
 class TestReportingEngine;
@@ -76,7 +71,6 @@ class TestReportScheduler;
 } // namespace reporting
 
 class InteractionModelEngine;
-class ReadHandlerInternalAccess;
 class TestInteractionModelEngine;
 
 /**
@@ -482,7 +476,6 @@ private:
     //
     friend class chip::app::reporting::Engine;
     friend class chip::app::InteractionModelEngine;
-    friend class chip::app::ReadHandlerInternalAccess;
     friend class TestInteractionModelEngine;
 
     // The report scheduler needs to be able to access StateFlag private functions ShouldStartReporting(), CanStartReporting(),

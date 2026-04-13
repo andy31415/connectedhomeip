@@ -58,22 +58,6 @@
 
 namespace chip {
 namespace app {
-
-/// This works around odd public API restrictions that we historically have:
-/// ReadHandler public API is restricted and uses `friend` classes to acces. In practice though
-/// InteractionModelEngine should be a friend overall.
-class ReadHandlerInternalAccess
-{
-public:
-    ReadHandlerInternalAccess(const ReadHandler & handler) : mHandler(handler) {}
-
-    bool IsType(ReadHandler::InteractionType type) const { return mHandler.IsType(type); }
-    FabricIndex GetAccessingFabricIndex() const { return mHandler.GetAccessingFabricIndex(); }
-
-private:
-    const ReadHandler & mHandler;
-};
-
 namespace {
 
 inline constexpr uint16_t kMaxNumSubscriptionsPerFabric = 10000;
@@ -182,29 +166,13 @@ bool IsAccessibleAttributeEntry(const ConcreteAttributePath & path, const Access
     return (Access::GetAccessControl().Check(subjectDescriptor, requestPath, privilege) == CHIP_NO_ERROR);
 }
 
-uint32_t GetActiveHandlerCount(const ObjectPool<ReadHandler, CHIP_IM_MAX_NUM_READS + CHIP_IM_MAX_NUM_SUBSCRIPTIONS> & handlers,
-                               ReadHandler::InteractionType aType, std::optional<FabricIndex> aFabricIndex)
-{
-
-    uint32_t count = 0;
-
-    handlers.ForEachActiveObject([aType, aFabricIndex, &count](const ReadHandler * handler) {
-        const ReadHandlerInternalAccess access(*handler);
-        VerifyOrReturnValue(access.IsType(aType), Loop::Continue);
-        VerifyOrReturnValue(!aFabricIndex.has_value() || access.GetAccessingFabricIndex() == *aFabricIndex, Loop::Continue);
-        count++;
-        return Loop::Continue;
-    });
-
-    return count;
-}
-
 } // namespace
 
 class AutoReleaseSubscriptionInfoIterator
 {
 public:
-    AutoReleaseSubscriptionInfoIterator(SubscriptionResumptionStorage::SubscriptionInfoIterator * iterator) : mIterator(iterator){};
+    AutoReleaseSubscriptionInfoIterator(SubscriptionResumptionStorage::SubscriptionInfoIterator * iterator) :
+        mIterator(iterator) {};
     ~AutoReleaseSubscriptionInfoIterator()
     {
         if (mIterator)
@@ -338,19 +306,21 @@ void InteractionModelEngine::Shutdown()
     mState = State::kUninitialized;
 }
 
-uint32_t InteractionModelEngine::GetNumActiveReadHandlers() const
+uint32_t InteractionModelEngine::GetNumActiveReadHandlers(std::optional<ReadHandler::InteractionType> type,
+                                                          std::optional<FabricIndex> fabricIndex) const
 {
-    return static_cast<uint32_t>(mReadHandlers.Allocated());
-}
+    VerifyOrReturnValue(type.has_value(), static_cast<uint32_t>(mReadHandlers.Allocated()));
 
-uint32_t InteractionModelEngine::GetNumActiveReadHandlers(ReadHandler::InteractionType aType) const
-{
-    return GetActiveHandlerCount(mReadHandlers, aType, std::nullopt);
-}
+    uint32_t count = 0;
 
-uint32_t InteractionModelEngine::GetNumActiveReadHandlers(ReadHandler::InteractionType aType, FabricIndex aFabricIndex) const
-{
-    return GetActiveHandlerCount(mReadHandlers, aType, aFabricIndex);
+    mReadHandlers.ForEachActiveObject([type, fabricIndex, &count](const ReadHandler * handler) {
+        VerifyOrReturnValue(handler->IsType(*type), Loop::Continue);
+        VerifyOrReturnValue(!fabricIndex.has_value() || handler->GetAccessingFabricIndex() == *fabricIndex, Loop::Continue);
+        count++;
+        return Loop::Continue;
+    });
+
+    return count;
 }
 
 ReadHandler * InteractionModelEngine::ActiveHandlerAt(unsigned int aIndex)
