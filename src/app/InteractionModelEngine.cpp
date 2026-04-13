@@ -24,7 +24,6 @@
  */
 
 #include "InteractionModelEngine.h"
-#include "app/ReadHandler.h"
 
 #include <access/AccessRestrictionProvider.h>
 #include <access/Privilege.h>
@@ -171,8 +170,7 @@ bool IsAccessibleAttributeEntry(const ConcreteAttributePath & path, const Access
 class AutoReleaseSubscriptionInfoIterator
 {
 public:
-    AutoReleaseSubscriptionInfoIterator(SubscriptionResumptionStorage::SubscriptionInfoIterator * iterator) :
-        mIterator(iterator) {};
+    AutoReleaseSubscriptionInfoIterator(SubscriptionResumptionStorage::SubscriptionInfoIterator * iterator) : mIterator(iterator){};
     ~AutoReleaseSubscriptionInfoIterator()
     {
         if (mIterator)
@@ -309,12 +307,12 @@ void InteractionModelEngine::Shutdown()
 uint32_t InteractionModelEngine::GetNumActiveReadHandlers(std::optional<ReadHandler::InteractionType> type,
                                                           std::optional<FabricIndex> fabricIndex) const
 {
-    VerifyOrReturnValue(type.has_value(), static_cast<uint32_t>(mReadHandlers.Allocated()));
+    VerifyOrReturnValue(type.has_value() || fabricIndex.has_value(), static_cast<uint32_t>(mReadHandlers.Allocated()));
 
     uint32_t count = 0;
 
     mReadHandlers.ForEachActiveObject([type, fabricIndex, &count](const ReadHandler * handler) {
-        VerifyOrReturnValue(handler->IsType(*type), Loop::Continue);
+        VerifyOrReturnValue(!type.has_value() || handler->IsType(*type), Loop::Continue);
         VerifyOrReturnValue(!fabricIndex.has_value() || handler->GetAccessingFabricIndex() == *fabricIndex, Loop::Continue);
         count++;
         return Loop::Continue;
