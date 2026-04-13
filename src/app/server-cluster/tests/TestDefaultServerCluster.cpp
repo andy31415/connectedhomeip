@@ -34,6 +34,7 @@
 #include <lib/support/ReadOnlyBuffer.h>
 
 #include <cstdlib>
+#include <utility>
 
 using namespace chip;
 using namespace chip::Testing;
@@ -243,7 +244,7 @@ TEST(TestDefaultServerCluster, NotifyAttributeChangedIfSuccess)
 TEST(TestDefaultServerCluster, SetAttributeValueNullable)
 {
     constexpr EndpointId kEndpointId = 321;
-    constexpr ClusterId kClusterId  = 1122;
+    constexpr ClusterId kClusterId   = 1122;
     FakeDefaultServerCluster cluster({ kEndpointId, kClusterId });
 
     TestServerClusterContext context;

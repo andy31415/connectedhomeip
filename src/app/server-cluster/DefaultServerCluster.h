@@ -143,7 +143,7 @@ protected:
     template <typename T>
     bool SetAttributeValue(DataModel::Nullable<T> & dest, const T & value, AttributeId attributeId)
     {
-        VerifyOrReturnValue(dest.IsNull() || dest.Value() != value, false);
+        VerifyOrReturnValue(dest != value, false);
         dest.SetNonNull(value);
         NotifyAttributeChanged(attributeId);
         return true;
