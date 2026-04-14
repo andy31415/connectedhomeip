@@ -14,18 +14,23 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include "platform/LockTracker.h"
 #include <app/data-model-provider/Provider.h>
 
 namespace chip::app::DataModel {
 
 void Provider::RegisterAttributeChangeListener(AttributeChangeListener & listener)
 {
+    assertChipStackLockedByCurrentThread();
+
     listener.SetNextAttributeChangeListener(mAttributeChangeListenersHead);
     mAttributeChangeListenersHead = &listener;
 }
 
 void Provider::UnregisterAttributeChangeListener(AttributeChangeListener & listener)
 {
+    assertChipStackLockedByCurrentThread();
+
     if (&listener == mNextListenerToProcess)
     {
         mNextListenerToProcess = listener.GetNextAttributeChangeListener();
@@ -53,6 +58,8 @@ void Provider::UnregisterAttributeChangeListener(AttributeChangeListener & liste
 
 void Provider::NotifyAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type)
 {
+    assertChipStackLockedByCurrentThread();
+
     mNextListenerToProcess = mAttributeChangeListenersHead;
     while (mNextListenerToProcess)
     {
@@ -64,6 +71,8 @@ void Provider::NotifyAttributeChanged(const ConcreteAttributePath & path, Attrib
 
 void Provider::NotifyEndpointChanged(EndpointId endpointId, EndpointChangeType type)
 {
+    assertChipStackLockedByCurrentThread();
+
     mNextListenerToProcess = mAttributeChangeListenersHead;
     while (mNextListenerToProcess)
     {
