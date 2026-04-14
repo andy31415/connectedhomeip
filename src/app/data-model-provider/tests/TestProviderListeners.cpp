@@ -331,6 +331,35 @@ TEST(TestProviderListener, TestStressNestingAndRemoval)
     provider.RegisterAttributeChangeListener(l4);
     provider.RegisterAttributeChangeListener(l5);
 
+    // Scenario setup:
+    // Listeners are registered in order L1, L2, L3, L4, L5.
+    // Since Register adds to the head, the list order is L5 -> L4 -> L3 -> L2 -> L1.
+    //
+    // 1. Outer notification starts. L5 is processed first.
+    // 2. L5 triggers a nested notification.
+    // 3. In the nested notification:
+    //    - L5 is processed again (triggerNested reset to false).
+    //    - L4 is processed. It removes L3.
+    //      - This updates the nested iterator's expectedNext from L3 to L2.
+    //      - This also updates L4's next pointer to L2.
+    //    - L3 is skipped in the nested notification because it was removed.
+    //    - L2 is processed. It removes itself.
+    //      - This updates L4's next pointer to L1.
+    //    - L1 is processed. It removes L5 (the head/outer current).
+    // 4. Nested notification ends.
+    // 5. Outer notification resumes.
+    //    - The outer iterator was pointing to L4 as the next element before L5 called nested.
+    //    - So L4 is processed in the outer loop.
+    //    - L4 tries to remove L3 again (no-op).
+    //    - Next element for outer iterator is L4->next, which is now L1 (since L3 and L2 were removed).
+    //    - So L3 and L2 are skipped in the outer loop.
+    //    - L1 is processed in the outer loop.
+    //    - L1 tries to remove L5 again (no-op).
+    // 6. Outer notification ends.
+    //
+    // Expected call order:
+    // Outer L5 -> Nested L5 -> Nested L4 -> Nested L2 -> Nested L1 -> Outer L4 -> Outer L1
+
     l5.triggerNested  = true;
     l4.targetToRemove = &l3;
     l2.targetToRemove = &l2;
