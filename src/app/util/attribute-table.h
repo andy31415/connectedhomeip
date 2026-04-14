@@ -41,7 +41,7 @@ struct EmberAfWriteDataInput
     EmberAfAttributeType dataType;
 
     // Controls when an attribute is marked dirty (via emberAfAttributeChanged)
-    //     kIfChanged - only if the dataPtr contains a different value than what currenty exists
+    //     kIfChanged - only if the dataPtr contains a different value than what currently exists
     //     kNo - never called
     //     kYes - always called
     chip::app::MarkAttributeDirty markDirty = chip::app::MarkAttributeDirty::kIfChanged;
