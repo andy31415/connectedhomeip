@@ -114,6 +114,8 @@ class Efr32App(Enum):
             return 'air_quality_sensor_app.flashbundle.txt'
         if self == Efr32App.CLOSURE:
             return 'closure_app.flashbundle.txt'
+        if self == Efr32App.SMOKE_CO_ALARM:
+            return 'smoke_co_alarm_app.flashbundle.txt'
         raise Exception('Unknown app type: %r' % self)
 
     def BuildRoot(self, root):
