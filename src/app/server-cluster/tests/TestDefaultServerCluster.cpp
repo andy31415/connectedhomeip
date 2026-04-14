@@ -64,7 +64,6 @@ public:
         return CHIP_ERROR_INVALID_ARGUMENT;
     }
 
-
     // Mark some methods public for the purpose of testing
     using DefaultServerCluster::IncreaseDataVersion;
     using DefaultServerCluster::NotifyAttributeChanged;
