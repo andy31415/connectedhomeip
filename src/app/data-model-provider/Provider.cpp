@@ -31,9 +31,16 @@ void Provider::UnregisterAttributeChangeListener(AttributeChangeListener & liste
 {
     assertChipStackLockedByCurrentThread();
 
-    if (&listener == mNextListenerToProcess)
+    // If any active iterator is about to process this listener, advance it
+    // to the next one to avoid processing a removed listener.
+    ActiveIterator * active = mActiveIterators;
+    while (active)
     {
-        mNextListenerToProcess = listener.GetNextAttributeChangeListener();
+        if (active->expectedNext == &listener)
+        {
+            active->expectedNext = listener.GetNextAttributeChangeListener();
+        }
+        active = active->nextIterator;
     }
 
     if (mAttributeChangeListenersHead == &listener)
@@ -60,26 +67,42 @@ void Provider::NotifyAttributeChanged(const ConcreteAttributePath & path, Attrib
 {
     assertChipStackLockedByCurrentThread();
 
-    mNextListenerToProcess = mAttributeChangeListenersHead;
-    while (mNextListenerToProcess)
+    // Register this iteration on the stack of active iterators.
+    // This allows UnregisterAttributeChangeListener to update us if needed.
+    ActiveIterator iter;
+    iter.expectedNext = mAttributeChangeListenersHead;
+    iter.nextIterator = mActiveIterators;
+    mActiveIterators = &iter;
+
+    while (iter.expectedNext)
     {
-        AttributeChangeListener * current = mNextListenerToProcess;
-        mNextListenerToProcess            = current->GetNextAttributeChangeListener();
+        AttributeChangeListener * current = iter.expectedNext;
+        iter.expectedNext = current->GetNextAttributeChangeListener();
         current->OnAttributeChanged(path, type);
     }
+
+    mActiveIterators = iter.nextIterator;
 }
 
 void Provider::NotifyEndpointChanged(EndpointId endpointId, EndpointChangeType type)
 {
     assertChipStackLockedByCurrentThread();
 
-    mNextListenerToProcess = mAttributeChangeListenersHead;
-    while (mNextListenerToProcess)
+    // Register this iteration on the stack of active iterators.
+    // This allows UnregisterAttributeChangeListener to update us if needed.
+    ActiveIterator iter;
+    iter.expectedNext = mAttributeChangeListenersHead;
+    iter.nextIterator = mActiveIterators;
+    mActiveIterators = &iter;
+
+    while (iter.expectedNext)
     {
-        AttributeChangeListener * current = mNextListenerToProcess;
-        mNextListenerToProcess            = current->GetNextAttributeChangeListener();
+        AttributeChangeListener * current = iter.expectedNext;
+        iter.expectedNext = current->GetNextAttributeChangeListener();
         current->OnEndpointChanged(endpointId, type);
     }
+
+    mActiveIterators = iter.nextIterator;
 }
 
 } // namespace chip::app::DataModel

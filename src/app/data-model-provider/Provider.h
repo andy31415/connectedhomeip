@@ -129,8 +129,21 @@ public:
     void NotifyEndpointChanged(EndpointId endpointId, EndpointChangeType type);
 
 private:
+    /// Represents an active iteration over the listener list.
+    /// Since listeners can be unregistered during notification, and notifications
+    /// can be nested, we need to track all active iterators and update them
+    /// if the element they are about to process is removed.
+    ///
+    /// Active iterators are allocated on the stack during Notify* calls and
+    /// registered in the `mActiveIterators` linked list.
+    struct ActiveIterator
+    {
+        AttributeChangeListener * expectedNext; // The next listener this iterator expects to process
+        ActiveIterator * nextIterator;          // Link to the next active iterator in the stack
+    };
+
     AttributeChangeListener * mAttributeChangeListenersHead = nullptr;
-    AttributeChangeListener * mNextListenerToProcess        = nullptr;
+    ActiveIterator * mActiveIterators                       = nullptr; // Head of the stack of active iterators
 };
 
 } // namespace DataModel

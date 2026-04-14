@@ -276,4 +276,77 @@ TEST(TestProviderListener, TestNestedNotifications)
     EXPECT_EQ(listener1.callCount, 2);
 }
 
+TEST(TestProviderListener, TestStressNestingAndRemoval)
+{
+    TestProvider provider;
+    
+    struct StressListener : public TestListener
+    {
+        int id;
+        TestProvider * provider;
+        StressListener * targetToRemove = nullptr;
+        StressListener * targetToAdd = nullptr;
+        bool triggerNested = false;
+        int * callOrderArray;
+        int * callOrderIndex;
+
+        StressListener(int i, TestProvider * p, int * arr, int * idx) : id(i), provider(p), callOrderArray(arr), callOrderIndex(idx) {}
+
+        void OnAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type) override
+        {
+            TestListener::OnAttributeChanged(path, type);
+            callOrderArray[(*callOrderIndex)++] = id;
+
+            if (triggerNested)
+            {
+                triggerNested = false; // avoid infinite loop
+                provider->NotifyAttributeChanged(path, type);
+            }
+
+            if (targetToRemove)
+            {
+                provider->UnregisterAttributeChangeListener(*targetToRemove);
+            }
+
+            if (targetToAdd)
+            {
+                provider->RegisterAttributeChangeListener(*targetToAdd);
+            }
+        }
+    };
+
+    int callOrder[20] = { 0 };
+    int callIndex = 0;
+
+    StressListener l1(1, &provider, callOrder, &callIndex);
+    StressListener l2(2, &provider, callOrder, &callIndex);
+    StressListener l3(3, &provider, callOrder, &callIndex);
+    StressListener l4(4, &provider, callOrder, &callIndex);
+    StressListener l5(5, &provider, callOrder, &callIndex);
+
+    provider.RegisterAttributeChangeListener(l1);
+    provider.RegisterAttributeChangeListener(l2);
+    provider.RegisterAttributeChangeListener(l3);
+    provider.RegisterAttributeChangeListener(l4);
+    provider.RegisterAttributeChangeListener(l5);
+
+    l5.triggerNested = true;
+    l4.targetToRemove = &l3;
+    l2.targetToRemove = &l2;
+    l1.targetToRemove = &l5;
+
+    ConcreteAttributePath path(1, 1, 1);
+    provider.NotifyAttributeChanged(path, AttributeChangeType::kReportable);
+
+    EXPECT_EQ(callIndex, 7);
+    
+    EXPECT_EQ(callOrder[0], 5); // Outer L5
+    EXPECT_EQ(callOrder[1], 5); // Nested L5
+    EXPECT_EQ(callOrder[2], 4); // Nested L4
+    EXPECT_EQ(callOrder[3], 2); // Nested L2
+    EXPECT_EQ(callOrder[4], 1); // Nested L1
+    EXPECT_EQ(callOrder[5], 4); // Outer L4
+    EXPECT_EQ(callOrder[6], 1); // Outer L1
+}
+
 } // namespace
