@@ -24,6 +24,7 @@
 #include <clusters/OnOff/ClusterId.h>
 #include <clusters/OnOff/Enums.h>
 #include <clusters/OnOff/Metadata.h>
+#include <cstdint>
 #include <lib/core/CHIPError.h>
 #include <lib/support/CodeUtils.h>
 #include <lib/support/logging/CHIPLogging.h>
@@ -341,7 +342,7 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOff()
         LogErrorOnFailure(mScenesIntegrationDelegate->MakeSceneInvalidForAllFabrics());
     }
 
-    SetAttributeValue<uint16_t>(mOnTime, 0, Attributes::OnTime::Id);
+    SetAttributeValue<uint16_t, uint16_t>(mOnTime, 0, Attributes::OnTime::Id);
     UpdateTimer();
     return Status::Success;
 }
