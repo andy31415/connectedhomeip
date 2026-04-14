@@ -365,7 +365,7 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOn()
 
     if (mOnTime == 0)
     {
-        SetAttributeValue<uint16_t>(mOffWaitTime, 0, Attributes::OffWaitTime::Id);
+        SetAttributeValue<uint16_t, uint16_t>(mOffWaitTime, 0, Attributes::OffWaitTime::Id);
     }
     UpdateTimer();
     return Status::Success;
@@ -405,7 +405,7 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOffWithEffect(const Da
 
         ReturnErrorOnFailure(SetOnOffFromCommand(false));
 
-        SetAttributeValue<uint16_t>(mOnTime, 0, Attributes::OnTime::Id);
+        SetAttributeValue<uint16_t, uint16_t>(mOnTime, 0, Attributes::OnTime::Id);
 
         UpdateTimer();
         return Status::Success;
@@ -443,7 +443,7 @@ DataModel::ActionReturnStatus OnOffLightingCluster::HandleOnWithRecallGlobalScen
 
     if (mOnTime == 0)
     {
-        SetAttributeValue<uint16_t>(mOffWaitTime, 0, Attributes::OffWaitTime::Id);
+        SetAttributeValue<uint16_t, uint16_t>(mOffWaitTime, 0, Attributes::OffWaitTime::Id);
     }
     UpdateTimer();
 
