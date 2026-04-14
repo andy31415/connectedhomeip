@@ -72,12 +72,12 @@ void Provider::NotifyAttributeChanged(const ConcreteAttributePath & path, Attrib
     ActiveIterator iter;
     iter.expectedNext = mAttributeChangeListenersHead;
     iter.nextIterator = mActiveIterators;
-    mActiveIterators = &iter;
+    mActiveIterators  = &iter;
 
     while (iter.expectedNext)
     {
         AttributeChangeListener * current = iter.expectedNext;
-        iter.expectedNext = current->GetNextAttributeChangeListener();
+        iter.expectedNext                 = current->GetNextAttributeChangeListener();
         current->OnAttributeChanged(path, type);
     }
 
@@ -93,12 +93,12 @@ void Provider::NotifyEndpointChanged(EndpointId endpointId, EndpointChangeType t
     ActiveIterator iter;
     iter.expectedNext = mAttributeChangeListenersHead;
     iter.nextIterator = mActiveIterators;
-    mActiveIterators = &iter;
+    mActiveIterators  = &iter;
 
     while (iter.expectedNext)
     {
         AttributeChangeListener * current = iter.expectedNext;
-        iter.expectedNext = current->GetNextAttributeChangeListener();
+        iter.expectedNext                 = current->GetNextAttributeChangeListener();
         current->OnEndpointChanged(endpointId, type);
     }
 

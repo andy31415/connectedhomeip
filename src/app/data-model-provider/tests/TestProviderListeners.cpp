@@ -248,7 +248,7 @@ TEST(TestProviderListener, TestNestedNotifications)
 {
     TestProvider provider;
     TestListener listener1;
-    
+
     class NestedListener : public TestListener
     {
     public:
@@ -279,18 +279,19 @@ TEST(TestProviderListener, TestNestedNotifications)
 TEST(TestProviderListener, TestStressNestingAndRemoval)
 {
     TestProvider provider;
-    
+
     struct StressListener : public TestListener
     {
         int id;
         TestProvider * provider;
         StressListener * targetToRemove = nullptr;
-        StressListener * targetToAdd = nullptr;
-        bool triggerNested = false;
+        StressListener * targetToAdd    = nullptr;
+        bool triggerNested              = false;
         int * callOrderArray;
         int * callOrderIndex;
 
-        StressListener(int i, TestProvider * p, int * arr, int * idx) : id(i), provider(p), callOrderArray(arr), callOrderIndex(idx) {}
+        StressListener(int i, TestProvider * p, int * arr, int * idx) : id(i), provider(p), callOrderArray(arr), callOrderIndex(idx)
+        {}
 
         void OnAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type) override
         {
@@ -316,7 +317,7 @@ TEST(TestProviderListener, TestStressNestingAndRemoval)
     };
 
     int callOrder[20] = { 0 };
-    int callIndex = 0;
+    int callIndex     = 0;
 
     StressListener l1(1, &provider, callOrder, &callIndex);
     StressListener l2(2, &provider, callOrder, &callIndex);
@@ -330,7 +331,7 @@ TEST(TestProviderListener, TestStressNestingAndRemoval)
     provider.RegisterAttributeChangeListener(l4);
     provider.RegisterAttributeChangeListener(l5);
 
-    l5.triggerNested = true;
+    l5.triggerNested  = true;
     l4.targetToRemove = &l3;
     l2.targetToRemove = &l2;
     l1.targetToRemove = &l5;
@@ -339,7 +340,7 @@ TEST(TestProviderListener, TestStressNestingAndRemoval)
     provider.NotifyAttributeChanged(path, AttributeChangeType::kReportable);
 
     EXPECT_EQ(callIndex, 7);
-    
+
     EXPECT_EQ(callOrder[0], 5); // Outer L5
     EXPECT_EQ(callOrder[1], 5); // Nested L5
     EXPECT_EQ(callOrder[2], 4); // Nested L4
