@@ -85,7 +85,7 @@ public:
     virtual ~AttributeChangeListener() = default;
 
     /// Called after an attribute's value has changed.
-    virtual void OnAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type) = 0;
+    virtual void OnAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type) {}
 
     /// Called when an endpoint's structure or composition changes
     /// (e.g., clusters added/removed, or for bridged device changes).
@@ -95,6 +95,11 @@ public:
     void SetNextAttributeChangeListener(AttributeChangeListener * next) { mNextAttributeChange = next; }
 
 private:
+    /// NOTE: single linked list to minimize resource overhead.
+    ///
+    /// This prioritizes low flash/ram overhead over extra functionality or safety (i.e. we cannot
+    /// have a single listener registered to multiple providers, there is no specific loop
+    /// detection or prevention).
     AttributeChangeListener * mNextAttributeChange = nullptr;
 };
 

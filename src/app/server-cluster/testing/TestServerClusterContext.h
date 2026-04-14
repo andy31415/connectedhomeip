@@ -83,6 +83,17 @@ public:
     DeviceLayer::PlatformManager & GetPlatformManager() { return mPlatformManager; }
     app::InteractionModelEngine & GetInteractionModelEngine() { return mInteractionModelEngine; }
 
+    TestAttributeChangeListener & ReleaseListener()
+    {
+        mTestProvider.UnregisterAttributeChangeListener(mChangeListener);
+        return mChangeListener;
+    }
+
+    void AddProviderListener(app::DataModel::AttributeChangeListener & listener)
+    {
+        mTestProvider.RegisterAttributeChangeListener(listener);
+    }
+
 private:
     NullActionContext mNullActionContext;
     LogOnlyEvents mTestEventsGenerator;
@@ -106,10 +117,15 @@ public:
     ScopedAttributeChangeListenerRegistration(app::DataModel::Provider & provider, TestServerClusterContext & context) :
         mProvider(provider), mContext(context)
     {
-        mProvider.RegisterAttributeChangeListener(mContext.ChangeListener());
+        mProvider.RegisterAttributeChangeListener(mContext.ReleaseListener());
     }
 
-    ~ScopedAttributeChangeListenerRegistration() { mProvider.UnregisterAttributeChangeListener(mContext.ChangeListener()); }
+    ~ScopedAttributeChangeListenerRegistration()
+    {
+        // restore the previous state. We assume only one registration
+        mProvider.UnregisterAttributeChangeListener(mContext.ChangeListener());
+        mContext.AddProviderListener(mContext.ChangeListener());
+    }
 
     // Non-copyable
     ScopedAttributeChangeListenerRegistration(const ScopedAttributeChangeListenerRegistration &)             = delete;
