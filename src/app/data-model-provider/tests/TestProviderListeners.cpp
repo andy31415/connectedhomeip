@@ -244,4 +244,36 @@ TEST(TestProviderListener, TestUnregisterPreviousListener)
     EXPECT_EQ(listenerTail.callCount, 2);
 }
 
+TEST(TestProviderListener, TestNestedNotifications)
+{
+    TestProvider provider;
+    TestListener listener1;
+    
+    class NestedListener : public TestListener
+    {
+    public:
+        TestProvider * provider;
+        void OnAttributeChanged(const ConcreteAttributePath & path, AttributeChangeType type) override
+        {
+            TestListener::OnAttributeChanged(path, type);
+            if (callCount == 1)
+            {
+                provider->NotifyAttributeChanged(path, type);
+            }
+        }
+    };
+
+    NestedListener listenerHead;
+    listenerHead.provider = &provider;
+
+    provider.RegisterAttributeChangeListener(listener1);
+    provider.RegisterAttributeChangeListener(listenerHead);
+
+    ConcreteAttributePath path(1, 1, 1);
+    provider.NotifyAttributeChanged(path, AttributeChangeType::kReportable);
+
+    EXPECT_EQ(listenerHead.callCount, 2);
+    EXPECT_EQ(listener1.callCount, 2);
+}
+
 } // namespace
