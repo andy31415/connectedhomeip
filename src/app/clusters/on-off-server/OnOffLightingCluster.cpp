@@ -24,10 +24,11 @@
 #include <clusters/OnOff/ClusterId.h>
 #include <clusters/OnOff/Enums.h>
 #include <clusters/OnOff/Metadata.h>
-#include <cstdint>
 #include <lib/core/CHIPError.h>
 #include <lib/support/CodeUtils.h>
 #include <lib/support/logging/CHIPLogging.h>
+
+#include <cstdint>
 
 using namespace chip::app::Clusters::OnOff;
 using chip::Protocols::InteractionModel::Status;
