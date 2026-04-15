@@ -147,3 +147,8 @@ TEST_F(TestChimeClusterBackwardsCompatibility, TestLegacyLifecycle)
 }
 
 } // namespace
+
+void MatterCodegenPostAttributeChange(const chip::app::ConcreteAttributePath & path)
+{
+    // Dummy implementation for tests
+}

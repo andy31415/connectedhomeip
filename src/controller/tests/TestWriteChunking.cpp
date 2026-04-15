@@ -1530,3 +1530,8 @@ TEST_F(TestWriteChunking, TestTransactionalList_NonEmptyReplaceAllList)
 }
 
 } // namespace
+
+void MatterCodegenPostAttributeChange(const chip::app::ConcreteAttributePath & path)
+{
+    // Dummy implementation for tests
+}

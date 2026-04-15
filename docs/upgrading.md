@@ -256,3 +256,20 @@ To use default attribute persistence, you need to pass in a
 `PersistentStorageDelegate` to `CodegenDataModelProviderInstance`. See example
 changes in [36658](https://github.com/project-chip/connectedhomeip/pull/36658)
 ).
+
+### `MatterCodegenPostAttributeChange`
+
+Applications using `CodegenDataModelProvider` must now implement the `MatterCodegenPostAttributeChange` callback. This callback is invoked after any attribute value changes in the data model (both for Ember and code-driven clusters).
+
+This was added because `MatterPostAttributeChangeCallback` is not called for code-driven clusters (as they bypass Ember). The new callback ensures that applications can react to all attribute changes.
+
+If your application does not need to react to attribute changes, you can provide a dummy implementation:
+
+```cpp
+void MatterCodegenPostAttributeChange(const chip::app::ConcreteAttributePath & path)
+{
+    // Nothing to do
+}
+```
+
+This is a non-weak symbol to ensure developers are aware of the change and consciously handle it.

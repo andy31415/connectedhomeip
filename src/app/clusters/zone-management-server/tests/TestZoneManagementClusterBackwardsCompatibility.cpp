@@ -110,3 +110,8 @@ TEST_F(TestZoneManagementClusterBackwardsCompatibility, LegacySensitivitySetBefo
 }
 
 } // namespace
+
+void MatterCodegenPostAttributeChange(const chip::app::ConcreteAttributePath & path)
+{
+    // Dummy implementation for tests
+}

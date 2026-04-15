@@ -28,6 +28,11 @@
 #include <lib/core/CHIPPersistentStorageDelegate.h>
 #include <lib/support/ReadOnlyBuffer.h>
 
+/// Callback invoked after an attribute value has been changed in the data model.
+/// This is called for ALL attribute changes when using CodegenDataModelProvider.
+/// Applications must implement this function.
+void MatterCodegenPostAttributeChange(const chip::app::ConcreteAttributePath & path);
+
 namespace chip {
 namespace app {
 
@@ -43,6 +48,7 @@ namespace app {
 /// Given that this relies on global data at link time, there generally can be
 /// only one CodegenDataModelProvider per application. Per-cluster CodegenIntegration
 /// functions access the global singleton instance via `CodegenDataModelProvider::Instance()`.
+
 class CodegenDataModelProvider : public DataModel::Provider
 {
 public:
@@ -97,6 +103,15 @@ protected:
     virtual void InitDataModelForTesting();
 
 private:
+    class AttributeChangeHandler : public DataModel::AttributeChangeListener
+    {
+    public:
+        void OnAttributeChanged(const ConcreteAttributePath & path, DataModel::AttributeChangeType type) override
+        {
+            ::MatterCodegenPostAttributeChange(path);
+        }
+    } mAttributeChangeHandler;
+
     // Context is available after startup and cleared in shutdown.
     // This has a value for as long as we assume the context is valid.
     std::optional<DataModel::InteractionModelContext> mContext;
@@ -137,6 +152,7 @@ private:
     /// Find the index of the given endpoint id
     std::optional<unsigned> TryFindEndpointIndex(EndpointId id) const;
 };
+
 
 } // namespace app
 } // namespace chip

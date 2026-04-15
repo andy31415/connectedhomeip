@@ -147,3 +147,4 @@ std::optional<ActionReturnStatus> TestImCustomDataModel::InvokeCommand(const Inv
 
 } // namespace app
 } // namespace chip
+
