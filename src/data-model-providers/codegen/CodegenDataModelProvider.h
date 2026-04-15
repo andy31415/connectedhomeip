@@ -153,6 +153,5 @@ private:
     std::optional<unsigned> TryFindEndpointIndex(EndpointId id) const;
 };
 
-
 } // namespace app
 } // namespace chip

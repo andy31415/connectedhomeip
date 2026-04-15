@@ -3027,7 +3027,7 @@ chip::app::ConcreteAttributePath gLastChangedPath;
 void MatterCodegenPostAttributeChange(const chip::app::ConcreteAttributePath & path)
 {
     gMatterCodegenPostAttributeChangeCalled = true;
-    gLastChangedPath = path;
+    gLastChangedPath                        = path;
 }
 
 namespace {
@@ -3035,12 +3035,12 @@ namespace {
 TEST_F(TestCodegenModelViaMocks, CodegenPostAttributeChange)
 {
     chip::app::CodegenDataModelProvider & provider = chip::app::CodegenDataModelProvider::Instance();
-    
+
     gMatterCodegenPostAttributeChangeCalled = false;
     chip::app::ConcreteAttributePath path(1, 2, 3);
-    
+
     provider.NotifyAttributeChanged(path, chip::app::DataModel::AttributeChangeType::kReportable);
-    
+
     EXPECT_TRUE(gMatterCodegenPostAttributeChangeCalled);
     EXPECT_EQ(gLastChangedPath.mEndpointId, path.mEndpointId);
     EXPECT_EQ(gLastChangedPath.mClusterId, path.mClusterId);

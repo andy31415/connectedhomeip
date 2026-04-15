@@ -158,4 +158,3 @@ Status emberAfWriteAttribute(const chip::app::ConcreteAttributePath & path, cons
 {
     return emAfWriteAttributeExternal(path, input);
 }
-
