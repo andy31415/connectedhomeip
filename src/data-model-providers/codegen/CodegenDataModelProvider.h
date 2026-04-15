@@ -31,7 +31,8 @@
 /// Callback invoked after an attribute value has been changed in the data model.
 /// This is called for ALL attribute changes when using CodegenDataModelProvider.
 /// Applications must implement this function.
-void MatterCodegenPostAttributeChange(const chip::app::ConcreteAttributePath & path);
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type);
 
 namespace chip {
 namespace app {
@@ -108,7 +109,7 @@ private:
     public:
         void OnAttributeChanged(const ConcreteAttributePath & path, DataModel::AttributeChangeType type) override
         {
-            ::MatterCodegenPostAttributeChange(path);
+            ::MatterCodegenPostAttributeChangeCallback(path, type);
         }
     } mAttributeChangeHandler;
 

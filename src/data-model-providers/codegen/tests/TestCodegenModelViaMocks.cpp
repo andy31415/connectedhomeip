@@ -3024,7 +3024,8 @@ chip::app::ConcreteAttributePath gLastChangedPath;
 
 } // namespace
 
-void MatterCodegenPostAttributeChange(const chip::app::ConcreteAttributePath & path)
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
 {
     gMatterCodegenPostAttributeChangeCalled = true;
     gLastChangedPath                        = path;

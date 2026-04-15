@@ -103,7 +103,8 @@ TEST_F(TestElectricalPowerMeasurementClusterBackwardsCompatibility, TestInstance
 
 } // namespace
 
-void MatterCodegenPostAttributeChange(const chip::app::ConcreteAttributePath & path)
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
 {
     // Dummy implementation for tests
 }

@@ -257,12 +257,12 @@ To use default attribute persistence, you need to pass in a
 changes in [36658](https://github.com/project-chip/connectedhomeip/pull/36658)
 ).
 
-### `MatterCodegenPostAttributeChange`
+### `MatterCodegenPostAttributeChangeCallback`
 
 Applications using `CodegenDataModelProvider` must now implement the
-`MatterCodegenPostAttributeChange` callback. This callback is invoked after any
-attribute value changes in the data model (both for Ember and code-driven
-clusters).
+`MatterCodegenPostAttributeChangeCallback` callback. This callback is invoked
+after any attribute value changes in the data model (both for Ember and
+code-driven clusters).
 
 This was added because `MatterPostAttributeChangeCallback` is not called for
 code-driven clusters (as they bypass Ember). The new callback ensures that
@@ -272,7 +272,8 @@ If your application does not need to react to attribute changes, you can provide
 a dummy implementation:
 
 ```cpp
-void MatterCodegenPostAttributeChange(const chip::app::ConcreteAttributePath & path)
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
 {
     // Nothing to do
 }
