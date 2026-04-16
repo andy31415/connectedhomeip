@@ -264,20 +264,33 @@ Applications using `CodegenDataModelProvider` must now implement the
 after any attribute value changes in the data model (both for Ember and
 code-driven clusters).
 
-This was added because `MatterPostAttributeChangeCallback` is not called for
+It was introduced because `MatterPostAttributeChangeCallback` is not called for
 code-driven clusters (as they bypass Ember). The new callback ensures that
-applications can react to all attribute changes.
+applications can react to all attribute changes regardless of cluster type.
 
-If your application does not need to react to attribute changes, you can provide
-a dummy implementation:
+**Relationship with `MatterPostAttributeChangeCallback`:** For Ember-based
+clusters, **both** callbacks are fired. To avoid processing the same attribute
+change twice, applications should migrate their attribute-change logic from
+`MatterPostAttributeChangeCallback` into `MatterCodegenPostAttributeChangeCallback`
+and provide an empty stub for the former:
 
 ```cpp
+// Migrate logic here — called for ALL attribute changes (Ember and code-driven).
 void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
                                               chip::app::DataModel::AttributeChangeType type)
 {
-    // Nothing to do
+    // Handle attribute change ...
+}
+
+// Keep as empty stub to avoid duplicate processing for Ember clusters.
+void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & attributePath,
+                                       uint8_t type, uint16_t size, uint8_t * value)
+{
 }
 ```
 
+If your application does not need to react to attribute changes at all, you can
+provide dummy implementations of both functions.
+
 This is a non-weak symbol to ensure developers are aware of the change and
-consciously handle it.
+explicitly handle it.
