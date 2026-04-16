@@ -48,3 +48,12 @@ void MatterPostAttributeChangeCallback(const app::ConcreteAttributePath & attrib
         LevelManager().PostLevelChanged(attributePath.mEndpointId, level);
     }
 }
+
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
+    //
+    // Currently OnOff and LevelControl are ember via the `codegen` folders, so the above
+    // paths still apply.
+}
