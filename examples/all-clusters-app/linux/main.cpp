@@ -42,3 +42,11 @@ int main(int argc, char * argv[])
 
     return 0;
 }
+
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for all-clusters-app on linux.
+    // This app handles many clusters, some may be code-driven, but it didn't have custom logic in the old callback.
+}
+

@@ -424,6 +424,13 @@ void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & 
 #endif
 }
 
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
+}
+
+
 /** @brief OnOff Cluster Init
  *
  * This function is called when a specific cluster is initialized. It gives the

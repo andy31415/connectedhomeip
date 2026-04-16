@@ -49,3 +49,10 @@ void MatterPostAttributeChangeCallback(const app::ConcreteAttributePath & attrib
 
     printf("ERROR clusterId: 0x%04lx, unknown attribute ID: 0x%04lx\n", attributePath.mClusterId, attributePath.mAttributeId);
 }
+
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
+}
+
