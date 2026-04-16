@@ -35,6 +35,7 @@
 #include "AppConfig.h"
 #include "init_asrPlatform.h"
 #include <app/server/Server.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 
 using namespace ::chip;
 using namespace ::chip::Inet;
@@ -89,4 +90,10 @@ int main(void)
     // Should never get here.
     ASR_LOG("vTaskStartScheduler() failed");
     appError(ret);
+}
+
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }

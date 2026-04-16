@@ -18,6 +18,7 @@
 
 #include "AppTask.h"
 #include "FreeRTOS.h"
+#include <app/data-model-provider/AttributeChangeListener.h>
 
 #if configAPPLICATION_ALLOCATED_HEAP
 uint8_t __attribute__((section(".heap"))) ucHeap[configTOTAL_HEAP_SIZE];
@@ -44,3 +45,9 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char * pcTaskName)
     assert(0);
 }
 #endif
+
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
+}

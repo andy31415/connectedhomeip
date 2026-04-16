@@ -50,6 +50,7 @@
 
 #if CONFIG_ENABLE_PW_RPC
 #include "Rpc.h"
+#include <app/data-model-provider/AttributeChangeListener.h>
 #endif /* CONFIG_ENABLE_PW_RPC */
 
 using namespace chip;
@@ -223,4 +224,10 @@ extern "C" void app_main(void)
     {
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
+}
+
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }

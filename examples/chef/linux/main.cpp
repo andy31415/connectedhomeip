@@ -23,6 +23,7 @@
 #include <app/ConcreteAttributePath.h>
 #include <lib/shell/Engine.h>
 #include <lib/support/logging/CHIPLogging.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 
 using namespace chip;
 using namespace chip::Shell;
@@ -52,4 +53,10 @@ int main(int argc, char * argv[])
     ChipLinuxAppMainLoop();
 
     return 0;
+}
+
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }

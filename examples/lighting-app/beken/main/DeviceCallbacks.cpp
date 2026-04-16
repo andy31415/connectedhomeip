@@ -36,6 +36,7 @@
 #include <support/CodeUtils.h>
 #include <support/logging/CHIPLogging.h>
 #include <support/logging/Constants.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 
 static const char TAG[] = "app-devicecallbacks";
 
@@ -110,4 +111,10 @@ void AppDeviceCallbacks::OnIdentifyPostAttributeChangeCallback(EndpointId endpoi
 
 exit:
     return;
+}
+
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }

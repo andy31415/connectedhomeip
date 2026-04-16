@@ -39,6 +39,7 @@
 #include "commands/storage/Commands.h"
 
 #include <zap-generated/cluster/Commands.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 
 int main(int argc, const char * argv[])
 {
@@ -68,4 +69,10 @@ int main(int argc, const char * argv[])
 
     dispatch_main();
     return EXIT_SUCCESS;
+}
+
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }

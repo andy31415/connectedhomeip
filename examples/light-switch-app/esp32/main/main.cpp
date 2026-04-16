@@ -51,6 +51,7 @@
 #else
 #include "esp_chip_info.h"
 #include "esp_flash.h"
+#include <app/data-model-provider/AttributeChangeListener.h>
 #endif
 
 using namespace ::chip;
@@ -143,4 +144,10 @@ extern "C" void app_main()
     {
         ESP_LOGE(TAG, "GetAppTask().StartAppTask() failed : %" CHIP_ERROR_FORMAT, error.Format());
     }
+}
+
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }

@@ -17,6 +17,7 @@
  */
 
 #include <CommodityTariffMain.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 
 /*
  *  @brief  Creates a Delegate and Instance for Commodity Tariff cluster
@@ -112,4 +113,10 @@ CHIP_ERROR CommodityTariffShutdown()
     }
 
     return CHIP_NO_ERROR;
+}
+
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }

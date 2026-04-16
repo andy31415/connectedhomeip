@@ -53,6 +53,7 @@
 
 #ifdef CONFIG_ENABLE_ESP_DIAGNOSTICS
 #include <diagnostic-logs-provider-delegate-impl.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 static uint8_t retrievalBuffer[CONFIG_RETRIEVAL_BUFFER_SIZE]; // Global static buffer used to retrieve diagnostics
 static uint8_t endUserBuffer[CONFIG_END_USER_BUFFER_SIZE];    // Global static buffer used to store diagnostics
 
@@ -150,3 +151,9 @@ void emberAfDiagnosticLogsClusterInitCallback(chip::EndpointId endpoint)
     DiagnosticLogsServer::Instance().SetDiagnosticLogsProviderDelegate(endpoint, &logProvider);
 }
 #endif // CONFIG_ENABLE_ESP_DIAGNOSTICS
+
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
+}

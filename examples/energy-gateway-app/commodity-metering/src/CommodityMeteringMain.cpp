@@ -17,6 +17,7 @@
  */
 
 #include "CommodityMeteringMain.h"
+#include <app/data-model-provider/AttributeChangeListener.h>
 /*
  *  @brief  Creates an Instance for the Commodity Metering cluster
  *
@@ -77,4 +78,10 @@ CHIP_ERROR CommodityMeteringShutdown()
     }
 
     return CHIP_NO_ERROR;
+}
+
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }
