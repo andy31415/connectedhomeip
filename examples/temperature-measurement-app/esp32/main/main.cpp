@@ -26,6 +26,7 @@
 #include "nvs_flash.h"
 #include <app/clusters/diagnostic-logs-server/diagnostic-logs-server.h>
 #include <app/server/Server.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <common/CHIPDeviceManager.h>
 #include <common/Esp32AppServer.h>
 #include <credentials/DeviceAttestationCredsProvider.h>
@@ -51,14 +52,13 @@
 #include <DeviceInfoProviderImpl.h>
 #endif // CONFIG_ENABLE_ESP32_DEVICE_INFO_PROVIDER
 
-#ifdef CONFIG_ENABLE_ESP_DIAGNOSTICS
-#include <app/data-model-provider/AttributeChangeListener.h>
+#ifdef CONFIG_CHIP_ENABLE_ESP_DIAGNOSTICS
 #include <diagnostic-logs-provider-delegate-impl.h>
 static uint8_t retrievalBuffer[CONFIG_RETRIEVAL_BUFFER_SIZE]; // Global static buffer used to retrieve diagnostics
 static uint8_t endUserBuffer[CONFIG_END_USER_BUFFER_SIZE];    // Global static buffer used to store diagnostics
 
 using namespace chip::app::Clusters::DiagnosticLogs;
-#endif // CONFIG_ENABLE_ESP_DIAGNOSTICS
+#endif // CONFIG_CHIP_ENABLE_ESP_DIAGNOSTICS
 
 namespace {
 #if CONFIG_ENABLE_ESP32_FACTORY_DATA_PROVIDER
@@ -137,7 +137,7 @@ extern "C" void app_main()
     LogErrorOnFailure(chip::DeviceLayer::PlatformMgr().ScheduleWork(InitServer, reinterpret_cast<intptr_t>(nullptr)));
 }
 
-#ifdef CONFIG_ENABLE_ESP_DIAGNOSTICS
+#ifdef CONFIG_CHIP_ENABLE_ESP_DIAGNOSTICS
 void emberAfDiagnosticLogsClusterInitCallback(chip::EndpointId endpoint)
 {
     auto & logProvider                        = LogProvider::GetInstance();
@@ -147,9 +147,11 @@ void emberAfDiagnosticLogsClusterInitCallback(chip::EndpointId endpoint)
         .retrievalBuffer     = retrievalBuffer,
         .retrievalBufferSize = CONFIG_RETRIEVAL_BUFFER_SIZE,
     };
-    logProvider.Init(providerInit);
+    CHIP_ERROR err = logProvider.Init(providerInit);
+    VerifyOrReturn(err == CHIP_NO_ERROR, ESP_LOGE(TAG, "logProvider.Init() failed: %" CHIP_ERROR_FORMAT, err.Format()));
     DiagnosticLogsServer::Instance().SetDiagnosticLogsProviderDelegate(endpoint, &logProvider);
 }
+<<<<<<< HEAD
 #endif // CONFIG_ENABLE_ESP_DIAGNOSTICS
 
 void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
@@ -157,3 +159,8 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
 {
     // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }
+||||||| 5e4460819d
+#endif // CONFIG_ENABLE_ESP_DIAGNOSTICS
+=======
+#endif // CONFIG_CHIP_ENABLE_ESP_DIAGNOSTICS
+>>>>>>> master
