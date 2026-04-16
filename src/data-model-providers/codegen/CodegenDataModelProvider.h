@@ -31,6 +31,12 @@
 /// Callback invoked after an attribute value has been changed in the data model.
 /// This is called for ALL attribute changes when using CodegenDataModelProvider.
 /// Applications must implement this function.
+///
+/// This is intended as replacement for MatterPostAttributeChangeCallback:
+///   - all attribute change notifications will be received on this callback
+///   - `value` is not received and has to be read. This is because the method for reading the attribute
+///     value is changing when clusters are moved to code-driven (have to be read from the cluster
+///     instead of the ember/accessors)
 void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
                                               chip::app::DataModel::AttributeChangeType type);
 
