@@ -25,6 +25,7 @@
 #include <stdlib.h>
 
 #include "CHIPDeviceManager.h"
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/util/basic-types.h>
 #include <core/ErrorStr.h>
 #include <credentials/DeviceAttestationCredsProvider.h>

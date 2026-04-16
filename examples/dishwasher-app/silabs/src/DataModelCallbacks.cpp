@@ -22,6 +22,7 @@
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/ConcreteAttributePath.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <lib/support/logging/CHIPLogging.h>
 
 #include "AppConfig.h"

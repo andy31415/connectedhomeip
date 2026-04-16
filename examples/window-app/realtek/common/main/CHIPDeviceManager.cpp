@@ -26,6 +26,7 @@
 
 #include "CHIPDeviceManager.h"
 #include <app/clusters/network-commissioning/network-commissioning.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/util/af-types.h>
 #include <core/ErrorStr.h>
 #include <dac_provider/CommonDACProvider.h>

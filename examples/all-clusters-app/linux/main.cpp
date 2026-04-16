@@ -21,6 +21,7 @@
 #include "binding-handler.h"
 #include "tls-certificate-management-instance.h"
 #include "tls-client-management-instance.h"
+#include <app/data-model-provider/AttributeChangeListener.h>
 
 // Network commissioning
 namespace {

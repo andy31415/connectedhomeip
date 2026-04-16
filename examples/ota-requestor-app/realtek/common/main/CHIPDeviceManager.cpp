@@ -28,6 +28,7 @@
 #include "CHIPDeviceManager.h"
 #include <app/ConcreteAttributePath.h>
 #include <app/clusters/network-commissioning/network-commissioning.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <core/ErrorStr.h>
 #include <dac_provider/CommonDACProvider.h>
 #include <platform/realtek/freertos/FactoryDataProvider.h>

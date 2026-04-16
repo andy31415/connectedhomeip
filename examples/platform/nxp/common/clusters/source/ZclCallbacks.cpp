@@ -19,6 +19,7 @@
 #include "CHIPDeviceManager.h"
 
 #include <app/ConcreteAttributePath.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 
 #if CONFIG_DIAG_LOGS_DEMO
 #include "DiagnosticLogsProviderDelegateImpl.h"

@@ -32,6 +32,7 @@
 #include <app/ConcreteAttributePath.h>
 #include <app/ConcreteCommandPath.h>
 #include <app/clusters/closure-control-server/CodegenIntegration.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 
 using namespace ::chip;
 using namespace ::chip::app::Clusters::ClosureControl;

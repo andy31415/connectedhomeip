@@ -24,6 +24,7 @@
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/ConcreteAttributePath.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/util/af-types.h>
 
 #if CONFIG_DIAG_LOGS_DEMO

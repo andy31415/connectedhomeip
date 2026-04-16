@@ -18,6 +18,7 @@
 
 #include "AppMain.h"
 #include <app-common/zap-generated/ids/Clusters.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 
 #include "Identify.h"
 #include "LockAppCommandDelegate.h"

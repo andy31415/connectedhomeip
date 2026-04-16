@@ -19,6 +19,7 @@
 #include "AppMain.h"
 #include "lit-icd-common/Identify.h"
 #include <app-common/zap-generated/ids/Clusters.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 
 #include "system/SystemClock.h"
 

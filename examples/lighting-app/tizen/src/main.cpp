@@ -22,6 +22,7 @@
 #include <app/ConcreteAttributePath.h>
 #include <app/clusters/color-control-server/color-control-server.h>
 #include <app/clusters/network-commissioning/network-commissioning.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <platform/Tizen/NetworkCommissioningDriver.h>
 
 #include <LedManager.h>

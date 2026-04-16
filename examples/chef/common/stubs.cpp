@@ -2,6 +2,7 @@
 #include "FakeAttributeAccess.h"
 #include <app-common/zap-generated/attributes/Accessors.h>
 #include <app-common/zap-generated/callback.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/data-model/Nullable.h>
 #include <app/util/attribute-storage.h>
 #include <app/util/config.h>

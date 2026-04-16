@@ -22,6 +22,7 @@
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/ConcreteAttributePath.h>
 #include <app/clusters/identify-server/identify-server.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <lib/support/logging/CHIPLogging.h>
 
 using namespace chip;
