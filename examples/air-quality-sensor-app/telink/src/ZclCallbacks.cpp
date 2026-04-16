@@ -22,6 +22,7 @@
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/ConcreteAttributePath.h>
 #include <app/data-model-provider/AttributeChangeListener.h>
+#include <air-quality-sensor-manager.h>
 #include <lib/support/logging/CHIPLogging.h>
 
 LOG_MODULE_DECLARE(app, CONFIG_CHIP_APP_LOG_LEVEL);
@@ -33,22 +34,22 @@ void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & 
                                        uint8_t * value)
 {
     ClusterId clusterId     = attributePath.mClusterId;
-    AttributeId attributeId = attributePath.mAttributeId;
     ChipLogProgress(Zcl, "Cluster callback: " ChipLogFormatMEI, ChipLogValueMEI(clusterId));
-
-    if (clusterId == AirQuality::Id && attributeId == AirQuality::Attributes::AirQuality::Id)
-    {
-        static_assert(sizeof(AirQuality::AirQualityEnum) == 1, "Wrong size");
-        AirQuality::AirQualityEnum AirQuality = *(reinterpret_cast<AirQuality::AirQualityEnum *>(value));
-        ChipLogProgress(Zcl, "AirQuality cluster: " ChipLogFormatMEI " state %d", ChipLogValueMEI(clusterId),
-                        to_underlying(AirQuality));
-    }
 }
 
 void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
                                               chip::app::DataModel::AttributeChangeType type)
 {
-    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
+    if (path.mClusterId == AirQuality::Id && path.mAttributeId == AirQuality::Attributes::AirQuality::Id)
+    {
+        auto * manager = AirQualitySensorManager::GetInstance();
+        if (manager != nullptr)
+        {
+            auto airQuality = manager->GetAirQuality();
+            ChipLogProgress(Zcl, "AirQuality cluster: " ChipLogFormatMEI " state %d", ChipLogValueMEI(path.mClusterId),
+                            to_underlying(airQuality));
+        }
+    }
 }
 
 /** @brief AirQuality Cluster Init

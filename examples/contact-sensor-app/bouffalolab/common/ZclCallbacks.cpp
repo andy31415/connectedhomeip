@@ -21,6 +21,7 @@
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/ConcreteAttributePath.h>
 #include <app/data-model-provider/AttributeChangeListener.h>
+#include <app/clusters/boolean-state-server/CodegenIntegration.h>
 #include <lib/support/logging/CHIPLogging.h>
 
 using namespace ::chip;
@@ -32,18 +33,20 @@ void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & 
 {
     ChipLogProgress(Zcl, "Cluster callback: " ChipLogFormatMEI " " ChipLogFormatMEI, ChipLogValueMEI(path.mClusterId),
                     ChipLogValueMEI(path.mAttributeId));
-
-    if (path.mClusterId == BooleanState::Id && path.mAttributeId == BooleanState::Attributes::StateValue::Id)
-    {
-        ChipLogProgress(Zcl, "Cluster BooleanState: attribute StateValue set to %u", *value);
-        return;
-    }
 }
 
 void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
                                               chip::app::DataModel::AttributeChangeType type)
 {
-    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
+    if (path.mClusterId == BooleanState::Id && path.mAttributeId == BooleanState::Attributes::StateValue::Id)
+    {
+        auto * cluster = BooleanState::FindClusterOnEndpoint(path.mEndpointId);
+        if (cluster != nullptr)
+        {
+            bool value = cluster->GetStateValue();
+            ChipLogProgress(Zcl, "Cluster BooleanState: attribute StateValue set to %u", value);
+        }
+    }
 }
 
 void emberAfBooleanStateClusterInitCallback(EndpointId endpoint)

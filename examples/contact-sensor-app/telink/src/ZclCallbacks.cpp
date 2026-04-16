@@ -22,6 +22,7 @@
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/ConcreteAttributePath.h>
 #include <app/data-model-provider/AttributeChangeListener.h>
+#include <app/clusters/boolean-state-server/CodegenIntegration.h>
 #include <lib/support/logging/CHIPLogging.h>
 
 using namespace chip;
@@ -33,29 +34,31 @@ void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & 
                                        uint8_t * value)
 {
     ClusterId clusterId     = attributePath.mClusterId;
-    AttributeId attributeId = attributePath.mAttributeId;
     ChipLogProgress(Zcl, "Cluster callback: " ChipLogFormatMEI, ChipLogValueMEI(clusterId));
-
-    if (clusterId == BooleanState::Id && attributeId == BooleanState::Attributes::StateValue::Id)
-    {
-        ChipLogProgress(Zcl, "Cluster BooleanState: attribute StateValue set to %u", *value);
-        AppTask & task = GetAppTask();
-        if (task.IsSyncClusterToButtonAction())
-        {
-            task.SetSyncClusterToButtonAction(false);
-        }
-        else
-        {
-            task.PostContactActionRequest(*value ? ContactSensorManager::Action::kSignalDetected
-                                                 : ContactSensorManager::Action::kSignalLost);
-        }
-    }
 }
 
 void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
                                               chip::app::DataModel::AttributeChangeType type)
 {
-    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
+    if (path.mClusterId == BooleanState::Id && path.mAttributeId == BooleanState::Attributes::StateValue::Id)
+    {
+        auto * cluster = BooleanState::FindClusterOnEndpoint(path.mEndpointId);
+        if (cluster != nullptr)
+        {
+            bool value = cluster->GetStateValue();
+            ChipLogProgress(Zcl, "Cluster BooleanState: attribute StateValue set to %u", value);
+            AppTask & task = GetAppTask();
+            if (task.IsSyncClusterToButtonAction())
+            {
+                task.SetSyncClusterToButtonAction(false);
+            }
+            else
+            {
+                task.PostContactActionRequest(value ? ContactSensorManager::Action::kSignalDetected
+                                                     : ContactSensorManager::Action::kSignalLost);
+            }
+        }
+    }
 }
 
 void emberAfBooleanStateClusterInitCallback(EndpointId endpoint)
