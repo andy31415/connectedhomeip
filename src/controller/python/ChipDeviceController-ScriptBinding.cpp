@@ -41,8 +41,8 @@
 #include <net/if.h>
 
 #include <app/DeviceProxy.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/InteractionModelEngine.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/icd/client/CheckInHandler.h>
 #include <app/icd/client/DefaultCheckInDelegate.h>
 #include <app/icd/client/DefaultICDClientStorage.h>

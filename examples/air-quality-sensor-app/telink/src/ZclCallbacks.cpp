@@ -18,11 +18,11 @@
 
 #include "AppTask.h"
 
+#include <air-quality-sensor-manager.h>
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/ConcreteAttributePath.h>
 #include <app/data-model-provider/AttributeChangeListener.h>
-#include <air-quality-sensor-manager.h>
 #include <lib/support/logging/CHIPLogging.h>
 
 LOG_MODULE_DECLARE(app, CONFIG_CHIP_APP_LOG_LEVEL);
@@ -33,7 +33,7 @@ using namespace chip::app::Clusters;
 void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & attributePath, uint8_t type, uint16_t size,
                                        uint8_t * value)
 {
-    ClusterId clusterId     = attributePath.mClusterId;
+    ClusterId clusterId = attributePath.mClusterId;
     ChipLogProgress(Zcl, "Cluster callback: " ChipLogFormatMEI, ChipLogValueMEI(clusterId));
 }
 

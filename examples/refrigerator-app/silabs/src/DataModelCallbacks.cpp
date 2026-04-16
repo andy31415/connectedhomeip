@@ -25,8 +25,8 @@
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/ConcreteAttributePath.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/clusters/temperature-control-server/CodegenIntegration.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <lib/support/logging/CHIPLogging.h>
 
 #ifdef SL_MATTER_ENABLE_AWS
@@ -71,7 +71,8 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
             if (path.mAttributeId == app::Clusters::TemperatureControl::Attributes::TemperatureSetpoint::Id)
             {
                 int16_t setpoint = cluster->GetTemperatureSetpoint();
-                RefrigeratorMgr().TempCtrlAttributeChangeHandler(path.mEndpointId, path.mAttributeId, reinterpret_cast<uint8_t *>(&setpoint), sizeof(setpoint));
+                RefrigeratorMgr().TempCtrlAttributeChangeHandler(path.mEndpointId, path.mAttributeId,
+                                                                 reinterpret_cast<uint8_t *>(&setpoint), sizeof(setpoint));
             }
 #ifdef SL_MATTER_ENABLE_AWS
             matterAws::control::AttributeHandler(path.mEndpointId, path.mAttributeId);

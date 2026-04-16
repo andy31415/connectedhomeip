@@ -21,8 +21,8 @@
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/ConcreteAttributePath.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/clusters/boolean-state-server/CodegenIntegration.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <lib/support/logging/CHIPLogging.h>
 
 using namespace chip;
@@ -33,7 +33,7 @@ LOG_MODULE_DECLARE(app, CONFIG_CHIP_APP_LOG_LEVEL);
 void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & attributePath, uint8_t type, uint16_t size,
                                        uint8_t * value)
 {
-    ClusterId clusterId     = attributePath.mClusterId;
+    ClusterId clusterId = attributePath.mClusterId;
     ChipLogProgress(Zcl, "Cluster callback: " ChipLogFormatMEI, ChipLogValueMEI(clusterId));
 }
 
@@ -55,7 +55,7 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
             else
             {
                 task.PostContactActionRequest(value ? ContactSensorManager::Action::kSignalDetected
-                                                     : ContactSensorManager::Action::kSignalLost);
+                                                    : ContactSensorManager::Action::kSignalLost);
             }
         }
     }

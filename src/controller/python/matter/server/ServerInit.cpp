@@ -18,8 +18,8 @@
 #include <platform/PlatformManager.h>
 #include <platform/TestOnlyCommissionableDataProvider.h>
 
-#include <app/server/Server.h>
 #include <app/data-model-provider/AttributeChangeListener.h>
+#include <app/server/Server.h>
 #include <data-model-providers/codegen/Instance.h>
 #include <setup_payload/OnboardingCodesUtil.h>
 
