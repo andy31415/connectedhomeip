@@ -101,4 +101,3 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
 {
     // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }
-

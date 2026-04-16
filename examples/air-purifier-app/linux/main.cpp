@@ -59,7 +59,6 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
     // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }
 
-
 // Initialize the Air Purifier Manager and set up the endpoint composition tree.
 void ApplicationInit()
 {

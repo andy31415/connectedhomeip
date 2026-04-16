@@ -54,7 +54,6 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
     // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }
 
-
 /** @brief DoorLock Cluster Init
  *
  * This function is called when a specific cluster is initialized. It gives the

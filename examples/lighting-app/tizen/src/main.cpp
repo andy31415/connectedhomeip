@@ -126,7 +126,6 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
     // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }
 
-
 void emberAfColorControlClusterInitCallback(EndpointId endpoint)
 {
     // Set the color mode to color temperature.

@@ -289,7 +289,6 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
     // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }
 
-
 bool emberAfPluginDoorLockGetUser(EndpointId endpointId, uint16_t userIndex, EmberAfPluginDoorLockUserInfo & user)
 {
     return BoltLockMgr().GetUser(userIndex, user);

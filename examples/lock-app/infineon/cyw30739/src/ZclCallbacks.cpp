@@ -50,7 +50,6 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
     // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }
 
-
 bool emberAfPluginDoorLockOnDoorLockCommand(chip::EndpointId endpointId, const Nullable<chip::FabricIndex> & fabricIdx,
                                             const Nullable<chip::NodeId> & nodeId, const Optional<ByteSpan> & pinCode,
                                             OperationErrorEnum & err)

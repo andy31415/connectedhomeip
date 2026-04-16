@@ -42,7 +42,6 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
     // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }
 
-
 #if CONFIG_DIAG_LOGS_DEMO
 /** @brief DiagnosticLogs Cluster Init
  *

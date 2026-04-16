@@ -87,7 +87,6 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
     // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }
 
-
 void EventHandler(const ChipDeviceEvent * event, intptr_t arg)
 {
     (void) arg;

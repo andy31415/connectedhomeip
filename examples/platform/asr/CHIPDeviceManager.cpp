@@ -88,7 +88,6 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
     // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }
 
-
 #ifdef MATTER_DM_PLUGIN_IDENTIFY_SERVER
 void OnIdentifyStart(Identify *)
 {

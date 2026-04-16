@@ -47,7 +47,6 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
     // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }
 
-
 using namespace chip::app::Clusters::LaundryWasherControls;
 void emberAfLaundryWasherControlsClusterInitCallback(EndpointId endpoint)
 {

@@ -49,4 +49,3 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
     // Stub for all-clusters-app on linux.
     // This app handles many clusters, some may be code-driven, but it didn't have custom logic in the old callback.
 }
-

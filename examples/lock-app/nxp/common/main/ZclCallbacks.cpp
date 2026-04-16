@@ -66,7 +66,6 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
     // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }
 
-
 // App handles physical aspects of locking but not locking logic. That is it
 // should wait for door to be locked on lock command and return success) but
 // door lock server should check pin before even calling the lock-door
