@@ -90,8 +90,4 @@ void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & 
     }
 }
 
-void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
-                                              chip::app::DataModel::AttributeChangeType type)
-{
-    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
-}
+

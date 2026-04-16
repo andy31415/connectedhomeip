@@ -46,8 +46,4 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char * pcTaskName)
 }
 #endif
 
-void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
-                                              chip::app::DataModel::AttributeChangeType type)
-{
-    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
-}
+
