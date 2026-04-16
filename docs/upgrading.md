@@ -271,8 +271,9 @@ applications can react to all attribute changes regardless of cluster type.
 **Relationship with `MatterPostAttributeChangeCallback`:** For Ember-based
 clusters, **both** callbacks are fired. To avoid processing the same attribute
 change twice, applications should migrate their attribute-change logic from
-`MatterPostAttributeChangeCallback` into `MatterCodegenPostAttributeChangeCallback`
-and provide an empty stub for the former:
+`MatterPostAttributeChangeCallback` into
+`MatterCodegenPostAttributeChangeCallback` and provide an empty stub for the
+former:
 
 ```cpp
 // Migrate logic here — called for ALL attribute changes (Ember and code-driven).
