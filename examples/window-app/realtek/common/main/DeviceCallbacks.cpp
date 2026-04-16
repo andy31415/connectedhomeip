@@ -189,6 +189,4 @@ void DeviceCallbacks::OnInternetConnectivityChange(const ChipDeviceEvent * event
 }
 
 /* Forwards all attributes changes */
-void MatterWindowCoveringClusterServerAttributeChangedCallback(const app::ConcreteAttributePath & attributePath)
-{
-}
+void MatterWindowCoveringClusterServerAttributeChangedCallback(const app::ConcreteAttributePath & attributePath) {}

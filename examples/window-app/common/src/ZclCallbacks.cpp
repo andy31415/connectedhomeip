@@ -61,6 +61,4 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
 }
 
 /* Forwards all attributes changes */
-void MatterWindowCoveringClusterServerAttributeChangedCallback(const app::ConcreteAttributePath & attributePath)
-{
-}
+void MatterWindowCoveringClusterServerAttributeChangedCallback(const app::ConcreteAttributePath & attributePath) {}
