@@ -16,6 +16,8 @@
  *
  */
 
+#include <app/ConcreteAttributePath.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <commands/clusters/SubscriptionsCommands.h>
 #include <commands/common/Commands.h>
 #include <commands/delay/Commands.h>

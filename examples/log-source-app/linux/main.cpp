@@ -19,7 +19,9 @@
 #include <platform/PlatformManager.h>
 
 #include <app/CommandHandlerInterfaceRegistry.h>
+#include <app/ConcreteAttributePath.h>
 #include <app/clusters/diagnostic-logs-server/diagnostic-logs-server.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/server/Server.h>
 #include <app/util/util.h>
 #include <credentials/DeviceAttestationCredsProvider.h>

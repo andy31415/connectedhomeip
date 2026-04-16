@@ -20,6 +20,9 @@
 #include "AppOptions.h"
 #include "binding-handler.h"
 
+#include <app/ConcreteAttributePath.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
+
 // Network commissioning
 namespace {
 constexpr chip::EndpointId kNetworkCommissioningEndpointSecondary = 0xFFFE;

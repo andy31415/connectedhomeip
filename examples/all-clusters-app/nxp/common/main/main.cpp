@@ -23,6 +23,8 @@
 
 #include "FreeRTOS.h"
 #include <AppTask.h>
+#include <app/ConcreteAttributePath.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <lib/core/CHIPError.h>
 #include <lib/support/logging/CHIPLogging.h>
 

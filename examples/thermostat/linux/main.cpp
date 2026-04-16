@@ -20,8 +20,10 @@
 #include <app-common/zap-generated/callback.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/CommandHandler.h>
+#include <app/ConcreteAttributePath.h>
 #include <app/clusters/identify-server/identify-server.h>
 #include <app/clusters/thermostat-server/thermostat-server.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 
 #include "thermostat-delegate-impl.h"
 

@@ -17,11 +17,13 @@
  */
 
 #include "AppMain.h"
+#include <app/ConcreteAttributePath.h>
 #include <app/clusters/ota-requestor/BDXDownloader.h>
 #include <app/clusters/ota-requestor/DefaultOTARequestor.h>
 #include <app/clusters/ota-requestor/DefaultOTARequestorStorage.h>
 #include <app/clusters/ota-requestor/DefaultOTARequestorUserConsent.h>
 #include <app/clusters/ota-requestor/ExtendedOTARequestorDriver.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <platform/Linux/OTAImageProcessorImpl.h>
 
 #include <optional>
