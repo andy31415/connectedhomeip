@@ -56,6 +56,9 @@ void appError(CHIP_ERROR error)
 // ================================================================================
 // Main Code
 // ================================================================================
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{}
 int main(void)
 {
     init_asrPlatform();

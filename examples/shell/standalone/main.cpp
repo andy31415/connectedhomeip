@@ -30,6 +30,12 @@
 using namespace chip;
 using namespace chip::Shell;
 
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
+}
+
 int main()
 {
     TEMPORARY_RETURN_IGNORED chip::Platform::MemoryInit();

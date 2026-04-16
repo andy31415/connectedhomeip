@@ -72,6 +72,10 @@ using namespace chip::DeviceLayer;
 using namespace chip::Credentials;
 using chip::DeviceLayer::Internal::ESP32Config;
 
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{}
+
 static const char TAG[] = "all-devices-app";
 
 // NVS key for storing the device type across reboots
