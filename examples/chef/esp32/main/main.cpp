@@ -30,6 +30,7 @@
 #include <platform/CHIPDeviceLayer.h>
 
 #include <app/clusters/network-commissioning/network-commissioning.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/server/Server.h>
 #include <data-model-providers/codegen/Instance.h>
 #include <setup_payload/OnboardingCodesUtil.h>
@@ -50,7 +51,6 @@
 
 #if CONFIG_ENABLE_PW_RPC
 #include "Rpc.h"
-#include <app/data-model-provider/AttributeChangeListener.h>
 #endif /* CONFIG_ENABLE_PW_RPC */
 
 using namespace chip;

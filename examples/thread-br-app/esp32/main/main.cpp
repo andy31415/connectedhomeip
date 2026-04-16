@@ -35,6 +35,7 @@
 #include "support/CHIPMem.h"
 
 #include <app/clusters/thread-border-router-management-server/thread-border-router-management-server.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/server/Server.h>
 #include <credentials/DeviceAttestationCredsProvider.h>
 #include <credentials/examples/DeviceAttestationCredsExample.h>
@@ -49,7 +50,6 @@
 #include <platform/ESP32/ESP32DeviceInfoProvider.h>
 #else
 #include <DeviceInfoProviderImpl.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 #endif // CONFIG_ENABLE_ESP32_DEVICE_INFO_PROVIDER
 
 using namespace ::chip;

@@ -25,6 +25,7 @@
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/ConcreteAttributePath.h>
 #include <app/clusters/identify-server/identify-server.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/reporting/reporting.h>
 #include <app/util/attribute-storage.h>
 #include <app/util/endpoint-config-api.h>
@@ -55,7 +56,6 @@
 #include <platform/ESP32/ESP32DeviceInfoProvider.h>
 #else
 #include <DeviceInfoProviderImpl.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 #endif // CONFIG_ENABLE_ESP32_DEVICE_INFO_PROVIDER
 
 namespace {

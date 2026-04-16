@@ -31,6 +31,7 @@
 #include "nvs_flash.h"
 #include "shell_extension/launch.h"
 
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <credentials/DeviceAttestationCredsProvider.h>
 #include <credentials/examples/DeviceAttestationCredsExample.h>
 #include <platform/ESP32/ESP32Utils.h>
@@ -51,7 +52,6 @@
 #else
 #include "esp_chip_info.h"
 #include "esp_flash.h"
-#include <app/data-model-provider/AttributeChangeListener.h>
 #endif
 
 using namespace ::chip;

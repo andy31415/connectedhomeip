@@ -26,6 +26,7 @@
 
 #include <DeviceCallbacks.h>
 #include <IcdUatButton.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/icd/server/ICDManager.h>
 #include <app/server/Server.h>
 #include <common/CHIPDeviceManager.h>
@@ -44,7 +45,6 @@
 #include <platform/ESP32/ESP32DeviceInfoProvider.h>
 #else
 #include <DeviceInfoProviderImpl.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 #endif // CONFIG_ENABLE_ESP32_DEVICE_INFO_PROVIDER
 
 namespace {

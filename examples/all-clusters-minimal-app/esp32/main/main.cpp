@@ -35,6 +35,7 @@
 #include "shell_extension/launch.h"
 #include <common/CHIPDeviceManager.h>
 
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/util/endpoint-config-api.h>
 #include <binding-handler.h>
 #include <common/Esp32AppServer.h>
@@ -61,7 +62,6 @@
 #include <platform/ESP32/ESP32DeviceInfoProvider.h>
 #else
 #include <DeviceInfoProviderImpl.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 #endif // CONFIG_ENABLE_ESP32_DEVICE_INFO_PROVIDER
 
 using namespace ::chip;

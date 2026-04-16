@@ -26,6 +26,7 @@
 #include "freertos/task.h"
 #include "nvs_flash.h"
 #include "shell_extension/launch.h"
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <common/CHIPDeviceManager.h>
 #include <common/Esp32AppServer.h>
 #include <credentials/DeviceAttestationCredsProvider.h>
@@ -50,7 +51,6 @@
 #include <platform/ESP32/ESP32DeviceInfoProvider.h>
 #else
 #include <DeviceInfoProviderImpl.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 #endif // CONFIG_ENABLE_ESP32_DEVICE_INFO_PROVIDER
 
 using namespace ::chip;
