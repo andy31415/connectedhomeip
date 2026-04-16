@@ -108,7 +108,7 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
     chip::app::DataModel::AttributeChangeType type)
 {
     // as opposed to MatterPostAttributeChangeCallback, this method is not
-    // weak-linked so an implementaiton is required. However there is nothing to do here
+    // weak-linked so an implementation is required. However there is nothing to do here
     // so it is just declared currently.
 }
 
