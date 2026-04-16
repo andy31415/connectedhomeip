@@ -48,5 +48,3 @@ void MatterPostAttributeChangeCallback(const app::ConcreteAttributePath & attrib
         LevelManager().PostLevelChanged(attributePath.mEndpointId, level);
     }
 }
-
-

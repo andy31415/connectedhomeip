@@ -126,5 +126,3 @@ void MatterPostAttributeChangeCallback(const app::ConcreteAttributePath & attrib
         break;
     }
 }
-
-
