@@ -25,8 +25,8 @@
 #include "freertos/task.h"
 #include "nvs_flash.h"
 #include <app/clusters/diagnostic-logs-server/diagnostic-logs-server.h>
-#include <app/server/Server.h>
 #include <app/data-model-provider/AttributeChangeListener.h>
+#include <app/server/Server.h>
 #include <common/CHIPDeviceManager.h>
 #include <common/Esp32AppServer.h>
 #include <credentials/DeviceAttestationCredsProvider.h>
@@ -151,16 +151,11 @@ void emberAfDiagnosticLogsClusterInitCallback(chip::EndpointId endpoint)
     VerifyOrReturn(err == CHIP_NO_ERROR, ESP_LOGE(TAG, "logProvider.Init() failed: %" CHIP_ERROR_FORMAT, err.Format()));
     DiagnosticLogsServer::Instance().SetDiagnosticLogsProviderDelegate(endpoint, &logProvider);
 }
-<<<<<<< HEAD
-#endif // CONFIG_ENABLE_ESP_DIAGNOSTICS
+
+#endif // CONFIG_CHIP_ENABLE_ESP_DIAGNOSTICS
 
 void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
                                               chip::app::DataModel::AttributeChangeType type)
 {
     // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
 }
-||||||| 5e4460819d
-#endif // CONFIG_ENABLE_ESP_DIAGNOSTICS
-=======
-#endif // CONFIG_CHIP_ENABLE_ESP_DIAGNOSTICS
->>>>>>> master
