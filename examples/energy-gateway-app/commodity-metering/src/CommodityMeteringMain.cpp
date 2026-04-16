@@ -79,5 +79,3 @@ CHIP_ERROR CommodityMeteringShutdown()
 
     return CHIP_NO_ERROR;
 }
-
-

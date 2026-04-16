@@ -103,5 +103,3 @@ CHIP_ERROR ElectricalGridConditionsShutdown()
 
     return CHIP_NO_ERROR;
 }
-
-

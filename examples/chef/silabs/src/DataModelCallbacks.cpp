@@ -46,8 +46,6 @@ void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & 
     }
 }
 
-
-
 /** @brief OnOff Cluster Init
  *
  * This function is called when a specific cluster is initialized. It gives the

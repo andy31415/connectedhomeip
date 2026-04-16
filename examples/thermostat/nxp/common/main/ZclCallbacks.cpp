@@ -49,8 +49,6 @@ void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & 
     }
 }
 
-
-
 #if CONFIG_DIAG_LOGS_DEMO
 void emberAfDiagnosticLogsClusterInitCallback(chip::EndpointId endpoint)
 {

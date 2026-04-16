@@ -225,5 +225,3 @@ extern "C" void app_main(void)
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
-
-

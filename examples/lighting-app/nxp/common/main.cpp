@@ -45,5 +45,3 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char * pcTaskName)
     assert(0);
 }
 #endif
-
-

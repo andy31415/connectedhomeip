@@ -85,5 +85,3 @@ int main(void)
     ASR_LOG("vTaskStartScheduler() failed");
     appError(ret);
 }
-
-

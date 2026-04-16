@@ -103,5 +103,3 @@ CHIP_ERROR CommodityPriceShutdown()
 
     return CHIP_NO_ERROR;
 }
-
-

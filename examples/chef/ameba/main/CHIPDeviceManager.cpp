@@ -89,5 +89,3 @@ void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & 
         cb->PostAttributeChangeCallback(path.mEndpointId, path.mClusterId, path.mAttributeId, type, size, value);
     }
 }
-
-

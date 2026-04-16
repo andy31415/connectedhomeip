@@ -114,5 +114,3 @@ CHIP_ERROR CommodityTariffShutdown()
 
     return CHIP_NO_ERROR;
 }
-
-
