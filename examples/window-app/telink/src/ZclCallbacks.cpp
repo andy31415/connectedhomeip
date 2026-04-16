@@ -54,17 +54,9 @@ void MatterPostAttributeChangeCallback(const app::ConcreteAttributePath & attrib
 void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
                                               chip::app::DataModel::AttributeChangeType type)
 {
-    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
-}
-
-/* Forwards all attributes changes */
-void MatterWindowCoveringClusterServerAttributeChangedCallback(const app::ConcreteAttributePath & attributePath)
-{
-    // TODO: Consider moving this logic to MatterCodegenPostAttributeChangeCallback to support code-driven cluster compatibility.
-
-    if (attributePath.mEndpointId == WindowCovering::Endpoint())
+    if (path.mClusterId == app::Clusters::WindowCovering::Id && path.mEndpointId == WindowCovering::Endpoint())
     {
-        switch (attributePath.mAttributeId)
+        switch (path.mAttributeId)
         {
         case Attributes::TargetPositionLiftPercent100ths::Id:
             WindowCovering::Instance().StartMove(WindowCoveringType::Lift);
@@ -79,8 +71,13 @@ void MatterWindowCoveringClusterServerAttributeChangedCallback(const app::Concre
             WindowCovering::Instance().PositionLEDUpdate(WindowCoveringType::Tilt);
             break;
         default:
-            WindowCovering::Instance().SchedulePostAttributeChange(attributePath.mEndpointId, attributePath.mAttributeId);
+            WindowCovering::Instance().SchedulePostAttributeChange(path.mEndpointId, path.mAttributeId);
             break;
         };
     }
+}
+
+/* Forwards all attributes changes */
+void MatterWindowCoveringClusterServerAttributeChangedCallback(const app::ConcreteAttributePath & attributePath)
+{
 }

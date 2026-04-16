@@ -25,6 +25,9 @@
 #include <stdlib.h>
 
 #include "CHIPDeviceManager.h"
+#include "WindowCovering.h"
+#include <app-common/zap-generated/ids/Attributes.h>
+#include <app-common/zap-generated/ids/Clusters.h>
 #include <app/clusters/network-commissioning/network-commissioning.h>
 #include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/util/af-types.h>
@@ -161,5 +164,25 @@ void MatterPostAttributeChangeCallback(const app::ConcreteAttributePath & attrib
 void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
                                               chip::app::DataModel::AttributeChangeType type)
 {
-    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
+    if (path.mClusterId == app::Clusters::WindowCovering::Id && path.mEndpointId == WindowCovering::Endpoint())
+    {
+        switch (path.mAttributeId)
+        {
+        case app::Clusters::WindowCovering::Attributes::TargetPositionLiftPercent100ths::Id:
+            WindowCovering::Instance().StartMove(WindowCovering::MoveType::LIFT);
+            break;
+        case app::Clusters::WindowCovering::Attributes::TargetPositionTiltPercent100ths::Id:
+            WindowCovering::Instance().StartMove(WindowCovering::MoveType::TILT);
+            break;
+        case app::Clusters::WindowCovering::Attributes::CurrentPositionLiftPercent100ths::Id:
+            WindowCovering::Instance().PositionLEDUpdate(WindowCovering::MoveType::LIFT);
+            break;
+        case app::Clusters::WindowCovering::Attributes::CurrentPositionTiltPercent100ths::Id:
+            WindowCovering::Instance().PositionLEDUpdate(WindowCovering::MoveType::TILT);
+            break;
+        default:
+            WindowCovering::Instance().SchedulePostAttributeChange(path.mEndpointId, path.mAttributeId);
+            break;
+        };
+    }
 }

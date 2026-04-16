@@ -18,10 +18,17 @@
 
 #include <app-common/zap-generated/callback.h>
 #include <app/ConcreteAttributePath.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <lib/support/logging/CHIPLogging.h>
 
 using namespace chip;
 using namespace chip::app;
+
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    // Stub for now, logic remains in MatterPostAttributeChangeCallback for Ember clusters.
+}
 
 /* Forwards all attributes changes */
 void MatterClosureControlClusterServerAttributeChangedCallback(const app::ConcreteAttributePath & attributePath)
