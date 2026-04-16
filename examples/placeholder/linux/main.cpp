@@ -20,8 +20,8 @@
 #include "AppOptions.h"
 #include "InteractiveServer.h"
 
-#include <app/util/MatterCallbacks.h>
 #include <app/data-model-provider/AttributeChangeListener.h>
+#include <app/util/MatterCallbacks.h>
 
 namespace {
 class InteractiveServerRedirectCallbacks : public chip::DataModelCallbacks
