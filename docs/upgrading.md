@@ -295,3 +295,27 @@ provide dummy implementations of both functions.
 
 This is a non-weak symbol to ensure developers are aware of the change and
 explicitly handle it.
+
+### Legacy `Matter*ClusterServerAttributeChangedCallback`
+
+Legacy cluster-specific post-attribute change callbacks like
+`MatterWindowCoveringClusterServerAttributeChangedCallback` or
+`MatterClosureControlClusterServerAttributeChangedCallback` may still be called
+for Ember-based clusters, but they are not called for code-driven clusters.
+
+To support code-driven cluster compatibility, applications relying on these
+callbacks should consider migrating their logic to
+`MatterCodegenPostAttributeChangeCallback`.
+
+Example:
+
+```cpp
+void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
+                                              chip::app::DataModel::AttributeChangeType type)
+{
+    if (path.mClusterId == app::Clusters::WindowCovering::Id)
+    {
+        // Handle Window Covering attribute change ...
+    }
+}
+```

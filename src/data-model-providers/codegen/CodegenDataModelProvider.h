@@ -32,11 +32,20 @@
 /// This is called for ALL attribute changes when using CodegenDataModelProvider.
 /// Applications must implement this function.
 ///
-/// This is intended as replacement for MatterPostAttributeChangeCallback:
-///   - all attribute change notifications will be received on this callback
+/// This is intended as replacement for MatterPostAttributeChangeCallback and
+/// ServerClusterPostAttributeChangeCallback (or Matter*ClusterServerAttributeChangedCallback) calls:
+///   - All attribute change notifications will be received on this callback.
 ///   - `value` is not received and has to be read. This is because the method for reading the attribute
-///     value is changing when clusters are moved to code-driven (have to be read from the cluster
-///     instead of the ember/accessors)
+///     value is changing when clusters are moved to code-driven.
+///
+/// Migration Recommendations:
+///   - For code-driven clusters:
+///       - Include `<app/clusters/CLUSTER_NAME-server/CodegenIntegration.h>`
+///       - Use `FindClusterOnEndpoint` to access the cluster instance and fetch values.
+///   - For Ember clusters:
+///       - Use `Accessors.h` getters to get the current value of an attribute.
+///       - Note: When the cluster is moved to code-driven, these accessors will be removed
+///         and will need replacement with `FindClusterOnEndpoint`.
 void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
                                               chip::app::DataModel::AttributeChangeType type);
 

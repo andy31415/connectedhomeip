@@ -59,6 +59,8 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
 /* Forwards all attributes changes */
 void MatterWindowCoveringClusterServerAttributeChangedCallback(const app::ConcreteAttributePath & attributePath)
 {
+    // TODO: Consider moving this logic to MatterCodegenPostAttributeChangeCallback to support code-driven cluster compatibility.
+
     if (attributePath.mEndpointId == WindowCovering::Endpoint())
     {
         switch (attributePath.mAttributeId)

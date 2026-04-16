@@ -59,6 +59,7 @@ void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttribute
 /* Forwards all attributes changes */
 void MatterClosureControlClusterServerAttributeChangedCallback(const app::ConcreteAttributePath & attributePath)
 {
+    // TODO: Consider moving this logic to MatterCodegenPostAttributeChangeCallback to support code-driven cluster compatibility.
     ChipLogProgress(Zcl, "Closure Control cluster ID: " ChipLogFormatMEI, ChipLogValueMEI(attributePath.mAttributeId));
 #ifdef DISPLAY_ENABLED
     using namespace chip::app::Clusters::ClosureControl::Attributes;
@@ -81,5 +82,7 @@ void MatterClosureControlClusterServerAttributeChangedCallback(const app::Concre
 
 void MatterClosureDimensionClusterServerAttributeChangedCallback(const app::ConcreteAttributePath & attributePath)
 {
+    // TODO: This callback is no longer called by Ember.
+    // Migrate to MatterCodegenPostAttributeChangeCallback.
     ChipLogProgress(Zcl, "Closure Dimension cluster ID: " ChipLogFormatMEI, ChipLogValueMEI(attributePath.mAttributeId));
 }
