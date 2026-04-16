@@ -58,10 +58,6 @@ using namespace chip::Shell;
 using chip::Shell::Engine;
 using namespace chip::DeviceLayer;
 
-void MatterCodegenPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & path,
-                                              chip::app::DataModel::AttributeChangeType type)
-{}
-
 #if CONFIG_ENABLE_CHIP_SHELL
 static void chip_shell_task(void * args)
 {
