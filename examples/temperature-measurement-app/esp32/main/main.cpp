@@ -52,8 +52,8 @@
 #endif // CONFIG_ENABLE_ESP32_DEVICE_INFO_PROVIDER
 
 #ifdef CONFIG_ENABLE_ESP_DIAGNOSTICS
-#include <diagnostic-logs-provider-delegate-impl.h>
 #include <app/data-model-provider/AttributeChangeListener.h>
+#include <diagnostic-logs-provider-delegate-impl.h>
 static uint8_t retrievalBuffer[CONFIG_RETRIEVAL_BUFFER_SIZE]; // Global static buffer used to retrieve diagnostics
 static uint8_t endUserBuffer[CONFIG_END_USER_BUFFER_SIZE];    // Global static buffer used to store diagnostics
 

@@ -17,8 +17,8 @@
 
 #include "AppTask.h"
 
-#include <zephyr/logging/log.h>
 #include <app/data-model-provider/AttributeChangeListener.h>
+#include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(app, CONFIG_CHIP_APP_LOG_LEVEL);
 

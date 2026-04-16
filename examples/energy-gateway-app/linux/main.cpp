@@ -17,9 +17,9 @@
  */
 
 #include <AppMain.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 #include <EnergyGatewayAppCommonMain.h>
 #include <app-common/zap-generated/cluster-objects.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/util/endpoint-config-api.h>
 #include <lib/support/BitMask.h>
 

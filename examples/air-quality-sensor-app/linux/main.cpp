@@ -18,8 +18,8 @@
 
 #include "AirQualitySensorAppAttrUpdateDelegate.h"
 #include <AppMain.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 #include <air-quality-sensor-manager.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 
 #include <platform/CHIPDeviceConfig.h>
 

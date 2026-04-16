@@ -20,9 +20,9 @@
 #include <zephyr/logging/log.h>
 
 #if DT_NODE_HAS_COMPAT(DT_CHOSEN(zephyr_console), zephyr_cdc_acm_uart)
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <zephyr/drivers/uart.h>
 #include <zephyr/usb/usb_device.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 #endif
 
 LOG_MODULE_REGISTER(app, CONFIG_CHIP_APP_LOG_LEVEL);

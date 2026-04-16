@@ -35,8 +35,8 @@
 
 #include "AppConfig.h"
 #include "init_asrPlatform.h"
-#include <app/server/Server.h>
 #include <app/data-model-provider/AttributeChangeListener.h>
+#include <app/server/Server.h>
 
 using namespace ::chip;
 using namespace ::chip::Inet;

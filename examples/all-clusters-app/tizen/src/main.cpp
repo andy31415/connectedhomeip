@@ -27,8 +27,8 @@
 #include <static-supported-temperature-levels.h>
 
 #include <TizenServiceAppMain.h>
-#include <binding-handler.h>
 #include <app/data-model-provider/AttributeChangeListener.h>
+#include <binding-handler.h>
 
 using namespace chip;
 using namespace chip::app;

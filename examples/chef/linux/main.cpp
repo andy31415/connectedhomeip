@@ -21,9 +21,9 @@
 #include <ChipShellCollection.h>
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app/ConcreteAttributePath.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <lib/shell/Engine.h>
 #include <lib/support/logging/CHIPLogging.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 
 using namespace chip;
 using namespace chip::Shell;

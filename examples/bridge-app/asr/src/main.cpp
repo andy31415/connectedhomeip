@@ -20,6 +20,7 @@
 #include "init_asrPlatform.h"
 #include <AppTask.h>
 #include <FreeRTOS.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/server/Server.h>
 #include <lib/support/CHIPMem.h>
 #include <lib/support/CHIPPlatformMemory.h>
@@ -30,7 +31,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 
 using namespace ::chip;
 using namespace ::chip::Inet;

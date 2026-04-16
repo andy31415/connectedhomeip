@@ -138,9 +138,9 @@ void emberAfLaundryWasherControlsClusterInitCallback(EndpointId endpoint)
     LaundryWasherControlsServer::SetDefaultDelegate(1, &LaundryWasherControlDelegate::getLaundryWasherControlDelegate());
 }
 
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <examples/all-clusters-app/all-clusters-common/include/laundry-dryer-controls-delegate-impl.h>
 #include <src/app/clusters/laundry-dryer-controls-server/laundry-dryer-controls-server.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 using namespace chip::app::Clusters::LaundryDryerControls;
 void emberAfLaundryDryerControlsClusterInitCallback(EndpointId endpoint)
 {

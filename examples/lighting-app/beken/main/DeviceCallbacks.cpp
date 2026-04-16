@@ -29,6 +29,7 @@
 
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/CommandHandler.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/server/Dnssd.h>
 #include <app/util/basic-types.h>
 #include <app/util/util.h>
@@ -36,7 +37,6 @@
 #include <support/CodeUtils.h>
 #include <support/logging/CHIPLogging.h>
 #include <support/logging/Constants.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 
 static const char TAG[] = "app-devicecallbacks";
 

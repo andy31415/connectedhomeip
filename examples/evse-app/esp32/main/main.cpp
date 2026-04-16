@@ -57,10 +57,10 @@
 #endif
 
 #if CONFIG_ENABLE_ESP_INSIGHTS_TRACE
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <esp_insights.h>
 #include <tracing/esp32_trace/esp32_tracing.h>
 #include <tracing/registry.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 #endif
 
 using namespace ::chip;
