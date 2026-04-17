@@ -90,12 +90,22 @@ Alternatively, you can activate the environment in your shell:
 `source scripts/activate.sh`
 
 ### Build and Test
+-   **List available targets**:
+    `scripts/run_in_build_env.sh "./scripts/build/build_examples.py targets"`
 -   **Generate Ninja files**:
     `scripts/run_in_build_env.sh "./scripts/build/build_examples.py --target linux-x64-tests-clang --quiet gen"`
 -   **Build and run all tests**:
     `scripts/run_in_build_env.sh "./scripts/build/build_examples.py --target linux-x64-tests-clang --quiet build"`
 -   **Run a specific test**:
     `scripts/run_in_build_env.sh "ninja -C out/linux-x64-tests-clang --quiet path/to/test:test_name._run"`
+
+### Building Common Apps
+-   **chip-tool** (Interactive commissioning tool):
+    `scripts/run_in_build_env.sh "./scripts/build/build_examples.py --target linux-x64-chip-tool-clang --quiet build"`
+-   **all-clusters-app** (Feature-rich device simulator):
+    `scripts/run_in_build_env.sh "./scripts/build/build_examples.py --target linux-x64-all-clusters-clang --quiet build"`
+-   **all-devices-app** (Alternative feature-rich simulator):
+    `scripts/run_in_build_env.sh "./scripts/build/build_examples.py --target linux-x64-all-devices-clang --quiet build"`
 
 ## Development Resources
 
