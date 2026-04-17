@@ -29,12 +29,11 @@ unless explicitly asked to look there:
 -   `out/` (contains build artifacts)
 
 ## Code Review Instructions
+-   Do not comment on content for XML files or .matter content for clusters.
 -   The SDK implements an in-progress Matter specification that may be in flux
     and may not be available to all contributors. Assume the Matter
     specification is unknown and out of scope _unless_ you have explicit
     access to the latest version (e.g., via a specialized tool or skill).
-    scope _unless_ you have explicit access to the latest version (e.g., via a
-    specialized tool or skill).
 -   Avoid "pat on the back" style comments that just restate what the code is
     doing. Focus on suggesting concrete code improvements.
 -   Be concise. Do not over-explain code.
@@ -52,7 +51,7 @@ Refer to [docs/style/CODING_STYLE_GUIDE.md](docs/style/CODING_STYLE_GUIDE.md)
 for full details.
 
 -   **C++**: C++17 standard.
-    -   Use fixed-with integer types from `<cstdint>` for POD integer types
+    -   Use fixed-width integer types from `<cstdint>` for POD integer types
     -   Avoid top-level `using namespace` in headers.
     -   Use anonymous namespaces for file-internal classes/objects.
     -   Avoid heap allocation and auto-resizing containers in core SDK.
