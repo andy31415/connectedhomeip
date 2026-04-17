@@ -14,6 +14,8 @@ Matter SDK codebase.
 -   **Error Handling**: Use `CHIP_ERROR` as the standard return type for
     fallible operations. Prefer `VerifyOrReturnError` and `ReturnErrorOnFailure`
     macros for concise error checking and propagation.
+-   Ensure resources are cleaned up appropriately, especially on early returns.
+    Generally prefer RAII patterns for cleanup.
 -   **Logging**: Use the `ChipLog*` macros (e.g., `ChipLogProgress`,
     `ChipLogError`, `ChipLogDetail`) for logging. Ensure logs are appropriately
     categorized by module (e.g., `AppServer`, `InteractionModel`).
