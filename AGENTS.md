@@ -50,7 +50,7 @@ Refer to [docs/style/CODING_STYLE_GUIDE.md](docs/style/CODING_STYLE_GUIDE.md)
 for full details.
 
 -   **C++**: C++17 standard.
-    -   Use `cstdint` for POD types.
+    -   Use fixed-with integer types from `<cstdint>` for POD integer types
     -   Avoid top-level `using namespace` in headers.
     -   Use anonymous namespaces for file-internal classes/objects.
     -   Avoid heap allocation and auto-resizing containers in core SDK.
