@@ -69,14 +69,14 @@ for full details.
 
 ## Architectural Constraints
 
--   **Code-Driven Clusters**: When developing code-driven clusters, do not use
-    any `ember` code or generated code from `CodegenIntegration` or `emberAf*`
-    functions. Code-driven clusters must not depend on the Ember framework.
-    Avoid types like `EmberAfStatus` or functions like
-    `emberAfSendImmediateDefaultResponse`. The only place where ember functions
-    may be used is inside CodegenIntegration.h/cpp or other codegen-specific
-    code. Most of the time CodegenIntegration.h/cpp will be the only
-    codegen-specific code in a cluster.
+-   **Code-Driven Clusters**: When developing code-driven clusters, avoid using
+    Ember APIs and generated ZAP accessors outside of the `CodegenIntegration` layer.
+    `CodegenIntegration` is the documented integration layer specifically meant to
+    bridge generated configuration into code-driven clusters. The core cluster logic
+    must not depend on the Ember framework. Avoid types like `EmberAfStatus` or
+    functions like `emberAfContainsServer`, `emberAfReadAttribute`, or `emberAfWriteAttribute` in the core cluster implementation.
+    Ember functions and generated ZAP accessors should be confined to `CodegenIntegration.h/cpp`
+    or other codegen-specific files.
 
 ## Common Commands
 
