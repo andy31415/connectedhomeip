@@ -75,14 +75,6 @@ for full details.
     Avoid types like `EmberAfStatus` or functions like
     `emberAfSendImmediateDefaultResponse`.
 
-## Codebase Navigation
-
-The Matter SDK is large. Use these tools effectively:
-
--   **ripgrep (rg)**: For fast searching within file contents. Example:
-    `rg "symbol_name" src/app`
--   **fd**: For finding files by name. Example: `fd -e h "Discovery"`
-
 ## Common Commands
 
 Most commands require an activated environment.
