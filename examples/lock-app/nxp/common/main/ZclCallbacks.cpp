@@ -25,7 +25,6 @@
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/ConcreteAttributePath.h>
 #include <app/clusters/door-lock-server/door-lock-server.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/data-model/Nullable.h>
 #include <app/util/af-types.h>
 #include <lib/core/DataModelTypes.h>

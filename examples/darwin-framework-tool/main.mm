@@ -38,7 +38,6 @@
 #include "commands/provider/Commands.h"
 #include "commands/storage/Commands.h"
 
-#include <app/data-model-provider/AttributeChangeListener.h>
 #include <zap-generated/cluster/Commands.h>
 
 int main(int argc, const char * argv[])

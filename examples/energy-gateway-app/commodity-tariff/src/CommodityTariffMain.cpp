@@ -17,7 +17,6 @@
  */
 
 #include <CommodityTariffMain.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 
 /*
  *  @brief  Creates a Delegate and Instance for Commodity Tariff cluster

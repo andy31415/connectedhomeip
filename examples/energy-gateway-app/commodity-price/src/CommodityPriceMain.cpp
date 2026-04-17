@@ -18,7 +18,6 @@
 
 #include "CommodityPriceMain.h"
 #include "CommodityPriceDelegate.h"
-#include <app/data-model-provider/AttributeChangeListener.h>
 /*
  *  @brief  Creates a Delegate and Instance for EVSE cluster
  *

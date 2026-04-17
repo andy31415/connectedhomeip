@@ -17,7 +17,6 @@
  */
 
 #include "CommodityMeteringMain.h"
-#include <app/data-model-provider/AttributeChangeListener.h>
 /*
  *  @brief  Creates an Instance for the Commodity Metering cluster
  *

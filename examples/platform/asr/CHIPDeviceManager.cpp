@@ -26,7 +26,6 @@
 
 #include "CHIPDeviceManager.h"
 #include <app/ConcreteAttributePath.h>
-#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/util/basic-types.h>
 #include <app/util/config.h>
 #include <core/ErrorStr.h>

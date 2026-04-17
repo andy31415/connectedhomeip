@@ -18,7 +18,6 @@
 
 #include "ElectricalGridConditionsMain.h"
 #include "ElectricalGridConditionsDelegate.h"
-#include <app/data-model-provider/AttributeChangeListener.h>
 /*
  *  @brief  Creates a Delegate and Instance for ElectricalGridConditions cluster
  *
