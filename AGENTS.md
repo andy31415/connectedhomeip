@@ -74,7 +74,10 @@ for full details.
     any `ember` code or generated code from `CodegenIntegration` or `emberAf*`
     functions. Code-driven clusters must not depend on the Ember framework.
     Avoid types like `EmberAfStatus` or functions like
-    `emberAfSendImmediateDefaultResponse`.
+    `emberAfSendImmediateDefaultResponse`. The only place where ember functions
+    may be used is inside CodegenIntegration.h/cpp or other codegen-specific
+    code. Most of the time CodegenIntegration.h/cpp will be the only
+    codegen-specific code in a cluster.
 
 ## Common Commands
 
