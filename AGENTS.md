@@ -60,9 +60,8 @@ for full details.
 
 ## Testing
 
--   Unit testing is _highly encouraged_. Unless it is impossible to unit test
-    (e.g., platform-specific code), the codebase requires unit tests for all
-    changes.
+-   Unit tests are required for all changes unless unit testing is impossible
+    (e.g., platform-specific code).
 -   Tests in `src/python_testing` and `src/app/tests/suites` which verify
     expected failures should clearly indicate why the failure is expected.
     Include a summary of the relevant specification requirements if possible.
