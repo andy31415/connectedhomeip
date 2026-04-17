@@ -94,6 +94,7 @@ AsyncZeroconfServiceTypes
 ATL
 ATLs
 atomics
+atomicity
 att
 attId
 attr
