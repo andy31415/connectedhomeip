@@ -1,6 +1,6 @@
 ---
 name: code-driven-cluster-development
-description:
+description: >
     Guidelines for implementing or migrating Matter server clusters using the
     DefaultServerCluster base class (code-driven data model approach), as
     opposed to the legacy ZAP/Ember codegen approach.
@@ -142,15 +142,15 @@ DataModel::ActionReturnStatus FooCluster::ReadAttribute(
 
 -   **Do not delegate to `DefaultServerCluster::ReadAttribute` for the `default`
     case.** `DefaultServerCluster` just returns UnsupportedAttribute for all
-    attributes and an extra virtual call is not necessary. 
--   The framework pre-filters requests so `ReadAttribute` is only called for paths 
-    that are in the `Attributes()` list; returning `UnsupportedAttribute` for anything
-    unrecognised is the correct and consistent pattern.
+    attributes and an extra virtual call is not necessary.
+-   The framework pre-filters requests so `ReadAttribute` is only called for
+    paths that are in the `Attributes()` list; returning `UnsupportedAttribute`
+    for anything unrecognised is the correct and consistent pattern.
 -   Always encode/handle `ClusterRevision` and `FeatureMap` explicitly.
 -   **Do not add path-validity checks** before the switch — they add code size
     and are redundant because the framework guarantees the path exists.
--   Do not add returning `UnsupportedAttribute` inside attribute switch handling.
-    Existent path checks ensure those code lines would never be used.
+-   Do not add returning `UnsupportedAttribute` inside attribute switch
+    handling. Existent path checks ensure those code lines would never be used.
 
 #### `Attributes`
 
