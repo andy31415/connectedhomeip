@@ -141,9 +141,8 @@ DataModel::ActionReturnStatus FooCluster::ReadAttribute(
 }
 ```
 
--   **Do not delegate to `DefaultServerCluster::ReadAttribute` for the `default`
-    case.** `DefaultServerCluster` just returns UnsupportedAttribute for all
-    attributes and an extra virtual call is not necessary.
+-   **Return `Protocols::InteractionModel::Status::UnsupportedAttribute`
+    directly in the `default` case.**
 -   The framework pre-filters requests so `ReadAttribute` is only called for
     paths that are in the `Attributes()` list; returning `UnsupportedAttribute`
     for anything unrecognised is the correct and consistent pattern.
