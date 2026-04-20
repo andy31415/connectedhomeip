@@ -282,7 +282,7 @@ CHIP_ERROR FooCluster::AcceptedCommands(
 ```cpp
 // Emit a spec-defined event using the cluster context:
 Foo::Events::StateChanged::Type event{ /* fields */ };
-mContext->interactionContext.eventsGenerator->GenerateEvent(event, mPath.mEndpointId);
+mContext->interactionContext.eventsGenerator.GenerateEvent(event, mPath.mEndpointId);
 ```
 
 Override `EventInfo` only when non-default read privileges are needed.
