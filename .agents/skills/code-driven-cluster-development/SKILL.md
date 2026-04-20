@@ -351,7 +351,7 @@ void MatterFooClusterInitCallback(EndpointId endpointId)
 {
     // Note: integration delegate is only used for lookups and it is OK
     //       for it to live on the stack. Typical pattern is to have
-    //       This on the stack for all init/lookup/shutdown.
+    //       this on the stack for all init/lookup/shutdown.
     IntegrationDelegate delegate;
     CodegenClusterIntegration::RegisterServer(
         { .endpointId = endpointId, .clusterId = Foo::Id,
