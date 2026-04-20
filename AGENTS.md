@@ -122,10 +122,10 @@ Alternatively, you can activate the environment in your shell:
 -   **Build and run all tests**:
     `scripts/run_in_build_env.sh "./scripts/build/build_examples.py --target linux-x64-tests-clang --quiet build"`
 -   **Run a specific test**:
-    `scripts/run_in_build_env.sh "ninja -C out/linux-x64-tests-clang --quiet path/to/test:test_name._run"`
+    `scripts/run_in_build_env.sh "ninja -C out/linux-x64-tests-clang --quiet path/to/test:test_name.run"`
 
     -   Explicit example:
-        `scripts/run_in_build_env.sh "ninja -C out/linux-x64-tests-clang src/app/clusters/occupancy-sensor-server/tests:TestOccupancySensingCluster._run"`
+        `scripts/run_in_build_env.sh "ninja -C out/linux-x64-tests-clang src/app/clusters/occupancy-sensor-server/tests:TestOccupancySensingCluster.run"`
     -   Compile and run can be separated (e.g. if running under some memory
         debugger or needing to set other options):
 
