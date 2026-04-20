@@ -141,13 +141,16 @@ DataModel::ActionReturnStatus FooCluster::ReadAttribute(
 ```
 
 -   **Do not delegate to `DefaultServerCluster::ReadAttribute` for the `default`
-    case.** `DefaultServerCluster` does not implement this method. The framework
-    pre-filters requests so `ReadAttribute` is only called for paths that are in
-    the `Attributes()` list; returning `UnsupportedAttribute` for anything
+    case.** `DefaultServerCluster` just returns UnsupportedAttribute for all
+    attributes and an extra virtual call is not necessary. 
+-   The framework pre-filters requests so `ReadAttribute` is only called for paths 
+    that are in the `Attributes()` list; returning `UnsupportedAttribute` for anything
     unrecognised is the correct and consistent pattern.
--   Always encode `ClusterRevision` and `FeatureMap` explicitly.
+-   Always encode/handle `ClusterRevision` and `FeatureMap` explicitly.
 -   **Do not add path-validity checks** before the switch — they add code size
     and are redundant because the framework guarantees the path exists.
+-   Do not add returning `UnsupportedAttribute` inside attribute switch handling.
+    Existent path checks ensure those code lines would never be used.
 
 #### `Attributes`
 
@@ -325,7 +328,11 @@ public:
     {
         FooCluster::Config config;
         // Read defaults from Ember store. Tolerate failure (use neutral defaults).
-        Foo::Attributes::SomeAttr::Get(endpointId, &config.someAttr); // check return
+        if (Foo::Attributes::SomeAttr::Get(endpointId, &config.someAttr)
+            != Protocols::InteractionModel::Status::Success)
+        {
+             config.soimeAttr = kSomeDefaultAttrValue;
+        }
         gServers[clusterInstanceIndex].Create(endpointId, config);
         return gServers[clusterInstanceIndex].Registration();
     }
@@ -341,6 +348,9 @@ public:
 
 void MatterFooClusterInitCallback(EndpointId endpointId)
 {
+    // Note: integration delegate is only used for lookups and it is OK
+    //       for it to live on the stack. Typical pattern is to have
+    //       This on the stack for all init/lookup/shutdown.
     IntegrationDelegate delegate;
     CodegenClusterIntegration::RegisterServer(
         { .endpointId = endpointId, .clusterId = Foo::Id,
