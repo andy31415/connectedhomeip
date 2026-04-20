@@ -26,13 +26,13 @@ Every code-driven cluster directory contains:
 
 ```
 src/app/clusters/<cluster-name>-server/
-├── <ClusterName>Cluster.h            # Core class (extends DefaultServerCluster)
-├── <ClusterName>Cluster.cpp          # Core class implementation
-├── CodegenIntegration.h              # Bridge: ZAP ↔ code-driven cluster
-├── CodegenIntegration.cpp            # ZAP callbacks + FindClusterOnEndpoint()
-├── BUILD.gn                          # Core files (including CodegenIntegration)
-├── app_config_dependent_sources.cmake # CodegenIntegration files only
-├── app_config_dependent_sources.gni  # CodegenIntegration files only
+├── <ClusterName>Cluster.h             # Core class (extends DefaultServerCluster)
+├── <ClusterName>Cluster.cpp           # Core class implementation
+├── CodegenIntegration.h               # App-specific Bridge: ZAP ↔ code-driven cluster
+├── CodegenIntegration.cpp             # App-specific ZAP callbacks + FindClusterOnEndpoint()
+├── BUILD.gn                           # Core files (does NOT include CodegenIntegration)
+├── app_config_dependent_sources.cmake # Application code-generation dependencies
+├── app_config_dependent_sources.gni   # Application code-generation dependencies
 └── tests/
     ├── BUILD.gn
     └── Test<ClusterName>Cluster.cpp
@@ -278,7 +278,7 @@ CHIP_ERROR FooCluster::AcceptedCommands(
 ```cpp
 // Emit a spec-defined event using the cluster context:
 Foo::Events::StateChanged::Type event{ /* fields */ };
-mContext->eventGenerator->GenerateEvent(event, mPath.mEndpointId);
+mContext->interactionContext.eventsGenerator->GenerateEvent(event, mPath.mEndpointId);
 ```
 
 Override `EventInfo` only when non-default read privileges are needed.
@@ -386,8 +386,8 @@ CHIP_ERROR SetSomeValue(EndpointId endpointId, int16_t value)
 
 **Key rules for `CodegenIntegration`:**
 
--   Always add null checks when reading Ember attribute defaults; failure is
-    tolerable — use a safe fallback (null, zero, or a neutral default).
+-   Always check return status / tolerate failure when reading Ember attribute
+    defaults; use a safe fallback (null, zero, or a neutral default).
 -   When both min/maxMeasuredValue are read from ZAP and form an invalid range
     (e.g., both 0 in a new ZAP config), treat both as null rather than crashing.
 -   Do not add empty `MatterFooPluginServerInitCallback` / `ShutdownCallback`
