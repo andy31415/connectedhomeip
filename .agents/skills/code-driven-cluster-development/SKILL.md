@@ -332,7 +332,7 @@ public:
         if (Foo::Attributes::SomeAttr::Get(endpointId, &config.someAttr)
             != Protocols::InteractionModel::Status::Success)
         {
-             config.soimeAttr = kSomeDefaultAttrValue;
+             config.someAttr = kSomeDefaultAttrValue;
         }
         gServers[clusterInstanceIndex].Create(endpointId, config);
         return gServers[clusterInstanceIndex].Registration();
