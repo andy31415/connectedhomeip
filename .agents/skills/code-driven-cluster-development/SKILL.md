@@ -44,9 +44,9 @@ src/app/clusters/<cluster-name>-server/
     `app_config_dependent_sources.cmake` and `app_config_dependent_sources.gni`
     (these are the codegen-dependent files).
 -   All other files (`<ClusterName>Cluster.h/cpp`, test files) go in `BUILD.gn`.
--   Every header (`.h`) **must** be listed in the `BUILD.gn` (usually under
-    `sources` or `public_headers`) even if its implementation is in a different
-    build file. Unlisted headers are a review red flag.
+-   Every source file must appear somewhere: either `BUILD.gn` (if no App-specific
+    dependencies) or `app_config_dependent_sources.*` if depending on application
+    zap configuration. Unlisted headers or cpp files are a review red flag.
 
 ---
 
