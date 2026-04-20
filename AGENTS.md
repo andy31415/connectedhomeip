@@ -44,25 +44,6 @@ unless explicitly asked to look there:
     -   Minimize use of heap allocation.
     -   Optimize for resource usage (RAM/Flash).
     -   Be cautious with complex templates that could lead to code bloat.
-    -   Ensure proper error propagation (don't ignore `CHIP_ERROR` results).
-
-### Code driven clusters development
-
-Code driven clusters are implementations in `src/app/clusters` that use
-DefaultServerCluster as a base class to implement cluster functionality. For
-these clusters:
-
--   `ReadAttribute`, `WriteAttribute` and `InvokeCommand` are by API contract
-    guaranteed to be only called for `existent paths`. Validity of paths should
-    not be checked - the check would increase code size and as long as
-    `Attributes` or `AcceptedCommands` are correct, the paths passed in to these
-    functions will be correct.
--   Ember calls and includes are only allowed in `CodegenIntegration.h/cpp` and
-    rarely in other files that are also codegen-specific.
--   Codegen-specific files are referenced in
-    `app_config_dependent_sources.cmake/gni`. All other files are referenced in
-    BUILD.gn. There should be no unreferenced files (double-check headers in
-    particular are referenced).
 
 ## API preferences
 
@@ -101,15 +82,24 @@ for full details.
 
 ## Architectural Constraints
 
--   **Code-Driven Clusters**: When developing code-driven clusters, avoid using
-    Ember APIs and generated ZAP accessors outside of the `CodegenIntegration`
-    layer. `CodegenIntegration` is the documented integration layer specifically
-    meant to bridge generated configuration into code-driven clusters. The core
-    cluster logic must not depend on the Ember framework. Avoid types like
-    `EmberAfStatus` or functions like `emberAfContainsServer`,
-    `emberAfReadAttribute`, or `emberAfWriteAttribute` in the core cluster
-    implementation. Ember functions and generated ZAP accessors should be
-    confined to `CodegenIntegration.h/cpp` or other codegen-specific files.
+### Code-Driven Clusters
+
+Code-driven clusters are implementations in `src/app/clusters` that use
+`DefaultServerCluster` as a base class. When developing them:
+
+-   `ReadAttribute`, `WriteAttribute`, and `InvokeCommand` are by API contract
+    only called for existent paths. Do not add path validity checks — they
+    increase code size and are redundant as long as `Attributes` or
+    `AcceptedCommands` are correct.
+-   Ember APIs and generated ZAP accessors must not be used outside the
+    `CodegenIntegration` layer. `CodegenIntegration.h/cpp` is the documented
+    bridge between generated configuration and code-driven cluster logic. Avoid
+    types like `EmberAfStatus` or functions like `emberAfContainsServer`,
+    `emberAfReadAttribute`, or `emberAfWriteAttribute` in core cluster code.
+-   When adding files: codegen-specific files belong in
+    `app_config_dependent_sources.cmake/gni`; all others belong in `BUILD.gn`.
+    Ensure every file (especially headers) is listed in one of these — there
+    should be no unreferenced files.
 
 ## Common Commands
 
