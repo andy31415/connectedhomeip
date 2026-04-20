@@ -40,10 +40,13 @@ src/app/clusters/<cluster-name>-server/
 
 **Build system rules:**
 
--   `CodegenIntegration.cpp` (and usually `.h`) go in `app_config_dependent_sources.cmake` and
-    `app_config_dependent_sources.gni` (these are the codegen-dependent files).
+-   `CodegenIntegration.cpp` (and usually `.h`) go in
+    `app_config_dependent_sources.cmake` and `app_config_dependent_sources.gni`
+    (these are the codegen-dependent files).
 -   All other files (`<ClusterName>Cluster.h/cpp`, test files) go in `BUILD.gn`.
--   Every header (`.h`) **must** be listed in the `BUILD.gn` (usually under `sources` or `public_headers`) even if its implementation is in a different build file. Unlisted headers are a review red flag.
+-   Every header (`.h`) **must** be listed in the `BUILD.gn` (usually under
+    `sources` or `public_headers`) even if its implementation is in a different
+    build file. Unlisted headers are a review red flag.
 
 ---
 
@@ -173,7 +176,8 @@ CHIP_ERROR FooCluster::Attributes(
 
 #### Attribute mutation helpers
 
-Use the inherited helpers to update values; they handle checking for changes and notifying subscribers automatically:
+Use the inherited helpers to update values; they handle checking for changes and
+notifying subscribers automatically:
 
 ```cpp
 // Updates the value AND notifies subscribers automatically:
@@ -183,8 +187,10 @@ SetAttributeValue(mSomeField, newValue, Foo::Attributes::SomeField::Id);
 SetAttributeValue(mNullableField, DataModel::NullNullable, Foo::Attributes::NullableField::Id);
 ```
 
-`SetAttributeValue` returns `true` if the value actually changed (and thus a notification was sent).
-`NotifyAttributeChanged` should only be used directly for manually-complex cases (e.g. updating a list member) where it increments the data version and notifies the IM engine.
+`SetAttributeValue` returns `true` if the value actually changed (and thus a
+notification was sent). `NotifyAttributeChanged` should only be used directly
+for manually-complex cases (e.g. updating a list member) where it increments the
+data version and notifies the IM engine.
 
 #### Spec constraint validation
 
@@ -472,7 +478,8 @@ TEST_F(TestFooCluster, ReadAttributes)
 -   [ ] Setter returns `CHIP_IM_GLOBAL_STATUS(ConstraintError)` for out-of-range
         values (including boundary values).
 -   [ ] For nullable numeric attributes: verify that the reserved null sentinel
-        (e.g. `0xFFFF` for `uint16`) is rejected when written via the data model.
+        (e.g. `0xFFFF` for `uint16`) is rejected when written via the data
+        model.
 -   [ ] `Startup` / `Shutdown` cycle works correctly.
 -   [ ] Protected setters are exposed via a `Testable*` subclass when needed.
 
@@ -509,8 +516,9 @@ These are patterns that reviewers have flagged repeatedly — avoid them:
 2. **Ember APIs in cluster core** — move them to `CodegenIntegration.cpp`.
 3. **Missing `VerifyOrDie` / null checks on singleton pointers** — e.g.
    `Server::GetInstance().GetCASESessionManager()` may return null.
-4. **Invalid ZAP defaults not handled gracefully** — e.g. if `min` > `max` in ZAP,
-   the cluster should handle this safely (e.g. by nulling the range) rather than crashing.
+4. **Invalid ZAP defaults not handled gracefully** — e.g. if `min` > `max` in
+   ZAP, the cluster should handle this safely (e.g. by nulling the range) rather
+   than crashing.
 5. **Incomplete optional-attribute test coverage** — test both with and without
    each optional attribute enabled.
 6. **Typos in doc comments** — especially copy-paste errors from similar
