@@ -53,7 +53,7 @@ DefaultServerCluster as a base class to implement cluster functionality. For
 these clusters:
 
 -   `ReadAttribute`, `WriteAttribute` and `InvokeCommand` are by API contract
-    guaranteed to be only called for `existent pathts`. Validity of paths should
+    guaranteed to be only called for `existent paths`. Validity of paths should
     not be checked - the check would increase code size and as long as
     `Attributes` or `AcceptedCommands` are correct, the paths passed in to these
     functions will be correct.
@@ -66,7 +66,7 @@ these clusters:
 
 ## API preferences
 
--   Prefer using `chip::Span` from `src/lib/support/Spah.h` to pointer + size
+-   Prefer using `chip::Span` from `src/lib/support/Span.h` to pointer + size
     groups. Pass `Span` by value rather than const reference (treat it as a
     `string_view`)
 -   Use `"foo"_span` (i.e. `operator _span`) for const char spans instead of
@@ -133,14 +133,16 @@ Alternatively, you can activate the environment in your shell:
     `scripts/run_in_build_env.sh "./scripts/build/build_examples.py --target linux-x64-tests-clang --quiet build"`
 -   **Run a specific test**:
     `scripts/run_in_build_env.sh "ninja -C out/linux-x64-tests-clang --quiet path/to/test:test_name._run"`
+
     -   Explicit example:
         `scripts/run_in_build_env.sh "ninja -C out/linux-x64-tests-clang src/app/clusters/occupancy-sensor-server/tests:TestOccupancySensingCluster._run"`
     -   Compile and run can be separated (e.g. if running under some memory
         debugger or needing to set other options):
-        ```bash
-        scripts/run_in_build_env.sh "ninja -C out/linux-x64-tests-clang src/app/clusters/occupancy-sensor-server/tests:TestOccupancySensingClustern"`
-        ./out/linux-x64-tests-clang/tests/TestOccupancySensingCluster
-        ```
+
+            ```bash
+            scripts/run_in_build_env.sh "ninja -C out/linux-x64-tests-clang src/app/clusters/occupancy-sensor-server/tests:TestOccupancySensingCluster"`
+            ./out/linux-x64-tests-clang/tests/TestOccupancySensingCluster
+            ```
 
 ### Building Common Apps
 
