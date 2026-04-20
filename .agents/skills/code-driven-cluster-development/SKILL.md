@@ -1,11 +1,9 @@
-# Skill: Code-Driven Cluster Development
-
-**Name**: code-driven-cluster-development  
-**Description**: Guidelines for implementing or migrating Matter server clusters
-using the `DefaultServerCluster` base class (code-driven data model approach),
-as opposed to the legacy ZAP/Ember codegen approach.
-
 ---
+name: code-driven-cluster-development
+description: Guidelines for implementing or migrating Matter server clusters using the DefaultServerCluster base class (code-driven data model approach), as opposed to the legacy ZAP/Ember codegen approach.
+---
+
+# Code-Driven Cluster Development
 
 ## What Is a Code-Driven Cluster?
 
