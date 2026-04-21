@@ -35,6 +35,24 @@ This skill describes how to obtain and read these documents.
     git clone --depth 1 git@github.com:CHIP-Specifications/chip-test-plans.git out/test_plans
     ```
 
+## Verifying Access
+
+Since these repositories are private, some agents (e.g., running in CI or
+restricted environments) may not have access.
+
+-   **Lightweight Check**: Before attempting to clone the massive repositories,
+    verify access using `git ls-remote`. This command checks remote references
+    without downloading any objects.
+    ```bash
+    git ls-remote git@github.com:CHIP-Specifications/connectedhomeip-spec.git
+    ```
+-   **Handling Failure**: If the command fails or prompts for credentials (which
+    automated agents cannot provide), assume access is unavailable. In this
+    case:
+    -   Ask the user for help or to provide the necessary files.
+    -   Fall back to assuming the specification content is unknown and out of
+        scope (as per general principles in `AGENTS.md`).
+
 ## Reading the Specification
 
 The specification is written in **Asciidoc** format.
