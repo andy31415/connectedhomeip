@@ -183,7 +183,7 @@ CHIP_ERROR FooCluster::Attributes(
         Foo::Attributes::SomeOptional::kMetadataEntry,
     };
 
-    return listBuilder.Append(Span(kMandatoryMetadata),
+    return listBuilder.Append(Span(Foo::Attributes::kMandatoryMetadata),
                               Span(optionalAttrs),
                               mOptionalAttributeSet);
 }
@@ -254,14 +254,15 @@ DataModel::ActionReturnStatus FooCluster::WriteAttribute(
         return SetWritableAttr(value);
     }
     default:
-        return DefaultServerCluster::WriteAttribute(request, decoder);
+        return Protocols::InteractionModel::Status::UnsupportedAttribute;
     }
 }
 ```
 
-Delegate unknown attribute IDs to `DefaultServerCluster::WriteAttribute` (which
-errors them out) — this is the correct pattern for `WriteAttribute` (opposite of
-`ReadAttribute`).
+Return `Protocols::InteractionModel::Status::UnsupportedAttribute` directly in
+the `default` case to avoid the overhead of a virtual call to
+`DefaultServerCluster::WriteAttribute`. This is consistent with the pattern used
+in `ReadAttribute`.
 
 #### Commands
 
