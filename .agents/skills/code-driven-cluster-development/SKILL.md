@@ -12,12 +12,16 @@ description: >
 ## What Is a Code-Driven Cluster?
 
 A _code-driven_ cluster is a `ServerClusterInterface` implementation that lives
-in `src/app/clusters/<cluster-name>-server/` and extends `DefaultServerCluster`.
+in `src/app/clusters/<cluster-folder>/` and extends `DefaultServerCluster`.
 It stores its own attribute state in C++ member variables instead of relying on
 the Ember attribute RAM store. The framework calls the cluster's virtual methods
 (`ReadAttribute`, `WriteAttribute`, `InvokeCommand`, …) directly; ZAP-generated
 attribute accessors (`emberAfReadAttribute` etc.) must not be used inside the
 cluster class itself.
+
+Note that the `<cluster-folder>` naming is not standardized, but often starts
+with the cluster name. It is a mapping defined in `src/app/zap_cluster_list.json`
+and it is often (but not always) `<cluster-name>-server`.
 
 ---
 
