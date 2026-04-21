@@ -65,7 +65,7 @@ The specification is written in **Asciidoc** format.
     -   Use the tool `tools/matter-to-markdown.sh` in the spec repository.
     -   **In-Progress Items**: To include in-progress work (which the SDK often
         tracks), pass `--include-in-progress 1` to the script. This enables the
-        general `in-progress` flag in Asciidoctor. You can also pass specific
+        general `in-progress` flag in `Asciidoctor`. You can also pass specific
         feature flags if known (e.g., `--include-in-progress lsf`).
     -   Example command to build all specs with in-progress items:
         ```bash
