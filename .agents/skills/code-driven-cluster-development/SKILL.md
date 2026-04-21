@@ -644,7 +644,7 @@ These are patterns that reviewers have flagged repeatedly — avoid them:
       `DataModel::Provider` that is injected into the cluster context.
     - For complex code that truly requires `Server` or
       `InteractionModelEngine`, consider providing a delegate member and
-      implementing the complex logic in `CodegenIntegration` if general coupling
+      implementing the complex logic in CodegenClusterIntegration if general coupling
       is not required.
 
 ---
