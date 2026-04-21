@@ -22,6 +22,9 @@ This skill describes how to obtain and read these documents.
 
 ## Cloning Guidelines
 
+-   **Check for existing checkout**: Before cloning, check if the repository is
+    already available locally (e.g., in the user's home directory or a known
+    location).
 -   **Do NOT dirty the source tree**: Always clone into a location that is
     ignored or temporary.
     -   Recommended location: `out/` directory (e.g., `out/spec`,
@@ -69,7 +72,7 @@ The specification is written in **Asciidoc** format.
         feature flags if known (e.g., `--include-in-progress lsf`).
     -   Example command to build all specs with in-progress items:
         ```bash
-        ./tools/matter-to-markdown.sh --spec all --include-in-progress 1
+        cd out/spec && ./tools/matter-to-markdown.sh --spec all --include-in-progress 1
         ```
 -   **Targeted Reading**: The specification is extremely long. Avoid reading
     whole files if possible.
@@ -80,12 +83,12 @@ Output is written to `build/markdown/<ref_label>/` (e.g.,
 `build/markdown/master/` if on master branch).
 
 -   **Cluster Specification**:
-    -   Located in `appclusters/` subdirectory.
+    -   Located in `build/markdown/<ref_label>/appclusters/` subdirectory.
     -   Files are split by chapters (e.g., `03-lighting.md`, `11-cameras.md`).
     -   Each file contains the clusters belonging to that functional domain.
         Look at `_index.md` in that directory for a list of chapters.
 -   **Device Type Specification**:
-    -   Located in `device_library/` subdirectory.
+    -   Located in `build/markdown/<ref_label>/device_library/` subdirectory.
     -   Files are split by chapters (e.g., `04-lighting-device-types.md`,
         `16-camera-device-types.md`).
     -   Each file contains the device types for that domain.
@@ -107,4 +110,5 @@ Test plans are also in **Asciidoc** format.
         Interaction Model, Secure Channel) are often located in `src/` directly
         (e.g., `src/interactiondatamodel.adoc`, `src/securechannel.adoc`).
 -   **Finding Information**: Use `grep` or similar tools to find the specific
-    cluster name or feature in `src/cluster` or `src/`.
+    cluster name or feature in `out/test_plans/src/cluster` or
+    `out/test_plans/src/`.
