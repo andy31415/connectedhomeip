@@ -31,11 +31,30 @@ The Matter specification and test plans are private repositories. Agents cannot 
 
 The specification is written in **Asciidoc** format.
 
+-   **Prerequisites**: Generating Markdown from Asciidoc requires **Docker**.
 -   **Context Pollution**: Asciidoc files may contain extensive license blurbs that can pollute the LLM context.
 -   **Conversion to Markdown**: It is highly recommended to convert the spec to Markdown for better readability and reduced noise.
-    -   Use `make markdown-all` in the spec repository root to build everything (spec, application clusters, device library).
-    -   Alternatively, use the tool `tools/matter-to-markdown.sh` (described in the spec project README).
--   **Targeted Reading**: The specification is extremely long. Avoid reading whole files if possible. Use `grep` or similar tools to extract only the relevant pieces of information (e.g., a specific cluster or device data).
+    -   Use the tool `tools/matter-to-markdown.sh` in the spec repository.
+    -   **In-Progress Items**: To include in-progress work (which the SDK often tracks), pass `--include-in-progress 1` to the script. This enables the general `in-progress` flag in Asciidoctor. You can also pass specific feature flags if known (e.g., `--include-in-progress lsf`).
+    -   Example command to build all specs with in-progress items:
+        ```bash
+        ./tools/matter-to-markdown.sh --spec all --include-in-progress 1
+        ```
+-   **Targeted Reading**: The specification is extremely long. Avoid reading whole files if possible.
+
+### Finding Information in Generated Markdown
+
+Output is written to `build/markdown/<ref_label>/` (e.g., `build/markdown/master/` if on master branch).
+
+-   **Cluster Specification**:
+    -   Located in `appclusters/` subdirectory.
+    -   Files are split by chapters (e.g., `03-lighting.md`, `11-cameras.md`).
+    -   Each file contains the clusters belonging to that functional domain. Look at `_index.md` in that directory for a list of chapters.
+-   **Device Type Specification**:
+    -   Located in `device_library/` subdirectory.
+    -   Files are split by chapters (e.g., `04-lighting-device-types.md`, `16-camera-device-types.md`).
+    -   Each file contains the device types for that domain.
+    -   Look at `_index.md` in that directory for a list of chapters.
 
 ## Reading Test Plans
 
