@@ -265,7 +265,68 @@ std::optional<DataModel::ActionReturnStatus> FooCluster::InvokeCommand(
         return std::nullopt; // Unknown command
     }
 }
+```
 
+##### Return Codes for `InvokeCommand`
+
+The return type of `InvokeCommand` is
+`std::optional<DataModel::ActionReturnStatus>`. Understanding what to return is
+critical to avoid encoding duplicate responses:
+
+-   **Any return except `std::nullopt` implies an automatic call to
+    `handler->AddStatus`.**
+
+    -   If you return `CHIP_NO_ERROR` (or
+        `Protocols::InteractionModel::Status::Success`), the framework will
+        automatically add a Success status response.
+    -   If you return an error (e.g., `CHIP_ERROR_INVALID_ARGUMENT` or a
+        specific IM status), the framework will automatically add the
+        corresponding error status.
+
+-   **If you manually add a response or status to the handler, you MUST return
+    `std::nullopt`.**
+    -   This applies if you call `handler->AddResponse(...)` or
+        `handler->AddStatus(...)`.
+    -   Returning anything else (even `CHIP_NO_ERROR`) will cause the framework
+        to try to add another status, resulting in a bug (dual response
+        encoding).
+
+**Typical Patterns:**
+
+1. **Command with data response:**
+
+    ```cpp
+    FooResponse::Type response;
+    // fill response...
+    handler->AddResponse(request.path, response);
+    return std::nullopt; // Required because we used handler->AddResponse
+    ```
+
+2. **Command with success status (no data):**
+
+    ```cpp
+    // Do the work...
+    return CHIP_NO_ERROR; // Framework will automatically call AddStatus(Success)
+    ```
+
+    _Note: `return Protocols::InteractionModel::Status::Success;` is also valid
+    and equivalent._
+
+3. **Command with error status:**
+    ```cpp
+    if (error) {
+        return Protocols::InteractionModel::Status::ConstraintError; // Framework will AddStatus
+    }
+    ```
+
+**Common Anti-Patterns (Bugs):**
+
+-   `handler->AddResponse(path, response); return CHIP_NO_ERROR;` (Bug: encodes
+    response AND success status)
+-   `handler->AddStatus(path, Status::Success); return CHIP_NO_ERROR;` (Bug:
+    encodes success status twice)
+
+```cpp
 CHIP_ERROR FooCluster::AcceptedCommands(
     const ConcreteClusterPath & path,
     ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder)
