@@ -28,7 +28,7 @@ with the cluster name. It is a mapping defined in
 
 ## Directory / File Layout
 
-Every code-driven cluster directory contains:
+A common pattern for code-driven cluster directory layout is:
 
 ```
 src/app/clusters/<cluster-name>-server/
@@ -44,11 +44,22 @@ src/app/clusters/<cluster-name>-server/
     └── Test<ClusterName>Cluster.cpp
 ```
 
+_Alternative: Legacy-Preserving Layout_ Some clusters (e.g., `on-off-server`)
+use a layout that keeps the legacy Ember/ZAP implementation in a `codegen/`
+subdirectory while placing the new code-driven implementation in the root.
+
+-   **Not Typical:** This approach is not typical and is generally discouraged
+    as it maintains two parallel implementation paths for the same cluster,
+    increasing the burden on maintenance, testing, and validation.
+-   **Last Resort:** This is only done as a last resort when complex cluster
+    inter-dependencies make a full migration difficult without incurring
+    significant code complexity or unacceptable resource (Flash/RAM) overhead.
+
 **Build system rules:**
 
--   `CodegenIntegration.cpp` (and usually `.h`) go in
-    `app_config_dependent_sources.cmake` and `app_config_dependent_sources.gni`
-    (these are the codegen-dependent files).
+-   Codegen integration files (whether `CodegenIntegration.cpp` or files in
+    `codegen/`) go in `app_config_dependent_sources.cmake` and
+    `app_config_dependent_sources.gni` (these are the codegen-dependent files).
 -   All other files (`<ClusterName>Cluster.h/cpp`, test files) go in `BUILD.gn`.
 -   Every source file must appear somewhere: either `BUILD.gn` (if no
     App-specific dependencies) or `app_config_dependent_sources.*` if depending
@@ -359,8 +370,9 @@ Override `EventInfo` only when non-default read privileges are needed.
 
 ## CodegenIntegration Layer
 
-`CodegenIntegration.h/cpp` is the **only** place where Ember/ZAP APIs are
-allowed. Its responsibilities are:
+`CodegenIntegration.h/cpp` (or equivalent files in the `codegen/` subdirectory)
+is the **only** place where Ember/ZAP APIs are allowed. Its responsibilities
+are:
 
 1. Allocate cluster instances via `LazyRegisteredServerCluster<FooCluster>`.
 2. Read ZAP attribute store defaults and construct `Config` structs.
@@ -504,6 +516,7 @@ namespace {
 using namespace chip;
 using namespace chip::app;
 using namespace chip::app::Clusters;
+using namespace chip::Testing;
 
 // Subclass to expose protected methods for testing
 class TestableFooCluster : public FooCluster
