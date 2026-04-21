@@ -58,10 +58,10 @@ restricted environments) may not have access.
 
 ## Reading the Specification
 
-The specification is written in **Asciidoc** format.
+The specification is written in **`Asciidoc`** format.
 
--   **Prerequisites**: Generating Markdown from Asciidoc requires **Docker**.
--   **Context Pollution**: Asciidoc files may contain extensive license blurbs
+-   **Prerequisites**: Generating Markdown from `Asciidoc` requires **Docker**.
+-   **Context Pollution**: `Asciidoc` files may contain extensive license blurbs
     that can pollute the LLM context.
 -   **Conversion to Markdown**: It is highly recommended to convert the spec to
     Markdown for better readability and reduced noise.
@@ -96,10 +96,10 @@ Output is written to `build/markdown/<ref_label>/` (e.g.,
 
 ## Reading Test Plans
 
-Test plans are also in **Asciidoc** format.
+Test plans are also in **`Asciidoc`** format.
 
 -   **No Markdown Conversion**: There is currently no official markdown
-    conversion flow for test plans. They should be read as Asciidoc.
+    conversion flow for test plans. They should be read as `Asciidoc`.
 -   **Location**:
     -   **Cluster Test Plans**: Individual cluster test plans are generally
         located in `src/cluster` within the test plans repository.
