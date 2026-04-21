@@ -26,7 +26,7 @@ This skill describes how to obtain and read these documents.
     ignored or temporary.
     -   Recommended location: `out/` directory (e.g., `out/spec`,
         `out/test_plans`) as it is automatically ignored by the SDK build system
-        and typically gitignored.
+        and typically ignored by Git.
     -   Alternative: A system temporary directory.
 -   **Use Shallow Cloning**: The repositories are very large. Always use
     `--depth 1` when cloning to save time and disk space.
