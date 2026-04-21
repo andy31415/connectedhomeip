@@ -633,15 +633,16 @@ These are patterns that reviewers have flagged repeatedly — avoid them:
     tests). Use proper library dependencies instead to avoid duplicate
     compilation and maintenance issues.
 12. **Dependency on heavy singletons** — Some singletons, such as
-    `Server::Instance` and `InteractionModelEngine::Instance`, are very large
-    and difficult to mock or use in tests. Review whether smaller, more focused
-    objects can be used or if additional decoupling is possible. Example
-    considerations:
-    - Instead of injecting an `app::Server` object, inject the specific objects
+    `Server::GetInstance()` and `InteractionModelEngine::GetInstance()`, are
+    very large and difficult to mock or use in tests. Review whether smaller,
+    more focused objects can be used or if additional decoupling is possible.
+    Example considerations:
+    - Instead of injecting a `Server` object, inject the specific objects
       needed by the cluster (e.g., `FabricTable` and `EndpointTable`).
-    - Instead of using `InteractionModelEngine::GetDataModelProvider()`, use the
-      `DataModelProvider` that is injected into the cluster context.
-    - For complex code that truly requires `app::Server` or
+    - Instead of using
+      `InteractionModelEngine::GetInstance()->GetDataModelProvider()`, use the
+      `DataModel::Provider` that is injected into the cluster context.
+    - For complex code that truly requires `Server` or
       `InteractionModelEngine`, consider providing a delegate member and
       implementing the complex logic in `CodegenIntegration` if general coupling
       is not required.
