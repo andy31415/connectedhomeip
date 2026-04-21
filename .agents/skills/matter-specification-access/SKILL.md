@@ -44,24 +44,26 @@ Since these repositories are private, some agents (e.g., running in CI or
 restricted environments) may not have access.
 
 -   **Lightweight Check**: Before attempting to clone the massive repositories,
-    verify access using `git ls-remote`. This command checks remote references
-    without downloading any objects.
+    verify access using a non-interactive `git ls-remote`. This checks remote
+    references without downloading any objects, while ensuring SSH fails fast
+    instead of hanging on host-key or passphrase prompts.
     ```bash
-    git ls-remote git@github.com:CHIP-Specifications/connectedhomeip-spec.git
+    GIT_SSH_COMMAND='ssh -o BatchMode=yes -o ConnectTimeout=5' \
+      git ls-remote git@github.com:CHIP-Specifications/connectedhomeip-spec.git
     ```
--   **Handling Failure**: If the command fails or prompts for credentials (which
-    automated agents cannot provide), assume access is unavailable. In this
-    case:
+-   **Handling Failure**: If the command fails or would otherwise require
+    interactive credentials or host-key confirmation (which automated agents
+    cannot provide), assume access is unavailable. In this case:
     -   Ask the user for help or to provide the necessary files.
     -   Fall back to assuming the specification content is unknown and out of
         scope (as per general principles in `AGENTS.md`).
 
 ## Reading the Specification
 
-The specification is written in **`Asciidoc`** format.
+The specification is written in **`AsciiDoc`** format.
 
--   **Prerequisites**: Generating Markdown from `Asciidoc` requires **Docker**.
--   **Context Pollution**: `Asciidoc` files may contain extensive license blurbs
+-   **Prerequisites**: Generating Markdown from `AsciiDoc` requires **Docker**.
+-   **Context Pollution**: `AsciiDoc` files may contain extensive license blurbs
     that can pollute the LLM context.
 -   **Conversion to Markdown**: It is highly recommended to convert the spec to
     Markdown for better readability and reduced noise.
@@ -96,10 +98,10 @@ Output is written to `build/markdown/<ref_label>/` (e.g.,
 
 ## Reading Test Plans
 
-Test plans are also in **`Asciidoc`** format.
+Test plans are also in **`AsciiDoc`** format.
 
 -   **No Markdown Conversion**: There is currently no official markdown
-    conversion flow for test plans. They should be read as `Asciidoc`.
+    conversion flow for test plans. They should be read as `AsciiDoc`.
 -   **Location**:
     -   **Cluster Test Plans**: Individual cluster test plans are generally
         located in `src/cluster` within the test plans repository.
