@@ -109,13 +109,13 @@ public:
                           ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) override;
 
     // Application-facing API
-    CHIP_ERROR SetValue(int16_t value);
-    int16_t GetValue() const { return mValue; }
+    CHIP_ERROR SetMeasuredValue(DataModel::Nullable<int16_t> value);
+    DataModel::Nullable<int16_t> GetMeasuredValue() const { return mMeasuredValue; }
 
 protected:
     BitFlags<Foo::Feature> mFeatureMap;
     OptionalAttributeSet mOptionalAttributeSet;
-    int16_t mValue{};
+    DataModel::Nullable<int16_t> mMeasuredValue{};
     // ... other member variables
 };
 
@@ -407,6 +407,7 @@ public:
                                                    uint32_t featureMap) override
     {
         FooCluster::Config config;
+        config.optionalAttributes = FooCluster::OptionalAttributeSet(optionalAttributeBits);
         // Read defaults from Ember store. Tolerate failure (use neutral defaults).
         if (Foo::Attributes::SomeAttr::Get(endpointId, &config.someAttr)
             != Protocols::InteractionModel::Status::Success)
