@@ -61,4 +61,8 @@ Output is written to `build/markdown/<ref_label>/` (e.g., `build/markdown/master
 Test plans are also in **Asciidoc** format.
 
 -   **No Markdown Conversion**: There is currently no official markdown conversion flow for test plans. They should be read as Asciidoc.
--   **Location**: Individual cluster test plans are generally located in `src/cluster` within the test plans repository.
+-   **Location**:
+    -   **Cluster Test Plans**: Individual cluster test plans are generally located in `src/cluster` within the test plans repository.
+    -   **Filenames**: Filenames typically match the cluster name, but capitalization varies. Examples: `src/cluster/AccessControl.adoc`, `src/cluster/identify.adoc`, `src/cluster/onoff.adoc`.
+    -   **System Test Plans**: Test plans for system-level features (like Interaction Model, Secure Channel) are often located in `src/` directly (e.g., `src/interactiondatamodel.adoc`, `src/securechannel.adoc`).
+-   **Finding Information**: Use `grep` or similar tools to find the specific cluster name or feature in `src/cluster` or `src/`.
