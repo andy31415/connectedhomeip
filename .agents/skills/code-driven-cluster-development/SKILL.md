@@ -11,8 +11,8 @@ description: >
 
 ## What Is a Code-Driven Cluster?
 
-A _code-driven cluster_ is a `ServerClusterInterface` implementation that lives
-in `src/app/clusters/<cluster-name-server>/` and extends `DefaultServerCluster`.
+A _code-driven_ cluster is a `ServerClusterInterface` implementation that lives
+in `src/app/clusters/<cluster-name>-server/` and extends `DefaultServerCluster`.
 It stores its own attribute state in C++ member variables instead of relying on
 the Ember attribute RAM store. The framework calls the cluster's virtual methods
 (`ReadAttribute`, `WriteAttribute`, `InvokeCommand`, …) directly; ZAP-generated
@@ -97,6 +97,8 @@ public:
     int16_t GetValue() const { return mValue; }
 
 protected:
+    BitFlags<Foo::Feature> mFeatureMap;
+    OptionalAttributeSet mOptionalAttributeSet;
     int16_t mValue{};
     // ... other member variables
 };
@@ -262,7 +264,7 @@ std::optional<DataModel::ActionReturnStatus> FooCluster::InvokeCommand(
         return HandleDoSomething(req, handler);
     }
     default:
-        return std::nullopt; // Unknown command
+        return Protocols::InteractionModel::Status::UnsupportedCommand;
     }
 }
 ```
