@@ -619,7 +619,7 @@ functions (`Foo::Attributes::Bar::Get/Set`).
 ## README & API Compatibility
 
 -   **Preserve API backwards compatibility** if converting an existing
-    legacy/ember cluster to code-driven.
+    legacy/Ember cluster to code-driven.
 -   If breaking compatibility is unavoidable, provide a `README.md` file
     explaining the upgrade steps in the cluster folder.
 -   Providing a `README.md` every time is encouraged to explain the API and
