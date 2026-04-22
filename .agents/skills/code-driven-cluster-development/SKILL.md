@@ -62,9 +62,9 @@ subdirectory while placing the new code-driven implementation in the root.
     `app_config_dependent_sources.gni` (these are the codegen-dependent files).
 -   All other files (`<ClusterName>Cluster.h/cpp`, test files) go in `BUILD.gn`.
 -   **Sources must belong to a single build target**: Files referenced in
-    `BUILD.gn` and `app_config_dependent_sources` must be mutually exclusive.
--   The CMake file `app_config_dependent_sources.cmake` must not contain
-    non-codegen files.
+    `BUILD.gn` and `app_config_dependent_sources.*` must be mutually exclusive.
+-   `app_config_dependent_sources.cmake` and
+    `app_config_dependent_sources.gni` must not contain non-codegen files.
 -   The cluster should be added to the cluster list compiled in
     `src/app/clusters/BUILD.gn`.
 -   Every source file must appear somewhere: either `BUILD.gn` (if no
