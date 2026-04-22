@@ -69,7 +69,7 @@ subdirectory while placing the new code-driven implementation in the root.
     `src/app/clusters/BUILD.gn`.
 -   Every source file must appear somewhere: either `BUILD.gn` (if no
     App-specific dependencies) or `app_config_dependent_sources.*` if depending
-    on application zap configuration. Unlisted headers or cpp files are a review
+    on application ZAP configuration. Unlisted headers or cpp files are a review
     red flag.
 
 ---
