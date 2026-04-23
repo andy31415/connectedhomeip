@@ -79,7 +79,6 @@ private:
     ScenesManagementSceneTable * mTable;
 };
 
-
 class ScenesManagementCluster : public DefaultServerCluster, public FabricTable::Delegate, public scenes::ScenesIntegrationDelegate
 {
 public:
