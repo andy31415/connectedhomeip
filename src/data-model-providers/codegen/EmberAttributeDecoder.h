@@ -35,6 +35,11 @@ struct AttributeDecoderParams
 };
 
 /// Reads the attribute specified by path from the given cluster and decodes it into the provided buffer in Ember format.
+///
+/// @note The `outBuffer` is used as scratch space for intermediate TLV encoding. It must be large enough to hold the
+///       full TLV representation of the attribute (including framing overhead like structure and array tags), not just
+///       the final Ember representation. For small attributes, the TLV representation will be significantly larger than
+///       the Ember representation.
 CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, MutableByteSpan & outBuffer);
 
 } // namespace app

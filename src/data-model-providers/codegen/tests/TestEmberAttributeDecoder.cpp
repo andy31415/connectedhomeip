@@ -105,7 +105,7 @@ TEST(TestEmberAttributeDecoder, TestDecodeBool)
         .emberSize = 1
     };
 
-    uint8_t buffer[10];
+    uint8_t buffer[128];
     MutableByteSpan outBuffer(buffer);
 
     CHIP_ERROR err = DecodeAttributeToEmberBuffer(params, outBuffer);

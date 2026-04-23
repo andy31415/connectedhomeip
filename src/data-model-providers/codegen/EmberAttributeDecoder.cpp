@@ -28,10 +28,12 @@ namespace app {
 
 CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, MutableByteSpan & outBuffer)
 {
-    // 1. Setup TLV Writer and Builder
-    uint8_t buffer[1024]; // Size appropriate for typical attributes
+    // TODO: Sizing of gEmberAttributeIOBufferSpan needs to be updated to handle largest attribute + TLV overhead.
+    // This will be done in a follow-up task.
+    
+    // 1. Setup TLV Writer and Builder using outBuffer as scratch space
     TLV::TLVWriter writer;
-    writer.Init(buffer);
+    writer.Init(outBuffer.data(), outBuffer.size());
     
     TLV::TLVType outerStructureType;
     ReturnErrorOnFailure(writer.StartContainer(TLV::AnonymousTag(), TLV::kTLVType_Structure, outerStructureType));
@@ -56,7 +58,7 @@ CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, M
     
     // 5. Extract data from TLV
     TLV::TLVReader reader;
-    reader.Init(buffer, writer.GetLengthWritten());
+    reader.Init(outBuffer.data(), writer.GetLengthWritten());
     
     // Enter structure
     ReturnErrorOnFailure(reader.Next(TLV::kTLVType_Structure, TLV::AnonymousTag()));
@@ -89,11 +91,20 @@ CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, M
         .mask          = 0, // Assume non-nullable for now
     };
     
-    Ember::EmberAttributeDataBuffer emberBuffer(&dummyMeta, outBuffer);
+    // We use outBuffer again as the target for decoding.
+    // For Boolean, it is safe because the value is read before any large write happens (only 1 byte write).
+    MutableByteSpan targetBuffer(outBuffer.data(), outBuffer.size());
+    Ember::EmberAttributeDataBuffer emberBuffer(&dummyMeta, targetBuffer);
     
     if (params.emberType == ZCL_BOOLEAN_ATTRIBUTE_TYPE)
     {
-        return emberBuffer.Decode(attributeDataReader);
+        CHIP_ERROR err = emberBuffer.Decode(attributeDataReader);
+        if (err == CHIP_NO_ERROR)
+        {
+            // Update outBuffer size to reflect the actual data written
+            outBuffer.reduce_size(targetBuffer.size());
+        }
+        return err;
     }
     
     // TODO: Support more types
