@@ -50,6 +50,8 @@ public:
 ///    - ensures `Release()` is called on destruction
 ///
 /// Use this for operating on scenes tables provided by a scene management table provider.
+/// This objects asserts that scene provider `Take` does NOT fail with nullptr.
+///
 /// For example to register a cluster for scene processing:
 ///
 ///    ScopedSceneTable  table(sceneTableProvider);
@@ -66,7 +68,12 @@ public:
     ScopedSceneTable(const ScopedSceneTable &)             = delete;
     ScopedSceneTable & operator=(const ScopedSceneTable &) = delete;
 
-    ScopedSceneTable(ScenesManagementTableProvider & provider) : mProvider(provider), mTable(provider.Take()) {}
+    explicit ScopedSceneTable(ScenesManagementTableProvider & provider) : mProvider(provider), mTable(provider.Take())
+    {
+        /// Users of this class DO NOT expect the sene provider to fail. This is generally the case
+        /// as existing implementations re-use a global static scene object.
+        VerifyOrDie(mTable != nullptr);
+    }
     ~ScopedSceneTable() { mProvider.Release(mTable); }
 
     ScenesManagementSceneTable * operator->() { return mTable; }
