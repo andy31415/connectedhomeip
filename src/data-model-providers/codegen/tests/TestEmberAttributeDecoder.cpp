@@ -23,6 +23,12 @@
 #include <lib/support/tests/ExtraPwTestMacros.h>
 #include <functional>
 
+// Empty implementation to satisfy linker for tests
+void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & attributePath, uint8_t type, uint16_t size, uint8_t * value)
+{
+    // Stub for tests
+}
+
 namespace chip {
 namespace app {
 namespace {
