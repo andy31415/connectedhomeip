@@ -70,7 +70,7 @@ public:
 
     explicit ScopedSceneTable(ScenesManagementTableProvider & provider) : mProvider(provider), mTable(provider.Take())
     {
-        /// Users of this class DO NOT expect the sene provider to fail. This is generally the case
+        /// Users of this class DO NOT expect the scene provider to fail. This is generally the case
         /// as existing implementations re-use a global static scene object.
         VerifyOrDie(mTable != nullptr);
     }
