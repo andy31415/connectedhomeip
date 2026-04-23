@@ -46,7 +46,7 @@ public:
 };
 
 /// RAII for a scenes management table provider:
-///    - does a `Take()` on a scene at creation
+///    - does a `Take()` to get a ScenesManagementSceneTable at creation
 ///    - ensures `Release()` is called on destruction
 ///
 /// Use this for operating on scenes tables provided by a scene management table provider.

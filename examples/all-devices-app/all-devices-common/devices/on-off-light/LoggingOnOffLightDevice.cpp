@@ -181,11 +181,6 @@ void LoggingOnOffLightDevice::Unregister(CodeDrivenDataModelProvider & provider)
 {
     SingleEndpointUnregistration(provider);
 
-    {
-        Clusters::ScopedSceneTable table(mScenesTableProvider);
-        table->UnregisterHandler(&mOnOffCluster.Cluster());
-    }
-
     if (mGroupsCluster.IsConstructed())
     {
         LogErrorOnFailure(provider.RemoveCluster(&mGroupsCluster.Cluster()));
@@ -194,6 +189,12 @@ void LoggingOnOffLightDevice::Unregister(CodeDrivenDataModelProvider & provider)
 
     if (mOnOffCluster.IsConstructed())
     {
+        if (mOnOffCluster.Cluster().IsInList())
+        {
+            Clusters::ScopedSceneTable table(mScenesTableProvider);
+            table->UnregisterHandler(&mOnOffCluster.Cluster());
+        }
+
         LogErrorOnFailure(provider.RemoveCluster(&mOnOffCluster.Cluster()));
         mOnOffCluster.Cluster().RemoveDelegate(&mOnOffDelegate);
         mOnOffCluster.Destroy();
