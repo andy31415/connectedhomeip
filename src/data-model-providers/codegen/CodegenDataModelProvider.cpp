@@ -15,6 +15,8 @@
  *    limitations under the License.
  */
 #include <data-model-providers/codegen/CodegenDataModelProvider.h>
+#include <data-model-providers/codegen/EmberAttributeDecoder.h>
+#include <app/util/generic-callbacks.h>
 
 #include <access/AccessControl.h>
 #include <access/Privilege.h>
@@ -126,6 +128,7 @@ DefaultAttributePersistenceProvider gDefaultAttributePersistence;
 
 CHIP_ERROR CodegenDataModelProvider::Shutdown()
 {
+    UnregisterAttributeChangeListener(*this);
     Reset();
     mContext.reset();
     mRegistry.ClearContext();
@@ -154,6 +157,8 @@ CHIP_ERROR CodegenDataModelProvider::Startup(DataModel::InteractionModelContext 
     }
 
     InitDataModelForTesting();
+
+    RegisterAttributeChangeListener(*this);
 
     return mRegistry.SetContext(ServerClusterContext{
         .provider           = *this,
@@ -538,6 +543,42 @@ CHIP_ERROR CodegenDataModelProvider::EndpointUniqueID(EndpointId endpointId, Mut
     return emberAfGetEndpointUniqueIdForEndPoint(endpointId, epUniqueId);
 }
 #endif
+
+void CodegenDataModelProvider::OnAttributeChanged(const ConcreteAttributePath & path, DataModel::AttributeChangeType type)
+{
+    // Only process attributes handled by ServerClusterInterface
+    if (mRegistry.Get(path) == nullptr)
+    {
+        return;
+    }
+
+    const EmberAfAttributeMetadata * metadata = emberAfLocateAttributeMetadata(path.mEndpointId, path.mClusterId, path.mAttributeId);
+    if (metadata == nullptr)
+    {
+        return;
+    }
+
+    // Use a local buffer for now. TODO: use gEmberAttributeIOBufferSpan once sized correctly.
+    uint8_t buffer[256];
+    MutableByteSpan outBuffer(buffer);
+
+    AttributeDecoderParams params{
+        .path = path,
+        .cluster = *mRegistry.Get(path),
+        .emberType = metadata->attributeType,
+        .emberSize = metadata->size,
+        .isNullable = metadata->IsNullable()
+    };
+
+    CHIP_ERROR err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    if (err != CHIP_NO_ERROR)
+    {
+        ChipLogError(DataManagement, "Failed to decode attribute for legacy callback: %" CHIP_ERROR_FORMAT, err.Format());
+        return;
+    }
+
+    MatterPostAttributeChangeCallback(path, metadata->attributeType, metadata->size, outBuffer.data());
+}
 
 } // namespace app
 } // namespace chip

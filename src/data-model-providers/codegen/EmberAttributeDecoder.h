@@ -32,6 +32,7 @@ struct AttributeDecoderParams
     ServerClusterInterface & cluster;
     EmberAfAttributeType emberType;
     uint16_t emberSize;
+    bool isNullable = false;
 };
 
 /// Reads the attribute specified by path from the given cluster and decodes it into the provided buffer in Ember format.

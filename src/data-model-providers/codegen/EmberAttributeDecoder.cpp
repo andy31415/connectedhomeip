@@ -22,6 +22,7 @@
 #include <app/AttributeReportBuilder.h>
 #include <app-common/zap-generated/attribute-type.h>
 #include <app/util/attribute-metadata.h>
+#include <app/util/ember-io-storage.h>
 
 namespace chip {
 namespace app {
@@ -88,7 +89,7 @@ CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, M
         .attributeId   = params.path.mAttributeId,
         .size          = params.emberSize,
         .attributeType = params.emberType,
-        .mask          = 0, // Assume non-nullable for now
+        .mask          = static_cast<EmberAfAttributeMask>(params.isNullable ? MATTER_ATTRIBUTE_FLAG_NULLABLE : 0),
     };
     
     // We use outBuffer again as the target for decoding.
@@ -96,7 +97,8 @@ CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, M
     MutableByteSpan targetBuffer(outBuffer.data(), outBuffer.size());
     Ember::EmberAttributeDataBuffer emberBuffer(&dummyMeta, targetBuffer);
     
-    switch (params.emberType)
+    EmberAfAttributeType baseType = Compatibility::Internal::AttributeBaseType(params.emberType);
+    switch (baseType)
     {
     case ZCL_BOOLEAN_ATTRIBUTE_TYPE:
     case ZCL_INT8U_ATTRIBUTE_TYPE:
@@ -107,6 +109,14 @@ CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, M
     case ZCL_INT48U_ATTRIBUTE_TYPE:
     case ZCL_INT56U_ATTRIBUTE_TYPE:
     case ZCL_INT64U_ATTRIBUTE_TYPE:
+    case ZCL_INT8S_ATTRIBUTE_TYPE:
+    case ZCL_INT16S_ATTRIBUTE_TYPE:
+    case ZCL_INT24S_ATTRIBUTE_TYPE:
+    case ZCL_INT32S_ATTRIBUTE_TYPE:
+    case ZCL_INT40S_ATTRIBUTE_TYPE:
+    case ZCL_INT48S_ATTRIBUTE_TYPE:
+    case ZCL_INT56S_ATTRIBUTE_TYPE:
+    case ZCL_INT64S_ATTRIBUTE_TYPE:
     {
         CHIP_ERROR err = emberBuffer.Decode(attributeDataReader);
         if (err == CHIP_NO_ERROR)
@@ -116,8 +126,65 @@ CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, M
         }
         return err;
     }
+    case ZCL_CHAR_STRING_ATTRIBUTE_TYPE:
+    case ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE:
+    case ZCL_OCTET_STRING_ATTRIBUTE_TYPE:
+    case ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE:
+    {
+        // Handle strings manually with memmove to support in-place decoding safely.
+        bool isOctet = (params.emberType == ZCL_OCTET_STRING_ATTRIBUTE_TYPE || params.emberType == ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE);
+        TLV::TLVType expectedType = isOctet ? TLV::kTLVType_ByteString : TLV::kTLVType_UTF8String;
+        
+        bool isLong = (params.emberType == ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE || params.emberType == ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE);
+        uint32_t headerSize = isLong ? 2 : 1;
+
+        if (attributeDataReader.GetType() == TLV::kTLVType_Null)
+        {
+            VerifyOrReturnError(params.isNullable, CHIP_ERROR_WRONG_TLV_TYPE);
+            VerifyOrReturnError(outBuffer.size() >= headerSize, CHIP_ERROR_NO_MEMORY);
+            
+            // Write null length (0xFF or 0xFFFF)
+            if (isLong)
+            {
+                outBuffer.data()[0] = 0xFF;
+                outBuffer.data()[1] = 0xFF;
+            }
+            else
+            {
+                outBuffer.data()[0] = 0xFF;
+            }
+            
+            outBuffer.reduce_size(headerSize);
+            return CHIP_NO_ERROR;
+        }
+        
+        VerifyOrReturnError(attributeDataReader.GetType() == expectedType, CHIP_ERROR_WRONG_TLV_TYPE);
+        
+        uint32_t stringLength = attributeDataReader.GetLength();
+        const uint8_t * tlvData;
+        ReturnErrorOnFailure(attributeDataReader.GetDataPtr(tlvData));
+        
+        VerifyOrReturnError(outBuffer.size() >= headerSize + stringLength, CHIP_ERROR_NO_MEMORY);
+        
+        // Write length (Pascal format)
+        if (isLong)
+        {
+            outBuffer.data()[0] = static_cast<uint8_t>(stringLength & 0xFF);
+            outBuffer.data()[1] = static_cast<uint8_t>((stringLength >> 8) & 0xFF);
+        }
+        else
+        {
+            outBuffer.data()[0] = static_cast<uint8_t>(stringLength);
+        }
+        
+        // Move data safely even if overlapping
+        memmove(outBuffer.data() + headerSize, tlvData, stringLength);
+        
+        outBuffer.reduce_size(headerSize + stringLength);
+        return CHIP_NO_ERROR;
+    }
     default:
-        // TODO: Support more types (signed integers, strings, etc.)
+        // TODO: Support more types (octet strings, etc.)
         return CHIP_ERROR_NOT_IMPLEMENTED;
     }
 }
