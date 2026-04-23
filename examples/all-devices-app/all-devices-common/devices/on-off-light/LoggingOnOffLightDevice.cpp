@@ -167,12 +167,24 @@ CHIP_ERROR LoggingOnOffLightDevice::Register(chip::EndpointId endpoint, CodeDriv
                           });
     ReturnErrorOnFailure(provider.AddCluster(mGroupsCluster.Registration()));
 
+    // We have scenes enabled, so make sure handlers are registered so we can
+    // save and recall scenes.
+    {
+        Clusters::ScopedSceneTable table(mScenesTableProvider);
+        table->RegisterHandler(&mOnOffCluster.Cluster());
+    }
+
     return provider.AddEndpoint(mEndpointRegistration);
 }
 
 void LoggingOnOffLightDevice::Unregister(CodeDrivenDataModelProvider & provider)
 {
     SingleEndpointUnregistration(provider);
+
+    {
+        Clusters::ScopedSceneTable table(mScenesTableProvider);
+        table->UnregisterHandler(&mOnOffCluster.Cluster());
+    }
 
     if (mGroupsCluster.IsConstructed())
     {
