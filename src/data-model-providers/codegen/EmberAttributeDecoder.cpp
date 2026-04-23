@@ -96,7 +96,17 @@ CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, M
     MutableByteSpan targetBuffer(outBuffer.data(), outBuffer.size());
     Ember::EmberAttributeDataBuffer emberBuffer(&dummyMeta, targetBuffer);
     
-    if (params.emberType == ZCL_BOOLEAN_ATTRIBUTE_TYPE)
+    switch (params.emberType)
+    {
+    case ZCL_BOOLEAN_ATTRIBUTE_TYPE:
+    case ZCL_INT8U_ATTRIBUTE_TYPE:
+    case ZCL_INT16U_ATTRIBUTE_TYPE:
+    case ZCL_INT24U_ATTRIBUTE_TYPE:
+    case ZCL_INT32U_ATTRIBUTE_TYPE:
+    case ZCL_INT40U_ATTRIBUTE_TYPE:
+    case ZCL_INT48U_ATTRIBUTE_TYPE:
+    case ZCL_INT56U_ATTRIBUTE_TYPE:
+    case ZCL_INT64U_ATTRIBUTE_TYPE:
     {
         CHIP_ERROR err = emberBuffer.Decode(attributeDataReader);
         if (err == CHIP_NO_ERROR)
@@ -106,9 +116,10 @@ CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, M
         }
         return err;
     }
-    
-    // TODO: Support more types
-    return CHIP_ERROR_NOT_IMPLEMENTED;
+    default:
+        // TODO: Support more types (signed integers, strings, etc.)
+        return CHIP_ERROR_NOT_IMPLEMENTED;
+    }
 }
 
 } // namespace app

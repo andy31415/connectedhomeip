@@ -21,6 +21,7 @@
 #include <app-common/zap-generated/attribute-type.h>
 #include <app/data-model/Encode.h>
 #include <lib/support/tests/ExtraPwTestMacros.h>
+#include <functional>
 
 namespace chip {
 namespace app {
@@ -119,6 +120,39 @@ TEST(TestEmberAttributeDecoder, TestDecodeBool)
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 1u);
     EXPECT_EQ(buffer[0], 0);
+}
+
+TEST(TestEmberAttributeDecoder, TestDecodeBoolNegative)
+{
+    MockServerCluster cluster(1, 2);
+    cluster.SetAttributeId(3);
+    cluster.SetBoolValue(true);
+
+    ConcreteAttributePath path(1, 2, 3);
+    AttributeDecoderParams params{
+        .path = path,
+        .cluster = cluster,
+        .emberType = ZCL_BOOLEAN_ATTRIBUTE_TYPE,
+        .emberSize = 1
+    };
+
+    // Case 1: Buffer too small for TLV overhead
+    {
+        uint8_t buffer[2];
+        MutableByteSpan outBuffer(buffer);
+
+        CHIP_ERROR err = DecodeAttributeToEmberBuffer(params, outBuffer);
+        EXPECT_NE(err, CHIP_NO_ERROR);
+    }
+
+    // Case 2: Buffer large enough to start TLV but not encode it
+    {
+        uint8_t buffer[10];
+        MutableByteSpan outBuffer(buffer);
+
+        CHIP_ERROR err = DecodeAttributeToEmberBuffer(params, outBuffer);
+        EXPECT_NE(err, CHIP_NO_ERROR);
+    }
 }
 
 } // namespace
