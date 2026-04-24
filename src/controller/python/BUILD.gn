@@ -191,7 +191,6 @@ shared_library("ChipDeviceCtrl") {
       # DynamicDispatcher in src/app:interaction-model implements the actual required
       # ember callbacks in this case...
       sources += codegen_data_model_SOURCES
-      sources += [ "${chip_root}/src/app/util/generic-callback-stubs.cpp" ]
       public_deps += codegen_data_model_PUBLIC_DEPS
     } else {
       public_deps += [ "${chip_root}/src/controller/data_model" ]
