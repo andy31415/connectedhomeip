@@ -664,6 +664,7 @@ void LevelControlCluster::UpdateRemainingTime(uint32_t remainingTimeMs, Reportin
 
     // Convert ms to ds (rounding up)
     uint16_t remainingTimeDs = static_cast<uint16_t>((remainingTimeMs + 99) / 100);
+    VerifyOrReturn(mRemainingTime.value() != DataModel::MakeNullable(remainingTimeDs));
 
     auto now = System::SystemClock().GetMonotonicMilliseconds64();
 
