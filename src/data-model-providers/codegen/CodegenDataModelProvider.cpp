@@ -14,9 +14,9 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include <app/util/generic-callbacks.h>
 #include <data-model-providers/codegen/CodegenDataModelProvider.h>
 #include <data-model-providers/codegen/EmberAttributeDecoder.h>
-#include <app/util/generic-callbacks.h>
 
 #include <access/AccessControl.h>
 #include <access/Privilege.h>
@@ -552,7 +552,8 @@ void CodegenDataModelProvider::OnAttributeChanged(const ConcreteAttributePath & 
         return;
     }
 
-    const EmberAfAttributeMetadata * metadata = emberAfLocateAttributeMetadata(path.mEndpointId, path.mClusterId, path.mAttributeId);
+    const EmberAfAttributeMetadata * metadata =
+        emberAfLocateAttributeMetadata(path.mEndpointId, path.mClusterId, path.mAttributeId);
     if (metadata == nullptr)
     {
         return;
@@ -561,7 +562,7 @@ void CodegenDataModelProvider::OnAttributeChanged(const ConcreteAttributePath & 
     // Allocate buffer dynamically based on metadata size + TLV overhead
     // to avoid large stack allocation and clobbering global buffer.
     size_t bufferSize = metadata->size + 32; // 32 bytes for TLV overhead
-    
+
     chip::Platform::ScopedMemoryBuffer<uint8_t> buffer;
     buffer.Alloc(bufferSize);
     if (buffer.Get() == nullptr)
@@ -572,13 +573,11 @@ void CodegenDataModelProvider::OnAttributeChanged(const ConcreteAttributePath & 
 
     MutableByteSpan outBuffer(buffer.Get(), bufferSize);
 
-    AttributeDecoderParams params{
-        .path = path,
-        .cluster = *mRegistry.Get(path),
-        .emberType = metadata->attributeType,
-        .emberSize = metadata->size,
-        .isNullable = metadata->IsNullable()
-    };
+    AttributeDecoderParams params{ .path       = path,
+                                   .cluster    = *mRegistry.Get(path),
+                                   .emberType  = metadata->attributeType,
+                                   .emberSize  = metadata->size,
+                                   .isNullable = metadata->IsNullable() };
 
     CHIP_ERROR err = DecodeAttributeToEmberBuffer(params, outBuffer);
     if (err != CHIP_NO_ERROR)

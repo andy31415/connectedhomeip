@@ -3003,11 +3003,12 @@ static ConcreteAttributePath gLastPostAttributeChangePath;
 static uint8_t gLastPostAttributeChangeValue[16];
 static uint16_t gLastPostAttributeChangeSize = 0;
 
-void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & attributePath, uint8_t type, uint16_t size, uint8_t * value)
+void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & attributePath, uint8_t type, uint16_t size,
+                                       uint8_t * value)
 {
     gMatterPostAttributeChangeCallbackCalled = true;
-    gLastPostAttributeChangePath = attributePath;
-    gLastPostAttributeChangeSize = size;
+    gLastPostAttributeChangePath             = attributePath;
+    gLastPostAttributeChangeSize             = size;
     if (size <= sizeof(gLastPostAttributeChangeValue))
     {
         memcpy(gLastPostAttributeChangeValue, value, size);
@@ -3028,14 +3029,15 @@ TEST_F(TestCodegenModelViaMocks, TestNotifyAttributeChangedTriggersLegacyCallbac
     {
     public:
         IntegrationMockCluster(const ConcreteClusterPath & path) : mPath(path) {}
-        
+
         CHIP_ERROR Startup(ServerClusterContext & context) override { return CHIP_NO_ERROR; }
         void Shutdown(ClusterShutdownType shutdownType) override {}
         Span<const ConcreteClusterPath> GetPaths() const override { return Span<const ConcreteClusterPath>(&mPath, 1); }
         DataVersion GetDataVersion(const ConcreteClusterPath & path) const override { return 0; }
         BitFlags<DataModel::ClusterQualityFlags> GetClusterFlags(const ConcreteClusterPath &) const override { return {}; }
-        
-        DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request, AttributeValueEncoder & encoder) override
+
+        DataModel::ActionReturnStatus ReadAttribute(const DataModel::ReadAttributeRequest & request,
+                                                    AttributeValueEncoder & encoder) override
         {
             if (mReturnNull)
             {
@@ -3043,23 +3045,39 @@ TEST_F(TestCodegenModelViaMocks, TestNotifyAttributeChangedTriggersLegacyCallbac
             }
             return encoder.Encode(true); // Return a boolean true
         }
-        
-        DataModel::ActionReturnStatus WriteAttribute(const DataModel::WriteAttributeRequest & request, AttributeValueDecoder & decoder) override
+
+        DataModel::ActionReturnStatus WriteAttribute(const DataModel::WriteAttributeRequest & request,
+                                                     AttributeValueDecoder & decoder) override
         {
             return Protocols::InteractionModel::Status::UnsupportedWrite;
         }
-        
+
         CHIP_ERROR Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) override
         {
             return CHIP_NO_ERROR;
         }
-        CHIP_ERROR EventInfo(const ConcreteEventPath & path, DataModel::EventEntry & eventInfo) override { return CHIP_ERROR_NOT_IMPLEMENTED; }
-        std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request, chip::TLV::TLVReader & input_arguments, CommandHandler * handler) override { return std::nullopt; }
-        CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override { return CHIP_NO_ERROR; }
-        CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<CommandId> & builder) override { return CHIP_NO_ERROR; }
-        
+        CHIP_ERROR EventInfo(const ConcreteEventPath & path, DataModel::EventEntry & eventInfo) override
+        {
+            return CHIP_ERROR_NOT_IMPLEMENTED;
+        }
+        std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
+                                                                   chip::TLV::TLVReader & input_arguments,
+                                                                   CommandHandler * handler) override
+        {
+            return std::nullopt;
+        }
+        CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path,
+                                    ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override
+        {
+            return CHIP_NO_ERROR;
+        }
+        CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<CommandId> & builder) override
+        {
+            return CHIP_NO_ERROR;
+        }
+
         void SetReturnNull(bool returnNull) { mReturnNull = returnNull; }
-        
+
     private:
         ConcreteClusterPath mPath;
         bool mReturnNull = false;
@@ -3067,14 +3085,14 @@ TEST_F(TestCodegenModelViaMocks, TestNotifyAttributeChangedTriggersLegacyCallbac
 
     IntegrationMockCluster mockSCICluster(kTestClusterPath);
     ServerClusterRegistration registration(mockSCICluster);
-    
+
     ASSERT_EQ(model.Registry().Register(registration), CHIP_NO_ERROR);
-    
+
     // Test with non-null value
     gMatterPostAttributeChangeCallbackCalled = false;
-    
+
     model.NotifyAttributeChanged(attrPath, AttributeChangeType::kReportable);
-    
+
     EXPECT_TRUE(gMatterPostAttributeChangeCallbackCalled);
     EXPECT_EQ(gLastPostAttributeChangePath, attrPath);
     EXPECT_EQ(gLastPostAttributeChangeSize, 1u);
@@ -3083,14 +3101,14 @@ TEST_F(TestCodegenModelViaMocks, TestNotifyAttributeChangedTriggersLegacyCallbac
     // Test with null value
     mockSCICluster.SetReturnNull(true);
     gMatterPostAttributeChangeCallbackCalled = false;
-    
+
     model.NotifyAttributeChanged(attrPath, AttributeChangeType::kReportable);
-    
+
     EXPECT_TRUE(gMatterPostAttributeChangeCallbackCalled);
     EXPECT_EQ(gLastPostAttributeChangePath, attrPath);
     EXPECT_EQ(gLastPostAttributeChangeSize, 1u);
     EXPECT_EQ(gLastPostAttributeChangeValue[0], 0xFF); // Null boolean in Ember is 0xFF
-    
+
     EXPECT_SUCCESS(model.Registry().Unregister(&mockSCICluster));
 }
 

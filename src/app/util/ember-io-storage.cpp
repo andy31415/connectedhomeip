@@ -28,6 +28,12 @@ namespace Internal {
 
 // On some apps, ATTRIBUTE_LARGEST can as small as 3, making compiler unhappy since data[kAttributeReadBufferSize] cannot hold
 // uint64_t. Make kAttributeReadBufferSize at least 8 so it can fit all basic types.
+// 
+// General requirements for this buffer:
+//    - sufficient data for any ZAP attribute (ATTRIBUTE_LARGEST)
+//    - minimum 8 bytes, to be able to store a uint64_t guaranteed
+//    - used for NotifyAttributeChanged processing: TLV encoding of the largest non-list/struct attribute
+//      - this needs TLV overhead size + max size of any string/octet attribute (even for code driven clusters)
 constexpr size_t kAttributeReadBufferSize = (ATTRIBUTE_LARGEST >= 8 ? ATTRIBUTE_LARGEST : 8);
 uint8_t attributeIOBuffer[kAttributeReadBufferSize];
 

@@ -19,9 +19,9 @@
 
 #include <app/ConcreteAttributePath.h>
 #include <app/server-cluster/ServerClusterInterface.h>
-#include <lib/support/Span.h>
-#include <lib/core/CHIPError.h>
 #include <app/util/af-types.h> // For EmberAfAttributeType
+#include <lib/core/CHIPError.h>
+#include <lib/support/Span.h>
 
 namespace chip {
 namespace app {

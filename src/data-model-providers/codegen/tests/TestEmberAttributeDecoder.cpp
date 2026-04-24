@@ -17,14 +17,15 @@
 
 #include <pw_unit_test/framework.h>
 
-#include <data-model-providers/codegen/EmberAttributeDecoder.h>
 #include <app-common/zap-generated/attribute-type.h>
 #include <app/data-model/Encode.h>
-#include <lib/support/tests/ExtraPwTestMacros.h>
+#include <data-model-providers/codegen/EmberAttributeDecoder.h>
 #include <functional>
+#include <lib/support/tests/ExtraPwTestMacros.h>
 
 // Empty implementation to satisfy linker for tests
-void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & attributePath, uint8_t type, uint16_t size, uint8_t * value)
+void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & attributePath, uint8_t type, uint16_t size,
+                                       uint8_t * value)
 {
     // Stub for tests
 }
@@ -72,8 +73,9 @@ public:
         return CHIP_ERROR_NOT_IMPLEMENTED;
     }
 
-    std::optional<DataModel::ActionReturnStatus>
-    InvokeCommand(const DataModel::InvokeRequest & request, chip::TLV::TLVReader & input_arguments, CommandHandler * handler) override
+    std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
+                                                               chip::TLV::TLVReader & input_arguments,
+                                                               CommandHandler * handler) override
     {
         return std::nullopt;
     }
@@ -95,7 +97,7 @@ public:
 private:
     ConcreteClusterPath mPath;
     AttributeId mAttributeId = 1;
-    bool mBoolValue = false;
+    bool mBoolValue          = false;
 };
 
 class FlexibleMockServerCluster : public ServerClusterInterface
@@ -137,8 +139,9 @@ public:
         return CHIP_ERROR_NOT_IMPLEMENTED;
     }
 
-    std::optional<DataModel::ActionReturnStatus>
-    InvokeCommand(const DataModel::InvokeRequest & request, chip::TLV::TLVReader & input_arguments, CommandHandler * handler) override
+    std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
+                                                               chip::TLV::TLVReader & input_arguments,
+                                                               CommandHandler * handler) override
     {
         return std::nullopt;
     }
@@ -154,10 +157,7 @@ public:
         return CHIP_NO_ERROR;
     }
 
-    void SetReadHandler(std::function<DataModel::ActionReturnStatus(AttributeValueEncoder &)> handler)
-    {
-        mReadHandler = handler;
-    }
+    void SetReadHandler(std::function<DataModel::ActionReturnStatus(AttributeValueEncoder &)> handler) { mReadHandler = handler; }
 
 private:
     ConcreteClusterPath mPath;
@@ -172,7 +172,7 @@ protected:
         mBuffer.Alloc(kBufferSize);
         ASSERT_NE(mBuffer.Get(), nullptr);
     }
-    
+
     MutableByteSpan GetBuffer() { return MutableByteSpan(mBuffer.Get(), kBufferSize); }
 
     constexpr static size_t kBufferSize = 128;
@@ -186,12 +186,7 @@ TEST_F(EmberAttributeDecoderTest, TestDecodeBool)
     cluster.SetBoolValue(true);
 
     ConcreteAttributePath path(1, 2, 3);
-    AttributeDecoderParams params{
-        .path = path,
-        .cluster = cluster,
-        .emberType = ZCL_BOOLEAN_ATTRIBUTE_TYPE,
-        .emberSize = 1
-    };
+    AttributeDecoderParams params{ .path = path, .cluster = cluster, .emberType = ZCL_BOOLEAN_ATTRIBUTE_TYPE, .emberSize = 1 };
 
     MutableByteSpan outBuffer = GetBuffer();
 
@@ -202,7 +197,7 @@ TEST_F(EmberAttributeDecoderTest, TestDecodeBool)
 
     cluster.SetBoolValue(false);
     outBuffer = GetBuffer();
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    err       = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 1u);
     EXPECT_EQ(outBuffer.data()[0], 0);
@@ -215,12 +210,7 @@ TEST_F(EmberAttributeDecoderTest, TestDecodeBoolNegative)
     cluster.SetBoolValue(true);
 
     ConcreteAttributePath path(1, 2, 3);
-    AttributeDecoderParams params{
-        .path = path,
-        .cluster = cluster,
-        .emberType = ZCL_BOOLEAN_ATTRIBUTE_TYPE,
-        .emberSize = 1
-    };
+    AttributeDecoderParams params{ .path = path, .cluster = cluster, .emberType = ZCL_BOOLEAN_ATTRIBUTE_TYPE, .emberSize = 1 };
 
     // Case 1: Buffer too small for TLV overhead
     {
@@ -244,14 +234,9 @@ TEST_F(EmberAttributeDecoderTest, TestDecodeBoolNegative)
 TEST_F(EmberAttributeDecoderTest, TestDecodeUnsignedInt)
 {
     FlexibleMockServerCluster cluster(1, 2);
-    
+
     ConcreteAttributePath path(1, 2, 3);
-    AttributeDecoderParams params{
-        .path = path,
-        .cluster = cluster,
-        .emberType = ZCL_INT8U_ATTRIBUTE_TYPE,
-        .emberSize = 1
-    };
+    AttributeDecoderParams params{ .path = path, .cluster = cluster, .emberType = ZCL_INT8U_ATTRIBUTE_TYPE, .emberSize = 1 };
 
     MutableByteSpan outBuffer = GetBuffer();
 
@@ -262,13 +247,13 @@ TEST_F(EmberAttributeDecoderTest, TestDecodeUnsignedInt)
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 1u);
     EXPECT_EQ(outBuffer.data()[0], 123);
-    
+
     // Test 16-bit unsigned int
     params.emberType = ZCL_INT16U_ATTRIBUTE_TYPE;
     params.emberSize = 2;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<uint16_t>(0xABCD)); });
     outBuffer = GetBuffer();
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    err       = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 2u);
     EXPECT_EQ(outBuffer.data()[0], 0xCD);
@@ -279,7 +264,7 @@ TEST_F(EmberAttributeDecoderTest, TestDecodeUnsignedInt)
     params.emberSize = 4;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<uint32_t>(0x12345678)); });
     outBuffer = GetBuffer();
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    err       = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 4u);
     EXPECT_EQ(outBuffer.data()[0], 0x78);
@@ -290,9 +275,10 @@ TEST_F(EmberAttributeDecoderTest, TestDecodeUnsignedInt)
     // Test 64-bit unsigned int
     params.emberType = ZCL_INT64U_ATTRIBUTE_TYPE;
     params.emberSize = 8;
-    cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<uint64_t>(0xAABBCCDDEEFF1122)); });
+    cluster.SetReadHandler(
+        [](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<uint64_t>(0xAABBCCDDEEFF1122)); });
     outBuffer = GetBuffer();
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    err       = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 8u);
     EXPECT_EQ(outBuffer.data()[0], 0x22);
@@ -308,14 +294,9 @@ TEST_F(EmberAttributeDecoderTest, TestDecodeUnsignedInt)
 TEST_F(EmberAttributeDecoderTest, TestDecodeSignedInt)
 {
     FlexibleMockServerCluster cluster(1, 2);
-    
+
     ConcreteAttributePath path(1, 2, 3);
-    AttributeDecoderParams params{
-        .path = path,
-        .cluster = cluster,
-        .emberType = ZCL_INT8S_ATTRIBUTE_TYPE,
-        .emberSize = 1
-    };
+    AttributeDecoderParams params{ .path = path, .cluster = cluster, .emberType = ZCL_INT8S_ATTRIBUTE_TYPE, .emberSize = 1 };
 
     MutableByteSpan outBuffer = GetBuffer();
 
@@ -332,7 +313,7 @@ TEST_F(EmberAttributeDecoderTest, TestDecodeSignedInt)
     params.emberSize = 2;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<int16_t>(-1234)); });
     outBuffer = GetBuffer();
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    err       = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 2u);
     int16_t decoded16;
@@ -344,7 +325,7 @@ TEST_F(EmberAttributeDecoderTest, TestDecodeSignedInt)
     params.emberSize = 4;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<int32_t>(-12345678)); });
     outBuffer = GetBuffer();
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    err       = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 4u);
     int32_t decoded32;
@@ -356,7 +337,7 @@ TEST_F(EmberAttributeDecoderTest, TestDecodeSignedInt)
     params.emberSize = 8;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<int64_t>(-12345678901234LL)); });
     outBuffer = GetBuffer();
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    err       = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 8u);
     int64_t decoded64;
@@ -367,20 +348,16 @@ TEST_F(EmberAttributeDecoderTest, TestDecodeSignedInt)
 TEST_F(EmberAttributeDecoderTest, TestDecodeString)
 {
     FlexibleMockServerCluster cluster(1, 2);
-    
+
     ConcreteAttributePath path(1, 2, 3);
-    AttributeDecoderParams params{
-        .path = path,
-        .cluster = cluster,
-        .emberType = ZCL_CHAR_STRING_ATTRIBUTE_TYPE,
-        .emberSize = 0
-    };
+    AttributeDecoderParams params{ .path = path, .cluster = cluster, .emberType = ZCL_CHAR_STRING_ATTRIBUTE_TYPE, .emberSize = 0 };
 
     MutableByteSpan outBuffer = GetBuffer();
 
     // Test short string
     const char * testStr = "hello";
-    cluster.SetReadHandler([testStr](AttributeValueEncoder & encoder) { return encoder.Encode(CharSpan::fromCharString(testStr)); });
+    cluster.SetReadHandler(
+        [testStr](AttributeValueEncoder & encoder) { return encoder.Encode(CharSpan::fromCharString(testStr)); });
 
     CHIP_ERROR err = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
@@ -390,26 +367,38 @@ TEST_F(EmberAttributeDecoderTest, TestDecodeString)
 
     // Test long string
     params.emberType = ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE;
-    outBuffer = GetBuffer();
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    outBuffer        = GetBuffer();
+    err              = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 7u); // 2 bytes length + 5 bytes data
     EXPECT_EQ(outBuffer.data()[0], 5);
     EXPECT_EQ(outBuffer.data()[1], 0);
     EXPECT_EQ(memcmp(outBuffer.data() + 2, testStr, 5), 0);
+
+    // Test long string with potential overlap
+    char longStr[91];
+    memset(longStr, 'A', 90);
+    longStr[90] = '\0';
+
+    params.emberType = ZCL_CHAR_STRING_ATTRIBUTE_TYPE;
+    params.emberSize = 0;
+    cluster.SetReadHandler(
+        [longStr](AttributeValueEncoder & encoder) { return encoder.Encode(CharSpan::fromCharString(longStr)); });
+
+    outBuffer = GetBuffer();
+    err       = DecodeAttributeToEmberBuffer(params, outBuffer);
+    EXPECT_EQ(err, CHIP_NO_ERROR);
+    EXPECT_EQ(outBuffer.size(), 91u); // 1 byte length + 90 bytes data
+    EXPECT_EQ(outBuffer.data()[0], 90);
+    EXPECT_EQ(memcmp(outBuffer.data() + 1, longStr, 90), 0);
 }
 
 TEST(TestEmberAttributeDecoder, TestDecodeOctetString)
 {
     FlexibleMockServerCluster cluster(1, 2);
-    
+
     ConcreteAttributePath path(1, 2, 3);
-    AttributeDecoderParams params{
-        .path = path,
-        .cluster = cluster,
-        .emberType = ZCL_OCTET_STRING_ATTRIBUTE_TYPE,
-        .emberSize = 0
-    };
+    AttributeDecoderParams params{ .path = path, .cluster = cluster, .emberType = ZCL_OCTET_STRING_ATTRIBUTE_TYPE, .emberSize = 0 };
 
     uint8_t buffer[128];
     MutableByteSpan outBuffer(buffer);
@@ -426,8 +415,8 @@ TEST(TestEmberAttributeDecoder, TestDecodeOctetString)
 
     // Test long octet string
     params.emberType = ZCL_LONG_OCTET_STRING_ATTRIBUTE_TYPE;
-    outBuffer = MutableByteSpan(buffer);
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    outBuffer        = MutableByteSpan(buffer);
+    err              = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 7u); // 2 bytes length + 5 bytes data
     EXPECT_EQ(buffer[0], 5);
@@ -438,14 +427,10 @@ TEST(TestEmberAttributeDecoder, TestDecodeOctetString)
 TEST(TestEmberAttributeDecoder, TestDecodeNullable)
 {
     FlexibleMockServerCluster cluster(1, 2);
-    
+
     ConcreteAttributePath path(1, 2, 3);
     AttributeDecoderParams params{
-        .path = path,
-        .cluster = cluster,
-        .emberType = ZCL_BOOLEAN_ATTRIBUTE_TYPE,
-        .emberSize = 1,
-        .isNullable = true
+        .path = path, .cluster = cluster, .emberType = ZCL_BOOLEAN_ATTRIBUTE_TYPE, .emberSize = 1, .isNullable = true
     };
 
     uint8_t buffer[128];
@@ -462,7 +447,7 @@ TEST(TestEmberAttributeDecoder, TestDecodeNullable)
     // Test nullable boolean with null
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.EncodeNull(); });
     outBuffer = MutableByteSpan(buffer);
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    err       = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 1u);
     EXPECT_EQ(buffer[0], 0xFF); // Null value for boolean in Ember
@@ -472,7 +457,7 @@ TEST(TestEmberAttributeDecoder, TestDecodeNullable)
     params.emberSize = 1;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.EncodeNull(); });
     outBuffer = MutableByteSpan(buffer);
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    err       = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 1u);
     EXPECT_EQ(buffer[0], 0xFF); // Null value for uint8 in Ember
@@ -482,7 +467,7 @@ TEST(TestEmberAttributeDecoder, TestDecodeNullable)
     params.emberSize = 0;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.EncodeNull(); });
     outBuffer = MutableByteSpan(buffer);
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    err       = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 1u);
     EXPECT_EQ(buffer[0], 0xFF); // Null value for short string in Ember
@@ -491,7 +476,7 @@ TEST(TestEmberAttributeDecoder, TestDecodeNullable)
     params.emberType = ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.EncodeNull(); });
     outBuffer = MutableByteSpan(buffer);
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    err       = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 2u);
     EXPECT_EQ(buffer[0], 0xFF);
@@ -501,14 +486,9 @@ TEST(TestEmberAttributeDecoder, TestDecodeNullable)
 TEST(TestEmberAttributeDecoder, TestDecodeEnum)
 {
     FlexibleMockServerCluster cluster(1, 2);
-    
+
     ConcreteAttributePath path(1, 2, 3);
-    AttributeDecoderParams params{
-        .path = path,
-        .cluster = cluster,
-        .emberType = ZCL_ENUM8_ATTRIBUTE_TYPE,
-        .emberSize = 1
-    };
+    AttributeDecoderParams params{ .path = path, .cluster = cluster, .emberType = ZCL_ENUM8_ATTRIBUTE_TYPE, .emberSize = 1 };
 
     uint8_t buffer[128];
     MutableByteSpan outBuffer(buffer);
@@ -526,7 +506,7 @@ TEST(TestEmberAttributeDecoder, TestDecodeEnum)
     params.emberSize = 2;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<uint16_t>(0x1234)); });
     outBuffer = MutableByteSpan(buffer);
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    err       = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 2u);
     int16_t decoded16;
