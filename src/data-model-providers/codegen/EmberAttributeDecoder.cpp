@@ -198,7 +198,8 @@ CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, M
         return CHIP_NO_ERROR;
     }
     default:
-        // TODO: Support more types (e.g. floating point types) if needed for legacy callbacks.
+        // Fallthrough for unsupported types like Structs/Lists/NoData/Invalid.
+        // Callers should not call this for such types.
         return CHIP_ERROR_NOT_IMPLEMENTED;
     }
 }
