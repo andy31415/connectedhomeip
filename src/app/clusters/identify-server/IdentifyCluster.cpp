@@ -90,12 +90,16 @@ CHIP_ERROR IdentifyCluster::Attributes(const ConcreteClusterPath & path, ReadOnl
 
 void IdentifyCluster::TimerFired()
 {
-    if (mIdentifyTime > 0)
-    {
-        NotifyAttributeChangedIfSuccess(
-            Attributes::IdentifyTime::Id,
-            SetIdentifyTime(IdentifyTimeChangeSource::kTimer, static_cast<uint16_t>(mIdentifyTime - 1)));
-    }
+    VerifyOrReturn(mIdentifyTime > 0);
+    auto status = SetIdentifyTime(IdentifyTimeChangeSource::kTimer, static_cast<uint16_t>(mIdentifyTime - 1));
+
+    VerifyOrReturn(status.IsSuccess());
+
+    // On return, identify time WAS changed (it decreased by one, so notify)
+    // code uses IsNoopSuccess to mean "not a significant change"
+    NotifyAttributeChanged(Attributes::IdentifyTime::Id,
+                           !status.IsNoOpSuccess() ? DataModel::AttributeChangeType::kReportable
+                                                   : DataModel::AttributeChangeType::kQuiet);
 }
 
 void IdentifyCluster::StopIdentifying()
