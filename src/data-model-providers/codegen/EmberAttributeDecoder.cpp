@@ -121,6 +121,9 @@ CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, M
         if (err == CHIP_NO_ERROR)
         {
             // Update outBuffer size to reflect the actual data written
+            //
+            // targetBuffer size should have been updated already, since
+            // Decode is guaranteed to do that.
             outBuffer.reduce_size(targetBuffer.size());
         }
         return err;
