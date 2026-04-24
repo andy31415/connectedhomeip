@@ -42,6 +42,7 @@
 #include <app/util/attribute-metadata.h>
 #include <app/util/attribute-storage.h>
 #include <app/util/endpoint-config-api.h>
+#include <app/util/ember-io-storage.h>
 #include <lib/core/CHIPError.h>
 #include <lib/core/DataModelTypes.h>
 #include <lib/support/CodeUtils.h>
@@ -559,19 +560,9 @@ void CodegenDataModelProvider::OnAttributeChanged(const ConcreteAttributePath & 
         return;
     }
 
-    // Allocate buffer dynamically based on metadata size + TLV overhead
-    // to avoid large stack allocation and clobbering global buffer.
-    size_t bufferSize = metadata->size + 32; // 32 bytes for TLV overhead
-
-    chip::Platform::ScopedMemoryBuffer<uint8_t> buffer;
-    buffer.Alloc(bufferSize);
-    if (buffer.Get() == nullptr)
-    {
-        ChipLogError(DataManagement, "Failed to allocate buffer for legacy callback");
-        return;
-    }
-
-    MutableByteSpan outBuffer(buffer.Get(), bufferSize);
+    // Use the global Ember IO buffer.
+    // TODO: Ensure gEmberAttributeIOBufferSpan is large enough to handle TLV overhead.
+    MutableByteSpan outBuffer = Compatibility::Internal::gEmberAttributeIOBufferSpan;
 
     AttributeDecoderParams params{ .path       = path,
                                    .cluster    = *mRegistry.Get(path),
