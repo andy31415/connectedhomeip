@@ -96,7 +96,7 @@ void IdentifyCluster::TimerFired()
     VerifyOrReturn(status.IsSuccess());
 
     // On return, identify time WAS changed (it decreased by one, so notify)
-    // code uses IsNoopSuccess to mean "not a significant change"
+    // code uses IsNoOpSuccess() to mean "not a significant change"
     NotifyAttributeChanged(Attributes::IdentifyTime::Id,
                            !status.IsNoOpSuccess() ? DataModel::AttributeChangeType::kReportable
                                                    : DataModel::AttributeChangeType::kQuiet);
