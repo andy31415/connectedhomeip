@@ -118,7 +118,9 @@ CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, M
     case ZCL_INT40S_ATTRIBUTE_TYPE:
     case ZCL_INT48S_ATTRIBUTE_TYPE:
     case ZCL_INT56S_ATTRIBUTE_TYPE:
-    case ZCL_INT64S_ATTRIBUTE_TYPE: {
+    case ZCL_INT64S_ATTRIBUTE_TYPE:
+    case ZCL_SINGLE_ATTRIBUTE_TYPE:
+    case ZCL_DOUBLE_ATTRIBUTE_TYPE: {
         CHIP_ERROR err = emberBuffer.Decode(attributeDataReader);
         if (err == CHIP_NO_ERROR)
         {

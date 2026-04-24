@@ -560,6 +560,12 @@ void CodegenDataModelProvider::OnAttributeChanged(const ConcreteAttributePath & 
         return;
     }
 
+    // Ignore Structs and Lists as they were never supported in legacy callbacks.
+    if (metadata->attributeType == ZCL_ARRAY_ATTRIBUTE_TYPE || metadata->attributeType == ZCL_STRUCT_ATTRIBUTE_TYPE)
+    {
+        return;
+    }
+
     // Use the global Ember IO buffer.
     // TODO: Ensure gEmberAttributeIOBufferSpan is large enough to handle TLV overhead.
     MutableByteSpan outBuffer = Compatibility::Internal::gEmberAttributeIOBufferSpan;
