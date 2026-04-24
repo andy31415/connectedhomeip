@@ -141,7 +141,7 @@ template("chip_data_model") {
     sources = filter_include(
             get_target_outputs(":${_data_model_name}_codegen_generate"),
             [
-              "*/callback-stup.cpp",
+              "*/callback-stub.cpp",
               "*/cluster-callbacks.cpp",
             ])
 
