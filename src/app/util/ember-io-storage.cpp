@@ -36,7 +36,8 @@ namespace Internal {
 //    - minimum 8 bytes, to be able to store a uint64_t guaranteed
 //    - used for NotifyAttributeChanged processing: TLV encoding of the largest non-list/struct attribute
 //      - this needs TLV overhead size + max size of any string/octet attribute (even for code driven clusters)
-constexpr size_t kAttributeReadBufferSize = std::max(static_cast<size_t>(ATTRIBUTE_LARGEST), std::max(static_cast<size_t>(8), kMaxAttributeTLVSize));
+constexpr size_t kAttributeReadBufferSize =
+    std::max({ static_cast<size_t>(ATTRIBUTE_LARGEST), static_cast<size_t>(8), kMaxAttributeTLVSize });
 
 uint8_t attributeIOBuffer[kAttributeReadBufferSize];
 
