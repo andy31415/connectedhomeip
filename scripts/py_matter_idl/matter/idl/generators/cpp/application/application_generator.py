@@ -190,7 +190,8 @@ class CppApplicationGenerator(CodeGenerator):
                     else:
                         # All non-list string attributes are expected to have a defined max length
                         # in the IDL to be compatible with Ember storage/callbacks.
-                        raise Exception(f"Attribute {attr.definition.name} in cluster {cluster.name} is a string without max_length")
+                        raise Exception(
+                            f"Attribute {attr.definition.name} in cluster {cluster.name} is a string without max_length")
                 else:
                     # Fallback for unknown types or types we don't handle
                     continue
