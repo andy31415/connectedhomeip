@@ -29,10 +29,6 @@ namespace app {
 
 CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, MutableByteSpan & outBuffer)
 {
-    // TODO: While this function takes a generic `outBuffer`, in production (e.g., in
-    // `CodegenDataModelProvider::OnAttributeChanged`) it is often called with `gEmberAttributeIOBufferSpan`. That global buffer
-    // needs to be sized to handle the largest attribute + TLV overhead, which is not guaranteed today.
-
     // 1. Setup TLV Writer and Builder using outBuffer as scratch space
     TLV::TLVWriter writer;
     writer.Init(outBuffer.data(), outBuffer.size());
@@ -174,6 +170,8 @@ CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, M
         const uint8_t * tlvData;
         ReturnErrorOnFailure(attributeDataReader.GetDataPtr(tlvData));
 
+        uint32_t maxLength = isLong ? 65534 : 254;
+        VerifyOrReturnError(stringLength <= maxLength, CHIP_ERROR_INVALID_ARGUMENT);
         VerifyOrReturnError(outBuffer.size() >= headerSize + stringLength, CHIP_ERROR_NO_MEMORY);
 
         // Write length (Pascal format)
@@ -186,6 +184,10 @@ CHIP_ERROR DecodeAttributeToEmberBuffer(const AttributeDecoderParams & params, M
         {
             outBuffer.data()[0] = static_cast<uint8_t>(stringLength);
         }
+
+        // Ensure that writing the header doesn't overwrite the data we are about to move.
+        // Since tlvData points into outBuffer, we verify the offset.
+        VerifyOrReturnError(tlvData >= outBuffer.data() + headerSize, CHIP_ERROR_INTERNAL);
 
         // Move data safely even if overlapping
         //

@@ -567,7 +567,6 @@ void CodegenDataModelProvider::OnAttributeChanged(const ConcreteAttributePath & 
     }
 
     // Use the global Ember IO buffer.
-    // TODO: Ensure gEmberAttributeIOBufferSpan is large enough to handle TLV overhead.
     MutableByteSpan outBuffer = Compatibility::Internal::gEmberAttributeIOBufferSpan;
 
     AttributeDecoderParams params{ .path       = path,

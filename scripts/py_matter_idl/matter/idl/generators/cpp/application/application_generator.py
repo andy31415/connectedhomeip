@@ -188,14 +188,9 @@ class CppApplicationGenerator(CodeGenerator):
                     if parsed_type.max_length is not None:
                         size = parsed_type.max_length
                     else:
-                        # A (probably wrong) guess for unknown/free-sized strings.
-                        # This is NOT correct, however also we are guaranteed that all string
-                        # attributes WILL have a size (otherwise ember metadata would not work)
-                        #
-                        # Checked controller-clusters.matter when this code was written and
-                        # ALL non-list string attributes have a size, so this code will never be
-                        # reached
-                        size = 32
+                        # All non-list string attributes are expected to have a defined max length
+                        # in the IDL to be compatible with Ember storage/callbacks.
+                        raise Exception(f"Attribute {attr.definition.name} in cluster {cluster.name} is a string without max_length")
                 else:
                     # Fallback for unknown types or types we don't handle
                     continue
