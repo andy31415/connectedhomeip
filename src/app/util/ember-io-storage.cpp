@@ -17,8 +17,10 @@
 #include <app/util/ember-io-storage.h>
 
 #include <app-common/zap-generated/attribute-type.h>
+#include <app/ApplicationDataSizes.h>
 #include <zap-generated/endpoint_config.h>
 
+#include <algorithm>
 #include <cstddef>
 
 namespace chip {
@@ -28,13 +30,14 @@ namespace Internal {
 
 // On some apps, ATTRIBUTE_LARGEST can as small as 3, making compiler unhappy since data[kAttributeReadBufferSize] cannot hold
 // uint64_t. Make kAttributeReadBufferSize at least 8 so it can fit all basic types.
-// 
+//
 // General requirements for this buffer:
 //    - sufficient data for any ZAP attribute (ATTRIBUTE_LARGEST)
 //    - minimum 8 bytes, to be able to store a uint64_t guaranteed
 //    - used for NotifyAttributeChanged processing: TLV encoding of the largest non-list/struct attribute
 //      - this needs TLV overhead size + max size of any string/octet attribute (even for code driven clusters)
-constexpr size_t kAttributeReadBufferSize = (ATTRIBUTE_LARGEST >= 8 ? ATTRIBUTE_LARGEST : 8);
+constexpr size_t kAttributeReadBufferSize = std::max(static_cast<size_t>(ATTRIBUTE_LARGEST), std::max(static_cast<size_t>(8), kMaxAttributeTLVSize));
+
 uint8_t attributeIOBuffer[kAttributeReadBufferSize];
 
 MutableByteSpan gEmberAttributeIOBufferSpan(attributeIOBuffer);

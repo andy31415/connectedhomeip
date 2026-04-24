@@ -56,7 +56,8 @@ Status emberAfReadAttribute(chip::EndpointId endpoint, chip::ClusterId cluster, 
     return Status::Success;
 }
 
-void __attribute__((weak)) MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & attributePath, uint8_t type, uint16_t size, uint8_t * value)
+void __attribute__((weak)) MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & attributePath, uint8_t type,
+                                                             uint16_t size, uint8_t * value)
 {
     // Weak stub for tests
 }

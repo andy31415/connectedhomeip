@@ -36,12 +36,12 @@ struct AttributeDecoderParams
 };
 
 /// Reads the attribute specified by path from the given cluster and decodes it into the provided buffer in Ember format.
-/// 
+///
 /// Supports fixed-size integer/float types as well as strings/octet strings.
 /// Specifically DOES NOT support:
 ///   - Lists (ZCL_ARRAY_ATTRIBUTE_TYPE)
 ///   - Structs (ZCL_STRUCT_ATTRIBUTE_TYPE)
-///  
+///
 /// Intended use is as a bridge between ServerClusterInterface data and
 /// ember encoded data (hence the above limitations: ember has no direct encoding
 /// for lists/structs).

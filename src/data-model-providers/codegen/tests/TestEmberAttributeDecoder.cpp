@@ -517,14 +517,9 @@ TEST(TestEmberAttributeDecoder, TestDecodeEnum)
 TEST_F(EmberAttributeDecoderTest, TestDecodeFloat)
 {
     FlexibleMockServerCluster cluster(1, 2);
-    
+
     ConcreteAttributePath path(1, 2, 3);
-    AttributeDecoderParams params{
-        .path = path,
-        .cluster = cluster,
-        .emberType = ZCL_SINGLE_ATTRIBUTE_TYPE,
-        .emberSize = 4
-    };
+    AttributeDecoderParams params{ .path = path, .cluster = cluster, .emberType = ZCL_SINGLE_ATTRIBUTE_TYPE, .emberSize = 4 };
 
     MutableByteSpan outBuffer = GetBuffer();
 
@@ -543,7 +538,7 @@ TEST_F(EmberAttributeDecoderTest, TestDecodeFloat)
     params.emberSize = 8;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<double>(1.23456789)); });
     outBuffer = GetBuffer();
-    err = DecodeAttributeToEmberBuffer(params, outBuffer);
+    err       = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 8u);
     double decodedDouble;
