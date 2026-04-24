@@ -164,7 +164,22 @@ private:
     std::function<DataModel::ActionReturnStatus(AttributeValueEncoder &)> mReadHandler;
 };
 
-TEST(TestEmberAttributeDecoder, TestDecodeBool)
+class EmberAttributeDecoderTest : public ::testing::Test
+{
+protected:
+    void SetUp() override
+    {
+        mBuffer.Alloc(kBufferSize);
+        ASSERT_NE(mBuffer.Get(), nullptr);
+    }
+    
+    MutableByteSpan GetBuffer() { return MutableByteSpan(mBuffer.Get(), kBufferSize); }
+
+    constexpr static size_t kBufferSize = 128;
+    chip::Platform::ScopedMemoryBuffer<uint8_t> mBuffer;
+};
+
+TEST_F(EmberAttributeDecoderTest, TestDecodeBool)
 {
     MockServerCluster cluster(1, 2);
     cluster.SetAttributeId(3);
@@ -178,23 +193,22 @@ TEST(TestEmberAttributeDecoder, TestDecodeBool)
         .emberSize = 1
     };
 
-    uint8_t buffer[128];
-    MutableByteSpan outBuffer(buffer);
+    MutableByteSpan outBuffer = GetBuffer();
 
     CHIP_ERROR err = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 1u);
-    EXPECT_EQ(buffer[0], 1);
+    EXPECT_EQ(outBuffer.data()[0], 1);
 
     cluster.SetBoolValue(false);
-    outBuffer = MutableByteSpan(buffer);
+    outBuffer = GetBuffer();
     err = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 1u);
-    EXPECT_EQ(buffer[0], 0);
+    EXPECT_EQ(outBuffer.data()[0], 0);
 }
 
-TEST(TestEmberAttributeDecoder, TestDecodeBoolNegative)
+TEST_F(EmberAttributeDecoderTest, TestDecodeBoolNegative)
 {
     MockServerCluster cluster(1, 2);
     cluster.SetAttributeId(3);
@@ -227,7 +241,7 @@ TEST(TestEmberAttributeDecoder, TestDecodeBoolNegative)
     }
 }
 
-TEST(TestEmberAttributeDecoder, TestDecodeUnsignedInt)
+TEST_F(EmberAttributeDecoderTest, TestDecodeUnsignedInt)
 {
     FlexibleMockServerCluster cluster(1, 2);
     
@@ -239,8 +253,7 @@ TEST(TestEmberAttributeDecoder, TestDecodeUnsignedInt)
         .emberSize = 1
     };
 
-    uint8_t buffer[128];
-    MutableByteSpan outBuffer(buffer);
+    MutableByteSpan outBuffer = GetBuffer();
 
     // Test 8-bit unsigned int
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<uint8_t>(123)); });
@@ -248,50 +261,51 @@ TEST(TestEmberAttributeDecoder, TestDecodeUnsignedInt)
     CHIP_ERROR err = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 1u);
-    EXPECT_EQ(buffer[0], 123);
+    EXPECT_EQ(outBuffer.data()[0], 123);
+    
     // Test 16-bit unsigned int
     params.emberType = ZCL_INT16U_ATTRIBUTE_TYPE;
     params.emberSize = 2;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<uint16_t>(0xABCD)); });
-    outBuffer = MutableByteSpan(buffer);
+    outBuffer = GetBuffer();
     err = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 2u);
-    EXPECT_EQ(buffer[0], 0xCD);
-    EXPECT_EQ(buffer[1], 0xAB);
+    EXPECT_EQ(outBuffer.data()[0], 0xCD);
+    EXPECT_EQ(outBuffer.data()[1], 0xAB);
 
     // Test 32-bit unsigned int
     params.emberType = ZCL_INT32U_ATTRIBUTE_TYPE;
     params.emberSize = 4;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<uint32_t>(0x12345678)); });
-    outBuffer = MutableByteSpan(buffer);
+    outBuffer = GetBuffer();
     err = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 4u);
-    EXPECT_EQ(buffer[0], 0x78);
-    EXPECT_EQ(buffer[1], 0x56);
-    EXPECT_EQ(buffer[2], 0x34);
-    EXPECT_EQ(buffer[3], 0x12);
+    EXPECT_EQ(outBuffer.data()[0], 0x78);
+    EXPECT_EQ(outBuffer.data()[1], 0x56);
+    EXPECT_EQ(outBuffer.data()[2], 0x34);
+    EXPECT_EQ(outBuffer.data()[3], 0x12);
 
     // Test 64-bit unsigned int
     params.emberType = ZCL_INT64U_ATTRIBUTE_TYPE;
     params.emberSize = 8;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<uint64_t>(0xAABBCCDDEEFF1122)); });
-    outBuffer = MutableByteSpan(buffer);
+    outBuffer = GetBuffer();
     err = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 8u);
-    EXPECT_EQ(buffer[0], 0x22);
-    EXPECT_EQ(buffer[1], 0x11);
-    EXPECT_EQ(buffer[2], 0xFF);
-    EXPECT_EQ(buffer[3], 0xEE);
-    EXPECT_EQ(buffer[4], 0xDD);
-    EXPECT_EQ(buffer[5], 0xCC);
-    EXPECT_EQ(buffer[6], 0xBB);
-    EXPECT_EQ(buffer[7], 0xAA);
+    EXPECT_EQ(outBuffer.data()[0], 0x22);
+    EXPECT_EQ(outBuffer.data()[1], 0x11);
+    EXPECT_EQ(outBuffer.data()[2], 0xFF);
+    EXPECT_EQ(outBuffer.data()[3], 0xEE);
+    EXPECT_EQ(outBuffer.data()[4], 0xDD);
+    EXPECT_EQ(outBuffer.data()[5], 0xCC);
+    EXPECT_EQ(outBuffer.data()[6], 0xBB);
+    EXPECT_EQ(outBuffer.data()[7], 0xAA);
 }
 
-TEST(TestEmberAttributeDecoder, TestDecodeSignedInt)
+TEST_F(EmberAttributeDecoderTest, TestDecodeSignedInt)
 {
     FlexibleMockServerCluster cluster(1, 2);
     
@@ -303,8 +317,7 @@ TEST(TestEmberAttributeDecoder, TestDecodeSignedInt)
         .emberSize = 1
     };
 
-    uint8_t buffer[128];
-    MutableByteSpan outBuffer(buffer);
+    MutableByteSpan outBuffer = GetBuffer();
 
     // Test 8-bit signed int
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<int8_t>(-10)); });
@@ -312,46 +325,46 @@ TEST(TestEmberAttributeDecoder, TestDecodeSignedInt)
     CHIP_ERROR err = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 1u);
-    EXPECT_EQ(static_cast<int8_t>(buffer[0]), -10);
+    EXPECT_EQ(static_cast<int8_t>(outBuffer.data()[0]), -10);
 
     // Test 16-bit signed int
     params.emberType = ZCL_INT16S_ATTRIBUTE_TYPE;
     params.emberSize = 2;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<int16_t>(-1234)); });
-    outBuffer = MutableByteSpan(buffer);
+    outBuffer = GetBuffer();
     err = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 2u);
     int16_t decoded16;
-    memcpy(&decoded16, buffer, 2);
+    memcpy(&decoded16, outBuffer.data(), 2);
     EXPECT_EQ(decoded16, -1234);
 
     // Test 32-bit signed int
     params.emberType = ZCL_INT32S_ATTRIBUTE_TYPE;
     params.emberSize = 4;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<int32_t>(-12345678)); });
-    outBuffer = MutableByteSpan(buffer);
+    outBuffer = GetBuffer();
     err = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 4u);
     int32_t decoded32;
-    memcpy(&decoded32, buffer, 4);
+    memcpy(&decoded32, outBuffer.data(), 4);
     EXPECT_EQ(decoded32, -12345678);
 
     // Test 64-bit signed int
     params.emberType = ZCL_INT64S_ATTRIBUTE_TYPE;
     params.emberSize = 8;
     cluster.SetReadHandler([](AttributeValueEncoder & encoder) { return encoder.Encode(static_cast<int64_t>(-12345678901234LL)); });
-    outBuffer = MutableByteSpan(buffer);
+    outBuffer = GetBuffer();
     err = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 8u);
     int64_t decoded64;
-    memcpy(&decoded64, buffer, 8);
+    memcpy(&decoded64, outBuffer.data(), 8);
     EXPECT_EQ(decoded64, -12345678901234LL);
 }
 
-TEST(TestEmberAttributeDecoder, TestDecodeString)
+TEST_F(EmberAttributeDecoderTest, TestDecodeString)
 {
     FlexibleMockServerCluster cluster(1, 2);
     
@@ -363,8 +376,7 @@ TEST(TestEmberAttributeDecoder, TestDecodeString)
         .emberSize = 0
     };
 
-    uint8_t buffer[128];
-    MutableByteSpan outBuffer(buffer);
+    MutableByteSpan outBuffer = GetBuffer();
 
     // Test short string
     const char * testStr = "hello";
@@ -373,18 +385,18 @@ TEST(TestEmberAttributeDecoder, TestDecodeString)
     CHIP_ERROR err = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 6u); // 1 byte length + 5 bytes data
-    EXPECT_EQ(buffer[0], 5);
-    EXPECT_EQ(memcmp(buffer + 1, testStr, 5), 0);
+    EXPECT_EQ(outBuffer.data()[0], 5);
+    EXPECT_EQ(memcmp(outBuffer.data() + 1, testStr, 5), 0);
 
     // Test long string
     params.emberType = ZCL_LONG_CHAR_STRING_ATTRIBUTE_TYPE;
-    outBuffer = MutableByteSpan(buffer);
+    outBuffer = GetBuffer();
     err = DecodeAttributeToEmberBuffer(params, outBuffer);
     EXPECT_EQ(err, CHIP_NO_ERROR);
     EXPECT_EQ(outBuffer.size(), 7u); // 2 bytes length + 5 bytes data
-    EXPECT_EQ(buffer[0], 5);
-    EXPECT_EQ(buffer[1], 0);
-    EXPECT_EQ(memcmp(buffer + 2, testStr, 5), 0);
+    EXPECT_EQ(outBuffer.data()[0], 5);
+    EXPECT_EQ(outBuffer.data()[1], 0);
+    EXPECT_EQ(memcmp(outBuffer.data() + 2, testStr, 5), 0);
 }
 
 TEST(TestEmberAttributeDecoder, TestDecodeOctetString)

@@ -558,9 +558,19 @@ void CodegenDataModelProvider::OnAttributeChanged(const ConcreteAttributePath & 
         return;
     }
 
-    // Use a local buffer for now. TODO: use gEmberAttributeIOBufferSpan once sized correctly.
-    uint8_t buffer[256];
-    MutableByteSpan outBuffer(buffer);
+    // Allocate buffer dynamically based on metadata size + TLV overhead
+    // to avoid large stack allocation and clobbering global buffer.
+    size_t bufferSize = metadata->size + 32; // 32 bytes for TLV overhead
+    
+    chip::Platform::ScopedMemoryBuffer<uint8_t> buffer;
+    buffer.Alloc(bufferSize);
+    if (buffer.Get() == nullptr)
+    {
+        ChipLogError(DataManagement, "Failed to allocate buffer for legacy callback");
+        return;
+    }
+
+    MutableByteSpan outBuffer(buffer.Get(), bufferSize);
 
     AttributeDecoderParams params{
         .path = path,
