@@ -208,24 +208,25 @@ CHIP_ERROR ClosureControlCluster::SetCountdownTime(const DataModel::Nullable<Ela
     VerifyOrReturnError(mConformance.HasFeature(Feature::kPositioning) && !mConformance.HasFeature(Feature::kInstantaneous),
                         CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE);
 
-    auto now       = mTimerDelegate.GetCurrentMonotonicTimestamp();
-    bool markDirty = false;
+    VerifyOrReturnError(mDelegate.OnCountdownTimeChanged(countdownTime), CHIP_ERROR_INCORRECT_STATE);
+
+    // if no change, return since nothing else to do
+    VerifyOrReturnError(mState.mCountdownTime.value() != countdownTime, CHIP_NO_ERROR);
 
     // When fromDelegate=true (delegate updates), we rely on the QuieterReportingAttribute policies
     // to determine if reporting is needed (increment, change to/from zero, null changes).
     // When fromDelegate=false (MainState change), we force reporting since the tracked operation changed.
-
+    auto now       = mTimerDelegate.GetCurrentMonotonicTimestamp();
     auto predicate = [fromDelegate](const decltype(mState.mCountdownTime)::SufficientChangePredicateCandidate &) -> bool {
         // Force reporting when the tracked operation changes due to MainState change
         return !fromDelegate;
     };
-    VerifyOrReturnError(mDelegate.OnCountdownTimeChanged(countdownTime), CHIP_ERROR_INCORRECT_STATE);
-    markDirty = (mState.mCountdownTime.SetValue(countdownTime, now, predicate) == AttributeDirtyState::kMustReport);
 
-    if (markDirty)
-    {
-        NotifyAttributeChanged(Attributes::CountdownTime::Id);
-    }
+    auto dirtyState = mState.mCountdownTime.SetValue(countdownTime, now, predicate);
+
+    NotifyAttributeChanged(Attributes::CountdownTime::Id,
+                           dirtyState == AttributeDirtyState::kMustReport ? DataModel::AttributeChangeType::kReportable
+                                                                          : DataModel::AttributeChangeType::kQuiet);
 
     return CHIP_NO_ERROR;
 }
