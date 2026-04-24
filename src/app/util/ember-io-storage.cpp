@@ -17,6 +17,7 @@
 #include <app/util/ember-io-storage.h>
 
 #include <app-common/zap-generated/attribute-type.h>
+
 #include <app/ApplicationDataSizes.h>
 #include <zap-generated/endpoint_config.h>
 
