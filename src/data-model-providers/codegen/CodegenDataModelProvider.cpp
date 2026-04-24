@@ -582,6 +582,9 @@ void CodegenDataModelProvider::OnAttributeChanged(const ConcreteAttributePath & 
         return;
     }
 
+    // NOTE: this passes in gEmberAttributeIOBufferSpan as a buffer. This is shared for EmberAfAttributeWrite, so if that is ever
+    //       performed, data will overlap.
+    // This is done to save some RAM/stack space and do not expect too much recursive calls.
     MatterPostAttributeChangeCallback(path, metadata->attributeType, metadata->size, outBuffer.data());
 }
 
