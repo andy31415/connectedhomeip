@@ -21,10 +21,14 @@ set -e
 # Default values
 USE_SECRET=""
 BASELINE_XML="src/app/zap-templates/zcl/data-model/chip"
-GENERATED_XML="out/alchemy/generated_xml"
+GENERATED_XML="out/generated_xml"
 SDK_ROOT="."
 SPEC_ROOT="out/spec"
 SKIP_UPDATE=false
+
+# Default versions/branches
+ALCHEMY_VERSION="1.6.14"
+SPEC_BRANCH="master"
 
 help() {
     echo "Usage: $0 [options]"
@@ -74,12 +78,6 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Check Go
-if ! command -v go &> /dev/null; then
-    echo "Error: Go is not installed. Please install Go to build Alchemy."
-    exit 1
-fi
-
 # Handle PAT
 GITHUB_PAT=""
 if [ -n "$USE_SECRET" ]; then
@@ -94,6 +92,7 @@ update_or_clone() {
     local dir=$1
     local url=$2
     local name=$3
+    local branch=$4
 
     if [ "$SKIP_UPDATE" = true ] && [ -d "$dir" ]; then
         echo "Using existing $name directory as requested."
@@ -101,42 +100,49 @@ update_or_clone() {
     fi
 
     if [ -d "$dir" ]; then
-        echo "Updating $name to latest version..."
+        echo "Updating $name to $branch..."
         (
             cd "$dir"
-            git fetch --depth 1
-            git reset --hard origin/master 2>/dev/null || git reset --hard origin/main
+            git fetch --depth 1 origin "$branch"
+            git checkout FETCH_HEAD
         )
     else
-        echo "Cloning $name..."
-        git clone --depth 1 "$url" "$dir"
+        echo "Cloning $name ($branch)..."
+        git clone --depth 1 --branch "$branch" "$url" "$dir"
     fi
 }
 
-# Clone/Update Alchemy (Public)
-update_or_clone "out/alchemy" "https://github.com/project-chip/alchemy.git" "Alchemy"
-
 # Clone/Update Spec (Private)
 if [ -n "$GITHUB_PAT" ]; then
-    update_or_clone "$SPEC_ROOT" "https://${GITHUB_PAT}@github.com/CHIP-Specifications/connectedhomeip-spec.git" "Spec"
+    update_or_clone "$SPEC_ROOT" "https://${GITHUB_PAT}@github.com/CHIP-Specifications/connectedhomeip-spec.git" "Spec" "$SPEC_BRANCH"
 else
-    update_or_clone "$SPEC_ROOT" "git@github.com:CHIP-Specifications/connectedhomeip-spec.git" "Spec"
+    update_or_clone "$SPEC_ROOT" "git@github.com:CHIP-Specifications/connectedhomeip-spec.git" "Spec" "$SPEC_BRANCH"
 fi
 
-# Build Alchemy
-echo "Building Alchemy..."
-(
-    cd out/alchemy
-    GOOS=linux GOARCH=amd64 go build -o ../alchemy-action-linux-x64 -tags github
-)
+# Download Alchemy Release
+ALCHEMY_ASSET="alchemy-${ALCHEMY_VERSION}-linux-amd64.tar.gz"
+ALCHEMY_URL="https://github.com/project-chip/alchemy/releases/download/v${ALCHEMY_VERSION}/${ALCHEMY_ASSET}"
+
+if [ "$SKIP_UPDATE" = true ] && [ -f "out/alchemy" ]; then
+    echo "Using existing Alchemy binary."
+else
+    echo "Downloading Alchemy v${ALCHEMY_VERSION}..."
+    curl -L "$ALCHEMY_URL" -o "out/${ALCHEMY_ASSET}"
+    
+    echo "Extracting Alchemy..."
+    # Extract to out/ directory
+    tar -xzf "out/${ALCHEMY_ASSET}" -C out/
+    
+    chmod +x out/alchemy
+fi
 
 # Run Diff
 echo "Running Alchemy Diff..."
 mkdir -p "$GENERATED_XML"
-./out/alchemy-action-linux-x64 zap-diff \
-    --baseline-xml "$BASELINE_XML" \
-    --generated-xml "$GENERATED_XML" \
-    --sdk-root "$SDK_ROOT" \
-    --spec-root "$SPEC_ROOT"
+./out/alchemy zap-diff \
+    --xml-root-1 "$BASELINE_XML" \
+    --xml-root-2 "$GENERATED_XML" \
+    --out "$GENERATED_XML" \
+    --format "both"
 
 echo "Done. Check $GENERATED_XML for results."
