@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-set -x
+set -e
 
 cd /tmp
 rm -rf connectedhomeip
