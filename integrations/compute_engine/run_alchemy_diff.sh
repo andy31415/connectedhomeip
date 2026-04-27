@@ -115,6 +115,22 @@ update_or_clone() {
         return
     fi
 
+    # Setup GIT_ASKPASS if we have a token
+    local cleanup_askpass=false
+    if [ -n "$GITHUB_PAT" ]; then
+        local askpass_path="out/askpass.sh"
+        echo '#!/bin/sh' > "$askpass_path"
+        echo 'echo "$GITHUB_PAT"' >> "$askpass_path"
+        chmod +x "$askpass_path"
+        export GIT_ASKPASS="$(pwd)/$askpass_path"
+        cleanup_askpass=true
+        
+        # Modify URL to include x-access-token username if it's an HTTPS URL
+        if [[ "$url" == https://* ]]; then
+            url="https://x-access-token@${url#https://}"
+        fi
+    fi
+
     if [ -d "$dir" ]; then
         echo "Updating $name to $branch..."
         (
@@ -125,6 +141,12 @@ update_or_clone() {
     else
         echo "Cloning $name ($branch)..."
         git clone --branch "$branch" "$url" "$dir"
+    fi
+
+    # Cleanup
+    if [ "$cleanup_askpass" = true ]; then
+        rm -f "out/askpass.sh"
+        unset GIT_ASKPASS
     fi
 }
 
