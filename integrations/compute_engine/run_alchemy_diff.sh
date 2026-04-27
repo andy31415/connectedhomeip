@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-set -ex
+set -e
 
 # Default values
 USE_SECRET=""
@@ -27,10 +27,24 @@ SPEC_ROOT="out/spec"
 SKIP_UPDATE=false
 TEMP_BASELINE="out/baseline_xml"
 TEMP_GENERATED="out/generated_xml_files"
+BACKUP_FILES="out/backup_files"
 
 # Default versions/branches
 ALCHEMY_VERSION="1.6.14"
 SPEC_BRANCH="master"
+
+# Default attributes for generation (from spec repo workflow)
+GEN_ATTRIBUTES="ambient-context-sensor,ambientsensing,cameras,cameras-image-rotation,groupcast,hrap-pdc,hrap-tbrd,hvac-thermostat-events,hvac-thermostat-suggestions,improved-capabilities-tcr,partitioned-crl,security-sensor-events-tcr,tcr-smokeco-unmounted-state,temperature-alarm,thread-commissioning"
+
+# Specific files modified by Alchemy that need backup and restore
+# Running alchemy zap regen will modify these, so restore them back
+# after the alchemy run.
+FILES_TO_RESTORE=(
+    "src/app/zap-templates/zcl/zcl-with-test-extensions.json"
+    "src/app/zap-templates/zcl/zcl.json"
+    "src/app/zap_cluster_list.json"
+    ".github/workflows/tests.yaml"
+)
 
 help() {
     echo "Usage: $0 [options]"
@@ -105,12 +119,12 @@ update_or_clone() {
         echo "Updating $name to $branch..."
         (
             cd "$dir"
-            git fetch --depth 1 origin "$branch"
+            git fetch origin "$branch"
             git checkout FETCH_HEAD
         )
     else
         echo "Cloning $name ($branch)..."
-        git clone --depth 1 --branch "$branch" "$url" "$dir"
+        git clone --branch "$branch" "$url" "$dir"
     fi
 }
 
@@ -136,27 +150,48 @@ else
     chmod +x out/alchemy
 fi
 
-# --- Step 1: Save Baseline ---
-echo "Saving baseline XMLs..."
+# --- Step 1: Save Baseline and Files ---
+echo "Saving baseline XMLs and files..."
 rm -rf "$TEMP_BASELINE"
 mkdir -p "$TEMP_BASELINE"
 cp -r "$BASELINE_XML"/* "$TEMP_BASELINE/"
 
+# Backup specific files
+mkdir -p "$BACKUP_FILES"
+for f in "${FILES_TO_RESTORE[@]}"; do
+    if [ -f "$f" ]; then
+        mkdir -p "$BACKUP_FILES/$(dirname "$f")"
+        cp "$f" "$BACKUP_FILES/$f"
+    fi
+done
+
 # --- Step 2: Generate New XMLs from Spec ---
 echo "Generating ZAP XMLs from spec..."
 # Using --force to proceed despite spec parsing errors
-./out/alchemy zap --spec-root "$SPEC_ROOT" --sdk-root "$SDK_ROOT" --force
+./out/alchemy zap --spec-root "$SPEC_ROOT" --sdk-root "$SDK_ROOT" --force -a "$GEN_ATTRIBUTES"
 
 # --- Step 3: Save Generated and Restore Baseline ---
+echo "Checking for differences before restore..."
+# This will show if alchemy actually modified anything in the SDK
+diff -rq "$TEMP_BASELINE" "$BASELINE_XML" || true
+
 echo "Saving generated XMLs and restoring baseline..."
 rm -rf "$TEMP_GENERATED"
 mkdir -p "$TEMP_GENERATED"
 cp -r "$BASELINE_XML"/* "$TEMP_GENERATED/"
 
-# Restore SDK to clean state
-echo "Restoring SDK to clean state..."
+# Restore SDK XMLs to clean state
+echo "Restoring SDK XMLs to clean state..."
 rm -rf "$BASELINE_XML"/*
 cp -r "$TEMP_BASELINE"/* "$BASELINE_XML/"
+
+# Restore specific files
+echo "Restoring specific files..."
+for f in "${FILES_TO_RESTORE[@]}"; do
+    if [ -f "$BACKUP_FILES/$f" ]; then
+        cp "$BACKUP_FILES/$f" "$f"
+    fi
+done
 
 # --- Step 4: Run Diff ---
 echo "Running Alchemy Diff..."
