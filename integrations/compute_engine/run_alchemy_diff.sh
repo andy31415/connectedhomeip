@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-set -e
+set -ex
 
 # Default values
 USE_SECRET=""
@@ -25,6 +25,8 @@ GENERATED_XML="out/generated_xml"
 SDK_ROOT="."
 SPEC_ROOT="out/spec"
 SKIP_UPDATE=false
+TEMP_BASELINE="out/baseline_xml"
+TEMP_GENERATED="out/generated_xml_files"
 
 # Default versions/branches
 ALCHEMY_VERSION="1.6.14"
@@ -36,7 +38,7 @@ help() {
     echo "Options:"
     echo "  --use-pat-secret NAME  Name of the gcloud secret containing the GitHub PAT"
     echo "  --baseline-xml PATH    Path to directory containing baseline ZAP XMLs (default: $BASELINE_XML)"
-    echo "  --generated-xml PATH   Path to directory where new XMLs will be generated (default: $GENERATED_XML)"
+    echo "  --generated-xml PATH   Path to directory where reports will be saved (default: $GENERATED_XML)"
     echo "  --spec-root PATH       Path to directory containing the spec repository (default: $SPEC_ROOT)"
     echo "  --skip-update          Skip updating existing checkouts (default: false)"
     echo "  -h, --help             Print this help"
@@ -130,18 +132,38 @@ else
     curl -L "$ALCHEMY_URL" -o "out/${ALCHEMY_ASSET}"
     
     echo "Extracting Alchemy..."
-    # Extract to out/ directory
     tar -xzf "out/${ALCHEMY_ASSET}" -C out/
-    
     chmod +x out/alchemy
 fi
 
-# Run Diff
+# --- Step 1: Save Baseline ---
+echo "Saving baseline XMLs..."
+rm -rf "$TEMP_BASELINE"
+mkdir -p "$TEMP_BASELINE"
+cp -r "$BASELINE_XML"/* "$TEMP_BASELINE/"
+
+# --- Step 2: Generate New XMLs from Spec ---
+echo "Generating ZAP XMLs from spec..."
+# Using --force to proceed despite spec parsing errors
+./out/alchemy zap --spec-root "$SPEC_ROOT" --sdk-root "$SDK_ROOT" --force
+
+# --- Step 3: Save Generated and Restore Baseline ---
+echo "Saving generated XMLs and restoring baseline..."
+rm -rf "$TEMP_GENERATED"
+mkdir -p "$TEMP_GENERATED"
+cp -r "$BASELINE_XML"/* "$TEMP_GENERATED/"
+
+# Restore SDK to clean state
+echo "Restoring SDK to clean state..."
+rm -rf "$BASELINE_XML"/*
+cp -r "$TEMP_BASELINE"/* "$BASELINE_XML/"
+
+# --- Step 4: Run Diff ---
 echo "Running Alchemy Diff..."
 mkdir -p "$GENERATED_XML"
 ./out/alchemy zap-diff \
-    --xml-root-1 "$BASELINE_XML" \
-    --xml-root-2 "$GENERATED_XML" \
+    --xml-root-1 "$TEMP_BASELINE" \
+    --xml-root-2 "$TEMP_GENERATED" \
     --out "$GENERATED_XML" \
     --format "both"
 
