@@ -105,7 +105,7 @@ write_dummy() {
 if [ "$RUN_COVERAGE" = true ]; then
     echo "Generating Coverage Report..."
     ./scripts/build_coverage.sh
-    
+
     # Move coverage files to a subdirectory
     echo "Reorganizing coverage files..."
     mkdir -p out/coverage_tmp
@@ -139,7 +139,7 @@ if [ "$RUN_ALCHEMY" = true ]; then
         ARGS="--use-pat-secret $PAT_SECRET"
     fi
     ./integrations/compute_engine/run_alchemy_diff.sh $ARGS
-    
+
     # Copy results if they exist
     if [ -f "out/generated_xml/mismatches.html" ]; then
         cp out/generated_xml/mismatches.html "$OUT_DIR/sdk_spec_zapdiff.html"
@@ -186,7 +186,7 @@ if [ "$DEPLOY" = true ]; then
             --service default \
             --sort-by '~VERSION.ID' \
             --format 'value(VERSION.ID)' | sed 1,5d)
-        
+
         for version in $versions; do
             gcloud app versions delete "$version" \
                 --service default \

@@ -144,7 +144,7 @@ if [ "$SKIP_UPDATE" = true ] && [ -f "out/alchemy" ]; then
 else
     echo "Downloading Alchemy v${ALCHEMY_VERSION}..."
     curl -L "$ALCHEMY_URL" -o "out/${ALCHEMY_ASSET}"
-    
+
     echo "Extracting Alchemy..."
     tar -xzf "out/${ALCHEMY_ASSET}" -C out/
     chmod +x out/alchemy
