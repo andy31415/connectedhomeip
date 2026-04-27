@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matter SDK Automation Reports</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1c2c 0%, #4a192c 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            color: #fff;
+        }
+        h1 {
+            background: linear-gradient(to right, #ff6b6b, #ff8787);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 32px;
+            font-size: 36px;
+            font-weight: 700;
+        }
+        .container {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 1000px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            width: 250px;
+            transition: transform 0.3s ease, background 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        h2 {
+            color: #fff;
+            margin-bottom: 12px;
+            font-size: 20px;
+        }
+        p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <h1>Matter SDK Reports Hub</h1>
+    <div class="container">
+        <a href="./coverage/index.html" class="card">
+            <h2>Coverage Report</h2>
+            <p>View code coverage results for the Matter SDK.</p>
+        </a>
+        <a href="./conformance_report.html" class="card">
+            <h2>Conformance Report</h2>
+            <p>View cluster conformance test results.</p>
+        </a>
+        <a href="./sdk_spec_zapdiff.html" class="card">
+            <h2>SDK vs Spec Diff</h2>
+            <p>View differences between SDK ZAP XMLs and the specification.</p>
+        </a>
+    </div>
+</body>
+</html>

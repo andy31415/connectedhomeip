@@ -95,6 +95,8 @@ write_dummy() {
     local file=$1
     local name=$2
     echo "Generating dummy page for $name..."
+    # Ensure directory exists if file is in a subdirectory
+    mkdir -p "$(dirname "$OUT_DIR/$file")"
     sed "s/__REPORT_NAME__/$name/g" "$TEMPLATE" > "$OUT_DIR/$file"
 }
 
@@ -102,8 +104,19 @@ write_dummy() {
 if [ "$RUN_COVERAGE" = true ]; then
     echo "Generating Coverage Report..."
     ./scripts/build_coverage.sh
+    
+    # Move coverage files to a subdirectory
+    echo "Reorganizing coverage files..."
+    mkdir -p out/coverage_tmp
+    # Move everything from html to tmp
+    mv "$OUT_DIR"/* out/coverage_tmp/ 2>/dev/null || true
+    # Recreate html dir and coverage subdir
+    mkdir -p "$OUT_DIR/coverage"
+    # Move files back to coverage subdir
+    mv out/coverage_tmp/* "$OUT_DIR/coverage/" 2>/dev/null || true
+    rm -rf out/coverage_tmp
 else
-    write_dummy "index.html" "Coverage Report"
+    write_dummy "coverage/index.html" "Coverage Report"
 fi
 
 # --- Conformance Report ---
@@ -138,6 +151,10 @@ if [ "$RUN_ALCHEMY" = true ]; then
 else
     write_dummy "sdk_spec_zapdiff.html" "Alchemy Diff Report"
 fi
+
+# --- Generate Hub Index Page ---
+echo "Generating Index Page..."
+cp integrations/compute_engine/appengine_index.html "$OUT_DIR/index.html"
 
 # --- Deploy ---
 if [ "$DEPLOY" = true ]; then
