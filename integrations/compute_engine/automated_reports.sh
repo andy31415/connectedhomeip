@@ -21,8 +21,10 @@ set -e
 # Default values
 RUN_COVERAGE=false
 RUN_CONFORMANCE=false
+RUN_ALCHEMY=false
 DEPLOY=false
 SERVE=false
+PAT_SECRET=""
 OUT_DIR="out/coverage/coverage/html"
 TEMPLATE="integrations/compute_engine/report_not_generated.html.template"
 
@@ -32,9 +34,11 @@ help() {
     echo "Options:"
     echo "  --coverage        Generate coverage report"
     echo "  --conformance     Generate conformance report"
+    echo "  --alchemy         Generate Alchemy diff report"
     echo "  --all             Generate all reports"
     echo "  --deploy          Deploy to App Engine"
     echo "  --serve, --test   Start local server to view reports"
+    echo "  --pat-secret NAME Secret name for GitHub PAT (used by Alchemy)"
     echo "  -h, --help        Print this help"
     echo
 }
@@ -50,9 +54,14 @@ while [[ $# -gt 0 ]]; do
             RUN_CONFORMANCE=true
             shift
             ;;
+        --alchemy)
+            RUN_ALCHEMY=true
+            shift
+            ;;
         --all)
             RUN_COVERAGE=true
             RUN_CONFORMANCE=true
+            RUN_ALCHEMY=true
             shift
             ;;
         --deploy)
@@ -62,6 +71,10 @@ while [[ $# -gt 0 ]]; do
         --serve|--test)
             SERVE=true
             shift
+            ;;
+        --pat-secret)
+            PAT_SECRET="$2"
+            shift 2
             ;;
         -h|--help)
             help
@@ -102,6 +115,28 @@ if [ "$RUN_CONFORMANCE" = true ]; then
     cp /tmp/conformance_report/conformance_report.html "$OUT_DIR/"
 else
     write_dummy "conformance_report.html" "Conformance Report"
+fi
+
+# --- Alchemy Diff Report ---
+if [ "$RUN_ALCHEMY" = true ]; then
+    echo "Generating Alchemy Diff Report..."
+    ARGS=""
+    if [ -n "$PAT_SECRET" ]; then
+        ARGS="--use-pat-secret $PAT_SECRET"
+    fi
+    ./integrations/compute_engine/run_alchemy_diff.sh $ARGS
+    
+    # Copy results if they exist
+    if [ -f "out/generated_xml/mismatches.html" ]; then
+        cp out/generated_xml/mismatches.html "$OUT_DIR/sdk_spec_zapdiff.html"
+        cp out/generated_xml/mismatches.csv "$OUT_DIR/sdk_spec_zapdiff.csv" 2>/dev/null || true
+        echo "Alchemy diff reports copied to $OUT_DIR as sdk_spec_zapdiff"
+    else
+        echo "Warning: Alchemy diff files not found."
+        write_dummy "sdk_spec_zapdiff.html" "Alchemy Diff Report"
+    fi
+else
+    write_dummy "sdk_spec_zapdiff.html" "Alchemy Diff Report"
 fi
 
 # --- Deploy ---

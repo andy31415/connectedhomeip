@@ -23,8 +23,9 @@ rm -rf connectedhomeip
 git clone --recurse-submodules https://github.com/project-chip/connectedhomeip.git
 cd connectedhomeip
 
-# Make sure the script is executable
+# Make sure the scripts are executable
 chmod +x integrations/compute_engine/automated_reports.sh
+chmod +x integrations/compute_engine/run_alchemy_diff.sh
 
 # Run all reports and deploy
-./integrations/compute_engine/automated_reports.sh --all --deploy
+./integrations/compute_engine/automated_reports.sh --all --deploy --pat-secret github-read-only-pat
