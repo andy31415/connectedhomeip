@@ -27,6 +27,7 @@ SERVE=false
 PAT_SECRET=""
 OUT_DIR="out/coverage/coverage/html"
 TEMPLATE="integrations/compute_engine/report_not_generated.html.template"
+INDEX_TEMPLATE="integrations/compute_engine/appengine_index.html.template"
 
 help() {
     echo "Usage: $0 [options]"
@@ -152,9 +153,26 @@ else
     write_dummy "sdk_spec_zapdiff.html" "Alchemy Diff Report"
 fi
 
-# --- Generate Hub Index Page ---
+# --- Generate Index Page ---
 echo "Generating Index Page..."
-cp integrations/compute_engine/appengine_index.html "$OUT_DIR/index.html"
+COV_CLASS="enabled"
+CONF_CLASS="enabled"
+ALCH_CLASS="enabled"
+COV_STATUS="Active"
+CONF_STATUS="Active"
+ALCH_STATUS="Active"
+
+if [ "$RUN_COVERAGE" = false ]; then COV_CLASS="disabled"; COV_STATUS="Skipped"; fi
+if [ "$RUN_CONFORMANCE" = false ]; then CONF_CLASS="disabled"; CONF_STATUS="Skipped"; fi
+if [ "$RUN_ALCHEMY" = false ]; then ALCH_CLASS="disabled"; ALCH_STATUS="Skipped"; fi
+
+sed -e "s/__COVERAGE_CLASS__/$COV_CLASS/g" \
+    -e "s/__CONFORMANCE_CLASS__/$CONF_CLASS/g" \
+    -e "s/__ALCHEMY_CLASS__/$ALCH_CLASS/g" \
+    -e "s/__COVERAGE_STATUS__/$COV_STATUS/g" \
+    -e "s/__CONFORMANCE_STATUS__/$CONF_STATUS/g" \
+    -e "s/__ALCHEMY_STATUS__/$ALCH_STATUS/g" \
+    "$INDEX_TEMPLATE" > "$OUT_DIR/index.html"
 
 # --- Deploy ---
 if [ "$DEPLOY" = true ]; then
