@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "app/data-model-provider/AttributeChangeListener.h"
 #include <app-common/zap-generated/cluster-objects.h>
 #include <app/clusters/identify-server/IdentifyIntegrationDelegate.h>
 #include <app/reporting/reporting.h>
@@ -170,8 +171,11 @@ private:
      *
      * @param source The source of the attribute change.
      * @param newTime The new value of the IdentifyTime attribute.
+     * @param changeReportLevel - report or be quiet about this change
      */
-    DataModel::ActionReturnStatus SetIdentifyTime(IdentifyTimeChangeSource source, uint16_t newTime);
+    DataModel::ActionReturnStatus
+    SetIdentifyTime(IdentifyTimeChangeSource source, uint16_t newTime,
+                    DataModel::AttributeChangeType changeReportLevel = DataModel::AttributeChangeType::kReportable);
 };
 
 } // namespace chip::app::Clusters
