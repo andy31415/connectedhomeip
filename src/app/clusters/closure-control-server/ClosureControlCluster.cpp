@@ -245,10 +245,9 @@ CHIP_ERROR ClosureControlCluster::SetCountdownTime(const DataModel::Nullable<Ela
     };
     VerifyOrReturnError(mDelegate.OnCountdownTimeChanged(countdownTime), CHIP_ERROR_INCORRECT_STATE);
 
-    auto markDirty = mCountdownTime.SetValue(countdownTime, now, predicate);
+    auto markDirty = (mCountdownTime.SetValue(countdownTime, now, predicate) == AttributeDirtyState::kMustReport);
     NotifyAttributeChanged(Attributes::CountdownTime::Id,
-                           markDirty == AttributeDirtyState::kMustReport ? DataModel::AttributeChangeType::kReportable
-                                                                          : DataModel::AttributeChangeType::kQuiet);
+                           markDirty ? DataModel::AttributeChangeType::kReportable : DataModel::AttributeChangeType::kQuiet);
 
     return CHIP_NO_ERROR;
 }
