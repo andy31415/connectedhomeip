@@ -93,7 +93,6 @@ void IdentifyCluster::TimerFired()
 {
     VerifyOrReturn(mIdentifyTime > 0);
 
-    RETURN_SAFELY_IGNORED
     SetIdentifyTime(IdentifyTimeChangeSource::kTimer, static_cast<uint16_t>(mIdentifyTime - 1),
                     DataModel::AttributeChangeType::kQuiet);
 }
@@ -113,7 +112,8 @@ DataModel::ActionReturnStatus IdentifyCluster::SetIdentifyTime(IdentifyTimeChang
 {
     uint16_t previousIdentifyTime = mIdentifyTime;
 
-    if (newTime == 0) {
+    if (newTime == 0)
+    {
         // report level for 0 is always reportable as per spec
         changeReportLevel = DataModel::AttributeChangeType::kReportable;
     }
