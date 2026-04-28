@@ -113,7 +113,12 @@ DataModel::ActionReturnStatus IdentifyCluster::SetIdentifyTime(IdentifyTimeChang
 {
     uint16_t previousIdentifyTime = mIdentifyTime;
 
-    // no change at all
+    if (newTime == 0) {
+        // report level for 0 is always reportable as per spec
+        changeReportLevel = DataModel::AttributeChangeType::kReportable;
+    }
+
+    // Set the attribute value, return immediately if no actual change.
     VerifyOrReturnValue(SetAttributeValue(mIdentifyTime, newTime, IdentifyTime::Id, changeReportLevel),
                         DataModel::ActionReturnStatus::FixedStatus::kWriteSuccessNoOp);
 
