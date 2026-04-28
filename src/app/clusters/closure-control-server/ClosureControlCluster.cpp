@@ -243,7 +243,6 @@ CHIP_ERROR ClosureControlCluster::SetCountdownTime(const DataModel::Nullable<Ela
         // Force reporting when the tracked operation changes due to MainState change
         return !fromDelegate;
     };
-    VerifyOrReturnError(mDelegate.OnCountdownTimeChanged(countdownTime), CHIP_ERROR_INCORRECT_STATE);
 
     auto markDirty = (mCountdownTime.SetValue(countdownTime, now, predicate) == AttributeDirtyState::kMustReport);
     NotifyAttributeChanged(Attributes::CountdownTime::Id,
