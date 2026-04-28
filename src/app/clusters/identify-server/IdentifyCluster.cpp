@@ -14,11 +14,10 @@
  *    limitations under the License.
  */
 
-#include "app/data-model-provider/AttributeChangeListener.h"
-#include "lib/core/CHIPError.h"
 #include <app/clusters/identify-server/IdentifyCluster.h>
 
 #include <app/InteractionModelEngine.h>
+#include <app/data-model-provider/AttributeChangeListener.h>
 #include <app/server-cluster/AttributeListBuilder.h>
 #include <clusters/Identify/Commands.h>
 #include <clusters/Identify/Metadata.h>
