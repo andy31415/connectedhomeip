@@ -99,7 +99,7 @@ void IdentifyCluster::TimerFired()
 
 void IdentifyCluster::StopIdentifying()
 {
-    NotifyAttributeChangedIfSuccess(Attributes::IdentifyTime::Id, SetIdentifyTime(IdentifyTimeChangeSource::kClient, 0));
+    SetIdentifyTime(IdentifyTimeChangeSource::kClient, 0);
 }
 
 // According to the spec, section 5.1 - IdentifyTime Attribute:
