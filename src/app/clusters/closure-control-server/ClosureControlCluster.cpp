@@ -244,9 +244,9 @@ CHIP_ERROR ClosureControlCluster::SetCountdownTime(const DataModel::Nullable<Ela
     auto previousValue = mCountdownTime.value();
     auto markDirty = (mCountdownTime.SetValue(countdownTime, now, predicate) == AttributeDirtyState::kMustReport);
 
-    // only after the decision was made. This means there is a difference between 'SetCountdownTime(x)' one and
-    // only after the decison was made. This means there is a differendce between 'SetCountdownTime(x)' one and
-    // repeated (as repeated may eventually report).
+    // The reporting decision is made only after evaluation. This means there is a difference between
+    // one call to 'SetCountdownTime(x)' and repeated calls to 'SetCountdownTime(x)'
+    // (as repeated calls may eventually report).
     //
     // Here we report only if reportable or value actually changed.
     if (markDirty || (previousValue != countdownTime))
