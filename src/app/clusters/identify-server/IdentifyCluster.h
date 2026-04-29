@@ -171,8 +171,7 @@ private:
      * @param source The source of the attribute change.
      * @param newTime The new value of the IdentifyTime attribute.
      */
-    DataModel::ActionReturnStatus
-    SetIdentifyTime(IdentifyTimeChangeSource source, uint16_t newTime);
+    DataModel::ActionReturnStatus SetIdentifyTime(IdentifyTimeChangeSource source, uint16_t newTime);
 };
 
 } // namespace chip::app::Clusters
