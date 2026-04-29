@@ -16,7 +16,6 @@
  */
 #pragma once
 
-#include "app/data-model-provider/AttributeChangeListener.h"
 #include <app-common/zap-generated/cluster-objects.h>
 #include <app/clusters/identify-server/IdentifyIntegrationDelegate.h>
 #include <app/reporting/reporting.h>
