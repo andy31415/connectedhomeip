@@ -232,9 +232,6 @@ CHIP_ERROR ClosureControlCluster::SetCountdownTime(const DataModel::Nullable<Ela
 
     VerifyOrReturnError(mDelegate.OnCountdownTimeChanged(countdownTime), CHIP_ERROR_INCORRECT_STATE);
 
-    // if no change, return since nothing else to do
-    VerifyOrReturnError(mCountdownTime.value() != countdownTime, CHIP_NO_ERROR);
-
     // When fromDelegate=true (delegate updates), we rely on the QuieterReportingAttribute policies
     // to determine if reporting is needed (increment, change to/from zero, null changes).
     // When fromDelegate=false (MainState change), we force reporting since the tracked operation changed.
@@ -245,8 +242,17 @@ CHIP_ERROR ClosureControlCluster::SetCountdownTime(const DataModel::Nullable<Ela
     };
 
     auto markDirty = (mCountdownTime.SetValue(countdownTime, now, predicate) == AttributeDirtyState::kMustReport);
-    NotifyAttributeChanged(Attributes::CountdownTime::Id,
-                           markDirty ? DataModel::AttributeChangeType::kReportable : DataModel::AttributeChangeType::kQuiet);
+
+    // Mark dirty uses the current time to make a decision, on reporting, so check for "no change"
+    // only after the decison was made. This means there is a differendce between 'SetCountdownTime(x)' one and
+    // repeated (as repeated may eventually report).
+    //
+    // Here we report only if reportable or value actually changed.
+    if (markDirty || (mCountdownTime.value() != countdownTime))
+    {
+        NotifyAttributeChanged(Attributes::CountdownTime::Id,
+                               markDirty ? DataModel::AttributeChangeType::kReportable : DataModel::AttributeChangeType::kQuiet);
+    }
 
     return CHIP_NO_ERROR;
 }
