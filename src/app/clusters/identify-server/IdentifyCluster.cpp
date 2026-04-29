@@ -91,9 +91,7 @@ CHIP_ERROR IdentifyCluster::Attributes(const ConcreteClusterPath & path, ReadOnl
 void IdentifyCluster::TimerFired()
 {
     VerifyOrReturn(mIdentifyTime > 0);
-
-    SetIdentifyTime(IdentifyTimeChangeSource::kTimer, static_cast<uint16_t>(mIdentifyTime - 1),
-                    DataModel::AttributeChangeType::kQuiet);
+    SetIdentifyTime(IdentifyTimeChangeSource::kTimer, static_cast<uint16_t>(mIdentifyTime - 1));
 }
 
 void IdentifyCluster::StopIdentifying()
@@ -106,19 +104,18 @@ void IdentifyCluster::StopIdentifying()
 // 1. When it changes from 0 to any other value and vice versa, or
 // 2. When it is written by a client, or
 // 3. When the value is set by an Identify command.
-DataModel::ActionReturnStatus IdentifyCluster::SetIdentifyTime(IdentifyTimeChangeSource source, uint16_t newTime,
-                                                               DataModel::AttributeChangeType changeReportLevel)
+DataModel::ActionReturnStatus IdentifyCluster::SetIdentifyTime(IdentifyTimeChangeSource source, uint16_t newTime)
 {
     uint16_t previousIdentifyTime = mIdentifyTime;
 
-    if (newTime == 0)
-    {
-        // report level for 0 is always reportable as per spec
-        changeReportLevel = DataModel::AttributeChangeType::kReportable;
-    }
+    // timer changes are quiet EXCEPT transitions to/from 0:
+    const DataModel::AttributeChangeType changeType =
+        (previousIdentifyTime == 0) || (mIdentifyTime == 0) || (source != IdentifyTimeChangeSource::kTimer)
+        ? DataModel::AttributeChangeType::kReportable
+        : DataModel::AttributeChangeType::kQuiet;
 
     // Set the attribute value, return immediately if no actual change.
-    VerifyOrReturnValue(SetAttributeValue(mIdentifyTime, newTime, IdentifyTime::Id, changeReportLevel),
+    VerifyOrReturnValue(SetAttributeValue(mIdentifyTime, newTime, IdentifyTime::Id, changeType),
                         DataModel::ActionReturnStatus::FixedStatus::kWriteSuccessNoOp);
 
     if (mIdentifyDelegate)

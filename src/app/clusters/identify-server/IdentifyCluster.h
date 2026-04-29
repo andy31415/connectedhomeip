@@ -171,11 +171,9 @@ private:
      *
      * @param source The source of the attribute change.
      * @param newTime The new value of the IdentifyTime attribute.
-     * @param changeReportLevel - report or be quiet about this change
      */
     DataModel::ActionReturnStatus
-    SetIdentifyTime(IdentifyTimeChangeSource source, uint16_t newTime,
-                    DataModel::AttributeChangeType changeReportLevel = DataModel::AttributeChangeType::kReportable);
+    SetIdentifyTime(IdentifyTimeChangeSource source, uint16_t newTime);
 };
 
 } // namespace chip::app::Clusters
