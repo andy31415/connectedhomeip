@@ -38,35 +38,41 @@ yet — the header is generated but nothing includes it.
 
 ### Track A — CMake
 
-- [ ] Create `all-devices-common/devices/enabled_devices_config.h.in`
+- [x] Create `all-devices-common/devices/enabled_devices_config.h.in`
   - One `#cmakedefine01 ALL_DEVICES_ENABLE_<UPPER_DEVICE_NAME>` line per factory
     registry key (e.g. `contact-sensor` → `ALL_DEVICES_ENABLE_CONTACT_SENSOR`,
     `on-off-light` → `ALL_DEVICES_ENABLE_ON_OFF_LIGHT`,
     `water-leak-detector` → `ALL_DEVICES_ENABLE_WATER_LEAK_DETECTOR`, etc.)
-- [ ] Extend `enabled_devices.cmake`:
+- [x] Extend `enabled_devices.cmake`:
   - Declare `ALL_DEVICES_ENABLED_DEVICES` variable (empty list = all devices enabled)
   - When empty: set all individual `ALL_DEVICES_ENABLE_xxx` CMake variables to `1`
   - When non-empty: set only the listed devices to `1`, rest default to `0`
   - Call `configure_file(enabled_devices_config.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/app_config/enabled_devices.h)`
-- [ ] `esp32/main/CMakeLists.txt`: append `${CMAKE_CURRENT_BINARY_DIR}` to
+  - Guard with `if(NOT CMAKE_BUILD_EARLY_EXPANSION)` to skip during the IDF
+    requirements phase (when CMAKE is run in a temporary build tree)
+- [x] `esp32/main/CMakeLists.txt`: append `${CMAKE_CURRENT_BINARY_DIR}` to
   `PRIV_INCLUDE_DIRS_LIST`
 
 ### Track B — GN
 
-- [ ] Create `all-devices-common/devices/enabled_devices.gni`
+- [x] Create `all-devices-common/devices/enabled_devices.gni`
   - `declare_args()` block:
     - `all_devices_enabled_devices = []` (empty = all)
     - `all_devices_app_name = ""` (empty = auto)
-  - Logic: compute per-device boolean variables from the list using the same
+  - Logic: compute per-device 0/1 variables from the list using the same
     `foo` → `ALL_DEVICES_ENABLE_FOO` naming convention
-  - `build_config_header("enabled_devices_config")` target that emits
-    `#define ALL_DEVICES_ENABLE_xxx 1/0` for every device key; output path resolves
-    to `app_config/enabled_devices.h` relative to the declared include root
-- [ ] Update `all-devices-common/devices/device-factory/BUILD.gn`
+  - Export `_all_devices_header_lines` list — the verbatim content for the header
+- [x] Update `all-devices-common/devices/device-factory/BUILD.gn`
+  - `import("${chip_root}/build/chip/buildconfig_header.gni")`
   - `import("../enabled_devices.gni")`
-  - Add the `enabled_devices_config` target as a `public_dep` so its output
-    directory propagates automatically to all dependents' include paths
+  - Create `buildconfig_header("enabled_devices_buildconfig")` with
+    `header = "enabled_devices.h"`, `header_dir = "app_config"`, and a `defines`
+    list referencing the boolean per-device variables from the gni.
+    `buildconfig_header` converts GN `true`/`false` → `1`/`0` automatically.
+    Output lands at `${root_gen_dir}/include/app_config/enabled_devices.h`,
+    which is already on the global include path — no extra config needed.
+  - Add `":enabled_devices_buildconfig"` to `device-factory`'s `public_deps`
 
 ### Milestone verification (both tracks independently)
 

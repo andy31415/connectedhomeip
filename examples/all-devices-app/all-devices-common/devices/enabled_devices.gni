@@ -1,0 +1,81 @@
+# Copyright (c) 2025 Project CHIP Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Authoritative device-selection configuration for the GN (POSIX) build.
+# Parallel to all-devices-common/devices/enabled_devices.cmake for the CMake build.
+#
+# Usage:
+#   import("//examples/all-devices-app/all-devices-common/devices/enabled_devices.gni")
+#
+# After importing, callers can reference the per-device boolean variables
+# (all_devices_enable_*) directly — e.g. in a buildconfig_header defines list.
+
+declare_args() {
+  # List of device types to enable. Empty list (default) means all devices.
+  # Use the factory registry key for each device: "contact-sensor", "on-off-light", etc.
+  all_devices_enabled_devices = []
+
+  # Output binary name override. Empty string (default) means auto-computed:
+  #   all devices enabled  →  "all-devices-app"
+  #   subset selected      →  "example-device-app"
+  # Any non-empty value is used as-is regardless of the device list.
+  all_devices_app_name = ""
+}
+
+# Private helper — only used within this file.
+_all_devices_all_enabled = all_devices_enabled_devices == []
+
+# Per-device enable flags (boolean, exported — no leading underscore so that
+# they are accessible in importing BUILD.gn files, e.g. for buildconfig_header).
+# Initialised to _all_devices_all_enabled so that an empty device list (the
+# default) enables everything without any extra logic.  When the list is
+# non-empty each device starts as false and the foreach below flips only the
+# listed ones to true.
+#
+# Adding a new device: add one init line here and one arm in the foreach below.
+all_devices_enable_contact_sensor = _all_devices_all_enabled
+all_devices_enable_water_leak_detector = _all_devices_all_enabled
+all_devices_enable_occupancy_sensor = _all_devices_all_enabled
+all_devices_enable_chime = _all_devices_all_enabled
+all_devices_enable_dimmable_light = _all_devices_all_enabled
+all_devices_enable_on_off_light = _all_devices_all_enabled
+all_devices_enable_speaker = _all_devices_all_enabled
+all_devices_enable_soil_sensor = _all_devices_all_enabled
+
+foreach(_device, all_devices_enabled_devices) {
+  if (_device == "contact-sensor") {
+    all_devices_enable_contact_sensor = true
+  }
+  if (_device == "water-leak-detector") {
+    all_devices_enable_water_leak_detector = true
+  }
+  if (_device == "occupancy-sensor") {
+    all_devices_enable_occupancy_sensor = true
+  }
+  if (_device == "chime") {
+    all_devices_enable_chime = true
+  }
+  if (_device == "dimmable-light") {
+    all_devices_enable_dimmable_light = true
+  }
+  if (_device == "on-off-light") {
+    all_devices_enable_on_off_light = true
+  }
+  if (_device == "speaker") {
+    all_devices_enable_speaker = true
+  }
+  if (_device == "soil-sensor") {
+    all_devices_enable_soil_sensor = true
+  }
+}
