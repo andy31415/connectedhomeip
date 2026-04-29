@@ -209,6 +209,14 @@ def BuildHostTarget():
     target.AppendModifier('terms-and-conditions', terms_and_conditions_required=True)
     target.AppendModifier('webrtc', enable_webrtc=True)
     target.AppendModifier('endpoint-unique-id', chip_enable_endpoint_unique_id=True)
+
+    # Single-device subset builds for all-devices-app.
+    # Each modifier selects exactly one device; the binary is named example-device-app.
+    # Multi-device subsets can be built directly with gn gen --args.
+    for _device in [
+            'chime', 'contact-sensor', 'dimmable-light', 'occupancy-sensor',
+            'on-off-light', 'soil-sensor', 'speaker', 'water-leak-detector']:
+        target.AppendModifier(_device, all_devices_enabled_devices=[_device]).OnlyIfRe('-all-devices')
     target.AppendModifier('unified', unified=True).OnlyIfRe(
         "-(" + "|".join([
             # keep-sorted start
@@ -264,6 +272,12 @@ def BuildEsp32Target():
     target.AppendModifier('rpc', enable_rpcs=True)
     target.AppendModifier('ipv6only', enable_ipv4=False)
     target.AppendModifier('tracing', enable_insights_trace=True).OnlyIfRe("light")
+
+    # Single-device subset builds for all-devices-app.
+    for _device in [
+            'chime', 'contact-sensor', 'dimmable-light', 'occupancy-sensor',
+            'on-off-light', 'soil-sensor', 'speaker', 'water-leak-detector']:
+        target.AppendModifier(_device, all_devices_enabled_devices=[_device]).OnlyIfRe('-all-devices')
 
     return target
 

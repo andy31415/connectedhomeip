@@ -132,15 +132,15 @@ default), runtime behavior is identical to today.
 
 ### Tasks — CMake
 
-- [ ] Verify the non-empty path in `enabled_devices.cmake` works correctly (logic was
+- [x] Verify the non-empty path in `enabled_devices.cmake` works correctly (logic was
   written in Phase 2; this phase exercises it)
-- [ ] Test build: set `ALL_DEVICES_ENABLED_DEVICES` to `"on-off-light;dimmable-light"`
+- [x] Test build: set `ALL_DEVICES_ENABLED_DEVICES` to `"on-off-light;dimmable-light"`
   in `enabled_devices.cmake` (or via `-D` on the cmake invocation); build ESP32
 
 ### Tasks — GN
 
-- [ ] Verify the non-empty path in `enabled_devices.gni` works correctly
-- [ ] Test build: `gn gen --args='all_devices_enabled_devices=["on-off-light"]'`; build
+- [x] Verify the non-empty path in `enabled_devices.gni` works correctly
+- [x] Test build: `gn gen --args='all_devices_enabled_devices=["on-off-light"]'`; build
   Linux POSIX target
 
 ### Milestone verification (repeat for each build system)
@@ -166,19 +166,28 @@ default), runtime behavior is identical to today.
 
 ### Tasks — CMake
 
-- [ ] `enabled_devices.cmake`: compute `ALL_DEVICES_APP_NAME`
+- [x] `enabled_devices.cmake`: compute `ALL_DEVICES_COMPUTED_NAME`
   - Empty `ALL_DEVICES_ENABLED_DEVICES` → `"all-devices-app"`
   - Non-empty → `"example-device-app"`
   - Non-empty `ALL_DEVICES_APP_NAME` (user-supplied) → use as-is regardless
-- [ ] `esp32/CMakeLists.txt` (top-level): use `${ALL_DEVICES_APP_NAME}` for the project
-  name / output artifact name
+- [x] `esp32/CMakeLists.txt` (top-level): dynamic `project()` using the same three-way
+  logic; `ALL_DEVICES_ENABLED_DEVICES` / `ALL_DEVICES_APP_NAME` passed as `-D` flags
 
 ### Tasks — GN
 
-- [ ] `enabled_devices.gni`: add computed name variable with the same three-way logic
-- [ ] `posix/BUILD.gn`:
+- [x] `enabled_devices.gni`: add `all_devices_computed_name` with the same three-way logic
+- [x] `posix/BUILD.gn`:
   - `import("../all-devices-common/devices/enabled_devices.gni")`
-  - Set `output_name` on the `executable` target using the computed name
+  - Set `output_name = all_devices_computed_name` on the `executable` target
+
+### Tasks — build_examples.py integration (added alongside Phase 5)
+
+- [x] `builders/host.py`: add `all_devices_enabled_devices` param; emit GN list arg;
+  override `build_outputs()` to use computed binary name
+- [x] `builders/esp32.py`: same for CMake; emit `-DALL_DEVICES_ENABLED_DEVICES` flag
+- [x] `build/targets.py`: add one `AppendModifier` per device for host and esp32 targets,
+  restricted to `-all-devices` with `.OnlyIfRe`; produces targets like
+  `linux-x64-all-devices-on-off-light` → binary `example-device-app`
 
 ### Milestone verification
 

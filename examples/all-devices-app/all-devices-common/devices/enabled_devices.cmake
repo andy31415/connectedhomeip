@@ -97,6 +97,23 @@ endif()
 # requirements phase, CMake processes this file in a temporary build tree.
 # configure_file() must only run during the real configure pass.
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Compute the application output name.
+# Mirrors the three-way logic in enabled_devices.gni.
+# ALL_DEVICES_APP_NAME may be passed as a -D flag to override the default.
+# ---------------------------------------------------------------------------
+if(NOT DEFINED ALL_DEVICES_APP_NAME)
+    set(ALL_DEVICES_APP_NAME "")
+endif()
+
+if(ALL_DEVICES_APP_NAME)
+    set(ALL_DEVICES_COMPUTED_NAME "${ALL_DEVICES_APP_NAME}")
+elseif(ALL_DEVICES_ENABLED_DEVICES)
+    set(ALL_DEVICES_COMPUTED_NAME "example-device-app")
+else()
+    set(ALL_DEVICES_COMPUTED_NAME "all-devices-app")
+endif()
+
 if(NOT CMAKE_BUILD_EARLY_EXPANSION)
     configure_file(
         "${CMAKE_CURRENT_LIST_DIR}/enabled_devices_config.h.in"
