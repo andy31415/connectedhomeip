@@ -110,7 +110,7 @@ DataModel::ActionReturnStatus IdentifyCluster::SetIdentifyTime(IdentifyTimeChang
 
     // timer changes are quiet EXCEPT transitions to/from 0:
     const DataModel::AttributeChangeType changeType =
-        (previousIdentifyTime == 0) || (mIdentifyTime == 0) || (source != IdentifyTimeChangeSource::kTimer)
+        (newTime == 0) || (mIdentifyTime == 0) || (source != IdentifyTimeChangeSource::kTimer)
         ? DataModel::AttributeChangeType::kReportable
         : DataModel::AttributeChangeType::kQuiet;
 
