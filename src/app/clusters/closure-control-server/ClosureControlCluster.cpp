@@ -244,7 +244,7 @@ CHIP_ERROR ClosureControlCluster::SetCountdownTime(const DataModel::Nullable<Ela
     auto previousValue = mCountdownTime.value();
     auto markDirty = (mCountdownTime.SetValue(countdownTime, now, predicate) == AttributeDirtyState::kMustReport);
 
-    // Mark dirty uses the current time to make a decision, on reporting, so check for "no change"
+    // only after the decision was made. This means there is a difference between 'SetCountdownTime(x)' one and
     // only after the decison was made. This means there is a differendce between 'SetCountdownTime(x)' one and
     // repeated (as repeated may eventually report).
     //
