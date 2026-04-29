@@ -14,10 +14,10 @@ land.
 
 ### Tasks
 
-- [ ] Create `all-devices-common/devices/enabled_devices.cmake`
+- [x] Create `all-devices-common/devices/enabled_devices.cmake`
   - Define `ALL_DEVICES_DEVICE_SRCDIRS` list containing every device module path
     currently inlined in `esp32/main/CMakeLists.txt`
-- [ ] Update `esp32/main/CMakeLists.txt`
+- [x] Update `esp32/main/CMakeLists.txt`
   - `include(...)` the new file
   - Replace the inline entries in `SRC_DIRS_LIST` with `${ALL_DEVICES_DEVICE_SRCDIRS}`
 
