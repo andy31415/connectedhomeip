@@ -96,7 +96,7 @@ default), runtime behavior is identical to today.
 
 ### Tasks
 
-- [ ] `DeviceFactory.h`
+- [x] `DeviceFactory.h`
   - Add `#include <app_config/enabled_devices.h>` (no fallback — missing header is a
     compile error by design)
   - Wrap each `mRegistry["key"] = …` block with
@@ -106,10 +106,10 @@ default), runtime behavior is identical to today.
   - In `RegisterCreator`: `if (mDefaultDevice.empty()) mDefaultDevice = deviceTypeArg;`
     before the map insert
   - Add `const std::string & GetDefaultDevice() const { return mDefaultDevice; }`
-- [ ] `posix/linux/DeviceFactoryPlatformOverride.cpp`
+- [x] `posix/linux/DeviceFactoryPlatformOverride.cpp`
   - Add `#include <app_config/enabled_devices.h>`
   - Wrap `RegisterCreator("chime", …)` with `#if ALL_DEVICES_ENABLE_CHIME … #endif`
-- [ ] `posix/darwin/DeviceFactoryPlatformOverride.cpp`
+- [x] `posix/darwin/DeviceFactoryPlatformOverride.cpp`
   - Same changes as the Linux file
 
 ### Milestone verification
