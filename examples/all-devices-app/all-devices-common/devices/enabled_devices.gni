@@ -17,7 +17,6 @@
 import("//build_overrides/build.gni")
 import("//build_overrides/chip.gni")
 import("${chip_root}/build/chip/buildconfig_header.gni")
-
 declare_args() {
   # List of device types to enable. Empty list (default) means all devices.
   # Use the factory registry key for each device: "contact-sensor", "on-off-light", etc.
@@ -33,7 +32,6 @@ declare_args() {
 # Private helper — only used within this file.
 _all_devices_all_enabled = all_devices_enabled_devices == []
 
-
 # Devices available: list of "config name" and "define suffix"
 #
 # Added define suffix because gn has no "to uppercase" method beyond executing a script
@@ -41,17 +39,42 @@ _all_devices_all_enabled = all_devices_enabled_devices == []
 #
 # Keep list in sync with enabled_devices.cmake
 _available_devices = [
-# keep-sorted: start
-  ["chime", "CHIME"],
-  ["contact-sensor", "CONTACT_SENSOR"],
-  ["dimmable-light", "DIMMABLE_LIGHT"],
-  ["occupancy-sensor", "OCCUPANCY_SENSOR"],
-  ["on-off-light", "ON_OFF_LIGHT"],
-  ["soil-sensor", "SOIL_SENSOR"],
-  ["speaker", "SPEAKER"],
-  ["temperature-sensor", "TEMPERATURE_SENSOR"],
-  ["water-leak-detector", "WATER_LEAK_DETECTOR"],
-# keep-sorted: end
+  [
+    "chime",
+    "CHIME",
+  ],
+  [
+    "contact-sensor",
+    "CONTACT_SENSOR",
+  ],
+  [
+    "dimmable-light",
+    "DIMMABLE_LIGHT",
+  ],
+  [
+    "occupancy-sensor",
+    "OCCUPANCY_SENSOR",
+  ],
+  [
+    "on-off-light",
+    "ON_OFF_LIGHT",
+  ],
+  [
+    "soil-sensor",
+    "SOIL_SENSOR",
+  ],
+  [
+    "speaker",
+    "SPEAKER",
+  ],
+  [
+    "temperature-sensor",
+    "TEMPERATURE_SENSOR",
+  ],
+  [
+    "water-leak-detector",
+    "WATER_LEAK_DETECTOR",
+  ],
 ]
 
 # Computed output binary name — mirrors the three-way logic in enabled_devices.cmake.
@@ -66,8 +89,11 @@ if (all_devices_app_name != "") {
 
 template("enabled_devices_buildconfig_header") {
   buildconfig_header(target_name) {
-    forward_variables_from(invoker, ["header", "header_dir"])
-
+    forward_variables_from(invoker,
+                           [
+                             "header",
+                             "header_dir",
+                           ])
 
     defines = []
 
@@ -75,7 +101,7 @@ template("enabled_devices_buildconfig_header") {
       _enabled = _all_devices_all_enabled
       foreach(_device, all_devices_enabled_devices) {
         if (_device == _available_device[0]) {
-            _enabled = true
+          _enabled = true
         }
       }
       _name = _available_device[1]
@@ -83,4 +109,3 @@ template("enabled_devices_buildconfig_header") {
     }
   }
 }
-
