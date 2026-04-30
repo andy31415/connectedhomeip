@@ -70,7 +70,9 @@ endif()
 # Initialise all per-device variables to 0, then set the enabled ones to 1.
 # The macro name is derived from the registry key: "foo-bar" → ALL_DEVICES_ENABLE_FOO_BAR.
 #
-# Keep list in sync with enabled_devices.gni
+# IMPORTANT:
+#   - Keep list in sync with enabled_devices.gni
+#   - ensure enabled_devices_config.h.in contains required ALL_DEVICES_ENABLE* defines
 foreach(_key
         # keep-sorted: start
         chime

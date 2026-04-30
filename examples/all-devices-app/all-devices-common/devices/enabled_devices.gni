@@ -37,7 +37,9 @@ _all_devices_all_enabled = all_devices_enabled_devices == []
 # Added define suffix because gn has no "to uppercase" method beyond executing a script
 # and exec_script seemed excessive.
 #
-# Keep list in sync with enabled_devices.cmake
+# IMPORTANT:
+#   - Keep list in sync with enabled_devices.cmake
+#   - Remember to also update enabled_devices_config.h.in
 _available_devices = [
   [
     "chime",
