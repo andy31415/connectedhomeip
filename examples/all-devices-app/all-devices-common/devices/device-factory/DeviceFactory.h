@@ -178,7 +178,6 @@ private:
         {
             mRegistry["temperature-sensor"] = []() { return std::make_unique<IncreasingTemperatureSensorDevice>(); };
         }
-
     }
 };
 
