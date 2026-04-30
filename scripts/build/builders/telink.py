@@ -16,6 +16,7 @@ import logging
 import os
 import shlex
 from enum import Enum, auto
+from typing import Optional
 
 from .builder import Builder, BuilderOutput
 
@@ -186,6 +187,7 @@ class TelinkBuilder(Builder):
                  tflm_config: bool = False,
                  chip_enable_nfc_onboarding_payload: bool = False,
                  log_level: TelinkLogLevel = TelinkLogLevel.DEFAULT,
+                  all_devices_enabled_devices: Optional[list] = None,
                  ):
         super(TelinkBuilder, self).__init__(root, runner)
         self.app = app
@@ -204,6 +206,7 @@ class TelinkBuilder(Builder):
         self.tflm_config = tflm_config
         self.chip_enable_nfc_onboarding_payload = chip_enable_nfc_onboarding_payload
         self.log_level = log_level
+        self.all_devices_enabled_devices = all_devices_enabled_devices or []
 
     def get_cmd_prefixes(self):
         if not self._runner.dry_run:
@@ -264,6 +267,9 @@ class TelinkBuilder(Builder):
 
         if self.options.pregen_dir:
             flags.append(f"-DCHIP_CODEGEN_PREGEN_DIR={shlex.quote(self.options.pregen_dir)}")
+
+        if self.all_devices_enabled_devices:
+            flags.append(f"-DALL_DEVICES_ENABLED_DEVICES={shlex.quote(';'.join(self.all_devices_enabled_devices))}")
 
         if self.log_level == TelinkLogLevel.DEFAULT:
             pass

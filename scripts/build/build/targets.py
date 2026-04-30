@@ -846,6 +846,12 @@ def BuildTelinkTarget():
     target.AppendModifier("log-none", log_level=TelinkLogLevel.NONE).ExceptIfRe("-log-(progress|error|all)")
     target.AppendModifier("log-all", log_level=TelinkLogLevel.ALL).ExceptIfRe("-log-(progress|error|none)")
 
+    # Single-device subset builds for all-devices-app.
+    for _device in [
+            'chime', 'contact-sensor', 'dimmable-light', 'occupancy-sensor',
+            'on-off-light', 'soil-sensor', 'speaker', 'water-leak-detector']:
+        target.AppendModifier(_device, all_devices_enabled_devices=[_device]).OnlyIfRe('-all-devices')
+
     return target
 
 
