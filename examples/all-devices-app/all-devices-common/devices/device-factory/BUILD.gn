@@ -18,28 +18,10 @@ import("${chip_root}/build/chip/buildconfig_header.gni")
 import("../enabled_devices.gni")
 
 # Generate app_config/enabled_devices.h.
-# buildconfig_header maps GN true/false to 1/0 automatically, so the boolean
-# flags from enabled_devices.gni can be used directly in the defines list.
-# The output lands in ${root_gen_dir}/include/app_config/enabled_devices.h,
-# which is already on the global include path, so no extra config is needed.
-#
-# Adding a new device: add one entry to defines here and two lines in
-# enabled_devices.gni (one initialiser, one foreach arm).
-buildconfig_header("enabled_devices_buildconfig") {
+# Will define a set of ALL_DEVICES_ENABLE_* constants
+enabled_devices_buildconfig_header("enabled_devices_buildconfig") {
   header = "enabled_devices.h"
   header_dir = "app_config"
-
-  defines = [
-    "ALL_DEVICES_ENABLE_CONTACT_SENSOR=${all_devices_enable_contact_sensor}",
-    "ALL_DEVICES_ENABLE_WATER_LEAK_DETECTOR=${all_devices_enable_water_leak_detector}",
-    "ALL_DEVICES_ENABLE_OCCUPANCY_SENSOR=${all_devices_enable_occupancy_sensor}",
-    "ALL_DEVICES_ENABLE_CHIME=${all_devices_enable_chime}",
-    "ALL_DEVICES_ENABLE_DIMMABLE_LIGHT=${all_devices_enable_dimmable_light}",
-    "ALL_DEVICES_ENABLE_ON_OFF_LIGHT=${all_devices_enable_on_off_light}",
-    "ALL_DEVICES_ENABLE_SPEAKER=${all_devices_enable_speaker}",
-    "ALL_DEVICES_ENABLE_SOIL_SENSOR=${all_devices_enable_soil_sensor}",
-    "ALL_DEVICES_ENABLE_TEMPERATURE_SENSOR=${all_devices_enable_temperature_sensor}",
-  ]
 }
 
 source_set("device-factory") {
