@@ -32,13 +32,14 @@
 # LTO eliminates unreachable device code when only a subset is registered).
 # ---------------------------------------------------------------------------
 set(ALL_DEVICES_DEVICE_SRCDIRS
+    # keep-sorted: start
     "${ALL_DEVICES_COMMON_DIR}/devices/boolean-state-sensor"
     "${ALL_DEVICES_COMMON_DIR}/devices/chime"
+    "${ALL_DEVICES_COMMON_DIR}/devices/dimmable-light"
+    "${ALL_DEVICES_COMMON_DIR}/devices/dimmable-light/impl"
     "${ALL_DEVICES_COMMON_DIR}/devices/interface"
     "${ALL_DEVICES_COMMON_DIR}/devices/occupancy-sensor"
     "${ALL_DEVICES_COMMON_DIR}/devices/occupancy-sensor/impl"
-    "${ALL_DEVICES_COMMON_DIR}/devices/dimmable-light"
-    "${ALL_DEVICES_COMMON_DIR}/devices/dimmable-light/impl"
     "${ALL_DEVICES_COMMON_DIR}/devices/on-off-light"
     "${ALL_DEVICES_COMMON_DIR}/devices/root-node"
     "${ALL_DEVICES_COMMON_DIR}/devices/soil-sensor"
@@ -47,6 +48,7 @@ set(ALL_DEVICES_DEVICE_SRCDIRS
     "${ALL_DEVICES_COMMON_DIR}/devices/speaker/impl"
     "${ALL_DEVICES_COMMON_DIR}/devices/temperature-sensor"
     "${ALL_DEVICES_COMMON_DIR}/devices/temperature-sensor/impl"
+    # keep-sorted: end
 )
 
 # ---------------------------------------------------------------------------
@@ -68,6 +70,7 @@ endif()
 # Initialise all per-device variables to 0, then set the enabled ones to 1.
 # The macro name is derived from the registry key: "foo-bar" → ALL_DEVICES_ENABLE_FOO_BAR.
 foreach(_key
+        # keep-sorted: start
         chime
         contact-sensor
         dimmable-light
@@ -77,6 +80,7 @@ foreach(_key
         speaker
         temperature-sensor
         water-leak-detector
+        # keep-sorted: end
     )
     string(REPLACE "-" "_" _suffix "${_key}")
     string(TOUPPER "${_suffix}" _suffix)

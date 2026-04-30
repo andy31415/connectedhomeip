@@ -44,15 +44,18 @@ _all_devices_all_enabled = all_devices_enabled_devices == []
 # listed ones to true.
 #
 # Adding a new device: add one init line here and one arm in the foreach below.
-all_devices_enable_contact_sensor = _all_devices_all_enabled
-all_devices_enable_water_leak_detector = _all_devices_all_enabled
-all_devices_enable_occupancy_sensor = _all_devices_all_enabled
+
+# keep-sorted: start
 all_devices_enable_chime = _all_devices_all_enabled
+all_devices_enable_contact_sensor = _all_devices_all_enabled
 all_devices_enable_dimmable_light = _all_devices_all_enabled
+all_devices_enable_occupancy_sensor = _all_devices_all_enabled
 all_devices_enable_on_off_light = _all_devices_all_enabled
-all_devices_enable_speaker = _all_devices_all_enabled
 all_devices_enable_soil_sensor = _all_devices_all_enabled
+all_devices_enable_speaker = _all_devices_all_enabled
 all_devices_enable_temperature_sensor = _all_devices_all_enabled
+all_devices_enable_water_leak_detector = _all_devices_all_enabled
+# keep-sorted: end
 
 # Computed output binary name — mirrors the three-way logic in enabled_devices.cmake.
 # Exported (no leading underscore) so that posix/BUILD.gn can use it as output_name.
