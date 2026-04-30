@@ -26,6 +26,7 @@
 #include <devices/on-off-light/LoggingOnOffLightDevice.h>
 #include <devices/soil-sensor/impl/IncreasingMoistureSoilSensorDevice.h>
 #include <devices/speaker/impl/LoggingSpeakerDevice.h>
+#include <devices/temperature-sensor/impl/IncreasingTemperatureSensorDevice.h>
 #include <functional>
 #include <lib/core/CHIPError.h>
 #include <map>
@@ -122,6 +123,7 @@ private:
                 return std::make_unique<BooleanStateSensorDevice>(
                     &mContext->timerDelegate, Span<const DataModel::DeviceTypeEntry>(&Device::Type::kWaterLeakDetector, 1));
             });
+<<<<<<< HEAD
         }
         if constexpr (ALL_DEVICES_ENABLE_OCCUPANCY_SENSOR)
         {
@@ -172,6 +174,11 @@ private:
         {
             RegisterCreator("soil-sensor", []() { return std::make_unique<IncreasingMoistureSoilSensorDevice>(); });
         }
+        if constexpr (ALL_DEVICES_ENABLE_TEMPERATURE_SENSOR)
+        {
+            mRegistry["temperature-sensor"] = []() { return std::make_unique<IncreasingTemperatureSensorDevice>(); };
+        }
+
     }
 };
 

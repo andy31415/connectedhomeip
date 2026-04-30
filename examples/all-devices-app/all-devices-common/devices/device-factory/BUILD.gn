@@ -38,6 +38,7 @@ buildconfig_header("enabled_devices_buildconfig") {
     "ALL_DEVICES_ENABLE_ON_OFF_LIGHT=${all_devices_enable_on_off_light}",
     "ALL_DEVICES_ENABLE_SPEAKER=${all_devices_enable_speaker}",
     "ALL_DEVICES_ENABLE_SOIL_SENSOR=${all_devices_enable_soil_sensor}",
+    "ALL_DEVICES_ENABLE_TEMPERATURE_SENSOR=${all_devices_enable_temperature_sensor}",
   ]
 }
 
@@ -53,6 +54,7 @@ source_set("device-factory") {
     "${chip_root}/examples/all-devices-app/all-devices-common/devices/on-off-light",
     "${chip_root}/examples/all-devices-app/all-devices-common/devices/soil-sensor/impl:increasing",
     "${chip_root}/examples/all-devices-app/all-devices-common/devices/speaker/impl:logging",
+    "${chip_root}/examples/all-devices-app/all-devices-common/devices/temperature-sensor/impl:increasing",
     "${chip_root}/src/lib/support",
   ]
 }

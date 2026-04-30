@@ -52,6 +52,7 @@ all_devices_enable_dimmable_light = _all_devices_all_enabled
 all_devices_enable_on_off_light = _all_devices_all_enabled
 all_devices_enable_speaker = _all_devices_all_enabled
 all_devices_enable_soil_sensor = _all_devices_all_enabled
+all_devices_enable_temperature_sensor = _all_devices_all_enabled
 
 # Computed output binary name — mirrors the three-way logic in enabled_devices.cmake.
 # Exported (no leading underscore) so that posix/BUILD.gn can use it as output_name.
@@ -87,5 +88,8 @@ foreach(_device, all_devices_enabled_devices) {
   }
   if (_device == "soil-sensor") {
     all_devices_enable_soil_sensor = true
+  }
+  if (_device == "temperature-sensor") {
+    all_devices_enable_temperature_sensor = true
   }
 }

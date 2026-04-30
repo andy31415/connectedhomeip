@@ -45,6 +45,8 @@ set(ALL_DEVICES_DEVICE_SRCDIRS
     "${ALL_DEVICES_COMMON_DIR}/devices/soil-sensor/impl"
     "${ALL_DEVICES_COMMON_DIR}/devices/speaker"
     "${ALL_DEVICES_COMMON_DIR}/devices/speaker/impl"
+    "${ALL_DEVICES_COMMON_DIR}/devices/temperature-sensor"
+    "${ALL_DEVICES_COMMON_DIR}/devices/temperature-sensor/impl"
 )
 
 # ---------------------------------------------------------------------------
@@ -66,14 +68,16 @@ endif()
 # Initialise all per-device variables to 0, then set the enabled ones to 1.
 # The macro name is derived from the registry key: "foo-bar" → ALL_DEVICES_ENABLE_FOO_BAR.
 foreach(_key
-        contact-sensor
-        water-leak-detector
-        occupancy-sensor
         chime
+        contact-sensor
         dimmable-light
+        occupancy-sensor
         on-off-light
+        soil-sensor
         speaker
-        soil-sensor)
+        temperature-sensor
+        water-leak-detector
+    )
     string(REPLACE "-" "_" _suffix "${_key}")
     string(TOUPPER "${_suffix}" _suffix)
     if(_all_devices_all)
