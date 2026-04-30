@@ -52,6 +52,32 @@ set(ALL_DEVICES_DEVICE_SRCDIRS
 )
 
 # ---------------------------------------------------------------------------
+# Source files (unconditional — all device sources are always compiled;
+# LTO eliminates unreachable device code when only a subset is registered).
+# ---------------------------------------------------------------------------
+set(ALL_DEVICES_DEVICE_SOURCES
+    # keep-sorted: start
+    "${ALL_DEVICES_COMMON_DIR}/devices/boolean-state-sensor/BooleanStateSensorDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/chime/ChimeDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/dimmable-light/DimmableLightDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/dimmable-light/impl/LoggingDimmableLightDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/interface/DeviceInterface.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/interface/SingleEndpointDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/occupancy-sensor/OccupancySensorDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/occupancy-sensor/impl/TogglingOccupancySensorDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/on-off-light/LoggingOnOffLightDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/root-node/RootNodeDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/root-node/WifiRootNodeDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/soil-sensor/SoilSensorDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/soil-sensor/impl/IncreasingMoistureSoilSensorDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/speaker/SpeakerDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/speaker/impl/LoggingSpeakerDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/temperature-sensor/TemperatureSensorDevice.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/devices/temperature-sensor/impl/IncreasingTemperatureSensorDevice.cpp"
+    # keep-sorted: end
+)
+
+# ---------------------------------------------------------------------------
 # Device selection.
 # ALL_DEVICES_ENABLED_DEVICES: semicolon-separated list of device keys to
 # enable.  Empty (the default) means all devices are enabled.

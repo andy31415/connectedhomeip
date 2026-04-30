@@ -811,6 +811,7 @@ def BuildTelinkTarget():
         TargetPart('air-quality-sensor', app=TelinkApp.AIR_QUALITY_SENSOR),
         TargetPart('all-clusters', app=TelinkApp.ALL_CLUSTERS),
         TargetPart('all-clusters-minimal', app=TelinkApp.ALL_CLUSTERS_MINIMAL),
+        TargetPart('all-devices', app=TelinkApp.ALL_DEVICES),
         TargetPart('bridge', app=TelinkApp.BRIDGE),
         TargetPart('contact-sensor', app=TelinkApp.CONTACT_SENSOR),
         TargetPart('light', app=TelinkApp.LIGHT),
