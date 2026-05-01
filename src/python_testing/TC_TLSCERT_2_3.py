@@ -59,36 +59,76 @@ class TC_TLSCERT_2_3(TC_TLSCERT_Base):
         return [
             *self.get_two_fabric_substeps(),
             TestStep(2, "CR2 reads MaxRootCertificates attribute into myMaxRootCerts."),
-            TestStep(3, "Populate myRootCert[] with myMaxRootCerts + 3 distinct, valid, self-signed, DER-encoded x509 certificates."),
-            TestStep(4, "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[i], for each i in [0..1].",
-                     "DUT replies with a TLSCAID value. Store the returned value as myCaid[i]."),
-            TestStep(5, "CR2 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[i], for each i in [2..myMaxRootCerts+1].",
-                     "DUT replies with a TLSCAID value. Store the returned value as myCaid[i]."),
-            TestStep(6, "CR1 reads ProvisionedRootCertificates attribute using a fabric-filtered read on Large Message-capable transport.",
-                     "DUT replies with a list of TLSCertStruct with 2 entries. The entries should correspond to the first two entries in myRootCert and myCaid."),
-            TestStep(7, "CR2 reads ProvisionedRootCertificates attribute using a fabric-filtered read on Large Message-capable transport.",
-                     "DUT replies with a list of TLSCertStruct with myMaxRootCerts entries. The entries should correspond to the entries 2 through myMaxRootCerts+1 of myRootCert and myCaid."),
-            TestStep(8, "CR1 sends FindRootCertificate command with null CAID.",
-                     "DUT replies with a list of TLSCertStruct with 2 entries. The entries should correspond to the first two entries in myRootCert and myCaid."),
-            TestStep(9, "CR2 sends FindRootCertificate command with null CAID.",
-                     "DUT replies with a list of TLSCertStruct with myMaxRootCerts entries. The entries should correspond to the entries 2 through myMaxRootCerts + 1 of myRootCert and myCaid."),
-            TestStep(10, "CR2 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[myMaxRootCerts+2].",
-                     test_plan_support.verify_status(Status.ResourceExhausted)),
-            TestStep(11, "CR2 sends RemoveRootCertificate command with CAID set to myCaid[2].",
-                     test_plan_support.verify_success()),
-            TestStep(12, "CR2 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[myMaxRootCerts+2].",
-                     "DUT replies with a TLSCAID value. Store the returned value as myCaid[myMaxRootCerts+2]."),
-            TestStep(13, "CR2 reads ProvisionedRootCertificates attribute using a fabric-filtered read on Large Message-capable transport.",
-                     "DUT replies with a list of TLSCertStruct with myMaxRootCerts entries."),
-            TestStep(14, "CR2 sends FindRootCertificate command with null CAID.",
-                     "DUT replies with a list of TLSCertStruct with myMaxRootCerts entries."),
-            TestStep(15, "CR2 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[2].",
-                     test_plan_support.verify_status(Status.ResourceExhausted)),
-            TestStep(16, test_plan_support.remove_fabric('CR2', 'CR1'), test_plan_support.verify_success()),
-            TestStep(17, "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[2].",
-                     "DUT replies with a TLSCAID value."),
-            TestStep(18, "CR1 sends RemoveRootCertificate command with CAID set to myCaid[i], for each i in [0..1].",
-                     test_plan_support.verify_success()),
+            TestStep(
+                3, "Populate myRootCert[] with myMaxRootCerts + 3 distinct, valid, self-signed, DER-encoded x509 certificates."
+            ),
+            TestStep(
+                4,
+                "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[i], for each i in [0..1].",
+                "DUT replies with a TLSCAID value. Store the returned value as myCaid[i].",
+            ),
+            TestStep(
+                5,
+                "CR2 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[i], for each i in [2..myMaxRootCerts+1].",
+                "DUT replies with a TLSCAID value. Store the returned value as myCaid[i].",
+            ),
+            TestStep(
+                6,
+                "CR1 reads ProvisionedRootCertificates attribute using a fabric-filtered read on Large Message-capable transport.",
+                "DUT replies with a list of TLSCertStruct with 2 entries. The entries should correspond to the first two entries in myRootCert and myCaid.",
+            ),
+            TestStep(
+                7,
+                "CR2 reads ProvisionedRootCertificates attribute using a fabric-filtered read on Large Message-capable transport.",
+                "DUT replies with a list of TLSCertStruct with myMaxRootCerts entries. The entries should correspond to the entries 2 through myMaxRootCerts+1 of myRootCert and myCaid.",
+            ),
+            TestStep(
+                8,
+                "CR1 sends FindRootCertificate command with null CAID.",
+                "DUT replies with a list of TLSCertStruct with 2 entries. The entries should correspond to the first two entries in myRootCert and myCaid.",
+            ),
+            TestStep(
+                9,
+                "CR2 sends FindRootCertificate command with null CAID.",
+                "DUT replies with a list of TLSCertStruct with myMaxRootCerts entries. The entries should correspond to the entries 2 through myMaxRootCerts + 1 of myRootCert and myCaid.",
+            ),
+            TestStep(
+                10,
+                "CR2 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[myMaxRootCerts+2].",
+                test_plan_support.verify_status(Status.ResourceExhausted),
+            ),
+            TestStep(11, "CR2 sends RemoveRootCertificate command with CAID set to myCaid[2].", test_plan_support.verify_success()),
+            TestStep(
+                12,
+                "CR2 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[myMaxRootCerts+2].",
+                "DUT replies with a TLSCAID value. Store the returned value as myCaid[myMaxRootCerts+2].",
+            ),
+            TestStep(
+                13,
+                "CR2 reads ProvisionedRootCertificates attribute using a fabric-filtered read on Large Message-capable transport.",
+                "DUT replies with a list of TLSCertStruct with myMaxRootCerts entries.",
+            ),
+            TestStep(
+                14,
+                "CR2 sends FindRootCertificate command with null CAID.",
+                "DUT replies with a list of TLSCertStruct with myMaxRootCerts entries.",
+            ),
+            TestStep(
+                15,
+                "CR2 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[2].",
+                test_plan_support.verify_status(Status.ResourceExhausted),
+            ),
+            TestStep(16, test_plan_support.remove_fabric("CR2", "CR1"), test_plan_support.verify_success()),
+            TestStep(
+                17,
+                "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[2].",
+                "DUT replies with a TLSCAID value.",
+            ),
+            TestStep(
+                18,
+                "CR1 sends RemoveRootCertificate command with CAID set to myCaid[i], for each i in [0..1].",
+                test_plan_support.verify_success(),
+            ),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.TlsCertificateManagement))
@@ -140,11 +180,14 @@ class TC_TLSCERT_2_3(TC_TLSCERT_Base):
 
         self.step(9)
         find_response = await cr2_cmd.send_find_root_command()
-        asserts.assert_equal(len(find_response.certificateDetails), my_max_root_certs,
-                             "Expected myMaxRootCerts certificates for CR2")
+        asserts.assert_equal(
+            len(find_response.certificateDetails), my_max_root_certs, "Expected myMaxRootCerts certificates for CR2"
+        )
 
         self.step(10)
-        await cr2_cmd.send_provision_root_command(certificate=my_root_cert[my_max_root_certs + 2], expected_status=Status.ResourceExhausted)
+        await cr2_cmd.send_provision_root_command(
+            certificate=my_root_cert[my_max_root_certs + 2], expected_status=Status.ResourceExhausted
+        )
 
         self.step(11)
         await cr2_cmd.send_remove_root_command(caid=my_caid[2])
@@ -160,8 +203,9 @@ class TC_TLSCERT_2_3(TC_TLSCERT_Base):
 
         self.step(14)
         find_response = await cr2_cmd.send_find_root_command()
-        asserts.assert_equal(len(find_response.certificateDetails), my_max_root_certs,
-                             "Expected myMaxRootCerts certificates for CR2")
+        asserts.assert_equal(
+            len(find_response.certificateDetails), my_max_root_certs, "Expected myMaxRootCerts certificates for CR2"
+        )
 
         self.step(15)
         await cr2_cmd.send_provision_root_command(certificate=my_root_cert[2], expected_status=Status.ResourceExhausted)

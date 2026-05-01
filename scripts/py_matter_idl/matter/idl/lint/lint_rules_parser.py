@@ -22,8 +22,15 @@ from typing import List, MutableMapping, Optional, Tuple, Union
 from lark import Lark
 from lark.visitors import Discard, Transformer, v_args
 
-from .type_definitions import (AttributeRequirement, ClusterAttributeDeny, ClusterCommandRequirement, ClusterRequirement,
-                               ClusterValidationRule, RequiredAttributesRule, RequiredCommandsRule)
+from .type_definitions import (
+    AttributeRequirement,
+    ClusterAttributeDeny,
+    ClusterCommandRequirement,
+    ClusterRequirement,
+    ClusterValidationRule,
+    RequiredAttributesRule,
+    RequiredCommandsRule,
+)
 
 log = logging.getLogger(__name__)
 
@@ -34,7 +41,7 @@ class ElementNotFoundError(Exception):
 
 
 def parseNumberString(n: str) -> int:
-    if n.startswith('0x'):
+    if n.startswith("0x"):
         return int(n[2:], 16)
     return int(n)
 
@@ -71,31 +78,30 @@ class ServerClusterRequirement:
 
 
 def _isRequired(attr: xml.etree.ElementTree.Element) -> bool:
-
     # Check for optional attributes in the old "optional" element format
-    if 'optional' in attr.attrib and attr.attrib['optional'] == 'true':
+    if "optional" in attr.attrib and attr.attrib["optional"] == "true":
         return False
 
     # Check for optionalConform inside the element
-    if attr.find('optionalConform') is not None:
+    if attr.find("optionalConform") is not None:
         return False
 
     # Check for provisional elements
-    if 'apiMaturity' in attr.attrib and attr.attrib['apiMaturity'] == 'provisional':
+    if "apiMaturity" in attr.attrib and attr.attrib["apiMaturity"] == "provisional":
         return False
 
     # mandatory is a marker, as long as the mandatory is not
     # turned into an optional by being controlled by a feature
-    mandatory_element = attr.find('mandatoryConform')
+    mandatory_element = attr.find("mandatoryConform")
 
     if mandatory_element is None:
         return True
 
-    return mandatory_element.find('feature') is None
+    return mandatory_element.find("feature") is None
 
 
 def DecodeClusterFromXml(element: xml.etree.ElementTree.Element):
-    if element.tag != 'cluster':
+    if element.tag != "cluster":
         log.error("Not a cluster element: %r", element)
         return None
 
@@ -104,16 +110,16 @@ def DecodeClusterFromXml(element: xml.etree.ElementTree.Element):
     #  - code (unique identifier, may be hex or numeric)
     #  - attribute with side, code and optional attributes
     try:
-        name = element.find('name')
+        name = element.find("name")
         if name is None or not name.text:
-            raise ElementNotFoundError('name')
+            raise ElementNotFoundError("name")
 
-        name = name.text.replace(' ', '')
+        name = name.text.replace(" ", "")
         required_attributes = []
         required_commands = []
 
-        for attr in element.findall('attribute'):
-            if attr.attrib['side'] != 'server':
+        for attr in element.findall("attribute"):
+            if attr.attrib["side"] != "server":
                 continue
 
             if not _isRequired(attr):
@@ -125,30 +131,25 @@ def DecodeClusterFromXml(element: xml.etree.ElementTree.Element):
             # <attribute ...><description>myName</description><access .../>...</attribute>
             attr_name = attr.get("name")
             if not attr_name:
-                description = attr.find('description')
+                description = attr.find("description")
                 if description is not None:
                     attr_name = description.text
 
-            required_attributes.append(
-                RequiredAttribute(
-                    name=attr_name,
-                    code=parseNumberString(attr.attrib['code'])
-                ))
+            required_attributes.append(RequiredAttribute(name=attr_name, code=parseNumberString(attr.attrib["code"])))
 
-        for cmd in element.findall('command'):
-            if cmd.attrib['source'] != 'client':
+        for cmd in element.findall("command"):
+            if cmd.attrib["source"] != "client":
                 continue
 
-            if 'optional' in cmd.attrib and cmd.attrib['optional'] == 'true':
+            if "optional" in cmd.attrib and cmd.attrib["optional"] == "true":
                 continue
 
-            if 'apiMaturity' in cmd.attrib and cmd.attrib['apiMaturity'] == 'provisional':
+            if "apiMaturity" in cmd.attrib and cmd.attrib["apiMaturity"] == "provisional":
                 continue
 
-            required_commands.append(RequiredCommand(
-                name=cmd.attrib["name"], code=parseNumberString(cmd.attrib['code'])))
+            required_commands.append(RequiredCommand(name=cmd.attrib["name"], code=parseNumberString(cmd.attrib["code"])))
 
-        code = element.find('code')
+        code = element.find("code")
         if code is None:
             raise Exception("Failed to find cluster code")
 
@@ -156,7 +157,7 @@ def DecodeClusterFromXml(element: xml.etree.ElementTree.Element):
             name=name,
             code=parseNumberString(code.text),
             required_attributes=required_attributes,
-            required_commands=required_commands
+            required_commands=required_commands,
         )
     except Exception:
         log.exception("Failed to decode cluster %r", element)
@@ -169,7 +170,7 @@ def ClustersInXmlFile(path: str):
     # root is expected to be just a "configurator" object
     configurator = xml.etree.ElementTree.parse(path).getroot()
     for child in configurator:
-        if child.tag != 'cluster':
+        if child.tag != "cluster":
             continue
         yield child
 
@@ -184,12 +185,9 @@ class LintRulesContext:
     """
 
     def __init__(self):
-        self._required_attributes_rule = RequiredAttributesRule(
-            "Required attributes")
-        self._cluster_validation_rule = ClusterValidationRule(
-            "Cluster validation")
-        self._required_commands_rule = RequiredCommandsRule(
-            "Required commands")
+        self._required_attributes_rule = RequiredAttributesRule("Required attributes")
+        self._cluster_validation_rule = ClusterValidationRule("Cluster validation")
+        self._required_commands_rule = RequiredCommandsRule("Required commands")
 
         # Map cluster names to the underlying code
         self._cluster_codes: MutableMapping[str, int] = {}
@@ -216,39 +214,41 @@ class LintRulesContext:
             return name, self._cluster_codes[name]
 
     def RequireClusterInEndpoint(self, name: str, code: int):
-        """Mark that a specific cluster is always required in the given endpoint
-        """
+        """Mark that a specific cluster is always required in the given endpoint"""
         cluster_info = self.FindClusterCode(name)
         if not cluster_info:
             return
 
         name, cluster_code = cluster_info
 
-        self._cluster_validation_rule.RequireClusterInEndpoint(ClusterRequirement(
-            endpoint_id=code,
-            cluster_code=cluster_code,
-            cluster_name=name,
-        ))
+        self._cluster_validation_rule.RequireClusterInEndpoint(
+            ClusterRequirement(
+                endpoint_id=code,
+                cluster_code=cluster_code,
+                cluster_name=name,
+            )
+        )
 
     def RejectClusterInEndpoint(self, name: str, code: int):
-        """Mark that a specific cluster is always rejected in the given endpoint
-        """
+        """Mark that a specific cluster is always rejected in the given endpoint"""
         cluster_info = self.FindClusterCode(name)
         if not cluster_info:
             return
 
         name, cluster_code = cluster_info
 
-        self._cluster_validation_rule.RejectClusterInEndpoint(ClusterRequirement(
-            endpoint_id=code,
-            cluster_code=cluster_code,
-            cluster_name=name,
-        ))
+        self._cluster_validation_rule.RejectClusterInEndpoint(
+            ClusterRequirement(
+                endpoint_id=code,
+                cluster_code=cluster_code,
+                cluster_name=name,
+            )
+        )
 
     def LoadXml(self, path: str):
         """Load XML data from the given path and add it to
-           internal processing. Adds attribute requirement rules
-           as needed.
+        internal processing. Adds attribute requirement rules
+        as needed.
         """
         for cluster in ClustersInXmlFile(path):
             decoded = DecodeClusterFromXml(cluster)
@@ -259,16 +259,14 @@ class LintRulesContext:
             self._cluster_codes[decoded.name] = decoded.code
 
             for attr in decoded.required_attributes:
-                self._required_attributes_rule.RequireAttribute(AttributeRequirement(
-                    code=attr.code, name=attr.name, filter_cluster=decoded.code))
+                self._required_attributes_rule.RequireAttribute(
+                    AttributeRequirement(code=attr.code, name=attr.name, filter_cluster=decoded.code)
+                )
 
             for cmd in decoded.required_commands:
                 self._required_commands_rule.RequireCommand(
-                    ClusterCommandRequirement(
-                        cluster_code=decoded.code,
-                        command_code=cmd.code,
-                        command_name=cmd.name
-                    ))
+                    ClusterCommandRequirement(cluster_code=decoded.code, command_code=cmd.code, command_name=cmd.name)
+                )
 
 
 class LintRulesTransformer(Transformer):
@@ -281,8 +279,7 @@ class LintRulesTransformer(Transformer):
         self.context = LintRulesContext()
 
     def positive_integer(self, tokens):
-        """Numbers in the grammar are integers or hex numbers.
-        """
+        """Numbers in the grammar are integers or hex numbers."""
         if len(tokens) != 1:
             raise Exception("Unexpected argument counts")
 
@@ -297,15 +294,14 @@ class LintRulesTransformer(Transformer):
         return value
 
     def id(self, tokens):
-        """An id is a string containing an identifier
-        """
+        """An id is a string containing an identifier"""
         if len(tokens) != 1:
             raise Exception("Unexpected argument counts")
         return tokens[0].value
 
     def ESCAPED_STRING(self, s):
         # handle escapes, skip the start and end quotes
-        return s.value[1:-1].encode('utf-8').decode('unicode-escape')
+        return s.value[1:-1].encode("utf-8").decode("unicode-escape")
 
     def start(self, instructions):
         # At this point processing is considered done, return all
@@ -343,8 +339,7 @@ class LintRulesTransformer(Transformer):
             elif requirement.action == ClusterActionEnum.REJECT:
                 self.context.RejectClusterInEndpoint(requirement.id, code)
             else:
-                raise Exception("Unexpected requirement action %r" %
-                                requirement.action)
+                raise Exception("Unexpected requirement action %r" % requirement.action)
 
         return Discard
 
@@ -364,12 +359,11 @@ class LintRulesTransformer(Transformer):
 class Parser:
     def __init__(self):
         self.parser = Lark.open(
-            'lint_rules_grammar.lark', rel_to=__file__, parser='lalr',
-            propagate_positions=True, maybe_placeholders=True)
+            "lint_rules_grammar.lark", rel_to=__file__, parser="lalr", propagate_positions=True, maybe_placeholders=True
+        )
 
     def parse(self, file: str):
-        return LintRulesTransformer().transform(
-            self.parser.parse(file))
+        return LintRulesTransformer().transform(self.parser.parse(file))
 
 
 def CreateParser():

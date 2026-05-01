@@ -195,9 +195,7 @@ class TC_SU_4_1(SoftwareUpdateBaseTest):
 
         ca_fabric2 = self.certificate_authority_manager.NewCertificateAuthority()
         fabric_admin_fabric2 = ca_fabric2.NewFabricAdmin(vendorId=0xFFF1, fabricId=admin_fabric2_fabric_id)
-        admin_fabric2 = fabric_admin_fabric2.NewController(
-            nodeId=provider1_fabric2_node_id, useTestCommissioner=True
-        )
+        admin_fabric2 = fabric_admin_fabric2.NewController(nodeId=provider1_fabric2_node_id, useTestCommissioner=True)
 
         logger.info(f"Step #3 - admin_fabric2 NodeID: {admin_fabric2.nodeId}")
         logger.info(f"Step #3 - admin_fabric2 FabricID: {admin_fabric2.fabricId}")

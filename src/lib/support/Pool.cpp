@@ -53,8 +53,7 @@ namespace internal {
 
 StaticAllocatorBitmap::StaticAllocatorBitmap(void * storage, std::atomic<tBitChunkType> * usage, size_t capacity,
                                              size_t elementSize) :
-    StaticAllocatorBase(capacity),
-    mElements(storage), mElementSize(elementSize), mUsage(usage)
+    StaticAllocatorBase(capacity), mElements(storage), mElementSize(elementSize), mUsage(usage)
 {
     for (size_t word = 0; word * kBitChunkSize < Capacity(); ++word)
     {

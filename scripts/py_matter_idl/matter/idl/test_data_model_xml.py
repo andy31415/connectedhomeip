@@ -45,8 +45,7 @@ class GeneratorContentStorage(GeneratorStorage):
 
     def write_new_data(self, relative_path: str, content: str):
         if self.content:
-            raise Exception(
-                "Unexpected extra data: single file generation expected")
+            raise Exception("Unexpected extra data: single file generation expected")
         self.content = content
 
 
@@ -62,8 +61,7 @@ def XmlToIdl(what: Union[str, List[str]]) -> Idl:
 
     sources = []
     for idx, txt in enumerate(what):
-        sources.append(ParseSource(source=io.StringIO(
-            txt), name=("Input %d" % (idx + 1))))
+        sources.append(ParseSource(source=io.StringIO(txt), name=("Input %d" % (idx + 1))))
 
     return ParseXmls(sources, include_meta_data=False)
 
@@ -73,7 +71,6 @@ def IdlTextToIdl(what: str) -> Idl:
 
 
 class TestXmlParser(unittest.TestCase):
-
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)
         self.maxDiff = None
@@ -88,21 +85,21 @@ class TestXmlParser(unittest.TestCase):
         a_txt = RenderAsIdlTxt(a)
         b_txt = RenderAsIdlTxt(b)
 
-        delta = unified_diff(a_txt.splitlines(keepends=True),
-                             b_txt.splitlines(keepends=True),
-                             fromfile='actual.matter',
-                             tofile='expected.matter',
-                             )
-        self.assertEqual(a, b, '\n' + ''.join(delta))
+        delta = unified_diff(
+            a_txt.splitlines(keepends=True),
+            b_txt.splitlines(keepends=True),
+            fromfile="actual.matter",
+            tofile="expected.matter",
+        )
+        self.assertEqual(a, b, "\n" + "".join(delta))
         self.fail("IDLs are not equal (above delta should have failed)")
 
     def testBasicInput(self):
-
-        xml_idl = XmlToIdl('''
+        xml_idl = XmlToIdl("""
             <cluster id="123" name="Test" revision="1"/>
-        ''')
+        """)
 
-        expected_idl = IdlTextToIdl('''
+        expected_idl = IdlTextToIdl("""
             client cluster Test = 123 {
                readonly attribute attrib_id attributeList[] = 65531;
                readonly attribute event_id eventList[] = 65530;
@@ -111,22 +108,21 @@ class TestXmlParser(unittest.TestCase):
                readonly attribute bitmap32 featureMap = 65532;
                readonly attribute int16u clusterRevision = 65533;
            }
-        ''')
+        """)
 
         self.assertIdlEqual(xml_idl, expected_idl)
 
     def testLinterAttributes(self):
-
-        linter_rules = '''
+        linter_rules = """
 all endpoints {
   require global attribute featureMap = 65532;
   require global attribute clusterRevision = 65533;
 }
-        '''
+        """
         # Sample simulating an example app with only one cluster defined in one endpoint (the endpoint is needed
         # for the lint rules check).
         idlToCheck = IdlTextToIdl(
-            '''
+            """
 cluster TestCluster = 1045 {
   revision 3;
 
@@ -142,7 +138,8 @@ endpoint 2 {
     ram      attribute clusterRevision default = 3;
   }
 }
-        ''')
+        """
+        )
 
         lint_rules = []
         lint_rules.extend(CreateLintParser().parse(linter_rules))
@@ -154,7 +151,7 @@ endpoint 2 {
         self.assertFalse(errors)
 
     def testLinterXMLAttributes(self):
-        xml_cluster = '''
+        xml_cluster = """
 <configurator xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../zcl.xsd">
   <domain name="CHIP"/>
   <cluster>
@@ -182,7 +179,7 @@ endpoint 2 {
     </attribute>
   </cluster>
 </configurator>
-'''
+"""
         # Use LintRulesContext directly to parse the cluster XML and avoid file handling
         lint_context = LintRulesContext()
         lint_context.LoadXml(io.StringIO(xml_cluster))
@@ -209,9 +206,10 @@ endpoint 2 {
     def testClusterDerivation(self):
         # This test is based on a subset of ModeBase and Mode_Dishwasher original xml files
 
-        xml_idl = XmlToIdl([
-            # base ...
-            '''
+        xml_idl = XmlToIdl(
+            [
+                # base ...
+                """
 <cluster xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="types types.xsd cluster cluster.xsd" id="" name="Mode Base" revision="2">
   <revisionHistory>
     <revision revision="1" summary="Initial version"/>
@@ -262,9 +260,9 @@ endpoint 2 {
     </attribute>
   </attributes>
 </cluster>
-        ''',
-            # derived ...
-            '''
+        """,
+                # derived ...
+                """
 <cluster xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="types types.xsd cluster cluster.xsd" id="0x0059" name="Dishwasher Mode" revision="2">
   <revisionHistory>
     <revision revision="1" summary="Initial Release"/>
@@ -291,10 +289,11 @@ endpoint 2 {
     </attribute>
   </attributes>
 </cluster>
-        ''',
-        ])
+        """,
+            ]
+        )
 
-        expected_idl = IdlTextToIdl('''
+        expected_idl = IdlTextToIdl("""
             client cluster DishwasherMode = 89 {
                revision 2;
 
@@ -316,13 +315,12 @@ endpoint 2 {
                readonly attribute bitmap32 featureMap = 65532;
                readonly attribute int16u clusterRevision = 65533;
            }
-        ''')
+        """)
 
         self.assertIdlEqual(xml_idl, expected_idl)
 
     def testSignedTypes(self):
-
-        xml_idl = XmlToIdl('''
+        xml_idl = XmlToIdl("""
             <cluster id="123" name="Test" revision="1">
               <attributes>
                 <attribute id="0x0000" name="First" type="int16">
@@ -339,9 +337,9 @@ endpoint 2 {
                 </attribute>
               </attributes>
             </cluster>
-        ''')
+        """)
 
-        expected_idl = IdlTextToIdl('''
+        expected_idl = IdlTextToIdl("""
             client cluster Test = 123 {
                readonly attribute int16s first = 0;
                readonly attribute int16s second = 1;
@@ -354,14 +352,14 @@ endpoint 2 {
                readonly attribute bitmap32 featureMap = 65532;
                readonly attribute int16u clusterRevision = 65533;
            }
-        ''')
+        """)
 
         self.assertIdlEqual(xml_idl, expected_idl)
 
     def testEnumRange(self):
         # Check heuristic for enum ranges
 
-        xml_idl = XmlToIdl('''
+        xml_idl = XmlToIdl("""
             <cluster id="123" name="Test" revision="1">
               <dataTypes>
                 <bitmap name="Basic">
@@ -398,9 +396,9 @@ endpoint 2 {
                 </bitmap>
               </dataTypes>
             </cluster>
-        ''')
+        """)
 
-        expected_idl = IdlTextToIdl('''
+        expected_idl = IdlTextToIdl("""
             client cluster Test = 123 {
                bitmap Basic: bitmap8 {
                   kOne = 0x01;
@@ -429,7 +427,7 @@ endpoint 2 {
                readonly attribute bitmap32 featureMap = 65532;
                readonly attribute int16u clusterRevision = 65533;
            }
-        ''')
+        """)
 
         self.assertIdlEqual(xml_idl, expected_idl)
 
@@ -437,7 +435,7 @@ endpoint 2 {
         # Validate an attribute with a type list
         # This is a very stripped down version from the original AudioOutput.xml
 
-        xml_idl = XmlToIdl('''
+        xml_idl = XmlToIdl("""
             <cluster id="123" name="Test" revision="1">
               <dataTypes>
                 <struct name="OutputInfoStruct">
@@ -465,9 +463,9 @@ endpoint 2 {
                 </attribute>
               </attributes>
             </cluster>
-        ''')
+        """)
 
-        expected_idl = IdlTextToIdl('''
+        expected_idl = IdlTextToIdl("""
             client cluster Test = 123 {
                struct OutputInfoStruct {
                   int8u index = 0;
@@ -483,7 +481,7 @@ endpoint 2 {
                readonly attribute bitmap32 featureMap = 65532;
                readonly attribute int16u clusterRevision = 65533;
            }
-        ''')
+        """)
 
         self.assertIdlEqual(xml_idl, expected_idl)
 
@@ -491,7 +489,7 @@ endpoint 2 {
         # Validate an attribute with a type list
         # This is a manually-edited copy of an attribute test (not real data)
 
-        xml_idl = XmlToIdl('''
+        xml_idl = XmlToIdl("""
             <cluster id="123" name="Test" revision="1">
               <dataTypes>
                 <struct name="OutputInfoStruct">
@@ -540,9 +538,9 @@ endpoint 2 {
                 </attribute>
               </attributes>
             </cluster>
-        ''')
+        """)
 
-        expected_idl = IdlTextToIdl('''
+        expected_idl = IdlTextToIdl("""
             client cluster Test = 123 {
                struct OutputInfoStruct {
                   char_string id = 0;
@@ -563,14 +561,14 @@ endpoint 2 {
                readonly attribute bitmap32 featureMap = 65532;
                readonly attribute int16u clusterRevision = 65533;
            }
-        ''')
+        """)
 
         self.assertIdlEqual(xml_idl, expected_idl)
 
     def testComplexInput(self):
         # This parses a known copy of Switch.xml which happens to be fully
         # spec-conformant (so assuming it as a good input)
-        xml_idl = XmlToIdl('''
+        xml_idl = XmlToIdl("""
              <cluster xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="types types.xsd cluster cluster.xsd" id="0x003b" name="Switch" revision="1">
                 <revisionHistory>
                     <revision revision="1" summary="Initial Release"/>
@@ -708,9 +706,9 @@ endpoint 2 {
                     </event>
                 </events>
              </cluster>
-        ''')
+        """)
 
-        expected_idl = IdlTextToIdl('''
+        expected_idl = IdlTextToIdl("""
             client cluster Switch = 59 {
               bitmap Feature : bitmap32 {
                 kLatchingSwitch = 0x1;
@@ -760,10 +758,10 @@ endpoint 2 {
               readonly attribute bitmap32 featureMap = 65532;
               readonly attribute int16u clusterRevision = 65533;
             }
-            ''')
+            """)
 
         self.assertIdlEqual(xml_idl, expected_idl)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

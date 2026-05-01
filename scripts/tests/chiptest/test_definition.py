@@ -34,11 +34,11 @@ from .runner import LogPipe, Runner, SubprocessInfo, SubprocessKind
 
 log = logging.getLogger(__name__)
 
-TEST_NODE_ID = '0x12344321'
-TEST_DISCRIMINATOR = '3840'
-TEST_PASSCODE = '20202021'
-TEST_SETUP_QR_CODE = 'MT:-24J042C00KA0648G00'
-TEST_THREAD_DATASET = '0e08000000000001000000030000104a0300001635060004001fffe0020884fa18779329ac770708fd269658e44aa21a030f4f70656e5468726561642d32386335010228c50c0402a0f7f8051000112233445566778899aabbccddeeff041000112233445566778899aabbccddeeff'
+TEST_NODE_ID = "0x12344321"
+TEST_DISCRIMINATOR = "3840"
+TEST_PASSCODE = "20202021"
+TEST_SETUP_QR_CODE = "MT:-24J042C00KA0648G00"
+TEST_THREAD_DATASET = "0e08000000000001000000030000104a0300001635060004001fffe0020884fa18779329ac770708fd269658e44aa21a030f4f70656e5468726561642d32386335010228c50c0402a0f7f8051000112233445566778899aabbccddeeff041000112233445566778899aabbccddeeff"
 
 
 class App:
@@ -50,7 +50,7 @@ class App:
         self.cv_stopped = threading.Condition()
         self.stopped = True
         self.lastLogIndex = 0
-        self.kvsPathSet = {'/tmp/chip_kvs'}
+        self.kvsPathSet = {"/tmp/chip_kvs"}
         self.options: dict[str, str] | None = None
         self.killed = False
         self.setupCode: str | None = None
@@ -61,7 +61,7 @@ class App:
     @property
     def returncode(self):
         """Exposes return code of the underlying process, so that
-           common code can be used between subprocess.Popen and Apps.
+        common code can be used between subprocess.Popen and Apps.
         """
         if not self.process:
             return None
@@ -91,7 +91,7 @@ class App:
             ok = self.__terminateProcess()
             if not ok:
                 # For now just raise an exception; no other way to get tests to fail in this situation.
-                raise RuntimeError('Stopped subprocess terminated abnormally')
+                raise RuntimeError("Stopped subprocess terminated abnormally")
             return True
         return False
 
@@ -151,7 +151,7 @@ class App:
                     self.cv_stopped.wait()
 
     def __startServer(self) -> tuple[subprocess.Popen[bytes], LogPipe, LogPipe]:
-        subproc = self.subproc.with_args('--interface-id', '-1')
+        subproc = self.subproc.with_args("--interface-id", "-1")
 
         if not self.options:
             log.debug("Executing application under test with default args")
@@ -160,16 +160,16 @@ class App:
             for key, value in self.options.items():
                 log.debug("   %s: %s", key, value)
                 subproc = subproc.with_args(key, value)
-                if key == '--KVS':
+                if key == "--KVS":
                     self.kvsPathSet.add(value)
-        return self.runner.RunSubprocess(subproc, name='APP ', wait=False)
+        return self.runner.RunSubprocess(subproc, name="APP ", wait=False)
 
     def __waitFor(self, patterns: Iterable[str], timeoutInSeconds: float = 10):
         """
         Wait for all provided pattern strings to appear in the process output pipe (capture log).
         """
         assert self.process is not None and self.outpipe is not None, "__waitFor can be called only after start()"
-        log.debug('Waiting for all patterns %r', patterns)
+        log.debug("Waiting for all patterns %r", patterns)
 
         start_time = time.monotonic()
 
@@ -187,21 +187,21 @@ class App:
         lastLogIndex = allPatternsFound()
         while lastLogIndex is None:
             if self.process.poll() is not None:
-                died_str = f'Server died while waiting for {patterns!r}, returncode {self.process.returncode}'
+                died_str = f"Server died while waiting for {patterns!r}, returncode {self.process.returncode}"
                 log.error(died_str)
                 raise RuntimeError(died_str)
             if time.monotonic() - start_time > timeoutInSeconds:
-                raise TimeoutError(f'Timeout while waiting for {patterns!r}')
+                raise TimeoutError(f"Timeout while waiting for {patterns!r}")
             time.sleep(0.1)
 
             lastLogIndex = allPatternsFound()
 
         self.lastLogIndex = lastLogIndex + 1
-        log.debug('Success waiting for: %r', patterns)
+        log.debug("Success waiting for: %r", patterns)
 
     def __updateSetUpCode(self):
         assert self.outpipe is not None, "__updateSetUpCode needs to happen after __startServer"
-        qrLine = self.outpipe.FindLastMatchingLine('.*SetupQRCode: *\\[(.*)]')
+        qrLine = self.outpipe.FindLastMatchingLine(".*SetupQRCode: *\\[(.*)]")
         if not qrLine:
             raise RuntimeError("Unable to find QR code")
         self.setupCode = qrLine.group(1)
@@ -247,43 +247,45 @@ class KnownSubprocessEntry:
     target_name: str | None = None
 
 
-BUILTIN_SUBPROC_DATA = MappingProxyType({
-    # Matter applications
-    'all-clusters': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-all-clusters-app'),
-    'all-devices': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='all-devices-app'),
-    'air-purifier': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-air-purifier-app'),
-    'bridge': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-bridge-app'),
-    'camera': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-camera-app'),
-    'camera-controller': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-camera-controller'),
-    'closure': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='closure-app'),
-    'energy-gateway': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-energy-gateway-app'),
-    'evse': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-evse-app'),
-    'fabric-bridge': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='fabric-bridge-app'),
-    'fabric-admin': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='fabric-admin'),
-    'fabric-sync': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='fabric-sync'),
-    'jf-control': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='jfc-app'),
-    'jf-admin': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='jfa-app'),
-    'light': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-lighting-app'),
-    'lit-icd': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='lit-icd-app'),
-    'lock': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-lock-app'),
-    'microwave-oven': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-microwave-oven-app'),
-    'network-manager': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='matter-network-manager-app'),
-    'ota-provider': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-ota-provider-app'),
-    'ota-requestor': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-ota-requestor-app'),
-    'rvc': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-rvc-app'),
-    'terms-and-conditions': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-terms-and-conditions-app'),
-    'tv': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='chip-tv-app'),
-    'water-heater': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='matter-water-heater-app'),
-    'water-leak-detector': KnownSubprocessEntry(kind=SubprocessKind.APP, target_name='water-leak-detector-app'),
-
-    # Tools
-    'chip-tool': KnownSubprocessEntry(kind=SubprocessKind.TOOL, target_name='chip-tool'),
-    'darwin-framework-tool': KnownSubprocessEntry(kind=SubprocessKind.TOOL, target_name='darwin-framework-tool'),
-    'matter-repl-yaml-tester': KnownSubprocessEntry(kind=SubprocessKind.TOOL, target_name='yamltest_with_matter_repl_tester.py'),
-
-    # No target_name as this is either chiptool.py or darwinframework.py depending on the selected TestRunTime
-    'chip-tool-with-python': KnownSubprocessEntry(kind=SubprocessKind.TOOL)
-})
+BUILTIN_SUBPROC_DATA = MappingProxyType(
+    {
+        # Matter applications
+        "all-clusters": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-all-clusters-app"),
+        "all-devices": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="all-devices-app"),
+        "air-purifier": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-air-purifier-app"),
+        "bridge": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-bridge-app"),
+        "camera": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-camera-app"),
+        "camera-controller": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-camera-controller"),
+        "closure": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="closure-app"),
+        "energy-gateway": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-energy-gateway-app"),
+        "evse": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-evse-app"),
+        "fabric-bridge": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="fabric-bridge-app"),
+        "fabric-admin": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="fabric-admin"),
+        "fabric-sync": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="fabric-sync"),
+        "jf-control": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="jfc-app"),
+        "jf-admin": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="jfa-app"),
+        "light": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-lighting-app"),
+        "lit-icd": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="lit-icd-app"),
+        "lock": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-lock-app"),
+        "microwave-oven": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-microwave-oven-app"),
+        "network-manager": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="matter-network-manager-app"),
+        "ota-provider": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-ota-provider-app"),
+        "ota-requestor": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-ota-requestor-app"),
+        "rvc": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-rvc-app"),
+        "terms-and-conditions": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-terms-and-conditions-app"),
+        "tv": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="chip-tv-app"),
+        "water-heater": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="matter-water-heater-app"),
+        "water-leak-detector": KnownSubprocessEntry(kind=SubprocessKind.APP, target_name="water-leak-detector-app"),
+        # Tools
+        "chip-tool": KnownSubprocessEntry(kind=SubprocessKind.TOOL, target_name="chip-tool"),
+        "darwin-framework-tool": KnownSubprocessEntry(kind=SubprocessKind.TOOL, target_name="darwin-framework-tool"),
+        "matter-repl-yaml-tester": KnownSubprocessEntry(
+            kind=SubprocessKind.TOOL, target_name="yamltest_with_matter_repl_tester.py"
+        ),
+        # No target_name as this is either chiptool.py or darwinframework.py depending on the selected TestRunTime
+        "chip-tool-with-python": KnownSubprocessEntry(kind=SubprocessKind.TOOL),
+    }
+)
 
 
 class PathsFinderProto(typing.Protocol):
@@ -295,16 +297,20 @@ class SubprocessInfoRepo(dict):
     # We don't want to explicitly reference PathsFinder type because we
     # don't want to create a dependency on the diskcache module which PathsFinder imports.
     # Instead we just want a dict-like object
-    def __init__(self, paths: PathsFinderProto,
-                 subproc_knowhow: MappingProxyType[str, KnownSubprocessEntry] = BUILTIN_SUBPROC_DATA,
-                 *args, **kwargs):
+    def __init__(
+        self,
+        paths: PathsFinderProto,
+        subproc_knowhow: MappingProxyType[str, KnownSubprocessEntry] = BUILTIN_SUBPROC_DATA,
+        *args,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
         self.paths = paths
         self.subproc_knowhow = subproc_knowhow
 
     def addSpec(self, spec: str, kind: SubprocessKind | None = None):
         """Add a path to the repo as specified on the command line"""
-        el = spec.split(':')
+        el = spec.split(":")
         if len(el) == 2:
             # <key>:<path>
             key, path_s = el
@@ -320,8 +326,8 @@ class SubprocessInfoRepo(dict):
             log.warning("Key '%s' is not present in the subprocess repo know-how, possible typo", key)
 
         s = SubprocessInfo(kind=kind, path=path)
-        if path.suffix == '.py':
-            s = s.wrap_with('python3')
+        if path.suffix == ".py":
+            s = s.wrap_with("python3")
         self[key] = s
 
     def missing_keys(self):
@@ -370,8 +376,8 @@ class SubprocessInfoRepo(dict):
             raise LookupError(f"Cannot find path for required {kind} key '{key}'")
         log.info("Discovered required key '%s' path '%s'", key, path)
         s = SubprocessInfo(kind=kind, path=path)
-        if path.suffix == '.py':
-            s = s.wrap_with('python3')
+        if path.suffix == ".py":
+            s = s.wrap_with("python3")
         self[key] = s
         return self[key]
 
@@ -394,47 +400,44 @@ class ExecutionCapture:
 
     def Log(self, source: str, line: str):
         with self.lock:
-            self.captures.append(CaptureLine(
-                when=datetime.now(),
-                source=source,
-                line=line.strip('\n')
-            ))
+            self.captures.append(CaptureLine(when=datetime.now(), source=source, line=line.strip("\n")))
 
     def LogContents(self):
         log.error("================ CAPTURED LOG START ==================")
         with self.lock:
             for entry in self.captures:
-                log.error("%02d:%02d:%02d.%03d - %-10s: %s",
-                          entry.when.hour,
-                          entry.when.minute,
-                          entry.when.second,
-                          entry.when.microsecond/1000,
-                          entry.source,
-                          entry.line
-                          )
+                log.error(
+                    "%02d:%02d:%02d.%03d - %-10s: %s",
+                    entry.when.hour,
+                    entry.when.minute,
+                    entry.when.second,
+                    entry.when.microsecond / 1000,
+                    entry.source,
+                    entry.line,
+                )
         log.error("================ CAPTURED LOG END ====================")
 
 
 class TestTag(StrEnum):
-    MANUAL = auto()          # requires manual input. Generally not run automatically
-    SLOW = auto()            # test uses Sleep and is generally slow (>=10s is a typical threshold)
-    FLAKY = auto()           # test is considered flaky (usually a bug/time dependent issue)
+    MANUAL = auto()  # requires manual input. Generally not run automatically
+    SLOW = auto()  # test uses Sleep and is generally slow (>=10s is a typical threshold)
+    FLAKY = auto()  # test is considered flaky (usually a bug/time dependent issue)
     IN_DEVELOPMENT = auto()  # test may not pass or undergoes changes
     CHIP_TOOL_PYTHON_ONLY = auto()  # test uses YAML features only supported by the CHIP_TOOL_PYTHON runner.
-    EXTRA_SLOW = auto()      # test uses Sleep and is generally _very_ slow (>= 60s is a typical threshold)
+    EXTRA_SLOW = auto()  # test uses Sleep and is generally _very_ slow (>= 60s is a typical threshold)
     PURPOSEFUL_FAILURE = auto()  # test fails on purpose
 
     def to_s(self):
-        for (k, v) in TestTag.__members__.items():
+        for k, v in TestTag.__members__.items():
             if self == v:
                 return k
         raise KeyError(f"Unknown tag: {self!r}")
 
 
 class TestRunTime(StrEnum):
-    CHIP_TOOL_PYTHON = 'chip_tool_python'                          # use the python yaml test parser with chip-tool
-    DARWIN_FRAMEWORK_TOOL_PYTHON = 'darwin_framework_tool_python'  # use the python yaml test parser with chip-tool
-    MATTER_REPL_PYTHON = 'matter_repl_python'                      # use the python yaml test runner
+    CHIP_TOOL_PYTHON = "chip_tool_python"  # use the python yaml test parser with chip-tool
+    DARWIN_FRAMEWORK_TOOL_PYTHON = "darwin_framework_tool_python"  # use the python yaml test parser with chip-tool
+    MATTER_REPL_PYTHON = "matter_repl_python"  # use the python yaml test runner
 
 
 @dataclass
@@ -460,35 +463,62 @@ class TestDefinition:
         """Get a human readable list of tags applied to this test"""
         return ", ".join([t.to_s() for t in self.tags])
 
-    def Run(self, runner: Runner, apps_register: AppsRegister, subproc_info_repo: SubprocessInfoRepo,
-            pics_file: Path, timeout_seconds: int | None, dry_run: bool = False,
-            test_runtime: TestRunTime = TestRunTime.CHIP_TOOL_PYTHON,
-            ble_controller_app: int | None = None,
-            ble_controller_tool: int | None = None,
-            op_network: str = 'WiFi',
-            thread_ba_host: str | None = None,
-            thread_ba_port: int | None = None,
-            wifipaf_wifi: bool = False
-            ):
+    def Run(
+        self,
+        runner: Runner,
+        apps_register: AppsRegister,
+        subproc_info_repo: SubprocessInfoRepo,
+        pics_file: Path,
+        timeout_seconds: int | None,
+        dry_run: bool = False,
+        test_runtime: TestRunTime = TestRunTime.CHIP_TOOL_PYTHON,
+        ble_controller_app: int | None = None,
+        ble_controller_tool: int | None = None,
+        op_network: str = "WiFi",
+        thread_ba_host: str | None = None,
+        thread_ba_port: int | None = None,
+        wifipaf_wifi: bool = False,
+    ):
         """
         Executes the given test case using the provided runner for execution.
         Will iterate and execute every target.
         """
         for target in self.targets:
-            log.info('Executing %s::%s', self.name, target.name)
-            self._RunImpl(target, runner, apps_register, subproc_info_repo, pics_file, timeout_seconds, dry_run,
-                          test_runtime, ble_controller_app, ble_controller_tool, op_network, thread_ba_host, thread_ba_port,
-                          wifipaf_wifi)
+            log.info("Executing %s::%s", self.name, target.name)
+            self._RunImpl(
+                target,
+                runner,
+                apps_register,
+                subproc_info_repo,
+                pics_file,
+                timeout_seconds,
+                dry_run,
+                test_runtime,
+                ble_controller_app,
+                ble_controller_tool,
+                op_network,
+                thread_ba_host,
+                thread_ba_port,
+                wifipaf_wifi,
+            )
 
-    def _RunImpl(self, target: TestTarget, runner: Runner, apps_register: AppsRegister, subproc_info_repo: SubprocessInfoRepo,
-                 pics_file: Path, timeout_seconds: int | None, dry_run: bool = False,
-                 test_runtime: TestRunTime = TestRunTime.CHIP_TOOL_PYTHON,
-                 ble_controller_app: int | None = None,
-                 ble_controller_tool: int | None = None,
-                 op_network: str = 'WiFi',
-                 thread_ba_host: str | None = None,
-                 thread_ba_port: int | None = None,
-                 wifipaf_wifi: bool = False):
+    def _RunImpl(
+        self,
+        target: TestTarget,
+        runner: Runner,
+        apps_register: AppsRegister,
+        subproc_info_repo: SubprocessInfoRepo,
+        pics_file: Path,
+        timeout_seconds: int | None,
+        dry_run: bool = False,
+        test_runtime: TestRunTime = TestRunTime.CHIP_TOOL_PYTHON,
+        ble_controller_app: int | None = None,
+        ble_controller_tool: int | None = None,
+        op_network: str = "WiFi",
+        thread_ba_host: str | None = None,
+        thread_ba_port: int | None = None,
+        wifipaf_wifi: bool = False,
+    ):
         runner.capture_delegate = ExecutionCapture()
 
         tool_storage_dir = None
@@ -496,8 +526,9 @@ class TestDefinition:
         loggedCapturedLogs = False
         try:
             if target.command not in subproc_info_repo:
-                log.warning("Path to default target '%s' for test '%s' is not known, test will likely fail",
-                            target.command, self.name)
+                log.warning(
+                    "Path to default target '%s' for test '%s' is not known, test will likely fail", target.command, self.name
+                )
             if not dry_run:
                 for key, subproc in subproc_info_repo.items():
                     # Do not add tools to the register
@@ -506,17 +537,17 @@ class TestDefinition:
 
                     # For the app indicated by target, give it the 'default' key to add to the register
                     if key == target.command:
-                        key = 'default'
+                        key = "default"
                         for arg in target.arguments:
                             subproc = subproc.with_args(arg)
 
-                    if op_network == 'Thread':
+                    if op_network == "Thread":
                         # The node id must not conflict with ThreadBorderRouter.NODE_ID
                         subproc = subproc.with_args("--thread-node-id=2")
 
                     if ble_controller_app is not None:
                         subproc = subproc.with_args("--ble-controller", str(ble_controller_app))
-                        if op_network == 'WiFi':
+                        if op_network == "WiFi":
                             subproc = subproc.with_args("--wifi")
                     elif wifipaf_wifi:
                         subproc = subproc.with_args("--wifi", "--wifipaf", "freq_list=2437")
@@ -533,7 +564,7 @@ class TestDefinition:
                     # on the implementation. So this code creates a duplicate entry but with a different
                     # key.
                     app = App(runner, subproc)
-                    apps_register.add(f'{key}#2', app)
+                    apps_register.add(f"{key}#2", app)
                     app.factoryReset()
 
             if dry_run:
@@ -541,68 +572,85 @@ class TestDefinition:
                 tool_storage_args = []
             else:
                 tool_storage_dir = tempfile.mkdtemp()
-                tool_storage_args = ['--storage-directory', tool_storage_dir]
+                tool_storage_args = ["--storage-directory", tool_storage_dir]
 
             # Only start and pair the default app
             if dry_run:
-                setupCode = '${SETUP_PAYLOAD}'
+                setupCode = "${SETUP_PAYLOAD}"
             else:
-                app = apps_register.get('default')
+                app = apps_register.get("default")
                 app.start()
                 assert app.setupCode is not None, "Setup code should have been set in app.start()"
                 setupCode = app.setupCode
 
             if test_runtime == TestRunTime.MATTER_REPL_PYTHON:
-                assert 'matter-repl-yaml-tester' in subproc_info_repo, \
+                assert "matter-repl-yaml-tester" in subproc_info_repo, (
                     "Matter REPL YAML tester should have been set for selected test runtime"
-                python_cmd = subproc_info_repo['matter-repl-yaml-tester'].with_args(
-                    '--setup-code', setupCode, '--yaml-path', self.run_name, "--pics-file", str(pics_file))
+                )
+                python_cmd = subproc_info_repo["matter-repl-yaml-tester"].with_args(
+                    "--setup-code", setupCode, "--yaml-path", self.run_name, "--pics-file", str(pics_file)
+                )
 
                 if dry_run:
                     log.info(shlex.join(python_cmd.to_cmd()))
                 else:
-                    runner.RunSubprocess(python_cmd, name='MATTER_REPL_YAML_TESTER',
-                                         dependencies=[apps_register], timeout_seconds=timeout_seconds)
+                    runner.RunSubprocess(
+                        python_cmd, name="MATTER_REPL_YAML_TESTER", dependencies=[apps_register], timeout_seconds=timeout_seconds
+                    )
             else:  # CHIP_TOOL_PYTHON
-                assert 'chip-tool' in subproc_info_repo, \
-                    "Chip tool should have been set for selected test runtime"
-                assert 'chip-tool-with-python' in subproc_info_repo, \
+                assert "chip-tool" in subproc_info_repo, "Chip tool should have been set for selected test runtime"
+                assert "chip-tool-with-python" in subproc_info_repo, (
                     "Chip tool with Python should have been set for selected test runtime"
+                )
                 pairing_server_args = []
 
-                pairing_cmd = subproc_info_repo['chip-tool-with-python']
+                pairing_cmd = subproc_info_repo["chip-tool-with-python"]
                 if ble_controller_tool is not None:
-                    if op_network == 'WiFi':
+                    if op_network == "WiFi":
                         pairing_cmd = pairing_cmd.with_args(
-                            "pairing", "code-wifi", TEST_NODE_ID, "MatterAP", "MatterAPPassword", TEST_SETUP_QR_CODE)
+                            "pairing", "code-wifi", TEST_NODE_ID, "MatterAP", "MatterAPPassword", TEST_SETUP_QR_CODE
+                        )
                         pairing_server_args = ["--ble-controller", str(ble_controller_tool)]
-                    elif op_network == 'Thread':
+                    elif op_network == "Thread":
                         pairing_cmd = pairing_cmd.with_args(
-                            "pairing", "code-thread", TEST_NODE_ID, f"hex:{TEST_THREAD_DATASET}", TEST_SETUP_QR_CODE)
+                            "pairing", "code-thread", TEST_NODE_ID, f"hex:{TEST_THREAD_DATASET}", TEST_SETUP_QR_CODE
+                        )
                         pairing_server_args = ["--ble-controller", str(ble_controller_tool)]
                 elif wifipaf_wifi:
-                    pairing_cmd = pairing_cmd.with_args("pairing", "wifipaf-wifi", TEST_NODE_ID,
-                                                        "MatterAP", "MatterAPPassword", TEST_PASSCODE, TEST_DISCRIMINATOR)
-                elif op_network == 'Thread' and thread_ba_host is not None and thread_ba_port is not None:
                     pairing_cmd = pairing_cmd.with_args(
-                        "pairing", "thread-meshcop", TEST_NODE_ID, f"hex:{TEST_THREAD_DATASET}", setupCode,
-                        "--thread-ba-host", thread_ba_host, "--thread-ba-port", str(thread_ba_port))
+                        "pairing", "wifipaf-wifi", TEST_NODE_ID, "MatterAP", "MatterAPPassword", TEST_PASSCODE, TEST_DISCRIMINATOR
+                    )
+                elif op_network == "Thread" and thread_ba_host is not None and thread_ba_port is not None:
+                    pairing_cmd = pairing_cmd.with_args(
+                        "pairing",
+                        "thread-meshcop",
+                        TEST_NODE_ID,
+                        f"hex:{TEST_THREAD_DATASET}",
+                        setupCode,
+                        "--thread-ba-host",
+                        thread_ba_host,
+                        "--thread-ba-port",
+                        str(thread_ba_port),
+                    )
                 else:
-                    pairing_cmd = pairing_cmd.with_args('pairing', 'code', TEST_NODE_ID, setupCode)
+                    pairing_cmd = pairing_cmd.with_args("pairing", "code", TEST_NODE_ID, setupCode)
 
-                if target.command == 'lit-icd' and test_runtime == TestRunTime.CHIP_TOOL_PYTHON:
-                    pairing_cmd = pairing_cmd.with_args('--icd-registration', 'true')
+                if target.command == "lit-icd" and test_runtime == TestRunTime.CHIP_TOOL_PYTHON:
+                    pairing_cmd = pairing_cmd.with_args("--icd-registration", "true")
 
-                test_cmd = subproc_info_repo['chip-tool-with-python'].with_args('tests', self.run_name, '--PICS', str(pics_file))
+                test_cmd = subproc_info_repo["chip-tool-with-python"].with_args("tests", self.run_name, "--PICS", str(pics_file))
 
-                interactive_server_args = ['interactive server'] + tool_storage_args + pairing_server_args
+                interactive_server_args = ["interactive server"] + tool_storage_args + pairing_server_args
 
                 if test_runtime == TestRunTime.CHIP_TOOL_PYTHON:
-                    interactive_server_args = interactive_server_args + ['--interface-id', '-1']
+                    interactive_server_args = interactive_server_args + ["--interface-id", "-1"]
 
                 server_args = (
-                    '--server_path', str(subproc_info_repo['chip-tool'].path),
-                    '--server_arguments', ' '.join(interactive_server_args))
+                    "--server_path",
+                    str(subproc_info_repo["chip-tool"].path),
+                    "--server_arguments",
+                    " ".join(interactive_server_args),
+                )
 
                 pairing_cmd = pairing_cmd.with_args(*server_args)
                 test_cmd = test_cmd.with_args(*server_args)
@@ -611,12 +659,8 @@ class TestDefinition:
                     log.info("Pairing command: %s", shlex.join(pairing_cmd.to_cmd()))
                     log.info("Testcase command: %s", shlex.join(test_cmd.to_cmd()))
                 else:
-                    runner.RunSubprocess(pairing_cmd,
-                                         name='PAIR', dependencies=[apps_register])
-                    runner.RunSubprocess(
-                        test_cmd,
-                        name='TEST', dependencies=[apps_register],
-                        timeout_seconds=timeout_seconds)
+                    runner.RunSubprocess(pairing_cmd, name="PAIR", dependencies=[apps_register])
+                    runner.RunSubprocess(test_cmd, name="TEST", dependencies=[apps_register], timeout_seconds=timeout_seconds)
 
         except BaseException:
             log.error("!!!!!!!!!!!!!!!!!!!! ERROR !!!!!!!!!!!!!!!!!!!!!!")
@@ -634,4 +678,4 @@ class TestDefinition:
             if not ok and not loggedCapturedLogs:
                 log.error("!!!!!!!!!!!!!!!!!!!! ERROR !!!!!!!!!!!!!!!!!!!!!!")
                 runner.capture_delegate.LogContents()
-                raise RuntimeError('Subprocess terminated abnormally')
+                raise RuntimeError("Subprocess terminated abnormally")

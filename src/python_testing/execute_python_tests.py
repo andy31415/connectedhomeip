@@ -41,7 +41,7 @@ log = logging.getLogger(__name__)
 @dataclass
 class TestResult:
     name: str
-    status: str          # "passed" | "failed" | "dry_run"
+    status: str  # "passed" | "failed" | "dry_run"
     duration_seconds: float
     error_message: str | None = None
 
@@ -73,22 +73,29 @@ class RunSummary:
         skipped = sum(1 for r in self.results if r.status == "dry_run")
         total_time = sum(r.duration_seconds for r in self.results)
 
-        suite = Element("testsuite", {
-            "name": suite_name,
-            "tests": str(len(self.results)),
-            "failures": str(failures),
-            "skipped": str(skipped),
-            "errors": "0",
-            "time": f"{total_time:.3f}",
-            "timestamp": self.run_timestamp.strftime("%Y-%m-%dT%H:%M:%S"),
-        })
+        suite = Element(
+            "testsuite",
+            {
+                "name": suite_name,
+                "tests": str(len(self.results)),
+                "failures": str(failures),
+                "skipped": str(skipped),
+                "errors": "0",
+                "time": f"{total_time:.3f}",
+                "timestamp": self.run_timestamp.strftime("%Y-%m-%dT%H:%M:%S"),
+            },
+        )
 
         for r in self.results:
-            tc = SubElement(suite, "testcase", {
-                "name": r.name,
-                "classname": suite_name,
-                "time": f"{r.duration_seconds:.3f}",
-            })
+            tc = SubElement(
+                suite,
+                "testcase",
+                {
+                    "name": r.name,
+                    "classname": suite_name,
+                    "time": f"{r.duration_seconds:.3f}",
+                },
+            )
             if r.status == "failed":
                 failure = SubElement(tc, "failure", {"message": f"{r.name} failed"})
                 if r.error_message:
@@ -126,7 +133,7 @@ def main():
     pass
 
 
-@main.command('run', help='Execute the Python certification tests.')
+@main.command("run", help="Execute the Python certification tests.")
 @click.option(
     "--search-directory",
     type=str,
@@ -182,7 +189,18 @@ def main():
     default="execute_python_tests script",
     help="Name for the JUnit XML test suite (default: execute_python_tests script).",
 )
-def cmd_run(search_directory, env_file, keep_going, dry_run: bool, glob: list[str], regex: list[str], nightly: bool, summary_file: Path | None, junit_file: Path | None, junit_suite_name: str):
+def cmd_run(
+    search_directory,
+    env_file,
+    keep_going,
+    dry_run: bool,
+    glob: list[str],
+    regex: list[str],
+    nightly: bool,
+    summary_file: Path | None,
+    junit_file: Path | None,
+    junit_suite_name: str,
+):
     chip_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
     load_env_from_yaml(env_file)
@@ -197,19 +215,29 @@ def cmd_run(search_directory, env_file, keep_going, dry_run: bool, glob: list[st
     all_python_files = g.glob(os.path.join(search_directory, "*.py"))
 
     for pattern in glob:
-        if pattern.startswith('!'):
-            def match(p): return not fnmatch.fnmatch(p, f"*{pattern[1:]}*")
+        if pattern.startswith("!"):
+
+            def match(p):
+                return not fnmatch.fnmatch(p, f"*{pattern[1:]}*")
         else:
-            def match(p): return fnmatch.fnmatch(p, f"*{pattern}*")
+
+            def match(p):
+                return fnmatch.fnmatch(p, f"*{pattern}*")
+
         all_python_files = [path for path in all_python_files if match(path)]
 
     for pattern in regex:
-        if pattern.startswith('!'):
+        if pattern.startswith("!"):
             r = re.compile(pattern[1:])
-            def match(p): return not r.search(p)
+
+            def match(p):
+                return not r.search(p)
         else:
             r = re.compile(pattern)
-            def match(p): return r.search(p) is not None
+
+            def match(p):
+                return r.search(p) is not None
+
         all_python_files = [path for path in all_python_files if match(path)]
 
     # If nightly flag is set, only run tests listed under the nightly section.
@@ -219,9 +247,9 @@ def cmd_run(search_directory, env_file, keep_going, dry_run: bool, glob: list[st
         python_files = [file for file in all_python_files if os.path.basename(file) in nightly_tests]
     else:
         python_files = [
-            file for file in all_python_files
-            if os.path.basename(file) not in excluded_patterns
-            and os.path.basename(file) not in nightly_tests
+            file
+            for file in all_python_files
+            if os.path.basename(file) not in excluded_patterns and os.path.basename(file) not in nightly_tests
         ]
 
     if len(python_files) == 0:
@@ -264,19 +292,19 @@ def cmd_run(search_directory, env_file, keep_going, dry_run: bool, glob: list[st
         sys.exit(1)
 
 
-@main.command('summarize', help='Pretty-print a JSON summary file produced by the "run" command.')
+@main.command("summarize", help='Pretty-print a JSON summary file produced by the "run" command.')
 @click.option(
-    '--summary-file',
+    "--summary-file",
     required=True,
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    help='Path to the JSON summary file to display.',
+    help="Path to the JSON summary file to display.",
 )
 @click.option(
-    '--top-slowest',
+    "--top-slowest",
     default=20,
     show_default=True,
     type=click.IntRange(min=1),
-    help='Number of slowest tests to include in the timing table.',
+    help="Number of slowest tests to include in the timing table.",
 )
 def cmd_summarize(summary_file: Path, top_slowest: int) -> None:
     raw = json.loads(summary_file.read_text())
@@ -310,10 +338,7 @@ def cmd_summarize(summary_file: Path, top_slowest: int) -> None:
     else:
         print("\n  No failures recorded.")
 
-    slowest = sorted(
-        [r for r in results if r["status"] != "dry_run"],
-        key=lambda x: -x["duration_seconds"]
-    )[:top_slowest]
+    slowest = sorted([r for r in results if r["status"] != "dry_run"], key=lambda x: -x["duration_seconds"])[:top_slowest]
 
     if slowest:
         print(f"\n  SLOWEST {top_slowest} TEST RUNS:")

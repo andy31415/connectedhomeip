@@ -24,10 +24,10 @@ from memdf import Config, ConfigDescription, DFs, SymbolDF
 from memdf.collector.util import simplify_source
 
 CONFIG: ConfigDescription = {
-    'tool.bloaty': {
-        'help': 'File name of the bloaty executable',
-        'metavar': 'FILE',
-        'default': 'bloaty',
+    "tool.bloaty": {
+        "help": "File name of the bloaty executable",
+        "metavar": "FILE",
+        "default": "bloaty",
     },
 }
 
@@ -35,24 +35,22 @@ CONFIG: ConfigDescription = {
 def read_symbols(config: Config, filename: str) -> SymbolDF:
     """Read a binary's symbol map using bloaty."""
     column_map = {
-        'compileunits': 'cu',
-        'sections': 'section',
-        'symbols': 'symbol',
-        'vmsize': 'size',
+        "compileunits": "cu",
+        "sections": "section",
+        "symbols": "symbol",
+        "vmsize": "size",
     }
-    process = memdf.util.subprocess.run_tool_pipe(config, [
-        'bloaty', '--tsv', '--demangle=none', '-n', '0', '-d',
-        'compileunits,sections,symbols', filename
-    ])
+    process = memdf.util.subprocess.run_tool_pipe(
+        config, ["bloaty", "--tsv", "--demangle=none", "-n", "0", "-d", "compileunits,sections,symbols", filename]
+    )
     if not process or not process.stdout:
         return SymbolDF()
-    df = pd.read_table(io.TextIOWrapper(process.stdout, newline=os.linesep),
-                       usecols=list(column_map.keys()),
-                       dtype=SymbolDF.dtype,
-                       na_filter=False)
+    df = pd.read_table(
+        io.TextIOWrapper(process.stdout, newline=os.linesep), usecols=list(column_map.keys()), dtype=SymbolDF.dtype, na_filter=False
+    )
     df.rename(inplace=True, columns=column_map)
-    prefixes = config.get_re('collect.prefix')
-    df['cu'] = df['cu'].apply(lambda s: simplify_source(s, prefixes))
+    prefixes = config.get_re("collect.prefix")
+    df["cu"] = df["cu"].apply(lambda s: simplify_source(s, prefixes))
     return df
 
 

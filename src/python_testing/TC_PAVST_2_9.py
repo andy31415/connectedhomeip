@@ -83,20 +83,41 @@ class TC_PAVST_2_9(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
     def steps_TC_PAVST_2_9(self) -> list[TestStep]:
         return [
             TestStep("precondition", "Commissioning, already done", is_commissioning=True),
-            TestStep(1, "TH Reads CurrentConnections attribute from PushAV Stream Transport Cluster on DUT",
-                     "Verify the number of PushAV Connections in the list is 0. If not 0, issue DeAllocatePushAVTransport with `ConnectionID to remove any connections."),
-            TestStep(2, "TH Reads SupportedFormats attribute from PushAV Stream Transport Cluster on DUT",
-                     "Store the IngestMethods as aSupportedIngestMethods, store the ContainerFormats as aSupportedContainerFormats."),
-            TestStep(3, "TH Reads AllocatedVideoStreams attribute from CameraAVStreamManagement Cluster on DUT",
-                     "Store value as aAllocatedVideoStreams."),
-            TestStep(4, "TH Reads AllocatedAudioStreams attribute from CameraAVStreamManagement Cluster on DUT",
-                     "Store value as aAllocatedAudioStreams."),
-            TestStep(5, "TH sends the AllocatePushTransport command with valid parameters and ExpiryTime set to 5 seconds.",
-                     "DUT responds with AllocatePushTransportResponse containing the allocated ConnectionID, TransportOptions, and TransportStatus in the TransportConfigurationStruct."),
-            TestStep(6, "TH Reads CurrentConnections attribute from PushAV Stream Transport Cluster on DUT over a large-payload session",
-                     "Verify the number of PushAV Connections is 1. Verify that the TransportStatus field is Inactive."),
-            TestStep(7, "After > 5 seconds, TH Reads CurrentConnections attribute from PushAV Stream Transport Cluster on DUT",
-                     "Verify the number of PushAV Connections is 0."),
+            TestStep(
+                1,
+                "TH Reads CurrentConnections attribute from PushAV Stream Transport Cluster on DUT",
+                "Verify the number of PushAV Connections in the list is 0. If not 0, issue DeAllocatePushAVTransport with `ConnectionID to remove any connections.",
+            ),
+            TestStep(
+                2,
+                "TH Reads SupportedFormats attribute from PushAV Stream Transport Cluster on DUT",
+                "Store the IngestMethods as aSupportedIngestMethods, store the ContainerFormats as aSupportedContainerFormats.",
+            ),
+            TestStep(
+                3,
+                "TH Reads AllocatedVideoStreams attribute from CameraAVStreamManagement Cluster on DUT",
+                "Store value as aAllocatedVideoStreams.",
+            ),
+            TestStep(
+                4,
+                "TH Reads AllocatedAudioStreams attribute from CameraAVStreamManagement Cluster on DUT",
+                "Store value as aAllocatedAudioStreams.",
+            ),
+            TestStep(
+                5,
+                "TH sends the AllocatePushTransport command with valid parameters and ExpiryTime set to 5 seconds.",
+                "DUT responds with AllocatePushTransportResponse containing the allocated ConnectionID, TransportOptions, and TransportStatus in the TransportConfigurationStruct.",
+            ),
+            TestStep(
+                6,
+                "TH Reads CurrentConnections attribute from PushAV Stream Transport Cluster on DUT over a large-payload session",
+                "Verify the number of PushAV Connections is 1. Verify that the TransportStatus field is Inactive.",
+            ),
+            TestStep(
+                7,
+                "After > 5 seconds, TH Reads CurrentConnections attribute from PushAV Stream Transport Cluster on DUT",
+                "Verify the number of PushAV Connections is 0.",
+            ),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.PushAvStreamTransport))
@@ -121,8 +142,9 @@ class TC_PAVST_2_9(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         for config in transport_configs:
             if config.ConnectionID != 0:
                 try:
-                    await self.send_single_cmd(cmd=pvcluster.Commands.DeallocatePushTransport(ConnectionID=config.ConnectionID),
-                                               endpoint=endpoint)
+                    await self.send_single_cmd(
+                        cmd=pvcluster.Commands.DeallocatePushTransport(ConnectionID=config.ConnectionID), endpoint=endpoint
+                    )
                 except InteractionModelError as e:
                     asserts.assert_true(e.status == Status.Success, "Unexpected error returned")
 
@@ -153,18 +175,20 @@ class TC_PAVST_2_9(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         )
 
         self.step(5)
-        status = await self.allocate_one_pushav_transport(endpoint, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/", expiryTime=5)
-        asserts.assert_equal(
-            status, Status.Success, "Push AV Transport should be allocated successfully"
+        status = await self.allocate_one_pushav_transport(
+            endpoint, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/", expiryTime=5
         )
+        asserts.assert_equal(status, Status.Success, "Push AV Transport should be allocated successfully")
 
         self.step(6)
         transport_configs = await self.read_single_attribute_check_success(
             endpoint=endpoint, cluster=pvcluster, attribute=pvattr.CurrentConnections
         )
         asserts.assert_equal(len(transport_configs), 1, "TransportConfigurations must be 1")
-        asserts.assert_true(transport_configs[0].transportStatus ==
-                            pvcluster.Enums.TransportStatusEnum.kInactive, "Transport status should be Inactive")
+        asserts.assert_true(
+            transport_configs[0].transportStatus == pvcluster.Enums.TransportStatusEnum.kInactive,
+            "Transport status should be Inactive",
+        )
 
         log.info("Wait for 6 secs to PushAVTransport expiry")
         await asyncio.sleep(6)

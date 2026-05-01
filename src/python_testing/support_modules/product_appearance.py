@@ -26,8 +26,11 @@ class ProductAppearanceBase(MatterBaseTest):
     def steps(self) -> list[TestStep]:
         return [
             TestStep(0, "DUT commissioned if not already done", is_commissioning=True),
-            TestStep(1, "TH reads ProductAppearance attribute from the DUT.",
-                     "Verify the finish is a valid ProductFinishEnum and the PrimaryColor is a valid ColorEnum")
+            TestStep(
+                1,
+                "TH reads ProductAppearance attribute from the DUT.",
+                "Verify the finish is a valid ProductFinishEnum and the PrimaryColor is a valid ColorEnum",
+            ),
         ]
 
     def pics(self, cluster_pics) -> list[str]:
@@ -39,7 +42,8 @@ class ProductAppearanceBase(MatterBaseTest):
         self.step(1)
         ret = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.ProductAppearance)
         asserts.assert_in(ret.finish, cluster.Enums.ProductFinishEnum, "Product finish enum value is unknown")
-        asserts.assert_not_equal(ret.finish, cluster.Enums.ProductFinishEnum.kUnknownEnumValue,
-                                 "Product finish enum value is unknown")
+        asserts.assert_not_equal(
+            ret.finish, cluster.Enums.ProductFinishEnum.kUnknownEnumValue, "Product finish enum value is unknown"
+        )
         asserts.assert_in(ret.primaryColor, cluster.Enums.ColorEnum, "Primary color enum value is unknown")
         asserts.assert_not_equal(ret.primaryColor, cluster.Enums.ColorEnum.kUnknownEnumValue, "Primary color enum value is unknown")

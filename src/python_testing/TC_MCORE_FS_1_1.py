@@ -78,7 +78,6 @@ _DEVICE_TYPE_AGGREGATOR = 0x000E
 
 
 class TC_MCORE_FS_1_1(MatterBaseTest):
-
     @async_test_body
     async def setup_class(self):
         super().setup_class()
@@ -106,10 +105,9 @@ class TC_MCORE_FS_1_1(MatterBaseTest):
             storage_dir=self.storage.name,
             port=self.th_server_port,
             discriminator=self.th_server_discriminator,
-            passcode=self.th_server_passcode)
-        self.th_server.start(
-            expected_output="Server initialization complete",
-            timeout=30)
+            passcode=self.th_server_passcode,
+        )
+        self.th_server.start(expected_output="Server initialization complete", timeout=30)
 
         log.info("Commissioning from separate fabric")
         # Create a second controller on a new fabric to communicate to the server
@@ -122,7 +120,8 @@ class TC_MCORE_FS_1_1(MatterBaseTest):
             nodeId=self.server_nodeid,
             setupPinCode=self.th_server_passcode,
             filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
-            filter=self.th_server_discriminator)
+            filter=self.th_server_discriminator,
+        )
         log.info("Commissioning TH_SERVER complete")
 
     def teardown_class(self):
@@ -146,23 +145,24 @@ class TC_MCORE_FS_1_1(MatterBaseTest):
     # runs under 1 mins, so 3 minutes is more than enough.
     @property
     def default_timeout(self) -> int:
-        return 3*60
+        return 3 * 60
 
     @async_test_body
     async def test_TC_MCORE_FS_1_1(self):
-
         # Commissioning
         self.step("precondition")
 
         dut_commissioning_control_endpoint = 0
 
         # Get the list of endpoints on the DUT_FSA_BRIDGE before adding the TH_SERVER_NO_UID.
-        dut_fsa_bridge_endpoints = set(await self.read_single_attribute_check_success(
-            cluster=Clusters.Descriptor,
-            attribute=Clusters.Descriptor.Attributes.PartsList,
-            node_id=self.dut_node_id,
-            endpoint=0,
-        ))
+        dut_fsa_bridge_endpoints = set(
+            await self.read_single_attribute_check_success(
+                cluster=Clusters.Descriptor,
+                attribute=Clusters.Descriptor.Attributes.PartsList,
+                node_id=self.dut_node_id,
+                endpoint=0,
+            )
+        )
 
         # Iterate through the endpoints on the DUT_FSA_BRIDGE
         for endpoint in dut_fsa_bridge_endpoints:
@@ -171,7 +171,7 @@ class TC_MCORE_FS_1_1(MatterBaseTest):
                 cluster=Clusters.Descriptor,
                 attribute=Clusters.Descriptor.Attributes.DeviceTypeList,
                 node_id=self.dut_node_id,
-                endpoint=endpoint
+                endpoint=endpoint,
             )
 
             # Check if any of the device types is an AGGREGATOR
@@ -184,9 +184,28 @@ class TC_MCORE_FS_1_1(MatterBaseTest):
 
         self.step(1)
         self.step(2)
-        th_fsa_server_fabrics = await self.read_single_attribute_check_success(cluster=Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.Fabrics, dev_ctrl=self.TH_server_controller, node_id=self.server_nodeid, endpoint=0, fabric_filtered=False)
-        th_fsa_server_vid = await self.read_single_attribute_check_success(cluster=Clusters.BasicInformation, attribute=Clusters.BasicInformation.Attributes.VendorID, dev_ctrl=self.TH_server_controller, node_id=self.server_nodeid, endpoint=0)
-        th_fsa_server_pid = await self.read_single_attribute_check_success(cluster=Clusters.BasicInformation, attribute=Clusters.BasicInformation.Attributes.ProductID, dev_ctrl=self.TH_server_controller, node_id=self.server_nodeid, endpoint=0)
+        th_fsa_server_fabrics = await self.read_single_attribute_check_success(
+            cluster=Clusters.OperationalCredentials,
+            attribute=Clusters.OperationalCredentials.Attributes.Fabrics,
+            dev_ctrl=self.TH_server_controller,
+            node_id=self.server_nodeid,
+            endpoint=0,
+            fabric_filtered=False,
+        )
+        th_fsa_server_vid = await self.read_single_attribute_check_success(
+            cluster=Clusters.BasicInformation,
+            attribute=Clusters.BasicInformation.Attributes.VendorID,
+            dev_ctrl=self.TH_server_controller,
+            node_id=self.server_nodeid,
+            endpoint=0,
+        )
+        th_fsa_server_pid = await self.read_single_attribute_check_success(
+            cluster=Clusters.BasicInformation,
+            attribute=Clusters.BasicInformation.Attributes.ProductID,
+            dev_ctrl=self.TH_server_controller,
+            node_id=self.server_nodeid,
+            endpoint=0,
+        )
 
         event_path = [(dut_commissioning_control_endpoint, Clusters.CommissionerControl.Events.CommissioningRequestResult, 1)]
         events = await self.default_controller.ReadEvent(nodeId=self.dut_node_id, events=event_path)
@@ -194,7 +213,8 @@ class TC_MCORE_FS_1_1(MatterBaseTest):
         self.step("3a")
         good_request_id = 0x1234567812345678
         cmd = Clusters.CommissionerControl.Commands.RequestCommissioningApproval(
-            requestID=good_request_id, vendorID=th_fsa_server_vid, productID=th_fsa_server_pid, label="Test Ecosystem")
+            requestID=good_request_id, vendorID=th_fsa_server_vid, productID=th_fsa_server_pid, label="Test Ecosystem"
+        )
         await self.send_single_cmd(cmd, endpoint=dut_commissioning_control_endpoint)
 
         if not self.is_pics_sdk_ci_only:
@@ -204,26 +224,35 @@ class TC_MCORE_FS_1_1(MatterBaseTest):
             new_event = await self.default_controller.ReadEvent(nodeId=self.dut_node_id, events=event_path)
         else:
             event_nums = [e.Header.EventNumber for e in events]
-            new_event = await self.default_controller.ReadEvent(nodeId=self.dut_node_id, events=event_path, eventNumberFilter=max(event_nums)+1)
+            new_event = await self.default_controller.ReadEvent(
+                nodeId=self.dut_node_id, events=event_path, eventNumberFilter=max(event_nums) + 1
+            )
 
         asserts.assert_equal(len(new_event), 1, "Unexpected event list len")
         asserts.assert_equal(new_event[0].Data.statusCode, 0, "Unexpected status code")
-        asserts.assert_equal(new_event[0].Data.clientNodeID,
-                             self.matter_test_config.controller_node_id, "Unexpected client node id")
+        asserts.assert_equal(
+            new_event[0].Data.clientNodeID, self.matter_test_config.controller_node_id, "Unexpected client node id"
+        )
         asserts.assert_equal(new_event[0].Data.requestID, good_request_id, "Unexpected request ID")
 
         self.step("3b")
         cmd = Clusters.CommissionerControl.Commands.CommissionNode(requestID=good_request_id, responseTimeoutSeconds=30)
         resp = await self.send_single_cmd(cmd, endpoint=dut_commissioning_control_endpoint)
-        asserts.assert_equal(type(resp), Clusters.CommissionerControl.Commands.ReverseOpenCommissioningWindow,
-                             "Incorrect response type")
+        asserts.assert_equal(
+            type(resp), Clusters.CommissionerControl.Commands.ReverseOpenCommissioningWindow, "Incorrect response type"
+        )
 
         # min commissioning timeout is 3*60 seconds, so use that even though the command said 30.
-        cmd = Clusters.AdministratorCommissioning.Commands.OpenCommissioningWindow(commissioningTimeout=3*60,
-                                                                                   PAKEPasscodeVerifier=resp.PAKEPasscodeVerifier,
-                                                                                   discriminator=resp.discriminator,
-                                                                                   iterations=resp.iterations, salt=resp.salt)
-        await self.send_single_cmd(cmd, dev_ctrl=self.TH_server_controller, node_id=self.server_nodeid, endpoint=0, timedRequestTimeoutMs=5000)
+        cmd = Clusters.AdministratorCommissioning.Commands.OpenCommissioningWindow(
+            commissioningTimeout=3 * 60,
+            PAKEPasscodeVerifier=resp.PAKEPasscodeVerifier,
+            discriminator=resp.discriminator,
+            iterations=resp.iterations,
+            salt=resp.salt,
+        )
+        await self.send_single_cmd(
+            cmd, dev_ctrl=self.TH_server_controller, node_id=self.server_nodeid, endpoint=0, timedRequestTimeoutMs=5000
+        )
 
         self.step("3c")
         max_wait_time_sec = 30
@@ -235,15 +264,23 @@ class TC_MCORE_FS_1_1(MatterBaseTest):
         th_fsa_server_fabrics_new = None
         while time_remaining > 0:
             await asyncio.sleep(2)
-            th_fsa_server_fabrics_new = await self.read_single_attribute_check_success(cluster=Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.Fabrics, dev_ctrl=self.TH_server_controller, node_id=self.server_nodeid, endpoint=0, fabric_filtered=False)
+            th_fsa_server_fabrics_new = await self.read_single_attribute_check_success(
+                cluster=Clusters.OperationalCredentials,
+                attribute=Clusters.OperationalCredentials.Attributes.Fabrics,
+                dev_ctrl=self.TH_server_controller,
+                node_id=self.server_nodeid,
+                endpoint=0,
+                fabric_filtered=False,
+            )
             if previous_number_th_server_fabrics != len(th_fsa_server_fabrics_new):
                 break
             elapsed = time.time() - start_time
             time_remaining = max_wait_time_sec - elapsed
 
         asserts.assert_not_equal(th_fsa_server_fabrics_new, None, "Failed to read Fabrics attribute")
-        asserts.assert_equal(previous_number_th_server_fabrics + 1, len(th_fsa_server_fabrics_new),
-                             "Unexpected number of fabrics on TH_SERVER")
+        asserts.assert_equal(
+            previous_number_th_server_fabrics + 1, len(th_fsa_server_fabrics_new), "Unexpected number of fabrics on TH_SERVER"
+        )
 
 
 if __name__ == "__main__":

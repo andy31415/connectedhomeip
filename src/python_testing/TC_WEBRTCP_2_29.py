@@ -50,7 +50,6 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_WebRTCP_2_29(MatterBaseTest, WEBRTCPTestBase):
-
     def desc_TC_WebRTCP_2_29(self) -> str:
         """Returns a description of this test"""
         return "[TC-WEBRTCP-2.29] Validate setting an SDP Offer to start a new session with DUT_Server - Release 1.5.1 or later"
@@ -61,23 +60,33 @@ class TC_WebRTCP_2_29(MatterBaseTest, WEBRTCPTestBase):
             TestStep(2, "Send ProvideOffer with no VideoStreams or AudioStreams => expect INVALID_COMMAND"),
             TestStep(3, "Allocate Audio and Video streams via CameraAVStreamManagement"),
             TestStep(4, "Send ProvideOffer with VideoStreams containing invalid VideoStreamID => expect DYNAMIC_CONSTRAINT_ERROR"),
-            TestStep("4a", "Send ProvideOffer with VideoStreams containing duplicate allocated VideoStreamIDs => expect ALREADY_EXISTS"),
+            TestStep(
+                "4a", "Send ProvideOffer with VideoStreams containing duplicate allocated VideoStreamIDs => expect ALREADY_EXISTS"
+            ),
             TestStep(5, "Send ProvideOffer with AudioStreams containing invalid AudioStreamID => expect DYNAMIC_CONSTRAINT_ERROR"),
-            TestStep("5a", "Send ProvideOffer with AudioStreams containing duplicate allocated AudioStreamIDs => expect ALREADY_EXISTS"),
-            TestStep(6, "Write SoftLivestreamPrivacyModeEnabled=true, send ProvideOffer with StreamUsage=LiveView => expect INVALID_IN_STATE"),
-            TestStep(7, "Write SoftLivestreamPrivacyModeEnabled=false, send valid ProvideOffer with StreamUsage=LiveView => expect ProvideOfferResponse with WebRTCSessionID"),
+            TestStep(
+                "5a", "Send ProvideOffer with AudioStreams containing duplicate allocated AudioStreamIDs => expect ALREADY_EXISTS"
+            ),
+            TestStep(
+                6,
+                "Write SoftLivestreamPrivacyModeEnabled=true, send ProvideOffer with StreamUsage=LiveView => expect INVALID_IN_STATE",
+            ),
+            TestStep(
+                7,
+                "Write SoftLivestreamPrivacyModeEnabled=false, send valid ProvideOffer with StreamUsage=LiveView => expect ProvideOfferResponse with WebRTCSessionID",
+            ),
             TestStep(8, "Read CurrentSessions attribute => expect 1"),
         ]
 
     def pics_TC_WebRTCP_2_29(self) -> list[str]:
         return [
-            "WEBRTCP.S",           # WebRTC Transport Provider Server
-            "WEBRTCP.S.A0000",     # CurrentSessions attribute
-            "WEBRTCP.S.C02.Rsp",   # ProvideOffer command
-            "WEBRTCP.S.C03.Tx",    # ProvideOfferResponse command
-            "AVSM.S",              # CameraAVStreamManagement Server
-            "AVSM.S.F00",          # Audio Data Output feature
-            "AVSM.S.F01",          # Video Data Output feature
+            "WEBRTCP.S",  # WebRTC Transport Provider Server
+            "WEBRTCP.S.A0000",  # CurrentSessions attribute
+            "WEBRTCP.S.C02.Rsp",  # ProvideOffer command
+            "WEBRTCP.S.C03.Tx",  # ProvideOfferResponse command
+            "AVSM.S",  # CameraAVStreamManagement Server
+            "AVSM.S.F00",  # Audio Data Output feature
+            "AVSM.S.F01",  # Video Data Output feature
         ]
 
     @property
@@ -114,24 +123,28 @@ class TC_WebRTCP_2_29(MatterBaseTest, WEBRTCPTestBase):
         feature_map = await self.read_single_attribute_check_success(
             endpoint=endpoint,
             cluster=Clusters.CameraAvStreamManagement,
-            attribute=Clusters.CameraAvStreamManagement.Attributes.FeatureMap
+            attribute=Clusters.CameraAvStreamManagement.Attributes.FeatureMap,
         )
         privacy_supported = feature_map & Clusters.CameraAvStreamManagement.Bitmaps.Feature.kPrivacy
 
         self.step(1)
         current_sessions = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=cluster,
-            attribute=cluster.Attributes.CurrentSessions
+            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentSessions
         )
         asserts.assert_equal(len(current_sessions), 0, "CurrentSessions must be empty!")
 
         self.step(2)
         # Send ProvideOffer with no VideoStreams and no AudioStreams
         cmd = cluster.Commands.ProvideOffer(
-            webRTCSessionID=NullValue, sdp=test_sdp, streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView, originatingEndpointID=endpoint)
+            webRTCSessionID=NullValue,
+            sdp=test_sdp,
+            streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView,
+            originatingEndpointID=endpoint,
+        )
         try:
-            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+            await self.send_single_cmd(
+                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+            )
             asserts.fail("Unexpected success on ProvideOffer with no VideoStreams or AudioStreams")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.InvalidCommand, "Expected INVALID_COMMAND")
@@ -150,10 +163,12 @@ class TC_WebRTCP_2_29(MatterBaseTest, WEBRTCPTestBase):
             sdp=test_sdp,
             streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView,
             originatingEndpointID=endpoint,
-            videoStreams=[9999]
+            videoStreams=[9999],
         )
         try:
-            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+            await self.send_single_cmd(
+                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+            )
             asserts.fail("Unexpected success on ProvideOffer with invalid VideoStreamID in VideoStreams")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.DynamicConstraintError, "Expected DYNAMIC_CONSTRAINT_ERROR")
@@ -165,10 +180,12 @@ class TC_WebRTCP_2_29(MatterBaseTest, WEBRTCPTestBase):
             sdp=test_sdp,
             streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView,
             originatingEndpointID=endpoint,
-            videoStreams=[videoStreamID, videoStreamID]
+            videoStreams=[videoStreamID, videoStreamID],
         )
         try:
-            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+            await self.send_single_cmd(
+                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+            )
             asserts.fail("Unexpected success on ProvideOffer with duplicate VideoStreamIDs in VideoStreams")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.AlreadyExists, "Expected ALREADY_EXISTS")
@@ -180,10 +197,12 @@ class TC_WebRTCP_2_29(MatterBaseTest, WEBRTCPTestBase):
             sdp=test_sdp,
             streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView,
             originatingEndpointID=endpoint,
-            audioStreams=[9999]
+            audioStreams=[9999],
         )
         try:
-            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+            await self.send_single_cmd(
+                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+            )
             asserts.fail("Unexpected success on ProvideOffer with invalid AudioStreamID in AudioStreams")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.DynamicConstraintError, "Expected DYNAMIC_CONSTRAINT_ERROR")
@@ -195,10 +214,12 @@ class TC_WebRTCP_2_29(MatterBaseTest, WEBRTCPTestBase):
             sdp=test_sdp,
             streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView,
             originatingEndpointID=endpoint,
-            audioStreams=[audioStreamID, audioStreamID]
+            audioStreams=[audioStreamID, audioStreamID],
         )
         try:
-            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+            await self.send_single_cmd(
+                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+            )
             asserts.fail("Unexpected success on ProvideOffer with duplicate AudioStreamIDs in AudioStreams")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.AlreadyExists, "Expected ALREADY_EXISTS")
@@ -216,10 +237,12 @@ class TC_WebRTCP_2_29(MatterBaseTest, WEBRTCPTestBase):
                 streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView,
                 originatingEndpointID=endpoint,
                 videoStreams=[videoStreamID],
-                audioStreams=[audioStreamID]
+                audioStreams=[audioStreamID],
             )
             try:
-                await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+                await self.send_single_cmd(
+                    cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+                )
                 asserts.fail("Unexpected success on ProvideOffer with privacy mode enabled")
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.InvalidInState, "Expected INVALID_IN_STATE")
@@ -241,18 +264,17 @@ class TC_WebRTCP_2_29(MatterBaseTest, WEBRTCPTestBase):
             streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView,
             originatingEndpointID=endpoint,
             videoStreams=[videoStreamID],
-            audioStreams=[audioStreamID]
+            audioStreams=[audioStreamID],
         )
-        resp = await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
-        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.ProvideOfferResponse,
-                             "Incorrect response type")
+        resp = await self.send_single_cmd(
+            cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+        )
+        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.ProvideOfferResponse, "Incorrect response type")
         matter_asserts.assert_int_in_range(resp.webRTCSessionID, 0, 65534, "ProvideOfferResponse webRTCSessionID")
 
         self.step(8)
         current_sessions = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=cluster,
-            attribute=cluster.Attributes.CurrentSessions
+            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentSessions
         )
         asserts.assert_equal(len(current_sessions), 1, "Expected CurrentSessions to be 1")
 

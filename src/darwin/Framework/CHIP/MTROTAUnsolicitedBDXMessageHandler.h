@@ -34,10 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
  * In all other cases, it fails out so that there is no exchange delegate created,
  * which means the message is potentially acked, but does not get a response.
  */
-class MTROTAUnsolicitedBDXMessageHandler : public chip::Messaging::UnsolicitedMessageHandler
-{
+class MTROTAUnsolicitedBDXMessageHandler : public chip::Messaging::UnsolicitedMessageHandler {
 public:
-    MTROTAUnsolicitedBDXMessageHandler() : mExchangeMgr(nullptr) { sInstance = this; }
+    MTROTAUnsolicitedBDXMessageHandler()
+        : mExchangeMgr(nullptr)
+    {
+        sInstance = this;
+    }
 
     ~MTROTAUnsolicitedBDXMessageHandler() {}
 
@@ -57,7 +60,7 @@ public:
 
 private:
     CHIP_ERROR OnUnsolicitedMessageReceived(const chip::PayloadHeader & payloadHeader, const chip::SessionHandle & session,
-                                            chip::Messaging::ExchangeDelegate * _Nonnull & newDelegate) override;
+        chip::Messaging::ExchangeDelegate * _Nonnull & newDelegate) override;
 
     void OnExchangeCreationFailed(chip::Messaging::ExchangeDelegate * _Nonnull delegate) override;
 

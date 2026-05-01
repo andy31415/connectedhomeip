@@ -70,7 +70,7 @@ class TC_OCC_2_2(MatterBaseTest):
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
             TestStep(2, "Read OccupancySensorType attribute selection based on FeatureMap Bitmap."),
-            TestStep(3, "Read OccupancySensorTypeBitmap attribute selection based on FeatureMap Bitmap.")
+            TestStep(3, "Read OccupancySensorTypeBitmap attribute selection based on FeatureMap Bitmap."),
         ]
 
     def pics_TC_OCC_2_2(self) -> list[str]:
@@ -91,9 +91,12 @@ class TC_OCC_2_2(MatterBaseTest):
         attribute_list = await self.read_occ_attribute_expect_success(endpoint=endpoint, attribute=attributes.AttributeList)
 
         # OccupancySensorType will be determined by FeatureMap matching table at 2.7.6.2.
-        asserts.assert_in(attributes.OccupancySensorType.attribute_id, attribute_list,
-                          "OccupancySensorType attribute is a mandatory attribute.")
-        occupancy_sensor_type_dut = await self.read_occ_attribute_expect_success(endpoint=endpoint, attribute=attributes.OccupancySensorType)
+        asserts.assert_in(
+            attributes.OccupancySensorType.attribute_id, attribute_list, "OccupancySensorType attribute is a mandatory attribute."
+        )
+        occupancy_sensor_type_dut = await self.read_occ_attribute_expect_success(
+            endpoint=endpoint, attribute=attributes.OccupancySensorType
+        )
 
         # For validation purposes, 2.7.6.2 table describes what feature flags map to what type of sensors
         TypeEnum = Clusters.OccupancySensing.Enums.OccupancySensorTypeEnum
@@ -118,37 +121,48 @@ class TC_OCC_2_2(MatterBaseTest):
             (
                 (feature_map & FeatureBit.kPassiveInfrared) != 0,
                 (feature_map & FeatureBit.kUltrasonic) != 0,
-                (feature_map & FeatureBit.kPhysicalContact) != 0
-            ))
-
-        asserts.assert_equal(
-            occupancy_sensor_type_dut,
-            expected,
-            f"Sensor Type should be f{expected}"
+                (feature_map & FeatureBit.kPhysicalContact) != 0,
+            )
         )
+
+        asserts.assert_equal(occupancy_sensor_type_dut, expected, f"Sensor Type should be f{expected}")
 
         self.step(3)
         # OccupancySensorTypeBitmap will be determined by FeatureMap matching table at 2.7.6.2.
-        asserts.assert_in(attributes.OccupancySensorTypeBitmap.attribute_id, attribute_list,
-                          "OccupancySensorTypeBitmap attribute is a mandatory attribute.")
+        asserts.assert_in(
+            attributes.OccupancySensorTypeBitmap.attribute_id,
+            attribute_list,
+            "OccupancySensorTypeBitmap attribute is a mandatory attribute.",
+        )
 
-        occupancy_sensor_type_bitmap_dut = await self.read_occ_attribute_expect_success(endpoint=endpoint, attribute=attributes.OccupancySensorTypeBitmap)
+        occupancy_sensor_type_bitmap_dut = await self.read_occ_attribute_expect_success(
+            endpoint=endpoint, attribute=attributes.OccupancySensorTypeBitmap
+        )
 
         # Feature map must match the sensor type bitmap
         must_match_bits = [
-            (Clusters.OccupancySensing.Bitmaps.OccupancySensorTypeBitmap.kPir,
-             Clusters.OccupancySensing.Bitmaps.Feature.kPassiveInfrared, "PIR"),
-            (Clusters.OccupancySensing.Bitmaps.OccupancySensorTypeBitmap.kUltrasonic,
-                Clusters.OccupancySensing.Bitmaps.Feature.kUltrasonic, "Ultrasonic"),
-            (Clusters.OccupancySensing.Bitmaps.OccupancySensorTypeBitmap.kPhysicalContact,
-                Clusters.OccupancySensing.Bitmaps.Feature.kPhysicalContact, "Physical contact"),
+            (
+                Clusters.OccupancySensing.Bitmaps.OccupancySensorTypeBitmap.kPir,
+                Clusters.OccupancySensing.Bitmaps.Feature.kPassiveInfrared,
+                "PIR",
+            ),
+            (
+                Clusters.OccupancySensing.Bitmaps.OccupancySensorTypeBitmap.kUltrasonic,
+                Clusters.OccupancySensing.Bitmaps.Feature.kUltrasonic,
+                "Ultrasonic",
+            ),
+            (
+                Clusters.OccupancySensing.Bitmaps.OccupancySensorTypeBitmap.kPhysicalContact,
+                Clusters.OccupancySensing.Bitmaps.Feature.kPhysicalContact,
+                "Physical contact",
+            ),
         ]
 
         for sensor_bit, feature_bit, name in must_match_bits:
             asserts.assert_equal(
                 (occupancy_sensor_type_bitmap_dut & sensor_bit) != 0,
                 (feature_map & feature_bit) != 0,
-                f"Feature bit and sensor bitmap must be equal for {name} (BITMAP: 0x{occupancy_sensor_type_bitmap_dut:02X}, FEATUREMAP: 0x{feature_map:02X})"
+                f"Feature bit and sensor bitmap must be equal for {name} (BITMAP: 0x{occupancy_sensor_type_bitmap_dut:02X}, FEATUREMAP: 0x{feature_map:02X})",
             )
 
 

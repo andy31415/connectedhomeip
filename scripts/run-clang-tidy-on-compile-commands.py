@@ -124,12 +124,7 @@ class ClangTidyEntry:
     def Check(self):
         log.debug("Running tidy on '%s' from '%s'", self.file, self.directory)
         try:
-            cmd = (
-                ["clang-tidy", self.file]
-                + self.tidy_arguments
-                + ["--"]
-                + self.clang_arguments
-            )
+            cmd = ["clang-tidy", self.file] + self.tidy_arguments + ["--"] + self.clang_arguments
             log.debug("Executing: %s", shlex.join(cmd))
 
             proc = subprocess.Popen(
@@ -175,13 +170,9 @@ class ClangTidyEntry:
 
             if proc.returncode != 0:
                 if proc.returncode < 0:
-                    log.error(
-                        "Failed '%s' with signal %d", self.file, -proc.returncode
-                    )
+                    log.error("Failed '%s' with signal %d", self.file, -proc.returncode)
                 else:
-                    log.warning(
-                        "Tidy '%s' ended with code %d", self.file, proc.returncode
-                    )
+                    log.warning("Tidy '%s' ended with code %d", self.file, proc.returncode)
                 return TidyResult(self.full_path, False)
         except Exception:
             traceback.print_exc()
@@ -210,20 +201,16 @@ class TidyState:
 
 def find_darwin_gcc_sysroot():
     try:
-        for line in subprocess.check_output(
-            "xcodebuild -sdk macosx -version".split(), text=True
-        ).splitlines():
+        for line in subprocess.check_output("xcodebuild -sdk macosx -version".split(), text=True).splitlines():
             if not line.startswith("Path: "):
                 continue
-            path = line[line.find(": ") + 2:]
+            path = line[line.find(": ") + 2 :]
             log.info("Found '%s'", path)
             return path.strip()
     except Exception:
         # lets try with xcrun
         try:
-            path = subprocess.check_output(
-                "xcrun --sdk macosx --show-sdk-path".split(), text=True
-            )
+            path = subprocess.check_output("xcrun --sdk macosx --show-sdk-path".split(), text=True)
             return path.strip()
         except Exception:
             pass
@@ -294,34 +281,22 @@ class ClangTidyRunner:
 
             if all_diagnostics:
                 with open(self.fixes_file, "w") as out:
-                    yaml.safe_dump(
-                        {"MainSourceFile": "", "Diagnostics": all_diagnostics}, out
-                    )
+                    yaml.safe_dump({"MainSourceFile": "", "Diagnostics": all_diagnostics}, out)
             else:
                 open(self.fixes_file, "w").close()
 
-            log.info(
-                "Cleaning up directory: %r", self.fixes_temporary_file_dir.name
-            )
+            log.info("Cleaning up directory: %r", self.fixes_temporary_file_dir.name)
             self.fixes_temporary_file_dir.cleanup()
             self.fixes_temporary_file_dir = None
 
     def ExportFixesTo(self, f):
         # use absolute path since running things will change working directories
         self.fixes_file = os.path.abspath(f)
-        self.fixes_temporary_file_dir = tempfile.TemporaryDirectory(
-            prefix="tidy-", suffix="-fixes"
-        )
+        self.fixes_temporary_file_dir = tempfile.TemporaryDirectory(prefix="tidy-", suffix="-fixes")
 
-        log.info(
-            "Storing temporary fix files into '%s'", self.fixes_temporary_file_dir.name
-        )
+        log.info("Storing temporary fix files into '%s'", self.fixes_temporary_file_dir.name)
         for idx, e in enumerate(self.entries):
-            e.ExportFixesTo(
-                os.path.join(
-                    self.fixes_temporary_file_dir.name, "fixes%d.yaml" % (idx + 1,)
-                )
-            )
+            e.ExportFixesTo(os.path.join(self.fixes_temporary_file_dir.name, "fixes%d.yaml" % (idx + 1,)))
 
     def SetChecks(self, checks: str):
         for e in self.entries:
@@ -398,10 +373,7 @@ __LOG_LEVELS__ = logging.getLevelNamesMapping()
     type=click.Choice(__LOG_LEVELS__.keys(), case_sensitive=False),
     help="Determines the verbosity of script output.",
 )
-@click.option(
-    '--log-timestamps/--no-log-timestamps',
-    default=True,
-    help='Show timestamps in log output')
+@click.option("--log-timestamps/--no-log-timestamps", default=True, help="Show timestamps in log output")
 @click.option(
     "--export-fixes",
     default=None,
@@ -432,16 +404,12 @@ def main(
     checks,
     file_list_file,
 ):
-    log_fmt = '%(asctime)s.%(msecs)03d %(levelname)-7s %(message)s' if log_timestamps else '%(levelname)-7s %(message)s'
+    log_fmt = "%(asctime)s.%(msecs)03d %(levelname)-7s %(message)s" if log_timestamps else "%(levelname)-7s %(message)s"
     coloredlogs.install(level=__LOG_LEVELS__[log_level], fmt=log_fmt)
 
     if not compile_database:
-        log.warning(
-            "Compilation database file not provided. Searching for first item in ./out"
-        )
-        compile_database = next(
-            glob.iglob("./out/**/compile_commands.json", recursive=True)
-        )
+        log.warning("Compilation database file not provided. Searching for first item in ./out")
+        compile_database = next(glob.iglob("./out/**/compile_commands.json", recursive=True))
         if not compile_database:
             raise Exception("Could not find `compile_commands.json` in ./out")
         log.info("Will use '%s' for compile", compile_database)

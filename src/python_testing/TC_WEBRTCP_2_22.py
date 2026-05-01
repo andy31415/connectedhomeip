@@ -59,28 +59,36 @@ class TC_WEBRTCP_2_22(MatterBaseTest, WEBRTCPTestBase):
     def steps_TC_WEBRTCP_2_22(self) -> list[TestStep]:
         return [
             TestStep("precondition", "DUT commissioned", is_commissioning=True),
-            TestStep(1, "TH allocates both Audio and Video streams via CameraAVStreamManagement",
-                     "Valid stream IDs are obtained"),
-            TestStep(2, "TH establishes a valid WebRTC session with DUT",
-                     "Valid WebRTCSessionID is obtained and session is active"),
-            TestStep(3, "TH reads CurrentSessions attribute from WebRTCTransportProvider on DUT",
-                     "Verify the number of WebRTCSession in the list is 1 and contains the active session"),
-            TestStep(4, "TH sends the EndSession command with the valid WebRTCSessionID",
-                     "DUT responds with success status code"),
-            TestStep(5, "TH reads CurrentSessions attribute from WebRTCTransportProvider on DUT",
-                     "Verify the number of WebRTCSession in the list is 0 (session removed)"),
-            TestStep(6, "TH deallocates the Audio and Video streams via AudioStreamDeallocate and VideoStreamDeallocate commands",
-                     "DUT responds with success status code for both deallocate commands")
+            TestStep(1, "TH allocates both Audio and Video streams via CameraAVStreamManagement", "Valid stream IDs are obtained"),
+            TestStep(
+                2, "TH establishes a valid WebRTC session with DUT", "Valid WebRTCSessionID is obtained and session is active"
+            ),
+            TestStep(
+                3,
+                "TH reads CurrentSessions attribute from WebRTCTransportProvider on DUT",
+                "Verify the number of WebRTCSession in the list is 1 and contains the active session",
+            ),
+            TestStep(4, "TH sends the EndSession command with the valid WebRTCSessionID", "DUT responds with success status code"),
+            TestStep(
+                5,
+                "TH reads CurrentSessions attribute from WebRTCTransportProvider on DUT",
+                "Verify the number of WebRTCSession in the list is 0 (session removed)",
+            ),
+            TestStep(
+                6,
+                "TH deallocates the Audio and Video streams via AudioStreamDeallocate and VideoStreamDeallocate commands",
+                "DUT responds with success status code for both deallocate commands",
+            ),
         ]
 
     def pics_TC_WEBRTCP_2_22(self) -> list[str]:
         return [
             "WEBRTCP.S",
-            "WEBRTCP.S.A0000",     # CurrentSessions attribute
-            "WEBRTCP.S.C06.Rsp",   # EndSession command
+            "WEBRTCP.S.A0000",  # CurrentSessions attribute
+            "WEBRTCP.S.C06.Rsp",  # EndSession command
             "AVSM.S",
-            "AVSM.S.F00",          # Audio Data Output feature
-            "AVSM.S.F01",          # Video Data Output feature
+            "AVSM.S.F00",  # Audio Data Output feature
+            "AVSM.S.F01",  # Video Data Output feature
         ]
 
     @property
@@ -175,7 +183,7 @@ class TC_WEBRTCP_2_22(MatterBaseTest, WEBRTCPTestBase):
         current_sessions = await self.read_single_attribute_check_success(
             endpoint=endpoint,
             cluster=Clusters.WebRTCTransportProvider,
-            attribute=Clusters.WebRTCTransportProvider.Attributes.CurrentSessions
+            attribute=Clusters.WebRTCTransportProvider.Attributes.CurrentSessions,
         )
         asserts.assert_equal(len(current_sessions), 1, "Expected exactly 1 active session")
         asserts.assert_equal(current_sessions[0].id, session_id, "Session ID in CurrentSessions does not match")
@@ -186,8 +194,7 @@ class TC_WEBRTCP_2_22(MatterBaseTest, WEBRTCPTestBase):
         log.info(f"Sending EndSession command for session {session_id}")
         await self.send_single_cmd(
             cmd=Clusters.WebRTCTransportProvider.Commands.EndSession(
-                webRTCSessionID=session_id,
-                reason=Clusters.Objects.Globals.Enums.WebRTCEndReasonEnum.kUserHangup
+                webRTCSessionID=session_id, reason=Clusters.Objects.Globals.Enums.WebRTCEndReasonEnum.kUserHangup
             ),
             endpoint=endpoint,
             payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD,
@@ -199,7 +206,7 @@ class TC_WEBRTCP_2_22(MatterBaseTest, WEBRTCPTestBase):
         current_sessions = await self.read_single_attribute_check_success(
             endpoint=endpoint,
             cluster=Clusters.WebRTCTransportProvider,
-            attribute=Clusters.WebRTCTransportProvider.Attributes.CurrentSessions
+            attribute=Clusters.WebRTCTransportProvider.Attributes.CurrentSessions,
         )
         asserts.assert_equal(len(current_sessions), 0, "Expected session to be removed from CurrentSessions")
         log.info(f"Verified session {session_id} has been removed from CurrentSessions")
@@ -210,18 +217,14 @@ class TC_WEBRTCP_2_22(MatterBaseTest, WEBRTCPTestBase):
 
         # Deallocate audio stream
         await self.send_single_cmd(
-            cmd=Clusters.CameraAvStreamManagement.Commands.AudioStreamDeallocate(
-                audioStreamID=audio_stream_id
-            ),
+            cmd=Clusters.CameraAvStreamManagement.Commands.AudioStreamDeallocate(audioStreamID=audio_stream_id),
             endpoint=endpoint,
         )
         log.info(f"Successfully deallocated audio stream {audio_stream_id}")
 
         # Deallocate video stream
         await self.send_single_cmd(
-            cmd=Clusters.CameraAvStreamManagement.Commands.VideoStreamDeallocate(
-                videoStreamID=video_stream_id
-            ),
+            cmd=Clusters.CameraAvStreamManagement.Commands.VideoStreamDeallocate(videoStreamID=video_stream_id),
             endpoint=endpoint,
         )
         log.info(f"Successfully deallocated video stream {video_stream_id}")

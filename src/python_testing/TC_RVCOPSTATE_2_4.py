@@ -53,17 +53,17 @@ log = logging.getLogger(__name__)
 # Takes an OpState or RvcOpState state enum and returns a string representation
 def state_enum_to_text(state_enum):
     try:
-        return f'{Clusters.RvcOperationalState.Enums.OperationalStateEnum(state_enum).name[1:]}(0x{state_enum:02x})'
+        return f"{Clusters.RvcOperationalState.Enums.OperationalStateEnum(state_enum).name[1:]}(0x{state_enum:02x})"
     except AttributeError:
-        return f'{Clusters.OperationalState.Enums.OperationalStateEnum(state_enum).name[1:]}(0x{state_enum:02x})'
+        return f"{Clusters.OperationalState.Enums.OperationalStateEnum(state_enum).name[1:]}(0x{state_enum:02x})"
 
 
 # Takes an OpState or RvcOpState error enum and returns a string representation
 def error_enum_to_text(error_enum):
     try:
-        return f'{Clusters.RvcOperationalState.Enums.ErrorStateEnum(error_enum).name[1:]}(0x{error_enum:02x})'
+        return f"{Clusters.RvcOperationalState.Enums.ErrorStateEnum(error_enum).name[1:]}(0x{error_enum:02x})"
     except AttributeError:
-        return f'{Clusters.OperationalState.Enums.ErrorStateEnum(error_enum).name[1:]}(0x{error_enum:02x})'
+        return f"{Clusters.OperationalState.Enums.ErrorStateEnum(error_enum).name[1:]}(0x{error_enum:02x})"
 
 
 class TC_RVCOPSTATE_2_4(MatterBaseTest):
@@ -78,31 +78,38 @@ class TC_RVCOPSTATE_2_4(MatterBaseTest):
 
     async def send_go_home_cmd(self) -> Clusters.Objects.RvcOperationalState.Commands.OperationalCommandResponse:
         ret = await self.send_single_cmd(cmd=Clusters.Objects.RvcOperationalState.Commands.GoHome(), endpoint=self.endpoint)
-        asserts.assert_true(matchers.is_type(ret, Clusters.Objects.RvcOperationalState.Commands.OperationalCommandResponse),
-                            "Unexpected return type for GoHome")
+        asserts.assert_true(
+            matchers.is_type(ret, Clusters.Objects.RvcOperationalState.Commands.OperationalCommandResponse),
+            "Unexpected return type for GoHome",
+        )
         return ret
 
     # Sends the GoHome command and checks that the returned error matches the expected_error
     async def send_go_home_cmd_with_check(self, step_number, expected_error):
         self.print_step(step_number, "Send GoHome command")
         ret = await self.send_go_home_cmd()
-        asserts.assert_equal(ret.commandResponseState.errorStateID, expected_error,
-                             "errorStateID(%s) should be %s" % (ret.commandResponseState.errorStateID,
-                                                                error_enum_to_text(expected_error)))
+        asserts.assert_equal(
+            ret.commandResponseState.errorStateID,
+            expected_error,
+            "errorStateID(%s) should be %s" % (ret.commandResponseState.errorStateID, error_enum_to_text(expected_error)),
+        )
 
     # Prints the step number, reads the operational state attribute and checks if it matches with expected_state
     async def read_operational_state_with_check(self, step_number, expected_state):
         self.print_step(step_number, "Read OperationalState")
         operational_state = await self.read_mod_attribute_expect_success(
-            endpoint=self.endpoint, attribute=Clusters.RvcOperationalState.Attributes.OperationalState)
+            endpoint=self.endpoint, attribute=Clusters.RvcOperationalState.Attributes.OperationalState
+        )
         log.info("OperationalState: %s" % operational_state)
-        asserts.assert_equal(operational_state, expected_state,
-                             "OperationalState(%s) should be %s" % (operational_state, state_enum_to_text(expected_state)))
+        asserts.assert_equal(
+            operational_state,
+            expected_state,
+            "OperationalState(%s) should be %s" % (operational_state, state_enum_to_text(expected_state)),
+        )
 
     # Sends an RvcRunMode Change to mode command
     async def send_run_change_to_mode_cmd(self, new_mode):
-        await self.send_single_cmd(cmd=Clusters.Objects.RvcRunMode.Commands.ChangeToMode(newMode=new_mode),
-                                   endpoint=self.endpoint)
+        await self.send_single_cmd(cmd=Clusters.Objects.RvcRunMode.Commands.ChangeToMode(newMode=new_mode), endpoint=self.endpoint)
 
     def pics_TC_RVCOPSTATE_2_4(self) -> list[str]:
         return ["RVCOPSTATE.S"]

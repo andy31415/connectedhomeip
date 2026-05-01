@@ -53,7 +53,6 @@ log = logging.getLogger(__name__)
 
 
 class TC_WHM_2_1(MatterBaseTest):
-
     def __init__(self, *args):
         super().__init__(*args)
         self.endpoint = 0
@@ -81,9 +80,13 @@ class TC_WHM_2_1(MatterBaseTest):
         return await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attribute)
 
     async def send_change_to_mode_cmd(self, newMode) -> Clusters.Objects.WaterHeaterMode.Commands.ChangeToModeResponse:
-        ret = await self.send_single_cmd(cmd=Clusters.Objects.WaterHeaterMode.Commands.ChangeToMode(newMode=newMode), endpoint=self.endpoint)
-        asserts.assert_true(matchers.is_type(ret, Clusters.Objects.WaterHeaterMode.Commands.ChangeToModeResponse),
-                            "Unexpected return type for Water Heater Mode ChangeToMode")
+        ret = await self.send_single_cmd(
+            cmd=Clusters.Objects.WaterHeaterMode.Commands.ChangeToMode(newMode=newMode), endpoint=self.endpoint
+        )
+        asserts.assert_true(
+            matchers.is_type(ret, Clusters.Objects.WaterHeaterMode.Commands.ChangeToModeResponse),
+            "Unexpected return type for Water Heater Mode ChangeToMode",
+        )
         return ret
 
     def pics_TC_WHM_2_1(self) -> list[str]:
@@ -91,7 +94,6 @@ class TC_WHM_2_1(MatterBaseTest):
 
     @async_test_body
     async def test_TC_WHM_2_1(self):
-
         # Valid modes. Only ModeManual referred to in this test
         # ModeOff    = 0
         ModeManual = 1
@@ -110,8 +112,7 @@ class TC_WHM_2_1(MatterBaseTest):
 
         log.info(f"SupportedModes: {supported_modes}")
 
-        asserts.assert_greater_equal(len(supported_modes), 2,
-                                     "SupportedModes must have at least two entries!")
+        asserts.assert_greater_equal(len(supported_modes), 2, "SupportedModes must have at least two entries!")
 
         self.step(3)
 
@@ -127,8 +128,7 @@ class TC_WHM_2_1(MatterBaseTest):
 
         ret = await self.send_change_to_mode_cmd(newMode=old_current_mode)
         log.info(f"ret.status {ret.status}")
-        asserts.assert_equal(ret.status, Status.Success,
-                             "Changing the mode to the current mode should be a no-op")
+        asserts.assert_equal(ret.status, Status.Success, "Changing the mode to the current mode should be a no-op")
 
         # Steps 5-9 are not performed as WHM.S.M.CAN_TEST_MODE_FAILURE is false
         # TODO - see issue 34565
@@ -147,8 +147,9 @@ class TC_WHM_2_1(MatterBaseTest):
         self.step(11)
 
         ret = await self.send_change_to_mode_cmd(newMode=ModeManual)
-        asserts.assert_true(ret.status == Status.Success,
-                            f"Changing to mode {ModeManual}must succeed due to the current state of the device")
+        asserts.assert_true(
+            ret.status == Status.Success, f"Changing to mode {ModeManual}must succeed due to the current state of the device"
+        )
 
         self.step(12)
 
@@ -156,15 +157,17 @@ class TC_WHM_2_1(MatterBaseTest):
 
         log.info(f"CurrentMode: {current_mode}")
 
-        asserts.assert_true(current_mode == ModeManual,
-                            "CurrentMode doesn't match the argument of the successful ChangeToMode command!")
+        asserts.assert_true(
+            current_mode == ModeManual, "CurrentMode doesn't match the argument of the successful ChangeToMode command!"
+        )
 
         self.step(13)
 
         ret = await self.send_change_to_mode_cmd(newMode=invalid_mode)
         log.info(f"ret {ret}")
-        asserts.assert_true(ret.status == Status.Failure,
-                            f"Attempt to change to invalid mode {invalid_mode} didn't fail as expected")
+        asserts.assert_true(
+            ret.status == Status.Failure, f"Attempt to change to invalid mode {invalid_mode} didn't fail as expected"
+        )
 
         self.step(14)
 
@@ -172,8 +175,7 @@ class TC_WHM_2_1(MatterBaseTest):
 
         log.info(f"CurrentMode: {current_mode}")
 
-        asserts.assert_true(current_mode == ModeManual,
-                            "CurrentMode changed after failed ChangeToMode command!")
+        asserts.assert_true(current_mode == ModeManual, "CurrentMode changed after failed ChangeToMode command!")
 
 
 if __name__ == "__main__":

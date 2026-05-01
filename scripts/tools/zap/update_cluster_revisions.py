@@ -27,23 +27,20 @@ from pathlib import Path
 log = logging.getLogger(__name__)
 
 BASIC_INFORMATION_CLUSTER_ID = int("0x0039", 16)
-CHIP_ROOT_DIR = os.path.realpath(
-    os.path.join(os.path.dirname(__file__), '../../..'))
-EXCLUDE_FROM_UPDATE_DICTIONARY = {
-    BASIC_INFORMATION_CLUSTER_ID: ["lighting-app-data-mode-no-unique-id"]
-}
+CHIP_ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), "../../.."))
+EXCLUDE_FROM_UPDATE_DICTIONARY = {BASIC_INFORMATION_CLUSTER_ID: ["lighting-app-data-mode-no-unique-id"]}
 
 
 def getTargets(cluster_id: int):
     ROOTS_TO_SEARCH = [
-        './examples',
-        './src/controller/data_model',
-        './scripts/tools/zap/tests/inputs',
+        "./examples",
+        "./src/controller/data_model",
+        "./scripts/tools/zap/tests/inputs",
     ]
 
     targets = []
     for root in ROOTS_TO_SEARCH:
-        for filepath in Path(root).rglob('*.zap'):
+        for filepath in Path(root).rglob("*.zap"):
             targets.append(filepath)
 
     if cluster_id in EXCLUDE_FROM_UPDATE_DICTIONARY:
@@ -55,23 +52,32 @@ def getTargets(cluster_id: int):
 
 def checkPythonVersion():
     if sys.version_info[0] < 3:
-        print('Must use Python 3. Current version is ' +
-              str(sys.version_info[0]))
+        print("Must use Python 3. Current version is " + str(sys.version_info[0]))
         exit(1)
 
 
 def runArgumentsParser():
-    parser = argparse.ArgumentParser(
-        description='Update the ClusterRevision for a chosen cluster in all .zap files')
-    parser.add_argument('--cluster-id', default=None, action='store',
-                        help='The id of the cluster, as hex, for which the cluster revision should be updated.')
-    parser.add_argument('--new-revision', default=None, action='store',
-                        help='The new cluster revision as a decimal integer')
-    parser.add_argument('--old-revision', default=None, action='store',
-                        help='If set, only clusters with this old revision will be updated.  This is a decimal integer.')
-    parser.add_argument('--dry-run', default=False, action='store_true',
-                        help="Don't do any generation, just log what .zap files would be updated (default: False)")
-    parser.add_argument('--parallel', action=argparse.BooleanOptionalAction, default=True)
+    parser = argparse.ArgumentParser(description="Update the ClusterRevision for a chosen cluster in all .zap files")
+    parser.add_argument(
+        "--cluster-id",
+        default=None,
+        action="store",
+        help="The id of the cluster, as hex, for which the cluster revision should be updated.",
+    )
+    parser.add_argument("--new-revision", default=None, action="store", help="The new cluster revision as a decimal integer")
+    parser.add_argument(
+        "--old-revision",
+        default=None,
+        action="store",
+        help="If set, only clusters with this old revision will be updated.  This is a decimal integer.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        default=False,
+        action="store_true",
+        help="Don't do any generation, just log what .zap files would be updated (default: False)",
+    )
+    parser.add_argument("--parallel", action=argparse.BooleanOptionalAction, default=True)
     args = parser.parse_args()
 
     if args.cluster_id is None:
@@ -88,13 +94,13 @@ def runArgumentsParser():
 
 
 def isClusterRevisionAttribute(attribute):
-    if attribute['mfgCode'] is not None:
+    if attribute["mfgCode"] is not None:
         return False
 
-    if attribute['code'] != 0xFFFD:
+    if attribute["code"] != 0xFFFD:
         return False
 
-    if attribute['name'] != "ClusterRevision":
+    if attribute["name"] != "ClusterRevision":
         log.error("Attribute has ClusterRevision id but wrong name")
         return False
 
@@ -110,28 +116,25 @@ def updateOne(item):
     with open(target, "r") as file:
         data = json.load(file)
 
-    for endpointType in data['endpointTypes']:
-        for cluster in endpointType['clusters']:
-            if cluster['mfgCode'] is None and cluster['code'] == args.cluster_id:
-                for attribute in cluster['attributes']:
+    for endpointType in data["endpointTypes"]:
+        for cluster in endpointType["clusters"]:
+            if cluster["mfgCode"] is None and cluster["code"] == args.cluster_id:
+                for attribute in cluster["attributes"]:
                     if isClusterRevisionAttribute(attribute):
-                        if args.old_revision is None or attribute['defaultValue'] == args.old_revision:
-                            attribute['defaultValue'] = args.new_revision
+                        if args.old_revision is None or attribute["defaultValue"] == args.old_revision:
+                            attribute["defaultValue"] = args.new_revision
 
     with open(target, "w") as file:
         json.dump(data, file)
 
     # Now run convert.py on the file to have ZAP reformat it however it likes.
-    subprocess.check_call(['./scripts/tools/zap/convert.py', target])
+    subprocess.check_call(["./scripts/tools/zap/convert.py", target])
 
 
 def main():
     checkPythonVersion()
 
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s %(name)s %(levelname)-7s %(message)s'
-    )
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)-7s %(message)s")
 
     args = runArgumentsParser()
 
@@ -148,7 +151,7 @@ def main():
 
     if args.parallel:
         # Ensure each zap run is independent
-        os.environ['ZAP_TEMPSTATE'] = '1'
+        os.environ["ZAP_TEMPSTATE"] = "1"
         with multiprocessing.Pool() as pool:
             for _ in pool.imap_unordered(updateOne, items):
                 pass
@@ -157,5 +160,5 @@ def main():
             updateOne(item)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

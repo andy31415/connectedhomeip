@@ -72,7 +72,7 @@ class TC_AVSM_StreamReuseRangeParams(MatterBaseTest):
                 4,
                 "TH sends the SnapshotStreamAllocate command with valid values of ImageCodec, MaxFrameRate, MinResolution=MaxResolution=Resolution from aSnapshotCapabilities and Quality set to 90.",
                 "DUT responds with SnapshotStreamAllocateResponse command with a valid SnapshotStreamID.",
-                "Store as aSnapshotStreamID."
+                "Store as aSnapshotStreamID.",
             ),
             TestStep(
                 5,
@@ -131,9 +131,11 @@ class TC_AVSM_StreamReuseRangeParams(MatterBaseTest):
             osd = True if (aFeatureMap & cluster.Bitmaps.Feature.kOnScreenDisplay) != 0 else None
 
             aMinResolution = Clusters.CameraAvStreamManagement.Structs.VideoResolutionStruct(
-                width=aSnapshotCapabilities[1].resolution.width - 20, height=aSnapshotCapabilities[1].resolution.height - 20)
+                width=aSnapshotCapabilities[1].resolution.width - 20, height=aSnapshotCapabilities[1].resolution.height - 20
+            )
             aMaxResolution = Clusters.CameraAvStreamManagement.Structs.VideoResolutionStruct(
-                width=aSnapshotCapabilities[1].resolution.width + 20, height=aSnapshotCapabilities[1].resolution.height + 20)
+                width=aSnapshotCapabilities[1].resolution.width + 20, height=aSnapshotCapabilities[1].resolution.height + 20
+            )
             snpStreamAllocateCmd = commands.SnapshotStreamAllocate(
                 imageCodec=aSnapshotCapabilities[1].imageCodec,
                 maxFrameRate=aSnapshotCapabilities[1].maxFrameRate,
@@ -141,7 +143,7 @@ class TC_AVSM_StreamReuseRangeParams(MatterBaseTest):
                 maxResolution=aMaxResolution,
                 quality=90,
                 watermarkEnabled=watermark,
-                OSDEnabled=osd
+                OSDEnabled=osd,
             )
             snpStreamAllocateResponse = await self.send_single_cmd(endpoint=endpoint, cmd=snpStreamAllocateCmd)
             log.info(f"Rx'd SnapshotStreamAllocateResponse: {snpStreamAllocateResponse}")
@@ -163,9 +165,11 @@ class TC_AVSM_StreamReuseRangeParams(MatterBaseTest):
         self.step(6)
         try:
             newMinResolution = Clusters.CameraAvStreamManagement.Structs.VideoResolutionStruct(
-                width=aSnapshotCapabilities[1].resolution.width - 10, height=aSnapshotCapabilities[1].resolution.height - 10)
+                width=aSnapshotCapabilities[1].resolution.width - 10, height=aSnapshotCapabilities[1].resolution.height - 10
+            )
             newMaxResolution = Clusters.CameraAvStreamManagement.Structs.VideoResolutionStruct(
-                width=aSnapshotCapabilities[1].resolution.width + 10, height=aSnapshotCapabilities[1].resolution.height + 10)
+                width=aSnapshotCapabilities[1].resolution.width + 10, height=aSnapshotCapabilities[1].resolution.height + 10
+            )
             snpStreamAllocateCmd = commands.SnapshotStreamAllocate(
                 imageCodec=aSnapshotCapabilities[1].imageCodec,
                 maxFrameRate=aSnapshotCapabilities[1].maxFrameRate,
@@ -174,15 +178,16 @@ class TC_AVSM_StreamReuseRangeParams(MatterBaseTest):
                 maxResolution=newMaxResolution,
                 quality=90,
                 watermarkEnabled=watermark,
-                OSDEnabled=osd
+                OSDEnabled=osd,
             )
             snpStreamAllocateResponse = await self.send_single_cmd(endpoint=endpoint, cmd=snpStreamAllocateCmd)
             log.info(f"Rx'd SnapshotStreamAllocateResponse: {snpStreamAllocateResponse}")
             asserts.assert_is_not_none(
                 snpStreamAllocateResponse.snapshotStreamID, "SnapshotStreamAllocateResponse does not contain StreamID"
             )
-            asserts.assert_equal(snpStreamAllocateResponse.snapshotStreamID, aSnapshotStreamID,
-                                 "The previous snapshot stream is not reused")
+            asserts.assert_equal(
+                snpStreamAllocateResponse.snapshotStreamID, aSnapshotStreamID, "The previous snapshot stream is not reused"
+            )
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
             pass
@@ -193,10 +198,12 @@ class TC_AVSM_StreamReuseRangeParams(MatterBaseTest):
         )
         log.info(f"Rx'd AllocatedSnapshotStreams: {aAllocatedSnapshotStreams}")
         asserts.assert_equal(len(aAllocatedSnapshotStreams), 1, "The number of allocated snapshot streams in the list is not 1.")
-        asserts.assert_equal(aAllocatedSnapshotStreams[0].minResolution,
-                             newMinResolution, "MinResolution does not match expected value")
-        asserts.assert_equal(aAllocatedSnapshotStreams[0].maxResolution,
-                             newMaxResolution, "MaxResolution does not match expected value")
+        asserts.assert_equal(
+            aAllocatedSnapshotStreams[0].minResolution, newMinResolution, "MinResolution does not match expected value"
+        )
+        asserts.assert_equal(
+            aAllocatedSnapshotStreams[0].maxResolution, newMaxResolution, "MaxResolution does not match expected value"
+        )
 
 
 if __name__ == "__main__":

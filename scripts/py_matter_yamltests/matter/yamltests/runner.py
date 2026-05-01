@@ -49,6 +49,7 @@ class TestRunnerOptions:
     delay_in_ms:  If set to any value that is not zero the runner will
                   wait for the given time between steps.
     """
+
     stop_on_error: bool = True
     stop_on_warning: bool = False
     stop_at_number: int = -1
@@ -75,6 +76,7 @@ class TestRunnerConfig:
     auto_start_stop: Indicates whether the run method should start and stop
             the runner of if that will be handled outside of that method.
     """
+
     adapter: TestAdapter = None
     pseudo_clusters: PseudoClusters = PseudoClusters([])
     options: TestRunnerOptions = field(default_factory=TestRunnerOptions)
@@ -89,6 +91,7 @@ class TestRunnerBase(ABC):
 
     A runner is responsible for executing a test step.
     """
+
     @abstractmethod
     async def start(self):
         """
@@ -173,12 +176,12 @@ class TestRunner(TestRunnerBase):
             return status
 
     def _get_arg_value(self, request, key_name: str):
-        if not hasattr(request, 'arguments'):
+        if not hasattr(request, "arguments"):
             return None
 
-        for item in request.arguments.get('values', []):
-            if item.get('name') == key_name:
-                return item.get('value')
+        for item in request.arguments.get("values", []):
+            if item.get("name") == key_name:
+                return item.get("value")
         return None
 
     async def _run(self, parser: TestParser, config: TestRunnerConfig):
@@ -198,15 +201,16 @@ class TestRunner(TestRunnerBase):
                 if not request.is_revision_condition_passed:
                     # Try to get the var name and value for a more informative message
                     try:
-                        var_name = build_revision_var_name(
-                            request.endpoint, request.cluster)
+                        var_name = build_revision_var_name(request.endpoint, request.cluster)
                         current_val = request.get_runtime_variable(var_name)
                     except (ValueError, IndexError, KeyError):
                         current_val = "unknown"
 
-                    reason = (f"Step skipped due to ClusterRevision range not matching (val={current_val}, "
-                              f"min={request.min_revision}, "
-                              f"max={request.max_revision})")
+                    reason = (
+                        f"Step skipped due to ClusterRevision range not matching (val={current_val}, "
+                        f"min={request.min_revision}, "
+                        f"max={request.max_revision})"
+                    )
                     hooks.step_skipped(request.label, reason)
                     continue
 
@@ -225,13 +229,12 @@ class TestRunner(TestRunnerBase):
                 if config.pseudo_clusters.supports(request):
                     if request.command == "PromptWithResponse":
                         prompt_msg = self._get_arg_value(request, "message")
-                        placeholder = self._get_arg_value(
-                            request, "placeHolder")
+                        placeholder = self._get_arg_value(request, "placeHolder")
                         response = await hooks.show_prompt(prompt_msg, placeholder)
                         parseStr = self._get_arg_value(request, "parseStr")
                         if parseStr is not None:
                             response = ast.literal_eval(response)
-                        responses = {'value': {'responseValue': response}}
+                        responses = {"value": {"responseValue": response}}
                         logs = []
                     else:
                         responses, logs = await config.pseudo_clusters.execute(request, parser.definitions)
@@ -245,8 +248,7 @@ class TestRunner(TestRunnerBase):
                 logger = request.post_process_response(responses)
 
                 if logger.is_failure():
-                    hooks.step_failure(logger, logs, duration,
-                                       request, responses)
+                    hooks.step_failure(logger, logs, duration, request, responses)
                 else:
                     hooks.step_success(logger, logs, duration, request)
 

@@ -75,13 +75,10 @@ class TC_WebRTCR_2_4(WEBRTCRTestBase):
             discriminator=self.th_server_discriminator,
             passcode=self.th_server_passcode,
             port=5681,
-            extra_args=["--camera-deferred-offer"]
+            extra_args=["--camera-deferred-offer"],
         )
 
-        self.th_server.start(
-            expected_output="Server initialization complete",
-            timeout=30
-        )
+        self.th_server.start(expected_output="Server initialization complete", timeout=30)
 
     def teardown_class(self):
         if self.th_server is not None:
@@ -108,8 +105,8 @@ class TC_WebRTCR_2_4(WEBRTCRTestBase):
         Return the list of PICS applicable to this test case.
         """
         return [
-            "WEBRTCR.S",           # WebRTC Transport Requestor Server
-            "WEBRTCR.S.C01.Rsp",   # Answer command
+            "WEBRTCR.S",  # WebRTC Transport Requestor Server
+            "WEBRTCR.S.C01.Rsp",  # Answer command
         ]
 
     # This test has some manual steps and one sleep for up to 30 seconds. Test typically
@@ -136,18 +133,14 @@ class TC_WebRTCR_2_4(WEBRTCRTestBase):
 
         if self.is_pics_sdk_ci_only:
             await self.send_command("pairing onnetwork 1 20202021")
-            resp = 'Y'
+            resp = "Y"
         else:
             resp = self.wait_for_user_input(prompt_msg)
 
-        commissioning_success = resp.lower() == 'y'
+        commissioning_success = resp.lower() == "y"
 
         # Verify results
-        asserts.assert_equal(
-            commissioning_success,
-            True,
-            f"Commissioning {'succeeded' if commissioning_success else 'failed'}"
-        )
+        asserts.assert_equal(commissioning_success, True, f"Commissioning {'succeeded' if commissioning_success else 'failed'}")
 
         self.step(2)
         await asyncio.sleep(1)
@@ -168,20 +161,16 @@ class TC_WebRTCR_2_4(WEBRTCRTestBase):
                 # Wait up to 90s until the provider logs that the data‑channel opened
                 if not self.th_server.event.wait(90):
                     raise TimeoutError("PeerConnection is not connected within 90s")
-                resp = 'Y'
+                resp = "Y"
             except TimeoutError:
-                resp = 'N'
+                resp = "N"
         else:
             resp = self.wait_for_user_input(prompt_msg)
 
-        session_success = resp.lower() == 'y'
+        session_success = resp.lower() == "y"
 
         # Verify results
-        asserts.assert_equal(
-            session_success,
-            True,
-            f"WebRTC session {'established' if session_success else 'failed'}"
-        )
+        asserts.assert_equal(session_success, True, f"WebRTC session {'established' if session_success else 'failed'}")
 
 
 if __name__ == "__main__":

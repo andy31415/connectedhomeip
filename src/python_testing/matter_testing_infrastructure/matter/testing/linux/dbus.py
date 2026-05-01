@@ -26,8 +26,11 @@ class DBusTestSystemBus(subprocess.Popen[bytes]):
     ADDRESS = f"unix:path={SOCKET}"
 
     def __init__(self):
-        super().__init__(["dbus-daemon", "--session", "--print-address", "--address", self.ADDRESS],
-                         stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        super().__init__(
+            ["dbus-daemon", "--session", "--print-address", "--address", self.ADDRESS],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+        )
         os.environ["DBUS_SYSTEM_BUS_ADDRESS"] = self.ADDRESS
         # Wait for the bus to start (it will print the address to stdout).
         assert self.stdout is not None, "stdout should have been set to subprocess.PIPE"

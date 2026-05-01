@@ -58,13 +58,14 @@ class TC_TIMESYNC_2_2(MatterBaseTest):
 
     @async_test_body
     async def test_TC_TIMESYNC_2_2(self):
-
         # Time sync is required to be on endpoint 0 if it is present
         endpoint = 0
 
         time_cluster = Clusters.TimeSynchronization
         timesync_attr_list = time_cluster.Attributes.AttributeList
-        attribute_list = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=time_cluster, attribute=timesync_attr_list)
+        attribute_list = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=time_cluster, attribute=timesync_attr_list
+        )
         timesource_attr_id = time_cluster.Attributes.TimeSource.attribute_id
 
         self.print_step(1, "Commissioning, already done")
@@ -76,7 +77,12 @@ class TC_TIMESYNC_2_2(MatterBaseTest):
 
         code = 0
         try:
-            await self.send_single_cmd(cmd=time_cluster.Commands.SetUTCTime(UTCTime=th_utc, granularity=time_cluster.Enums.GranularityEnum.kMillisecondsGranularity), endpoint=endpoint)
+            await self.send_single_cmd(
+                cmd=time_cluster.Commands.SetUTCTime(
+                    UTCTime=th_utc, granularity=time_cluster.Enums.GranularityEnum.kMillisecondsGranularity
+                ),
+                endpoint=endpoint,
+            )
         except InteractionModelError as e:
             # The python layer discards the cluster specific portion of the status IB, so for now we just expect a generic FAILURE error
             # see #26521
@@ -90,8 +96,9 @@ class TC_TIMESYNC_2_2(MatterBaseTest):
 
         self.print_step(3, "Read Granulatiry attribute")
         granularity_dut = await self.read_ts_attribute_expect_success(endpoint=endpoint, attribute=attributes.Granularity)
-        asserts.assert_less(granularity_dut, time_cluster.Enums.GranularityEnum.kUnknownEnumValue,
-                            "Granularity out of expected range")
+        asserts.assert_less(
+            granularity_dut, time_cluster.Enums.GranularityEnum.kUnknownEnumValue, "Granularity out of expected range"
+        )
         asserts.assert_not_equal(granularity_dut, time_cluster.Enums.GranularityEnum.kNoTimeGranularity)
 
         self.print_step(4, "Read UTC time")

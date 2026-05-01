@@ -92,9 +92,7 @@ __OUTPUT_TYPES__ = {
 
 
 def get_sizes(p: Path, no_demangle: bool):
-    output = subprocess.check_output(
-        ["nm", "--print-size", "--size-sort", "--radix=d", p.as_posix()]
-    ).decode("utf8")
+    output = subprocess.check_output(["nm", "--print-size", "--size-sort", "--radix=d", p.as_posix()]).decode("utf8")
 
     result = {}
 
@@ -147,9 +145,7 @@ class SankeyGroupingRule:
     # dictionary key is the target_index
     diagram_instances: dict[int, DiagramInstance] = field(default_factory=dict)
 
-    def add_towards(
-        self, target_index: int, sankey_data: "SankeyData", value: int
-    ) -> int:
+    def add_towards(self, target_index: int, sankey_data: "SankeyData", value: int) -> int:
         if target_index in self.diagram_instances:
             self.diagram_instances[target_index].value += value
         else:
@@ -266,7 +262,7 @@ def name_transform(name: str) -> str:
         # avoid "(anonymous namespace)" or templates like <char, (unsigned char)1> or other template logic
         if (
             idx == 0  # (anonymous namespace) at the start
-            or name[idx + 1:].startswith("anonymous ")  # (anonymous namespace)
+            or name[idx + 1 :].startswith("anonymous ")  # (anonymous namespace)
             or name[:idx].endswith(" ")  # <char, (unsigned char)1>
             or name[:idx].endswith("<")  # <(unsigned char)1
         ):
@@ -444,11 +440,7 @@ def main(
         for line in delta:
             if not skip_name_transform:
                 line[2] = name_transform(line[2])
-            if (
-                output_type == OutputType.TABLE
-                and name_truncate > 10
-                and len(line[2]) > name_truncate
-            ):
+            if output_type == OutputType.TABLE and name_truncate > 10 and len(line[2]) > name_truncate:
                 line[2] = line[2][: name_truncate - 4] + "..."
 
         delta.sort(key=lambda x: x[1])

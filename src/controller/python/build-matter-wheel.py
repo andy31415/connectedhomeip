@@ -31,19 +31,15 @@ import shutil
 from setuptools import Distribution, setup
 
 parser = argparse.ArgumentParser(
-    description='Build PIP package for Matter using Matter core components '
-                'generated during the build and python source code')
-parser.add_argument('--package-name', default='matter',
-                    help='configure the python package name')
-parser.add_argument('--build-number', default='1.0.0',
-                    help='configure the python package build number')
-parser.add_argument('--build-dir', help='directory to build in')
-parser.add_argument('--dist-dir', help='directory to place distribution in')
-parser.add_argument('--manifest', help='list of files to package')
-parser.add_argument(
-    '--plat-name', help='platform name to embed in generated filenames')
-parser.add_argument(
-    '--lib-name', help='the native library to include (if any)', default=None)
+    description="Build PIP package for Matter using Matter core components generated during the build and python source code"
+)
+parser.add_argument("--package-name", default="matter", help="configure the python package name")
+parser.add_argument("--build-number", default="1.0.0", help="configure the python package build number")
+parser.add_argument("--build-dir", help="directory to build in")
+parser.add_argument("--dist-dir", help="directory to place distribution in")
+parser.add_argument("--manifest", help="list of files to package")
+parser.add_argument("--plat-name", help="platform name to embed in generated filenames")
+parser.add_argument("--lib-name", help="the native library to include (if any)", default=None)
 
 args = parser.parse_args()
 
@@ -54,6 +50,7 @@ class InstalledScriptInfo:
     def __init__(self, name):
         self.name = name
         self.installName = os.path.splitext(name)[0]
+
 
 # Make sure wheel is not considered pure and avoid shared libraries in purelib
 # folder.
@@ -83,7 +80,6 @@ with open(manifestFile) as f:
     manifest = json.load(f)
 
 try:
-
     #
     # Perform a series of setup steps prior to creating the package...
     #
@@ -98,25 +94,24 @@ try:
     os.chdir(tmpDir)
 
     manifestBase = os.path.dirname(manifestFile)
-    for entry in manifest['files']:
-        srcDir = os.path.join(manifestBase, entry['src_dir'])
-        for path in entry['sources']:
+    for entry in manifest["files"]:
+        srcDir = os.path.join(manifestBase, entry["src_dir"])
+        for path in entry["sources"]:
             srcFile = os.path.join(srcDir, path)
             dstFile = os.path.join(tmpDir, path)
             os.makedirs(os.path.dirname(dstFile), exist_ok=True)
             shutil.copyfile(srcFile, dstFile)
 
-    installScripts = [InstalledScriptInfo(script) for script in manifest['scripts']]
+    installScripts = [InstalledScriptInfo(script) for script in manifest["scripts"]]
     for script in installScripts:
-        os.rename(os.path.join(tmpDir, script.name),
-                  os.path.join(tmpDir, script.installName))
+        os.rename(os.path.join(tmpDir, script.name), os.path.join(tmpDir, script.installName))
 
-    requiredPackages = manifest['package_reqs']
+    requiredPackages = manifest["package_reqs"]
 
     #
     # Build the package...
     #
-    packages = manifest['packages']
+    packages = manifest["packages"]
 
     print("packageName: {}".format(packageName))
     print("libName: {}".format(libName))
@@ -131,40 +126,35 @@ try:
         classifiers=[
             "Intended Audience :: Developers",
             "License :: OSI Approved :: Apache Software License",
-            "Programming Language :: Python :: 3"
+            "Programming Language :: Python :: 3",
         ],
         python_requires=">=3.11",
         packages=packages,
         package_dir={
             # By default, look in the tmp directory for packages/modules to be included.
-            '': tmpDir,
+            "": tmpDir,
         },
-        package_data={
-            packages[0]: [
-                libName
-            ]
-        } if libName else {},
+        package_data={packages[0]: [libName]} if libName else {},
         scripts=[os.path.join(tmpDir, script.installName) for script in installScripts],
         install_requires=requiredPackages,
         options={
-            'bdist_wheel': {
-                'universal': False,
+            "bdist_wheel": {
+                "universal": False,
                 # Place the generated .whl in the dist directory.
-                'dist_dir': distDir,
-                'py_limited_api': 'cp311',
-                'plat_name': args.plat_name,
+                "dist_dir": distDir,
+                "py_limited_api": "cp311",
+                "plat_name": args.plat_name,
             },
-            'egg_info': {
+            "egg_info": {
                 # Place the .egg-info subdirectory in the tmp directory.
-                'egg_base': tmpDir
-            }
+                "egg_base": tmpDir
+            },
         },
         distclass=BinaryDistribution if libName else None,
-        script_args=['clean', '--all', 'bdist_wheel']
+        script_args=["clean", "--all", "bdist_wheel"],
     )
 
 finally:
-
     # Switch back to the initial current directory.
     os.chdir(curDir)
 

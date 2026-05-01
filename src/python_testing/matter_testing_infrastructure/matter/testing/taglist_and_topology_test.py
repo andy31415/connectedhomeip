@@ -40,7 +40,7 @@ def separate_endpoint_types(endpoint_dict: Dict[int, Any]) -> Tuple[List[int], L
     for endpoint_id, endpoint in endpoint_dict.items():
         if endpoint_id == 0:
             continue
-        aggregator_id = 0x000e
+        aggregator_id = 0x000E
         content_app_id = 0x0024
         device_types = [d.deviceType for d in endpoint[Clusters.Descriptor][Clusters.Descriptor.Attributes.DeviceTypeList]]
         if aggregator_id in device_types:
@@ -54,7 +54,7 @@ def separate_endpoint_types(endpoint_dict: Dict[int, Any]) -> Tuple[List[int], L
 
 def get_all_children(endpoint_id: int, endpoint_dict: Dict[int, Any]) -> Set[int]:
     """Returns all the children (include subchildren) of the given endpoint
-       This assumes we've already checked that there are no cycles, so we can do the dumb things and just trace the tree
+    This assumes we've already checked that there are no cycles, so we can do the dumb things and just trace the tree
     """
     children: Set[int] = set()
 
@@ -93,6 +93,7 @@ def find_tree_roots(tree_endpoints: List[int], endpoint_dict: Dict[int, Any]) ->
 
 def parts_list_problems(tree_endpoints: List[int], endpoint_dict: Dict[int, Any]) -> List[int]:
     """Returns a list of all the endpoints in the tree_endpoints list that contain cycles or nodes with multiple paths to the root or non-existent endpoints"""
+
     def parts_list_problem_detect(visited: set, current_id: int) -> bool:
         if current_id in visited:
             return True
@@ -164,7 +165,9 @@ def cmp_tag_list(a: Clusters.Globals.Structs.SemanticTagStruct, b: Clusters.Glob
     return 0
 
 
-def find_tag_list_problems(roots: List[int], device_types: Dict[int, Dict[int, Set[int]]], endpoint_dict: Dict[int, Any]) -> Dict[int, TagProblem]:
+def find_tag_list_problems(
+    roots: List[int], device_types: Dict[int, Dict[int, Set[int]]], endpoint_dict: Dict[int, Any]
+) -> Dict[int, TagProblem]:
     """Checks for non-spec compliant tag lists"""
     tag_problems = {}
     for root in roots:
@@ -172,11 +175,17 @@ def find_tag_list_problems(roots: List[int], device_types: Dict[int, Dict[int, S
             if len(endpoints) < 2:
                 continue
             for endpoint in endpoints:
-                missing_feature = not bool(endpoint_dict[endpoint][Clusters.Descriptor]
-                                           [Clusters.Descriptor.Attributes.FeatureMap] & Clusters.Descriptor.Bitmaps.Feature.kTagList)
-                if Clusters.Descriptor.Attributes.TagList not in endpoint_dict[endpoint][Clusters.Descriptor] or endpoint_dict[endpoint][Clusters.Descriptor][Clusters.Descriptor.Attributes.TagList] == []:
-                    tag_problems[endpoint] = TagProblem(root=root, missing_attribute=True,
-                                                        missing_feature=missing_feature, duplicates=endpoints)
+                missing_feature = not bool(
+                    endpoint_dict[endpoint][Clusters.Descriptor][Clusters.Descriptor.Attributes.FeatureMap]
+                    & Clusters.Descriptor.Bitmaps.Feature.kTagList
+                )
+                if (
+                    Clusters.Descriptor.Attributes.TagList not in endpoint_dict[endpoint][Clusters.Descriptor]
+                    or endpoint_dict[endpoint][Clusters.Descriptor][Clusters.Descriptor.Attributes.TagList] == []
+                ):
+                    tag_problems[endpoint] = TagProblem(
+                        root=root, missing_attribute=True, missing_feature=missing_feature, duplicates=endpoints
+                    )
                     continue
                 # Check that this tag isn't the same as the other tags in the endpoint list
                 duplicate_tags = set()
@@ -187,23 +196,38 @@ def find_tag_list_problems(roots: List[int], device_types: Dict[int, Dict[int, S
                     if Clusters.Descriptor.Attributes.TagList not in endpoint_dict[other][Clusters.Descriptor]:
                         continue
 
-                    if sorted(endpoint_dict[endpoint][Clusters.Descriptor][Clusters.Descriptor.Attributes.TagList], key=functools.cmp_to_key(cmp_tag_list)) == sorted(endpoint_dict[other][Clusters.Descriptor][Clusters.Descriptor.Attributes.TagList], key=functools.cmp_to_key(cmp_tag_list)):
+                    if sorted(
+                        endpoint_dict[endpoint][Clusters.Descriptor][Clusters.Descriptor.Attributes.TagList],
+                        key=functools.cmp_to_key(cmp_tag_list),
+                    ) == sorted(
+                        endpoint_dict[other][Clusters.Descriptor][Clusters.Descriptor.Attributes.TagList],
+                        key=functools.cmp_to_key(cmp_tag_list),
+                    ):
                         duplicate_tags.add(other)
                 if len(duplicate_tags) != 0:
                     duplicate_tags.add(endpoint)
-                    tag_problems[endpoint] = TagProblem(root=root, missing_attribute=False, missing_feature=missing_feature,
-                                                        duplicates=endpoints, same_tag=duplicate_tags)
+                    tag_problems[endpoint] = TagProblem(
+                        root=root,
+                        missing_attribute=False,
+                        missing_feature=missing_feature,
+                        duplicates=endpoints,
+                        same_tag=duplicate_tags,
+                    )
                     continue
                 if missing_feature:
-                    tag_problems[endpoint] = TagProblem(root=root, missing_attribute=False,
-                                                        missing_feature=missing_feature, duplicates=endpoints)
+                    tag_problems[endpoint] = TagProblem(
+                        root=root, missing_attribute=False, missing_feature=missing_feature, duplicates=endpoints
+                    )
 
     return tag_problems
 
 
 def flat_list_ok(flat_endpoint_id_to_check: int, endpoints_dict: Dict[int, Any]) -> bool:
-    '''Checks if the (flat) PartsList on the supplied endpoint contains all the sub-children of its parts.'''
+    """Checks if the (flat) PartsList on the supplied endpoint contains all the sub-children of its parts."""
     sub_children = set()
     for child in endpoints_dict[flat_endpoint_id_to_check][Clusters.Descriptor][Clusters.Descriptor.Attributes.PartsList]:
         sub_children.update(get_all_children(child, endpoints_dict))
-    return all(item in endpoints_dict[flat_endpoint_id_to_check][Clusters.Descriptor][Clusters.Descriptor.Attributes.PartsList] for item in sub_children)
+    return all(
+        item in endpoints_dict[flat_endpoint_id_to_check][Clusters.Descriptor][Clusters.Descriptor.Attributes.PartsList]
+        for item in sub_children
+    )

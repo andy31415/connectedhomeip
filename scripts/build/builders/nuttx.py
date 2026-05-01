@@ -27,13 +27,13 @@ class NuttXApp(Enum):
 
     def ExampleName(self):
         if self == NuttXApp.LIGHT:
-            return 'lighting-app'
-        raise Exception('Unknown app type: %r' % self)
+            return "lighting-app"
+        raise Exception("Unknown app type: %r" % self)
 
     def AppNamePrefix(self, chip_name):
         if self == NuttXApp.LIGHT:
-            return ('chip-%s-lighting-example' % chip_name)
-        raise Exception('Unknown app type: %r' % self)
+            return "chip-%s-lighting-example" % chip_name
+        raise Exception("Unknown app type: %r" % self)
 
 
 class NuttXBoard(Enum):
@@ -43,48 +43,51 @@ class NuttXBoard(Enum):
     def board_config(self):
         # Only one possible board is defined, so return it
         # This can grow if we add more boards
-        return 'sim:matter'
+        return "sim:matter"
 
 
 class NuttXBuilder(Builder):
+    def __init__(
+        self,
+        root,
+        runner,
+        app: NuttXApp = NuttXApp.LIGHT,
+        board: NuttXBoard = NuttXBoard.SIM,
+    ):
+        nuttx_chip = "nuttx"
 
-    def __init__(self,
-                 root,
-                 runner,
-                 app: NuttXApp = NuttXApp.LIGHT,
-                 board: NuttXBoard = NuttXBoard.SIM,
-                 ):
-
-        nuttx_chip = 'nuttx'
-
-        super(NuttXBuilder, self).__init__(
-            root=os.path.join(root, 'examples',
-                              app.ExampleName(), nuttx_chip),
-            runner=runner
-        )
+        super(NuttXBuilder, self).__init__(root=os.path.join(root, "examples", app.ExampleName(), nuttx_chip), runner=runner)
 
         self.chip_name = nuttx_chip
         self.app = app
         self.board = board
 
     def generate(self):
-        self._Execute(['mkdir', '-p', self.output_dir], title='Preparing output directory for ' + self.identifier)
-        nuttx_dir = os.path.join(os.sep, 'opt', 'nuttx', 'nuttx')
+        self._Execute(["mkdir", "-p", self.output_dir], title="Preparing output directory for " + self.identifier)
+        nuttx_dir = os.path.join(os.sep, "opt", "nuttx", "nuttx")
 
-        self._Execute(['cmake', '-S', nuttx_dir, '-B', self.output_dir, '-DCHIP_ROOT=' + os.getenv('PW_PROJECT_ROOT'),
-                       '-DBOARD_CONFIG=' + self.board.board_config,
-                       '-DCMAKE_C_COMPILER=/opt/nuttx/gcc-13/bin/gcc',
-                       '-DCMAKE_CXX_COMPILER=/opt/nuttx/gcc-13/bin/g++',
-                       '-GNinja'],
-                      title='Configuring ' + self.identifier)
+        self._Execute(
+            [
+                "cmake",
+                "-S",
+                nuttx_dir,
+                "-B",
+                self.output_dir,
+                "-DCHIP_ROOT=" + os.getenv("PW_PROJECT_ROOT"),
+                "-DBOARD_CONFIG=" + self.board.board_config,
+                "-DCMAKE_C_COMPILER=/opt/nuttx/gcc-13/bin/gcc",
+                "-DCMAKE_CXX_COMPILER=/opt/nuttx/gcc-13/bin/g++",
+                "-GNinja",
+            ],
+            title="Configuring " + self.identifier,
+        )
 
     def _build(self):
-        log.info('Compiling NuttX %s at %s, ',
-                 self.board.board_config, self.output_dir)
-        self._Execute(['cmake', '--build', self.output_dir])
+        log.info("Compiling NuttX %s at %s, ", self.board.board_config, self.output_dir)
+        self._Execute(["cmake", "--build", self.output_dir])
 
     def build_outputs(self):
-        log.info('Compiling outputs NuttX at %s', self.output_dir)
+        log.info("Compiling outputs NuttX at %s", self.output_dir)
         extensions = ["out"]
         if self.options.enable_link_map_file:
             extensions.append("out.map")

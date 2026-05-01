@@ -80,10 +80,7 @@ class TC_AVSM_2_8(MatterBaseTest, AVSMTestBase):
                 "TH sends the VideoStreamModify command with VideoStreamID set to aStreamID + 1.",
                 "DUT responds with an NOT_FOUND status code.",
             ),
-            TestStep(
-                5,
-                "Establish a subscription to the AllocatedVideoStreams attribute"
-            ),
+            TestStep(5, "Establish a subscription to the AllocatedVideoStreams attribute"),
             TestStep(
                 6,
                 "TH sends the VideoStreamModify command with VideoStreamID set to aStreamID. If WMARK is supported, set WaterMarkEnabled to !aWmark and if OSD is supported, set OSDEnabled to !aOSD in the command.",
@@ -164,7 +161,14 @@ class TC_AVSM_2_8(MatterBaseTest, AVSMTestBase):
         self.step(5)
         # Establish subscription to AllocatedVideoStreams
         sub_handler = AttributeSubscriptionHandler(cluster, attr.AllocatedVideoStreams)
-        await sub_handler.start(self.default_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
+        await sub_handler.start(
+            self.default_controller,
+            self.dut_node_id,
+            endpoint=endpoint,
+            min_interval_sec=0,
+            max_interval_sec=30,
+            keepSubscriptions=False,
+        )
 
         sub_handler.reset()
 
@@ -183,8 +187,12 @@ class TC_AVSM_2_8(MatterBaseTest, AVSMTestBase):
         self.step(7)
         expected_wmark = None if aWmark is None else not aWmark
         expected_osd = None if aOSD is None else not aOSD
-        sub_handler.await_all_expected_report_matches(expected_matchers=[wmark_osd_matcher(
-            attr.AllocatedVideoStreams, expected_wmark, expected_osd, wmarkSupport, osdSupport)], timeout_sec=20)
+        sub_handler.await_all_expected_report_matches(
+            expected_matchers=[
+                wmark_osd_matcher(attr.AllocatedVideoStreams, expected_wmark, expected_osd, wmarkSupport, osdSupport)
+            ],
+            timeout_sec=20,
+        )
 
         self.step(8)
         aAllocatedVideoStreams = await self.read_single_attribute_check_success(
@@ -203,7 +211,9 @@ class TC_AVSM_2_8(MatterBaseTest, AVSMTestBase):
 
         for stream in aAllocatedVideoStreams:
             try:
-                await self.send_single_cmd(endpoint=endpoint, cmd=commands.VideoStreamDeallocate(videoStreamID=(stream.videoStreamID)))
+                await self.send_single_cmd(
+                    endpoint=endpoint, cmd=commands.VideoStreamDeallocate(videoStreamID=(stream.videoStreamID))
+                )
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 

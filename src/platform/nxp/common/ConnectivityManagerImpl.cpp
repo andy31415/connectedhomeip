@@ -168,8 +168,9 @@ void ConnectivityManagerImpl::_OnPlatformEvent(const ChipDeviceEvent * event)
     }
     else if (event->Type == kPlatformNxpStartWlanInitWaitTimerEvent)
     {
-        TEMPORARY_RETURN_IGNORED DeviceLayer::SystemLayer().StartTimer(
-            System::Clock::Milliseconds32(kWlanInitWaitMs), ConnectNetworkTimerHandler, (void *) event->Platform.pNetworkDataEvent);
+        TEMPORARY_RETURN_IGNORED DeviceLayer::SystemLayer().StartTimer(System::Clock::Milliseconds32(kWlanInitWaitMs),
+                                                                       ConnectNetworkTimerHandler,
+                                                                       (void *) event -> Platform.pNetworkDataEvent);
     }
     else if (event->Type == DeviceLayer::DeviceEventType::kFailSafeTimerExpired)
     {

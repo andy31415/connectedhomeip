@@ -113,17 +113,15 @@ private:
     osThread_t mEventLoopTaskControlBlock;
 #endif // CHIP_CONFIG_CMSISOS_USE_STATIC_TASK
 
-    const osThreadAttr_t mEventLoopTaskAttr = {
-        .name      = CHIP_DEVICE_CONFIG_CHIP_TASK_NAME,
-        .attr_bits = osThreadDetached,
+    const osThreadAttr_t mEventLoopTaskAttr = { .name      = CHIP_DEVICE_CONFIG_CHIP_TASK_NAME,
+                                                .attr_bits = osThreadDetached,
 #if defined(CHIP_CONFIG_CMSISOS_USE_STATIC_TASK) && CHIP_CONFIG_CMSISOS_USE_STATIC_TASK
-        .cb_mem    = &mEventLoopTaskControlBlock,
-        .cb_size   = osThreadCbSize,
-        .stack_mem = mEventLoopStack,
+                                                .cb_mem    = &mEventLoopTaskControlBlock,
+                                                .cb_size   = osThreadCbSize,
+                                                .stack_mem = mEventLoopStack,
 #endif // CHIP_CONFIG_CMSISOS_USE_STATIC_TASK
-        .stack_size = CHIP_DEVICE_CONFIG_CHIP_TASK_STACK_SIZE,
-        .priority   = CHIP_DEVICE_CONFIG_CHIP_TASK_PRIORITY
-    };
+                                                .stack_size = CHIP_DEVICE_CONFIG_CHIP_TASK_STACK_SIZE,
+                                                .priority   = CHIP_DEVICE_CONFIG_CHIP_TASK_PRIORITY };
 
 #if defined(CHIP_CONFIG_CMSISOS_USE_STATIC_MUTEX) && CHIP_CONFIG_CMSISOS_USE_STATIC_MUTEX
     osMutexCbSize uint8_t mMutexControlBlock[osMutexCbSize];
@@ -160,17 +158,15 @@ private:
     osThread_t mBackgroundEventLoopTaskControlBlock;
 #endif // CHIP_CONFIG_CMSISOS_USE_STATIC_TASK
 
-    const osThreadAttr_t mBgEventLoopTaskAttr = {
-        .name      = CHIP_DEVICE_CONFIG_BG_TASK_NAME,
-        .attr_bits = osThreadDetached,
+    const osThreadAttr_t mBgEventLoopTaskAttr = { .name      = CHIP_DEVICE_CONFIG_BG_TASK_NAME,
+                                                  .attr_bits = osThreadDetached,
 #if defined(CHIP_CONFIG_CMSISOS_USE_STATIC_TASK) && CHIP_CONFIG_CMSISOS_USE_STATIC_TASK
-        .cb_mem    = &mBackgroundEventLoopTaskControlBlock,
-        .cb_size   = osThreadCbSize,
-        .stack_mem = mBackgroundEventLoopStack,
+                                                  .cb_mem    = &mBackgroundEventLoopTaskControlBlock,
+                                                  .cb_size   = osThreadCbSize,
+                                                  .stack_mem = mBackgroundEventLoopStack,
 #endif // CHIP_CONFIG_CMSISOS_USE_STATIC_TASK
-        .stack_size = CHIP_DEVICE_CONFIG_BG_TASK_STACK_SIZE,
-        .priority   = CHIP_DEVICE_CONFIG_BG_TASK_PRIORITY
-    };
+                                                  .stack_size = CHIP_DEVICE_CONFIG_BG_TASK_STACK_SIZE,
+                                                  .priority   = CHIP_DEVICE_CONFIG_BG_TASK_PRIORITY };
 #endif // CHIP_DEVICE_CONFIG_ENABLE_BG_EVENT_PROCESSING
 };
 

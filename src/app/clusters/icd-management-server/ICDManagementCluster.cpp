@@ -94,10 +94,10 @@ ICDManagementCluster::ICDManagementCluster(EndpointId endpointId, Crypto::Symmet
                                            BitMask<IcdManagement::OptionalCommands> enabledCommands,
                                            BitMask<IcdManagement::UserActiveModeTriggerBitmap> userActiveModeTriggerBitmap,
                                            CharSpan userActiveModeTriggerInstruction) :
-    DefaultServerCluster({ endpointId, IcdManagement::Id }),
-    mSymmetricKeystore(symmetricKeystore), mFabricTable(fabricTable), mICDConfigurationData(icdConfigurationData),
-    mOptionalAttributeSet(optionalAttributeSet), mUserActiveModeTriggerBitmap(userActiveModeTriggerBitmap),
-    mEnabledCommands(enabledCommands), mUserActiveModeTriggerInstructionLength(0)
+    DefaultServerCluster({ endpointId, IcdManagement::Id }), mSymmetricKeystore(symmetricKeystore), mFabricTable(fabricTable),
+    mICDConfigurationData(icdConfigurationData), mOptionalAttributeSet(optionalAttributeSet),
+    mUserActiveModeTriggerBitmap(userActiveModeTriggerBitmap), mEnabledCommands(enabledCommands),
+    mUserActiveModeTriggerInstructionLength(0)
 {
     static_assert(sizeof(mUserActiveModeTriggerInstruction) <= UINT8_MAX,
                   "mUserActiveModeTriggerInstruction size must fit in uint8_t");

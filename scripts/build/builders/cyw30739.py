@@ -73,8 +73,7 @@ class Cyw30739Builder(GnBuilder):
         board: Cyw30739Board = Cyw30739Board.CYW30739B2_P5_EVK_01,
         release: bool = False,
     ):
-        super(Cyw30739Builder, self).__init__(
-            root=app.BuildRoot(root), runner=runner)
+        super(Cyw30739Builder, self).__init__(root=app.BuildRoot(root), runner=runner)
         self.app = app
         self.board = board
         self.release = release
@@ -95,7 +94,7 @@ class Cyw30739Builder(GnBuilder):
     def GnBuildArgs(self):
         args = super().GnBuildArgs()
         if self.release:
-            args.append('is_debug=false')
+            args.append("is_debug=false")
         return args
 
     def build_outputs(self):

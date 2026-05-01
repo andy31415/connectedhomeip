@@ -32,8 +32,7 @@ constexpr uint16_t kMaxTolerance = 2048;
 TemperatureMeasurementCluster::TemperatureMeasurementCluster(EndpointId endpointId,
                                                              const OptionalAttributeSet & optionalAttributeSet,
                                                              const StartupConfiguration & config) :
-    DefaultServerCluster({ endpointId, TemperatureMeasurement::Id }),
-    mOptionalAttributeSet(optionalAttributeSet)
+    DefaultServerCluster({ endpointId, TemperatureMeasurement::Id }), mOptionalAttributeSet(optionalAttributeSet)
 {
     if (!config.minMeasuredValue.IsNull())
     {

@@ -60,7 +60,13 @@ class EventSubscriptionHandler:
         _q: Internal queue that stores matching EventReadResult objects.
     """
 
-    def __init__(self, *, expected_cluster: Optional[ClusterObjects.Cluster] = None, expected_cluster_id: Optional[int] = None, expected_event_id: Optional[int] = None):
+    def __init__(
+        self,
+        *,
+        expected_cluster: Optional[ClusterObjects.Cluster] = None,
+        expected_cluster_id: Optional[int] = None,
+        expected_event_id: Optional[int] = None,
+    ):
         is_cluster_mode = expected_cluster is not None
         is_id_mode = all(x is not None for x in (expected_cluster_id, expected_event_id))
 
@@ -98,13 +104,27 @@ class EventSubscriptionHandler:
         LOGGER.info(f"[EventSubscriptionHandler] Received event: {header}")
         self._q.put(event_result)
 
-    async def start(self, dev_ctrl, node_id: int, endpoint: int, fabric_filtered: bool = False, min_interval_sec: int = 0, max_interval_sec: int = 30, keepSubscriptions: bool = True, autoResubscribe: bool = False) -> Any:
+    async def start(
+        self,
+        dev_ctrl,
+        node_id: int,
+        endpoint: int,
+        fabric_filtered: bool = False,
+        min_interval_sec: int = 0,
+        max_interval_sec: int = 30,
+        keepSubscriptions: bool = True,
+        autoResubscribe: bool = False,
+    ) -> Any:
         """This starts a subscription for events on the specified node_id and endpoint. The cluster is specified when the class instance is created."""
         urgent = True
-        self._subscription = await dev_ctrl.ReadEvent(node_id,
-                                                      events=[(endpoint, self._expected_cluster, urgent)], reportInterval=(
-                                                          min_interval_sec, max_interval_sec),
-                                                      fabricFiltered=fabric_filtered, keepSubscriptions=keepSubscriptions, autoResubscribe=autoResubscribe)
+        self._subscription = await dev_ctrl.ReadEvent(
+            node_id,
+            events=[(endpoint, self._expected_cluster, urgent)],
+            reportInterval=(min_interval_sec, max_interval_sec),
+            fabricFiltered=fabric_filtered,
+            keepSubscriptions=keepSubscriptions,
+            autoResubscribe=autoResubscribe,
+        )
         self._subscription.SetEventUpdateCallback(self.__call__)
         return self._subscription
 
@@ -114,7 +134,7 @@ class EventSubscriptionHandler:
 
     def wait_for_event_report(self, expected_event: ClusterObjects.ClusterEvent, timeout_sec: float = 10.0) -> Any:
         """This function allows a test script to block waiting for the specific event to be the next event
-           to arrive within a timeout (specified in seconds). It returns the event data so that the values can be checked."""
+        to arrive within a timeout (specified in seconds). It returns the event data so that the values can be checked."""
         LOGGER.info(f"Waiting for {expected_event} for {timeout_sec:.1f} seconds")
         try:
             res = self._q.get(block=True, timeout=timeout_sec)
@@ -128,7 +148,7 @@ class EventSubscriptionHandler:
 
     def wait_for_event_expect_no_report(self, timeout_sec: float = 10.0):
         """This function returns if an event does not arrive within the timeout specified in seconds.
-           If any event does arrive, an assert failure occurs."""
+        If any event does arrive, an assert failure occurs."""
         try:
             res = self._q.get(block=True, timeout=timeout_sec)
         except queue.Empty:
@@ -205,8 +225,9 @@ class AttributeSubscriptionHandler:
         _attribute_report_counts: Dictionary counting the number of reports received per attribute.
     """
 
-    def __init__(self, expected_cluster: ClusterObjects.Cluster = None, expected_attribute: ClusterObjects.ClusterAttributeDescriptor = None):
-
+    def __init__(
+        self, expected_cluster: ClusterObjects.Cluster = None, expected_attribute: ClusterObjects.ClusterAttributeDescriptor = None
+    ):
         if expected_cluster is None:
             raise ValueError("Missing argument. Expected Cluster attribute is missing in AttributeSubscriptionHandler constructor")
 
@@ -223,8 +244,11 @@ class AttributeSubscriptionHandler:
     def reset(self):
         with self._lock:
             self._attribute_report_counts = {}
-            attrs = [cls for name, cls in inspect.getmembers(self._expected_cluster.Attributes) if inspect.isclass(
-                cls) and issubclass(cls, ClusterObjects.ClusterAttributeDescriptor)]
+            attrs = [
+                cls
+                for name, cls in inspect.getmembers(self._expected_cluster.Attributes)
+                if inspect.isclass(cls) and issubclass(cls, ClusterObjects.ClusterAttributeDescriptor)
+            ]
             self._attribute_reports: dict[Any, AttributeValue] = {}
             if self._expected_attribute is not None:
                 attrs = [self._expected_attribute]
@@ -234,7 +258,16 @@ class AttributeSubscriptionHandler:
 
         self.flush_reports()
 
-    async def start(self, dev_ctrl, node_id: int, endpoint: int, fabric_filtered: bool = False, min_interval_sec: int = 0, max_interval_sec: int = 5, keepSubscriptions: bool = True) -> Any:
+    async def start(
+        self,
+        dev_ctrl,
+        node_id: int,
+        endpoint: int,
+        fabric_filtered: bool = False,
+        min_interval_sec: int = 0,
+        max_interval_sec: int = 5,
+        keepSubscriptions: bool = True,
+    ) -> Any:
         """This starts a subscription for attributes on the specified node_id and endpoint. The cluster is specified when the class instance is created."""
         attributes = [(endpoint, self._expected_cluster)]
         if self._expected_attribute is not None:
@@ -244,7 +277,7 @@ class AttributeSubscriptionHandler:
             attributes=attributes,
             reportInterval=(int(min_interval_sec), int(max_interval_sec)),
             fabricFiltered=fabric_filtered,
-            keepSubscriptions=keepSubscriptions
+            keepSubscriptions=keepSubscriptions,
         )
         self._endpoint_id = endpoint
         self._subscription.SetAttributeUpdateCallback(self.__call__)
@@ -276,8 +309,9 @@ class AttributeSubscriptionHandler:
 
         if valid_report:
             data = transaction.GetAttribute(path)
-            value = AttributeValue(endpoint_id=path.Path.EndpointId, attribute=path.AttributeType,
-                                   value=data, timestamp_utc=datetime.now(timezone.utc))
+            value = AttributeValue(
+                endpoint_id=path.Path.EndpointId, attribute=path.AttributeType, value=data, timestamp_utc=datetime.now(timezone.utc)
+            )
             LOGGER.info(f"[AttributeSubscriptionHandler] Received attribute report: {path.AttributeType} = {data}")
             self._q.put(value)
             if self._lock:
@@ -295,9 +329,7 @@ class AttributeSubscriptionHandler:
         try:
             item: AttributeValue = self._q.get(block=True, timeout=timeout_sec)
         except queue.Empty:
-            asserts.fail(
-                f"[AttributeSubscriptionHandler] Timeout waiting for attribute report after {timeout_sec:.1f}s"
-            )
+            asserts.fail(f"[AttributeSubscriptionHandler] Timeout waiting for attribute report after {timeout_sec:.1f}s")
         return item
 
     def wait_for_attribute_report(self, timeout_sec: float = 10.0) -> AttributeValue:
@@ -336,8 +368,7 @@ class AttributeSubscriptionHandler:
         report_matches: dict[int, bool] = {idx: True for idx, _ in enumerate(expected_matchers)}
 
         for matcher in expected_matchers:
-            LOGGER.info(
-                f"--> Matcher waiting: {matcher.description}")
+            LOGGER.info(f"--> Matcher waiting: {matcher.description}")
         LOGGER.info(f"Waiting for {timeout_sec:.1f} seconds for all reports.")
 
         while time_remaining > 0:
@@ -377,7 +408,8 @@ class AttributeSubscriptionHandler:
 
         for element in expected_final_values:
             LOGGER.info(
-                f"--> Expecting report for value {element.value} for attribute {element.attribute} on endpoint {element.endpoint_id}")
+                f"--> Expecting report for value {element.value} for attribute {element.attribute} on endpoint {element.endpoint_id}"
+            )
         LOGGER.info(f"Waiting for {timeout_sec:.1f} seconds for all reports.")
 
         while time_remaining > 0:
@@ -391,7 +423,7 @@ class AttributeSubscriptionHandler:
                     if report.endpoint_id == expected_element.endpoint_id:
                         last_value = report.value
 
-                last_report_matches[expected_idx] = (last_value is not None and last_value == expected_element.value)
+                last_report_matches[expected_idx] = last_value is not None and last_value == expected_element.value
 
             # Determine if all were met
             if all(last_report_matches.values()):
@@ -426,8 +458,7 @@ class AttributeSubscriptionHandler:
         report_matches: dict[int, bool] = {idx: False for idx, _ in enumerate(expected_matchers)}
 
         for matcher in expected_matchers:
-            LOGGER.info(
-                f"--> Matcher waiting: {matcher.description}")
+            LOGGER.info(f"--> Matcher waiting: {matcher.description}")
         LOGGER.info(f"Waiting for {timeout_sec:.1f} seconds for all reports.")
 
         while time_remaining > 0:
@@ -492,11 +523,14 @@ class AttributeSubscriptionHandler:
                     actual_values.append(item.value)
 
                     if item.value == expected_value:
-                        LOGGER.info(f"Got expected attribute change {sequence_idx+1}/{len(sequence)} for attribute {attribute}")
+                        LOGGER.info(f"Got expected attribute change {sequence_idx + 1}/{len(sequence)} for attribute {attribute}")
                         sequence_idx += 1
                     else:
-                        asserts.assert_equal(item.value, expected_value,
-                                             msg=f"Did not get expected attribute value in correct sequence. Sequence so far: {actual_values}")
+                        asserts.assert_equal(
+                            item.value,
+                            expected_value,
+                            msg=f"Did not get expected attribute value in correct sequence. Sequence so far: {actual_values}",
+                        )
 
                     # We are done waiting when we have accumulated all results.
                     if sequence_idx == len(sequence):

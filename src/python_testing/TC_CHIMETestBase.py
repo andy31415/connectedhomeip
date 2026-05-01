@@ -22,7 +22,6 @@ from matter.interaction_model import InteractionModelError, Status
 
 
 class CHIMETestBase:
-
     async def read_chime_attribute_expect_success(self, endpoint, attribute):
         cluster = Clusters.Objects.Chime
         return await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attribute)
@@ -37,9 +36,7 @@ class CHIMETestBase:
 
     async def send_play_chime_sound_command(self, endpoint, chimeID: int = None, expected_status: Status = Status.Success):
         try:
-            await self.send_single_cmd(cmd=Clusters.Chime.Commands.PlayChimeSound(
-                chimeID=chimeID),
-                endpoint=endpoint)
+            await self.send_single_cmd(cmd=Clusters.Chime.Commands.PlayChimeSound(chimeID=chimeID), endpoint=endpoint)
 
             asserts.assert_equal(expected_status, Status.Success)
 

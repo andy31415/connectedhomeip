@@ -67,8 +67,14 @@ class TC_AVSUM_2_2(MatterBaseTest, AVSUMTestBase):
             TestStep(6, "Read and verify the PanMax attribute."),
             TestStep(7, "Create a valid value for a Pan"),
             TestStep(8, "Set the new Pan value via the MPTZSetPosition command. Verify success response."),
-            TestStep(9, "Once the MovementState has returned to Idle, read MPTZPosition. Verify the Pan value is that set in Step 8. Verify that Tilt and Zoom are unchanged."),
-            TestStep(10, "If PIXIT.CANBEMADEBUSY is set, place the DUT into a state where it cannot accept a command. Else jump to step 12."),
+            TestStep(
+                9,
+                "Once the MovementState has returned to Idle, read MPTZPosition. Verify the Pan value is that set in Step 8. Verify that Tilt and Zoom are unchanged.",
+            ),
+            TestStep(
+                10,
+                "If PIXIT.CANBEMADEBUSY is set, place the DUT into a state where it cannot accept a command. Else jump to step 12.",
+            ),
             TestStep(11, "Send an MPTZSetPositionCommand with the previously set Pan value. Verify failure response."),
             TestStep(12, "Create an invalid value for a Pan."),
             TestStep(13, "Set the invalid value via the MPTZSetPosition command. Verify failure response."),
@@ -77,14 +83,20 @@ class TC_AVSUM_2_2(MatterBaseTest, AVSUMTestBase):
             TestStep(16, "Read and verify the TiltMax attribute."),
             TestStep(17, "Create a valid value for a Tilt different from the initial value."),
             TestStep(18, "Set the new Tilt value via the MPTZSetPosition command. Verify success response."),
-            TestStep(19, "Once the MovementState has returned to Idle, read MPTZPosition. Verify the Tilt value is that set in Step 18. Verify that Pan and Zoom are unchanged."),
+            TestStep(
+                19,
+                "Once the MovementState has returned to Idle, read MPTZPosition. Verify the Tilt value is that set in Step 18. Verify that Pan and Zoom are unchanged.",
+            ),
             TestStep(20, "Create an invalid value for a Tilt."),
             TestStep(21, "Set the invalid value via the MPTZSetPosition command. Verify failure response."),
             TestStep(22, "Read MPTZPosition. Verify the Tilt value is that set in Step 18."),
             TestStep(23, "If Zoom is supported, read and verify the ZoomMax attribute."),
             TestStep(24, "Create a valid value for Zoom."),
             TestStep(25, "Set the new Zoom value via the MPTZSetPosition command. Verify success response."),
-            TestStep(26, "Once the MovementState has returned to Idle, read MPTZPosition. Verify the Zoom value is that set in Step 25. Verify that Pan and Tilt are unchanged."),
+            TestStep(
+                26,
+                "Once the MovementState has returned to Idle, read MPTZPosition. Verify the Zoom value is that set in Step 25. Verify that Pan and Tilt are unchanged.",
+            ),
             TestStep(27, "Create an invalid value for a Zoom."),
             TestStep(28, "Set the invalid value via the MPTZSetPosition command. Verify failure response."),
             TestStep(29, "Read MPTZPosition. Verify the Zoom value is that set in Step 25."),
@@ -116,8 +128,9 @@ class TC_AVSUM_2_2(MatterBaseTest, AVSUMTestBase):
             asserts.fail("One of MPAN, MTILT, or MZOOM is mandatory for command support")
 
         self.step(2)
-        asserts.assert_in(attributes.MPTZPosition.attribute_id, attribute_list,
-                          "MPTZPosition attribute is mandatory if the command is supported.")
+        asserts.assert_in(
+            attributes.MPTZPosition.attribute_id, attribute_list, "MPTZPosition attribute is mandatory if the command is supported."
+        )
         mptzposition_dut = await self.read_avsum_attribute_expect_success(endpoint, attributes.MPTZPosition)
         currentPan = mptzposition_dut.pan
         currentTilt = mptzposition_dut.tilt
@@ -129,24 +142,29 @@ class TC_AVSUM_2_2(MatterBaseTest, AVSUMTestBase):
         self.step(4)
         # Establish subscription to MovementState
         sub_handler = AttributeSubscriptionHandler(cluster, attributes.MovementState)
-        await sub_handler.start(self.default_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
+        await sub_handler.start(
+            self.default_controller,
+            self.dut_node_id,
+            endpoint=endpoint,
+            min_interval_sec=0,
+            max_interval_sec=30,
+            keepSubscriptions=False,
+        )
 
         # Create attribute matchers
         movement_state_match = AttributeMatcher.from_callable(
-            "MovementState is IDLE",
-            lambda report: report.value == cluster.Enums.PhysicalMovementEnum.kIdle)
+            "MovementState is IDLE", lambda report: report.value == cluster.Enums.PhysicalMovementEnum.kIdle
+        )
 
         if self.has_feature_mpan:
             self.step(5)
-            asserts.assert_in(attributes.PanMin.attribute_id, attribute_list,
-                              "PanMin attribute is a mandatory attribute if MPAN.")
+            asserts.assert_in(attributes.PanMin.attribute_id, attribute_list, "PanMin attribute is a mandatory attribute if MPAN.")
             pan_min_dut = await self.read_avsum_attribute_expect_success(endpoint, attributes.PanMin)
             asserts.assert_less_equal(pan_min_dut, self.SPEC_PANMIN_MAX_VALUE, "PanMin is not in valid range.")
             asserts.assert_greater_equal(pan_min_dut, self.SPEC_PANMIN_MIN_VALUE, "PanMin is not in valid range.")
 
             self.step(6)
-            asserts.assert_in(attributes.PanMax.attribute_id, attribute_list,
-                              "PanMax attribute is a mandatory attribute if MPAN.")
+            asserts.assert_in(attributes.PanMax.attribute_id, attribute_list, "PanMax attribute is a mandatory attribute if MPAN.")
             pan_max_dut = await self.read_avsum_attribute_expect_success(endpoint, attributes.PanMax)
             asserts.assert_less_equal(pan_max_dut, self.SPEC_PANMAX_MAX_VALUE, "PanMax is not in valid range.")
             asserts.assert_greater_equal(pan_max_dut, self.SPEC_PANMAX_MIN_VALUE, "PanMax is not in valid range.")
@@ -210,15 +228,17 @@ class TC_AVSUM_2_2(MatterBaseTest, AVSUMTestBase):
 
         if self.has_feature_mtilt:
             self.step(15)
-            asserts.assert_in(attributes.TiltMin.attribute_id, attribute_list,
-                              "TiltMin attribute is a mandatory attribute if MTILT.")
+            asserts.assert_in(
+                attributes.TiltMin.attribute_id, attribute_list, "TiltMin attribute is a mandatory attribute if MTILT."
+            )
             tilt_min_dut = await self.read_avsum_attribute_expect_success(endpoint, attributes.TiltMin)
             asserts.assert_less_equal(tilt_min_dut, self.SPEC_TILTMIN_MAX_VALUE, "TiltMin is not in valid range.")
             asserts.assert_greater_equal(tilt_min_dut, self.SPEC_TILTMIN_MIN_VALUE, "TiltMin is not in valid range.")
 
             self.step(16)
-            asserts.assert_in(attributes.TiltMax.attribute_id, attribute_list,
-                              "TiltMax attribute is a mandatory attribute if MTILT.")
+            asserts.assert_in(
+                attributes.TiltMax.attribute_id, attribute_list, "TiltMax attribute is a mandatory attribute if MTILT."
+            )
             tilt_max_dut = await self.read_avsum_attribute_expect_success(endpoint, attributes.TiltMax)
             asserts.assert_less_equal(tilt_max_dut, self.SPEC_TILTMAX_MAX_VALUE, "TiltMax is not in valid range.")
             asserts.assert_greater_equal(tilt_max_dut, self.SPEC_TILTMAX_MIN_VALUE, "TiltMax is not in valid range.")
@@ -267,8 +287,9 @@ class TC_AVSUM_2_2(MatterBaseTest, AVSUMTestBase):
 
         if self.has_feature_mzoom:
             self.step(23)
-            asserts.assert_in(attributes.ZoomMax.attribute_id, attribute_list,
-                              "ZoomMax attribute is a mandatory attribute if MZOOM.")
+            asserts.assert_in(
+                attributes.ZoomMax.attribute_id, attribute_list, "ZoomMax attribute is a mandatory attribute if MZOOM."
+            )
             zoom_max_dut = await self.read_avsum_attribute_expect_success(endpoint, attributes.ZoomMax)
             asserts.assert_less_equal(zoom_max_dut, self.SPEC_ZOOMMAX_MAX_VALUE, "ZoomMax is not in valid range.")
             asserts.assert_greater_equal(zoom_max_dut, self.SPEC_ZOOMMAX_MIN_VALUE, "ZoomMax is not in valid range.")

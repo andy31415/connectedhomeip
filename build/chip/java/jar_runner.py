@@ -58,18 +58,18 @@ def FindCommand(command):
         if IsExecutable(command):
             return command
 
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         # On Windows, if the command does not have an extension, cmd.exe will
         # try all extensions from PATHEXT when resolving the full path.
         command, ext = os.path.splitext(command)
         if not ext:
-            exts = os.environ['PATHEXT'].split(os.path.pathsep)
+            exts = os.environ["PATHEXT"].split(os.path.pathsep)
         else:
             exts = [ext]
     else:
-        exts = ['']
+        exts = [""]
 
-    for path in os.environ['PATH'].split(os.path.pathsep):
+    for path in os.environ["PATH"].split(os.path.pathsep):
         for ext in exts:
             path = os.path.join(path, command) + ext
             if IsExecutable(path):
@@ -79,18 +79,18 @@ def FindCommand(command):
 
 
 def main():
-    java_home = FindCommand('jar')
+    java_home = FindCommand("jar")
     if not java_home:
-        sys.stderr.write('jar: command not found\n')
+        sys.stderr.write("jar: command not found\n")
         sys.exit(EXIT_FAILURE)
 
     args = sys.argv[1:]
     if len(args) < 1:
-        sys.stderr.write('usage: %s [jar_args]...\n' % sys.argv[0])
+        sys.stderr.write("usage: %s [jar_args]...\n" % sys.argv[0])
         sys.exit(EXIT_FAILURE)
 
     return subprocess.check_call([java_home] + args)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

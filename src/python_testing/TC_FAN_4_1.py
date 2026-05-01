@@ -78,70 +78,156 @@ class TC_FAN_4_1(MatterBaseTest):
         asserts.fail(f"Unknown FanModeSequence {fan_mode_sequence}")
         return None
 
-    def _sub_step(self, start_step: int, attribute_to_set: str, value: str, verify_mode: str, verify_percent: str, verify_speed: str, spd_check: bool = False):
+    def _sub_step(
+        self,
+        start_step: int,
+        attribute_to_set: str,
+        value: str,
+        verify_mode: str,
+        verify_percent: str,
+        verify_speed: str,
+        spd_check: bool = False,
+    ):
         spd = ""
         if spd_check:
             spd = "If SPD is not supported, skip this step and the next 6 steps. "
-        return [TestStep(start_step, f"{spd}Set the {attribute_to_set} to {value}. If the write returns INVALID_IN_STATE, skip the next six steps", "INVALID_IN_STATE or SUCCESS"),
-                TestStep(start_step + 1, "Read the FanMode", f"Verify FanMode is set to {verify_mode}"),
-                TestStep(start_step + 2, "Read PercentSetting", f"Verify PercentSetting is {verify_percent}"),
-                TestStep(start_step + 3, "Wait for PIXIT.FanStartTime seconds"),
-                TestStep(start_step + 4, "Read PercentCurrent", "PercentCurrent is 0"),
-                TestStep(start_step + 5, "If SPD is supported, Read SpeedSetting", f"Verify SpeedSetting is {verify_speed}"),
-                TestStep(start_step + 6, "If SPD is supported, Read SpeedCurrent", "SpeedCurrent is 0")
-                ]
+        return [
+            TestStep(
+                start_step,
+                f"{spd}Set the {attribute_to_set} to {value}. If the write returns INVALID_IN_STATE, skip the next six steps",
+                "INVALID_IN_STATE or SUCCESS",
+            ),
+            TestStep(start_step + 1, "Read the FanMode", f"Verify FanMode is set to {verify_mode}"),
+            TestStep(start_step + 2, "Read PercentSetting", f"Verify PercentSetting is {verify_percent}"),
+            TestStep(start_step + 3, "Wait for PIXIT.FanStartTime seconds"),
+            TestStep(start_step + 4, "Read PercentCurrent", "PercentCurrent is 0"),
+            TestStep(start_step + 5, "If SPD is supported, Read SpeedSetting", f"Verify SpeedSetting is {verify_speed}"),
+            TestStep(start_step + 6, "If SPD is supported, Read SpeedCurrent", "SpeedCurrent is 0"),
+        ]
 
     def steps_TC_FAN_4_1(self):
-        steps = [TestStep(1, "TH Commissions DUT.", is_commissioning=True),
-                 TestStep(2, "TH subscribes to the Fan control cluster", "SUCCESS"),
-                 TestStep(3, "TH reads the supported fan modes", "SUCCESS"),
-                 TestStep(4, "If SPD is supported, TH reads SpeedMax", "SUCCESS"),
-
-                 TestStep(5, "TH sends the On command to the On/Off cluster", "DUT returns SUCCESS"),
-                 TestStep(6, "TH sets the FanMode attribute on the Fan Control cluster to High", "DUT returns SUCCESS"),
-
-                 TestStep(7, "TH reads the PercentSetting attribute from the Fan Control cluster and saves as `percent_setting_original`", "SUCCESS"),
-                 TestStep(8, "If the SPD feature is supported, TH reads the SpeedSetting attribute from the Fan Control cluster and saves as `speed_setting_original`", "SUCCESS"),
-                 TestStep(9, "TH reads the PercentCurrent attribute from the Fan Control cluster", "SUCCESS"),
-                 TestStep(10, "If PercentCurrent is not equal to PercentSetting, TH awaits an attribute report for the PercentCurrent matching PercentSetting", "Report is received"),
-
-                 TestStep(11, "TH sends the Off command to the On/Off cluster", "DUT returns SUCCESS"),
-                 TestStep(12, "TH awaits the following attribute reports (order does not matter): PercentCurrent is 0, SpeedCurrent is 0 (if SPD feature is supported)", "Report(s) are received"),
-                 TestStep(13, "TH reads the FanMode attribute", "FanMode is set to HIGH"),
-                 TestStep(14, "TH reads the PercentSetting attribute", "PercentSetting matches `percent_setting_original"),
-                 TestStep(15, "If the SPD feature is supported, TH reads the SpeedSetting",
-                          "SpeedSetting matches `speed_setting_original`"),
-                 ]
+        steps = [
+            TestStep(1, "TH Commissions DUT.", is_commissioning=True),
+            TestStep(2, "TH subscribes to the Fan control cluster", "SUCCESS"),
+            TestStep(3, "TH reads the supported fan modes", "SUCCESS"),
+            TestStep(4, "If SPD is supported, TH reads SpeedMax", "SUCCESS"),
+            TestStep(5, "TH sends the On command to the On/Off cluster", "DUT returns SUCCESS"),
+            TestStep(6, "TH sets the FanMode attribute on the Fan Control cluster to High", "DUT returns SUCCESS"),
+            TestStep(
+                7,
+                "TH reads the PercentSetting attribute from the Fan Control cluster and saves as `percent_setting_original`",
+                "SUCCESS",
+            ),
+            TestStep(
+                8,
+                "If the SPD feature is supported, TH reads the SpeedSetting attribute from the Fan Control cluster and saves as `speed_setting_original`",
+                "SUCCESS",
+            ),
+            TestStep(9, "TH reads the PercentCurrent attribute from the Fan Control cluster", "SUCCESS"),
+            TestStep(
+                10,
+                "If PercentCurrent is not equal to PercentSetting, TH awaits an attribute report for the PercentCurrent matching PercentSetting",
+                "Report is received",
+            ),
+            TestStep(11, "TH sends the Off command to the On/Off cluster", "DUT returns SUCCESS"),
+            TestStep(
+                12,
+                "TH awaits the following attribute reports (order does not matter): PercentCurrent is 0, SpeedCurrent is 0 (if SPD feature is supported)",
+                "Report(s) are received",
+            ),
+            TestStep(13, "TH reads the FanMode attribute", "FanMode is set to HIGH"),
+            TestStep(14, "TH reads the PercentSetting attribute", "PercentSetting matches `percent_setting_original"),
+            TestStep(
+                15, "If the SPD feature is supported, TH reads the SpeedSetting", "SpeedSetting matches `speed_setting_original`"
+            ),
+        ]
         num = 16
         num_substeps = 7
-        steps.extend(self._sub_step(num, attribute_to_set="PercentSetting", value="1",
-                     verify_mode="lowest supported mode above Off", verify_percent="1", verify_speed="1"))
+        steps.extend(
+            self._sub_step(
+                num,
+                attribute_to_set="PercentSetting",
+                value="1",
+                verify_mode="lowest supported mode above Off",
+                verify_percent="1",
+                verify_speed="1",
+            )
+        )
         num += num_substeps
-        steps.extend(self._sub_step(num, attribute_to_set="PercentSetting", value="0",
-                     verify_mode="Off", verify_percent="0", verify_speed="0"))
+        steps.extend(
+            self._sub_step(
+                num, attribute_to_set="PercentSetting", value="0", verify_mode="Off", verify_percent="0", verify_speed="0"
+            )
+        )
         num += num_substeps
-        steps.extend(self._sub_step(num, attribute_to_set="FanMode", value="High",
-                     verify_mode="High", verify_percent="not 0", verify_speed="not 0"))
+        steps.extend(
+            self._sub_step(
+                num, attribute_to_set="FanMode", value="High", verify_mode="High", verify_percent="not 0", verify_speed="not 0"
+            )
+        )
         num += num_substeps
-        steps.extend(self._sub_step(num, attribute_to_set="FanMode", value="Off",
-                     verify_mode="Off", verify_percent="0", verify_speed="0"))
+        steps.extend(
+            self._sub_step(num, attribute_to_set="FanMode", value="Off", verify_mode="Off", verify_percent="0", verify_speed="0")
+        )
         num += num_substeps
-        steps.extend(self._sub_step(num, attribute_to_set="SpeedSetting", value="SpeedMax",
-                     verify_mode="High", verify_percent="not 0", verify_speed="SpeedMax", spd_check=True))
+        steps.extend(
+            self._sub_step(
+                num,
+                attribute_to_set="SpeedSetting",
+                value="SpeedMax",
+                verify_mode="High",
+                verify_percent="not 0",
+                verify_speed="SpeedMax",
+                spd_check=True,
+            )
+        )
         num += num_substeps
-        steps.extend(self._sub_step(num, attribute_to_set="SpeedSetting", value="0",
-                     verify_mode="Off", verify_percent="0", verify_speed="0", spd_check=True))
+        steps.extend(
+            self._sub_step(
+                num,
+                attribute_to_set="SpeedSetting",
+                value="0",
+                verify_mode="Off",
+                verify_percent="0",
+                verify_speed="0",
+                spd_check=True,
+            )
+        )
         num += num_substeps
-        steps.extend(self._sub_step(num, attribute_to_set="PercentSetting", value="100",
-                     verify_mode="High", verify_percent="100", verify_speed="SpeedMax"))
+        steps.extend(
+            self._sub_step(
+                num,
+                attribute_to_set="PercentSetting",
+                value="100",
+                verify_mode="High",
+                verify_percent="100",
+                verify_speed="SpeedMax",
+            )
+        )
         num += num_substeps
 
-        steps.append(TestStep(
-            num, "TH reads the PercentSetting and SpeedSetting (if supported) values and saves as `percent_setting_before_on` and `speed_setting_before_on`"))
+        steps.append(
+            TestStep(
+                num,
+                "TH reads the PercentSetting and SpeedSetting (if supported) values and saves as `percent_setting_before_on` and `speed_setting_before_on`",
+            )
+        )
         steps.append(TestStep(num + 1, "TH sends On command to the On/Off cluster", "DUT returns SUCCESS"))
-        steps.append(TestStep(num + 2, "TH awaits the following attribute reports (order does not matter): PercentCurrent is `percent_setting_before_on`, SpeedCurrent is `speed_setting_before_on` (if SPD feature is supported)", "Reports are received"))
+        steps.append(
+            TestStep(
+                num + 2,
+                "TH awaits the following attribute reports (order does not matter): PercentCurrent is `percent_setting_before_on`, SpeedCurrent is `speed_setting_before_on` (if SPD feature is supported)",
+                "Reports are received",
+            )
+        )
         steps.append(TestStep(num + 3, "TH sets PercentSetting to 50", "Response is SUCCESS or INVALID_IN_STATE"))
-        steps.append(TestStep(num + 4, "If the response was SUCCESS, TH awaits the following attribute reports (order does not matter): PercentCurrent is 50, PercentSetting is 50", "Report(s) are received"))
+        steps.append(
+            TestStep(
+                num + 4,
+                "If the response was SUCCESS, TH awaits the following attribute reports (order does not matter): PercentCurrent is 50, PercentSetting is 50",
+                "Report(s) are received",
+            )
+        )
         return steps
 
     def pics_TC_FAN_4_1(self) -> list[str]:
@@ -156,7 +242,7 @@ class TC_FAN_4_1(MatterBaseTest):
         # Wait for the entire duration of the test because this fan may be slow. The test will time out before this does. That's fine.
         timeout = self.matter_test_config.timeout if self.matter_test_config.timeout is not None else self.default_timeout
 
-        wait_s = self.user_params.get('pixit_fan_start_time', 5)
+        wait_s = self.user_params.get("pixit_fan_start_time", 5)
 
         self.step(2)
         sub = AttributeSubscriptionHandler(expected_cluster=fan)
@@ -181,11 +267,15 @@ class TC_FAN_4_1(MatterBaseTest):
         asserts.assert_equal(resp[0].Status, Status.Success, "Unexpected error writing FanMode attribute")
 
         self.step(7)
-        percent_setting_original = await self.read_single_attribute_check_success(cluster=fan, attribute=fan.Attributes.PercentSetting)
+        percent_setting_original = await self.read_single_attribute_check_success(
+            cluster=fan, attribute=fan.Attributes.PercentSetting
+        )
 
         self.step(8)
         if await self.feature_guard(self.get_endpoint(), cluster=fan, feature_int=fan.Bitmaps.Feature.kMultiSpeed):
-            speed_setting_original = await self.read_single_attribute_check_success(cluster=fan, attribute=fan.Attributes.SpeedSetting)
+            speed_setting_original = await self.read_single_attribute_check_success(
+                cluster=fan, attribute=fan.Attributes.SpeedSetting
+            )
 
         self.step(9)
         percent_current = await self.read_single_attribute_check_success(cluster=fan, attribute=fan.Attributes.PercentCurrent)
@@ -193,7 +283,8 @@ class TC_FAN_4_1(MatterBaseTest):
         self.step(10)
         if percent_current != percent_setting_original:
             sub.await_all_final_values_reported(
-                expected_final_values=[fan.Attributes.PercentCurrent(percent_setting_original)], timeout_sec=timeout)
+                expected_final_values=[fan.Attributes.PercentCurrent(percent_setting_original)], timeout_sec=timeout
+            )
         else:
             self.mark_current_step_skipped()
 
@@ -213,20 +304,27 @@ class TC_FAN_4_1(MatterBaseTest):
 
         self.step(14)
         percent_setting_new = await self.read_single_attribute_check_success(cluster=fan, attribute=fan.Attributes.PercentSetting)
-        asserts.assert_equal(percent_setting_new, percent_setting_original,
-                             "PercentSetting was changed when on/off cluster was changed")
+        asserts.assert_equal(
+            percent_setting_new, percent_setting_original, "PercentSetting was changed when on/off cluster was changed"
+        )
 
         self.step(15)
         if await self.feature_guard(self.get_endpoint(), cluster=fan, feature_int=fan.Bitmaps.Feature.kMultiSpeed):
             speed_setting_new = await self.read_single_attribute_check_success(cluster=fan, attribute=fan.Attributes.SpeedSetting)
-            asserts.assert_equal(speed_setting_new, speed_setting_original,
-                                 "SpeedSetting was changed when on/off cluster was changed")
+            asserts.assert_equal(
+                speed_setting_new, speed_setting_original, "SpeedSetting was changed when on/off cluster was changed"
+            )
         step_num = 16
         num_substeps = 7
 
-        async def verify_onoff_off(attr: Clusters.ClusterObjects.ClusterAttributeDescriptor, expected_mode: Clusters.FanControl.Enums.FanModeEnum, expected_percent_setting: Optional[int], expected_speed_setting: Optional[int]):
-            """ Writes specified attribute and checks expected results for On/Off cluster in Off mode
-                None on PercentSetting or SpeedSetting just verifies the values are not 0.
+        async def verify_onoff_off(
+            attr: Clusters.ClusterObjects.ClusterAttributeDescriptor,
+            expected_mode: Clusters.FanControl.Enums.FanModeEnum,
+            expected_percent_setting: Optional[int],
+            expected_speed_setting: Optional[int],
+        ):
+            """Writes specified attribute and checks expected results for On/Off cluster in Off mode
+            None on PercentSetting or SpeedSetting just verifies the values are not 0.
             """
             nonlocal step_num
             self.step(step_num)
@@ -265,8 +363,9 @@ class TC_FAN_4_1(MatterBaseTest):
                 self.step(step_num + 5)
                 speed_setting = await self.read_single_attribute_check_success(cluster=fan, attribute=fan.Attributes.SpeedSetting)
                 if expected_speed_setting is not None:
-                    asserts.assert_equal(speed_setting, expected_speed_setting,
-                                         "Speed was not adjusted when percent was adjusted while fan was off")
+                    asserts.assert_equal(
+                        speed_setting, expected_speed_setting, "Speed was not adjusted when percent was adjusted while fan was off"
+                    )
                 else:
                     asserts.assert_not_equal(speed_setting, 0, "Incorrect speed setting")
 
@@ -279,24 +378,60 @@ class TC_FAN_4_1(MatterBaseTest):
             step_num += num_substeps
 
         lowest_mode = self.get_fan_modes(supported_fan_modes)[1]
-        await verify_onoff_off(attr=fan.Attributes.PercentSetting(1), expected_mode=lowest_mode, expected_percent_setting=1, expected_speed_setting=1)
-        await verify_onoff_off(attr=fan.Attributes.PercentSetting(0), expected_mode=fan.Enums.FanModeEnum.kOff, expected_percent_setting=0, expected_speed_setting=0)
-        await verify_onoff_off(attr=fan.Attributes.FanMode(fan.Enums.FanModeEnum.kHigh), expected_mode=fan.Enums.FanModeEnum.kHigh, expected_percent_setting=None, expected_speed_setting=None)
-        await verify_onoff_off(attr=fan.Attributes.FanMode(fan.Enums.FanModeEnum.kOff), expected_mode=fan.Enums.FanModeEnum.kOff, expected_percent_setting=0, expected_speed_setting=0)
+        await verify_onoff_off(
+            attr=fan.Attributes.PercentSetting(1), expected_mode=lowest_mode, expected_percent_setting=1, expected_speed_setting=1
+        )
+        await verify_onoff_off(
+            attr=fan.Attributes.PercentSetting(0),
+            expected_mode=fan.Enums.FanModeEnum.kOff,
+            expected_percent_setting=0,
+            expected_speed_setting=0,
+        )
+        await verify_onoff_off(
+            attr=fan.Attributes.FanMode(fan.Enums.FanModeEnum.kHigh),
+            expected_mode=fan.Enums.FanModeEnum.kHigh,
+            expected_percent_setting=None,
+            expected_speed_setting=None,
+        )
+        await verify_onoff_off(
+            attr=fan.Attributes.FanMode(fan.Enums.FanModeEnum.kOff),
+            expected_mode=fan.Enums.FanModeEnum.kOff,
+            expected_percent_setting=0,
+            expected_speed_setting=0,
+        )
         if has_spd:
-            await verify_onoff_off(attr=fan.Attributes.SpeedSetting(speed_max), expected_mode=fan.Enums.FanModeEnum.kHigh, expected_percent_setting=None, expected_speed_setting=speed_max)
-            await verify_onoff_off(attr=fan.Attributes.SpeedSetting(0), expected_mode=fan.Enums.FanModeEnum.kOff, expected_percent_setting=0, expected_speed_setting=0)
+            await verify_onoff_off(
+                attr=fan.Attributes.SpeedSetting(speed_max),
+                expected_mode=fan.Enums.FanModeEnum.kHigh,
+                expected_percent_setting=None,
+                expected_speed_setting=speed_max,
+            )
+            await verify_onoff_off(
+                attr=fan.Attributes.SpeedSetting(0),
+                expected_mode=fan.Enums.FanModeEnum.kOff,
+                expected_percent_setting=0,
+                expected_speed_setting=0,
+            )
         else:
-            for i in range(2*num_substeps):
+            for i in range(2 * num_substeps):
                 self.skip_step(step_num + i)
             step_num += 2 * num_substeps
 
-        await verify_onoff_off(attr=fan.Attributes.PercentSetting(100), expected_mode=fan.Enums.FanModeEnum.kHigh, expected_percent_setting=100, expected_speed_setting=speed_max)
+        await verify_onoff_off(
+            attr=fan.Attributes.PercentSetting(100),
+            expected_mode=fan.Enums.FanModeEnum.kHigh,
+            expected_percent_setting=100,
+            expected_speed_setting=speed_max,
+        )
 
         self.step(step_num)
-        percent_setting_before_on = await self.read_single_attribute_check_success(cluster=fan, attribute=fan.Attributes.PercentSetting)
+        percent_setting_before_on = await self.read_single_attribute_check_success(
+            cluster=fan, attribute=fan.Attributes.PercentSetting
+        )
         if has_spd:
-            speed_setting_before_on = await self.read_single_attribute_check_success(cluster=fan, attribute=fan.Attributes.SpeedSetting)
+            speed_setting_before_on = await self.read_single_attribute_check_success(
+                cluster=fan, attribute=fan.Attributes.SpeedSetting
+            )
         step_num += 1
 
         self.step(step_num)
@@ -304,11 +439,17 @@ class TC_FAN_4_1(MatterBaseTest):
         step_num += 1
 
         self.step(step_num)
-        awaiting = [AttributeValue(endpoint_id=self.get_endpoint(
-        ), attribute=fan.Attributes.PercentCurrent, value=percent_setting_before_on)]
+        awaiting = [
+            AttributeValue(
+                endpoint_id=self.get_endpoint(), attribute=fan.Attributes.PercentCurrent, value=percent_setting_before_on
+            )
+        ]
         if has_spd:
-            awaiting.append(AttributeValue(endpoint_id=self.get_endpoint(),
-                            attribute=fan.Attributes.SpeedCurrent, value=speed_setting_before_on))
+            awaiting.append(
+                AttributeValue(
+                    endpoint_id=self.get_endpoint(), attribute=fan.Attributes.SpeedCurrent, value=speed_setting_before_on
+                )
+            )
         sub.await_all_final_values_reported(expected_final_values=awaiting, timeout_sec=timeout)
         sub.reset()
         step_num += 1
@@ -323,8 +464,13 @@ class TC_FAN_4_1(MatterBaseTest):
         # we want to see a change on percent setting and percent current to 1
         self.step(step_num)
         if resp[0].Status == Status.Success:
-            sub.await_all_final_values_reported([AttributeValue(self.get_endpoint(), fan.Attributes.PercentSetting, 50), AttributeValue(
-                self.get_endpoint(), fan.Attributes.PercentCurrent, 50)], timeout_sec=timeout)
+            sub.await_all_final_values_reported(
+                [
+                    AttributeValue(self.get_endpoint(), fan.Attributes.PercentSetting, 50),
+                    AttributeValue(self.get_endpoint(), fan.Attributes.PercentCurrent, 50),
+                ],
+                timeout_sec=timeout,
+            )
         else:
             self.mark_current_step_skipped()
 

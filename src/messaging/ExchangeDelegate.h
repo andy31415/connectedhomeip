@@ -137,8 +137,8 @@ public:
     virtual ExchangeMessageDispatch & GetMessageDispatch() { return ApplicationExchangeDispatch::Instance(); }
 
 #if INET_CONFIG_ENABLE_TCP_ENDPOINT
-    virtual void HandleConnectionAttemptComplete(const Transport::ActiveTCPConnectionHandle & conn, CHIP_ERROR conErr){};
-    virtual void HandleConnectionClosed(const Transport::ActiveTCPConnectionState & conn, CHIP_ERROR conErr){};
+    virtual void HandleConnectionAttemptComplete(const Transport::ActiveTCPConnectionHandle & conn, CHIP_ERROR conErr) {};
+    virtual void HandleConnectionClosed(const Transport::ActiveTCPConnectionState & conn, CHIP_ERROR conErr) {};
 #endif // INET_CONFIG_ENABLE_TCP_ENDPOINT
 };
 

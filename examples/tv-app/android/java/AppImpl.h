@@ -98,9 +98,8 @@ public:
     ContentAppImpl(const char * szVendorName, uint16_t vendorId, const char * szApplicationName, uint16_t productId,
                    const char * szApplicationVersion, const char * setupPIN, std::vector<SupportedCluster> supportedClusters,
                    ContentAppAttributeDelegate * attributeDelegate, ContentAppCommandDelegate * commandDelegate) :
-        ContentApp{ supportedClusters },
-        mApplicationBasicDelegate(kCatalogVendorId, BuildAppId(vendorId), szVendorName, vendorId, szApplicationName, productId,
-                                  szApplicationVersion),
+        ContentApp{ supportedClusters }, mApplicationBasicDelegate(kCatalogVendorId, BuildAppId(vendorId), szVendorName, vendorId,
+                                                                   szApplicationName, productId, szApplicationVersion),
         mAccountLoginDelegate(commandDelegate, setupPIN),
         mContentLauncherDelegate(attributeDelegate, { "image/*", "video/*" },
                                  to_underlying(SupportedProtocolsBitmap::kDash) | to_underlying(SupportedProtocolsBitmap::kHls)),

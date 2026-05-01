@@ -30,11 +30,11 @@ class VoidPointer(c_void_p):
 
 
 def _GetBleLibraryHandle() -> ctypes.CDLL:
-    """ Get the native library handle with BLE method initialization.
+    """Get the native library handle with BLE method initialization.
 
-      Retrieves the CHIP native library handle and attaches signatures to
-      native methods.
-      """
+    Retrieves the CHIP native library handle and attaches signatures to
+    native methods.
+    """
 
     handle = GetLibraryHandle()
 
@@ -43,24 +43,28 @@ def _GetBleLibraryHandle() -> ctypes.CDLL:
     if handle.pychip_ble_adapter_list_new.restype != VoidPointer:
         setter = NativeLibraryHandleMethodArguments(handle)
 
-        setter.Set('pychip_ble_adapter_list_new', VoidPointer, [])
-        setter.Set('pychip_ble_adapter_list_next', c_bool, [VoidPointer])
-        setter.Set('pychip_ble_adapter_list_get_index',
-                   c_uint32, [VoidPointer])
-        setter.Set('pychip_ble_adapter_list_get_address',
-                   c_char_p, [VoidPointer])
-        setter.Set('pychip_ble_adapter_list_get_alias',
-                   c_char_p, [VoidPointer])
-        setter.Set('pychip_ble_adapter_list_get_name', c_char_p, [VoidPointer])
-        setter.Set('pychip_ble_adapter_list_is_powered', c_bool, [VoidPointer])
-        setter.Set('pychip_ble_adapter_list_delete', None, [VoidPointer])
-        setter.Set('pychip_ble_adapter_list_get_raw_adapter',
-                   VoidPointer, [VoidPointer])
+        setter.Set("pychip_ble_adapter_list_new", VoidPointer, [])
+        setter.Set("pychip_ble_adapter_list_next", c_bool, [VoidPointer])
+        setter.Set("pychip_ble_adapter_list_get_index", c_uint32, [VoidPointer])
+        setter.Set("pychip_ble_adapter_list_get_address", c_char_p, [VoidPointer])
+        setter.Set("pychip_ble_adapter_list_get_alias", c_char_p, [VoidPointer])
+        setter.Set("pychip_ble_adapter_list_get_name", c_char_p, [VoidPointer])
+        setter.Set("pychip_ble_adapter_list_is_powered", c_bool, [VoidPointer])
+        setter.Set("pychip_ble_adapter_list_delete", None, [VoidPointer])
+        setter.Set("pychip_ble_adapter_list_get_raw_adapter", VoidPointer, [VoidPointer])
 
-        setter.Set('pychip_ble_scanner_start', VoidPointer, [
-            py_object, VoidPointer, c_uint32, DeviceScannedCallback,
-            ScanDoneCallback, ScanErrorCallback,
-        ])
-        setter.Set('pychip_ble_scanner_delete', None, [VoidPointer])
+        setter.Set(
+            "pychip_ble_scanner_start",
+            VoidPointer,
+            [
+                py_object,
+                VoidPointer,
+                c_uint32,
+                DeviceScannedCallback,
+                ScanDoneCallback,
+                ScanErrorCallback,
+            ],
+        )
+        setter.Set("pychip_ble_scanner_delete", None, [VoidPointer])
 
     return handle

@@ -34,10 +34,8 @@ __all__ = [
     "runner",
 ]
 
-_DEFAULT_CHIP_ROOT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-_YAML_TEST_SUITE_PATH = os.path.abspath(
-    os.path.join(_DEFAULT_CHIP_ROOT, "src/app/tests/suites"))
+_DEFAULT_CHIP_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+_YAML_TEST_SUITE_PATH = os.path.abspath(os.path.join(_DEFAULT_CHIP_ROOT, "src/app/tests/suites"))
 
 
 @dataclass(eq=True, frozen=True)
@@ -48,7 +46,6 @@ class ManualTest:
 
 INVALID_TESTS = {
     "PICS.yaml",  # certification/PICS.yaml is not a real test
-
     # The items below are examples and will never work (likely)
     # completely exclude them
     "Config_Example.yaml",
@@ -71,7 +68,7 @@ def _IsValidYamlTest(name: str) -> bool:
     # Simulated tests are not runnable by repl tests, need
     # separate infrastructure. Exclude them completely (they are
     # not even manual)
-    if name.endswith('_Simulated.yaml'):
+    if name.endswith("_Simulated.yaml"):
         return False
 
     return name not in INVALID_TESTS
@@ -107,45 +104,45 @@ def _GetFlakyTests() -> Set[str]:
 def _GetSlowTests() -> Set[str]:
     """Generally tests using sleep() a bit too freely.
 
-       10s seems like a good threshold to consider something slow
+    10s seems like a good threshold to consider something slow
     """
     return {
-        "DL_LockUnlock.yaml",                             # ~ 10 seconds
+        "DL_LockUnlock.yaml",  # ~ 10 seconds
         "TestSubscribe_AdministratorCommissioning.yaml",  # ~ 15 seconds
-        "Test_TC_CC_5_1.yaml",                            # ~ 30 seconds
-        "Test_TC_CC_5_2.yaml",                            # ~ 30 seconds
-        "Test_TC_CC_5_3.yaml",                            # ~ 25 seconds
-        "Test_TC_CC_6_1.yaml",                            # ~ 35 seconds
-        "Test_TC_CC_6_2.yaml",                            # ~ 60 seconds
-        "Test_TC_CC_6_3.yaml",                            # ~ 50 seconds
-        "Test_TC_CC_7_2.yaml",                            # ~ 65 seconds
-        "Test_TC_CC_7_3.yaml",                            # ~ 70 seconds
-        "Test_TC_CC_7_4.yaml",                            # ~ 25 seconds
-        "Test_TC_CC_8_1.yaml",                            # ~ 60 seconds
-        "Test_TC_DRLK_2_4.yaml",                          # ~ 60 seconds
-        "Test_TC_I_2_2.yaml",                             # ~ 15 seconds
-        "Test_TC_LVL_3_1.yaml",                           # ~ 35 seconds
-        "Test_TC_LVL_4_1.yaml",                           # ~ 55 seconds
-        "Test_TC_LVL_5_1.yaml",                           # ~ 35 seconds
-        "Test_TC_LVL_6_1.yaml",                           # ~ 10 seconds
-        "Test_TC_WNCV_3_1.yaml",                          # ~ 20 seconds
-        "Test_TC_WNCV_3_2.yaml",                          # ~ 20 seconds
-        "Test_TC_WNCV_3_3.yaml",                          # ~ 15 seconds
-        "Test_TC_WNCV_3_4.yaml",                          # ~ 10 seconds
-        "Test_TC_WNCV_3_5.yaml",                          # ~ 10 seconds
-        "Test_TC_WNCV_4_1.yaml",                          # ~ 20 seconds
-        "Test_TC_WNCV_4_2.yaml",                          # ~ 20 seconds
-        "Test_TC_WNCV_4_5.yaml",                          # ~ 12 seconds
+        "Test_TC_CC_5_1.yaml",  # ~ 30 seconds
+        "Test_TC_CC_5_2.yaml",  # ~ 30 seconds
+        "Test_TC_CC_5_3.yaml",  # ~ 25 seconds
+        "Test_TC_CC_6_1.yaml",  # ~ 35 seconds
+        "Test_TC_CC_6_2.yaml",  # ~ 60 seconds
+        "Test_TC_CC_6_3.yaml",  # ~ 50 seconds
+        "Test_TC_CC_7_2.yaml",  # ~ 65 seconds
+        "Test_TC_CC_7_3.yaml",  # ~ 70 seconds
+        "Test_TC_CC_7_4.yaml",  # ~ 25 seconds
+        "Test_TC_CC_8_1.yaml",  # ~ 60 seconds
+        "Test_TC_DRLK_2_4.yaml",  # ~ 60 seconds
+        "Test_TC_I_2_2.yaml",  # ~ 15 seconds
+        "Test_TC_LVL_3_1.yaml",  # ~ 35 seconds
+        "Test_TC_LVL_4_1.yaml",  # ~ 55 seconds
+        "Test_TC_LVL_5_1.yaml",  # ~ 35 seconds
+        "Test_TC_LVL_6_1.yaml",  # ~ 10 seconds
+        "Test_TC_WNCV_3_1.yaml",  # ~ 20 seconds
+        "Test_TC_WNCV_3_2.yaml",  # ~ 20 seconds
+        "Test_TC_WNCV_3_3.yaml",  # ~ 15 seconds
+        "Test_TC_WNCV_3_4.yaml",  # ~ 10 seconds
+        "Test_TC_WNCV_3_5.yaml",  # ~ 10 seconds
+        "Test_TC_WNCV_4_1.yaml",  # ~ 20 seconds
+        "Test_TC_WNCV_4_2.yaml",  # ~ 20 seconds
+        "Test_TC_WNCV_4_5.yaml",  # ~ 12 seconds
     }
 
 
 def _GetExtraSlowTests() -> Set[str]:
     """Generally tests using sleep() so much they should never run in CI.
 
-       1 minute seems like a good threshold to consider something extra slow
+    1 minute seems like a good threshold to consider something extra slow
     """
     return {
-        "Test_TC_DGGEN_2_1.yaml",                         # > 2 hours
+        "Test_TC_DGGEN_2_1.yaml",  # > 2 hours
     }
 
 
@@ -155,17 +152,17 @@ def _GetInDevelopmentTests() -> Set[str]:
         "Test_TC_PSCFG_1_1.yaml",  # Power source configuration cluster is deprecated and removed from all-clusters
         "Test_TC_PSCFG_2_1.yaml",  # Power source configuration cluster is deprecated and removed from all-clusters
         "Test_TC_PSCFG_2_2.yaml",  # Power source configuration cluster is deprecated and removed from all-clusters
-        "Test_TC_SMOKECO_2_2.yaml",          # matter-repl does not support local timeout (07/20/2023) and test assumes
-                                             # TestEventTriggersEnabled is true, which it's not in CI.
-        "Test_TC_SMOKECO_2_3.yaml",          # matter-repl does not support local timeout (07/20/2023) and test assumes
-                                             # TestEventTriggersEnabled is true, which it's not in CI.
-        "Test_TC_SMOKECO_2_4.yaml",          # matter-repl does not support local timeout (07/20/2023) and test assumes
-                                             # TestEventTriggersEnabled is true, which it's not in CI.
-        "Test_TC_SMOKECO_2_5.yaml",          # matter-repl does not support local timeout (07/20/2023) and test assumes
-                                             # TestEventTriggersEnabled is true, which it's not in CI.
-        "Test_TC_SMOKECO_2_6.yaml",          # matter-repl does not support local timeout (07/20/2023) and test assumes
-                                             # TestEventTriggersEnabled is true, which it's not in CI.
-        "Test_TC_BR_5.yaml",                 # [TODO] Fabric Sync example app has not been integrated into CI yet.
+        "Test_TC_SMOKECO_2_2.yaml",  # matter-repl does not support local timeout (07/20/2023) and test assumes
+        # TestEventTriggersEnabled is true, which it's not in CI.
+        "Test_TC_SMOKECO_2_3.yaml",  # matter-repl does not support local timeout (07/20/2023) and test assumes
+        # TestEventTriggersEnabled is true, which it's not in CI.
+        "Test_TC_SMOKECO_2_4.yaml",  # matter-repl does not support local timeout (07/20/2023) and test assumes
+        # TestEventTriggersEnabled is true, which it's not in CI.
+        "Test_TC_SMOKECO_2_5.yaml",  # matter-repl does not support local timeout (07/20/2023) and test assumes
+        # TestEventTriggersEnabled is true, which it's not in CI.
+        "Test_TC_SMOKECO_2_6.yaml",  # matter-repl does not support local timeout (07/20/2023) and test assumes
+        # TestEventTriggersEnabled is true, which it's not in CI.
+        "Test_TC_BR_5.yaml",  # [TODO] Fabric Sync example app has not been integrated into CI yet.
     }
 
 
@@ -198,7 +195,6 @@ def _GetDarwinFrameworkToolUnsupportedTests() -> Set[str]:
         "TestUnitTestingClusterMei",  # darwin-framework-tool does not currently support reading or subscribing to Events
         "TestReadNoneSubscribeNone",  # darwin-framework-tool does not supports those commands.
         "TestDiagnosticLogsDownloadCommand",  # test is flaky in darwin. Please see #32636
-
         "Test_TC_ACE_1_6",  # darwin-framework-tool does not support group commands.
         "Test_TC_ACL_2_5",  # darwin-framework-tool does not currently support reading or subscribing to Events
         "Test_TC_ACL_2_6",  # darwin-framework-tool does not currently support reading or subscribing to Events
@@ -236,21 +232,21 @@ def _GetDarwinFrameworkToolUnsupportedTests() -> Set[str]:
 def _GetReplUnsupportedTests() -> Set[str]:
     """Tests that fail in matter-repl for some reason"""
     return {
-        "Test_AddNewFabricFromExistingFabric.yaml",     # matter-repl does not support GetCommissionerRootCertificate and IssueNocChain command
-        "Test_TC_OPCREDS_3_7.yaml",         # matter-repl does not support GetCommissionerRootCertificate and IssueNocChain command
-        "TestExampleCluster.yaml",          # matter-repl does not load custom pseudo clusters
-        "TestAttributesById.yaml",           # matter-repl does not support AnyCommands (06/06/2023)
-        "TestCommandsById.yaml",             # matter-repl does not support AnyCommands (06/06/2023)
-        "TestEventsById.yaml",               # matter-repl does not support AnyCommands (06/06/2023)
-        "TestReadNoneSubscribeNone.yaml",    # matter-repl does not support AnyCommands (07/27/2023)
-        "Test_TC_IDM_1_2.yaml",              # matter-repl does not support AnyCommands (19/07/2023)
-        "Test_TC_BRBINFO_2_1.yaml",          # matter-repl does not support AnyCommands (24/07/2024)
-        "TestThermostat.yaml",               # matter-repl does not support AnyCommands (14/10/2024)
-        "TestIcdManagementCluster.yaml",   # TODO(#30430): add ICD registration support in matter-repl
-        "Test_TC_ICDM_3_4.yaml",           # matter-repl does not support ICD registration
+        "Test_AddNewFabricFromExistingFabric.yaml",  # matter-repl does not support GetCommissionerRootCertificate and IssueNocChain command
+        "Test_TC_OPCREDS_3_7.yaml",  # matter-repl does not support GetCommissionerRootCertificate and IssueNocChain command
+        "TestExampleCluster.yaml",  # matter-repl does not load custom pseudo clusters
+        "TestAttributesById.yaml",  # matter-repl does not support AnyCommands (06/06/2023)
+        "TestCommandsById.yaml",  # matter-repl does not support AnyCommands (06/06/2023)
+        "TestEventsById.yaml",  # matter-repl does not support AnyCommands (06/06/2023)
+        "TestReadNoneSubscribeNone.yaml",  # matter-repl does not support AnyCommands (07/27/2023)
+        "Test_TC_IDM_1_2.yaml",  # matter-repl does not support AnyCommands (19/07/2023)
+        "Test_TC_BRBINFO_2_1.yaml",  # matter-repl does not support AnyCommands (24/07/2024)
+        "TestThermostat.yaml",  # matter-repl does not support AnyCommands (14/10/2024)
+        "TestIcdManagementCluster.yaml",  # TODO(#30430): add ICD registration support in matter-repl
+        "Test_TC_ICDM_3_4.yaml",  # matter-repl does not support ICD registration
         # matter-repl and chip-tool disagree on what the YAML here should look like: https://github.com/project-chip/connectedhomeip/issues/29110
         "TestClusterMultiFabric.yaml",
-        "TestDiagnosticLogs.yaml",          # matter-repl does not implement a BDXTransferServerDelegate
+        "TestDiagnosticLogs.yaml",  # matter-repl does not implement a BDXTransferServerDelegate
         "TestDiagnosticLogsDownloadCommand.yaml",  # matter-repl does not implement the bdx download command
     }
 
@@ -268,8 +264,7 @@ def _AllYamlTests():
     yaml_test_suite_path = Path(_YAML_TEST_SUITE_PATH)
 
     if not yaml_test_suite_path.exists():
-        raise FileNotFoundError(
-            f"Expected directory {_YAML_TEST_SUITE_PATH} to exist")
+        raise FileNotFoundError(f"Expected directory {_YAML_TEST_SUITE_PATH} to exist")
 
     for path in yaml_test_suite_path.rglob("*.yaml"):
         if not path.is_file():
@@ -281,24 +276,25 @@ def _AllYamlTests():
 def _TargetsForYaml(yaml_path: Path) -> list[TestTarget]:
     targets = []
 
-    with open(yaml_path, 'rt') as f:
+    with open(yaml_path, "rt") as f:
         data = yaml.safe_load(f)
-        if 'CI' in data:
-            for item in data['CI']:
-                targets.append(TestTarget(
-                    name=item['name'],
-                    command=item['app'],
-                    arguments=item.get('args', [])
-                ))
+        if "CI" in data:
+            for item in data["CI"]:
+                targets.append(TestTarget(name=item["name"], command=item["app"], arguments=item.get("args", [])))
 
     # default to a 'standard app name' if nothing set in the yaml file
     if not targets:
-        targets.append(TestTarget(name='all-clusters', command='all-clusters'))
+        targets.append(TestTarget(name="all-clusters", command="all-clusters"))
 
     return targets
 
 
-def _AllFoundYamlTests(treat_repl_unsupported_as_in_development: bool, treat_dft_unsupported_as_in_development: bool, treat_chip_tool_unsupported_as_in_development: bool, use_short_run_name: bool):
+def _AllFoundYamlTests(
+    treat_repl_unsupported_as_in_development: bool,
+    treat_dft_unsupported_as_in_development: bool,
+    treat_chip_tool_unsupported_as_in_development: bool,
+    use_short_run_name: bool,
+):
     """
     use_short_run_name should be true if we want the run_name to be "Test_ABC" instead of "some/path/Test_ABC.yaml"
     """
@@ -358,15 +354,30 @@ def _AllFoundYamlTests(treat_repl_unsupported_as_in_development: bool, treat_dft
 
 
 def AllReplYamlTests():
-    for test in _AllFoundYamlTests(treat_repl_unsupported_as_in_development=True, treat_dft_unsupported_as_in_development=False, treat_chip_tool_unsupported_as_in_development=False, use_short_run_name=False):
+    for test in _AllFoundYamlTests(
+        treat_repl_unsupported_as_in_development=True,
+        treat_dft_unsupported_as_in_development=False,
+        treat_chip_tool_unsupported_as_in_development=False,
+        use_short_run_name=False,
+    ):
         yield test
 
 
 def AllChipToolYamlTests(use_short_run_name: bool = True):
-    for test in _AllFoundYamlTests(treat_repl_unsupported_as_in_development=False, treat_dft_unsupported_as_in_development=False, treat_chip_tool_unsupported_as_in_development=True, use_short_run_name=use_short_run_name):
+    for test in _AllFoundYamlTests(
+        treat_repl_unsupported_as_in_development=False,
+        treat_dft_unsupported_as_in_development=False,
+        treat_chip_tool_unsupported_as_in_development=True,
+        use_short_run_name=use_short_run_name,
+    ):
         yield test
 
 
 def AllDarwinFrameworkToolYamlTests():
-    for test in _AllFoundYamlTests(treat_repl_unsupported_as_in_development=False, treat_dft_unsupported_as_in_development=True, treat_chip_tool_unsupported_as_in_development=False, use_short_run_name=True):
+    for test in _AllFoundYamlTests(
+        treat_repl_unsupported_as_in_development=False,
+        treat_dft_unsupported_as_in_development=True,
+        treat_chip_tool_unsupported_as_in_development=False,
+        use_short_run_name=True,
+    ):
         yield test

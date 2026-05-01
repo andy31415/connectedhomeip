@@ -60,25 +60,34 @@ class TC_EEVSE_2_8(MatterBaseTest, EEVSEBaseTestHelper):
         return "[TC-EEVSE-2.8] Optional PlugAndCharge feature functionality with DUT as Server"
 
     def pics_TC_EEVSE_2_8(self):
-        """ This function returns a list of PICS for this test case that must be True for the test to be run"""
+        """This function returns a list of PICS for this test case that must be True for the test to be run"""
         return ["EEVSE.S.F02"]
 
     def steps_TC_EEVSE_2_8(self) -> list[TestStep]:
         return [
             TestStep("1", "Commissioning, already done", is_commissioning=True),
-            TestStep("2", "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster",
-                     "Value has to be 1 (True)"),
-            TestStep("3", "TH reads from the DUT the VehicleID attribute.",
-                     "Verify that the DUT response contains a string value, or null."),
-            TestStep("4", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EEVSE.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.EEVSE.TEST_EVENT_TRIGGER for EVSE Set VehicleID Test Event",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep("5", "TH reads from the DUT the VehicleID attribute.",
-                     "Verify that the DUT response contains a string value with length <= 32 characters."),
+            TestStep(
+                "2", "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster", "Value has to be 1 (True)"
+            ),
+            TestStep(
+                "3",
+                "TH reads from the DUT the VehicleID attribute.",
+                "Verify that the DUT response contains a string value, or null.",
+            ),
+            TestStep(
+                "4",
+                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EEVSE.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.EEVSE.TEST_EVENT_TRIGGER for EVSE Set VehicleID Test Event",
+                "Verify DUT responds w/ status SUCCESS(0x00)",
+            ),
+            TestStep(
+                "5",
+                "TH reads from the DUT the VehicleID attribute.",
+                "Verify that the DUT response contains a string value with length <= 32 characters.",
+            ),
         ]
 
     @run_if_endpoint_matches(has_feature(cluster, cluster.Bitmaps.Feature.kPlugAndCharge))
     async def test_TC_EEVSE_2_8(self):
-
         self.step("1")
         # Commission DUT - already done
 

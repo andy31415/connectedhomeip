@@ -71,17 +71,22 @@ class TC_SEAR_1_4(MatterBaseTest):
         self.print_step(1, "Commissioning, already done")
 
         attribute_list = await self.read_sear_attribute_expect_success(
-            endpoint=self.endpoint, attribute=Clusters.ServiceArea.Attributes.AttributeList)
+            endpoint=self.endpoint, attribute=Clusters.ServiceArea.Attributes.AttributeList
+        )
         log.info("AttributeList: %s" % (attribute_list))
 
-        if Clusters.ServiceArea.Attributes.CurrentArea not in attribute_list \
-                and Clusters.ServiceArea.Attributes.Progress not in attribute_list:
-
+        if (
+            Clusters.ServiceArea.Attributes.CurrentArea not in attribute_list
+            and Clusters.ServiceArea.Attributes.Progress not in attribute_list
+        ):
             cmd_list = await self.read_sear_attribute_expect_success(
-                endpoint=self.endpoint, attribute=Clusters.ServiceArea.Attributes.AcceptedCommandList)
+                endpoint=self.endpoint, attribute=Clusters.ServiceArea.Attributes.AcceptedCommandList
+            )
             log.info("AcceptedCommandList: %s" % (cmd_list))
-            asserts.assert_true(Clusters.ServiceArea.Commands.SkipArea not in cmd_list,
-                                "SkipArea command should not be implemented if both CurrentArea and Progress are not")
+            asserts.assert_true(
+                Clusters.ServiceArea.Commands.SkipArea not in cmd_list,
+                "SkipArea command should not be implemented if both CurrentArea and Progress are not",
+            )
 
 
 if __name__ == "__main__":

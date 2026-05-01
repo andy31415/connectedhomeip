@@ -15,7 +15,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-'''This file should contain default argument classes.
+"""This file should contain default argument classes.
 
 Base class is InputArgument. It defines the abstract interface to be
 implemented and offers a way to compute a KLV value through output().
@@ -25,7 +25,7 @@ as default classes throughout the docstrings.
 The default classes should not be used to instantiate arguments.
 If one wants to add another argument, a custom class should be derived
 from one of the default classes.
-'''
+"""
 
 import base64
 import logging
@@ -34,7 +34,7 @@ log = logging.getLogger(__name__)
 
 
 class InputArgument:
-    '''Base class for any input argument that will be added to KLV.
+    """Base class for any input argument that will be added to KLV.
 
     The user will define its arguments as instances of InputArgument
     by setting the "type" attribute of ArgumentParser add_argument to
@@ -57,7 +57,7 @@ class InputArgument:
     the output() method to generate the (K, L, V) tuple. Note that the output()
     method should not be implemented, since its a common functionality across
     all InputArgument classes.
-    '''
+    """
 
     def __init__(self):
         self.val = None
@@ -78,7 +78,6 @@ class InputArgument:
 
 
 class IntArgument(InputArgument):
-
     def __init__(self, arg):
         super().__init__()
         self.val = int(arg, 0)
@@ -91,7 +90,6 @@ class IntArgument(InputArgument):
 
 
 class Base64Argument(InputArgument):
-
     def __init__(self, arg):
         super().__init__()
         self.val = base64.b64decode(arg)
@@ -104,7 +102,6 @@ class Base64Argument(InputArgument):
 
 
 class StrArgument(InputArgument):
-
     def __init__(self, arg):
         super().__init__()
         self.val = str(arg)
@@ -120,7 +117,6 @@ class StrArgument(InputArgument):
 
 
 class FileArgument(InputArgument):
-
     def __init__(self, arg):
         super().__init__()
         with open(arg, "rb") as _file:

@@ -54,6 +54,7 @@ def current_latch_matcher(latch: bool) -> AttributeMatcher:
         if report.attribute != Clusters.ClosureDimension.Attributes.CurrentState:
             return False
         return report.value.latch == latch
+
     return AttributeMatcher.from_callable(description=f"CurrentState.Latch is {latch}", matcher=predicate)
 
 
@@ -97,9 +98,7 @@ class TC_CLDIM_3_2(MatterBaseTest):
         ]
 
     def pics_TC_CLDIM_3_2(self) -> list[str]:
-        return [
-            "CLDIM.S", "CLDIM.S.F01"
-        ]
+        return ["CLDIM.S", "CLDIM.S.F01"]
 
     @property
     def default_endpoint(self) -> int:
@@ -140,12 +139,21 @@ class TC_CLDIM_3_2(MatterBaseTest):
 
         # STEP 2d: Read LatchControlModes attribute
         self.step("2d")
-        latch_control_modes = await self.read_cldim_attribute_expect_success(endpoint=endpoint, attribute=attributes.LatchControlModes)
+        latch_control_modes = await self.read_cldim_attribute_expect_success(
+            endpoint=endpoint, attribute=attributes.LatchControlModes
+        )
 
         # STEP 2e: Establish wildcard subscription to all attributes"
         self.step("2e")
         sub_handler = AttributeSubscriptionHandler(expected_cluster=Clusters.ClosureDimension)
-        await sub_handler.start(self.default_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
+        await sub_handler.start(
+            self.default_controller,
+            self.dut_node_id,
+            endpoint=endpoint,
+            min_interval_sec=0,
+            max_interval_sec=30,
+            keepSubscriptions=False,
+        )
 
         # STEP 2f: Read CurrentState attribute
         self.step("2f")
@@ -169,7 +177,8 @@ class TC_CLDIM_3_2(MatterBaseTest):
                 try:
                     await self.send_single_cmd(
                         cmd=Clusters.Objects.ClosureDimension.Commands.SetTarget(latch=False),
-                        endpoint=endpoint, timedRequestTimeoutMs=1000
+                        endpoint=endpoint,
+                        timedRequestTimeoutMs=1000,
                     )
                 except InteractionModelError as e:
                     asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -186,8 +195,7 @@ class TC_CLDIM_3_2(MatterBaseTest):
 
             # STEP 2l: Wait for CurrentState.Latched to be False
             self.step("2l")
-            sub_handler.await_all_expected_report_matches(
-                expected_matchers=[current_latch_matcher(False)], timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(False)], timeout_sec=timeout)
 
         # STEP 3a: If manual latching is required, skip steps 3b and 3c
         self.step("3a")
@@ -201,7 +209,8 @@ class TC_CLDIM_3_2(MatterBaseTest):
             try:
                 await self.send_single_cmd(
                     cmd=Clusters.Objects.ClosureDimension.Commands.SetTarget(latch=True),
-                    endpoint=endpoint, timedRequestTimeoutMs=1000
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
                 )
                 asserts.fail("Expected InvalidInState error, but no exception occurred.")
             except InteractionModelError as e:
@@ -221,7 +230,8 @@ class TC_CLDIM_3_2(MatterBaseTest):
             try:
                 await self.send_single_cmd(
                     cmd=Clusters.Objects.ClosureDimension.Commands.SetTarget(latch=True),
-                    endpoint=endpoint, timedRequestTimeoutMs=1000
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
                 )
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -233,8 +243,7 @@ class TC_CLDIM_3_2(MatterBaseTest):
 
         # STEP 3g: Wait for CurrentState.Latch to be updated to True
         self.step("3g")
-        sub_handler.await_all_expected_report_matches(
-            expected_matchers=[current_latch_matcher(True)], timeout_sec=timeout)
+        sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(True)], timeout_sec=timeout)
 
         # STEP 4a: Send Step command while device is latched
         self.step("4a")
@@ -242,8 +251,10 @@ class TC_CLDIM_3_2(MatterBaseTest):
             try:
                 await self.send_single_cmd(
                     cmd=Clusters.Objects.ClosureDimension.Commands.Step(
-                        direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kDecrease, numberOfSteps=1),
-                    endpoint=endpoint, timedRequestTimeoutMs=1000
+                        direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kDecrease, numberOfSteps=1
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
                 )
                 asserts.fail("Expected InvalidInState error, but no exception occurred.")
             except InteractionModelError as e:
@@ -255,7 +266,8 @@ class TC_CLDIM_3_2(MatterBaseTest):
             try:
                 await self.send_single_cmd(
                     cmd=Clusters.Objects.ClosureDimension.Commands.SetTarget(position=max_position),
-                    endpoint=endpoint, timedRequestTimeoutMs=1000
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
                 )
                 asserts.fail("Expected InvalidInState error, but no exception occurred.")
             except InteractionModelError as e:
@@ -280,8 +292,7 @@ class TC_CLDIM_3_2(MatterBaseTest):
         sub_handler.reset()
         try:
             await self.send_single_cmd(
-                cmd=Clusters.Objects.ClosureDimension.Commands.SetTarget(latch=False),
-                endpoint=endpoint, timedRequestTimeoutMs=1000
+                cmd=Clusters.Objects.ClosureDimension.Commands.SetTarget(latch=False), endpoint=endpoint, timedRequestTimeoutMs=1000
             )
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected status returned")
@@ -293,8 +304,7 @@ class TC_CLDIM_3_2(MatterBaseTest):
 
         # STEP 5e: Wait for CurrentState.Latch to be updated to False
         self.step("5e")
-        sub_handler.await_all_expected_report_matches(
-            expected_matchers=[current_latch_matcher(False)], timeout_sec=timeout)
+        sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(False)], timeout_sec=timeout)
 
 
 if __name__ == "__main__":

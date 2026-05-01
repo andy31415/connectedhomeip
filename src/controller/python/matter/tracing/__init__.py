@@ -22,11 +22,11 @@ from ..native import GetLibraryHandle, HandleFlags, NativeLibraryHandleMethodArg
 
 
 def _GetTracingLibraryHandle() -> ctypes.CDLL:
-    """ Get the native library handle with tracing methods initialized.
+    """Get the native library handle with tracing methods initialized.
 
-      Retrieves the CHIP native library handle and attaches signatures to
-      native methods.
-      """
+    Retrieves the CHIP native library handle and attaches signatures to
+    native methods.
+    """
 
     # Getting a handle without requiring init, as tracing methods
     # do not require chip stack startup
@@ -37,13 +37,13 @@ def _GetTracingLibraryHandle() -> ctypes.CDLL:
     if not handle.pychip_tracing_start_json_file.argtypes:
         setter = NativeLibraryHandleMethodArguments(handle)
 
-        setter.Set('pychip_tracing_start_json_log', None, [])
-        setter.Set('pychip_tracing_start_json_file', PyChipError, [ctypes.c_char_p])
+        setter.Set("pychip_tracing_start_json_log", None, [])
+        setter.Set("pychip_tracing_start_json_file", PyChipError, [ctypes.c_char_p])
 
-        setter.Set('pychip_tracing_start_perfetto_system', None, [])
-        setter.Set('pychip_tracing_start_perfetto_file', PyChipError, [ctypes.c_char_p])
+        setter.Set("pychip_tracing_start_perfetto_system", None, [])
+        setter.Set("pychip_tracing_start_perfetto_file", PyChipError, [ctypes.c_char_p])
 
-        setter.Set('pychip_tracing_stop', None, [])
+        setter.Set("pychip_tracing_stop", None, [])
 
     return handle
 
@@ -66,12 +66,12 @@ def StartTracingTo(trace_type: TraceType, file_name: Optional[str] = None):
         if file_name is None:
             handle.pychip_tracing_start_json_log()
         else:
-            handle.pychip_tracing_start_json_file(file_name.encode('utf-8')).raise_on_error()
+            handle.pychip_tracing_start_json_file(file_name.encode("utf-8")).raise_on_error()
     elif trace_type == TraceType.PERFETTO:
         if file_name is None:
             handle.pychip_tracing_start_perfetto_system()
         else:
-            handle.pychip_tracing_start_perfetto_file(file_name.encode('utf-8')).raise_on_error()
+            handle.pychip_tracing_start_perfetto_file(file_name.encode("utf-8")).raise_on_error()
     else:
         raise ValueError("unknown trace type")
 
@@ -103,9 +103,9 @@ class TracingContext:
 
         Supports json:log, json:path, perfetto, perfetto:path
         """
-        if destination == 'perfetto':
+        if destination == "perfetto":
             self.Start(TraceType.PERFETTO)
-        elif destination == 'json:log':
+        elif destination == "json:log":
             self.Start(TraceType.JSON)
         elif destination.startswith("json:"):
             self.Start(TraceType.JSON, destination[5:])

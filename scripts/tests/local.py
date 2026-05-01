@@ -55,9 +55,9 @@ def _get_apps_from_script(path: str) -> List[str]:
         runs_args = extract_runs_args(path)
         apps = set()
         for run_config in runs_args.values():
-            if run_config and 'app' in run_config:
+            if run_config and "app" in run_config:
                 # app is like "${ALL_CLUSTERS_APP}"
-                app_name = run_config['app'].strip('${}')
+                app_name = run_config["app"].strip("${}")
                 apps.add(app_name)
         return list(apps)
     except Exception as e:
@@ -378,7 +378,7 @@ def _get_targets(coverage: Optional[bool]) -> list[ApplicationTarget]:
             env_key="ALL_DEVICES_APP",
             cli_key="all-devices",
             target=f"{target_prefix}-all-devices-{suffix}",
-            binary="all-devices-app"
+            binary="all-devices-app",
         )
     )
 
@@ -388,7 +388,7 @@ def _get_targets(coverage: Optional[bool]) -> list[ApplicationTarget]:
             env_key="CAMERA_CONTROLLER_APP",
             cli_key="camera-controller",
             target=f"{target_prefix}-camera-controller",
-            binary="chip-camera-controller"
+            binary="chip-camera-controller",
         )
     )
 
@@ -398,7 +398,7 @@ def _get_targets(coverage: Optional[bool]) -> list[ApplicationTarget]:
             env_key="WATER_LEAK_DETECTOR_APP",
             cli_key="water-leak-detector",
             target=f"{target_prefix}-water-leak-detector-{suffix}",
-            binary="water-leak-detector-app"
+            binary="water-leak-detector-app",
         )
     )
 
@@ -481,9 +481,7 @@ def cli(log_level):
     local.py build-apps                         # Re-build applications (if only those changed)
     local.py build-python                       # Re-build python module only
     """
-    coloredlogs.install(
-        level=__LOG_LEVELS__[log_level], fmt="%(asctime)s %(levelname)-7s %(message)s"
-    )
+    coloredlogs.install(level=__LOG_LEVELS__[log_level], fmt="%(asctime)s %(levelname)-7s %(message)s")
 
 
 def _with_activate(build_cmd: List[str], output_path=None) -> List[str]:
@@ -495,11 +493,7 @@ def _with_activate(build_cmd: List[str], output_path=None) -> List[str]:
     if output_path:
         cmd = cmd + f" >{output_path}"
 
-    return [
-        "bash",
-        "-c",
-        ";".join(["set -e", "source scripts/activate.sh", cmd])
-    ]
+    return ["bash", "-c", ";".join(["set -e", "source scripts/activate.sh", cmd])]
 
 
 def _do_build_python():
@@ -507,9 +501,7 @@ def _do_build_python():
     Builds a python virtual environment into `out/venv`
     """
     log.info("Building python packages in out/venv ...")
-    subprocess.run(
-        ["./scripts/build_python.sh", "--install_virtual_env", "out/venv"], check=True
-    )
+    subprocess.run(["./scripts/build_python.sh", "--install_virtual_env", "out/venv"], check=True)
 
 
 def _do_build_apps(coverage: Optional[bool], ccache: bool):
@@ -708,7 +700,7 @@ def _raw_profile_to_info(profile: RawProfile):
     path = profile.raw_profile_paths[0]
 
     # Merge all per-app profiles into a single large profile
-    data_path = path[:path.find("-run-")] + ".profdata"
+    data_path = path[: path.find("-run-")] + ".profdata"
     cmd = [
         "llvm-profdata",
         "merge",
@@ -720,14 +712,7 @@ def _raw_profile_to_info(profile: RawProfile):
     p = subprocess.run(_with_activate(cmd), check=True, capture_output=True)
 
     # Export to something lcov likes
-    cmd = [
-        "llvm-cov",
-        "export",
-        "-format=lcov",
-        "--instr-profile",
-        data_path,
-        profile.binary_path
-    ]
+    cmd = ["llvm-cov", "export", "-format=lcov", "--instr-profile", data_path, profile.binary_path]
 
     # for -ignore-filename-regex
     ignore_paths = [
@@ -772,7 +757,7 @@ def _raw_profile_to_info(profile: RawProfile):
             lines.append(line)
 
     # re-write it.
-    with open(info_path, 'wt') as f:
+    with open(info_path, "wt") as f:
         f.write("\n".join(lines))
 
     return info_path
@@ -803,10 +788,7 @@ def gen_coverage(flat):
             app_profiles.append(path)
 
         if app_profiles:
-            raw_profiles.append(RawProfile(
-                raw_profile_paths=app_profiles,
-                binary_path=os.path.join("./out", t.target, t.binary)
-            ))
+            raw_profiles.append(RawProfile(raw_profile_paths=app_profiles, binary_path=os.path.join("./out", t.target, t.binary)))
         else:
             log.warning("No profiles for '%s'", t.target)
 
@@ -822,9 +804,7 @@ def gen_coverage(flat):
         cmd.append("--add-tracefile")
         cmd.append(t)
 
-    errors_to_ignore = [
-        "inconsistent", "range", "corrupt", "category"
-    ]
+    errors_to_ignore = ["inconsistent", "range", "corrupt", "category"]
 
     cmd.append("--output-file")
     cmd.append("out/profiling/merged.info")
@@ -913,7 +893,7 @@ def gen_coverage(flat):
     default=None,
     nargs=2,
     multiple=True,
-    help="Defines an override binary path for a given app. Can be used multiple times. E.g. --override-binary-path ALL_CLUSTERS_APP out/some/path/chip-all-clusters-app"
+    help="Defines an override binary path for a given app. Can be used multiple times. E.g. --override-binary-path ALL_CLUSTERS_APP out/some/path/chip-all-clusters-app",
 )
 @click.option(
     "--app-filter",
@@ -997,8 +977,9 @@ def python_tests(
     app_filter_list = None
     if app_filter:
         if not extract_runs_args:
-            raise click.BadOptionUsage("--app-filter",
-                                       "The flag requires the python testing environment: ./scripts/tests/local.py build-python")
+            raise click.BadOptionUsage(
+                "--app-filter", "The flag requires the python testing environment: ./scripts/tests/local.py build-python"
+            )
         app_filter_list = _parse_filters(app_filter)
 
     if skip:
@@ -1030,9 +1011,7 @@ def python_tests(
     nightly_tests = {item["name"] for item in metadata["nightly"]}
 
     # NOTE: for slow tests. we add logs to not get impatient
-    slow_test_duration = {
-        item["name"]: item["duration"] for item in metadata["slow_tests"] + metadata["nightly"]
-    }
+    slow_test_duration = {item["name"]: item["duration"] for item in metadata["slow_tests"] + metadata["nightly"]}
 
     if not os.path.isdir("src/python_testing"):
         raise NotADirectoryError("Script meant to be run from the CHIP checkout root (src/python_testing must exist).")
@@ -1086,7 +1065,7 @@ def python_tests(
                 ]
 
                 if app_filter_list:
-                    cmd.extend(('--app-filter', app_filter))
+                    cmd.extend(("--app-filter", app_filter))
 
                 if dry_run:
                     print(shlex.join(cmd))
@@ -1119,8 +1098,8 @@ def python_tests(
                             f.write(result.stderr)
 
                     else:
-                        log.info("STDOUT:\n%s", result.stdout.decode("utf8", errors='replace'))
-                        log.warning("STDERR:\n%s", result.stderr.decode("utf8", errors='replace'))
+                        log.info("STDOUT:\n%s", result.stdout.decode("utf8", errors="replace"))
+                        log.warning("STDERR:\n%s", result.stderr.decode("utf8", errors="replace"))
                     if not keep_going:
                         sys.exit(1)
                     failed_tests.append(script)
@@ -1128,11 +1107,7 @@ def python_tests(
                 time_info = ExecutionTimeInfo(
                     script=base_name,
                     duration_sec=(tend - tstart),
-                    status=(
-                        "PASS"
-                        if result.returncode == 0
-                        else colorama.Fore.RED + "FAILURE" + colorama.Fore.RESET
-                    ),
+                    status=("PASS" if result.returncode == 0 else colorama.Fore.RED + "FAILURE" + colorama.Fore.RESET),
                 )
                 execution_times.append(time_info)
 
@@ -1149,11 +1124,7 @@ def python_tests(
             execution_times.sort(
                 key=lambda v: (0 if v.status == "PASS" else 1, v.duration_sec),
             )
-            print(
-                tabulate.tabulate(
-                    execution_times, headers=["Script", "Duration(sec)", "Status"]
-                )
-            )
+            print(tabulate.tabulate(execution_times, headers=["Script", "Duration(sec)", "Status"]))
 
         if failed_tests:
             # Propagate the final failure
@@ -1313,9 +1284,7 @@ def prereq():
     type=click.Choice(list(__RUNNERS__.keys()), case_sensitive=False),
     help="Determines the verbosity of script output",
 )
-def chip_tool_tests(
-    target, target_glob, include_tags, expected_failures, coverage, keep_going, runner
-):
+def chip_tool_tests(target, target_glob, include_tags, expected_failures, coverage, keep_going, runner):
     """
     Run integration tests using chip-tool.
 

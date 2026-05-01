@@ -547,8 +547,8 @@ void pychip_ReadClient_ShutdownSubscription(ReadClient * apReadClient)
     FabricIndex fabricIndex = apReadClient->GetFabricIndex();
     NodeId nodeId           = apReadClient->GetPeerNodeId();
 
-    TEMPORARY_RETURN_IGNORED InteractionModelEngine::GetInstance()->ShutdownSubscription(ScopedNodeId(nodeId, fabricIndex),
-                                                                                         subscriptionId.Value());
+    TEMPORARY_RETURN_IGNORED InteractionModelEngine::GetInstance() -> ShutdownSubscription(ScopedNodeId(nodeId, fabricIndex),
+                                                                                           subscriptionId.Value());
 }
 
 void pychip_ReadClient_OverrideLivenessTimeout(ReadClient * pReadClient, uint32_t livenessTimeoutMs)

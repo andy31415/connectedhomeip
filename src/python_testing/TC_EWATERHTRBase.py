@@ -23,7 +23,6 @@ from matter.interaction_model import InteractionModelError, Status
 
 
 class EWATERHTRBase:
-
     async def read_whm_attribute_expect_success(self, endpoint: int = None, attribute: str = ""):
         cluster = Clusters.Objects.WaterHeaterManagement
         full_attr = getattr(cluster.Attributes, attribute)
@@ -31,36 +30,50 @@ class EWATERHTRBase:
 
     async def check_whm_attribute(self, attribute, expected_value, endpoint: int = None):
         value = await self.read_whm_attribute_expect_success(endpoint=endpoint, attribute=attribute)
-        asserts.assert_equal(value, expected_value,
-                             f"Unexpected '{attribute}' value - expected {expected_value}, was {value}")
+        asserts.assert_equal(value, expected_value, f"Unexpected '{attribute}' value - expected {expected_value}, was {value}")
 
-    async def send_boost_command(self, duration: int, one_shot: typing.Optional[bool] = None, emergency_boost: typing.Optional[bool] = None,
-                                 temporary_setpoint: typing.Optional[int] = None, target_percentage: typing.Optional[int] = None, target_reheat: typing.Optional[int] = None,
-                                 endpoint: int = None, timedRequestTimeoutMs: int = 3000,
-                                 expected_status: Status = Status.Success):
+    async def send_boost_command(
+        self,
+        duration: int,
+        one_shot: typing.Optional[bool] = None,
+        emergency_boost: typing.Optional[bool] = None,
+        temporary_setpoint: typing.Optional[int] = None,
+        target_percentage: typing.Optional[int] = None,
+        target_reheat: typing.Optional[int] = None,
+        endpoint: int = None,
+        timedRequestTimeoutMs: int = 3000,
+        expected_status: Status = Status.Success,
+    ):
         try:
-            boostInfo = Clusters.WaterHeaterManagement.Structs.WaterHeaterBoostInfoStruct(duration=duration,
-                                                                                          oneShot=one_shot,
-                                                                                          emergencyBoost=emergency_boost,
-                                                                                          temporarySetpoint=temporary_setpoint,
-                                                                                          targetPercentage=target_percentage,
-                                                                                          targetReheat=target_reheat)
+            boostInfo = Clusters.WaterHeaterManagement.Structs.WaterHeaterBoostInfoStruct(
+                duration=duration,
+                oneShot=one_shot,
+                emergencyBoost=emergency_boost,
+                temporarySetpoint=temporary_setpoint,
+                targetPercentage=target_percentage,
+                targetReheat=target_reheat,
+            )
 
-            await self.send_single_cmd(cmd=Clusters.WaterHeaterManagement.Commands.Boost(boostInfo=boostInfo),
-                                       endpoint=endpoint,
-                                       timedRequestTimeoutMs=timedRequestTimeoutMs)
+            await self.send_single_cmd(
+                cmd=Clusters.WaterHeaterManagement.Commands.Boost(boostInfo=boostInfo),
+                endpoint=endpoint,
+                timedRequestTimeoutMs=timedRequestTimeoutMs,
+            )
 
             asserts.assert_equal(expected_status, Status.Success)
 
         except InteractionModelError as e:
             asserts.assert_equal(e.status, expected_status, "Unexpected error returned")
 
-    async def send_cancel_boost_command(self, endpoint: int = None, timedRequestTimeoutMs: int = 3000,
-                                        expected_status: Status = Status.Success):
+    async def send_cancel_boost_command(
+        self, endpoint: int = None, timedRequestTimeoutMs: int = 3000, expected_status: Status = Status.Success
+    ):
         try:
-            await self.send_single_cmd(cmd=Clusters.WaterHeaterManagement.Commands.CancelBoost(),
-                                       endpoint=endpoint,
-                                       timedRequestTimeoutMs=timedRequestTimeoutMs)
+            await self.send_single_cmd(
+                cmd=Clusters.WaterHeaterManagement.Commands.CancelBoost(),
+                endpoint=endpoint,
+                timedRequestTimeoutMs=timedRequestTimeoutMs,
+            )
 
             asserts.assert_equal(expected_status, Status.Success)
 

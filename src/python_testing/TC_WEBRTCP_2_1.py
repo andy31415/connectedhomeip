@@ -49,7 +49,6 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_WebRTCP_2_1(MatterBaseTest, WEBRTCPTestBase):
-
     def desc_TC_WebRTCP_2_1(self) -> str:
         """Returns a description of this test"""
         return "[TC-{picsCode}-2.1] Validate delayed processing of SolicitOffer with {DUT_Server}"
@@ -62,10 +61,22 @@ class TC_WebRTCP_2_1(MatterBaseTest, WEBRTCPTestBase):
             TestStep("precondition", "DUT commissioned and streams allocated", is_commissioning=True),
             TestStep(1, "Read CurrentSessions attribute => expect 0"),
             TestStep(2, "Send SolicitOffer with no Video or Audio StreamID => expect INVALID_COMMAND"),
-            TestStep(3, "Send SolicitOffer with VideoStreamID that doesn't match AllocatedVideoStreams => expect DYNAMIC_CONSTRAINT_ERROR"),
-            TestStep(4, "Send SolicitOffer with AudioStreamID that doesn't match AllocatedAudioStreams => expect DYNAMIC_CONSTRAINT_ERROR"),
-            TestStep(5, "Write SoftLivestreamPrivacyModeEnabled=true, send SolicitOffer with StreamUsage = LiveView => expect INVALID_IN_STATE"),
-            TestStep(6, "Write SoftLivestreamPrivacyModeEnabled=false, send SolicitOffer with StreamUsage = LiveView => expect DeferredOffer=TRUE"),
+            TestStep(
+                3,
+                "Send SolicitOffer with VideoStreamID that doesn't match AllocatedVideoStreams => expect DYNAMIC_CONSTRAINT_ERROR",
+            ),
+            TestStep(
+                4,
+                "Send SolicitOffer with AudioStreamID that doesn't match AllocatedAudioStreams => expect DYNAMIC_CONSTRAINT_ERROR",
+            ),
+            TestStep(
+                5,
+                "Write SoftLivestreamPrivacyModeEnabled=true, send SolicitOffer with StreamUsage = LiveView => expect INVALID_IN_STATE",
+            ),
+            TestStep(
+                6,
+                "Write SoftLivestreamPrivacyModeEnabled=false, send SolicitOffer with StreamUsage = LiveView => expect DeferredOffer=TRUE",
+            ),
             TestStep(7, "Read CurrentSessions attribute => expect 1 with valid session data"),
         ]
 
@@ -74,13 +85,13 @@ class TC_WebRTCP_2_1(MatterBaseTest, WEBRTCPTestBase):
         Return the list of PICS applicable to this test case.
         """
         return [
-            "WEBRTCP.S",           # WebRTC Transport Provider Server
-            "WEBRTCP.S.A0000",     # CurrentSessions attribute
-            "WEBRTCP.S.C00.Rsp",   # SolicitOffer command
-            "WEBRTCP.S.C01.Tx",    # SolicitOfferResponse command
-            "AVSM.S",              # CameraAVStreamManagement Server
-            "AVSM.S.F00",          # Audio Data Output feature
-            "AVSM.S.F01",          # Video Data Output feature
+            "WEBRTCP.S",  # WebRTC Transport Provider Server
+            "WEBRTCP.S.A0000",  # CurrentSessions attribute
+            "WEBRTCP.S.C00.Rsp",  # SolicitOffer command
+            "WEBRTCP.S.C01.Tx",  # SolicitOfferResponse command
+            "AVSM.S",  # CameraAVStreamManagement Server
+            "AVSM.S.F00",  # Audio Data Output feature
+            "AVSM.S.F01",  # Video Data Output feature
         ]
 
     @property
@@ -106,24 +117,25 @@ class TC_WebRTCP_2_1(MatterBaseTest, WEBRTCPTestBase):
 
         # Check if privacy feature is supported before testing privacy mode
         aFeatureMap = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=Clusters.CameraAvStreamManagement, attribute=Clusters.CameraAvStreamManagement.Attributes.FeatureMap
+            endpoint=endpoint,
+            cluster=Clusters.CameraAvStreamManagement,
+            attribute=Clusters.CameraAvStreamManagement.Attributes.FeatureMap,
         )
         privacySupported = aFeatureMap & Clusters.CameraAvStreamManagement.Bitmaps.Feature.kPrivacy
 
         self.step(1)
         current_sessions = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=cluster,
-            attribute=cluster.Attributes.CurrentSessions
+            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentSessions
         )
         asserts.assert_equal(len(current_sessions), 0, "CurrentSessions must be empty!")
 
         self.step(2)
         # Send SolicitOffer with no VideoStreamID and no AudioStreamID
-        cmd = cluster.Commands.SolicitOffer(
-            streamUsage=3, originatingEndpointID=endpoint)
+        cmd = cluster.Commands.SolicitOffer(streamUsage=3, originatingEndpointID=endpoint)
         try:
-            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+            await self.send_single_cmd(
+                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+            )
             asserts.fail("Unexpected success on SolicitOffer with no VideoStreamID or AudioStreamID")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.InvalidCommand, "Expected INVALID_COMMAND")
@@ -131,9 +143,12 @@ class TC_WebRTCP_2_1(MatterBaseTest, WEBRTCPTestBase):
         self.step(3)
         # Send SolicitOffer with VideoStreamID that doesn't match AllocatedVideoStreams
         cmd = cluster.Commands.SolicitOffer(
-            streamUsage=3, originatingEndpointID=endpoint, videoStreamID=9999)  # Invalid VideoStreamID
+            streamUsage=3, originatingEndpointID=endpoint, videoStreamID=9999
+        )  # Invalid VideoStreamID
         try:
-            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+            await self.send_single_cmd(
+                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+            )
             asserts.fail("Unexpected success on SolicitOffer with invalid VideoStreamID")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.DynamicConstraintError, "Expected DYNAMIC_CONSTRAINT_ERROR")
@@ -141,9 +156,12 @@ class TC_WebRTCP_2_1(MatterBaseTest, WEBRTCPTestBase):
         self.step(4)
         # Send SolicitOffer with AudioStreamID that doesn't match AllocatedAudioStreams
         cmd = cluster.Commands.SolicitOffer(
-            streamUsage=3, originatingEndpointID=endpoint, audioStreamID=9999)  # Invalid AudioStreamID
+            streamUsage=3, originatingEndpointID=endpoint, audioStreamID=9999
+        )  # Invalid AudioStreamID
         try:
-            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+            await self.send_single_cmd(
+                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+            )
             asserts.fail("Unexpected success on SolicitOffer with invalid AudioStreamID")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.DynamicConstraintError, "Expected DYNAMIC_CONSTRAINT_ERROR")
@@ -157,9 +175,12 @@ class TC_WebRTCP_2_1(MatterBaseTest, WEBRTCPTestBase):
             )
 
             cmd = cluster.Commands.SolicitOffer(
-                streamUsage=3, originatingEndpointID=endpoint, videoStreamID=NullValue, audioStreamID=NullValue)
+                streamUsage=3, originatingEndpointID=endpoint, videoStreamID=NullValue, audioStreamID=NullValue
+            )
             try:
-                await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+                await self.send_single_cmd(
+                    cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+                )
                 asserts.fail("Unexpected success on SolicitOffer with privacy mode enabled")
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.InvalidInState, "Expected INVALID_IN_STATE")
@@ -177,18 +198,18 @@ class TC_WebRTCP_2_1(MatterBaseTest, WEBRTCPTestBase):
 
         # Send valid SolicitOffer command
         cmd = cluster.Commands.SolicitOffer(
-            streamUsage=3, originatingEndpointID=endpoint, videoStreamID=NullValue, audioStreamID=NullValue)
-        resp = await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
-        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse,
-                             "Incorrect response type")
+            streamUsage=3, originatingEndpointID=endpoint, videoStreamID=NullValue, audioStreamID=NullValue
+        )
+        resp = await self.send_single_cmd(
+            cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+        )
+        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse, "Incorrect response type")
         asserts.assert_true(resp.deferredOffer, "Expected 'deferredOffer' to be True.")
 
         self.step(7)
         # Verify CurrentSessions contains valid session data
         current_sessions = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=cluster,
-            attribute=cluster.Attributes.CurrentSessions
+            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentSessions
         )
 
         asserts.assert_equal(len(current_sessions), 1, "Expected CurrentSessions to be 1")
@@ -208,10 +229,14 @@ class TC_WebRTCP_2_1(MatterBaseTest, WEBRTCPTestBase):
         asserts.assert_true(0 <= session.peerEndpointID <= 65534, "PeerEndpointID should be in valid endpoint range (0–65534)")
 
         # StreamUsage is StreamUsageEnum type and contains a valid StreamUsageEnum value
-        asserts.assert_true(isinstance(session.streamUsage, Clusters.Globals.Enums.StreamUsageEnum),
-                            "StreamUsage should be a StreamUsageEnum type")
-        asserts.assert_not_equal(session.streamUsage, Clusters.Globals.Enums.StreamUsageEnum.kUnknownEnumValue,
-                                 "StreamUsage should be a valid known StreamUsageEnum value")
+        asserts.assert_true(
+            isinstance(session.streamUsage, Clusters.Globals.Enums.StreamUsageEnum), "StreamUsage should be a StreamUsageEnum type"
+        )
+        asserts.assert_not_equal(
+            session.streamUsage,
+            Clusters.Globals.Enums.StreamUsageEnum.kUnknownEnumValue,
+            "StreamUsage should be a valid known StreamUsageEnum value",
+        )
 
 
 if __name__ == "__main__":

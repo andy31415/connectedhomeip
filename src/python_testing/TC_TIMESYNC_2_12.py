@@ -56,14 +56,22 @@ from matter.tlv import uint
 
 
 class TC_TIMESYNC_2_12(MatterBaseTest):
-    async def send_set_time_zone_cmd(self, tz: typing.List[Clusters.Objects.TimeSynchronization.Structs.TimeZoneStruct]) -> Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse:
-        return await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetTimeZone(timeZone=tz), endpoint=self.endpoint)
+    async def send_set_time_zone_cmd(
+        self, tz: typing.List[Clusters.Objects.TimeSynchronization.Structs.TimeZoneStruct]
+    ) -> Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse:
+        return await self.send_single_cmd(
+            cmd=Clusters.Objects.TimeSynchronization.Commands.SetTimeZone(timeZone=tz), endpoint=self.endpoint
+        )
 
     async def send_set_dst_cmd(self, dst: typing.List[Clusters.Objects.TimeSynchronization.Structs.DSTOffsetStruct]) -> None:
         await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetDSTOffset(DSTOffset=dst))
 
     async def send_set_utc_cmd(self, utc: uint) -> None:
-        await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetUTCTime(UTCTime=utc, granularity=Clusters.Objects.TimeSynchronization.Enums.GranularityEnum.kMillisecondsGranularity))
+        await self.send_single_cmd(
+            cmd=Clusters.Objects.TimeSynchronization.Commands.SetUTCTime(
+                UTCTime=utc, granularity=Clusters.Objects.TimeSynchronization.Enums.GranularityEnum.kMillisecondsGranularity
+            )
+        )
 
     def wait_for_tz_status(self, th_utc, wait_s, expected_offset, expected_name, cb):
         """
@@ -85,8 +93,10 @@ class TC_TIMESYNC_2_12(MatterBaseTest):
         timeout = get_wait_seconds_from_set_time(th_utc, wait_s)
         try:
             ret = cb.get_event_from_queue(block=True, timeout=timeout)
-            asserts.assert_true(matchers.is_type(received_value=ret.Data,
-                                desired_type=Clusters.TimeSynchronization.Events.TimeZoneStatus), "Incorrect type received for event")
+            asserts.assert_true(
+                matchers.is_type(received_value=ret.Data, desired_type=Clusters.TimeSynchronization.Events.TimeZoneStatus),
+                "Incorrect type received for event",
+            )
             asserts.assert_equal(ret.Data.offset, expected_offset, "Unexpected offset returned")
             asserts.assert_equal(ret.Data.name, expected_name, "Unexpected name returned")
         except queue.Empty:
@@ -97,7 +107,6 @@ class TC_TIMESYNC_2_12(MatterBaseTest):
 
     @async_test_body
     async def test_TC_TIMESYNC_2_12(self):
-
         self.endpoint = 0
 
         self.print_step(0, "Commissioning, already done")
@@ -120,11 +129,15 @@ class TC_TIMESYNC_2_12(MatterBaseTest):
         event = time_cluster.Events.TimeZoneStatus
         cb = EventSubscriptionHandler(expected_cluster_id=event.cluster_id, expected_event_id=event.event_id)
         urgent = 1
-        subscription = await self.default_controller.ReadEvent(nodeId=self.dut_node_id, events=[(self.endpoint, event, urgent)], reportInterval=[1, 3])
+        subscription = await self.default_controller.ReadEvent(
+            nodeId=self.dut_node_id, events=[(self.endpoint, event, urgent)], reportInterval=[1, 3]
+        )
         subscription.SetEventUpdateCallback(callback=cb)
 
         self.print_step(4, "TH reads the TimeZoneListMaxSize")
-        tz_list_size = await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.TimeZoneListMaxSize)
+        tz_list_size = await self.read_single_attribute_check_success(
+            cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.TimeZoneListMaxSize
+        )
         asserts.assert_greater_equal(tz_list_size, 1, "Invalid tz list size")
 
         self.print_step(5, "TH sets two TZ items if dst_list_size > 1")
@@ -146,7 +159,9 @@ class TC_TIMESYNC_2_12(MatterBaseTest):
         await self.send_set_dst_cmd(dst)
 
         self.print_step(8, "TH reads LocalTime")
-        await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.LocalTime)
+        await self.read_single_attribute_check_success(
+            cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.LocalTime
+        )
 
         self.print_step(9, "TH waits for TimeZoneStatus event until th_utc + 5s")
         self.wait_for_tz_status(th_utc, 5, 3600, "Not/Real", cb)
@@ -157,7 +172,9 @@ class TC_TIMESYNC_2_12(MatterBaseTest):
 
         self.print_step(11, "If tz_list_size > 1, TH reads LocalTime")
         if tz_list_size > 1:
-            await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.LocalTime)
+            await self.read_single_attribute_check_success(
+                cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.LocalTime
+            )
 
         self.print_step(12, "if tz_list_size > 1, TH waits for a TimeZoneStatus event until th_utc + 20s")
         if tz_list_size > 1:

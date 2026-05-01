@@ -23,11 +23,12 @@ from enum import StrEnum
 
 class BuildProfile(StrEnum):
     """Build profile to use for the build."""
-    DEFAULT = "default"                  # Profile defined by the build system.
-    DEBUG = "debug"                      # Default debug profile.
+
+    DEFAULT = "default"  # Profile defined by the build system.
+    DEBUG = "debug"  # Default debug profile.
     DEBUG_OPTIMIZED = "debug-optimized"  # Debug profile with optimizations enabled.
-    RELEASE = "release"                  # Release profile optimized for performance.
-    RELEASE_SIZE = "release-size"        # Release profile optimized for size.
+    RELEASE = "release"  # Release profile optimized for performance.
+    RELEASE_SIZE = "release-size"  # Release profile optimized for size.
 
 
 log = logging.getLogger(__name__)
@@ -85,9 +86,9 @@ class Builder(ABC):
     def _bundle(self):
         """Perform an actual generating of flashbundle.
 
-           May do nothing (and builder can choose not to implement this) if
-           the app does not need special steps for generating flashbundle (e.g.
-           on Linux platform, the output ELF files can be used directly).
+        May do nothing (and builder can choose not to implement this) if
+        the app does not need special steps for generating flashbundle (e.g.
+        on Linux platform, the output ELF files can be used directly).
         """
         pass
 
@@ -95,19 +96,19 @@ class Builder(ABC):
     def build_outputs(self):
         """Return a list of relevant BuilderOutput objects after a build.
 
-           May use build output data (e.g. manifests), so this should be
-           invoked only after a build has succeeded.
+        May use build output data (e.g. manifests), so this should be
+        invoked only after a build has succeeded.
         """
         raise NotImplementedError
 
     def bundle_outputs(self):
         """Return the BuilderOutput objects in flashbundle.
 
-           Return an empty list (and builder can choose not to implement this)
-           if the app does not need special files as flashbundle.
+        Return an empty list (and builder can choose not to implement this)
+        if the app does not need special files as flashbundle.
 
-           May use data from _bundle(), so this should be invoked only after
-           _bundle() has succeeded.
+        May use data from _bundle(), so this should be invoked only after
+        _bundle() has succeeded.
         """
         return []
 
@@ -128,20 +129,18 @@ class Builder(ABC):
     def CompressArtifacts(self, target_file: str):
         with tarfile.open(target_file, "w:gz") as tar:
             for output in self.outputs():
-                log.info('Adding %s into %s(%s)',
-                         output.source, target_file, output.target)
+                log.info("Adding %s into %s(%s)", output.source, target_file, output.target)
                 tar.add(output.source, output.target)
 
     def CopyArtifacts(self, target_dir: str):
         for output in self.outputs():
-            log.info(f'Copying {output.source} into {output.target}')
+            log.info(f"Copying {output.source} into {output.target}")
 
             target_full_name = os.path.join(target_dir, output.target)
             target_dir_full_name = os.path.dirname(target_full_name)
 
             if not os.path.exists(target_dir_full_name):
-                log.info('Creating subdirectory %s first',
-                         target_dir_full_name)
+                log.info("Creating subdirectory %s first", target_dir_full_name)
                 os.makedirs(target_dir_full_name)
 
             shutil.copyfile(output.source, target_full_name)

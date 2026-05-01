@@ -24,7 +24,7 @@ DiscoverSuccessCallback_t = CFUNCTYPE(
     c_uint64,  # node id
     c_uint32,  # interface id
     c_char_p,  # IP address
-    c_uint16  # port
+    c_uint16,  # port
 )
 
 DiscoverFailureCallback_t = CFUNCTYPE(

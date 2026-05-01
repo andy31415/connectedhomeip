@@ -53,18 +53,26 @@ class TC_FAN_2_4(MatterBaseTest):
         return "[TC-FAN-2.4] Optional wind attributes with DUT as Server"
 
     def steps_TC_FAN_2_4(self):
-        return [TestStep(1, "[FC] Commissioning already done.", is_commissioning=True),
-                TestStep(2, "[FC] TH reads from the DUT the WindSupport attribute.",
-                         "Verify that the WindSupport attribute value is a map8 bitmap. Verify that the WindSupport attribute's value is between 1 and 3 inclusive."),
-                TestStep(3, "[FC] TH reads from the DUT the WindSetting attribute.",
-                         "Verify that the WindSetting attribute value is a map8 bitmap. Verify that the WindSetting attribute's value is between 0 and 3 inclusive"),
-                TestStep(4, "[FC] TH checks that WindSetting is conformant with WindSupport.",
-                         "Verify that all bits set in WindSetting are also set in WindSupport."),
-                TestStep(5, "[FC] TH writes a valid bit from WindSupport to WindSetting.",
-                         "Device shall return SUCCESS."),
-                TestStep(6, "[FC] TH reads the WindSetting attribute.",
-                         "Verify that the proper bit was set from the previous step."),
-                ]
+        return [
+            TestStep(1, "[FC] Commissioning already done.", is_commissioning=True),
+            TestStep(
+                2,
+                "[FC] TH reads from the DUT the WindSupport attribute.",
+                "Verify that the WindSupport attribute value is a map8 bitmap. Verify that the WindSupport attribute's value is between 1 and 3 inclusive.",
+            ),
+            TestStep(
+                3,
+                "[FC] TH reads from the DUT the WindSetting attribute.",
+                "Verify that the WindSetting attribute value is a map8 bitmap. Verify that the WindSetting attribute's value is between 0 and 3 inclusive",
+            ),
+            TestStep(
+                4,
+                "[FC] TH checks that WindSetting is conformant with WindSupport.",
+                "Verify that all bits set in WindSetting are also set in WindSupport.",
+            ),
+            TestStep(5, "[FC] TH writes a valid bit from WindSupport to WindSetting.", "Device shall return SUCCESS."),
+            TestStep(6, "[FC] TH reads the WindSetting attribute.", "Verify that the proper bit was set from the previous step."),
+        ]
 
     async def read_setting(self, attribute: Any) -> Any:
         """
@@ -85,9 +93,11 @@ class TC_FAN_2_4(MatterBaseTest):
     async def write_setting(self, attribute, value) -> Status:
         result = await self.default_controller.WriteAttribute(self.dut_node_id, [(self.endpoint, attribute(value))])
         write_status = result[0].Status
-        write_status_success = (write_status == Status.Success)
-        asserts.assert_true(write_status_success,
-                            f"[FC] {attribute.__name__} write did not return a result of SUCCESS ({write_status.name}), value: {value}")
+        write_status_success = write_status == Status.Success
+        asserts.assert_true(
+            write_status_success,
+            f"[FC] {attribute.__name__} write did not return a result of SUCCESS ({write_status.name}), value: {value}",
+        )
         return write_status
 
     @staticmethod
@@ -123,8 +133,11 @@ class TC_FAN_2_4(MatterBaseTest):
         assert_valid_map8(wind_support, "WindSupport")
 
         # Verify that the WindSupport attribute's value is between 1 and 3 inclusive
-        asserts.assert_in(wind_support, valid_wind_support_range,
-                          f"[FC] WindSupport attribute value ({wind_support}) is not between 1 and 3 inclusive")
+        asserts.assert_in(
+            wind_support,
+            valid_wind_support_range,
+            f"[FC] WindSupport attribute value ({wind_support}) is not between 1 and 3 inclusive",
+        )
 
         # *** STEP 3 ***
         # TH reads from the DUT the WindSetting attribute
@@ -135,8 +148,11 @@ class TC_FAN_2_4(MatterBaseTest):
         assert_valid_map8(wind_setting, "WindSetting")
 
         # Verify that the WindSetting attribute's value is between 0 and 3 inclusive
-        asserts.assert_in(wind_setting, valid_wind_setting_range,
-                          f"[FC] WindSetting attribute value ({wind_setting}) is not between 0 and 3 inclusive")
+        asserts.assert_in(
+            wind_setting,
+            valid_wind_setting_range,
+            f"[FC] WindSetting attribute value ({wind_setting}) is not between 0 and 3 inclusive",
+        )
 
         # *** STEP 4 ***
         # TH checks that WindSetting is conformant with WindSupport
@@ -157,8 +173,11 @@ class TC_FAN_2_4(MatterBaseTest):
         # Verify that the proper bit was set from the previous step
         self.step(6)
         wind_setting_read = await self.read_setting(attr.WindSetting)
-        asserts.assert_equal(wind_setting_read, wind_setting_write,
-                             f"[FC] WindSetting attribute value ({wind_setting_read}) does not match the expected value ({wind_setting_write})")
+        asserts.assert_equal(
+            wind_setting_read,
+            wind_setting_write,
+            f"[FC] WindSetting attribute value ({wind_setting_read}) does not match the expected value ({wind_setting_write})",
+        )
 
 
 if __name__ == "__main__":

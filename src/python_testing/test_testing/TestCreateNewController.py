@@ -38,8 +38,9 @@ class TestCreateNewController(MatterBaseTest):
         setup_codes = self.matter_test_config.qr_code_content + self.matter_test_config.manual_code + created_codes
         if not setup_codes:
             return None
-        asserts.assert_equal(len(setup_codes), 1,
-                             "Require exactly one of either --qr-code, --manual-code or (--discriminator and --passcode).")
+        asserts.assert_equal(
+            len(setup_codes), 1, "Require exactly one of either --qr-code, --manual-code or (--discriminator and --passcode)."
+        )
         return setup_codes[0]
 
     async def setup_class_helper(self, allow_pase: bool = True):
@@ -69,7 +70,7 @@ class TestCreateNewController(MatterBaseTest):
             except asyncio.CancelledError:
                 pass
 
-        wildcard_read = (await dev_ctrl.Read(node_id, [()]))
+        wildcard_read = await dev_ctrl.Read(node_id, [()])
 
         # ======= State kept for use by all tests =======
         # All endpoints in "full object" indexing format
@@ -81,7 +82,7 @@ class TestCreateNewController(MatterBaseTest):
             TestStep(2, "Checking create new controller on new fabric"),
             TestStep(3, "Remove new fabric from TH to verify it can be removed after creation"),
             TestStep(4, "Checking create new controller on existing fabric"),
-            TestStep(5, "Remove fabric from TH to verify it can be removed after creation")
+            TestStep(5, "Remove fabric from TH to verify it can be removed after creation"),
         ]
 
     @async_test_body

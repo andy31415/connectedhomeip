@@ -52,16 +52,18 @@ class TC_RVCCLEANM_1_2(MatterBaseTest):
     def __init__(self, *args):
         super().__init__(*args)
         self.endpoint = 0
-        self.commonTags = {0x0: 'Auto',
-                           0x1: 'Quick',
-                           0x2: 'Quiet',
-                           0x3: 'LowNoise',
-                           0x4: 'LowEnergy',
-                           0x5: 'Vacation',
-                           0x6: 'Min',
-                           0x7: 'Max',
-                           0x8: 'Night',
-                           0x9: 'Day'}
+        self.commonTags = {
+            0x0: "Auto",
+            0x1: "Quick",
+            0x2: "Quiet",
+            0x3: "LowNoise",
+            0x4: "LowEnergy",
+            0x5: "Vacation",
+            0x6: "Min",
+            0x7: "Max",
+            0x8: "Night",
+            0x9: "Day",
+        }
         self.cleanTags = [tag.value for tag in Clusters.RvcCleanMode.Enums.ModeTag]
         self.supported_modes_dut = []
 
@@ -82,7 +84,9 @@ class TC_RVCCLEANM_1_2(MatterBaseTest):
 
         if self.check_pics("RVCCLEANM.S.A0000"):
             self.print_step(2, "Read SupportedModes attribute")
-            supported_modes = await self.read_mod_attribute_expect_success(endpoint=self.endpoint, attribute=attributes.SupportedModes)
+            supported_modes = await self.read_mod_attribute_expect_success(
+                endpoint=self.endpoint, attribute=attributes.SupportedModes
+            )
 
             log.info("SupportedModes: %s" % (supported_modes))
 
@@ -118,10 +122,8 @@ class TC_RVCCLEANM_1_2(MatterBaseTest):
                         asserts.fail("Mode tag values must not be larger than 16 bits!")
 
                     # * for each Value field: {isCommonOrDerivedOrMfgTagsVal}
-                    is_mfg = (0x8000 <= t.value <= 0xBFFF)
-                    if (t.value not in self.commonTags and
-                            t.value not in self.cleanTags and
-                            not is_mfg):
+                    is_mfg = 0x8000 <= t.value <= 0xBFFF
+                    if t.value not in self.commonTags and t.value not in self.cleanTags and not is_mfg:
                         asserts.fail("Mode tag value is not a common tag, clean tag or vendor tag!")
 
                     # * for at least one Value field: {isCommonOrDerivedTagsVal}
@@ -140,8 +142,9 @@ class TC_RVCCLEANM_1_2(MatterBaseTest):
                 if has_vacuum_or_mop_mode_tag:
                     break
 
-            asserts.assert_true(has_vacuum_or_mop_mode_tag,
-                                "At least one ModeOptionsStruct entry must include either the Vacuum or Mop mode tag")
+            asserts.assert_true(
+                has_vacuum_or_mop_mode_tag, "At least one ModeOptionsStruct entry must include either the Vacuum or Mop mode tag"
+            )
 
         if self.check_pics("RVCCLEANM.S.A0001"):
             self.print_step(3, "Read CurrentMode attribute")

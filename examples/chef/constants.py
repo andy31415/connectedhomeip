@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 class TermColors:
-    STRBOLD = '\033[1m'
-    STRRESET = '\033[0m'
-    STRCYAN = '\033[1;36m'
-    STRYELLOW = '\033[1;33m'
+    STRBOLD = "\033[1m"
+    STRRESET = "\033[0m"
+    STRCYAN = "\033[1;36m"
+    STRYELLOW = "\033[1;33m"

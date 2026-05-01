@@ -89,14 +89,15 @@ class TC_BOOLCFG_5_1(MatterBaseTest):
 
     @async_test_body
     async def test_TC_BOOLCFG_5_1(self):
-
-        asserts.assert_true('PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY' in self.matter_test_config.global_test_params,
-                            "PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY must be included on the command line in "
-                            "the --hex-arg flag as PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY:<key>, "
-                            "e.g. --hex-arg PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY:000102030405060708090a0b0c0d0e0f")
+        asserts.assert_true(
+            "PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY" in self.matter_test_config.global_test_params,
+            "PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY must be included on the command line in "
+            "the --hex-arg flag as PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY:<key>, "
+            "e.g. --hex-arg PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY:000102030405060708090a0b0c0d0e0f",
+        )
 
         endpoint = self.get_endpoint()
-        enableKey = self.matter_test_config.global_test_params['PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY']
+        enableKey = self.matter_test_config.global_test_params["PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY"]
 
         self.step(1)
         attributes = Clusters.BooleanStateConfiguration.Attributes
@@ -113,7 +114,7 @@ class TC_BOOLCFG_5_1(MatterBaseTest):
             log.info("AlarmSuppress feature not supported skipping test case")
 
             # Skipping all remainig steps
-            for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index:]:
+            for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index :]:
                 self.step(step.test_plan_number)
                 log.info("Test step skipped")
 
@@ -137,7 +138,10 @@ class TC_BOOLCFG_5_1(MatterBaseTest):
 
         self.step("5c")
         try:
-            await self.send_single_cmd(cmd=Clusters.Objects.BooleanStateConfiguration.Commands.EnableDisableAlarm(alarmsToEnableDisable=enabledAlarms), endpoint=endpoint)
+            await self.send_single_cmd(
+                cmd=Clusters.Objects.BooleanStateConfiguration.Commands.EnableDisableAlarm(alarmsToEnableDisable=enabledAlarms),
+                endpoint=endpoint,
+            )
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
             pass
@@ -145,7 +149,12 @@ class TC_BOOLCFG_5_1(MatterBaseTest):
         self.step(6)
         if is_vis_feature_supported or is_aud_feature_supported:
             try:
-                await self.send_single_cmd(cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=enableKey, eventTrigger=sensorUntrigger), endpoint=0)
+                await self.send_single_cmd(
+                    cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(
+                        enableKey=enableKey, eventTrigger=sensorUntrigger
+                    ),
+                    endpoint=0,
+                )
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
                 pass
@@ -153,7 +162,12 @@ class TC_BOOLCFG_5_1(MatterBaseTest):
         self.step("7a")
         if is_vis_feature_supported:
             try:
-                await self.send_single_cmd(cmd=Clusters.Objects.BooleanStateConfiguration.Commands.SuppressAlarm(alarmsToSuppress=Clusters.BooleanStateConfiguration.Bitmaps.AlarmModeBitmap.kVisual), endpoint=endpoint)
+                await self.send_single_cmd(
+                    cmd=Clusters.Objects.BooleanStateConfiguration.Commands.SuppressAlarm(
+                        alarmsToSuppress=Clusters.BooleanStateConfiguration.Bitmaps.AlarmModeBitmap.kVisual
+                    ),
+                    endpoint=endpoint,
+                )
                 asserts.fail("Received Success response when an INVALID_IN_STATE was expected")
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.InvalidInState, "Unexpected error returned")
@@ -164,7 +178,12 @@ class TC_BOOLCFG_5_1(MatterBaseTest):
         self.step("7b")
         if not is_vis_feature_supported:
             try:
-                await self.send_single_cmd(cmd=Clusters.Objects.BooleanStateConfiguration.Commands.SuppressAlarm(alarmsToSuppress=Clusters.BooleanStateConfiguration.Bitmaps.AlarmModeBitmap.kVisual), endpoint=endpoint)
+                await self.send_single_cmd(
+                    cmd=Clusters.Objects.BooleanStateConfiguration.Commands.SuppressAlarm(
+                        alarmsToSuppress=Clusters.BooleanStateConfiguration.Bitmaps.AlarmModeBitmap.kVisual
+                    ),
+                    endpoint=endpoint,
+                )
                 asserts.fail("Received Success response when an CONSTRAINT_ERROR was expected")
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.ConstraintError, "Unexpected error returned")
@@ -173,13 +192,20 @@ class TC_BOOLCFG_5_1(MatterBaseTest):
             log.info("Test step skipped")
 
         self.step(8)
-        alarms_suppressed_dut = await self.read_boolcfg_attribute_expect_success(endpoint=endpoint, attribute=attributes.AlarmsSuppressed)
+        alarms_suppressed_dut = await self.read_boolcfg_attribute_expect_success(
+            endpoint=endpoint, attribute=attributes.AlarmsSuppressed
+        )
         asserts.assert_equal(alarms_suppressed_dut, 0, "AlarmsSuppressed is not the expected value")
 
         self.step("9a")
         if is_aud_feature_supported:
             try:
-                await self.send_single_cmd(cmd=Clusters.Objects.BooleanStateConfiguration.Commands.SuppressAlarm(alarmsToSuppress=Clusters.BooleanStateConfiguration.Bitmaps.AlarmModeBitmap.kAudible), endpoint=endpoint)
+                await self.send_single_cmd(
+                    cmd=Clusters.Objects.BooleanStateConfiguration.Commands.SuppressAlarm(
+                        alarmsToSuppress=Clusters.BooleanStateConfiguration.Bitmaps.AlarmModeBitmap.kAudible
+                    ),
+                    endpoint=endpoint,
+                )
                 asserts.fail("Received Success response when an INVALID_IN_STATE was expected")
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.InvalidInState, "Unexpected error returned")
@@ -188,7 +214,12 @@ class TC_BOOLCFG_5_1(MatterBaseTest):
         self.step("9b")
         if not is_aud_feature_supported:
             try:
-                await self.send_single_cmd(cmd=Clusters.Objects.BooleanStateConfiguration.Commands.SuppressAlarm(alarmsToSuppress=Clusters.BooleanStateConfiguration.Bitmaps.AlarmModeBitmap.kAudible), endpoint=endpoint)
+                await self.send_single_cmd(
+                    cmd=Clusters.Objects.BooleanStateConfiguration.Commands.SuppressAlarm(
+                        alarmsToSuppress=Clusters.BooleanStateConfiguration.Bitmaps.AlarmModeBitmap.kAudible
+                    ),
+                    endpoint=endpoint,
+                )
                 asserts.fail("Received Success response when an CONSTRAINT_ERROR was expected")
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.ConstraintError, "Unexpected error returned")
@@ -197,7 +228,9 @@ class TC_BOOLCFG_5_1(MatterBaseTest):
             log.info("Test step skipped")
 
         self.step(10)
-        alarms_suppressed_dut = await self.read_boolcfg_attribute_expect_success(endpoint=endpoint, attribute=attributes.AlarmsSuppressed)
+        alarms_suppressed_dut = await self.read_boolcfg_attribute_expect_success(
+            endpoint=endpoint, attribute=attributes.AlarmsSuppressed
+        )
         asserts.assert_equal(alarms_suppressed_dut, 0, "AlarmsSuppressed is not the expected value")
 
 

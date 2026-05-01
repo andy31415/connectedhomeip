@@ -88,7 +88,7 @@ Timestamp ClockBase::GetMonotonicTimestamp()
     // newTimestamp guaranteed to never be < the last timestamp.
     __atomic_store_n(&mLastTimestamp, newTimestamp.count(), __ATOMIC_SEQ_CST);
 #else
-    mLastTimestamp         = newTimestamp.count();
+    mLastTimestamp = newTimestamp.count();
 #endif // CHIP_DEVICE_LAYER_USE_ATOMICS_FOR_CLOCK
 
     return newTimestamp;

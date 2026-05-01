@@ -32,7 +32,7 @@ class StreamService:
             if stream_path.is_dir():
                 stream_file = stream_path / "stream.json"
                 if stream_file.exists():
-                    with open(stream_file, 'r', encoding='utf-8') as f:
+                    with open(stream_file, "r", encoding="utf-8") as f:
                         stream_data = json.load(f)
                         streams[stream_path.name] = Stream.model_validate(stream_data)
         return streams
@@ -80,7 +80,7 @@ class StreamService:
     def _save_stream(self, stream: Stream):
         """Save a stream to disk."""
         p = self.wd.path("streams", str(stream.id), "stream.json")
-        with open(p, 'w', encoding='utf-8') as f:
+        with open(p, "w", encoding="utf-8") as f:
             json.dump(stream.model_dump(), f, ensure_ascii=False, indent=4)
 
     def update_stream(self, stream: Stream):

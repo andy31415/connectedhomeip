@@ -74,7 +74,9 @@ class TC_WEBRTC_1_1(MatterBaseTest, WebRTCTestHelper):
                 expectation="DUT responds with SUCCESS status code.",
             ),
             TestStep(
-                5, description="TH waits for 10 seconds.", expectation="Verify the WebRTC session has been successfully established."
+                5,
+                description="TH waits for 10 seconds.",
+                expectation="Verify the WebRTC session has been successfully established.",
             ),
             TestStep(
                 6,

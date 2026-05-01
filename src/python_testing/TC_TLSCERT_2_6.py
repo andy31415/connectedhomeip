@@ -56,29 +56,58 @@ class TC_TLSCERT_2_6(TC_TLSCERT_Base):
             TestStep(2, "Populate myRootCert[] with 3 distinct, valid, self-signed, DER-encoded x509 certificates."),
             TestStep(3, "Populate myRootCertFingerprint[] with the fingerprints corresponding to myRootCert[]."),
             TestStep(4, "Set myBigFingerprint to myRootCertFingerprint[0] concatenated with enough characters to exceed 64."),
-            TestStep(5, "CR1 sends LookupRootCertificate command with Fingerprint set to the empty octstr.",
-                     test_plan_support.verify_status(Status.NotFound)),
-            TestStep(6, "CR1 sends LookupRootCertificate command with Fingerprint set to myRootCertFingerprint[0].",
-                     test_plan_support.verify_status(Status.NotFound)),
-            TestStep(7, "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[i], for each i in [0..1].",
-                     "DUT replies with a TLSCAID value. Store the returned value as myCaid[i]."),
-            TestStep(8, "CR2 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[2].",
-                     "DUT replies with a TLSCAID value. Store the returned value as myCaid[2]."),
-            TestStep(9, "CR1 sends LookupRootCertificate command with Fingerprint set to myRootCertFingerprint[0].",
-                     "DUT replies with a TLSCAID value equal to myCaid[0]."),
-            TestStep(10, "CR1 sends LookupRootCertificate command with Fingerprint set to myRootCertFingerprint[1].",
-                     "DUT replies with a TLSCAID value equal to myCaid[1]."),
-            TestStep(11, "CR1 sends LookupRootCertificate command with Fingerprint set to myRootCertFingerprint[2].",
-                     test_plan_support.verify_status(Status.NotFound)),
-            TestStep(12, "CR2 sends LookupRootCertificate command with Fingerprint set to myRootCertFingerprint[2].",
-                     "DUT replies with a TLSCAID value equal to myCaid[2]."),
-            TestStep(13, "CR1 sends LookupRootCertificate command with Fingerprint set to myBigFingerprint.",
-                     test_plan_support.verify_status(Status.ConstraintError)),
-            TestStep(14, "CR1 sends RemoveRootCertificate command with CAID set to myCaid[i], for each i in [0..1].",
-                     test_plan_support.verify_success()),
-            TestStep(15, "CR2 sends RemoveRootCertificate command with CAID set to myCaid[2].",
-                     test_plan_support.verify_success()),
-            TestStep(16, test_plan_support.remove_fabric('CR2', 'CR1'), test_plan_support.verify_success()),
+            TestStep(
+                5,
+                "CR1 sends LookupRootCertificate command with Fingerprint set to the empty octstr.",
+                test_plan_support.verify_status(Status.NotFound),
+            ),
+            TestStep(
+                6,
+                "CR1 sends LookupRootCertificate command with Fingerprint set to myRootCertFingerprint[0].",
+                test_plan_support.verify_status(Status.NotFound),
+            ),
+            TestStep(
+                7,
+                "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[i], for each i in [0..1].",
+                "DUT replies with a TLSCAID value. Store the returned value as myCaid[i].",
+            ),
+            TestStep(
+                8,
+                "CR2 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[2].",
+                "DUT replies with a TLSCAID value. Store the returned value as myCaid[2].",
+            ),
+            TestStep(
+                9,
+                "CR1 sends LookupRootCertificate command with Fingerprint set to myRootCertFingerprint[0].",
+                "DUT replies with a TLSCAID value equal to myCaid[0].",
+            ),
+            TestStep(
+                10,
+                "CR1 sends LookupRootCertificate command with Fingerprint set to myRootCertFingerprint[1].",
+                "DUT replies with a TLSCAID value equal to myCaid[1].",
+            ),
+            TestStep(
+                11,
+                "CR1 sends LookupRootCertificate command with Fingerprint set to myRootCertFingerprint[2].",
+                test_plan_support.verify_status(Status.NotFound),
+            ),
+            TestStep(
+                12,
+                "CR2 sends LookupRootCertificate command with Fingerprint set to myRootCertFingerprint[2].",
+                "DUT replies with a TLSCAID value equal to myCaid[2].",
+            ),
+            TestStep(
+                13,
+                "CR1 sends LookupRootCertificate command with Fingerprint set to myBigFingerprint.",
+                test_plan_support.verify_status(Status.ConstraintError),
+            ),
+            TestStep(
+                14,
+                "CR1 sends RemoveRootCertificate command with CAID set to myCaid[i], for each i in [0..1].",
+                test_plan_support.verify_success(),
+            ),
+            TestStep(15, "CR2 sends RemoveRootCertificate command with CAID set to myCaid[2].", test_plan_support.verify_success()),
+            TestStep(16, test_plan_support.remove_fabric("CR2", "CR1"), test_plan_support.verify_success()),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.TlsCertificateManagement))
@@ -95,10 +124,10 @@ class TC_TLSCERT_2_6(TC_TLSCERT_Base):
         my_root_cert_fingerprint = [cr1_cmd.get_fingerprint(cert) for cert in my_root_cert]
 
         self.step(4)
-        my_big_fingerprint = my_root_cert_fingerprint[0] + b'\x00' * (65 - len(my_root_cert_fingerprint[0]))
+        my_big_fingerprint = my_root_cert_fingerprint[0] + b"\x00" * (65 - len(my_root_cert_fingerprint[0]))
 
         self.step(5)
-        await cr1_cmd.send_lookup_root_command(fingerprint=b'', expected_status=Status.NotFound)
+        await cr1_cmd.send_lookup_root_command(fingerprint=b"", expected_status=Status.NotFound)
 
         self.step(6)
         await cr1_cmd.send_lookup_root_command(fingerprint=my_root_cert_fingerprint[0], expected_status=Status.NotFound)

@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 
 def run_tool_pipe(config: Config, command: List[str]) -> subprocess.Popen:
     """Run a command."""
-    if tool := config.getl(['tool', command[0]]):
+    if tool := config.getl(["tool", command[0]]):
         command[0] = tool
     log.info("Execute: %s", shlex.join(command))
     return subprocess.Popen(command, stdout=subprocess.PIPE)

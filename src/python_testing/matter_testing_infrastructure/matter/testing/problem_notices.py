@@ -57,8 +57,7 @@ class ClusterPathLocation:
     cluster_id: int
 
     def __str__(self):
-        return (f'\n       Endpoint: {self.endpoint_id},'
-                f'\n       Cluster:  {cluster_id_with_name(self.cluster_id)}')
+        return f"\n       Endpoint: {self.endpoint_id},\n       Cluster:  {cluster_id_with_name(self.cluster_id)}"
 
 
 @dataclass
@@ -80,8 +79,7 @@ class AttributePathLocation(ClusterPathLocation):
         return desc
 
     def __str__(self):
-        return (f'{super().__str__()}'
-                f'\n      Attribute:{format_decimal_and_hex(self.attribute_id)}')
+        return f"{super().__str__()}\n      Attribute:{format_decimal_and_hex(self.attribute_id)}"
 
 
 @dataclass
@@ -89,8 +87,7 @@ class EventPathLocation(ClusterPathLocation):
     event_id: int
 
     def __str__(self):
-        return (f'{super().__str__()}'
-                f'\n       Event:    {format_decimal_and_hex(self.event_id)}')
+        return f"{super().__str__()}\n       Event:    {format_decimal_and_hex(self.event_id)}"
 
 
 @dataclass
@@ -98,8 +95,7 @@ class CommandPathLocation(ClusterPathLocation):
     command_id: int
 
     def __str__(self):
-        return (f'{super().__str__()}'
-                f'\n       Command:  {format_decimal_and_hex(self.command_id)}')
+        return f"{super().__str__()}\n       Command:  {format_decimal_and_hex(self.command_id)}"
 
 
 @dataclass
@@ -107,8 +103,7 @@ class FeaturePathLocation(ClusterPathLocation):
     feature_code: str
 
     def __str__(self):
-        return (f'{super().__str__()}'
-                f'\n       Feature:  {self.feature_code}')
+        return f"{super().__str__()}\n       Feature:  {self.feature_code}"
 
 
 @dataclass
@@ -120,16 +115,17 @@ class DeviceTypePathLocation:
     def __str__(self):
         msg = ""
         if self.endpoint_id is not None:
-            msg += f'\n       Endpoint ID: {self.endpoint_id}'
-        msg += f'\n       DeviceType: 0x{self.device_type_id:04X}'
+            msg += f"\n       Endpoint ID: {self.endpoint_id}"
+        msg += f"\n       DeviceType: 0x{self.device_type_id:04X}"
         if self.cluster_id:
-            msg += f'\n       ClusterID: 0x{self.cluster_id:04X}'
+            msg += f"\n       ClusterID: 0x{self.cluster_id:04X}"
         return msg
 
 
 @dataclass
 class NamespacePathLocation:
     """Location in a namespace definition"""
+
     namespace_id: Optional[int] = None
     tag_id: Optional[int] = None
 
@@ -144,7 +140,7 @@ class NamespacePathLocation:
 
 class UnknownProblemLocation:
     def __str__(self):
-        return '\n      Unknown Locations - see message for more details'
+        return "\n      Unknown Locations - see message for more details"
 
 
 ProblemLocation = Union[ClusterPathLocation, DeviceTypePathLocation, UnknownProblemLocation, NamespacePathLocation]
@@ -169,8 +165,10 @@ class ProblemNotice:
     spec_location: str = ""
 
     def __str__(self):
-        return (f'\nProblem: {str(self.severity)}'
-                f'\n    test_name: {self.test_name}'
-                f'\n    location: {str(self.location)}'
-                f'\n    problem: {self.problem}'
-                f'\n    spec_location: {self.spec_location}\n')
+        return (
+            f"\nProblem: {str(self.severity)}"
+            f"\n    test_name: {self.test_name}"
+            f"\n    location: {str(self.location)}"
+            f"\n    problem: {self.problem}"
+            f"\n    spec_location: {self.spec_location}\n"
+        )

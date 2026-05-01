@@ -21,10 +21,10 @@ from subprocess import PIPE, Popen
 
 
 def get_file_from_pigweed(name):
-    CHIP_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+    CHIP_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     PIGWEED = os.path.join(CHIP_ROOT, ".environment/cipd/packages/pigweed")
 
-    pattern = os.path.join(PIGWEED, '**', name)
+    pattern = os.path.join(PIGWEED, "**", name)
     for filename in glob.glob(pattern, recursive=True):
         if os.path.isfile(filename):
             return filename
@@ -33,7 +33,7 @@ def get_file_from_pigweed(name):
 
 def run_command(command):
     returncode = -1
-    command_log = b''
+    command_log = b""
     print("Running {}".format(command))
     with Popen(command, cwd=os.getcwd(), stdout=PIPE, stderr=PIPE) as process:
         for line in process.stdout:
@@ -63,14 +63,14 @@ def build_darwin_framework(args):
         os.mkdir(abs_path)
 
     command = [
-        'xcodebuild',
-        '-scheme',
+        "xcodebuild",
+        "-scheme",
         args.target,
-        '-sdk',
+        "-sdk",
         args.target_sdk,
-        '-project',
+        "-project",
         args.project_path,
-        '-derivedDataPath',
+        "-derivedDataPath",
         abs_path,
         "ARCHS={}".format(args.target_arch),
     ]
@@ -87,17 +87,17 @@ def build_darwin_framework(args):
         ]
 
     options = {
-        'CHIP_INET_CONFIG_ENABLE_IPV4': args.ipv4,
-        'CHIP_IS_ASAN': args.asan,
-        'CHIP_IS_BLE': args.ble,
-        'CHIP_IS_CLANG': args.clang,
-        'CHIP_ENABLE_ENCODING_SENTINEL_ENUM_VALUES': args.enable_encoding_sentinel_enum_values,
-        'CHIP_USE_NETWORK_FRAMEWORK': args.use_network_framework
+        "CHIP_INET_CONFIG_ENABLE_IPV4": args.ipv4,
+        "CHIP_IS_ASAN": args.asan,
+        "CHIP_IS_BLE": args.ble,
+        "CHIP_IS_CLANG": args.clang,
+        "CHIP_ENABLE_ENCODING_SENTINEL_ENUM_VALUES": args.enable_encoding_sentinel_enum_values,
+        "CHIP_USE_NETWORK_FRAMEWORK": args.use_network_framework,
     }
     for option in options:
         command += ["{}={}".format(option, "YES" if options[option] else "NO")]
 
-    defines = 'GCC_PREPROCESSOR_DEFINITIONS=${inherited} MTR_NO_AVAILABILITY=1'
+    defines = "GCC_PREPROCESSOR_DEFINITIONS=${inherited} MTR_NO_AVAILABILITY=1"
 
     command += [defines]
 
@@ -123,25 +123,22 @@ def build_darwin_framework(args):
         ldflags += flags
 
         if args.clang:
-            ldflags += [
-                get_file_from_pigweed("libclang_rt.asan_osx_dynamic.dylib")
-            ]
+            ldflags += [get_file_from_pigweed("libclang_rt.asan_osx_dynamic.dylib")]
 
     if args.enable_encoding_sentinel_enum_values:
         cflags += ["-DCHIP_CONFIG_IM_ENABLE_ENCODING_SENTINEL_ENUM_VALUES=1"]
 
     if args.compdb:
-        cflags += ["-gen-cdb-fragment-path ", abs_path + '/compdb']
+        cflags += ["-gen-cdb-fragment-path ", abs_path + "/compdb"]
 
-    command += ["OTHER_CFLAGS=" + ' '.join(cflags), "OTHER_LDFLAGS=" + ' '.join(ldflags)]
+    command += ["OTHER_CFLAGS=" + " ".join(cflags), "OTHER_LDFLAGS=" + " ".join(ldflags)]
     command_result = run_command(command)
     print("Build Framework Result: {}".format(command_result))
     exit(command_result)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Build the Matter Darwin framework")
+    parser = argparse.ArgumentParser(description="Build the Matter Darwin framework")
     parser.add_argument(
         "--project_path",
         default="src/darwin/Framework/Matter.xcodeproj",
@@ -154,31 +151,27 @@ if __name__ == "__main__":
         help="Output lpath for framework",
         required=True,
     )
-    parser.add_argument("--target",
-                        default="Matter",
-                        help="Name of target to build",
-                        required=True)
-    parser.add_argument("--target_sdk",
-                        default="macosx",
-                        help="Set the target sdk",
-                        required=False,
-                        )
-    parser.add_argument("--target_arch",
-                        default=platform.machine(),
-                        help="Set the target architecture",
-                        required=False,
-                        )
-    parser.add_argument("--log_path",
-                        help="Output log file destination",
-                        required=True)
-    parser.add_argument('--ipv4', action=argparse.BooleanOptionalAction)
-    parser.add_argument('--asan', action=argparse.BooleanOptionalAction)
-    parser.add_argument('--ble', action=argparse.BooleanOptionalAction)
-    parser.add_argument('--clang', action=argparse.BooleanOptionalAction)
-    parser.add_argument('--enable-encoding-sentinel-enum-values', action=argparse.BooleanOptionalAction)
-    parser.add_argument('--compdb', action=argparse.BooleanOptionalAction)
-    parser.add_argument('--use-network-framework',
-                        action=argparse.BooleanOptionalAction)
+    parser.add_argument("--target", default="Matter", help="Name of target to build", required=True)
+    parser.add_argument(
+        "--target_sdk",
+        default="macosx",
+        help="Set the target sdk",
+        required=False,
+    )
+    parser.add_argument(
+        "--target_arch",
+        default=platform.machine(),
+        help="Set the target architecture",
+        required=False,
+    )
+    parser.add_argument("--log_path", help="Output log file destination", required=True)
+    parser.add_argument("--ipv4", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--asan", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--ble", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--clang", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--enable-encoding-sentinel-enum-values", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--compdb", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--use-network-framework", action=argparse.BooleanOptionalAction)
 
     args = parser.parse_args()
     build_darwin_framework(args)

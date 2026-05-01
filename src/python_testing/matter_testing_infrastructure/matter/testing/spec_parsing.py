@@ -32,13 +32,31 @@ from typing import Optional, Union
 
 import matter.clusters as Clusters
 import matter.testing.conformance as conformance_support
-from matter.testing.conformance import (OPTIONAL_CONFORM, TOP_LEVEL_CONFORMANCE_TAGS, ConformanceException,
-                                        ConformanceParseParameters, feature, is_disallowed, mandatory, optional, or_operation,
-                                        parse_callable_from_xml)
+from matter.testing.conformance import (
+    OPTIONAL_CONFORM,
+    TOP_LEVEL_CONFORMANCE_TAGS,
+    ConformanceException,
+    ConformanceParseParameters,
+    feature,
+    is_disallowed,
+    mandatory,
+    optional,
+    or_operation,
+    parse_callable_from_xml,
+)
 from matter.testing.global_attribute_ids import GlobalAttributeIds
-from matter.testing.problem_notices import (AttributePathLocation, ClusterPathLocation, CommandPathLocation, DeviceTypePathLocation,
-                                            EventPathLocation, FeaturePathLocation, NamespacePathLocation, ProblemNotice,
-                                            ProblemSeverity, UnknownProblemLocation)
+from matter.testing.problem_notices import (
+    AttributePathLocation,
+    ClusterPathLocation,
+    CommandPathLocation,
+    DeviceTypePathLocation,
+    EventPathLocation,
+    FeaturePathLocation,
+    NamespacePathLocation,
+    ProblemNotice,
+    ProblemSeverity,
+    UnknownProblemLocation,
+)
 from matter.tlv import uint
 
 LOGGER = logging.getLogger(__name__)
@@ -79,9 +97,9 @@ ConformanceCallable = conformance_support.Conformance
 class DataTypeEnum(StrEnum):
     # String values must match XML tag names exactly for XML parsing (see line 569: container.iter(str(data_type)))
     # Using StrEnum instead of enum with auto() ensures values are predictable strings, not auto-generated integers
-    kStruct = 'struct'
-    kEnum = 'enum'
-    kBitmap = 'bitmap'
+    kStruct = "struct"
+    kEnum = "enum"
+    kBitmap = "bitmap"
 
 
 @dataclass
@@ -117,7 +135,7 @@ class XmlFeature:
     conformance: ConformanceCallable
 
     def __str__(self):
-        return f'{self.code}: {self.name} conformance {str(self.conformance)}'
+        return f"{self.code}: {self.name} conformance {str(self.conformance)}"
 
 
 @dataclass
@@ -132,12 +150,12 @@ class XmlAttribute:
     def access_string(self):
         read_marker = "R" if self.read_access is not ACCESS_CONTROL_PRIVILEGE_ENUM.kUnknownEnumValue else ""
         write_marker = "W" if self.write_access is not ACCESS_CONTROL_PRIVILEGE_ENUM.kUnknownEnumValue else ""
-        read_access_marker = f'{to_access_code(self.read_access)}'
-        write_access_marker = f'{to_access_code(self.write_access)}'
-        return f'{read_marker}{write_marker} {read_access_marker}{write_access_marker}'
+        read_access_marker = f"{to_access_code(self.read_access)}"
+        write_access_marker = f"{to_access_code(self.write_access)}"
+        return f"{read_marker}{write_marker} {read_access_marker}{write_access_marker}"
 
     def __str__(self):
-        return f'{self.name}: datatype: {self.datatype} conformance: {str(self.conformance)}, access = {self.access_string()}'
+        return f"{self.name}: datatype: {self.datatype} conformance: {str(self.conformance)}, access = {self.access_string()}"
 
 
 @dataclass
@@ -148,7 +166,7 @@ class XmlCommand:
     privilege: int
 
     def __str__(self):
-        return f'{self.name} id:0x{self.id:02X} {self.id} conformance: {str(self.conformance)} privilege: {str(self.privilege)}'
+        return f"{self.name} id:0x{self.id:02X} {self.id} conformance: {str(self.conformance)} privilege: {str(self.privilege)}"
 
 
 @dataclass
@@ -202,41 +220,42 @@ class XmlDeviceTypeClusterRequirements:
             overrides = ""
             for mask, conformance in self.feature_overrides.items():
                 bit = math.log2(mask)
-                overrides += f'bit {int(bit)}: {str(conformance)} '
-            ret += f'-- Feature overrides: {overrides}'
+                overrides += f"bit {int(bit)}: {str(conformance)} "
+            ret += f"-- Feature overrides: {overrides}"
         if self.attribute_overrides:
             overrides = ""
             for id, conformance in self.attribute_overrides.items():
-                overrides += f'{id:04X}: {str(conformance)} '
-            ret += f'-- Attribute overrides: {overrides}'
+                overrides += f"{id:04X}: {str(conformance)} "
+            ret += f"-- Attribute overrides: {overrides}"
         if self.command_overrides:
             overrides = ""
             for id, conformance in self.command_overrides.items():
-                overrides += f'{id:04X}: {str(conformance)} '
-            ret += f'-- Command overrides: {overrides}'
+                overrides += f"{id:04X}: {str(conformance)} "
+            ret += f"-- Command overrides: {overrides}"
 
         return ret
 
     def __str__(self):
-        return f'{self.name} {self.side}: {str(self.conformance)} {self.str_overrides()}'
+        return f"{self.name} {self.side}: {str(self.conformance)} {self.str_overrides()}"
 
 
 @dataclass
 class XmlNamespace:
     """Represents a namespace definition from XML"""
+
     id: int = 0
     name: str = ""
-    tags: dict[int, 'XmlTag'] = field(default_factory=dict)
+    tags: dict[int, "XmlTag"] = field(default_factory=dict)
 
     def __str__(self) -> str:
-        tags_str = '\n  '.join(f"{tag_id:04X}: {tag.name}"
-                               for tag_id, tag in sorted(self.tags.items()))
+        tags_str = "\n  ".join(f"{tag_id:04X}: {tag.name}" for tag_id, tag in sorted(self.tags.items()))
         return f"Namespace 0x{self.id:04X} ({self.name})\n  {tags_str}"
 
 
 @dataclass
 class XmlTag:
     """Represents a tag within a namespace"""
+
     id: int = 0
     name: str = ""
     description: Optional[str] = None
@@ -260,15 +279,15 @@ class XmlDeviceType:
     superset_of_device_type_id: int = 0
 
     def __str__(self):
-        msg = f'{self.name} - Revision {self.revision}, Class {self.classification_class}, Scope {self.classification_scope}\n'
+        msg = f"{self.name} - Revision {self.revision}, Class {self.classification_class}, Scope {self.classification_scope}\n"
         if self.superset_of_device_type_name:
-            msg += f'superset of {self.superset_of_device_type_name} ({self.superset_of_device_type_id})'
-        msg += '    Server clusters\n'
+            msg += f"superset of {self.superset_of_device_type_name} ({self.superset_of_device_type_id})"
+        msg += "    Server clusters\n"
         for id, c in self.server_clusters.items():
-            msg = msg + f'      {id}: {str(c)}\n'
-        msg += '    Client clusters\n'
+            msg = msg + f"      {id}: {str(c)}\n"
+        msg += "    Client clusters\n"
         for id, c in self.client_clusters.items():
-            msg = msg + f'      {id}: {str(c)}\n'
+            msg = msg + f"      {id}: {str(c)}\n"
         return msg
 
 
@@ -280,29 +299,31 @@ class CommandType(Enum):
 
 
 # workaround for aliased clusters PICS not appearing in the xml. Remove this once https://github.com/csa-data-model/projects/issues/461 is addressed
-ALIAS_PICS = {0x040C: 'CMOCONC',
-              0x040D: 'CDOCONC',
-              0x0413: 'NDOCONC',
-              0x0415: 'OZCONC',
-              0x042A: 'PMICONC',
-              0x042B: 'FLDCONC',
-              0x042C: 'PMHCONC',
-              0x042D: 'PMKCONC',
-              0x042E: 'TVOCCONC',
-              0x042F: 'RNCONC',
-              0x0071: 'HEPAFREMON',
-              0x0072: 'ACFREMON',
-              0x0405: 'RH',
-              0x001C: 'PWM'}
+ALIAS_PICS = {
+    0x040C: "CMOCONC",
+    0x040D: "CDOCONC",
+    0x0413: "NDOCONC",
+    0x0415: "OZCONC",
+    0x042A: "PMICONC",
+    0x042B: "FLDCONC",
+    0x042C: "PMHCONC",
+    0x042D: "PMKCONC",
+    0x042E: "TVOCCONC",
+    0x042F: "RNCONC",
+    0x0071: "HEPAFREMON",
+    0x0072: "ACFREMON",
+    0x0405: "RH",
+    0x001C: "PWM",
+}
 
-CLUSTER_NAME_FIXES = {0x0036: 'WiFi Network Diagnostics', 0x042a: 'PM25 Concentration Measurement', 0x0006: 'On/Off'}
-DEVICE_TYPE_NAME_FIXES = {0x010b: 'Dimmable Plug-In Unit', 0x010a: 'On/Off Plug-in Unit'}
+CLUSTER_NAME_FIXES = {0x0036: "WiFi Network Diagnostics", 0x042A: "PM25 Concentration Measurement", 0x0006: "On/Off"}
+DEVICE_TYPE_NAME_FIXES = {0x010B: "Dimmable Plug-In Unit", 0x010A: "On/Off Plug-in Unit"}
 
 
 # fuzzy match to name because some of the old specs weren't careful here
 def _fuzzy_name(to_fuzz: str):
     to_fuzz = re.sub(r"\(.*?\)|\[.*?\]", "", to_fuzz)
-    return to_fuzz.lower().strip().replace(' ', '').replace('/', '')
+    return to_fuzz.lower().strip().replace(" ", "").replace("/", "")
 
 
 def get_location_from_element(element: ElementTree.Element, cluster_id: Optional[int]):
@@ -310,31 +331,37 @@ def get_location_from_element(element: ElementTree.Element, cluster_id: Optional
         cluster_id = 0
     cluster_location = ClusterPathLocation(endpoint_id=0, cluster_id=cluster_id)
     try:
-        if element.tag == 'feature':
-            return FeaturePathLocation(endpoint_id=0, cluster_id=cluster_id, feature_code=element.attrib['code'])
-        if element.tag == 'command':
-            return CommandPathLocation(endpoint_id=0, cluster_id=cluster_id, command_id=int(element.attrib['id'], 0))
-        if element.tag == 'attribute':
-            return AttributePathLocation(endpoint_id=0, cluster_id=cluster_id, attribute_id=int(element.attrib['id'], 0))
-        if element.tag == 'event':
-            return EventPathLocation(endpoint_id=0, cluster_id=cluster_id, event_id=int(element.attrib['id'], 0))
-        if element.tag == 'cluster':
-            return ClusterPathLocation(endpoint_id=0, cluster_id=int(element.attrib['id'], 0))
-        if element.tag == 'deviceType':
-            return DeviceTypePathLocation(endpoint_id=0, device_type_id=int(element.attrib['id'], 0))
+        if element.tag == "feature":
+            return FeaturePathLocation(endpoint_id=0, cluster_id=cluster_id, feature_code=element.attrib["code"])
+        if element.tag == "command":
+            return CommandPathLocation(endpoint_id=0, cluster_id=cluster_id, command_id=int(element.attrib["id"], 0))
+        if element.tag == "attribute":
+            return AttributePathLocation(endpoint_id=0, cluster_id=cluster_id, attribute_id=int(element.attrib["id"], 0))
+        if element.tag == "event":
+            return EventPathLocation(endpoint_id=0, cluster_id=cluster_id, event_id=int(element.attrib["id"], 0))
+        if element.tag == "cluster":
+            return ClusterPathLocation(endpoint_id=0, cluster_id=int(element.attrib["id"], 0))
+        if element.tag == "deviceType":
+            return DeviceTypePathLocation(endpoint_id=0, device_type_id=int(element.attrib["id"], 0))
         return cluster_location
     except (KeyError, ValueError):
         # If we can't find the id or can't parse it
         return cluster_location
 
 
-def get_conformance(element: ElementTree.Element, cluster_id: Optional[uint]) -> tuple[ElementTree.Element, typing.Optional[ProblemNotice]]:
+def get_conformance(
+    element: ElementTree.Element, cluster_id: Optional[uint]
+) -> tuple[ElementTree.Element, typing.Optional[ProblemNotice]]:
     for sub in element:
         if sub.tag in TOP_LEVEL_CONFORMANCE_TAGS:
             return sub, None
     location = get_location_from_element(element, cluster_id)
-    problem = ProblemNotice(test_name='Spec XML parsing', location=location,
-                            severity=ProblemSeverity.WARNING, problem='Unable to find conformance element')
+    problem = ProblemNotice(
+        test_name="Spec XML parsing",
+        location=location,
+        severity=ProblemSeverity.WARNING,
+        problem="Unable to find conformance element",
+    )
     return ElementTree.Element(OPTIONAL_CONFORM), problem
 
 
@@ -345,16 +372,21 @@ XmlElementDescriptor = tuple[ElementTree.Element, ElementTree.Element, Optional[
 def parse_revision_history(top_level: ElementTree.Element) -> tuple[dict[int, str], list[ProblemNotice]]:
     revision_desc = {}
     problems = []
-    history = top_level.find('revisionHistory')
+    history = top_level.find("revisionHistory")
     if history:
-        for e in history.iter('revision'):
+        for e in history.iter("revision"):
             try:
-                rev = int(e.get('revision', 'error'), 0)
-                revision_desc[rev] = e.get('summary', '')
+                rev = int(e.get("revision", "error"), 0)
+                revision_desc[rev] = e.get("summary", "")
             except ValueError:
-                problems.append(ProblemNotice(test_name='Spec XML parsing', location=get_location_from_element(top_level, None),
-                                              severity=ProblemSeverity.WARNING,
-                                              problem='Revision in revision history is missing or is not an int'))
+                problems.append(
+                    ProblemNotice(
+                        test_name="Spec XML parsing",
+                        location=get_location_from_element(top_level, None),
+                        severity=ProblemSeverity.WARNING,
+                        problem="Revision in revision history is missing or is not an int",
+                    )
+                )
     return revision_desc, problems
 
 
@@ -369,22 +401,22 @@ class ClusterParser:
         self._derived = None
         self._is_provisional = False
         try:
-            classification = next(cluster.iter('classification'))
-            hierarchy = classification.attrib['hierarchy']
-            if hierarchy.lower() == 'derived':
-                self._derived = classification.attrib['baseCluster']
+            classification = next(cluster.iter("classification"))
+            hierarchy = classification.attrib["hierarchy"]
+            if hierarchy.lower() == "derived":
+                self._derived = classification.attrib["baseCluster"]
         except (KeyError, StopIteration):
             self._derived = None
 
-        for ids in cluster.iter('clusterIds'):
-            for id in ids.iter('clusterId'):
-                if id.attrib['name'] == name and list(id.iter('provisionalConform')):
+        for ids in cluster.iter("clusterIds"):
+            for id in ids.iter("clusterId"):
+                if id.attrib["name"] == name and list(id.iter("provisionalConform")):
                     self._is_provisional = True
 
         self._pics: Optional[str] = None
         try:
-            classification = next(cluster.iter('classification'))
-            self._pics = classification.attrib['picsCode']
+            classification = next(cluster.iter("classification"))
+            self._pics = classification.attrib["picsCode"]
         except (KeyError, StopIteration):
             self._pics = None
 
@@ -395,8 +427,9 @@ class ClusterParser:
         self.attribute_elements = self.get_all_attribute_elements()
         self.command_elements = self.get_all_command_elements()
         self.event_elements = self.get_all_event_elements()
-        self.params = ConformanceParseParameters(feature_map=self.create_feature_map(), attribute_map=self.create_attribute_map(),
-                                                 command_map=self.create_command_map())
+        self.params = ConformanceParseParameters(
+            feature_map=self.create_feature_map(), attribute_map=self.create_attribute_map(), command_map=self.create_command_map()
+        )
 
         self._revision_desc, problems = parse_revision_history(cluster)
         self._problems.extend(problems)
@@ -409,7 +442,7 @@ class ClusterParser:
 
     def get_access(self, element: ElementTree.Element) -> Optional[ElementTree.Element]:
         for sub in element:
-            if sub.tag == 'access':
+            if sub.tag == "access":
                 return sub
         return None
 
@@ -430,37 +463,37 @@ class ClusterParser:
         return ret
 
     def get_all_feature_elements(self) -> list[XmlElementDescriptor]:
-        ''' Returns a list of features and their conformances'''
-        return self.get_all_type('features', 'feature', 'code')
+        """Returns a list of features and their conformances"""
+        return self.get_all_type("features", "feature", "code")
 
     def get_all_attribute_elements(self) -> list[XmlElementDescriptor]:
-        ''' Returns a list of attributes and their conformances'''
-        return self.get_all_type('attributes', 'attribute', 'id')
+        """Returns a list of attributes and their conformances"""
+        return self.get_all_type("attributes", "attribute", "id")
 
     def get_all_command_elements(self) -> list[XmlElementDescriptor]:
-        ''' Returns a list of commands and their conformances '''
-        return self.get_all_type('commands', 'command', 'id')
+        """Returns a list of commands and their conformances"""
+        return self.get_all_type("commands", "command", "id")
 
     def get_all_event_elements(self) -> list[XmlElementDescriptor]:
-        ''' Returns a list of events and their conformances'''
-        return self.get_all_type('events', 'event', 'id')
+        """Returns a list of events and their conformances"""
+        return self.get_all_type("events", "event", "id")
 
     def create_feature_map(self) -> dict[str, uint]:
         features = {}
         for element, _, _ in self.feature_elements:
-            features[element.attrib['code']] = uint(1 << int(element.attrib['bit'], 0))
+            features[element.attrib["code"]] = uint(1 << int(element.attrib["bit"], 0))
         return features
 
     def create_attribute_map(self) -> dict[str, uint]:
         attributes = {}
         for element, conformance, _ in self.attribute_elements:
-            attributes[element.attrib['name']] = uint(int(element.attrib['id'], 0))
+            attributes[element.attrib["name"]] = uint(int(element.attrib["id"], 0))
         return attributes
 
     def create_command_map(self) -> dict[str, uint]:
         commands = {}
         for element, _, _ in self.command_elements:
-            commands[element.attrib['name']] = uint(int(element.attrib['id'], 0))
+            commands[element.attrib["name"]] = uint(int(element.attrib["id"], 0))
         return commands
 
     def parse_conformance(self, conformance_xml: ElementTree.Element) -> Optional[ConformanceCallable]:
@@ -469,31 +502,41 @@ class ClusterParser:
         except ConformanceException as ex:
             # Just point to the general cluster, because something is mismatched, but it's not clear what
             location = ClusterPathLocation(endpoint_id=0, cluster_id=self._cluster_id if self._cluster_id is not None else 0)
-            self._problems.append(ProblemNotice(test_name='Spec XML parsing', location=location,
-                                                severity=ProblemSeverity.WARNING, problem=str(ex)))
+            self._problems.append(
+                ProblemNotice(test_name="Spec XML parsing", location=location, severity=ProblemSeverity.WARNING, problem=str(ex))
+            )
             return None
 
     def parse_write_optional(self, element_xml: ElementTree.Element, access_xml: Optional[ElementTree.Element]) -> bool:
         if access_xml is None:
             return False
-        return access_xml.attrib['write'] == 'optional'
+        return access_xml.attrib["write"] == "optional"
 
-    def parse_access(self, element_xml: ElementTree.Element, access_xml: Optional[ElementTree.Element], conformance: ConformanceCallable) -> tuple[Optional[int], Optional[int], Optional[int]]:
-        ''' Returns a tuple of access types for read / write / invoke'''
+    def parse_access(
+        self, element_xml: ElementTree.Element, access_xml: Optional[ElementTree.Element], conformance: ConformanceCallable
+    ) -> tuple[Optional[int], Optional[int], Optional[int]]:
+        """Returns a tuple of access types for read / write / invoke"""
+
         def str_to_access_type(privilege_str: str) -> int:
-            if privilege_str == 'view':
+            if privilege_str == "view":
                 return ACCESS_CONTROL_PRIVILEGE_ENUM.kView
-            if privilege_str == 'operate':
+            if privilege_str == "operate":
                 return ACCESS_CONTROL_PRIVILEGE_ENUM.kOperate
-            if privilege_str == 'manage':
+            if privilege_str == "manage":
                 return ACCESS_CONTROL_PRIVILEGE_ENUM.kManage
-            if privilege_str == 'admin':
+            if privilege_str == "admin":
                 return ACCESS_CONTROL_PRIVILEGE_ENUM.kAdminister
             # We don't know what this means, for now, assume no access and mark a warning
 
             location = get_location_from_element(element_xml, self._cluster_id)
-            self._problems.append(ProblemNotice(test_name='Spec XML parsing', location=location,
-                                                severity=ProblemSeverity.WARNING, problem=f'Unknown access type {privilege_str}'))
+            self._problems.append(
+                ProblemNotice(
+                    test_name="Spec XML parsing",
+                    location=location,
+                    severity=ProblemSeverity.WARNING,
+                    problem=f"Unknown access type {privilege_str}",
+                )
+            )
             return ACCESS_CONTROL_PRIVILEGE_ENUM.kUnknownEnumValue
 
         if access_xml is None:
@@ -507,26 +550,34 @@ class ClusterParser:
                 return (None, None, None)
 
             location = get_location_from_element(element_xml, self._cluster_id)
-            self._problems.append(ProblemNotice(test_name='Spec XML parsing', location=location,
-                                                severity=ProblemSeverity.WARNING, problem='Unable to find access element'))
+            self._problems.append(
+                ProblemNotice(
+                    test_name="Spec XML parsing",
+                    location=location,
+                    severity=ProblemSeverity.WARNING,
+                    problem="Unable to find access element",
+                )
+            )
             return (None, None, None)
 
         try:
-            read_access = str_to_access_type(access_xml.attrib['readPrivilege'])
+            read_access = str_to_access_type(access_xml.attrib["readPrivilege"])
         except KeyError:
             read_access = ACCESS_CONTROL_PRIVILEGE_ENUM.kUnknownEnumValue
         try:
-            write_access = str_to_access_type(access_xml.attrib['writePrivilege'])
+            write_access = str_to_access_type(access_xml.attrib["writePrivilege"])
         except KeyError:
             write_access = ACCESS_CONTROL_PRIVILEGE_ENUM.kUnknownEnumValue
         try:
-            invoke_access = str_to_access_type(access_xml.attrib['invokePrivilege'])
+            invoke_access = str_to_access_type(access_xml.attrib["invokePrivilege"])
         except KeyError:
             invoke_access = ACCESS_CONTROL_PRIVILEGE_ENUM.kUnknownEnumValue
 
         return (read_access, write_access, invoke_access)
 
-    def _parse_basic_field_attributes(self, xml_field: ElementTree.Element, component_type: DataTypeEnum, component_tags: dict) -> tuple[str, uint] | None:
+    def _parse_basic_field_attributes(
+        self, xml_field: ElementTree.Element, component_type: DataTypeEnum, component_tags: dict
+    ) -> tuple[str, uint] | None:
         """
         Extract basic field attributes (name and ID) from XML element.
 
@@ -539,7 +590,7 @@ class ClusterParser:
             Tuple of (name, id) if successful, None if parsing failed
         """
         try:
-            name = xml_field.attrib['name']
+            name = xml_field.attrib["name"]
             # base=0 enables automatic number format detection: "10" -> 10, "0x10" -> 16, etc.
             # This handles XML attributes that can be in decimal, hex, octal, or binary format
             id = uint(int(xml_field.attrib[component_tags[component_type].id_attrib], 0))
@@ -563,11 +614,11 @@ class ClusterParser:
             True if field is optional, False otherwise
         """
         # Check isOptional attribute
-        if 'isOptional' in xml_field.attrib and xml_field.attrib['isOptional'].lower() == 'true':
+        if "isOptional" in xml_field.attrib and xml_field.attrib["isOptional"].lower() == "true":
             return True
 
         # Check for optionalConform child element
-        optional_conform = xml_field.find('./optionalConform')
+        optional_conform = xml_field.find("./optionalConform")
         return optional_conform is not None
 
     @staticmethod
@@ -586,12 +637,12 @@ class ClusterParser:
             True if field is nullable, False otherwise
         """
         # Check isNullable attribute
-        if 'isNullable' in xml_field.attrib and xml_field.attrib['isNullable'].lower() == 'true':
+        if "isNullable" in xml_field.attrib and xml_field.attrib["isNullable"].lower() == "true":
             return True
 
         # Check quality child element for nullable attribute
-        quality = xml_field.find('./quality')
-        return quality is not None and 'nullable' in quality.attrib and quality.attrib['nullable'].lower() == 'true'
+        quality = xml_field.find("./quality")
+        return quality is not None and "nullable" in quality.attrib and quality.attrib["nullable"].lower() == "true"
 
     def _parse_field_constraints(self, xml_field: ElementTree.Element) -> dict | None:
         """
@@ -606,25 +657,25 @@ class ClusterParser:
         Returns:
             Dictionary of constraints if any found, None otherwise
         """
-        constraint_elements = xml_field.findall('./constraint')
+        constraint_elements = xml_field.findall("./constraint")
         if not constraint_elements:
             return None
 
         constraints = {}
         for constraint in constraint_elements:
             # Handle direct attributes like min/max
-            for attr_name in ['min', 'max']:
+            for attr_name in ["min", "max"]:
                 if attr_name in constraint.attrib:
                     constraints[attr_name] = constraint.attrib[attr_name]
 
             # Handle maxCount child element
-            max_count = constraint.find('./maxCount')
+            max_count = constraint.find("./maxCount")
             if max_count is not None and max_count.text is not None:
-                constraints['maxCount'] = max_count.text
+                constraints["maxCount"] = max_count.text
                 # If maxCount references an attribute, store that reference
-                attr_element = max_count.find('./attribute')
-                if attr_element is not None and 'name' in attr_element.attrib:
-                    constraints['maxCountAttribute'] = attr_element.attrib['name']
+                attr_element = max_count.find("./attribute")
+                if attr_element is not None and "name" in attr_element.attrib:
+                    constraints["maxCountAttribute"] = attr_element.attrib["name"]
 
         # Return None instead of {} to clearly distinguish "no constraints found" from "empty constraints"
         # This matches the Optional[dict] type in XmlDataTypeComponent.constraints
@@ -677,14 +728,19 @@ class ClusterParser:
         Returns:
             Dictionary mapping component IDs to XmlDataTypeComponent objects
         """
+
         @dataclass
         class ComponentTag:
             tag: str
             id_attrib: str
-        component_tags = {DataTypeEnum.kStruct: ComponentTag('field', 'id'), DataTypeEnum.kEnum: ComponentTag(
-            'item', 'value'), DataTypeEnum.kBitmap: ComponentTag('bitfield', 'bit')}
+
+        component_tags = {
+            DataTypeEnum.kStruct: ComponentTag("field", "id"),
+            DataTypeEnum.kEnum: ComponentTag("item", "value"),
+            DataTypeEnum.kBitmap: ComponentTag("bitfield", "bit"),
+        }
         components = {}
-        struct_name = struct.attrib['name']
+        struct_name = struct.attrib["name"]
         location = ClusterPathLocation(0, int(self._cluster_id) if self._cluster_id is not None else 0)
         for xml_field in list(struct):
             if xml_field.tag != component_tags[component_type].tag:
@@ -693,22 +749,29 @@ class ClusterParser:
             # Parse basic field attributes (name and ID)
             field_attrs = self._parse_basic_field_attributes(xml_field, component_type, component_tags)
             if field_attrs is None:
-                p = ProblemNotice("Spec XML Parsing", location=location,
-                                  severity=ProblemSeverity.WARNING, problem=f"{component_type.value.capitalize()} field in {struct_name} with no id or name")
+                p = ProblemNotice(
+                    "Spec XML Parsing",
+                    location=location,
+                    severity=ProblemSeverity.WARNING,
+                    problem=f"{component_type.value.capitalize()} field in {struct_name} with no id or name",
+                )
                 self._problems.append(p)
                 continue
 
             name, id = field_attrs
 
             # Extract additional field attributes
-            summary = xml_field.attrib.get('summary', None)
-            type_info = xml_field.attrib.get('type', None) if component_type == DataTypeEnum.kStruct else None
+            summary = xml_field.attrib.get("summary", None)
+            type_info = xml_field.attrib.get("type", None) if component_type == DataTypeEnum.kStruct else None
 
             # Check for duplicate IDs to detect invalid XML data
             if id in components:
-                p = ProblemNotice("Spec XML Parsing", location=location,
-                                  severity=ProblemSeverity.WARNING,
-                                  problem=f"Duplicate {component_type.value} ID {id} in {struct_name} - overwriting previous entry")
+                p = ProblemNotice(
+                    "Spec XML Parsing",
+                    location=location,
+                    severity=ProblemSeverity.WARNING,
+                    problem=f"Duplicate {component_type.value} ID {id} in {struct_name} - overwriting previous entry",
+                )
                 self._problems.append(p)
 
             # Determine field properties using helper methods
@@ -726,63 +789,70 @@ class ClusterParser:
                 type_info=type_info,
                 is_optional=is_optional,
                 is_nullable=is_nullable,
-                constraints=constraints
+                constraints=constraints,
             )
         return components
 
     def _parse_data_type(self, data_type: DataTypeEnum) -> dict[str, XmlDataType]:
-        ''' Returns XmlStructs, key is the name.'''
+        """Returns XmlStructs, key is the name."""
         data_types = {}
-        container_tags = self._cluster.iter('dataTypes')
+        container_tags = self._cluster.iter("dataTypes")
         for container in container_tags:
             xmls = container.iter(str(data_type))
             for element in xmls:
                 try:
-                    name = element.attrib['name']
+                    name = element.attrib["name"]
                 except KeyError:
                     location = ClusterPathLocation(0, int(self._cluster_id) if self._cluster_id is not None else 0)
-                    self._problems.append(ProblemNotice("Spec XML Parsing", location=location,
-                                          severity=ProblemSeverity.WARNING, problem=f"{data_type.value.capitalize()} {element} with no name"))
+                    self._problems.append(
+                        ProblemNotice(
+                            "Spec XML Parsing",
+                            location=location,
+                            severity=ProblemSeverity.WARNING,
+                            problem=f"{data_type.value.capitalize()} {element} with no name",
+                        )
+                    )
                     continue
 
                 # Check for duplicate names to detect invalid XML data
                 if name in data_types:
                     location = ClusterPathLocation(0, int(self._cluster_id) if self._cluster_id is not None else 0)
-                    self._problems.append(ProblemNotice("Spec XML Parsing", location=location,
-                                          severity=ProblemSeverity.WARNING,
-                                          problem=f"Duplicate {data_type.value} name '{name}' - overwriting previous entry"))
+                    self._problems.append(
+                        ProblemNotice(
+                            "Spec XML Parsing",
+                            location=location,
+                            severity=ProblemSeverity.WARNING,
+                            problem=f"Duplicate {data_type.value} name '{name}' - overwriting previous entry",
+                        )
+                    )
 
                 # Ensure we're using a valid cluster ID list, never [None]
                 cluster_ids = [self._cluster_id] if self._cluster_id is not None else []
 
                 data_types[name] = XmlDataType(
-                    data_type=data_type,
-                    name=name,
-                    components=self._parse_components(element, data_type),
-                    cluster_ids=cluster_ids
+                    data_type=data_type, name=name, components=self._parse_components(element, data_type), cluster_ids=cluster_ids
                 )
         return data_types
 
     def parse_features(self) -> dict[uint, XmlFeature]:
         features = {}
         for element, conformance_xml, _ in self.feature_elements:
-            mask = uint(1 << int(element.attrib['bit'], 0))
+            mask = uint(1 << int(element.attrib["bit"], 0))
             conformance = self.parse_conformance(conformance_xml)
             if conformance is None:
                 continue
-            features[mask] = XmlFeature(code=element.attrib['code'], name=element.attrib['name'],
-                                        conformance=conformance)
+            features[mask] = XmlFeature(code=element.attrib["code"], name=element.attrib["name"], conformance=conformance)
         return features
 
     def parse_attributes(self) -> dict[uint, XmlAttribute]:
         attributes: dict[uint, XmlAttribute] = {}
         for element, conformance_xml, access_xml in self.attribute_elements:
-            code = uint(int(element.attrib['id'], 0))
+            code = uint(int(element.attrib["id"], 0))
             # Some deprecated attributes don't have their types included, for now, lets just fallback to UNKNOWN
             try:
-                datatype = element.attrib['type']
+                datatype = element.attrib["type"]
             except KeyError:
-                datatype = 'UNKNOWN'
+                datatype = "UNKNOWN"
             conformance = self.parse_conformance(conformance_xml)
             if conformance is None:
                 continue
@@ -794,27 +864,36 @@ class ClusterParser:
             write_optional = False
             if write_access not in [None, ACCESS_CONTROL_PRIVILEGE_ENUM.kUnknownEnumValue]:
                 write_optional = self.parse_write_optional(element, access_xml)
-            attributes[code] = XmlAttribute(name=element.attrib['name'], datatype=datatype,
-                                            conformance=conformance,
-                                            read_access=get_access_privilege_or_unknown(read_access),
-                                            write_access=get_access_privilege_or_unknown(write_access),
-                                            write_optional=write_optional)
+            attributes[code] = XmlAttribute(
+                name=element.attrib["name"],
+                datatype=datatype,
+                conformance=conformance,
+                read_access=get_access_privilege_or_unknown(read_access),
+                write_access=get_access_privilege_or_unknown(write_access),
+                write_optional=write_optional,
+            )
         # Add in the global attributes for the base class
         for id in GlobalAttributeIds:
             # TODO: Add data type here. Right now it's unused. We should parse this from the spec.
-            attributes[uint(id)] = XmlAttribute(name=id.to_name(), datatype="", conformance=mandatory(
-            ), read_access=ACCESS_CONTROL_PRIVILEGE_ENUM.kView, write_access=ACCESS_CONTROL_PRIVILEGE_ENUM.kUnknownEnumValue, write_optional=False)
+            attributes[uint(id)] = XmlAttribute(
+                name=id.to_name(),
+                datatype="",
+                conformance=mandatory(),
+                read_access=ACCESS_CONTROL_PRIVILEGE_ENUM.kView,
+                write_access=ACCESS_CONTROL_PRIVILEGE_ENUM.kUnknownEnumValue,
+                write_optional=False,
+            )
         return attributes
 
     def get_command_type(self, element: ElementTree.Element) -> CommandType:
         try:
-            if element.attrib['direction'].lower() == 'responsefromserver':
+            if element.attrib["direction"].lower() == "responsefromserver":
                 return CommandType.GENERATED
-            if element.attrib['direction'].lower() == 'commandtoclient':
+            if element.attrib["direction"].lower() == "commandtoclient":
                 return CommandType.UNKNOWN
-            if element.attrib['direction'].lower() == 'commandtoserver':
+            if element.attrib["direction"].lower() == "commandtoserver":
                 return CommandType.ACCEPTED
-            if element.attrib['direction'].lower() == 'responsefromclient':
+            if element.attrib["direction"].lower() == "responsefromclient":
                 return CommandType.UNKNOWN
             raise Exception(f"Unknown direction: {element.attrib['direction']}")
         except KeyError:
@@ -825,13 +904,19 @@ class ClusterParser:
         for element, conformance_xml, access_xml in self.command_elements:
             if self.get_command_type(element) != CommandType.UNKNOWN:
                 continue
-            code = int(element.attrib['id'], 0)
+            code = int(element.attrib["id"], 0)
             conformance = self.parse_conformance(conformance_xml)
 
             if conformance is not None:
                 _, _, privilege = self.parse_access(element, access_xml, conformance)
-                commands.append(XmlCommand(id=code, name=element.attrib['name'], conformance=conformance,
-                                           privilege=get_access_privilege_or_unknown(privilege)))
+                commands.append(
+                    XmlCommand(
+                        id=code,
+                        name=element.attrib["name"],
+                        conformance=conformance,
+                        privilege=get_access_privilege_or_unknown(privilege),
+                    )
+                )
         return commands
 
     def parse_commands(self, command_type: CommandType) -> dict[uint, XmlCommand]:
@@ -839,7 +924,7 @@ class ClusterParser:
         for element, conformance_xml, access_xml in self.command_elements:
             if self.get_command_type(element) != command_type:
                 continue
-            code = uint(int(element.attrib['id'], 0))
+            code = uint(int(element.attrib["id"], 0))
             conformance = self.parse_conformance(conformance_xml)
             if conformance is None:
                 continue
@@ -847,70 +932,89 @@ class ClusterParser:
                 conformance = or_operation([conformance, commands[code].conformance])
 
             _, _, privilege = self.parse_access(element, access_xml, conformance)
-            commands[uint(code)] = XmlCommand(id=code, name=element.attrib['name'], conformance=conformance,
-                                              privilege=get_access_privilege_or_unknown(privilege))
+            commands[uint(code)] = XmlCommand(
+                id=code, name=element.attrib["name"], conformance=conformance, privilege=get_access_privilege_or_unknown(privilege)
+            )
         return commands
 
     def parse_events(self) -> dict[uint, XmlEvent]:
         events: dict[uint, XmlEvent] = {}
         for element, conformance_xml, access_xml in self.event_elements:
-            code = uint(int(element.attrib['id'], 0))
+            code = uint(int(element.attrib["id"], 0))
             conformance = self.parse_conformance(conformance_xml)
             if conformance is None:
                 continue
             if code in events:
                 conformance = or_operation([conformance, events[code].conformance])
-            events[code] = XmlEvent(name=element.attrib['name'], conformance=conformance)
+            events[code] = XmlEvent(name=element.attrib["name"], conformance=conformance)
         return events
 
     def create_cluster(self) -> XmlCluster:
         try:
-            revision = int(self._cluster.attrib['revision'], 0)
+            revision = int(self._cluster.attrib["revision"], 0)
         except ValueError:
             revision = 0
-        return XmlCluster(revision=revision, derived=self._derived,
-                          name=self._name, feature_map=self.params.feature_map,
-                          attribute_map=self.params.attribute_map, command_map=self.params.command_map,
-                          features=self.parse_features(),
-                          attributes=self.parse_attributes(),
-                          accepted_commands=self.parse_commands(CommandType.ACCEPTED),
-                          generated_commands=self.parse_commands(CommandType.GENERATED),
-                          unknown_commands=self.parse_unknown_commands(),
-                          events=self.parse_events(),
-                          structs=self._parse_data_type(DataTypeEnum.kStruct),
-                          enums=self._parse_data_type(DataTypeEnum.kEnum),
-                          bitmaps=self._parse_data_type(DataTypeEnum.kBitmap),
-                          pics=self._pics if self._pics is not None else "", is_provisional=self._is_provisional,
-                          revision_desc=self._revision_desc)
+        return XmlCluster(
+            revision=revision,
+            derived=self._derived,
+            name=self._name,
+            feature_map=self.params.feature_map,
+            attribute_map=self.params.attribute_map,
+            command_map=self.params.command_map,
+            features=self.parse_features(),
+            attributes=self.parse_attributes(),
+            accepted_commands=self.parse_commands(CommandType.ACCEPTED),
+            generated_commands=self.parse_commands(CommandType.GENERATED),
+            unknown_commands=self.parse_unknown_commands(),
+            events=self.parse_events(),
+            structs=self._parse_data_type(DataTypeEnum.kStruct),
+            enums=self._parse_data_type(DataTypeEnum.kEnum),
+            bitmaps=self._parse_data_type(DataTypeEnum.kBitmap),
+            pics=self._pics if self._pics is not None else "",
+            is_provisional=self._is_provisional,
+            revision_desc=self._revision_desc,
+        )
 
     def get_problems(self) -> list[ProblemNotice]:
         return self._problems
 
 
-def add_cluster_data_from_xml(xml: ElementTree.Element, clusters: dict[uint, XmlCluster], pure_base_clusters: dict[str, XmlCluster], ids_by_name: dict[str, uint], problems: list[ProblemNotice]) -> None:
-    ''' Adds cluster data to the supplied dicts as appropriate
+def add_cluster_data_from_xml(
+    xml: ElementTree.Element,
+    clusters: dict[uint, XmlCluster],
+    pure_base_clusters: dict[str, XmlCluster],
+    ids_by_name: dict[str, uint],
+    problems: list[ProblemNotice],
+) -> None:
+    """Adds cluster data to the supplied dicts as appropriate
 
-        xml: XML element read from from the XML cluster file
-        clusters: dict of id -> XmlCluster. This function will append new clusters as appropriate to this dict.
-        pure_base_clusters: dict of base name -> XmlCluster. This data structure is used to hold pure base clusters that don't have
-                            an ID. This function will append new pure base clusters as appropriate to this dict.
-        ids_by_name: dict of cluster name -> ID. This function will append new IDs as appropriate to this dict.
-        problems: list of any problems encountered during spec parsing. This function will append problems as appropriate to this list.
-    '''
-    cluster = xml.iter('cluster')
+    xml: XML element read from from the XML cluster file
+    clusters: dict of id -> XmlCluster. This function will append new clusters as appropriate to this dict.
+    pure_base_clusters: dict of base name -> XmlCluster. This data structure is used to hold pure base clusters that don't have
+                        an ID. This function will append new pure base clusters as appropriate to this dict.
+    ids_by_name: dict of cluster name -> ID. This function will append new IDs as appropriate to this dict.
+    problems: list of any problems encountered during spec parsing. This function will append problems as appropriate to this list.
+    """
+    cluster = xml.iter("cluster")
     for c in cluster:
-        ids = c.iter('clusterId')
+        ids = c.iter("clusterId")
         for id in ids:
-            name = id.get('name')
-            cluster_id_str = id.get('id')
+            name = id.get("name")
+            cluster_id_str = id.get("id")
             cluster_id: Optional[uint] = None
             if cluster_id_str:
                 cluster_id = uint(int(cluster_id_str, 0))
 
             if name is None:
                 location = ClusterPathLocation(endpoint_id=0, cluster_id=0 if cluster_id is None else cluster_id)
-                problems.append(ProblemNotice(test_name="Spec XML parsing", location=location,
-                                severity=ProblemSeverity.WARNING, problem=f"Cluster with no name {c}"))
+                problems.append(
+                    ProblemNotice(
+                        test_name="Spec XML parsing",
+                        location=location,
+                        severity=ProblemSeverity.WARNING,
+                        problem=f"Cluster with no name {c}",
+                    )
+                )
                 continue
 
             parser = ClusterParser(c, cluster_id, name)
@@ -931,8 +1035,14 @@ def add_cluster_data_from_xml(xml: ElementTree.Element, clusters: dict[uint, Xml
 def check_clusters_for_unknown_commands(clusters: dict[uint, XmlCluster], problems: list[ProblemNotice]):
     for id, cluster in clusters.items():
         for cmd in cluster.unknown_commands:
-            problems.append(ProblemNotice(test_name="Spec XML parsing", location=CommandPathLocation(
-                endpoint_id=0, cluster_id=id, command_id=cmd.id), severity=ProblemSeverity.WARNING, problem="Command with unknown direction"))
+            problems.append(
+                ProblemNotice(
+                    test_name="Spec XML parsing",
+                    location=CommandPathLocation(endpoint_id=0, cluster_id=id, command_id=cmd.id),
+                    severity=ProblemSeverity.WARNING,
+                    problem="Command with unknown direction",
+                )
+            )
 
 
 class PrebuiltDataModelDirectory(Enum):
@@ -985,7 +1095,9 @@ class DataModelLevel(Enum):
         raise KeyError("Invalid enum: %r" % self)
 
 
-def get_data_model_directory(data_model_directory: Union[PrebuiltDataModelDirectory, Traversable], data_model_level: DataModelLevel = DataModelLevel.kCluster) -> Traversable:
+def get_data_model_directory(
+    data_model_directory: Union[PrebuiltDataModelDirectory, Traversable], data_model_level: DataModelLevel = DataModelLevel.kCluster
+) -> Traversable:
     """
     Get the directory of the data model for a specific version and level from the installed package.
 
@@ -999,8 +1111,12 @@ def get_data_model_directory(data_model_directory: Union[PrebuiltDataModelDirect
         return data_model_directory
 
     # If it's a prebuilt directory, build the path based on the version and data model level
-    zip_file_traversable = pkg_resources.files(importlib.import_module('matter.testing')).joinpath(
-        'data_model').joinpath(data_model_directory.dirname).joinpath('allfiles.zip')
+    zip_file_traversable = (
+        pkg_resources.files(importlib.import_module("matter.testing"))
+        .joinpath("data_model")
+        .joinpath(data_model_directory.dirname)
+        .joinpath("allfiles.zip")
+    )
 
     # Avoid returning a zipfile.Path backed by a closed file handle. Build Path from the filesystem path
     # so the ZipFile lifecycle is managed by zipfile.Path itself.
@@ -1011,7 +1127,9 @@ def get_data_model_directory(data_model_directory: Union[PrebuiltDataModelDirect
     return zip_root / data_model_level.dirname
 
 
-def build_xml_clusters(data_model_directory: Union[PrebuiltDataModelDirectory, Traversable]) -> typing.Tuple[dict[uint, XmlCluster], list[ProblemNotice]]:
+def build_xml_clusters(
+    data_model_directory: Union[PrebuiltDataModelDirectory, Traversable],
+) -> typing.Tuple[dict[uint, XmlCluster], list[ProblemNotice]]:
     """
     Build XML clusters from the specified data model directory.
     This function supports both pre-built locations and full paths.
@@ -1031,7 +1149,7 @@ def build_xml_clusters(data_model_directory: Union[PrebuiltDataModelDirectory, T
 
     found_xmls = 0
     for f in top.iterdir():
-        if not f.name.endswith('.xml'):
+        if not f.name.endswith(".xml"):
             LOGGER.info("Ignoring non-XML file %s", f.name)
             continue
 
@@ -1046,7 +1164,7 @@ def build_xml_clusters(data_model_directory: Union[PrebuiltDataModelDirectory, T
     # Intent here is to make user aware of typos in paths instead of silently having
     # empty parsing
     if found_xmls < 1:
-        raise SpecParsingException(f'No data model files found in specified directory {top:!r}')
+        raise SpecParsingException(f"No data model files found in specified directory {top:!r}")
 
     # There are a few clusters where the conformance columns are listed as desc. These clusters need specific, targeted tests
     # to properly assess conformance. Here, we list them as Optional to allow these for the general test. Targeted tests are described below.
@@ -1059,7 +1177,7 @@ def build_xml_clusters(data_model_directory: Union[PrebuiltDataModelDirectory, T
         problems = [p for p in problems if p.location != location]
 
     descriptor_id = uint(Clusters.Descriptor.id)
-    code = 'TAGLIST'
+    code = "TAGLIST"
     # Data Model versions prior to 1.2 do not support TAGLIST.
     if code in clusters[descriptor_id].feature_map:
         mask = clusters[descriptor_id].feature_map[code]
@@ -1080,25 +1198,26 @@ def build_xml_clusters(data_model_directory: Union[PrebuiltDataModelDirectory, T
     # see 3.2.8. Defined Primaries Information Attribute Set, affects Primary<#>X/Y/Intensity attributes.
     cc_id = uint(Clusters.ColorControl.id)
     cc_attr = Clusters.ColorControl.Attributes
-    affected_attributes = [cc_attr.Primary1X,
-                           cc_attr.Primary1Y,
-                           cc_attr.Primary1Intensity,
-                           cc_attr.Primary2X,
-                           cc_attr.Primary2Y,
-                           cc_attr.Primary2Intensity,
-                           cc_attr.Primary3X,
-                           cc_attr.Primary3Y,
-                           cc_attr.Primary3Intensity,
-                           cc_attr.Primary4X,
-                           cc_attr.Primary4Y,
-                           cc_attr.Primary4Intensity,
-                           cc_attr.Primary5X,
-                           cc_attr.Primary5Y,
-                           cc_attr.Primary5Intensity,
-                           cc_attr.Primary6X,
-                           cc_attr.Primary6Y,
-                           cc_attr.Primary6Intensity,
-                           ]
+    affected_attributes = [
+        cc_attr.Primary1X,
+        cc_attr.Primary1Y,
+        cc_attr.Primary1Intensity,
+        cc_attr.Primary2X,
+        cc_attr.Primary2Y,
+        cc_attr.Primary2Intensity,
+        cc_attr.Primary3X,
+        cc_attr.Primary3Y,
+        cc_attr.Primary3Intensity,
+        cc_attr.Primary4X,
+        cc_attr.Primary4Y,
+        cc_attr.Primary4Intensity,
+        cc_attr.Primary5X,
+        cc_attr.Primary5Y,
+        cc_attr.Primary5Intensity,
+        cc_attr.Primary6X,
+        cc_attr.Primary6Y,
+        cc_attr.Primary6Intensity,
+    ]
     for a in affected_attributes:
         clusters[cc_id].attributes[a.attribute_id].conformance = optional()
 
@@ -1109,12 +1228,54 @@ def build_xml_clusters(data_model_directory: Union[PrebuiltDataModelDirectory, T
         view = ACCESS_CONTROL_PRIVILEGE_ENUM.kView
         none = ACCESS_CONTROL_PRIVILEGE_ENUM.kUnknownEnumValue
         clusters[temp_control_id].attributes = {
-            uint(0x00): XmlAttribute(name='TemperatureSetpoint', datatype='temperature', conformance=feature(uint(0x01), 'TN'), read_access=view, write_access=none, write_optional=False),
-            uint(0x01): XmlAttribute(name='MinTemperature', datatype='temperature', conformance=feature(uint(0x01), 'TN'), read_access=view, write_access=none, write_optional=False),
-            uint(0x02): XmlAttribute(name='MaxTemperature', datatype='temperature', conformance=feature(uint(0x01), 'TN'), read_access=view, write_access=none, write_optional=False),
-            uint(0x03): XmlAttribute(name='Step', datatype='temperature', conformance=feature(uint(0x04), 'STEP'), read_access=view, write_access=none, write_optional=False),
-            uint(0x04): XmlAttribute(name='SelectedTemperatureLevel', datatype='uint8', conformance=feature(uint(0x02), 'TL'), read_access=view, write_access=none, write_optional=False),
-            uint(0x05): XmlAttribute(name='SupportedTemperatureLevels', datatype='list', conformance=feature(uint(0x02), 'TL'), read_access=view, write_access=none, write_optional=False),
+            uint(0x00): XmlAttribute(
+                name="TemperatureSetpoint",
+                datatype="temperature",
+                conformance=feature(uint(0x01), "TN"),
+                read_access=view,
+                write_access=none,
+                write_optional=False,
+            ),
+            uint(0x01): XmlAttribute(
+                name="MinTemperature",
+                datatype="temperature",
+                conformance=feature(uint(0x01), "TN"),
+                read_access=view,
+                write_access=none,
+                write_optional=False,
+            ),
+            uint(0x02): XmlAttribute(
+                name="MaxTemperature",
+                datatype="temperature",
+                conformance=feature(uint(0x01), "TN"),
+                read_access=view,
+                write_access=none,
+                write_optional=False,
+            ),
+            uint(0x03): XmlAttribute(
+                name="Step",
+                datatype="temperature",
+                conformance=feature(uint(0x04), "STEP"),
+                read_access=view,
+                write_access=none,
+                write_optional=False,
+            ),
+            uint(0x04): XmlAttribute(
+                name="SelectedTemperatureLevel",
+                datatype="uint8",
+                conformance=feature(uint(0x02), "TL"),
+                read_access=view,
+                write_access=none,
+                write_optional=False,
+            ),
+            uint(0x05): XmlAttribute(
+                name="SupportedTemperatureLevels",
+                datatype="list",
+                conformance=feature(uint(0x02), "TL"),
+                read_access=view,
+                write_access=none,
+                write_optional=False,
+            ),
         }
 
     # TODO: Need automated parsing for atomic attributes.
@@ -1128,13 +1289,22 @@ def build_xml_clusters(data_model_directory: Union[PrebuiltDataModelDirectory, T
     if clusters[thermostat_id].revision >= 8:
         presents_id = uint(clusters[thermostat_id].attribute_map[presets_name])
         schedules_id = uint(clusters[thermostat_id].attribute_map[schedules_name])
-        conformance = or_operation([conformance_support.attribute(presents_id, presets_name),
-                                    conformance_support.attribute(schedules_id, schedules_name)])
+        conformance = or_operation(
+            [conformance_support.attribute(presents_id, presets_name), conformance_support.attribute(schedules_id, schedules_name)]
+        )
 
         clusters[thermostat_id].accepted_commands[atomic_request_cmd_id] = XmlCommand(
-            id=atomic_request_cmd_id, name=atomic_request_name, conformance=conformance, privilege=ACCESS_CONTROL_PRIVILEGE_ENUM.kOperate)
+            id=atomic_request_cmd_id,
+            name=atomic_request_name,
+            conformance=conformance,
+            privilege=ACCESS_CONTROL_PRIVILEGE_ENUM.kOperate,
+        )
         clusters[thermostat_id].generated_commands[atomic_response_cmd_id] = XmlCommand(
-            id=atomic_response_cmd_id, name=atomic_response_name, conformance=conformance, privilege=ACCESS_CONTROL_PRIVILEGE_ENUM.kOperate)
+            id=atomic_response_cmd_id,
+            name=atomic_response_name,
+            conformance=conformance,
+            privilege=ACCESS_CONTROL_PRIVILEGE_ENUM.kOperate,
+        )
         clusters[thermostat_id].command_map[atomic_request_name] = atomic_request_cmd_id
         clusters[thermostat_id].command_map[atomic_response_name] = atomic_response_cmd_id
 
@@ -1143,10 +1313,17 @@ def build_xml_clusters(data_model_directory: Union[PrebuiltDataModelDirectory, T
     return clusters, problems
 
 
-def combine_derived_clusters_with_base(xml_clusters: dict[uint, XmlCluster], pure_base_clusters: dict[str, XmlCluster], ids_by_name: dict[str, uint], problems: list[ProblemNotice]) -> None:
-    ''' Overrides base elements with the derived cluster values for derived clusters. '''
+def combine_derived_clusters_with_base(
+    xml_clusters: dict[uint, XmlCluster],
+    pure_base_clusters: dict[str, XmlCluster],
+    ids_by_name: dict[str, uint],
+    problems: list[ProblemNotice],
+) -> None:
+    """Overrides base elements with the derived cluster values for derived clusters."""
 
-    def combine_attributes(base: dict[uint, XmlAttribute], derived: dict[uint, XmlAttribute], cluster_id: uint, problems: list[ProblemNotice]) -> dict[uint, XmlAttribute]:
+    def combine_attributes(
+        base: dict[uint, XmlAttribute], derived: dict[uint, XmlAttribute], cluster_id: uint, problems: list[ProblemNotice]
+    ) -> dict[uint, XmlAttribute]:
         ret = deepcopy(base)
         extras = {k: v for k, v in derived.items() if k not in base}
         overrides = {k: v for k, v in derived.items() if k in base}
@@ -1160,10 +1337,19 @@ def combine_derived_clusters_with_base(xml_clusters: dict[uint, XmlCluster], pur
                 ret[id].write_access = override.write_access
 
         for attr_id, attribute in ret.items():
-            if attribute.read_access == ACCESS_CONTROL_PRIVILEGE_ENUM.kUnknownEnumValue and attribute.write_access == ACCESS_CONTROL_PRIVILEGE_ENUM.kUnknownEnumValue:
+            if (
+                attribute.read_access == ACCESS_CONTROL_PRIVILEGE_ENUM.kUnknownEnumValue
+                and attribute.write_access == ACCESS_CONTROL_PRIVILEGE_ENUM.kUnknownEnumValue
+            ):
                 location = AttributePathLocation(endpoint_id=0, cluster_id=cluster_id, attribute_id=attr_id)
-                problems.append(ProblemNotice(test_name='Spec XML parsing', location=location,
-                                              severity=ProblemSeverity.WARNING, problem=f'Attribute {attribute.name} (ID: {attr_id}) in cluster {cluster_id} has unknown read and write access after combining base and derived values.'))
+                problems.append(
+                    ProblemNotice(
+                        test_name="Spec XML parsing",
+                        location=location,
+                        severity=ProblemSeverity.WARNING,
+                        problem=f"Attribute {attribute.name} (ID: {attr_id}) in cluster {cluster_id} has unknown read and write access after combining base and derived values.",
+                    )
+                )
         return ret
 
     # We have the information now about which clusters are derived, so we need to fix them up. Apply first the base cluster,
@@ -1208,11 +1394,26 @@ def combine_derived_clusters_with_base(xml_clusters: dict[uint, XmlCluster], pur
             provisional = c.is_provisional or base.is_provisional
             revision_desc = c.revision_desc
 
-            new = XmlCluster(revision=c.revision, derived=c.derived, name=c.name,
-                             feature_map=feature_map, attribute_map=attribute_map, command_map=command_map,
-                             features=features, attributes=attributes, accepted_commands=accepted_commands,
-                             generated_commands=generated_commands, unknown_commands=unknown_commands, events=events, structs=structs,
-                             enums=enums, bitmaps=bitmaps, pics=c.pics, is_provisional=provisional, revision_desc=revision_desc)
+            new = XmlCluster(
+                revision=c.revision,
+                derived=c.derived,
+                name=c.name,
+                feature_map=feature_map,
+                attribute_map=attribute_map,
+                command_map=command_map,
+                features=features,
+                attributes=attributes,
+                accepted_commands=accepted_commands,
+                generated_commands=generated_commands,
+                unknown_commands=unknown_commands,
+                events=events,
+                structs=structs,
+                enums=enums,
+                bitmaps=bitmaps,
+                pics=c.pics,
+                is_provisional=provisional,
+                revision_desc=revision_desc,
+            )
             xml_clusters[id] = new
 
 
@@ -1222,64 +1423,74 @@ def parse_namespace(et: ElementTree.Element) -> tuple[XmlNamespace, list[Problem
     namespace = XmlNamespace()
 
     # Parse namespace attributes
-    namespace_id = et.get('id')
+    namespace_id = et.get("id")
     if namespace_id is not None:
         try:
             namespace.id = int(str(namespace_id), 16)
         except (ValueError, TypeError):
-            problems.append(ProblemNotice(
+            problems.append(
+                ProblemNotice(
+                    test_name="Parse Namespace XML",
+                    location=NamespacePathLocation(),
+                    severity=ProblemSeverity.WARNING,
+                    problem=f"Invalid namespace ID: {namespace_id}",
+                )
+            )
+    else:
+        problems.append(
+            ProblemNotice(
                 test_name="Parse Namespace XML",
                 location=NamespacePathLocation(),
                 severity=ProblemSeverity.WARNING,
-                problem=f"Invalid namespace ID: {namespace_id}"
-            ))
-    else:
-        problems.append(ProblemNotice(
-            test_name="Parse Namespace XML",
-            location=NamespacePathLocation(),
-            severity=ProblemSeverity.WARNING,
-            problem="Missing namespace ID"
-        ))
+                problem="Missing namespace ID",
+            )
+        )
 
     # Parse and validate namespace name
-    namespace.name = et.get('name', '').strip()
+    namespace.name = et.get("name", "").strip()
     if not namespace.name:
-        problems.append(ProblemNotice(
-            test_name="Parse Namespace XML",
-            location=NamespacePathLocation(namespace_id=getattr(namespace, 'id', None)),
-            severity=ProblemSeverity.WARNING,
-            problem="Missing or empty namespace name"
-        ))
+        problems.append(
+            ProblemNotice(
+                test_name="Parse Namespace XML",
+                location=NamespacePathLocation(namespace_id=getattr(namespace, "id", None)),
+                severity=ProblemSeverity.WARNING,
+                problem="Missing or empty namespace name",
+            )
+        )
 
     # Parse tags
-    tags_elem = et.find('tags')
+    tags_elem = et.find("tags")
     if tags_elem is not None:
-        for tag_elem in tags_elem.findall('tag'):
+        for tag_elem in tags_elem.findall("tag"):
             tag = XmlTag()
-            tag_id = tag_elem.get('id')
+            tag_id = tag_elem.get("id")
             if tag_id is not None:
                 try:
                     tag.id = int(str(tag_id), 0)
                 except (ValueError, TypeError):
-                    problems.append(ProblemNotice(
-                        test_name="Parse Namespace XML",
-                        location=NamespacePathLocation(namespace_id=namespace.id),
-                        severity=ProblemSeverity.WARNING,
-                        problem=f"Invalid tag ID: {tag_id}"
-                    ))
+                    problems.append(
+                        ProblemNotice(
+                            test_name="Parse Namespace XML",
+                            location=NamespacePathLocation(namespace_id=namespace.id),
+                            severity=ProblemSeverity.WARNING,
+                            problem=f"Invalid tag ID: {tag_id}",
+                        )
+                    )
                     continue
 
-            tag.name = tag_elem.get('name', '').strip()
+            tag.name = tag_elem.get("name", "").strip()
             if not tag.name:
-                problems.append(ProblemNotice(
-                    test_name="Parse Namespace XML",
-                    location=NamespacePathLocation(namespace_id=namespace.id, tag_id=getattr(tag, 'id', None)),
-                    severity=ProblemSeverity.WARNING,
-                    problem=f"Missing name for tag {tag.id}"
-                ))
+                problems.append(
+                    ProblemNotice(
+                        test_name="Parse Namespace XML",
+                        location=NamespacePathLocation(namespace_id=namespace.id, tag_id=getattr(tag, "id", None)),
+                        severity=ProblemSeverity.WARNING,
+                        problem=f"Missing name for tag {tag.id}",
+                    )
+                )
                 continue
 
-            desc_elem = tag_elem.find('description')
+            desc_elem = tag_elem.find("description")
             if desc_elem is not None and desc_elem.text:
                 tag.description = desc_elem.text.strip()
 
@@ -1288,7 +1499,9 @@ def parse_namespace(et: ElementTree.Element) -> tuple[XmlNamespace, list[Problem
     return namespace, problems
 
 
-def build_xml_namespaces(data_model_directory: typing.Union[PrebuiltDataModelDirectory, Traversable]) -> tuple[dict[int, XmlNamespace], list[ProblemNotice]]:
+def build_xml_namespaces(
+    data_model_directory: typing.Union[PrebuiltDataModelDirectory, Traversable],
+) -> tuple[dict[int, XmlNamespace], list[ProblemNotice]]:
     """Build a dictionary of namespaces from XML files in the given directory"""
     namespace_dir = get_data_model_directory(data_model_directory, DataModelLevel.kNamespace)
     namespaces: dict[int, XmlNamespace] = {}
@@ -1298,51 +1511,59 @@ def build_xml_namespaces(data_model_directory: typing.Union[PrebuiltDataModelDir
 
     try:
         for filename in namespace_dir.iterdir():
-            if not filename.name.endswith('.xml'):
+            if not filename.name.endswith(".xml"):
                 continue
-            LOGGER.info('Parsing file %s', str(filename))
+            LOGGER.info("Parsing file %s", str(filename))
             found_xmls += 1
 
             try:
-                with filename.open('r', encoding="utf8") as xml:
+                with filename.open("r", encoding="utf8") as xml:
                     root = ElementTree.parse(xml).getroot()
                     namespace, parse_problems = parse_namespace(root)
                     problems.extend(parse_problems)
 
                     if namespace.id in namespaces:
-                        problems.append(ProblemNotice(
-                            test_name="Build XML Namespaces",
-                            location=NamespacePathLocation(namespace_id=namespace.id),
-                            severity=ProblemSeverity.WARNING,
-                            problem=f"Duplicate namespace ID 0x{namespace.id:04X} in {filename.name}"
-                        ))
+                        problems.append(
+                            ProblemNotice(
+                                test_name="Build XML Namespaces",
+                                location=NamespacePathLocation(namespace_id=namespace.id),
+                                severity=ProblemSeverity.WARNING,
+                                problem=f"Duplicate namespace ID 0x{namespace.id:04X} in {filename.name}",
+                            )
+                        )
                     else:
                         namespaces[namespace.id] = namespace
 
             except Exception as e:
-                problems.append(ProblemNotice(
-                    test_name="Build XML Namespaces",
-                    location=UnknownProblemLocation(),
-                    severity=ProblemSeverity.WARNING,
-                    problem=f"Failed to parse {filename.name}: {str(e)}"
-                ))
+                problems.append(
+                    ProblemNotice(
+                        test_name="Build XML Namespaces",
+                        location=UnknownProblemLocation(),
+                        severity=ProblemSeverity.WARNING,
+                        problem=f"Failed to parse {filename.name}: {str(e)}",
+                    )
+                )
 
     except Exception as e:
-        problems.append(ProblemNotice(
-            test_name="Build XML Namespaces",
-            location=UnknownProblemLocation(),
-            severity=ProblemSeverity.WARNING,
-            problem=f"Failed to access namespace directory: {str(e)}"
-        ))
+        problems.append(
+            ProblemNotice(
+                test_name="Build XML Namespaces",
+                location=UnknownProblemLocation(),
+                severity=ProblemSeverity.WARNING,
+                problem=f"Failed to access namespace directory: {str(e)}",
+            )
+        )
 
     if found_xmls < 1:
         LOGGER.warning("No XML files found in the specified namespace directory: %r", namespace_dir)
-        problems.append(ProblemNotice(
-            test_name="Build XML Namespaces",
-            location=UnknownProblemLocation(),
-            severity=ProblemSeverity.WARNING,
-            problem=f"No XML files found in namespace directory: {str(namespace_dir)}"
-        ))
+        problems.append(
+            ProblemNotice(
+                test_name="Build XML Namespaces",
+                location=UnknownProblemLocation(),
+                severity=ProblemSeverity.WARNING,
+                problem=f"No XML files found in namespace directory: {str(namespace_dir)}",
+            )
+        )
 
     # Print problems for debugging
     if problems:
@@ -1353,30 +1574,43 @@ def build_xml_namespaces(data_model_directory: typing.Union[PrebuiltDataModelDir
     return namespaces, problems
 
 
-def parse_single_device_type(root: ElementTree.Element, cluster_definition_xml: dict[uint, XmlCluster]) -> tuple[dict[int, XmlDeviceType], list[ProblemNotice]]:
+def parse_single_device_type(
+    root: ElementTree.Element, cluster_definition_xml: dict[uint, XmlCluster]
+) -> tuple[dict[int, XmlDeviceType], list[ProblemNotice]]:
     problems: list[ProblemNotice] = []
     device_types: dict[int, XmlDeviceType] = {}
     d = root
-    if d.tag == 'deviceType':
-        device_name = d.attrib['name']
+    if d.tag == "deviceType":
+        device_name = d.attrib["name"]
         location = DeviceTypePathLocation(device_type_id=0)
 
-        str_id = d.attrib.get('id', "")
+        str_id = d.attrib.get("id", "")
         if not str_id:
             if device_name == "Base Device Type":
                 # Base is special device type, we're going to call it -1 so we can combine and remove it later.
-                str_id = '-1'
+                str_id = "-1"
             else:
-                problems.append(ProblemNotice("Parse Device Type XML", location=location,
-                                severity=ProblemSeverity.WARNING, problem=f"Device type {device_name} does not have an ID listed"))
+                problems.append(
+                    ProblemNotice(
+                        "Parse Device Type XML",
+                        location=location,
+                        severity=ProblemSeverity.WARNING,
+                        problem=f"Device type {device_name} does not have an ID listed",
+                    )
+                )
                 return device_types, problems
         try:
             id = int(str_id, 0)
-            revision = int(d.attrib['revision'], 0)
+            revision = int(d.attrib["revision"], 0)
         except ValueError:
-            problems.append(ProblemNotice("Parse Device Type XML", location=location,
-                            severity=ProblemSeverity.WARNING,
-                            problem=f"Device type {device_name} does not a valid ID or revision. ID: {str_id} revision: {d.get('revision', 'UNKNOWN')}"))
+            problems.append(
+                ProblemNotice(
+                    "Parse Device Type XML",
+                    location=location,
+                    severity=ProblemSeverity.WARNING,
+                    problem=f"Device type {device_name} does not a valid ID or revision. ID: {str_id} revision: {d.get('revision', 'UNKNOWN')}",
+                )
+            )
             return device_types, problems
         if id in DEVICE_TYPE_NAME_FIXES:
             device_name = DEVICE_TYPE_NAME_FIXES[id]
@@ -1385,38 +1619,57 @@ def parse_single_device_type(root: ElementTree.Element, cluster_definition_xml: 
         problems.extend(rev_problems)
 
         try:
-            classification = next(d.iter('classification'))
-            scope = classification.attrib['scope']
-            device_class = classification.attrib['class']
-            superset_of_device_type_name = classification.attrib.get('superset', None)
+            classification = next(d.iter("classification"))
+            scope = classification.attrib["scope"]
+            device_class = classification.attrib["class"]
+            superset_of_device_type_name = classification.attrib.get("superset", None)
         except (KeyError, StopIteration):
             # this is fine for base device type
             if id == -1:
-                scope = 'BASE'
-                device_class = 'BASE'
+                scope = "BASE"
+                device_class = "BASE"
                 superset_of_device_type_name = None
             else:
                 location = DeviceTypePathLocation(device_type_id=id)
-                problems.append(ProblemNotice("Parse Device Type XML", location=location,
-                                severity=ProblemSeverity.WARNING, problem="Unable to find classification data for device type"))
+                problems.append(
+                    ProblemNotice(
+                        "Parse Device Type XML",
+                        location=location,
+                        severity=ProblemSeverity.WARNING,
+                        problem="Unable to find classification data for device type",
+                    )
+                )
                 return device_types, problems
-        device_types[id] = XmlDeviceType(name=device_name, revision=revision, server_clusters={}, client_clusters={},
-                                         classification_class=device_class, revision_desc=revision_desc,
-                                         classification_scope=scope, superset_of_device_type_name=superset_of_device_type_name)
+        device_types[id] = XmlDeviceType(
+            name=device_name,
+            revision=revision,
+            server_clusters={},
+            client_clusters={},
+            classification_class=device_class,
+            revision_desc=revision_desc,
+            classification_scope=scope,
+            superset_of_device_type_name=superset_of_device_type_name,
+        )
         try:
-            main_endpoint_clusters = next(d.iter('clusters'))
-            clusters = main_endpoint_clusters.findall('cluster')
+            main_endpoint_clusters = next(d.iter("clusters"))
+            clusters = main_endpoint_clusters.findall("cluster")
         except StopIteration:
             # no clusters in this device type - children device types only
             clusters = []
         for c in clusters:
             try:
                 try:
-                    cid = uint(int(c.attrib['id'], 0))
+                    cid = uint(int(c.attrib["id"], 0))
                 except ValueError:
                     location = DeviceTypePathLocation(device_type_id=id)
-                    problems.append(ProblemNotice("Parse Device Type XML", location=location,
-                                    severity=ProblemSeverity.WARNING, problem=f"Unknown cluster id {c.attrib['id']}"))
+                    problems.append(
+                        ProblemNotice(
+                            "Parse Device Type XML",
+                            location=location,
+                            severity=ProblemSeverity.WARNING,
+                            problem=f"Unknown cluster id {c.attrib['id']}",
+                        )
+                    )
                     continue
                 # Workaround for 1.3 device types with zigbee clusters and old scenes
                 # This is OK because there are other tests that ensure that unknown clusters do not appear on the device
@@ -1428,52 +1681,67 @@ def parse_single_device_type(root: ElementTree.Element, cluster_definition_xml: 
                     problems.append(tmp_problem)
                     continue
                 cluster_conformance_params = ConformanceParseParameters(
-                    feature_map=cluster_definition_xml[cid].feature_map, attribute_map=cluster_definition_xml[cid].attribute_map, command_map=cluster_definition_xml[cid].command_map)
+                    feature_map=cluster_definition_xml[cid].feature_map,
+                    attribute_map=cluster_definition_xml[cid].attribute_map,
+                    command_map=cluster_definition_xml[cid].command_map,
+                )
                 conformance = parse_callable_from_xml(conformance_xml, cluster_conformance_params)
-                side_dict = {'server': ClusterSide.SERVER, 'client': ClusterSide.CLIENT}
-                side = side_dict[c.attrib['side']]
-                cluster_name = c.attrib['name']
+                side_dict = {"server": ClusterSide.SERVER, "client": ClusterSide.CLIENT}
+                side = side_dict[c.attrib["side"]]
+                cluster_name = c.attrib["name"]
                 if cid in CLUSTER_NAME_FIXES:
                     cluster_name = CLUSTER_NAME_FIXES[cid]
                 cluster = XmlDeviceTypeClusterRequirements(name=cluster_name, side=side, conformance=conformance)
 
                 def append_overrides(override_element_type: str):
-                    if override_element_type == 'feature':
+                    if override_element_type == "feature":
                         # The device types use feature name rather than feature code. So we need to build a new map.
                         name_to_id_map = {f.name: id for id, f in cluster_definition_xml[cid].features.items()}
                         # But also...that's not universal, so let's be tolerant to using the code too.
                         name_to_id_map.update(cluster_definition_xml[cid].feature_map)
                         override = cluster.feature_overrides
-                    elif override_element_type == 'attribute':
+                    elif override_element_type == "attribute":
                         name_to_id_map = cluster_definition_xml[cid].attribute_map
                         override = cluster.attribute_overrides
-                    elif override_element_type == 'command':
+                    elif override_element_type == "command":
                         name_to_id_map = cluster_definition_xml[cid].command_map
                         override = cluster.command_overrides
                     else:
-                        problems.append(ProblemNotice("Parse Device Type XML", location=location,
-                                        severity=ProblemSeverity.WARNING, problem=f"Request for unknown element override type {override_element_type} - this is a script error"))
+                        problems.append(
+                            ProblemNotice(
+                                "Parse Device Type XML",
+                                location=location,
+                                severity=ProblemSeverity.WARNING,
+                                problem=f"Request for unknown element override type {override_element_type} - this is a script error",
+                            )
+                        )
                         return
 
-                    container = c.find(f'{override_element_type}s')
+                    container = c.find(f"{override_element_type}s")
                     if container is None:
                         return
 
                     elements = container.iter(override_element_type)
                     for e in elements:
                         try:
-                            element_name = e.attrib['name']
+                            element_name = e.attrib["name"]
                         except KeyError:
-                            if override_element_type == 'feature':
+                            if override_element_type == "feature":
                                 try:
-                                    element_name = e.attrib['code']
+                                    element_name = e.attrib["code"]
                                 except KeyError:
                                     element_name = None
                             else:
                                 element_name = None
                         if element_name is None:
-                            problems.append(ProblemNotice("Parse Device Type XML", location=location,
-                                            severity=ProblemSeverity.WARNING, problem=f"Missing {override_element_type} name for override in cluster 0x{cid:04X}, e={str(e.attrib)}"))
+                            problems.append(
+                                ProblemNotice(
+                                    "Parse Device Type XML",
+                                    location=location,
+                                    severity=ProblemSeverity.WARNING,
+                                    problem=f"Missing {override_element_type} name for override in cluster 0x{cid:04X}, e={str(e.attrib)}",
+                                )
+                            )
                             continue
 
                         try:
@@ -1483,27 +1751,39 @@ def parse_single_device_type(root: ElementTree.Element, cluster_definition_xml: 
                                 continue
                             conformance_override = parse_callable_from_xml(conformance_xml, cluster_conformance_params)
 
-                            map_id = [name_to_id_map[n] for n in name_to_id_map if _fuzzy_name(n) ==
-                                      _fuzzy_name(element_name)]
+                            map_id = [name_to_id_map[n] for n in name_to_id_map if _fuzzy_name(n) == _fuzzy_name(element_name)]
                             if len(map_id) == 0:
                                 # The thermostat in particular explicitly disallows some zigbee things that don't appear in the spec due to
                                 # ifdefs. We can ignore problems if the device type spec disallows things that don't exist.
                                 if is_disallowed(conformance_override):
                                     LOGGER.info(
-                                        f"Ignoring unknown {override_element_type} {element_name} in cluster {cid} because the conformance is disallowed")
+                                        f"Ignoring unknown {override_element_type} {element_name} in cluster {cid} because the conformance is disallowed"
+                                    )
                                     continue
-                                problems.append(ProblemNotice("Parse Device Type XML", location=location,
-                                                severity=ProblemSeverity.WARNING, problem=f"Unknown {override_element_type} {element_name} in cluster 0x{cid:04X} - map = {map_id}"))
+                                problems.append(
+                                    ProblemNotice(
+                                        "Parse Device Type XML",
+                                        location=location,
+                                        severity=ProblemSeverity.WARNING,
+                                        problem=f"Unknown {override_element_type} {element_name} in cluster 0x{cid:04X} - map = {map_id}",
+                                    )
+                                )
                             else:
                                 override[map_id[0]] = conformance_override
 
                         except ConformanceException as ex:
-                            problems.append(ProblemNotice("Parse Device Type XML", location=location,
-                                            severity=ProblemSeverity.WARNING, problem=f"Unable to parse {override_element_type} conformance for {element_name} in cluster 0x{cid:04X} - {ex}"))
+                            problems.append(
+                                ProblemNotice(
+                                    "Parse Device Type XML",
+                                    location=location,
+                                    severity=ProblemSeverity.WARNING,
+                                    problem=f"Unable to parse {override_element_type} conformance for {element_name} in cluster 0x{cid:04X} - {ex}",
+                                )
+                            )
 
-                append_overrides('feature')
-                append_overrides('attribute')
-                append_overrides('command')
+                append_overrides("feature")
+                append_overrides("attribute")
+                append_overrides("command")
 
                 if side == ClusterSide.SERVER:
                     device_types[id].server_clusters[cid] = cluster
@@ -1512,14 +1792,23 @@ def parse_single_device_type(root: ElementTree.Element, cluster_definition_xml: 
 
             except ConformanceException as ex:
                 location = DeviceTypePathLocation(device_type_id=id, cluster_id=cid)
-                problems.append(ProblemNotice("Parse Device Type XML", location=location,
-                                severity=ProblemSeverity.WARNING, problem=f"Unable to parse conformance for cluster - {ex}"))
+                problems.append(
+                    ProblemNotice(
+                        "Parse Device Type XML",
+                        location=location,
+                        severity=ProblemSeverity.WARNING,
+                        problem=f"Unable to parse conformance for cluster - {ex}",
+                    )
+                )
             # NOTE: Spec currently does a bad job of matching these exactly to the names and codes
             # so this will need a bit of fancy handling here to get this right.
     return device_types, problems
 
 
-def build_xml_device_types(data_model_directory: typing.Union[PrebuiltDataModelDirectory, Traversable], cluster_definition_xml: Optional[dict[uint, XmlCluster]] = None) -> tuple[dict[int, XmlDeviceType], list[ProblemNotice]]:
+def build_xml_device_types(
+    data_model_directory: typing.Union[PrebuiltDataModelDirectory, Traversable],
+    cluster_definition_xml: Optional[dict[uint, XmlCluster]] = None,
+) -> tuple[dict[int, XmlDeviceType], list[ProblemNotice]]:
     top = get_data_model_directory(data_model_directory, DataModelLevel.kDeviceType)
     device_types: dict[int, XmlDeviceType] = {}
     problems: list[ProblemNotice] = []
@@ -1527,16 +1816,16 @@ def build_xml_device_types(data_model_directory: typing.Union[PrebuiltDataModelD
         cluster_dir = data_model_directory
         if not isinstance(data_model_directory, PrebuiltDataModelDirectory):
             # Transform this into the cluster directory
-            cluster_dir = data_model_directory.joinpath('..', 'clusters')
+            cluster_dir = data_model_directory.joinpath("..", "clusters")
         cluster_definition_xml, _ = build_xml_clusters(cluster_dir)
 
     found_xmls = 0
 
     for file in top.iterdir():
-        if not file.name.endswith('.xml'):
+        if not file.name.endswith(".xml"):
             continue
         found_xmls += 1
-        with file.open('r', encoding="utf8") as xml:
+        with file.open("r", encoding="utf8") as xml:
             root = ElementTree.parse(xml).getroot()
             tmp_device_types, tmp_problems = parse_single_device_type(root, cluster_definition_xml)
             problems = problems + tmp_problems
@@ -1555,22 +1844,32 @@ def build_xml_device_types(data_model_directory: typing.Union[PrebuiltDataModelD
 
     # Fix up supersets
     for id, d in device_types.items():
+
         def standardize_name(name: str):
-            return name.replace(' ', '').replace('/', '').lower()
+            return name.replace(" ", "").replace("/", "").lower()
+
         if d.superset_of_device_type_name is None:
             continue
         name = standardize_name(d.superset_of_device_type_name)
         matches = [id for id, d in device_types.items() if standardize_name(d.name) == name]
         if len(matches) != 1:
-            problems.append(ProblemNotice('Device types parsing', location=DeviceTypePathLocation(
-                id), severity=ProblemSeverity.ERROR, problem=f"No unique match found for superset {d.superset_of_device_type_name}"))
+            problems.append(
+                ProblemNotice(
+                    "Device types parsing",
+                    location=DeviceTypePathLocation(id),
+                    severity=ProblemSeverity.ERROR,
+                    problem=f"No unique match found for superset {d.superset_of_device_type_name}",
+                )
+            )
             break
         d.superset_of_device_type_id = matches[0]
 
     return device_types, problems
 
 
-def build_xml_global_data_types(data_model_directory: Union[PrebuiltDataModelDirectory, Traversable]) -> typing.Tuple[dict[str, dict[str, XmlDataType]], list[ProblemNotice]]:
+def build_xml_global_data_types(
+    data_model_directory: Union[PrebuiltDataModelDirectory, Traversable],
+) -> typing.Tuple[dict[str, dict[str, XmlDataType]], list[ProblemNotice]]:
     """
     Build XML global data types from the globals data model directory.
 
@@ -1584,11 +1883,7 @@ def build_xml_global_data_types(data_model_directory: Union[PrebuiltDataModelDir
         - 'bitmaps': dict[str, XmlDataType] - global bitmaps by name
     """
 
-    global_data_types: dict[str, dict[str, XmlDataType]] = {
-        'structs': {},
-        'enums': {},
-        'bitmaps': {}
-    }
+    global_data_types: dict[str, dict[str, XmlDataType]] = {"structs": {}, "enums": {}, "bitmaps": {}}
     problems: list[ProblemNotice] = []
 
     top = get_data_model_directory(data_model_directory, DataModelLevel.kGlobal)
@@ -1596,14 +1891,14 @@ def build_xml_global_data_types(data_model_directory: Union[PrebuiltDataModelDir
 
     # Map of XML file names to data type categories
     file_to_datatype_map = {
-        'Structs.xml': ('structs', DataTypeEnum.kStruct),
-        'Enums.xml': ('enums', DataTypeEnum.kEnum),
-        'Bitmaps.xml': ('bitmaps', DataTypeEnum.kBitmap)
+        "Structs.xml": ("structs", DataTypeEnum.kStruct),
+        "Enums.xml": ("enums", DataTypeEnum.kEnum),
+        "Bitmaps.xml": ("bitmaps", DataTypeEnum.kBitmap),
     }
 
     found_xmls = 0
     for f in top.iterdir():
-        if not f.name.endswith('.xml'):
+        if not f.name.endswith(".xml"):
             LOGGER.info("Ignoring non-XML file %s", f.name)
             continue
 
@@ -1623,17 +1918,22 @@ def build_xml_global_data_types(data_model_directory: Union[PrebuiltDataModelDir
                     continue
 
                 try:
-                    name = element.attrib['name']
+                    name = element.attrib["name"]
                 except KeyError:
                     location = ClusterPathLocation(0, 0)  # Global types have no cluster ID
-                    problems.append(ProblemNotice("Global Data Type XML Parsing", location=location,
-                                                  severity=ProblemSeverity.WARNING,
-                                                  problem=f"Global {data_type_enum} with no name in {f.name}"))
+                    problems.append(
+                        ProblemNotice(
+                            "Global Data Type XML Parsing",
+                            location=location,
+                            severity=ProblemSeverity.WARNING,
+                            problem=f"Global {data_type_enum} with no name in {f.name}",
+                        )
+                    )
                     continue
 
                 # Create a temporary parser to parse components
                 # Global data types have no cluster ID, so we pass None
-                temp_parser = ClusterParser(ElementTree.Element('cluster'), None, 'GlobalDataTypes')
+                temp_parser = ClusterParser(ElementTree.Element("cluster"), None, "GlobalDataTypes")
                 components = temp_parser._parse_components(element, data_type_enum)
                 temp_problems = temp_parser.get_problems()
 
@@ -1641,7 +1941,10 @@ def build_xml_global_data_types(data_model_directory: Union[PrebuiltDataModelDir
                 # Global data types often have complex field reference conformances that our parser can't handle yet
                 filtered_problems = []
                 for problem in temp_problems:
-                    if "ConformanceException" in problem.problem and any(field_name in problem.problem for field_name in ['PercentMax', 'PercentMin', 'FixedMax', 'FixedMin', 'MfgCode']):
+                    if "ConformanceException" in problem.problem and any(
+                        field_name in problem.problem
+                        for field_name in ["PercentMax", "PercentMin", "FixedMax", "FixedMin", "MfgCode"]
+                    ):
                         LOGGER.info(f"Ignoring complex conformance in global data type {name} from {f.name}: {problem.problem}")
                         continue
                     filtered_problems.append(problem)
@@ -1653,24 +1956,24 @@ def build_xml_global_data_types(data_model_directory: Union[PrebuiltDataModelDir
                     data_type=data_type_enum,
                     name=name,
                     components=components,
-                    cluster_ids=None  # Global types have no specific cluster IDs
+                    cluster_ids=None,  # Global types have no specific cluster IDs
                 )
 
     # For now we assume we should have at least 3 global data type XMLs to parse
     # Intent here is to make user aware of typos in paths instead of silently having empty parsing
     if found_xmls < 3:
-        raise SpecParsingException(f'Did not find all 3 global data model files in specified directory {top:!r}')
+        raise SpecParsingException(f"Did not find all 3 global data model files in specified directory {top:!r}")
 
     return global_data_types, problems
 
 
 def dm_from_spec_version(specification_version: uint) -> PrebuiltDataModelDirectory:
-    ''' Returns the data model directory for a given specification revision.
+    """Returns the data model directory for a given specification revision.
 
-        input: specification revision attribute data from the basic information cluster
-        output: PrebuiltDataModelDirectory
-        raises: ConformanceException if the given specification_version does not conform to a known data model
-    '''
+    input: specification revision attribute data from the basic information cluster
+    output: PrebuiltDataModelDirectory
+    raises: ConformanceException if the given specification_version does not conform to a known data model
+    """
     # Specification version attribute is 2 bytes major, 2 bytes minor, 2 bytes dot 2 bytes reserved.
     # However, 1.3 allowed the dot to be any value
     if specification_version < uint(0x01040000):

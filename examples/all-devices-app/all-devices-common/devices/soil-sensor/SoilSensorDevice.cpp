@@ -27,8 +27,8 @@ namespace app {
 
 SoilSensorDevice::SoilSensorDevice(TimerDelegate & timerDelegate, SoilMoistureMeasurementLimits::TypeInfo::Type moistureLimits,
                                    TemperatureMeasurementCluster::StartupConfiguration tempConfig) :
-    SingleEndpointDevice(Span<const DataModel::DeviceTypeEntry>(&Device::Type::kSoilSensor, 1)),
-    mTimerDelegate(timerDelegate), mMoistureLimits(moistureLimits), mTempConfig(tempConfig)
+    SingleEndpointDevice(Span<const DataModel::DeviceTypeEntry>(&Device::Type::kSoilSensor, 1)), mTimerDelegate(timerDelegate),
+    mMoistureLimits(moistureLimits), mTempConfig(tempConfig)
 {}
 
 CHIP_ERROR SoilSensorDevice::Register(chip::EndpointId endpoint, CodeDrivenDataModelProvider & provider, EndpointId parentId)

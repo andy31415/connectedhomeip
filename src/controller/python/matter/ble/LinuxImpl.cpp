@@ -100,8 +100,7 @@ public:
 
     ScannerDelegateImpl(PyObject * context, DeviceScannedCallback scanCallback, ScanCompleteCallback completeCallback,
                         ScanErrorCallback errorCallback) :
-        mContext(context),
-        mScanCallback(scanCallback), mCompleteCallback(completeCallback), mErrorCallback(errorCallback)
+        mContext(context), mScanCallback(scanCallback), mCompleteCallback(completeCallback), mErrorCallback(errorCallback)
     {}
 
     CHIP_ERROR ScannerInit(BluezAdapter1 * adapter)

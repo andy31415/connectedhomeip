@@ -50,7 +50,6 @@ log = logging.getLogger(__name__)
 
 
 class TC_AVSM_2_20(MatterBaseTest, AVSMTestBase):
-
     def desc_TC_AVSM_2_20(self) -> str:
         return "[TC-AVSM-2.20] Validate persistence of allocated snapshot streams with DUT"
 
@@ -58,20 +57,41 @@ class TC_AVSM_2_20(MatterBaseTest, AVSMTestBase):
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
             TestStep(2, "TH reads FeatureMap attribute from CameraAVStreamManagement Cluster on DUT. Verify F_SNP is supported."),
-            TestStep(3, "TH reads AllocatedSnapshotStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated snapshot streams in the list is 0."),
-            TestStep(4, "TH reads SnapshotCapabilities attribute from CameraAVStreamManagement Cluster on DUT. Store this value in aSnapshotCapabilities."),
+            TestStep(
+                3,
+                "TH reads AllocatedSnapshotStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated snapshot streams in the list is 0.",
+            ),
+            TestStep(
+                4,
+                "TH reads SnapshotCapabilities attribute from CameraAVStreamManagement Cluster on DUT. Store this value in aSnapshotCapabilities.",
+            ),
             TestStep(5, "If F_WMARK is supported, TH sets its local aWatermark to True, otherwise this is Null."),
             TestStep(6, "If F_OSD is supported, TH sets its local aOSD to True, otherwise this is Null."),
-            TestStep(7, "TH sends the SnapshotStreamAllocate command with valid values of ImageCodec, MaxFrameRate, MinResolution=MaxResolution=Resolution from aSnapshotCapabilities, WatermarkEnabled to aWatermark, OSDEnabled to aOSD, and Quality set to 90."),
-            TestStep(8, "TH reads AllocatedSnapshotStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated snapshot streams in the list is 1."),
+            TestStep(
+                7,
+                "TH sends the SnapshotStreamAllocate command with valid values of ImageCodec, MaxFrameRate, MinResolution=MaxResolution=Resolution from aSnapshotCapabilities, WatermarkEnabled to aWatermark, OSDEnabled to aOSD, and Quality set to 90.",
+            ),
+            TestStep(
+                8,
+                "TH reads AllocatedSnapshotStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated snapshot streams in the list is 1.",
+            ),
             TestStep(9, "TH reboots the DUT."),
             TestStep(10, "TH waits for the DUT to come back online."),
-            TestStep(11, "TH reads AllocatedSnapshotStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated snapshot streams in the list is 1 and the stream info is identical to what was provided in step 7."),
+            TestStep(
+                11,
+                "TH reads AllocatedSnapshotStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated snapshot streams in the list is 1 and the stream info is identical to what was provided in step 7.",
+            ),
             TestStep(12, "TH sends the SnapshotStreamDeallocate command with SnapshotStreamID set to myStreamID."),
-            TestStep(13, "TH reads AllocatedSnapshotStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated snapshot streams in the list is 0."),
+            TestStep(
+                13,
+                "TH reads AllocatedSnapshotStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated snapshot streams in the list is 0.",
+            ),
             TestStep(14, "TH reboots the DUT."),
             TestStep(15, "TH waits for the DUT to come back online."),
-            TestStep(16, "TH reads AllocatedSnapshotStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated snapshot streams in the list is 0."),
+            TestStep(
+                16,
+                "TH reads AllocatedSnapshotStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated snapshot streams in the list is 0.",
+            ),
         ]
 
     def pics_TC_AVSM_2_20(self) -> list[str]:
@@ -94,11 +114,15 @@ class TC_AVSM_2_20(MatterBaseTest, AVSMTestBase):
         asserts.assert_true(has_f_snp, "FeatureMap F_SNP is not set")
 
         self.step(3)
-        allocated_snapshot_streams = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedSnapshotStreams)
+        allocated_snapshot_streams = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedSnapshotStreams
+        )
         asserts.assert_equal(len(allocated_snapshot_streams), 0, "AllocatedSnapshotStreams should be empty")
 
         self.step(4)
-        snapshot_capabilities = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.SnapshotCapabilities)
+        snapshot_capabilities = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.SnapshotCapabilities
+        )
         asserts.assert_greater(len(snapshot_capabilities), 0, "SnapshotCapabilities should not be empty")
 
         self.step(5)
@@ -139,11 +163,13 @@ class TC_AVSM_2_20(MatterBaseTest, AVSMTestBase):
             watermarkEnabled=watermark_enabled,
             OSDEnabled=osd_enabled,
             quality=quality,
-            referenceCount=0
+            referenceCount=0,
         )
 
         self.step(8)
-        allocated_snapshot_streams = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedSnapshotStreams)
+        allocated_snapshot_streams = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedSnapshotStreams
+        )
         asserts.assert_equal(len(allocated_snapshot_streams), 1, "AllocatedSnapshotStreams should have 1 entry")
 
         self.step(9)
@@ -151,7 +177,9 @@ class TC_AVSM_2_20(MatterBaseTest, AVSMTestBase):
         self.step(10)
 
         self.step(11)
-        allocated_snapshot_streams = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedSnapshotStreams)
+        allocated_snapshot_streams = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedSnapshotStreams
+        )
         asserts.assert_equal(len(allocated_snapshot_streams), 1, "AllocatedSnapshotStreams should have 1 entry after reboot")
         retrieved_stream = allocated_snapshot_streams[0]
         asserts.assert_equal(retrieved_stream.snapshotStreamID, allocated_stream_info.snapshotStreamID, "snapshotStreamID mismatch")
@@ -167,7 +195,9 @@ class TC_AVSM_2_20(MatterBaseTest, AVSMTestBase):
         await self.send_single_cmd(cmd=commands.SnapshotStreamDeallocate(snapshotStreamID=my_stream_id), endpoint=endpoint)
 
         self.step(13)
-        allocated_snapshot_streams = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedSnapshotStreams)
+        allocated_snapshot_streams = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedSnapshotStreams
+        )
         asserts.assert_equal(len(allocated_snapshot_streams), 0, "AllocatedSnapshotStreams should be empty after deallocate")
 
         self.step(14)
@@ -175,7 +205,9 @@ class TC_AVSM_2_20(MatterBaseTest, AVSMTestBase):
         self.step(15)
 
         self.step(16)
-        allocated_snapshot_streams = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedSnapshotStreams)
+        allocated_snapshot_streams = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedSnapshotStreams
+        )
         asserts.assert_equal(len(allocated_snapshot_streams), 0, "AllocatedSnapshotStreams should be empty after reboot")
 
 

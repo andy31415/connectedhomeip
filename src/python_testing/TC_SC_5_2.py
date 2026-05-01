@@ -81,7 +81,6 @@ logger = logging.getLogger(__name__)
 
 
 class TC_SC_5_2(MatterBaseTest):
-
     def desc_TC_SC_5_2(self) -> str:
         return "26.1.2. [TC-SC-5.2] Receiving a group message - TH to DUT"
 
@@ -94,7 +93,10 @@ class TC_SC_5_2(MatterBaseTest):
             TestStep("0b", "Run the remaining steps once for each endpoint with a groups cluster"),
             TestStep("1", "TH writes the ACL attribute in the Access Control cluster to add Manage privileges for group 0x0103."),
             TestStep("2", "TH sends KeySetWrite command with pre-installed key."),
-            TestStep("3", "If Groupcast enabled on RootNode, skip to step 12. Otherwise, TH binds GroupId 0x0103 and 0x0101 with GroupKeySetID 0x01a3 in GroupKeyMap."),
+            TestStep(
+                "3",
+                "If Groupcast enabled on RootNode, skip to step 12. Otherwise, TH binds GroupId 0x0103 and 0x0101 with GroupKeySetID 0x01a3 in GroupKeyMap.",
+            ),
             TestStep("4", "TH sends RemoveAllGroups command to DUT on the current endpoint under test."),
             TestStep("5", "TH sends AddGroup Command with GroupID 0x0103 to DUT on the current endpoint under test."),
             TestStep("6", "TH sends AddGroup command for GroupID 0x0101 as a group command using GroupID 0x0103."),
@@ -121,15 +123,20 @@ class TC_SC_5_2(MatterBaseTest):
         await self._populate_wildcard()
         # TODO: there's something weird with the groups cluster on EP0 of all clusters. Also, that shouldn't be there.
         # https://github.com/project-chip/matter-test-scripts/issues/770
-        endpoints = [endpoint for endpoint in self.stored_global_wildcard.attributes if endpoint !=
-                     0 and Clusters.Groups in self.stored_global_wildcard.attributes[endpoint]]
+        endpoints = [
+            endpoint
+            for endpoint in self.stored_global_wildcard.attributes
+            if endpoint != 0 and Clusters.Groups in self.stored_global_wildcard.attributes[endpoint]
+        ]
         if not endpoints:
             logger.info("No groups endpoints found, test not applicable for this device, skipping all steps")
-            logger.info("Note: Because of the way groups endpoints appear on devices, this test internally determines the"
-                        "applicable endpoints. Having zero applicable endpoints is acceptable for this test.")
+            logger.info(
+                "Note: Because of the way groups endpoints appear on devices, this test internally determines the"
+                "applicable endpoints. Having zero applicable endpoints is acceptable for this test."
+            )
             self.mark_all_remaining_steps_skipped("1")
             return
-        logger.info(f'Found the following endpoints with Groups clusters: {endpoints}')
+        logger.info(f"Found the following endpoints with Groups clusters: {endpoints}")
         for endpoint in endpoints:
             logger.info(f"Running test against endpoint {endpoint} groups cluster")
             self.current_step_index = 2
@@ -148,26 +155,29 @@ class TC_SC_5_2(MatterBaseTest):
                 privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
                 authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
                 subjects=[dev_ctrl.nodeId],
-                targets=NullValue),
+                targets=NullValue,
+            ),
             Clusters.AccessControl.Structs.AccessControlEntryStruct(
                 privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kManage,
                 authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kGroup,
                 subjects=[0x0103],
-                targets=NullValue),
+                targets=NullValue,
+            ),
         ]
         await dev_ctrl.WriteAttribute(node_id, [(0, Clusters.AccessControl.Attributes.Acl(acl))])
 
         # Step 2: KeySetWrite
         self.step("2")
         key_set = Clusters.GroupKeyManagement.Structs.GroupKeySetStruct(
-            groupKeySetID=0x01a3,
+            groupKeySetID=0x01A3,
             groupKeySecurityPolicy=Clusters.GroupKeyManagement.Enums.GroupKeySecurityPolicyEnum.kTrustFirst,
             epochKey0=bytes.fromhex("d0d1d2d3d4d5d6d7d8d9dadbdcdddedf"),
             epochStartTime0=2220000,
             epochKey1=bytes.fromhex("d1d1d2d3d4d5d6d7d8d9dadbdcdddedf"),
             epochStartTime1=2220001,
             epochKey2=bytes.fromhex("d2d1d2d3d4d5d6d7d8d9dadbdcdddedf"),
-            epochStartTime2=2220002)
+            epochStartTime2=2220002,
+        )
         await dev_ctrl.SendCommand(node_id, 0, Clusters.GroupKeyManagement.Commands.KeySetWrite(key_set))
 
         if groupcast_enabled:
@@ -177,8 +187,8 @@ class TC_SC_5_2(MatterBaseTest):
             # Step 3: GroupKeyMap binding
             self.step("3")
             mapping = [
-                Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(groupId=0x0103, groupKeySetID=0x01a3, fabricIndex=1),
-                Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(groupId=0x0101, groupKeySetID=0x01a3, fabricIndex=1),
+                Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(groupId=0x0103, groupKeySetID=0x01A3, fabricIndex=1),
+                Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(groupId=0x0101, groupKeySetID=0x01A3, fabricIndex=1),
             ]
             result = await dev_ctrl.WriteAttribute(node_id, [(0, Clusters.GroupKeyManagement.Attributes.GroupKeyMap(mapping))])
             asserts.assert_equal(result[0].Status, Status.Success, "GroupKeyMap write failed")
@@ -189,7 +199,9 @@ class TC_SC_5_2(MatterBaseTest):
 
             # Step 5: AddGroup 0x0103
             self.step("5")
-            result = await dev_ctrl.SendCommand(node_id, groups_endpoint, Clusters.Groups.Commands.AddGroup(0x0103, "Test Group 0103"))
+            result = await dev_ctrl.SendCommand(
+                node_id, groups_endpoint, Clusters.Groups.Commands.AddGroup(0x0103, "Test Group 0103")
+            )
             asserts.assert_equal(result.status, Status.Success, "AddGroup 0x0103 failed")
 
             # Step 6: AddGroup 0x0101 as group command via GroupID 0x0103
@@ -199,9 +211,8 @@ class TC_SC_5_2(MatterBaseTest):
 
             # Check if GroupNames are supported
             group_feature_map = await self.read_single_attribute_check_success(
-                cluster=Clusters.Groups,
-                attribute=Clusters.Groups.Attributes.FeatureMap,
-                endpoint=groups_endpoint)
+                cluster=Clusters.Groups, attribute=Clusters.Groups.Attributes.FeatureMap, endpoint=groups_endpoint
+            )
             group_names_supported = bool(group_feature_map & Clusters.Groups.Bitmaps.Feature.kGroupNames)
 
             # Step 7: ViewGroup 0x0101 with GroupNames
@@ -248,20 +259,24 @@ class TC_SC_5_2(MatterBaseTest):
             # Step 12: LeaveGroup
             self.step("12")
             # Check if there are any groups on the DUT.
-            membership = await self.read_single_attribute_check_success(endpoint=0, cluster=Clusters.Groupcast, attribute=Clusters.Groupcast.Attributes.Membership)
+            membership = await self.read_single_attribute_check_success(
+                endpoint=0, cluster=Clusters.Groupcast, attribute=Clusters.Groupcast.Attributes.Membership
+            )
             if membership:
                 # LeaveGroup with groupID 0 will leave all groups on the fabric.
                 await dev_ctrl.SendCommand(node_id, 0, Clusters.Groupcast.Commands.LeaveGroup(groupID=0))
 
             # Step 13: JoinGroup
             self.step("13")
-            await dev_ctrl.SendCommand(node_id, 0, Clusters.Groupcast.Commands.JoinGroup(
-                groupID=0x0103, endpoints=[groups_endpoint], keySetID=0x01a3))
+            await dev_ctrl.SendCommand(
+                node_id, 0, Clusters.Groupcast.Commands.JoinGroup(groupID=0x0103, endpoints=[groups_endpoint], keySetID=0x01A3)
+            )
 
             # Step 14: Read Membership
             self.step("14")
             membership = await self.read_single_attribute_check_success(
-                cluster=Clusters.Groupcast, attribute=Clusters.Groupcast.Attributes.Membership, endpoint=0)
+                cluster=Clusters.Groupcast, attribute=Clusters.Groupcast.Attributes.Membership, endpoint=0
+            )
             group_ids = [entry.groupID for entry in membership]
             asserts.assert_in(0x0103, group_ids, "GroupID 0x0103 not found in Membership")
 
@@ -271,8 +286,9 @@ class TC_SC_5_2(MatterBaseTest):
             await asyncio.sleep(3)
             # Step 16: Validate group command received
             self.step("16")
-            on_off = await self.read_single_attribute_check_success(endpoint=groups_endpoint,
-                                                                    cluster=Clusters.OnOff, attribute=Clusters.OnOff.Attributes.OnOff)
+            on_off = await self.read_single_attribute_check_success(
+                endpoint=groups_endpoint, cluster=Clusters.OnOff, attribute=Clusters.OnOff.Attributes.OnOff
+            )
 
             asserts.assert_true(on_off, "OnOff should be TRUE after group On command")
             await dev_ctrl.SendCommand(node_id, groups_endpoint, Clusters.OnOff.Commands.Off())
@@ -282,7 +298,7 @@ class TC_SC_5_2(MatterBaseTest):
 
         # Step 17: KeySetRemove
         self.step("17")
-        await dev_ctrl.SendCommand(node_id, 0, Clusters.GroupKeyManagement.Commands.KeySetRemove(0x01a3))
+        await dev_ctrl.SendCommand(node_id, 0, Clusters.GroupKeyManagement.Commands.KeySetRemove(0x01A3))
 
         # Step 18: Restore ACL
         self.step("18")
@@ -291,7 +307,8 @@ class TC_SC_5_2(MatterBaseTest):
                 privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
                 authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
                 subjects=[dev_ctrl.nodeId],
-                targets=NullValue),
+                targets=NullValue,
+            ),
         ]
         await dev_ctrl.WriteAttribute(node_id, [(0, Clusters.AccessControl.Attributes.Acl(acl))])
 

@@ -58,8 +58,8 @@ namespace DeviceLayer {
 
     PlatformManagerImpl::PlatformManagerImpl()
         : mWorkQueue(dispatch_queue_create("org.csa-iot.matter.workqueue",
-            dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL_WITH_AUTORELEASE_POOL,
-                QOS_CLASS_USER_INITIATED, QOS_MIN_RELATIVE_PRIORITY)))
+              dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL_WITH_AUTORELEASE_POOL,
+                  QOS_CLASS_USER_INITIATED, QOS_MIN_RELATIVE_PRIORITY)))
         , mSignalQueue(dispatch_queue_create("org.csa-iot.matter.signalqueue", DISPATCH_QUEUE_SERIAL_WITH_AUTORELEASE_POOL))
     {
         // Tag our queue for IsWorkQueueCurrentQueue()

@@ -60,7 +60,6 @@ from matter.tlv import TLVReader
 class TC_DA_1_5(MatterBaseTest):
     @async_test_body
     async def test_TC_DA_1_5(self):
-
         opcreds = Clusters.Objects.OperationalCredentials
 
         gcomm = Clusters.Objects.GeneralCommissioning
@@ -74,8 +73,9 @@ class TC_DA_1_5(MatterBaseTest):
         self.print_step(3, "Send CertificateChainRequest for DAC")
         certtype = opcreds.Enums.CertificateChainTypeEnum.kDACCertificate
         dac_resp = await self.send_single_cmd(cmd=opcreds.Commands.CertificateChainRequest(certificateType=certtype))
-        asserts.assert_true(matchers.is_type(dac_resp, opcreds.Commands.CertificateChainResponse),
-                            "Certificate request returned incorrect type")
+        asserts.assert_true(
+            matchers.is_type(dac_resp, opcreds.Commands.CertificateChainResponse), "Certificate request returned incorrect type"
+        )
         der_dac = dac_resp.certificate
         # This throws an exception for a non-x509 cert
         try:
@@ -119,16 +119,16 @@ class TC_DA_1_5(MatterBaseTest):
             asserts.fail("Unable to decode CSR - improperly formatted DER file")
 
         layer1 = dict(temp)
-        info = dict(layer1['certificationRequestInfo'])
+        info = dict(layer1["certificationRequestInfo"])
 
         # Verify public key is id-ecPublicKey with prime256v1
-        requested_pk_algo = dict(dict(info['subjectPKInfo'])['algorithm'])
-        asserts.assert_equal(requested_pk_algo['algorithm'], rfc5480.id_ecPublicKey, "Incorrect public key algorithm")
-        der_parameters = requested_pk_algo['parameters']
+        requested_pk_algo = dict(dict(info["subjectPKInfo"])["algorithm"])
+        asserts.assert_equal(requested_pk_algo["algorithm"], rfc5480.id_ecPublicKey, "Incorrect public key algorithm")
+        der_parameters = requested_pk_algo["parameters"]
         temp, _ = der_decoder(bytes(der_parameters), asn1Spec=rfc3279.EcpkParameters())
         parameters = dict(temp)
-        asserts.assert_in('namedCurve', parameters.keys(), "Unable to find namedCurve in EcpkParameters")
-        asserts.assert_equal(parameters['namedCurve'], rfc3279.prime256v1, "Incorrect curve specified for public key algorithm")
+        asserts.assert_in("namedCurve", parameters.keys(), "Unable to find namedCurve in EcpkParameters")
+        asserts.assert_equal(parameters["namedCurve"], rfc3279.prime256v1, "Incorrect curve specified for public key algorithm")
 
         # Verify public key is 256 bytes
         csr = x509.load_der_x509_csr(csr_raw)
@@ -136,7 +136,7 @@ class TC_DA_1_5(MatterBaseTest):
         asserts.assert_equal(csr_pubkey.key_size, 256, "Incorrect key size")
 
         # Verify signature algorithm is ecdsa-with-SHA156
-        signature_algorithm = dict(layer1['signatureAlgorithm'])['algorithm']
+        signature_algorithm = dict(layer1["signatureAlgorithm"])["algorithm"]
         asserts.assert_equal(signature_algorithm, rfc5480.ecdsa_with_SHA256, "CSR specifies incorrect signature key algorithm")
 
         # Verify signature is valid
@@ -190,7 +190,8 @@ class TC_DA_1_5(MatterBaseTest):
 
         self.print_step(13, "Open commissioning window")
         params = await self.default_controller.OpenCommissioningWindow(
-            nodeId=self.dut_node_id, timeout=600, iteration=10000, discriminator=1234, option=1)
+            nodeId=self.dut_node_id, timeout=600, iteration=10000, discriminator=1234, option=1
+        )
 
         self.print_step(14, "Commission to TH2")
         new_certificate_authority = self.certificate_authority_manager.NewCertificateAuthority()
@@ -198,20 +199,23 @@ class TC_DA_1_5(MatterBaseTest):
         TH2 = new_fabric_admin.NewController(nodeId=112233)
 
         await TH2.CommissionOnNetwork(
-            nodeId=self.dut_node_id, setupPinCode=params.setupPinCode,
-            filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR, filter=1234)
+            nodeId=self.dut_node_id,
+            setupPinCode=params.setupPinCode,
+            filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
+            filter=1234,
+        )
 
         self.print_step(15, "Read NOCs list for TH1")
         temp = await self.read_single_attribute_check_success(
-            cluster=Clusters.OperationalCredentials,
-            attribute=Clusters.OperationalCredentials.Attributes.NOCs)
+            cluster=Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.NOCs
+        )
         asserts.assert_equal(len(temp), 1, "Returned NOC list does not contain one entry")
         th1_noc = temp[0].noc
 
         self.print_step(16, "Read NOCs list for TH2")
         temp = await self.read_single_attribute_check_success(
-            cluster=Clusters.OperationalCredentials,
-            attribute=Clusters.OperationalCredentials.Attributes.NOCs, dev_ctrl=TH2)
+            cluster=Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.NOCs, dev_ctrl=TH2
+        )
         asserts.assert_equal(len(temp), 1, "Returned NOC list does not contain one entry")
         th2_noc = temp[0].noc
 
@@ -226,8 +230,8 @@ class TC_DA_1_5(MatterBaseTest):
 
         self.print_step(17, "Read the fabric index for TH2")
         th2_idx = await self.read_single_attribute_check_success(
-            Clusters.OperationalCredentials,
-            attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex, dev_ctrl=TH2)
+            Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex, dev_ctrl=TH2
+        )
 
         self.print_step(18, "Remove TH2")
         await self.send_single_cmd(cmd=Clusters.OperationalCredentials.Commands.RemoveFabric(fabricIndex=th2_idx))

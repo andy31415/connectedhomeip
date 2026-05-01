@@ -21,43 +21,40 @@ import sys
 
 from helper.CHIPTestBase import CHIPVirtualHome
 
-logger = logging.getLogger('MobileDeviceTest')
+logger = logging.getLogger("MobileDeviceTest")
 logger.setLevel(logging.INFO)
 
 sh = logging.StreamHandler()
-sh.setFormatter(
-    logging.Formatter(
-        '%(asctime)s [%(name)s] %(levelname)s %(message)s'))
+sh.setFormatter(logging.Formatter("%(asctime)s [%(name)s] %(levelname)s %(message)s"))
 logger.addHandler(sh)
 
 CHIP_PORT = 5540
 
 CIRQUE_URL = "http://localhost:5000"
-CHIP_REPO = os.path.join(os.path.abspath(
-    os.path.dirname(__file__)), "..", "..", "..")
+CHIP_REPO = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "..", "..")
 TEST_EXTPANID = "fedcba9876543210"
 TEST_DISCRIMINATOR = 3840
 MATTER_DEVELOPMENT_PAA_ROOT_CERTS = "credentials/development/paa-root-certs"
 
 DEVICE_CONFIG = {
-    'device0': {
-        'type': 'MobileDevice',
-        'base_image': '@default',
-        'capability': ['TrafficControl', 'Mount'],
-        'rcp_mode': True,
-        'docker_network': 'Ipv6',
-        'traffic_control': {'latencyMs': 100},
+    "device0": {
+        "type": "MobileDevice",
+        "base_image": "@default",
+        "capability": ["TrafficControl", "Mount"],
+        "rcp_mode": True,
+        "docker_network": "Ipv6",
+        "traffic_control": {"latencyMs": 100},
         "mount_pairs": [[CHIP_REPO, CHIP_REPO]],
     },
-    'device1': {
-        'type': 'CHIPEndDevice',
-        'base_image': '@default',
-        'capability': ['Thread', 'TrafficControl', 'Mount'],
-        'rcp_mode': True,
-        'docker_network': 'Ipv6',
-        'traffic_control': {'latencyMs': 100},
+    "device1": {
+        "type": "CHIPEndDevice",
+        "base_image": "@default",
+        "capability": ["Thread", "TrafficControl", "Mount"],
+        "rcp_mode": True,
+        "docker_network": "Ipv6",
+        "traffic_control": {"latencyMs": 100},
         "mount_pairs": [[CHIP_REPO, CHIP_REPO]],
-    }
+    },
 }
 
 
@@ -73,40 +70,52 @@ class TestCommissioningFailure(CHIPVirtualHome):
         self.run_controller_test()
 
     def run_controller_test(self):
-        ethernet_ip = [device['description']['ipv6_addr'] for device in self.non_ap_devices
-                       if device['type'] == 'CHIPEndDevice'][0]
-        server_ids = [device['id'] for device in self.non_ap_devices
-                      if device['type'] == 'CHIPEndDevice']
-        req_ids = [device['id'] for device in self.non_ap_devices
-                   if device['type'] == 'MobileDevice']
+        ethernet_ip = [device["description"]["ipv6_addr"] for device in self.non_ap_devices if device["type"] == "CHIPEndDevice"][0]
+        server_ids = [device["id"] for device in self.non_ap_devices if device["type"] == "CHIPEndDevice"]
+        req_ids = [device["id"] for device in self.non_ap_devices if device["type"] == "MobileDevice"]
 
         for server in server_ids:
             self.execute_device_cmd(
                 server,
-                ("CHIPCirqueDaemon.py -- run gdb -return-child-result -q -ex \"set pagination off\" "
-                 "-ex run -ex \"bt 25\" --args {} --thread --discriminator {}").format(
-                    os.path.join(CHIP_REPO, "out/debug/standalone/chip-all-clusters-app"), TEST_DISCRIMINATOR))
+                (
+                    'CHIPCirqueDaemon.py -- run gdb -return-child-result -q -ex "set pagination off" '
+                    '-ex run -ex "bt 25" --args {} --thread --discriminator {}'
+                ).format(os.path.join(CHIP_REPO, "out/debug/standalone/chip-all-clusters-app"), TEST_DISCRIMINATOR),
+            )
 
         self.reset_thread_devices(server_ids)
 
         req_device_id = req_ids[0]
 
-        self.execute_device_cmd(req_device_id, "pip3 install --break-system-packages {}".format(os.path.join(
-            CHIP_REPO, "out/debug/linux_x64_gcc/controller/python/matter_clusters-1.0.0-py3-none-any.whl")))
-        self.execute_device_cmd(req_device_id, "pip3 install --break-system-packages {}".format(os.path.join(
-            CHIP_REPO, "out/debug/linux_x64_gcc/controller/python/matter_core-1.0.0-cp311-abi3-linux_x86_64.whl")))
-        self.execute_device_cmd(req_device_id, "pip3 install --break-system-packages {}".format(os.path.join(
-            CHIP_REPO, "out/debug/linux_x64_gcc/controller/python/matter_repl-1.0.0-py3-none-any.whl")))
+        self.execute_device_cmd(
+            req_device_id,
+            "pip3 install --break-system-packages {}".format(
+                os.path.join(CHIP_REPO, "out/debug/linux_x64_gcc/controller/python/matter_clusters-1.0.0-py3-none-any.whl")
+            ),
+        )
+        self.execute_device_cmd(
+            req_device_id,
+            "pip3 install --break-system-packages {}".format(
+                os.path.join(CHIP_REPO, "out/debug/linux_x64_gcc/controller/python/matter_core-1.0.0-cp311-abi3-linux_x86_64.whl")
+            ),
+        )
+        self.execute_device_cmd(
+            req_device_id,
+            "pip3 install --break-system-packages {}".format(
+                os.path.join(CHIP_REPO, "out/debug/linux_x64_gcc/controller/python/matter_repl-1.0.0-py3-none-any.whl")
+            ),
+        )
 
-        command = ("gdb -return-child-result -q -ex run -ex bt --args python3 "
-                   "{} -t 150 -a {} --paa-trust-store-path {} --fail-on-report").format(
-            os.path.join(
-                CHIP_REPO, "src/controller/python/tests/scripts/commissioning_failure_test.py"),
-            ethernet_ip, os.path.join(CHIP_REPO, MATTER_DEVELOPMENT_PAA_ROOT_CERTS))
+        command = (
+            "gdb -return-child-result -q -ex run -ex bt --args python3 {} -t 150 -a {} --paa-trust-store-path {} --fail-on-report"
+        ).format(
+            os.path.join(CHIP_REPO, "src/controller/python/tests/scripts/commissioning_failure_test.py"),
+            ethernet_ip,
+            os.path.join(CHIP_REPO, MATTER_DEVELOPMENT_PAA_ROOT_CERTS),
+        )
         ret = self.execute_device_cmd(req_device_id, command)
 
-        self.assertEqual(ret['return_code'], '0',
-                         "Test failed: non-zero return code")
+        self.assertEqual(ret["return_code"], "0", "Test failed: non-zero return code")
 
 
 if __name__ == "__main__":

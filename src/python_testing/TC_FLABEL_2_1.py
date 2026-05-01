@@ -50,7 +50,7 @@ class Test_TC_FLABEL_2_1(MatterBaseTest):
             TestStep(1, "Commission DUT to TH", is_commissioning=True),
             TestStep(2, "TH reads LabelList from the DUT", "Read is successful"),
             TestStep(3, "TH tries to write LabelList attribute", "Write fails with UNSUPPORTED_WRITE"),
-            TestStep(4, "Verify LabelList hasn't changed", "LabelList matches initial read")
+            TestStep(4, "Verify LabelList hasn't changed", "LabelList matches initial read"),
         ]
 
     def desc_TC_FLABEL_2_1(self) -> str:
@@ -64,49 +64,36 @@ class Test_TC_FLABEL_2_1(MatterBaseTest):
         # Step 2: Read LabelList attribute
         self.step(2)
         initial_labels = await self.read_single_attribute_check_success(
-            cluster=Clusters.Objects.FixedLabel,
-            attribute=Clusters.Objects.FixedLabel.Attributes.LabelList
+            cluster=Clusters.Objects.FixedLabel, attribute=Clusters.Objects.FixedLabel.Attributes.LabelList
         )
         asserts.assert_true(isinstance(initial_labels, list), "LabelList should be a list type")
 
         # Verify each label in the list meets the requirements
         for label_struct in initial_labels:
             # Verify label field
-            asserts.assert_true(isinstance(label_struct.label, str),
-                                "Label field must be a string")
-            asserts.assert_true(len(label_struct.label.encode('utf-8')) <= 16,
-                                f"Label '{label_struct.label}' exceeds 16 bytes")
+            asserts.assert_true(isinstance(label_struct.label, str), "Label field must be a string")
+            asserts.assert_true(len(label_struct.label.encode("utf-8")) <= 16, f"Label '{label_struct.label}' exceeds 16 bytes")
 
             # Verify value field
-            asserts.assert_true(isinstance(label_struct.value, str),
-                                "Value field must be a string")
-            asserts.assert_true(len(label_struct.value.encode('utf-8')) <= 16,
-                                f"Value '{label_struct.value}' exceeds 16 bytes")
+            asserts.assert_true(isinstance(label_struct.value, str), "Value field must be a string")
+            asserts.assert_true(len(label_struct.value.encode("utf-8")) <= 16, f"Value '{label_struct.value}' exceeds 16 bytes")
 
         # Step 3: Attempt to write LabelList (should fail)
         self.step(3)
         test_label = Clusters.Objects.FixedLabel.Attributes.LabelList(
-            [Clusters.Objects.FixedLabel.Structs.LabelStruct(
-                label="Test_Label",
-                value="Test_Value"
-            )]
+            [Clusters.Objects.FixedLabel.Structs.LabelStruct(label="Test_Label", value="Test_Value")]
         )
 
         # Use write_single_attribute with expect_success=False since we expect it to fail
-        write_status = await self.write_single_attribute(
-            attribute_value=test_label,
-            expect_success=False
-        )
+        write_status = await self.write_single_attribute(attribute_value=test_label, expect_success=False)
         asserts.assert_equal(write_status, Status.UnsupportedWrite, "Expected UNSUPPORTED_WRITE status")
 
         # Step 4: Verify LabelList hasn't changed
         self.step(4)
         final_labels = await self.read_single_attribute_check_success(
-            cluster=Clusters.Objects.FixedLabel,
-            attribute=Clusters.Objects.FixedLabel.Attributes.LabelList
+            cluster=Clusters.Objects.FixedLabel, attribute=Clusters.Objects.FixedLabel.Attributes.LabelList
         )
-        asserts.assert_equal(initial_labels, final_labels,
-                             "LabelList should remain unchanged after write attempt")
+        asserts.assert_equal(initial_labels, final_labels, "LabelList should remain unchanged after write attempt")
 
 
 if __name__ == "__main__":

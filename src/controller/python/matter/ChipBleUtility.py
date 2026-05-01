@@ -50,17 +50,7 @@ def VoidPtrToUUIDString(ptr, len):
     try:
         ptr = ChipUtility.VoidPtrToByteArray(ptr, len)
         ptr = ChipUtility.Hexlify(ptr)
-        ptr = (
-            ptr[:8]
-            + "-"
-            + ptr[8:12]
-            + "-"
-            + ptr[12:16]
-            + "-"
-            + ptr[16:20]
-            + "-"
-            + ptr[20:]
-        )
+        ptr = ptr[:8] + "-" + ptr[8:12] + "-" + ptr[12:16] + "-" + ptr[16:20] + "-" + ptr[20:]
         ptr = str(ptr)
     except Exception:
         print("ERROR: failed to convert void * to UUID")
@@ -88,10 +78,7 @@ class BleTxEvent:
         self.Status = status
 
     def Print(self, prefix=""):
-        print(
-            "%sBleEvent Type: %s"
-            % (prefix, ("TX" if self.EventType == BLE_EVENT_TYPE_TX else "ERROR"))
-        )
+        print("%sBleEvent Type: %s" % (prefix, ("TX" if self.EventType == BLE_EVENT_TYPE_TX else "ERROR")))
         print("%sStatus: %s" % (prefix, str(self.Status)))
 
         if self.SvcId:
@@ -123,10 +110,7 @@ class BleDisconnectEvent:
         self.Error = error
 
     def Print(self, prefix=""):
-        print(
-            "%sBleEvent Type: %s"
-            % (prefix, ("DC" if self.EventType == BLE_EVENT_TYPE_DISCONNECT else "ERROR"))
-        )
+        print("%sBleEvent Type: %s" % (prefix, ("DC" if self.EventType == BLE_EVENT_TYPE_DISCONNECT else "ERROR")))
         print("%sError: %s" % (prefix, str(self.Error)))
 
     def SetField(self, name, val):
@@ -148,10 +132,7 @@ class BleRxEvent:
         self.Buffer = buffer
 
     def Print(self, prefix=""):
-        print(
-            "%sBleEvent Type: %s"
-            % (prefix, ("RX" if self.EventType == BLE_EVENT_TYPE_RX else "ERROR"))
-        )
+        print("%sBleEvent Type: %s" % (prefix, ("RX" if self.EventType == BLE_EVENT_TYPE_RX else "ERROR")))
         if self.Buffer:
             print("%sBuffer:" % (prefix))
             print(ChipUtility.Hexlify(self.Buffer))
@@ -198,8 +179,7 @@ class BleSubscribeEvent:
             "%sBleEvent Type: %s"
             % (
                 prefix,
-                ("SUBSCRIBE" if self.EventType ==
-                 BLE_EVENT_TYPE_SUBSCRIBE else "ERROR"),
+                ("SUBSCRIBE" if self.EventType == BLE_EVENT_TYPE_SUBSCRIBE else "ERROR"),
             )
         )
         print("%sStatus: %s" % (prefix, str(self.Status)))
@@ -207,11 +187,7 @@ class BleSubscribeEvent:
             "%sOperation: %s"
             % (
                 prefix,
-                (
-                    "UNSUBSCRIBE"
-                    if self.Operation == BLE_SUBSCRIBE_OPERATION_UNSUBSCRIBE
-                    else "SUBSCRIBE"
-                ),
+                ("UNSUBSCRIBE" if self.Operation == BLE_SUBSCRIBE_OPERATION_UNSUBSCRIBE else "SUBSCRIBE"),
             )
         )
 
@@ -261,10 +237,8 @@ class BleTxEventStruct(Structure):
         bleTxEventStruct = cls()
         bleTxEventStruct.EventType = bleTxEvent.EventType
         bleTxEventStruct.ConnObj = c_void_p(FAKE_CONN_OBJ_VALUE)
-        bleTxEventStruct.SvcId = ChipUtility.ByteArrayToVoidPtr(
-            bleTxEvent.SvcId)
-        bleTxEventStruct.CharId = ChipUtility.ByteArrayToVoidPtr(
-            bleTxEvent.CharId)
+        bleTxEventStruct.SvcId = ChipUtility.ByteArrayToVoidPtr(bleTxEvent.SvcId)
+        bleTxEventStruct.CharId = ChipUtility.ByteArrayToVoidPtr(bleTxEvent.CharId)
         bleTxEventStruct.Status = bleTxEvent.Status
         return bleTxEventStruct
 
@@ -312,15 +286,10 @@ class BleRxEventStruct(Structure):
         bleRxEventStruct = cls()
         bleRxEventStruct.EventType = bleRxEvent.EventType
         bleRxEventStruct.ConnObj = c_void_p(FAKE_CONN_OBJ_VALUE)
-        bleRxEventStruct.SvcId = ChipUtility.ByteArrayToVoidPtr(
-            bleRxEvent.SvcId)
-        bleRxEventStruct.CharId = ChipUtility.ByteArrayToVoidPtr(
-            bleRxEvent.CharId)
-        bleRxEventStruct.Buffer = ChipUtility.ByteArrayToVoidPtr(
-            bleRxEvent.Buffer)
-        bleRxEventStruct.Length = (
-            len(bleRxEvent.Buffer) if (bleRxEvent.Buffer is not None) else 0
-        )
+        bleRxEventStruct.SvcId = ChipUtility.ByteArrayToVoidPtr(bleRxEvent.SvcId)
+        bleRxEventStruct.CharId = ChipUtility.ByteArrayToVoidPtr(bleRxEvent.CharId)
+        bleRxEventStruct.Buffer = ChipUtility.ByteArrayToVoidPtr(bleRxEvent.Buffer)
+        bleRxEventStruct.Length = len(bleRxEvent.Buffer) if (bleRxEvent.Buffer is not None) else 0
         return bleRxEventStruct
 
 
@@ -348,12 +317,8 @@ class BleSubscribeEventStruct(Structure):
         bleSubscribeEventStruct = cls()
         bleSubscribeEventStruct.EventType = bleSubscribeEvent.EventType
         bleSubscribeEventStruct.ConnObj = c_void_p(FAKE_CONN_OBJ_VALUE)
-        bleSubscribeEventStruct.SvcId = ChipUtility.ByteArrayToVoidPtr(
-            bleSubscribeEvent.SvcId
-        )
-        bleSubscribeEventStruct.CharId = ChipUtility.ByteArrayToVoidPtr(
-            bleSubscribeEvent.CharId
-        )
+        bleSubscribeEventStruct.SvcId = ChipUtility.ByteArrayToVoidPtr(bleSubscribeEvent.SvcId)
+        bleSubscribeEventStruct.CharId = ChipUtility.ByteArrayToVoidPtr(bleSubscribeEvent.CharId)
         bleSubscribeEventStruct.Operation = bleSubscribeEvent.Operation
         bleSubscribeEventStruct.Status = bleSubscribeEvent.Status
         return bleSubscribeEventStruct
@@ -372,7 +337,7 @@ def ParseServiceData(data):
         return None
     return BleDeviceIdentificationInfo(
         int(data[0]),
-        int.from_bytes(data[1:3], byteorder='little'),
-        int.from_bytes(data[3:5], byteorder='little'),
-        int.from_bytes(data[5:7], byteorder='little'),
+        int.from_bytes(data[1:3], byteorder="little"),
+        int.from_bytes(data[3:5], byteorder="little"),
+        int.from_bytes(data[5:7], byteorder="little"),
     )

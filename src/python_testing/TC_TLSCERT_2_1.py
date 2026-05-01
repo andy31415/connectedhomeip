@@ -54,8 +54,11 @@ class TC_TLSCERT_2_1(TC_TLSCERT_Base):
             TestStep(2, "TH reads MaxRootCertificates attribute", "DUT replies with an uint8 value between 5 and 254."),
             TestStep(3, "TH reads ProvisionedRootCertificates attribute", "DUT replies with an empty list of TLSCertStruct."),
             TestStep(4, "TH reads MaxClientCertificates attribute", "DUT replies with an uint8 value between 2 and 254."),
-            TestStep(5, "TH reads ProvisionedClientCertificates attribute",
-                     "DUT replies with an empty list of TLSClientCertificateDetailStruct."),
+            TestStep(
+                5,
+                "TH reads ProvisionedClientCertificates attribute",
+                "DUT replies with an empty list of TLSClientCertificateDetailStruct.",
+            ),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.TlsCertificateManagement))

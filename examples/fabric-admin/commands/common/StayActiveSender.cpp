@@ -40,9 +40,8 @@ CHIP_ERROR StayActiveSender::SendStayActiveCommand(uint32_t stayActiveDurationMs
 StayActiveSender::StayActiveSender(const ConstructorOnlyInternallyCallable & _, uint32_t stayActiveDurationMs,
                                    const chip::ScopedNodeId & peerNode, chip::app::InteractionModelEngine * engine,
                                    OnDoneCallbackType onDone) :
-    mStayActiveDurationMs(stayActiveDurationMs),
-    mPeerNode(peerNode), mpImEngine(engine), mOnDone(onDone), mOnConnectedCallback(HandleDeviceConnected, this),
-    mOnConnectionFailureCallback(HandleDeviceConnectionFailure, this)
+    mStayActiveDurationMs(stayActiveDurationMs), mPeerNode(peerNode), mpImEngine(engine), mOnDone(onDone),
+    mOnConnectedCallback(HandleDeviceConnected, this), mOnConnectionFailureCallback(HandleDeviceConnectionFailure, this)
 {}
 
 CHIP_ERROR StayActiveSender::SendStayActiveCommand(chip::Messaging::ExchangeManager & exchangeMgr,

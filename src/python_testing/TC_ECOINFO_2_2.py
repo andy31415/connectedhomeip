@@ -78,7 +78,6 @@ _DEVICE_TYPE_AGGREGATOR = 0x000E
 
 
 class TC_ECOINFO_2_2(MatterBaseTest):
-
     def setup_class(self):
         super().setup_class()
 
@@ -118,9 +117,7 @@ class TC_ECOINFO_2_2(MatterBaseTest):
         log.info("Temporary storage directory: %s", self.storage.name)
 
         self.th_server_port = 5544
-        self.th_server_setup_params = SetupParameters(
-            discriminator=random.randint(0, 4095),
-            passcode=20202021)
+        self.th_server_setup_params = SetupParameters(discriminator=random.randint(0, 4095), passcode=20202021)
         self.th_server_passcode = 20202021
 
         # Start the server app.
@@ -129,10 +126,9 @@ class TC_ECOINFO_2_2(MatterBaseTest):
             storage_dir=self.storage.name,
             port=self.th_server_port,
             discriminator=self.th_server_setup_params.discriminator,
-            passcode=self.th_server_setup_params.passcode)
-        self.th_server.start(
-            expected_output="Server initialization complete",
-            timeout=30)
+            passcode=self.th_server_setup_params.passcode,
+        )
+        self.th_server.start(expected_output="Server initialization complete", timeout=30)
 
     def steps_TC_ECOINFO_2_2(self) -> list[TestStep]:
         return [
@@ -143,20 +139,28 @@ class TC_ECOINFO_2_2(MatterBaseTest):
             TestStep(2, "Add a bridged device"),
             TestStep("2a", "(Manual Step) Add a bridged device using method indicated by the manufacturer"),
             TestStep("2b", "Read root endpoint's PartsList, validate exactly one endpoint added"),
-            TestStep("2c", "On newly added endpoint detected in 2b read DeviceDirectory Ecosystem Information Attribute and validate success"),
-            TestStep("2d", "On newly added endpoint detected in 2b read LocationDirectory Ecosystem Information Attribute and validate success"),
+            TestStep(
+                "2c",
+                "On newly added endpoint detected in 2b read DeviceDirectory Ecosystem Information Attribute and validate success",
+            ),
+            TestStep(
+                "2d",
+                "On newly added endpoint detected in 2b read LocationDirectory Ecosystem Information Attribute and validate success",
+            ),
             TestStep(3, "Remove bridged device"),
             TestStep("3a", "(Manual Step) Removed bridged device added in step 2a using method indicated by the manufacturer"),
             TestStep("3b", "Verify that PartsList equals what was read in 1a"),
             TestStep("3c", "On endpoint detected in 2b, read DeviceDirectory Ecosystem Information Attribute and validate failure"),
-            TestStep("3d", "On endpoint detected in 2b, read LocationDirectory Ecosystem Information Attribute and validate failure"),
+            TestStep(
+                "3d", "On endpoint detected in 2b, read LocationDirectory Ecosystem Information Attribute and validate failure"
+            ),
         ]
 
     # This test has some manual steps, so we need a longer timeout. Test typically runs under 1 mins so 3 mins should
     # be enough time for test to run
     @property
     def default_timeout(self) -> int:
-        return 3*60
+        return 3 * 60
 
     @async_test_body
     async def test_TC_ECOINFO_2_2(self):
@@ -172,11 +176,14 @@ class TC_ECOINFO_2_2(MatterBaseTest):
         root_part_list = await dev_ctrl.ReadAttribute(dut_node_id, [(root_node_endpoint, Clusters.Descriptor.Attributes.PartsList)])
 
         self.step("1b")
-        set_of_endpoints_step_1 = set(root_part_list[root_node_endpoint]
-                                      [Clusters.Descriptor][Clusters.Descriptor.Attributes.PartsList])
+        set_of_endpoints_step_1 = set(
+            root_part_list[root_node_endpoint][Clusters.Descriptor][Clusters.Descriptor.Attributes.PartsList]
+        )
         list_of_aggregator_endpoints = []
         for endpoint in set_of_endpoints_step_1:
-            device_type_list_read = await dev_ctrl.ReadAttribute(dut_node_id, [(endpoint, Clusters.Descriptor.Attributes.DeviceTypeList)])
+            device_type_list_read = await dev_ctrl.ReadAttribute(
+                dut_node_id, [(endpoint, Clusters.Descriptor.Attributes.DeviceTypeList)]
+            )
             device_type_list = device_type_list_read[endpoint][Clusters.Descriptor][Clusters.Descriptor.Attributes.DeviceTypeList]
             for device_type in device_type_list:
                 if device_type.deviceType == _DEVICE_TYPE_AGGREGATOR:
@@ -200,9 +207,12 @@ class TC_ECOINFO_2_2(MatterBaseTest):
             await asyncio.sleep(5)
 
         self.step("2b")
-        root_part_list_step_2 = await dev_ctrl.ReadAttribute(dut_node_id, [(root_node_endpoint, Clusters.Descriptor.Attributes.PartsList)])
+        root_part_list_step_2 = await dev_ctrl.ReadAttribute(
+            dut_node_id, [(root_node_endpoint, Clusters.Descriptor.Attributes.PartsList)]
+        )
         set_of_endpoints_step_2 = set(
-            root_part_list_step_2[root_node_endpoint][Clusters.Descriptor][Clusters.Descriptor.Attributes.PartsList])
+            root_part_list_step_2[root_node_endpoint][Clusters.Descriptor][Clusters.Descriptor.Attributes.PartsList]
+        )
 
         asserts.assert_true(set_of_endpoints_step_2.issuperset(set_of_endpoints_step_1), "Expected only new endpoints to be added")
         unique_endpoints_set = set_of_endpoints_step_2 - set_of_endpoints_step_1
@@ -216,7 +226,8 @@ class TC_ECOINFO_2_2(MatterBaseTest):
             endpoint=newly_added_endpoint,
             cluster=Clusters.EcosystemInformation,
             attribute=Clusters.EcosystemInformation.Attributes.DeviceDirectory,
-            fabric_filtered=False)
+            fabric_filtered=False,
+        )
 
         self.step("2d")
         await self.read_single_attribute_check_success(
@@ -225,7 +236,8 @@ class TC_ECOINFO_2_2(MatterBaseTest):
             endpoint=newly_added_endpoint,
             cluster=Clusters.EcosystemInformation,
             attribute=Clusters.EcosystemInformation.Attributes.LocationDirectory,
-            fabric_filtered=False)
+            fabric_filtered=False,
+        )
 
         self.step(3)
         self.step("3a")
@@ -243,12 +255,18 @@ class TC_ECOINFO_2_2(MatterBaseTest):
             await asyncio.sleep(2)
 
         self.step("3b")
-        root_part_list_step_3 = await dev_ctrl.ReadAttribute(dut_node_id, [(root_node_endpoint, Clusters.Descriptor.Attributes.PartsList)])
+        root_part_list_step_3 = await dev_ctrl.ReadAttribute(
+            dut_node_id, [(root_node_endpoint, Clusters.Descriptor.Attributes.PartsList)]
+        )
         set_of_endpoints_step_3 = set(
-            root_part_list_step_3[root_node_endpoint][Clusters.Descriptor][Clusters.Descriptor.Attributes.PartsList])
+            root_part_list_step_3[root_node_endpoint][Clusters.Descriptor][Clusters.Descriptor.Attributes.PartsList]
+        )
 
-        asserts.assert_equal(set_of_endpoints_step_3, set_of_endpoints_step_1,
-                             "Expected set of endpoints after removal to be identical to when test started")
+        asserts.assert_equal(
+            set_of_endpoints_step_3,
+            set_of_endpoints_step_1,
+            "Expected set of endpoints after removal to be identical to when test started",
+        )
 
         self.step("3c")
         newly_added_endpoint = list(unique_endpoints_set)[0]
@@ -259,7 +277,8 @@ class TC_ECOINFO_2_2(MatterBaseTest):
             endpoint=newly_added_endpoint,
             cluster=Clusters.EcosystemInformation,
             attribute=Clusters.EcosystemInformation.Attributes.DeviceDirectory,
-            fabric_filtered=False)
+            fabric_filtered=False,
+        )
 
         self.step("3d")
         await self.read_single_attribute_expect_error(
@@ -269,7 +288,8 @@ class TC_ECOINFO_2_2(MatterBaseTest):
             endpoint=newly_added_endpoint,
             cluster=Clusters.EcosystemInformation,
             attribute=Clusters.EcosystemInformation.Attributes.LocationDirectory,
-            fabric_filtered=False)
+            fabric_filtered=False,
+        )
 
 
 if __name__ == "__main__":

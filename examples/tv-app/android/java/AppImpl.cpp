@@ -431,8 +431,8 @@ void refreshConnectedClientsAcl(uint16_t vendorId, uint16_t productId, ContentAp
 
         std::shared_ptr<DevicePairedCommand> pairingCommand = std::make_shared<DevicePairedCommand>(vendorId, productId, nodeId);
 
-        TEMPORARY_RETURN_IGNORED GetDeviceCommissioner()->GetConnectedDevice(nodeId, &pairingCommand->mOnDeviceConnectedCallback,
-                                                                             &pairingCommand->mOnDeviceConnectionFailureCallback);
+        TEMPORARY_RETURN_IGNORED GetDeviceCommissioner() -> GetConnectedDevice(nodeId, &pairingCommand->mOnDeviceConnectedCallback,
+                                                                               &pairingCommand->mOnDeviceConnectionFailureCallback);
     }
 }
 

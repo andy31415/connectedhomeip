@@ -81,9 +81,7 @@ public:
 
 private:
     // ExchangeDelegate implementation.
-    void OnResponseTimeout(Messaging::ExchangeContext *) override
-    { /* We just want to allow the exchange to close */
-    }
+    void OnResponseTimeout(Messaging::ExchangeContext *) override { /* We just want to allow the exchange to close */ }
     void OnExchangeClosing(Messaging::ExchangeContext * aExchangeContext) override;
 
     void CancelTimer();

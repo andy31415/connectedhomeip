@@ -75,15 +75,36 @@ class TC_OCC_2_3(MatterBaseTest):
         return [
             TestStep(1, "Commission DUT to TH", is_commissioning=True),
             TestStep(2, "TH reads the FeatureMap attribute on the endpoint for use in later steps."),
-            TestStep(3, "TH checks DUT HoldTime attribute support in the AttributeList attribute. If DUT doesn't support HoldTime attribute, skip the rest of this test case."),
+            TestStep(
+                3,
+                "TH checks DUT HoldTime attribute support in the AttributeList attribute. If DUT doesn't support HoldTime attribute, skip the rest of this test case.",
+            ),
             TestStep(4, "TH writes DUT HoldTime attribute with HoldTimeMin and afterwards reads the attribute."),
             TestStep(5, "TH writes DUT HoldTime attribute with HoldTimeMax and afterwards reads the attribute."),
-            TestStep("6a", "If DUT FeatureMap has PIR or (!PIR & !US & !PHY), and PIROccupiedToUnoccupiedDelay is supported, then TH writes HoldTimeMin to DUT's HoldTime attribute, otherwise skip 6a, 6b."),
-            TestStep("6b", "TH writes DUT's PIROccupiedToUnoccupiedDelay attribute with HoldTimeMax, then TH reads DUT's PIROccupiedToUnoccupiedDelay and HoldTime attributes."),
-            TestStep("7a", "If DUT FeatureMap has US, and UltrasonicOccupiedToUnoccupiedDelay is supported, then TH writes HoldTimeMin to DUT's HoldTime attribute, otherwise skip 7a, 7b."),
-            TestStep("7b", "TH writes DUT UltrasonicOccupiedToUnoccupiedDelay attribute with HoldTimeMax, then TH reads DUT UltrasonicOccupiedToUnoccupiedDelay and HoldTime attributes."),
-            TestStep("8a", "If DUT FeatureMap has PHY, and PhysicalContactOccupiedToUnoccupiedDelay is supported, then TH writes HoldTimeMin to HoldTime attribute, otherwise skip 8a, 8b."),
-            TestStep("8b", "TH writes DUT PhysicalContactOccupiedToUnoccupiedDelay attribute with HoldTimeMax, then TH reads DUT PhysicalContactOccupiedToUnoccupiedDelay and HoldTime attributes."),
+            TestStep(
+                "6a",
+                "If DUT FeatureMap has PIR or (!PIR & !US & !PHY), and PIROccupiedToUnoccupiedDelay is supported, then TH writes HoldTimeMin to DUT's HoldTime attribute, otherwise skip 6a, 6b.",
+            ),
+            TestStep(
+                "6b",
+                "TH writes DUT's PIROccupiedToUnoccupiedDelay attribute with HoldTimeMax, then TH reads DUT's PIROccupiedToUnoccupiedDelay and HoldTime attributes.",
+            ),
+            TestStep(
+                "7a",
+                "If DUT FeatureMap has US, and UltrasonicOccupiedToUnoccupiedDelay is supported, then TH writes HoldTimeMin to DUT's HoldTime attribute, otherwise skip 7a, 7b.",
+            ),
+            TestStep(
+                "7b",
+                "TH writes DUT UltrasonicOccupiedToUnoccupiedDelay attribute with HoldTimeMax, then TH reads DUT UltrasonicOccupiedToUnoccupiedDelay and HoldTime attributes.",
+            ),
+            TestStep(
+                "8a",
+                "If DUT FeatureMap has PHY, and PhysicalContactOccupiedToUnoccupiedDelay is supported, then TH writes HoldTimeMin to HoldTime attribute, otherwise skip 8a, 8b.",
+            ),
+            TestStep(
+                "8b",
+                "TH writes DUT PhysicalContactOccupiedToUnoccupiedDelay attribute with HoldTimeMax, then TH reads DUT PhysicalContactOccupiedToUnoccupiedDelay and HoldTime attributes.",
+            ),
         ]
 
     def pics_TC_OCC_2_3(self) -> list[str]:
@@ -93,7 +114,6 @@ class TC_OCC_2_3(MatterBaseTest):
 
     @async_test_body
     async def test_TC_OCC_2_3(self):
-
         cluster = Clusters.Objects.OccupancySensing
         attributes = cluster.Attributes
 
@@ -105,10 +125,9 @@ class TC_OCC_2_3(MatterBaseTest):
         has_feature_pir = (feature_map & cluster.Bitmaps.Feature.kPassiveInfrared) != 0
         has_feature_ultrasonic = (feature_map & cluster.Bitmaps.Feature.kUltrasonic) != 0
         has_feature_contact = (feature_map & cluster.Bitmaps.Feature.kPhysicalContact) != 0
-        has_no_legacy_features = ((not has_feature_pir) and (not has_feature_ultrasonic) and (not has_feature_contact))
+        has_no_legacy_features = (not has_feature_pir) and (not has_feature_ultrasonic) and (not has_feature_contact)
 
-        log.info(
-            f"Feature map: 0x{feature_map:x}. PIR: {has_feature_pir}, US:{has_feature_ultrasonic}, PHY:{has_feature_contact}")
+        log.info(f"Feature map: 0x{feature_map:x}. PIR: {has_feature_pir}, US:{has_feature_ultrasonic}, PHY:{has_feature_contact}")
 
         self.step(3)
         attribute_list = await self.read_occ_attribute_expect_success(attribute=attributes.AttributeList)
@@ -132,24 +151,31 @@ class TC_OCC_2_3(MatterBaseTest):
         asserts.assert_equal(holdtime_dut, hold_time_limits_dut.holdTimeMax, "HoldTimeMax to HoldTime writing failure")
 
         has_pir_timing_attrib = attributes.PIROccupiedToUnoccupiedDelay.attribute_id in attribute_list
-        has_no_legacy_features = ((not has_feature_pir) and (not has_feature_ultrasonic) and (not has_feature_contact))
+        has_no_legacy_features = (not has_feature_pir) and (not has_feature_ultrasonic) and (not has_feature_contact)
 
         if (has_feature_pir or has_no_legacy_features) and has_pir_timing_attrib:
             self.step("6a")
             await self.write_single_attribute(attributes.HoldTime(hold_time_limits_dut.holdTimeMin))
             holdtime_dut = await self.read_occ_attribute_expect_success(attribute=attributes.HoldTime)
-            occupancy_pir_otou_delay_dut = await self.read_occ_attribute_expect_success(attribute=attributes.PIROccupiedToUnoccupiedDelay)
-            asserts.assert_equal(occupancy_pir_otou_delay_dut, holdtime_dut,
-                                 "PIROccupiedToUnoccupiedDelay has a different value from HoldTime.")
+            occupancy_pir_otou_delay_dut = await self.read_occ_attribute_expect_success(
+                attribute=attributes.PIROccupiedToUnoccupiedDelay
+            )
+            asserts.assert_equal(
+                occupancy_pir_otou_delay_dut, holdtime_dut, "PIROccupiedToUnoccupiedDelay has a different value from HoldTime."
+            )
 
             self.step("6b")
             # perform reverse
             await self.write_single_attribute(attributes.PIROccupiedToUnoccupiedDelay(hold_time_limits_dut.holdTimeMax))
             occupancy_pir_otou_delay_dut = await self.read_occ_attribute_expect_success(
-                attribute=attributes.PIROccupiedToUnoccupiedDelay)
+                attribute=attributes.PIROccupiedToUnoccupiedDelay
+            )
             holdtime_dut = await self.read_occ_attribute_expect_success(attribute=attributes.HoldTime)
-            asserts.assert_equal(occupancy_pir_otou_delay_dut, holdtime_dut,
-                                 "PIROccupiedToUnoccupiedDelay has a different value from HoldTime in reverse testing.")
+            asserts.assert_equal(
+                occupancy_pir_otou_delay_dut,
+                holdtime_dut,
+                "PIROccupiedToUnoccupiedDelay has a different value from HoldTime in reverse testing.",
+            )
             # self.mark_all_remaining_steps_skipped("7a")
         else:
             self.skip_step("6a")
@@ -160,19 +186,27 @@ class TC_OCC_2_3(MatterBaseTest):
             self.step("7a")
             await self.write_single_attribute(attributes.HoldTime(hold_time_limits_dut.holdTimeMin))
             holdtime_dut = await self.read_occ_attribute_expect_success(attribute=attributes.HoldTime)
-            occupancy_us_otou_delay_dut = await self.read_occ_attribute_expect_success(attribute=attributes.UltrasonicOccupiedToUnoccupiedDelay)
-            asserts.assert_equal(occupancy_us_otou_delay_dut, holdtime_dut,
-                                 "UltrasonicOccupiedToUnoccupiedDelay has a different value from HoldTime.")
+            occupancy_us_otou_delay_dut = await self.read_occ_attribute_expect_success(
+                attribute=attributes.UltrasonicOccupiedToUnoccupiedDelay
+            )
+            asserts.assert_equal(
+                occupancy_us_otou_delay_dut,
+                holdtime_dut,
+                "UltrasonicOccupiedToUnoccupiedDelay has a different value from HoldTime.",
+            )
 
             self.step("7b")
             # perform reverse
-            await self.write_single_attribute(
-                attributes.UltrasonicOccupiedToUnoccupiedDelay(hold_time_limits_dut.holdTimeMax))
+            await self.write_single_attribute(attributes.UltrasonicOccupiedToUnoccupiedDelay(hold_time_limits_dut.holdTimeMax))
             occupancy_us_otou_delay_dut = await self.read_occ_attribute_expect_success(
-                attribute=attributes.UltrasonicOccupiedToUnoccupiedDelay)
+                attribute=attributes.UltrasonicOccupiedToUnoccupiedDelay
+            )
             holdtime_dut = await self.read_occ_attribute_expect_success(attribute=attributes.HoldTime)
-            asserts.assert_equal(occupancy_us_otou_delay_dut, holdtime_dut,
-                                 "UltrasonicOccupiedToUnoccupiedDelay has a different value from HoldTime in reverse testing.")
+            asserts.assert_equal(
+                occupancy_us_otou_delay_dut,
+                holdtime_dut,
+                "UltrasonicOccupiedToUnoccupiedDelay has a different value from HoldTime in reverse testing.",
+            )
         else:
             self.skip_step("7a")
             self.skip_step("7b")
@@ -182,19 +216,27 @@ class TC_OCC_2_3(MatterBaseTest):
             self.step("8a")
             await self.write_single_attribute(attributes.HoldTime(hold_time_limits_dut.holdTimeMin))
             holdtime_dut = await self.read_occ_attribute_expect_success(attribute=attributes.HoldTime)
-            occupancy_phy_otou_delay_dut = await self.read_occ_attribute_expect_success(attribute=attributes.PhysicalContactOccupiedToUnoccupiedDelay)
-            asserts.assert_equal(occupancy_phy_otou_delay_dut, holdtime_dut,
-                                 "PhysicalContactOccupiedToUnoccupiedDelay has a different value from HoldTime.")
+            occupancy_phy_otou_delay_dut = await self.read_occ_attribute_expect_success(
+                attribute=attributes.PhysicalContactOccupiedToUnoccupiedDelay
+            )
+            asserts.assert_equal(
+                occupancy_phy_otou_delay_dut,
+                holdtime_dut,
+                "PhysicalContactOccupiedToUnoccupiedDelay has a different value from HoldTime.",
+            )
 
             self.step("8b")
             # perform reverse
-            await self.write_single_attribute(
-                attributes.PhysicalContactOccupiedToUnoccupiedDelay(hold_time_limits_dut.holdTimeMin))
+            await self.write_single_attribute(attributes.PhysicalContactOccupiedToUnoccupiedDelay(hold_time_limits_dut.holdTimeMin))
             occupancy_phy_otou_delay_dut = await self.read_occ_attribute_expect_success(
-                attribute=attributes.PhysicalContactOccupiedToUnoccupiedDelay)
+                attribute=attributes.PhysicalContactOccupiedToUnoccupiedDelay
+            )
             holdtime_dut = await self.read_occ_attribute_expect_success(attribute=attributes.HoldTime)
-            asserts.assert_equal(occupancy_phy_otou_delay_dut, holdtime_dut,
-                                 "PhysicalContactOccupiedToUnoccupiedDelay has a different value from HoldTime in reverse testing.")
+            asserts.assert_equal(
+                occupancy_phy_otou_delay_dut,
+                holdtime_dut,
+                "PhysicalContactOccupiedToUnoccupiedDelay has a different value from HoldTime in reverse testing.",
+            )
         else:
             self.skip_step("8a")
             self.skip_step("8b")

@@ -33,23 +33,30 @@ class TC_CNET_4_15(MatterBaseTest):
     def steps_TC_CNET_4_15(self):
         return [
             TestStep("precondition", "DUT is commissioned", is_commissioning=True),
-            TestStep(1, 'TH sends ArmFailSafe command to the DUT with the ExpiryLengthSeconds field set to 900'),
-            TestStep(2, 'TH sends RemoveNetwork Command to the DUT with NetworkID field set to '
-                     'PIXIT.CNET.WIFI_2ND_ACCESSPOINT_SSID, which does not match the provisioned network, '
-                     'and Breadcrumb field set to 1'),
-            TestStep(3, 'TH sends ConnectNetwork Command to the DUT with NetworkID field set to '
-                     'PIXIT.CNET.WIFI_2ND_ACCESSPOINT_SSID, which does not match the provisioned network, '
-                     'and Breadcrumb field set to 1')
+            TestStep(1, "TH sends ArmFailSafe command to the DUT with the ExpiryLengthSeconds field set to 900"),
+            TestStep(
+                2,
+                "TH sends RemoveNetwork Command to the DUT with NetworkID field set to "
+                "PIXIT.CNET.WIFI_2ND_ACCESSPOINT_SSID, which does not match the provisioned network, "
+                "and Breadcrumb field set to 1",
+            ),
+            TestStep(
+                3,
+                "TH sends ConnectNetwork Command to the DUT with NetworkID field set to "
+                "PIXIT.CNET.WIFI_2ND_ACCESSPOINT_SSID, which does not match the provisioned network, "
+                "and Breadcrumb field set to 1",
+            ),
         ]
 
     def def_TC_CNET_4_15(self):
-        return '[TC-CNET-4.15] [Wi-Fi] NetworkIDNotFound returned in LastNetworkingStatus field validation [DUT-Server]'
+        return "[TC-CNET-4.15] [Wi-Fi] NetworkIDNotFound returned in LastNetworkingStatus field validation [DUT-Server]"
 
     def pics_TC_CNET_4_15(self):
-        return ['CNET.S.F00']
+        return ["CNET.S.F00"]
 
-    @run_if_endpoint_matches(has_feature(Clusters.NetworkCommissioning,
-                                         Clusters.NetworkCommissioning.Bitmaps.Feature.kWiFiNetworkInterface))
+    @run_if_endpoint_matches(
+        has_feature(Clusters.NetworkCommissioning, Clusters.NetworkCommissioning.Bitmaps.Feature.kWiFiNetworkInterface)
+    )
     async def test_TC_CNET_4_15(self):
         cnet = Clusters.NetworkCommissioning
 
@@ -59,18 +66,13 @@ class TC_CNET_4_15(MatterBaseTest):
         self.step(1)
         # TH sends ArmFailSafe command to the DUT with the ExpiryLengthSeconds field set to 900
         send_arm = await self.send_single_cmd(
-            Clusters.GeneralCommissioning.Commands.ArmFailSafe(
-                expiryLengthSeconds=900,
-                breadcrumb=0
-            )
+            Clusters.GeneralCommissioning.Commands.ArmFailSafe(expiryLengthSeconds=900, breadcrumb=0)
         )
         # Log response structure
         log.info(f"ArmFailSafe response: {send_arm}")
         # Verify that DUT sends ArmFailSafeResponse command with success status
         asserts.assert_equal(
-            send_arm.errorCode,
-            Clusters.GeneralCommissioning.Enums.CommissioningErrorEnum.kOk,
-            "ArmFailSafe command failed"
+            send_arm.errorCode, Clusters.GeneralCommissioning.Enums.CommissioningErrorEnum.kOk, "ArmFailSafe command failed"
         )
 
         self.step(2)
@@ -82,19 +84,11 @@ class TC_CNET_4_15(MatterBaseTest):
         log.info(f"Attempting to remove network with ID: {network_id}")
 
         read_networks = await self.read_single_attribute(
-            dev_ctrl=self.default_controller,
-            node_id=self.dut_node_id,
-            endpoint=0,
-            attribute=cnet.Attributes.Networks
+            dev_ctrl=self.default_controller, node_id=self.dut_node_id, endpoint=0, attribute=cnet.Attributes.Networks
         )
         log.info(f"Current networks on device: {read_networks}")
 
-        send_remove = await self.send_single_cmd(
-            cmd=cnet.Commands.RemoveNetwork(
-                networkID=network_id,
-                breadcrumb=1
-            )
-        )
+        send_remove = await self.send_single_cmd(cmd=cnet.Commands.RemoveNetwork(networkID=network_id, breadcrumb=1))
         # Log complete response object structure for debugging
         log.info(f"RemoveNetwork complete response object: {vars(send_remove)}")
 
@@ -102,18 +96,13 @@ class TC_CNET_4_15(MatterBaseTest):
         asserts.assert_equal(
             send_remove.networkingStatus,
             cnet.Enums.NetworkCommissioningStatusEnum.kNetworkIDNotFound,
-            f"Expected NetworkIDNotFound status for network ID {network_id}"
+            f"Expected NetworkIDNotFound status for network ID {network_id}",
         )
 
         self.step(3)
         # TH sends ConnectNetwork Command to the DUT with NetworkID field set to PIXIT.CNET.WIFI_2ND_ACCESSPOINT_SSID,
         # which does not match the provisioned network, and Breadcrumb field set to 1
-        send_connect = await self.send_single_cmd(
-            cmd=cnet.Commands.ConnectNetwork(
-                networkID=network_id,
-                breadcrumb=1
-            )
-        )
+        send_connect = await self.send_single_cmd(cmd=cnet.Commands.ConnectNetwork(networkID=network_id, breadcrumb=1))
         # Log complete response object structure for debugging
         log.info(f"ConnectNetwork complete response object: {vars(send_connect)}")
 
@@ -121,7 +110,7 @@ class TC_CNET_4_15(MatterBaseTest):
         asserts.assert_equal(
             send_connect.networkingStatus,
             cnet.Enums.NetworkCommissioningStatusEnum.kNetworkIDNotFound,
-            f"Expected NetworkIDNotFound status for network ID {network_id}"
+            f"Expected NetworkIDNotFound status for network ID {network_id}",
         )
 
 

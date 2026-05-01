@@ -49,15 +49,19 @@ log = logging.getLogger(__name__)
 
 
 class TC_PS_2_3(MatterBaseTest):
-
     def pics_TC_PS_2_3(self) -> list[str]:
         return ["PWRTL.S"]
 
     def steps_TC_PS_2_3(self):
-        return [TestStep(1, "Commission DUT to TH", "", is_commissioning=True),
-                TestStep(2, "Subscribe to all attributes of the PowerSource Cluster"),
-                TestStep(3, "Accumulate all attribute reports on the endpoint under test for 30 seconds",
-                            "For each of the attributes in the set of BatTimeToFullCharge, BatPercentRemaining and BatTimeRemaining, verify that there are not more than 4 reports per attribute where the value is non-null over the period of accumulation.")]
+        return [
+            TestStep(1, "Commission DUT to TH", "", is_commissioning=True),
+            TestStep(2, "Subscribe to all attributes of the PowerSource Cluster"),
+            TestStep(
+                3,
+                "Accumulate all attribute reports on the endpoint under test for 30 seconds",
+                "For each of the attributes in the set of BatTimeToFullCharge, BatPercentRemaining and BatTimeRemaining, verify that there are not more than 4 reports per attribute where the value is non-null over the period of accumulation.",
+            ),
+        ]
 
     @async_test_body
     async def test_TC_PS_2_3(self):

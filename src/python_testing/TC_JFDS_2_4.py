@@ -45,6 +45,7 @@ from mobly import asserts
 import matter.clusters as Clusters
 from matter import CertificateAuthority
 from matter.interaction_model import InteractionModelError, Status
+
 # from matter.interaction_model import InteractionModelError
 from matter.storage import VolatileTemporaryPersistentStorage
 from matter.testing.apps import AppServerSubprocess, JFControllerSubprocess
@@ -56,7 +57,6 @@ log = logging.getLogger(__name__)
 
 
 class TC_JFDS_2_4(MatterBaseTest):
-
     @staticmethod
     def _decode_cert_bytes(cert_str: str) -> bytes:
         compact = "".join(cert_str.split())
@@ -80,19 +80,23 @@ class TC_JFDS_2_4(MatterBaseTest):
 
         jfc_server_app = self.user_params.get("jfc_server_app", None)
         if not jfc_server_app:
-            asserts.fail("This test requires a Joint Fabric Controller app. Specify app path with --string-arg jfc_server_app:<path_to_app>")
+            asserts.fail(
+                "This test requires a Joint Fabric Controller app. Specify app path with --string-arg jfc_server_app:<path_to_app>"
+            )
         if not os.path.exists(jfc_server_app):
             asserts.fail(f"The path {jfc_server_app} does not exist")
 
         jfa_server_app = self.user_params.get("jfa_server_app", None)
         if not jfa_server_app:
-            asserts.fail("This test requires a Joint Fabrics Admin app. Specify app path with --string-arg jfa_server_app:<path_to_app>")
+            asserts.fail(
+                "This test requires a Joint Fabrics Admin app. Specify app path with --string-arg jfa_server_app:<path_to_app>"
+            )
         if not os.path.exists(jfa_server_app):
             asserts.fail(f"The path {jfa_server_app} does not exist")
 
         # Create a temporary storage directory for both ecosystems to keep KVS files if not already provided by user.
         if self.storage_fabric_a is None:
-            self.storage_directory_ecosystem_a = tempfile.TemporaryDirectory(prefix=self.__class__.__name__+"_A_")
+            self.storage_directory_ecosystem_a = tempfile.TemporaryDirectory(prefix=self.__class__.__name__ + "_A_")
             self.storage_fabric_a = self.storage_directory_ecosystem_a.name
             log.info("Temporary storage directory: %s", self.storage_fabric_a)
 
@@ -117,10 +121,9 @@ class TC_JFDS_2_4(MatterBaseTest):
                 port=random.randint(5001, 5999),
                 discriminator=self.jfadmin_fabric_a_discriminator,
                 passcode=self.jfadmin_fabric_a_passcode,
-                extra_args=["--capabilities", "0x04", "--rpc-server-port", self.dut_rpc_server_port])
-            self.fabric_a_admin.start(
-                expected_output="Server initialization complete",
-                timeout=10)
+                extra_args=["--capabilities", "0x04", "--rpc-server-port", self.dut_rpc_server_port],
+            )
+            self.fabric_a_admin.start(expected_output="Server initialization complete", timeout=10)
         else:
             self.dut_rpc_server_ip = self.user_params.get("dut_rpc_server_ip", None)
             if not self.dut_rpc_server_ip:
@@ -131,11 +134,13 @@ class TC_JFDS_2_4(MatterBaseTest):
             self.jfadmin_fabric_a_passcode = self.matter_test_config.setup_passcodes[0]
             if not self.jfadmin_fabric_a_passcode:
                 asserts.fail(
-                    "JF-Administrator passcode and discriminator must be specified via --passcode:<passcode> --discriminator:<discriminator>")
+                    "JF-Administrator passcode and discriminator must be specified via --passcode:<passcode> --discriminator:<discriminator>"
+                )
             self.jfadmin_fabric_a_discriminator = self.matter_test_config.discriminators[0]
             if not self.jfadmin_fabric_a_discriminator:
                 asserts.fail(
-                    "JF-Administrator passcode and discriminator must be specified via --passcode:<passcode> --discriminator:<discriminator>")
+                    "JF-Administrator passcode and discriminator must be specified via --passcode:<passcode> --discriminator:<discriminator>"
+                )
 
         # Start Fabric A JF-Controller App
         self.fabric_a_ctrl = JFControllerSubprocess(
@@ -144,20 +149,20 @@ class TC_JFDS_2_4(MatterBaseTest):
             rpc_server_port=self.dut_rpc_server_port,
             storage_dir=self.storage_fabric_a,
             vendor_id=self.jfctrl_fabric_a_vid,
-            extra_args=["--rpc-server-ip", self.dut_rpc_server_ip])
-        self.fabric_a_ctrl.start(
-            expected_output="CHIP task running",
-            timeout=10)
+            extra_args=["--rpc-server-ip", self.dut_rpc_server_ip],
+        )
+        self.fabric_a_ctrl.start(expected_output="CHIP task running", timeout=10)
 
         # Commission JF-ADMIN app with JF-Controller on Fabric A
         self.fabric_a_ctrl.send(
             message=f"pairing onnetwork {self.jfadmin_fabric_a_node_id} {self.jfadmin_fabric_a_passcode} --anchor true",
             expected_output=f"[JF] Anchor Administrator (nodeId={self.jfadmin_fabric_a_node_id}) commissioned with success",
-            timeout=10)
+            timeout=10,
+        )
 
         # Extract the Ecosystem A certificates and inject them in the storage that will be provided to a new Python Controller later
         jfcStorage = ConfigParser()
-        jfcStorage.read(self.storage_fabric_a+'/chip_tool_config.alpha.ini')
+        jfcStorage.read(self.storage_fabric_a + "/chip_tool_config.alpha.ini")
         self.ecoACtrlStorage = {
             "sdk-config": {
                 "ExampleOpCredsCAKey1": jfcStorage.get("Default", "ExampleOpCredsCAKey0"),
@@ -165,19 +170,10 @@ class TC_JFDS_2_4(MatterBaseTest):
                 "ExampleCARootCert1": jfcStorage.get("Default", "ExampleCARootCert0"),
                 "ExampleCAIntermediateCert1": jfcStorage.get("Default", "ExampleCAIntermediateCert0"),
             },
-            "repl-config": {
-                "caList": {
-                    "1": [
-                        {
-                            "fabricId": 1,
-                            "vendorId": self.jfctrl_fabric_a_vid
-                        }
-                    ]
-                }
-            }
+            "repl-config": {"caList": {"1": [{"fabricId": 1, "vendorId": self.jfctrl_fabric_a_vid}]}},
         }
         # Extract CATs to be provided to the Python Controller later
-        self.ecoACATs = base64.b64decode(jfcStorage.get("Default", "CommissionerCATs"))[::-1].hex().strip('0')
+        self.ecoACATs = base64.b64decode(jfcStorage.get("Default", "CommissionerCATs"))[::-1].hex().strip("0")
 
         self.icac_bytes = self._decode_cert_bytes(jfcStorage.get("Default", "ExampleCAIntermediateCert0"))
         if jfcStorage.has_option("Default", "ExampleCARootCert0"):
@@ -210,22 +206,46 @@ class TC_JFDS_2_4(MatterBaseTest):
 
     def steps_TC_JFDS_2_4(self) -> list[TestStep]:
         return [
-            TestStep("1", "TH reads AdminList attribute from DUT",
-                     "Verify that at least one entry is returned. Verify that an entry with NodeID of DUT exists in the list."),
-            TestStep("2", "TH sends AddAdmin command to DUT with NodeId=0x0000_0000_0000_000a",
-                     "Verify that the DUT responds with Status as SUCCESS"),
-            TestStep("3", "TH reads AdminList attribute from DUT",
-                     "Verify that one entry has been added. Verify that the new entry has NodeId=0x0000_0000_0000_000a and values matching those added in step 2"),
-            TestStep("4", "TH sends UpdateAdmin command to DUT with NodeId=0x0000_0000_0000_000a and other values different from values used in step 2",
-                     "Verify that the DUT responds with Status as SUCCESS"),
-            TestStep("5", "TH reads AdminList attribute from DUT",
-                     "Verify that the entry with NodeId=A has values matching values added in step 4"),
-            TestStep("6", "TH sends AddAdmin command to DUT with NodeId=0x0000_0000_0000_000a (duplicate)",
-                     "Verify that the DUT responds with Status Status code CONSTRAINT_ERROR"),
-            TestStep("7", "TH sends RemoveAdmin command to DUT with NodeId=0x0000_0000_0000_000a",
-                     "Verify that the DUT responds with Status as SUCCESS"),
-            TestStep("8", "TH reads AdminList attribute from DUT",
-                     "Verify that no entry with NodeId=0x0000_0000_0000_000a exists in the list"),
+            TestStep(
+                "1",
+                "TH reads AdminList attribute from DUT",
+                "Verify that at least one entry is returned. Verify that an entry with NodeID of DUT exists in the list.",
+            ),
+            TestStep(
+                "2",
+                "TH sends AddAdmin command to DUT with NodeId=0x0000_0000_0000_000a",
+                "Verify that the DUT responds with Status as SUCCESS",
+            ),
+            TestStep(
+                "3",
+                "TH reads AdminList attribute from DUT",
+                "Verify that one entry has been added. Verify that the new entry has NodeId=0x0000_0000_0000_000a and values matching those added in step 2",
+            ),
+            TestStep(
+                "4",
+                "TH sends UpdateAdmin command to DUT with NodeId=0x0000_0000_0000_000a and other values different from values used in step 2",
+                "Verify that the DUT responds with Status as SUCCESS",
+            ),
+            TestStep(
+                "5",
+                "TH reads AdminList attribute from DUT",
+                "Verify that the entry with NodeId=A has values matching values added in step 4",
+            ),
+            TestStep(
+                "6",
+                "TH sends AddAdmin command to DUT with NodeId=0x0000_0000_0000_000a (duplicate)",
+                "Verify that the DUT responds with Status Status code CONSTRAINT_ERROR",
+            ),
+            TestStep(
+                "7",
+                "TH sends RemoveAdmin command to DUT with NodeId=0x0000_0000_0000_000a",
+                "Verify that the DUT responds with Status as SUCCESS",
+            ),
+            TestStep(
+                "8",
+                "TH reads AdminList attribute from DUT",
+                "Verify that no entry with NodeId=0x0000_0000_0000_000a exists in the list",
+            ),
         ]
 
     def pics_TC_JFDS_2_4(self) -> list[str]:
@@ -235,20 +255,24 @@ class TC_JFDS_2_4(MatterBaseTest):
     async def test_TC_JFDS_2_4(self):
         # Creating a Controller for Ecosystem A
         self.fabric_a_persistent_storage = VolatileTemporaryPersistentStorage(
-            self.ecoACtrlStorage['repl-config'], self.ecoACtrlStorage['sdk-config'])
+            self.ecoACtrlStorage["repl-config"], self.ecoACtrlStorage["sdk-config"]
+        )
         self.certAuthorityManagerA = CertificateAuthority.CertificateAuthorityManager(
-            chipStack=self.matter_stack._chip_stack,
-            persistentStorage=self.fabric_a_persistent_storage)
+            chipStack=self.matter_stack._chip_stack, persistentStorage=self.fabric_a_persistent_storage
+        )
         self.certAuthorityManagerA.LoadAuthoritiesFromStorage()
-        self.devCtrlEcoA = self.certAuthorityManagerA.activeCaList[0].adminList[0].NewController(
-            nodeId=101,
-            paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path),
-            catTags=[int(self.ecoACATs, 16)])
+        self.devCtrlEcoA = (
+            self.certAuthorityManagerA.activeCaList[0]
+            .adminList[0]
+            .NewController(
+                nodeId=101, paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path), catTags=[int(self.ecoACATs, 16)]
+            )
+        )
 
         # Discover endpoint with JointFabricDatastore cluster via Descriptor
         descriptor_response = await self.devCtrlEcoA.ReadAttribute(
-            nodeId=self.jfadmin_fabric_a_node_id, attributes=[(Clusters.Descriptor)],
-            returnClusterObject=True)
+            nodeId=self.jfadmin_fabric_a_node_id, attributes=[(Clusters.Descriptor)], returnClusterObject=True
+        )
 
         jfds_endpoint = None
         for endpoint_id, endpoint_data in descriptor_response.items():
@@ -262,8 +286,10 @@ class TC_JFDS_2_4(MatterBaseTest):
         self.step("1")
         # Read AdminList attribute from DUT
         response = await self.devCtrlEcoA.ReadAttribute(
-            nodeId=self.jfadmin_fabric_a_node_id, attributes=[(jfds_endpoint, Clusters.JointFabricDatastore.Attributes.AdminList)],
-            returnClusterObject=True)
+            nodeId=self.jfadmin_fabric_a_node_id,
+            attributes=[(jfds_endpoint, Clusters.JointFabricDatastore.Attributes.AdminList)],
+            returnClusterObject=True,
+        )
         adminList = response[jfds_endpoint][Clusters.JointFabricDatastore].adminList
 
         # Verify at least one entry is returned
@@ -284,28 +310,28 @@ class TC_JFDS_2_4(MatterBaseTest):
         self.step("2")
         # Create admin node struct with specified parameters
         step2_cmd = Clusters.JointFabricDatastore.Commands.AddAdmin(
-            nodeID=0x0000000000000000A,
-            friendlyName="tc-jf-2.4",
-            vendorID=0x000C,
-            icac=self.icac_bytes)
+            nodeID=0x0000000000000000A, friendlyName="tc-jf-2.4", vendorID=0x000C, icac=self.icac_bytes
+        )
 
         # Send AddAdmin command to DUT
         try:
-            await self.send_single_cmd(cmd=step2_cmd, dev_ctrl=self.devCtrlEcoA, node_id=self.jfadmin_fabric_a_node_id,
-                                       endpoint=jfds_endpoint)
+            await self.send_single_cmd(
+                cmd=step2_cmd, dev_ctrl=self.devCtrlEcoA, node_id=self.jfadmin_fabric_a_node_id, endpoint=jfds_endpoint
+            )
         except InteractionModelError as e:
             asserts.fail(f"Unexpected error when adding Admin: {e}")
 
         self.step("3")
         # Read AdminList attribute again to verify the new entry was added
         response = await self.devCtrlEcoA.ReadAttribute(
-            nodeId=self.jfadmin_fabric_a_node_id, attributes=[(jfds_endpoint, Clusters.JointFabricDatastore.Attributes.AdminList)],
-            returnClusterObject=True)
+            nodeId=self.jfadmin_fabric_a_node_id,
+            attributes=[(jfds_endpoint, Clusters.JointFabricDatastore.Attributes.AdminList)],
+            returnClusterObject=True,
+        )
         adminList = response[jfds_endpoint][Clusters.JointFabricDatastore].adminList
 
         # Verify that one entry has been added
-        asserts.assert_greater(len(adminList), num_entries,
-                               "A new entry was not added to AdminList")
+        asserts.assert_greater(len(adminList), num_entries, "A new entry was not added to AdminList")
 
         # Find and verify the entry with NodeID=0x0000_0000_0000_000a
         found_entry = None
@@ -329,21 +355,23 @@ class TC_JFDS_2_4(MatterBaseTest):
         self.step("4")
         # Send UpdateAdmin command with different values
         step4_cmd = Clusters.JointFabricDatastore.Commands.UpdateAdmin(
-            nodeID=0x0000000000000000A,
-            friendlyName="tc-jf-2.4-update",
-            icac=self.icac_bytes_alt)
+            nodeID=0x0000000000000000A, friendlyName="tc-jf-2.4-update", icac=self.icac_bytes_alt
+        )
 
         try:
-            await self.send_single_cmd(cmd=step4_cmd, dev_ctrl=self.devCtrlEcoA, node_id=self.jfadmin_fabric_a_node_id,
-                                       endpoint=jfds_endpoint)
+            await self.send_single_cmd(
+                cmd=step4_cmd, dev_ctrl=self.devCtrlEcoA, node_id=self.jfadmin_fabric_a_node_id, endpoint=jfds_endpoint
+            )
         except InteractionModelError as e:
             asserts.fail(f"Unexpected error when updating Admin: {e}")
 
         self.step("5")
         # Read AdminList attribute to verify the update
         response = await self.devCtrlEcoA.ReadAttribute(
-            nodeId=self.jfadmin_fabric_a_node_id, attributes=[(jfds_endpoint, Clusters.JointFabricDatastore.Attributes.AdminList)],
-            returnClusterObject=True)
+            nodeId=self.jfadmin_fabric_a_node_id,
+            attributes=[(jfds_endpoint, Clusters.JointFabricDatastore.Attributes.AdminList)],
+            returnClusterObject=True,
+        )
         adminList = response[jfds_endpoint][Clusters.JointFabricDatastore].adminList
 
         # Find and verify the updated entry with NodeID=0x0000_0000_0000_000a
@@ -367,32 +395,34 @@ class TC_JFDS_2_4(MatterBaseTest):
         self.step("6")
         # Try to add a duplicate admin with same NodeID - should fail with CONSTRAINT_ERROR
         step6_cmd = Clusters.JointFabricDatastore.Commands.AddAdmin(
-            nodeID=0x0000000000000000A,
-            friendlyName="tc-jf-2.4",
-            vendorID=0x000C,
-            icac=self.icac_bytes)
+            nodeID=0x0000000000000000A, friendlyName="tc-jf-2.4", vendorID=0x000C, icac=self.icac_bytes
+        )
 
         try:
-            await self.send_single_cmd(cmd=step6_cmd, dev_ctrl=self.devCtrlEcoA, node_id=self.jfadmin_fabric_a_node_id, endpoint=jfds_endpoint)
+            await self.send_single_cmd(
+                cmd=step6_cmd, dev_ctrl=self.devCtrlEcoA, node_id=self.jfadmin_fabric_a_node_id, endpoint=jfds_endpoint
+            )
             asserts.fail("Expected CONSTRAINT_ERROR but command succeeded")
         except InteractionModelError as e:
-            asserts.assert_equal(e.status, Status.ConstraintError,
-                                 f"Expected CONSTRAINT_ERROR but got {e.status}")
+            asserts.assert_equal(e.status, Status.ConstraintError, f"Expected CONSTRAINT_ERROR but got {e.status}")
 
         self.step("7")
         # Send RemoveAdmin command
         cmd = Clusters.JointFabricDatastore.Commands.RemoveAdmin(0x0000000000000000A)
         try:
-            await self.send_single_cmd(cmd=cmd, dev_ctrl=self.devCtrlEcoA, node_id=self.jfadmin_fabric_a_node_id,
-                                       endpoint=jfds_endpoint)
+            await self.send_single_cmd(
+                cmd=cmd, dev_ctrl=self.devCtrlEcoA, node_id=self.jfadmin_fabric_a_node_id, endpoint=jfds_endpoint
+            )
         except InteractionModelError as e:
             asserts.fail(f"Unexpected error when removing Admin: {e}")
 
         self.step("8")
         # Read AdminList attribute to verify the entry was removed
         response = await self.devCtrlEcoA.ReadAttribute(
-            nodeId=self.jfadmin_fabric_a_node_id, attributes=[(jfds_endpoint, Clusters.JointFabricDatastore.Attributes.AdminList)],
-            returnClusterObject=True)
+            nodeId=self.jfadmin_fabric_a_node_id,
+            attributes=[(jfds_endpoint, Clusters.JointFabricDatastore.Attributes.AdminList)],
+            returnClusterObject=True,
+        )
         adminList = response[jfds_endpoint][Clusters.JointFabricDatastore].adminList
 
         # Verify that no entry with NodeID=0x0000_0000_0000_000a exists

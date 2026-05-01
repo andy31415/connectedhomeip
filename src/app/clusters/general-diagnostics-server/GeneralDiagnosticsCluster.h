@@ -152,8 +152,7 @@ public:
     GeneralDiagnosticsClusterFullConfigurable(const GeneralDiagnosticsCluster::OptionalAttributeSet & optionalAttributeSet,
                                               const BitFlags<GeneralDiagnostics::Feature> featureFlags, Context && context,
                                               const GeneralDiagnosticsFunctionsConfig & functionsConfig) :
-        GeneralDiagnosticsCluster(optionalAttributeSet, featureFlags, std::move(context)),
-        mFunctionConfig(functionsConfig)
+        GeneralDiagnosticsCluster(optionalAttributeSet, featureFlags, std::move(context)), mFunctionConfig(functionsConfig)
     {}
 
     std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,

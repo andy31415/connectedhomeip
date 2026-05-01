@@ -34,8 +34,8 @@ TemperatureControl::SupportedTemperatureLevelsIteratorDelegate * TemperatureCont
 
 TemperatureControlCluster::TemperatureControlCluster(EndpointId endpointId, const BitFlags<Feature> features,
                                                      const StartupConfiguration & config) :
-    DefaultServerCluster({ endpointId, TemperatureControl::Id }),
-    mFeatures(features), mTemperatureSetpoint(config.temperatureSetpoint), mMinTemperature(config.minTemperature),
+    DefaultServerCluster({ endpointId, TemperatureControl::Id }), mFeatures(features),
+    mTemperatureSetpoint(config.temperatureSetpoint), mMinTemperature(config.minTemperature),
     mMaxTemperature(config.maxTemperature), mStep(config.step), mSelectedTemperatureLevel(config.selectedTemperatureLevel)
 {
     if (mFeatures.Has(Feature::kTemperatureNumber))

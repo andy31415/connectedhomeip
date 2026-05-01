@@ -69,12 +69,18 @@ CYW30739_OPTIONS = {
             "command": [
                 "perl",
                 "{sdk_scripts_dir}/ChipLoad.pl",
-                "-tools_path", "{sdk_tools_dir}",
-                "-id", "{hci_id}",
-                "-btp", "{btp}",
-                "-mini", "{minidriver}",
-                "-flags", "{flags}",
-                "-direct", "{direct}",
+                "-tools_path",
+                "{sdk_tools_dir}",
+                "-id",
+                "{hci_id}",
+                "-btp",
+                "{btp}",
+                "-mini",
+                "{minidriver}",
+                "-flags",
+                "{flags}",
+                "-direct",
+                "{direct}",
                 (),
             ],
         },
@@ -122,8 +128,10 @@ class Flasher(firmware_utils.Flasher):
         """Flash image."""
 
         arguments = [
-            "-build_path", self.option.application.parent,
-            "-hex", self.option.application.with_suffix(".hex"),
+            "-build_path",
+            self.option.application.parent,
+            "-hex",
+            self.option.application.with_suffix(".hex"),
         ]
         if self.option.port:
             arguments.extend(["-uart", "{port}"])

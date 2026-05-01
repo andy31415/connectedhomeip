@@ -1,4 +1,3 @@
-
 #
 #    Copyright (c) 2023 Project CHIP Authors
 #    All rights reserved.
@@ -71,28 +70,28 @@ client1 = Client(
     checkInNodeID=1,
     subjectId=1,
     key=b"\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f",
-    clientType=ClientTypeEnum.kEphemeral
+    clientType=ClientTypeEnum.kEphemeral,
 )
 
 client2 = Client(
     checkInNodeID=2,
     subjectId=2,
     key=b"\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f",
-    clientType=ClientTypeEnum.kEphemeral
+    clientType=ClientTypeEnum.kEphemeral,
 )
 
 client3 = Client(
     checkInNodeID=3,
     subjectId=3,
     key=b"\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f",
-    clientType=ClientTypeEnum.kEphemeral
+    clientType=ClientTypeEnum.kEphemeral,
 )
 
 client4 = Client(
     checkInNodeID=4,
     subjectId=4,
     key=b"\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f",
-    clientType=ClientTypeEnum.kEphemeral
+    clientType=ClientTypeEnum.kEphemeral,
 )
 
 # Client 5 skipped in the Test Plan steps
@@ -100,7 +99,7 @@ client6 = Client(
     checkInNodeID=6,
     subjectId=6,
     key=b"\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f",
-    clientType=ClientTypeEnum.kEphemeral
+    clientType=ClientTypeEnum.kEphemeral,
 )
 
 # Client 7 skipped in the Test Plan steps
@@ -108,12 +107,11 @@ client8 = Client(
     checkInNodeID=8,
     subjectId=8,
     key=b"\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f",
-    clientType=ClientTypeEnum.kEphemeral
+    clientType=ClientTypeEnum.kEphemeral,
 )
 
 
 class TC_ICDM_3_3(MatterBaseTest):
-
     #
     # Class Helper functions
     #
@@ -122,6 +120,7 @@ class TC_ICDM_3_3(MatterBaseTest):
 
     async def _send_single_icdm_command(self, command):
         return await self.send_single_cmd(command, endpoint=kRootEndpointId)
+
     #
     # Test Harness Helpers
     #
@@ -134,7 +133,9 @@ class TC_ICDM_3_3(MatterBaseTest):
         return [
             TestStep(0, "Commissioning, already done", is_commissioning=True),
             TestStep("1a", "TH reads from the DUT the RegisteredClients attribute."),
-            TestStep("1b", "TH sends UnregisterClient command with CheckInNodeID1, where CheckInNodeID1 can be any random node ID."),
+            TestStep(
+                "1b", "TH sends UnregisterClient command with CheckInNodeID1, where CheckInNodeID1 can be any random node ID."
+            ),
             TestStep("2a", "TH sends RegisterClient command."),
             TestStep("2b", "TH reads from the DUT the RegisteredClients attribute."),
             TestStep(3, "TH sends UnregisterClient command with the CheckInNodeID3."),
@@ -142,7 +143,9 @@ class TC_ICDM_3_3(MatterBaseTest):
             TestStep("4b", "TH reads from the DUT the RegisteredClients attribute."),
             TestStep("5a", "TH sends RegisterClient command."),
             TestStep("5b", "TH reads from the DUT the RegisteredClients attribute."),
-            TestStep("5c", "TH sends UnregisterClient command with the CheckInNodeID4 as in Step 5a and an invalid VerificationKey5."),
+            TestStep(
+                "5c", "TH sends UnregisterClient command with the CheckInNodeID4 as in Step 5a and an invalid VerificationKey5."
+            ),
             TestStep("5d", "TH reads from the DUT the RegisteredClients attribute."),
             TestStep("6a", "TH sends RegisterClient command."),
             TestStep("6b", "TH reads from the DUT the RegisteredClients attribute."),
@@ -150,17 +153,18 @@ class TC_ICDM_3_3(MatterBaseTest):
             TestStep("6d", "TH reads from the DUT the RegisteredClients attribute."),
             TestStep(7, "Set the TH to Manage privilege for ICDM cluster."),
             TestStep("8a", "TH sends RegisterClient command."),
-            TestStep("8b", "TH sends UnregisterClient command with the CheckInNodeID8 from Step 8a and an invalid VerificationKey9."),
-            TestStep("8c", "TH sends UnregisterClient command with the CheckInNodeID8 from Step 8a and a valid wrong VerificationKey10."),
+            TestStep(
+                "8b", "TH sends UnregisterClient command with the CheckInNodeID8 from Step 8a and an invalid VerificationKey9."
+            ),
+            TestStep(
+                "8c", "TH sends UnregisterClient command with the CheckInNodeID8 from Step 8a and a valid wrong VerificationKey10."
+            ),
             TestStep("8d", "TH sends UnregisterClient command with the CheckInNodeID8 and VerificationKey8 from Step 8a."),
         ]
 
     def pics_TC_ICDM_3_3(self) -> list[str]:
-        """ This function returns a list of PICS for this test case that must be True for the test to be run"""
-        return [
-            "ICDM.S",
-            "ICDM.S.F00"
-        ]
+        """This function returns a list of PICS for this test case that must be True for the test to be run"""
+        return ["ICDM.S", "ICDM.S.F00"]
 
     #
     # ICDM 3.3 Test Body
@@ -168,7 +172,6 @@ class TC_ICDM_3_3(MatterBaseTest):
 
     @async_test_body
     async def test_TC_ICDM_3_3(self):
-
         cluster = Clusters.Objects.IcdManagement
         attributes = cluster.Attributes
 
@@ -176,15 +179,13 @@ class TC_ICDM_3_3(MatterBaseTest):
         self.step(0)
 
         self.step("1a")
-        registeredClients = await self._read_icdm_attribute_expect_success(
-            attributes.RegisteredClients)
+        registeredClients = await self._read_icdm_attribute_expect_success(attributes.RegisteredClients)
 
         for client in registeredClients:
             try:
                 await self._send_single_icdm_command(commands.UnregisterClient(checkInNodeID=client.checkInNodeID))
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 
         # Try / Case for the Test Plan post condition
         try:
@@ -192,194 +193,225 @@ class TC_ICDM_3_3(MatterBaseTest):
             try:
                 await self._send_single_icdm_command(commands.UnregisterClient(checkInNodeID=client1.checkInNodeID))
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.NotFound, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.NotFound, "Unexpected error returned")
                 pass
 
             self.step("2a")
             try:
-                await self._send_single_icdm_command(commands.RegisterClient(checkInNodeID=client2.checkInNodeID, monitoredSubject=client2.subjectId, key=client2.key, clientType=client2.clientType))
+                await self._send_single_icdm_command(
+                    commands.RegisterClient(
+                        checkInNodeID=client2.checkInNodeID,
+                        monitoredSubject=client2.subjectId,
+                        key=client2.key,
+                        clientType=client2.clientType,
+                    )
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 
             self.step("2b")
-            registeredClients = await self._read_icdm_attribute_expect_success(
-                attributes.RegisteredClients)
+            registeredClients = await self._read_icdm_attribute_expect_success(attributes.RegisteredClients)
             # Validate list size
-            asserts.assert_equal(len(registeredClients), 1,
-                                 "The expected length of RegisteredClients is 1. List has the wrong size.")
+            asserts.assert_equal(
+                len(registeredClients), 1, "The expected length of RegisteredClients is 1. List has the wrong size."
+            )
 
             # Validate entry values
             asserts.assert_equal(
-                registeredClients[0].checkInNodeID, client2.checkInNodeID, "The read attribute does not match the registered value.")
+                registeredClients[0].checkInNodeID, client2.checkInNodeID, "The read attribute does not match the registered value."
+            )
             asserts.assert_equal(
-                registeredClients[0].monitoredSubject, client2.subjectId, "The read attribute does not match the registered value.")
+                registeredClients[0].monitoredSubject, client2.subjectId, "The read attribute does not match the registered value."
+            )
             asserts.assert_equal(
-                registeredClients[0].clientType, client2.clientType, "The read attribute does not match the registered value.")
+                registeredClients[0].clientType, client2.clientType, "The read attribute does not match the registered value."
+            )
 
             self.step(3)
             try:
                 await self._send_single_icdm_command(commands.UnregisterClient(checkInNodeID=client3.checkInNodeID))
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.NotFound, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.NotFound, "Unexpected error returned")
 
             self.step("4a")
             try:
                 await self._send_single_icdm_command(commands.UnregisterClient(checkInNodeID=client2.checkInNodeID))
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 
             self.step("4b")
-            registeredClients = await self._read_icdm_attribute_expect_success(
-                attributes.RegisteredClients)
-            asserts.assert_equal(len(registeredClients), 0,
-                                 "The RegisteredClients list must be empty. List has the wrong size.")
+            registeredClients = await self._read_icdm_attribute_expect_success(attributes.RegisteredClients)
+            asserts.assert_equal(len(registeredClients), 0, "The RegisteredClients list must be empty. List has the wrong size.")
 
             self.step("5a")
             try:
-                await self._send_single_icdm_command(commands.RegisterClient(checkInNodeID=client4.checkInNodeID, monitoredSubject=client4.subjectId, key=client4.key, clientType=client4.clientType))
+                await self._send_single_icdm_command(
+                    commands.RegisterClient(
+                        checkInNodeID=client4.checkInNodeID,
+                        monitoredSubject=client4.subjectId,
+                        key=client4.key,
+                        clientType=client4.clientType,
+                    )
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 
             self.step("5b")
-            registeredClients = await self._read_icdm_attribute_expect_success(
-                attributes.RegisteredClients)
+            registeredClients = await self._read_icdm_attribute_expect_success(attributes.RegisteredClients)
             # Validate list size
-            asserts.assert_equal(len(registeredClients), 1,
-                                 "The expected length of RegisteredClients is 1. List has the wrong size.")
+            asserts.assert_equal(
+                len(registeredClients), 1, "The expected length of RegisteredClients is 1. List has the wrong size."
+            )
 
             # Validate entry values
             asserts.assert_equal(
-                registeredClients[0].checkInNodeID, client4.checkInNodeID, "The read attribute does not match the registered value.")
+                registeredClients[0].checkInNodeID, client4.checkInNodeID, "The read attribute does not match the registered value."
+            )
             asserts.assert_equal(
-                registeredClients[0].monitoredSubject, client4.subjectId, "The read attribute does not match the registered value.")
+                registeredClients[0].monitoredSubject, client4.subjectId, "The read attribute does not match the registered value."
+            )
             asserts.assert_equal(
-                registeredClients[0].clientType, client4.clientType, "The read attribute does not match the registered value.")
+                registeredClients[0].clientType, client4.clientType, "The read attribute does not match the registered value."
+            )
 
             self.step("5c")
             try:
-                await self._send_single_icdm_command(commands.UnregisterClient(checkInNodeID=client4.checkInNodeID, verificationKey=kInvalidKey))
+                await self._send_single_icdm_command(
+                    commands.UnregisterClient(checkInNodeID=client4.checkInNodeID, verificationKey=kInvalidKey)
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 
             self.step("5d")
-            registeredClients = await self._read_icdm_attribute_expect_success(
-                attributes.RegisteredClients)
-            asserts.assert_equal(len(registeredClients), 0,
-                                 "The RegisteredClients list must be empty. List has the wrong size.")
+            registeredClients = await self._read_icdm_attribute_expect_success(attributes.RegisteredClients)
+            asserts.assert_equal(len(registeredClients), 0, "The RegisteredClients list must be empty. List has the wrong size.")
 
             self.step("6a")
             try:
-                await self._send_single_icdm_command(commands.RegisterClient(checkInNodeID=client6.checkInNodeID, monitoredSubject=client6.subjectId, key=client6.key, clientType=client6.clientType))
+                await self._send_single_icdm_command(
+                    commands.RegisterClient(
+                        checkInNodeID=client6.checkInNodeID,
+                        monitoredSubject=client6.subjectId,
+                        key=client6.key,
+                        clientType=client6.clientType,
+                    )
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 
             self.step("6b")
-            registeredClients = await self._read_icdm_attribute_expect_success(
-                attributes.RegisteredClients)
+            registeredClients = await self._read_icdm_attribute_expect_success(attributes.RegisteredClients)
             # Validate list size
-            asserts.assert_equal(len(registeredClients), 1,
-                                 "The expected length of RegisteredClients is 1. List has the wrong size.")
+            asserts.assert_equal(
+                len(registeredClients), 1, "The expected length of RegisteredClients is 1. List has the wrong size."
+            )
 
             # Validate entry values
             asserts.assert_equal(
-                registeredClients[0].checkInNodeID, client6.checkInNodeID, "The read attribute does not match the registered value.")
+                registeredClients[0].checkInNodeID, client6.checkInNodeID, "The read attribute does not match the registered value."
+            )
             asserts.assert_equal(
-                registeredClients[0].monitoredSubject, client6.subjectId, "The read attribute does not match the registered value.")
+                registeredClients[0].monitoredSubject, client6.subjectId, "The read attribute does not match the registered value."
+            )
             asserts.assert_equal(
-                registeredClients[0].clientType, client6.clientType, "The read attribute does not match the registered value.")
+                registeredClients[0].clientType, client6.clientType, "The read attribute does not match the registered value."
+            )
 
             self.step("6c")
             try:
-                await self._send_single_icdm_command(commands.UnregisterClient(checkInNodeID=client6.checkInNodeID, verificationKey=kIncorrectKey))
+                await self._send_single_icdm_command(
+                    commands.UnregisterClient(checkInNodeID=client6.checkInNodeID, verificationKey=kIncorrectKey)
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 
             self.step("6d")
-            registeredClients = await self._read_icdm_attribute_expect_success(
-                attributes.RegisteredClients)
-            asserts.assert_equal(len(registeredClients), 0,
-                                 "The RegisteredClients list must be empty. List has the wrong size.")
+            registeredClients = await self._read_icdm_attribute_expect_success(attributes.RegisteredClients)
+            asserts.assert_equal(len(registeredClients), 0, "The RegisteredClients list must be empty. List has the wrong size.")
             self.step(7)
             ac = Clusters.AccessControl
             previousAcl = await self.read_single_attribute_check_success(cluster=ac, attribute=ac.Attributes.Acl)
             newAcls = []
 
             # Set Admin permissions on Access Control cluster
-            newAclEntry = ac.Structs.AccessControlEntryStruct(privilege=ac.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
-                                                              authMode=ac.Enums.AccessControlEntryAuthModeEnum.kCase,
-                                                              subjects=previousAcl[0].subjects, targets=[ac.Structs.AccessControlTargetStruct(
-                                                                  cluster=Clusters.AccessControl.id)], fabricIndex=previousAcl[0].fabricIndex
-                                                              )
+            newAclEntry = ac.Structs.AccessControlEntryStruct(
+                privilege=ac.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
+                authMode=ac.Enums.AccessControlEntryAuthModeEnum.kCase,
+                subjects=previousAcl[0].subjects,
+                targets=[ac.Structs.AccessControlTargetStruct(cluster=Clusters.AccessControl.id)],
+                fabricIndex=previousAcl[0].fabricIndex,
+            )
             newAcls.append(newAclEntry)
 
             # Set Manage permissions on ICD Management cluster
-            newAclEntry = ac.Structs.AccessControlEntryStruct(privilege=ac.Enums.AccessControlEntryPrivilegeEnum.kManage,
-                                                              authMode=ac.Enums.AccessControlEntryAuthModeEnum.kCase,
-                                                              subjects=previousAcl[0].subjects, targets=[ac.Structs.AccessControlTargetStruct(
-                                                                  cluster=Clusters.IcdManagement.id)], fabricIndex=previousAcl[0].fabricIndex
-                                                              )
+            newAclEntry = ac.Structs.AccessControlEntryStruct(
+                privilege=ac.Enums.AccessControlEntryPrivilegeEnum.kManage,
+                authMode=ac.Enums.AccessControlEntryAuthModeEnum.kCase,
+                subjects=previousAcl[0].subjects,
+                targets=[ac.Structs.AccessControlTargetStruct(cluster=Clusters.IcdManagement.id)],
+                fabricIndex=previousAcl[0].fabricIndex,
+            )
             newAcls.append(newAclEntry)
 
             try:
                 await self.default_controller.WriteAttribute(nodeId=self.dut_node_id, attributes=[(0, ac.Attributes.Acl(newAcls))])
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 
             self.step("8a")
             try:
-                await self._send_single_icdm_command(commands.RegisterClient(checkInNodeID=client8.checkInNodeID, monitoredSubject=client8.subjectId, key=client8.key, clientType=client8.clientType))
+                await self._send_single_icdm_command(
+                    commands.RegisterClient(
+                        checkInNodeID=client8.checkInNodeID,
+                        monitoredSubject=client8.subjectId,
+                        key=client8.key,
+                        clientType=client8.clientType,
+                    )
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 
             self.step("8b")
             try:
-                await self._send_single_icdm_command(commands.UnregisterClient(checkInNodeID=client8.checkInNodeID, verificationKey=kInvalidKey))
+                await self._send_single_icdm_command(
+                    commands.UnregisterClient(checkInNodeID=client8.checkInNodeID, verificationKey=kInvalidKey)
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Failure, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.Failure, "Unexpected error returned")
 
             self.step("8c")
             try:
-                await self._send_single_icdm_command(commands.UnregisterClient(checkInNodeID=client8.checkInNodeID, verificationKey=kIncorrectKey))
+                await self._send_single_icdm_command(
+                    commands.UnregisterClient(checkInNodeID=client8.checkInNodeID, verificationKey=kIncorrectKey)
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Failure, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.Failure, "Unexpected error returned")
             self.step("8d")
             try:
-                await self._send_single_icdm_command(commands.UnregisterClient(checkInNodeID=client8.checkInNodeID, verificationKey=client8.key))
+                await self._send_single_icdm_command(
+                    commands.UnregisterClient(checkInNodeID=client8.checkInNodeID, verificationKey=client8.key)
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 
         # Post-Condition steps
         finally:
             # Reset ACLs
             try:
-                await self.default_controller.WriteAttribute(nodeId=self.dut_node_id, attributes=[(0, ac.Attributes.Acl(previousAcl))])
+                await self.default_controller.WriteAttribute(
+                    nodeId=self.dut_node_id, attributes=[(0, ac.Attributes.Acl(previousAcl))]
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, "Unexpected error returned")
+                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 
             # Clear all RegisteredClients
-            registeredClients = await self._read_icdm_attribute_expect_success(
-                attributes.RegisteredClients)
+            registeredClients = await self._read_icdm_attribute_expect_success(attributes.RegisteredClients)
 
             for client in registeredClients:
                 try:
                     await self._send_single_icdm_command(commands.UnregisterClient(checkInNodeID=client.checkInNodeID))
                 except InteractionModelError as e:
-                    asserts.assert_equal(
-                        e.status, Status.Success, "Unexpected error returned")
+                    asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 
 
 if __name__ == "__main__":

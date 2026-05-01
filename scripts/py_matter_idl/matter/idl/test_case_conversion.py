@@ -17,11 +17,11 @@ import unittest
 
 import matter.idl.generators.filters as case_convert
 
-'''
+"""
 This file contains tests for checking five of the case conversion functions, notably: snake_case, CONSTANT_CASE, spinal-case, PascalCase and camelCase.
 
 
-'''
+"""
 inputs = [
     "FooBarBaz",
     "FOOBarBaz",
@@ -35,7 +35,7 @@ inputs = [
     "FOO_BAR_BAZ",
     "__FooBarBaz__",
     "_fooBar_Baz_",
-    "foo_Bar Baz"
+    "foo_Bar Baz",
 ]
 
 
@@ -71,5 +71,5 @@ class TestSnakeCase(unittest.TestCase):
             self.assertEqual(converted, expected, "they are not equal")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

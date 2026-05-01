@@ -52,12 +52,11 @@ class TC_TLSCLIENT_Base(MatterBaseTest):
         cr2_certificate_authority = self.certificate_authority_manager.NewCertificateAuthority()
         cr2_fabric_admin = cr2_certificate_authority.NewFabricAdmin(vendorId=0xFFF1, fabricId=cr1.fabricId + 1)
         cr2 = cr2_fabric_admin.NewController(nodeId=cr1.nodeId + 1)
-        cr2_dut_node_id = self.dut_node_id+1
+        cr2_dut_node_id = self.dut_node_id + 1
 
         self.step(3)
         _, noc_resp, _ = await CommissioningBuildingBlocks.AddNOCForNewFabricFromExisting(
-            commissionerDevCtrl=cr1, newFabricDevCtrl=cr2,
-            existingNodeId=self.dut_node_id, newNodeId=cr2_dut_node_id
+            commissionerDevCtrl=cr1, newFabricDevCtrl=cr2, existingNodeId=self.dut_node_id, newNodeId=cr2_dut_node_id
         )
         fabric_index_cr2 = noc_resp.fabricIndex
 
@@ -66,7 +65,7 @@ class TC_TLSCLIENT_Base(MatterBaseTest):
 
     def get_common_steps(self) -> list[TestStep]:
         return [
-            TestStep(1, test_plan_support.commission_if_required('CR1'), is_commissioning=True),
+            TestStep(1, test_plan_support.commission_if_required("CR1"), is_commissioning=True),
             TestStep(2, test_plan_support.open_commissioning_window()),
-            TestStep(3, test_plan_support.commission_from_existing('CR1', 'CR2')),
+            TestStep(3, test_plan_support.commission_from_existing("CR1", "CR2")),
         ]

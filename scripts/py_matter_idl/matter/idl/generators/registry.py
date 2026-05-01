@@ -30,6 +30,7 @@ class CodeGenerator(enum.Enum):
     the simple enum value (user friendly and can be a command line input)
     into underlying generators.
     """
+
     JAVA_JNI = enum.auto()
     JAVA_CLASS = enum.auto()
     KOTLIN_CLASS = enum.auto()
@@ -62,7 +63,7 @@ class CodeGenerator(enum.Enum):
             # ./matter_idl_plugin/__init__.py defines a subclass of CodeGenerator named CustomGenerator.
             # The plugin is expected to be in the path provided via the `--plugin <path>` cli argument.
             # Replaces `from plugin_module import CustomGenerator``
-            plugin_module = importlib.import_module(kargs['plugin_module'])
+            plugin_module = importlib.import_module(kargs["plugin_module"])
             CustomGenerator = plugin_module.CustomGenerator
             return CustomGenerator(*args, **kargs)
         raise NameError("Unknown code generator type")
@@ -80,13 +81,13 @@ class CodeGenerator(enum.Enum):
 # to uniquely identify them when running command line tools or
 # executing tests
 GENERATORS = {
-    'java-jni': CodeGenerator.JAVA_JNI,
-    'java-class': CodeGenerator.JAVA_CLASS,
-    'kotlin-class': CodeGenerator.KOTLIN_CLASS,
-    'cpp-app': CodeGenerator.CPP_APPLICATION,
-    'cpp-tlvmeta': CodeGenerator.CPP_TLVMETA,
-    'cpp-sdk': CodeGenerator.CPP_SDK,
-    'idl': CodeGenerator.IDL,
-    'summary-markdown': CodeGenerator.SUMMARY_MARKDOWN,
-    'custom': CodeGenerator.CUSTOM,
+    "java-jni": CodeGenerator.JAVA_JNI,
+    "java-class": CodeGenerator.JAVA_CLASS,
+    "kotlin-class": CodeGenerator.KOTLIN_CLASS,
+    "cpp-app": CodeGenerator.CPP_APPLICATION,
+    "cpp-tlvmeta": CodeGenerator.CPP_TLVMETA,
+    "cpp-sdk": CodeGenerator.CPP_SDK,
+    "idl": CodeGenerator.IDL,
+    "summary-markdown": CodeGenerator.SUMMARY_MARKDOWN,
+    "custom": CodeGenerator.CUSTOM,
 }

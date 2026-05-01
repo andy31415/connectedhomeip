@@ -23,15 +23,15 @@ import pandas as pd  # type: ignore
 from memdf import Config, ConfigDescription
 
 CONFIG: ConfigDescription = {
-    Config.group_def('database'): {
-        'title': 'database options',
+    Config.group_def("database"): {
+        "title": "database options",
     },
-    'database.file': {
-        'help': 'Sqlite3 file',
-        'metavar': 'FILENAME',
-        'default': None,
-        'argparse': {
-            'alias': ['--db'],
+    "database.file": {
+        "help": "Sqlite3 file",
+        "metavar": "FILENAME",
+        "default": None,
+        "argparse": {
+            "alias": ["--db"],
         },
     },
 }
@@ -39,6 +39,7 @@ CONFIG: ConfigDescription = {
 
 class Database:
     """Wrapper and utility functions around sqlite3"""
+
     on_open: Optional[List[str]] = None
     on_writable: Optional[List[str]] = None
 
@@ -57,9 +58,9 @@ class Database:
     def open(self):
         """Open and initialize the database connection."""
         if not self.con:
-            db = 'file:' + self.filename
+            db = "file:" + self.filename
             if not self.writable:
-                db += '?mode=ro'
+                db += "?mode=ro"
             self.con = sqlite3.connect(db, uri=True)
             if self.on_open:
                 for i in self.on_open:
@@ -90,20 +91,17 @@ class Database:
 
     def store(self, table: str, **kwargs):
         """Insert the data if it does not already exist."""
-        q = (f"INSERT INTO {table} ({','.join(kwargs.keys())})"
-             f"  VALUES ({','.join('?' * len(kwargs))})"
-             f"  ON CONFLICT DO NOTHING")
+        q = f"INSERT INTO {table} ({','.join(kwargs.keys())})  VALUES ({','.join('?' * len(kwargs))})  ON CONFLICT DO NOTHING"
         v = list(kwargs.values())
         self.connection().execute(q, v)
 
     def get_matching(self, table: str, columns: List[str], **kwargs):
-        q = (f"SELECT {','.join(columns)} FROM {table}"
-             f"  WHERE {'=? AND '.join(kwargs.keys())}=?")
+        q = f"SELECT {','.join(columns)} FROM {table}  WHERE {'=? AND '.join(kwargs.keys())}=?"
         v = list(kwargs.values())
         return self.connection().execute(q, v)
 
     def get_matching_id(self, table: str, **kwargs):
-        cur = self.get_matching(table, ['id'], **kwargs)
+        cur = self.get_matching(table, ["id"], **kwargs)
         row = cur.fetchone()
         if row:
             return row[0]
@@ -119,5 +117,5 @@ class Database:
         columns = [i[0] for i in cur.description]
         df = pd.DataFrame(cur.fetchall(), columns=columns)
         self.commit()
-        df.attrs = {'title': query}
+        df.attrs = {"title": query}
         return df

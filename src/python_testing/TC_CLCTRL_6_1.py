@@ -59,6 +59,7 @@ def current_position_matcher(current_position: Clusters.ClosureControl.Enums.Cur
         if report.attribute != Clusters.ClosureControl.Attributes.OverallCurrentState:
             return False
         return report.value.position == current_position
+
     return AttributeMatcher.from_callable(description=f"OverallCurrentState.Position is {current_position}", matcher=predicate)
 
 
@@ -67,6 +68,7 @@ def current_latch_matcher(current_latch: bool) -> AttributeMatcher:
         if report.attribute != Clusters.ClosureControl.Attributes.OverallCurrentState:
             return False
         return report.value.latch == current_latch
+
     return AttributeMatcher.from_callable(description=f"OverallCurrentState.Latch is {current_latch}", matcher=predicate)
 
 
@@ -84,7 +86,10 @@ class TC_CLCTRL_6_1(MatterBaseTest):
             TestStep("2a", "TH reads from the DUT the (0xFFFC) FeatureMap attribute."),
             TestStep("2b", "TH reads TestEventTriggerEnabled attribute from General Diagnostics Cluster."),
             TestStep("2c", "TH reads from the DUT the (0xFFFB) AttributeList attribute."),
-            TestStep("2d", "TH establishes a wildcard subscription to all attributes on the Closure Control Cluster, with MinIntervalFloor = 0, MaxIntervalCeiling = 30 and KeepSubscriptions = false."),
+            TestStep(
+                "2d",
+                "TH establishes a wildcard subscription to all attributes on the Closure Control Cluster, with MinIntervalFloor = 0, MaxIntervalCeiling = 30 and KeepSubscriptions = false.",
+            ),
             TestStep("3a", "If the LT feature is not supported on the cluster, skip steps 3b to 3i."),
             TestStep("3b", "TH reads from the DUT the OverallCurrentState.Latch attribute."),
             TestStep("3c", "If the attribute is supported on the cluster, TH reads from the DUT the LatchControlModes attribute."),
@@ -99,28 +104,49 @@ class TC_CLCTRL_6_1(MatterBaseTest):
             TestStep("3l", "If CurrentPosition = FullyClosed, skip steps 3m to 3n."),
             TestStep("3m", "TH sends command MoveTo with Position = MoveToFullyClosed."),
             TestStep("3n", "Wait until TH receives a subscription report with OverallCurrentState.Position."),
-            TestStep("4a", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_ENABLE_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState is Error(3) Test Event."),
+            TestStep(
+                "4a",
+                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_ENABLE_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState is Error(3) Test Event.",
+            ),
             TestStep("4b", "Verify that the DUT has emitted the OperationalError event."),
             TestStep("4c", "TH reads from the DUT the CurrentErrorList attribute."),
-            TestStep("4d", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_ENABLE_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState Test Event Clear."),
-            TestStep("5a", "If PS feature is not supported on the cluster or IS feature is supported on the cluster, skip steps 5b to 5f."),
+            TestStep(
+                "4d",
+                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_ENABLE_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState Test Event Clear.",
+            ),
+            TestStep(
+                "5a",
+                "If PS feature is not supported on the cluster or IS feature is supported on the cluster, skip steps 5b to 5f.",
+            ),
             TestStep("5b", "TH sends command MoveTo with Position = MoveToFullyOpen."),
             TestStep("5c", "Wait until TH receives a subscription report with OverallCurrentState.Position = FullyOpened."),
             TestStep("5d", "TH sends command MoveTo with Position = MoveToFullyClosed."),
             TestStep("5e", "Verify that the DUT has emitted the MovementCompleted event."),
             TestStep("5f", "TH reads from the DUT the Mainstate attribute."),
             TestStep("6a", "If MO feature is not supported on the cluster, skip steps 6b to 6e."),
-            TestStep("6b", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_ENABLE_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState is Disengaged(6) Test Event."),
+            TestStep(
+                "6b",
+                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_ENABLE_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState is Disengaged(6) Test Event.",
+            ),
             TestStep("6c", "Verify that the DUT has emitted the EngageStateChanged event."),
-            TestStep("6d", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_ENABLE_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState Test Event Clear."),
+            TestStep(
+                "6d",
+                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_ENABLE_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState Test Event Clear.",
+            ),
             TestStep("6e", "Verify that the DUT has emitted the EngageStateChanged event."),
-            TestStep("7a", "If LT feature is supported on the cluster or PS feature is not supported on the cluster, skip steps 7b to 7f."),
+            TestStep(
+                "7a",
+                "If LT feature is supported on the cluster or PS feature is not supported on the cluster, skip steps 7b to 7f.",
+            ),
             TestStep("7b", "TH reads from the DUT the OverallCurrentState attribute."),
             TestStep("7c", "TH sends command MoveTo with Position = MoveToFullyOpen."),
             TestStep("7d", "Verify that the DUT has emitted the SecureStateChanged event."),
             TestStep("7e", "TH sends command MoveTo with Position = MoveToFullyClosed."),
             TestStep("7f", "Verify that the DUT has emitted the SecureStateChanged event."),
-            TestStep("8a", "If LT feature is not supported on the cluster or PS feature is supported on the cluster, skip steps 8b to 8l."),
+            TestStep(
+                "8a",
+                "If LT feature is not supported on the cluster or PS feature is supported on the cluster, skip steps 8b to 8l.",
+            ),
             TestStep("8b", "If LatchControlModes Bit 0 = 0 (RemoteLatching = False), skip step 8c."),
             TestStep("8c", "TH sends command MoveTo with Latch = True."),
             TestStep("8d", "If LatchControlModes Bit 0 = 1 (RemoteLatching = True), skip step 8e."),
@@ -132,7 +158,10 @@ class TC_CLCTRL_6_1(MatterBaseTest):
             TestStep("8j", "If LatchControlModes Bit 1 = 1 (RemoteUnlatching = True), skip step 8k."),
             TestStep("8k", "Unlatch the DUT manually to set OverallCurrentState.Latch to False."),
             TestStep("8l", "Verify that the DUT has emitted the SecureStateChanged event."),
-            TestStep("9a", "If LT feature is not supported on the cluster or PS feature is not supported on the cluster, skip steps 9b to 9l."),
+            TestStep(
+                "9a",
+                "If LT feature is not supported on the cluster or PS feature is not supported on the cluster, skip steps 9b to 9l.",
+            ),
             TestStep("9b", "If LatchControlModes Bit 0 = 0 (RemoteLatching = False), skip step 9c."),
             TestStep("9c", "TH sends command MoveTo with Latch = True."),
             TestStep("9d", "If LatchControlModes Bit 0 = 1 (RemoteLatching = True), skip step 9e."),
@@ -194,7 +223,9 @@ class TC_CLCTRL_6_1(MatterBaseTest):
         self.step("2d")
 
         sub_handler = AttributeSubscriptionHandler(expected_cluster=Clusters.ClosureControl)
-        await sub_handler.start(dev_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
+        await sub_handler.start(
+            dev_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False
+        )
 
         event_sub_handler = EventSubscriptionHandler(expected_cluster=Clusters.ClosureControl)
         await event_sub_handler.start(self.default_controller, self.dut_node_id, endpoint=endpoint)
@@ -270,12 +301,11 @@ class TC_CLCTRL_6_1(MatterBaseTest):
                     self.step("3f")
 
                     try:
-                        await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                            latch=False
-                        ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                        await self.send_single_cmd(
+                            cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), endpoint=endpoint, timedRequestTimeoutMs=1000
+                        )
                     except InteractionModelError as e:
-                        asserts.assert_equal(
-                            e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                        asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                         pass
                     self.step("3g")
                     self.skip_step("3h")
@@ -284,8 +314,7 @@ class TC_CLCTRL_6_1(MatterBaseTest):
                 self.step("3i")
 
                 log.info("Waiting for OverallCurrentState.Latch to be False")
-                sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(False)],
-                                                              timeout_sec=timeout)
+                sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(False)], timeout_sec=timeout)
 
         # STEP 3j: If the PS feature is not supported on the cluster, skip steps 3k to 3n.
         self.step("3j")
@@ -307,8 +336,11 @@ class TC_CLCTRL_6_1(MatterBaseTest):
                 asserts.assert_fail("OverallCurrentState is NullValue.")
 
             CurrentPosition = overall_current_state.position
-            asserts.assert_in(CurrentPosition, Clusters.ClosureControl.Enums.CurrentPositionEnum,
-                              "OverallCurrentState.position is not in the expected range")
+            asserts.assert_in(
+                CurrentPosition,
+                Clusters.ClosureControl.Enums.CurrentPositionEnum,
+                "OverallCurrentState.position is not in the expected range",
+            )
 
             # STEP 3l: If CurrentPosition = FullyClosed, skip steps 3m to 3n
             self.step("3l")
@@ -325,20 +357,25 @@ class TC_CLCTRL_6_1(MatterBaseTest):
 
                 sub_handler.reset()
                 try:
-                    await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
-                    ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                    await self.send_single_cmd(
+                        cmd=Clusters.ClosureControl.Commands.MoveTo(
+                            position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
+                        ),
+                        endpoint=endpoint,
+                        timedRequestTimeoutMs=1000,
+                    )
                 except InteractionModelError as e:
-                    asserts.assert_equal(
-                        e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                    asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                     pass
 
                 # STEP 3n: Wait until TH receives a subscription report with OverallCurrentState.Position.
                 self.step("3n")
 
                 log.info("Waiting for OverallCurrentState.Position to be FullyClosed")
-                sub_handler.await_all_expected_report_matches(expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
-                                                              timeout_sec=timeout)
+                sub_handler.await_all_expected_report_matches(
+                    expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
+                    timeout_sec=timeout,
+                )
 
         # STEP 4a: TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_ENABLE_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState is Error(3) Test Event
         self.step("4a")
@@ -348,16 +385,14 @@ class TC_CLCTRL_6_1(MatterBaseTest):
         try:
             await self.send_test_event_triggers(eventTrigger=triggerError)  # Error
         except InteractionModelError as e:
-            asserts.assert_equal(
-                e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
+            asserts.assert_equal(e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
             pass
 
         # STEP 4b: Verify that the DUT has emitted the OperationalError event
         self.step("4b")
 
         # Wait for the OperationalError event to be emitted
-        data = event_sub_handler.wait_for_event_type_report(
-            Clusters.ClosureControl.Events.OperationalError, timeout_sec=timeout)
+        data = event_sub_handler.wait_for_event_type_report(Clusters.ClosureControl.Events.OperationalError, timeout_sec=timeout)
         log.info(f"-> OperationalError event last received: {data.errorState}")
 
         asserts.assert_not_equal(data.errorState, [], "The CurrentErrorList attribute is empty.")
@@ -366,7 +401,11 @@ class TC_CLCTRL_6_1(MatterBaseTest):
         self.step("4c")
 
         # Read the CurrentErrorList attribute
-        current_error_list = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=Clusters.Objects.ClosureControl, attribute=Clusters.ClosureControl.Attributes.CurrentErrorList)
+        current_error_list = await self.read_single_attribute_check_success(
+            endpoint=endpoint,
+            cluster=Clusters.Objects.ClosureControl,
+            attribute=Clusters.ClosureControl.Attributes.CurrentErrorList,
+        )
         asserts.assert_not_equal(current_error_list, [], "The CurrentErrorList attribute is empty.")
 
         # STEP 4d: TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_ENABLE_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState Test Event Clear
@@ -375,8 +414,7 @@ class TC_CLCTRL_6_1(MatterBaseTest):
         try:
             await self.send_test_event_triggers(eventTrigger=triggerClear)  # Test Event Clear
         except InteractionModelError as e:
-            asserts.assert_equal(
-                e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
+            asserts.assert_equal(e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
             pass
 
         # STEP 5a: If PS feature is not supported on the cluster or IS feature is supported on the cluster, skip steps 5b to 5f
@@ -397,44 +435,52 @@ class TC_CLCTRL_6_1(MatterBaseTest):
             sub_handler.reset()
 
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(
+                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                 pass
 
             # STEP 5c: Wait until TH receives a subscription report with OverallCurrentState.Position = FullyOpened and the MovementCompleted event.
             self.step("5c")
 
             log.info("Waiting for OverallCurrentState.Position to be FullyOpened and the corresponding MovementCompleted event.")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyOpened)],
-                                                          timeout_sec=timeout)
-            event_sub_handler.wait_for_event_type_report(
-                Clusters.ClosureControl.Events.MovementCompleted, timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyOpened)],
+                timeout_sec=timeout,
+            )
+            event_sub_handler.wait_for_event_type_report(Clusters.ClosureControl.Events.MovementCompleted, timeout_sec=timeout)
 
             # STEP 5d: TH sends command MoveTo with Position = MoveToFullyClosed
             self.step("5d")
 
             event_sub_handler.reset()
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(
+                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                 pass
 
             # STEP 5e: Wait until TH receives a subscription report with OverallCurrentState.Position = FullyClosed and the MovementCompleted event.
             self.step("5e")
 
             log.info("Waiting for OverallCurrentState.Position to be FullyClosed and the corresponding MovementCompleted event.")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
-                                                          timeout_sec=timeout)
-            event_sub_handler.wait_for_event_type_report(
-                Clusters.ClosureControl.Events.MovementCompleted, timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
+                timeout_sec=timeout,
+            )
+            event_sub_handler.wait_for_event_type_report(Clusters.ClosureControl.Events.MovementCompleted, timeout_sec=timeout)
 
             # STEP 5f: TH reads from the DUT the MainState attribute
             self.step("5f")
@@ -442,8 +488,9 @@ class TC_CLCTRL_6_1(MatterBaseTest):
             if attributes.MainState.attribute_id in attribute_list:
                 main_state = await self.read_clctrl_attribute_expect_success(endpoint, attributes.MainState)
                 log.info(f"MainState: {main_state}")
-                asserts.assert_equal(main_state, Clusters.ClosureControl.Enums.MainStateEnum.kStopped,
-                                     "MainState is not in the expected state")
+                asserts.assert_equal(
+                    main_state, Clusters.ClosureControl.Enums.MainStateEnum.kStopped, "MainState is not in the expected state"
+                )
             else:
                 asserts.assert_fail("MainState attribute is not supported.")
 
@@ -465,8 +512,7 @@ class TC_CLCTRL_6_1(MatterBaseTest):
             try:
                 await self.send_test_event_triggers(eventTrigger=triggerDisengaged)  # Disengaged
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
                 pass
 
             # STEP 6c: Verify that the DUT has emitted the EngageStateChanged event
@@ -474,7 +520,8 @@ class TC_CLCTRL_6_1(MatterBaseTest):
 
             # Wait for the EngageStateChanged event to be emitted
             data = event_sub_handler.wait_for_event_type_report(
-                Clusters.ClosureControl.Events.EngageStateChanged, timeout_sec=timeout)
+                Clusters.ClosureControl.Events.EngageStateChanged, timeout_sec=timeout
+            )
 
             asserts.assert_false(data.engageValue, f"Unexpected event data: {data.engageValue}")
 
@@ -485,8 +532,7 @@ class TC_CLCTRL_6_1(MatterBaseTest):
             try:
                 await self.send_test_event_triggers(eventTrigger=triggerClear)  # Test Event Clear
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
                 pass
 
             # STEP 6e: Verify that the DUT has emitted the EngageStateChanged event
@@ -494,7 +540,8 @@ class TC_CLCTRL_6_1(MatterBaseTest):
 
             # Wait for the EngageStateChanged event to be emitted
             data = event_sub_handler.wait_for_event_type_report(
-                Clusters.ClosureControl.Events.EngageStateChanged, timeout_sec=timeout)
+                Clusters.ClosureControl.Events.EngageStateChanged, timeout_sec=timeout
+            )
 
             asserts.assert_true(data.engageValue, f"Unexpected event data: {data.engageValue}")
 
@@ -517,10 +564,16 @@ class TC_CLCTRL_6_1(MatterBaseTest):
             if overall_current_state is NullValue:
                 asserts.assert_fail("OverallCurrentState is NullValue.")
 
-            asserts.assert_in(overall_current_state.position, Clusters.ClosureControl.Enums.CurrentPositionEnum,
-                              "OverallCurrentState.position is not in the expected range")
-            asserts.assert_equal(overall_current_state.position,
-                                 Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed, "The DUT is in an incorrect position.")
+            asserts.assert_in(
+                overall_current_state.position,
+                Clusters.ClosureControl.Enums.CurrentPositionEnum,
+                "OverallCurrentState.position is not in the expected range",
+            )
+            asserts.assert_equal(
+                overall_current_state.position,
+                Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed,
+                "The DUT is in an incorrect position.",
+            )
             asserts.assert_true(overall_current_state.secureState, "The DUT is in an incorrect secure state.")
 
             # STEP 7c: TH sends command MoveTo with Position = MoveToFullyOpen.
@@ -528,12 +581,15 @@ class TC_CLCTRL_6_1(MatterBaseTest):
 
             event_sub_handler.reset()
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(
+                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                 pass
 
             # STEP 7d: Verify that the DUT has emitted the SecureStateChanged event
@@ -541,7 +597,8 @@ class TC_CLCTRL_6_1(MatterBaseTest):
 
             # Wait for the SecureStateChanged event to be emitted
             data = event_sub_handler.wait_for_event_type_report(
-                Clusters.ClosureControl.Events.SecureStateChanged, timeout_sec=timeout)
+                Clusters.ClosureControl.Events.SecureStateChanged, timeout_sec=timeout
+            )
             asserts.assert_false(data.secureValue, f"Unexpected event data: {data.secureValue}")
 
             # STEP 7e: TH sends command MoveTo with Position = MoveToFullyClosed.
@@ -549,12 +606,15 @@ class TC_CLCTRL_6_1(MatterBaseTest):
 
             event_sub_handler.reset()
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(
+                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                 pass
 
             # STEP 7f: Verify that the DUT has emitted the SecureStateChanged event
@@ -562,7 +622,8 @@ class TC_CLCTRL_6_1(MatterBaseTest):
 
             # Wait for the SecureStateChanged event to be emitted
             data = event_sub_handler.wait_for_event_type_report(
-                Clusters.ClosureControl.Events.SecureStateChanged, timeout_sec=timeout)
+                Clusters.ClosureControl.Events.SecureStateChanged, timeout_sec=timeout
+            )
             asserts.assert_true(data.secureValue, f"Unexpected event data: {data.secureValue}")
 
         # STEP 8a: If LT feature is not supported on the cluster or PS feature is supported on the cluster, skip steps 8b to 8l
@@ -604,12 +665,11 @@ class TC_CLCTRL_6_1(MatterBaseTest):
                 self.step("8c")
 
                 try:
-                    await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                        latch=True
-                    ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                    await self.send_single_cmd(
+                        cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), endpoint=endpoint, timedRequestTimeoutMs=1000
+                    )
                 except InteractionModelError as e:
-                    asserts.assert_equal(
-                        e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                    asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                     pass
                 self.step("8d")
                 self.skip_step("8e")
@@ -618,15 +678,15 @@ class TC_CLCTRL_6_1(MatterBaseTest):
             self.step("8f")
 
             log.info("Waiting for OverallCurrentState.Latch to be True")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(True)],
-                                                          timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(True)], timeout_sec=timeout)
 
             # STEP 8g: Verify that the DUT has emitted the SecureStateChanged event
             self.step("8g")
 
             # Wait for the SecureStateChanged event to be emitted
             data = event_sub_handler.wait_for_event_type_report(
-                Clusters.ClosureControl.Events.SecureStateChanged, timeout_sec=timeout)
+                Clusters.ClosureControl.Events.SecureStateChanged, timeout_sec=timeout
+            )
             asserts.assert_true(data.secureValue, f"Unexpected event data: {data.secureValue}")
 
             # STEP 8h: If LatchControlModes Bit 1 = 0 (RemoteUnlatching = False), skip step 8i
@@ -657,12 +717,11 @@ class TC_CLCTRL_6_1(MatterBaseTest):
                 self.step("8i")
 
                 try:
-                    await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                        latch=False
-                    ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                    await self.send_single_cmd(
+                        cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), endpoint=endpoint, timedRequestTimeoutMs=1000
+                    )
                 except InteractionModelError as e:
-                    asserts.assert_equal(
-                        e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                    asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                     pass
                 self.step("8j")
                 self.skip_step("8k")
@@ -672,7 +731,8 @@ class TC_CLCTRL_6_1(MatterBaseTest):
 
             # Wait for the SecureStateChanged event to be emitted
             data = event_sub_handler.wait_for_event_type_report(
-                Clusters.ClosureControl.Events.SecureStateChanged, timeout_sec=timeout)
+                Clusters.ClosureControl.Events.SecureStateChanged, timeout_sec=timeout
+            )
             asserts.assert_false(data.secureValue, f"Unexpected event data: {data.secureValue}")
 
         # STEP 9a: If LT feature is not supported on the cluster or PS feature is not supported on the cluster, skip steps 9b to 9l
@@ -712,12 +772,11 @@ class TC_CLCTRL_6_1(MatterBaseTest):
                 self.step("9c")
 
                 try:
-                    await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                        latch=True
-                    ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                    await self.send_single_cmd(
+                        cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), endpoint=endpoint, timedRequestTimeoutMs=1000
+                    )
                 except InteractionModelError as e:
-                    asserts.assert_equal(
-                        e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                    asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                     pass
                 self.step("9d")
                 self.skip_step("9e")
@@ -727,7 +786,8 @@ class TC_CLCTRL_6_1(MatterBaseTest):
 
             # Wait for the SecureStateChanged event to be emitted
             data = event_sub_handler.wait_for_event_type_report(
-                Clusters.ClosureControl.Events.SecureStateChanged, timeout_sec=timeout)
+                Clusters.ClosureControl.Events.SecureStateChanged, timeout_sec=timeout
+            )
             asserts.assert_true(data.secureValue, f"Unexpected event data: {data.secureValue}")
 
             # STEP 9g: If LatchControlModes Bit 1 = 0 (RemoteUnlatching = False), skip step 9h
@@ -758,12 +818,11 @@ class TC_CLCTRL_6_1(MatterBaseTest):
                 self.step("9h")
 
                 try:
-                    await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                        latch=False
-                    ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                    await self.send_single_cmd(
+                        cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), endpoint=endpoint, timedRequestTimeoutMs=1000
+                    )
                 except InteractionModelError as e:
-                    asserts.assert_equal(
-                        e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                    asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                     pass
                 self.step("9i")
                 self.skip_step("9j")
@@ -773,12 +832,15 @@ class TC_CLCTRL_6_1(MatterBaseTest):
 
             await asyncio.sleep(2)  # Adding a small delay to ensure the previous command is processed
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(
+                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                 pass
 
             # STEP 9l: Verify that the DUT has emitted the SecureStateChanged event
@@ -786,7 +848,8 @@ class TC_CLCTRL_6_1(MatterBaseTest):
 
             # Wait for the SecureStateChanged event to be emitted
             data = event_sub_handler.wait_for_event_type_report(
-                Clusters.ClosureControl.Events.SecureStateChanged, timeout_sec=timeout)
+                Clusters.ClosureControl.Events.SecureStateChanged, timeout_sec=timeout
+            )
             asserts.assert_false(data.secureValue, f"Unexpected event data: {data.secureValue}")
 
 

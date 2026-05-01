@@ -41,7 +41,6 @@ cluster_to_pics_dict = {
     "Content App Observer": "Media Cluster",
     "Application Launch": "Media Cluster",
     "Operational Credentials": "Node Operational Credentials",
-
     # Workaround for naming colisions with current logic
     "Thermostat": "Thermostat Cluster",
     "Boolean State": "Boolean State Cluster",
@@ -51,12 +50,11 @@ cluster_to_pics_dict = {
 
 
 def pics_xml_file_list_loader(pics_xml_path: str, log_loaded_pics_files: bool) -> list:
-
     pics_xml_file_list = os.listdir(pics_xml_path)
 
     if log_loaded_pics_files:
-        if not pics_xml_path.endswith('/'):
-            pics_xml_path += '/'
+        if not pics_xml_path.endswith("/"):
+            pics_xml_path += "/"
 
         for pics_xml_file in pics_xml_file_list:
             print(f"{pics_xml_path}/{pics_xml_file}")

@@ -24,8 +24,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-class MTROTAProviderDelegateBridge : public chip::app::Clusters::OTAProviderDelegate
-{
+class MTROTAProviderDelegateBridge : public chip::app::Clusters::OTAProviderDelegate {
 public:
     MTROTAProviderDelegateBridge();
     ~MTROTAProviderDelegateBridge();

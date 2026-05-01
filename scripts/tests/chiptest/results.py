@@ -117,8 +117,12 @@ class TestResult:
                         log.warning("%s Cancelled after %0.2f seconds", symbol, result.duration_seconds)
                     case TestStatus.FAILED:
                         assert isinstance(result.exception, BaseException), "Exception should be set for failed test results"
-                        log.error("%s Failed in %0.2f seconds", symbol, result.duration_seconds,
-                                  exc_info=(type(result.exception), result.exception, result.exception.__traceback__))
+                        log.error(
+                            "%s Failed in %0.2f seconds",
+                            symbol,
+                            result.duration_seconds,
+                            exc_info=(type(result.exception), result.exception, result.exception.__traceback__),
+                        )
 
                 return result
 
@@ -126,6 +130,7 @@ class TestResult:
 @dataclass
 class RunStats:
     """Statistics of test runs, aggregated across iterations."""
+
     total_runs: int = field(default=0, init=False)
     passed: int = field(default=0, init=False)
     failed: int = field(default=0, init=False)
@@ -177,6 +182,7 @@ class RunSummary(RunStats):
 
     If operated in multithreaded environment, it should be used as a context manager to ensure thread safety when recording results.
     """
+
     iterations: int
     tests_per_iteration: int
     run_timestamp: datetime.datetime | str = field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc))
@@ -220,6 +226,7 @@ class RunSummary(RunStats):
 
     def write_json(self, path: Path) -> None:
         """Write the test run summary to a JSON file."""
+
         def encode(obj: Any) -> Any:
             """JSON encoder for non-serializable objects.
 
@@ -262,9 +269,18 @@ class RunSummary(RunStats):
         return ret
 
     @staticmethod
-    def _print_table(rows: Iterable[tuple[str, ...]], title: str = "", headers_fmt: tuple[tuple[str, str], ...] | None = None,
-                     top_btm_rule: str | None = None, mid_rule: str | None = "-", col_sep: str = "  ", content_padding: int = 2,
-                     rule_padding: int = 2, last_col_max_width: int | None = None, no_content_msg: str | None = None) -> None:
+    def _print_table(
+        rows: Iterable[tuple[str, ...]],
+        title: str = "",
+        headers_fmt: tuple[tuple[str, str], ...] | None = None,
+        top_btm_rule: str | None = None,
+        mid_rule: str | None = "-",
+        col_sep: str = "  ",
+        content_padding: int = 2,
+        rule_padding: int = 2,
+        last_col_max_width: int | None = None,
+        no_content_msg: str | None = None,
+    ) -> None:
         """Print a table to the console.
 
         Arguments:
@@ -302,13 +318,13 @@ class RunSummary(RunStats):
         col_widths = [max(len(row[i]) for row in all_rows) for i in range(len(rows[0]))]
         if last_col_max_width is not None:
             col_widths[-1] = min(col_widths[-1], last_col_max_width)
-        total_width = 2 * content_padding + max(len(title), sum(col_widths) + len(col_sep)*(len(col_widths) - 1))
+        total_width = 2 * content_padding + max(len(title), sum(col_widths) + len(col_sep) * (len(col_widths) - 1))
         rule_width = total_width - 2 * rule_padding
 
         # Prepare formatting strings.
         rule_pad_str = " " * rule_padding
-        top_btm_rule_str = f"{rule_pad_str}{top_btm_rule*rule_width}" if top_btm_rule and len(top_btm_rule) == 1 else top_btm_rule
-        mid_rule_str = f"{rule_pad_str}{mid_rule*rule_width}" if mid_rule and len(mid_rule) == 1 else mid_rule
+        top_btm_rule_str = f"{rule_pad_str}{top_btm_rule * rule_width}" if top_btm_rule and len(top_btm_rule) == 1 else top_btm_rule
+        mid_rule_str = f"{rule_pad_str}{mid_rule * rule_width}" if mid_rule and len(mid_rule) == 1 else mid_rule
         row_format = content_padding_str + col_sep.join(f"{{:{fmt}{width}}}" for fmt, width in zip(fmt, col_widths))
 
         # Print the table.
@@ -328,8 +344,9 @@ class RunSummary(RunStats):
         if top_btm_rule_str:
             print(top_btm_rule_str)
 
-    def print_summary(self, show_failed: bool = True, show_flaky: bool = True, top_slowest: int = 20,
-                      show_all: bool = True) -> None:
+    def print_summary(
+        self, show_failed: bool = True, show_flaky: bool = True, top_slowest: int = 20, show_all: bool = True
+    ) -> None:
         """Print summary of test run.
 
         Keyword Arguments:
@@ -339,49 +356,74 @@ class RunSummary(RunStats):
             show_all -- list stats for all tests across all iterations, including mean duration and status message (passed, failed
                         with exception, or cancelled).
         """
-        self._print_table(title="TEST RUN SUMMARY", top_btm_rule="=", col_sep=" : ", rule_padding=0,
-                          rows=(("Run timestamp", str(self.run_timestamp)),
-                                ("Iterations", str(self.iterations)),
-                                ("Total runs", str(self.total_runs)),
-                                ("Passed", str(self.passed)),
-                                ("Failed", str(self.failed)),
-                                ("Cancelled", str(self.cancelled)),
-                                (("Pass rate", f"{100 * self.pass_rate:.1f}%") if self.total_runs else ())))
+        self._print_table(
+            title="TEST RUN SUMMARY",
+            top_btm_rule="=",
+            col_sep=" : ",
+            rule_padding=0,
+            rows=(
+                ("Run timestamp", str(self.run_timestamp)),
+                ("Iterations", str(self.iterations)),
+                ("Total runs", str(self.total_runs)),
+                ("Passed", str(self.passed)),
+                ("Failed", str(self.failed)),
+                ("Cancelled", str(self.cancelled)),
+                (("Pass rate", f"{100 * self.pass_rate:.1f}%") if self.total_runs else ()),
+            ),
+        )
 
         if show_failed:
             failed_results = tuple(r for r in self.results if r.status == TestStatus.FAILED)
-            self._print_table(title=f"FAILED TESTS ({len(failed_results)}):",
-                              no_content_msg="No failures recorded",
-                              headers_fmt=(("Test name", "<"), ("Iter", ">"), ("Duration", ">")),
-                              rows=((r.name_decorated, str(r.iteration), f"{r.duration_seconds:.2f}s")
-                              for r in sorted(failed_results, key=lambda x: x.name)))
+            self._print_table(
+                title=f"FAILED TESTS ({len(failed_results)}):",
+                no_content_msg="No failures recorded",
+                headers_fmt=(("Test name", "<"), ("Iter", ">"), ("Duration", ">")),
+                rows=(
+                    (r.name_decorated, str(r.iteration), f"{r.duration_seconds:.2f}s")
+                    for r in sorted(failed_results, key=lambda x: x.name)
+                ),
+            )
 
         if show_flaky and self.iterations > 1:
             flaky = tuple((name, stats) for name, stats in self.test_stats.items() if stats.failed > 0)
-            self._print_table(title=f"FAILURE RATE BY TEST (across {self.iterations} iterations)",
-                              no_content_msg="No flaky results",
-                              headers_fmt=(("Test name", "<"), ("Failures", ">"), ("Rate", ">")),
-                              rows=((name, f"{stats.failed}/{stats.total_runs:<2}", f"{100 * stats.fail_rate:.1f}%")
-                              for name, stats in sorted(flaky, key=lambda item: -item[1].failed)))
+            self._print_table(
+                title=f"FAILURE RATE BY TEST (across {self.iterations} iterations)",
+                no_content_msg="No flaky results",
+                headers_fmt=(("Test name", "<"), ("Failures", ">"), ("Rate", ">")),
+                rows=(
+                    (name, f"{stats.failed}/{stats.total_runs:<2}", f"{100 * stats.fail_rate:.1f}%")
+                    for name, stats in sorted(flaky, key=lambda item: -item[1].failed)
+                ),
+            )
 
         if top_slowest:
-            slowest = sorted((r for r in self.results if r.status not in (TestStatus.DRY_RUN, TestStatus.CANCELLED)),
-                             key=lambda x: -x.duration_seconds)
+            slowest = sorted(
+                (r for r in self.results if r.status not in (TestStatus.DRY_RUN, TestStatus.CANCELLED)),
+                key=lambda x: -x.duration_seconds,
+            )
 
             # Slice only the top slowest tests if the limit is set to a positive value. If it's negative, show all tests.
             if top_slowest > 0:
                 slowest = slowest[:top_slowest]
 
-            self._print_table(title=f"SLOWEST {len(slowest)} TEST RUNS:", no_content_msg="No tests to show for slowest list",
-                              headers_fmt=(("Test name", "<"), ("Status", "<"), ("Iter", ">"), ("Duration", ">")),
-                              rows=((r.name_decorated, r.status, str(r.iteration), f"{r.duration_seconds:.2f}s")
-                              for r in slowest))
+            self._print_table(
+                title=f"SLOWEST {len(slowest)} TEST RUNS:",
+                no_content_msg="No tests to show for slowest list",
+                headers_fmt=(("Test name", "<"), ("Status", "<"), ("Iter", ">"), ("Duration", ">")),
+                rows=((r.name_decorated, r.status, str(r.iteration), f"{r.duration_seconds:.2f}s") for r in slowest),
+            )
 
         if show_all:
-            self._print_table(title="STATS OF ALL TESTS:", no_content_msg="No tests to show", last_col_max_width=20,
-                              headers_fmt=(("Test name", "<"), ("Passed", ">"), ("Mean time", ">"), ("Status", "<")),
-                              rows=((name, f"{stats.passed}/{stats.total_runs}", f"{stats.mean_duration:.2f}s", stats.status_msg)
-                                    for name, stats in self.test_stats.items()))
+            self._print_table(
+                title="STATS OF ALL TESTS:",
+                no_content_msg="No tests to show",
+                last_col_max_width=20,
+                headers_fmt=(("Test name", "<"), ("Passed", ">"), ("Mean time", ">"), ("Status", "<")),
+                rows=(
+                    (name, f"{stats.passed}/{stats.total_runs}", f"{stats.mean_duration:.2f}s", stats.status_msg)
+                    for name, stats in self.test_stats.items()
+                ),
+            )
 
         # Final vertical padding.
         print()
@@ -437,11 +479,13 @@ class ResultProcessingThread(threading.Thread):
                 return
 
             log.debug("All results for iteration %i are in, checking failure count", iteration)
-            observed_failures = sum(exc is not None and not isinstance(exc, KeyboardInterrupt)
-                                    for exc in self.summary.exceptions[iteration].values())
+            observed_failures = sum(
+                exc is not None and not isinstance(exc, KeyboardInterrupt) for exc in self.summary.exceptions[iteration].values()
+            )
             if observed_failures != self.expected_failures:
                 raise ResultError(
-                    f"Iteration {iteration}: expected failure count {self.expected_failures}, but got {observed_failures}")
+                    f"Iteration {iteration}: expected failure count {self.expected_failures}, but got {observed_failures}"
+                )
 
     def terminate(self) -> None:
         """Terminate the result processing thread."""
@@ -462,7 +506,8 @@ class ResultProcessingThread(threading.Thread):
                 self.join(self.THREAD_TERMINATE_TIMEOUT_S)
                 if self.is_alive():
                     raise RuntimeError(
-                        "Failed to terminate result processing thread. Result summary may be incomplete or corrupted") from e
+                        "Failed to terminate result processing thread. Result summary may be incomplete or corrupted"
+                    ) from e
         finally:
             # We don't take the lock to ensure there is no deadlock in case of the thread being stuck on acquiring the lock. This
             # may lead to incomplete or corrupted summary, but it's better than hanging indefinitely.

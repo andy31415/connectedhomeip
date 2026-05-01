@@ -17,10 +17,46 @@
 
 # TODO: Implement the decode method
 
-CODES = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-         'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-         'U', 'V', 'W', 'X', 'Y', 'Z', '-', '.']
+CODES = [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z",
+    "-",
+    ".",
+]
 RADIX = len(CODES)
 BASE38_CHARS_NEEDED_IN_CHUNK = [2, 4, 5]
 MAX_BYTES_IN_CHUNK = 3
@@ -29,7 +65,7 @@ MAX_ENCODED_BYTES_IN_CHUNK = 5
 
 def encode(bytes):
     total_bytes = len(bytes)
-    qrcode = ''
+    qrcode = ""
 
     for i in range(0, total_bytes, MAX_BYTES_IN_CHUNK):
         if (i + MAX_BYTES_IN_CHUNK) > total_bytes:

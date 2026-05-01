@@ -22,7 +22,7 @@ from .handlers import ConfiguratorHandler
 class ZapXmlHandler(BaseHandler):
     """Handles the top level (/) of a zap xml file.
 
-       Generally these files only contain a 'configurator' element in them
+    Generally these files only contain a 'configurator' element in them
     """
 
     def __init__(self, context: Context, idl: Idl):
@@ -30,6 +30,6 @@ class ZapXmlHandler(BaseHandler):
         self._idl = idl
 
     def GetNextProcessor(self, name, attrs):
-        if name.lower() == 'configurator':
+        if name.lower() == "configurator":
             return ConfiguratorHandler(self.context, self._idl)
         return BaseHandler(self.context)

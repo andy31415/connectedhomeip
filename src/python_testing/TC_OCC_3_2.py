@@ -71,7 +71,7 @@ log = logging.getLogger(__name__)
 class TC_OCC_3_2(MatterBaseTest):
     def setup_test(self):
         super().setup_test()
-        self.is_ci = self.matter_test_config.global_test_params.get('simulate_occupancy', False)
+        self.is_ci = self.matter_test_config.global_test_params.get("simulate_occupancy", False)
 
     async def read_occ_attribute_expect_success(self, attribute):
         cluster = Clusters.Objects.OccupancySensing
@@ -84,15 +84,23 @@ class TC_OCC_3_2(MatterBaseTest):
     def steps_TC_OCC_3_2(self) -> list[TestStep]:
         return [
             TestStep(1, "Commission DUT to TH if not already done", is_commissioning=True),
-            TestStep(2, "TH establishes a wildcard subscription to all attributes on Occupancy Sensing Cluster on the endpoint under test. Subscription min interval = 0 and max interval = 30 seconds."),
+            TestStep(
+                2,
+                "TH establishes a wildcard subscription to all attributes on Occupancy Sensing Cluster on the endpoint under test. Subscription min interval = 0 and max interval = 30 seconds.",
+            ),
             TestStep("3a", "Prepare DUT to be unoccupied state."),
             TestStep("3b", "TH reads DUT Occupancy attribute."),
             TestStep("3c", "Trigger DUT to change the occupancy state."),
             TestStep("3d", "TH awaits a ReportDataMessage containing an attribute report for DUT Occupancy attribute."),
-            TestStep("4a", "Check if DUT supports HoldTime attribute, If not supported, then stop and skip the rest of test cases."),
+            TestStep(
+                "4a", "Check if DUT supports HoldTime attribute, If not supported, then stop and skip the rest of test cases."
+            ),
             TestStep("4b", "TH writes HoldTimeMin to HoldTime attribute."),
             TestStep("4c", "TH clears its report history and writes HoldTimeMax to HoldTime attribute."),
-            TestStep("4d", "TH awaits a ReportDataMessage containing an attribute report for DUT HoldTime attribute and all legacy attributes supported."),
+            TestStep(
+                "4d",
+                "TH awaits a ReportDataMessage containing an attribute report for DUT HoldTime attribute and all legacy attributes supported.",
+            ),
         ]
 
     def pics_TC_OCC_3_2(self) -> list[str]:
@@ -118,8 +126,7 @@ class TC_OCC_3_2(MatterBaseTest):
         has_feature_ultrasonic = (feature_map & cluster.Bitmaps.Feature.kUltrasonic) != 0
         has_feature_contact = (feature_map & cluster.Bitmaps.Feature.kPhysicalContact) != 0
 
-        log.info(
-            f"Feature map: 0x{feature_map:x}. PIR: {has_feature_pir}, US:{has_feature_ultrasonic}, PHY:{has_feature_contact}")
+        log.info(f"Feature map: 0x{feature_map:x}. PIR: {has_feature_pir}, US:{has_feature_ultrasonic}, PHY:{has_feature_contact}")
 
         attribute_list = await self.read_occ_attribute_expect_success(attribute=attributes.AttributeList)
         has_pir_timing_attrib = attributes.PIROccupiedToUnoccupiedDelay.attribute_id in attribute_list
@@ -155,11 +162,13 @@ class TC_OCC_3_2(MatterBaseTest):
             self.write_to_app_pipe({"Name": "SetOccupancy", "EndpointId": 1, "Occupancy": 1})
         else:
             self.wait_for_user_input(
-                prompt_msg="Type any letter and press ENTER after the sensor occupancy is triggered and its occupancy state changed.")
+                prompt_msg="Type any letter and press ENTER after the sensor occupancy is triggered and its occupancy state changed."
+            )
 
         self.step("3d")
-        attrib_listener.await_sequence_of_reports(attribute=cluster.Attributes.Occupancy, sequence=[
-            1], timeout_sec=post_prompt_settle_delay_seconds)
+        attrib_listener.await_sequence_of_reports(
+            attribute=cluster.Attributes.Occupancy, sequence=[1], timeout_sec=post_prompt_settle_delay_seconds
+        )
 
         self.step("4a")
         if attributes.HoldTime.attribute_id not in attribute_list:
@@ -182,8 +191,9 @@ class TC_OCC_3_2(MatterBaseTest):
         await self.write_single_attribute(attributes.HoldTime(hold_time_max))
 
         self.step("4d")
-        attrib_listener.await_sequence_of_reports(attribute=cluster.Attributes.HoldTime, sequence=[
-                                                  hold_time_max], timeout_sec=post_prompt_settle_delay_seconds)
+        attrib_listener.await_sequence_of_reports(
+            attribute=cluster.Attributes.HoldTime, sequence=[hold_time_max], timeout_sec=post_prompt_settle_delay_seconds
+        )
 
 
 if __name__ == "__main__":

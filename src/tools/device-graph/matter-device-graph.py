@@ -88,30 +88,40 @@ deviceTypeDict = {
     115: "Laundry Washer",
     116: "Robotic Vacuum Cleaner",
     117: "Dishwasher",
-    118: "Smoke CO Alarm"
+    118: "Smoke CO Alarm",
 }
 
 
 def AddServerOrClientNode(graphSection, endpoint, clusterName, color, nodeRef):
-
-    if (len(clusterName) > maxClusterNameLength):
-        clusterNameAdjustedLength = clusterName[:maxClusterNameLength] + '...'
+    if len(clusterName) > maxClusterNameLength:
+        clusterNameAdjustedLength = clusterName[:maxClusterNameLength] + "..."
     else:
         clusterNameAdjustedLength = clusterName
 
-    graphSection.node(f"ep{endpoint}_{clusterName}", label=f"{clusterNameAdjustedLength}", style="filled,rounded",
-                      color=color, shape="box", fixedsize="true", width="3", height="0.5")
+    graphSection.node(
+        f"ep{endpoint}_{clusterName}",
+        label=f"{clusterNameAdjustedLength}",
+        style="filled,rounded",
+        color=color,
+        shape="box",
+        fixedsize="true",
+        width="3",
+        height="0.5",
+    )
     graphSection.edge(nodeRef, f"ep{endpoint}_{clusterName}", style="invis")
 
 
 def CreateEndpointGraph(graph, graphSection, endpoint, wildcardResponse):
-
     numberOfRowsInEndpoint = 2
 
-    partsListFromWildcardRead = wildcardResponse[endpoint][Clusters.Objects.Descriptor][Clusters.Objects.Descriptor.Attributes.PartsList]
+    partsListFromWildcardRead = wildcardResponse[endpoint][Clusters.Objects.Descriptor][
+        Clusters.Objects.Descriptor.Attributes.PartsList
+    ]
 
     listOfDeviceTypes = []
-    for deviceTypeStruct in wildcardResponse[endpoint][Clusters.Objects.Descriptor][Clusters.Objects.Descriptor.Attributes.DeviceTypeList]:
+    for deviceTypeStruct in wildcardResponse[endpoint][Clusters.Objects.Descriptor][
+        Clusters.Objects.Descriptor.Attributes.DeviceTypeList
+    ]:
         try:
             listOfDeviceTypes.append(deviceTypeDict[deviceTypeStruct.deviceType])
         except KeyError:
@@ -127,8 +137,16 @@ def CreateEndpointGraph(graph, graphSection, endpoint, wildcardResponse):
     nodeRef = f"ep{endpoint}"
     clusterColumnCount = 0
 
-    graphSection.node(f"ep{endpoint}", label=endpointLabel, style="filled,rounded",
-                      color="dodgerblue", shape="box", fixedsize="true", width="4", height="1")
+    graphSection.node(
+        f"ep{endpoint}",
+        label=endpointLabel,
+        style="filled,rounded",
+        color="dodgerblue",
+        shape="box",
+        fixedsize="true",
+        width="4",
+        height="1",
+    )
 
     for clusterId in wildcardResponse[endpoint][Clusters.Objects.Descriptor][Clusters.Objects.Descriptor.Attributes.ServerList]:
         clusterColumnCount += 1
@@ -173,7 +191,6 @@ def CreateEndpointGraph(graph, graphSection, endpoint, wildcardResponse):
 class TC_MatterDeviceGraph(MatterBaseTest):
     @async_test_body
     async def test_matter_device_graph(self):
-
         # Create console to print
         global console
         console = Console()
@@ -183,7 +200,7 @@ class TC_MatterDeviceGraph(MatterBaseTest):
 
         # Perform wildcard read to get all attributes from device
         console.print("[blue]Capturing data from device")
-        wildcardResponse = await dev_ctrl.ReadAttribute(self.dut_node_id, [('*')])
+        wildcardResponse = await dev_ctrl.ReadAttribute(self.dut_node_id, [("*")])
         # console.print(wildcardResponse)
 
         # Creating graph object
@@ -193,18 +210,19 @@ class TC_MatterDeviceGraph(MatterBaseTest):
         console.print("[blue]Generating graph")
         # Loop through each endpoint in the response from the wildcard read
         for endpoint in wildcardResponse:
-
             if endpoint == 0:
-                with deviceGraph.subgraph(name='cluster_rootnode') as rootNodeSection:
+                with deviceGraph.subgraph(name="cluster_rootnode") as rootNodeSection:
                     CreateEndpointGraph(deviceGraph, rootNodeSection, endpoint, wildcardResponse)
             else:
-                with (deviceGraph.subgraph(name='cluster_endpoints') as endpointsSection,
-                      endpointsSection.subgraph(name=f'cluster_{endpoint}') as endpointSection):
+                with (
+                    deviceGraph.subgraph(name="cluster_endpoints") as endpointsSection,
+                    endpointsSection.subgraph(name=f"cluster_{endpoint}") as endpointSection,
+                ):
                     CreateEndpointGraph(deviceGraph, endpointSection, endpoint, wildcardResponse)
 
-        deviceGraph.save(f'{sys.path[0]}/matter-device-graph.dot')
+        deviceGraph.save(f"{sys.path[0]}/matter-device-graph.dot")
 
-        with open(f'{sys.path[0]}/matter-device-data.txt', 'w') as f:
+        with open(f"{sys.path[0]}/matter-device-data.txt", "w") as f:
             f.write(pprint.pformat((wildcardResponse)))
 
 

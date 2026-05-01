@@ -49,45 +49,30 @@ def find_program(names):
 
 @click.command()
 @click.option(
-    '--log-level',
+    "--log-level",
     show_default=True,
-    default='info',
+    default="info",
     type=click.Choice(__LOG_LEVELS__.keys(), case_sensitive=False),
-    help='Set the verbosity of script output.')
+    help="Set the verbosity of script output.",
+)
+@click.option("--log-timestamps/--no-log-timestamps", default=True, help="Show timestamps in log output")
 @click.option(
-    '--log-timestamps/--no-log-timestamps',
-    default=True,
-    help='Show timestamps in log output')
-@click.option(
-    '--compile-commands-glob',
+    "--compile-commands-glob",
     show_default=True,
-    default=os.path.join(proj_root_dir, "out", "debug",
-                         "compile_commands*.json"),
-    help='Set global pattern for compile_commands.json files.')
-@click.option(
-    '--mapping-file-dir',
-    help='Set directory with iwyu.imp mapping file.')
-@click.option(
-    '--iwyu-args',
-    show_default=True,
-    default="-Xiwyu --no_fwd_decls",
-    help='Set custom arg(s) for include what you use.')
-@click.option(
-    '--clang-args',
-    default="",
-    help='Set custom arg(s) for clang.')
-@click.argument(
-    'source',
-    nargs=-1,
-    type=click.Path(exists=True))
-def main(compile_commands_glob, source, mapping_file_dir,
-         iwyu_args, clang_args, log_level, log_timestamps):
+    default=os.path.join(proj_root_dir, "out", "debug", "compile_commands*.json"),
+    help="Set global pattern for compile_commands.json files.",
+)
+@click.option("--mapping-file-dir", help="Set directory with iwyu.imp mapping file.")
+@click.option("--iwyu-args", show_default=True, default="-Xiwyu --no_fwd_decls", help="Set custom arg(s) for include what you use.")
+@click.option("--clang-args", default="", help="Set custom arg(s) for clang.")
+@click.argument("source", nargs=-1, type=click.Path(exists=True))
+def main(compile_commands_glob, source, mapping_file_dir, iwyu_args, clang_args, log_level, log_timestamps):
     # Ensures somewhat pretty logging of what is going on
-    log_fmt = '%(asctime)s.%(msecs)03d %(levelname)-7s %(message)s' if log_timestamps else '%(levelname)-7s %(message)s'
+    log_fmt = "%(asctime)s.%(msecs)03d %(levelname)-7s %(message)s" if log_timestamps else "%(levelname)-7s %(message)s"
     coloredlogs.install(level=__LOG_LEVELS__[log_level], fmt=log_fmt)
 
     # checking if a program IWYU exists
-    iwyu = find_program(('iwyu_tool', 'iwyu_tool.py'))
+    iwyu = find_program(("iwyu_tool", "iwyu_tool.py"))
 
     if iwyu is None:
         log.error("Can't find IWYU")
@@ -104,22 +89,19 @@ def main(compile_commands_glob, source, mapping_file_dir,
         sys.exit(1)
 
     for compile_commands in compile_commands_glob:
-
         compile_commands_path = os.path.dirname(compile_commands)
-        compile_commands_file = os.path.join(
-            compile_commands_path, "compile_commands.json")
-        log.debug("Copy compile command file '%s' to '%s'",
-                  compile_commands, compile_commands_file)
+        compile_commands_file = os.path.join(compile_commands_path, "compile_commands.json")
+        log.debug("Copy compile command file '%s' to '%s'", compile_commands, compile_commands_file)
 
         with contextlib.suppress(shutil.SameFileError):
             shutil.copyfile(compile_commands, compile_commands_file)
 
         # Prase json file for find target name
-        with open(compile_commands, 'r') as json_data:
+        with open(compile_commands, "r") as json_data:
             json_data = json.load(json_data)
 
         for key in json_data:
-            find_re = re.search(r'^.*/src/platform*?\/(.*)/.*$', key['file'])
+            find_re = re.search(r"^.*/src/platform*?\/(.*)/.*$", key["file"])
             if find_re is not None:
                 platform = find_re.group(1)
                 break
@@ -145,23 +127,27 @@ def main(compile_commands_glob, source, mapping_file_dir,
         # TODO: Add another platform for easy scanning
         # Actually works scanning for platform: tizen, darwin, linux other not tested yet.
 
-        command_arr = [
-            iwyu,
-            "-p", compile_commands_path, *source,
-            "--", iwyu_args,
-            "-Xiwyu", "--mapping_file=" + mapping_file_dir + "/iwyu.imp",
-        ] + platform_clang_args + [clang_args]
+        command_arr = (
+            [
+                iwyu,
+                "-p",
+                compile_commands_path,
+                *source,
+                "--",
+                iwyu_args,
+                "-Xiwyu",
+                "--mapping_file=" + mapping_file_dir + "/iwyu.imp",
+            ]
+            + platform_clang_args
+            + [clang_args]
+        )
 
         log.info("Used compile commands: '%s'", compile_commands)
         log.info("Scanning includes for platform: '%s'", platform)
         log.info("Scanning sources(s): '%s'", ", ".join(source))
 
         log.debug("Command: %s", shlex.join(command_arr))
-        status = subprocess.Popen(" ".join(command_arr),
-                                  shell=True,
-                                  text=True,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT)
+        status = subprocess.Popen(" ".join(command_arr), shell=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         log.info("============== IWYU output start  ================")
 
@@ -190,5 +176,5 @@ def main(compile_commands_glob, source, mapping_file_dir,
         log.info("Every include looks good!")
 
 
-if __name__ == '__main__':
-    main(auto_envvar_prefix='CHIP')
+if __name__ == "__main__":
+    main(auto_envvar_prefix="CHIP")

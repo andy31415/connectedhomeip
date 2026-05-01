@@ -35,8 +35,8 @@ class ContextManager:
 
     def __enter__(self) -> Session:
         return Session(
-            node_id=self.node_id,
-            device=self.devCtrl.GetConnectedDeviceSync(self.node_id, allowPASE=True, timeoutMs=1000))
+            node_id=self.node_id, device=self.devCtrl.GetConnectedDeviceSync(self.node_id, allowPASE=True, timeoutMs=1000)
+        )
 
     def __exit__(self, type, value, traceback):
         self.devCtrl.MarkSessionDefunct(self.node_id)
@@ -44,12 +44,15 @@ class ContextManager:
             self.devCtrl.CloseBLEConnection(self.is_ble)
 
 
-async def establish_session(devCtrl: ChipDeviceCtrl.ChipDeviceControllerBase, parameter: commissioning.PaseParameters) -> ContextManager:
+async def establish_session(
+    devCtrl: ChipDeviceCtrl.ChipDeviceControllerBase, parameter: commissioning.PaseParameters
+) -> ContextManager:
     if isinstance(parameter, commissioning.PaseOverBLEParameters):
         await devCtrl.EstablishPASESessionBLE(parameter.setup_pin, parameter.discriminator, parameter.temporary_nodeid)
     elif isinstance(parameter, commissioning.PaseOverIPParameters):
-        device = await devCtrl.DiscoverCommissionableNodes(filterType=discovery.FilterType.LONG_DISCRIMINATOR,
-                                                           filter=parameter.long_discriminator, stopOnFirst=True)
+        device = await devCtrl.DiscoverCommissionableNodes(
+            filterType=discovery.FilterType.LONG_DISCRIMINATOR, filter=parameter.long_discriminator, stopOnFirst=True
+        )
         if not device:
             raise ValueError("No commissionable device found")
         selected_address = None
@@ -67,4 +70,5 @@ async def establish_session(devCtrl: ChipDeviceCtrl.ChipDeviceControllerBase, pa
     else:
         raise TypeError("Expect PaseOverBLEParameters or PaseOverIPParameters for establishing PASE session")
     return ContextManager(
-        devCtrl=devCtrl, node_id=parameter.temporary_nodeid, is_ble=isinstance(parameter, commissioning.PaseOverBLEParameters))
+        devCtrl=devCtrl, node_id=parameter.temporary_nodeid, is_ble=isinstance(parameter, commissioning.PaseOverBLEParameters)
+    )

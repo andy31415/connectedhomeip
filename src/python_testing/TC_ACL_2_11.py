@@ -59,9 +59,8 @@ log = logging.getLogger(__name__)
 
 
 class TC_ACL_2_11(MatterBaseTest):
-
     def pics_TC_ACL_2_11(self) -> list[str]:
-        return ['ACL.S.F01']
+        return ["ACL.S.F01"]
 
     def desc_TC_ACL_2_11(self) -> str:
         return "[TC-ACL-2.11] Verification of Managed Device feature"
@@ -71,15 +70,21 @@ class TC_ACL_2_11(MatterBaseTest):
             TestStep(1, "Commissioning (already done) and precondition checks", is_commissioning=True),
             TestStep(2, "TH1 reads DUT Endpoint 0 AccessControl cluster CommissioningARL attribute"),
             TestStep(3, "TH1 reads DUT Endpoint 0 AccessControl cluster ARL attribute"),
-            TestStep(4, "For each entry in ARL, iterate over each restriction and attempt access the restriction's ID on the Endpoint and Cluster in the ARL entry.",
-                     "If the restriction is Type AttributeAccessForbidden, read the restriction's attribute ID and verify the response is ACCESS_RESTRICTED."
-                     "If the restriction is Type AttributeWriteForbidden, write restriction's the attribute ID and verify the response is ACCESS_RESTRICTED."
-                     "If the restriction is Type CommandForbidden, invoke the restriction's command ID and verify the response is ACCESS_RESTRICTED."),
+            TestStep(
+                4,
+                "For each entry in ARL, iterate over each restriction and attempt access the restriction's ID on the Endpoint and Cluster in the ARL entry.",
+                "If the restriction is Type AttributeAccessForbidden, read the restriction's attribute ID and verify the response is ACCESS_RESTRICTED."
+                "If the restriction is Type AttributeWriteForbidden, write restriction's the attribute ID and verify the response is ACCESS_RESTRICTED."
+                "If the restriction is Type CommandForbidden, invoke the restriction's command ID and verify the response is ACCESS_RESTRICTED.",
+            ),
             TestStep(5, "Ensure protected attributes are accessible"),
             TestStep(6, "TH1 sends DUT Endpoint 0 AccessControl cluster command ReviewFabricRestrictions"),
-            TestStep(7, "Wait for up to 1 hour. Follow instructions provided by device maker to remove all access restrictions",
-                     "AccessRestrictionReviewUpdate event is received"),
-            TestStep(8, "TH1 reads DUT Endpoint 0 AccessControl cluster ARL attribute", "ARL is empty")
+            TestStep(
+                7,
+                "Wait for up to 1 hour. Follow instructions provided by device maker to remove all access restrictions",
+                "AccessRestrictionReviewUpdate event is received",
+            ),
+            TestStep(8, "TH1 reads DUT Endpoint 0 AccessControl cluster ARL attribute", "ARL is empty"),
         ]
 
     @async_test_body
@@ -88,24 +93,24 @@ class TC_ACL_2_11(MatterBaseTest):
         dut_node_id = self.dut_node_id
         self.step(1)
 
-        wildcard_read = (await dev_ctrl.Read(self.dut_node_id, [()]))
+        wildcard_read = await dev_ctrl.Read(self.dut_node_id, [()])
         arl_data = arls_populated(wildcard_read.tlvAttributes)
         asserts.assert_true(
-            arl_data.have_arl, "ARL attribute must contain at least one restriction to run this test. Please follow manufacturer-specific steps to add access restrictions and re-run this test")
+            arl_data.have_arl,
+            "ARL attribute must contain at least one restriction to run this test. Please follow manufacturer-specific steps to add access restrictions and re-run this test",
+        )
         asserts.assert_true(
-            arl_data.have_carl, "CommissioningARL attribute must contain at least one restriction to run this test. Please follow manufacturer-specific steps to add access restrictions and re-run this test")
+            arl_data.have_carl,
+            "CommissioningARL attribute must contain at least one restriction to run this test. Please follow manufacturer-specific steps to add access restrictions and re-run this test",
+        )
 
         self.step(2)
         await self.read_single_attribute_check_success(
-            endpoint=0,
-            cluster=Clusters.AccessControl,
-            attribute=Clusters.AccessControl.Attributes.CommissioningARL
+            endpoint=0, cluster=Clusters.AccessControl, attribute=Clusters.AccessControl.Attributes.CommissioningARL
         )
         self.step(3)
         arl = await self.read_single_attribute_check_success(
-            endpoint=0,
-            cluster=Clusters.AccessControl,
-            attribute=Clusters.AccessControl.Attributes.Arl
+            endpoint=0, cluster=Clusters.AccessControl, attribute=Clusters.AccessControl.Attributes.Arl
         )
         self.step(4)
 
@@ -127,76 +132,118 @@ class TC_ACL_2_11(MatterBaseTest):
                     # if ID1 is null, it means it is a wildcard.  We need to read all attributes on the cluster
                     if ID1 is NullValue:
                         for attr_id, attribute in ALL_ATTRIBUTES[C1].items():
-                            if global_attribute_ids.attribute_id_type(attr_id) != global_attribute_ids.AttributeIdType.kStandardGlobal:
-                                await self.read_single_attribute_expect_error(cluster=cluster, attribute=attribute, error=Status.AccessRestricted, endpoint=E1)
+                            if (
+                                global_attribute_ids.attribute_id_type(attr_id)
+                                != global_attribute_ids.AttributeIdType.kStandardGlobal
+                            ):
+                                await self.read_single_attribute_expect_error(
+                                    cluster=cluster, attribute=attribute, error=Status.AccessRestricted, endpoint=E1
+                                )
                     else:
                         attribute = ALL_ATTRIBUTES[C1][ID1]
-                        await self.read_single_attribute_expect_error(cluster=cluster, attribute=attribute, error=Status.AccessRestricted, endpoint=E1)
+                        await self.read_single_attribute_expect_error(
+                            cluster=cluster, attribute=attribute, error=Status.AccessRestricted, endpoint=E1
+                        )
                 elif restriction_type == AccessControl.Enums.AccessRestrictionTypeEnum.kAttributeWriteForbidden:
                     if ID1 is NullValue:
                         for attr_id, attribute in ALL_ATTRIBUTES[C1].items():
-                            if global_attribute_ids.attribute_id_type(attr_id) != global_attribute_ids.AttributeIdType.kStandardGlobal:
-                                status = await self.write_single_attribute(attribute_value=attribute(), endpoint_id=E1, expect_success=False)
+                            if (
+                                global_attribute_ids.attribute_id_type(attr_id)
+                                != global_attribute_ids.AttributeIdType.kStandardGlobal
+                            ):
+                                status = await self.write_single_attribute(
+                                    attribute_value=attribute(), endpoint_id=E1, expect_success=False
+                                )
                                 if status is not Status.UnsupportedWrite:
-                                    asserts.assert_equal(status, Status.AccessRestricted,
-                                                         f"Failed to verify ACCESS_RESTRICTED when writing to Attribute {attr_id} Cluster {C1} Endpoint {E1}")
+                                    asserts.assert_equal(
+                                        status,
+                                        Status.AccessRestricted,
+                                        f"Failed to verify ACCESS_RESTRICTED when writing to Attribute {attr_id} Cluster {C1} Endpoint {E1}",
+                                    )
                     else:
                         attribute = ALL_ATTRIBUTES[C1][ID1]
-                        status = await self.write_single_attribute(attribute_value=attribute(), endpoint_id=E1, expect_success=False)
-                        asserts.assert_equal(status, Status.AccessRestricted,
-                                             f"Failed to verify ACCESS_RESTRICTED when writing to Attribute {ID1} Cluster {C1} Endpoint {E1}")
+                        status = await self.write_single_attribute(
+                            attribute_value=attribute(), endpoint_id=E1, expect_success=False
+                        )
+                        asserts.assert_equal(
+                            status,
+                            Status.AccessRestricted,
+                            f"Failed to verify ACCESS_RESTRICTED when writing to Attribute {ID1} Cluster {C1} Endpoint {E1}",
+                        )
                 elif restriction_type == AccessControl.Enums.AccessRestrictionTypeEnum.kCommandForbidden:
                     if ID1 is NullValue:
                         for cmd_id, command in ALL_ACCEPTED_COMMANDS[C1].items():
                             try:
                                 await self.send_single_cmd(cmd=command(), endpoint=E1, timedRequestTimeoutMs=1000)
                             except InteractionModelError as e:
-                                asserts.assert_equal(e.status, Status.AccessRestricted,
-                                                     f"Failed to verify ACCESS_RESTRICTED when sending command {cmd_id} to Cluster {C1} Endpoint {E1}")
+                                asserts.assert_equal(
+                                    e.status,
+                                    Status.AccessRestricted,
+                                    f"Failed to verify ACCESS_RESTRICTED when sending command {cmd_id} to Cluster {C1} Endpoint {E1}",
+                                )
                     else:
                         command = ALL_ACCEPTED_COMMANDS[C1][ID1]
                         try:
                             await self.send_single_cmd(cmd=command(), endpoint=E1, timedRequestTimeoutMs=1000)
                         except InteractionModelError as e:
-                            asserts.assert_equal(e.status, Status.AccessRestricted,
-                                                 f"Failed to verify ACCESS_RESTRICTED when sending command {ID1} to Cluster {C1} Endpoint {E1}")
+                            asserts.assert_equal(
+                                e.status,
+                                Status.AccessRestricted,
+                                f"Failed to verify ACCESS_RESTRICTED when sending command {ID1} to Cluster {C1} Endpoint {E1}",
+                            )
 
         # Belongs to step 6, but needs to be subscribed before executing step 5: begin
         event = Clusters.AccessControl.Events.FabricRestrictionReviewUpdate
         arru_cb = EventSubscriptionHandler(expected_cluster_id=event.cluster_id, expected_event_id=event.event_id)
 
         urgent = 1
-        subscription_arru = await dev_ctrl.ReadEvent(dut_node_id, events=[(0, Clusters.AccessControl.Events.FabricRestrictionReviewUpdate, urgent)], reportInterval=(0, 30), keepSubscriptions=True, autoResubscribe=False)
+        subscription_arru = await dev_ctrl.ReadEvent(
+            dut_node_id,
+            events=[(0, Clusters.AccessControl.Events.FabricRestrictionReviewUpdate, urgent)],
+            reportInterval=(0, 30),
+            keepSubscriptions=True,
+            autoResubscribe=False,
+        )
         subscription_arru.SetEventUpdateCallback(callback=arru_cb)
         # end
 
         self.step(5)
         root_node_endpoint = 0
         root_part_list = await dev_ctrl.ReadAttribute(dut_node_id, [(root_node_endpoint, Clusters.Descriptor.Attributes.PartsList)])
-        set_of_endpoints = set(root_part_list[root_node_endpoint]
-                               [Clusters.Descriptor][Clusters.Descriptor.Attributes.PartsList])
+        set_of_endpoints = set(root_part_list[root_node_endpoint][Clusters.Descriptor][Clusters.Descriptor.Attributes.PartsList])
         for endpoint in set_of_endpoints:
             ret = await dev_ctrl.ReadAttribute(dut_node_id, [(endpoint, Clusters.Descriptor.Attributes.ServerList)])
             server_list = ret[endpoint][Clusters.Descriptor][Clusters.Descriptor.Attributes.ServerList]
             for server in server_list:
                 cluster = Clusters.ClusterObjects.ALL_CLUSTERS[server]
-                data = await dev_ctrl.ReadAttribute(dut_node_id, [(endpoint, cluster.Attributes.GeneratedCommandList),
-                                                                  (endpoint, cluster.Attributes.AcceptedCommandList),
-                                                                  (endpoint, cluster.Attributes.AttributeList),
-                                                                  (endpoint, cluster.Attributes.FeatureMap),
-                                                                  (endpoint, cluster.Attributes.ClusterRevision)])
+                data = await dev_ctrl.ReadAttribute(
+                    dut_node_id,
+                    [
+                        (endpoint, cluster.Attributes.GeneratedCommandList),
+                        (endpoint, cluster.Attributes.AcceptedCommandList),
+                        (endpoint, cluster.Attributes.AttributeList),
+                        (endpoint, cluster.Attributes.FeatureMap),
+                        (endpoint, cluster.Attributes.ClusterRevision),
+                    ],
+                )
                 for endpoint, clusters in data.items():
                     for cluster, attributes in clusters.items():
                         for attribute, value in attributes.items():
-                            asserts.assert_false(isinstance(value, ValueDecodeFailure) and
-                                                 isinstance(value.Reason, InteractionModelError) and
-                                                 value.Reason.status == Status.AccessRestricted,
-                                                 "AccessRestricted is not allowed on Global attributes")
+                            asserts.assert_false(
+                                isinstance(value, ValueDecodeFailure)
+                                and isinstance(value.Reason, InteractionModelError)
+                                and value.Reason.status == Status.AccessRestricted,
+                                "AccessRestricted is not allowed on Global attributes",
+                            )
 
         self.step(6)
-        response = await self.send_single_cmd(cmd=Clusters.AccessControl.Commands.ReviewFabricRestrictions([care_struct]), endpoint=0)
-        asserts.assert_true(isinstance(response, Clusters.AccessControl.Commands.ReviewFabricRestrictionsResponse),
-                            "Result is not of type ReviewFabricRestrictionsResponse")
+        response = await self.send_single_cmd(
+            cmd=Clusters.AccessControl.Commands.ReviewFabricRestrictions([care_struct]), endpoint=0
+        )
+        asserts.assert_true(
+            isinstance(response, Clusters.AccessControl.Commands.ReviewFabricRestrictionsResponse),
+            "Result is not of type ReviewFabricRestrictionsResponse",
+        )
 
         self.step(7)
         log.info("Please follow instructions provided by the product maker to remove all ARL entries")
@@ -206,10 +253,7 @@ class TC_ACL_2_11(MatterBaseTest):
         cluster = Clusters.AccessControl
         attribute = Clusters.AccessControl.Attributes.Arl
         arl = await self.read_single_attribute_check_success(
-            node_id=self.dut_node_id,
-            endpoint=0,
-            cluster=cluster,
-            attribute=attribute
+            node_id=self.dut_node_id, endpoint=0, cluster=cluster, attribute=attribute
         )
         asserts.assert_equal(arl, [], "Unexpected Arl; Not empty")
 

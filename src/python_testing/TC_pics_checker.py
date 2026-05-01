@@ -23,8 +23,13 @@ from matter.testing.basic_composition import BasicCompositionTests
 from matter.testing.decorators import async_test_body
 from matter.testing.global_attribute_ids import GlobalAttributeIds
 from matter.testing.pics import accepted_cmd_pics_str, attribute_pics_str, feature_pics_str, generated_cmd_pics_str
-from matter.testing.problem_notices import (AttributePathLocation, ClusterPathLocation, CommandPathLocation, FeaturePathLocation,
-                                            UnknownProblemLocation)
+from matter.testing.problem_notices import (
+    AttributePathLocation,
+    ClusterPathLocation,
+    CommandPathLocation,
+    FeaturePathLocation,
+    UnknownProblemLocation,
+)
 from matter.testing.runner import TestStep, default_matter_test_main
 
 
@@ -37,8 +42,11 @@ class TC_PICS_Checker(BasicCompositionTests):
 
     def _check_and_record_errors(self, location, required, pics):
         if required and not self.check_pics(pics):
-            self.record_error("PICS check", location=location,
-                              problem=f"An element found on the device, but the corresponding PICS {pics} was not found in pics list")
+            self.record_error(
+                "PICS check",
+                location=location,
+                problem=f"An element found on the device, but the corresponding PICS {pics} was not found in pics list",
+            )
             self.success = False
         elif not required and self.check_pics(pics):
             self.record_error("PICS check", location=location, problem=f"PICS {pics} found in PICS list, but not on device")
@@ -86,24 +94,53 @@ class TC_PICS_Checker(BasicCompositionTests):
             self._check_and_record_errors(location, required, pics)
 
     def steps_TC_IDM_10_4(self):
-        return [TestStep(1, "TH performs a wildcard read of all attributes on the endpoint under test (done during test setup)"),
-                TestStep(2, "For every standard cluster: If the cluster is present on the endpoint, ensure the server-side PICS code for the cluster is present in the PICS file (e.g. OO.S for On/Off cluster).If the cluster is not present on the endpoint, ensure the cluster server PICS code is not present in the PICS file.", "PICS exactly match for server clusters."),
-                TestStep(3, "For every standard cluster, for every attribute in the cluster:If the cluster is present on the endpoint and the attribute ID is present in the AttributeList global attribute within the cluster, ensure the server-side PICS code for the attribute is present in the PICS file (e.g. OO.S.A000 for On/Off cluster’s OnOff attribute).Otherwise, ensure the attribute PICS code is NOT present in the PICS file.", "PICS exactly match for all attributes in all clusters."),
-                TestStep(4, "For every cluster present in the spec, for every client → server command in the cluster: If the cluster is present on the endpoint and the command id is present in the accepted commands list, ensure the PICS code for the accepted command is present in the PICS file. Otherwise, ensure the accepted command PICS code is not present in the PICS file.", "PICS exactly match for all accepted commands in all clusters."),
-                TestStep(5, "For every cluster present in the spec, for every server → client command in the cluster: If the cluster is present on the endpoint and the command id is present in the generated commands list, ensure the PICS code for the generated command is present in the PICS file. Otherwise, ensure the generated command PICS code is not present in the PICS file.", "PICS exactly match for all generated commands in all clusters."),
-                TestStep(6, "For every cluster present in the spec, for every feature in the cluster: If the cluster is present on the endpoint and the feature is marked in the feature map, ensure the PICS code for the feature is present in the PICS file. Otherwise, ensure the feature PICS code is not present in the PICS file.", "PICS exactly match for all features in all clusters."),
-                TestStep(7, "Ensure that the PICS_SDK_CI_ONLY PICS does not appear in the PICS file", "CI PICS is not present"),
-                TestStep(8, "If the device has a root node device type on this endpoint, ensure the MCORE.ROLE.COMMISSIONEE PICS code is set",
-                         "PICS is set if root node is present"),
-                TestStep(9, "If the device has any onboarding payload (MCORE.DD.QR or MCORE.DD.NFC), it has the manual pairing code PICS set (MCORE.DD.MANUAL_PC)",
-                         "Manual pairing code PICS is set if QR or NFC is set"),
-                TestStep(10, "If any of the checks failed, fail the test")]
+        return [
+            TestStep(1, "TH performs a wildcard read of all attributes on the endpoint under test (done during test setup)"),
+            TestStep(
+                2,
+                "For every standard cluster: If the cluster is present on the endpoint, ensure the server-side PICS code for the cluster is present in the PICS file (e.g. OO.S for On/Off cluster).If the cluster is not present on the endpoint, ensure the cluster server PICS code is not present in the PICS file.",
+                "PICS exactly match for server clusters.",
+            ),
+            TestStep(
+                3,
+                "For every standard cluster, for every attribute in the cluster:If the cluster is present on the endpoint and the attribute ID is present in the AttributeList global attribute within the cluster, ensure the server-side PICS code for the attribute is present in the PICS file (e.g. OO.S.A000 for On/Off cluster’s OnOff attribute).Otherwise, ensure the attribute PICS code is NOT present in the PICS file.",
+                "PICS exactly match for all attributes in all clusters.",
+            ),
+            TestStep(
+                4,
+                "For every cluster present in the spec, for every client → server command in the cluster: If the cluster is present on the endpoint and the command id is present in the accepted commands list, ensure the PICS code for the accepted command is present in the PICS file. Otherwise, ensure the accepted command PICS code is not present in the PICS file.",
+                "PICS exactly match for all accepted commands in all clusters.",
+            ),
+            TestStep(
+                5,
+                "For every cluster present in the spec, for every server → client command in the cluster: If the cluster is present on the endpoint and the command id is present in the generated commands list, ensure the PICS code for the generated command is present in the PICS file. Otherwise, ensure the generated command PICS code is not present in the PICS file.",
+                "PICS exactly match for all generated commands in all clusters.",
+            ),
+            TestStep(
+                6,
+                "For every cluster present in the spec, for every feature in the cluster: If the cluster is present on the endpoint and the feature is marked in the feature map, ensure the PICS code for the feature is present in the PICS file. Otherwise, ensure the feature PICS code is not present in the PICS file.",
+                "PICS exactly match for all features in all clusters.",
+            ),
+            TestStep(7, "Ensure that the PICS_SDK_CI_ONLY PICS does not appear in the PICS file", "CI PICS is not present"),
+            TestStep(
+                8,
+                "If the device has a root node device type on this endpoint, ensure the MCORE.ROLE.COMMISSIONEE PICS code is set",
+                "PICS is set if root node is present",
+            ),
+            TestStep(
+                9,
+                "If the device has any onboarding payload (MCORE.DD.QR or MCORE.DD.NFC), it has the manual pairing code PICS set (MCORE.DD.MANUAL_PC)",
+                "Manual pairing code PICS is set if QR or NFC is set",
+            ),
+            TestStep(10, "If any of the checks failed, fail the test"),
+        ]
 
     def test_TC_IDM_10_4(self):
         # wildcard read is done in setup_class
         self.step(1)
-        asserts.assert_not_equal(self.matter_test_config.endpoint, None,
-                                 "An explicit endpoint is required for this test, please use --endpoint")
+        asserts.assert_not_equal(
+            self.matter_test_config.endpoint, None, "An explicit endpoint is required for this test, please use --endpoint"
+        )
         self.endpoint_id = self.get_endpoint()
 
         self.endpoint = self.endpoints_tlv[self.endpoint_id]
@@ -112,18 +149,22 @@ class TC_PICS_Checker(BasicCompositionTests):
         # Data model XML is used to get the PICS code for this cluster. If we don't know the PICS
         # code, we can't evaluate the PICS list. Clusters that are present on the device but are
         # not present in the spec are checked in the IDM tests.
-        checkable_clusters = {cluster_id: cluster for cluster_id, cluster in Clusters.ClusterObjects.ALL_CLUSTERS.items(
-        ) if cluster_id in self.xml_clusters and self.xml_clusters[cluster_id].pics is not None}
+        checkable_clusters = {
+            cluster_id: cluster
+            for cluster_id, cluster in Clusters.ClusterObjects.ALL_CLUSTERS.items()
+            if cluster_id in self.xml_clusters and self.xml_clusters[cluster_id].pics is not None
+        }
 
         # TODO: consider what we want to do with the OTA clusters. They do not currently have PICS codes.
         ota_ids = [Clusters.OtaSoftwareUpdateProvider.id, Clusters.OtaSoftwareUpdateRequestor.id]
-        checkable_clusters = {cluster_id: cluster for cluster_id,
-                              cluster in checkable_clusters.items() if cluster_id not in ota_ids}
+        checkable_clusters = {
+            cluster_id: cluster for cluster_id, cluster in checkable_clusters.items() if cluster_id not in ota_ids
+        }
 
         self.step(2)
         for cluster_id, cluster in checkable_clusters.items():
             # Ensure the PICS.S code is correctly marked
-            pics_cluster = f'{self.xml_clusters[cluster_id].pics}.S'
+            pics_cluster = f"{self.xml_clusters[cluster_id].pics}.S"
             location = ClusterPathLocation(endpoint_id=self.endpoint_id, cluster_id=cluster_id)
             self._check_and_record_errors(location, cluster_id in self.endpoint, pics_cluster)
 
@@ -160,15 +201,19 @@ class TC_PICS_Checker(BasicCompositionTests):
                 try:
                     feature_bit = int(math.log2(feature_mask))
                 except ValueError:
-                    location = FeaturePathLocation(endpoint_id=self.endpoint_id,
-                                                   cluster_id=cluster_id, feature_code=str(feature_mask))
+                    location = FeaturePathLocation(
+                        endpoint_id=self.endpoint_id, cluster_id=cluster_id, feature_code=str(feature_mask)
+                    )
                     # The feature_mask is from the code generated feature masks, not the features as listed on the
                     # device. If we get an error here, this is a problem with the codegen or spec, not with the device
                     # under test. We still want the problem recorded, but this does not indicate a problem on the DUT.
                     # There are two clusters with known bad features here - RvcRunMode and RvcCleanMode both have a
                     # feature mask of kNoFeatures and an empty "mask" of 0x0.
-                    self.record_warning("PICS check", location=location,
-                                        problem=f"Unable to parse feature mask {feature_mask} from cluster {cluster}")
+                    self.record_warning(
+                        "PICS check",
+                        location=location,
+                        problem=f"Unable to parse feature mask {feature_mask} from cluster {cluster}",
+                    )
                     continue
                 pics = feature_pics_str(pics_base, feature_bit)
                 if feature_mask & feature_map:
@@ -177,27 +222,38 @@ class TC_PICS_Checker(BasicCompositionTests):
                     required = False
 
                 try:
-                    location = FeaturePathLocation(endpoint_id=self.endpoint_id, cluster_id=cluster_id,
-                                                   feature_code=self.xml_clusters[cluster_id].features[feature_mask].code)
+                    location = FeaturePathLocation(
+                        endpoint_id=self.endpoint_id,
+                        cluster_id=cluster_id,
+                        feature_code=self.xml_clusters[cluster_id].features[feature_mask].code,
+                    )
                 except KeyError:
                     location = ClusterPathLocation(endpoint_id=self.endpoint_id, cluster_id=cluster_id)
                 self._check_and_record_errors(location, required, pics)
 
         self.step(7)
         if self.is_pics_sdk_ci_only:
-            self.record_error("PICS check", location=UnknownProblemLocation(),
-                              problem="PICS PICS_SDK_CI_ONLY found in PICS list. This PICS is disallowed for certification.")
+            self.record_error(
+                "PICS check",
+                location=UnknownProblemLocation(),
+                problem="PICS PICS_SDK_CI_ONLY found in PICS list. This PICS is disallowed for certification.",
+            )
             self.success = False
 
         self.step(8)
         # If there is a root node exposed on this endpoint, COMMISSIONEE must be marked
-        device_types = [dt.deviceType for dt in self.endpoints[self.endpoint_id]
-                        [Clusters.Descriptor][Clusters.Descriptor.Attributes.DeviceTypeList]]
+        device_types = [
+            dt.deviceType
+            for dt in self.endpoints[self.endpoint_id][Clusters.Descriptor][Clusters.Descriptor.Attributes.DeviceTypeList]
+        ]
         # TODO: Getting this from an in-code reference would be good. See https://github.com/project-chip/matter-test-scripts/issues/689
         root_node_device_type_id = 0x0016
-        if root_node_device_type_id in device_types and not self.check_pics('MCORE.ROLE.COMMISSIONEE'):
-            self.record_error("PICS check", location=UnknownProblemLocation(),
-                              problem="Root node found on endpoint, but MCORE.ROLE.COMMISSIONEE pics is not marked")
+        if root_node_device_type_id in device_types and not self.check_pics("MCORE.ROLE.COMMISSIONEE"):
+            self.record_error(
+                "PICS check",
+                location=UnknownProblemLocation(),
+                problem="Root node found on endpoint, but MCORE.ROLE.COMMISSIONEE pics is not marked",
+            )
             self.success = False
 
         self.step(9)
@@ -205,9 +261,12 @@ class TC_PICS_Checker(BasicCompositionTests):
         # The only way a commissionable device can opt not to have these is if it is an in-field upgrade,
         # in which case, there is no packaged onboarding code of any type. Subsequent codes generated from
         # opening a commissioning window are tested as a part of the administrator commissioning test.
-        if (self.check_pics('MCORE.DD.QR') or self.check_pics('MCORE.DD.NFC')) and not self.check_pics('MCORE.DD.MANUAL_PC'):
-            self.record_error("PICS check", location=UnknownProblemLocation(),
-                              problem="Devices that support onboarding payloads must support a manual code")
+        if (self.check_pics("MCORE.DD.QR") or self.check_pics("MCORE.DD.NFC")) and not self.check_pics("MCORE.DD.MANUAL_PC"):
+            self.record_error(
+                "PICS check",
+                location=UnknownProblemLocation(),
+                problem="Devices that support onboarding payloads must support a manual code",
+            )
             self.success = False
 
         self.step(10)

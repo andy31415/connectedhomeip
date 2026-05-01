@@ -27,13 +27,18 @@ from python_path import PythonPath
 
 log = logging.getLogger(__name__)
 
-root_dir = os.path.dirname(
-    os.path.dirname(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-with PythonPath(os.path.join(root_dir, 'src/python_testing/matter_testing_infrastructure'), relative_to=__file__):
-    from matter.testing.linux import (BluetoothMock, DBusTestSystemBus, IsolatedNetworkNamespace, ThreadBorderRouter,
-                                      WpaSupplicantMock, ensure_network_namespace_availability, ensure_private_state)
+with PythonPath(os.path.join(root_dir, "src/python_testing/matter_testing_infrastructure"), relative_to=__file__):
+    from matter.testing.linux import (
+        BluetoothMock,
+        DBusTestSystemBus,
+        IsolatedNetworkNamespace,
+        ThreadBorderRouter,
+        WpaSupplicantMock,
+        ensure_network_namespace_availability,
+        ensure_private_state,
+    )
 
 __all__ = [
     "ensure_network_namespace_availability",
@@ -43,7 +48,7 @@ __all__ = [
     "IsolatedNetworkNamespace",
     "LinuxNamespacedExecutor",
     "ThreadBorderRouter",
-    "WpaSupplicantMock"
+    "WpaSupplicantMock",
 ]
 
 
@@ -52,8 +57,13 @@ class LinuxNamespacedExecutor(Executor):
         super().__init__()
         self.ns = ns
 
-    def run(self, subproc: SubprocessInfo, stdin: IO[Any] | None = None, stdout: IO[Any] | LogPipe | None = None,
-            stderr: IO[Any] | LogPipe | None = None):
+    def run(
+        self,
+        subproc: SubprocessInfo,
+        stdin: IO[Any] | None = None,
+        stdout: IO[Any] | LogPipe | None = None,
+        stderr: IO[Any] | LogPipe | None = None,
+    ):
         try:
             subprocess_ns = self.ns.netns_for_subprocess_kind(subproc.kind)
             wrapped = subproc.wrap_with(*subprocess_ns.netns_cmd_wrapper)

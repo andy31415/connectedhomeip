@@ -33,10 +33,20 @@ import objc
 from Foundation import CBUUID, CBCentralManager, NSDefaultRunLoopMode, NSRunLoop
 
 from .ChipBleBase import ChipBleBase
-from .ChipBleUtility import (BLE_ERROR_REMOTE_DEVICE_DISCONNECTED, BLE_SUBSCRIBE_OPERATION_SUBSCRIBE,
-                             BLE_SUBSCRIBE_OPERATION_UNSUBSCRIBE, BleDisconnectEvent, BleDisconnectEventStruct, BleRxEvent,
-                             BleRxEventStruct, BleSubscribeEvent, BleSubscribeEventStruct, BleTxEvent, BleTxEventStruct,
-                             ParseServiceData)
+from .ChipBleUtility import (
+    BLE_ERROR_REMOTE_DEVICE_DISCONNECTED,
+    BLE_SUBSCRIBE_OPERATION_SUBSCRIBE,
+    BLE_SUBSCRIBE_OPERATION_UNSUBSCRIBE,
+    BleDisconnectEvent,
+    BleDisconnectEventStruct,
+    BleRxEvent,
+    BleRxEventStruct,
+    BleSubscribeEvent,
+    BleSubscribeEventStruct,
+    BleTxEvent,
+    BleTxEventStruct,
+    ParseServiceData,
+)
 from .ChipUtility import ChipUtility
 
 try:
@@ -44,16 +54,14 @@ try:
         "CoreBluetooth",
         globals(),
         bundle_path=objc.pathForFramework(
-            u"/System/Library/Frameworks/IOBluetooth.framework/Versions/A/Frameworks/CoreBluetooth.framework"
+            "/System/Library/Frameworks/IOBluetooth.framework/Versions/A/Frameworks/CoreBluetooth.framework"
         ),
     )
 except Exception:
     objc.loadBundle(
         "CoreBluetooth",
         globals(),
-        bundle_path=objc.pathForFramework(
-            u"/System/Library/Frameworks/CoreBluetooth.framework"
-        ),
+        bundle_path=objc.pathForFramework("/System/Library/Frameworks/CoreBluetooth.framework"),
     )
 
 LOGGER = logging.getLogger(__name__)
@@ -62,31 +70,19 @@ BLE_PERIPHERAL_STATE_DISCONNECTED = 0
 CBCharacteristicWriteWithResponse = 0
 CBCharacteristicWriteWithoutResponse = 1
 
-CHIP_SERVICE = CBUUID.UUIDWithString_(u"0000FFF6-0000-1000-8000-00805F9B34FB")
-CHIP_SERVICE_SHORT = CBUUID.UUIDWithString_(u"FFF6")
-CHIP_TX = CBUUID.UUIDWithString_(u"18EE2EF5-263D-4559-959F-4F9C429F9D11")
-CHIP_RX = CBUUID.UUIDWithString_(u"18EE2EF5-263D-4559-959F-4F9C429F9D12")
-CHROMECAST_SETUP_SERVICE = CBUUID.UUIDWithString_(
-    u"0000FEA0-0000-1000-8000-00805F9B34FB"
-)
-CHROMECAST_SETUP_SERVICE_SHORT = CBUUID.UUIDWithString_(u"FEA0")
+CHIP_SERVICE = CBUUID.UUIDWithString_("0000FFF6-0000-1000-8000-00805F9B34FB")
+CHIP_SERVICE_SHORT = CBUUID.UUIDWithString_("FFF6")
+CHIP_TX = CBUUID.UUIDWithString_("18EE2EF5-263D-4559-959F-4F9C429F9D11")
+CHIP_RX = CBUUID.UUIDWithString_("18EE2EF5-263D-4559-959F-4F9C429F9D12")
+CHROMECAST_SETUP_SERVICE = CBUUID.UUIDWithString_("0000FEA0-0000-1000-8000-00805F9B34FB")
+CHROMECAST_SETUP_SERVICE_SHORT = CBUUID.UUIDWithString_("FEA0")
 
 
 def _VoidPtrToCBUUID(ptr, len):
     try:
         ptr = ChipUtility.VoidPtrToByteArray(ptr, len)
         ptr = ChipUtility.Hexlify(ptr)
-        ptr = (
-            ptr[:8]
-            + "-"
-            + ptr[8:12]
-            + "-"
-            + ptr[12:16]
-            + "-"
-            + ptr[16:20]
-            + "-"
-            + ptr[20:]
-        )
+        ptr = ptr[:8] + "-" + ptr[8:12] + "-" + ptr[12:16] + "-" + ptr[16:20] + "-" + ptr[20:]
         ptr = CBUUID.UUIDWithString_(ptr)
     except Exception:
         print("ERROR: failed to convert void * to CBUUID")
@@ -161,9 +157,7 @@ class CoreBluetoothManager(ChipBleBase):
         self.devCtrl = devCtrl
 
         # test if any connections currently exist (left around from a previous run) and disconnect if need be.
-        peripherals = self.manager.retrieveConnectedPeripheralsWithServices_(
-            [CHIP_SERVICE_SHORT, CHIP_SERVICE]
-        )
+        peripherals = self.manager.retrieveConnectedPeripheralsWithServices_([CHIP_SERVICE_SHORT, CHIP_SERVICE])
 
         if peripherals and len(peripherals):
             for periph in peripherals:
@@ -200,13 +194,12 @@ class CoreBluetoothManager(ChipBleBase):
         self.hookFuncPtr = hookFunctionType(hookFunc)
         pyos_inputhook_ptr = c_void_p.in_dll(pythonapi, "PyOS_InputHook")
         # save the original so that on del we can revert it back to the way it was.
-        self.orig_input_hook = cast(
-            pyos_inputhook_ptr.value, PYFUNCTYPE(c_int))
+        self.orig_input_hook = cast(pyos_inputhook_ptr.value, PYFUNCTYPE(c_int))
         # set the new hook. readLine will call this periodically as it polls for input.
         pyos_inputhook_ptr.value = cast(self.hookFuncPtr, c_void_p).value
 
     def shouldLoop(self, cond: LoopCondition):
-        """ Used by runLoopUntil to determine whether it should exit the runloop. """
+        """Used by runLoopUntil to determine whether it should exit the runloop."""
 
         if cond.TimeLimitExceeded():
             return False
@@ -221,13 +214,13 @@ class CoreBluetoothManager(ChipBleBase):
                 if devIdInfo and cond.arg and str(devIdInfo.discriminator) == cond.arg:
                     return False
         elif cond.op == "connect":
-            return (not self.loop_condition)
+            return not self.loop_condition
         elif cond.op == "disconnect":
-            return (not self.loop_condition)
+            return not self.loop_condition
         elif cond.op == "send":
-            return (not self.send_condition)
+            return not self.send_condition
         elif cond.op == "subscribe":
-            return (not self.subscribe_condition)
+            return not self.subscribe_condition
         elif cond.op == "unsubscribe":
             return self.subscribe_condition
 
@@ -243,7 +236,7 @@ class CoreBluetoothManager(ChipBleBase):
             nextfire = runLoop.limitDateForMode_(NSDefaultRunLoopMode)
 
     def centralManagerDidUpdateState_(self, manager):
-        """ IO Bluetooth initialization is successful."""
+        """IO Bluetooth initialization is successful."""
 
         state = manager.state()
         string = "BLE is ready!" if state > 4 else "BLE is not ready!"
@@ -251,42 +244,27 @@ class CoreBluetoothManager(ChipBleBase):
         self.manager = manager
         self.ready_condition = state > 4
 
-    def centralManager_didDiscoverPeripheral_advertisementData_RSSI_(
-        self, manager, peripheral, data, rssi
-    ):
-        """ Called for each peripheral discovered during scan."""
+    def centralManager_didDiscoverPeripheral_advertisementData_RSSI_(self, manager, peripheral, data, rssi):
+        """Called for each peripheral discovered during scan."""
         if self.bg_peripheral_name is None:
             if peripheral not in self.peripheral_list:
                 if not self.scan_quiet:
                     LOGGER.info("adding to scan list:")
                     LOGGER.info("")
-                    LOGGER.info(
-                        "{0:<16}= {1:<80}".format(
-                            "Name", str(peripheral._.name))
-                    )
-                    LOGGER.info(
-                        "{0:<16}= {1:<80}".format(
-                            "ID", str(peripheral._.identifier.UUIDString())
-                        )
-                    )
+                    LOGGER.info("{0:<16}= {1:<80}".format("Name", str(peripheral._.name)))
+                    LOGGER.info("{0:<16}= {1:<80}".format("ID", str(peripheral._.identifier.UUIDString())))
                     LOGGER.info("{0:<16}= {1:<80}".format("RSSI", rssi))
-                    devIdInfo = BlePeripheral(
-                        peripheral, data).getPeripheralDevIdInfo()
+                    devIdInfo = BlePeripheral(peripheral, data).getPeripheralDevIdInfo()
                     if devIdInfo:
-                        LOGGER.info("{0:<16}= {1}".format(
-                            "Pairing State", devIdInfo.pairingState))
-                        LOGGER.info("{0:<16}= {1}".format(
-                            "Discriminator", devIdInfo.discriminator))
-                        LOGGER.info("{0:<16}= {1}".format(
-                            "Vendor Id", devIdInfo.vendorId))
-                        LOGGER.info("{0:<16}= {1}".format(
-                            "Product Id", devIdInfo.productId))
+                        LOGGER.info("{0:<16}= {1}".format("Pairing State", devIdInfo.pairingState))
+                        LOGGER.info("{0:<16}= {1}".format("Discriminator", devIdInfo.discriminator))
+                        LOGGER.info("{0:<16}= {1}".format("Vendor Id", devIdInfo.vendorId))
+                        LOGGER.info("{0:<16}= {1}".format("Product Id", devIdInfo.productId))
                     LOGGER.info("ADV data: " + repr(data))
                     LOGGER.info("")
 
                 self.peripheral_list.append(peripheral)
-                self.peripheral_adv_list.append(
-                    BlePeripheral(peripheral, data))
+                self.peripheral_adv_list.append(BlePeripheral(peripheral, data))
         else:
             if (peripheral._.name == self.bg_peripheral_name) or (str(devIdInfo.discriminator) == self.bg_peripheral_name):
                 if len(self.peripheral_list) == 0:
@@ -303,9 +281,7 @@ class CoreBluetoothManager(ChipBleBase):
         LOGGER.info("Discovering services")
         self.peripheral.discoverServices_([CHIP_SERVICE_SHORT, CHIP_SERVICE])
 
-    def centralManager_didFailToConnectPeripheral_error_(
-        self, manager, peripheral, error
-    ):
+    def centralManager_didFailToConnectPeripheral_error_(self, manager, peripheral, error):
         """Called by CoreBluetooth via runloop when a connection fails."""
         LOGGER.info("Failed to connect error = " + repr(error))
         self.loop_condition = True
@@ -338,20 +314,11 @@ class CoreBluetoothManager(ChipBleBase):
                 self.service = self.peripheral.services()[0]
                 self.characteristics[self.service.UUID()] = []
             # NOTE: currently limiting discovery to only the pair of Chip characteristics.
-            self.peripheral.discoverCharacteristics_forService_(
-                [CHIP_RX, CHIP_TX], self.service
-            )
+            self.peripheral.discoverCharacteristics_forService_([CHIP_RX, CHIP_TX], self.service)
 
-    def peripheral_didDiscoverCharacteristicsForService_error_(
-        self, peripheral, service, error
-    ):
+    def peripheral_didDiscoverCharacteristicsForService_error_(self, peripheral, service, error):
         """Called by CoreBluetooth via runloop when a characteristic for a service is discovered."""
-        LOGGER.debug(
-            "didDiscoverCharacteristicsForService:error "
-            + str(repr(peripheral))
-            + " "
-            + str(repr(service))
-        )
+        LOGGER.debug("didDiscoverCharacteristicsForService:error " + str(repr(peripheral)) + " " + str(repr(service)))
         LOGGER.debug(repr(service))
         LOGGER.debug(repr(error))
 
@@ -361,15 +328,12 @@ class CoreBluetoothManager(ChipBleBase):
             self.connect_state = True
 
         else:
-            LOGGER.error(
-                "ERROR: failed to discover characteristics for service.")
+            LOGGER.error("ERROR: failed to discover characteristics for service.")
             self.connect_state = False
 
         self.loop_condition = True
 
-    def peripheral_didWriteValueForCharacteristic_error_(
-        self, peripheral, characteristic, error
-    ):
+    def peripheral_didWriteValueForCharacteristic_error_(self, peripheral, characteristic, error):
         """Called by CoreBluetooth via runloop when a write to characteristic
         operation completes. error = None on success."""
         LOGGER.debug("didWriteValue error = " + repr(error))
@@ -382,9 +346,7 @@ class CoreBluetoothManager(ChipBleBase):
             self.chip_queue.put(txEvent)
             self.devCtrl.DriveBleIO()
 
-    def peripheral_didUpdateNotificationStateForCharacteristic_error_(
-        self, peripheral, characteristic, error
-    ):
+    def peripheral_didUpdateNotificationStateForCharacteristic_error_(self, peripheral, characteristic, error):
         """Called by CoreBluetooth via runloop when a subscribe for notification operation completes.
         Error = None on success."""
         LOGGER.debug("Receiving notifications")
@@ -403,15 +365,11 @@ class CoreBluetoothManager(ChipBleBase):
         LOGGER.debug("success = " + repr(success))
 
         if self.devCtrl:
-            subscribeEvent = BleSubscribeEvent(
-                charId=charId, svcId=svcId, status=success, operation=operation
-            )
+            subscribeEvent = BleSubscribeEvent(charId=charId, svcId=svcId, status=success, operation=operation)
             self.chip_queue.put(subscribeEvent)
             self.devCtrl.DriveBleIO()
 
-    def peripheral_didUpdateValueForCharacteristic_error_(
-        self, peripheral, characteristic, error
-    ):
+    def peripheral_didUpdateValueForCharacteristic_error_(self, peripheral, characteristic, error):
         """Called by CoreBluetooth via runloop when a new characteristic value is received for a
         characteristic to which this device has subscribed."""
         # len = characteristic.value().length()
@@ -427,15 +385,10 @@ class CoreBluetoothManager(ChipBleBase):
             self.devCtrl.DriveBleIO()
 
         LOGGER.debug("received")
-        LOGGER.debug(
-            "received ("
-            + str(len)
-            + ") bytes: "
-            + repr(characteristic.value().bytes().tobytes())
-        )
+        LOGGER.debug("received (" + str(len) + ") bytes: " + repr(characteristic.value().bytes().tobytes()))
 
     def GetBleEvent(self):
-        """ Called by ChipDeviceMgr.py on behalf of Chip to retrieve a queued message."""
+        """Called by ChipDeviceMgr.py on behalf of Chip to retrieve a queued message."""
         if not self.chip_queue.empty():
             ev = self.chip_queue.get()
 
@@ -449,14 +402,13 @@ class CoreBluetoothManager(ChipBleBase):
                 eventStruct = BleSubscribeEventStruct.fromBleSubscribeEvent(ev)
                 return cast(pointer(eventStruct), c_void_p).value
             if isinstance(ev, BleDisconnectEvent):
-                eventStruct = BleDisconnectEventStruct.fromBleDisconnectEvent(
-                    ev)
+                eventStruct = BleDisconnectEventStruct.fromBleDisconnectEvent(ev)
                 return cast(pointer(eventStruct), c_void_p).value
 
         return None
 
     def scan(self, line):
-        """ API to initiatae BLE scanning for -t user_timeout seconds."""
+        """API to initiatae BLE scanning for -t user_timeout seconds."""
 
         args = self.ParseInputLine(line, "scan")
 
@@ -486,7 +438,7 @@ class CoreBluetoothManager(ChipBleBase):
         LOGGER.info("scanning stopped")
 
     def bgScanStart(self, name):
-        """ API to initiate background BLE scanning."""
+        """API to initiate background BLE scanning."""
         LOGGER.info("scanning started")
         self.bg_peripheral_name = name
         del self.peripheral_list[:]
@@ -503,7 +455,7 @@ class CoreBluetoothManager(ChipBleBase):
         )
 
     def bgScanStop(self):
-        """ API to stop background BLE scanning."""
+        """API to stop background BLE scanning."""
         self.manager.stopScan()
         self.bg_peripheral_name = None
         LOGGER.info("scanning stopped")
@@ -519,7 +471,7 @@ class CoreBluetoothManager(ChipBleBase):
         return True
 
     def CloseBle(self, connObj):
-        """ Called by Chip to close the BLE connection."""
+        """Called by Chip to close the BLE connection."""
         if self.peripheral:
             self.manager.cancelPeripheralConnection_(self.peripheral)
             self.characteristics = {}

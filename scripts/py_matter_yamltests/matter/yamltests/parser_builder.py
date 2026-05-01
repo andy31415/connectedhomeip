@@ -32,6 +32,7 @@ class TestParserBuilderOptions:
                    the next test instead of aborting if an error is
                    encountered while parsing a particular test file.
     """
+
     stop_on_error: bool = True
 
 
@@ -51,11 +52,11 @@ class TestParserBuilderConfig:
            parsing. It may may allow the callers to gain insights about the
            current parsing state.
     """
+
     tests: List[str] = field(default_factory=list)
     parser_config: TestParserConfig = field(default_factory=TestParserConfig)
     hooks: TestParserHooks = TestParserHooks()
-    options: TestParserBuilderOptions = field(
-        default_factory=TestParserBuilderOptions)
+    options: TestParserBuilderOptions = field(default_factory=TestParserBuilderOptions)
 
 
 class TestParserBuilder:

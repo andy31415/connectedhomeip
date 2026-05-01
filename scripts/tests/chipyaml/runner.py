@@ -43,8 +43,8 @@ from matter.yamltests.websocket_runner import WebSocketRunner, WebSocketRunnerCo
 
 _DEFAULT_CONFIG_NAME = TestsFinder.get_default_configuration_name()
 _DEFAULT_CONFIG_DIR = TestsFinder.get_default_configuration_directory()
-_DEFAULT_SPECIFICATIONS_DIR = 'src/app/zap-templates/zcl/data-model/chip/*.xml'
-_DEFAULT_PICS_FILE = 'src/app/tests/suites/certification/ci-pics-values'
+_DEFAULT_SPECIFICATIONS_DIR = "src/app/zap-templates/zcl/data-model/chip/*.xml"
+_DEFAULT_PICS_FILE = "src/app/tests/suites/certification/ci-pics-values"
 
 
 def get_custom_pseudo_clusters(additional_pseudo_clusters_directory: str):
@@ -53,8 +53,8 @@ def get_custom_pseudo_clusters(additional_pseudo_clusters_directory: str):
     if additional_pseudo_clusters_directory:
         sys.path.insert(0, additional_pseudo_clusters_directory)
         for filepath in os.listdir(additional_pseudo_clusters_directory):
-            if filepath != '__init__.py' and filepath[-3:] == '.py':
-                module = importlib.import_module(f'{filepath[:-3]}')
+            if filepath != "__init__.py" and filepath[-3:] == ".py":
+                module = importlib.import_module(f"{filepath[:-3]}")
                 constructor = getattr(module, module.__name__)
                 if constructor:
                     clusters.add(constructor())
@@ -63,61 +63,99 @@ def get_custom_pseudo_clusters(additional_pseudo_clusters_directory: str):
 
 
 def test_parser_options(f):
-    f = click.option('--configuration_name', type=str, show_default=True, default=_DEFAULT_CONFIG_NAME,
-                     help='Name of the collection configuration json file to use.')(f)
-    f = click.option('--configuration_directory', type=click.Path(exists=True), show_default=True, default=_DEFAULT_CONFIG_DIR,
-                     help='Path to the directory containing the tests configuration.')(f)
-    f = click.option('--specifications_paths', type=click.Path(), show_default=True, default=_DEFAULT_SPECIFICATIONS_DIR,
-                     help='Path to a set of files containing clusters definitions.')(f)
-    f = click.option('--PICS', type=click.Path(exists=True), show_default=True, default=_DEFAULT_PICS_FILE,
-                     help='Path to the PICS file to use.')(f)
-    f = click.option('--stop_on_error', type=bool, show_default=True, default=True,
-                     help='Stop parsing on first error.')(f)
-    f = click.option('--use_default_pseudo_clusters', type=bool, show_default=True, default=True,
-                     help='If enable this option use the set of default clusters provided by the matter_yamltests package.')(f)
-    return click.option('--additional_pseudo_clusters_directory', type=click.Path(), show_default=True, default=None,
-                        help='Path to a directory containing additional pseudo clusters.')(f)
+    f = click.option(
+        "--configuration_name",
+        type=str,
+        show_default=True,
+        default=_DEFAULT_CONFIG_NAME,
+        help="Name of the collection configuration json file to use.",
+    )(f)
+    f = click.option(
+        "--configuration_directory",
+        type=click.Path(exists=True),
+        show_default=True,
+        default=_DEFAULT_CONFIG_DIR,
+        help="Path to the directory containing the tests configuration.",
+    )(f)
+    f = click.option(
+        "--specifications_paths",
+        type=click.Path(),
+        show_default=True,
+        default=_DEFAULT_SPECIFICATIONS_DIR,
+        help="Path to a set of files containing clusters definitions.",
+    )(f)
+    f = click.option(
+        "--PICS", type=click.Path(exists=True), show_default=True, default=_DEFAULT_PICS_FILE, help="Path to the PICS file to use."
+    )(f)
+    f = click.option("--stop_on_error", type=bool, show_default=True, default=True, help="Stop parsing on first error.")(f)
+    f = click.option(
+        "--use_default_pseudo_clusters",
+        type=bool,
+        show_default=True,
+        default=True,
+        help="If enable this option use the set of default clusters provided by the matter_yamltests package.",
+    )(f)
+    return click.option(
+        "--additional_pseudo_clusters_directory",
+        type=click.Path(),
+        show_default=True,
+        default=None,
+        help="Path to a directory containing additional pseudo clusters.",
+    )(f)
 
 
 def test_runner_options(f):
-    f = click.option('--adapter', type=str, default=None, required=True, show_default=True,
-                     help='The adapter to run the test with.')(f)
-    f = click.option('--stop_on_error', type=bool, default=True, show_default=True,
-                     help='Stop the test suite on first error.')(f)
-    f = click.option('--stop_on_warning', type=bool, default=False, show_default=True,
-                     help='Stop the test suite on first warning.')(f)
-    f = click.option('--stop_at_number', type=int, default=-1, show_default=True,
-                     help='Stop the the test suite at the specified test number.')(f)
-    f = click.option('--show_adapter_logs', type=bool, default=False, show_default=True,
-                     help='Show additional logs provided by the adapter.')(f)
-    f = click.option('--show_adapter_logs_on_error', type=bool, default=True, show_default=True,
-                     help='Show additional logs provided by the adapter on error.')(f)
-    f = click.option('--use_test_harness_log_format', type=bool, default=False, show_default=True,
-                     help='Use the test harness log format.')(f)
-    return click.option('--delay-in-ms', type=int, default=0, show_default=True,
-                        help='Add a delay between test suite steps.')(f)
+    f = click.option(
+        "--adapter", type=str, default=None, required=True, show_default=True, help="The adapter to run the test with."
+    )(f)
+    f = click.option("--stop_on_error", type=bool, default=True, show_default=True, help="Stop the test suite on first error.")(f)
+    f = click.option(
+        "--stop_on_warning", type=bool, default=False, show_default=True, help="Stop the test suite on first warning."
+    )(f)
+    f = click.option(
+        "--stop_at_number", type=int, default=-1, show_default=True, help="Stop the the test suite at the specified test number."
+    )(f)
+    f = click.option(
+        "--show_adapter_logs", type=bool, default=False, show_default=True, help="Show additional logs provided by the adapter."
+    )(f)
+    f = click.option(
+        "--show_adapter_logs_on_error",
+        type=bool,
+        default=True,
+        show_default=True,
+        help="Show additional logs provided by the adapter on error.",
+    )(f)
+    f = click.option(
+        "--use_test_harness_log_format", type=bool, default=False, show_default=True, help="Use the test harness log format."
+    )(f)
+    return click.option("--delay-in-ms", type=int, default=0, show_default=True, help="Add a delay between test suite steps.")(f)
 
 
 def websocket_runner_options(f):
-    f = click.option('--server_address', type=str, default='localhost', show_default=True,
-                     help='The websocket server address to connect to.')(f)
-    f = click.option('--server_port', type=int, default=9002, show_default=True,
-                     help='The websocket server port to connect to.')(f)
-    f = click.option('--server_name', type=str, default=None,
-                     help='Name of a websocket server to run at launch.')(f)
-    f = click.option('--server_path', type=click.Path(exists=True), default=None,
-                     help='Path to a websocket server to run at launch.')(f)
-    return click.option('--server_arguments', type=str, default=None,
-                        help='Optional arguments to pass to the websocket server at launch.')(f)
+    f = click.option(
+        "--server_address", type=str, default="localhost", show_default=True, help="The websocket server address to connect to."
+    )(f)
+    f = click.option("--server_port", type=int, default=9002, show_default=True, help="The websocket server port to connect to.")(f)
+    f = click.option("--server_name", type=str, default=None, help="Name of a websocket server to run at launch.")(f)
+    f = click.option(
+        "--server_path", type=click.Path(exists=True), default=None, help="Path to a websocket server to run at launch."
+    )(f)
+    return click.option(
+        "--server_arguments", type=str, default=None, help="Optional arguments to pass to the websocket server at launch."
+    )(f)
 
 
 def matter_repl_runner_options(f):
-    f = click.option('--repl_storage_path', type=str, default='/tmp/repl-storage.json',
-                     help='Path to persistent storage configuration file.')(f)
-    f = click.option('--commission_on_network_dut', type=bool, default=False,
-                     help='Prior to running test should we try to commission DUT on network.')(f)
-    return click.option('--runner', type=str, default=None, show_default=True,
-                        help='The runner to run the test with.')(f)
+    f = click.option(
+        "--repl_storage_path", type=str, default="/tmp/repl-storage.json", help="Path to persistent storage configuration file."
+    )(f)
+    f = click.option(
+        "--commission_on_network_dut",
+        type=bool,
+        default=False,
+        help="Prior to running test should we try to commission DUT on network.",
+    )(f)
+    return click.option("--runner", type=str, default=None, show_default=True, help="The runner to run the test with.")(f)
 
 
 @dataclass
@@ -139,10 +177,11 @@ pass_parser_group = click.make_pass_decorator(ParserGroup)
 # which options are available, list them in a custom section when --help
 # is invoked.
 
+
 class YamlTestParserGroup(click.Group):
     def format_options(self, ctx, formatter):
         """Writes all the options into the formatter if they exist."""
-        if getattr(ctx, 'custom_options', None):
+        if getattr(ctx, "custom_options", None):
             params_copy = self.params
             non_custom_params = list(filter(lambda x: x.name not in ctx.custom_options, self.params))
             custom_params = list(filter(lambda x: x.name in ctx.custom_options, self.params))
@@ -158,7 +197,7 @@ class YamlTestParserGroup(click.Group):
                     opts.append(rv)
 
             if opts:
-                custom_section_title = ctx.params.get('test_name') + ' Options'
+                custom_section_title = ctx.params.get("test_name") + " Options"
                 with formatter.section(custom_section_title):
                     formatter.write_dl(opts)
         else:
@@ -183,7 +222,7 @@ class YamlTestParserGroup(click.Group):
         supported_args = []
         skipArgument = False
         for arg in args:
-            if arg.startswith('--') and arg not in params_name:
+            if arg.startswith("--") and arg not in params_name:
                 skipArgument = True
                 continue
             if skipArgument:
@@ -194,8 +233,8 @@ class YamlTestParserGroup(click.Group):
         return supported_args
 
     def __add_custom_params(self, ctx):
-        tests_finder = TestsFinder(ctx.params.get('configuration_directory'), ctx.params.get('configuration_name'))
-        tests = tests_finder.get(ctx.params.get('test_name'))
+        tests_finder = TestsFinder(ctx.params.get("configuration_directory"), ctx.params.get("configuration_name"))
+        tests = tests_finder.get(ctx.params.get("test_name"))
 
         custom_options = {}
 
@@ -204,7 +243,7 @@ class YamlTestParserGroup(click.Group):
             with contextlib.suppress(Exception):
                 custom_options = TestConfigParser.get_config(tests[0])
             for key, value in custom_options.items():
-                param = click.Option(['--' + key], default=value, show_default=True)
+                param = click.Option(["--" + key], default=value, show_default=True)
                 # click converts parameter name to lowercase internally, so we need to override
                 # this behavior in order to override the correct key.
                 param.name = key
@@ -214,46 +253,58 @@ class YamlTestParserGroup(click.Group):
 
 
 CONTEXT_SETTINGS = {
-    'default_map': {
-        'chiptool': {
-            'adapter': 'chipyaml.adapters.chiptool.adapter',
-            'server_name': 'chip-tool',
-            'server_arguments': 'interactive server',
+    "default_map": {
+        "chiptool": {
+            "adapter": "chipyaml.adapters.chiptool.adapter",
+            "server_name": "chip-tool",
+            "server_arguments": "interactive server",
         },
-        'darwinframeworktool': {
-            'adapter': 'chipyaml.adapters.chiptool.adapter',
-            'server_name': 'darwin-framework-tool',
-            'server_arguments': 'interactive server',
+        "darwinframeworktool": {
+            "adapter": "chipyaml.adapters.chiptool.adapter",
+            "server_name": "darwin-framework-tool",
+            "server_arguments": "interactive server",
         },
-        'app1': {
-            'configuration_directory': 'examples/placeholder/linux/apps/app1',
-            'adapter': 'chipyaml.adapters.placeholder.adapter',
-            'server_name': 'chip-app1',
-            'server_arguments': '--interactive',
+        "app1": {
+            "configuration_directory": "examples/placeholder/linux/apps/app1",
+            "adapter": "chipyaml.adapters.placeholder.adapter",
+            "server_name": "chip-app1",
+            "server_arguments": "--interactive",
         },
-        'app2': {
-            'configuration_directory': 'examples/placeholder/linux/apps/app2',
-            'adapter': 'chipyaml.adapters.placeholder.adapter',
-            'server_name': 'chip-app2',
-            'server_arguments': '--interactive',
+        "app2": {
+            "configuration_directory": "examples/placeholder/linux/apps/app2",
+            "adapter": "chipyaml.adapters.placeholder.adapter",
+            "server_name": "chip-app2",
+            "server_arguments": "--interactive",
         },
-        'matter-repl': {
-            'adapter': 'chipyaml.adapters.repl.adapter',
-            'runner': 'chipyaml.adapters.repl.runner',
+        "matter-repl": {
+            "adapter": "chipyaml.adapters.repl.adapter",
+            "runner": "chipyaml.adapters.repl.runner",
         },
     },
-    'max_content_width': 120,
+    "max_content_width": 120,
 }
 
 
 @click.group(cls=YamlTestParserGroup, context_settings=CONTEXT_SETTINGS)
-@click.argument('test_name')
+@click.argument("test_name")
 @test_parser_options
 @click.pass_context
-def runner_base(ctx, configuration_directory: str, test_name: str, configuration_name: str, pics: str, specifications_paths: str, stop_on_error: bool, use_default_pseudo_clusters: bool, additional_pseudo_clusters_directory: str, **kwargs):
-    pseudo_clusters = get_custom_pseudo_clusters(
-        additional_pseudo_clusters_directory) if use_default_pseudo_clusters else PseudoClusters([])
-    specifications = SpecDefinitionsFromPaths(specifications_paths.split(','), pseudo_clusters)
+def runner_base(
+    ctx,
+    configuration_directory: str,
+    test_name: str,
+    configuration_name: str,
+    pics: str,
+    specifications_paths: str,
+    stop_on_error: bool,
+    use_default_pseudo_clusters: bool,
+    additional_pseudo_clusters_directory: str,
+    **kwargs,
+):
+    pseudo_clusters = (
+        get_custom_pseudo_clusters(additional_pseudo_clusters_directory) if use_default_pseudo_clusters else PseudoClusters([])
+    )
+    specifications = SpecDefinitionsFromPaths(specifications_paths.split(","), pseudo_clusters)
     tests_finder = TestsFinder(configuration_directory, configuration_name)
 
     test_list = tests_finder.get(test_name)
@@ -291,7 +342,17 @@ def dry_run(parser_group: ParserGroup):
 @runner_base.command()
 @test_runner_options
 @pass_parser_group
-def run(parser_group: ParserGroup, adapter: str, stop_on_error: bool, stop_on_warning: bool, stop_at_number: int, show_adapter_logs: bool, show_adapter_logs_on_error: bool, use_test_harness_log_format: bool, delay_in_ms: int):
+def run(
+    parser_group: ParserGroup,
+    adapter: str,
+    stop_on_error: bool,
+    stop_on_warning: bool,
+    stop_at_number: int,
+    show_adapter_logs: bool,
+    show_adapter_logs_on_error: bool,
+    use_test_harness_log_format: bool,
+    delay_in_ms: int,
+):
     """Run the test suite."""
     adapter = __import__(adapter, fromlist=[None]).Adapter(parser_group.builder_config.parser_config.definitions)
     runner_options = TestRunnerOptions(stop_on_error, stop_on_warning, stop_at_number, delay_in_ms)
@@ -306,7 +367,22 @@ def run(parser_group: ParserGroup, adapter: str, stop_on_error: bool, stop_on_wa
 @test_runner_options
 @websocket_runner_options
 @pass_parser_group
-def websocket(parser_group: ParserGroup, adapter: str, stop_on_error: bool, stop_on_warning: bool, stop_at_number: int, show_adapter_logs: bool, show_adapter_logs_on_error: bool, use_test_harness_log_format: bool, delay_in_ms: int, server_address: str, server_port: int, server_path: str, server_name: str, server_arguments: str):
+def websocket(
+    parser_group: ParserGroup,
+    adapter: str,
+    stop_on_error: bool,
+    stop_on_warning: bool,
+    stop_at_number: int,
+    show_adapter_logs: bool,
+    show_adapter_logs_on_error: bool,
+    use_test_harness_log_format: bool,
+    delay_in_ms: int,
+    server_address: str,
+    server_port: int,
+    server_path: str,
+    server_name: str,
+    server_arguments: str,
+):
     """Run the test suite using websockets."""
     adapter = __import__(adapter, fromlist=[None]).Adapter(parser_group.builder_config.parser_config.definitions)
     runner_options = TestRunnerOptions(stop_on_error, stop_on_warning, stop_at_number, delay_in_ms)
@@ -319,7 +395,8 @@ def websocket(parser_group: ParserGroup, adapter: str, stop_on_error: bool, stop
 
     websocket_runner_hooks = WebSocketRunnerLogger()
     websocket_runner_config = WebSocketRunnerConfig(
-        server_address, server_port, server_path, server_arguments, websocket_runner_hooks)
+        server_address, server_port, server_path, server_arguments, websocket_runner_hooks
+    )
 
     runner = WebSocketRunner(websocket_runner_config)
     return asyncio.run(runner.run(parser_group.builder_config, runner_config))
@@ -329,7 +406,20 @@ def websocket(parser_group: ParserGroup, adapter: str, stop_on_error: bool, stop
 @test_runner_options
 @matter_repl_runner_options
 @pass_parser_group
-def matter_repl(parser_group: ParserGroup, adapter: str, stop_on_error: bool, stop_on_warning: bool, stop_at_number: int, show_adapter_logs: bool, show_adapter_logs_on_error: bool, use_test_harness_log_format: bool, delay_in_ms: int, runner: str, repl_storage_path: str, commission_on_network_dut: bool):
+def matter_repl(
+    parser_group: ParserGroup,
+    adapter: str,
+    stop_on_error: bool,
+    stop_on_warning: bool,
+    stop_at_number: int,
+    show_adapter_logs: bool,
+    show_adapter_logs_on_error: bool,
+    use_test_harness_log_format: bool,
+    delay_in_ms: int,
+    runner: str,
+    repl_storage_path: str,
+    commission_on_network_dut: bool,
+):
     """Run the test suite using matter-repl."""
     adapter = __import__(adapter, fromlist=[None]).Adapter(parser_group.builder_config.parser_config.definitions)
     runner_options = TestRunnerOptions(stop_on_error, stop_on_warning, stop_at_number, delay_in_ms)
@@ -338,7 +428,7 @@ def matter_repl(parser_group: ParserGroup, adapter: str, stop_on_error: bool, st
 
     node_id_to_commission = None
     if commission_on_network_dut:
-        node_id_to_commission = parser_group.builder_config.parser_config.config_override['nodeId']
+        node_id_to_commission = parser_group.builder_config.parser_config.config_override["nodeId"]
     runner = __import__(runner, fromlist=[None]).Runner(repl_storage_path, node_id_to_commission=node_id_to_commission)
     return asyncio.run(runner.run(parser_group.builder_config, runner_config))
 
@@ -379,7 +469,7 @@ def app2(ctx, *args, **kwargs):
     return ctx.forward(websocket)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     success = False
     try:
         # By default click runs in standalone mode and it will handle exceptions and the
@@ -389,7 +479,7 @@ if __name__ == '__main__':
         # So standalone_mode is set to False to let us manage this exit behavior.
         success = runner_base(standalone_mode=False)
     except Exception:
-        print('')
+        print("")
         traceback.print_exc()
 
     sys.exit(0 if success else 1)

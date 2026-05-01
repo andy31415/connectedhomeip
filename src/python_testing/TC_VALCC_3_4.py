@@ -74,7 +74,6 @@ class TC_VALCC_3_4(MatterBaseTest):
 
     @async_test_body
     async def test_TC_VALCC_3_4(self):
-
         endpoint = self.get_endpoint()
 
         self.step(1)
@@ -88,7 +87,7 @@ class TC_VALCC_3_4(MatterBaseTest):
             log.info("LevelStep not supported skipping test case")
 
             # Skipping all remainig steps
-            for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index:]:
+            for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index :]:
                 self.step(step.test_plan_number)
                 log.info("Test step skipped")
 
@@ -103,15 +102,18 @@ class TC_VALCC_3_4(MatterBaseTest):
 
         for levelValue in range(1, 100):
             try:
-                await self.send_single_cmd(cmd=Clusters.Objects.ValveConfigurationAndControl.Commands.Open(targetLevel=levelValue), endpoint=endpoint)
+                await self.send_single_cmd(
+                    cmd=Clusters.Objects.ValveConfigurationAndControl.Commands.Open(targetLevel=levelValue), endpoint=endpoint
+                )
 
                 if levelValue % levelStep != 0:
                     asserts.fail("Received Success response when an CONSTRAINT_ERROR was expected")
 
             except InteractionModelError as e:
                 if levelValue % levelStep != 0:
-                    asserts.assert_equal(e.status, Status.ConstraintError,
-                                         "Unexpected error returned when an CONSTRAINT_ERROR was expected")
+                    asserts.assert_equal(
+                        e.status, Status.ConstraintError, "Unexpected error returned when an CONSTRAINT_ERROR was expected"
+                    )
                 else:
                     asserts.fail("Unexpected error returned")
                 pass

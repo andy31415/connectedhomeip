@@ -311,6 +311,6 @@ void BindingHandler::SwitchWorkerHandler(intptr_t aContext)
 
     BindingData * data = reinterpret_cast<BindingData *>(aContext);
     LOG_INF("Notify Bounded Cluster | endpoint: %d cluster: %d", data->EndpointId, data->ClusterId);
-    TEMPORARY_RETURN_IGNORED Binding::Manager::GetInstance().NotifyBoundClusterChanged(data->EndpointId, data->ClusterId,
+    TEMPORARY_RETURN_IGNORED Binding::Manager::GetInstance().NotifyBoundClusterChanged(data -> EndpointId, data->ClusterId,
                                                                                        static_cast<void *>(data));
 }

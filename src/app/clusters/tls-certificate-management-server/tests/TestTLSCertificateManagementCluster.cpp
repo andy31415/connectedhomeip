@@ -237,7 +237,7 @@ public:
         cert.fabric         = fabric;
         cert.caid           = outCaid;
         cert.certificate    = std::vector<uint8_t>(provisionReq.certificate.data(),
-                                                provisionReq.certificate.data() + provisionReq.certificate.size());
+                                                   provisionReq.certificate.data() + provisionReq.certificate.size());
         rootCerts.push_back(cert);
 
         return Protocols::InteractionModel::Status::Success;
@@ -361,7 +361,7 @@ public:
         cert.fabric         = fabric;
         cert.ccdid          = provisionReq.ccdid;
         cert.certificate    = std::vector<uint8_t>(provisionReq.clientCertificate.data(),
-                                                provisionReq.clientCertificate.data() + provisionReq.clientCertificate.size());
+                                                   provisionReq.clientCertificate.data() + provisionReq.clientCertificate.size());
         clientCerts.push_back(cert);
 
         return Protocols::InteractionModel::Status::Success;

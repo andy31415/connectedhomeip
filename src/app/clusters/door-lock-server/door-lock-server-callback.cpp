@@ -43,28 +43,28 @@ using namespace chip::app::Clusters::DoorLock;
 // 'Default' callbacks for cluster commands
 // =============================================================================
 
-bool __attribute__((weak))
-emberAfPluginDoorLockOnDoorLockCommand(chip::EndpointId endpointId, const Nullable<chip::FabricIndex> & fabricIdx,
-                                       const Nullable<chip::NodeId> & nodeId, const Optional<ByteSpan> & pinCode,
-                                       OperationErrorEnum & err)
+bool __attribute__((weak)) emberAfPluginDoorLockOnDoorLockCommand(chip::EndpointId endpointId,
+                                                                  const Nullable<chip::FabricIndex> & fabricIdx,
+                                                                  const Nullable<chip::NodeId> & nodeId,
+                                                                  const Optional<ByteSpan> & pinCode, OperationErrorEnum & err)
 {
     err = OperationErrorEnum::kUnspecified;
     return false;
 }
 
-bool __attribute__((weak))
-emberAfPluginDoorLockOnDoorUnlockCommand(chip::EndpointId endpointId, const Nullable<chip::FabricIndex> & fabricIdx,
-                                         const Nullable<chip::NodeId> & nodeId, const Optional<ByteSpan> & pinCode,
-                                         OperationErrorEnum & err)
+bool __attribute__((weak)) emberAfPluginDoorLockOnDoorUnlockCommand(chip::EndpointId endpointId,
+                                                                    const Nullable<chip::FabricIndex> & fabricIdx,
+                                                                    const Nullable<chip::NodeId> & nodeId,
+                                                                    const Optional<ByteSpan> & pinCode, OperationErrorEnum & err)
 {
     err = OperationErrorEnum::kUnspecified;
     return false;
 }
 
-bool __attribute__((weak))
-emberAfPluginDoorLockOnDoorUnboltCommand(chip::EndpointId endpointId, const Nullable<chip::FabricIndex> & fabricIdx,
-                                         const Nullable<chip::NodeId> & nodeId, const Optional<ByteSpan> & pinCode,
-                                         OperationErrorEnum & err)
+bool __attribute__((weak)) emberAfPluginDoorLockOnDoorUnboltCommand(chip::EndpointId endpointId,
+                                                                    const Nullable<chip::FabricIndex> & fabricIdx,
+                                                                    const Nullable<chip::NodeId> & nodeId,
+                                                                    const Optional<ByteSpan> & pinCode, OperationErrorEnum & err)
 {
     err = OperationErrorEnum::kUnspecified;
     return false;
@@ -76,8 +76,8 @@ void __attribute__((weak)) emberAfPluginDoorLockOnAutoRelock(chip::EndpointId en
 // 'Default' pre-change callbacks for cluster attributes
 // =============================================================================
 
-chip::Protocols::InteractionModel::Status __attribute__((weak))
-emberAfPluginDoorLockOnLanguageChange(chip::EndpointId EndpointId, chip::CharSpan newLanguage)
+chip::Protocols::InteractionModel::Status __attribute__((weak)) emberAfPluginDoorLockOnLanguageChange(chip::EndpointId EndpointId,
+                                                                                                      chip::CharSpan newLanguage)
 {
     return chip::Protocols::InteractionModel::Status::Success;
 }
@@ -135,31 +135,33 @@ emberAfPluginDoorLockOnUnhandledAttributeChange(chip::EndpointId EndpointId, con
 // Users and credentials access callbacks
 // =============================================================================
 
-bool __attribute__((weak))
-emberAfPluginDoorLockGetUser(chip::EndpointId endpointId, uint16_t userIndex, EmberAfPluginDoorLockUserInfo & user)
+bool __attribute__((weak)) emberAfPluginDoorLockGetUser(chip::EndpointId endpointId, uint16_t userIndex,
+                                                        EmberAfPluginDoorLockUserInfo & user)
 {
     return false;
 }
 
-bool __attribute__((weak))
-emberAfPluginDoorLockSetUser(chip::EndpointId endpointId, uint16_t userIndex, chip::FabricIndex creator, chip::FabricIndex modifier,
-                             const chip::CharSpan & userName, uint32_t uniqueId, UserStatusEnum userStatus, UserTypeEnum usertype,
-                             CredentialRuleEnum credentialRule, const CredentialStruct * credentials, size_t totalCredentials)
+bool __attribute__((weak)) emberAfPluginDoorLockSetUser(chip::EndpointId endpointId, uint16_t userIndex, chip::FabricIndex creator,
+                                                        chip::FabricIndex modifier, const chip::CharSpan & userName,
+                                                        uint32_t uniqueId, UserStatusEnum userStatus, UserTypeEnum usertype,
+                                                        CredentialRuleEnum credentialRule, const CredentialStruct * credentials,
+                                                        size_t totalCredentials)
 {
     return false;
 }
 
-bool __attribute__((weak))
-emberAfPluginDoorLockGetCredential(chip::EndpointId endpointId, uint16_t credentialIndex, CredentialTypeEnum credentialType,
-                                   EmberAfPluginDoorLockCredentialInfo & credential)
+bool __attribute__((weak)) emberAfPluginDoorLockGetCredential(chip::EndpointId endpointId, uint16_t credentialIndex,
+                                                              CredentialTypeEnum credentialType,
+                                                              EmberAfPluginDoorLockCredentialInfo & credential)
 {
     return false;
 }
 
-bool __attribute__((weak))
-emberAfPluginDoorLockSetCredential(chip::EndpointId endpointId, uint16_t credentialIndex, chip::FabricIndex creator,
-                                   chip::FabricIndex modifier, DlCredentialStatus credentialStatus,
-                                   CredentialTypeEnum credentialType, const chip::ByteSpan & credentialData)
+bool __attribute__((weak)) emberAfPluginDoorLockSetCredential(chip::EndpointId endpointId, uint16_t credentialIndex,
+                                                              chip::FabricIndex creator, chip::FabricIndex modifier,
+                                                              DlCredentialStatus credentialStatus,
+                                                              CredentialTypeEnum credentialType,
+                                                              const chip::ByteSpan & credentialData)
 {
     return false;
 }
@@ -176,69 +178,70 @@ DlStatus __attribute__((weak)) emberAfPluginDoorLockGetSchedule(chip::EndpointId
     return DlStatus::kFailure;
 }
 
-DlStatus __attribute__((weak))
-emberAfPluginDoorLockGetSchedule(chip::EndpointId endpointId, uint8_t holidayIndex, EmberAfPluginDoorLockHolidaySchedule & schedule)
+DlStatus __attribute__((weak)) emberAfPluginDoorLockGetSchedule(chip::EndpointId endpointId, uint8_t holidayIndex,
+                                                                EmberAfPluginDoorLockHolidaySchedule & schedule)
 {
     return DlStatus::kFailure;
 }
 
-DlStatus __attribute__((weak))
-emberAfPluginDoorLockSetSchedule(chip::EndpointId endpointId, uint8_t weekdayIndex, uint16_t userIndex, DlScheduleStatus status,
-                                 DaysMaskMap daysMask, uint8_t startHour, uint8_t startMinute, uint8_t endHour, uint8_t endMinute)
+DlStatus __attribute__((weak)) emberAfPluginDoorLockSetSchedule(chip::EndpointId endpointId, uint8_t weekdayIndex,
+                                                                uint16_t userIndex, DlScheduleStatus status, DaysMaskMap daysMask,
+                                                                uint8_t startHour, uint8_t startMinute, uint8_t endHour,
+                                                                uint8_t endMinute)
 {
     return DlStatus::kFailure;
 }
 
-DlStatus __attribute__((weak))
-emberAfPluginDoorLockSetSchedule(chip::EndpointId endpointId, uint8_t yearDayIndex, uint16_t userIndex, DlScheduleStatus status,
-                                 uint32_t localStartTime, uint32_t localEndTime)
+DlStatus __attribute__((weak)) emberAfPluginDoorLockSetSchedule(chip::EndpointId endpointId, uint8_t yearDayIndex,
+                                                                uint16_t userIndex, DlScheduleStatus status,
+                                                                uint32_t localStartTime, uint32_t localEndTime)
 {
     return DlStatus::kFailure;
 }
 
-DlStatus __attribute__((weak))
-emberAfPluginDoorLockSetSchedule(chip::EndpointId endpointId, uint8_t holidayIndex, DlScheduleStatus status,
-                                 uint32_t localStartTime, uint32_t localEndTime, OperatingModeEnum operatingMode)
+DlStatus __attribute__((weak)) emberAfPluginDoorLockSetSchedule(chip::EndpointId endpointId, uint8_t holidayIndex,
+                                                                DlScheduleStatus status, uint32_t localStartTime,
+                                                                uint32_t localEndTime, OperatingModeEnum operatingMode)
 {
     return DlStatus::kFailure;
 }
 
-void __attribute__((weak))
-emberAfPluginDoorLockLockoutStarted(chip::EndpointId endpointId, chip::System::Clock::Timestamp lockoutEndTime)
+void __attribute__((weak)) emberAfPluginDoorLockLockoutStarted(chip::EndpointId endpointId,
+                                                               chip::System::Clock::Timestamp lockoutEndTime)
 {}
 
-bool __attribute__((weak))
-emberAfPluginDoorLockGetNumberOfFingerprintCredentialsSupported(chip::EndpointId endpointId, uint16_t & maxNumberOfCredentials)
+bool __attribute__((weak)) emberAfPluginDoorLockGetNumberOfFingerprintCredentialsSupported(chip::EndpointId endpointId,
+                                                                                           uint16_t & maxNumberOfCredentials)
 {
     return false;
 }
 
-bool __attribute__((weak))
-emberAfPluginDoorLockGetNumberOfFingerVeinCredentialsSupported(chip::EndpointId endpointId, uint16_t & maxNumberOfCredentials)
+bool __attribute__((weak)) emberAfPluginDoorLockGetNumberOfFingerVeinCredentialsSupported(chip::EndpointId endpointId,
+                                                                                          uint16_t & maxNumberOfCredentials)
 {
     return false;
 }
 
-bool __attribute__((weak))
-emberAfPluginDoorLockGetNumberOfFaceCredentialsSupported(chip::EndpointId endpointId, uint16_t & maxNumberOfCredentials)
+bool __attribute__((weak)) emberAfPluginDoorLockGetNumberOfFaceCredentialsSupported(chip::EndpointId endpointId,
+                                                                                    uint16_t & maxNumberOfCredentials)
 {
     return false;
 }
 
-bool __attribute__((weak))
-emberAfPluginDoorLockGetFingerprintCredentialLengthConstraints(chip::EndpointId endpointId, uint8_t & minLen, uint8_t & maxLen)
+bool __attribute__((weak)) emberAfPluginDoorLockGetFingerprintCredentialLengthConstraints(chip::EndpointId endpointId,
+                                                                                          uint8_t & minLen, uint8_t & maxLen)
 {
     return false;
 }
 
-bool __attribute__((weak))
-emberAfPluginDoorLockGetFingerVeinCredentialLengthConstraints(chip::EndpointId endpointId, uint8_t & minLen, uint8_t & maxLen)
+bool __attribute__((weak)) emberAfPluginDoorLockGetFingerVeinCredentialLengthConstraints(chip::EndpointId endpointId,
+                                                                                         uint8_t & minLen, uint8_t & maxLen)
 {
     return false;
 }
 
-bool __attribute__((weak))
-emberAfPluginDoorLockGetFaceCredentialLengthConstraints(chip::EndpointId endpointId, uint8_t & minLen, uint8_t & maxLen)
+bool __attribute__((weak)) emberAfPluginDoorLockGetFaceCredentialLengthConstraints(chip::EndpointId endpointId, uint8_t & minLen,
+                                                                                   uint8_t & maxLen)
 {
     return false;
 }

@@ -36,8 +36,14 @@
 # === END CI TEST ARGUMENTS ===
 
 from mobly import asserts
-from test_plan_support import (commission_from_existing, commission_if_required, read_attribute, remove_fabric,
-                               verify_commissioning_successful, verify_success)
+from test_plan_support import (
+    commission_from_existing,
+    commission_if_required,
+    read_attribute,
+    remove_fabric,
+    verify_commissioning_successful,
+    verify_success,
+)
 
 import matter.clusters as Clusters
 from matter.testing.decorators import async_test_body
@@ -48,10 +54,12 @@ from matter.utils import CommissioningBuildingBlocks
 
 
 def verify_fabric(controller: str) -> str:
-    return (f"- Verify there is one entry returned. Verify FabricIndex matches `fabric_index_{controller}`.\n"
-            f"- Verify the RootPublicKey matches the public key for rcac_{controller}.\n"
-            f"- Verify the VendorID matches the vendor ID for {controller}.\n"
-            f"- Verify the FabricID matches the fabricID for {controller}")
+    return (
+        f"- Verify there is one entry returned. Verify FabricIndex matches `fabric_index_{controller}`.\n"
+        f"- Verify the RootPublicKey matches the public key for rcac_{controller}.\n"
+        f"- Verify the VendorID matches the vendor ID for {controller}.\n"
+        f"- Verify the FabricID matches the fabricID for {controller}"
+    )
 
 
 class TC_OPCREDS_3_2(MatterBaseTest):
@@ -59,24 +67,25 @@ class TC_OPCREDS_3_2(MatterBaseTest):
         return " Attribute-CurrentFabricIndex validation [DUTServer]"
 
     def steps_TC_OPCREDS_3_2(self):
-        return [TestStep(0, commission_if_required('CR1'), is_commissioning=True),
-                TestStep(1, f"{commission_from_existing('CR1', 'CR2')}\n. Save the FabricIndex from the NOCResponse as `fabric_index_CR2`.",
-                         verify_commissioning_successful()),
-                TestStep(2, f"{commission_from_existing('CR1', 'CR3')}\n. Save the FabricIndex from the NOCResponse as `fabric_index_CR3`.",
-                         verify_commissioning_successful()),
-                TestStep(3, f"CR2 {read_attribute('CurrentFabricIndex')}",
-                         "Verify the returned value is `fabric_index_CR2`"),
-                TestStep(4, f"CR3 {read_attribute('CurrentFabricIndex')}",
-                         "Verify the returned value is `fabric_index_CR3`"),
-                TestStep(
-                    5, f"CR2 {read_attribute('Fabrics')} using a fabric-filtered read", verify_fabric('CR2')),
-                TestStep(
-                    6, f"CR3 {read_attribute('Fabrics')} using a fabric-filtered read", verify_fabric('CR3')),
-                TestStep(7, remove_fabric(
-                    'fabric_index_CR2', 'CR1'), verify_success()),
-                TestStep(8, remove_fabric(
-                    'fabric_index_CR3', 'CR1'), verify_success()),
-                ]
+        return [
+            TestStep(0, commission_if_required("CR1"), is_commissioning=True),
+            TestStep(
+                1,
+                f"{commission_from_existing('CR1', 'CR2')}\n. Save the FabricIndex from the NOCResponse as `fabric_index_CR2`.",
+                verify_commissioning_successful(),
+            ),
+            TestStep(
+                2,
+                f"{commission_from_existing('CR1', 'CR3')}\n. Save the FabricIndex from the NOCResponse as `fabric_index_CR3`.",
+                verify_commissioning_successful(),
+            ),
+            TestStep(3, f"CR2 {read_attribute('CurrentFabricIndex')}", "Verify the returned value is `fabric_index_CR2`"),
+            TestStep(4, f"CR3 {read_attribute('CurrentFabricIndex')}", "Verify the returned value is `fabric_index_CR3`"),
+            TestStep(5, f"CR2 {read_attribute('Fabrics')} using a fabric-filtered read", verify_fabric("CR2")),
+            TestStep(6, f"CR3 {read_attribute('Fabrics')} using a fabric-filtered read", verify_fabric("CR3")),
+            TestStep(7, remove_fabric("fabric_index_CR2", "CR1"), verify_success()),
+            TestStep(8, remove_fabric("fabric_index_CR3", "CR1"), verify_success()),
+        ]
 
     @async_test_body
     async def test_TC_OPCREDS_3_2(self):
@@ -90,16 +99,16 @@ class TC_OPCREDS_3_2(MatterBaseTest):
         new_certificate_authority = self.certificate_authority_manager.NewCertificateAuthority()
         cr2_vid = 0xFFF2
         cr2_fabricId = 2222
-        cr2_new_fabric_admin = new_certificate_authority.NewFabricAdmin(
-            vendorId=cr2_vid, fabricId=cr2_fabricId)
-        cr2_nodeid = self.default_controller.nodeId+1
-        cr2_dut_node_id = self.dut_node_id+1
+        cr2_new_fabric_admin = new_certificate_authority.NewFabricAdmin(vendorId=cr2_vid, fabricId=cr2_fabricId)
+        cr2_nodeid = self.default_controller.nodeId + 1
+        cr2_dut_node_id = self.dut_node_id + 1
 
-        cr2_new_admin_ctrl = cr2_new_fabric_admin.NewController(
-            nodeId=cr2_nodeid)
+        cr2_new_admin_ctrl = cr2_new_fabric_admin.NewController(nodeId=cr2_nodeid)
         success, nocResp, chain = await CommissioningBuildingBlocks.AddNOCForNewFabricFromExisting(
-            commissionerDevCtrl=dev_ctrl, newFabricDevCtrl=cr2_new_admin_ctrl,
-            existingNodeId=self.dut_node_id, newNodeId=cr2_dut_node_id
+            commissionerDevCtrl=dev_ctrl,
+            newFabricDevCtrl=cr2_new_admin_ctrl,
+            existingNodeId=self.dut_node_id,
+            newNodeId=cr2_dut_node_id,
         )
         rcacResp = chain.rcacBytes
 
@@ -111,16 +120,16 @@ class TC_OPCREDS_3_2(MatterBaseTest):
         new_certificate_authority = self.certificate_authority_manager.NewCertificateAuthority()
         cr3_vid = 0xFFF3
         cr3_fabricId = 3333
-        cr3_new_fabric_admin = new_certificate_authority.NewFabricAdmin(
-            vendorId=cr3_vid, fabricId=cr3_fabricId)
-        cr3_nodeid = self.default_controller.nodeId+2
-        cr3_dut_node_id = self.dut_node_id+2
+        cr3_new_fabric_admin = new_certificate_authority.NewFabricAdmin(vendorId=cr3_vid, fabricId=cr3_fabricId)
+        cr3_nodeid = self.default_controller.nodeId + 2
+        cr3_dut_node_id = self.dut_node_id + 2
 
-        cr3_new_admin_ctrl = cr3_new_fabric_admin.NewController(
-            nodeId=cr3_nodeid)
+        cr3_new_admin_ctrl = cr3_new_fabric_admin.NewController(nodeId=cr3_nodeid)
         success, nocResp, chain = await CommissioningBuildingBlocks.AddNOCForNewFabricFromExisting(
-            commissionerDevCtrl=dev_ctrl, newFabricDevCtrl=cr3_new_admin_ctrl,
-            existingNodeId=self.dut_node_id, newNodeId=cr3_dut_node_id
+            commissionerDevCtrl=dev_ctrl,
+            newFabricDevCtrl=cr3_new_admin_ctrl,
+            existingNodeId=self.dut_node_id,
+            newNodeId=cr3_dut_node_id,
         )
         rcacResp = chain.rcacBytes
 
@@ -130,25 +139,21 @@ class TC_OPCREDS_3_2(MatterBaseTest):
 
         self.step(3)
         cr2_read_fabricIndex = await self.read_single_attribute_check_success(
-            dev_ctrl=cr2_new_admin_ctrl,
-            node_id=cr2_dut_node_id,
-            cluster=opcreds,
-            attribute=opcreds.Attributes.CurrentFabricIndex
+            dev_ctrl=cr2_new_admin_ctrl, node_id=cr2_dut_node_id, cluster=opcreds, attribute=opcreds.Attributes.CurrentFabricIndex
         )
 
-        asserts.assert_equal(fabric_index_CR2, cr2_read_fabricIndex,
-                             "Fail fabric_index_CR2 is not equal to read fabricIndex from CR2")
+        asserts.assert_equal(
+            fabric_index_CR2, cr2_read_fabricIndex, "Fail fabric_index_CR2 is not equal to read fabricIndex from CR2"
+        )
 
         self.step(4)
         cr3_read_fabricIndex = await self.read_single_attribute_check_success(
-            dev_ctrl=cr3_new_admin_ctrl,
-            node_id=cr3_dut_node_id,
-            cluster=opcreds,
-            attribute=opcreds.Attributes.CurrentFabricIndex
+            dev_ctrl=cr3_new_admin_ctrl, node_id=cr3_dut_node_id, cluster=opcreds, attribute=opcreds.Attributes.CurrentFabricIndex
         )
 
-        asserts.assert_equal(fabric_index_CR3, cr3_read_fabricIndex,
-                             "Fail fabric_index_CR3 is not equal to read fabricIndex from CR3")
+        asserts.assert_equal(
+            fabric_index_CR3, cr3_read_fabricIndex, "Fail fabric_index_CR3 is not equal to read fabricIndex from CR3"
+        )
 
         self.step(5)
         cr2_fabric = await self.read_single_attribute_check_success(
@@ -156,7 +161,7 @@ class TC_OPCREDS_3_2(MatterBaseTest):
             node_id=cr2_dut_node_id,
             cluster=opcreds,
             attribute=opcreds.Attributes.Fabrics,
-            fabric_filtered=True
+            fabric_filtered=True,
         )
 
         for fabric in cr2_fabric:
@@ -165,14 +170,10 @@ class TC_OPCREDS_3_2(MatterBaseTest):
             cr2_fabric_vendorId = fabric.vendorID
             cr2_fabric_fabricId = fabric.fabricID
 
-        asserts.assert_equal(cr2_fabric_fabricIndex,
-                             fabric_index_CR2, "Unexpected CR2 fabric index")
-        asserts.assert_equal(cr2_fabric_rootPublicKey, rcac_CR2,
-                             "Unexpected RootPublicKey does not match with rcac_CR2")
-        asserts.assert_equal(cr2_fabric_vendorId, cr2_vid,
-                             "Unexpected vendorId does not match with CR2 VendorID")
-        asserts.assert_equal(cr2_fabric_fabricId, cr2_fabricId,
-                             "Unexpected fabricId does not match with CR2 fabricID")
+        asserts.assert_equal(cr2_fabric_fabricIndex, fabric_index_CR2, "Unexpected CR2 fabric index")
+        asserts.assert_equal(cr2_fabric_rootPublicKey, rcac_CR2, "Unexpected RootPublicKey does not match with rcac_CR2")
+        asserts.assert_equal(cr2_fabric_vendorId, cr2_vid, "Unexpected vendorId does not match with CR2 VendorID")
+        asserts.assert_equal(cr2_fabric_fabricId, cr2_fabricId, "Unexpected fabricId does not match with CR2 fabricID")
 
         self.step(6)
         cr3_fabric = await self.read_single_attribute_check_success(
@@ -180,7 +181,7 @@ class TC_OPCREDS_3_2(MatterBaseTest):
             node_id=cr3_dut_node_id,
             cluster=opcreds,
             attribute=opcreds.Attributes.Fabrics,
-            fabric_filtered=True
+            fabric_filtered=True,
         )
 
         for fabric in cr3_fabric:
@@ -189,26 +190,20 @@ class TC_OPCREDS_3_2(MatterBaseTest):
             cr3_fabric_vendorId = fabric.vendorID
             cr3_fabric_fabricId = fabric.fabricID
 
-        asserts.assert_equal(cr3_fabric_fabricIndex,
-                             fabric_index_CR3, "Unexpected CR3 fabric index")
-        asserts.assert_equal(cr3_fabric_rootPublicKey, rcac_CR3,
-                             "Unexpected RootPublicKey does not match with rcac_CR3")
-        asserts.assert_equal(cr3_fabric_vendorId, cr3_vid,
-                             "Unexpected vendorId does not match with CR3 VendorID")
-        asserts.assert_equal(cr3_fabric_fabricId, cr3_fabricId,
-                             "Unexpected fabricId does not match with CR3 fabricID")
+        asserts.assert_equal(cr3_fabric_fabricIndex, fabric_index_CR3, "Unexpected CR3 fabric index")
+        asserts.assert_equal(cr3_fabric_rootPublicKey, rcac_CR3, "Unexpected RootPublicKey does not match with rcac_CR3")
+        asserts.assert_equal(cr3_fabric_vendorId, cr3_vid, "Unexpected vendorId does not match with CR3 VendorID")
+        asserts.assert_equal(cr3_fabric_fabricId, cr3_fabricId, "Unexpected fabricId does not match with CR3 fabricID")
 
         self.step(7)
         cmd = opcreds.Commands.RemoveFabric(fabric_index_CR2)
         resp = await self.send_single_cmd(cmd=cmd)
-        asserts.assert_equal(
-            resp.statusCode, opcreds.Enums.NodeOperationalCertStatusEnum.kOk)
+        asserts.assert_equal(resp.statusCode, opcreds.Enums.NodeOperationalCertStatusEnum.kOk)
 
         self.step(8)
         cmd = opcreds.Commands.RemoveFabric(fabric_index_CR3)
         resp = await self.send_single_cmd(cmd=cmd)
-        asserts.assert_equal(
-            resp.statusCode, opcreds.Enums.NodeOperationalCertStatusEnum.kOk)
+        asserts.assert_equal(resp.statusCode, opcreds.Enums.NodeOperationalCertStatusEnum.kOk)
 
 
 if __name__ == "__main__":

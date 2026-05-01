@@ -1,4 +1,5 @@
 """Pytest configuration for push_av_server tests."""
+
 import sys
 from pathlib import Path
 

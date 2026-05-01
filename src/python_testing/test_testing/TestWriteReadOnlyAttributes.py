@@ -48,7 +48,6 @@ from matter.testing.runner import default_matter_test_main
 
 
 class TestWriteReadOnlyAttributes(MatterBaseTest):
-
     @async_test_body
     async def test_invalid_endpoint_command(self):
         self.print_step(0, "Commissioning - already done")
@@ -84,29 +83,21 @@ class TestWriteReadOnlyAttributes(MatterBaseTest):
         self.print_step(2, "Write read only attributes on a VALID cluster")
         for attr in read_only_attributes:
             asserts.assert_equal(
-                await self.write_single_attribute(
-                    attr, endpoint_id=0, expect_success=False
-                ),
+                await self.write_single_attribute(attr, endpoint_id=0, expect_success=False),
                 Status.UnsupportedWrite,
             )
 
-        self.print_step(
-            3, "Write read only attributes on a Invalid cluster for that endpoint"
-        )
+        self.print_step(3, "Write read only attributes on a Invalid cluster for that endpoint")
         for attr in read_only_attributes:
             asserts.assert_equal(
-                await self.write_single_attribute(
-                    attr, endpoint_id=non_root_endpoint, expect_success=False
-                ),
+                await self.write_single_attribute(attr, endpoint_id=non_root_endpoint, expect_success=False),
                 Status.UnsupportedCluster,
             )
 
         self.print_step(4, "Write read only attributes on a Invalid endpoint")
         for attr in read_only_attributes:
             asserts.assert_equal(
-                await self.write_single_attribute(
-                    attr, endpoint_id=invalid_endpoint_id, expect_success=False
-                ),
+                await self.write_single_attribute(attr, endpoint_id=invalid_endpoint_id, expect_success=False),
                 Status.UnsupportedEndpoint,
             )
 

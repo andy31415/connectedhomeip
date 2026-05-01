@@ -17,11 +17,23 @@
 
 from ctypes import CDLL, c_char_p, c_size_t, c_uint8, c_uint16, c_uint32, c_uint64, c_void_p, py_object
 
-from ..clusters.Command import (_OnCommandSenderDoneCallbackFunct, _OnCommandSenderErrorCallbackFunct,
-                                _OnCommandSenderResponseCallbackFunct)
+from ..clusters.Command import (
+    _OnCommandSenderDoneCallbackFunct,
+    _OnCommandSenderErrorCallbackFunct,
+    _OnCommandSenderResponseCallbackFunct,
+)
 from ..native import GetLibraryHandle, HandleFlags, PyChipError
-from .types import (GatheringCompleteCallbackType, IceCandidateCallbackType, LocalDescriptionCallbackType, OnAnswerCallbackFunct,
-                    OnEndCallbackFunct, OnICECandidatesCallbackFunct, OnOfferCallbackFunct, StateChangeCallback, WebRTCClientHandle)
+from .types import (
+    GatheringCompleteCallbackType,
+    IceCandidateCallbackType,
+    LocalDescriptionCallbackType,
+    OnAnswerCallbackFunct,
+    OnEndCallbackFunct,
+    OnICECandidatesCallbackFunct,
+    OnOfferCallbackFunct,
+    StateChangeCallback,
+    WebRTCClientHandle,
+)
 
 
 def _GetWebRTCLibraryHandle() -> CDLL:

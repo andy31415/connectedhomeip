@@ -23,31 +23,29 @@
 
 #import <Matter/Matter.h>
 
-enum class PairingMode
-{
+enum class PairingMode {
     Unpair,
     Code,
     Ble,
     AlreadyDiscoveredByIndex,
 };
 
-enum class CommissioningType
-{
-    None,           // establish PASE only
+enum class CommissioningType {
+    None, // establish PASE only
     WithoutNetwork, // commission but don't configure network
-    WithWiFi,       // commission and configure WiFi
-    WithThread,     // commission and configure Thread
+    WithWiFi, // commission and configure WiFi
+    WithThread, // commission and configure Thread
 };
 
-class PairingCommandBridge : public CHIPCommandBridge
-{
+class PairingCommandBridge : public CHIPCommandBridge {
 public:
-    PairingCommandBridge(const char * commandName, PairingMode mode, CommissioningType commissioningType) :
-        CHIPCommandBridge(commandName), mPairingMode(mode), mCommissioningType(commissioningType)
+    PairingCommandBridge(const char * commandName, PairingMode mode, CommissioningType commissioningType)
+        : CHIPCommandBridge(commandName)
+        , mPairingMode(mode)
+        , mCommissioningType(commissioningType)
     {
         AddArgument("node-id", 0, UINT64_MAX, &mNodeId);
-        switch (commissioningType)
-        {
+        switch (commissioningType) {
         case CommissioningType::None:
         case CommissioningType::WithoutNetwork:
             break;
@@ -60,14 +58,13 @@ public:
             break;
         }
 
-        switch (mode)
-        {
+        switch (mode) {
         case PairingMode::Unpair:
             break;
         case PairingMode::Code:
             AddArgument("payload", &mOnboardingPayload);
             AddArgument("dcl-hostname", &mDCLHostName,
-                        "Hostname of the DCL server to fetch information from. Defaults to 'on.dcl.csa-iot.org'.");
+                "Hostname of the DCL server to fetch information from. Defaults to 'on.dcl.csa-iot.org'.");
             AddArgument("dcl-port", 0, UINT16_MAX, &mDCLPort, "Port number for connecting to the DCL server. Defaults to '443'.");
             AddArgument("dcl-disable-https", 0, 1, &mDCLDisableHttps, "Disable HTTPS (use plain HTTP)");
             AddArgument("dcl-disable-https-validation", 0, 1, &mDCLDisableHttpsValidation, "Disable HTTPS validation");
@@ -81,21 +78,20 @@ public:
             AddArgument("payload", &mOnboardingPayload);
             AddArgument("index", 0, UINT16_MAX, &mIndex);
             AddArgument("dcl-hostname", &mDCLHostName,
-                        "Hostname of the DCL server to fetch information from. Defaults to 'on.dcl.csa-iot.org'.");
+                "Hostname of the DCL server to fetch information from. Defaults to 'on.dcl.csa-iot.org'.");
             AddArgument("dcl-port", 0, UINT16_MAX, &mDCLPort, "Port number for connecting to the DCL server. Defaults to '443'.");
             AddArgument("use-dcl", 0, 1, &mUseDCL, "Use DCL to fetch onboarding information");
             break;
         }
 
-        if (commissioningType != CommissioningType::None)
-        {
+        if (commissioningType != CommissioningType::None) {
             AddArgument("country-code", &mCountryCode,
-                        "Country code to use to set the Basic Information cluster's Location attribute");
+                "Country code to use to set the Basic Information cluster's Location attribute");
             AddArgument("use-device-attestation-delegate", 0, 1, &mUseDeviceAttestationDelegate,
-                        "If true, use a device attestation delegate that always wants to be notified about attestation results.  "
-                        "Defaults to false.");
+                "If true, use a device attestation delegate that always wants to be notified about attestation results.  "
+                "Defaults to false.");
             AddArgument("device-attestation-failsafe-time", 0, UINT16_MAX, &mDeviceAttestationFailsafeTime,
-                        "If set, the time to extend the failsafe to before calling the device attestation delegate");
+                "If set, the time to extend the failsafe to before calling the device attestation delegate");
         }
     }
 

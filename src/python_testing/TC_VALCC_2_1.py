@@ -67,7 +67,7 @@ class TC_VALCC_2_1(MatterBaseTest):
             TestStep(10, "Read TargetLevel attribute, if supported"),
             TestStep(11, "Read DefaultOpenLevel attribute, if supported"),
             TestStep(12, "Read ValveFault attribute, if supported"),
-            TestStep(13, "Read LevelStep attribute, if supported")
+            TestStep(13, "Read LevelStep attribute, if supported"),
         ]
 
     def pics_TC_VALCC_2_1(self) -> list[str]:
@@ -81,7 +81,6 @@ class TC_VALCC_2_1(MatterBaseTest):
 
     @async_test_body
     async def test_TC_VALCC_2_1(self):
-
         endpoint = self.get_endpoint()
 
         self.step(1)
@@ -102,7 +101,9 @@ class TC_VALCC_2_1(MatterBaseTest):
 
         self.step(4)
         if attributes.DefaultOpenDuration.attribute_id in attribute_list:
-            default_open_duration_dut = await self.read_valcc_attribute_expect_success(endpoint=endpoint, attribute=attributes.DefaultOpenDuration)
+            default_open_duration_dut = await self.read_valcc_attribute_expect_success(
+                endpoint=endpoint, attribute=attributes.DefaultOpenDuration
+            )
 
             if default_open_duration_dut is not NullValue:
                 asserts.assert_less_equal(default_open_duration_dut, 0xFFFFFFFE, "DefaultOpenDuration attribute is out of range")
@@ -112,7 +113,9 @@ class TC_VALCC_2_1(MatterBaseTest):
 
         self.step(5)
         if attributes.AutoCloseTime.attribute_id in attribute_list:
-            auto_close_time_dut = await self.read_valcc_attribute_expect_success(endpoint=endpoint, attribute=attributes.AutoCloseTime)
+            auto_close_time_dut = await self.read_valcc_attribute_expect_success(
+                endpoint=endpoint, attribute=attributes.AutoCloseTime
+            )
 
             if auto_close_time_dut is not NullValue:
                 asserts.assert_less_equal(auto_close_time_dut, 0xFFFFFFFFFFFFFFFE, "OpenDuration attribute is out of range")
@@ -121,7 +124,9 @@ class TC_VALCC_2_1(MatterBaseTest):
 
         self.step(6)
         if attributes.RemainingDuration.attribute_id in attribute_list:
-            remaining_duration_dut = await self.read_valcc_attribute_expect_success(endpoint=endpoint, attribute=attributes.RemainingDuration)
+            remaining_duration_dut = await self.read_valcc_attribute_expect_success(
+                endpoint=endpoint, attribute=attributes.RemainingDuration
+            )
 
             if remaining_duration_dut is not NullValue:
                 asserts.assert_less_equal(remaining_duration_dut, 0xFFFFFFFE, "RemainingDuration attribute is out of range")
@@ -134,8 +139,11 @@ class TC_VALCC_2_1(MatterBaseTest):
             current_state_dut = await self.read_valcc_attribute_expect_success(endpoint=endpoint, attribute=attributes.CurrentState)
 
             if current_state_dut is not NullValue:
-                asserts.assert_less(current_state_dut, Clusters.Objects.ValveConfigurationAndControl.Enums.ValveStateEnum.kUnknownEnumValue,
-                                    "CurrentState is not in valid range")
+                asserts.assert_less(
+                    current_state_dut,
+                    Clusters.Objects.ValveConfigurationAndControl.Enums.ValveStateEnum.kUnknownEnumValue,
+                    "CurrentState is not in valid range",
+                )
         else:
             log.info("Test step skipped")
 
@@ -144,8 +152,11 @@ class TC_VALCC_2_1(MatterBaseTest):
             target_state_dut = await self.read_valcc_attribute_expect_success(endpoint=endpoint, attribute=attributes.TargetState)
 
             if target_state_dut is not NullValue:
-                asserts.assert_less(target_state_dut, Clusters.Objects.ValveConfigurationAndControl.Enums.ValveStateEnum.kUnknownEnumValue,
-                                    "TargetState is not in valid range")
+                asserts.assert_less(
+                    target_state_dut,
+                    Clusters.Objects.ValveConfigurationAndControl.Enums.ValveStateEnum.kUnknownEnumValue,
+                    "TargetState is not in valid range",
+                )
         else:
             log.info("Test step skipped")
 
@@ -171,7 +182,9 @@ class TC_VALCC_2_1(MatterBaseTest):
 
         self.step(11)
         if attributes.DefaultOpenLevel.attribute_id in attribute_list:
-            default_open_level_dut = await self.read_valcc_attribute_expect_success(endpoint=endpoint, attribute=attributes.DefaultOpenLevel)
+            default_open_level_dut = await self.read_valcc_attribute_expect_success(
+                endpoint=endpoint, attribute=attributes.DefaultOpenLevel
+            )
 
             if default_open_level_dut is not NullValue:
                 asserts.assert_less_equal(default_open_level_dut, 100, "DefaultOpenLevel attribute is out of range")

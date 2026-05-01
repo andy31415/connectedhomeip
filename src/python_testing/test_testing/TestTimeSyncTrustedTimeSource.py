@@ -44,13 +44,15 @@ class TestTestTimeSyncTrustedTimeSource(MatterBaseTest):
     @async_test_body
     async def test_SimulateNoInternalTime(self):
         ret = await self.read_single_attribute_check_success(
-            cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.UTCTime)
+            cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.UTCTime
+        )
         asserts.assert_equal(ret, NullValue, "Non-null value returned for time")
 
     @async_test_body
     async def test_HaveInternalTime(self):
         ret = await self.read_single_attribute_check_success(
-            cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.UTCTime)
+            cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.UTCTime
+        )
         asserts.assert_not_equal(ret, NullValue, "Null value returned for time")
 
     @async_test_body
@@ -58,11 +60,12 @@ class TestTestTimeSyncTrustedTimeSource(MatterBaseTest):
         # We just want to append to this list
         ac = Clusters.AccessControl
         acl = await self.read_single_attribute_check_success(cluster=ac, attribute=ac.Attributes.Acl)
-        new_acl_entry = ac.Structs.AccessControlEntryStruct(privilege=ac.Enums.AccessControlEntryPrivilegeEnum.kView,
-                                                            authMode=ac.Enums.AccessControlEntryAuthModeEnum.kCase,
-                                                            subjects=NullValue, targets=[ac.Structs.AccessControlTargetStruct(
-                                                                cluster=Clusters.TimeSynchronization.id)]
-                                                            )
+        new_acl_entry = ac.Structs.AccessControlEntryStruct(
+            privilege=ac.Enums.AccessControlEntryPrivilegeEnum.kView,
+            authMode=ac.Enums.AccessControlEntryAuthModeEnum.kCase,
+            subjects=NullValue,
+            targets=[ac.Structs.AccessControlTargetStruct(cluster=Clusters.TimeSynchronization.id)],
+        )
         acl.append(new_acl_entry)
         await self.default_controller.WriteAttribute(nodeId=self.dut_node_id, attributes=[(0, ac.Attributes.Acl(acl))])
 
@@ -70,23 +73,33 @@ class TestTestTimeSyncTrustedTimeSource(MatterBaseTest):
         # Give the node a couple of seconds to reach out and set itself up
         # TODO: Subscribe to granularity instead.
         await asyncio.sleep(6)
-        ret = await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.UTCTime)
+        ret = await self.read_single_attribute_check_success(
+            cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.UTCTime
+        )
         asserts.assert_not_equal(ret, NullValue, "Returned time is null")
-        ret = await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.Granularity)
-        asserts.assert_not_equal(ret, Clusters.TimeSynchronization.Enums.GranularityEnum.kNoTimeGranularity,
-                                 "Returned Granularity is kNoTimeGranularity")
+        ret = await self.read_single_attribute_check_success(
+            cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.Granularity
+        )
+        asserts.assert_not_equal(
+            ret, Clusters.TimeSynchronization.Enums.GranularityEnum.kNoTimeGranularity, "Returned Granularity is kNoTimeGranularity"
+        )
         # TODO: needs to be gated on the optional attribute
-        ret = await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.TimeSource)
-        asserts.assert_equal(ret, Clusters.TimeSynchronization.Enums.TimeSourceEnum.kNodeTimeCluster,
-                             "Returned time source is incorrect")
+        ret = await self.read_single_attribute_check_success(
+            cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.TimeSource
+        )
+        asserts.assert_equal(
+            ret, Clusters.TimeSynchronization.Enums.TimeSourceEnum.kNodeTimeCluster, "Returned time source is incorrect"
+        )
 
     @async_test_body
     async def test_SetAndReadFromTrustedTimeSource(self):
-        asserts.assert_true('trusted_time_source' in self.matter_test_config.global_test_params,
-                            "trusted_time_source must be included on the command line in "
-                            "the --int-arg flag as trusted_time_source:<nodeId>")
+        asserts.assert_true(
+            "trusted_time_source" in self.matter_test_config.global_test_params,
+            "trusted_time_source must be included on the command line in the --int-arg flag as trusted_time_source:<nodeId>",
+        )
         trusted_time_source = Clusters.TimeSynchronization.Structs.FabricScopedTrustedTimeSourceStruct(
-            nodeID=self.matter_test_config.global_test_params["trusted_time_source"], endpoint=0)
+            nodeID=self.matter_test_config.global_test_params["trusted_time_source"], endpoint=0
+        )
         cmd = Clusters.TimeSynchronization.Commands.SetTrustedTimeSource(trustedTimeSource=trusted_time_source)
         await self.send_single_cmd(cmd)
 

@@ -35,29 +35,26 @@ def split_size(config: Config, key: str) -> None:
     arguments, this function strips any sizes from those arguments
     and stores them as a name:size dictionary in `col.limit`.
     """
-    src = key.split('.')
-    dst = src[:-1] + ['limit']
-    splits = [s.split(':') for s in config.getl(src, [])]
+    src = key.split(".")
+    dst = src[:-1] + ["limit"]
+    splits = [s.split(":") for s in config.getl(src, [])]
     config.putl(src, [x[0] for x in splits])
-    config.putl(dst, {
-        x[0]: memdf.util.config.parse_size(x[1])
-        for x in splits if len(x) > 1
-    })
+    config.putl(dst, {x[0]: memdf.util.config.parse_size(x[1]) for x in splits if len(x) > 1})
 
 
 def get_limit(config: Config, column: str, name: str) -> int:
-    return config.getl([column, 'limit', name], config.get('report.limit', 0))
+    return config.getl([column, "limit", name], config.get("report.limit", 0))
 
 
 def postprocess_selections(config: Config, key: str, info: Mapping) -> None:
     """Resolve select/ignore command options."""
     split_size(config, key)
-    choice, select = key.split('.')
-    assert select == 'select'
+    choice, select = key.split(".")
+    assert select == "select"
     selections = config.get(key)
-    if not config.getl([choice, 'ignore-all'], False):
-        if defaults := config.getl([choice, 'default']):
-            for i in config.getl([choice, 'ignore']):
+    if not config.getl([choice, "ignore-all"], False):
+        if defaults := config.getl([choice, "default"]):
+            for i in config.getl([choice, "ignore"]):
                 if i in defaults:
                     defaults.remove(i)
             selections += defaults
@@ -66,74 +63,71 @@ def postprocess_selections(config: Config, key: str, info: Mapping) -> None:
 
 def select_and_ignore_config_desc(key: str) -> ConfigDescription:
     return {
-        Config.group_map(key): {
-            'group': 'select'
-        },
-        f'{key}.select': {
-            'help':
-            f'{key.capitalize()}(s) to process; otherwise all not ignored',
-            'metavar': 'NAME',
-            'default': [],
-            'argparse': {
-                'alias': [f'--{key}'],
+        Config.group_map(key): {"group": "select"},
+        f"{key}.select": {
+            "help": f"{key.capitalize()}(s) to process; otherwise all not ignored",
+            "metavar": "NAME",
+            "default": [],
+            "argparse": {
+                "alias": [f"--{key}"],
             },
-            'postprocess': postprocess_selections
+            "postprocess": postprocess_selections,
         },
-        f'{key}.select-all': {
-            'help': f'Select all {key}s',
-            'default': False,
+        f"{key}.select-all": {
+            "help": f"Select all {key}s",
+            "default": False,
         },
-        key + '.ignore': {
-            'help': f'{key.capitalize()}(s) to ignore',
-            'metavar': 'NAME',
-            'default': [],
+        key + ".ignore": {
+            "help": f"{key.capitalize()}(s) to ignore",
+            "metavar": "NAME",
+            "default": [],
         },
-        f'{key}.ignore-all': {
-            'help': f'Ignore all {key}s unless explicitly selected',
-            'default': False,
+        f"{key}.ignore-all": {
+            "help": f"Ignore all {key}s unless explicitly selected",
+            "default": False,
         },
     }
 
 
-SECTION_CONFIG = select_and_ignore_config_desc('section')
-SYMBOL_CONFIG = select_and_ignore_config_desc('symbol')
-REGION_CONFIG = select_and_ignore_config_desc('region')
+SECTION_CONFIG = select_and_ignore_config_desc("section")
+SYMBOL_CONFIG = select_and_ignore_config_desc("symbol")
+REGION_CONFIG = select_and_ignore_config_desc("region")
 
 CONFIG: ConfigDescription = {
-    Config.group_def('select'): {
-        'title': 'selection options',
+    Config.group_def("select"): {
+        "title": "selection options",
     },
     **SECTION_CONFIG,
     **SYMBOL_CONFIG,
     **REGION_CONFIG,
 }
 
-COLLECTED_CHOICES = ['symbol', 'section']
-SYNTHETIC_CHOICES = ['region']
+COLLECTED_CHOICES = ["symbol", "section"]
+SYNTHETIC_CHOICES = ["region"]
 SELECTION_CHOICES = COLLECTED_CHOICES + SYNTHETIC_CHOICES
 
 
 def is_selected(config: Config, column, name) -> bool:
     """Test `name` against the configured selection criteria for `column`."""
-    if config.getl([column, 'select-all']):
+    if config.getl([column, "select-all"]):
         return True
-    return name in config.getl([column, 'select'], [])
+    return name in config.getl([column, "select"], [])
 
 
 def synthesize_region(config: Config, df: DF, column: str) -> DF:
     """Add a 'region' column derived from the 'section' column."""
-    cmap = config.transpose_dictlist(config.get('region.sections', {}))
+    cmap = config.transpose_dictlist(config.get("region.sections", {}))
     memdf.util.pretty.debug(cmap)
-    df[column] = df['section'].map(lambda x: cmap.get(x, memdf.name.UNKNOWN))
+    df[column] = df["section"].map(lambda x: cmap.get(x, memdf.name.UNKNOWN))
     return df
 
 
 def groupby_region(df: DF):
-    return df[(df['size'] > 0) | (df['region'] != memdf.name.UNKNOWN)]
+    return df[(df["size"] > 0) | (df["region"] != memdf.name.UNKNOWN)]
 
 
 SYNTHESIZE = {
-    'region': (synthesize_region, groupby_region),
+    "region": (synthesize_region, groupby_region),
 }
 
 
@@ -145,8 +139,8 @@ def synthesize_column(config: Config, df: DF, column: str) -> DF:
 
 def select_configured_column(config: Config, df: DF, column: str) -> DF:
     """Apply configured selection options to a column"""
-    if column in df and not config.getl([column, 'select-all']):
-        selections = config.getl([column, 'select'], [])
+    if column in df and not config.getl([column, "select-all"]):
+        selections = config.getl([column, "select"], [])
         if selections:
             df = df.loc[df[column].isin(selections)]
     return df
@@ -160,8 +154,8 @@ def select_configured(config: Config, df: DF, columns=SELECTION_CHOICES) -> DF:
 
 def groupby(config: Config, df: DF, by: Optional[str] = None):
     if not by:
-        by = config['report.by']
-    df = df[[by, 'size']].groupby(by).aggregate(np.sum).reset_index()
+        by = config["report.by"]
+    df = df[[by, "size"]].groupby(by).aggregate(np.sum).reset_index()
     if by in SYNTHESIZE:
         df = SYNTHESIZE[by][1](df)
     return df

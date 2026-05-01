@@ -58,21 +58,24 @@ class TC_EGC_2_3(ElectricalGridConditionsTestBaseHelper, MatterBaseTest):
 
     def pics_TC_EGC_2_3(self) -> list[str]:
         """This function returns a list of PICS for this test case that must be True for the test to be run"""
-        return [
-            "EGC.S",
-            "EGC.F00"
-        ]
+        return ["EGC.S", "EGC.F00"]
 
     def steps_TC_EGC_2_3(self) -> list[TestStep]:
         return [
-            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test).",
-                     is_commissioning=True),
-            TestStep("2", "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster",
-                     "Value has to be 1 (True)"),
-            TestStep("3", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EGC.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.EGC.TESTEVENTTRIGGER for Forecast Conditions Update Test Event",
-                     "Verify DUT responds w/ status SUCCESS(0x00)."),
-            TestStep("3a", "TH reads from the DUT the ForecastConditions attribute.",
-                     "Verify that the DUT response contains a list of  ElectricalGridConditionsStruct (or empty)."),
+            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test).", is_commissioning=True),
+            TestStep(
+                "2", "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster", "Value has to be 1 (True)"
+            ),
+            TestStep(
+                "3",
+                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EGC.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.EGC.TESTEVENTTRIGGER for Forecast Conditions Update Test Event",
+                "Verify DUT responds w/ status SUCCESS(0x00).",
+            ),
+            TestStep(
+                "3a",
+                "TH reads from the DUT the ForecastConditions attribute.",
+                "Verify that the DUT response contains a list of  ElectricalGridConditionsStruct (or empty).",
+            ),
         ]
 
     @run_if_endpoint_matches(has_feature(cluster, cluster.Bitmaps.Feature.kForecasting))
@@ -95,8 +98,9 @@ class TC_EGC_2_3(ElectricalGridConditionsTestBaseHelper, MatterBaseTest):
         self.step("3a")
         # TH reads from the DUT the ForecastConditions attribute.
         # Verify that the DUT response contains a list of  ElectricalGridConditionsStruct (or empty).
-        val = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster,
-                                                             attribute=attributes.ForecastConditions)
+        val = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attributes.ForecastConditions
+        )
 
         self.check_ForecastConditions(cluster=cluster, forecastConditions=val)
 

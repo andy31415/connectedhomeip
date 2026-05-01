@@ -21,8 +21,7 @@
 #      Python interface for Chip Stack
 #
 
-"""Chip Stack interface
-"""
+"""Chip Stack interface"""
 
 from __future__ import absolute_import, print_function
 
@@ -166,7 +165,8 @@ class ChipStack(object):
 
         # Initialize the chip stack.
         res = self._ChipStackLib.pychip_DeviceController_StackInit(
-            self._persistentStorage.GetSdkStorageObject(), enableServerInteractions)
+            self._persistentStorage.GetSdkStorageObject(), enableServerInteractions
+        )
         res.raise_on_error()
 
         im.InitIMDelegate()
@@ -190,7 +190,6 @@ class ChipStack(object):
         del self._subscriptions[id(subscription)]
 
     def Shutdown(self):
-
         # Shutdown all subscriptions before shutting down the stack. Please note it is not
         # possible to directly iterate over the dictionary values, because when the subscription
         # is shut down, it will remove itself from the dictionary - causing the iterator to be
@@ -221,21 +220,20 @@ class ChipStack(object):
         delattr(builtins, "chipStack")
 
     def Call(self, callFunct, timeoutMs: Optional[int] = None):
-        '''Run a Python function on CHIP stack, and wait for the response.
+        """Run a Python function on CHIP stack, and wait for the response.
         This function is a wrapper of PostTaskOnChipThread, which includes some handling of application specific logics.
         Calling this function on CHIP on CHIP mainloop thread will cause deadlock.
-        '''
+        """
         return self.PostTaskOnChipThread(callFunct).Wait(timeoutMs)
 
     async def CallAsyncWithResult(self, callFunct, timeoutMs: Optional[int] = None):
-        '''Run a Python function on CHIP stack, and wait for the response.
+        """Run a Python function on CHIP stack, and wait for the response.
         This function will post a task on CHIP mainloop and waits for the call response in a asyncio friendly manner.
-        '''
+        """
         callObj = AsyncioCallableHandle(callFunct)
         pythonapi.Py_IncRef(py_object(callObj))
 
-        res = self._ChipStackLib.pychip_DeviceController_PostTaskOnChipThread(
-            self.cbHandleChipThreadRun, py_object(callObj))
+        res = self._ChipStackLib.pychip_DeviceController_PostTaskOnChipThread(self.cbHandleChipThreadRun, py_object(callObj))
 
         if not res.is_success:
             pythonapi.Py_DecRef(py_object(callObj))
@@ -244,19 +242,18 @@ class ChipStack(object):
         return await asyncio.wait_for(callObj.future, timeoutMs / 1000 if timeoutMs else None)
 
     async def CallAsync(self, callFunct, timeoutMs: Optional[int] = None) -> None:
-        '''Run a Python function on CHIP stack, and wait for the response.'''
+        """Run a Python function on CHIP stack, and wait for the response."""
         res: PyChipError = await self.CallAsyncWithResult(callFunct, timeoutMs)
         res.raise_on_error()
 
     def PostTaskOnChipThread(self, callFunct) -> AsyncCallableHandle:
-        '''Run a Python function on CHIP stack, and wait for the response.
+        """Run a Python function on CHIP stack, and wait for the response.
         This function will post a task on CHIP mainloop, and return an object with Wait() method for getting the result.
         Calling Wait inside main loop will cause deadlock.
-        '''
+        """
         callObj = AsyncCallableHandle(callFunct)
         pythonapi.Py_IncRef(py_object(callObj))
-        res = self._ChipStackLib.pychip_DeviceController_PostTaskOnChipThread(
-            self.cbHandleChipThreadRun, py_object(callObj))
+        res = self._ChipStackLib.pychip_DeviceController_PostTaskOnChipThread(self.cbHandleChipThreadRun, py_object(callObj))
         if not res.is_success:
             pythonapi.Py_DecRef(py_object(callObj))
             raise res.to_exception()
@@ -281,6 +278,5 @@ class ChipStack(object):
             ]
             self._ChipStackLib.pychip_Stack_StatusReportToString.restype = c_char_p
 
-            self._ChipStackLib.pychip_DeviceController_PostTaskOnChipThread.argtypes = [
-                _ChipThreadTaskRunnerFunct, py_object]
+            self._ChipStackLib.pychip_DeviceController_PostTaskOnChipThread.argtypes = [_ChipThreadTaskRunnerFunct, py_object]
             self._ChipStackLib.pychip_DeviceController_PostTaskOnChipThread.restype = PyChipError

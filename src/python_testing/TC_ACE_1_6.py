@@ -82,7 +82,6 @@ log = logging.getLogger(__name__)
 
 
 class TC_ACE_1_6(MatterBaseTest):
-
     def desc_TC_ACE_1_6(self) -> str:
         return "[TC-ACE-1.6] Group auth mode"
 
@@ -95,18 +94,38 @@ class TC_ACE_1_6(MatterBaseTest):
             TestStep("1a", "TH sends KeySetWrite command for GroupKeySetID 0x01a3"),
             TestStep("1b", "TH sends KeySetWrite command for GroupKeySetID 0x01a1"),
             TestStep(2, "TH writes GroupKeyMap attribute with three entries"),
-            TestStep("3a", "TH sends a AddGroup Command to the Groups cluster on Endpoint PIXIT.G.ENDPOINT over CASE with GroupID 0x0103"),
+            TestStep(
+                "3a", "TH sends a AddGroup Command to the Groups cluster on Endpoint PIXIT.G.ENDPOINT over CASE with GroupID 0x0103"
+            ),
             TestStep("3b", "TH sends Groupcast JoinGroup command with GroupID 0x0103, Endpoints ep1 and KeySetID 0x01a3"),
             TestStep("3c", "TH sends Groupcast JoinGroup command with GroupID 0x0102, Endpoints ep1 and KeySetID 0x01a1"),
             TestStep(4, "TH writes The ACL attribute to add Manage privileges for group 0x0103"),
-            TestStep(5, "TH sends a AddGroup Command to the Groups cluster on Endpoint PIXIT.G.ENDPOINT over CASE with GroupID 0x0104 - expect UNSUPPORTED_ACCESS"),
-            TestStep(6, "TH sends a AddGroup Command to the Groups cluster with the GroupID field set to 0x0101 and the GroupName set to an empty string. The command is sent as a group command using GroupID 0x0103"),
-            TestStep(7, "TH sends a AddGroup Command to the Groups cluster with the GroupID field set to 0x0102 and the GroupName set to an empty string. The command is sent as a group command using GroupID 0x0101"),
+            TestStep(
+                5,
+                "TH sends a AddGroup Command to the Groups cluster on Endpoint PIXIT.G.ENDPOINT over CASE with GroupID 0x0104 - expect UNSUPPORTED_ACCESS",
+            ),
+            TestStep(
+                6,
+                "TH sends a AddGroup Command to the Groups cluster with the GroupID field set to 0x0101 and the GroupName set to an empty string. The command is sent as a group command using GroupID 0x0103",
+            ),
+            TestStep(
+                7,
+                "TH sends a AddGroup Command to the Groups cluster with the GroupID field set to 0x0102 and the GroupName set to an empty string. The command is sent as a group command using GroupID 0x0101",
+            ),
             TestStep(8, "TH subscribes to the Groupcast cluster's events on the RootNode endpoint"),
-            TestStep(9, "TH sends GroupcastTesting command with TestOperation field set to EnableListenerTesting and DurationSeconds field set to 300"),
-            TestStep(10, "TH sends a command from the cluster identified in the Targets field of the ACL entry at step 4. The command is sent as a group command using GroupID 0x0103."),
+            TestStep(
+                9,
+                "TH sends GroupcastTesting command with TestOperation field set to EnableListenerTesting and DurationSeconds field set to 300",
+            ),
+            TestStep(
+                10,
+                "TH sends a command from the cluster identified in the Targets field of the ACL entry at step 4. The command is sent as a group command using GroupID 0x0103.",
+            ),
             TestStep(11, "TH waits for and verifies the GroupcastTesting event from DUT. (AccessAllowed: true)"),
-            TestStep(12, "TH sends a command from the cluster identified in the Targets field of the ACL entry at step 4. The command is sent as a group command using GroupID 0x0102."),
+            TestStep(
+                12,
+                "TH sends a command from the cluster identified in the Targets field of the ACL entry at step 4. The command is sent as a group command using GroupID 0x0102.",
+            ),
             TestStep(13, "TH waits for and verifies the GroupcastTesting event from DUT. (AccessAllowed: false)"),
             TestStep(14, "TH writes The ACL attribute to revoke groups Management access and restore full access over CASE"),
             TestStep(15, "TH sends a group command requiring the Operate privilege to GroupID 0x0103"),
@@ -129,15 +148,14 @@ class TC_ACE_1_6(MatterBaseTest):
 
     @async_test_body
     async def test_TC_ACE_1_6(self):
-
         # Declare group ids and key sets
         groupID1 = 0x0101
         groupID2 = 0x0102
         groupID3 = 0x0103
         groupID4 = 0x0104
         groupID5 = 0x0105
-        keySetID1 = 0x01a1
-        keySetID3 = 0x01a3
+        keySetID1 = 0x01A1
+        keySetID3 = 0x01A3
 
         # Declare Keys
         key1 = bytes.fromhex("a0d1d2d3d4d5d6d7d8d9dadbdcdddedf")
@@ -160,55 +178,69 @@ class TC_ACE_1_6(MatterBaseTest):
         pixit_g_endpoint = self.get_endpoint()
 
         if not gc_on_root:
-            asserts.assert_false(pixit_g_endpoint is None,
-                                 "--endpoint <endpoint> with Groups cluster must be included on the command line.")
+            asserts.assert_false(
+                pixit_g_endpoint is None, "--endpoint <endpoint> with Groups cluster must be included on the command line."
+            )
             asserts.assert_not_equal(pixit_g_endpoint, 0, "Not allowed to have groups clusters on endpoint 0.")
             log.info(f"Endpoint value for PIXIT.G.ENDPOINT used for test steps with groups cluster: {pixit_g_endpoint}")
         else:
             # Find "ep~1~" (not endpoint1) (non-root node endpoint) that will be used later. This is an endpoint that must have at least
             # one cluster with a command that has operate priviliege.
             endpoint_to_search = self.get_endpoint() or None
-            operate_only_command_list = await get_operate_only_commands(self.default_controller, self.dut_node_id, True, endpoint_to_search)
-            asserts.assert_greater(len(operate_only_command_list), 0,
-                                   "DUT must have at least 1 non-root endpoint with a cluster with commands requiring operate privilege.")
+            operate_only_command_list = await get_operate_only_commands(
+                self.default_controller, self.dut_node_id, True, endpoint_to_search
+            )
+            asserts.assert_greater(
+                len(operate_only_command_list),
+                0,
+                "DUT must have at least 1 non-root endpoint with a cluster with commands requiring operate privilege.",
+            )
             operate_only_command = operate_only_command_list[0]
             ep1 = operate_only_command.endpoint_id
 
             log.info(f"Endpoint value for ep~1~ used for test steps with groupcast cluster: {ep1}")
             log.info(
-                f"Targeted cluster used for groupcast case is: {operate_only_command.cluster_object.__name__} ({operate_only_command.cluster_object.id})")
+                f"Targeted cluster used for groupcast case is: {operate_only_command.cluster_object.__name__} ({operate_only_command.cluster_object.id})"
+            )
             log.info(
-                f"Targeted command with operate priviliege on the targeted cluster used for groupcast case is: {operate_only_command.command_object.__name__}")
+                f"Targeted command with operate priviliege on the targeted cluster used for groupcast case is: {operate_only_command.command_object.__name__}"
+            )
 
         # Step 1a: KeySetWrite 0x01a3
         self.step("1a")
-        await self.send_single_cmd(endpoint=0, cmd=Clusters.GroupKeyManagement.Commands.KeySetWrite(
-            groupKeySet=Clusters.GroupKeyManagement.Structs.GroupKeySetStruct(
-                groupKeySetID=keySetID3,
-                groupKeySecurityPolicy=Clusters.GroupKeyManagement.Enums.GroupKeySecurityPolicyEnum.kTrustFirst,
-                epochKey0=key3,
-                epochStartTime0=2220000,
-                epochKey1=b"\xd1" + key3[1:],
-                epochStartTime1=2220001,
-                epochKey2=b"\xd2" + key3[1:],
-                epochStartTime2=2220002
-            )
-        ))
+        await self.send_single_cmd(
+            endpoint=0,
+            cmd=Clusters.GroupKeyManagement.Commands.KeySetWrite(
+                groupKeySet=Clusters.GroupKeyManagement.Structs.GroupKeySetStruct(
+                    groupKeySetID=keySetID3,
+                    groupKeySecurityPolicy=Clusters.GroupKeyManagement.Enums.GroupKeySecurityPolicyEnum.kTrustFirst,
+                    epochKey0=key3,
+                    epochStartTime0=2220000,
+                    epochKey1=b"\xd1" + key3[1:],
+                    epochStartTime1=2220001,
+                    epochKey2=b"\xd2" + key3[1:],
+                    epochStartTime2=2220002,
+                )
+            ),
+        )
 
         # Step 1b: KeySetWrite 0x01a1
         self.step("1b")
-        await self.send_single_cmd(endpoint=0, cmd=Clusters.GroupKeyManagement.Commands.KeySetWrite(
-            groupKeySet=Clusters.GroupKeyManagement.Structs.GroupKeySetStruct(
-                groupKeySetID=keySetID1,
-                groupKeySecurityPolicy=Clusters.GroupKeyManagement.Enums.GroupKeySecurityPolicyEnum.kTrustFirst,
-                epochKey0=key1,
-                epochStartTime0=2220000,
-                epochKey1=b"\xb1" + key1[1:],
-                epochStartTime1=2220001,
-                epochKey2=b"\xc2" + key1[1:],
-                epochStartTime2=2220002
-            )
-        ))
+        await self.send_single_cmd(
+            endpoint=0,
+            cmd=Clusters.GroupKeyManagement.Commands.KeySetWrite(
+                groupKeySet=Clusters.GroupKeyManagement.Structs.GroupKeySetStruct(
+                    groupKeySetID=keySetID1,
+                    groupKeySecurityPolicy=Clusters.GroupKeyManagement.Enums.GroupKeySecurityPolicyEnum.kTrustFirst,
+                    epochKey0=key1,
+                    epochStartTime0=2220000,
+                    epochKey1=b"\xb1" + key1[1:],
+                    epochStartTime1=2220001,
+                    epochKey2=b"\xc2" + key1[1:],
+                    epochStartTime2=2220002,
+                )
+            ),
+        )
 
         # Must manually set the group key sets for the controller.
         self.default_controller.SetGroupKeySet(
@@ -220,7 +252,7 @@ class TC_ACE_1_6(MatterBaseTest):
             epoch_key1=b"\xb1" + key1[1:],
             epoch_start_time1=2220001,
             epoch_key2=b"\xc2" + key1[1:],
-            epoch_start_time2=2220002
+            epoch_start_time2=2220002,
         )
 
         self.default_controller.SetGroupKeySet(
@@ -232,7 +264,7 @@ class TC_ACE_1_6(MatterBaseTest):
             epoch_key1=b"\xd1" + key3[1:],
             epoch_start_time1=2220001,
             epoch_key2=b"\xd2" + key3[1:],
-            epoch_start_time2=2220002
+            epoch_start_time2=2220002,
         )
 
         # Set group keys for the groups
@@ -261,11 +293,21 @@ class TC_ACE_1_6(MatterBaseTest):
             self.skip_step(2)
         else:
             self.step(2)
-            result = await self.default_controller.WriteAttribute(self.dut_node_id, [(0, Clusters.GroupKeyManagement.Attributes.GroupKeyMap([
-                Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(groupId=groupID1, groupKeySetID=keySetID1),
-                Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(groupId=groupID2, groupKeySetID=keySetID1),
-                Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(groupId=groupID3, groupKeySetID=keySetID3),
-            ]))])
+            result = await self.default_controller.WriteAttribute(
+                self.dut_node_id,
+                [
+                    (
+                        0,
+                        Clusters.GroupKeyManagement.Attributes.GroupKeyMap(
+                            [
+                                Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(groupId=groupID1, groupKeySetID=keySetID1),
+                                Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(groupId=groupID2, groupKeySetID=keySetID1),
+                                Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(groupId=groupID3, groupKeySetID=keySetID3),
+                            ]
+                        ),
+                    )
+                ],
+            )
             asserts.assert_equal(result[0].Status, Status.Success, "GroupKeyMap attribute write failed")
 
         # Step 3a: AddGroup 0x0103 over CASE (if GC not on root)
@@ -273,7 +315,9 @@ class TC_ACE_1_6(MatterBaseTest):
             self.skip_step("3a")
         else:
             self.step("3a")
-            result = await self.send_single_cmd(Clusters.Groups.Commands.AddGroup(groupID=groupID3, groupName=""), endpoint=pixit_g_endpoint)
+            result = await self.send_single_cmd(
+                Clusters.Groups.Commands.AddGroup(groupID=groupID3, groupName=""), endpoint=pixit_g_endpoint
+            )
             asserts.assert_equal(result.status, Status.Success, "Adding Group 3 failed")
 
         # Step 3b: Groupcast JoinGroup 0x0103 (if GC on root)
@@ -281,15 +325,26 @@ class TC_ACE_1_6(MatterBaseTest):
             self.skip_step("3b")
         else:
             self.step("3b")
-            await self.send_single_cmd(endpoint=0, cmd=Clusters.Groupcast.Commands.JoinGroup(groupID=groupID3, endpoints=[ep1], keySetID=keySetID3))
+            await self.send_single_cmd(
+                endpoint=0, cmd=Clusters.Groupcast.Commands.JoinGroup(groupID=groupID3, endpoints=[ep1], keySetID=keySetID3)
+            )
 
         # Step 3c: Groupcast JoinGroup 0x0102
         if not gc_on_root:
             self.skip_step("3c")
         else:
             self.step("3c")
-            mcast_policy = Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kPerGroup if pga_enabled else Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kIanaAddr
-            await self.send_single_cmd(endpoint=0, cmd=Clusters.Groupcast.Commands.JoinGroup(groupID=groupID2, endpoints=[ep1], keySetID=keySetID1, mcastAddrPolicy=mcast_policy))
+            mcast_policy = (
+                Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kPerGroup
+                if pga_enabled
+                else Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kIanaAddr
+            )
+            await self.send_single_cmd(
+                endpoint=0,
+                cmd=Clusters.Groupcast.Commands.JoinGroup(
+                    groupID=groupID2, endpoints=[ep1], keySetID=keySetID1, mcastAddrPolicy=mcast_policy
+                ),
+            )
 
         # Step 4: ACL Manage for group 0x0103
         self.step(4)
@@ -297,7 +352,7 @@ class TC_ACE_1_6(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[th1_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=Clusters.AccessControl.id)]
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=Clusters.AccessControl.id)],
         )
 
         if gc_on_root:
@@ -312,7 +367,8 @@ class TC_ACE_1_6(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kManage,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kGroup,
             subjects=[groupID3],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=target_endpoint, cluster=target_cluster)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=target_endpoint, cluster=target_cluster)],
+        )
 
         acl_entries = [acl_admin, acl_group]
         if gc_on_root:
@@ -320,7 +376,7 @@ class TC_ACE_1_6(MatterBaseTest):
                 privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
                 authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
                 subjects=[th1_nodeid],
-                targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=Clusters.Groupcast.id)]
+                targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=Clusters.Groupcast.id)],
             )
             acl_entries.append(groupcast_admin)
 
@@ -332,7 +388,9 @@ class TC_ACE_1_6(MatterBaseTest):
             # Step 5: AddGroup 0x0104 over CASE - expect UNSUPPORTED_ACCESS
             self.step(5)
             try:
-                await self.send_single_cmd(Clusters.Groups.Commands.AddGroup(groupID=groupID4, groupName=""), endpoint=pixit_g_endpoint)
+                await self.send_single_cmd(
+                    Clusters.Groups.Commands.AddGroup(groupID=groupID4, groupName=""), endpoint=pixit_g_endpoint
+                )
                 asserts.fail("AddGroup should have failed with UNSUPPORTED_ACCESS")
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.UnsupportedAccess, "Incorrect error status")
@@ -353,16 +411,19 @@ class TC_ACE_1_6(MatterBaseTest):
             self.mark_step_range_skipped(8, 13)
         else:
             self.step(8)
-            event_sub = EventSubscriptionHandler(expected_cluster=Clusters.Groupcast,
-                                                 expected_event_id=Clusters.Groupcast.Events.GroupcastTesting.event_id)
+            event_sub = EventSubscriptionHandler(
+                expected_cluster=Clusters.Groupcast, expected_event_id=Clusters.Groupcast.Events.GroupcastTesting.event_id
+            )
             await event_sub.start(self.default_controller, self.dut_node_id, endpoint=0, min_interval_sec=0, max_interval_sec=30)
 
             # Step 9: Enable GroupcastTesting
             self.step(9)
-            await self.send_single_cmd(endpoint=0, cmd=Clusters.Groupcast.Commands.GroupcastTesting(
-                testOperation=Clusters.Groupcast.Enums.GroupcastTestingEnum.kEnableListenerTesting,
-                durationSeconds=300
-            ))
+            await self.send_single_cmd(
+                endpoint=0,
+                cmd=Clusters.Groupcast.Commands.GroupcastTesting(
+                    testOperation=Clusters.Groupcast.Enums.GroupcastTestingEnum.kEnableListenerTesting, durationSeconds=300
+                ),
+            )
 
             # Step 10: Group command to Group 0x0103
             self.step(10)
@@ -394,8 +455,11 @@ class TC_ACE_1_6(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[th1_nodeid],
-            targets=NullValue)
-        await self.default_controller.WriteAttribute(self.dut_node_id, [(0, Clusters.AccessControl.Attributes.Acl([acl_admin_full]))])
+            targets=NullValue,
+        )
+        await self.default_controller.WriteAttribute(
+            self.dut_node_id, [(0, Clusters.AccessControl.Attributes.Acl([acl_admin_full]))]
+        )
 
         # Step 15: Generic group command to Group 0x0103
         if not gc_on_root:
@@ -414,7 +478,9 @@ class TC_ACE_1_6(MatterBaseTest):
 
             # Step 17: ConfigureAuxiliaryACL
             self.step(17)
-            await self.send_single_cmd(endpoint=0, cmd=Clusters.Groupcast.Commands.ConfigureAuxiliaryACL(groupID=groupID3, useAuxiliaryACL=True))
+            await self.send_single_cmd(
+                endpoint=0, cmd=Clusters.Groupcast.Commands.ConfigureAuxiliaryACL(groupID=groupID3, useAuxiliaryACL=True)
+            )
 
             # Step 18: Generic group command to Group 0x0103
             self.step(18)
@@ -430,9 +496,12 @@ class TC_ACE_1_6(MatterBaseTest):
 
             # Step 20: DisableTesting
             self.step(20)
-            await self.send_single_cmd(endpoint=0, cmd=Clusters.Groupcast.Commands.GroupcastTesting(
-                testOperation=Clusters.Groupcast.Enums.GroupcastTestingEnum.kDisableTesting
-            ))
+            await self.send_single_cmd(
+                endpoint=0,
+                cmd=Clusters.Groupcast.Commands.GroupcastTesting(
+                    testOperation=Clusters.Groupcast.Enums.GroupcastTestingEnum.kDisableTesting
+                ),
+            )
 
         # Steps 21-26: (If GC not on root)
         if gc_on_root:
@@ -472,7 +541,9 @@ class TC_ACE_1_6(MatterBaseTest):
             await self.send_single_cmd(endpoint=0, cmd=Clusters.Groupcast.Commands.LeaveGroup(groupID=0))
 
         self.step(28)
-        await self.default_controller.WriteAttribute(self.dut_node_id, [(0, Clusters.GroupKeyManagement.Attributes.GroupKeyMap([]))])
+        await self.default_controller.WriteAttribute(
+            self.dut_node_id, [(0, Clusters.GroupKeyManagement.Attributes.GroupKeyMap([]))]
+        )
 
         self.step(29)
         await self.send_single_cmd(endpoint=0, cmd=Clusters.GroupKeyManagement.Commands.KeySetRemove(groupKeySetID=keySetID3))

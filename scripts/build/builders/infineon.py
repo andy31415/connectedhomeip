@@ -27,39 +27,39 @@ class InfineonApp(Enum):
 
     def ExampleName(self):
         if self == InfineonApp.LOCK:
-            return 'lock-app'
+            return "lock-app"
         if self == InfineonApp.LIGHT:
-            return 'lighting-app'
+            return "lighting-app"
         if self == InfineonApp.ALL_CLUSTERS:
-            return 'all-clusters-app'
+            return "all-clusters-app"
         if self == InfineonApp.ALL_CLUSTERS_MINIMAL:
-            return 'all-clusters-minimal-app'
-        raise Exception('Unknown app type: %r' % self)
+            return "all-clusters-minimal-app"
+        raise Exception("Unknown app type: %r" % self)
 
     def AppNamePrefix(self):
         if self == InfineonApp.LOCK:
-            return 'chip-psoc6-lock-example'
+            return "chip-psoc6-lock-example"
         if self == InfineonApp.LIGHT:
-            return 'chip-psoc6-lighting-example'
+            return "chip-psoc6-lighting-example"
         if self == InfineonApp.ALL_CLUSTERS:
-            return 'chip-psoc6-clusters-example'
+            return "chip-psoc6-clusters-example"
         if self == InfineonApp.ALL_CLUSTERS_MINIMAL:
-            return 'chip-psoc6-clusters-minimal-example'
-        raise Exception('Unknown app type: %r' % self)
+            return "chip-psoc6-clusters-minimal-example"
+        raise Exception("Unknown app type: %r" % self)
 
     def FlashBundleName(self):
         if self == InfineonApp.LOCK:
-            return 'lock_app.flashbundle.txt'
+            return "lock_app.flashbundle.txt"
         if self == InfineonApp.ALL_CLUSTERS:
-            return 'clusters_app.flashbundle.txt'
+            return "clusters_app.flashbundle.txt"
         if self == InfineonApp.ALL_CLUSTERS_MINIMAL:
-            return 'clusters_minimal_app.flashbundle.txt'
+            return "clusters_minimal_app.flashbundle.txt"
         if self == InfineonApp.LIGHT:
-            return 'lighting_app.flashbundle.txt'
-        raise Exception('Unknown app type: %r' % self)
+            return "lighting_app.flashbundle.txt"
+        raise Exception("Unknown app type: %r" % self)
 
     def BuildRoot(self, root):
-        return os.path.join(root, 'examples', self.ExampleName(), 'infineon/psoc6')
+        return os.path.join(root, "examples", self.ExampleName(), "infineon/psoc6")
 
 
 class InfineonBoard(Enum):
@@ -67,35 +67,34 @@ class InfineonBoard(Enum):
 
     def GnArgName(self):
         if self == InfineonBoard.PSOC6BOARD:
-            return 'CY8CKIT-062S2-43012'
-        raise Exception('Unknown board type: %r' % self)
+            return "CY8CKIT-062S2-43012"
+        raise Exception("Unknown board type: %r" % self)
 
 
 class InfineonBuilder(GnBuilder):
-
-    def __init__(self,
-                 root,
-                 runner,
-                 app: InfineonApp = InfineonApp.LOCK,
-                 board: InfineonBoard = InfineonBoard.PSOC6BOARD,
-                 enable_ota_requestor: bool = False,
-                 update_image: bool = False,
-                 enable_trustm: bool = False):
-        super(InfineonBuilder, self).__init__(
-            root=app.BuildRoot(root),
-            runner=runner)
+    def __init__(
+        self,
+        root,
+        runner,
+        app: InfineonApp = InfineonApp.LOCK,
+        board: InfineonBoard = InfineonBoard.PSOC6BOARD,
+        enable_ota_requestor: bool = False,
+        update_image: bool = False,
+        enable_trustm: bool = False,
+    ):
+        super(InfineonBuilder, self).__init__(root=app.BuildRoot(root), runner=runner)
 
         self.app = app
         self.extra_gn_options = ['psoc6_board="%s"' % board.GnArgName()]
 
         if enable_ota_requestor:
-            self.extra_gn_options.append('chip_enable_ota_requestor=true')
+            self.extra_gn_options.append("chip_enable_ota_requestor=true")
         if update_image:
-            self.extra_gn_options.append('build_update_image=true')
+            self.extra_gn_options.append("build_update_image=true")
         if enable_trustm:
-            self.extra_gn_options.append('chip_crypto=\"platform\"')
+            self.extra_gn_options.append('chip_crypto="platform"')
         if enable_trustm is False:
-            self.extra_gn_options.append('chip_crypto=\"mbedtls\"')
+            self.extra_gn_options.append('chip_crypto="mbedtls"')
 
     def GnBuildArgs(self):
         args = super().GnBuildArgs()
@@ -103,9 +102,9 @@ class InfineonBuilder(GnBuilder):
         return args
 
     def build_outputs(self):
-        extensions = ['out']
+        extensions = ["out"]
         if self.options.enable_link_map_file:
-            extensions.append('out.map')
+            extensions.append("out.map")
         for ext in extensions:
             name = f"{self.app.AppNamePrefix()}.{ext}"
             yield BuilderOutput(os.path.join(self.output_dir, name), name)

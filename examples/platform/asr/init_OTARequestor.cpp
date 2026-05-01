@@ -45,7 +45,7 @@ extern "C" void asrQueryImageCmdHandler()
 {
     ChipLogProgress(DeviceLayer, "Calling asrQueryImageCmdHandler");
     TEMPORARY_RETURN_IGNORED PlatformMgr().ScheduleWork(
-        [](intptr_t) { TEMPORARY_RETURN_IGNORED GetRequestorInstance()->TriggerImmediateQuery(); });
+        [](intptr_t) { TEMPORARY_RETURN_IGNORED GetRequestorInstance() -> TriggerImmediateQuery(); });
 }
 
 extern "C" void asrApplyUpdateCmdHandler()

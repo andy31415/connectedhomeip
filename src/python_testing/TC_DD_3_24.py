@@ -55,9 +55,7 @@ class TC_DD_3_24(MatterBaseTest):
             if isinstance(stage, bytes):
                 stage = stage.decode("utf-8", errors="replace")
 
-            log.info(
-                f"[_stage_start_listener] node=0x{node_id:X}, stage={stage}"
-            )
+            log.info(f"[_stage_start_listener] node=0x{node_id:X}, stage={stage}")
 
             self.commissionee_node_id = node_id
 
@@ -69,16 +67,14 @@ class TC_DD_3_24(MatterBaseTest):
                 log.info("Detected 'SendComplete' commissioning stage")
                 self.send_complete_seen = True
 
-        self._commissioning_stage_start_callback = _DevicePairingDelegate_OnCommissioningStageStartFunct(
-            _stage_start_listener
-        )
+        self._commissioning_stage_start_callback = _DevicePairingDelegate_OnCommissioningStageStartFunct(_stage_start_listener)
         self.default_controller.setCommissioningStageStartCallback(self._commissioning_stage_start_callback)
 
     @async_test_body
     async def test_TC_DD_3_24(self):
-
-        self.wait_for_user_input(prompt_msg="Put the DUT in commissionable mode, bring its NFC interface close to the NFC reader"
-                                 " and power OFF the DUT")
+        self.wait_for_user_input(
+            prompt_msg="Put the DUT in commissionable mode, bring its NFC interface close to the NFC reader and power OFF the DUT"
+        )
 
         # Step 1: Here we check if the Tag is connected to the Host machine and read the NFC Tag data
         self.step(1)
@@ -88,10 +84,7 @@ class TC_DD_3_24(MatterBaseTest):
 
         nfc_tag_data = reader.read_nfc_tag_data()
         log.info(f"NFC Tag data : '{nfc_tag_data}'")
-        asserts.assert_true(
-            reader.is_onboarding_data(nfc_tag_data),
-            f"'{nfc_tag_data}' is not a valid Matter URI"
-        )
+        asserts.assert_true(reader.is_onboarding_data(nfc_tag_data), f"'{nfc_tag_data}' is not a valid Matter URI")
         self.matter_test_config.qr_code_content.append(nfc_tag_data)
 
         # Step 2: the NFC tag data is parsed and checked if the device supports NFC commissioning and commission begins
@@ -103,14 +96,16 @@ class TC_DD_3_24(MatterBaseTest):
         asserts.assert_is_not_none(commissioning_method, "in_test_commissioning_method must not be None")
         asserts.assert_true(
             str(commissioning_method).startswith("nfc-"),
-            f"Expected in_test_commissioning_method to start with 'nfc-', got: {commissioning_method}"
+            f"Expected in_test_commissioning_method to start with 'nfc-', got: {commissioning_method}",
         )
 
         self.matter_test_config.commissioning_method = commissioning_method
 
-        log.info("default_controller in test: %s (id=%s)",
-                 getattr(self, "default_controller", None),
-                 hex(id(self.default_controller)) if hasattr(self, "default_controller") else "N/A")
+        log.info(
+            "default_controller in test: %s (id=%s)",
+            getattr(self, "default_controller", None),
+            hex(id(self.default_controller)) if hasattr(self, "default_controller") else "N/A",
+        )
 
         commissioning_success = await self.commission_devices()
         asserts.assert_true(commissioning_success, "Device Commissioning using nfc transport has failed")
@@ -123,21 +118,19 @@ class TC_DD_3_24(MatterBaseTest):
         self.step(4)
 
         asserts.assert_not_equal(
-            self.commissionee_node_id, 0,
-            "commissionee_node_id was not set before calling ContinueCommissioningAfterConnectNetworkRequest"
+            self.commissionee_node_id,
+            0,
+            "commissionee_node_id was not set before calling ContinueCommissioningAfterConnectNetworkRequest",
         )
 
         log.info(f"commissionee_node_id : 0x{self.commissionee_node_id:X}")
 
-        effective_node_id = await self.default_controller.ContinueCommissioningAfterConnectNetworkRequest(
-            self.commissionee_node_id
-        )
+        effective_node_id = await self.default_controller.ContinueCommissioningAfterConnectNetworkRequest(self.commissionee_node_id)
 
         asserts.assert_equal(
             effective_node_id,
             self.commissionee_node_id,
-            "Effective node ID returned by ContinueCommissioningAfterConnectNetworkRequest "
-            "does not match commissionee_node_id"
+            "Effective node ID returned by ContinueCommissioningAfterConnectNetworkRequest does not match commissionee_node_id",
         )
 
         asserts.assert_true(self.send_complete_seen, "Stage 'send_complete_seen' was not seen!")

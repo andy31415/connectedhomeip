@@ -43,8 +43,7 @@ class TestCaseStorage(GeneratorStorage):
 
     def write_new_data(self, relative_path: str, content: str):
         if self.content:
-            raise Exception(
-                "Unexpected extra data: single file generation expected")
+            raise Exception("Unexpected extra data: single file generation expected")
         self.content = content
 
 
@@ -65,7 +64,7 @@ def RenderAsIdlTxt(idl: Idl) -> str:
 
 
 def SkipLeadingComments(txt: str, also_strip: List[str] = []) -> str:
-    """Skips leading lines starting with // in a file. """
+    """Skips leading lines starting with // in a file."""
     lines = txt.split("\n")
     idx = 0
     while lines[idx].startswith("//") or not lines[idx]:
@@ -86,12 +85,13 @@ class TestIdlRendering(unittest.TestCase):
             self.assertEqual(a, b)
             return
 
-        delta = unified_diff(a.splitlines(keepends=True),
-                             b.splitlines(keepends=True),
-                             fromfile='actual.matter',
-                             tofile='expected.matter',
-                             )
-        self.assertEqual(a, b, '\n' + ''.join(delta))
+        delta = unified_diff(
+            a.splitlines(keepends=True),
+            b.splitlines(keepends=True),
+            fromfile="actual.matter",
+            tofile="expected.matter",
+        )
+        self.assertEqual(a, b, "\n" + "".join(delta))
 
     def test_client_clusters(self):
         # IDL renderer was updated to have IDENTICAL output for client side
@@ -103,12 +103,10 @@ class TestIdlRendering(unittest.TestCase):
         path = "src/controller/data_model/controller-clusters.matter"
 
         # Files MUST be identical except the header comments which are different
-        original = SkipLeadingComments(ReadMatterIdl(path), also_strip=[
-                                       " // NOTE: Default/not specifically set"])
+        original = SkipLeadingComments(ReadMatterIdl(path), also_strip=[" // NOTE: Default/not specifically set"])
         # Do not merge globals because ZAP generated matter files do not contain
         # the merge global data (will not render global reference comments).
-        generated = SkipLeadingComments(RenderAsIdlTxt(
-            ParseMatterIdl(path, skip_meta=False, merge_globals=False)))
+        generated = SkipLeadingComments(RenderAsIdlTxt(ParseMatterIdl(path, skip_meta=False, merge_globals=False)))
 
         self.assertTextEqual(original, generated)
 
@@ -135,5 +133,5 @@ class TestIdlRendering(unittest.TestCase):
             self.assertEqual(idl, idl2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

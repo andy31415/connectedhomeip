@@ -50,7 +50,6 @@ log = logging.getLogger(__name__)
 
 
 class TC_AVSM_2_19(MatterBaseTest, AVSMTestBase):
-
     def desc_TC_AVSM_2_19(self) -> str:
         return "[TC-AVSM-2.19] Validate persistence of allocated audio streams with DUT"
 
@@ -58,20 +57,47 @@ class TC_AVSM_2_19(MatterBaseTest, AVSMTestBase):
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
             TestStep(2, "TH reads FeatureMap attribute from CameraAVStreamManagement Cluster on DUT. Verify F_ADO is supported."),
-            TestStep(3, "TH reads AllocatedAudioStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated audio streams in the list is 0."),
-            TestStep(4, "TH reads MicrophoneCapabilities attribute from CameraAVStreamManagement Cluster on DUT. Store this value in aMicrophoneCapabilities."),
-            TestStep(5, "The TH selects a value for BitRate depending on the first codec in aMicrophoneCapabilities.supportedCodecs. Store this value in aBitRate"),
-            TestStep(6, "TH reads StreamUsagePriorities attribute from CameraAVStreamManagement Cluster on DUT. Store this value in aStreamUsagePriorities."),
-            TestStep(7, "TH sends the AudioStreamAllocate command with valid values of AudioCodec, ChannelCount, SampleRate and BitDepth from aMicrophoneCapabilities, a StreamUsage from aStreamUsagePriorities and aBitRate set as above."),
-            TestStep(8, "TH reads AllocatedAudioStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated audio streams in the list is 1."),
+            TestStep(
+                3,
+                "TH reads AllocatedAudioStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated audio streams in the list is 0.",
+            ),
+            TestStep(
+                4,
+                "TH reads MicrophoneCapabilities attribute from CameraAVStreamManagement Cluster on DUT. Store this value in aMicrophoneCapabilities.",
+            ),
+            TestStep(
+                5,
+                "The TH selects a value for BitRate depending on the first codec in aMicrophoneCapabilities.supportedCodecs. Store this value in aBitRate",
+            ),
+            TestStep(
+                6,
+                "TH reads StreamUsagePriorities attribute from CameraAVStreamManagement Cluster on DUT. Store this value in aStreamUsagePriorities.",
+            ),
+            TestStep(
+                7,
+                "TH sends the AudioStreamAllocate command with valid values of AudioCodec, ChannelCount, SampleRate and BitDepth from aMicrophoneCapabilities, a StreamUsage from aStreamUsagePriorities and aBitRate set as above.",
+            ),
+            TestStep(
+                8,
+                "TH reads AllocatedAudioStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated audio streams in the list is 1.",
+            ),
             TestStep(9, "TH reboots the DUT."),
             TestStep(10, "TH waits for the DUT to come back online."),
-            TestStep(11, "TH reads AllocatedAudioStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated audio streams in the list is 1 and the stream info is identical to what was provided in step 7."),
+            TestStep(
+                11,
+                "TH reads AllocatedAudioStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated audio streams in the list is 1 and the stream info is identical to what was provided in step 7.",
+            ),
             TestStep(12, "TH sends the AudioStreamDeallocate command with AudioStreamID set to myStreamID."),
-            TestStep(13, "TH reads AllocatedAudioStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated audio streams in the list is 0."),
+            TestStep(
+                13,
+                "TH reads AllocatedAudioStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated audio streams in the list is 0.",
+            ),
             TestStep(14, "TH reboots the DUT."),
             TestStep(15, "TH waits for the DUT to come back online."),
-            TestStep(16, "TH reads AllocatedAudioStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated audio streams in the list is 0."),
+            TestStep(
+                16,
+                "TH reads AllocatedAudioStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated audio streams in the list is 0.",
+            ),
         ]
 
     def pics_TC_AVSM_2_19(self) -> list[str]:
@@ -94,20 +120,27 @@ class TC_AVSM_2_19(MatterBaseTest, AVSMTestBase):
         asserts.assert_true(has_f_ado, "FeatureMap F_ADO is not set")
 
         self.step(3)
-        allocated_audio_streams = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedAudioStreams)
+        allocated_audio_streams = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedAudioStreams
+        )
         asserts.assert_equal(len(allocated_audio_streams), 0, "AllocatedAudioStreams should be empty")
 
         self.step(4)
-        microphone_capabilities = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.MicrophoneCapabilities)
-        asserts.assert_greater(len(microphone_capabilities.supportedCodecs), 0,
-                               "MicrophoneCapabilities.supportedCodecs should not be empty")
+        microphone_capabilities = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.MicrophoneCapabilities
+        )
+        asserts.assert_greater(
+            len(microphone_capabilities.supportedCodecs), 0, "MicrophoneCapabilities.supportedCodecs should not be empty"
+        )
 
         self.step(5)
         first_codec = microphone_capabilities.supportedCodecs[0]
         bit_rate = 30000 if first_codec == cluster.Enums.AudioCodecEnum.kOpus else 40000
 
         self.step(6)
-        stream_usage_priorities = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.StreamUsagePriorities)
+        stream_usage_priorities = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.StreamUsagePriorities
+        )
         asserts.assert_greater(len(stream_usage_priorities), 0, "StreamUsagePriorities should not be empty")
 
         self.step(7)
@@ -138,11 +171,13 @@ class TC_AVSM_2_19(MatterBaseTest, AVSMTestBase):
             sampleRate=sample_rate,
             bitRate=bit_rate,
             bitDepth=bit_depth,
-            referenceCount=0
+            referenceCount=0,
         )
 
         self.step(8)
-        allocated_audio_streams = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedAudioStreams)
+        allocated_audio_streams = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedAudioStreams
+        )
         asserts.assert_equal(len(allocated_audio_streams), 1, "AllocatedAudioStreams should have 1 entry")
 
         self.step(9)
@@ -150,7 +185,9 @@ class TC_AVSM_2_19(MatterBaseTest, AVSMTestBase):
         self.step(10)
 
         self.step(11)
-        allocated_audio_streams = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedAudioStreams)
+        allocated_audio_streams = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedAudioStreams
+        )
         asserts.assert_equal(len(allocated_audio_streams), 1, "AllocatedAudioStreams should have 1 entry after reboot")
         retrieved_stream = allocated_audio_streams[0]
         asserts.assert_equal(retrieved_stream.audioStreamID, allocated_stream_info.audioStreamID, "audioStreamID mismatch")
@@ -165,7 +202,9 @@ class TC_AVSM_2_19(MatterBaseTest, AVSMTestBase):
         await self.send_single_cmd(cmd=commands.AudioStreamDeallocate(audioStreamID=my_stream_id), endpoint=endpoint)
 
         self.step(13)
-        allocated_audio_streams = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedAudioStreams)
+        allocated_audio_streams = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedAudioStreams
+        )
         asserts.assert_equal(len(allocated_audio_streams), 0, "AllocatedAudioStreams should be empty after deallocate")
 
         self.step(14)
@@ -173,7 +212,9 @@ class TC_AVSM_2_19(MatterBaseTest, AVSMTestBase):
         self.step(15)
 
         self.step(16)
-        allocated_audio_streams = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedAudioStreams)
+        allocated_audio_streams = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedAudioStreams
+        )
         asserts.assert_equal(len(allocated_audio_streams), 0, "AllocatedAudioStreams should be empty after reboot")
 
 

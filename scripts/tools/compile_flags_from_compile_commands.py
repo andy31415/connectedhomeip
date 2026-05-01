@@ -86,7 +86,7 @@ class CompileCommand:
                     continue
                 if arg.startswith(p + "/"):
                     continue
-                path = arg[len(p):]  # full path
+                path = arg[len(p) :]  # full path
                 path = os.path.abspath(os.path.join(self.dir, path))
                 arg = f"{p}{path}"
                 break

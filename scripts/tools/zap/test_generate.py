@@ -25,15 +25,14 @@ from typing import List, Optional
 import yaml
 
 TESTS_DIR = os.path.join(os.path.dirname(__file__), "tests")
-CHIP_ROOT = os.path.abspath(os.path.join(
-    os.path.dirname(__file__), "../../.."))
+CHIP_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
 
 
 @dataclass
 class ProgramArguments:
     stamp_file: Optional[str] = None
     regenerate_golden: bool = False
-    output_directory: str = ''
+    output_directory: str = ""
 
 
 PROGRAM_ARGUMENTS = None
@@ -52,8 +51,7 @@ class GeneratorTestCase:
 
     def add_outputs(self, yaml_outputs_dict):
         for file_name, golden_path in yaml_outputs_dict.items():
-            self.outputs.append(ExpectedOutput(
-                file_name=file_name, golden_path=golden_path))
+            self.outputs.append(ExpectedOutput(file_name=file_name, golden_path=golden_path))
 
 
 @dataclass
@@ -74,7 +72,7 @@ class GeneratorTest:
                 output_directory = os.path.join(
                     self.context.output_directory,
                     os.path.splitext(os.path.basename(self.zap))[0],
-                    os.path.splitext(os.path.basename(test.template))[0]
+                    os.path.splitext(os.path.basename(test.template))[0],
                 )
 
                 # ensure a clean start as ALL outputs will be compared
@@ -82,15 +80,18 @@ class GeneratorTest:
                     shutil.rmtree(output_directory)
                 os.makedirs(output_directory, exist_ok=True)
 
-                subprocess.check_call([
-                    f"{CHIP_ROOT}/scripts/tools/zap/generate.py",
-                    "--parallel",
-                    "--output-dir",
-                    output_directory,
-                    "--templates",
-                    os.path.join(TESTS_DIR, test.template),
-                    os.path.join(TESTS_DIR, self.zap),
-                ], cwd=output_directory)
+                subprocess.check_call(
+                    [
+                        f"{CHIP_ROOT}/scripts/tools/zap/generate.py",
+                        "--parallel",
+                        "--output-dir",
+                        output_directory,
+                        "--templates",
+                        os.path.join(TESTS_DIR, test.template),
+                        os.path.join(TESTS_DIR, self.zap),
+                    ],
+                    cwd=output_directory,
+                )
 
                 # Files generated, ready to check:
                 #   - every output file MUST exist in the golden image list
@@ -101,13 +102,9 @@ class GeneratorTest:
                 #    - file_name
                 #    - golden_path
                 expected_files = {o.file_name for o in test.outputs}
-                actual_files = {
-                    name[len(output_directory)+1:]
-                    for name in glob.glob(f"{output_directory}/**/*", recursive=True)
-                }
+                actual_files = {name[len(output_directory) + 1 :] for name in glob.glob(f"{output_directory}/**/*", recursive=True)}
 
-                checker.assertEqual(
-                    expected_files, actual_files, msg="Expected and actual generated file list MUST be identical.")
+                checker.assertEqual(expected_files, actual_files, msg="Expected and actual generated file list MUST be identical.")
 
                 # All files exist, ready to do the compare
                 for entry in test.outputs:
@@ -118,16 +115,15 @@ class GeneratorTest:
                         subprocess.check_call(["diff", actual, expected])
                     except subprocess.CalledProcessError:
                         if self.context.regenerate_golden:
-                            print(
-                                f"Copying updated golden image from {actual} to {expected}")
+                            print(f"Copying updated golden image from {actual} to {expected}")
                             subprocess.check_call(["cp", actual, expected])
                         else:
-                            print("*"*80)
+                            print("*" * 80)
                             print("* Golden image regeneration seems to have failed.")
                             print("* Documentation regarding code-generation logic available at docs/code_generation.md")
                             print("*\n* Specifically to update golden images, you may want to run:")
                             print("*\n* ./scripts/tools/zap/test_generate.py --output out/gen --regenerate")
-                            print("*\n" + "*"*80)
+                            print("*\n" + "*" * 80)
                             raise
 
 
@@ -163,25 +159,25 @@ def process_arguments():
 
     program_args = ProgramArguments()
 
-    if '--regenerate' in args:
-        idx = args.index('--regenerate')
+    if "--regenerate" in args:
+        idx = args.index("--regenerate")
         program_args.regenerate_golden = True
         del args[idx]
-    elif 'ZAP_GENERATE_GOLDEN_REGENERATE' in os.environ:
+    elif "ZAP_GENERATE_GOLDEN_REGENERATE" in os.environ:
         # Allow `ZAP_GENERATE_GOLDEN_REGENERATE=1 ninja check` to also
         # update golden images
         program_args.regenerate_golden = True
 
-    if '--stamp' in args:
-        idx = args.index('--stamp')
+    if "--stamp" in args:
+        idx = args.index("--stamp")
         program_args.stamp_file = args[idx + 1]
-        del args[idx+1]
+        del args[idx + 1]
         del args[idx]
 
-    if '--output' in args:
-        idx = args.index('--output')
+    if "--output" in args:
+        idx = args.index("--output")
         program_args.output_directory = args[idx + 1]
-        del args[idx+1]
+        del args[idx + 1]
         del args[idx]
     else:
         raise Exception("`--output` argument is required")
@@ -189,7 +185,7 @@ def process_arguments():
     return program_args, args
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     process_args, unittest_args = process_arguments()
 
     if process_args.stamp_file:

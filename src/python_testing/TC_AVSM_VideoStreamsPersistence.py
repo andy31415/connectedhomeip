@@ -287,22 +287,27 @@ class TC_AVSM_VideoStreamsPersistence(MatterBaseTest):
 
         ##### Validate fields in Video Stream that was stored #####
         asserts.assert_equal(aAllocatedVideoStreams[0].streamUsage, aStreamUsagePriorities[0], "Stream Usage does not match")
-        asserts.assert_equal(aAllocatedVideoStreams[0].videoCodec,
-                             aRateDistortionTradeOffPoints[0].codec, "Video codec does not match")
-        asserts.assert_equal(aAllocatedVideoStreams[0].minFrameRate,
-                             min(15, aVideoSensorParams.maxFPS),
-                             "MinFrameRate does not match")
+        asserts.assert_equal(
+            aAllocatedVideoStreams[0].videoCodec, aRateDistortionTradeOffPoints[0].codec, "Video codec does not match"
+        )
+        asserts.assert_equal(
+            aAllocatedVideoStreams[0].minFrameRate, min(15, aVideoSensorParams.maxFPS), "MinFrameRate does not match"
+        )
 
         asserts.assert_equal(aAllocatedVideoStreams[0].maxFrameRate, aVideoSensorParams.maxFPS, "MaxFrameRate does not match")
         asserts.assert_equal(aAllocatedVideoStreams[0].minResolution, aMinViewportRes, "MinResolution does not match")
-        asserts.assert_equal(aAllocatedVideoStreams[0].maxResolution.width,
-                             aVideoSensorParams.sensorWidth, "MaxResolution does not match")
-        asserts.assert_equal(aAllocatedVideoStreams[0].maxResolution.height,
-                             aVideoSensorParams.sensorHeight, "MaxResolution does not match")
-        asserts.assert_equal(aAllocatedVideoStreams[0].minBitRate,
-                             aRateDistortionTradeOffPoints[0].minBitRate, "MinBitRate does not match")
-        asserts.assert_equal(aAllocatedVideoStreams[0].maxBitRate,
-                             aRateDistortionTradeOffPoints[0].minBitRate, "MaxBitRate does not match")
+        asserts.assert_equal(
+            aAllocatedVideoStreams[0].maxResolution.width, aVideoSensorParams.sensorWidth, "MaxResolution does not match"
+        )
+        asserts.assert_equal(
+            aAllocatedVideoStreams[0].maxResolution.height, aVideoSensorParams.sensorHeight, "MaxResolution does not match"
+        )
+        asserts.assert_equal(
+            aAllocatedVideoStreams[0].minBitRate, aRateDistortionTradeOffPoints[0].minBitRate, "MinBitRate does not match"
+        )
+        asserts.assert_equal(
+            aAllocatedVideoStreams[0].maxBitRate, aRateDistortionTradeOffPoints[0].minBitRate, "MaxBitRate does not match"
+        )
         asserts.assert_equal(aAllocatedVideoStreams[0].keyFrameInterval, 4000, "KeyFrameInterval does not match")
 
         # Clear all allocated streams
@@ -312,7 +317,9 @@ class TC_AVSM_VideoStreamsPersistence(MatterBaseTest):
 
         for stream in aAllocatedVideoStreams:
             try:
-                await self.send_single_cmd(endpoint=endpoint, cmd=commands.VideoStreamDeallocate(videoStreamID=(stream.videoStreamID)))
+                await self.send_single_cmd(
+                    endpoint=endpoint, cmd=commands.VideoStreamDeallocate(videoStreamID=(stream.videoStreamID))
+                )
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 

@@ -27,7 +27,6 @@ log = logging.getLogger(__name__)
 
 
 class TestCheckSoftwareVersion(MatterBaseTest):
-
     @async_test_body
     async def setup_class(self):
         super().setup_class()
@@ -36,13 +35,18 @@ class TestCheckSoftwareVersion(MatterBaseTest):
     @async_test_body
     async def test_ota_image_version(self):
         self.print_step(0, "Commissioning - already done")
-        expected_software_version = self.matter_test_config.global_test_params['SOFTWAREVERSION']
+        expected_software_version = self.matter_test_config.global_test_params["SOFTWAREVERSION"]
 
         self.print_step(1, f"Verify cluster version is: {expected_software_version}")
-        current_software_version = await self.read_single_attribute_check_success(cluster=Clusters.BasicInformation, attribute=Clusters.BasicInformation.Attributes.SoftwareVersion)
-        asserts.assert_equal(current_software_version, expected_software_version,
-                             f"Version {current_software_version} is not the expected {expected_software_version}")
+        current_software_version = await self.read_single_attribute_check_success(
+            cluster=Clusters.BasicInformation, attribute=Clusters.BasicInformation.Attributes.SoftwareVersion
+        )
+        asserts.assert_equal(
+            current_software_version,
+            expected_software_version,
+            f"Version {current_software_version} is not the expected {expected_software_version}",
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     default_matter_test_main()

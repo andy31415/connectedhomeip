@@ -27,8 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Implements SessionResumptionStorage and dispatches the relevant lookup
  * requests to running controllers as needed.
  */
-class MTRSessionResumptionStorageBridge : public chip::SessionResumptionStorage
-{
+class MTRSessionResumptionStorageBridge : public chip::SessionResumptionStorage {
 public:
     MTRSessionResumptionStorageBridge(MTRDeviceControllerFactory * factory);
 
@@ -36,12 +35,12 @@ public:
 
     // SessionResumptionStorage API.
     CHIP_ERROR FindByScopedNodeId(const chip::ScopedNodeId & node, ResumptionIdStorage & resumptionId,
-                                  chip::Crypto::P256ECDHDerivedSecret & sharedSecret, chip::CATValues & peerCATs) override;
+        chip::Crypto::P256ECDHDerivedSecret & sharedSecret, chip::CATValues & peerCATs) override;
 
     CHIP_ERROR FindByResumptionId(ConstResumptionIdView resumptionId, chip::ScopedNodeId & node,
-                                  chip::Crypto::P256ECDHDerivedSecret & sharedSecret, chip::CATValues & peerCATs) override;
+        chip::Crypto::P256ECDHDerivedSecret & sharedSecret, chip::CATValues & peerCATs) override;
     CHIP_ERROR Save(const chip::ScopedNodeId & node, ConstResumptionIdView resumptionId,
-                    const chip::Crypto::P256ECDHDerivedSecret & sharedSecret, const chip::CATValues & peerCATs) override;
+        const chip::Crypto::P256ECDHDerivedSecret & sharedSecret, const chip::CATValues & peerCATs) override;
     CHIP_ERROR DeleteAll(chip::FabricIndex fabricIndex) override;
 
 private:
@@ -50,8 +49,8 @@ private:
      * we need to return from our Find* methods.
      */
     static CHIP_ERROR DeconstructResumptionInfo(MTRCASESessionResumptionInfo * resumptionInfo, chip::NodeId & nodeID,
-                                                ResumptionIdStorage & resumptionId,
-                                                chip::Crypto::P256ECDHDerivedSecret & sharedSecret, chip::CATValues & peerCATs);
+        ResumptionIdStorage & resumptionId,
+        chip::Crypto::P256ECDHDerivedSecret & sharedSecret, chip::CATValues & peerCATs);
 
     MTRDeviceControllerFactory * mFactory;
 };

@@ -14,4 +14,4 @@
 #
 from .sdk_generator import SdkGenerator
 
-__all__ = ['SdkGenerator']
+__all__ = ["SdkGenerator"]

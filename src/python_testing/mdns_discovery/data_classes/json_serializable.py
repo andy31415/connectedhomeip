@@ -25,6 +25,7 @@ class OrderedPropsMeta(type):
     Metaclass that tracks the order of @property definitions for this class.
     Stores names in __property_order__ exactly as written in the class body.
     """
+
     @classmethod
     def __prepare__(mcls, name, bases, **kwargs):
         return {}  # preserve definition order
@@ -33,10 +34,7 @@ class OrderedPropsMeta(type):
         cls = super().__new__(mcls, name, bases, dict(namespace))
 
         # Collect the class's property names in declaration order
-        cls.__property_order__ = [
-            n for n, v in namespace.items()
-            if isinstance(v, property) and not n.startswith("_")
-        ]
+        cls.__property_order__ = [n for n, v in namespace.items() if isinstance(v, property) and not n.startswith("_")]
 
         return cls
 

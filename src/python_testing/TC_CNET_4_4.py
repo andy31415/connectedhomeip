@@ -34,23 +34,33 @@ log = logging.getLogger(__name__)
 
 class TC_CNET_4_4(MatterBaseTest):
     def steps_TC_CNET_4_4(self):
-        return [TestStep("precondition", "TH is commissioned", is_commissioning=True),
-                TestStep(1, 'TH reads from the DUT the Network Commissioning Cluster FeatureMap. If the FeatureMap does not include the WI flag (bit 0), skip the remaining steps in this test case'),
-                TestStep(2, 'TH reads from the DUT the SupportedWifiBands attribute and saves as supported_wifi_bands'),
-                TestStep(3, 'TH reads from the DUT the Networks attribute.'),
-                TestStep(4, 'TH sends ScanNetworks command to the DUT with the SSID field set to null and Breadcrumb field set to 1'),
-                TestStep(5, 'TH reads from the DUT the Breadcrumb attribute from the General Commissioning Cluster'),
-                TestStep(6, 'TH sends ScanNetworks Command to the DUT with SSID field set to known_ssid and Breadcrumb field set to 2'),
-                TestStep(7, 'TH reads Breadcrumb attribute from the General Commissioning Cluster'),
-                TestStep(8, 'TH sends ScanNetworks Command to the DUT with SSID field set to a string of 31 random alphabetical characters and Breadcrumb field set to 2')]
+        return [
+            TestStep("precondition", "TH is commissioned", is_commissioning=True),
+            TestStep(
+                1,
+                "TH reads from the DUT the Network Commissioning Cluster FeatureMap. If the FeatureMap does not include the WI flag (bit 0), skip the remaining steps in this test case",
+            ),
+            TestStep(2, "TH reads from the DUT the SupportedWifiBands attribute and saves as supported_wifi_bands"),
+            TestStep(3, "TH reads from the DUT the Networks attribute."),
+            TestStep(4, "TH sends ScanNetworks command to the DUT with the SSID field set to null and Breadcrumb field set to 1"),
+            TestStep(5, "TH reads from the DUT the Breadcrumb attribute from the General Commissioning Cluster"),
+            TestStep(6, "TH sends ScanNetworks Command to the DUT with SSID field set to known_ssid and Breadcrumb field set to 2"),
+            TestStep(7, "TH reads Breadcrumb attribute from the General Commissioning Cluster"),
+            TestStep(
+                8,
+                "TH sends ScanNetworks Command to the DUT with SSID field set to a string of 31 random alphabetical characters and Breadcrumb field set to 2",
+            ),
+        ]
 
     def def_TC_CNET_4_4(self):
-        return '[TC-CNET-4.4] [Wi-Fi] Verification for ScanNetworks command [DUT-Server]'
+        return "[TC-CNET-4.4] [Wi-Fi] Verification for ScanNetworks command [DUT-Server]"
 
     def pics_TC_CNET_4_4(self):
-        return ['CNET.S.F00']
+        return ["CNET.S.F00"]
 
-    @run_if_endpoint_matches(has_feature(Clusters.NetworkCommissioning, Clusters.NetworkCommissioning.Bitmaps.Feature.kWiFiNetworkInterface))
+    @run_if_endpoint_matches(
+        has_feature(Clusters.NetworkCommissioning, Clusters.NetworkCommissioning.Bitmaps.Feature.kWiFiNetworkInterface)
+    )
     async def test_TC_CNET_4_4(self):
         # Commissioning is already done
         self.step("precondition")
@@ -78,8 +88,9 @@ class TC_CNET_4_4(MatterBaseTest):
             ssid = ssid_to_scan if ssid_to_scan is not None else NullValue
             cmd = cnet.Commands.ScanNetworks(ssid=ssid, breadcrumb=breadcrumb)
             scan_results = await self.send_single_cmd(cmd=cmd)
-            asserts.assert_true(matchers.is_type(scan_results, cnet.Commands.ScanNetworksResponse),
-                                "Unexpected value returned from scan network")
+            asserts.assert_true(
+                matchers.is_type(scan_results, cnet.Commands.ScanNetworksResponse), "Unexpected value returned from scan network"
+            )
             log.info(f"Scan results: {scan_results}")
 
             if scan_results.debugText:
@@ -87,12 +98,18 @@ class TC_CNET_4_4(MatterBaseTest):
                 asserts.assert_less_equal(debug_text_len, 512, f"DebugText length {debug_text_len} was out of range")
 
             if expect_results:
-                asserts.assert_equal(scan_results.networkingStatus, cnet.Enums.NetworkCommissioningStatusEnum.kSuccess,
-                                     f"ScanNetworks was expected to have succeeded, got {scan_results.networkingStatus} instead")
+                asserts.assert_equal(
+                    scan_results.networkingStatus,
+                    cnet.Enums.NetworkCommissioningStatusEnum.kSuccess,
+                    f"ScanNetworks was expected to have succeeded, got {scan_results.networkingStatus} instead",
+                )
                 asserts.assert_greater_equal(len(scan_results.wiFiScanResults), 1, "No responses returned from ScanNetwork command")
             else:
-                asserts.assert_equal(scan_results.networkingStatus, cnet.Enums.NetworkCommissioningStatusEnum.kNetworkNotFound,
-                                     f"ScanNetworks was expected to received NetworkNotFound(5), got {scan_results.networkingStatus} instead")
+                asserts.assert_equal(
+                    scan_results.networkingStatus,
+                    cnet.Enums.NetworkCommissioningStatusEnum.kNetworkNotFound,
+                    f"ScanNetworks was expected to received NetworkNotFound(5), got {scan_results.networkingStatus} instead",
+                )
                 return
 
             for network in scan_results.wiFiScanResults:
@@ -105,8 +122,7 @@ class TC_CNET_4_4(MatterBaseTest):
                 # TODO: this is inherited from the old test plan, but we should match the channel to the supported band. This range is unreasonably large.
                 asserts.assert_less_equal(network.channel, 65535, "Unexpected channel value")
                 if network.wiFiBand:
-                    asserts.assert_true(network.wiFiBand in supported_wifi_bands,
-                                        "Listed wiFiBand is not in supported_wifi_bands")
+                    asserts.assert_true(network.wiFiBand in supported_wifi_bands, "Listed wiFiBand is not in supported_wifi_bands")
                 if network.rssi:
                     asserts.assert_greater_equal(network.rssi, -120, "RSSI out of range")
                     asserts.assert_less_equal(network.rssi, 0, "RSSI out of range")
@@ -115,18 +131,22 @@ class TC_CNET_4_4(MatterBaseTest):
         await scan_and_check(ssid_to_scan=None, breadcrumb=1, expect_results=True)
 
         self.step(5)
-        breadcrumb = await self.read_single_attribute_check_success(cluster=Clusters.GeneralCommissioning, attribute=Clusters.GeneralCommissioning.Attributes.Breadcrumb, endpoint=0)
+        breadcrumb = await self.read_single_attribute_check_success(
+            cluster=Clusters.GeneralCommissioning, attribute=Clusters.GeneralCommissioning.Attributes.Breadcrumb, endpoint=0
+        )
         asserts.assert_equal(breadcrumb, 1, "Incorrect breadcrumb value")
 
         self.step(6)
         await scan_and_check(ssid_to_scan=known_ssid, breadcrumb=2, expect_results=True)
 
         self.step(7)
-        breadcrumb = await self.read_single_attribute_check_success(cluster=Clusters.GeneralCommissioning, attribute=Clusters.GeneralCommissioning.Attributes.Breadcrumb, endpoint=0)
+        breadcrumb = await self.read_single_attribute_check_success(
+            cluster=Clusters.GeneralCommissioning, attribute=Clusters.GeneralCommissioning.Attributes.Breadcrumb, endpoint=0
+        )
         asserts.assert_equal(breadcrumb, 2, "Incorrect breadcrumb value")
 
         self.step(8)
-        random_ssid = ''.join(random.choice(string.ascii_letters) for _ in range(31)).encode("utf-8")
+        random_ssid = "".join(random.choice(string.ascii_letters) for _ in range(31)).encode("utf-8")
         await scan_and_check(ssid_to_scan=random_ssid, breadcrumb=2, expect_results=False)
 
 

@@ -84,7 +84,7 @@ class TC_AVSM_2_17(MatterBaseTest, AVSMTestBase):
                 4,
                 "TH writes attribute `SoftLivestreamPrivacyModeEnabled` and `SoftRecordingPrivacyModeEnabled` to false in the CameraAVStreamManagement Cluster on DUT.",
                 "DUT responds with Success",
-                "TH ensures HardPrivacyModeOn is false"
+                "TH ensures HardPrivacyModeOn is false",
             ),
             TestStep(
                 5,
@@ -244,13 +244,14 @@ class TC_AVSM_2_17(MatterBaseTest, AVSMTestBase):
                 self.write_to_app_pipe({"Name": "SetHardPrivacyModeOn", "Value": False})
             else:
                 self.wait_for_user_input(
-                    "Please ensure that the physical privacy switch on the device is OFF, then press Enter to continue...")
+                    "Please ensure that the physical privacy switch on the device is OFF, then press Enter to continue..."
+                )
 
             # Verify the attribute reflects the privacy switch state
             hard_privacy_mode = await self.read_single_attribute_check_success(
                 endpoint=endpoint,
                 cluster=Clusters.CameraAvStreamManagement,
-                attribute=Clusters.CameraAvStreamManagement.Attributes.HardPrivacyModeOn
+                attribute=Clusters.CameraAvStreamManagement.Attributes.HardPrivacyModeOn,
             )
             asserts.assert_false(hard_privacy_mode, "HardPrivacyModeOn should be False")
 
@@ -258,7 +259,7 @@ class TC_AVSM_2_17(MatterBaseTest, AVSMTestBase):
         current_sessions = await self.read_single_attribute_check_success(
             endpoint=endpoint,
             cluster=Clusters.WebRTCTransportProvider,
-            attribute=Clusters.WebRTCTransportProvider.Attributes.CurrentSessions
+            attribute=Clusters.WebRTCTransportProvider.Attributes.CurrentSessions,
         )
         asserts.assert_equal(len(current_sessions), 0, "CurrentSessions must be empty!")
 
@@ -298,7 +299,7 @@ class TC_AVSM_2_17(MatterBaseTest, AVSMTestBase):
         current_sessions = await self.read_single_attribute_check_success(
             endpoint=endpoint,
             cluster=Clusters.WebRTCTransportProvider,
-            attribute=Clusters.WebRTCTransportProvider.Attributes.CurrentSessions
+            attribute=Clusters.WebRTCTransportProvider.Attributes.CurrentSessions,
         )
         asserts.assert_equal(len(current_sessions), 1, "Expected CurrentSessions to be 1")
         asserts.assert_equal(current_sessions[0].id, aSessionID, "Created session does not match ID in CurrentSessions")
@@ -308,16 +309,22 @@ class TC_AVSM_2_17(MatterBaseTest, AVSMTestBase):
             endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedVideoStreams
         )
         log.info(f"Rx'd AllocatedVideoStreams: {aAllocatedVideoStreams}")
-        asserts.assert_equal(aAllocatedVideoStreams[0].referenceCount, aVideoRefCount+1,
-                             "The reference count for allocated video streams is not as expected")
+        asserts.assert_equal(
+            aAllocatedVideoStreams[0].referenceCount,
+            aVideoRefCount + 1,
+            "The reference count for allocated video streams is not as expected",
+        )
 
         self.step(10)
         aAllocatedAudioStreams = await self.read_single_attribute_check_success(
             endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedAudioStreams
         )
         log.info(f"Rx'd AllocatedAudioStreams: {aAllocatedAudioStreams}")
-        asserts.assert_equal(aAllocatedAudioStreams[0].referenceCount, aAudioRefCount+1,
-                             "The reference count for allocated audio streams is not as expected")
+        asserts.assert_equal(
+            aAllocatedAudioStreams[0].referenceCount,
+            aAudioRefCount + 1,
+            "The reference count for allocated audio streams is not as expected",
+        )
 
         self.step(11)
         result = await self.write_single_attribute(attr.SoftLivestreamPrivacyModeEnabled(True), endpoint_id=endpoint)
@@ -335,7 +342,7 @@ class TC_AVSM_2_17(MatterBaseTest, AVSMTestBase):
         current_sessions = await self.read_single_attribute_check_success(
             endpoint=endpoint,
             cluster=Clusters.WebRTCTransportProvider,
-            attribute=Clusters.WebRTCTransportProvider.Attributes.CurrentSessions
+            attribute=Clusters.WebRTCTransportProvider.Attributes.CurrentSessions,
         )
         asserts.assert_equal(len(current_sessions), 0, "CurrentSessions must be empty!")
 

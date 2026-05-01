@@ -86,12 +86,12 @@ WS_LENGTH = NIST256p.baselen + 8
 
 
 def _generate_verifier(passcode: int, salt: bytes, iterations: int) -> bytes:
-    ws = hashlib.pbkdf2_hmac('sha256', struct.pack('<I', passcode), salt, iterations, WS_LENGTH * 2)
-    w0 = int.from_bytes(ws[:WS_LENGTH], byteorder='big') % NIST256p.order
-    w1 = int.from_bytes(ws[WS_LENGTH:], byteorder='big') % NIST256p.order
+    ws = hashlib.pbkdf2_hmac("sha256", struct.pack("<I", passcode), salt, iterations, WS_LENGTH * 2)
+    w0 = int.from_bytes(ws[:WS_LENGTH], byteorder="big") % NIST256p.order
+    w1 = int.from_bytes(ws[WS_LENGTH:], byteorder="big") % NIST256p.order
     L = NIST256p.generator * w1
 
-    return w0.to_bytes(NIST256p.baselen, byteorder='big') + L.to_bytes('uncompressed')
+    return w0.to_bytes(NIST256p.baselen, byteorder="big") + L.to_bytes("uncompressed")
 
 
 class TC_MCORE_FS_1_2(MatterBaseTest):
@@ -107,9 +107,9 @@ class TC_MCORE_FS_1_2(MatterBaseTest):
         th_server_port = self.user_params.get("th_server_port", 5543)
         th_server_app = self.user_params.get("th_server_app_path", None)
         if not th_server_app:
-            asserts.fail('This test requires a TH_SERVER app. Specify app path with --string-arg th_server_app_path:<path_to_app>')
+            asserts.fail("This test requires a TH_SERVER app. Specify app path with --string-arg th_server_app_path:<path_to_app>")
         if not os.path.exists(th_server_app):
-            asserts.fail(f'The path {th_server_app} does not exist')
+            asserts.fail(f"The path {th_server_app} does not exist")
 
         # Create a temporary storage directory for keeping KVS files.
         self.storage = tempfile.TemporaryDirectory(prefix=self.__class__.__name__)
@@ -123,9 +123,7 @@ class TC_MCORE_FS_1_2(MatterBaseTest):
             self.dut_fsa_stdin = open(dut_fsa_stdin_pipe, "w")  # noqa: SIM115
 
         self.th_server_port = th_server_port
-        self.th_server_setup_params = SetupParameters(
-            discriminator=random.randint(0, 4095),
-            passcode=20202021)
+        self.th_server_setup_params = SetupParameters(discriminator=random.randint(0, 4095), passcode=20202021)
 
         # Start the TH_SERVER app.
         self.th_server = AppServerSubprocess(
@@ -133,10 +131,9 @@ class TC_MCORE_FS_1_2(MatterBaseTest):
             storage_dir=self.storage.name,
             port=self.th_server_port,
             discriminator=self.th_server_setup_params.discriminator,
-            passcode=self.th_server_setup_params.passcode)
-        self.th_server.start(
-            expected_output="Server initialization complete",
-            timeout=30)
+            passcode=self.th_server_setup_params.passcode,
+        )
+        self.th_server.start(expected_output="Server initialization complete", timeout=30)
 
     def teardown_class(self):
         if self._partslist_subscription is not None:
@@ -158,29 +155,35 @@ class TC_MCORE_FS_1_2(MatterBaseTest):
             f"- setupQRCode: {setup_params.qr_code}\n"
             f"- setupManualCode: {setup_params.manual_code}\n"
             f"If using FabricSync Admin test app, you may type:\n"
-            f">>> pairing onnetwork 111 {setup_params.passcode}")
+            f">>> pairing onnetwork 111 {setup_params.passcode}"
+        )
 
     def steps_TC_MCORE_FS_1_2(self) -> list[TestStep]:
         return [
             TestStep("precondition", "Commission DUT if not done", is_commissioning=True),
             TestStep(1, "TH subscribes to PartsList attribute of the Descriptor cluster of DUT_FSA endpoint 0."),
             TestStep(2, "Follow manufacturer provided instructions to have DUT_FSA commission TH_SERVER"),
-            TestStep(3, "TH waits up to 30 seconds for subscription report from the PartsList attribute of the Descriptor to contain new endpoint"),
+            TestStep(
+                3,
+                "TH waits up to 30 seconds for subscription report from the PartsList attribute of the Descriptor to contain new endpoint",
+            ),
             TestStep(4, "TH uses DUT to open commissioning window to TH_SERVER"),
             TestStep(5, "TH commissions TH_SERVER"),
             TestStep(6, "TH reads all attributes in Basic Information cluster from TH_SERVER directly"),
-            TestStep(7, "TH reads all attributes in the Bridged Device Basic Information cluster on new endpoint identified in step 3 from the DUT_FSA"),
+            TestStep(
+                7,
+                "TH reads all attributes in the Bridged Device Basic Information cluster on new endpoint identified in step 3 from the DUT_FSA",
+            ),
         ]
 
     # This test has some manual steps, so we need a longer timeout. Test typically runs under 1 mins so 3 mins should
     # be enough time for test to run
     @property
     def default_timeout(self) -> int:
-        return 3*60
+        return 3 * 60
 
     @async_test_body
     async def test_TC_MCORE_FS_1_2(self):
-
         # Commissioning - done
         self.step("precondition")
 
@@ -190,19 +193,18 @@ class TC_MCORE_FS_1_2(MatterBaseTest):
         self.step(1)
         # Subscribe to the PartsList
         root_endpoint = 0
-        subscription_contents = [
-            (root_endpoint, Clusters.Descriptor.Attributes.PartsList)
-        ]
+        subscription_contents = [(root_endpoint, Clusters.Descriptor.Attributes.PartsList)]
         self._partslist_subscription = await self.default_controller.ReadAttribute(
             nodeId=self.dut_node_id,
             attributes=subscription_contents,
             reportInterval=(min_report_interval_sec, max_report_interval_sec),
-            keepSubscriptions=True
+            keepSubscriptions=True,
         )
 
         parts_list_queue = queue.Queue()
         attribute_handler = AttributeChangeAccumulator(
-            name=self.default_controller.name, expected_attribute=Clusters.Descriptor.Attributes.PartsList, output=parts_list_queue)
+            name=self.default_controller.name, expected_attribute=Clusters.Descriptor.Attributes.PartsList, output=parts_list_queue
+        )
         self._partslist_subscription.SetAttributeUpdateCallback(attribute_handler)
         cached_attributes = self._partslist_subscription.GetAttributes()
         step_1_dut_parts_list = cached_attributes[root_endpoint][Clusters.Descriptor][Clusters.Descriptor.Attributes.PartsList]
@@ -233,10 +235,14 @@ class TC_MCORE_FS_1_2(MatterBaseTest):
         while time_remaining > 0:
             try:
                 item = parts_list_queue.get(block=True, timeout=time_remaining)
-                endpoint, attribute, value = item['endpoint'], item['attribute'], item['value']
+                endpoint, attribute, value = item["endpoint"], item["attribute"], item["value"]
 
                 # Record arrival of an expected subscription change when seen
-                if endpoint == root_endpoint and attribute == Clusters.Descriptor.Attributes.PartsList and len(value) > parts_list_endpoint_count_from_step_1:
+                if (
+                    endpoint == root_endpoint
+                    and attribute == Clusters.Descriptor.Attributes.PartsList
+                    and len(value) > parts_list_endpoint_count_from_step_1
+                ):
                     step_3_dut_parts_list = value
                     break
 
@@ -263,47 +269,94 @@ class TC_MCORE_FS_1_2(MatterBaseTest):
         verifier = _generate_verifier(passcode, salt, iterations)
 
         # min commissioning timeout is 3*60 seconds
-        cmd = Clusters.AdministratorCommissioning.Commands.OpenCommissioningWindow(commissioningTimeout=3*60,
-                                                                                   PAKEPasscodeVerifier=verifier,
-                                                                                   discriminator=discriminator,
-                                                                                   iterations=iterations,
-                                                                                   salt=salt)
-        await self.send_single_cmd(cmd, dev_ctrl=self.default_controller, node_id=self.dut_node_id, endpoint=newly_added_endpoint, timedRequestTimeoutMs=5000)
+        cmd = Clusters.AdministratorCommissioning.Commands.OpenCommissioningWindow(
+            commissioningTimeout=3 * 60,
+            PAKEPasscodeVerifier=verifier,
+            discriminator=discriminator,
+            iterations=iterations,
+            salt=salt,
+        )
+        await self.send_single_cmd(
+            cmd,
+            dev_ctrl=self.default_controller,
+            node_id=self.dut_node_id,
+            endpoint=newly_added_endpoint,
+            timedRequestTimeoutMs=5000,
+        )
 
         self.step(5)
         self.th_server_local_nodeid = 1111
-        await self.default_controller.CommissionOnNetwork(nodeId=self.th_server_local_nodeid, setupPinCode=passcode, filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR, filter=discriminator)
+        await self.default_controller.CommissionOnNetwork(
+            nodeId=self.th_server_local_nodeid,
+            setupPinCode=passcode,
+            filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
+            filter=discriminator,
+        )
 
         self.step(6)
-        th_server_directly_read_result = await self.default_controller.ReadAttribute(self.th_server_local_nodeid, [(root_endpoint, Clusters.BasicInformation)])
+        th_server_directly_read_result = await self.default_controller.ReadAttribute(
+            self.th_server_local_nodeid, [(root_endpoint, Clusters.BasicInformation)]
+        )
         th_server_basic_info = th_server_directly_read_result[root_endpoint][Clusters.BasicInformation]
 
         self.step(7)
-        dut_read = await self.default_controller.ReadAttribute(self.dut_node_id, [(newly_added_endpoint, Clusters.BridgedDeviceBasicInformation)])
+        dut_read = await self.default_controller.ReadAttribute(
+            self.dut_node_id, [(newly_added_endpoint, Clusters.BridgedDeviceBasicInformation)]
+        )
         bridged_info_for_th_server = dut_read[newly_added_endpoint][Clusters.BridgedDeviceBasicInformation]
         basic_info_attr = Clusters.BasicInformation.Attributes
         bridged_device_info_attr = Clusters.BridgedDeviceBasicInformation.Attributes
 
-        asserts.assert_equal(th_server_basic_info[basic_info_attr.VendorName],
-                             bridged_info_for_th_server[bridged_device_info_attr.VendorName], "VendorName incorrectly reported by DUT")
-        asserts.assert_equal(th_server_basic_info[basic_info_attr.VendorID],
-                             bridged_info_for_th_server[bridged_device_info_attr.VendorID], "VendorID incorrectly reported by DUT")
-        asserts.assert_equal(th_server_basic_info[basic_info_attr.ProductName],
-                             bridged_info_for_th_server[bridged_device_info_attr.ProductName], "ProductName incorrectly reported by DUT")
-        asserts.assert_equal(th_server_basic_info[basic_info_attr.ProductID],
-                             bridged_info_for_th_server[bridged_device_info_attr.ProductID], "ProductID incorrectly reported by DUT")
-        asserts.assert_equal(th_server_basic_info[basic_info_attr.NodeLabel],
-                             bridged_info_for_th_server[bridged_device_info_attr.NodeLabel], "NodeLabel incorrectly reported by DUT")
-        asserts.assert_equal(th_server_basic_info[basic_info_attr.HardwareVersion],
-                             bridged_info_for_th_server[bridged_device_info_attr.HardwareVersion], "HardwareVersion incorrectly reported by DUT")
-        asserts.assert_equal(th_server_basic_info[basic_info_attr.HardwareVersionString],
-                             bridged_info_for_th_server[bridged_device_info_attr.HardwareVersionString], "HardwareVersionString incorrectly reported by DUT")
-        asserts.assert_equal(th_server_basic_info[basic_info_attr.SoftwareVersion],
-                             bridged_info_for_th_server[bridged_device_info_attr.SoftwareVersion], "SoftwareVersion incorrectly reported by DUT")
-        asserts.assert_equal(th_server_basic_info[basic_info_attr.SoftwareVersionString],
-                             bridged_info_for_th_server[bridged_device_info_attr.SoftwareVersionString], "SoftwareVersionString incorrectly reported by DUT")
-        asserts.assert_equal(th_server_basic_info[basic_info_attr.UniqueID],
-                             bridged_info_for_th_server[bridged_device_info_attr.UniqueID], "UniqueID incorrectly reported by DUT")
+        asserts.assert_equal(
+            th_server_basic_info[basic_info_attr.VendorName],
+            bridged_info_for_th_server[bridged_device_info_attr.VendorName],
+            "VendorName incorrectly reported by DUT",
+        )
+        asserts.assert_equal(
+            th_server_basic_info[basic_info_attr.VendorID],
+            bridged_info_for_th_server[bridged_device_info_attr.VendorID],
+            "VendorID incorrectly reported by DUT",
+        )
+        asserts.assert_equal(
+            th_server_basic_info[basic_info_attr.ProductName],
+            bridged_info_for_th_server[bridged_device_info_attr.ProductName],
+            "ProductName incorrectly reported by DUT",
+        )
+        asserts.assert_equal(
+            th_server_basic_info[basic_info_attr.ProductID],
+            bridged_info_for_th_server[bridged_device_info_attr.ProductID],
+            "ProductID incorrectly reported by DUT",
+        )
+        asserts.assert_equal(
+            th_server_basic_info[basic_info_attr.NodeLabel],
+            bridged_info_for_th_server[bridged_device_info_attr.NodeLabel],
+            "NodeLabel incorrectly reported by DUT",
+        )
+        asserts.assert_equal(
+            th_server_basic_info[basic_info_attr.HardwareVersion],
+            bridged_info_for_th_server[bridged_device_info_attr.HardwareVersion],
+            "HardwareVersion incorrectly reported by DUT",
+        )
+        asserts.assert_equal(
+            th_server_basic_info[basic_info_attr.HardwareVersionString],
+            bridged_info_for_th_server[bridged_device_info_attr.HardwareVersionString],
+            "HardwareVersionString incorrectly reported by DUT",
+        )
+        asserts.assert_equal(
+            th_server_basic_info[basic_info_attr.SoftwareVersion],
+            bridged_info_for_th_server[bridged_device_info_attr.SoftwareVersion],
+            "SoftwareVersion incorrectly reported by DUT",
+        )
+        asserts.assert_equal(
+            th_server_basic_info[basic_info_attr.SoftwareVersionString],
+            bridged_info_for_th_server[bridged_device_info_attr.SoftwareVersionString],
+            "SoftwareVersionString incorrectly reported by DUT",
+        )
+        asserts.assert_equal(
+            th_server_basic_info[basic_info_attr.UniqueID],
+            bridged_info_for_th_server[bridged_device_info_attr.UniqueID],
+            "UniqueID incorrectly reported by DUT",
+        )
 
 
 if __name__ == "__main__":

@@ -21,20 +21,17 @@ import sys
 
 from helper.CHIPTestBase import CHIPVirtualHome
 
-logger = logging.getLogger('MobileDeviceTest')
+logger = logging.getLogger("MobileDeviceTest")
 logger.setLevel(logging.INFO)
 
 sh = logging.StreamHandler()
-sh.setFormatter(
-    logging.Formatter(
-        '%(asctime)s [%(name)s] %(levelname)s %(message)s'))
+sh.setFormatter(logging.Formatter("%(asctime)s [%(name)s] %(levelname)s %(message)s"))
 logger.addHandler(sh)
 
 CHIP_PORT = 5540
 
 CIRQUE_URL = "http://localhost:5000"
-CHIP_REPO = os.path.join(os.path.abspath(
-    os.path.dirname(__file__)), "..", "..", "..")
+CHIP_REPO = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "..", "..")
 TEST_EXTPANID = "fedcba9876543210"
 TEST_DISCRIMINATOR = 3840
 TEST_DISCRIMINATOR2 = 3584
@@ -44,51 +41,51 @@ TEST_DISCOVERY_TYPE = [0, 1, 2]
 MATTER_DEVELOPMENT_PAA_ROOT_CERTS = "credentials/development/paa-root-certs"
 
 DEVICE_CONFIG = {
-    'device0': {
-        'type': 'MobileDevice',
-        'base_image': '@default',
-        'capability': ['TrafficControl', 'Mount'],
-        'rcp_mode': True,
-        'docker_network': 'Ipv6',
-        'traffic_control': {'latencyMs': 100},
+    "device0": {
+        "type": "MobileDevice",
+        "base_image": "@default",
+        "capability": ["TrafficControl", "Mount"],
+        "rcp_mode": True,
+        "docker_network": "Ipv6",
+        "traffic_control": {"latencyMs": 100},
         "mount_pairs": [[CHIP_REPO, CHIP_REPO]],
     },
-    'device1': {
-        'type': 'CHIPEndDevice',
-        'base_image': '@default',
-        'capability': ['Thread', 'TrafficControl', 'Mount'],
-        'rcp_mode': True,
-        'docker_network': 'Ipv6',
-        'traffic_control': {'latencyMs': 100},
+    "device1": {
+        "type": "CHIPEndDevice",
+        "base_image": "@default",
+        "capability": ["Thread", "TrafficControl", "Mount"],
+        "rcp_mode": True,
+        "docker_network": "Ipv6",
+        "traffic_control": {"latencyMs": 100},
         "mount_pairs": [[CHIP_REPO, CHIP_REPO]],
     },
-    'device2': {
-        'type': 'CHIPEndDevice',
-        'base_image': '@default',
-        'capability': ['Thread', 'TrafficControl', 'Mount'],
-        'rcp_mode': True,
-        'docker_network': 'Ipv6',
-        'traffic_control': {'latencyMs': 100},
+    "device2": {
+        "type": "CHIPEndDevice",
+        "base_image": "@default",
+        "capability": ["Thread", "TrafficControl", "Mount"],
+        "rcp_mode": True,
+        "docker_network": "Ipv6",
+        "traffic_control": {"latencyMs": 100},
         "mount_pairs": [[CHIP_REPO, CHIP_REPO]],
     },
-    'device3': {
-        'type': 'CHIPEndDevice',
-        'base_image': '@default',
-        'capability': ['Thread', 'TrafficControl', 'Mount'],
-        'rcp_mode': True,
-        'docker_network': 'Ipv6',
-        'traffic_control': {'latencyMs': 100},
+    "device3": {
+        "type": "CHIPEndDevice",
+        "base_image": "@default",
+        "capability": ["Thread", "TrafficControl", "Mount"],
+        "rcp_mode": True,
+        "docker_network": "Ipv6",
+        "traffic_control": {"latencyMs": 100},
         "mount_pairs": [[CHIP_REPO, CHIP_REPO]],
     },
-    'device4': {
-        'type': 'CHIPEndDevice',
-        'base_image': '@default',
-        'capability': ['Thread', 'TrafficControl', 'Mount'],
-        'rcp_mode': True,
-        'docker_network': 'Ipv6',
-        'traffic_control': {'latencyMs': 100},
+    "device4": {
+        "type": "CHIPEndDevice",
+        "base_image": "@default",
+        "capability": ["Thread", "TrafficControl", "Mount"],
+        "rcp_mode": True,
+        "docker_network": "Ipv6",
+        "traffic_control": {"latencyMs": 100},
         "mount_pairs": [[CHIP_REPO, CHIP_REPO]],
-    }
+    },
 }
 
 
@@ -104,82 +101,98 @@ class TestCommissioner(CHIPVirtualHome):
         self.run_controller_test()
 
     def run_controller_test(self):
-        servers = [{
-            "ip": device['description']['ipv6_addr'],
-            "id": device['id']
-        } for device in self.non_ap_devices
-            if device['type'] == 'CHIPEndDevice']
-        req_ids = [device['id'] for device in self.non_ap_devices
-                   if device['type'] == 'MobileDevice']
+        servers = [
+            {"ip": device["description"]["ipv6_addr"], "id": device["id"]}
+            for device in self.non_ap_devices
+            if device["type"] == "CHIPEndDevice"
+        ]
+        req_ids = [device["id"] for device in self.non_ap_devices if device["type"] == "MobileDevice"]
 
-        servers[0]['discriminator'] = TEST_DISCRIMINATOR
-        servers[0]['nodeid'] = 1
-        servers[1]['discriminator'] = TEST_DISCRIMINATOR2
-        servers[1]['nodeid'] = 2
-        servers[2]['discriminator'] = TEST_DISCRIMINATOR3
-        servers[2]['nodeid'] = 3
-        servers[3]['discriminator'] = TEST_DISCRIMINATOR4
-        servers[3]['nodeid'] = 4
+        servers[0]["discriminator"] = TEST_DISCRIMINATOR
+        servers[0]["nodeid"] = 1
+        servers[1]["discriminator"] = TEST_DISCRIMINATOR2
+        servers[1]["nodeid"] = 2
+        servers[2]["discriminator"] = TEST_DISCRIMINATOR3
+        servers[2]["nodeid"] = 3
+        servers[3]["discriminator"] = TEST_DISCRIMINATOR4
+        servers[3]["nodeid"] = 4
 
         for server in servers:
             self.execute_device_cmd(
-                server['id'],
-                ("CHIPCirqueDaemon.py -- run gdb -return-child-result -q -ex \"set pagination off\" "
-                 "-ex run -ex \"bt 25\" --args {} --thread --discriminator {}").format(
-                    os.path.join(CHIP_REPO, "out/debug/standalone/chip-all-clusters-app"), server['discriminator']))
+                server["id"],
+                (
+                    'CHIPCirqueDaemon.py -- run gdb -return-child-result -q -ex "set pagination off" '
+                    '-ex run -ex "bt 25" --args {} --thread --discriminator {}'
+                ).format(os.path.join(CHIP_REPO, "out/debug/standalone/chip-all-clusters-app"), server["discriminator"]),
+            )
 
-        self.reset_thread_devices([server['id'] for server in servers])
+        self.reset_thread_devices([server["id"] for server in servers])
 
         req_device_id = req_ids[0]
 
-        self.execute_device_cmd(req_device_id, "pip3 install --break-system-packages {}".format(os.path.join(
-            CHIP_REPO, "out/debug/linux_x64_gcc/controller/python/matter_clusters-1.0.0-py3-none-any.whl")))
-        self.execute_device_cmd(req_device_id, "pip3 install --break-system-packages {}".format(os.path.join(
-            CHIP_REPO, "out/debug/linux_x64_gcc/controller/python/matter_core-1.0.0-cp311-abi3-linux_x86_64.whl")))
-        self.execute_device_cmd(req_device_id, "pip3 install --break-system-packages {}".format(os.path.join(
-            CHIP_REPO, "out/debug/linux_x64_gcc/controller/python/matter_repl-1.0.0-py3-none-any.whl")))
+        self.execute_device_cmd(
+            req_device_id,
+            "pip3 install --break-system-packages {}".format(
+                os.path.join(CHIP_REPO, "out/debug/linux_x64_gcc/controller/python/matter_clusters-1.0.0-py3-none-any.whl")
+            ),
+        )
+        self.execute_device_cmd(
+            req_device_id,
+            "pip3 install --break-system-packages {}".format(
+                os.path.join(CHIP_REPO, "out/debug/linux_x64_gcc/controller/python/matter_core-1.0.0-cp311-abi3-linux_x86_64.whl")
+            ),
+        )
+        self.execute_device_cmd(
+            req_device_id,
+            "pip3 install --break-system-packages {}".format(
+                os.path.join(CHIP_REPO, "out/debug/linux_x64_gcc/controller/python/matter_repl-1.0.0-py3-none-any.whl")
+            ),
+        )
 
-        command = ("gdb -return-child-result -q -ex run -ex bt --args python3 "
-                   "{} -t 150 --paa-trust-store-path {} --discriminator {} --setup-payload {} --nodeid {} --discovery-type {}").format(
-            os.path.join(
-                CHIP_REPO, "src/controller/python/tests/scripts/commissioning_test.py"),
+        command = (
+            "gdb -return-child-result -q -ex run -ex bt --args python3 "
+            "{} -t 150 --paa-trust-store-path {} --discriminator {} --setup-payload {} --nodeid {} --discovery-type {}"
+        ).format(
+            os.path.join(CHIP_REPO, "src/controller/python/tests/scripts/commissioning_test.py"),
             os.path.join(CHIP_REPO, MATTER_DEVELOPMENT_PAA_ROOT_CERTS),
-            servers[1]['discriminator'],
+            servers[1]["discriminator"],
             "33331712336",
-            servers[1]['nodeid'],
-            TEST_DISCOVERY_TYPE[2])
+            servers[1]["nodeid"],
+            TEST_DISCOVERY_TYPE[2],
+        )
         ret = self.execute_device_cmd(req_device_id, command)
 
-        self.assertEqual(ret['return_code'], '0',
-                         "Test failed: non-zero return code")
+        self.assertEqual(ret["return_code"], "0", "Test failed: non-zero return code")
 
-        command = ("gdb -return-child-result -q -ex run -ex bt --args python3 "
-                   "{} -t 150 --paa-trust-store-path {} --discriminator {} --setup-payload {} --nodeid {} --discovery-type {}").format(
-            os.path.join(
-                CHIP_REPO, "src/controller/python/tests/scripts/commissioning_test.py"),
+        command = (
+            "gdb -return-child-result -q -ex run -ex bt --args python3 "
+            "{} -t 150 --paa-trust-store-path {} --discriminator {} --setup-payload {} --nodeid {} --discovery-type {}"
+        ).format(
+            os.path.join(CHIP_REPO, "src/controller/python/tests/scripts/commissioning_test.py"),
             os.path.join(CHIP_REPO, MATTER_DEVELOPMENT_PAA_ROOT_CERTS),
-            servers[2]['discriminator'],
+            servers[2]["discriminator"],
             "10054912339",
-            servers[2]['nodeid'],
-            TEST_DISCOVERY_TYPE[0])
+            servers[2]["nodeid"],
+            TEST_DISCOVERY_TYPE[0],
+        )
         ret = self.execute_device_cmd(req_device_id, command)
 
-        self.assertEqual(ret['return_code'], '0',
-                         "Test failed: non-zero return code")
+        self.assertEqual(ret["return_code"], "0", "Test failed: non-zero return code")
 
-        command = ("gdb -return-child-result -q -ex run -ex bt --args python3 "
-                   "{} -t 150 --paa-trust-store-path {} --discriminator {} --setup-payload {} --nodeid {} --discovery-type {}").format(
-            os.path.join(
-                CHIP_REPO, "src/controller/python/tests/scripts/commissioning_test.py"),
+        command = (
+            "gdb -return-child-result -q -ex run -ex bt --args python3 "
+            "{} -t 150 --paa-trust-store-path {} --discriminator {} --setup-payload {} --nodeid {} --discovery-type {}"
+        ).format(
+            os.path.join(CHIP_REPO, "src/controller/python/tests/scripts/commissioning_test.py"),
             os.path.join(CHIP_REPO, MATTER_DEVELOPMENT_PAA_ROOT_CERTS),
-            servers[3]['discriminator'],
+            servers[3]["discriminator"],
             "20054912334",
-            servers[3]['nodeid'],
-            TEST_DISCOVERY_TYPE[1])
+            servers[3]["nodeid"],
+            TEST_DISCOVERY_TYPE[1],
+        )
         ret = self.execute_device_cmd(req_device_id, command)
 
-        self.assertEqual(ret['return_code'], '0',
-                         "Test failed: non-zero return code")
+        self.assertEqual(ret["return_code"], "0", "Test failed: non-zero return code")
 
 
 if __name__ == "__main__":

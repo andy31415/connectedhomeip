@@ -46,8 +46,8 @@ jobject DecodeGeneralTLVValue(JNIEnv * env, TLV::TLVReader & readerForGeneralVal
 
 GetConnectedDeviceCallback::GetConnectedDeviceCallback(jobject wrapperCallback, jobject javaCallback,
                                                        const char * callbackClassSignature) :
-    mOnSuccess(OnDeviceConnectedFn, this),
-    mOnFailure(OnDeviceConnectionFailureFn, this), mCallbackClassSignature(callbackClassSignature)
+    mOnSuccess(OnDeviceConnectedFn, this), mOnFailure(OnDeviceConnectionFailureFn, this),
+    mCallbackClassSignature(callbackClassSignature)
 {
     VerifyOrReturn(mWrapperCallbackRef.Init(wrapperCallback) == CHIP_NO_ERROR,
                    ChipLogError(Controller, "Could not init mWrapperCallbackRef in %s", __func__));

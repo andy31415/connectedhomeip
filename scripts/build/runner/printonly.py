@@ -25,8 +25,7 @@ class PrintOnlyRunner:
         self.deduplicator = CommandDedup()
 
     def StartCommandExecution(self):
-        self.output_file.write(
-            "# Commands will be run in CHIP project root.\n")
+        self.output_file.write("# Commands will be run in CHIP project root.\n")
         self.output_file.write('cd "%s"\n\n' % self.root)
 
     def Run(self, cmd, title=None, dedup=False, quiet=False):
@@ -38,7 +37,6 @@ class PrintOnlyRunner:
                 self.output_file.write("# DUPLICATE COMMAND SKIPPED\n")
             return
 
-        self.output_file.write(
-            " ".join([shlex.quote(part) for part in cmd]) + "\n")
+        self.output_file.write(" ".join([shlex.quote(part) for part in cmd]) + "\n")
 
         self.output_file.write("\n")

@@ -82,12 +82,20 @@ log = logging.getLogger(__name__)
 
 
 class FabricSyncApp(Subprocess):
-
-    def __init__(self, fabric_sync_app_path: str, fabric_admin_app_path: str,
-                 fabric_bridge_app_path: str, storage_dir: str, paa_trust_store_path: str = None,
-                 fabric_name: str = None, node_id: int = None, vendor_id: int = None,
-                 bridge_discriminator: int = None, bridge_passcode: int = None,
-                 bridge_port: int = 5540):
+    def __init__(
+        self,
+        fabric_sync_app_path: str,
+        fabric_admin_app_path: str,
+        fabric_bridge_app_path: str,
+        storage_dir: str,
+        paa_trust_store_path: str = None,
+        fabric_name: str = None,
+        node_id: int = None,
+        vendor_id: int = None,
+        bridge_discriminator: int = None,
+        bridge_passcode: int = None,
+        bridge_port: int = 5540,
+    ):
         args = [
             f"--app-admin={fabric_admin_app_path}",
             f"--app-bridge={fabric_bridge_app_path}",
@@ -124,7 +132,6 @@ class FabricSyncApp(Subprocess):
 
 
 class TC_MCORE_FS_1_4(MatterBaseTest):
-
     @property
     def default_timeout(self) -> int:
         # This test has some manual steps, so we need a longer timeout.
@@ -146,19 +153,25 @@ class TC_MCORE_FS_1_4(MatterBaseTest):
             asserts.fail(f"The path {th_fsa_app_path} does not exist")
         th_fsa_admin_path = self.user_params.get("th_fsa_admin_path")
         if not th_fsa_admin_path:
-            asserts.fail("This test requires a TH_FSA_ADMIN app. Specify app path with --string-arg th_fsa_admin_path:<path_to_app>")
+            asserts.fail(
+                "This test requires a TH_FSA_ADMIN app. Specify app path with --string-arg th_fsa_admin_path:<path_to_app>"
+            )
         if not os.path.exists(th_fsa_admin_path):
             asserts.fail(f"The path {th_fsa_admin_path} does not exist")
         th_fsa_bridge_path = self.user_params.get("th_fsa_bridge_path")
         if not th_fsa_bridge_path:
-            asserts.fail("This test requires a TH_FSA_BRIDGE app. Specify app path with --string-arg th_fsa_bridge_path:<path_to_app>")
+            asserts.fail(
+                "This test requires a TH_FSA_BRIDGE app. Specify app path with --string-arg th_fsa_bridge_path:<path_to_app>"
+            )
         if not os.path.exists(th_fsa_bridge_path):
             asserts.fail(f"The path {th_fsa_bridge_path} does not exist")
 
         # Get the path to the TH_SERVER_NO_UID app from the user params.
         th_server_no_uid_app = self.user_params.get("th_server_no_uid_app_path", None)
         if not th_server_no_uid_app:
-            asserts.fail("This test requires a TH_SERVER_NO_UID app. Specify app path with --string-arg th_server_no_uid_app_path:<path_to_app>")
+            asserts.fail(
+                "This test requires a TH_SERVER_NO_UID app. Specify app path with --string-arg th_server_no_uid_app_path:<path_to_app>"
+            )
         if not os.path.exists(th_server_no_uid_app):
             asserts.fail(f"The path {th_server_no_uid_app} does not exist")
 
@@ -182,7 +195,8 @@ class TC_MCORE_FS_1_4(MatterBaseTest):
             bridge_port=self.th_fsa_bridge_port,
             bridge_discriminator=self.th_fsa_bridge_discriminator,
             bridge_passcode=self.th_fsa_bridge_passcode,
-            vendor_id=0xFFF1)
+            vendor_id=0xFFF1,
+        )
         self.th_fsa_controller.start()
 
         if self.is_pics_sdk_ci_only:
@@ -202,10 +216,9 @@ class TC_MCORE_FS_1_4(MatterBaseTest):
             storage_dir=self.storage.name,
             port=self.th_server_port,
             discriminator=self.th_server_discriminator,
-            passcode=self.th_server_passcode)
-        self.th_server.start(
-            expected_output="Server initialization complete",
-            timeout=30)
+            passcode=self.th_server_passcode,
+        )
+        self.th_server.start(expected_output="Server initialization complete", timeout=30)
 
     def teardown_class(self):
         if self.dut_fsa_stdin is not None:
@@ -221,20 +234,28 @@ class TC_MCORE_FS_1_4(MatterBaseTest):
     def steps_TC_MCORE_FS_1_4(self) -> list[TestStep]:
         return [
             TestStep(0, "Commission DUT if not done", is_commissioning=True),
-            TestStep(1, "TH commissions TH_SERVER_NO_UID to TH's fabric.",
-                     "TH verifies that the TH_SERVER_NO_UID does not provide a UniqueID."),
+            TestStep(
+                1,
+                "TH commissions TH_SERVER_NO_UID to TH's fabric.",
+                "TH verifies that the TH_SERVER_NO_UID does not provide a UniqueID.",
+            ),
             TestStep(2, "TH instructs TH_FSA to commission TH_SERVER_NO_UID to TH_FSA's fabric."),
             TestStep(3, "TH instructs TH_FSA to open up commissioning window on it's aggregator."),
             TestStep(4, "Follow manufacturer provided instructions to have DUT_FSA commission TH_FSA's aggregator."),
-            TestStep(5, "Follow manufacturer provided instructions to enable DUT_FSA to synchronize TH_SERVER_NO_UID"
-                     " from TH_FSA onto DUT_FSA's fabric. TH to provide endpoint saved from step 2 in user prompt."),
-            TestStep(6, "DUT_FSA synchronizes TH_SERVER_NO_UID onto DUT_FSA's fabric and copies the UniqueID presented"
-                     " by TH_FSA's Bridged Device Basic Information Cluster."),
+            TestStep(
+                5,
+                "Follow manufacturer provided instructions to enable DUT_FSA to synchronize TH_SERVER_NO_UID"
+                " from TH_FSA onto DUT_FSA's fabric. TH to provide endpoint saved from step 2 in user prompt.",
+            ),
+            TestStep(
+                6,
+                "DUT_FSA synchronizes TH_SERVER_NO_UID onto DUT_FSA's fabric and copies the UniqueID presented"
+                " by TH_FSA's Bridged Device Basic Information Cluster.",
+            ),
         ]
 
     @async_test_body
     async def test_TC_MCORE_FS_1_4(self):
-
         # Commissioning - done
         self.step(0)
 
@@ -268,12 +289,14 @@ class TC_MCORE_FS_1_4(MatterBaseTest):
         )
 
         # Get the list of endpoints on the TH_FSA_BRIDGE before adding the TH_SERVER_NO_UID.
-        th_fsa_bridge_endpoints = set(await self.read_single_attribute_check_success(
-            cluster=Clusters.Descriptor,
-            attribute=Clusters.Descriptor.Attributes.PartsList,
-            node_id=th_fsa_bridge_th_node_id,
-            endpoint=0,
-        ))
+        th_fsa_bridge_endpoints = set(
+            await self.read_single_attribute_check_success(
+                cluster=Clusters.Descriptor,
+                attribute=Clusters.Descriptor.Attributes.PartsList,
+                node_id=th_fsa_bridge_th_node_id,
+                endpoint=0,
+            )
+        )
 
         discriminator = random.randint(0, 4095)
         # Open commissioning window on TH_SERVER_NO_UID.
@@ -282,7 +305,8 @@ class TC_MCORE_FS_1_4(MatterBaseTest):
             option=self.default_controller.CommissioningWindowPasscode.kTokenWithRandomPin,
             discriminator=discriminator,
             iteration=10000,
-            timeout=600)
+            timeout=600,
+        )
 
         th_server_th_fsa_node_id = 3
         # Commissioning TH_SERVER_NO_UID to TH_FSA.
@@ -300,17 +324,20 @@ class TC_MCORE_FS_1_4(MatterBaseTest):
             await asyncio.sleep(0.5)
             get_dynamic_endpoint_retries -= 1
             # Get the list of endpoints on the TH_FSA_BRIDGE.
-            th_fsa_bridge_endpoints_new.update(await self.read_single_attribute_check_success(
-                cluster=Clusters.Descriptor,
-                attribute=Clusters.Descriptor.Attributes.PartsList,
-                node_id=th_fsa_bridge_th_node_id,
-                endpoint=0,
-            ))
+            th_fsa_bridge_endpoints_new.update(
+                await self.read_single_attribute_check_success(
+                    cluster=Clusters.Descriptor,
+                    attribute=Clusters.Descriptor.Attributes.PartsList,
+                    node_id=th_fsa_bridge_th_node_id,
+                    endpoint=0,
+                )
+            )
 
         # Get the endpoint number for just added TH_SERVER_NO_UID.
         log.info("Endpoints on TH_FSA_BRIDGE: old=%s, new=%s", th_fsa_bridge_endpoints, th_fsa_bridge_endpoints_new)
-        asserts.assert_true(th_fsa_bridge_endpoints_new.issuperset(th_fsa_bridge_endpoints),
-                            "Expected only new endpoints to be added")
+        asserts.assert_true(
+            th_fsa_bridge_endpoints_new.issuperset(th_fsa_bridge_endpoints), "Expected only new endpoints to be added"
+        )
         unique_endpoints_set = th_fsa_bridge_endpoints_new - th_fsa_bridge_endpoints
         asserts.assert_equal(len(unique_endpoints_set), 1, "Expected only one new endpoint")
         th_fsa_bridge_th_server_endpoint = list(unique_endpoints_set)[0]
@@ -320,7 +347,8 @@ class TC_MCORE_FS_1_4(MatterBaseTest):
             cluster=Clusters.BridgedDeviceBasicInformation,
             attribute=Clusters.BridgedDeviceBasicInformation.Attributes.UniqueID,
             node_id=th_fsa_bridge_th_node_id,
-            endpoint=th_fsa_bridge_th_server_endpoint)
+            endpoint=th_fsa_bridge_th_server_endpoint,
+        )
         asserts.assert_true(matchers.is_type(th_fsa_bridge_th_server_unique_id, str), "UniqueID should be a string")
         asserts.assert_true(th_fsa_bridge_th_server_unique_id, "UniqueID should not be an empty string")
         log.info("UniqueID generated for TH_SERVER_NO_UID: %s", th_fsa_bridge_th_server_unique_id)
@@ -334,7 +362,8 @@ class TC_MCORE_FS_1_4(MatterBaseTest):
             option=self.default_controller.CommissioningWindowPasscode.kTokenWithRandomPin,
             discriminator=discriminator,
             iteration=10000,
-            timeout=600)
+            timeout=600,
+        )
 
         self.step(4)
 
@@ -348,14 +377,17 @@ class TC_MCORE_FS_1_4(MatterBaseTest):
                 f"- setupQRCode: {params.setupQRCode}\n"
                 f"- setupManualCode: {params.setupManualCode}\n"
                 f"If using FabricSync Admin, you may type:\n"
-                f">>> fabricsync add-bridge <desired_node_id> {params.setupPinCode} <th_host_ip> {self.th_fsa_bridge_port}")
+                f">>> fabricsync add-bridge <desired_node_id> {params.setupPinCode} <th_host_ip> {self.th_fsa_bridge_port}"
+            )
         else:
             if self.user_params.get("unified_fabric_sync_app"):
                 self.dut_fsa_stdin.write(
-                    f"app add-bridge 10 {params.setupPinCode} {self.th_fsa_bridge_address} {self.th_fsa_bridge_port}\n")
+                    f"app add-bridge 10 {params.setupPinCode} {self.th_fsa_bridge_address} {self.th_fsa_bridge_port}\n"
+                )
             else:
                 self.dut_fsa_stdin.write(
-                    f"fabricsync add-bridge 10 {params.setupPinCode} {self.th_fsa_bridge_address} {self.th_fsa_bridge_port}\n")
+                    f"fabricsync add-bridge 10 {params.setupPinCode} {self.th_fsa_bridge_address} {self.th_fsa_bridge_port}\n"
+                )
             self.dut_fsa_stdin.flush()
             # Wait for the commissioning to complete.
             await asyncio.sleep(5)
@@ -363,12 +395,14 @@ class TC_MCORE_FS_1_4(MatterBaseTest):
         self.step(5)
 
         # Get the list of endpoints on the DUT_FSA_BRIDGE before synchronization.
-        dut_fsa_bridge_endpoints = set(await self.read_single_attribute_check_success(
-            cluster=Clusters.Descriptor,
-            attribute=Clusters.Descriptor.Attributes.PartsList,
-            node_id=self.dut_node_id,
-            endpoint=0,
-        ))
+        dut_fsa_bridge_endpoints = set(
+            await self.read_single_attribute_check_success(
+                cluster=Clusters.Descriptor,
+                attribute=Clusters.Descriptor.Attributes.PartsList,
+                node_id=self.dut_node_id,
+                endpoint=0,
+            )
+        )
 
         # Synchronize TH_SERVER_NO_UID from TH_FSA to DUT_FSA fabric.
         if not self.is_pics_sdk_ci_only:
@@ -377,7 +411,8 @@ class TC_MCORE_FS_1_4(MatterBaseTest):
                 f"Use the following parameters:\n"
                 f"- endpointID: {th_fsa_bridge_th_server_endpoint}\n"
                 f"If using FabricSync Admin, you may type:\n"
-                f">>> fabricsync sync-device {th_fsa_bridge_th_server_endpoint}")
+                f">>> fabricsync sync-device {th_fsa_bridge_th_server_endpoint}"
+            )
         else:
             if self.user_params.get("unified_fabric_sync_app"):
                 self.dut_fsa_stdin.write(f"app sync-device {th_fsa_bridge_th_server_endpoint}\n")
@@ -390,17 +425,20 @@ class TC_MCORE_FS_1_4(MatterBaseTest):
         self.step(6)
 
         # Get the list of endpoints on the DUT_FSA_BRIDGE after synchronization
-        dut_fsa_bridge_endpoints_new = set(await self.read_single_attribute_check_success(
-            cluster=Clusters.Descriptor,
-            attribute=Clusters.Descriptor.Attributes.PartsList,
-            node_id=self.dut_node_id,
-            endpoint=0,
-        ))
+        dut_fsa_bridge_endpoints_new = set(
+            await self.read_single_attribute_check_success(
+                cluster=Clusters.Descriptor,
+                attribute=Clusters.Descriptor.Attributes.PartsList,
+                node_id=self.dut_node_id,
+                endpoint=0,
+            )
+        )
 
         # Get the endpoint number for just synced TH_SERVER_NO_UID.
         log.info("Endpoints on DUT_FSA_BRIDGE: old=%s, new=%s", dut_fsa_bridge_endpoints, dut_fsa_bridge_endpoints_new)
-        asserts.assert_true(dut_fsa_bridge_endpoints_new.issuperset(dut_fsa_bridge_endpoints),
-                            "Expected only new endpoints to be added")
+        asserts.assert_true(
+            dut_fsa_bridge_endpoints_new.issuperset(dut_fsa_bridge_endpoints), "Expected only new endpoints to be added"
+        )
         unique_endpoints_set = dut_fsa_bridge_endpoints_new - dut_fsa_bridge_endpoints
         asserts.assert_equal(len(unique_endpoints_set), 1, "Expected exactly one new endpoint on DUT_FSA")
         dut_fsa_bridge_th_server_endpoint = list(unique_endpoints_set)[0]
@@ -409,14 +447,18 @@ class TC_MCORE_FS_1_4(MatterBaseTest):
         dut_fsa_bridge_th_server_unique_id = await self.read_single_attribute_check_success(
             cluster=Clusters.BridgedDeviceBasicInformation,
             attribute=Clusters.BridgedDeviceBasicInformation.Attributes.UniqueID,
-            endpoint=dut_fsa_bridge_th_server_endpoint)
+            endpoint=dut_fsa_bridge_th_server_endpoint,
+        )
         asserts.assert_true(matchers.is_type(dut_fsa_bridge_th_server_unique_id, str), "UniqueID should be a string")
         asserts.assert_true(dut_fsa_bridge_th_server_unique_id, "UniqueID should not be an empty string")
         log.info("UniqueID for TH_SERVER_NO_UID on DUT_FSA: %s", th_fsa_bridge_th_server_unique_id)
 
         # Make sure that the UniqueID on the DUT_FSA_BRIDGE is the same as the one on the DUT_FSA_BRIDGE.
-        asserts.assert_equal(dut_fsa_bridge_th_server_unique_id, th_fsa_bridge_th_server_unique_id,
-                             "UniqueID on DUT_FSA and TH_FSA should be the same")
+        asserts.assert_equal(
+            dut_fsa_bridge_th_server_unique_id,
+            th_fsa_bridge_th_server_unique_id,
+            "UniqueID on DUT_FSA and TH_FSA should be the same",
+        )
 
 
 if __name__ == "__main__":

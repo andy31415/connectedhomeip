@@ -51,14 +51,19 @@ class TC_COLORCONTROL(MatterBaseTest):
 
     async def _read_remaining_time(self):
         return await self.read_single_attribute_check_success(
-            endpoint=self._COLORCONTROL_ENDPOINT, cluster=Clusters.Objects.ColorControl, attribute=Clusters.Objects.ColorControl.Attributes.RemainingTime)
+            endpoint=self._COLORCONTROL_ENDPOINT,
+            cluster=Clusters.Objects.ColorControl,
+            attribute=Clusters.Objects.ColorControl.Attributes.RemainingTime,
+        )
 
     def desc_TC_COLORCONTROL(self) -> str:
         return "[TC_COLORCONTROL] chef colortemperaturelight functionality test."
 
     def steps_TC_COLORCONTROL(self):
-        return [TestStep(1, "[TC_COLORCONTROL] Commissioning already done.", is_commissioning=True),
-                TestStep(2, "[TC_COLORCONTROL] Test move-color-temperature command.")]
+        return [
+            TestStep(1, "[TC_COLORCONTROL] Commissioning already done.", is_commissioning=True),
+            TestStep(2, "[TC_COLORCONTROL] Test move-color-temperature command."),
+        ]
 
     @async_test_body
     async def test_TC_COLORCONTROL(self):

@@ -25,5 +25,5 @@
 from . import CommissioningBuildingBlocks
 
 __all__ = [
-    'CommissioningBuildingBlocks',
+    "CommissioningBuildingBlocks",
 ]

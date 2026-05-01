@@ -29,14 +29,13 @@ log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
 sh = logging.StreamHandler()
-sh.setFormatter(
-    logging.Formatter(
-        '%(asctime)s [%(name)s] %(levelname)s %(message)s'))
+sh.setFormatter(logging.Formatter("%(asctime)s [%(name)s] %(levelname)s %(message)s"))
 log.addHandler(sh)
 
 
 class CommandStatus(Enum):
     """Enum class for passing status code of execute CirqueDaemon command, not CHIP error codes."""
+
     SUCCESS = 0
     FAILURE = 1
     UNKNOWN_COMMAND = 2
@@ -46,6 +45,7 @@ class CommandStatus(Enum):
 @dataclass
 class CommandResponse:
     """Class for holding status of running CirqueDaemon commands."""
+
     status_code: CommandStatus
     error_message: str = ""
 
@@ -60,8 +60,7 @@ class ShellCommand:
         log.info("Will run command: {}".format(self._args))
         try:
             # As the command will be execued in background, we won't return the exit code of the program.
-            subprocess.Popen(
-                self._args, stdout=sys.stdout, stderr=sys.stderr)
+            subprocess.Popen(self._args, stdout=sys.stdout, stderr=sys.stderr)
             return CommandResponse(CommandStatus.SUCCESS)
         except Exception as ex:
             return CommandResponse(CommandStatus.FAILURE, "Failed to run command: {}".format(ex))
@@ -80,18 +79,14 @@ CLIENT_WAIT_TIMEOUT_SECONDS = 5
 
 
 def CommandFactory(args):
-    commands = {
-        "run": ShellCommand
-    }
+    commands = {"run": ShellCommand}
     if len(args) == 0:
         return InvalidCommand()
     return commands.get(args[0], InvalidCommand)(args[1:])
 
 
 def ServerMain(args):
-    extraOptions = {
-        "otbr-agent": ShellCommand(["otbr-agent", "-I", "wpan0", "-B", "eth0", "spinel+hdlc+uart:///dev/ttyUSB0"])
-    }
+    extraOptions = {"otbr-agent": ShellCommand(["otbr-agent", "-I", "wpan0", "-B", "eth0", "spinel+hdlc+uart:///dev/ttyUSB0"])}
 
     with Listener(SERVER_ADDRESS) as listener:
         log.info("Server running on {}".format(SERVER_ADDRESS))
@@ -125,8 +120,8 @@ def ClientMain(args):
 
 
 @click.command()
-@click.option('--server', is_flag=True)
-@click.argument('command', nargs=-1)
+@click.option("--server", is_flag=True)
+@click.argument("command", nargs=-1)
 def main(server, command):
     if server:
         ServerMain(command)
@@ -134,5 +129,5 @@ def main(server, command):
         ClientMain(command)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

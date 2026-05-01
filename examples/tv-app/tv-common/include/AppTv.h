@@ -75,9 +75,8 @@ class DLL_EXPORT ContentAppImpl : public ContentApp
 public:
     ContentAppImpl(const char * szVendorName, uint16_t vendorId, const char * szApplicationName, uint16_t productId,
                    const char * szApplicationVersion, const char * setupPIN, std::vector<SupportedCluster> supportedClusters) :
-        ContentApp{ supportedClusters },
-        mApplicationBasicDelegate(kCatalogVendorId, BuildAppId(vendorId), szVendorName, vendorId, szApplicationName, productId,
-                                  szApplicationVersion),
+        ContentApp{ supportedClusters }, mApplicationBasicDelegate(kCatalogVendorId, BuildAppId(vendorId), szVendorName, vendorId,
+                                                                   szApplicationName, productId, szApplicationVersion),
         mAccountLoginDelegate(setupPIN),
         mContentLauncherDelegate({ "image/*", "video/*" },
                                  to_underlying(SupportedProtocolsBitmap::kDash) | to_underlying(SupportedProtocolsBitmap::kHls)),

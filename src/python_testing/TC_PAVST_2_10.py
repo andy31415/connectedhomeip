@@ -82,24 +82,49 @@ class TC_PAVST_2_10(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
     def steps_TC_PAVST_2_10(self) -> list[TestStep]:
         return [
             TestStep("precondition", "Commissioning, already done", is_commissioning=True),
-            TestStep(1, "TH Reads CurrentConnections attribute from PushAV Stream Transport Cluster on DUT",
-                     "Verify the number of PushAV Connections is 0. If not 0, deallocate any existing connections."),
-            TestStep(2, "TH Reads SupportedFormats attribute from PushAV Stream Transport Cluster on DUT",
-                     "Store the SupportedFormats as aSupportedFormats."),
-            TestStep(3, "TH Reads AllocatedVideoStreams attribute from CameraAVStreamManagement Cluster on DUT",
-                     "Store as aAllocatedVideoStreams."),
-            TestStep(4, "TH Reads AllocatedAudioStreams attribute from CameraAVStreamManagement Cluster on DUT",
-                     "Store as aAllocatedAudioStreams."),
-            TestStep(5, "TH sends AllocatePushTransport command with URL using non‑https scheme",
-                     "DUT should respond with Status Code InvalidURL."),
-            TestStep(6, "TH sends AllocatePushTransport command with URL containing a fragment (#)",
-                     "DUT should respond with Status Code InvalidURL."),
-            TestStep(7, "TH sends AllocatePushTransport command with URL containing a query (?)",
-                     "DUT should respond with Status Code InvalidURL."),
-            TestStep(8, "TH sends AllocatePushTransport command with URL not ending with '/'",
-                     "DUT should respond with Status Code InvalidURL."),
-            TestStep(9, "TH sends AllocatePushTransport command with URL missing host",
-                     "DUT should respond with Status Code InvalidURL."),
+            TestStep(
+                1,
+                "TH Reads CurrentConnections attribute from PushAV Stream Transport Cluster on DUT",
+                "Verify the number of PushAV Connections is 0. If not 0, deallocate any existing connections.",
+            ),
+            TestStep(
+                2,
+                "TH Reads SupportedFormats attribute from PushAV Stream Transport Cluster on DUT",
+                "Store the SupportedFormats as aSupportedFormats.",
+            ),
+            TestStep(
+                3,
+                "TH Reads AllocatedVideoStreams attribute from CameraAVStreamManagement Cluster on DUT",
+                "Store as aAllocatedVideoStreams.",
+            ),
+            TestStep(
+                4,
+                "TH Reads AllocatedAudioStreams attribute from CameraAVStreamManagement Cluster on DUT",
+                "Store as aAllocatedAudioStreams.",
+            ),
+            TestStep(
+                5,
+                "TH sends AllocatePushTransport command with URL using non‑https scheme",
+                "DUT should respond with Status Code InvalidURL.",
+            ),
+            TestStep(
+                6,
+                "TH sends AllocatePushTransport command with URL containing a fragment (#)",
+                "DUT should respond with Status Code InvalidURL.",
+            ),
+            TestStep(
+                7,
+                "TH sends AllocatePushTransport command with URL containing a query (?)",
+                "DUT should respond with Status Code InvalidURL.",
+            ),
+            TestStep(
+                8,
+                "TH sends AllocatePushTransport command with URL not ending with '/'",
+                "DUT should respond with Status Code InvalidURL.",
+            ),
+            TestStep(
+                9, "TH sends AllocatePushTransport command with URL missing host", "DUT should respond with Status Code InvalidURL."
+            ),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.PushAvStreamTransport))
@@ -113,26 +138,27 @@ class TC_PAVST_2_10(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         # Precondition
         self.step("precondition")
         host_ip = self.user_params.get("host_ip", None)
-        self.tlsEndpointId, host_ip = await self.precondition_provision_tls_endpoint(
-            server=self.server, host_ip=host_ip)
+        self.tlsEndpointId, host_ip = await self.precondition_provision_tls_endpoint(server=self.server, host_ip=host_ip)
 
         # Reads CurrentConnections attribute (step 1)
         self.step(1)
         transport_configs = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=pvcluster, attribute=pvattr.CurrentConnections)
+            endpoint=endpoint, cluster=pvcluster, attribute=pvattr.CurrentConnections
+        )
         for cfg in transport_configs:
             if cfg.ConnectionID != 0:
                 try:
                     await self.send_single_cmd(
-                        cmd=pvcluster.Commands.DeallocatePushTransport(ConnectionID=cfg.ConnectionID),
-                        endpoint=endpoint)
+                        cmd=pvcluster.Commands.DeallocatePushTransport(ConnectionID=cfg.ConnectionID), endpoint=endpoint
+                    )
                 except InteractionModelError as e:
                     log.warning(f"Failed to deallocate connection {cfg.ConnectionID} during cleanup: {e}")
 
         # Read supported formats (step 2)
         self.step(2)
         aSupportedFormats = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=pvcluster, attribute=pvattr.SupportedFormats)
+            endpoint=endpoint, cluster=pvcluster, attribute=pvattr.SupportedFormats
+        )
         log.info(f"aSupportedFormats={aSupportedFormats}")
 
         # Read allocated video streams (step 3)
@@ -166,9 +192,15 @@ class TC_PAVST_2_10(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         for idx, (desc, url) in enumerate(invalid_cases, start=5):
             self.step(idx)
             status = await self.allocate_one_pushav_transport(
-                endpoint, tlsEndPoint=self.tlsEndpointId, url=url, expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidURL, expiryTime=30)
-            asserts.assert_equal(status, pvcluster.Enums.StatusCodeEnum.kInvalidURL,
-                                 f"Push AV Transport should return InvalidURL for {desc}")
+                endpoint,
+                tlsEndPoint=self.tlsEndpointId,
+                url=url,
+                expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidURL,
+                expiryTime=30,
+            )
+            asserts.assert_equal(
+                status, pvcluster.Enums.StatusCodeEnum.kInvalidURL, f"Push AV Transport should return InvalidURL for {desc}"
+            )
 
 
 if __name__ == "__main__":

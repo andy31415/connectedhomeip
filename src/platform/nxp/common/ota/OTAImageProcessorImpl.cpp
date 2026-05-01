@@ -408,7 +408,7 @@ void OTAImageProcessorImpl::HandleApply(intptr_t context)
      * into account queued actions, e.g. sending events to a subscription.
      */
     TEMPORARY_RETURN_IGNORED SystemLayer().StartTimer(
-        chip::System::Clock::Milliseconds32(imageProcessor->mDelayBeforeRebootSec * 1000 + CHIP_DEVICE_LAYER_OTA_REBOOT_DELAY),
+        chip::System::Clock::Milliseconds32(imageProcessor -> mDelayBeforeRebootSec * 1000 + CHIP_DEVICE_LAYER_OTA_REBOOT_DELAY),
         [](chip::System::Layer *, void *) { OtaHookReset(); }, nullptr);
 }
 

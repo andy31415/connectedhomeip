@@ -51,10 +51,7 @@ class TC_OPSTATE_2_6(MatterBaseTest, TC_OPSTATE_BASE):
     def __init__(self, *args):
         super().__init__(*args)
 
-        test_info = TestInfo(
-            pics_code="OPSTATE",
-            cluster=Clusters.OperationalState
-        )
+        test_info = TestInfo(pics_code="OPSTATE", cluster=Clusters.OperationalState)
 
         super().setup_base(test_info=test_info)
 

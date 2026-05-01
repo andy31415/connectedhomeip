@@ -66,9 +66,7 @@ class TestStepException(Exception):
 def remove_cached_files(cached_file_pattern: str):
     """Remove any cached files that match the provided pattern."""
 
-    cached_files = glob.glob(
-        cached_file_pattern
-    )  # Returns a list of paths that match the pattern.
+    cached_files = glob.glob(cached_file_pattern)  # Returns a list of paths that match the pattern.
 
     for cached_file in cached_files:
         try:
@@ -101,9 +99,7 @@ def stop_app(test_sequence_name: str, app_name: str, app: ProcessOutputCapture):
     log.info("%s: '%s' stopped.", test_sequence_name, app_name)
 
 
-def parse_output_msg_in_subprocess(
-    processes: RunningProcesses, test_sequence_name: str, test_sequence_step: Step
-):
+def parse_output_msg_in_subprocess(processes: RunningProcesses, test_sequence_name: str, test_sequence_step: Step):
     """Parse the output of a given `app` subprocess and validate its output against the expected `output_msg` in the given `Step`."""
 
     if not test_sequence_step.output_msg:
@@ -113,11 +109,7 @@ def parse_output_msg_in_subprocess(
             test_sequence_step,
         )
 
-    app_subprocess = (
-        processes.tv_casting
-        if test_sequence_step.app == App.TV_CASTING_APP
-        else processes.tv_app
-    )
+    app_subprocess = processes.tv_casting if test_sequence_step.app == App.TV_CASTING_APP else processes.tv_app
 
     start_wait_time = time.time()
     msg_block = []
@@ -153,9 +145,11 @@ def parse_output_msg_in_subprocess(
                     )
 
             if current_index == len(test_sequence_step.output_msg):
-                log.info("%s - Found the expected output string(s) in the '%s' subprocess:",
-                         test_sequence_name, test_sequence_step.app.value
-                         )
+                log.info(
+                    "%s - Found the expected output string(s) in the '%s' subprocess:",
+                    test_sequence_name,
+                    test_sequence_step.app.value,
+                )
                 for line in msg_block:
                     log.info("%s - '%s'", test_sequence_name, line)
 
@@ -179,11 +173,7 @@ def send_input_cmd_to_subprocess(
             test_sequence_step,
         )
 
-    app_subprocess = (
-        processes.tv_casting
-        if test_sequence_step.app == App.TV_CASTING_APP
-        else processes.tv_app
-    )
+    app_subprocess = processes.tv_casting if test_sequence_step.app == App.TV_CASTING_APP else processes.tv_app
     app_name = test_sequence_step.app.value
 
     input_cmd = test_sequence_step.input_cmd
@@ -193,21 +183,15 @@ def send_input_cmd_to_subprocess(
     log.info("%s - Sent `%s` to the '%s' subprocess.", test_sequence_name, input_cmd, app_name)
 
 
-def handle_input_cmd(
-    processes: RunningProcesses, test_sequence_name: str, test_sequence_step: Step
-):
+def handle_input_cmd(processes: RunningProcesses, test_sequence_name: str, test_sequence_step: Step):
     """Handle the input command (`input_cmd`) from a test sequence step."""
     if test_sequence_step.input_cmd == STOP_APP:
         if test_sequence_step.app == App.TV_CASTING_APP:
-            stop_app(
-                test_sequence_name, test_sequence_step.app.value, processes.tv_casting
-            )
+            stop_app(test_sequence_name, test_sequence_step.app.value, processes.tv_casting)
         elif test_sequence_step.app == App.TV_APP:
             stop_app(test_sequence_name, test_sequence_step.app.value, processes.tv_app)
         else:
-            raise TestStepException(
-                "Unknown stop app", test_sequence_name, test_sequence_step
-            )
+            raise TestStepException("Unknown stop app", test_sequence_name, test_sequence_step)
         return
 
     send_input_cmd_to_subprocess(processes, test_sequence_name, test_sequence_step)
@@ -288,9 +272,7 @@ def cmd_execute_list(app_path):
     default=None,
     help="Where to place output logs",
 )
-def test_casting_fn(
-    tv_app_rel_path, tv_casting_app_rel_path, commissioner_generated_passcode, log_directory
-):
+def test_casting_fn(tv_app_rel_path, tv_casting_app_rel_path, commissioner_generated_passcode, log_directory):
     """Test if the casting experience between the Linux tv-casting-app and the Linux tv-app continues to work.
 
     By default, it uses the provided executable paths and the commissionee generated passcode flow as the test sequence.
@@ -315,14 +297,10 @@ def test_casting_fn(
     with tempfile.TemporaryDirectory() as temp_dir:
         if log_directory:
             linux_tv_app_log_path = os.path.join(log_directory, LINUX_TV_APP_LOGS)
-            linux_tv_casting_app_log_path = os.path.join(
-                log_directory, LINUX_TV_CASTING_APP_LOGS
-            )
+            linux_tv_casting_app_log_path = os.path.join(log_directory, LINUX_TV_CASTING_APP_LOGS)
         else:
             linux_tv_app_log_path = os.path.join(temp_dir, LINUX_TV_APP_LOGS)
-            linux_tv_casting_app_log_path = os.path.join(
-                temp_dir, LINUX_TV_CASTING_APP_LOGS
-            )
+            linux_tv_casting_app_log_path = os.path.join(temp_dir, LINUX_TV_CASTING_APP_LOGS)
 
         # Get all the test sequences.
         test_sequences = Sequence.get_test_sequences()
@@ -331,9 +309,7 @@ def test_casting_fn(
         test_sequence_name = "commissionee_generated_passcode_test"
         if commissioner_generated_passcode:
             test_sequence_name = "commissioner_generated_passcode_test"
-        test_sequence = Sequence.get_test_sequence_by_name(
-            test_sequences, test_sequence_name
-        )
+        test_sequence = Sequence.get_test_sequence_by_name(test_sequences, test_sequence_name)
 
         if not test_sequence:
             raise TestStepException(
@@ -351,16 +327,12 @@ def test_casting_fn(
                 f"{test_sequence_name}: The first step in the test sequence must contain `START_APP` as `input_cmd` to indicate starting the tv-app."
             )
         if test_sequence_steps[current_index].app != App.TV_APP:
-            raise ValueError(
-                f"{test_sequence_name}: The first step in the test sequence must be to start up the tv-app."
-            )
+            raise ValueError(f"{test_sequence_name}: The first step in the test sequence must be to start up the tv-app.")
         current_index += 1
 
         tv_app_abs_path = os.path.abspath(tv_app_rel_path)
         # Run the Linux tv-app subprocess.
-        with ProcessOutputCapture(
-            cmd_execute_list(tv_app_abs_path), linux_tv_app_log_path
-        ) as tv_app_process:
+        with ProcessOutputCapture(cmd_execute_list(tv_app_abs_path), linux_tv_app_log_path) as tv_app_process:
             # Verify that the tv-app is up and running.
             parse_output_msg_in_subprocess(
                 RunningProcesses(tv_app=tv_app_process),
@@ -384,9 +356,7 @@ def test_casting_fn(
             with ProcessOutputCapture(
                 cmd_execute_list(tv_casting_app_abs_path), linux_tv_casting_app_log_path
             ) as tv_casting_app_process:
-                processes = RunningProcesses(
-                    tv_casting=tv_casting_app_process, tv_app=tv_app_process
-                )
+                processes = RunningProcesses(tv_casting=tv_casting_app_process, tv_app=tv_app_process)
 
                 # Verify that the server initialization is completed in the tv-casting-app output.
                 parse_output_msg_in_subprocess(
@@ -405,7 +375,6 @@ def test_casting_fn(
 
 
 if __name__ == "__main__":
-
     # Start with a clean slate by removing any previously cached entries.
     try:
         cached_file_pattern = "/tmp/chip_*"

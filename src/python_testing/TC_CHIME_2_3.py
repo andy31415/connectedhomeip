@@ -60,7 +60,6 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_CHIME_2_3(MatterBaseTest, CHIMETestBase):
-
     def desc_TC_CHIME_2_3(self) -> str:
         return "[TC-CHIME-2.3] Verify that the SelectedChime can be changed"
 
@@ -74,7 +73,6 @@ class TC_CHIME_2_3(MatterBaseTest, CHIMETestBase):
             TestStep(6, "Read the SelectedChime attribute, verfy that it's the same as the value written in step 5"),
             TestStep(7, "Write to SelectedChime a value not found in myChimeSounds. Verify a NotFound error response"),
             TestStep(8, "Read the SelectedChime attribute, verfy that it's unchanged"),
-
         ]
 
     def pics_TC_CHIME_2_3(self) -> list[str]:

@@ -33,82 +33,72 @@ class DF(pd.DataFrame):  # pylint: disable=too-many-ancestors
         types = {c: self.dtype[c] for c in self.columns if c in self.dtype}
         typed_columns = list(types.keys())
         self[typed_columns] = self.astype(types, copy=False)[typed_columns]
-        self.attrs['name'] = self.name
+        self.attrs["name"] = self.name
 
 
 class SymbolSourceDF(DF):  # pylint: disable=too-many-ancestors
     """Maps symbol to compilation unit"""
-    name: str = 'symbolsource'
-    required = frozenset(['symbol', 'address', 'cu'])
+
+    name: str = "symbolsource"
+    required = frozenset(["symbol", "address", "cu"])
     dtype = {
-        'symbol': 'string',
-        'address': np.int64,
-        'cu': 'string',
-        'line': np.int64,
+        "symbol": "string",
+        "address": np.int64,
+        "cu": "string",
+        "line": np.int64,
     }
 
 
 class SegmentDF(DF):  # pylint: disable=too-many-ancestors
     """Segment memory map"""
-    name: str = 'segment'
-    required = frozenset(['type', 'vaddress', 'paddress', 'size'])
-    dtype = {
-        'type': 'string',
-        'vaddress': np.int64,
-        'paddress': np.int64,
-        'size': np.int64,
-        'flags': np.int32
-    }
+
+    name: str = "segment"
+    required = frozenset(["type", "vaddress", "paddress", "size"])
+    dtype = {"type": "string", "vaddress": np.int64, "paddress": np.int64, "size": np.int64, "flags": np.int32}
 
 
 class SectionDF(DF):  # pylint: disable=too-many-ancestors
     """Section memory map"""
-    name: str = 'section'
-    required = frozenset(['section', 'type', 'address', 'size'])
+
+    name: str = "section"
+    required = frozenset(["section", "type", "address", "size"])
     dtype = {
-        'section': 'string',
-        'type': 'string',
-        'address': np.int64,
-        'size': np.int64,
-        'flags': np.int32,
-        'segment': np.int32,
+        "section": "string",
+        "type": "string",
+        "address": np.int64,
+        "size": np.int64,
+        "flags": np.int32,
+        "segment": np.int32,
     }
 
 
 class SymbolDF(DF):  # pylint: disable=too-many-ancestors
     """Symbol table"""
-    name: str = 'symbol'
-    required = frozenset(['symbol', 'type', 'address', 'size'])
-    dtype = {
-        'symbol': 'string',
-        'type': 'string',
-        'address': np.int64,
-        'size': np.int64,
-        'shndx': 'string'
-    }
+
+    name: str = "symbol"
+    required = frozenset(["symbol", "type", "address", "size"])
+    dtype = {"symbol": "string", "type": "string", "address": np.int64, "size": np.int64, "shndx": "string"}
 
 
 class ExtentDF(DF):  # pylint: disable=too-many-ancestors
     """Gaps between symbols"""
-    name: str = 'gap'
-    required = frozenset(['address', 'size', 'section'])
-    dtype = {
-        'address': np.int64,
-        'size': np.int64,
-        'section': 'string'
-    }
+
+    name: str = "gap"
+    required = frozenset(["address", "size", "section"])
+    dtype = {"address": np.int64, "size": np.int64, "section": "string"}
 
 
 class StackDF(DF):  # pylint: disable=too-many-ancestors
     """Stack usage table"""
-    name: str = 'stack'
-    required = frozenset(['symbol', 'type', 'size'])
+
+    name: str = "stack"
+    required = frozenset(["symbol", "type", "size"])
     dtype = {
-        'symbol': 'string',
-        'type': 'string',
-        'size': np.int64,
-        'file': 'string',
-        'line': np.int64,
+        "symbol": "string",
+        "type": "string",
+        "size": np.int64,
+        "file": "string",
+        "line": np.int64,
     }
 
 

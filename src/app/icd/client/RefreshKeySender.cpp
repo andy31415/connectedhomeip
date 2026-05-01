@@ -31,9 +31,9 @@ namespace app {
 RefreshKeySender::RefreshKeySender(CheckInDelegate * checkInDelegate, const ICDClientInfo & icdClientInfo,
                                    ICDClientStorage * icdClientStorage, InteractionModelEngine * engine,
                                    const RefreshKeyBuffer & refreshKeyBuffer) :
-    mpCheckInDelegate(checkInDelegate),
-    mICDClientInfo(icdClientInfo), mpICDClientStorage(icdClientStorage), mpImEngine(engine), mNewKey(refreshKeyBuffer),
-    mOnConnectedCallback(HandleDeviceConnected, this), mOnConnectionFailureCallback(HandleDeviceConnectionFailure, this)
+    mpCheckInDelegate(checkInDelegate), mICDClientInfo(icdClientInfo), mpICDClientStorage(icdClientStorage), mpImEngine(engine),
+    mNewKey(refreshKeyBuffer), mOnConnectedCallback(HandleDeviceConnected, this),
+    mOnConnectionFailureCallback(HandleDeviceConnectionFailure, this)
 {}
 
 const ICDClientInfo & RefreshKeySender::GetICDClientInfo()

@@ -22,7 +22,6 @@ from tasks import Subprocess
 
 
 class TestSubprocess(unittest.TestCase):
-
     def test_expected_output(self):
         p = Subprocess("python3", "-c", "print('Hello, World!')")
         p.start(expected_output="Hello, World!", timeout=1)

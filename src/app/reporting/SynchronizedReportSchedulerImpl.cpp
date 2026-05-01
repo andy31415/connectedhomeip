@@ -216,7 +216,7 @@ void SynchronizedReportSchedulerImpl::TimerFired()
     else
     {
         // If we have a reportable handler, we can schedule an engine run
-        TEMPORARY_RETURN_IGNORED InteractionModelEngine::GetInstance()->GetReportingEngine().ScheduleRun();
+        TEMPORARY_RETURN_IGNORED InteractionModelEngine::GetInstance() -> GetReportingEngine().ScheduleRun();
     }
 }
 

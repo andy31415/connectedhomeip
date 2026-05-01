@@ -24,7 +24,8 @@ class CAHierarchy:
     """
     Utilities to manage a CA hierarchy on disk.
     """
-    default_ca_duration = datetime.timedelta(days=365.25*20)
+
+    default_ca_duration = datetime.timedelta(days=365.25 * 20)
     client_key_usage_cert = x509.KeyUsage(
         digital_signature=True,
         content_commitment=False,
@@ -48,7 +49,7 @@ class CAHierarchy:
         decipher_only=False,
     )
 
-    def __init__(self, base: Path, name: str, kind: Literal['server', 'client']) -> None:
+    def __init__(self, base: Path, name: str, kind: Literal["server", "client"]) -> None:
         self.name = name
         self.kind = kind
         self.directory = base
@@ -57,12 +58,8 @@ class CAHierarchy:
 
         if self.root_key_path.exists() and self.root_cert_path.exists():
             # Root certificate already exists, re-using them
-            self.root_cert = x509.load_pem_x509_certificate(
-                self.root_cert_path.read_bytes()
-            )
-            self.root_key = serialization.load_pem_private_key(
-                self.root_key_path.read_bytes(), None
-            )
+            self.root_cert = x509.load_pem_x509_certificate(self.root_cert_path.read_bytes())
+            self.root_key = serialization.load_pem_private_key(self.root_key_path.read_bytes(), None)
             log.info(f"CA Hierarchy loaded from disk: {self.name}")
         elif self.root_key_path.exists() or self.root_cert_path.exists():
             # Only one of the two file exists, bailing out
@@ -75,18 +72,12 @@ class CAHierarchy:
 
     def _generate_root_certificate(self):
         """Generate a new root CA certificate."""
-        self.root_key = rsa.generate_private_key(
-            public_exponent=65537, key_size=2048
-        )
-        rand_suffix = "".join(
-            random.choices(string.ascii_letters + string.digits, k=16)
-        )
+        self.root_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        rand_suffix = "".join(random.choices(string.ascii_letters + string.digits, k=16))
         root_cert_subject = x509.Name(
             [
                 x509.NameAttribute(NameOID.ORGANIZATION_NAME, "CSA"),
-                x509.NameAttribute(
-                    NameOID.COMMON_NAME, "TC_PAVS root " + rand_suffix
-                ),
+                x509.NameAttribute(NameOID.COMMON_NAME, "TC_PAVS root " + rand_suffix),
             ]
         )
         self.root_cert = (
@@ -96,12 +87,11 @@ class CAHierarchy:
             .public_key(self.root_key.public_key())
             .serial_number(x509.random_serial_number())
             .not_valid_before(datetime.datetime.now(datetime.timezone.utc))
-            .not_valid_after(
-                datetime.datetime.now(datetime.timezone.utc) + self.default_ca_duration
-            )
+            .not_valid_after(datetime.datetime.now(datetime.timezone.utc) + self.default_ca_duration)
             .add_extension(
                 # We make it so that our root can only issue leaf certificates, no intermediate here.
-                x509.BasicConstraints(ca=True, path_length=0), critical=True
+                x509.BasicConstraints(ca=True, path_length=0),
+                critical=True,
             )
             .add_extension(
                 x509.KeyUsage(
@@ -118,9 +108,7 @@ class CAHierarchy:
                 critical=True,
             )
             .add_extension(
-                x509.SubjectKeyIdentifier.from_public_key(
-                    self.root_key.public_key()
-                ),
+                x509.SubjectKeyIdentifier.from_public_key(self.root_key.public_key()),
                 critical=False,
             )
             .sign(self.root_key, hashes.SHA256())
@@ -162,11 +150,7 @@ class CAHierarchy:
         return (key_path, cert_path)
 
     def _sign_cert(
-        self,
-        dns: str,
-        public_key: CertificatePublicKeyTypes,
-        duration: datetime.timedelta,
-        ip_address: Optional[str] = None
+        self, dns: str, public_key: CertificatePublicKeyTypes, duration: datetime.timedelta, ip_address: Optional[str] = None
     ) -> x509.Certificate:
         """
         Generate and sign a certificate.
@@ -183,51 +167,54 @@ class CAHierarchy:
             ]
         )
 
-        extended_key_usage = [ExtendedKeyUsageOID.CLIENT_AUTH] if self.kind == "client" else [
-            ExtendedKeyUsageOID.SERVER_AUTH]
+        extended_key_usage = [ExtendedKeyUsageOID.CLIENT_AUTH] if self.kind == "client" else [ExtendedKeyUsageOID.SERVER_AUTH]
 
-        builder = (x509.CertificateBuilder()
-                   .subject_name(subject)
-                   .issuer_name(self.root_cert.subject)
-                   .public_key(public_key)
-                   .serial_number(x509.random_serial_number())
-                   .not_valid_before(datetime.datetime.now(datetime.timezone.utc))
-                   .not_valid_after(
-            datetime.datetime.now(datetime.timezone.utc) + duration
-        )
+        builder = (
+            x509.CertificateBuilder()
+            .subject_name(subject)
+            .issuer_name(self.root_cert.subject)
+            .public_key(public_key)
+            .serial_number(x509.random_serial_number())
+            .not_valid_before(datetime.datetime.now(datetime.timezone.utc))
+            .not_valid_after(datetime.datetime.now(datetime.timezone.utc) + duration)
             .add_extension(
                 x509.BasicConstraints(ca=False, path_length=None),
                 critical=False,
-        )
+            )
             .add_extension(
                 self.client_key_usage_cert if self.kind == "client" else self.server_key_usage_cert,
                 critical=True,
-        )
+            )
             .add_extension(
                 x509.ExtendedKeyUsage(extended_key_usage),
                 critical=False,
-        )
+            )
             .add_extension(
                 x509.SubjectKeyIdentifier.from_public_key(public_key),
                 critical=False,
-        )
+            )
             .add_extension(
                 x509.AuthorityKeyIdentifier.from_issuer_subject_key_identifier(
-                    self.root_cert.extensions.get_extension_for_class(
-                        x509.SubjectKeyIdentifier
-                    ).value
+                    self.root_cert.extensions.get_extension_for_class(x509.SubjectKeyIdentifier).value
                 ),
                 critical=False,
-        )
-            .add_extension(x509.CRLDistributionPoints([x509.DistributionPoint(
-                full_name=[x509.UniformResourceIdentifier("http://not.a.valid.website.com/some/path/to/a.crl")],
-                relative_name=None,
-                reasons=None,
-                crl_issuer=None
-            )]), critical=False)
+            )
+            .add_extension(
+                x509.CRLDistributionPoints(
+                    [
+                        x509.DistributionPoint(
+                            full_name=[x509.UniformResourceIdentifier("http://not.a.valid.website.com/some/path/to/a.crl")],
+                            relative_name=None,
+                            reasons=None,
+                            crl_issuer=None,
+                        )
+                    ]
+                ),
+                critical=False,
+            )
         )
 
-        if self.kind == 'server':
+        if self.kind == "server":
             san_names: list[x509.DNSName | x509.IPAddress] = [x509.DNSName(dns)]
             if ip_address:
                 san_names.append(x509.IPAddress(ipaddress.ip_address(ip_address)))
@@ -238,12 +225,14 @@ class CAHierarchy:
 
         return builder.sign(self.root_key, hashes.SHA256())
 
-    def gen_cert(self, dns: str, csr: str, override=False, duration: datetime.timedelta = datetime.timedelta(hours=1)) -> tuple[Path, Path, bool]:
+    def gen_cert(
+        self, dns: str, csr: str, override=False, duration: datetime.timedelta = datetime.timedelta(hours=1)
+    ) -> tuple[Path, Path, bool]:
         """
         Generate a certificate signed by this CA hierarchy using the provided CSR.
         Returns the path to the key, cert, and whether it was reused or not.
         """
-        signing_request = x509.load_pem_x509_csr(csr.encode('utf-8'))
+        signing_request = x509.load_pem_x509_csr(csr.encode("utf-8"))
         signing_request.public_key()
 
         # If we don't always override, first check if an existing keypair already exists
@@ -257,16 +246,13 @@ class CAHierarchy:
         cert = self._sign_cert(dns, signing_request.public_key(), duration)
 
         # Save that information to disk
-        (key_path, cert_bundle_path) = self._save_cert(
-            dns, cert, None, bundle_root=True
-        )
+        (key_path, cert_bundle_path) = self._save_cert(dns, cert, None, bundle_root=True)
         log.debug("leaf generated. dns=%s; path=%s", dns, cert_bundle_path)
         return (key_path, cert_bundle_path, False)
 
-    def gen_keypair(self, dns: str,
-                    override=False,
-                    duration: datetime.timedelta = datetime.timedelta(hours=1),
-                    ip_address: Optional[str] = None) -> tuple[Path, Path, bool]:
+    def gen_keypair(
+        self, dns: str, override=False, duration: datetime.timedelta = datetime.timedelta(hours=1), ip_address: Optional[str] = None
+    ) -> tuple[Path, Path, bool]:
         """
         Generate a private key as well as the associated certificate signed by this CA
         hierarchy. Returns the path to the key, cert, and whether it was reused or not.

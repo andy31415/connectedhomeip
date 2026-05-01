@@ -38,7 +38,7 @@ from cryptography.x509.oid import ObjectIdentifier
 
 log = logging.getLogger(__name__)
 
-MATTER_ROOT = os.path.dirname(os.path.realpath(__file__))[:-len("/scripts/tools/bouffalolab")]
+MATTER_ROOT = os.path.dirname(os.path.realpath(__file__))[: -len("/scripts/tools/bouffalolab")]
 
 TEST_CD_CERT = MATTER_ROOT + "/credentials/test/certification-declaration/Chip-Test-CD-Signing-Cert.pem"
 TEST_CD_KEY = MATTER_ROOT + "/credentials/test/certification-declaration/Chip-Test-CD-Signing-Key.pem"
@@ -51,10 +51,20 @@ TEST_CD_TYPE = 1  # 0 - development, 1 - provisional, 2 - official
 
 
 def gen_test_passcode(passcode):
-
-    INVALID_PASSCODES = [0, 11111111, 22222222, 33333333, 44444444,
-                         55555555, 66666666, 77777777, 88888888, 99999999,
-                         12345678, 87654321]
+    INVALID_PASSCODES = [
+        0,
+        11111111,
+        22222222,
+        33333333,
+        44444444,
+        55555555,
+        66666666,
+        77777777,
+        88888888,
+        99999999,
+        12345678,
+        87654321,
+    ]
 
     def check_passcode(passcode):
         return 0 <= passcode <= 99999999 and passcode not in INVALID_PASSCODES
@@ -72,16 +82,14 @@ def gen_test_passcode(passcode):
 
 
 def gen_test_discriminator(discriminator):
-
     if isinstance(discriminator, int):
-        if discriminator > 0xfff:
+        if discriminator > 0xFFF:
             raise Exception("discriminator is invalid value.")
 
-    return random.randint(0, 0xfff)
+    return random.randint(0, 0xFFF)
 
 
 def gen_test_unique_id(unique_id):
-
     if isinstance(unique_id, bytes):
         if len(unique_id) != 16:
             raise Exception("rotating unique id has invalid length.")
@@ -91,8 +99,7 @@ def gen_test_unique_id(unique_id):
 
 
 def gen_test_spake2(passcode, spake2p_it, spake2p_salt, spake2p_verifier=None):
-
-    sys.path.insert(0, os.path.join(MATTER_ROOT, 'scripts', 'tools', 'spake2p'))
+    sys.path.insert(0, os.path.join(MATTER_ROOT, "scripts", "tools", "spake2p"))
     from spake2p import generate_verifier
 
     if isinstance(spake2p_it, int):
@@ -118,25 +125,25 @@ def gen_test_spake2(passcode, spake2p_it, spake2p_salt, spake2p_verifier=None):
     return spake2p_it, spake2p_salt, spake2p_verifier
 
 
-def gen_test_certs(chip_cert: str,
-                   output: str,
-                   vendor_id: int,
-                   product_id: int,
-                   device_name: str,
-                   cd_cert: str = None,
-                   cd_key: str = None,
-                   cd: str = None,
-                   paa_cert: str = None,
-                   paa_key: str = None,
-                   pai_cert: str = None,
-                   pai_key: str = None,
-                   dac_cert: str = None,
-                   dac_key: str = None,
-                   dac_product_id: int = None,
-                   discriminator: int = None):
-
+def gen_test_certs(
+    chip_cert: str,
+    output: str,
+    vendor_id: int,
+    product_id: int,
+    device_name: str,
+    cd_cert: str = None,
+    cd_key: str = None,
+    cd: str = None,
+    paa_cert: str = None,
+    paa_key: str = None,
+    pai_cert: str = None,
+    pai_key: str = None,
+    dac_cert: str = None,
+    dac_key: str = None,
+    dac_product_id: int = None,
+    discriminator: int = None,
+):
     def parse_cert_file(cert):
-
         def get_subject_attr(subject, oid):
             try:
                 return subject.get_attributes_for_oid(oid)
@@ -146,15 +153,15 @@ def gen_test_certs(chip_cert: str,
         if not os.path.isfile(cert):
             return None, None, None, None, None
 
-        with open(cert, 'rb') as cert_file:
+        with open(cert, "rb") as cert_file:
             cert = x509.load_pem_x509_certificate(cert_file.read(), default_backend())
 
         vendor_id = None
         product_id = None
         for attribute in cert.subject:
-            if ObjectIdentifier('1.3.6.1.4.1.37244.2.1') == attribute.oid:
+            if ObjectIdentifier("1.3.6.1.4.1.37244.2.1") == attribute.oid:
                 vendor_id = int(attribute.value, 16)
-            if ObjectIdentifier('1.3.6.1.4.1.37244.2.2') == attribute.oid:
+            if ObjectIdentifier("1.3.6.1.4.1.37244.2.2") == attribute.oid:
                 product_id = int(attribute.value, 16)
 
         issue_date = cert.not_valid_before
@@ -163,15 +170,14 @@ def gen_test_certs(chip_cert: str,
         return vendor_id, product_id, issue_date, expire_date
 
     def verify_certificates(chip_cert, paa_cert, pai_cert, dac_cert):
-
         if not os.path.isfile(pai_cert) or not os.path.isfile(dac_cert):
             raise Exception("PAI certificate or DAC certificate is not specified.")
 
-        with open(pai_cert, 'rb') as cert_file:
+        with open(pai_cert, "rb") as cert_file:
             cert = x509.load_pem_x509_certificate(cert_file.read(), default_backend())
         pai_public_key = cert.public_key()
 
-        with open(dac_cert, 'rb') as cert_file:
+        with open(dac_cert, "rb") as cert_file:
             cert = x509.load_pem_x509_certificate(cert_file.read(), default_backend())
 
         try:
@@ -181,45 +187,73 @@ def gen_test_certs(chip_cert: str,
 
         if (pai_cert != TEST_PAI_CERT and paa_cert != TEST_PAA_CERT) or (pai_cert == TEST_PAI_CERT and paa_cert == TEST_PAA_CERT):
             if os.path.isfile(paa_cert):
-                cmd = [chip_cert, "validate-att-cert",
-                       "--dac", dac_cert,
-                       "--pai", pai_cert,
-                       "--paa", paa_cert,
-                       ]
+                cmd = [
+                    chip_cert,
+                    "validate-att-cert",
+                    "--dac",
+                    dac_cert,
+                    "--pai",
+                    pai_cert,
+                    "--paa",
+                    paa_cert,
+                ]
                 log.info("Verify Certificate Chain: %s", shlex.join(cmd))
                 subprocess.run(cmd)
 
-    def gen_dac_certificate(chip_cert, device_name, dac_vid, dac_pid, pai_cert, pai_key, dac_cert, dac_key, pai_issue_date, pai_expire_date, discriminator):
+    def gen_dac_certificate(
+        chip_cert,
+        device_name,
+        dac_vid,
+        dac_pid,
+        pai_cert,
+        pai_key,
+        dac_cert,
+        dac_key,
+        pai_issue_date,
+        pai_expire_date,
+        discriminator,
+    ):
         def gen_valid_times(issue_date, expire_date):
             now = datetime.now() - timedelta(days=1)
 
             if not (issue_date <= now <= expire_date):
                 raise Exception("Invalid time in test PAI to generate DAC.")
 
-            return now.strftime('%Y%m%d%H%M%SZ'), (expire_date - now).days
+            return now.strftime("%Y%m%d%H%M%SZ"), (expire_date - now).days
 
         if not os.path.isfile(dac_cert) or not os.path.isfile(dac_key):
             if not os.path.isfile(pai_cert) or not os.path.isfile(pai_key):
                 raise Exception("No test PAI certificate/key specified for test DAC generation.")
 
             valid_from, lifetime = gen_valid_times(pai_issue_date, pai_expire_date)
-            cmd = [chip_cert, "gen-att-cert",
-                   "--type", "d",  # device attestation certificate
-                   "--subject-cn", device_name + " Test DAC 0",
-                   "--subject-vid", hex(dac_vid),
-                   "--subject-pid", hex(dac_pid),
-                   "--ca-cert", pai_cert,
-                   "--ca-key", pai_key,
-                   "--out", dac_cert,
-                   "--out-key", dac_key,
-                   "--valid-from", valid_from,
-                   "--lifetime", str(lifetime),
-                   ]
+            cmd = [
+                chip_cert,
+                "gen-att-cert",
+                "--type",
+                "d",  # device attestation certificate
+                "--subject-cn",
+                device_name + " Test DAC 0",
+                "--subject-vid",
+                hex(dac_vid),
+                "--subject-pid",
+                hex(dac_pid),
+                "--ca-cert",
+                pai_cert,
+                "--ca-key",
+                pai_key,
+                "--out",
+                dac_cert,
+                "--out-key",
+                dac_key,
+                "--valid-from",
+                valid_from,
+                "--lifetime",
+                str(lifetime),
+            ]
             log.info("Generate DAC: %s", shlex.join(cmd))
             subprocess.run(cmd)
 
     def convert_pem_to_der(chip_cert, action, pem):
-
         if not os.path.isfile(pem):
             raise Exception("File {} is not existed.".format(pem))
 
@@ -231,29 +265,45 @@ def gen_test_certs(chip_cert: str,
         return der
 
     def gen_cd(chip_cert, paa_cert, dac_vendor_id, dac_product_id, vendor_id, product_id, cd_cert, cd_key, cd):
-
         if os.path.isfile(cd):
             return
 
-        cmd = [chip_cert, "gen-cd",
-               "--key", cd_key,
-               "--cert", cd_cert,
-               "--out", cd,
-               "--format-version",  "1",
-               "--vendor-id",  hex(vendor_id),
-               "--product-id",  hex(product_id),
-               "--device-type-id", "0x1234",
-               "--certificate-id", "ZIG20141ZB330001-24",
-               "--security-level",  "0",
-               "--security-info",  "0",
-               "--certification-type",  str(TEST_CD_TYPE),
-               "--version-number", "9876",
-               ]
+        cmd = [
+            chip_cert,
+            "gen-cd",
+            "--key",
+            cd_key,
+            "--cert",
+            cd_cert,
+            "--out",
+            cd,
+            "--format-version",
+            "1",
+            "--vendor-id",
+            hex(vendor_id),
+            "--product-id",
+            hex(product_id),
+            "--device-type-id",
+            "0x1234",
+            "--certificate-id",
+            "ZIG20141ZB330001-24",
+            "--security-level",
+            "0",
+            "--security-info",
+            "0",
+            "--certification-type",
+            str(TEST_CD_TYPE),
+            "--version-number",
+            "9876",
+        ]
 
         if dac_vendor_id != vendor_id or dac_product_id != product_id:
-            cmd += ["--dac-origin-vendor-id", hex(dac_vendor_id),
-                    "--dac-origin-product-id", hex(dac_product_id),
-                    ]
+            cmd += [
+                "--dac-origin-vendor-id",
+                hex(dac_vendor_id),
+                "--dac-origin-product-id",
+                hex(dac_product_id),
+            ]
 
         if paa_cert:
             cmd += ["--authorized-paa-cert", paa_cert]
@@ -276,8 +326,19 @@ def gen_test_certs(chip_cert: str,
         dac_cert = os.path.join(output, "out_{}_dac_cert.pem".format(dac_disc_vp))
         dac_key = os.path.join(output, "out_{}_dac_key.pem".format(dac_disc_vp))
 
-    gen_dac_certificate(chip_cert, device_name, dac_vendor_id, dac_product_id, pai_cert,
-                        pai_key, dac_cert, dac_key, pai_issue_date, pai_expire_date, discriminator)
+    gen_dac_certificate(
+        chip_cert,
+        device_name,
+        dac_vendor_id,
+        dac_product_id,
+        pai_cert,
+        pai_key,
+        dac_cert,
+        dac_key,
+        pai_issue_date,
+        pai_expire_date,
+        discriminator,
+    )
 
     dac_cert_der = convert_pem_to_der(chip_cert, "convert-cert", dac_cert)
     dac_key_der = convert_pem_to_der(chip_cert, "convert-key", dac_key)
@@ -294,7 +355,6 @@ def gen_test_certs(chip_cert: str,
 
 
 def gen_mfd_partition(args, mfd_output):
-
     def int_to_2bytearray_l(intvalue):
         src = bytearray(2)
         src[1] = (intvalue >> 8) & 0xFF
@@ -310,16 +370,16 @@ def gen_mfd_partition(args, mfd_output):
         return src
 
     def gen_efuse_aes_iv():
-        return bytes(random.sample(range(0, 0xff), 12) + [0] * 4)
+        return bytes(random.sample(range(0, 0xFF), 12) + [0] * 4)
 
     def read_file(rfile):
-        with open(rfile, 'rb') as _f:
+        with open(rfile, "rb") as _f:
             return _f.read()
 
     def get_private_key(der):
-        with open(der, 'rb') as file:
+        with open(der, "rb") as file:
             keys = load_der_private_key(file.read(), password=None, backend=default_backend())
-            return keys.private_numbers().private_value.to_bytes(32, byteorder='big')
+            return keys.private_numbers().private_value.to_bytes(32, byteorder="big")
 
     def encrypt_data(data_bytearray, key_bytearray, iv_bytearray):
         data_bytearray += bytes([0] * (16 - (len(data_bytearray) % 16)))
@@ -333,7 +393,7 @@ def gen_mfd_partition(args, mfd_output):
             return data
         if isinstance(data, int):
             byte_len = int((data.bit_length() + 7) / 8)
-            return data.to_bytes(byte_len, byteorder='little')
+            return data.to_bytes(byte_len, byteorder="little")
         if data is None:
             return bytes([])
         raise Exception("Data is invalid type: {}".format(type(data)))
@@ -365,28 +425,28 @@ def gen_mfd_partition(args, mfd_output):
         return sec_tlvs, raw_tlvs
 
     mfdDict = {
-        "aes_iv": {'sec': False, "id": 1, "len": 16, "data": gen_efuse_aes_iv() if args.key else bytes([0] * 16)},
-        "dac_cert": {'sec': False, "id": 2, "len": None, "data": read_file(args.dac_cert)},
-        "dac_key": {'sec': True, "id": 3, "len": None, "data": get_private_key(args.dac_key)},
-        "passcode": {'sec': False, "id": 4, "len": 4, "data": convert_to_bytes(args.passcode)},
-        "pai_cert": {'sec': False, "id": 5, "len": None, "data": read_file(args.pai_cert)},
-        "cd": {'sec': False, "id": 6, "len": None, "data": read_file(args.cd)},
-        "sn": {'sec': False, "id": 7, "len": 32, "data": convert_to_bytes(args.sn)},
-        "discriminator": {'sec': False, "id": 8, "len": 2, "data": convert_to_bytes(args.discriminator)},
-        "uid": {'sec': False, "id": 9, "len": 32, "data": convert_to_bytes(args.unique_id)},
-        "spake2p_it": {'sec': False, "id": 10, "len": 4, "data": convert_to_bytes(args.spake2p_it)},
-        "spake2p_salt": {'sec': False, "id": 11, "len": 32, "data": convert_to_bytes(args.spake2p_salt)},
-        "spake2p_verifier": {'sec': False, "id": 12, "len": None, "data": convert_to_bytes(args.spake2p_verifier)},
-        "vendor_name": {'sec': False, "id": 13, "len": 32, "data": convert_to_bytes(args.vendor_name)},
-        "vendor_id": {'sec': False, "id": 14, "len": 2, "data": convert_to_bytes(args.vendor_id)},
-        "product_name": {'sec': False, "id": 15, "len": 32, "data": convert_to_bytes(args.product_name)},
-        "product_id": {'sec': False, "id": 16, "len": 2, "data": convert_to_bytes(args.product_id)},
-        "product_part_no": {'sec': False, "id": 17, "len": 32, "data": convert_to_bytes(args.product_part_no)},
-        "product_url": {'sec': False, "id": 18, "len": 256, "data": convert_to_bytes(args.product_url)},
-        "product_label": {'sec': False, "id": 19, "len": 64, "data": convert_to_bytes(args.product_label)},
-        "manufactoring_date": {'sec': False, "id": 20, "len": 16, "data": convert_to_bytes(args.manufactoring_date)},
-        "hardware_ver": {'sec': False, "id": 21, "len": 4, "data": convert_to_bytes(args.hardware_version)},
-        "hardware_ver_str": {'sec': False, "id": 22, "len": 64, "data": convert_to_bytes(args.hardware_version_string)},
+        "aes_iv": {"sec": False, "id": 1, "len": 16, "data": gen_efuse_aes_iv() if args.key else bytes([0] * 16)},
+        "dac_cert": {"sec": False, "id": 2, "len": None, "data": read_file(args.dac_cert)},
+        "dac_key": {"sec": True, "id": 3, "len": None, "data": get_private_key(args.dac_key)},
+        "passcode": {"sec": False, "id": 4, "len": 4, "data": convert_to_bytes(args.passcode)},
+        "pai_cert": {"sec": False, "id": 5, "len": None, "data": read_file(args.pai_cert)},
+        "cd": {"sec": False, "id": 6, "len": None, "data": read_file(args.cd)},
+        "sn": {"sec": False, "id": 7, "len": 32, "data": convert_to_bytes(args.sn)},
+        "discriminator": {"sec": False, "id": 8, "len": 2, "data": convert_to_bytes(args.discriminator)},
+        "uid": {"sec": False, "id": 9, "len": 32, "data": convert_to_bytes(args.unique_id)},
+        "spake2p_it": {"sec": False, "id": 10, "len": 4, "data": convert_to_bytes(args.spake2p_it)},
+        "spake2p_salt": {"sec": False, "id": 11, "len": 32, "data": convert_to_bytes(args.spake2p_salt)},
+        "spake2p_verifier": {"sec": False, "id": 12, "len": None, "data": convert_to_bytes(args.spake2p_verifier)},
+        "vendor_name": {"sec": False, "id": 13, "len": 32, "data": convert_to_bytes(args.vendor_name)},
+        "vendor_id": {"sec": False, "id": 14, "len": 2, "data": convert_to_bytes(args.vendor_id)},
+        "product_name": {"sec": False, "id": 15, "len": 32, "data": convert_to_bytes(args.product_name)},
+        "product_id": {"sec": False, "id": 16, "len": 2, "data": convert_to_bytes(args.product_id)},
+        "product_part_no": {"sec": False, "id": 17, "len": 32, "data": convert_to_bytes(args.product_part_no)},
+        "product_url": {"sec": False, "id": 18, "len": 256, "data": convert_to_bytes(args.product_url)},
+        "product_label": {"sec": False, "id": 19, "len": 64, "data": convert_to_bytes(args.product_label)},
+        "manufactoring_date": {"sec": False, "id": 20, "len": 16, "data": convert_to_bytes(args.manufactoring_date)},
+        "hardware_ver": {"sec": False, "id": 21, "len": 4, "data": convert_to_bytes(args.hardware_version)},
+        "hardware_ver_str": {"sec": False, "id": 22, "len": 64, "data": convert_to_bytes(args.hardware_version_string)},
     }
 
     sec_tlvs, raw_tlvs = gen_tlvs(mfdDict, args.key)
@@ -407,7 +467,6 @@ def gen_mfd_partition(args, mfd_output):
 
 
 def gen_onboarding_data(args, onboard_txt, onboard_png, rendez=6):
-
     try:
         import qrcode
         from SetupPayload import CommissioningFlow, SetupPayload
@@ -421,12 +480,14 @@ def gen_onboarding_data(args, onboard_txt, onboard_png, rendez=6):
     else:
         raise Exception("Please make sure qrcode has been installed.")
 
-    setup_payload = SetupPayload(discriminator=args.discriminator,
-                                 pincode=args.passcode,
-                                 rendezvous=rendez,
-                                 flow=CommissioningFlow.Standard,
-                                 vid=args.vendor_id,
-                                 pid=args.product_id)
+    setup_payload = SetupPayload(
+        discriminator=args.discriminator,
+        pincode=args.passcode,
+        rendezvous=rendez,
+        flow=CommissioningFlow.Standard,
+        vid=args.vendor_id,
+        pid=args.product_id,
+    )
     with open(onboard_txt, "w") as manual_code_file:
         manual_code_file.write("Manualcode : " + setup_payload.generate_manualcode() + "\n")
         manual_code_file.write("QRCode : " + setup_payload.generate_qrcode())
@@ -437,9 +498,7 @@ def gen_onboarding_data(args, onboard_txt, onboard_png, rendez=6):
 
 
 def main():
-
     def check_arg(args):
-
         if not isinstance(args.output, str) or not os.path.exists(args.output):
             raise Exception("output path is not specified or not existed.")
         log.info("output path: '%s'", args.output)
@@ -497,7 +556,7 @@ def main():
 
     args = parser.parse_args()
 
-    logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.INFO)
+    logging.basicConfig(format="[%(levelname)s] %(message)s", level=logging.INFO)
 
     check_arg(args)
 
@@ -506,28 +565,30 @@ def main():
     unique_id = gen_test_unique_id(args.unique_id)
     spake2p_it, spake2p_salt, spake2p_verifier = gen_test_spake2(passcode, args.spake2p_it, args.spake2p_salt)
 
-    vp_info = "{}_{}".format(hex(args.vendor_id).split('x')[-1], hex(args.product_id).split('x')[-1])
+    vp_info = "{}_{}".format(hex(args.vendor_id).split("x")[-1], hex(args.product_id).split("x")[-1])
     vp_disc_info = "{}_{}".format(vp_info, discriminator)
 
     if args.cd is None:
         args.cd = os.path.join(args.output, "out_{}_cd.der".format(vp_info))
 
-    cd, pai_cert_der, dac_cert_der, dac_key_der = gen_test_certs(args.chip_cert,
-                                                                 args.output,
-                                                                 args.vendor_id,
-                                                                 args.product_id,
-                                                                 args.vendor_name,
-                                                                 args.cd_cert,
-                                                                 args.cd_key,
-                                                                 args.cd,
-                                                                 args.paa_cert,
-                                                                 args.paa_key,
-                                                                 args.pai_cert,
-                                                                 args.pai_key,
-                                                                 args.dac_cert,
-                                                                 args.dac_key,
-                                                                 args.dac_pid,
-                                                                 discriminator)
+    cd, pai_cert_der, dac_cert_der, dac_key_der = gen_test_certs(
+        args.chip_cert,
+        args.output,
+        args.vendor_id,
+        args.product_id,
+        args.vendor_name,
+        args.cd_cert,
+        args.cd_key,
+        args.cd,
+        args.paa_cert,
+        args.paa_key,
+        args.pai_cert,
+        args.pai_key,
+        args.dac_cert,
+        args.dac_key,
+        args.dac_pid,
+        discriminator,
+    )
 
     mfd_output = os.path.join(args.output, "out_{}_mfd.bin".format(vp_disc_info))
     args.dac_cert = dac_cert_der

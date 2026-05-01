@@ -43,22 +43,29 @@ class TC_DIMMABLELIGHT(MatterBaseTest):
 
     async def _read_on_off(self):
         return await self.read_single_attribute_check_success(
-            endpoint=self._DIMMABLELIGHT_ENDPOINT, cluster=Clusters.Objects.OnOff, attribute=Clusters.Objects.OnOff.Attributes.OnOff)
+            endpoint=self._DIMMABLELIGHT_ENDPOINT, cluster=Clusters.Objects.OnOff, attribute=Clusters.Objects.OnOff.Attributes.OnOff
+        )
 
     async def _read_current_level(self):
         return await self.read_single_attribute_check_success(
-            endpoint=self._DIMMABLELIGHT_ENDPOINT, cluster=Clusters.Objects.LevelControl, attribute=Clusters.Objects.LevelControl.Attributes.CurrentLevel)
+            endpoint=self._DIMMABLELIGHT_ENDPOINT,
+            cluster=Clusters.Objects.LevelControl,
+            attribute=Clusters.Objects.LevelControl.Attributes.CurrentLevel,
+        )
 
     async def _read_identify_time(self):
         return await self.read_single_attribute_check_success(
-            endpoint=self._DIMMABLELIGHT_ENDPOINT, cluster=Clusters.Objects.Identify, attribute=Clusters.Objects.Identify.Attributes.IdentifyTime)
+            endpoint=self._DIMMABLELIGHT_ENDPOINT,
+            cluster=Clusters.Objects.Identify,
+            attribute=Clusters.Objects.Identify.Attributes.IdentifyTime,
+        )
 
     def _read_on_off_pwrpc(self, device):
         result = device.rpcs.chip.rpc.Attributes.Read(
             endpoint=self._DIMMABLELIGHT_ENDPOINT,
             cluster=Clusters.Objects.OnOff.id,
             attribute_id=Clusters.Objects.OnOff.Attributes.OnOff.attribute_id,
-            type=attributes_service_pb2.AttributeType.ZCL_BOOLEAN_ATTRIBUTE_TYPE
+            type=attributes_service_pb2.AttributeType.ZCL_BOOLEAN_ATTRIBUTE_TYPE,
         )
         asserts.assert_true(result.status.ok(), msg="PwRPC status not ok.")
         return result.response.data_bool
@@ -70,8 +77,8 @@ class TC_DIMMABLELIGHT(MatterBaseTest):
                 endpoint=self._DIMMABLELIGHT_ENDPOINT,
                 cluster=Clusters.Objects.OnOff.id,
                 attribute_id=Clusters.Objects.OnOff.Attributes.OnOff.attribute_id,
-                type=attributes_service_pb2.AttributeType.ZCL_BOOLEAN_ATTRIBUTE_TYPE
-            )
+                type=attributes_service_pb2.AttributeType.ZCL_BOOLEAN_ATTRIBUTE_TYPE,
+            ),
         )
         asserts.assert_true(result.status.ok(), msg="PwRPC status not ok.")
 
@@ -80,7 +87,7 @@ class TC_DIMMABLELIGHT(MatterBaseTest):
             endpoint=self._DIMMABLELIGHT_ENDPOINT,
             cluster=Clusters.Objects.LevelControl.id,
             attribute_id=Clusters.Objects.LevelControl.Attributes.CurrentLevel.attribute_id,
-            type=attributes_service_pb2.AttributeType.ZCL_INT8U_ATTRIBUTE_TYPE
+            type=attributes_service_pb2.AttributeType.ZCL_INT8U_ATTRIBUTE_TYPE,
         )
         asserts.assert_true(result.status.ok(), msg="PwRPC status not ok.")
         return result.response.data_uint8
@@ -92,8 +99,8 @@ class TC_DIMMABLELIGHT(MatterBaseTest):
                 endpoint=self._DIMMABLELIGHT_ENDPOINT,
                 cluster=Clusters.Objects.LevelControl.id,
                 attribute_id=Clusters.Objects.LevelControl.Attributes.CurrentLevel.attribute_id,
-                type=attributes_service_pb2.AttributeType.ZCL_INT8U_ATTRIBUTE_TYPE
-            )
+                type=attributes_service_pb2.AttributeType.ZCL_INT8U_ATTRIBUTE_TYPE,
+            ),
         )
         asserts.assert_true(result.status.ok(), msg="PwRPC status not ok.")
 
@@ -101,12 +108,14 @@ class TC_DIMMABLELIGHT(MatterBaseTest):
         return "[TC_DIMMABLELIGHT] chef dimmablelight functionality test."
 
     def steps_TC_DIMMABLELIGHT(self):
-        return [TestStep(1, "[TC_DIMMABLELIGHT] Commissioning already done.", is_commissioning=True),
-                TestStep(2, "[TC_DIMMABLELIGHT] Test level control."),
-                TestStep(3, "[TC_DIMMABLELIGHT] Test toggle."),
-                TestStep(4, "[TC_DIMMABLELIGHT] Test identify."),
-                TestStep(5, "[TC_DIMMABLELIGHT] Set up PwRPC connection."),
-                TestStep(6, "[TC_DIMMABLELIGHT] Test PwRPC on/off and level control.")]
+        return [
+            TestStep(1, "[TC_DIMMABLELIGHT] Commissioning already done.", is_commissioning=True),
+            TestStep(2, "[TC_DIMMABLELIGHT] Test level control."),
+            TestStep(3, "[TC_DIMMABLELIGHT] Test toggle."),
+            TestStep(4, "[TC_DIMMABLELIGHT] Test identify."),
+            TestStep(5, "[TC_DIMMABLELIGHT] Set up PwRPC connection."),
+            TestStep(6, "[TC_DIMMABLELIGHT] Test PwRPC on/off and level control."),
+        ]
 
     @async_test_body
     async def test_TC_DIMMABLELIGHT(self):
@@ -125,8 +134,7 @@ class TC_DIMMABLELIGHT(MatterBaseTest):
         asserts.assert_equal(await self._read_on_off(), True)
         for level in [self._MID_BRIGHTNESS_LEVEL, self._MIN_BRIGHTNESS_LEVEL, self._MAX_BRIGHTNESS_LEVEL]:
             await self.send_single_cmd(
-                cmd=Clusters.Objects.LevelControl.Commands.MoveToLevel(
-                    level=level),
+                cmd=Clusters.Objects.LevelControl.Commands.MoveToLevel(level=level),
                 dev_ctrl=self.default_controller,
                 node_id=self.dut_node_id,
                 endpoint=self._DIMMABLELIGHT_ENDPOINT,
@@ -146,8 +154,7 @@ class TC_DIMMABLELIGHT(MatterBaseTest):
         self.step(4)
         asserts.assert_equal(await self._read_identify_time(), 0)
         await self.send_single_cmd(
-            cmd=Clusters.Objects.Identify.Commands.Identify(
-                identifyTime=5),
+            cmd=Clusters.Objects.Identify.Commands.Identify(identifyTime=5),
             dev_ctrl=self.default_controller,
             node_id=self.dut_node_id,
             endpoint=self._DIMMABLELIGHT_ENDPOINT,
@@ -180,8 +187,7 @@ class TC_DIMMABLELIGHT(MatterBaseTest):
             # Test Level control
             for level in [self._MID_BRIGHTNESS_LEVEL, self._MIN_BRIGHTNESS_LEVEL, self._MAX_BRIGHTNESS_LEVEL]:
                 self._write_current_level_pwrpc(device, level)
-                asserts.assert_equal(
-                    self._read_current_level_pwrpc(device), level)
+                asserts.assert_equal(self._read_current_level_pwrpc(device), level)
 
 
 if __name__ == "__main__":

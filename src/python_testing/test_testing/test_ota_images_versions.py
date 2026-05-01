@@ -25,23 +25,20 @@ import click
 
 log = logging.getLogger(__name__)
 
-CHIP_ROOT = os.path.abspath(os.path.join(
-    os.path.dirname(__file__), '../../..'))
-RUNNER_SCRIPT_DIR = os.path.join(CHIP_ROOT, 'scripts/tests')
-OTA_TOOL_DIR = os.path.join(CHIP_ROOT, 'src/app')
+CHIP_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+RUNNER_SCRIPT_DIR = os.path.join(CHIP_ROOT, "scripts/tests")
+OTA_TOOL_DIR = os.path.join(CHIP_ROOT, "src/app")
 
 
 def run_single_test(otaimage: str, otaimage_version: int) -> int:
-
     # Find the image
     ota_image = os.path.join(CHIP_ROOT, otaimage)
 
-    ota_image_bin = os.path.join(CHIP_ROOT, f'{ota_image}.bin')
+    ota_image_bin = os.path.join(CHIP_ROOT, f"{ota_image}.bin")
 
     # Extract the image into the directory
-    ota_tool = os.path.abspath(os.path.join(
-        OTA_TOOL_DIR, 'ota_image_tool.py'))
-    extract_cmd = str(ota_tool) + ' extract ' + str(ota_image) + ' ' + str(ota_image_bin)
+    ota_tool = os.path.abspath(os.path.join(OTA_TOOL_DIR, "ota_image_tool.py"))
+    extract_cmd = str(ota_tool) + " extract " + str(ota_image) + " " + str(ota_image_bin)
     status = subprocess.call(extract_cmd, shell=True)
     log.info("Extract image : " + str(status))
     if status != 0:
@@ -56,26 +53,34 @@ def run_single_test(otaimage: str, otaimage_version: int) -> int:
         log.info(f"Failed to change +x permission on the image  {ota_image_bin}")
         exit(1)
 
-    app_args = ' --discriminator 1234 '
+    app_args = " --discriminator 1234 "
 
     script_args = [
         "--commissioning-method on-network",
         "--passcode 20202021",
         "--discriminator 1234",
         f"--int-arg SOFTWAREVERSION:{otaimage_version}",
-        "--storage-path admin_storage.json"
+        "--storage-path admin_storage.json",
     ]
 
     script_args = " ".join(script_args)
 
-    script = os.path.abspath(os.path.join(
-        CHIP_ROOT, 'src/python_testing/test_testing/test_ota_version.py'))
+    script = os.path.abspath(os.path.join(CHIP_ROOT, "src/python_testing/test_testing/test_ota_version.py"))
 
     # run_python_test uses click so call as a command
-    run_python_test = os.path.abspath(os.path.join(
-        RUNNER_SCRIPT_DIR, 'run_python_test.py'))
-    test_cmd = str(run_python_test) + ' --factory-reset  --app ' + str(ota_image_bin) + ' --app-args "' + \
-        app_args + '" --script ' + str(script) + ' --script-args "' + script_args + '"'
+    run_python_test = os.path.abspath(os.path.join(RUNNER_SCRIPT_DIR, "run_python_test.py"))
+    test_cmd = (
+        str(run_python_test)
+        + " --factory-reset  --app "
+        + str(ota_image_bin)
+        + ' --app-args "'
+        + app_args
+        + '" --script '
+        + str(script)
+        + ' --script-args "'
+        + script_args
+        + '"'
+    )
 
     process_status = subprocess.call(test_cmd, shell=True)
 
@@ -85,8 +90,8 @@ def run_single_test(otaimage: str, otaimage_version: int) -> int:
 
 
 @click.command()
-@click.option('--otaimages', '-i', multiple=True, type=click.Path(exists=True))
-@click.option('--otaimagesversions', '-v', multiple=True, type=(int))
+@click.option("--otaimages", "-i", multiple=True, type=click.Path(exists=True))
+@click.option("--otaimagesversions", "-v", multiple=True, type=(int))
 def main(otaimages: str, otaimagesversions: int):
     if len(otaimages) == 0 or otaimagesversions == 0:
         log.error("Must provide at least one image to verify")
@@ -110,5 +115,5 @@ def main(otaimages: str, otaimagesversions: int):
     sys.exit(main_status)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

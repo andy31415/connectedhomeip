@@ -62,15 +62,15 @@ CameraAVStreamManagementCluster::CameraAVStreamManagementCluster(
     const std::vector<Structs::SnapshotCapabilitiesStruct::Type> & aSnapshotCapabilities, uint32_t aMaxNetworkBandwidth,
     const std::vector<Globals::StreamUsageEnum> & aSupportedStreamUsages,
     const std::vector<Globals::StreamUsageEnum> & aStreamUsagePriorities) :
-    DefaultServerCluster({ aEndpointId, CameraAvStreamManagement::Id }),
-    mContext(aContext), mDelegate(aDelegate), mEnabledFeatures(aFeatures), mOptionalAttrs(aOptionalAttrs),
-    mMaxConcurrentEncoders(aMaxConcurrentEncoders), mMaxEncodedPixelRate(aMaxEncodedPixelRate),
-    mVideoSensorParams(aVideoSensorParams), mNightVisionUsesInfrared(aNightVisionUsesInfrared),
-    mMinViewPortResolution(aMinViewPortRes), mRateDistortionTradeOffPointsList(aRateDistortionTradeOffPoints),
-    mMaxContentBufferSize(aMaxContentBufferSize), mMicrophoneCapabilities(aMicrophoneCapabilities),
-    mSpeakerCapabilities(aSpeakerCapabilities), mTwoWayTalkSupport(aTwoWayTalkSupport),
-    mSnapshotCapabilitiesList(aSnapshotCapabilities), mMaxNetworkBandwidth(aMaxNetworkBandwidth),
-    mSupportedStreamUsages(aSupportedStreamUsages), mStreamUsagePriorities(aStreamUsagePriorities)
+    DefaultServerCluster({ aEndpointId, CameraAvStreamManagement::Id }), mContext(aContext), mDelegate(aDelegate),
+    mEnabledFeatures(aFeatures), mOptionalAttrs(aOptionalAttrs), mMaxConcurrentEncoders(aMaxConcurrentEncoders),
+    mMaxEncodedPixelRate(aMaxEncodedPixelRate), mVideoSensorParams(aVideoSensorParams),
+    mNightVisionUsesInfrared(aNightVisionUsesInfrared), mMinViewPortResolution(aMinViewPortRes),
+    mRateDistortionTradeOffPointsList(aRateDistortionTradeOffPoints), mMaxContentBufferSize(aMaxContentBufferSize),
+    mMicrophoneCapabilities(aMicrophoneCapabilities), mSpeakerCapabilities(aSpeakerCapabilities),
+    mTwoWayTalkSupport(aTwoWayTalkSupport), mSnapshotCapabilitiesList(aSnapshotCapabilities),
+    mMaxNetworkBandwidth(aMaxNetworkBandwidth), mSupportedStreamUsages(aSupportedStreamUsages),
+    mStreamUsagePriorities(aStreamUsagePriorities)
 {
     mDelegate.SetCameraAVStreamManagementCluster(this);
 }

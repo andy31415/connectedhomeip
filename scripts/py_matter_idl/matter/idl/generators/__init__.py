@@ -43,7 +43,13 @@ class CodeGenerator:
     write time of files do not change and rebuilds are not triggered).
     """
 
-    def __init__(self, storage: GeneratorStorage, idl: Idl, loader: Optional[jinja2.BaseLoader] = None, fs_loader_searchpath: Optional[str] = None):
+    def __init__(
+        self,
+        storage: GeneratorStorage,
+        idl: Idl,
+        loader: Optional[jinja2.BaseLoader] = None,
+        fs_loader_searchpath: Optional[str] = None,
+    ):
         """
         A code generator will render a parsed IDL (a AST) into a given storage.
 
@@ -60,8 +66,7 @@ class CodeGenerator:
 
         self.storage = storage
         self.idl = idl
-        self.jinja_env = jinja2.Environment(
-            loader=loader, keep_trailing_newline=True)
+        self.jinja_env = jinja2.Environment(loader=loader, keep_trailing_newline=True)
         self.dry_run = False
 
         RegisterCommonFilters(self.jinja_env.filters)
@@ -80,7 +85,7 @@ class CodeGenerator:
 
     def internal_render_all(self):
         """This method is to be implemented by subclasses to run all generation
-           as needed.
+        as needed.
         """
         raise NotImplementedError("Method should be implemented by subclasses")
 

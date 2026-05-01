@@ -42,6 +42,7 @@ operations:
   --skip_reset, --skip-reset
                         Do not reset device after flashing
 """
+
 import os
 import platform as plt
 import subprocess
@@ -53,29 +54,25 @@ import firmware_utils
 # object (as dictionary keys) and/or passed as command line options.
 PSOC6_OPTIONS = {
     # Configuration options define properties used in flashing operations.
-    'configuration': {
-        'openocd': {
-            'help': 'File name of the hex image',
-            'default': None,
-            'argparse': {
-                'metavar': 'FILE',
+    "configuration": {
+        "openocd": {
+            "help": "File name of the hex image",
+            "default": None,
+            "argparse": {
+                "metavar": "FILE",
             },
         },
-        'device': {
-            'help': 'Device family or platform to target',
-            'default': 'PSoC6',
-            'alias': ['-d'],
-            'argparse': {
-                'metavar': 'DEVICE'
-            },
+        "device": {
+            "help": "Device family or platform to target",
+            "default": "PSoC6",
+            "alias": ["-d"],
+            "argparse": {"metavar": "DEVICE"},
         },
-        'sdk_path': {
-            'help': 'Path to psoc6 sdk',
-            'default': 'third_party/infineon/psoc6/psoc6_sdk',
-            'alias': ['-p'],
-            'argparse': {
-                'metavar': 'SDK_PATH'
-            },
+        "sdk_path": {
+            "help": "Path to psoc6 sdk",
+            "default": "third_party/infineon/psoc6/psoc6_sdk",
+            "alias": ["-p"],
+            "argparse": {"metavar": "SDK_PATH"},
         },
     },
 }
@@ -117,10 +114,13 @@ def _find_tools_path():
     # If `CY_TOOLS_PATHS` env variable is set, return that value
     if tools_path is not None:
         return tools_path
-    path_to_search = "/Applications/ModusToolbox/" if plt.system() == "Darwin" else os.path.join(os.path.expanduser("~"), "ModusToolbox")
+    path_to_search = (
+        "/Applications/ModusToolbox/" if plt.system() == "Darwin" else os.path.join(os.path.expanduser("~"), "ModusToolbox")
+    )
     if not os.path.exists(path_to_search):
         raise Exception(
-            "Could not find ModusToolbox installation. Please install ModusToolbox and export CY_TOOLS_PATHS=<path to MTB tools_x.y>")
+            "Could not find ModusToolbox installation. Please install ModusToolbox and export CY_TOOLS_PATHS=<path to MTB tools_x.y>"
+        )
     dirs = os.listdir(path_to_search)
     for directory in dirs:
         # find the latest version of ModusToolbox that is installed
@@ -134,7 +134,7 @@ class Flasher(firmware_utils.Flasher):
     """Manage PSoC6 flashing."""
 
     def __init__(self, **options):
-        super().__init__(platform='PSOC6', module=__name__, **options)
+        super().__init__(platform="PSOC6", module=__name__, **options)
         self.define_options(PSOC6_OPTIONS)
 
     def verify(self, image):
@@ -147,15 +147,21 @@ class Flasher(firmware_utils.Flasher):
         tools_path = _find_tools_path()
         open_ocd_dir = os.path.join(tools_path, "openocd", "bin", "openocd")
         return self.run_tool(
-            'openocd',
+            "openocd",
             [
-                "-s", f"{open_ocd_dir}/scripts",
-                "-c", "source [find interface/kitprog3.cfg]",
-                "-c", "source [find target/psoc6_2m.cfg]",
-                "-c", "init; reset init",
-                "-c", "flash erase_sector 0 0 last; shutdown",
+                "-s",
+                f"{open_ocd_dir}/scripts",
+                "-c",
+                "source [find interface/kitprog3.cfg]",
+                "-c",
+                "source [find target/psoc6_2m.cfg]",
+                "-c",
+                "init; reset init",
+                "-c",
+                "flash erase_sector 0 0 last; shutdown",
             ],
-            name='Erase device')
+            name="Erase device",
+        )
 
     def flash(self, image):
         """Flash image."""
@@ -163,20 +169,27 @@ class Flasher(firmware_utils.Flasher):
         ser_num = _get_board_serial_number(tools_path)
         open_ocd_dir = os.path.join(tools_path, "openocd", "bin", "openocd")
         return self.run_tool(
-            'openocd',
+            "openocd",
             [
-                "-s", f"{open_ocd_dir}/scripts",
-                "-c", "source [find interface/kitprog3.cfg]",
-                "-c", "source [find target/psoc6_2m.cfg]",
-                "-c", f"adapter serial {ser_num}",
-                "-c", "init; reset init",
-                "-c", f"program {image} verify reset exit",
+                "-s",
+                f"{open_ocd_dir}/scripts",
+                "-c",
+                "source [find interface/kitprog3.cfg]",
+                "-c",
+                "source [find target/psoc6_2m.cfg]",
+                "-c",
+                f"adapter serial {ser_num}",
+                "-c",
+                "init; reset init",
+                "-c",
+                f"program {image} verify reset exit",
             ],
-            name='Flash')
+            name="Flash",
+        )
 
     def actions(self):
         """Perform actions on the device according to self.option."""
-        self.log(3, 'Options:', self.option)
+        self.log(3, "Options:", self.option)
 
         if self.option.erase:
             if self.erase().err:
@@ -198,11 +211,12 @@ class Flasher(firmware_utils.Flasher):
         tools_path = _find_tools_path()
         if tools_path is None:
             raise Exception(
-                "CY_TOOLS_PATHS environment variable is not set. Please set it to the location of your ModusToolbox tools directory.")
+                "CY_TOOLS_PATHS environment variable is not set. Please set it to the location of your ModusToolbox tools directory."
+            )
         if tool != "openocd":
             raise Exception(f"Tool '{tool}' is not supported for flashing PSoC6. Please use openocd.")
         return os.path.join(tools_path, "openocd", "bin", "openocd")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(Flasher().flash_command(sys.argv))

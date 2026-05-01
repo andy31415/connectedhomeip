@@ -33,8 +33,7 @@ class PseudoClusters:
         return self.__get_command(request) is not None
 
     def is_manual_step(self, request):
-        return ((request.cluster == LogCommands().name and
-                request.command == "UserPrompt") or request.command == "VerifyVideoStream")
+        return (request.cluster == LogCommands().name and request.command == "UserPrompt") or request.command == "VerifyVideoStream"
 
     def add(self, cluster: PseudoCluster):
         self.clusters.append(cluster)
@@ -46,11 +45,11 @@ class PseudoClusters:
         return None
 
     async def execute(self, request, definitions=None):
-        status = {'error': 'FAILURE'}
+        status = {"error": "FAILURE"}
 
         command = self.__get_command(request)
         if command:
-            if 'definitions' in inspect.signature(command).parameters:
+            if "definitions" in inspect.signature(command).parameters:
                 status = await command(request, definitions)
             else:
                 status = await command(request)

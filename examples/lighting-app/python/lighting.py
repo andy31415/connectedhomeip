@@ -38,7 +38,7 @@ async def dali_on(is_on: bool):
     global dev
 
     await dev.connected.wait()
-    if (is_on):
+    if is_on:
         await dev.send(RecallMaxLevel(Broadcast()))
     else:
         await dev.send(Off(Broadcast()))
@@ -93,9 +93,7 @@ class LightingMgrCmd(Cmd):
         except ImportError:
             pass
 
-    command_names = [
-        "help"
-    ]
+    command_names = ["help"]
 
     def parseline(self, line):
         cmd, arg, line = Cmd.parseline(self, line)
@@ -172,19 +170,16 @@ def attributeChangeCallback(
         if clusterId == 6 and attributeId == 0:
             if len(value) == 1 and value[0] == 1:
                 # print("[PY] light on")
-                future = asyncio.run_coroutine_threadsafe(
-                    dali_on(True), dali_loop)
+                future = asyncio.run_coroutine_threadsafe(dali_on(True), dali_loop)
                 future.result()
             else:
                 # print("[PY] light off")
-                future = asyncio.run_coroutine_threadsafe(
-                    dali_on(False), dali_loop)
+                future = asyncio.run_coroutine_threadsafe(dali_on(False), dali_loop)
                 future.result()
         elif clusterId == 8 and attributeId == 0:
             if len(value) == 2:
                 # print("[PY] level {}".format(value[0]))
-                future = asyncio.run_coroutine_threadsafe(
-                    dali_level(value[0]), dali_loop)
+                future = asyncio.run_coroutine_threadsafe(dali_level(value[0]), dali_loop)
                 future.result()
             else:
                 print("[PY] no level")

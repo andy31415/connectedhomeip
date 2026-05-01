@@ -24,13 +24,17 @@ from matter.tlv import uint
 
 class ChoiceConformanceProblemNotice(ProblemNotice):
     def __init__(self, location: AttributePathLocation, choice: Choice, count: int):
-        problem = f'Problem with choice conformance {choice} - {count} selected'
-        super().__init__(test_name='Choice conformance', location=location, severity=ProblemSeverity.ERROR, problem=problem, spec_location='')
+        problem = f"Problem with choice conformance {choice} - {count} selected"
+        super().__init__(
+            test_name="Choice conformance", location=location, severity=ProblemSeverity.ERROR, problem=problem, spec_location=""
+        )
         self.choice = choice
         self.count = count
 
 
-def _add_to_counts_if_required(conformance_decision_with_choice: ConformanceDecisionWithChoice, element_present: bool, counts: dict[Choice, int]):
+def _add_to_counts_if_required(
+    conformance_decision_with_choice: ConformanceDecisionWithChoice, element_present: bool, counts: dict[Choice, int]
+):
     choice = conformance_decision_with_choice.choice
     if not choice:
         return
@@ -47,7 +51,9 @@ def _evaluate_choices(location: AttributePathLocation, counts: dict[Choice, int]
     return problems
 
 
-def evaluate_feature_choice_conformance(endpoint_id: int, cluster_id: int, xml_clusters: dict[int, XmlCluster], conformance_assessment_data: ConformanceAssessmentData) -> list[ChoiceConformanceProblemNotice]:
+def evaluate_feature_choice_conformance(
+    endpoint_id: int, cluster_id: int, xml_clusters: dict[int, XmlCluster], conformance_assessment_data: ConformanceAssessmentData
+) -> list[ChoiceConformanceProblemNotice]:
     all_features = [uint(1 << i) for i in range(32)]
     all_features = [f for f in all_features if f in xml_clusters[cluster_id].features]
 
@@ -58,36 +64,45 @@ def evaluate_feature_choice_conformance(endpoint_id: int, cluster_id: int, xml_c
         conformance_decision_with_choice = xml_feature.conformance(conformance_assessment_data)
         _add_to_counts_if_required(conformance_decision_with_choice, (conformance_assessment_data.feature_map & f) != 0, counts)
 
-    location = AttributePathLocation(endpoint_id=endpoint_id, cluster_id=cluster_id,
-                                     attribute_id=GlobalAttributeIds.FEATURE_MAP_ID)
+    location = AttributePathLocation(endpoint_id=endpoint_id, cluster_id=cluster_id, attribute_id=GlobalAttributeIds.FEATURE_MAP_ID)
     return _evaluate_choices(location, counts)
 
 
-def evaluate_attribute_choice_conformance(endpoint_id: int, cluster_id: int, xml_clusters: dict[int, XmlCluster], conformance_assessment_data: ConformanceAssessmentData) -> list[ChoiceConformanceProblemNotice]:
+def evaluate_attribute_choice_conformance(
+    endpoint_id: int, cluster_id: int, xml_clusters: dict[int, XmlCluster], conformance_assessment_data: ConformanceAssessmentData
+) -> list[ChoiceConformanceProblemNotice]:
     all_attributes = xml_clusters[cluster_id].attributes.keys()
 
     counts: dict[Choice, int] = {}
     for attribute_id in all_attributes:
-        conformance_decision_with_choice = xml_clusters[cluster_id].attributes[attribute_id].conformance(
-            conformance_assessment_data)
-        _add_to_counts_if_required(conformance_decision_with_choice,
-                                   attribute_id in conformance_assessment_data.attribute_list, counts)
+        conformance_decision_with_choice = (
+            xml_clusters[cluster_id].attributes[attribute_id].conformance(conformance_assessment_data)
+        )
+        _add_to_counts_if_required(
+            conformance_decision_with_choice, attribute_id in conformance_assessment_data.attribute_list, counts
+        )
 
-    location = AttributePathLocation(endpoint_id=endpoint_id, cluster_id=cluster_id,
-                                     attribute_id=GlobalAttributeIds.ATTRIBUTE_LIST_ID)
+    location = AttributePathLocation(
+        endpoint_id=endpoint_id, cluster_id=cluster_id, attribute_id=GlobalAttributeIds.ATTRIBUTE_LIST_ID
+    )
     return _evaluate_choices(location, counts)
 
 
-def evaluate_command_choice_conformance(endpoint_id: int, cluster_id: int, xml_clusters: dict[int, XmlCluster], conformance_assessment_data: ConformanceAssessmentData) -> list[ChoiceConformanceProblemNotice]:
+def evaluate_command_choice_conformance(
+    endpoint_id: int, cluster_id: int, xml_clusters: dict[int, XmlCluster], conformance_assessment_data: ConformanceAssessmentData
+) -> list[ChoiceConformanceProblemNotice]:
     all_commands = xml_clusters[cluster_id].accepted_commands.keys()
 
     counts: dict[Choice, int] = {}
     for command_id in all_commands:
-        conformance_decision_with_choice = xml_clusters[cluster_id].accepted_commands[command_id].conformance(
-            conformance_assessment_data)
-        _add_to_counts_if_required(conformance_decision_with_choice,
-                                   command_id in conformance_assessment_data.all_command_list, counts)
+        conformance_decision_with_choice = (
+            xml_clusters[cluster_id].accepted_commands[command_id].conformance(conformance_assessment_data)
+        )
+        _add_to_counts_if_required(
+            conformance_decision_with_choice, command_id in conformance_assessment_data.all_command_list, counts
+        )
 
-    location = AttributePathLocation(endpoint_id=endpoint_id, cluster_id=cluster_id,
-                                     attribute_id=GlobalAttributeIds.ACCEPTED_COMMAND_LIST_ID)
+    location = AttributePathLocation(
+        endpoint_id=endpoint_id, cluster_id=cluster_id, attribute_id=GlobalAttributeIds.ACCEPTED_COMMAND_LIST_ID
+    )
     return _evaluate_choices(location, counts)

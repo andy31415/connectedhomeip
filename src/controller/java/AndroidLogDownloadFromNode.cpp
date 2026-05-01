@@ -47,9 +47,9 @@ CharSpan toIntentCharSpan(DiagnosticLogs::IntentEnum intent)
 AndroidLogDownloadFromNode::AndroidLogDownloadFromNode(chip::Controller::DeviceController * controller, NodeId remoteNodeId,
                                                        DiagnosticLogs::IntentEnum intent, uint16_t timeout,
                                                        jobject jCallbackObject) :
-    mController(controller),
-    mOnDeviceConnectedCallback(&OnDeviceConnectedFn, this), mOnDeviceConnectionFailureCallback(&OnDeviceConnectionFailureFn, this),
-    mOnBdxTransferCallback(&OnBdxTransferCallback, this), mOnBdxTransferSuccessCallback(&OnBdxTransferSuccessCallback, this),
+    mController(controller), mOnDeviceConnectedCallback(&OnDeviceConnectedFn, this),
+    mOnDeviceConnectionFailureCallback(&OnDeviceConnectionFailureFn, this), mOnBdxTransferCallback(&OnBdxTransferCallback, this),
+    mOnBdxTransferSuccessCallback(&OnBdxTransferSuccessCallback, this),
     mOnBdxTransferFailureCallback(&OnBdxTransferFailureCallback, this)
 {
     mRemoteNodeId = remoteNodeId;

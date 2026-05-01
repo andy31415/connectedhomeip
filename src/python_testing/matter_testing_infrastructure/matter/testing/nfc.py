@@ -33,12 +33,12 @@ NFC_SUCCESS_SW2 = 0x00
 MAX_SHORT_APDU_LENGTH = 255
 
 # APDU Class (CLA) bytes
-CLA_ISO = 0x00              # ISO/IEC 7816-4 standard class
+CLA_ISO = 0x00  # ISO/IEC 7816-4 standard class
 
 # APDU Instruction (INS) bytes
-INS_SELECT = 0xA4           # Select file or application
-INS_READ_BINARY = 0xB0      # Read binary data from file
-INS_UPDATE_BINARY = 0xD6    # Update binary data in file
+INS_SELECT = 0xA4  # Select file or application
+INS_READ_BINARY = 0xB0  # Read binary data from file
+INS_UPDATE_BINARY = 0xD6  # Update binary data in file
 
 # Constant representing the NFC Forum Well-Known Type (WKT) for a URI record.
 # Used to identify NDEF records containing a Uniform Resource Identifier (URI)
@@ -46,7 +46,7 @@ INS_UPDATE_BINARY = 0xD6    # Update binary data in file
 # Some commonly used formats are below for reference
 # urn:nfc:wkt:T -> refers Text record
 # urn:nfc:wkt:Sp -> Smart Poster record
-NFC_WKT = 'urn:nfc:wkt:U'
+NFC_WKT = "urn:nfc:wkt:U"
 
 
 class NFCReader:
@@ -103,10 +103,10 @@ class NFCReader:
         """
         with NFCConnection(self) as connection:
             # Perform NDEF file system navigation sequence
-            _select_ndef_application(connection)    # Select NDEF app
-            _select_cc_file(connection)             # Select Capability Container (aka CC File)
-            ndef_file_id = _read_cc_file_content(connection)     # Get NDEF File ID from CC Content
-            _select_ndef_file(connection, ndef_file_id)          # Select data file
+            _select_ndef_application(connection)  # Select NDEF app
+            _select_cc_file(connection)  # Select Capability Container (aka CC File)
+            ndef_file_id = _read_cc_file_content(connection)  # Get NDEF File ID from CC Content
+            _select_ndef_file(connection, ndef_file_id)  # Select data file
 
             # Read NDEF message length and data
             ndef_length = _read_ndef_length(connection)
@@ -129,7 +129,7 @@ class NFCReader:
                     # is fully in the URI string.
                     #
                     # Ignore the identifier code and read the URI string
-                    if hasattr(record, 'data') and record.data and len(record.data) > 1:
+                    if hasattr(record, "data") and record.data and len(record.data) > 1:
                         return record.data[1:].decode("utf-8")
                     raise ValueError("NDEF URI record payload is missing or too short")
             # If we get here, no URI record was found
@@ -146,11 +146,10 @@ class NFCReader:
             NFCTransmissionError or other exceptions if writing fails.
         """
         with NFCConnection(self) as connection:
-
-            _select_ndef_application(connection)    # Select NDEF app
-            _select_cc_file(connection)             # Select Capability Container (aka CC File)
-            ndef_file_id = _read_cc_file_content(connection)    # Get NDEF File ID from CC content
-            _select_ndef_file(connection, ndef_file_id)         # Select data file
+            _select_ndef_application(connection)  # Select NDEF app
+            _select_cc_file(connection)  # Select Capability Container (aka CC File)
+            ndef_file_id = _read_cc_file_content(connection)  # Get NDEF File ID from CC content
+            _select_ndef_file(connection, ndef_file_id)  # Select data file
 
             # Create NDEF message with a single URI record
             record = ndef.UriRecord(uri)
@@ -213,7 +212,7 @@ def _check_transmission_status(sw1: int, sw2: int, operation_name: str):
     """
     asserts.assert_true(
         (sw1, sw2) == (NFC_SUCCESS_SW1, NFC_SUCCESS_SW2),
-        f"Message transmission failed - {operation_name}: SW1={sw1:02X}, SW2={sw2:02X}"
+        f"Message transmission failed - {operation_name}: SW1={sw1:02X}, SW2={sw2:02X}",
     )
 
 
@@ -240,9 +239,19 @@ def _select_ndef_application(connection):
     # (P1, P2)=(0x04, 0x0C) corresponds to select first or only occurrence
     # For more Information you can refer here https://en.wikipedia.org/wiki/Smart_card_application_protocol_data_unit
     SELECT_NDEF_AID = [
-        CLA_ISO, INS_SELECT, 0x04, 0x00, 0x07,                # CLA INS P1 P2 Lc
-        0xD2, 0x76, 0x00, 0x00, 0x85, 0x01, 0x01,             # NDEF's Application ID
-        0x00                                                  # Le
+        CLA_ISO,
+        INS_SELECT,
+        0x04,
+        0x00,
+        0x07,  # CLA INS P1 P2 Lc
+        0xD2,
+        0x76,
+        0x00,
+        0x00,
+        0x85,
+        0x01,
+        0x01,  # NDEF's Application ID
+        0x00,  # Le
     ]
     data, sw1, sw2 = connection.transmit(SELECT_NDEF_AID)
     _check_transmission_status(sw1, sw2, "select NDEF application")
@@ -269,8 +278,15 @@ def _select_cc_file(connection):
     """
     # ISO/IEC 7816-4 APDU command to select the Capability Container file (file ID: 0xE103)
     # (P1, P2)=(0x00, 0x0C) corresponds to select by file ID
-    SELECT_CC_FILE = [CLA_ISO, INS_SELECT, 0x00, 0x0C, 0x02,  # CLA INS P1 P2 Lc
-                      0xE1, 0x03]                             # File ID
+    SELECT_CC_FILE = [
+        CLA_ISO,
+        INS_SELECT,
+        0x00,
+        0x0C,
+        0x02,  # CLA INS P1 P2 Lc
+        0xE1,
+        0x03,
+    ]  # File ID
     data, sw1, sw2 = connection.transmit(SELECT_CC_FILE)
     _check_transmission_status(sw1, sw2, "select CC file")
 
@@ -373,8 +389,15 @@ def _select_ndef_file(connection, file_id):
     """
     # ISO/IEC 7816-4 APDU command to select the NDEF file
     # (P1, P2)=(0x00, 0x0C) corresponds to select by file ID
-    SELECT_NDEF_FILE = [CLA_ISO, INS_SELECT, 0x00, 0x0C, 0x02,  # CLA INS P1 P2 Lc
-                        (file_id >> 8) & 0xFF, file_id & 0xFF]  # File ID
+    SELECT_NDEF_FILE = [
+        CLA_ISO,
+        INS_SELECT,
+        0x00,
+        0x0C,
+        0x02,  # CLA INS P1 P2 Lc
+        (file_id >> 8) & 0xFF,
+        file_id & 0xFF,
+    ]  # File ID
     data, sw1, sw2 = connection.transmit(SELECT_NDEF_FILE)
     _check_transmission_status(sw1, sw2, "select NDEF file")
 
@@ -406,7 +429,7 @@ def _read_ndef_length(connection):
     # ISO/IEC 7816-4 APDU command to read a binary message of 2 bytes starting from offset 0x00.
     # Those 2 bytes contain the NDEF message length.
     # (P1, P2) contain respectively the offset high byte and the offset low byte.
-    READ_NDEF_LENGTH = [CLA_ISO, INS_READ_BINARY, 0x00, 0x00, 0x02]           # CLA INS P1 P2 Lc
+    READ_NDEF_LENGTH = [CLA_ISO, INS_READ_BINARY, 0x00, 0x00, 0x02]  # CLA INS P1 P2 Lc
     data, sw1, sw2 = connection.transmit(READ_NDEF_LENGTH)
     _check_transmission_status(sw1, sw2, "read NDEF length")
 
@@ -452,9 +475,9 @@ def _read_ndef_data(connection, length: int) -> bytes:
         apdu = [
             CLA_ISO,
             INS_READ_BINARY,
-            offset_high,        # P1
-            offset_low,         # P2
-            chunk_size
+            offset_high,  # P1
+            offset_low,  # P2
+            chunk_size,
         ]
         chunk, sw1, sw2 = connection.transmit(apdu)
         _check_transmission_status(sw1, sw2, f"read NDEF data at offset {offset}")
@@ -465,15 +488,15 @@ def _read_ndef_data(connection, length: int) -> bytes:
 
 
 def _write_ndef_record(connection, record):
-
-    ndef_message = b''.join(ndef.message_encoder([record]))
+    ndef_message = b"".join(ndef.message_encoder([record]))
     ndef_length = len(ndef_message)
 
     # Write NDEF header
     ndef_header = [
         CLA_ISO,
         INS_UPDATE_BINARY,
-        0x00, 0x00,
+        0x00,
+        0x00,
         0x02,
         (ndef_length >> 8) & 0xFF,
         ndef_length & 0xFF,
@@ -486,7 +509,7 @@ def _write_ndef_record(connection, record):
     # The maximum length per APDU is usually 255 bytes; split if needed
     offset = 0
     while offset < ndef_length:
-        chunk = ndef_message[offset:offset+MAX_SHORT_APDU_LENGTH]
+        chunk = ndef_message[offset : offset + MAX_SHORT_APDU_LENGTH]
         chunk_len = len(chunk)
         WRITE_NDEF = [
             CLA_ISO,

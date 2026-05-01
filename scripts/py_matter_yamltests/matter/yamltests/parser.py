@@ -23,23 +23,29 @@ from typing import Any, Optional
 from . import fixes
 from .constraints import get_constraints, is_typed_constraint, is_variable_aware_constraint
 from .definitions import SpecDefinitions
-from .errors import (TestStepEnumError, TestStepEnumSpecifierNotUnknownError, TestStepEnumSpecifierWrongError, TestStepError,
-                     TestStepKeyError, TestStepValueNameError)
+from .errors import (
+    TestStepEnumError,
+    TestStepEnumSpecifierNotUnknownError,
+    TestStepEnumSpecifierWrongError,
+    TestStepError,
+    TestStepKeyError,
+    TestStepValueNameError,
+)
 from .pics_checker import PICSChecker
 from .yaml_loader import YamlLoader
 
 LOGGER = logging.getLogger(__name__)
 
-ANY_COMMANDS_CLUSTER_NAME = 'AnyCommands'
+ANY_COMMANDS_CLUSTER_NAME = "AnyCommands"
 ANY_COMMANDS_LIST = [
-    'CommandById',
-    'ReadById',
-    'WriteById',
-    'SubscribeById',
-    'ReadEventById',
-    'SubscribeEventById',
-    'ReadAll',
-    'SubscribeAll',
+    "CommandById",
+    "ReadById",
+    "WriteById",
+    "SubscribeById",
+    "ReadEventById",
+    "SubscribeEventById",
+    "ReadAll",
+    "SubscribeAll",
 ]
 
 # If True, enum values should use a valid name instead of a raw value
@@ -48,7 +54,7 @@ STRICT_ENUM_VALUE_CHECK = False
 
 def build_revision_var_name(endpoint, cluster) -> str:
     """Helper to create a unique variable name for the cluster revision read-out."""
-    return f'__cluster_revision_read_EP_{endpoint}_CL_{cluster}'
+    return f"__cluster_revision_read_EP_{endpoint}_CL_{cluster}"
 
 
 class UnknownPathQualifierError(TestStepError):
@@ -63,7 +69,7 @@ class UnknownPathQualifierError(TestStepError):
                     message = f'Unknown {target_type}: "{target_name}". Did you mean "{candidate_name}" ?'
                     break
         else:
-            message = f'The cluster does not have any {target_type}s.'
+            message = f"The cluster does not have any {target_type}s."
 
         super().__init__(message)
         self.tag_key_with_error(content, target_type)
@@ -73,32 +79,34 @@ class TestStepAttributeKeyError(UnknownPathQualifierError):
     """Raise when an attribute name is not found in the definitions."""
 
     def __init__(self, content, target_name, candidate_names=[]):
-        super().__init__(content, 'attribute', target_name, candidate_names)
+        super().__init__(content, "attribute", target_name, candidate_names)
 
 
 class TestStepCommandKeyError(UnknownPathQualifierError):
     """Raise when a command name is not found in the definitions."""
 
     def __init__(self, content, target_name, candidate_names=[]):
-        super().__init__(content, 'command', target_name, candidate_names)
+        super().__init__(content, "command", target_name, candidate_names)
 
 
 class TestStepEventKeyError(UnknownPathQualifierError):
     """Raise when an event name is not found in the definitions."""
 
     def __init__(self, content, target_name, candidate_names=[]):
-        super().__init__(content, 'event', target_name, candidate_names)
+        super().__init__(content, "event", target_name, candidate_names)
 
 
 class PostProcessCheckStatus(Enum):
-    '''Indicates the post processing check step status.'''
-    SUCCESS = 'success'
-    WARNING = 'warning'
-    ERROR = 'error'
+    """Indicates the post processing check step status."""
+
+    SUCCESS = "success"
+    WARNING = "warning"
+    ERROR = "error"
 
 
 class PostProcessCheckType(Enum):
-    '''Indicates the post processing check step type.'''
+    """Indicates the post processing check step type."""
+
     IM_STATUS = auto()
     CLUSTER_STATUS = auto()
     RESPONSE_VALIDATION = auto()
@@ -108,11 +116,11 @@ class PostProcessCheckType(Enum):
 
 
 class PostProcessCheck:
-    '''Information about a single post processing operation that was performed.
+    """Information about a single post processing operation that was performed.
 
     Each check has a helpful message, indicating what the post processing operation did and whether
     it was successful or not.
-    '''
+    """
 
     def __init__(self, state: PostProcessCheckStatus, category: PostProcessCheckType, message: str, exception=None):
         self.state = state
@@ -131,12 +139,12 @@ class PostProcessCheck:
 
 
 class PostProcessResponseResult:
-    '''Post processing response result information.
+    """Post processing response result information.
 
     There are multiple operations that occur when post processing a response. This contains all the
     results for each operation performed. Note that the number and types of steps performed is
     dependant on test step itself.
-    '''
+    """
 
     def __init__(self):
         self.entries = []
@@ -145,19 +153,18 @@ class PostProcessResponseResult:
         self.errors = 0
 
     def success(self, category: PostProcessCheckType, message: str):
-        '''Adds a success entry that occured when post processing response to results.'''
+        """Adds a success entry that occured when post processing response to results."""
         self._insert(PostProcessCheckStatus.SUCCESS, category, message)
         self.successes += 1
 
     def warning(self, category: PostProcessCheckType, message: str):
-        '''Adds a warning entry that occured when post processing response to results.'''
+        """Adds a warning entry that occured when post processing response to results."""
         self._insert(PostProcessCheckStatus.WARNING, category, message)
         self.warnings += 1
 
     def error(self, category: PostProcessCheckType, message: str, exception: TestStepError = None):
-        '''Adds an error entry that occured when post processing response to results.'''
-        self._insert(PostProcessCheckStatus.ERROR,
-                     category, message, exception)
+        """Adds an error entry that occured when post processing response to results."""
+        self._insert(PostProcessCheckStatus.ERROR, category, message, exception)
         self.errors += 1
 
     def is_success(self):
@@ -214,9 +221,8 @@ class EnumType:
         if specified_code is None or specified_code == enum_code:
             return enum_code
 
-        if specified_name != f'{self.type}.UnknownEnumValue':
-            raise TestStepEnumSpecifierWrongError(
-                specified_code, specified_name, enum_code)
+        if specified_name != f"{self.type}.UnknownEnumValue":
+            raise TestStepEnumSpecifierWrongError(specified_code, specified_name, enum_code)
 
         enum_name = self.entries_by_code.get(specified_code)
         if enum_name:
@@ -237,7 +243,7 @@ class EnumType:
     def _compute_entries(self, enum: Enum):
         enum_codes = []
         for enum_entry in enum.entries:
-            name = f'{self.type}.{enum_entry.name}'
+            name = f"{self.type}.{enum_entry.name}"
             code = enum_entry.code
 
             self.entries_by_name[name] = code
@@ -246,12 +252,12 @@ class EnumType:
 
         # search for the first invalid entry if any
         max_code = 0xFF + 1
-        if self.base_type == 'enum16':
+        if self.base_type == "enum16":
             max_code = 0xFFFF + 1
 
         for code in range(0, max_code):
             if code not in enum_codes:
-                name = f'{self.type}.UnknownEnumValue'
+                name = f"{self.type}.UnknownEnumValue"
                 self.entries_by_name[name] = code
                 self.entries_by_code[code] = name
                 break
@@ -267,36 +273,36 @@ class EnumType:
 
     @staticmethod
     def is_valid_type(target_type: str):
-        return target_type == 'enum8' or target_type == 'enum16'
+        return target_type == "enum8" or target_type == "enum16"
 
 
 class _TestStepWithPlaceholders:
-    '''A single YAML test parsed, as is, from YAML.
+    """A single YAML test parsed, as is, from YAML.
 
     Some YAML test steps contain placeholders for variable subsitution. The value of the variable
     is only known after an earlier test step's has executed and the result successfully post
     processed.
-    '''
+    """
 
     def __init__(self, test: dict, config: dict, definitions: SpecDefinitions, pics_checker: PICSChecker):
         # Disabled tests are not parsed in order to allow the test to be added to the test
         # suite even if the feature is not implemented yet.
-        self.is_enabled = not ('disabled' in test and test['disabled'])
+        self.is_enabled = not ("disabled" in test and test["disabled"])
         if not self.is_enabled:
             return
 
         self._parsing_config_variable_storage = config
 
         self.label = test.get("label")
-        self.node_id = _value_or_config(test, 'nodeId', config)
-        self.group_id = _value_or_config(test, 'groupId', config)
-        self.cluster = _value_or_config(test, 'cluster', config)
-        self.command = _value_or_config(test, 'command', config)
+        self.node_id = _value_or_config(test, "nodeId", config)
+        self.group_id = _value_or_config(test, "groupId", config)
+        self.cluster = _value_or_config(test, "cluster", config)
+        self.command = _value_or_config(test, "command", config)
         if not self.command:
-            self.command = _value_or_config(test, 'wait', config)
+            self.command = _value_or_config(test, "wait", config)
         self.attribute = test.get("attribute")
         self.event = test.get("event")
-        self.endpoint = _value_or_config(test, 'endpoint', config)
+        self.endpoint = _value_or_config(test, "endpoint", config)
         self.pics = test.get("PICS")
         self.is_pics_enabled = pics_checker.check(test.get("PICS"))
 
@@ -351,9 +357,9 @@ class _TestStepWithPlaceholders:
         # time before the test step run occurs save developer time that building yaml tests.
         for response in self.responses_with_placeholders:
             for value in response:
-                if 'constraints' not in value:
+                if "constraints" not in value:
                     continue
-                get_constraints(value['constraints'])
+                get_constraints(value["constraints"])
 
     def _update_mappings(self, test: dict, definitions: SpecDefinitions):
         cluster_name = self.cluster
@@ -369,40 +375,26 @@ class _TestStepWithPlaceholders:
 
         if self.is_attribute:
             attribute_name = self.attribute
-            attribute = definitions.get_attribute_by_name(
-                cluster_name,
-                attribute_name
-            )
+            attribute = definitions.get_attribute_by_name(cluster_name, attribute_name)
 
             if not attribute:
                 targets = definitions.get_attribute_names(cluster_name)
                 raise TestStepAttributeKeyError(test, attribute_name, targets)
 
-            attribute_mapping = self._as_mapping(
-                definitions,
-                cluster_name,
-                attribute.definition.data_type.name
-            )
+            attribute_mapping = self._as_mapping(definitions, cluster_name, attribute.definition.data_type.name)
 
             argument_mapping = attribute_mapping
             response_mapping = attribute_mapping
             response_mapping_name = attribute.definition.data_type.name
         elif self.is_event:
             event_name = self.event
-            event = definitions.get_event_by_name(
-                cluster_name,
-                event_name
-            )
+            event = definitions.get_event_by_name(cluster_name, event_name)
 
             if not event:
                 targets = definitions.get_event_names(cluster_name)
                 raise TestStepEventKeyError(test, event_name, targets)
 
-            event_mapping = self._as_mapping(
-                definitions,
-                cluster_name,
-                event_name
-            )
+            event_mapping = self._as_mapping(definitions, cluster_name, event_name)
 
             argument_mapping = event_mapping
             response_mapping = event_mapping
@@ -425,53 +417,43 @@ class _TestStepWithPlaceholders:
             mapping_names = []
 
             for response in self.responses_with_placeholders:
-                for value in response.get('values'):
-                    if 'constraints' not in value:
+                for value in response.get("values"):
+                    if "constraints" not in value:
                         continue
 
                     mapping_name = None
-                    cluster_name = self.cluster if self.cluster != ANY_COMMANDS_CLUSTER_NAME else response.get(
-                        'cluster')
+                    cluster_name = self.cluster if self.cluster != ANY_COMMANDS_CLUSTER_NAME else response.get("cluster")
 
                     if cluster_name is not None:
-                        attribute_name = response.get('attribute')
-                        event_name = response.get('event')
-                        command_name = response.get('command')
+                        attribute_name = response.get("attribute")
+                        event_name = response.get("event")
+                        command_name = response.get("command")
 
                         if attribute_name:
-                            attribute = definitions.get_attribute_by_name(
-                                cluster_name, attribute_name)
+                            attribute = definitions.get_attribute_by_name(cluster_name, attribute_name)
 
                             if not attribute:
-                                targets = definitions.get_attribute_names(
-                                    cluster_name)
-                                test['response'] = ['...', response, '...']
-                                raise TestStepAttributeKeyError(
-                                    response, attribute_name, targets)
+                                targets = definitions.get_attribute_names(cluster_name)
+                                test["response"] = ["...", response, "..."]
+                                raise TestStepAttributeKeyError(response, attribute_name, targets)
 
                             mapping_name = attribute.definition.data_type.name
                         elif event_name:
-                            event = definitions.get_event_by_name(
-                                cluster_name, event_name)
+                            event = definitions.get_event_by_name(cluster_name, event_name)
 
                             if not event:
-                                targets = definitions.get_event_names(
-                                    cluster_name)
-                                test['response'] = ['...', response, '...']
-                                raise TestStepEventKeyError(
-                                    response, attribute_name, targets)
+                                targets = definitions.get_event_names(cluster_name)
+                                test["response"] = ["...", response, "..."]
+                                raise TestStepEventKeyError(response, attribute_name, targets)
 
                             mapping_name = event.name
                         elif command_name:
-                            command = definitions.get_command_by_name(
-                                cluster_name, command_name)
+                            command = definitions.get_command_by_name(cluster_name, command_name)
 
                             if not command:
-                                targets = definitions.get_command_names(
-                                    cluster_name)
-                                test['response'] = ['...', response, '...']
-                                raise TestStepCommandKeyError(
-                                    response, command_name, targets)
+                                targets = definitions.get_command_names(cluster_name)
+                                test["response"] = ["...", response, "..."]
+                                raise TestStepCommandKeyError(response, command_name, targets)
 
                             mapping_name = command.output_param
 
@@ -484,10 +466,7 @@ class _TestStepWithPlaceholders:
             response_mapping_name = mapping_names
         else:
             command_name = self.command
-            command = definitions.get_command_by_name(
-                cluster_name,
-                command_name
-            )
+            command = definitions.get_command_by_name(cluster_name, command_name)
 
             if not command:
                 targets = definitions.get_command_names(cluster_name)
@@ -496,17 +475,9 @@ class _TestStepWithPlaceholders:
             if command.input_param is None:
                 argument_mapping = {}
             else:
-                argument_mapping = self._as_mapping(
-                    definitions,
-                    cluster_name,
-                    command.input_param
-                )
+                argument_mapping = self._as_mapping(definitions, cluster_name, command.input_param)
 
-            response_mapping = self._as_mapping(
-                definitions,
-                cluster_name,
-                command.output_param
-            )
+            response_mapping = self._as_mapping(definitions, cluster_name, command.output_param)
             response_mapping_name = command.output_param
 
         self.argument_mapping = argument_mapping
@@ -514,7 +485,7 @@ class _TestStepWithPlaceholders:
         self.response_mapping_name = response_mapping_name
 
     def _convert_single_value_to_values(self, container):
-        if container is None or 'values' in container:
+        if container is None or "values" in container:
             return
 
         # Attribute tests pass a single value argument that does not carry a name but
@@ -522,9 +493,8 @@ class _TestStepWithPlaceholders:
         # members of the 'values' array which is what is used for other tests.
         value = {}
 
-        known_keys_to_copy = ['value', 'constraints',
-                              'saveAs', 'saveDataVersionAs']
-        known_keys_to_allow = ['error', 'clusterError']
+        known_keys_to_copy = ["value", "constraints", "saveAs", "saveDataVersionAs"]
+        known_keys_to_allow = ["error", "clusterError"]
 
         for key, item in list(container.items()):
             if key in known_keys_to_copy:
@@ -536,39 +506,36 @@ class _TestStepWithPlaceholders:
             else:
                 raise TestStepKeyError(item, key)
 
-        container['values'] = [value]
+        container["values"] = [value]
 
     def _as_mapping(self, definitions, cluster_name, target_name):
         element = definitions.get_type_by_name(cluster_name, target_name)
 
-        if hasattr(element, 'base_type'):
+        if hasattr(element, "base_type"):
             if EnumType.is_valid_type(element.base_type):
                 target_name = EnumType(element)
             else:
                 target_name = element.base_type
 
-        elif hasattr(element, 'fields'):
-            target_name = {f.name: self._as_mapping(
-                definitions, cluster_name, f.data_type.name) for f in element.fields}
+        elif hasattr(element, "fields"):
+            target_name = {f.name: self._as_mapping(definitions, cluster_name, f.data_type.name) for f in element.fields}
         elif target_name:
             target_name = target_name.lower()
 
         return target_name
 
     def update_arguments(self, arguments_with_placeholders):
-        self._update_with_definition(
-            arguments_with_placeholders, self.argument_mapping)
+        self._update_with_definition(arguments_with_placeholders, self.argument_mapping)
 
     def update_responses(self, responses_with_placeholders):
         for response in responses_with_placeholders:
-            self._update_with_definition(
-                response, self.response_mapping)
+            self._update_with_definition(response, self.response_mapping)
 
     def _update_with_definition(self, container: dict, mapping_type):
         if not container or mapping_type is None:
             return
 
-        values = container['values']
+        values = container["values"]
         if values is None:
             return
 
@@ -577,33 +544,28 @@ class _TestStepWithPlaceholders:
                 if self.is_attribute or self.is_event:
                     mapping = mapping_type
                 else:
-                    target_key = value['name']
+                    target_key = value["name"]
                     if mapping_type.get(target_key) is None:
-                        raise TestStepValueNameError(
-                            value, target_key, list(mapping_type))
+                        raise TestStepValueNameError(value, target_key, list(mapping_type))
                     mapping = mapping_type[target_key]
 
-                if key == 'value':
-                    value[key] = self._update_value_with_definition(
-                        value,
-                        key,
-                        item_value,
-                        mapping
-                    )
-                elif key == 'saveAs' and type(item_value) is str and item_value not in self._parsing_config_variable_storage:
+                if key == "value":
+                    value[key] = self._update_value_with_definition(value, key, item_value, mapping)
+                elif key == "saveAs" and type(item_value) is str and item_value not in self._parsing_config_variable_storage:
                     self._parsing_config_variable_storage[item_value] = None
-                elif key == 'saveDataVersionAs' and type(item_value) is str and item_value not in self._parsing_config_variable_storage:
+                elif (
+                    key == "saveDataVersionAs"
+                    and type(item_value) is str
+                    and item_value not in self._parsing_config_variable_storage
+                ):
                     self._parsing_config_variable_storage[item_value] = None
-                elif key == 'constraints':
+                elif key == "constraints":
                     for constraint, constraint_value in item_value.items():
                         # Only apply update_value_with_definition to constraints that have a value that depends on
                         # the the value type for the target field.
                         if is_typed_constraint(constraint):
                             value[key][constraint] = self._update_value_with_definition(
-                                item_value,
-                                constraint,
-                                constraint_value,
-                                mapping
+                                item_value, constraint, constraint_value, mapping
                             )
                 else:
                     # This key, value pair does not rely on cluster specifications.
@@ -646,18 +608,13 @@ class _TestStepWithPlaceholders:
                 # FabricIndex is a special case where the framework requires it to be passed even
                 # if it is not part of the requested arguments per spec and not part of the XML
                 # definition.
-                if item_key == 'FabricIndex' or item_key == 'fabricIndex':
+                if item_key == "FabricIndex" or item_key == "fabricIndex":
                     rv[item_key] = value[item_key]  # int64u
                 else:
                     if not mapping_type.get(item_key):
                         raise TestStepKeyError(value, item_key)
                     mapping = mapping_type[item_key]
-                    rv[item_key] = self._update_value_with_definition(
-                        value,
-                        item_key,
-                        value[item_key],
-                        mapping
-                    )
+                    rv[item_key] = self._update_value_with_definition(value, item_key, value[item_key], mapping)
             return rv
 
         if type(value) is list:
@@ -673,50 +630,49 @@ class _TestStepWithPlaceholders:
                 except (TestStepEnumError, TestStepEnumSpecifierNotUnknownError, TestStepEnumSpecifierWrongError) as e:
                     e.tag_key_with_error(container, key)
                     raise e
-            elif mapping_type == 'int64u' or mapping_type == 'int64s' or mapping_type == 'bitmap64' or mapping_type == 'epoch_us':
+            elif mapping_type == "int64u" or mapping_type == "int64s" or mapping_type == "bitmap64" or mapping_type == "epoch_us":
                 value = fixes.try_apply_float_to_integer_fix(value)
                 value = fixes.try_apply_yaml_cpp_longlong_limitation_fix(value)
-                value = fixes.try_apply_yaml_unrepresentable_integer_for_javascript_fixes(
-                    value)
-            elif mapping_type == 'single' or mapping_type == 'double':
+                value = fixes.try_apply_yaml_unrepresentable_integer_for_javascript_fixes(value)
+            elif mapping_type == "single" or mapping_type == "double":
                 value = fixes.try_apply_yaml_float_written_as_strings(value)
-            elif isinstance(value, float) and mapping_type != 'single' and mapping_type != 'double':
+            elif isinstance(value, float) and mapping_type != "single" and mapping_type != "double":
                 value = fixes.try_apply_float_to_integer_fix(value)
-            elif mapping_type == 'octet_string' or mapping_type == 'long_octet_string':
+            elif mapping_type == "octet_string" or mapping_type == "long_octet_string":
                 value = fixes.convert_yaml_octet_string_to_bytes(value)
-            elif mapping_type == 'boolean':
+            elif mapping_type == "boolean":
                 value = bool(value)
 
         return value
 
     def __is_attribute_command(self) -> bool:
         commands = {
-            'readAttribute',
-            'writeAttribute',
-            'subscribeAttribute',
-            'waitForReport',
+            "readAttribute",
+            "writeAttribute",
+            "subscribeAttribute",
+            "waitForReport",
         }
 
         return self.attribute and (self.command in commands or self.wait_for in commands)
 
     def __is_event_command(self) -> bool:
         commands = {
-            'readEvent',
-            'subscribeEvent',
-            'waitForReport',
+            "readEvent",
+            "subscribeEvent",
+            "waitForReport",
         }
 
         return self.event and (self.command in commands or self.wait_for in commands)
 
 
 class TestStep:
-    '''A single YAML test action parsed from YAML.
+    """A single YAML test action parsed from YAML.
 
     This object contains all the information required for a test runner to execute the test step.
     It also provide a function that is expected to be called by the test runner to post process
     the recieved response from the accessory. Post processing both validates recieved response
     and saves any variables that might be required but test step that have yet to be executed.
-    '''
+    """
 
     def __init__(self, test: _TestStepWithPlaceholders, step_index: int, runtime_config_variable_storage: dict):
         self._test = test
@@ -727,32 +683,19 @@ class TestStep:
         if test.is_pics_enabled:
             self._update_placeholder_values(self.arguments)
             self._update_placeholder_values(self.responses)
-            self._test.data_version = self._config_variable_substitution(
-                self._test.data_version)
-            self._test.node_id = self._config_variable_substitution(
-                self._test.node_id)
-            self._test.run_if = self._config_variable_substitution(
-                self._test.run_if)
-            self._test.event_number = self._config_variable_substitution(
-                self._test.event_number)
-            self._test.cluster = self._config_variable_substitution(
-                self._test.cluster)
-            self._test.command = self._config_variable_substitution(
-                self._test.command)
-            self._test.attribute = self._config_variable_substitution(
-                self._test.attribute)
-            self._test.event = self._config_variable_substitution(
-                self._test.event)
-            self._test.endpoint = self._config_variable_substitution(
-                self._test.endpoint)
-            self._test.group_id = self._config_variable_substitution(
-                self._test.group_id)
-            self._test.node_id = self._config_variable_substitution(
-                self._test.node_id)
-            self._test.min_revision = self._config_variable_substitution(
-                self._test.min_revision)
-            self._test.max_revision = self._config_variable_substitution(
-                self._test.max_revision)
+            self._test.data_version = self._config_variable_substitution(self._test.data_version)
+            self._test.node_id = self._config_variable_substitution(self._test.node_id)
+            self._test.run_if = self._config_variable_substitution(self._test.run_if)
+            self._test.event_number = self._config_variable_substitution(self._test.event_number)
+            self._test.cluster = self._config_variable_substitution(self._test.cluster)
+            self._test.command = self._config_variable_substitution(self._test.command)
+            self._test.attribute = self._config_variable_substitution(self._test.attribute)
+            self._test.event = self._config_variable_substitution(self._test.event)
+            self._test.endpoint = self._config_variable_substitution(self._test.endpoint)
+            self._test.group_id = self._config_variable_substitution(self._test.group_id)
+            self._test.node_id = self._config_variable_substitution(self._test.node_id)
+            self._test.min_revision = self._config_variable_substitution(self._test.min_revision)
+            self._test.max_revision = self._config_variable_substitution(self._test.max_revision)
             test.update_arguments(self.arguments)
             test.update_responses(self.responses)
 
@@ -902,10 +845,12 @@ class TestStep:
             # Ensure values are integers for comparison
             cluster_revision = int(cluster_revision)
 
-            return all([
-                (self.min_revision is None) or (cluster_revision >= int(self.min_revision)),
-                (self.max_revision is None) or (cluster_revision <= int(self.max_revision)),
-            ])
+            return all(
+                [
+                    (self.min_revision is None) or (cluster_revision >= int(self.min_revision)),
+                    (self.max_revision is None) or (cluster_revision <= int(self.max_revision)),
+                ]
+            )
         except (ValueError, TypeError) as e:
             # Failed to convert revision to int. This can happen with malformed YAML.
             raise ValueError(
@@ -926,7 +871,7 @@ class TestStep:
         for response in responses:
             if not isinstance(response, dict):
                 continue
-            received_event_number = response.get('eventNumber')
+            received_event_number = response.get("eventNumber")
 
             if not isinstance(received_event_number, int):
                 continue
@@ -955,22 +900,23 @@ class TestStep:
         if self.is_event:
             last_event_number = self._get_last_event_number(received_responses)
             if last_event_number:
-                if 'LastReceivedEventNumber' in self._runtime_config_variable_storage:
-                    if self._runtime_config_variable_storage['LastReceivedEventNumber'] > last_event_number:
+                if "LastReceivedEventNumber" in self._runtime_config_variable_storage:
+                    if self._runtime_config_variable_storage["LastReceivedEventNumber"] > last_event_number:
                         LOGGER.warning(
                             "Received an older event than expected: received %r < %r",
                             last_event_number,
-                            self._runtime_config_variable_storage['LastReceivedEventNumber']
+                            self._runtime_config_variable_storage["LastReceivedEventNumber"],
                         )
-                self._runtime_config_variable_storage['LastReceivedEventNumber'] = last_event_number
+                self._runtime_config_variable_storage["LastReceivedEventNumber"] = last_event_number
 
         if self.wait_for is not None:
             self._response_cluster_wait_validation(received_responses, result)
             return result
 
         check_type = PostProcessCheckType.RESPONSE_VALIDATION
-        error_failure_wrong_response_number = (f'The test expects {len(self.responses)} responses '
-                                               f'but got {len(received_responses)} responses.')
+        error_failure_wrong_response_number = (
+            f"The test expects {len(self.responses)} responses but got {len(received_responses)} responses."
+        )
 
         received_responses_copy = copy.deepcopy(received_responses)
         for expected_response in self.responses:
@@ -978,20 +924,13 @@ class TestStep:
                 result.error(check_type, error_failure_wrong_response_number)
                 return result
             received_response = received_responses_copy.pop(0)
-            self._response_error_validation(
-                expected_response, received_response, result)
-            self._response_cluster_error_validation(
-                expected_response, received_response, result)
-            self._response_values_source_validation(
-                expected_response, received_response, result)
-            self._response_values_validation(
-                expected_response, received_response, result)
-            self._response_constraints_validation(
-                expected_response, received_response, result)
-            self._maybe_save_as('saveAs', 'value',
-                                expected_response, received_response, result)
-            self._maybe_save_as('saveDataVersionAs', 'dataVersion',
-                                expected_response, received_response, result)
+            self._response_error_validation(expected_response, received_response, result)
+            self._response_cluster_error_validation(expected_response, received_response, result)
+            self._response_values_source_validation(expected_response, received_response, result)
+            self._response_values_validation(expected_response, received_response, result)
+            self._response_constraints_validation(expected_response, received_response, result)
+            self._maybe_save_as("saveAs", "value", expected_response, received_response, result)
+            self._maybe_save_as("saveDataVersionAs", "dataVersion", expected_response, received_response, result)
 
         # An empty response array in a test step (responses: []) implies that the test step does expect a response
         # but without any associated value.
@@ -1000,7 +939,7 @@ class TestStep:
             return result
         # This is different from the case where no response is specified at all, which implies that the step expect
         # a success with any associatied value(s).
-        if self.responses == [{'values': [{}]}] and len(received_responses_copy):
+        if self.responses == [{"values": [{}]}] and len(received_responses_copy):
             # if there are multiple responses and the test specifies that it does not really care
             # about which values are returned, that is valid too.
             return result
@@ -1013,8 +952,8 @@ class TestStep:
 
     def _response_cluster_wait_validation(self, received_responses, result):
         """Check if the response concrete path matches the configuration of the test step
-           and validate that the response type (e.g readAttribute/writeAttribute/...) matches
-           the expectation from the test step."""
+        and validate that the response type (e.g readAttribute/writeAttribute/...) matches
+        the expectation from the test step."""
         check_type = PostProcessCheckType.WAIT_VALIDATION
         error_success = 'The test expectation "{wait_for}" for "{cluster}.{wait_type}" on endpoint {endpoint} is true'
         error_failure = 'The test expectation "{expected} == {received}" is false'
@@ -1026,75 +965,68 @@ class TestStep:
 
         if self.is_attribute:
             expected_wait_type = self.attribute
-            received_wait_type = received_response.get('attribute')
+            received_wait_type = received_response.get("attribute")
         elif self.is_event:
             expected_wait_type = self.event
-            received_wait_type = received_response.get('event')
+            received_wait_type = received_response.get("event")
         else:
             expected_wait_type = self.command
-            received_wait_type = received_response.get('command')
+            received_wait_type = received_response.get("command")
 
         expected_values = [
             self.wait_for,
             self.endpoint,
             # TODO The name in tests does not always use spaces
-            self.cluster.replace(' ', ''),
-            expected_wait_type
+            self.cluster.replace(" ", ""),
+            expected_wait_type,
         ]
 
-        wait_for_str = received_response.get('wait_for')
+        wait_for_str = received_response.get("wait_for")
         if not wait_for_str:
-            wait_for_str = received_response.get('command')
+            wait_for_str = received_response.get("command")
 
-        received_values = [
-            wait_for_str,
-            received_response.get('endpoint'),
-            received_response.get('cluster'),
-            received_wait_type
-        ]
+        received_values = [wait_for_str, received_response.get("endpoint"), received_response.get("cluster"), received_wait_type]
 
         success = True
         for expected_value in expected_values:
             received_value = received_values.pop(0)
 
             if expected_value != received_value:
-                result.error(check_type, error_failure.format(
-                    expected=expected_value, received=received_value))
+                result.error(check_type, error_failure.format(expected=expected_value, received=received_value))
                 success = False
 
         if success:
-            result.success(check_type, error_success.format(
-                wait_for=self.wait_for, cluster=self.cluster, wait_type=expected_wait_type, endpoint=self.endpoint))
+            result.success(
+                check_type,
+                error_success.format(
+                    wait_for=self.wait_for, cluster=self.cluster, wait_type=expected_wait_type, endpoint=self.endpoint
+                ),
+            )
 
     def _response_error_validation(self, expected_response, received_response, result):
         check_type = PostProcessCheckType.IM_STATUS
         error_success = 'The test expects the "{error}" error which occured successfully.'
-        error_success_no_error = 'The test expects no error and no error occurred.'
+        error_success_no_error = "The test expects no error and no error occurred."
         error_wrong_error = 'The test expects the "{error}" error but the "{value}" error occured.'
         error_unexpected_error = 'The test expects no error but the "{error}" error occured.'
         error_unexpected_success = 'The test expects the "{error}" error but no error occured.'
 
-        expected_error = expected_response.get(
-            'error') if expected_response else None
-        received_error = received_response.get('error')
+        expected_error = expected_response.get("error") if expected_response else None
+        received_error = received_response.get("error")
 
         if expected_error and received_error and expected_error == received_error:
-            result.success(check_type, error_success.format(
-                error=expected_error))
+            result.success(check_type, error_success.format(error=expected_error))
         elif expected_error and received_error:
-            result.error(check_type, error_wrong_error.format(
-                error=expected_error, value=received_error))
+            result.error(check_type, error_wrong_error.format(error=expected_error, value=received_error))
         elif expected_error and not received_error:
-            result.error(check_type, error_unexpected_success.format(
-                error=expected_error))
+            result.error(check_type, error_unexpected_success.format(error=expected_error))
         elif not expected_error and received_error:
-            result.error(check_type, error_unexpected_error.format(
-                error=received_error))
+            result.error(check_type, error_unexpected_error.format(error=received_error))
         elif not expected_error and not received_error:
             result.success(check_type, error_success_no_error)
         else:
             # This should not happens
-            raise AssertionError('This should not happens.')
+            raise AssertionError("This should not happens.")
 
     def _response_cluster_error_validation(self, expected_response, received_response, result):
         check_type = PostProcessCheckType.CLUSTER_STATUS
@@ -1102,36 +1034,36 @@ class TestStep:
         error_unexpected_success = 'The test expects the "{error}" error but no error occured.'
         error_wrong_error = 'The test expects the "{error}" error but the "{value}" error occured.'
 
-        expected_error = expected_response.get('clusterError')
-        received_error = received_response.get('clusterError')
+        expected_error = expected_response.get("clusterError")
+        received_error = received_response.get("clusterError")
 
         if expected_error:
             if received_error and expected_error == received_error:
-                result.success(check_type, error_success.format(
-                    error=expected_error))
+                result.success(check_type, error_success.format(error=expected_error))
             elif received_error:
-                result.error(check_type, error_wrong_error.format(
-                    error=expected_error, value=received_error))
+                result.error(check_type, error_wrong_error.format(error=expected_error, value=received_error))
             else:
-                result.error(check_type, error_unexpected_success.format(
-                    error=expected_error))
+                result.error(check_type, error_unexpected_success.format(error=expected_error))
         else:
             # Nothing is logged here to not be redundant with the generic error checking code.
             pass
 
     def _response_values_source_validation(self, expected_response, received_response, result):
         check_type = PostProcessCheckType.RESPONSE_VALIDATION
-        error_value_wrong_source = 'The test expects a value from {source_name} "{expected}" but it received a value from {source_name} "{received}".'
+        error_value_wrong_source = (
+            'The test expects a value from {source_name} "{expected}" but it received a value from {source_name} "{received}".'
+        )
 
-        sources = ['endpoint', 'cluster', 'attribute']
+        sources = ["endpoint", "cluster", "attribute"]
         for source_name in sources:
             expected = expected_response.get(source_name)
             received = received_response.get(source_name)
             success = expected is None or received is None or expected == received
 
             if not success:
-                result.error(check_type, error_value_wrong_source.format(
-                    source_name=source_name, expected=expected, received=received))
+                result.error(
+                    check_type, error_value_wrong_source.format(source_name=source_name, expected=expected, received=received)
+                )
 
     def _response_values_validation(self, expected_response, received_response, result):
         check_type = PostProcessCheckType.RESPONSE_VALIDATION
@@ -1140,34 +1072,29 @@ class TestStep:
         error_name_does_not_exist = 'The test expects a value named "{name}" but it does not exists in the response."'
         error_value_does_not_exist = 'The test expects a value but it does not exists in the response."'
 
-        for value in expected_response['values']:
-            if 'value' not in value:
+        for value in expected_response["values"]:
+            if "value" not in value:
                 continue
 
-            expected_name = 'value'
+            expected_name = "value"
             if expected_name not in received_response:
-                result.error(
-                    check_type, error_value_does_not_exist)
+                result.error(check_type, error_value_does_not_exist)
                 break
 
-            received_value = received_response.get('value')
+            received_value = received_response.get("value")
             if not self.is_attribute and not self.is_event and self.command not in ANY_COMMANDS_LIST:
-                expected_name = value.get('name')
+                expected_name = value.get("name")
                 if expected_name not in received_value:
-                    result.error(check_type, error_name_does_not_exist.format(
-                        name=expected_name))
+                    result.error(check_type, error_name_does_not_exist.format(name=expected_name))
                     continue
 
-                received_value = received_value.get(
-                    expected_name) if received_value else None
+                received_value = received_value.get(expected_name) if received_value else None
 
-            expected_value = value.get('value')
+            expected_value = value.get("value")
             if self._response_value_validation(expected_value, received_value):
-                result.success(check_type, error_success.format(
-                    name=expected_name, value=expected_value))
+                result.success(check_type, error_success.format(name=expected_name, value=expected_value))
             else:
-                result.error(check_type, error_failure.format(
-                    name=expected_name, actual=received_value, value=expected_value))
+                result.error(check_type, error_failure.format(name=expected_name, actual=received_value, value=expected_value))
 
     def _response_value_validation(self, expected_value, received_value):
         if isinstance(expected_value, list):
@@ -1189,40 +1116,37 @@ class TestStep:
 
     def _response_constraints_validation(self, expected_response, received_response, result):
         check_type = PostProcessCheckType.CONSTRAINT_VALIDATION
-        error_success = 'Constraints check passed'
-        error_failure = 'Constraints check failed'
+        error_success = "Constraints check passed"
+        error_failure = "Constraints check failed"
 
         response_type_name = self._test.response_mapping_name
-        for value in expected_response['values']:
-            if 'constraints' not in value:
+        for value in expected_response["values"]:
+            if "constraints" not in value:
                 continue
 
-            received_value = received_response.get('value')
+            received_value = received_response.get("value")
             if self.command in ANY_COMMANDS_LIST:
                 response_type_name = response_type_name.pop(0)
             elif not self.is_attribute and not self.is_event:
-                expected_name = value.get('name')
+                expected_name = value.get("name")
                 if received_value is None or expected_name not in received_value:
                     received_value = None
                 else:
-                    received_value = received_value.get(
-                        expected_name) if received_value else None
+                    received_value = received_value.get(expected_name) if received_value else None
 
                 if self._test.response_mapping:
-                    response_type_name = self._test.response_mapping.get(
-                        expected_name)
+                    response_type_name = self._test.response_mapping.get(expected_name)
                 else:
                     # We don't have a mapping for this type. This happens for pseudo clusters.
                     # If there is a constraint check for the type it is likely an incorrect
                     # constraint check by the test writter.
                     response_type_name = None
 
-            constraints = get_constraints(value['constraints'])
+            constraints = get_constraints(value["constraints"])
 
             for constraint in constraints:
                 try:
-                    constraint.validate(
-                        received_value, response_type_name, self._runtime_config_variable_storage)
+                    constraint.validate(received_value, response_type_name, self._runtime_config_variable_storage)
                     result.success(check_type, error_success)
                 except TestStepError as e:
                     e.update_context(expected_response, self.step_index)
@@ -1233,25 +1157,22 @@ class TestStep:
         error_success = 'The test save the value "{value}" as {name}.'
         error_name_does_not_exist = 'The test expects a value named "{name}" but it does not exists in the response."'
 
-        for value in expected_response['values']:
+        for value in expected_response["values"]:
             if key not in value:
                 continue
 
             received_value = received_response.get(default_target)
             if not self.is_attribute and not self.is_event and self.command not in ANY_COMMANDS_LIST:
-                expected_name = value.get('name')
+                expected_name = value.get("name")
                 if received_value is None or expected_name not in received_value:
-                    result.error(check_type, error_name_does_not_exist.format(
-                        name=expected_name))
+                    result.error(check_type, error_name_does_not_exist.format(name=expected_name))
                     continue
 
-                received_value = received_value.get(
-                    expected_name) if received_value else None
+                received_value = received_value.get(expected_name) if received_value else None
 
             save_as = value.get(key)
             self._runtime_config_variable_storage[save_as] = received_value
-            result.success(check_type, error_success.format(
-                value=received_value, name=save_as))
+            result.success(check_type, error_success.format(value=received_value, name=save_as))
 
     def _update_placeholder_values(self, containers):
         if not containers:
@@ -1261,20 +1182,18 @@ class TestStep:
             containers = [containers]
 
         for container in containers:
-            values = container['values']
+            values = container["values"]
             for idx, item in enumerate(values):
-                if 'value' in item:
-                    values[idx]['value'] = self._config_variable_substitution(
-                        item['value'])
+                if "value" in item:
+                    values[idx]["value"] = self._config_variable_substitution(item["value"])
 
-                if 'constraints' in item:
-                    for constraint, constraint_value in item['constraints'].items():
+                if "constraints" in item:
+                    for constraint, constraint_value in item["constraints"].items():
                         if is_variable_aware_constraint(constraint):
                             continue
-                        values[idx]['constraints'][constraint] = self._config_variable_substitution(
-                            constraint_value)
+                        values[idx]["constraints"][constraint] = self._config_variable_substitution(constraint_value)
 
-            container['values'] = values
+            container["values"] = values
 
     def _config_variable_substitution(self, value):
         if type(value) is list:
@@ -1282,8 +1201,7 @@ class TestStep:
         if type(value) is dict:
             mapped_value = {}
             for key in value:
-                mapped_value[key] = self._config_variable_substitution(
-                    value[key])
+                mapped_value[key] = self._config_variable_substitution(value[key])
             return mapped_value
         if type(value) is str:
             # For most tests, a single config variable is used and it can be replaced as in.
@@ -1298,8 +1216,8 @@ class TestStep:
             for idx, token in enumerate(tokens):
                 if token in self._runtime_config_variable_storage:
                     variable_info = self._runtime_config_variable_storage[token]
-                    if type(variable_info) is dict and 'defaultValue' in variable_info:
-                        variable_info = variable_info['defaultValue']
+                    if type(variable_info) is dict and "defaultValue" in variable_info:
+                        variable_info = variable_info["defaultValue"]
                     tokens[idx] = variable_info
                     substitution_occured = True
 
@@ -1307,7 +1225,7 @@ class TestStep:
                 return tokens[0]
 
             tokens = [str(token) for token in tokens]
-            value = ''.join(tokens)
+            value = "".join(tokens)
             # TODO we should move away from eval. That will mean that we will need to do extra
             # parsing, but it would be safer then just blindly running eval.
             return value if not substitution_occured else eval(value)
@@ -1315,7 +1233,7 @@ class TestStep:
 
 
 class YamlTests:
-    '''Parses YAML tests and becomes an iterator to provide 'TestStep's
+    """Parses YAML tests and becomes an iterator to provide 'TestStep's
 
     The provided TestStep is expected to be used by a runner/adapter to run the test step and
     provide the response from the device to the TestStep object.
@@ -1323,17 +1241,15 @@ class YamlTests:
     Currently this is a one time use object. Eventually this should be refactored to take a
     runner/adapter as an argument and run through all test steps and should be reusable for
     multiple runs.
-    '''
+    """
 
     def __init__(self, parsing_config_variable_storage: dict, definitions: SpecDefinitions, pics_checker: PICSChecker, tests: dict):
         self._parsing_config_variable_storage = parsing_config_variable_storage
-        self._runtime_config_variable_storage = copy.deepcopy(
-            parsing_config_variable_storage)
+        self._runtime_config_variable_storage = copy.deepcopy(parsing_config_variable_storage)
         self._definitions = definitions
         self._pics_checker = pics_checker
 
-        tests_with_cluster_revision_injections = self._tests_with_cluster_revision_checks(
-            tests)
+        tests_with_cluster_revision_injections = self._tests_with_cluster_revision_checks(tests)
 
         # Build list of enabled tests from the starting point where pseudo steps are added/injected for
         # things like min/maxRevision tests.
@@ -1341,15 +1257,15 @@ class YamlTests:
         try:
             for step_index, step in enumerate(tests_with_cluster_revision_injections):
                 test_with_placeholders = _TestStepWithPlaceholders(
-                    step, self._parsing_config_variable_storage, definitions, pics_checker)
+                    step, self._parsing_config_variable_storage, definitions, pics_checker
+                )
                 if test_with_placeholders.is_enabled:
                     enabled_tests.append(test_with_placeholders)
         except TestStepError as e:
             e.update_context(step, step_index)
             raise
 
-        fixes.try_update_yaml_node_id_test_runner_state(
-            enabled_tests, self._parsing_config_variable_storage)
+        fixes.try_update_yaml_node_id_test_runner_state(enabled_tests, self._parsing_config_variable_storage)
 
         self._tests = enabled_tests
         self._index = 0
@@ -1359,20 +1275,18 @@ class YamlTests:
         """Injection Logic for synthetic steps needed to process cluster revision checks."""
 
         # Pre-pass: Find all (endpoint, cluster) pairs that *need* a revision check.
-        default_endpoint = self._get_config_value(
-            self._parsing_config_variable_storage, 'endpoint')
-        default_cluster = self._get_config_value(
-            self._parsing_config_variable_storage, 'cluster')
+        default_endpoint = self._get_config_value(self._parsing_config_variable_storage, "endpoint")
+        default_cluster = self._get_config_value(self._parsing_config_variable_storage, "cluster")
 
         needed_revisions = set()  # Set of (endpoint, cluster) tuples
         for step in tests:
             # A step needs a revision check if it has min/maxRevision and is not disabled.
-            if 'disabled' in step and step['disabled']:
+            if "disabled" in step and step["disabled"]:
                 continue
 
-            if 'minRevision' in step or 'maxRevision' in step:
-                endpoint = step.get('endpoint', default_endpoint)
-                cluster = step.get('cluster', default_cluster)
+            if "minRevision" in step or "maxRevision" in step:
+                endpoint = step.get("endpoint", default_endpoint)
+                cluster = step.get("cluster", default_cluster)
 
                 if endpoint is not None and cluster is not None:
                     needed_revisions.add((endpoint, cluster))
@@ -1382,11 +1296,11 @@ class YamlTests:
         seen_injections = set()  # Set of (endpoint, cluster) tuples
 
         for step in tests:
-            endpoint = step.get('endpoint', default_endpoint)
-            cluster = step.get('cluster', default_cluster)
+            endpoint = step.get("endpoint", default_endpoint)
+            cluster = step.get("cluster", default_cluster)
             key = (endpoint, cluster)
-            is_disabled = 'disabled' in step and step['disabled']
-            step_has_revision_condition = 'minRevision' in step or 'maxRevision' in step
+            is_disabled = "disabled" in step and step["disabled"]
+            step_has_revision_condition = "minRevision" in step or "maxRevision" in step
 
             # Determine if an enabled step is the first that would need a cluster revision not yet read.
             # Prepend the read to such steps.
@@ -1403,17 +1317,12 @@ class YamlTests:
                     self._runtime_config_variable_storage[revision_var_name] = None
 
                 injected_step = {
-                    'label': f'Read ClusterRevision for conditions (EP: {endpoint}, CL: {cluster})',
-                    'cluster': cluster,
-                    'endpoint': endpoint,
-                    'command': 'readAttribute',
-                    'attribute': 'ClusterRevision',
-                    'response': {
-                        'saveAs': revision_var_name,
-                        'constraints': {
-                            'type': 'int16u'
-                        }
-                    }
+                    "label": f"Read ClusterRevision for conditions (EP: {endpoint}, CL: {cluster})",
+                    "cluster": cluster,
+                    "endpoint": endpoint,
+                    "command": "readAttribute",
+                    "attribute": "ClusterRevision",
+                    "response": {"saveAs": revision_var_name, "constraints": {"type": "int16u"}},
                 }
 
                 injected_tests.append(injected_step)
@@ -1425,8 +1334,8 @@ class YamlTests:
 
     def _get_config_value(self, config_storage, key):
         value = config_storage.get(key)
-        if isinstance(value, dict) and 'defaultValue' in value:
-            return value['defaultValue']
+        if isinstance(value, dict) and "defaultValue" in value:
+            return value["defaultValue"]
         return value
 
     def set_runtime_variable(self, name: str, value: Any) -> None:
@@ -1443,8 +1352,7 @@ class YamlTests:
     def __next__(self) -> TestStep:
         if self._index < self.count:
             test = self._tests[self._index]
-            test_step = TestStep(test, self._index + 1,
-                                 self._runtime_config_variable_storage)
+            test_step = TestStep(test, self._index + 1, self._runtime_config_variable_storage)
             self._index += 1
             return test_step
 
@@ -1469,13 +1377,8 @@ class TestParser:
         self.filename = filename
         self.name = name
         self.PICS = pics
-        self.tests = YamlTests(
-            config,
-            parser_config.definitions,
-            PICSChecker(parser_config.pics),
-            tests
-        )
-        self.timeout = config['timeout']
+        self.tests = YamlTests(config, parser_config.definitions, PICSChecker(parser_config.pics), tests)
+        self.timeout = config["timeout"]
         self.definitions = parser_config.definitions
 
     def __apply_config_override(self, config, config_override):
@@ -1483,33 +1386,31 @@ class TestParser:
             if value is None or key not in config:
                 continue
 
-            is_node_id = key == 'nodeId' or (isinstance(
-                config[key], dict) and config[key].get('type') == 'node_id')
+            is_node_id = key == "nodeId" or (isinstance(config[key], dict) and config[key].get("type") == "node_id")
 
             if type(value) is str:
-                if key == 'timeout' or key == 'endpoint':
+                if key == "timeout" or key == "endpoint":
                     value = int(value)
-                elif is_node_id and value.startswith('0x'):
+                elif is_node_id and value.startswith("0x"):
                     value = int(value, 16)
                 elif is_node_id:
                     value = int(value)
 
-            if isinstance(config[key], dict) and 'defaultValue' in config[key]:
-                config[key]['defaultValue'] = value
+            if isinstance(config[key], dict) and "defaultValue" in config[key]:
+                config[key]["defaultValue"] = value
             else:
                 config[key] = value
 
     def __apply_legacy_config(self, config):
         # These are a list of "KnownVariables". These are defaults the codegen used to use. This
         # is added for legacy support of tests that expect to uses these "defaults".
-        self.__apply_legacy_config_if_missing(config, 'nodeId', 0x12345)
-        self.__apply_legacy_config_if_missing(config, 'endpoint', '')
-        self.__apply_legacy_config_if_missing(config, 'cluster', '')
-        self.__apply_legacy_config_if_missing(config, 'timeout', 90)
+        self.__apply_legacy_config_if_missing(config, "nodeId", 0x12345)
+        self.__apply_legacy_config_if_missing(config, "endpoint", "")
+        self.__apply_legacy_config_if_missing(config, "cluster", "")
+        self.__apply_legacy_config_if_missing(config, "timeout", 90)
 
         # These values are default runtime values (non-legacy)
-        self.__apply_legacy_config_if_missing(
-            config, 'LastReceivedEventNumber', 0)
+        self.__apply_legacy_config_if_missing(config, "LastReceivedEventNumber", 0)
 
     def __apply_legacy_config_if_missing(self, config, key, value):
         if key not in config:

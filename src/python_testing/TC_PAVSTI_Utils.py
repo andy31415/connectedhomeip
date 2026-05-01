@@ -71,23 +71,10 @@ class PushAvServerProcess(Subprocess):
         self.base_url = f"https://{self.host}:{self.port}"
         # Build the command list
         command = ["python3", server_path]
-        command.extend(
-            [
-                "--host",
-                str(self.host),
-                "--working-directory",
-                self._working_directory,
-                "--strict-mode"
-            ]
-        )
+        command.extend(["--host", str(self.host), "--working-directory", self._working_directory, "--strict-mode"])
 
         if server_ip:
-            command.extend(
-                [
-                    "--server-ip",
-                    server_ip
-                ]
-            )
+            command.extend(["--server-ip", server_ip])
 
         # Start the server application
         super().__init__(
@@ -141,8 +128,8 @@ class PushAvServerProcess(Subprocess):
 
     def update_track_name(self, stream_id: str, trackName: str) -> None:
         """
-            Request the server to add a track name associated with stream_id.
-            This is required to validate trackName of the segments that are uploaded.
+        Request the server to add a track name associated with stream_id.
+        This is required to validate trackName of the segments that are uploaded.
         """
         self._post_json(endpoint=f"/streams/{stream_id}/trackName", data={"track_name": trackName})
 
@@ -159,7 +146,7 @@ class PAVSTIUtils:
 
         for iface, addrs in psutil.net_if_addrs().items():
             for addr in addrs:
-                if addr.family.name == 'AF_INET':
+                if addr.family.name == "AF_INET":
                     ip = addr.address
                     ip_obj = ipaddress.ip_address(ip)
                     if ip_obj.is_private:
@@ -175,9 +162,7 @@ class PAVSTIUtils:
 
         raise RuntimeError("No private IP found, specify using --string-arg host_ip <IPv4>")
 
-    async def precondition_provision_tls_endpoint(
-        self, server: PushAvServerProcess, host_ip: str | None = None
-    ) -> int:
+    async def precondition_provision_tls_endpoint(self, server: PushAvServerProcess, host_ip: str | None = None) -> int:
         """Perform provisioning steps to set up TLS endpoint."""
         if host_ip is None:
             # If no host ip specified, try to get private ip
@@ -200,11 +185,9 @@ class PAVSTIUtils:
         server.sign_csr(csr_result.csr)
         device_cert_der = server.get_device_certificate()
 
-        await tls_utils.send_provision_client_command(
-            certificate=device_cert_der, ccdid=csr_result.ccdid
-        )
+        await tls_utils.send_provision_client_command(certificate=device_cert_der, ccdid=csr_result.ccdid)
         result = await tls_utils.send_provision_tls_endpoint_command(
-            hostname=host_ip.encode('utf-8'),
+            hostname=host_ip.encode("utf-8"),
             port=1234,
             expected_status=Status.Success,
             caid=prc_result.caid,
@@ -213,7 +196,6 @@ class PAVSTIUtils:
         return result.endpointID, host_ip
 
     async def postcondition_remove_tls_endpoint(self, tlsEndPoint):
-
         # Make sure the passed in values are not None.
         # This could happen in the unlikely event the test script fails prior to setting of any of these values (which would
         # be prior to the TLS EP being set).
@@ -221,6 +203,4 @@ class PAVSTIUtils:
             return
 
         tls_utils = TLSUtils(self, endpoint=0)
-        await tls_utils.send_remove_tls_endpoint_command(
-            endpoint_id=tlsEndPoint
-        )
+        await tls_utils.send_remove_tls_endpoint_command(endpoint_id=tlsEndPoint)

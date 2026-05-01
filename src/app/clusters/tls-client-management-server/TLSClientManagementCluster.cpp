@@ -53,8 +53,8 @@ constexpr DataModel::AcceptedCommandEntry kAcceptedCommands[] = {
 TLSClientManagementCluster::TLSClientManagementCluster(const Context & context, EndpointId endpointId,
                                                        TLSClientManagementDelegate & delegate, CertificateTable & certificateTable,
                                                        uint8_t maxProvisioned) :
-    DefaultServerCluster({ endpointId, TlsClientManagement::Id }),
-    mContext(context), mDelegate(delegate), mCertificateTable(certificateTable), mMaxProvisioned(maxProvisioned)
+    DefaultServerCluster({ endpointId, TlsClientManagement::Id }), mContext(context), mDelegate(delegate),
+    mCertificateTable(certificateTable), mMaxProvisioned(maxProvisioned)
 {
     VerifyOrDieWithMsg(mMaxProvisioned >= 5, NotSpecified, "Spec requires MaxProvisioned be >= 5");
     VerifyOrDieWithMsg(mMaxProvisioned <= 254, NotSpecified, "Spec requires MaxProvisioned be <= 254");

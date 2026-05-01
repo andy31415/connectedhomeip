@@ -21,10 +21,8 @@ import sys
 
 def main():
     parser = argparse.ArgumentParser(description="Generate D-Bus bindings")
-    parser.add_argument("--output-c",
-                        help="The source file to generate containing the GDBus proxy implementation")
-    parser.add_argument("--output-h",
-                        help="The header file to generate containing the GDBus proxy interface")
+    parser.add_argument("--output-c", help="The source file to generate containing the GDBus proxy implementation")
+    parser.add_argument("--output-h", help="The header file to generate containing the GDBus proxy interface")
     # Parse our options and forward anything else.
     options, extra_args = parser.parse_known_args()
 
@@ -44,17 +42,20 @@ def main():
         # Code generated with new gdbus-codegen adds checks for `GLIB_VERSION_2_84` which might
         # not yet be defined when compiling with older glib versions (e.g. cross-compilation).
         # This manually provided definition solves the problem with undefined identifiers.
-        content = content.replace("G_BEGIN_DECLS", """
+        content = content.replace(
+            "G_BEGIN_DECLS",
+            """
 #ifndef GLIB_VERSION_2_84
 #define GLIB_VERSION_2_84 G_ENCODE_VERSION(2, 84)
 #endif
 G_BEGIN_DECLS
-""")
+""",
+        )
         with open(options.output_h, "w") as f:
             f.write(content)
 
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

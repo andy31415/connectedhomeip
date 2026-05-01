@@ -28,9 +28,9 @@ from .errors import TestStepError
 from .fixes import fix_typed_yaml_value
 
 
-def print_to_log(*objects, sep=' ', end=None):
+def print_to_log(*objects, sep=" ", end=None):
     # Try to fit in with the test logger output format
-    print('\n\t\t    ' + sep.join(str(arg) for arg in objects))
+    print("\n\t\t    " + sep.join(str(arg) for arg in objects))
 
 
 class ConstraintParseError(Exception):
@@ -47,104 +47,104 @@ class ConstraintCheckError(TestStepError):
 
 class ConstraintTypeError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'type', reason)
+        super().__init__(context, "type", reason)
 
 
 class ConstraintContainsError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'contains', reason)
+        super().__init__(context, "contains", reason)
 
 
 class ConstraintExcludesError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'excludes', reason)
+        super().__init__(context, "excludes", reason)
 
 
 class ConstraintHasMaskClearError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'hasMasksClear', reason)
+        super().__init__(context, "hasMasksClear", reason)
 
 
 class ConstraintHasMaskSetError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'hasMasksSet', reason)
+        super().__init__(context, "hasMasksSet", reason)
 
 
 class ConstraintHasValueError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'hasValue', reason)
+        super().__init__(context, "hasValue", reason)
 
 
 class ConstraintMinLengthError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'minLength', reason)
+        super().__init__(context, "minLength", reason)
 
 
 class ConstraintMaxLengthError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'maxLength', reason)
+        super().__init__(context, "maxLength", reason)
 
 
 class ConstraintIsHexStringError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'isHexString', reason)
+        super().__init__(context, "isHexString", reason)
 
 
 class ConstraintStartsWithError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'startsWith', reason)
+        super().__init__(context, "startsWith", reason)
 
 
 class ConstraintEndsWithError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'endsWith', reason)
+        super().__init__(context, "endsWith", reason)
 
 
 class ConstraintIsUpperCaseError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'isUpperCase', reason)
+        super().__init__(context, "isUpperCase", reason)
 
 
 class ConstraintIsLowerCaseError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'isLowerCase', reason)
+        super().__init__(context, "isLowerCase", reason)
 
 
 class ConstraintIsSetOfValuesError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'isSetOfValues', reason)
+        super().__init__(context, "isSetOfValues", reason)
 
 
 class ConstraintMinValueError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'minValue', reason)
+        super().__init__(context, "minValue", reason)
 
 
 class ConstraintMaxValueError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'maxValue', reason)
+        super().__init__(context, "maxValue", reason)
 
 
 class ConstraintNotValueError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'notValue', reason)
+        super().__init__(context, "notValue", reason)
 
 
 class ConstraintAnyOfError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'anyOf', reason)
+        super().__init__(context, "anyOf", reason)
 
 
 class ConstraintPythonError(ConstraintCheckError):
     def __init__(self, context, reason):
-        super().__init__(context, 'python', reason)
+        super().__init__(context, "python", reason)
 
 
 class BaseConstraint(ABC):
-    '''Constraint Interface'''
+    """Constraint Interface"""
 
     def __init__(self, context, types: list, is_null_allowed: bool = False):
-        '''An empty type list provided that indicates any type is accepted'''
+        """An empty type list provided that indicates any type is accepted"""
         self._types = types
         self._is_null_allowed = is_null_allowed
         self._context = context
@@ -155,13 +155,12 @@ class BaseConstraint(ABC):
 
         response_type = type(value)
         if self._types:
-            found_type_match = any(
-                issubclass(response_type, expected) for expected in self._types)
+            found_type_match = any(issubclass(response_type, expected) for expected in self._types)
             if not found_type_match:
                 if len(self._types) == 1:
                     expected_str = f'type "{self._types[0].__name__}"'
                 else:
-                    expected_str = f'one of those types: {[x.__name__ for x in self._types]}'
+                    expected_str = f"one of those types: {[x.__name__ for x in self._types]}"
                 reason = f'This constraint can only be used with a value of {expected_str} but the value is of type "{response_type.__name__}".'
                 self._raise_error(reason)
 
@@ -218,7 +217,7 @@ class BaseConstraint(ABC):
         if isinstance(self, _ConstraintPython):
             raise ConstraintPythonError(self._context, reason)
         # This should not happens.
-        raise ConstraintParseError('Unknown constraint instance.')
+        raise ConstraintParseError("Unknown constraint instance.")
 
 
 class _ConstraintHasValue(BaseConstraint):
@@ -253,139 +252,139 @@ class _ConstraintType(BaseConstraint):
 
     def check_response(self, value, value_type_name) -> bool:
         success = False
-        if self._type == 'boolean' and type(value) is bool:
+        if self._type == "boolean" and type(value) is bool:
             success = True
-        elif self._type == 'struct' and type(value) is dict:
+        elif self._type == "struct" and type(value) is dict:
             success = True
-        elif self._type == 'list' and type(value) is list:
+        elif self._type == "list" and type(value) is list:
             success = True
-        elif self._type == 'char_string' and type(value) is str:
+        elif self._type == "char_string" and type(value) is str:
             success = True
-        elif self._type == 'long_char_string' and type(value) is str:
+        elif self._type == "long_char_string" and type(value) is str:
             success = True
-        elif self._type == 'octet_string' and type(value) is bytes:
+        elif self._type == "octet_string" and type(value) is bytes:
             success = True
-        elif self._type == 'long_octet_string' and type(value) is bytes:
+        elif self._type == "long_octet_string" and type(value) is bytes:
             success = True
-        elif self._type == 'group_id' and type(value) is int:
+        elif self._type == "group_id" and type(value) is int:
             success = value >= 0 and value <= 0xFFFF
-        elif self._type == 'vendor_id' and type(value) is int:
+        elif self._type == "vendor_id" and type(value) is int:
             success = value >= 0 and value <= 0xFFFF
-        elif self._type == 'devtype_id' and type(value) is int:
+        elif self._type == "devtype_id" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFF
-        elif self._type == 'nullable_cluster_id' and type(value) is int:
+        elif self._type == "nullable_cluster_id" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFE
-        elif self._type == 'cluster_id' and type(value) is int:
+        elif self._type == "cluster_id" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFF
-        elif self._type == 'attribute_id' and type(value) is int:
+        elif self._type == "attribute_id" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFF
-        elif self._type == 'field_id' and type(value) is int:
+        elif self._type == "field_id" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFF
-        elif self._type == 'command_id' and type(value) is int:
+        elif self._type == "command_id" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFF
-        elif self._type == 'event_id' and type(value) is int:
+        elif self._type == "event_id" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFF
-        elif self._type == 'action_id' and type(value) is int:
+        elif self._type == "action_id" and type(value) is int:
             success = value >= 0 and value <= 0xFF
-        elif self._type == 'transaction_id' and type(value) is int:
+        elif self._type == "transaction_id" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFF
-        elif self._type == 'nullable_node_id' and type(value) is int:
+        elif self._type == "nullable_node_id" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFFFFFFFFFE
-        elif self._type == 'node_id' and type(value) is int:
+        elif self._type == "node_id" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFFFFFFFFFF
-        elif self._type == 'bitmap8' and type(value) is int:
+        elif self._type == "bitmap8" and type(value) is int:
             success = value >= 0 and value <= 0xFF
-        elif self._type == 'bitmap16' and type(value) is int:
+        elif self._type == "bitmap16" and type(value) is int:
             success = value >= 0 and value <= 0xFFFF
-        elif self._type == 'bitmap32' and type(value) is int:
+        elif self._type == "bitmap32" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFF
-        elif self._type == 'bitmap64' and type(value) is int:
+        elif self._type == "bitmap64" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFFFFFFFFFF
-        elif self._type == 'enum8' and isinstance(value, int):
+        elif self._type == "enum8" and isinstance(value, int):
             success = value >= 0 and value <= 0xFF
-        elif self._type == 'enum16' and isinstance(value, int):
+        elif self._type == "enum16" and isinstance(value, int):
             success = value >= 0 and value <= 0xFFFF
-        elif self._type == 'Percent' and type(value) is int:
+        elif self._type == "Percent" and type(value) is int:
             success = value >= 0 and value <= 0xFF
-        elif self._type == 'Percent100ths' and type(value) is int:
+        elif self._type == "Percent100ths" and type(value) is int:
             success = value >= 0 and value <= 0xFFFF
-        elif self._type == 'epoch_us' and type(value) is int:
+        elif self._type == "epoch_us" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFFFFFFFFFF
-        elif self._type == 'epoch_s' and type(value) is int:
+        elif self._type == "epoch_s" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFF
-        elif self._type == 'utc' and type(value) is int:
+        elif self._type == "utc" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFF
-        elif self._type == 'date' and type(value) is int:
+        elif self._type == "date" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFF
-        elif self._type == 'tod' and type(value) is int:
+        elif self._type == "tod" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFF
-        elif self._type == 'int8u' and type(value) is int:
+        elif self._type == "int8u" and type(value) is int:
             success = value >= 0 and value <= 0xFF
-        elif self._type == 'int16u' and type(value) is int:
+        elif self._type == "int16u" and type(value) is int:
             success = value >= 0 and value <= 0xFFFF
-        elif self._type == 'int24u' and type(value) is int:
+        elif self._type == "int24u" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFF
-        elif self._type == 'int32u' and type(value) is int:
+        elif self._type == "int32u" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFF
-        elif self._type == 'int40u' and type(value) is int:
+        elif self._type == "int40u" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFFFF
-        elif self._type == 'int48u' and type(value) is int:
+        elif self._type == "int48u" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFFFFFF
-        elif self._type == 'int56u' and type(value) is int:
+        elif self._type == "int56u" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFFFFFFFF
-        elif self._type == 'int64u' and type(value) is int:
+        elif self._type == "int64u" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFFFFFFFFFF
-        elif self._type == 'nullable_int8u' and type(value) is int:
+        elif self._type == "nullable_int8u" and type(value) is int:
             success = value >= 0 and value <= 0xFE
-        elif self._type == 'nullable_int16u' and type(value) is int:
+        elif self._type == "nullable_int16u" and type(value) is int:
             success = value >= 0 and value <= 0xFFFE
-        elif self._type == 'nullable_int24u' and type(value) is int:
+        elif self._type == "nullable_int24u" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFE
-        elif self._type == 'nullable_int32u' and type(value) is int:
+        elif self._type == "nullable_int32u" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFE
-        elif self._type == 'nullable_int40u' and type(value) is int:
+        elif self._type == "nullable_int40u" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFFFE
-        elif self._type == 'nullable_int48u' and type(value) is int:
+        elif self._type == "nullable_int48u" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFFFFFE
-        elif self._type == 'nullable_int56u' and type(value) is int:
+        elif self._type == "nullable_int56u" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFFFFFFFE
-        elif self._type == 'nullable_int64u' and type(value) is int:
+        elif self._type == "nullable_int64u" and type(value) is int:
             success = value >= 0 and value <= 0xFFFFFFFFFFFFFFFE
-        elif self._type == 'int8s' and type(value) is int:
+        elif self._type == "int8s" and type(value) is int:
             success = value >= -128 and value <= 127
-        elif self._type == 'int16s' and type(value) is int:
+        elif self._type == "int16s" and type(value) is int:
             success = value >= -32768 and value <= 32767
-        elif self._type == 'int24s' and type(value) is int:
+        elif self._type == "int24s" and type(value) is int:
             success = value >= -8388608 and value <= 8388607
-        elif self._type == 'int32s' and type(value) is int:
+        elif self._type == "int32s" and type(value) is int:
             success = value >= -2147483648 and value <= 2147483647
-        elif self._type == 'int40s' and type(value) is int:
+        elif self._type == "int40s" and type(value) is int:
             success = value >= -549755813888 and value <= 549755813887
-        elif self._type == 'int48s' and type(value) is int:
+        elif self._type == "int48s" and type(value) is int:
             success = value >= -140737488355328 and value <= 140737488355327
-        elif self._type == 'int56s' and type(value) is int:
+        elif self._type == "int56s" and type(value) is int:
             success = value >= -36028797018963968 and value <= 36028797018963967
-        elif self._type == 'int64s' and type(value) is int:
+        elif self._type == "int64s" and type(value) is int:
             success = value >= -9223372036854775808 and value <= 9223372036854775807
-        elif self._type == 'nullable_int8s' and type(value) is int:
+        elif self._type == "nullable_int8s" and type(value) is int:
             success = value >= -127 and value <= 127
-        elif self._type == 'nullable_int16s' and type(value) is int:
+        elif self._type == "nullable_int16s" and type(value) is int:
             success = value >= -32767 and value <= 32767
-        elif self._type == 'nullable_int24s' and type(value) is int:
+        elif self._type == "nullable_int24s" and type(value) is int:
             success = value >= -8388607 and value <= 8388607
-        elif self._type == 'nullable_int32s' and type(value) is int:
+        elif self._type == "nullable_int32s" and type(value) is int:
             success = value >= -2147483647 and value <= 2147483647
-        elif self._type == 'nullable_int40s' and type(value) is int:
+        elif self._type == "nullable_int40s" and type(value) is int:
             success = value >= -549755813887 and value <= 549755813887
-        elif self._type == 'nullable_int48s' and type(value) is int:
+        elif self._type == "nullable_int48s" and type(value) is int:
             success = value >= -140737488355327 and value <= 140737488355327
-        elif self._type == 'nullable_int56s' and type(value) is int:
+        elif self._type == "nullable_int56s" and type(value) is int:
             success = value >= -36028797018963967 and value <= 36028797018963967
-        elif self._type == 'nullable_int64s' and type(value) is int:
+        elif self._type == "nullable_int64s" and type(value) is int:
             success = value >= -9223372036854775807 and value <= 9223372036854775807
-        elif self._type == 'single' and type(value) is float:
+        elif self._type == "single" and type(value) is float:
             success = self._is_single(value)
-        elif self._type == 'double' and type(value) is float:
+        elif self._type == "double" and type(value) is float:
             success = self._is_double(value)
         else:
             success = self._type == value_type_name
@@ -395,191 +394,200 @@ class _ConstraintType(BaseConstraint):
         types = []
 
         if type(value) is bool:
-            types.append('boolean')
+            types.append("boolean")
         elif type(value) is dict:
-            types.append('struct')
+            types.append("struct")
         elif type(value) is list:
-            types.append('list')
+            types.append("list")
         elif type(value) is str:
-            types.append('char_string')
-            types.append('long_char_string')
+            types.append("char_string")
+            types.append("long_char_string")
         elif type(value) is bytes:
-            types.append('octet_string')
-            types.append('long_octet_string')
+            types.append("octet_string")
+            types.append("long_octet_string")
         elif type(value) is int:
             if value >= 0 and value <= 0xFE:
-                types.append('nullable_int8u')
+                types.append("nullable_int8u")
 
             if value >= 0 and value <= 0xFF:
-                types.append('action_id')
-                types.append('bitmap8')
-                types.append('enum8')
-                types.append('Percent')
-                types.append('int8u')
+                types.append("action_id")
+                types.append("bitmap8")
+                types.append("enum8")
+                types.append("Percent")
+                types.append("int8u")
 
             if value >= 0 and value <= 0xFFFE:
-                types.append('nullable_int16u')
+                types.append("nullable_int16u")
 
             if value >= 0 and value <= 0xFFFF:
-                types.append('vendor_id')
-                types.append('group_id')
-                types.append('bitmap16')
-                types.append('enum16')
-                types.append('Percent100ths')
-                types.append('int16u')
+                types.append("vendor_id")
+                types.append("group_id")
+                types.append("bitmap16")
+                types.append("enum16")
+                types.append("Percent100ths")
+                types.append("int16u")
 
             if value >= 0 and value <= 0xFFFFFE:
-                types.append('nullable_int24u')
+                types.append("nullable_int24u")
 
             if value >= 0 and value <= 0xFFFFFF:
-                types.append('int24u')
+                types.append("int24u")
 
             if value >= 0 and value <= 0xFFFFFFFE:
-                types.append('nullable_int32u')
-                types.append('nullable_cluster_id')
+                types.append("nullable_int32u")
+                types.append("nullable_cluster_id")
 
             if value >= 0 and value <= 0xFFFFFFFF:
-                types.append('device_type_id')
-                types.append('cluster_id')
-                types.append('attribute_id')
-                types.append('field_id')
-                types.append('command_id')
-                types.append('event_id')
-                types.append('transaction_id')
-                types.append('bitmap32')
-                types.append('epoch_s')
-                types.append('utc')
-                types.append('date')
-                types.append('tod')
-                types.append('int32u')
+                types.append("device_type_id")
+                types.append("cluster_id")
+                types.append("attribute_id")
+                types.append("field_id")
+                types.append("command_id")
+                types.append("event_id")
+                types.append("transaction_id")
+                types.append("bitmap32")
+                types.append("epoch_s")
+                types.append("utc")
+                types.append("date")
+                types.append("tod")
+                types.append("int32u")
 
             if value >= 0 and value <= 0xFFFFFFFFFE:
-                types.append('nullable_int40u')
+                types.append("nullable_int40u")
 
             if value >= 0 and value <= 0xFFFFFFFFFF:
-                types.append('int40u')
+                types.append("int40u")
 
             if value >= 0 and value <= 0xFFFFFFFFFFFE:
-                types.append('nullable_int48u')
+                types.append("nullable_int48u")
 
             if value >= 0 and value <= 0xFFFFFFFFFFFF:
-                types.append('int48u')
+                types.append("int48u")
 
             if value >= 0 and value <= 0xFFFFFFFFFFFFFE:
-                types.append('nullable_int56u')
+                types.append("nullable_int56u")
 
             if value >= 0 and value <= 0xFFFFFFFFFFFFFF:
-                types.append('int56u')
+                types.append("int56u")
 
             if value >= 0 and value <= 0xFFFFFFFFFFFFFFFE:
-                types.append('nullable_int64u')
-                types.append('nullable_node_id')
+                types.append("nullable_int64u")
+                types.append("nullable_node_id")
 
             if value >= 0 and value <= 0xFFFFFFFFFFFFFFFF:
-                types.append('node_id')
-                types.append('bitmap64')
-                types.append('epoch_us')
-                types.append('int64u')
+                types.append("node_id")
+                types.append("bitmap64")
+                types.append("epoch_us")
+                types.append("int64u")
 
             if value >= -128 and value <= 127:
-                types.append('int8s')
+                types.append("int8s")
 
             if value >= -32768 and value <= 32767:
-                types.append('int16s')
+                types.append("int16s")
 
             if value >= -8388608 and value <= 8388607:
-                types.append('int24s')
+                types.append("int24s")
 
             if value >= -2147483648 and value <= 2147483647:
-                types.append('int32s')
+                types.append("int32s")
 
             if value >= -549755813888 and value <= 549755813887:
-                types.append('int40s')
+                types.append("int40s")
 
             if value >= -140737488355328 and value <= 140737488355327:
-                types.append('int48s')
+                types.append("int48s")
 
             if value >= -36028797018963968 and value <= 36028797018963967:
-                types.append('int56s')
+                types.append("int56s")
 
             if value >= -9223372036854775808 and value <= 9223372036854775807:
-                types.append('int64s')
+                types.append("int64s")
 
             if value >= -127 and value <= 127:
-                types.append('nullable_int8s')
+                types.append("nullable_int8s")
 
             if value >= -32767 and value <= 32767:
-                types.append('nullable_int16s')
+                types.append("nullable_int16s")
 
             if value >= -8388607 and value <= 8388607:
-                types.append('nullable_int24s')
+                types.append("nullable_int24s")
 
             if value >= -2147483647 and value <= 2147483647:
-                types.append('nullable_int32s')
+                types.append("nullable_int32s")
 
             if value >= -549755813887 and value <= 549755813887:
-                types.append('nullable_int40s')
+                types.append("nullable_int40s")
 
             if value >= -140737488355327 and value <= 140737488355327:
-                types.append('nullable_int48s')
+                types.append("nullable_int48s")
 
             if value >= -36028797018963967 and value <= 36028797018963967:
-                types.append('nullable_int56s')
+                types.append("nullable_int56s")
 
             if value >= -9223372036854775807 and value <= 9223372036854775807:
-                types.append('nullable_int64s')
+                types.append("nullable_int64s")
 
             if self._is_single(value):
-                types.append('single')
+                types.append("single")
 
             if self._is_double(value):
-                types.append('double')
+                types.append("double")
 
-        types.sort(key=lambda input_type: [int(c) if c.isdigit(
-        ) else c for c in re.split('([0-9]+)', input_type)])
+        types.sort(key=lambda input_type: [int(c) if c.isdigit() else c for c in re.split("([0-9]+)", input_type)])
 
         if value_type_name not in types:
             types.append(value_type_name)
 
         if len(types) == 1:
-            reason = f'The response type ({types[0]}) does not match the constraint.'
+            reason = f"The response type ({types[0]}) does not match the constraint."
         else:
-            reason = f'The response value ({value}) is of one of those types: {types}.'
+            reason = f"The response value ({value}) is of one of those types: {types}."
         return reason
 
     def _is_single(self, value):
-        return (value >= -1.7976931348623157E+308 and value <= -2.2250738585072014E-308) or value == 0.0 or (
-            value >= 2.2250738585072014E-308 and value <= 1.7976931348623157E+308) or math.isnan(value) or math.isinf(value)
+        return (
+            (value >= -1.7976931348623157e308 and value <= -2.2250738585072014e-308)
+            or value == 0.0
+            or (value >= 2.2250738585072014e-308 and value <= 1.7976931348623157e308)
+            or math.isnan(value)
+            or math.isinf(value)
+        )
 
     def _is_double(self, value):
-        return (value >= -1.7976931348623157E+308 and value <= -2.2250738585072014E-308) or value == 0.0 or (
-            value >= 2.2250738585072014E-308 and value <= 1.7976931348623157E+308) or math.isnan(value) or math.isinf(value)
+        return (
+            (value >= -1.7976931348623157e308 and value <= -2.2250738585072014e-308)
+            or value == 0.0
+            or (value >= 2.2250738585072014e-308 and value <= 1.7976931348623157e308)
+            or math.isnan(value)
+            or math.isinf(value)
+        )
 
 
 class _ConstraintMinLength(BaseConstraint):
     def __init__(self, context, min_length):
-        super().__init__(context, types=[
-            str, bytes, list], is_null_allowed=True)
+        super().__init__(context, types=[str, bytes, list], is_null_allowed=True)
         self._min_length = min_length
 
     def check_response(self, value, value_type_name) -> bool:
         return len(value) >= self._min_length
 
     def get_reason(self, value, value_type_name) -> str:
-        return f'The response length ({len(value)}) should be greater or equal to the constraint but {len(value)} < {self._min_length}.'
+        return f"The response length ({len(value)}) should be greater or equal to the constraint but {len(value)} < {self._min_length}."
 
 
 class _ConstraintMaxLength(BaseConstraint):
     def __init__(self, context, max_length):
-        super().__init__(context, types=[
-            str, bytes, list], is_null_allowed=True)
+        super().__init__(context, types=[str, bytes, list], is_null_allowed=True)
         self._max_length = max_length
 
     def check_response(self, value, value_type_name) -> bool:
         return len(value) <= self._max_length
 
     def get_reason(self, value, value_type_name) -> str:
-        return f'The response length ({len(value)}) should be lower or equal to the constraint but {len(value)} > {self._max_length}.'
+        return (
+            f"The response length ({len(value)}) should be lower or equal to the constraint but {len(value)} > {self._max_length}."
+        )
 
 
 class _ConstraintIsHexString(BaseConstraint):
@@ -616,7 +624,7 @@ class _ConstraintStartsWith(BaseConstraint):
         return value.startswith(self._starts_with)
 
     def get_reason(self, value, value_type_name) -> str:
-        return f'The response "{value}" starts with "{value[:len(self._starts_with)]}" which does not match the constraint.'
+        return f'The response "{value}" starts with "{value[: len(self._starts_with)]}" which does not match the constraint.'
 
 
 class _ConstraintEndsWith(BaseConstraint):
@@ -628,7 +636,7 @@ class _ConstraintEndsWith(BaseConstraint):
         return value.endswith(self._ends_with)
 
     def get_reason(self, value, value_type_name) -> str:
-        return f'The response "{value}" ends with "{value[-len(self._ends_with):]}" which does not match the constraint.'
+        return f'The response "{value}" ends with "{value[-len(self._ends_with) :]}" which does not match the constraint.'
 
 
 class _ConstraintIsUpperCase(BaseConstraint):
@@ -696,7 +704,7 @@ class _ConstraintMinValue(BaseConstraint):
         return value >= self._min_value
 
     def get_reason(self, value, value_type_name) -> str:
-        return f'The response value ({value}) should be greater or equal to the constraint but {value} < {self._min_value}.'
+        return f"The response value ({value}) should be greater or equal to the constraint but {value} < {self._min_value}."
 
 
 class _ConstraintMaxValue(BaseConstraint):
@@ -708,7 +716,7 @@ class _ConstraintMaxValue(BaseConstraint):
         return value <= self._max_value
 
     def get_reason(self, value, value_type_name) -> str:
-        return f'The response value ({value}) should be lower or equal to the constraint but {value} > {self._max_value}.'
+        return f"The response value ({value}) should be lower or equal to the constraint but {value} > {self._max_value}."
 
 
 def _values_match(expected_value, received_value):
@@ -758,7 +766,7 @@ class _ConstraintContains(BaseConstraint):
     def get_reason(self, value, value_type_name) -> str:
         expected_values = self._find_missing_values(self._contains, value)
 
-        return f'The response ({value}) is missing {expected_values}.'
+        return f"The response ({value}) is missing {expected_values}."
 
 
 class _ConstraintIsSetOfValues(BaseConstraint):
@@ -788,12 +796,12 @@ class _ConstraintIsSetOfValues(BaseConstraint):
 
         errors = []
         if missing:
-            errors.append(f'it is missing [{missing}]')
+            errors.append(f"it is missing [{missing}]")
 
         if extra:
-            errors.append(f'has extra values [{extra}]')
+            errors.append(f"has extra values [{extra}]")
 
-        return f'The response ({value}) is an invalid set: ' + ' and '.join(errors)
+        return f"The response ({value}) is an invalid set: " + " and ".join(errors)
 
 
 class _ConstraintExcludes(BaseConstraint):
@@ -816,7 +824,7 @@ class _ConstraintExcludes(BaseConstraint):
                 if _values_match(unexpected_value, received_value):
                     unexpected_values.append(unexpected_value)
 
-        return f'The response ({value}) contains {unexpected_values}.'
+        return f"The response ({value}) contains {unexpected_values}."
 
 
 class _ConstraintHasMaskSet(BaseConstraint):
@@ -834,7 +842,7 @@ class _ConstraintHasMaskSet(BaseConstraint):
             if (value & expected_mask) != expected_mask:
                 expected_masks.append(hex(expected_mask))
 
-        return f'The response ({hex(value)}) does not match the masks: {expected_masks}.'
+        return f"The response ({hex(value)}) does not match the masks: {expected_masks}."
 
 
 class _ConstraintHasMaskClear(BaseConstraint):
@@ -852,7 +860,7 @@ class _ConstraintHasMaskClear(BaseConstraint):
             if (value & unexpected_mask) == unexpected_mask:
                 unexpected_masks.append(hex(unexpected_mask))
 
-        return f'The response ({hex(value)}) match the masks: {unexpected_masks}.'
+        return f"The response ({hex(value)}) match the masks: {unexpected_masks}."
 
 
 class _ConstraintNotValue(BaseConstraint):
@@ -885,41 +893,72 @@ class _ConstraintPython(BaseConstraint):
         super().__init__(context, types=[], is_null_allowed=False)
 
         # Parse the source as the body of a function
-        if '\n' not in source:  # treat single line code like a lambda
-            source = 'return (' + source + ')\n'
+        if "\n" not in source:  # treat single line code like a lambda
+            source = "return (" + source + ")\n"
         parsed = ast.parse(source)
-        module = ast.parse('def _func(value): pass')
+        module = ast.parse("def _func(value): pass")
         module.body[0].body = parsed.body  # inject parsed body
         self._ast = module
 
     def validate(self, value, value_type_name, runtime_variables):
         # Build a global scope that includes all runtime variables
-        scope = {name: fix_typed_yaml_value(
-            value) for name, value in runtime_variables.items()}
-        scope['__builtins__'] = self.BUILTINS
+        scope = {name: fix_typed_yaml_value(value) for name, value in runtime_variables.items()}
+        scope["__builtins__"] = self.BUILTINS
         # Execute the module AST and extract the defined function
-        exec(compile(self._ast, '<string>', 'exec'), scope)
-        func = scope['_func']
+        exec(compile(self._ast, "<string>", "exec"), scope)
+        func = scope["_func"]
         # Call the function to validate the value
         try:
             valid = func(value)
         except Exception as ex:
-            self._raise_error(f'Python constraint {type(ex).__name__}: {ex}')
+            self._raise_error(f"Python constraint {type(ex).__name__}: {ex}")
         if type(valid) is not bool:
-            self._raise_error(
-                "Python constraint TypeError: must return a bool")
+            self._raise_error("Python constraint TypeError: must return a bool")
         if not valid:
             self._raise_error(f'The response value "{value}" is not valid')
 
-    def check_response(self, value, value_type_name) -> bool: pass  # unused
-    def get_reason(self, value, value_type_name) -> str: pass  # unused
+    def check_response(self, value, value_type_name) -> bool:
+        pass  # unused
+
+    def get_reason(self, value, value_type_name) -> str:
+        pass  # unused
 
     # Explicitly list allowed functions / constants, avoid things like exec, eval, import. Classes are generally safe.
-    ALLOWED_BUILTINS = ['True', 'False', 'None', 'abs', 'all', 'any', 'ascii', 'bin', 'chr', 'divmod', 'enumerate', 'filter', 'format',
-                        'hex', 'isinstance', 'issubclass', 'iter', 'len', 'max', 'min', 'next', 'oct', 'ord', 'pow', 'repr', 'round', 'sorted', 'sum']
-    BUILTINS = (dict(inspect.getmembers(builtins, inspect.isclass)) |
-                {name: getattr(builtins, name) for name in ALLOWED_BUILTINS} |
-                {'print': print_to_log})
+    ALLOWED_BUILTINS = [
+        "True",
+        "False",
+        "None",
+        "abs",
+        "all",
+        "any",
+        "ascii",
+        "bin",
+        "chr",
+        "divmod",
+        "enumerate",
+        "filter",
+        "format",
+        "hex",
+        "isinstance",
+        "issubclass",
+        "iter",
+        "len",
+        "max",
+        "min",
+        "next",
+        "oct",
+        "ord",
+        "pow",
+        "repr",
+        "round",
+        "sorted",
+        "sum",
+    ]
+    BUILTINS = (
+        dict(inspect.getmembers(builtins, inspect.isclass))
+        | {name: getattr(builtins, name) for name in ALLOWED_BUILTINS}
+        | {"print": print_to_log}
+    )
 
 
 def get_constraints(constraints: dict) -> List[BaseConstraint]:
@@ -928,95 +967,77 @@ def get_constraints(constraints: dict) -> List[BaseConstraint]:
 
     for constraint, constraint_value in constraints.items():
         if constraint == "hasValue":
-            _constraints.append(_ConstraintHasValue(
-                context, constraint_value))
+            _constraints.append(_ConstraintHasValue(context, constraint_value))
         elif constraint == "type":
             _constraints.append(_ConstraintType(context, constraint_value))
         elif constraint == "minLength":
-            _constraints.append(_ConstraintMinLength(
-                context, constraint_value))
+            _constraints.append(_ConstraintMinLength(context, constraint_value))
         elif constraint == "maxLength":
-            _constraints.append(_ConstraintMaxLength(
-                context, constraint_value))
+            _constraints.append(_ConstraintMaxLength(context, constraint_value))
         elif constraint == "isHexString":
-            _constraints.append(_ConstraintIsHexString(
-                context, constraint_value))
+            _constraints.append(_ConstraintIsHexString(context, constraint_value))
         elif constraint == "startsWith":
-            _constraints.append(_ConstraintStartsWith(
-                context, constraint_value))
+            _constraints.append(_ConstraintStartsWith(context, constraint_value))
         elif constraint == "endsWith":
-            _constraints.append(_ConstraintEndsWith(
-                context, constraint_value))
+            _constraints.append(_ConstraintEndsWith(context, constraint_value))
         elif constraint == "isUpperCase":
-            _constraints.append(_ConstraintIsUpperCase(
-                context, constraint_value))
+            _constraints.append(_ConstraintIsUpperCase(context, constraint_value))
         elif constraint == "isLowerCase":
-            _constraints.append(_ConstraintIsLowerCase(
-                context, constraint_value))
+            _constraints.append(_ConstraintIsLowerCase(context, constraint_value))
         elif constraint == "isSetOfValues":
-            _constraints.append(_ConstraintIsSetOfValues(
-                context, constraint_value))
+            _constraints.append(_ConstraintIsSetOfValues(context, constraint_value))
         elif constraint == "minValue":
-            _constraints.append(_ConstraintMinValue(
-                context, constraint_value))
+            _constraints.append(_ConstraintMinValue(context, constraint_value))
         elif constraint == "maxValue":
-            _constraints.append(_ConstraintMaxValue(
-                context, constraint_value))
+            _constraints.append(_ConstraintMaxValue(context, constraint_value))
         elif constraint == "contains":
-            _constraints.append(_ConstraintContains(
-                context, constraint_value))
+            _constraints.append(_ConstraintContains(context, constraint_value))
         elif constraint == "excludes":
-            _constraints.append(_ConstraintExcludes(
-                context, constraint_value))
+            _constraints.append(_ConstraintExcludes(context, constraint_value))
         elif constraint == "hasMasksSet":
-            _constraints.append(_ConstraintHasMaskSet(
-                context, constraint_value))
+            _constraints.append(_ConstraintHasMaskSet(context, constraint_value))
         elif constraint == "hasMasksClear":
-            _constraints.append(_ConstraintHasMaskClear(
-                context, constraint_value))
+            _constraints.append(_ConstraintHasMaskClear(context, constraint_value))
         elif constraint == "notValue":
-            _constraints.append(_ConstraintNotValue(
-                context, constraint_value))
+            _constraints.append(_ConstraintNotValue(context, constraint_value))
         elif constraint == "anyOf":
-            _constraints.append(_ConstraintAnyOf(
-                context, constraint_value))
+            _constraints.append(_ConstraintAnyOf(context, constraint_value))
         elif constraint == "python":
-            _constraints.append(_ConstraintPython(
-                context, constraint_value))
+            _constraints.append(_ConstraintPython(context, constraint_value))
         else:
-            raise ConstraintParseError(f'Unknown constraint type:{constraint}')
+            raise ConstraintParseError(f"Unknown constraint type:{constraint}")
 
     return _constraints
 
 
 def is_typed_constraint(constraint: str):
     constraints = {
-        'hasValue': False,
-        'type': False,
-        'minLength': False,
-        'maxLength': False,
-        'isHexString': False,
-        'startsWith': True,
-        'endsWith': True,
-        'isUpperCase': False,
-        'isLowerCase': False,
-        'isSetOfValues': True,
-        'minValue': True,
-        'maxValue': True,
-        'contains': True,
-        'excludes': True,
-        'hasMasksSet': False,
-        'hasMasksClear': False,
-        'notValue': True,
-        'anyOf': True,
-        'python': False,
+        "hasValue": False,
+        "type": False,
+        "minLength": False,
+        "maxLength": False,
+        "isHexString": False,
+        "startsWith": True,
+        "endsWith": True,
+        "isUpperCase": False,
+        "isLowerCase": False,
+        "isSetOfValues": True,
+        "minValue": True,
+        "maxValue": True,
+        "contains": True,
+        "excludes": True,
+        "hasMasksSet": False,
+        "hasMasksClear": False,
+        "notValue": True,
+        "anyOf": True,
+        "python": False,
     }
 
     is_typed = constraints.get(constraint)
     if is_typed is None:
-        raise ConstraintParseError(f'Unknown constraint type:{constraint}')
+        raise ConstraintParseError(f"Unknown constraint type:{constraint}")
     return is_typed
 
 
 def is_variable_aware_constraint(constraint: str):
-    return constraint == 'python'
+    return constraint == "python"

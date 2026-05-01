@@ -41,45 +41,40 @@ class TC_DD_1_5(MatterBaseTest):
 
     def steps_TC_DD_1_5(self) -> list[TestStep]:
         return [
-            TestStep("1",
-                     "Keep the DUT in packaging, if needed, activate tag detection in TH NFC reader, then bring in TH NFC reader at contact over all sides of the DUT packaging.",
-                     "Onboarding Payload is not readable from the tag: Either the tag is not detected, or the content read is not Onboarding Payload.",
-                     is_commissioning=False
-                     ),
-            TestStep("2a",
-                     "Unpack DUT from its packaging, locate NFC tag, and, if needed, follow instructions to activate the NFC tag.",
-                     "NFC tag is ready (will be verified in next step)"
-                     ),
-            TestStep("2b",
-                     "If needed, activate tag detection in TH NFC reader, then bring in TH NFC reader close to the DUT’s NFC tag.",
-                     "NFC tag is detected and read, it contains a Record of type URI whose data starts with \"MT:\""
-                     ),
-            TestStep("3",
-                     "Compare QR Code and NFCTag onboarding data",
-                     "Onboarding data are identical."
-                     ),
-            TestStep("4",
-                     "Try to write a new NDEF in the tag",
-                     "Writing NFC tag fails, the content of the tag is unmodified."
-                     ),
-            TestStep("5",
-                     "Check that an alternate commissioning channel exists",
-                     "An alternate commissioning channel does exist."
-                     )
+            TestStep(
+                "1",
+                "Keep the DUT in packaging, if needed, activate tag detection in TH NFC reader, then bring in TH NFC reader at contact over all sides of the DUT packaging.",
+                "Onboarding Payload is not readable from the tag: Either the tag is not detected, or the content read is not Onboarding Payload.",
+                is_commissioning=False,
+            ),
+            TestStep(
+                "2a",
+                "Unpack DUT from its packaging, locate NFC tag, and, if needed, follow instructions to activate the NFC tag.",
+                "NFC tag is ready (will be verified in next step)",
+            ),
+            TestStep(
+                "2b",
+                "If needed, activate tag detection in TH NFC reader, then bring in TH NFC reader close to the DUT’s NFC tag.",
+                'NFC tag is detected and read, it contains a Record of type URI whose data starts with "MT:"',
+            ),
+            TestStep("3", "Compare QR Code and NFCTag onboarding data", "Onboarding data are identical."),
+            TestStep("4", "Try to write a new NDEF in the tag", "Writing NFC tag fails, the content of the tag is unmodified."),
+            TestStep("5", "Check that an alternate commissioning channel exists", "An alternate commissioning channel does exist."),
         ]
 
     @async_test_body
     async def test_TC_DD_1_5(self):
-
         reader = matter.testing.nfc.NFCReader()
 
         ###########
         self.step("1")
 
         monitoring_task = asyncio.create_task(reader.activate_tag_monitoring())
-        user_input_task = asyncio.create_task(self.wait_for_user_input_async(
-            "Bring in NFC reader at contact over all sides of the DUT packaging. Press enter when done"
-        ))
+        user_input_task = asyncio.create_task(
+            self.wait_for_user_input_async(
+                "Bring in NFC reader at contact over all sides of the DUT packaging. Press enter when done"
+            )
+        )
         await user_input_task
         reader.deactivate_tag_monitoring()
         ndef = await monitoring_task
@@ -91,10 +86,13 @@ class TC_DD_1_5(MatterBaseTest):
         ###########
         self.step("2b")
         monitoring_task = asyncio.create_task(reader.activate_tag_monitoring())
-        user_input_task = asyncio.create_task(self.wait_for_user_input_async(
-            "Unpack the DUT from its packaging, activate the NFC tag (if required by the DUT),"
-            " and bring the TH NFC reader close to the DUT's NFC tag. Press Enter when you are done.", ""
-        ))
+        user_input_task = asyncio.create_task(
+            self.wait_for_user_input_async(
+                "Unpack the DUT from its packaging, activate the NFC tag (if required by the DUT),"
+                " and bring the TH NFC reader close to the DUT's NFC tag. Press Enter when you are done.",
+                "",
+            )
+        )
         await user_input_task
 
         reader.deactivate_tag_monitoring()
@@ -120,11 +118,9 @@ class TC_DD_1_5(MatterBaseTest):
         # - devices with NFC onboarding data (not necessarily supporting NTL).
         if self.check_pics("MCORE.DD.NTL"):
             # Device supporting NTL: QRCode is mandatory
-            asserts.assert_true(self.check_pics("MCORE.DD.QR"),
-                                "NTL devices SHALL have a QRCode")
+            asserts.assert_true(self.check_pics("MCORE.DD.QR"), "NTL devices SHALL have a QRCode")
 
-            asserts.assert_true(self.matter_test_config.qr_code_content,
-                                "This test needs to be run with qr_code param")
+            asserts.assert_true(self.matter_test_config.qr_code_content, "This test needs to be run with qr_code param")
             qr_code_content = self.matter_test_config.qr_code_content[0]
             log.info(f"qr_code_content: {qr_code_content}")
 
@@ -132,7 +128,7 @@ class TC_DD_1_5(MatterBaseTest):
                 qr_code_content,
                 nfc_tag_content,
                 f"Error! QR Code and NFC Tag onboarding data differ! "
-                f"qr_code_content='{qr_code_content}', nfc_tag_content='{nfc_tag_content}'"
+                f"qr_code_content='{qr_code_content}', nfc_tag_content='{nfc_tag_content}'",
             )
 
         else:
@@ -156,10 +152,10 @@ class TC_DD_1_5(MatterBaseTest):
             # Check that an alternate commissioning channel is supported
             payload = SetupPayload().ParseQrCode(nfc_tag_content)
             asserts.assert_true(
-                payload.supports_ble_commissioning or
-                payload.supports_wifi_commissioning or
-                payload.supports_on_network_commissioning or
-                payload.supports_thread_commissioning,
+                payload.supports_ble_commissioning
+                or payload.supports_wifi_commissioning
+                or payload.supports_on_network_commissioning
+                or payload.supports_thread_commissioning,
                 "No alternate commissioning channel found!",
             )
 

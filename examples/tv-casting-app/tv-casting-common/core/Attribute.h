@@ -342,8 +342,7 @@ struct ReadAttributeContext
 {
     ReadAttributeContext(void * attribute, memory::Strong<core::Endpoint> endpoint, void * clientContext,
                          ReadResponseSuccessCallbackFn<TypeInfo> successCb, ReadResponseFailureCallbackFn failureCb) :
-        mEndpoint(endpoint),
-        mClientContext(clientContext), mSuccessCb(successCb), mFailureCb(failureCb)
+        mEndpoint(endpoint), mClientContext(clientContext), mSuccessCb(successCb), mFailureCb(failureCb)
     {
         mAttribute = attribute;
     }
@@ -364,8 +363,7 @@ struct WriteAttributeContext
     WriteAttributeContext(memory::Strong<core::Endpoint> endpoint, const TypeInfoType & requestData, void * clientContext,
                           WriteResponseSuccessCallbackFn successCb, WriteResponseFailureCallbackFn failureCb,
                           const chip::Optional<uint16_t> & timedWriteTimeoutMs) :
-        mEndpoint(endpoint),
-        mClientContext(clientContext), mSuccessCb(successCb), mFailureCb(failureCb)
+        mEndpoint(endpoint), mClientContext(clientContext), mSuccessCb(successCb), mFailureCb(failureCb)
     {
         mRequestData         = requestData;
         mTimedWriteTimeoutMs = timedWriteTimeoutMs;
@@ -388,8 +386,7 @@ struct SubscribeAttributeContext
     SubscribeAttributeContext(void * attribute, memory::Strong<core::Endpoint> endpoint, void * clientContext,
                               ReadResponseSuccessCallbackFn<TypeInfo> successCb, ReadResponseFailureCallbackFn failureCb,
                               uint16_t minIntervalFloorSeconds, uint16_t maxIntervalCeilingSeconds) :
-        mEndpoint(endpoint),
-        mClientContext(clientContext), mSuccessCb(successCb), mFailureCb(failureCb)
+        mEndpoint(endpoint), mClientContext(clientContext), mSuccessCb(successCb), mFailureCb(failureCb)
     {
         mAttribute                 = attribute;
         mMinIntervalFloorSeconds   = minIntervalFloorSeconds;

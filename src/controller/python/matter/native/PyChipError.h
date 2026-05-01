@@ -58,13 +58,14 @@ inline bool operator!=(const CHIP_ERROR & aOther, const PyChipError & aError)
 
 inline PyChipError ToPyChipError(const CHIP_ERROR & aError)
 {
-    return PyChipError
-    {
+    return PyChipError{
         .mCode = aError.AsInteger(),
 #if CHIP_CONFIG_ERROR_SOURCE
-        .mLine = aError.GetLine(), .mFile = aError.GetFile(),
+        .mLine = aError.GetLine(),
+        .mFile = aError.GetFile(),
 #else
-        .mLine = 0, .mFile = nullptr,
+        .mLine = 0,
+        .mFile = nullptr,
 #endif
     };
 }

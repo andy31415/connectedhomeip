@@ -46,16 +46,13 @@ CHIP_PORT = 5540
 #############################################################
 
 CIRQUE_URL = "http://localhost:5000"
-CHIP_REPO = os.path.join(os.path.abspath(
-    os.path.dirname(__file__)), "..", "..", "..")
+CHIP_REPO = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "..", "..")
 
-logger = logging.getLogger('CHIPCirqueTest')
+logger = logging.getLogger("CHIPCirqueTest")
 logger.setLevel(logging.INFO)
 
 sh = logging.StreamHandler()
-sh.setFormatter(
-    logging.Formatter(
-        '%(asctime)s [%(name)s] %(levelname)s %(message)s'))
+sh.setFormatter(logging.Formatter("%(asctime)s [%(name)s] %(levelname)s %(message)s"))
 logger.addHandler(sh)
 
 
@@ -75,8 +72,7 @@ class TestManually(CHIPVirtualHome):
     def wait_for_interrupt(self):
         self.logger.info("Finished setting up environment.")
         for device in self.non_ap_devices:
-            self.logger.info("Device: {} (Type: {}, Container: {})".format(
-                device["type"], device["type"], device["id"][:10]))
+            self.logger.info("Device: {} (Type: {}, Container: {})".format(device["type"], device["type"], device["id"][:10]))
         self.logger.info("Press Ctrl-C to stop the test.")
         self.logger.info("Container will be cleaned when the test finished.")
         try:
@@ -105,7 +101,7 @@ if __name__ == "__main__":
         "--topology",
         action="store",
         dest="topologyFile",
-        type='str',
+        type="str",
         default=None,
         help="The topology to be set up by cirque framework.",
         metavar="<timeout-second>",
@@ -115,7 +111,7 @@ if __name__ == "__main__":
         action="store_true",
         dest="setupDefaultThreadNetwork",
         default=False,
-        help="Setup default thread network to nodes that supports thread."
+        help="Setup default thread network to nodes that supports thread.",
     )
 
     (options, remainingArgs) = optParser.parse_args(sys.argv[1:])

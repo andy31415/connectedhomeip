@@ -61,19 +61,23 @@ class TC_WEBRTCP_2_11(MatterBaseTest, WebRTCTestHelper):
             TestStep("precondition-1", commission_if_required(), is_commissioning=True),
             TestStep("precondition-2", "Confirm no active WebRTC sessions exist in DUT"),
             TestStep(
-                1, "TH allocates both Audio and Video streams via AudioStreamAllocate and VideoStreamAllocate commands to CameraAVStreamManagement",
+                1,
+                "TH allocates both Audio and Video streams via AudioStreamAllocate and VideoStreamAllocate commands to CameraAVStreamManagement",
                 "DUT responds with success.",
             ),
             TestStep(
-                2, "TH sends the SolicitOffer command with valid parameters",
+                2,
+                "TH sends the SolicitOffer command with valid parameters",
                 "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID and DeferredOffer=TRUE.",
             ),
             TestStep(
-                3, "TH starts a timer and waits for incoming Offer command from DUT on WebRTC Requestor cluster",
+                3,
+                "TH starts a timer and waits for incoming Offer command from DUT on WebRTC Requestor cluster",
                 "DUT sends Offer command to TH within 30 seconds of the SolicitOfferResponse.",
             ),
             TestStep(
-                4, "TH verifies the Offer command contains the correct WebRTCSessionID from step 2",
+                4,
+                "TH verifies the Offer command contains the correct WebRTCSessionID from step 2",
                 "Offer command WebRTCSessionID matches the allocated session ID.",
             ),
         ]
@@ -81,11 +85,11 @@ class TC_WEBRTCP_2_11(MatterBaseTest, WebRTCTestHelper):
     def pics_TC_WEBRTCP_2_11(self) -> list[str]:
         return [
             "WEBRTCP.S",
-            "WEBRTCP.S.C00.Rsp",   # SolicitOffer command
-            "WEBRTCP.S.C01.Tx",    # SolicitOfferResponse command
+            "WEBRTCP.S.C00.Rsp",  # SolicitOffer command
+            "WEBRTCP.S.C01.Tx",  # SolicitOfferResponse command
             "AVSM.S",
-            "AVSM.S.F00",          # Audio Data Output feature
-            "AVSM.S.F01",          # Video Data Output feature
+            "AVSM.S.F00",  # Audio Data Output feature
+            "AVSM.S.F01",  # Video Data Output feature
         ]
 
     @property
@@ -146,12 +150,16 @@ class TC_WEBRTCP_2_11(MatterBaseTest, WebRTCTestHelper):
 
         self.step(4)
         # Verify the Offer command contains the correct WebRTCSessionID
-        asserts.assert_equal(offer_sessionId, session_id,
-                             f"Offer command WebRTCSessionID {offer_sessionId} should match allocated session ID {session_id}")
+        asserts.assert_equal(
+            offer_sessionId,
+            session_id,
+            f"Offer command WebRTCSessionID {offer_sessionId} should match allocated session ID {session_id}",
+        )
         asserts.assert_true(len(remote_offer_sdp) > 0, "Offer command should contain non-empty SDP string")
 
         log.info(
-            f"Successfully validated deferred Offer command timing: received in {elapsed_time:.2f}s with correct session ID {session_id}")
+            f"Successfully validated deferred Offer command timing: received in {elapsed_time:.2f}s with correct session ID {session_id}"
+        )
 
         # Clean up - End the session
         await self.send_single_cmd(

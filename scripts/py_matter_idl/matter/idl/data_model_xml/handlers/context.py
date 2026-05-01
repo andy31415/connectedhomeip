@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 
 class IdlPostProcessor:
     """Defines a callback that will apply after an entire parsing
-       is complete.
+    is complete.
     """
 
     def FinalizeProcessing(self, idl: Idl):
@@ -53,10 +53,10 @@ class ProcessingPath:
         self.paths.pop()
 
     def __str__(self):
-        return '::'.join(self.paths)
+        return "::".join(self.paths)
 
     def __repr__(self):
-        return 'ProcessingPath(%r)' % self.paths
+        return "ProcessingPath(%r)" % self.paths
 
 
 class Context:
@@ -88,7 +88,7 @@ class Context:
 
     def AddAbstractBaseCluster(self, name: str, parse_meta: Optional[ParseMetaData] = None) -> Cluster:
         """Creates a new cluster entry for the given name in the list of known
-           base clusters.
+        base clusters.
         """
         if name in self.abstract_base_clusters:
             # This does NOT seem unique ... this seems like a bug

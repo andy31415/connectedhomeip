@@ -76,8 +76,8 @@ private:
     {
         KeepActiveWorkData(FabricAdmin * fabricAdmin, chip::ScopedNodeId scopedNodeId, uint32_t stayActiveDurationMs,
                            uint32_t timeoutMs) :
-            mFabricAdmin(fabricAdmin),
-            mScopedNodeId(scopedNodeId), mStayActiveDurationMs(stayActiveDurationMs), mTimeoutMs(timeoutMs)
+            mFabricAdmin(fabricAdmin), mScopedNodeId(scopedNodeId), mStayActiveDurationMs(stayActiveDurationMs),
+            mTimeoutMs(timeoutMs)
         {}
 
         FabricAdmin * mFabricAdmin;

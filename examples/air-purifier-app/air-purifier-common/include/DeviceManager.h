@@ -35,7 +35,7 @@ class DeviceManagerCallbacks
 {
 public:
     virtual void PostAttributeChangeCallback(EndpointId endpoint, ClusterId clusterId, AttributeId attributeId, uint8_t type,
-                                             uint16_t size, uint8_t * value){};
+                                             uint16_t size, uint8_t * value) {};
 
     Protocols::InteractionModel::Status PreAttributeChangeCallback(EndpointId endpoint, ClusterId clusterId,
                                                                    AttributeId attributeId, uint8_t type, uint16_t size,

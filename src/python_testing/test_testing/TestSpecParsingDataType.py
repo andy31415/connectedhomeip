@@ -23,8 +23,13 @@ from mobly import asserts
 import matter.clusters as Clusters
 from matter.testing.matter_testing import MatterBaseTest
 from matter.testing.runner import default_matter_test_main
-from matter.testing.spec_parsing import (ClusterParser, DataTypeEnum, PrebuiltDataModelDirectory, build_xml_clusters,
-                                         build_xml_global_data_types)
+from matter.testing.spec_parsing import (
+    ClusterParser,
+    DataTypeEnum,
+    PrebuiltDataModelDirectory,
+    build_xml_clusters,
+    build_xml_global_data_types,
+)
 from matter.tlv import uint
 
 LOGGER = logging.getLogger(__name__)
@@ -82,14 +87,11 @@ class TestSpecParsingDataType(MatterBaseTest):
 
     def test_parse_basic_struct(self):
         """Test parsing of a basic struct data type"""
-        fields = [
-            {"id": "1", "name": "Field1", "type": "uint8"},
-            {"id": "2", "name": "Field2", "type": "string"}
-        ]
+        fields = [{"id": "1", "name": "Field1", "type": "uint8"}, {"id": "2", "name": "Field2", "type": "string"}]
         struct_xml = self.struct_template.render(name="TestStruct", fields=fields)
-        cluster_xml = self.cluster_template.render(cluster_id=self.cluster_id,
-                                                   cluster_name=self.cluster_name,
-                                                   data_types=struct_xml)
+        cluster_xml = self.cluster_template.render(
+            cluster_id=self.cluster_id, cluster_name=self.cluster_name, data_types=struct_xml
+        )
 
         # Parse the XML
         et = ElementTree.fromstring(cluster_xml)
@@ -112,15 +114,9 @@ class TestSpecParsingDataType(MatterBaseTest):
 
     def test_parse_basic_enum(self):
         """Test parsing of a basic enum data type"""
-        items = [
-            {"value": "0", "name": "Item1"},
-            {"value": "1", "name": "Item2"},
-            {"value": "2", "name": "Item3"}
-        ]
+        items = [{"value": "0", "name": "Item1"}, {"value": "1", "name": "Item2"}, {"value": "2", "name": "Item3"}]
         enum_xml = self.enum_template.render(name="TestEnum", items=items)
-        cluster_xml = self.cluster_template.render(cluster_id=self.cluster_id,
-                                                   cluster_name=self.cluster_name,
-                                                   data_types=enum_xml)
+        cluster_xml = self.cluster_template.render(cluster_id=self.cluster_id, cluster_name=self.cluster_name, data_types=enum_xml)
 
         # Parse the XML
         et = ElementTree.fromstring(cluster_xml)
@@ -145,15 +141,11 @@ class TestSpecParsingDataType(MatterBaseTest):
 
     def test_parse_basic_bitmap(self):
         """Test parsing of a basic bitmap data type"""
-        fields = [
-            {"bit": "0", "name": "Bit0"},
-            {"bit": "1", "name": "Bit1"},
-            {"bit": "7", "name": "Bit7"}
-        ]
+        fields = [{"bit": "0", "name": "Bit0"}, {"bit": "1", "name": "Bit1"}, {"bit": "7", "name": "Bit7"}]
         bitmap_xml = self.bitmap_template.render(name="TestBitmap", fields=fields)
-        cluster_xml = self.cluster_template.render(cluster_id=self.cluster_id,
-                                                   cluster_name=self.cluster_name,
-                                                   data_types=bitmap_xml)
+        cluster_xml = self.cluster_template.render(
+            cluster_id=self.cluster_id, cluster_name=self.cluster_name, data_types=bitmap_xml
+        )
 
         # Parse the XML
         et = ElementTree.fromstring(cluster_xml)
@@ -177,8 +169,10 @@ class TestSpecParsingDataType(MatterBaseTest):
         if not bitmap.cluster_ids:
             self.print_step("Warning", f"Bitmap TestBitmap has empty cluster_ids, should contain {self.cluster_id}")
         else:
-            asserts.assert_true(self.cluster_id in bitmap.cluster_ids,
-                                f"Bitmap TestBitmap has incorrect cluster IDs: expected {self.cluster_id} to be in {bitmap.cluster_ids}")
+            asserts.assert_true(
+                self.cluster_id in bitmap.cluster_ids,
+                f"Bitmap TestBitmap has incorrect cluster IDs: expected {self.cluster_id} to be in {bitmap.cluster_ids}",
+            )
 
     def test_parse_multi_bit_bitmap(self):
         """Test parsing of a bitmap with fields spanning multiple bits"""
@@ -186,12 +180,12 @@ class TestSpecParsingDataType(MatterBaseTest):
             {"bit": "0", "name": "SingleBit0"},
             {"bit": "1", "name": "SingleBit1"},
             {"bit": "2", "name": "MultiBit2to4"},  # Bits 2-4 (0b11100)
-            {"bit": "5", "name": "MultiBit5to6"}  # Bits 5-6 (0b1100000)
+            {"bit": "5", "name": "MultiBit5to6"},  # Bits 5-6 (0b1100000)
         ]
         bitmap_xml = self.bitmap_template.render(name="MultiBitBitmap", fields=fields)
-        cluster_xml = self.cluster_template.render(cluster_id=self.cluster_id,
-                                                   cluster_name=self.cluster_name,
-                                                   data_types=bitmap_xml)
+        cluster_xml = self.cluster_template.render(
+            cluster_id=self.cluster_id, cluster_name=self.cluster_name, data_types=bitmap_xml
+        )
 
         # Parse the XML
         et = ElementTree.fromstring(cluster_xml)
@@ -215,8 +209,10 @@ class TestSpecParsingDataType(MatterBaseTest):
         if not bitmap.cluster_ids:
             self.print_step("Warning", f"Bitmap MultiBitBitmap has empty cluster_ids, should contain {self.cluster_id}")
         else:
-            asserts.assert_true(self.cluster_id in bitmap.cluster_ids,
-                                f"Bitmap MultiBitBitmap has incorrect cluster IDs: expected {self.cluster_id} to be in {bitmap.cluster_ids}")
+            asserts.assert_true(
+                self.cluster_id in bitmap.cluster_ids,
+                f"Bitmap MultiBitBitmap has incorrect cluster IDs: expected {self.cluster_id} to be in {bitmap.cluster_ids}",
+            )
 
     def test_multiple_data_types(self):
         """Test parsing multiple data types in a single cluster"""
@@ -234,9 +230,9 @@ class TestSpecParsingDataType(MatterBaseTest):
 
         # Combine all data types in one cluster
         data_types = struct_xml + enum_xml + bitmap_xml
-        cluster_xml = self.cluster_template.render(cluster_id=self.cluster_id,
-                                                   cluster_name=self.cluster_name,
-                                                   data_types=data_types)
+        cluster_xml = self.cluster_template.render(
+            cluster_id=self.cluster_id, cluster_name=self.cluster_name, data_types=data_types
+        )
 
         # Parse the XML
         et = ElementTree.fromstring(cluster_xml)
@@ -262,9 +258,9 @@ class TestSpecParsingDataType(MatterBaseTest):
                         </field>
                     </struct>"""
 
-        cluster_xml = self.cluster_template.render(cluster_id=self.cluster_id,
-                                                   cluster_name=self.cluster_name,
-                                                   data_types=struct_xml)
+        cluster_xml = self.cluster_template.render(
+            cluster_id=self.cluster_id, cluster_name=self.cluster_name, data_types=struct_xml
+        )
 
         # Parse the XML
         et = ElementTree.fromstring(cluster_xml)
@@ -278,8 +274,9 @@ class TestSpecParsingDataType(MatterBaseTest):
         asserts.assert_equal(len(struct.components), 1, "Should only have one valid field")
         asserts.assert_true(uint(1) in struct.components, "Valid field not found in struct components")
         asserts.assert_equal(len(problems), 1, "Should have one problem for invalid field")
-        asserts.assert_true("Struct field in TestStruct with no id or name" in problems[0].problem,
-                            "Problem message doesn't match expected error")
+        asserts.assert_true(
+            "Struct field in TestStruct with no id or name" in problems[0].problem, "Problem message doesn't match expected error"
+        )
 
     def test_datatype_component_additional_fields(self):
         """Test that all additional fields in XmlDataTypeComponent are correctly parsed and stored"""
@@ -314,9 +311,7 @@ class TestSpecParsingDataType(MatterBaseTest):
         # Create a cluster with both data types
         data_types = struct_xml + bitmap_xml
         cluster_xml = self.cluster_template.render(
-            cluster_id=self.cluster_id,
-            cluster_name=self.cluster_name,
-            data_types=data_types
+            cluster_id=self.cluster_id, cluster_name=self.cluster_name, data_types=data_types
         )
 
         # Parse the XML
@@ -380,9 +375,7 @@ class TestSpecParsingDataType(MatterBaseTest):
                     </item>
                 </enum>"""
 
-        cluster_xml = self.cluster_template.render(cluster_id=self.cluster_id,
-                                                   cluster_name=self.cluster_name,
-                                                   data_types=enum_xml)
+        cluster_xml = self.cluster_template.render(cluster_id=self.cluster_id, cluster_name=self.cluster_name, data_types=enum_xml)
 
         # Parse the XML
         et = ElementTree.fromstring(cluster_xml)
@@ -396,8 +389,9 @@ class TestSpecParsingDataType(MatterBaseTest):
         asserts.assert_equal(len(enum.components), 1, "Should only have one valid item")
         asserts.assert_true(uint(0) in enum.components, "Valid item not found in enum components")
         asserts.assert_equal(len(problems), 1, "Should have one problem for invalid item")
-        asserts.assert_true("Enum field in TestEnum with no id or name" in problems[0].problem,
-                            "Problem message doesn't match expected error")
+        asserts.assert_true(
+            "Enum field in TestEnum with no id or name" in problems[0].problem, "Problem message doesn't match expected error"
+        )
 
     def test_invalid_bitmap_field(self):
         """Test handling of a bitmap with an invalid bitfield (missing bit)"""
@@ -411,9 +405,9 @@ class TestSpecParsingDataType(MatterBaseTest):
                         </bitfield>
                     </bitmap>"""
 
-        cluster_xml = self.cluster_template.render(cluster_id=self.cluster_id,
-                                                   cluster_name=self.cluster_name,
-                                                   data_types=bitmap_xml)
+        cluster_xml = self.cluster_template.render(
+            cluster_id=self.cluster_id, cluster_name=self.cluster_name, data_types=bitmap_xml
+        )
 
         # Parse the XML
         et = ElementTree.fromstring(cluster_xml)
@@ -427,16 +421,17 @@ class TestSpecParsingDataType(MatterBaseTest):
         asserts.assert_equal(len(bitmap.components), 1, "Should only have one valid field")
         asserts.assert_true(uint(0) in bitmap.components, "Valid bitfield not found in bitmap components")
         asserts.assert_equal(len(problems), 1, "Should have one problem for invalid bitfield")
-        asserts.assert_true("Bitmap field in TestBitmap with no id or name" in problems[0].problem,
-                            "Problem message doesn't match expected error")
+        asserts.assert_true(
+            "Bitmap field in TestBitmap with no id or name" in problems[0].problem, "Problem message doesn't match expected error"
+        )
 
     def test_missing_name(self):
         """Test handling of a data type with missing name attribute"""
         # Try different data types - we'll generate a problem for each
         test_cases = [
-            ("struct", "<field id=\"1\" name=\"Field1\" type=\"uint8\"><mandatoryConform/></field>"),
-            ("enum", "<item value=\"0\" name=\"Item1\"><mandatoryConform/></item>"),
-            ("bitmap", "<bitfield bit=\"0\" name=\"Bit0\"><mandatoryConform/></bitfield>")
+            ("struct", '<field id="1" name="Field1" type="uint8"><mandatoryConform/></field>'),
+            ("enum", '<item value="0" name="Item1"><mandatoryConform/></item>'),
+            ("bitmap", '<bitfield bit="0" name="Bit0"><mandatoryConform/></bitfield>'),
         ]
 
         for data_type, inner_content in test_cases:
@@ -446,9 +441,9 @@ class TestSpecParsingDataType(MatterBaseTest):
                         {inner_content}
                     </{data_type}>"""
 
-                cluster_xml = self.cluster_template.render(cluster_id=self.cluster_id,
-                                                           cluster_name=self.cluster_name,
-                                                           data_types=xml)
+                cluster_xml = self.cluster_template.render(
+                    cluster_id=self.cluster_id, cluster_name=self.cluster_name, data_types=xml
+                )
 
                 # Parse the XML
                 et = ElementTree.fromstring(cluster_xml)
@@ -456,22 +451,19 @@ class TestSpecParsingDataType(MatterBaseTest):
                 _ = parser.create_cluster()  # We don't use this, just care about problems
                 problems = parser.get_problems()
                 asserts.assert_equal(len(problems), 1, "Should have one problem for missing name")
-                asserts.assert_true("with no name" in problems[0].problem,
-                                    f"Problem message doesn't match expected error for {data_type}")
+                asserts.assert_true(
+                    "with no name" in problems[0].problem, f"Problem message doesn't match expected error for {data_type}"
+                )
             except Exception as e:
                 self.print_step("Error", f"Exception when testing {data_type}: {e}")
 
     def test_bitmap_with_multiple_bitfields(self):
         """Test parsing of a bitmap with multiple distinct bitfields"""
-        fields = [
-            {"bit": "0", "name": "MemberA"},
-            {"bit": "1", "name": "MemberB"},
-            {"bit": "2", "name": "MemberC"}
-        ]
+        fields = [{"bit": "0", "name": "MemberA"}, {"bit": "1", "name": "MemberB"}, {"bit": "2", "name": "MemberC"}]
         bitmap_xml = self.bitmap_template.render(name="TestStatusBitmap", fields=fields)
-        cluster_xml = self.cluster_template.render(cluster_id=self.cluster_id,
-                                                   cluster_name=self.cluster_name,
-                                                   data_types=bitmap_xml)
+        cluster_xml = self.cluster_template.render(
+            cluster_id=self.cluster_id, cluster_name=self.cluster_name, data_types=bitmap_xml
+        )
 
         # Parse the XML
         et = ElementTree.fromstring(cluster_xml)
@@ -508,9 +500,7 @@ class TestSpecParsingDataType(MatterBaseTest):
                     </struct>"""
 
         cluster_xml = self.cluster_template.render(
-            cluster_id=self.cluster_id,
-            cluster_name=self.cluster_name,
-            data_types=struct_xml
+            cluster_id=self.cluster_id, cluster_name=self.cluster_name, data_types=struct_xml
         )
 
         # Parse the XML
@@ -539,9 +529,7 @@ class TestSpecParsingDataType(MatterBaseTest):
                     </struct>"""
 
         cluster_xml = self.cluster_template.render(
-            cluster_id=self.cluster_id,
-            cluster_name=self.cluster_name,
-            data_types=struct_xml
+            cluster_id=self.cluster_id, cluster_name=self.cluster_name, data_types=struct_xml
         )
 
         # Parse the XML
@@ -575,9 +563,7 @@ class TestSpecParsingDataType(MatterBaseTest):
                     </struct>"""
 
         cluster_xml = self.cluster_template.render(
-            cluster_id=self.cluster_id,
-            cluster_name=self.cluster_name,
-            data_types=struct_xml
+            cluster_id=self.cluster_id, cluster_name=self.cluster_name, data_types=struct_xml
         )
 
         # Parse the XML
@@ -715,16 +701,25 @@ class TestSpecParsingDataType(MatterBaseTest):
         asserts.assert_true(cluster_id in one_six, "Basic Information cluster not found in 1.6")
 
         # Compare struct counts (should generally increase or stay the same over versions)
-        asserts.assert_less_equal(len(one_three[cluster_id].structs), len(one_five[cluster_id].structs),
-                                  "1.5 should have at least as many structs as 1.3")
-        asserts.assert_less_equal(len(one_four[cluster_id].structs), len(one_five[cluster_id].structs),
-                                  "1.5 should have at least as many structs as 1.4")
-        asserts.assert_less_equal(len(one_four_one[cluster_id].structs), len(one_five[cluster_id].structs),
-                                  "1.5 should have at least as many structs as 1.4.1")
-        asserts.assert_less_equal(len(one_four_two[cluster_id].structs), len(one_five[cluster_id].structs),
-                                  "1.5 should have at least as many structs as 1.4.2")
-        asserts.assert_less_equal(len(one_five[cluster_id].structs), len(one_six[cluster_id].structs),
-                                  "1.6 should have at least as many structs as 1.5")
+        asserts.assert_less_equal(
+            len(one_three[cluster_id].structs), len(one_five[cluster_id].structs), "1.5 should have at least as many structs as 1.3"
+        )
+        asserts.assert_less_equal(
+            len(one_four[cluster_id].structs), len(one_five[cluster_id].structs), "1.5 should have at least as many structs as 1.4"
+        )
+        asserts.assert_less_equal(
+            len(one_four_one[cluster_id].structs),
+            len(one_five[cluster_id].structs),
+            "1.5 should have at least as many structs as 1.4.1",
+        )
+        asserts.assert_less_equal(
+            len(one_four_two[cluster_id].structs),
+            len(one_five[cluster_id].structs),
+            "1.5 should have at least as many structs as 1.4.2",
+        )
+        asserts.assert_less_equal(
+            len(one_five[cluster_id].structs), len(one_six[cluster_id].structs), "1.6 should have at least as many structs as 1.5"
+        )
 
     def test_find_complex_bitmaps(self):
         """Find and test bitmaps with multi-bit fields in the data model"""
@@ -780,15 +775,15 @@ class TestSpecParsingDataType(MatterBaseTest):
                         example_bitmap = bitmap
 
                     # Verify basic bitmap properties
-                    asserts.assert_equal(bitmap.data_type, DataTypeEnum.kBitmap,
-                                         f"Bitmap {bitmap_name} has incorrect data type")
-                    asserts.assert_equal(bitmap.name, bitmap_name,
-                                         f"Bitmap name mismatch: {bitmap.name} vs {bitmap_name}")
+                    asserts.assert_equal(bitmap.data_type, DataTypeEnum.kBitmap, f"Bitmap {bitmap_name} has incorrect data type")
+                    asserts.assert_equal(bitmap.name, bitmap_name, f"Bitmap name mismatch: {bitmap.name} vs {bitmap_name}")
                     if not bitmap.cluster_ids:
                         self.print_step("Warning", f"Bitmap {bitmap_name} has empty cluster_ids, should contain {cluster_id}")
                     else:
-                        asserts.assert_true(cluster_id in bitmap.cluster_ids,
-                                            f"Bitmap {bitmap_name} has incorrect cluster IDs: expected {cluster_id} to be in {bitmap.cluster_ids}")
+                        asserts.assert_true(
+                            cluster_id in bitmap.cluster_ids,
+                            f"Bitmap {bitmap_name} has incorrect cluster IDs: expected {cluster_id} to be in {bitmap.cluster_ids}",
+                        )
 
                     # Check all bitfields in this bitmap
                     num_bitfields = len(bitmap.components)
@@ -797,14 +792,15 @@ class TestSpecParsingDataType(MatterBaseTest):
 
                     # Verify all components have names and are properly parsed
                     for bit_id, component in bitmap.components.items():
-                        asserts.assert_true(component.name,
-                                            f"Bitfield {bit_id} in {bitmap_name} has no name")
+                        asserts.assert_true(component.name, f"Bitfield {bit_id} in {bitmap_name} has no name")
 
                         # If this is a bit position (number), verify it's in range
                         if str(bit_id).isdigit():
                             bit_pos = int(bit_id)
-                            asserts.assert_true(0 <= bit_pos <= 63,  # Reasonable range for bit positions
-                                                f"Bit position {bit_pos} out of range in {bitmap_name}")
+                            asserts.assert_true(
+                                0 <= bit_pos <= 63,  # Reasonable range for bit positions
+                                f"Bit position {bit_pos} out of range in {bitmap_name}",
+                            )
 
         # Log summary statistics
         self.print_step("Summary", f"Tested {total_clusters_with_bitmaps} clusters with bitmaps")
@@ -826,8 +822,8 @@ class TestSpecParsingDataType(MatterBaseTest):
             self.print_step("Detail", f"  - Bitfield {first_bit_id}: '{first_component.name}'")
 
             # Verify the component has the expected properties
-            asserts.assert_true(hasattr(first_component, 'name'), "Component missing 'name' attribute")
-            asserts.assert_true(hasattr(first_component, 'conformance'), "Component missing 'conformance' attribute")
+            asserts.assert_true(hasattr(first_component, "name"), "Component missing 'name' attribute")
+            asserts.assert_true(hasattr(first_component, "conformance"), "Component missing 'conformance' attribute")
 
     def test_xml_datatype_component_fields(self):
         """Test the additional fields in XmlDataTypeComponent using 1.5 cluster spec XML files"""
@@ -990,7 +986,11 @@ class TestSpecParsingDataType(MatterBaseTest):
 
                     should_skip = False
                     for struct_names, field_names, cluster_name_part in skip_conditions:
-                        if s_name in struct_names and f_name in field_names and (cluster_name_part is None or cluster_name_part in cluster.name):
+                        if (
+                            s_name in struct_names
+                            and f_name in field_names
+                            and (cluster_name_part is None or cluster_name_part in cluster.name)
+                        ):
                             should_skip = True
                             break
 
@@ -1038,18 +1038,23 @@ class TestSpecParsingDataType(MatterBaseTest):
                 self.print_step("Problem", str(problem))
 
         # Verify we have at least 3 global data types
-        total_global_types = (len(self.xml_global_data_types['structs']) +
-                              len(self.xml_global_data_types['enums']) +
-                              len(self.xml_global_data_types['bitmaps']))
+        total_global_types = (
+            len(self.xml_global_data_types["structs"])
+            + len(self.xml_global_data_types["enums"])
+            + len(self.xml_global_data_types["bitmaps"])
+        )
         asserts.assert_true(total_global_types >= 3, "Should have at least some global data types")
 
-        self.print_step("Global Data Types", f"Found {len(self.xml_global_data_types['structs'])} global structs, "
-                        f"{len(self.xml_global_data_types['enums'])} global enums, "
-                        f"{len(self.xml_global_data_types['bitmaps'])} global bitmaps")
+        self.print_step(
+            "Global Data Types",
+            f"Found {len(self.xml_global_data_types['structs'])} global structs, "
+            f"{len(self.xml_global_data_types['enums'])} global enums, "
+            f"{len(self.xml_global_data_types['bitmaps'])} global bitmaps",
+        )
 
     def test_global_structs_validation(self):
         """Test validation of all global struct data types"""
-        global_structs = self.xml_global_data_types['structs']
+        global_structs = self.xml_global_data_types["structs"]
         asserts.assert_true(len(global_structs) > 0, "Should have at least one global struct")
 
         self.print_step("Global Structs", f"Found {len(global_structs)} global structs")
@@ -1065,13 +1070,14 @@ class TestSpecParsingDataType(MatterBaseTest):
             # Validate all components have proper attributes
             for component_id, component in struct.components.items():
                 asserts.assert_true(component.name, f"Component {component_id} in {struct_name} should have a name")
-                asserts.assert_true(component.conformance is not None,
-                                    f"Component {component_id} in {struct_name} should have conformance")
+                asserts.assert_true(
+                    component.conformance is not None, f"Component {component_id} in {struct_name} should have conformance"
+                )
                 asserts.assert_true(component_id is not None, f"Component in {struct_name} should have a valid ID")
 
     def test_global_enums_validation(self):
         """Test validation of all global enum data types"""
-        global_enums = self.xml_global_data_types['enums']
+        global_enums = self.xml_global_data_types["enums"]
         asserts.assert_true(len(global_enums) > 0, "Should have at least one global enum")
 
         self.print_step("Global Enums", f"Found {len(global_enums)} global enums")
@@ -1087,13 +1093,14 @@ class TestSpecParsingDataType(MatterBaseTest):
             # Validate all components have proper attributes
             for component_id, component in enum.components.items():
                 asserts.assert_true(component.name, f"Component {component_id} in {enum_name} should have a name")
-                asserts.assert_true(component.conformance is not None,
-                                    f"Component {component_id} in {enum_name} should have conformance")
+                asserts.assert_true(
+                    component.conformance is not None, f"Component {component_id} in {enum_name} should have conformance"
+                )
                 asserts.assert_true(component_id is not None, f"Component in {enum_name} should have a valid ID")
 
     def test_global_bitmaps_validation(self):
         """Test validation of all global bitmap data types"""
-        global_bitmaps = self.xml_global_data_types['bitmaps']
+        global_bitmaps = self.xml_global_data_types["bitmaps"]
         asserts.assert_true(len(global_bitmaps) > 0, "Should have at least one global bitmap")
 
         self.print_step("Global Bitmaps", f"Found {len(global_bitmaps)} global bitmaps")
@@ -1109,8 +1116,9 @@ class TestSpecParsingDataType(MatterBaseTest):
             # Validate all components have proper attributes
             for component_id, component in bitmap.components.items():
                 asserts.assert_true(component.name, f"Component {component_id} in {bitmap_name} should have a name")
-                asserts.assert_true(component.conformance is not None,
-                                    f"Component {component_id} in {bitmap_name} should have conformance")
+                asserts.assert_true(
+                    component.conformance is not None, f"Component {component_id} in {bitmap_name} should have conformance"
+                )
                 asserts.assert_true(component_id is not None, f"Component in {bitmap_name} should have a valid ID")
 
     def test_global_data_types_comprehensive_validation(self):
@@ -1118,7 +1126,7 @@ class TestSpecParsingDataType(MatterBaseTest):
         issues = []
 
         # Check all global structs
-        for struct_name, struct in self.xml_global_data_types['structs'].items():
+        for struct_name, struct in self.xml_global_data_types["structs"].items():
             if not struct.name:
                 issues.append("Global struct with empty name")
             if struct.cluster_ids is not None:
@@ -1131,7 +1139,7 @@ class TestSpecParsingDataType(MatterBaseTest):
                     issues.append(f"Global struct {struct_name} component has None ID")
 
         # Check all global enums
-        for enum_name, enum in self.xml_global_data_types['enums'].items():
+        for enum_name, enum in self.xml_global_data_types["enums"].items():
             if not enum.name:
                 issues.append("Global enum with empty name")
             if enum.cluster_ids is not None:
@@ -1144,7 +1152,7 @@ class TestSpecParsingDataType(MatterBaseTest):
                     issues.append(f"Global enum {enum_name} component has None ID")
 
         # Check all global bitmaps
-        for bitmap_name, bitmap in self.xml_global_data_types['bitmaps'].items():
+        for bitmap_name, bitmap in self.xml_global_data_types["bitmaps"].items():
             if not bitmap.name:
                 issues.append("Global bitmap with empty name")
             if bitmap.cluster_ids is not None:

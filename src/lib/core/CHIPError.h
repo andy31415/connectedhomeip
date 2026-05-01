@@ -178,7 +178,8 @@ public:
         mError(MakeInteger(part, code)), mLine(line), mFile(file)
     {}
 #else
-    constexpr ChipError(SdkPart part, uint8_t code) : mError(MakeInteger(part, code)) {}
+    constexpr ChipError(SdkPart part, uint8_t code) :
+        mError(MakeInteger(part, code)){}
 #endif
 
     /**
@@ -204,7 +205,9 @@ public:
         mError(error), mLine(line), mFile(file)
     {}
 #else
-    explicit constexpr ChipError(StorageType error) : mError(error) {}
+        explicit constexpr ChipError(StorageType error) : mError(error)
+    {
+    }
 #endif
 
     /**

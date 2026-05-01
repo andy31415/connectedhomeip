@@ -197,8 +197,7 @@ public:
     CameraAvSettingsUserLevelManagementCluster(EndpointId aEndpointId,
                                                BitFlags<CameraAvSettingsUserLevelManagement::Feature> aFeatures,
                                                uint8_t aMaxPresets) :
-        DefaultServerCluster({ aEndpointId, CameraAvSettingsUserLevelManagement::Id }),
-        mLogic(aEndpointId, aFeatures, aMaxPresets)
+        DefaultServerCluster({ aEndpointId, CameraAvSettingsUserLevelManagement::Id }), mLogic(aEndpointId, aFeatures, aMaxPresets)
     {}
 
     CameraAvSettingsUserLevelMgmtServerLogic & GetLogic() { return mLogic; }

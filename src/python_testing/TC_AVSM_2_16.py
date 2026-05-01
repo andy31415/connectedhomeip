@@ -143,8 +143,9 @@ class TC_AVSM_2_16(MatterBaseTest, AVSMTestBase):
         ]
 
     @run_if_endpoint_matches(
-        has_feature(Clusters.CameraAvStreamManagement, Clusters.CameraAvStreamManagement.Bitmaps.Feature.kVideo) and
-        has_feature(Clusters.CameraAvStreamManagement, Clusters.CameraAvStreamManagement.Bitmaps.Feature.kAudio))
+        has_feature(Clusters.CameraAvStreamManagement, Clusters.CameraAvStreamManagement.Bitmaps.Feature.kVideo)
+        and has_feature(Clusters.CameraAvStreamManagement, Clusters.CameraAvStreamManagement.Bitmaps.Feature.kAudio)
+    )
     async def test_TC_AVSM_2_16(self):
         endpoint = self.get_endpoint()
         cluster = Clusters.CameraAvStreamManagement
@@ -212,20 +213,22 @@ class TC_AVSM_2_16(MatterBaseTest, AVSMTestBase):
                 self.write_to_app_pipe({"Name": "SetHardPrivacyModeOn", "Value": False})
             else:
                 self.wait_for_user_input(
-                    "Please ensure that the physical privacy switch on the device is OFF, then press Enter to continue...")
+                    "Please ensure that the physical privacy switch on the device is OFF, then press Enter to continue..."
+                )
 
             # Verify the attribute reflects the privacy switch state
             hard_privacy_mode = await self.read_single_attribute_check_success(
                 endpoint=endpoint,
                 cluster=Clusters.CameraAvStreamManagement,
-                attribute=Clusters.CameraAvStreamManagement.Attributes.HardPrivacyModeOn
+                attribute=Clusters.CameraAvStreamManagement.Attributes.HardPrivacyModeOn,
             )
             asserts.assert_false(hard_privacy_mode, "HardPrivacyModeOn should be False")
 
         # Establish WebRTC via Provide Offer/Answer
         webrtc_manager = WebRTCManager(event_loop=self.event_loop)
         webrtc_peer: LibdatachannelPeerConnection = webrtc_manager.create_peer(
-            node_id=self.dut_node_id, fabric_index=self.default_controller.GetFabricIndexInternal(), endpoint=endpoint)
+            node_id=self.dut_node_id, fabric_index=self.default_controller.GetFabricIndexInternal(), endpoint=endpoint
+        )
 
         webrtc_peer.create_offer()
         offer = await webrtc_peer.get_local_offer()
@@ -258,16 +261,22 @@ class TC_AVSM_2_16(MatterBaseTest, AVSMTestBase):
             endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedVideoStreams
         )
         log.info(f"Rx'd AllocatedVideoStreams: {aAllocatedVideoStreams}")
-        asserts.assert_equal(aAllocatedVideoStreams[0].referenceCount, aVideoRefCount+1,
-                             "The reference count for allocated video streams is not as expected")
+        asserts.assert_equal(
+            aAllocatedVideoStreams[0].referenceCount,
+            aVideoRefCount + 1,
+            "The reference count for allocated video streams is not as expected",
+        )
 
         self.step(6)
         aAllocatedAudioStreams = await self.read_single_attribute_check_success(
             endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedAudioStreams
         )
         log.info(f"Rx'd AllocatedAudioStreams: {aAllocatedAudioStreams}")
-        asserts.assert_equal(aAllocatedAudioStreams[0].referenceCount, aAudioRefCount+1,
-                             "The reference count for allocated video streams is not as expected")
+        asserts.assert_equal(
+            aAllocatedAudioStreams[0].referenceCount,
+            aAudioRefCount + 1,
+            "The reference count for allocated video streams is not as expected",
+        )
 
         self.step(7)
         try:

@@ -55,8 +55,7 @@ struct ActionTask
     std::vector<uint32_t> args;
     ActionTask(chip::EndpointId endpoint, chip::ClusterId cluster, chip::rpc::ActionType actionType, uint32_t delay, uint32_t id,
                std::vector<uint32_t> arg) :
-        endpointId(endpoint),
-        clusterId(cluster), type(actionType), delayMs(delay), actionId(id), args(arg){};
+        endpointId(endpoint), clusterId(cluster), type(actionType), delayMs(delay), actionId(id), args(arg){};
     ~ActionTask(){};
 };
 

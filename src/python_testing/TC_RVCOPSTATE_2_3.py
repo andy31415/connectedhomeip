@@ -123,7 +123,6 @@ def error_enum_to_text(error_enum):
 
 
 class TC_RVCOPSTATE_2_3(MatterBaseTest):
-
     def __init__(self, *args):
         super().__init__(*args)
         self.endpoint = None
@@ -135,44 +134,57 @@ class TC_RVCOPSTATE_2_3(MatterBaseTest):
 
     async def send_pause_cmd(self) -> Clusters.Objects.RvcOperationalState.Commands.OperationalCommandResponse:
         ret = await self.send_single_cmd(cmd=Clusters.Objects.RvcOperationalState.Commands.Pause(), endpoint=self.endpoint)
-        asserts.assert_true(matchers.is_type(ret, Clusters.Objects.RvcOperationalState.Commands.OperationalCommandResponse),
-                            "Unexpected return type for Pause")
+        asserts.assert_true(
+            matchers.is_type(ret, Clusters.Objects.RvcOperationalState.Commands.OperationalCommandResponse),
+            "Unexpected return type for Pause",
+        )
         return ret
 
     async def send_resume_cmd(self) -> Clusters.Objects.RvcOperationalState.Commands.OperationalCommandResponse:
         ret = await self.send_single_cmd(cmd=Clusters.Objects.RvcOperationalState.Commands.Resume(), endpoint=self.endpoint)
-        asserts.assert_true(matchers.is_type(ret, Clusters.Objects.RvcOperationalState.Commands.OperationalCommandResponse),
-                            "Unexpected return type for Resume")
+        asserts.assert_true(
+            matchers.is_type(ret, Clusters.Objects.RvcOperationalState.Commands.OperationalCommandResponse),
+            "Unexpected return type for Resume",
+        )
         return ret
 
     # Prints the step number, reads the operational state attribute and checks if it matches with expected_state
     async def read_operational_state_with_check(self, step_number, expected_state):
         self.print_step(step_number, "Read OperationalState")
         operational_state = await self.read_mod_attribute_expect_success(
-            endpoint=self.endpoint, attribute=Clusters.RvcOperationalState.Attributes.OperationalState)
+            endpoint=self.endpoint, attribute=Clusters.RvcOperationalState.Attributes.OperationalState
+        )
         log.info("OperationalState: %s" % operational_state)
-        asserts.assert_equal(operational_state, expected_state,
-                             "OperationalState(%s) should be %s" % (operational_state, state_enum_to_text(expected_state)))
+        asserts.assert_equal(
+            operational_state,
+            expected_state,
+            "OperationalState(%s) should be %s" % (operational_state, state_enum_to_text(expected_state)),
+        )
 
     # Sends the Pause command and checks that the returned error matches the expected_error
     async def send_pause_cmd_with_check(self, step_number, expected_error):
         self.print_step(step_number, "Send Pause command")
         ret = await self.send_pause_cmd()
-        asserts.assert_equal(ret.commandResponseState.errorStateID, expected_error,
-                             "errorStateID(%s) should be %s" % (ret.commandResponseState.errorStateID,
-                                                                error_enum_to_text(expected_error)))
+        asserts.assert_equal(
+            ret.commandResponseState.errorStateID,
+            expected_error,
+            "errorStateID(%s) should be %s" % (ret.commandResponseState.errorStateID, error_enum_to_text(expected_error)),
+        )
 
     # Sends the Resume command and checks that the returned error matches the expected_error
     async def send_resume_cmd_with_check(self, step_number, expected_error):
         self.print_step(step_number, "Send Pause command")
         ret = await self.send_resume_cmd()
-        asserts.assert_equal(ret.commandResponseState.errorStateID, expected_error,
-                             "errorStateID(%s) should be %s" % (ret.commandResponseState.errorStateID,
-                                                                error_enum_to_text(expected_error)))
+        asserts.assert_equal(
+            ret.commandResponseState.errorStateID,
+            expected_error,
+            "errorStateID(%s) should be %s" % (ret.commandResponseState.errorStateID, error_enum_to_text(expected_error)),
+        )
 
     async def send_run_change_to_mode_cmd(self, new_mode) -> Clusters.Objects.RvcRunMode.Commands.ChangeToModeResponse:
-        return await self.send_single_cmd(cmd=Clusters.Objects.RvcRunMode.Commands.ChangeToMode(newMode=new_mode),
-                                          endpoint=self.endpoint)
+        return await self.send_single_cmd(
+            cmd=Clusters.Objects.RvcRunMode.Commands.ChangeToMode(newMode=new_mode), endpoint=self.endpoint
+        )
 
     # Prints the instruction and waits for a user input to continue
     def print_instruction(self, step_number, instruction):
@@ -184,7 +196,6 @@ class TC_RVCOPSTATE_2_3(MatterBaseTest):
 
     @async_test_body
     async def test_TC_RVCOPSTATE_2_3(self):
-
         self.endpoint = self.get_endpoint()
         asserts.assert_false(self.endpoint is None, "--endpoint <endpoint> must be included on the command line in.")
         self.is_ci = self.check_pics("PICS_SDK_CI_ONLY")
@@ -215,21 +226,26 @@ class TC_RVCOPSTATE_2_3(MatterBaseTest):
             self.wait_for_user_input(prompt_msg=f"{test_step}, and press Enter when done.\n")
 
         self.print_step(3, "Read OperationalStateList attribute")
-        op_state_list = await self.read_mod_attribute_expect_success(endpoint=self.endpoint,
-                                                                     attribute=attributes.OperationalStateList)
+        op_state_list = await self.read_mod_attribute_expect_success(
+            endpoint=self.endpoint, attribute=attributes.OperationalStateList
+        )
 
         log.info("OperationalStateList: %s" % (op_state_list))
 
-        defined_states = [state.value for state in Clusters.OperationalState.Enums.OperationalStateEnum
-                          if state is not Clusters.OperationalState.Enums.OperationalStateEnum.kUnknownEnumValue]
+        defined_states = [
+            state.value
+            for state in Clusters.OperationalState.Enums.OperationalStateEnum
+            if state is not Clusters.OperationalState.Enums.OperationalStateEnum.kUnknownEnumValue
+        ]
 
         state_ids = {s.operationalStateID for s in op_state_list}
 
         asserts.assert_true(all(id in state_ids for id in defined_states), "OperationalStateList is missing a required entry")
 
         self.print_step(4, "Read OperationalState")
-        old_opstate_dut = await self.read_mod_attribute_expect_success(endpoint=self.endpoint,
-                                                                       attribute=attributes.OperationalState)
+        old_opstate_dut = await self.read_mod_attribute_expect_success(
+            endpoint=self.endpoint, attribute=attributes.OperationalState
+        )
         log.info("OperationalState: %s" % old_opstate_dut)
 
         await self.send_pause_cmd_with_check(5, op_errors.kNoError)
@@ -238,35 +254,49 @@ class TC_RVCOPSTATE_2_3(MatterBaseTest):
 
         if self.check_pics("RVCOPSTATE.S.A0002"):
             self.print_step(7, "Read CountdownTime attribute")
-            initial_countdown_time = await self.read_mod_attribute_expect_success(endpoint=self.endpoint,
-                                                                                  attribute=attributes.CountdownTime)
+            initial_countdown_time = await self.read_mod_attribute_expect_success(
+                endpoint=self.endpoint, attribute=attributes.CountdownTime
+            )
             log.info("CountdownTime: %s" % initial_countdown_time)
             if initial_countdown_time is not NullValue:
-                in_range = (1 <= initial_countdown_time <= 259200)
-            asserts.assert_true(initial_countdown_time is NullValue or in_range,
-                                "invalid CountdownTime(%s). Must be in between 1 and 259200, or null " % initial_countdown_time)
+                in_range = 1 <= initial_countdown_time <= 259200
+            asserts.assert_true(
+                initial_countdown_time is NullValue or in_range,
+                "invalid CountdownTime(%s). Must be in between 1 and 259200, or null " % initial_countdown_time,
+            )
 
             self.print_step(8, "Waiting for 5 seconds")
             await asyncio.sleep(5)
 
             self.print_step(9, "Read CountdownTime attribute")
-            countdown_time = await self.read_mod_attribute_expect_success(endpoint=self.endpoint, attribute=attributes.CountdownTime)
+            countdown_time = await self.read_mod_attribute_expect_success(
+                endpoint=self.endpoint, attribute=attributes.CountdownTime
+            )
             log.info("CountdownTime: %s" % countdown_time)
-            asserts.assert_true(countdown_time != 0 or countdown_time == NullValue,
-                                "invalid CountdownTime(%s). Must be a non zero integer, or null" % countdown_time)
-            asserts.assert_equal(countdown_time, initial_countdown_time, "CountdownTime(%s) not equal to the initial CountdownTime(%s)"
-                                 % (countdown_time, initial_countdown_time))
+            asserts.assert_true(
+                countdown_time != 0 or countdown_time == NullValue,
+                "invalid CountdownTime(%s). Must be a non zero integer, or null" % countdown_time,
+            )
+            asserts.assert_equal(
+                countdown_time,
+                initial_countdown_time,
+                "CountdownTime(%s) not equal to the initial CountdownTime(%s)" % (countdown_time, initial_countdown_time),
+            )
 
         await self.send_pause_cmd_with_check(10, op_errors.kNoError)
 
         await self.send_resume_cmd_with_check(11, op_errors.kNoError)
 
         self.print_step(12, "Read OperationalState attribute")
-        operational_state = await self.read_mod_attribute_expect_success(endpoint=self.endpoint,
-                                                                         attribute=attributes.OperationalState)
+        operational_state = await self.read_mod_attribute_expect_success(
+            endpoint=self.endpoint, attribute=attributes.OperationalState
+        )
         log.info("OperationalState: %s" % operational_state)
-        asserts.assert_equal(operational_state, old_opstate_dut,
-                             "OperationalState(%s) should be the state before pause (%s)" % (operational_state, old_opstate_dut))
+        asserts.assert_equal(
+            operational_state,
+            old_opstate_dut,
+            "OperationalState(%s) should be the state before pause (%s)" % (operational_state, old_opstate_dut),
+        )
 
         await self.send_resume_cmd_with_check(13, op_errors.kNoError)
 
@@ -276,7 +306,8 @@ class TC_RVCOPSTATE_2_3(MatterBaseTest):
             await self.read_operational_state_with_check(17, op_states.kRunning)
 
             self.print_instruction(
-                18, "Manually cause the device to pause running due to an error, and be able to resume after clearing the error")
+                18, "Manually cause the device to pause running due to an error, and be able to resume after clearing the error"
+            )
 
             await self.read_operational_state_with_check(19, op_states.kError)
 

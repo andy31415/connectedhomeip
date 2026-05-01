@@ -41,28 +41,20 @@ parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(dest="command")
 subparsers.required = True
 
-zap_cmd_parser = subparsers.add_parser(
-    "zap", help="Command to operate on zap files.")
-zap_cmd_parser.add_argument(
-    "zap_file", metavar="ZAP_FILE", type=str, help="Zap file to generate name for.")
+zap_cmd_parser = subparsers.add_parser("zap", help="Command to operate on zap files.")
+zap_cmd_parser.add_argument("zap_file", metavar="ZAP_FILE", type=str, help="Zap file to generate name for.")
 
 zap_cmd_group = zap_cmd_parser.add_mutually_exclusive_group()
 
-zap_cmd_group.add_argument(
-    "--generate-name", action="store_true",
-    help="Print the name file name according to the name convention"
-)
+zap_cmd_group.add_argument("--generate-name", action="store_true", help="Print the name file name according to the name convention")
 
 zap_cmd_parser.add_argument(
-    "--generate-metadata", action="store_true",
-    help=(
-        "Generate the metadata file which provides summary information about the app.")
+    "--generate-metadata",
+    action="store_true",
+    help=("Generate the metadata file which provides summary information about the app."),
 )
 
-zap_cmd_group.add_argument(
-    "--rename-file", action='store_true',
-    help="Rename the target zap file according to name convention."
-)
+zap_cmd_group.add_argument("--rename-file", action="store_true", help="Rename the target zap file according to name convention.")
 
 zap_cmd_parser.set_defaults(func=zap_cmd_handler)
 

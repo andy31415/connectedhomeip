@@ -325,7 +325,8 @@ class TC_AVSM_2_2(MatterBaseTest):
             if capability.resolution.width > maxRes.width and capability.resolution.height > maxRes.height:
                 maxRes = capability.resolution
         newResolution = Clusters.CameraAvStreamManagement.Structs.VideoResolutionStruct(
-            width=maxRes.width + 1, height=maxRes.height + 1)
+            width=maxRes.width + 1, height=maxRes.height + 1
+        )
         try:
             # Set the min and max resolution range so that no snapshot
             # capability resolution fall within it
@@ -357,7 +358,9 @@ class TC_AVSM_2_2(MatterBaseTest):
 
         for stream in aAllocatedSnapshotStreams:
             try:
-                await self.send_single_cmd(endpoint=endpoint, cmd=commands.SnapshotStreamDeallocate(snapshotStreamID=(stream.snapshotStreamID)))
+                await self.send_single_cmd(
+                    endpoint=endpoint, cmd=commands.SnapshotStreamDeallocate(snapshotStreamID=(stream.snapshotStreamID))
+                )
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 

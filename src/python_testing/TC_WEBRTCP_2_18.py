@@ -59,30 +59,44 @@ class TC_WEBRTCP_2_18(MatterBaseTest, WEBRTCPTestBase):
     def steps_TC_WEBRTCP_2_18(self) -> list[TestStep]:
         return [
             TestStep("precondition", "DUT commissioned", is_commissioning=True),
-            TestStep(1, "TH allocates both Audio and Video streams via AudioStreamAllocate and VideoStreamAllocate commands to CameraAVStreamManagement",
-                     "DUT responds with success and provides stream IDs"),
-            TestStep(2, "TH sends the SolicitOffer command with valid stream IDs",
-                     "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID"),
-            TestStep(3, "TH waits for incoming Offer command from DUT on WebRTC Requestor cluster",
-                     "DUT sends Offer command with the allocated WebRTCSessionID and valid SDP offer"),
-            TestStep(4, "TH sends the ProvideAnswer command with valid WebRTCSessionID and valid SDP answer",
-                     "DUT responds with success status code"),
-            TestStep(5, "TH sends EndSession command to terminate the WebRTC session",
-                     "DUT responds with success status code"),
-            TestStep(6, "TH deallocates the Audio and Video streams via AudioStreamDeallocate and VideoStreamDeallocate commands",
-                     "DUT responds with success status code for both deallocate commands"),
+            TestStep(
+                1,
+                "TH allocates both Audio and Video streams via AudioStreamAllocate and VideoStreamAllocate commands to CameraAVStreamManagement",
+                "DUT responds with success and provides stream IDs",
+            ),
+            TestStep(
+                2,
+                "TH sends the SolicitOffer command with valid stream IDs",
+                "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID",
+            ),
+            TestStep(
+                3,
+                "TH waits for incoming Offer command from DUT on WebRTC Requestor cluster",
+                "DUT sends Offer command with the allocated WebRTCSessionID and valid SDP offer",
+            ),
+            TestStep(
+                4,
+                "TH sends the ProvideAnswer command with valid WebRTCSessionID and valid SDP answer",
+                "DUT responds with success status code",
+            ),
+            TestStep(5, "TH sends EndSession command to terminate the WebRTC session", "DUT responds with success status code"),
+            TestStep(
+                6,
+                "TH deallocates the Audio and Video streams via AudioStreamDeallocate and VideoStreamDeallocate commands",
+                "DUT responds with success status code for both deallocate commands",
+            ),
         ]
 
     def pics_TC_WEBRTCP_2_18(self) -> list[str]:
         return [
             "WEBRTCP.S",
-            "WEBRTCP.S.C00.Rsp",   # SolicitOffer command
-            "WEBRTCP.S.C01.Tx",    # SolicitOfferResponse command
-            "WEBRTCR.S.C04.Rsp",   # ProvideAnswer command
-            "WEBRTCP.S.C06.Rsp",   # EndSession command
+            "WEBRTCP.S.C00.Rsp",  # SolicitOffer command
+            "WEBRTCP.S.C01.Tx",  # SolicitOfferResponse command
+            "WEBRTCR.S.C04.Rsp",  # ProvideAnswer command
+            "WEBRTCP.S.C06.Rsp",  # EndSession command
             "AVSM.S",
-            "AVSM.S.F00",          # Audio Data Output feature
-            "AVSM.S.F01",          # Video Data Output feature
+            "AVSM.S.F00",  # Audio Data Output feature
+            "AVSM.S.F01",  # Video Data Output feature
         ]
 
     @property
@@ -129,8 +143,7 @@ class TC_WEBRTCP_2_18(MatterBaseTest, WEBRTCPTestBase):
             payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD,
         )
 
-        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse,
-                             "Incorrect response type")
+        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse, "Incorrect response type")
         session_id = resp.webRTCSessionID
         asserts.assert_true(session_id >= 0, f"Invalid session ID: {session_id}")
         log.info(f"DUT allocated WebRTC session ID: {session_id}")
@@ -146,8 +159,9 @@ class TC_WEBRTCP_2_18(MatterBaseTest, WEBRTCPTestBase):
         offer_sessionId, offer_sdp = await webrtc_peer.get_remote_offer(timeout_s=30)
 
         # Verify the Offer command contains the same session ID
-        asserts.assert_equal(offer_sessionId, session_id,
-                             f"Offer session ID {offer_sessionId} does not match expected {session_id}")
+        asserts.assert_equal(
+            offer_sessionId, session_id, f"Offer session ID {offer_sessionId} does not match expected {session_id}"
+        )
         log.info(f"Received Offer command for session {session_id}")
 
         # Verify the Offer contains valid SDP content
@@ -175,8 +189,7 @@ class TC_WEBRTCP_2_18(MatterBaseTest, WEBRTCPTestBase):
 
         await self.send_single_cmd(
             cmd=Clusters.WebRTCTransportProvider.Commands.EndSession(
-                webRTCSessionID=session_id,
-                reason=Clusters.Globals.Enums.WebRTCEndReasonEnum.kUserHangup
+                webRTCSessionID=session_id, reason=Clusters.Globals.Enums.WebRTCEndReasonEnum.kUserHangup
             ),
             endpoint=endpoint,
         )
@@ -189,18 +202,14 @@ class TC_WEBRTCP_2_18(MatterBaseTest, WEBRTCPTestBase):
 
         # Deallocate audio stream
         await self.send_single_cmd(
-            cmd=Clusters.CameraAvStreamManagement.Commands.AudioStreamDeallocate(
-                audioStreamID=audio_stream_id
-            ),
+            cmd=Clusters.CameraAvStreamManagement.Commands.AudioStreamDeallocate(audioStreamID=audio_stream_id),
             endpoint=endpoint,
         )
         log.info(f"Successfully deallocated audio stream {audio_stream_id}")
 
         # Deallocate video stream
         await self.send_single_cmd(
-            cmd=Clusters.CameraAvStreamManagement.Commands.VideoStreamDeallocate(
-                videoStreamID=video_stream_id
-            ),
+            cmd=Clusters.CameraAvStreamManagement.Commands.VideoStreamDeallocate(videoStreamID=video_stream_id),
             endpoint=endpoint,
         )
         log.info(f"Successfully deallocated video stream {video_stream_id}")

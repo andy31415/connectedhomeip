@@ -70,11 +70,17 @@ class TC_SETRF_2_1(CommodityTariffTestBaseHelper):
         return ["SETRF.S"]
 
     def steps_TC_SETRF_2_1(self) -> list[TestStep]:
-
         return [
-            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test).",
-                     "DUT is commissioned.", is_commissioning=True),
-            TestStep("2", "TH reads from the DUT the TariffInfo attribute.", """
+            TestStep(
+                "1",
+                "Commission DUT to TH (can be skipped if done in a preceding test).",
+                "DUT is commissioned.",
+                is_commissioning=True,
+            ),
+            TestStep(
+                "2",
+                "TH reads from the DUT the TariffInfo attribute.",
+                """
                      - Verify that the DUT response contains a null or a value of TariffInformationStruct type;
                         - Verify that TariffLabel field has type string with max length 128 or null;
                         - Verify that ProviderName field has type string with max length 128 or null;
@@ -86,16 +92,28 @@ class TC_SETRF_2_1(CommodityTariffTestBaseHelper):
                                 - Verify that it has type currency or null;
                                     - Verify that Currency field of Currency struct has type uint16 with value less or equal 999;
                                     - Verify that DecimalPoints field of Currency struct has type uint8;
-                        - Store the value as tariffInfoValue."""),
-            TestStep("3", "TH reads from the DUT the TariffUnit attribute.", """
+                        - Store the value as tariffInfoValue.""",
+            ),
+            TestStep(
+                "3",
+                "TH reads from the DUT the TariffUnit attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a value of TariffUnitEnum type;
-                     - Value has to be between a range of 0 - 1."""),
-            TestStep("4", "TH reads from the DUT the StartDate attribute.", """
+                     - Value has to be between a range of 0 - 1.""",
+            ),
+            TestStep(
+                "4",
+                "TH reads from the DUT the StartDate attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a value of epoch-s type;
-                     - Store the value as startDateAttributeValue."""),
-            TestStep("5", "TH reads from the DUT the IndividualDays attribute.", """
+                     - Store the value as startDateAttributeValue.""",
+            ),
+            TestStep(
+                "5",
+                "TH reads from the DUT the IndividualDays attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a value that is a list of DayStruct entries with list length less or equal 50;
                      - For each entry:
@@ -104,8 +122,12 @@ class TC_SETRF_2_1(CommodityTariffTestBaseHelper):
                             - Verify that the DayStruct in this list are arranged in increasing order by the value of Date field;
                         - Verify that DayType field has DayTypeEnum type. Value has to be between a range of 0 - 3;
                         - Verify that DayEntryIDs of DayStruct field is a list of unique uint32 with list length in range 1 - 96;
-                        - If DayType equals 3 (Event), store DayEntryIDs value in dayEntryIDsEvents list."""),
-            TestStep("6", "TH reads from the DUT the DayEntries attribute.", """
+                        - If DayType equals 3 (Event), store DayEntryIDs value in dayEntryIDsEvents list.""",
+            ),
+            TestStep(
+                "6",
+                "TH reads from the DUT the DayEntries attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a value that is a list of DayEntryStruct entries with list length less or equal 672;
                      - For each entry:
@@ -121,15 +143,23 @@ class TC_SETRF_2_1(CommodityTariffTestBaseHelper):
                             - Verify that entry does NOT contain RandomizationOffset fields if SETRF.S.F05(RNDM) is False;
                             - If SETRF.S.F05(RNDM) is True and randomizationTypeValue is 0x01 (Fixed) and RandomizationOffset field is presented, it has an int16 value;
                             - If SETRF.S.F05(RNDM) is True and randomizationTypeValue is 0x04 (RandomNegative) and RandomizationOffset field is presented, it has an int16 value less or equal 0;
-                            - If SETRF.S.F05(RNDM) is True and randomizationTypeValue is 0x00 (None), 0x02 (Random) or 0x03 (RandomPositive) and RandomizationOffset field is presented, it has an int16 value greater or equal 0."""),
-            TestStep("7", "TH reads from the DUT the DayPatterns attribute.", """
+                            - If SETRF.S.F05(RNDM) is True and randomizationTypeValue is 0x00 (None), 0x02 (Random) or 0x03 (RandomPositive) and RandomizationOffset field is presented, it has an int16 value greater or equal 0.""",
+            ),
+            TestStep(
+                "7",
+                "TH reads from the DUT the DayPatterns attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a value that is a list of DayPatternStruct entries with list length less or equal 28;
                      - For each entry:
                         - Verify that DayPatternID field has uint32 type;
                         - Verify that DaysOfWeek field has DayPatternDayOfWeekBitmap type;
-                        - Verify that DayEntryIDs field is a list of unique uint32 with list length in range 1 - 96."""),
-            TestStep("8", "TH reads from the DUT the CalendarPeriods attribute.", """
+                        - Verify that DayEntryIDs field is a list of unique uint32 with list length in range 1 - 96.""",
+            ),
+            TestStep(
+                "8",
+                "TH reads from the DUT the CalendarPeriods attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a value that is a list of CalendarPeriodStruct entries with list length in range 1 - 4;
                      - For each entry:
@@ -137,19 +167,31 @@ class TC_SETRF_2_1(CommodityTariffTestBaseHelper):
                             - Verify that StartDate field is null or has type epoch-s with value greater or equal startDateAttributeValue;
                             - Verify that the calendar period items in this list are arranged in increasing order by the value of StartDate field;
                             - Verify that if the startDateAttributeValue is null then the StartDate field is null on the first CalendarPeriodStruct item and is not null on any subsequent CalendarPeriodStruct items;
-                        - Verify that DayPatternIDs field is a list of uint32 with list length in range 1 - 7"""),
-            TestStep("9", "TH reads from the DUT the CurrentDay attribute.", """
+                        - Verify that DayPatternIDs field is a list of uint32 with list length in range 1 - 7""",
+            ),
+            TestStep(
+                "9",
+                "TH reads from the DUT the CurrentDay attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a value of DayStruct type;
                         - Verify that Date field of DayStruct has epoch-s type;
                         - Verify that DayType field of DayStruct has DayTypeEnum type. Value has to be between a range of 0 - 3;
-                        - Verify that DayEntryIDs field is a list of unique uint32 with list length in range 1 - 96."""),
-            TestStep("10", "TH reads NextDay attribute.", """
+                        - Verify that DayEntryIDs field is a list of unique uint32 with list length in range 1 - 96.""",
+            ),
+            TestStep(
+                "10",
+                "TH reads NextDay attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a value of DayStruct type;
                         - Verify that DayType field of DayStruct has DayTypeEnum type. Value has to be between a range of 0 - 3;
-                        - Verify that DayEntryIDs field is a list of unique uint32 with list length in range 1 - 96."""),
-            TestStep("11", "TH reads from the DUT the CurrentDayEntry attribute.", """
+                        - Verify that DayEntryIDs field is a list of unique uint32 with list length in range 1 - 96.""",
+            ),
+            TestStep(
+                "11",
+                "TH reads from the DUT the CurrentDayEntry attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a value of DayEntryStruct type;
                      - Verify that the DUT response contains a null if tariffInfoValue equals null;
@@ -164,12 +206,20 @@ class TC_SETRF_2_1(CommodityTariffTestBaseHelper):
                         - Verify that entry does NOT contain RandomizationOffset fields if SETRF.S.F05(RNDM) is False;
                         - If SETRF.S.F05(RNDM) is True and randomizationTypeValue is 0x01 (Fixed) and RandomizationOffset field is presented, it has an int16 value;
                         - If SETRF.S.F05(RNDM) is True and randomizationTypeValue is 0x04 (RandomNegative) and RandomizationOffset field is presented, it has an int16 value less or equal 0;
-                        - If SETRF.S.F05(RNDM) is True and randomizationTypeValue is 0x00 (None), 0x02 (Random) or 0x03 (RandomPositive) and RandomizationOffset field is presented, it has an int16 value greater or equal 0."""),
-            TestStep("12", "TH reads from the DUT the CurrentDayEntryDate attribute.", """
+                        - If SETRF.S.F05(RNDM) is True and randomizationTypeValue is 0x00 (None), 0x02 (Random) or 0x03 (RandomPositive) and RandomizationOffset field is presented, it has an int16 value greater or equal 0.""",
+            ),
+            TestStep(
+                "12",
+                "TH reads from the DUT the CurrentDayEntryDate attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a value of epoch-s type;
-                     - Store the value as currentDayEntryDateValue."""),
-            TestStep("13", "TH reads from the DUT the NextDayEntry attribute.", """
+                     - Store the value as currentDayEntryDateValue.""",
+            ),
+            TestStep(
+                "13",
+                "TH reads from the DUT the NextDayEntry attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a value of DayEntryStruct type;
                      - Verify that DayEntryID field has uint32 type;
@@ -183,11 +233,19 @@ class TC_SETRF_2_1(CommodityTariffTestBaseHelper):
                         - Verify that entry does NOT contain RandomizationOffset fields if SETRF.S.F05(RNDM) is False;
                         - If SETRF.S.F05(RNDM) is True and randomizationTypeValue is 0x01 (Fixed) and RandomizationOffset field is presented, it has an int16 value;
                         - If SETRF.S.F05(RNDM) is True and randomizationTypeValue is 0x04 (RandomNegative) and RandomizationOffset field is presented, it has an int16 value less or equal 0;
-                        - If SETRF.S.F05(RNDM) is True and randomizationTypeValue is 0x00 (None), 0x02 (Random) or 0x03 (RandomPositive) and RandomizationOffset field is presented, it has an int16 value greater or equal 0."""),
-            TestStep("14", "TH reads from the DUT the NextDayEntryDate attribute.", """
+                        - If SETRF.S.F05(RNDM) is True and randomizationTypeValue is 0x00 (None), 0x02 (Random) or 0x03 (RandomPositive) and RandomizationOffset field is presented, it has an int16 value greater or equal 0.""",
+            ),
+            TestStep(
+                "14",
+                "TH reads from the DUT the NextDayEntryDate attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
-                     - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or an epoch-s value greater than currentDayEntryDateValue;"""),
-            TestStep("15", "TH reads from the DUT the TariffComponents attribute.", """
+                     - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or an epoch-s value greater than currentDayEntryDateValue;""",
+            ),
+            TestStep(
+                "15",
+                "TH reads from the DUT the TariffComponents attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a list of TariffComponentStruct entries with list length in range 1-672;
                      - For each entry:
@@ -223,16 +281,24 @@ class TC_SETRF_2_1(CommodityTariffTestBaseHelper):
                             - If SETRF.S.F04(PWRTHLD) is True and PowerThreshold field is presented it has PowerThresholdStruct type;
                                 - Verify that PowerThreshold field has power-mW type;
                                 - Verify that ApparentPowerThreshold field has power-mVA type;
-                                - Verify that PowerThresholdSource field has PowerThresholdSourceEnum type. Value has to be between a range of 0 - 2."""),
-            TestStep("16", "TH reads from the DUT the TariffPeriods attribute.", """
+                                - Verify that PowerThresholdSource field has PowerThresholdSourceEnum type. Value has to be between a range of 0 - 2.""",
+            ),
+            TestStep(
+                "16",
+                "TH reads from the DUT the TariffPeriods attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a list of TariffPeriodStruct entries with list length in range 1-672;
                      - For each entry:
                         - Verify that Label field is null or has type string with max length 128;
                         - Verify that DayEntryIDs field is a list of unique uint32 with list length in range 1 - 20;
                         - Verify that TariffComponentIDs field is a list of uint32 with list length in range 1 - 20;
-                            - Verify that if Predicted is not True TariffComponentID is a unique identifier for the combination of values of the Price, Threshold, FriendlyCredit, AuxiliaryLoad, and PeakPeriod fields with the value of the DayEntryIDs field on the encompassing TariffPeriodStruct."""),
-            TestStep("17", "TH reads from the DUT the CurrentTariffComponents attribute.", """
+                            - Verify that if Predicted is not True TariffComponentID is a unique identifier for the combination of values of the Price, Threshold, FriendlyCredit, AuxiliaryLoad, and PeakPeriod fields with the value of the DayEntryIDs field on the encompassing TariffPeriodStruct.""",
+            ),
+            TestStep(
+                "17",
+                "TH reads from the DUT the CurrentTariffComponents attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a value that is a list of TariffComponentStruct entries with list length less or equal 20;
                      - For each entry:
@@ -268,8 +334,12 @@ class TC_SETRF_2_1(CommodityTariffTestBaseHelper):
                             - If SETRF.S.F04(PWRTHLD) is True and PowerThreshold field is presented it has PowerThresholdStruct type;
                                 - Verify that PowerThreshold field has power-mW type;
                                 - Verify that ApparentPowerThreshold field has power-mVA type;
-                                - Verify that PowerThresholdSource field has PowerThresholdSourceEnum type. Value has to be between a range of 0 - 2."""),
-            TestStep("18", "TH reads from the DUT the NextTariffComponents attribute.", """
+                                - Verify that PowerThresholdSource field has PowerThresholdSourceEnum type. Value has to be between a range of 0 - 2.""",
+            ),
+            TestStep(
+                "18",
+                "TH reads from the DUT the NextTariffComponents attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a value that is a list of TariffComponentStruct entries with list length less or equal 20;
                      - For each entry:
@@ -305,18 +375,27 @@ class TC_SETRF_2_1(CommodityTariffTestBaseHelper):
                             - If SETRF.S.F04(PWRTHLD) is True and PowerThreshold field is presented it has PowerThresholdStruct type;
                                 - Verify that PowerThreshold field has power-mW type;
                                 - Verify that ApparentPowerThreshold field has power-mVA type;
-                                - Verify that PowerThresholdSource field has PowerThresholdSourceEnum type. Value has to be between a range of 0 - 2."""),
-            TestStep("19", "TH reads from the DUT the DefaultRandomizationType attribute.", """
+                                - Verify that PowerThresholdSource field has PowerThresholdSourceEnum type. Value has to be between a range of 0 - 2.""",
+            ),
+            TestStep(
+                "19",
+                "TH reads from the DUT the DefaultRandomizationType attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If tariffInfoValue does NOT equal null, Verify that the DUT response contains a null or a value of DayEntryRandomizationTypeEnum. Value has to be between a range of 0 - 4;
-                     - Store the value as defaultRandomizationTypeValue."""),
-            TestStep("20", "TH reads from the DUT the DefaultRandomizationOffset attribute.", """
+                     - Store the value as defaultRandomizationTypeValue.""",
+            ),
+            TestStep(
+                "20",
+                "TH reads from the DUT the DefaultRandomizationOffset attribute.",
+                """
                      - If tariffInfoValue equals null, Verify that the DUT response contains a null;
                      - If defaultRandomizationTypeValue is null, Verify that the DUT response contains a null;
                      - Verify that the DUT response contains a null if tariffInfoValue equals null;
                      - If defaultRandomizationTypeValue is 0x01 (Fixed), Verify that the DUT response contains an int16 value;
                      - If defaultRandomizationTypeValue is 0x04 (RandomNegative), Verify that the DUT response contains an int16 value less or equal 0;
-                     - If defaultRandomizationTypeValue is 0x00 (None), 0x02 (Random) or 0x03 (RandomPositive), Verify that the DUT response contains an int16 value greater or equal 0."""),
+                     - If defaultRandomizationTypeValue is 0x00 (None), 0x02 (Random) or 0x03 (RandomPositive), Verify that the DUT response contains an int16 value greater or equal 0.""",
+            ),
         ]
 
     @async_test_body
@@ -397,7 +476,6 @@ class TC_SETRF_2_1(CommodityTariffTestBaseHelper):
         await self.check_next_tariff_components_attribute(endpoint)
 
         if await self.attribute_guard(endpoint=endpoint, attribute=cluster.Attributes.DefaultRandomizationType):
-
             self.step("19")
 
             if not self.check_pics("SETRF.S.A0012"):  # for cases when it is supported by DUT, but disabled in PICS
@@ -406,16 +484,15 @@ class TC_SETRF_2_1(CommodityTariffTestBaseHelper):
             # TH reads DefaultRandomizationType attribute, expects a DayEntryRandomizationTypeEnum
             await self.check_default_randomization_type_attribute(endpoint)
         else:
-
             if self.check_pics("SETRF.S.A0012"):  # for cases when it is not supported by DUT, but enabled in PICS
                 self.step("19")
                 asserts.fail(
-                    "PICS file does not correspond to real DUT functionality. DefaultRandomizationType is not actually supported, but SETRF.S.A0012 is True.")
+                    "PICS file does not correspond to real DUT functionality. DefaultRandomizationType is not actually supported, but SETRF.S.A0012 is True."
+                )
             else:  # attribute is not supported at all
                 self.skip_step("19")
 
         if await self.attribute_guard(endpoint=endpoint, attribute=cluster.Attributes.DefaultRandomizationOffset):
-
             self.step("20")
 
             if not self.check_pics("SETRF.S.A0011"):  # for cases when it is supported by DUT, but disabled in PICS
@@ -424,11 +501,11 @@ class TC_SETRF_2_1(CommodityTariffTestBaseHelper):
             # TH reads DefaultRandomizationOffset attribute, expects a int16
             await self.check_default_randomization_offset_attribute(endpoint)
         else:
-
             if self.check_pics("SETRF.S.A0011"):  # for cases when it is not supported by DUT, but enabled in PICS
                 self.step("20")
                 asserts.fail(
-                    "PICS file does not correspond to real DUT functionality. DefaultRandomizationOffset is not actually supported, but SETRF.S.A0011 is True.")
+                    "PICS file does not correspond to real DUT functionality. DefaultRandomizationOffset is not actually supported, but SETRF.S.A0011 is True."
+                )
             else:  # attribute is not supported at all
                 self.skip_step("20")
 

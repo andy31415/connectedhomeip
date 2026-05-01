@@ -23,10 +23,35 @@ import subprocess
 import sys
 
 from crc import Calculator, Crc16
-from custom import (CertDeclaration, DacCert, DacPKey, Discriminator, El2GoDacCertID, El2GoDacKeyID, El2GoObject, HardwareVersion,
-                    HardwareVersionStr, IterationCount, ManufacturingDate, PaiCert, PartNumber, ProductFinish, ProductId,
-                    ProductLabel, ProductName, ProductPrimaryColor, ProductURL, Salt, SerialNum, SetupPasscode, StrArgument,
-                    UniqueId, VendorId, VendorName, Verifier)
+from custom import (
+    CertDeclaration,
+    DacCert,
+    DacPKey,
+    Discriminator,
+    El2GoDacCertID,
+    El2GoDacKeyID,
+    El2GoObject,
+    HardwareVersion,
+    HardwareVersionStr,
+    IterationCount,
+    ManufacturingDate,
+    PaiCert,
+    PartNumber,
+    ProductFinish,
+    ProductId,
+    ProductLabel,
+    ProductName,
+    ProductPrimaryColor,
+    ProductURL,
+    Salt,
+    SerialNum,
+    SetupPasscode,
+    StrArgument,
+    UniqueId,
+    VendorId,
+    VendorName,
+    Verifier,
+)
 from default import InputArgument
 
 log = logging.getLogger(__name__)
@@ -37,15 +62,10 @@ hash_id = "CE47BA5E"
 
 def set_logger():
     stdout_handler = logging.StreamHandler(stream=sys.stdout)
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='[%(levelname)s] %(message)s',
-        handlers=[stdout_handler]
-    )
+    logging.basicConfig(level=logging.DEBUG, format="[%(levelname)s] %(message)s", handlers=[stdout_handler])
 
 
 class Spake2p:
-
     def __init__(self):
         pass
 
@@ -57,20 +77,24 @@ class Spake2p:
 
     def _generate_params(self, args):
         cmd = [
-            args.spake2p_path, "gen-verifier",
-            "--iteration-count", str(args.it.val),
-            "--salt", args.salt.encode(),
-            "--pin-code", str(args.passcode.val),
-            "--out", "-"
+            args.spake2p_path,
+            "gen-verifier",
+            "--iteration-count",
+            str(args.it.val),
+            "--salt",
+            args.salt.encode(),
+            "--pin-code",
+            str(args.passcode.val),
+            "--out",
+            "-",
         ]
 
         out = subprocess.run(cmd, check=True, stdout=subprocess.PIPE).stdout
         out = out.decode("utf-8").splitlines()
-        return dict(zip(out[0].split(','), out[1].split(',')))
+        return dict(zip(out[0].split(","), out[1].split(",")))
 
 
 class KlvGenerator:
-
     def __init__(self, args):
         self.args = args
         self._validate_args()
@@ -97,7 +121,7 @@ class KlvGenerator:
             assert str_arg.length() <= str_arg.max_length()
 
     def generate(self):
-        '''Return a list of (K, L, V) tuples.
+        """Return a list of (K, L, V) tuples.
 
         args is essentially a dict, so the entries are not ordered.
         Sort the objects to ensure the same order of KLV data every
@@ -106,7 +130,7 @@ class KlvGenerator:
 
         The new list will contain only InputArgument objects, which
         generate a (K, L, V) tuple through output() method.
-        '''
+        """
         data = []
 
         data = [obj for key, obj in vars(self.args).items() if isinstance(obj, InputArgument)]
@@ -121,7 +145,7 @@ class KlvGenerator:
                 fullContent += entry[2]
             size = len(fullContent)
 
-            if (aes_key is None):
+            if aes_key is None:
                 # Calculate 4 bytes of hashing
                 hashing = hashlib.sha256(fullContent).hexdigest()
                 hashing = hashing[0:8]
@@ -140,12 +164,13 @@ class KlvGenerator:
 
                 size = len(fullContent)
 
-                if (self.args.hw_params):
+                if self.args.hw_params:
                     calculator = Calculator(Crc16.XMODEM)
                     crc_sum = calculator.checksum(fullContent)
 
-                    fullContent = bytearray(b"APP_FACT_DATA:  ") + size.to_bytes(4, 'little') + \
-                        fullContent + crc_sum.to_bytes(2, 'little')
+                    fullContent = (
+                        bytearray(b"APP_FACT_DATA:  ") + size.to_bytes(4, "little") + fullContent + crc_sum.to_bytes(2, "little")
+                    )
 
                     size = len(fullContent)
 
@@ -162,6 +187,7 @@ class KlvGenerator:
                 size = len(fullContent)
                 log.info("(After padding) Size of generated binary is: %d bytes", size)
                 from Crypto.Cipher import AES
+
                 cipher = AES.new(bytes.fromhex(aes_key), AES.MODE_ECB)
                 fullContentCipher = cipher.encrypt(fullContent)
 
@@ -194,73 +220,55 @@ def main():
     optional = parser
     required = parser.add_argument_group("required arguments")
 
-    required.add_argument("-i", "--it", required=True, type=IterationCount,
-                          help="[int | hex] Spake2 Iteration Counter")
-    required.add_argument("-s", "--salt", required=True, type=Salt,
-                          help="[base64 str] Spake2 Salt")
-    required.add_argument("-p", "--passcode", required=True, type=SetupPasscode,
-                          help="[int | hex] PASE session passcode")
-    required.add_argument("-d", "--discriminator", required=True, type=Discriminator,
-                          help="[int | hex] BLE Pairing discriminator")
-    required.add_argument("--vid", required=True, type=VendorId,
-                          help="[int | hex] Vendor Identifier (VID)")
-    required.add_argument("--pid", required=True, type=ProductId,
-                          help="[int | hex] Product Identifier (PID)")
-    required.add_argument("--vendor_name", required=True, type=VendorName,
-                          help="[str] Vendor Name")
-    required.add_argument("--product_name", required=True, type=ProductName,
-                          help="[str] Product Name")
-    required.add_argument("--hw_version", required=True, type=HardwareVersion,
-                          help="[int | hex] Hardware version as number")
-    required.add_argument("--hw_version_str", required=True, type=HardwareVersionStr,
-                          help="[str] Hardware version as string")
-    required.add_argument("--cert_declaration", required=True, type=CertDeclaration,
-                          help="[path] Path to Certification Declaration in DER format")
-    required.add_argument("--pai_cert", required=True, type=PaiCert,
-                          help="[path] Path to PAI certificate in DER format")
-    required.add_argument("--spake2p_path", required=True, type=str,
-                          help="[path] Path to spake2p tool")
-    required.add_argument("--out", required=True, type=str,
-                          help="[path] Path to output binary")
+    required.add_argument("-i", "--it", required=True, type=IterationCount, help="[int | hex] Spake2 Iteration Counter")
+    required.add_argument("-s", "--salt", required=True, type=Salt, help="[base64 str] Spake2 Salt")
+    required.add_argument("-p", "--passcode", required=True, type=SetupPasscode, help="[int | hex] PASE session passcode")
+    required.add_argument("-d", "--discriminator", required=True, type=Discriminator, help="[int | hex] BLE Pairing discriminator")
+    required.add_argument("--vid", required=True, type=VendorId, help="[int | hex] Vendor Identifier (VID)")
+    required.add_argument("--pid", required=True, type=ProductId, help="[int | hex] Product Identifier (PID)")
+    required.add_argument("--vendor_name", required=True, type=VendorName, help="[str] Vendor Name")
+    required.add_argument("--product_name", required=True, type=ProductName, help="[str] Product Name")
+    required.add_argument("--hw_version", required=True, type=HardwareVersion, help="[int | hex] Hardware version as number")
+    required.add_argument("--hw_version_str", required=True, type=HardwareVersionStr, help="[str] Hardware version as string")
+    required.add_argument(
+        "--cert_declaration", required=True, type=CertDeclaration, help="[path] Path to Certification Declaration in DER format"
+    )
+    required.add_argument("--pai_cert", required=True, type=PaiCert, help="[path] Path to PAI certificate in DER format")
+    required.add_argument("--spake2p_path", required=True, type=str, help="[path] Path to spake2p tool")
+    required.add_argument("--out", required=True, type=str, help="[path] Path to output binary")
 
-    optional.add_argument("--dac_cert", type=DacCert,
-                          help="[path] Path to DAC certificate in DER format")
-    optional.add_argument("--dac_key", type=DacPKey,
-                          help="[path] Path to DAC key in DER format")
-    optional.add_argument("--EL2GO_bin", type=El2GoObject,
-                          help="[path] Path to EL2GO secure objects binary")
-    optional.add_argument("--EL2GO_DAC_KEY_ID", type=El2GoDacKeyID,
-                          help="[hex] EL2GO DAC key ID")
-    optional.add_argument("--EL2GO_DAC_CERT_ID", type=El2GoDacCertID,
-                          help="[hex] EL2GO DAC certificate ID")
-    optional.add_argument("--dac_key_password", type=str,
-                          help="[path] Password to decode DAC Key if available")
-    optional.add_argument("--dac_key_use_sss_blob", action='store_true',
-                          help="[bool] If present, DAC private key area is populated by an encrypted blob")
-    optional.add_argument("--spake2p_verifier", type=Verifier,
-                          help="[base64 str] Already generated spake2p verifier")
-    optional.add_argument("--aes128_key",
-                          help="[hex] AES 128 bits key used to encrypt the whole dataset")
-    optional.add_argument("--aes256_key",
-                          help="[hex] AES 256 bits key used to encrypt the whole dataset")
-    optional.add_argument("--date", type=ManufacturingDate,
-                          help="[str] Manufacturing Date (YYYY-MM-DD)")
-    optional.add_argument("--part_number", type=PartNumber,
-                          help="[str] PartNumber as String")
-    optional.add_argument("--product_url", type=ProductURL,
-                          help="[str] ProductURL as String")
-    optional.add_argument("--product_label", type=ProductLabel,
-                          help="[str] ProductLabel as String")
-    optional.add_argument("--serial_num", type=SerialNum,
-                          help="[str] Serial Number")
-    optional.add_argument("--unique_id", type=UniqueId,
-                          help="[str] Unique identifier for the device")
-    optional.add_argument("--product_finish", type=ProductFinish, metavar=ProductFinish.VALUES,
-                          help="[str] Visible finish of the product")
-    optional.add_argument("--product_primary_color", type=ProductPrimaryColor, metavar=ProductPrimaryColor.VALUES,
-                          help="[str] Representative color of the visible parts of the product")
-    optional.add_argument("--hw_params", action='store_true',
-                          help="[bool] If present, store factory data in HWParameters APP section")
+    optional.add_argument("--dac_cert", type=DacCert, help="[path] Path to DAC certificate in DER format")
+    optional.add_argument("--dac_key", type=DacPKey, help="[path] Path to DAC key in DER format")
+    optional.add_argument("--EL2GO_bin", type=El2GoObject, help="[path] Path to EL2GO secure objects binary")
+    optional.add_argument("--EL2GO_DAC_KEY_ID", type=El2GoDacKeyID, help="[hex] EL2GO DAC key ID")
+    optional.add_argument("--EL2GO_DAC_CERT_ID", type=El2GoDacCertID, help="[hex] EL2GO DAC certificate ID")
+    optional.add_argument("--dac_key_password", type=str, help="[path] Password to decode DAC Key if available")
+    optional.add_argument(
+        "--dac_key_use_sss_blob",
+        action="store_true",
+        help="[bool] If present, DAC private key area is populated by an encrypted blob",
+    )
+    optional.add_argument("--spake2p_verifier", type=Verifier, help="[base64 str] Already generated spake2p verifier")
+    optional.add_argument("--aes128_key", help="[hex] AES 128 bits key used to encrypt the whole dataset")
+    optional.add_argument("--aes256_key", help="[hex] AES 256 bits key used to encrypt the whole dataset")
+    optional.add_argument("--date", type=ManufacturingDate, help="[str] Manufacturing Date (YYYY-MM-DD)")
+    optional.add_argument("--part_number", type=PartNumber, help="[str] PartNumber as String")
+    optional.add_argument("--product_url", type=ProductURL, help="[str] ProductURL as String")
+    optional.add_argument("--product_label", type=ProductLabel, help="[str] ProductLabel as String")
+    optional.add_argument("--serial_num", type=SerialNum, help="[str] Serial Number")
+    optional.add_argument("--unique_id", type=UniqueId, help="[str] Unique identifier for the device")
+    optional.add_argument(
+        "--product_finish", type=ProductFinish, metavar=ProductFinish.VALUES, help="[str] Visible finish of the product"
+    )
+    optional.add_argument(
+        "--product_primary_color",
+        type=ProductPrimaryColor,
+        metavar=ProductPrimaryColor.VALUES,
+        help="[str] Representative color of the visible parts of the product",
+    )
+    optional.add_argument(
+        "--hw_params", action="store_true", help="[bool] If present, store factory data in HWParameters APP section"
+    )
 
     args = parser.parse_args()
 

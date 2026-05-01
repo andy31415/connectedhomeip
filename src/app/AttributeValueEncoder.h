@@ -146,9 +146,9 @@ public:
     AttributeValueEncoder(AttributeReportIBs::Builder & aAttributeReportIBsBuilder, Access::SubjectDescriptor subjectDescriptor,
                           const ConcreteAttributePath & aPath, DataVersion aDataVersion, bool aIsFabricFiltered = false,
                           const AttributeEncodeState & aState = AttributeEncodeState()) :
-        mAttributeReportIBsBuilder(aAttributeReportIBsBuilder),
-        mSubjectDescriptor(subjectDescriptor), mPath(aPath.mEndpointId, aPath.mClusterId, aPath.mAttributeId),
-        mDataVersion(aDataVersion), mIsFabricFiltered(aIsFabricFiltered), mEncodeState(aState)
+        mAttributeReportIBsBuilder(aAttributeReportIBsBuilder), mSubjectDescriptor(subjectDescriptor),
+        mPath(aPath.mEndpointId, aPath.mClusterId, aPath.mAttributeId), mDataVersion(aDataVersion),
+        mIsFabricFiltered(aIsFabricFiltered), mEncodeState(aState)
     {}
 
     /**

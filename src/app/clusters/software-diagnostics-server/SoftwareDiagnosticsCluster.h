@@ -52,8 +52,8 @@ public:
 
     SoftwareDiagnosticsServerCluster(const OptionalAttributeSet & optionalAttributeSet,
                                      DeviceLayer::DiagnosticDataProvider & diagnosticDataProvider) :
-        DefaultServerCluster({ kRootEndpointId, SoftwareDiagnostics::Id }),
-        mOptionalAttributeSet(optionalAttributeSet), mDiagnosticDataProvider(diagnosticDataProvider)
+        DefaultServerCluster({ kRootEndpointId, SoftwareDiagnostics::Id }), mOptionalAttributeSet(optionalAttributeSet),
+        mDiagnosticDataProvider(diagnosticDataProvider)
     {}
 
     // software fault listener

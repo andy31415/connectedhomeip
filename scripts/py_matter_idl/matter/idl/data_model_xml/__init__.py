@@ -61,8 +61,7 @@ class ParseHandler(xml.sax.handler.ContentHandler):
     def startDocument(self):
         if self._include_meta_data and self._locator:
             self._context.locator = self._locator
-        self._processing_stack = [
-            DataModelXmlHandler(self._context, self._idl)]
+        self._processing_stack = [DataModelXmlHandler(self._context, self._idl)]
 
     def endDocument(self):
         if len(self._processing_stack) != 1:
@@ -71,8 +70,7 @@ class ParseHandler(xml.sax.handler.ContentHandler):
     def startElement(self, name: str, attrs):
         log.debug("ELEMENT START: %r / %r", name, attrs)
         self._context.path.push(name)
-        self._processing_stack.append(
-            self._processing_stack[-1].GetNextProcessor(name, attrs))
+        self._processing_stack.append(self._processing_stack[-1].GetNextProcessor(name, attrs))
 
     def endElement(self, name: str):
         log.debug("ELEMENT END: %r", name)
@@ -94,6 +92,7 @@ class ParseSource:
 
     Allows for named data sources to be parsed.
     """
+
     source: Union[str, typing.IO]  # filename or stream
     # actual filename to use, None if the source is a filename already
     name: Optional[str] = None
@@ -123,8 +122,7 @@ def ParseXmls(sources: List[ParseSource], include_meta_data=True) -> Idl:
         try:
             parser.parse(source.source)
         except AssertionError as e:
-            log.error("%r at %r", e,
-                      handler._context.GetCurrentLocationMeta())
+            log.error("%r at %r", e, handler._context.GetCurrentLocationMeta())
             raise
 
     return handler.Finish()

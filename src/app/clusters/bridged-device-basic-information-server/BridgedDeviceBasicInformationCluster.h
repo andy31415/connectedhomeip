@@ -116,8 +116,8 @@ public:
 
     BridgedDeviceBasicInformationCluster(EndpointId endpointId, MutableData && mutableData, FixedData && fixedData,
                                          Context && context) :
-        DefaultServerCluster({ endpointId, BridgedDeviceBasicInformation::Id }),
-        mMutableData(std::move(mutableData)), mFixedData(std::move(fixedData)), mClusterContext(std::move(context))
+        DefaultServerCluster({ endpointId, BridgedDeviceBasicInformation::Id }), mMutableData(std::move(mutableData)),
+        mFixedData(std::move(fixedData)), mClusterContext(std::move(context))
     {}
 
     bool GetReachable() const { return mMutableData.reachable; }

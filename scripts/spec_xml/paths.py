@@ -22,19 +22,17 @@ def get_chip_root():
     Returns the CHIP root directory, trying the environment variable first
     and falling back if necessary.
     """
-    chip_root = os.getenv('PW_PROJECT_ROOT')
+    chip_root = os.getenv("PW_PROJECT_ROOT")
     if chip_root:
         return chip_root
     try:
-        return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+        return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     except Exception as e:
-        raise EnvironmentError(
-            "Unable to determine CHIP root directory. Please ensure the environment is activated."
-        ) from e
+        raise EnvironmentError("Unable to determine CHIP root directory. Please ensure the environment is activated.") from e
 
 
 def get_data_model_path():
-    return os.path.join(get_chip_root(), 'data_model')
+    return os.path.join(get_chip_root(), "data_model")
 
 
 def get_spec_xml_output_path():
@@ -42,7 +40,7 @@ def get_spec_xml_output_path():
     Returns the path to the output directory for generated XML files.
     """
     chip_root = get_chip_root()
-    output_dir = os.path.join(chip_root, 'out', 'spec_xml')
+    output_dir = os.path.join(chip_root, "out", "spec_xml")
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)  # Automatically create the directory if it doesn't exist
     return output_dir
@@ -53,7 +51,7 @@ def get_cluster_documentation_file_path():
     Returns the path to the documentation file.
     """
     chip_root = get_chip_root()
-    return os.path.join(chip_root, 'docs', 'ids_and_codes', 'spec_clusters.md')
+    return os.path.join(chip_root, "docs", "ids_and_codes", "spec_clusters.md")
 
 
 def get_device_types_documentation_file_path():
@@ -61,7 +59,7 @@ def get_device_types_documentation_file_path():
     Returns the path to the documentation file.
     """
     chip_root = get_chip_root()
-    return os.path.join(chip_root, 'docs', 'ids_and_codes', 'spec_device_types.md')
+    return os.path.join(chip_root, "docs", "ids_and_codes", "spec_device_types.md")
 
 
 def get_python_testing_path():
@@ -69,7 +67,7 @@ def get_python_testing_path():
     Returns the path to the python_testing directory.
     """
     chip_root = get_chip_root()
-    python_testing_path = os.path.join(chip_root, 'src', 'python_testing')
+    python_testing_path = os.path.join(chip_root, "src", "python_testing")
     if not os.path.exists(python_testing_path):
         raise FileNotFoundError(f"Python testing directory does not exist: {python_testing_path}")
     return python_testing_path

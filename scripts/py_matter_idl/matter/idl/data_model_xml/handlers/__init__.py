@@ -27,24 +27,26 @@ LOGGER = logging.getLogger(__name__)
 
 def contains_valid_cluster_id(attrs: AttributesImpl) -> bool:
     # Does not check numeric format ... assuming scraper is smart enough for that
-    return 'id' in attrs and len(attrs['id']) > 0
+    return "id" in attrs and len(attrs["id"]) > 0
 
 
 class DataModelXmlHandler(BaseHandler):
-    """Handles the top level (/) of a data model xml file
-    """
+    """Handles the top level (/) of a data model xml file"""
 
     def __init__(self, context: Context, idl: Idl):
         super().__init__(context)
         self._idl = idl
 
     def GetNextProcessor(self, name, attrs: AttributesImpl):
-        if name.lower() == 'cluster':
+        if name.lower() == "cluster":
             if contains_valid_cluster_id(attrs):
                 return ClusterHandler.ForAttributes(self.context, self._idl, attrs)
 
-            LOGGER.info(
-                "Found an abstract base cluster (no id): '%s'", attrs['name'])
+            LOGGER.info("Found an abstract base cluster (no id): '%s'", attrs["name"])
 
-            return ClusterHandler.IntoCluster(self.context, self._idl, self.context.AddAbstractBaseCluster(NormalizeName(attrs['name']), self.context.GetCurrentLocationMeta()))
+            return ClusterHandler.IntoCluster(
+                self.context,
+                self._idl,
+                self.context.AddAbstractBaseCluster(NormalizeName(attrs["name"]), self.context.GetCurrentLocationMeta()),
+            )
         return BaseHandler(self.context)

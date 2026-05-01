@@ -18,8 +18,18 @@ import glob
 import io
 from typing import List, Optional
 
-from matter.idl.matter_idl_types import (Attribute, Bitmap, Cluster, Command, Enum, Event, FieldQuality, Struct, StructQuality,
-                                         StructTag)
+from matter.idl.matter_idl_types import (
+    Attribute,
+    Bitmap,
+    Cluster,
+    Command,
+    Enum,
+    Event,
+    FieldQuality,
+    Struct,
+    StructQuality,
+    StructTag,
+)
 from matter.idl.zapxml import ParseSource, ParseXmls
 
 from .pseudo_clusters.pseudo_clusters import PseudoClusters
@@ -37,7 +47,6 @@ class _ItemType(enum.Enum):
 
 
 class SpecDefinitions:
-
     def __init__(self, sources: List[ParseSource]):
         self.__clusters_by_id: dict[int, Cluster] = {}
         self.__commands_by_id: dict[int, dict[int, Command]] = {}
@@ -63,25 +72,18 @@ class SpecDefinitions:
             self.__clusters_by_id[code] = cluster
             self.__commands_by_id[code] = {c.code: c for c in cluster.commands}
             self.__responses_by_id[code] = {}
-            self.__attributes_by_id[code] = {
-                a.definition.code: a for a in cluster.attributes}
+            self.__attributes_by_id[code] = {a.definition.code: a for a in cluster.attributes}
             self.__events_by_id[code] = {e.code: e for e in cluster.events}
 
             self.__clusters_by_name[name] = cluster.code
-            self.__commands_by_name[name] = {
-                c.name: c.code for c in cluster.commands}
+            self.__commands_by_name[name] = {c.name: c.code for c in cluster.commands}
             self.__responses_by_name[name] = {}
-            self.__attributes_by_name[name] = {
-                a.definition.name: a.definition.code for a in cluster.attributes}
-            self.__events_by_name[name] = {
-                e.name: e.code for e in cluster.events}
+            self.__attributes_by_name[name] = {a.definition.name: a.definition.code for a in cluster.attributes}
+            self.__events_by_name[name] = {e.name: e.code for e in cluster.events}
 
-            self.__bitmaps_by_name[name] = {
-                b.name: b for b in cluster.bitmaps}
-            self.__enums_by_name[name] = {
-                e.name: e for e in cluster.enums}
-            self.__structs_by_name[name] = {
-                s.name: s for s in cluster.structs}
+            self.__bitmaps_by_name[name] = {b.name: b for b in cluster.bitmaps}
+            self.__enums_by_name[name] = {e.name: e for e in cluster.enums}
+            self.__structs_by_name[name] = {s.name: s for s in cluster.structs}
 
             for struct in cluster.structs:
                 if struct.tag == StructTag.RESPONSE:
@@ -104,13 +106,11 @@ class SpecDefinitions:
         return command.name if command else None
 
     def get_response_name(self, cluster_id: int, response_id: int) -> str:
-        response = self.__get_by_id(
-            cluster_id, response_id, _ItemType.Response)
+        response = self.__get_by_id(cluster_id, response_id, _ItemType.Response)
         return response.name if response else None
 
     def get_attribute_name(self, cluster_id: int, attribute_id: int) -> str:
-        attribute = self.__get_by_id(
-            cluster_id, attribute_id, _ItemType.Attribute)
+        attribute = self.__get_by_id(cluster_id, attribute_id, _ItemType.Attribute)
         return attribute.definition.name if attribute else None
 
     def get_event_name(self, cluster_id: int, event_id: int) -> str:
@@ -122,7 +122,7 @@ class SpecDefinitions:
             return None
 
         # The idl parser remove spaces
-        cluster_name = cluster_name.replace(' ', '')
+        cluster_name = cluster_name.replace(" ", "")
         return self.__clusters_by_name.get(cluster_name)
 
     def has_cluster_by_name(self, cluster_name: str) -> bool:
@@ -170,31 +170,28 @@ class SpecDefinitions:
         return None
 
     def get_command_names(self, cluster_name: str) -> List[str]:
-        targets = self.__get_targets_by_cluster_name(
-            cluster_name, _ItemType.Request)
+        targets = self.__get_targets_by_cluster_name(cluster_name, _ItemType.Request)
         return [] if targets is None else list(targets)
 
     def get_event_names(self, cluster_name: str) -> List[str]:
-        targets = self.__get_targets_by_cluster_name(
-            cluster_name, _ItemType.Event)
+        targets = self.__get_targets_by_cluster_name(cluster_name, _ItemType.Event)
         return [] if targets is None else list(targets)
 
     def get_attribute_names(self, cluster_name: str) -> List[str]:
-        targets = self.__get_targets_by_cluster_name(
-            cluster_name, _ItemType.Attribute)
+        targets = self.__get_targets_by_cluster_name(cluster_name, _ItemType.Attribute)
         return [] if targets is None else list(targets)
 
     def is_fabric_scoped(self, target) -> bool:
         if isinstance(target, Event):
             return bool(target.is_fabric_sensitive)
 
-        if isinstance(target, Struct) and hasattr(target, 'qualities'):
+        if isinstance(target, Struct) and hasattr(target, "qualities"):
             return bool(target.qualities & StructQuality.FABRIC_SCOPED)
 
         return False
 
     def is_nullable(self, target) -> bool:
-        if hasattr(target, 'qualities'):
+        if hasattr(target, "qualities"):
             return bool(target.qualities & FieldQuality.NULLABLE)
         return False
 
@@ -272,7 +269,7 @@ class SpecDefinitions:
         }
 
         # The idl parser remove spaces
-        cluster_name = cluster_name.replace(' ', '')
+        cluster_name = cluster_name.replace(" ", "")
         global_target = global_target_mapping[target_type]
         target = target_mapping[target_type].get(cluster_name)
 
@@ -292,7 +289,7 @@ class SpecDefinitions:
 def SpecDefinitionsFromPaths(paths: str, pseudo_clusters: Optional[PseudoClusters] = PseudoClusters([])):
     filenames = []
     for path in paths:
-        if '*' in path or '?' in path:
+        if "*" in path or "?" in path:
             filenames.extend(glob.glob(path, recursive=False))
         else:
             filenames.append(path)
@@ -303,7 +300,6 @@ def SpecDefinitionsFromPaths(paths: str, pseudo_clusters: Optional[PseudoCluster
         if pseudo_cluster.definition is not None:
             name = pseudo_cluster.name
             definition = pseudo_cluster.definition
-            sources = (
-                sources + [ParseSource(source=io.StringIO(definition), name=name)])
+            sources = sources + [ParseSource(source=io.StringIO(definition), name=name)]
 
     return SpecDefinitions(sources)

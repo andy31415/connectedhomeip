@@ -321,8 +321,8 @@ public:
      */
     Instance(EndpointId aEndpointId, ClusterId aClusterId, MeasurementMediumEnum aMeasurementMedium,
              MeasurementUnitEnum aMeasurementUnit) :
-        AttributeAccessInterface(Optional<EndpointId>(aEndpointId), aClusterId),
-        mEndpointId(aEndpointId), mClusterId(aClusterId), mMeasurementMedium(aMeasurementMedium)
+        AttributeAccessInterface(Optional<EndpointId>(aEndpointId), aClusterId), mEndpointId(aEndpointId), mClusterId(aClusterId),
+        mMeasurementMedium(aMeasurementMedium)
     {
         this->mMeasurementUnit = aMeasurementUnit;
     };

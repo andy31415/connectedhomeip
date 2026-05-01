@@ -18,7 +18,6 @@ from .builder import Builder, BuildProfile
 
 
 class GnBuilder(Builder):
-
     def __init__(self, root, runner):
         """Creates  a generic ninja builder.
 
@@ -47,7 +46,7 @@ class GnBuilder(Builder):
         if self.options.pw_command_launcher:
             args.append(f'pw_command_launcher="{self.options.pw_command_launcher}"')
         if self.options.enable_link_map_file:
-            args.append('chip_generate_link_map_file=true')
+            args.append("chip_generate_link_map_file=true")
         if self.options.pregen_dir:
             args.append(f'chip_code_pre_generated_directory="{self.options.pregen_dir}"')
         return args
@@ -66,53 +65,46 @@ class GnBuilder(Builder):
 
     def generate(self, dedup=False):
         cmd = [
-            'gn', 'gen', '--check', '--fail-on-unused-args',
-            '--add-export-compile-commands=*',
-            '--root=%s' % self.root,
+            "gn",
+            "gen",
+            "--check",
+            "--fail-on-unused-args",
+            "--add-export-compile-commands=*",
+            "--root=%s" % self.root,
         ]
 
         if self.quiet:
             cmd.append("--ninja-extra-args=--quiet")
 
         if args := self.GnBuildArgs():
-            cmd += ['--args=%s' % ' '.join(args)]
+            cmd += ["--args=%s" % " ".join(args)]
 
         cmd += [self.output_dir]
 
         if env := self.GnBuildEnv():
             # convert the command into a bash command that includes
             # setting environment variables
-            cmd = [
-                'bash', '-c', '\n' + ' '.join(
-                    ['%s="%s" \\\n' % (key, value) for key, value in env.items()] +
-                    [shlex.join(cmd)]
-                )
-            ]
+            cmd = ["bash", "-c", "\n" + " ".join(['%s="%s" \\\n' % (key, value) for key, value in env.items()] + [shlex.join(cmd)])]
 
         self._Execute(cmd, title=f"Generating {self.identifier}", dedup=dedup)
 
     def _build(self):
         self.PreBuildCommand()
 
-        cmd = ['ninja', '-C', self.output_dir]
+        cmd = ["ninja", "-C", self.output_dir]
         if self.verbose:
-            cmd.append('-v')
+            cmd.append("-v")
         if self.quiet:
-            cmd.append('--quiet')
+            cmd.append("--quiet")
         if self.ninja_jobs is not None:
-            cmd.append('-j' + str(self.ninja_jobs))
+            cmd.append("-j" + str(self.ninja_jobs))
         if self.build_command:
             cmd.append(self.build_command)
 
         if env := self.GnBuildEnv():
             # convert the command into a bash command that includes
             # setting environment variables
-            cmd = [
-                'bash', '-c', '\n' + ' '.join(
-                    ['%s="%s" \\\n' % (key, value) for key, value in env.items()] +
-                    [shlex.join(cmd)]
-                )
-            ]
+            cmd = ["bash", "-c", "\n" + " ".join(['%s="%s" \\\n' % (key, value) for key, value in env.items()] + [shlex.join(cmd)])]
 
         self._Execute(cmd, title=f"Building {self.identifier}")
 

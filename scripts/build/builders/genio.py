@@ -11,44 +11,38 @@ class GenioApp(Enum):
 
     def ExampleName(self):
         if self == GenioApp.LIGHT:
-            return 'lighting-app'
+            return "lighting-app"
         if self == GenioApp.SHELL:
-            return 'shell'
-        raise Exception('Unknown app type: %r' % self)
+            return "shell"
+        raise Exception("Unknown app type: %r" % self)
 
     def AppNamePrefix(self):
         if self == GenioApp.LIGHT:
-            return 'chip-mt793x-lighting-app-example'
+            return "chip-mt793x-lighting-app-example"
         if self == GenioApp.SHELL:
-            return 'chip-mt793x-shell-example'
-        raise Exception('Unknown app type: %r' % self)
+            return "chip-mt793x-shell-example"
+        raise Exception("Unknown app type: %r" % self)
 
     def FlashBundleName(self):
         if self == GenioApp.LIGHT:
-            return 'lighting_app.flashbundle.txt'
+            return "lighting_app.flashbundle.txt"
         if self == GenioApp.SHELL:
-            return 'shell.flashbundle.txt'
-        raise Exception('Unknown app type: %r' % self)
+            return "shell.flashbundle.txt"
+        raise Exception("Unknown app type: %r" % self)
 
     def BuildRoot(self, root):
-        return os.path.join(root, 'examples', self.ExampleName(), 'genio')
+        return os.path.join(root, "examples", self.ExampleName(), "genio")
 
 
 class GenioBuilder(GnBuilder):
-
-    def __init__(self,
-                 root,
-                 runner,
-                 app: GenioApp = GenioApp.LIGHT):
-        super(GenioBuilder, self).__init__(
-            root=app.BuildRoot(root),
-            runner=runner)
+    def __init__(self, root, runner, app: GenioApp = GenioApp.LIGHT):
+        super(GenioBuilder, self).__init__(root=app.BuildRoot(root), runner=runner)
         self.app = app
 
     def build_outputs(self):
-        extensions = ['out', 'bin']
+        extensions = ["out", "bin"]
         if self.options.enable_link_map_file:
-            extensions.append('out.map')
+            extensions.append("out.map")
         for ext in extensions:
             name = f"{self.app.AppNamePrefix()}.{ext}"
             yield BuilderOutput(os.path.join(self.output_dir, name), name)

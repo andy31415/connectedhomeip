@@ -49,7 +49,11 @@ class TestCommissioningTimeSync(MatterBaseTest):
     async def destroy_current_commissioner(self):
         if self.commissioner:
             if self.commissioned:
-                fabricidx = await self.read_single_attribute_check_success(dev_ctrl=self.commissioner, cluster=Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex)
+                fabricidx = await self.read_single_attribute_check_success(
+                    dev_ctrl=self.commissioner,
+                    cluster=Clusters.OperationalCredentials,
+                    attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex,
+                )
                 cmd = Clusters.OperationalCredentials.Commands.RemoveFabric(fabricIndex=fabricidx)
                 await self.send_single_cmd(cmd=cmd)
             self.commissioner.Shutdown()
@@ -63,25 +67,40 @@ class TestCommissioningTimeSync(MatterBaseTest):
 
     async def commission_and_base_checks(self):
         params = await self.default_controller.OpenCommissioningWindow(
-            nodeId=self.dut_node_id, timeout=600, iteration=10000, discriminator=1234, option=1)
+            nodeId=self.dut_node_id, timeout=600, iteration=10000, discriminator=1234, option=1
+        )
         await self.commissioner.CommissionOnNetwork(
-            nodeId=self.dut_node_id, setupPinCode=params.setupPinCode,
-            filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR, filter=1234)
+            nodeId=self.dut_node_id,
+            setupPinCode=params.setupPinCode,
+            filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
+            filter=1234,
+        )
         self.commissioned = True
 
         # Check the feature map - if we have a time cluster, we want UTC time to be set
-        features = await self.read_single_attribute(dev_ctrl=self.default_controller, node_id=self.dut_node_id,
-                                                    endpoint=0, attribute=Clusters.TimeSynchronization.Attributes.FeatureMap)
+        features = await self.read_single_attribute(
+            dev_ctrl=self.default_controller,
+            node_id=self.dut_node_id,
+            endpoint=0,
+            attribute=Clusters.TimeSynchronization.Attributes.FeatureMap,
+        )
         self.supports_time = True
         if isinstance(features, Clusters.Attribute.ValueDecodeFailure):
-            asserts.assert_true(isinstance(features.Reason, InteractionModelError), InteractionModelError,
-                                f'Unexpected exception from reading time cluster feature map {features.Reason}')
-            asserts.assert_equal(features.Reason.status, Status.UnsupportedCluster,
-                                 f'Unexpected error response from reading time cluster feature map {features.Reason}')
+            asserts.assert_true(
+                isinstance(features.Reason, InteractionModelError),
+                InteractionModelError,
+                f"Unexpected exception from reading time cluster feature map {features.Reason}",
+            )
+            asserts.assert_equal(
+                features.Reason.status,
+                Status.UnsupportedCluster,
+                f"Unexpected error response from reading time cluster feature map {features.Reason}",
+            )
             self.supports_time = False
 
-        asserts.assert_equal(self.commissioner.CheckStageSuccessful(
-            kConfigureUTCTime), self.supports_time, 'UTC time stage incorrect')
+        asserts.assert_equal(
+            self.commissioner.CheckStageSuccessful(kConfigureUTCTime), self.supports_time, "UTC time stage incorrect"
+        )
 
         if self.supports_time:
             self.supports_time_zone = bool(features & Clusters.TimeSynchronization.Bitmaps.Feature.kTimeZone)
@@ -117,12 +136,13 @@ class TestCommissioningTimeSync(MatterBaseTest):
         await self.create_commissioner()
 
         log.info(
-            f'Running Commissioning test - time_zone: {time_zone}, dst: {dst}, default_ntp: {default_ntp}, trusted_time_source: {trusted_time_source}')
+            f"Running Commissioning test - time_zone: {time_zone}, dst: {dst}, default_ntp: {default_ntp}, trusted_time_source: {trusted_time_source}"
+        )
 
         if time_zone:
             self.commissioner.SetTimeZone(offset=3600, validAt=0)
         if dst:
-            six_months = 1.577e+13  # in us
+            six_months = 1.577e13  # in us
             dst_valid_until = utc_time_in_matter_epoch() + int(six_months)
             self.commissioner.SetDSTOffset(offset=3600, validStarting=0, validUntil=dst_valid_until)
         if default_ntp:
@@ -137,35 +157,61 @@ class TestCommissioningTimeSync(MatterBaseTest):
         should_set_default_ntp = bool(self.supports_default_ntp and default_ntp)
         should_set_trusted_time = bool(self.supports_trusted_time_source and trusted_time_source)
 
-        asserts.assert_equal(self.commissioner.CheckStageSuccessful(kConfigureTimeZone),
-                             should_set_time_zone, 'Incorrect value for time zone stage check')
-        asserts.assert_equal(self.commissioner.CheckStageSuccessful(kConfigureDSTOffset),
-                             should_set_dst, 'Incorrect value for kConfigureDSTOffset stage')
-        asserts.assert_equal(self.commissioner.CheckStageSuccessful(kConfigureDefaultNTP),
-                             should_set_default_ntp, 'Incorrect value for kConfigureDefaultNTP stage')
-        asserts.assert_equal(self.commissioner.CheckStageSuccessful(kConfigureTrustedTimeSource),
-                             should_set_trusted_time, 'Incorrect value for kConfigureTrustedTimeSource stage')
+        asserts.assert_equal(
+            self.commissioner.CheckStageSuccessful(kConfigureTimeZone),
+            should_set_time_zone,
+            "Incorrect value for time zone stage check",
+        )
+        asserts.assert_equal(
+            self.commissioner.CheckStageSuccessful(kConfigureDSTOffset),
+            should_set_dst,
+            "Incorrect value for kConfigureDSTOffset stage",
+        )
+        asserts.assert_equal(
+            self.commissioner.CheckStageSuccessful(kConfigureDefaultNTP),
+            should_set_default_ntp,
+            "Incorrect value for kConfigureDefaultNTP stage",
+        )
+        asserts.assert_equal(
+            self.commissioner.CheckStageSuccessful(kConfigureTrustedTimeSource),
+            should_set_trusted_time,
+            "Incorrect value for kConfigureTrustedTimeSource stage",
+        )
 
         if should_set_time_zone:
-            received = await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.TimeZone)
+            received = await self.read_single_attribute_check_success(
+                cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.TimeZone
+            )
             expected = [Clusters.TimeSynchronization.Structs.TimeZoneStruct(offset=3600, validAt=0)]
             asserts.assert_equal(received, expected, "Time zone was not correctly set by commissioner")
 
         if should_set_dst:
-            received = await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.DSTOffset)
-            expected = [Clusters.TimeSynchronization.Structs.DSTOffsetStruct(
-                offset=3600, validStarting=0, validUntil=dst_valid_until)]
+            received = await self.read_single_attribute_check_success(
+                cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.DSTOffset
+            )
+            expected = [
+                Clusters.TimeSynchronization.Structs.DSTOffsetStruct(offset=3600, validStarting=0, validUntil=dst_valid_until)
+            ]
             asserts.assert_equal(received, expected, "DST was not set correctly by the commissioner")
 
         if should_set_trusted_time:
-            fabric_idx = await self.read_single_attribute_check_success(cluster=Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex, dev_ctrl=self.commissioner)
-            received = await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.TrustedTimeSource)
+            fabric_idx = await self.read_single_attribute_check_success(
+                cluster=Clusters.OperationalCredentials,
+                attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex,
+                dev_ctrl=self.commissioner,
+            )
+            received = await self.read_single_attribute_check_success(
+                cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.TrustedTimeSource
+            )
             expected = Clusters.TimeSynchronization.Structs.TrustedTimeSourceStruct(
-                fabricIndex=fabric_idx, nodeID=self.commissioner.nodeId, endpoint=0)
+                fabricIndex=fabric_idx, nodeID=self.commissioner.nodeId, endpoint=0
+            )
             asserts.assert_equal(received, expected, "Trusted Time source was not set properly")
 
         if should_set_default_ntp:
-            received = await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.DefaultNTP)
+            received = await self.read_single_attribute_check_success(
+                cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.DefaultNTP
+            )
             expected = "fe80::1"
             asserts.assert_equal(received, expected, "Default NTP was not set properly")
 
@@ -181,14 +227,14 @@ class TestCommissioningTimeSync(MatterBaseTest):
 
     @async_test_body
     async def test_CommissioningPreSetValues(self):
-
         await self.create_commissioner()
 
         # If we're running this against a node that doesn't have a time cluster, this test doesn't apply
         # and the remaining cases are covered in the base case above.
         try:
             trusted_time_source = Clusters.TimeSynchronization.Structs.FabricScopedTrustedTimeSourceStruct(
-                nodeID=0x5555, endpoint=0)
+                nodeID=0x5555, endpoint=0
+            )
             cmd = Clusters.TimeSynchronization.Commands.SetTrustedTimeSource(trusted_time_source)
             await self.send_single_cmd(cmd)
 
@@ -200,20 +246,26 @@ class TestCommissioningTimeSync(MatterBaseTest):
                 return
 
         self.commissioner.SetTimeZone(offset=3600, validAt=0)
-        six_months = 1.577e+13  # in us
-        self.commissioner.SetDSTOffset(offset=3600, validStarting=0,
-                                       validUntil=utc_time_in_matter_epoch() + int(six_months))
+        six_months = 1.577e13  # in us
+        self.commissioner.SetDSTOffset(offset=3600, validStarting=0, validUntil=utc_time_in_matter_epoch() + int(six_months))
         self.commissioner.SetDefaultNTP("fe80::1")
         self.commissioner.SetTrustedTimeSource(self.commissioner.nodeId, 0)
 
         await self.commission_and_base_checks()
-        asserts.assert_equal(self.commissioner.CheckStageSuccessful(kConfigureTimeZone),
-                             self.supports_time_zone, 'Incorrect value for time zone stage check')
-        asserts.assert_equal(self.commissioner.CheckStageSuccessful(kConfigureDSTOffset),
-                             self.supports_time_zone, 'Incorrect value for kConfigureDSTOffset stage')
-        asserts.assert_false(self.commissioner.CheckStageSuccessful(kConfigureDefaultNTP), 'kConfigureDefaultNTP incorrectly set')
-        asserts.assert_false(self.commissioner.CheckStageSuccessful(
-            kConfigureTrustedTimeSource), 'kConfigureTrustedTimeSource incorrectly set')
+        asserts.assert_equal(
+            self.commissioner.CheckStageSuccessful(kConfigureTimeZone),
+            self.supports_time_zone,
+            "Incorrect value for time zone stage check",
+        )
+        asserts.assert_equal(
+            self.commissioner.CheckStageSuccessful(kConfigureDSTOffset),
+            self.supports_time_zone,
+            "Incorrect value for kConfigureDSTOffset stage",
+        )
+        asserts.assert_false(self.commissioner.CheckStageSuccessful(kConfigureDefaultNTP), "kConfigureDefaultNTP incorrectly set")
+        asserts.assert_false(
+            self.commissioner.CheckStageSuccessful(kConfigureTrustedTimeSource), "kConfigureTrustedTimeSource incorrectly set"
+        )
 
     @async_test_body
     async def test_FabricCheckStage(self):
@@ -223,8 +275,9 @@ class TestCommissioningTimeSync(MatterBaseTest):
         asserts.assert_equal(self.commissioner.GetFabricCheckResult(), -1, "Fabric check result is already set")
         self.commissioner.SetCheckMatchingFabric(True)
         await self.commission_and_base_checks()
-        asserts.assert_true(self.commissioner.CheckStageSuccessful(
-            kCheckForMatchingFabric), "Did not run check for matching fabric stage")
+        asserts.assert_true(
+            self.commissioner.CheckStageSuccessful(kCheckForMatchingFabric), "Did not run check for matching fabric stage"
+        )
         asserts.assert_equal(self.commissioner.GetFabricCheckResult(), 0, "Fabric check result did not get set by pairing delegate")
 
         # Let's try it again with no check
@@ -232,8 +285,9 @@ class TestCommissioningTimeSync(MatterBaseTest):
         asserts.assert_equal(self.commissioner.GetFabricCheckResult(), -1, "Fabric check result is already set")
         self.commissioner.SetCheckMatchingFabric(False)
         await self.commission_and_base_checks()
-        asserts.assert_false(self.commissioner.CheckStageSuccessful(
-            kCheckForMatchingFabric), "Incorrectly ran check for matching fabric stage")
+        asserts.assert_false(
+            self.commissioner.CheckStageSuccessful(kCheckForMatchingFabric), "Incorrectly ran check for matching fabric stage"
+        )
         asserts.assert_equal(self.commissioner.GetFabricCheckResult(), -1, "Fabric check result incorrectly set")
 
     @async_test_body
@@ -241,9 +295,11 @@ class TestCommissioningTimeSync(MatterBaseTest):
         await self.create_commissioner()
         self.commissioner.SetTimeZone(offset=3600, validAt=0, name="test")
         await self.commission_and_base_checks()
-        asserts.assert_true(self.commissioner.CheckStageSuccessful(kConfigureTimeZone), 'Time zone was not successfully set')
+        asserts.assert_true(self.commissioner.CheckStageSuccessful(kConfigureTimeZone), "Time zone was not successfully set")
 
-        received = await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.TimeZone)
+        received = await self.read_single_attribute_check_success(
+            cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.TimeZone
+        )
         expected = [Clusters.TimeSynchronization.Structs.TimeZoneStruct(offset=3600, validAt=0, name="test")]
         asserts.assert_equal(received, expected, "Time zone was not correctly set by commissioner")
 
@@ -252,9 +308,11 @@ class TestCommissioningTimeSync(MatterBaseTest):
         sixty_five_byte_string = "x" * 65
         self.commissioner.SetTimeZone(offset=3600, validAt=0, name=sixty_five_byte_string)
         await self.commission_and_base_checks()
-        asserts.assert_true(self.commissioner.CheckStageSuccessful(kConfigureTimeZone), 'Time zone was not successfully set')
+        asserts.assert_true(self.commissioner.CheckStageSuccessful(kConfigureTimeZone), "Time zone was not successfully set")
 
-        received = await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.TimeZone)
+        received = await self.read_single_attribute_check_success(
+            cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.TimeZone
+        )
         expected = [Clusters.TimeSynchronization.Structs.TimeZoneStruct(offset=3600, validAt=0, name=None)]
         asserts.assert_equal(received, expected, "Commissioner did not ignore too-long name")
 
@@ -263,9 +321,11 @@ class TestCommissioningTimeSync(MatterBaseTest):
         sixty_four_byte_string = "x" * 64
         self.commissioner.SetTimeZone(offset=3600, validAt=0, name=sixty_four_byte_string)
         await self.commission_and_base_checks()
-        asserts.assert_true(self.commissioner.CheckStageSuccessful(kConfigureTimeZone), 'Time zone was not successfully set')
+        asserts.assert_true(self.commissioner.CheckStageSuccessful(kConfigureTimeZone), "Time zone was not successfully set")
 
-        received = await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.TimeZone)
+        received = await self.read_single_attribute_check_success(
+            cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.TimeZone
+        )
         expected = [Clusters.TimeSynchronization.Structs.TimeZoneStruct(offset=3600, validAt=0, name=sixty_four_byte_string)]
         asserts.assert_equal(received, expected, "Time zone 64 byte name was not correctly set")
 
@@ -275,17 +335,22 @@ class TestCommissioningTimeSync(MatterBaseTest):
         too_long_name = "x." + "x" * 127
         self.commissioner.SetDefaultNTP(too_long_name)
         await self.commission_and_base_checks()
-        asserts.assert_false(self.commissioner.CheckStageSuccessful(kConfigureDefaultNTP),
-                             'Commissioner attempted to set default NTP to a too long value')
+        asserts.assert_false(
+            self.commissioner.CheckStageSuccessful(kConfigureDefaultNTP),
+            "Commissioner attempted to set default NTP to a too long value",
+        )
 
         await self.create_commissioner()
         just_fits_name = "x." + "x" * 126
         self.commissioner.SetDefaultNTP(just_fits_name)
         await self.commission_and_base_checks()
-        asserts.assert_true(self.commissioner.CheckStageSuccessful(kConfigureDefaultNTP),
-                            'Commissioner did not correctly set default NTP')
-        received = await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.DefaultNTP)
-        asserts.assert_equal(received, just_fits_name, 'Commissioner incorrectly set default NTP name')
+        asserts.assert_true(
+            self.commissioner.CheckStageSuccessful(kConfigureDefaultNTP), "Commissioner did not correctly set default NTP"
+        )
+        received = await self.read_single_attribute_check_success(
+            cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.DefaultNTP
+        )
+        asserts.assert_equal(received, just_fits_name, "Commissioner incorrectly set default NTP name")
 
 
 # TODO(cecille): Test - Add hooks to change the time zone response to indicate no DST is needed

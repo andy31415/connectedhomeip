@@ -58,21 +58,43 @@ class TC_GC_2_5(MatterBaseTest):
         return [
             TestStep("1a", "Commission DUT to TH (can be skipped if done in a preceding test)", is_commissioning=True),
             TestStep("1b", "TH removes any existing group and KeySetID on the DUT."),
-            TestStep("1c", "TH subscribes to Membership attribute of the Groupcast cluster on Endpoint 0 and to the AuxiliaryAccessUpdated event of the AccessControl cluster with a min interval of 0s and max interval of 30s. Accumulate all reports seen."),
+            TestStep(
+                "1c",
+                "TH subscribes to Membership attribute of the Groupcast cluster on Endpoint 0 and to the AuxiliaryAccessUpdated event of the AccessControl cluster with a min interval of 0s and max interval of 30s. Accumulate all reports seen.",
+            ),
             TestStep("1d", "TH reads OperationalCredentials cluster's CurrentFabricIndex attribute on Endpoint 0"),
             TestStep(
-                "1e", "Join group G1 generating a new KeySetID K1 with Key InputKey1: TH sends command JoinGroup (GroupID=G1, Endpoints=[EP1], KeySetID=K1, Key=InputKey1)."),
-            TestStep(2, "Enable Auxiliary ACL on group G1: TH sends command ConfigureAuxiliaryACL (GroupID=G1, UseAuxiliaryACL=true)."),
-            TestStep("3a", "TH awaits subscription report of new Membership within max interval. (G1 entry with HasAuxiliaryACL=true)"),
+                "1e",
+                "Join group G1 generating a new KeySetID K1 with Key InputKey1: TH sends command JoinGroup (GroupID=G1, Endpoints=[EP1], KeySetID=K1, Key=InputKey1).",
+            ),
+            TestStep(
+                2, "Enable Auxiliary ACL on group G1: TH sends command ConfigureAuxiliaryACL (GroupID=G1, UseAuxiliaryACL=true)."
+            ),
+            TestStep(
+                "3a", "TH awaits subscription report of new Membership within max interval. (G1 entry with HasAuxiliaryACL=true)"
+            ),
             TestStep("3b", "TH awaits subscription report of AuxiliaryAccessUpdated event from AccessControl cluster"),
             TestStep("3c", "TH reads Endpoint 0 AccessControl cluster AuxiliaryACL attribute and verifies G1 entry is present"),
-            TestStep(4, "Disable Auxiliary ACL on group G1: TH sends command ConfigureAuxiliaryACL (GroupID=G1, UseAuxiliaryACL=false)."),
-            TestStep("5a", "TH awaits subscription report of new Membership within max interval. (G1 entry with HasAuxiliaryACL=false)"),
+            TestStep(
+                4, "Disable Auxiliary ACL on group G1: TH sends command ConfigureAuxiliaryACL (GroupID=G1, UseAuxiliaryACL=false)."
+            ),
+            TestStep(
+                "5a", "TH awaits subscription report of new Membership within max interval. (G1 entry with HasAuxiliaryACL=false)"
+            ),
             TestStep("5b", "TH awaits subscription report of AuxiliaryAccessUpdated event from AccessControl cluster"),
             TestStep("5c", "TH reads Endpoint 0 AccessControl cluster AuxiliaryACL attribute and verifies G1 entry is removed"),
-            TestStep(6, "Attempt to enable Auxiliary ACL on a unknown GroupId: TH sends command ConfigureAuxiliaryACL (GroupID=G_UNKNOWN, UseAuxiliaryACL=true)."),
-            TestStep(7, "If GC.S.F01(SD) feature is supported on the cluster, join group G2 as Sender: TH sends command JoinGroup (GroupID=G2, Endpoints=[],KeyId=K1) to join group as sender only."),
-            TestStep(8, "If GC.S.F01(SD) feature is supported on the cluster, attempt to enable Auxiliary ACL on group G2: TH sends command ConfigureAuxiliaryACL (GroupID=G2, UseAuxiliaryACL=true) on Sender-only membership"),
+            TestStep(
+                6,
+                "Attempt to enable Auxiliary ACL on a unknown GroupId: TH sends command ConfigureAuxiliaryACL (GroupID=G_UNKNOWN, UseAuxiliaryACL=true).",
+            ),
+            TestStep(
+                7,
+                "If GC.S.F01(SD) feature is supported on the cluster, join group G2 as Sender: TH sends command JoinGroup (GroupID=G2, Endpoints=[],KeyId=K1) to join group as sender only.",
+            ),
+            TestStep(
+                8,
+                "If GC.S.F01(SD) feature is supported on the cluster, attempt to enable Auxiliary ACL on group G2: TH sends command ConfigureAuxiliaryACL (GroupID=G2, UseAuxiliaryACL=true) on Sender-only membership",
+            ),
         ]
 
     def pics_TC_GC_2_5(self) -> list[str]:
@@ -96,9 +118,7 @@ class TC_GC_2_5(MatterBaseTest):
 
         # Get the Root Node PartsList to use for wildcard expansion in ACL checks.
         parts_list = await self.read_single_attribute_check_success(
-            cluster=Clusters.Descriptor,
-            attribute=Clusters.Descriptor.Attributes.PartsList,
-            endpoint=0
+            cluster=Clusters.Descriptor, attribute=Clusters.Descriptor.Attributes.PartsList, endpoint=0
         )
 
         self.step("1b")
@@ -109,7 +129,9 @@ class TC_GC_2_5(MatterBaseTest):
             await self.send_single_cmd(Clusters.Groupcast.Commands.LeaveGroup(groupID=0))
 
         # remove any existing KeySetID on the DUT, except KeySetId 0 (IPK).
-        resp: Clusters.GroupKeyManagement.Commands.KeySetReadAllIndicesResponse = await self.send_single_cmd(Clusters.GroupKeyManagement.Commands.KeySetReadAllIndices())
+        resp: Clusters.GroupKeyManagement.Commands.KeySetReadAllIndicesResponse = await self.send_single_cmd(
+            Clusters.GroupKeyManagement.Commands.KeySetReadAllIndices()
+        )
 
         read_group_key_ids: list[int] = resp.groupKeySetIDs
         for key_set_id in read_group_key_ids:
@@ -118,32 +140,31 @@ class TC_GC_2_5(MatterBaseTest):
 
         self.step("1c")
         membership_sub = AttributeSubscriptionHandler(groupcast_cluster, membership_attribute)
-        await membership_sub.start(self.default_controller, self.dut_node_id, self.get_endpoint(), min_interval_sec=0, max_interval_sec=30)
+        await membership_sub.start(
+            self.default_controller, self.dut_node_id, self.get_endpoint(), min_interval_sec=0, max_interval_sec=30
+        )
 
-        event_sub = EventSubscriptionHandler(expected_cluster=Clusters.AccessControl,
-                                             expected_event_id=Clusters.AccessControl.Events.AuxiliaryAccessUpdated.event_id)
+        event_sub = EventSubscriptionHandler(
+            expected_cluster=Clusters.AccessControl, expected_event_id=Clusters.AccessControl.Events.AuxiliaryAccessUpdated.event_id
+        )
         await event_sub.start(self.default_controller, self.dut_node_id, endpoint=0, min_interval_sec=0, max_interval_sec=30)
 
         self.step("1d")
-        fabric_index = await self.read_single_attribute_check_success(Clusters.OperationalCredentials, Clusters.OperationalCredentials.Attributes.CurrentFabricIndex, endpoint=0)
+        fabric_index = await self.read_single_attribute_check_success(
+            Clusters.OperationalCredentials, Clusters.OperationalCredentials.Attributes.CurrentFabricIndex, endpoint=0
+        )
 
         self.step("1e")
         groupID1 = 1
         keySetID1 = 1
         inputKey1 = secrets.token_bytes(16)
 
-        await self.send_single_cmd(Clusters.Groupcast.Commands.JoinGroup(
-            groupID=groupID1,
-            endpoints=endpoints_list,
-            keySetID=keySetID1,
-            key=inputKey1)
+        await self.send_single_cmd(
+            Clusters.Groupcast.Commands.JoinGroup(groupID=groupID1, endpoints=endpoints_list, keySetID=keySetID1, key=inputKey1)
         )
 
         self.step(2)
-        await self.send_single_cmd(Clusters.Groupcast.Commands.ConfigureAuxiliaryACL(
-            groupID=groupID1,
-            useAuxiliaryACL=True)
-        )
+        await self.send_single_cmd(Clusters.Groupcast.Commands.ConfigureAuxiliaryACL(groupID=groupID1, useAuxiliaryACL=True))
 
         self.step("3a")
         membership_matcher = generate_membership_entry_matcher(groupID1, has_auxiliary_acl=True)
@@ -154,16 +175,17 @@ class TC_GC_2_5(MatterBaseTest):
         asserts.assert_equal(event_data.adminNodeID, self.default_controller.nodeId, "Event adminNodeID should match TH Node ID")
 
         self.step("3c")
-        aux_acl = await self.read_single_attribute_check_success(Clusters.AccessControl, Clusters.AccessControl.Attributes.AuxiliaryACL, endpoint=0)
+        aux_acl = await self.read_single_attribute_check_success(
+            Clusters.AccessControl, Clusters.AccessControl.Attributes.AuxiliaryACL, endpoint=0
+        )
         actual_set = get_auxiliary_acl_equivalence_set(aux_acl, parts_list)
-        asserts.assert_true((fabric_index, groupID1, endpoints_list[0]) in actual_set,
-                            f"Could not find valid AuxiliaryACL entry for FabricIndex {fabric_index}, Group G1 ({groupID1}) and Endpoint {endpoints_list[0]}")
+        asserts.assert_true(
+            (fabric_index, groupID1, endpoints_list[0]) in actual_set,
+            f"Could not find valid AuxiliaryACL entry for FabricIndex {fabric_index}, Group G1 ({groupID1}) and Endpoint {endpoints_list[0]}",
+        )
 
         self.step(4)
-        await self.send_single_cmd(Clusters.Groupcast.Commands.ConfigureAuxiliaryACL(
-            groupID=groupID1,
-            useAuxiliaryACL=False)
-        )
+        await self.send_single_cmd(Clusters.Groupcast.Commands.ConfigureAuxiliaryACL(groupID=groupID1, useAuxiliaryACL=False))
 
         self.step("5a")
         membership_sub.reset()
@@ -175,22 +197,28 @@ class TC_GC_2_5(MatterBaseTest):
         asserts.assert_equal(event_data.adminNodeID, self.default_controller.nodeId, "Event adminNodeID should match TH Node ID")
 
         self.step("5c")
-        aux_acl = await self.read_single_attribute_check_success(Clusters.AccessControl, Clusters.AccessControl.Attributes.AuxiliaryACL, endpoint=0)
+        aux_acl = await self.read_single_attribute_check_success(
+            Clusters.AccessControl, Clusters.AccessControl.Attributes.AuxiliaryACL, endpoint=0
+        )
         actual_set = get_auxiliary_acl_equivalence_set(aux_acl, parts_list)
-        asserts.assert_false((fabric_index, groupID1, endpoints_list[0]) in actual_set,
-                             f"Entry for FabricIndex {fabric_index}, Group G1 ({groupID1}) and Endpoint {endpoints_list[0]} should have been removed from AuxiliaryACL")
+        asserts.assert_false(
+            (fabric_index, groupID1, endpoints_list[0]) in actual_set,
+            f"Entry for FabricIndex {fabric_index}, Group G1 ({groupID1}) and Endpoint {endpoints_list[0]} should have been removed from AuxiliaryACL",
+        )
 
         self.step(6)
         try:
             groupIDUnknown = 2
-            await self.send_single_cmd(Clusters.Groupcast.Commands.ConfigureAuxiliaryACL(
-                groupID=groupIDUnknown,
-                useAuxiliaryACL=True)
+            await self.send_single_cmd(
+                Clusters.Groupcast.Commands.ConfigureAuxiliaryACL(groupID=groupIDUnknown, useAuxiliaryACL=True)
             )
             asserts.fail("ConfigureAuxiliaryACL command should have failed with an unknown GroupID, but it succeeded")
         except InteractionModelError as e:
-            asserts.assert_equal(e.status, Status.NotFound,
-                                 f"Send ConfigureAuxiliaryACL command error should be {Status.NotFound} instead of {e.status}")
+            asserts.assert_equal(
+                e.status,
+                Status.NotFound,
+                f"Send ConfigureAuxiliaryACL command error should be {Status.NotFound} instead of {e.status}",
+            )
 
         if not sd_enabled:
             self.mark_all_remaining_steps_skipped(7)
@@ -199,17 +227,10 @@ class TC_GC_2_5(MatterBaseTest):
         self.step(7)
         groupID2 = 2
         endpoints = []
-        await self.send_single_cmd(Clusters.Groupcast.Commands.JoinGroup(
-            groupID=groupID2,
-            endpoints=endpoints,
-            keySetID=keySetID1)
-        )
+        await self.send_single_cmd(Clusters.Groupcast.Commands.JoinGroup(groupID=groupID2, endpoints=endpoints, keySetID=keySetID1))
 
         self.step(8)
-        await self.send_single_cmd(Clusters.Groupcast.Commands.ConfigureAuxiliaryACL(
-            groupID=groupID2,
-            useAuxiliaryACL=True)
-        )
+        await self.send_single_cmd(Clusters.Groupcast.Commands.ConfigureAuxiliaryACL(groupID=groupID2, useAuxiliaryACL=True))
 
 
 if __name__ == "__main__":

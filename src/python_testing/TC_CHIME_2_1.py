@@ -59,7 +59,6 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_CHIME_2_1(MatterBaseTest, CHIMETestBase):
-
     def desc_TC_CHIME_2_1(self) -> str:
         return "[TC-CHIME-2.1] Attributes with DUT as Server"
 
@@ -89,8 +88,7 @@ class TC_CHIME_2_1(MatterBaseTest, CHIMETestBase):
         self.step(2)
         myChimeSounds = await self.read_chime_attribute_expect_success(endpoint, attributes.InstalledChimeSounds)
         asserts.assert_greater_equal(len(myChimeSounds), 1, "InstalledChimeSounds contains fewer than the minimum number of chimes")
-        asserts.assert_less_equal(len(myChimeSounds), 255,
-                                  "InstalledChimeSounds contains more than the maximum number of chimes")
+        asserts.assert_less_equal(len(myChimeSounds), 255, "InstalledChimeSounds contains more than the maximum number of chimes")
 
         myChimeIDs = []
         myChimeNames = []

@@ -29,11 +29,10 @@ LOG_CATEGORY_AUTOMATION = 4
 
 @LogRedirectCallback_t
 def _RedirectToPythonLogging(category, module, message):
+    module = module.decode("utf-8")
+    message = message.decode("utf-8")
 
-    module = module.decode('utf-8')
-    message = message.decode('utf-8')
-
-    logger = logging.getLogger('matter.native.%s' % module)
+    logger = logging.getLogger("matter.native.%s" % module)
 
     if category == LOG_CATEGORY_ERROR:
         logger.error("%s", message)

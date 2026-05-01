@@ -59,19 +59,29 @@ log = logging.getLogger(__name__)
 
 
 class TC_IDM_1_4(IDMBaseTest):
-
     def steps_TC_IDM_1_4(self) -> list[TestStep]:
-        return [TestStep(1, "Get remote node's MaxPathsPerInvoke", is_commissioning=True),
-                TestStep(2, "Sending `MaxPathsPerInvoke + 1` InvokeRequest if it fits into single MTU"),
-                TestStep(3, "Sending two InvokeRequests with identical paths"),
-                TestStep(4, "Sending two InvokeRequests with unique paths, but identical CommandRefs"),
-                TestStep(5, "Verify DUT responds to InvokeRequestMessage containing two valid paths"),
-                TestStep(6, "Verify DUT responds to InvokeRequestMessage containing one valid paths, and one InvokeRequest to unsupported endpoint"),
-                TestStep(7, "Verify DUT responds to InvokeRequestMessage containing two valid paths. One of which requires timed invoke, and TimedRequest in InvokeResponseMessage set to true, but never sending preceding Timed Invoke Action"),
-                TestStep(8, "Verify DUT responds to InvokeRequestMessage containing two valid paths. One of which requires timed invoke, and TimedRequest in InvokeResponseMessage set to true"),
-                TestStep(9, "Verify DUT supports extended Data Model Testing feature in General Diagnostics Cluster"),
-                TestStep(10, "Verify DUT has TestEventTriggersEnabled attribute set to true in General Diagnostics Cluster"),
-                TestStep(11, "Verify DUT capable of responding to request with multiple InvokeResponseMessages")]
+        return [
+            TestStep(1, "Get remote node's MaxPathsPerInvoke", is_commissioning=True),
+            TestStep(2, "Sending `MaxPathsPerInvoke + 1` InvokeRequest if it fits into single MTU"),
+            TestStep(3, "Sending two InvokeRequests with identical paths"),
+            TestStep(4, "Sending two InvokeRequests with unique paths, but identical CommandRefs"),
+            TestStep(5, "Verify DUT responds to InvokeRequestMessage containing two valid paths"),
+            TestStep(
+                6,
+                "Verify DUT responds to InvokeRequestMessage containing one valid paths, and one InvokeRequest to unsupported endpoint",
+            ),
+            TestStep(
+                7,
+                "Verify DUT responds to InvokeRequestMessage containing two valid paths. One of which requires timed invoke, and TimedRequest in InvokeResponseMessage set to true, but never sending preceding Timed Invoke Action",
+            ),
+            TestStep(
+                8,
+                "Verify DUT responds to InvokeRequestMessage containing two valid paths. One of which requires timed invoke, and TimedRequest in InvokeResponseMessage set to true",
+            ),
+            TestStep(9, "Verify DUT supports extended Data Model Testing feature in General Diagnostics Cluster"),
+            TestStep(10, "Verify DUT has TestEventTriggersEnabled attribute set to true in General Diagnostics Cluster"),
+            TestStep(11, "Verify DUT capable of responding to request with multiple InvokeResponseMessages"),
+        ]
 
     @async_test_body
     async def test_TC_IDM_1_4(self):
@@ -106,7 +116,7 @@ class TC_IDM_1_4(IDMBaseTest):
         # Use a valid (according to MEI definition) command-id (in this case belonging to Test Vendor MC with prefix 0xfff4)
         # which should never be existing on a prodiction device. We use this decodable id to prevent hitting issues with the
         # specification being not clearly defined in respect to decoding vs processing the invoke requests.
-        invalid_command_id = 0xfff4_00ff
+        invalid_command_id = 0xFFF4_00FF
 
         list_of_commands_to_send = []
         for endpoint_index in range(number_of_commands_to_send):
@@ -118,28 +128,41 @@ class TC_IDM_1_4(IDMBaseTest):
 
             list_of_commands_to_send.append(Clusters.Command.InvokeRequestInfo(endpoint_index, invalid_command))
 
-        asserts.assert_greater_equal(len(list_of_commands_to_send), 2,
-                                     "Step 2 is always expected to try sending at least 2 command, something wrong with test logic")
+        asserts.assert_greater_equal(
+            len(list_of_commands_to_send),
+            2,
+            "Step 2 is always expected to try sending at least 2 command, something wrong with test logic",
+        )
         try:
-            await dev_ctrl.TestOnlySendBatchCommands(dut_node_id, list_of_commands_to_send, remoteMaxPathsPerInvoke=number_of_commands_to_send)
+            await dev_ctrl.TestOnlySendBatchCommands(
+                dut_node_id, list_of_commands_to_send, remoteMaxPathsPerInvoke=number_of_commands_to_send
+            )
             # This might happen after TCP is enabled and DUT supports TCP. See comment above `cap_for_batch_commands`
             # for more information.
-            asserts.assert_not_equal(number_of_commands_to_send, cap_for_batch_commands,
-                                     "Test needs to be updated! Soft cap `cap_for_batch_commands` used in test is no longer correct")
+            asserts.assert_not_equal(
+                number_of_commands_to_send,
+                cap_for_batch_commands,
+                "Test needs to be updated! Soft cap `cap_for_batch_commands` used in test is no longer correct",
+            )
             asserts.fail(
-                f"Unexpected success return from sending too many commands, we sent {number_of_commands_to_send}, test capped at {cap_for_batch_commands}")
+                f"Unexpected success return from sending too many commands, we sent {number_of_commands_to_send}, test capped at {cap_for_batch_commands}"
+            )
         except InteractionModelError as e:
             # This check is for 2.b, mentioned above. If this assert occurs, test likely needs updating. Although DUT
             # is still going to fail since it seemingly is failing to process a smaller number then it is reporting
             # that it is capable of processing.
-            asserts.assert_equal(number_of_commands_to_send, max_paths_per_invoke + 1,
-                                 "Test didn't send as many command as max_paths_per_invoke + 1, likely due to MTU cap_for_batch_commands, but we still got an error from server. This should have been a success from server")
-            asserts.assert_equal(e.status, Status.InvalidAction,
-                                 "DUT sent back an unexpected error, we were expecting InvalidAction")
+            asserts.assert_equal(
+                number_of_commands_to_send,
+                max_paths_per_invoke + 1,
+                "Test didn't send as many command as max_paths_per_invoke + 1, likely due to MTU cap_for_batch_commands, but we still got an error from server. This should have been a success from server",
+            )
+            asserts.assert_equal(
+                e.status, Status.InvalidAction, "DUT sent back an unexpected error, we were expecting InvalidAction"
+            )
             log.info("DUT successfully failed to process `MaxPathsPerInvoke + 1` InvokeRequests")
         except ChipStackError as e:  # chipstack-ok: Multiple error types are expected depending on DUT capability
             # assert_raises is not used here because we validate error types
-            chip_error_no_memory = 0x0b
+            chip_error_no_memory = 0x0B
             asserts.assert_equal(e.err, chip_error_no_memory, "Unexpected error while trying to send InvokeRequest")
             # TODO it is possible we want to confirm DUT can handle up to MTU max. But that is not in test plan as of right now.
             # Additionally CommandSender is not currently set up to enable caller to fill up to MTU. This might be coming soon,
@@ -149,10 +172,12 @@ class TC_IDM_1_4(IDMBaseTest):
         if max_paths_per_invoke == 1:
             self.mark_all_remaining_steps_skipped(3)
             return
-        asserts.assert_true('PIXIT.DGGEN.TEST_EVENT_TRIGGER_KEY' in self.matter_test_config.global_test_params,
-                            "PIXIT.DGGEN.TEST_EVENT_TRIGGER_KEY must be included on the command line in "
-                            "the --hex-arg flag as PIXIT.DGGEN.TEST_EVENT_TRIGGER_KEY:<key>, "
-                            "e.g. --hex-arg PIXIT.DGGEN.TEST_EVENT_TRIGGER_KEY:000102030405060708090a0b0c0d0e0f")
+        asserts.assert_true(
+            "PIXIT.DGGEN.TEST_EVENT_TRIGGER_KEY" in self.matter_test_config.global_test_params,
+            "PIXIT.DGGEN.TEST_EVENT_TRIGGER_KEY must be included on the command line in "
+            "the --hex-arg flag as PIXIT.DGGEN.TEST_EVENT_TRIGGER_KEY:<key>, "
+            "e.g. --hex-arg PIXIT.DGGEN.TEST_EVENT_TRIGGER_KEY:000102030405060708090a0b0c0d0e0f",
+        )
 
         await self.remaining_batch_commands_test_steps(False)
 
@@ -168,31 +193,39 @@ class TC_IDM_1_4(IDMBaseTest):
             result = await dev_ctrl.SendBatchCommands(dut_node_id, [invoke_request_1, invoke_request_1])
             asserts.fail("Unexpected success return after sending two identical (non-unique) paths in the InvokeRequest")
         except InteractionModelError as e:
-            asserts.assert_equal(e.status, Status.InvalidAction,
-                                 "DUT sent back an unexpected error, we were expecting InvalidAction")
+            asserts.assert_equal(
+                e.status, Status.InvalidAction, "DUT sent back an unexpected error, we were expecting InvalidAction"
+            )
             log.info("DUT successfully failed to process two InvokeRequests that contains non-unique paths")
 
         self.step(4)
         endpoint = 0
         command = Clusters.OperationalCredentials.Commands.CertificateChainRequest(
-            Clusters.OperationalCredentials.Enums.CertificateChainTypeEnum.kDACCertificate)
+            Clusters.OperationalCredentials.Enums.CertificateChainTypeEnum.kDACCertificate
+        )
         invoke_request_1 = Clusters.Command.InvokeRequestInfo(endpoint, command)
 
         command = Clusters.GroupKeyManagement.Commands.KeySetRead(0)
         invoke_request_2 = Clusters.Command.InvokeRequestInfo(endpoint, command)
         commandRefsOverride = [1, 1]
         try:
-            await dev_ctrl.TestOnlySendBatchCommands(dut_node_id, [invoke_request_1, invoke_request_2], commandRefsOverride=commandRefsOverride)
-            asserts.fail("Unexpected success return after sending two unique commands with identical CommandRef in the InvokeRequest")
+            await dev_ctrl.TestOnlySendBatchCommands(
+                dut_node_id, [invoke_request_1, invoke_request_2], commandRefsOverride=commandRefsOverride
+            )
+            asserts.fail(
+                "Unexpected success return after sending two unique commands with identical CommandRef in the InvokeRequest"
+            )
         except InteractionModelError as e:
-            asserts.assert_equal(e.status, Status.InvalidAction,
-                                 "DUT sent back an unexpected error, we were expecting InvalidAction")
+            asserts.assert_equal(
+                e.status, Status.InvalidAction, "DUT sent back an unexpected error, we were expecting InvalidAction"
+            )
             log.info("DUT successfully failed to process two InvokeRequests that contains non-unique CommandRef")
 
         self.step(5)
         endpoint = 0
         command = Clusters.OperationalCredentials.Commands.CertificateChainRequest(
-            Clusters.OperationalCredentials.Enums.CertificateChainTypeEnum.kDACCertificate)
+            Clusters.OperationalCredentials.Enums.CertificateChainTypeEnum.kDACCertificate
+        )
         invoke_request_1 = Clusters.Command.InvokeRequestInfo(endpoint, command)
 
         command = Clusters.GroupKeyManagement.Commands.KeySetRead(0)
@@ -201,10 +234,14 @@ class TC_IDM_1_4(IDMBaseTest):
             result = await dev_ctrl.SendBatchCommands(dut_node_id, [invoke_request_1, invoke_request_2])
             asserts.assert_true(matchers.is_type(result, list), "Unexpected return from SendBatchCommands")
             asserts.assert_equal(len(result), 2, "Unexpected number of InvokeResponses sent back from DUT")
-            asserts.assert_true(matchers.is_type(
-                result[0], Clusters.OperationalCredentials.Commands.CertificateChainResponse), "Unexpected return type for first InvokeRequest")
-            asserts.assert_true(matchers.is_type(
-                result[1], Clusters.GroupKeyManagement.Commands.KeySetReadResponse), "Unexpected return type for second InvokeRequest")
+            asserts.assert_true(
+                matchers.is_type(result[0], Clusters.OperationalCredentials.Commands.CertificateChainResponse),
+                "Unexpected return type for first InvokeRequest",
+            )
+            asserts.assert_true(
+                matchers.is_type(result[1], Clusters.GroupKeyManagement.Commands.KeySetReadResponse),
+                "Unexpected return type for second InvokeRequest",
+            )
             log.info("DUT successfully responded to a InvokeRequest action with two valid commands")
         except InteractionModelError:
             asserts.fail("DUT failed to successfully responded to a InvokeRequest action with two valid commands")
@@ -218,7 +255,8 @@ class TC_IDM_1_4(IDMBaseTest):
 
         endpoint = 0
         command = Clusters.OperationalCredentials.Commands.CertificateChainRequest(
-            Clusters.OperationalCredentials.Enums.CertificateChainTypeEnum.kDACCertificate)
+            Clusters.OperationalCredentials.Enums.CertificateChainTypeEnum.kDACCertificate
+        )
         invoke_request_1 = Clusters.Command.InvokeRequestInfo(endpoint, command)
 
         endpoint = non_existent_endpoint
@@ -228,14 +266,21 @@ class TC_IDM_1_4(IDMBaseTest):
             result = await dev_ctrl.SendBatchCommands(dut_node_id, [invoke_request_1, invoke_request_2])
             asserts.assert_true(matchers.is_type(result, list), "Unexpected return from SendBatchCommands")
             asserts.assert_equal(len(result), 2, "Unexpected number of InvokeResponses sent back from DUT")
-            asserts.assert_true(matchers.is_type(
-                result[0], Clusters.OperationalCredentials.Commands.CertificateChainResponse), "Unexpected return type for first InvokeRequest")
-            asserts.assert_true(matchers.is_type(
-                result[1], InteractionModelError), "Unexpected return type for second InvokeRequest")
-            asserts.assert_equal(result[1].status, Status.UnsupportedEndpoint,
-                                 "Unexpected Interaction model error, was expecting UnsupportedEndpoint")
+            asserts.assert_true(
+                matchers.is_type(result[0], Clusters.OperationalCredentials.Commands.CertificateChainResponse),
+                "Unexpected return type for first InvokeRequest",
+            )
+            asserts.assert_true(
+                matchers.is_type(result[1], InteractionModelError), "Unexpected return type for second InvokeRequest"
+            )
+            asserts.assert_equal(
+                result[1].status,
+                Status.UnsupportedEndpoint,
+                "Unexpected Interaction model error, was expecting UnsupportedEndpoint",
+            )
             log.info(
-                "DUT successfully responded to first valid InvokeRequest, and successfully errored with UnsupportedEndpoint for the second")
+                "DUT successfully responded to first valid InvokeRequest, and successfully errored with UnsupportedEndpoint for the second"
+            )
         except InteractionModelError:
             asserts.fail("DUT failed to successfully responded to a InvokeRequest action with two valid commands")
 
@@ -252,11 +297,16 @@ class TC_IDM_1_4(IDMBaseTest):
         # receiving a path-specific response to the same command, with the TimedRequestMessage sent before
         # the InvokeRequestMessage.
         try:
-            await dev_ctrl.TestOnlySendBatchCommands(dut_node_id, [invoke_request_1, invoke_request_2], suppressTimedRequestMessage=True)
+            await dev_ctrl.TestOnlySendBatchCommands(
+                dut_node_id, [invoke_request_1, invoke_request_2], suppressTimedRequestMessage=True
+            )
             asserts.fail("Unexpected success call to sending Batch command when non-path specific error expected")
         except InteractionModelError as e:
-            asserts.assert_equal(e.status, Status.TimedRequestMismatch,
-                                 "Unexpected error response from Invoke with TimedRequest flag and no TimedInvoke")
+            asserts.assert_equal(
+                e.status,
+                Status.TimedRequestMismatch,
+                "Unexpected error response from Invoke with TimedRequest flag and no TimedInvoke",
+            )
 
         self.step(8)
         endpoint = 0
@@ -269,28 +319,34 @@ class TC_IDM_1_4(IDMBaseTest):
             result = await dev_ctrl.SendBatchCommands(dut_node_id, [invoke_request_1, invoke_request_2], timedRequestTimeoutMs=5000)
             asserts.assert_true(matchers.is_type(result, list), "Unexpected return from SendBatchCommands")
             asserts.assert_equal(len(result), 2, "Unexpected number of InvokeResponses sent back from DUT")
-            asserts.assert_true(matchers.is_type(
-                result[0], Clusters.GroupKeyManagement.Commands.KeySetReadResponse), "Unexpected return type for first InvokeRequest")
-            asserts.assert_true(matchers.is_type(result[1], InteractionModelError),
-                                "Unexpected return type for second InvokeRequest")
+            asserts.assert_true(
+                matchers.is_type(result[0], Clusters.GroupKeyManagement.Commands.KeySetReadResponse),
+                "Unexpected return type for first InvokeRequest",
+            )
+            asserts.assert_true(
+                matchers.is_type(result[1], InteractionModelError), "Unexpected return type for second InvokeRequest"
+            )
 
             # We sent out RevokeCommissioning without an ArmSafe intentionally, confirm that it failed for that reason.
-            asserts.assert_equal(result[1].status, Status.Failure,
-                                 "Timed command, RevokeCommissioning, didn't fail in manner expected by test")
+            asserts.assert_equal(
+                result[1].status, Status.Failure, "Timed command, RevokeCommissioning, didn't fail in manner expected by test"
+            )
             window_not_open_cluster_error = 4
-            asserts.assert_equal(result[1].clusterStatus, window_not_open_cluster_error,
-                                 "Timed command, RevokeCommissioning, failed with incorrect cluster code")
-            log.info("DUT successfully responded to a InvokeRequest action with two valid commands. One of which required timed invoke, and TimedRequest in InvokeResponseMessage was set to true")
+            asserts.assert_equal(
+                result[1].clusterStatus,
+                window_not_open_cluster_error,
+                "Timed command, RevokeCommissioning, failed with incorrect cluster code",
+            )
+            log.info(
+                "DUT successfully responded to a InvokeRequest action with two valid commands. One of which required timed invoke, and TimedRequest in InvokeResponseMessage was set to true"
+            )
         except InteractionModelError:
             asserts.fail("DUT failed with non-path specific error when path specific error was expected")
 
         self.step(9)
         try:
             feature_map = await self.read_single_attribute(
-                dev_ctrl,
-                dut_node_id,
-                endpoint=0,
-                attribute=Clusters.GeneralDiagnostics.Attributes.FeatureMap
+                dev_ctrl, dut_node_id, endpoint=0, attribute=Clusters.GeneralDiagnostics.Attributes.FeatureMap
             )
         except InteractionModelError:
             asserts.fail("DUT failed to respond reading FeatureMap attribute")
@@ -300,50 +356,51 @@ class TC_IDM_1_4(IDMBaseTest):
         self.step(10)
         try:
             test_event_triggers_enabled = await self.read_single_attribute(
-                dev_ctrl,
-                dut_node_id,
-                endpoint=0,
-                attribute=Clusters.GeneralDiagnostics.Attributes.TestEventTriggersEnabled
+                dev_ctrl, dut_node_id, endpoint=0, attribute=Clusters.GeneralDiagnostics.Attributes.TestEventTriggersEnabled
             )
         except InteractionModelError:
             asserts.fail("DUT failed to respond reading TestEventTriggersEnabled attribute")
         asserts.assert_true(test_event_triggers_enabled, "Test Event Triggers must be enabled on DUT")
 
         self.step(11)
-        enable_key = self.matter_test_config.global_test_params['PIXIT.DGGEN.TEST_EVENT_TRIGGER_KEY']
+        enable_key = self.matter_test_config.global_test_params["PIXIT.DGGEN.TEST_EVENT_TRIGGER_KEY"]
         endpoint = 0
-        command = Clusters.GeneralDiagnostics.Commands.PayloadTestRequest(
-            enableKey=enable_key,
-            value=ord('A'),
-            count=800
-        )
+        command = Clusters.GeneralDiagnostics.Commands.PayloadTestRequest(enableKey=enable_key, value=ord("A"), count=800)
         invoke_request_1 = Clusters.Command.InvokeRequestInfo(endpoint, command)
 
         command = Clusters.OperationalCredentials.Commands.CertificateChainRequest(
-            Clusters.OperationalCredentials.Enums.CertificateChainTypeEnum.kDACCertificate)
+            Clusters.OperationalCredentials.Enums.CertificateChainTypeEnum.kDACCertificate
+        )
         invoke_request_2 = Clusters.Command.InvokeRequestInfo(endpoint, command)
 
         try:
             test_only_result = await dev_ctrl.TestOnlySendBatchCommands(dut_node_id, [invoke_request_1, invoke_request_2])
         except InteractionModelError:
-            asserts.fail("DUT failed to respond to batch commands, where response is expected to be too large to fit in a single ResponseMessage")
+            asserts.fail(
+                "DUT failed to respond to batch commands, where response is expected to be too large to fit in a single ResponseMessage"
+            )
 
         responses = test_only_result.Responses
         # This check is validating the number of InvokeResponses we got
         asserts.assert_equal(len(responses), 2, "Unexpected number of InvokeResponses sent back from DUT")
-        asserts.assert_true(matchers.is_type(
-            responses[0], Clusters.GeneralDiagnostics.Commands.PayloadTestResponse), "Unexpected return type for first InvokeRequest")
-        asserts.assert_true(matchers.is_type(
-            responses[1], Clusters.OperationalCredentials.Commands.CertificateChainResponse), "Unexpected return type for second InvokeRequest")
+        asserts.assert_true(
+            matchers.is_type(responses[0], Clusters.GeneralDiagnostics.Commands.PayloadTestResponse),
+            "Unexpected return type for first InvokeRequest",
+        )
+        asserts.assert_true(
+            matchers.is_type(responses[1], Clusters.OperationalCredentials.Commands.CertificateChainResponse),
+            "Unexpected return type for second InvokeRequest",
+        )
         log.info("DUT successfully responded to a InvokeRequest action with two valid commands")
 
-        asserts.assert_equal(responses[0].payload, b'A' * 800, "Expect response to match for count == 800")
+        asserts.assert_equal(responses[0].payload, b"A" * 800, "Expect response to match for count == 800")
         # If this assert below fails then some assumptions we were relying on are now no longer true.
         # This check is validating the number of InvokeResponsesMessages we got. This is different then the earlier
         # `len(responses)` check as you can have multiple InvokeResponses in a single message. But this test step
         # is explicitly making sure that we recieved multiple ResponseMessages.
-        asserts.assert_greater_equal(test_only_result.ResponseMessageCount, 2,
-                                     "DUT was expected to send multiple InvokeResponseMessages")
+        asserts.assert_greater_equal(
+            test_only_result.ResponseMessageCount, 2, "DUT was expected to send multiple InvokeResponseMessages"
+        )
 
 
 if __name__ == "__main__":

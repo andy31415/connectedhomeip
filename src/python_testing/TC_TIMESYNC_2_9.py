@@ -53,29 +53,37 @@ from matter.tlv import uint
 
 
 class TC_TIMESYNC_2_9(MatterBaseTest):
-
     async def read_ts_attribute_expect_success(self, attribute):
         cluster = Clusters.Objects.TimeSynchronization
         return await self.read_single_attribute_check_success(endpoint=self.endpoint, cluster=cluster, attribute=attribute)
 
-    async def send_set_time_zone_cmd(self, tz: typing.List[Clusters.Objects.TimeSynchronization.Structs.TimeZoneStruct]) -> Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse:
-        ret = await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetTimeZone(timeZone=tz), endpoint=self.endpoint)
-        asserts.assert_true(matchers.is_type(ret, Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse),
-                            "Unexpected return type for SetTimeZone")
+    async def send_set_time_zone_cmd(
+        self, tz: typing.List[Clusters.Objects.TimeSynchronization.Structs.TimeZoneStruct]
+    ) -> Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse:
+        ret = await self.send_single_cmd(
+            cmd=Clusters.Objects.TimeSynchronization.Commands.SetTimeZone(timeZone=tz), endpoint=self.endpoint
+        )
+        asserts.assert_true(
+            matchers.is_type(ret, Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse),
+            "Unexpected return type for SetTimeZone",
+        )
         return ret
 
     async def send_set_dst_cmd(self, dst: typing.List[Clusters.Objects.TimeSynchronization.Structs.DSTOffsetStruct]) -> None:
         await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetDSTOffset(DSTOffset=dst))
 
     async def send_set_utc_cmd(self, utc: uint) -> None:
-        await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetUTCTime(UTCTime=utc, granularity=Clusters.Objects.TimeSynchronization.Enums.GranularityEnum.kMillisecondsGranularity))
+        await self.send_single_cmd(
+            cmd=Clusters.Objects.TimeSynchronization.Commands.SetUTCTime(
+                UTCTime=utc, granularity=Clusters.Objects.TimeSynchronization.Enums.GranularityEnum.kMillisecondsGranularity
+            )
+        )
 
     def pics_TC_TIMESYNC_2_9(self) -> list[str]:
         return ["TIMESYNC.S.F00"]
 
     @async_test_body
     async def test_TC_TIMESYNC_2_9(self):
-
         # Time sync is required to be on endpoint 0 if it is present
         self.endpoint = 0
 
@@ -108,7 +116,7 @@ class TC_TIMESYNC_2_9(MatterBaseTest):
 
         self.print_step(5, "Read LocalTime")
         local = await self.read_ts_attribute_expect_success(local_attr)
-        compare_time(received=local, offset=timedelta(seconds=7200+3600), tolerance=timedelta(seconds=5))
+        compare_time(received=local, offset=timedelta(seconds=7200 + 3600), tolerance=timedelta(seconds=5))
 
         self.print_step(6, "Send SetDSTOffset command")
         dst = [dst_struct(offset=-3600, validStarting=0, validUntil=NullValue)]
@@ -120,7 +128,7 @@ class TC_TIMESYNC_2_9(MatterBaseTest):
 
         self.print_step(8, "Read LocalTime")
         local = await self.read_ts_attribute_expect_success(local_attr)
-        compare_time(received=local, offset=timedelta(seconds=7200-3600), tolerance=timedelta(seconds=5))
+        compare_time(received=local, offset=timedelta(seconds=7200 - 3600), tolerance=timedelta(seconds=5))
 
         self.print_step(9, "Send SetTimeZone command")
         tz = [tz_struct(offset=-7200, validAt=0)]
@@ -137,7 +145,7 @@ class TC_TIMESYNC_2_9(MatterBaseTest):
 
         self.print_step(12, "Read LocalTime")
         local = await self.read_ts_attribute_expect_success(local_attr)
-        compare_time(received=local, offset=timedelta(seconds=-7200+3600), tolerance=timedelta(seconds=5))
+        compare_time(received=local, offset=timedelta(seconds=-7200 + 3600), tolerance=timedelta(seconds=5))
 
         self.print_step(13, "Send SetDSTOffset command")
         dst = [dst_struct(offset=-3600, validStarting=0, validUntil=NullValue)]
@@ -149,7 +157,7 @@ class TC_TIMESYNC_2_9(MatterBaseTest):
 
         self.print_step(15, "Read LocalTime")
         local = await self.read_ts_attribute_expect_success(local_attr)
-        compare_time(received=local, offset=timedelta(seconds=-7200-3600), tolerance=timedelta(seconds=5))
+        compare_time(received=local, offset=timedelta(seconds=-7200 - 3600), tolerance=timedelta(seconds=5))
 
         self.print_step(16, "Send SetTimeZone command")
         tz = [tz_struct(offset=0, validAt=0)]

@@ -17,7 +17,7 @@
 # Reference it directly from the source tree.
 from python_path import PythonPath
 
-with PythonPath('py_matter_idl', relative_to=__file__):
+with PythonPath("py_matter_idl", relative_to=__file__):
     from matter.idl.generators.path_resolution import expand_path_for_idl
     from matter.idl.matter_idl_parser import CreateParser
 
@@ -27,6 +27,7 @@ import click
 
 try:
     import coloredlogs
+
     _has_coloredlogs = True
 except ImportError:
     _has_coloredlogs = False
@@ -34,25 +35,22 @@ except ImportError:
 # Supported log levels, mapping string values required for argument
 # parsing into logging constants
 __LOG_LEVELS__ = {
-    'debug': logging.DEBUG,
-    'info': logging.INFO,
-    'warn': logging.WARNING,
-    'fatal': logging.FATAL,
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warn": logging.WARNING,
+    "fatal": logging.FATAL,
 }
 
 
 @click.command()
 @click.option(
-    '--log-level',
-    default='fatal',
+    "--log-level",
+    default="fatal",
     type=click.Choice(__LOG_LEVELS__.keys(), case_sensitive=False),
-    help='Determines the verbosity of script output')
-@click.option(
-    '--idl',
-    type=click.Path(exists=True),
-    default=None,
-    help='path to the IDL file')
-@click.argument('path', nargs=-1, type=str)
+    help="Determines the verbosity of script output",
+)
+@click.option("--idl", type=click.Path(exists=True), default=None, help="path to the IDL file")
+@click.argument("path", nargs=-1, type=str)
 def main(log_level, idl, path: list[str]):
     """
     Parses MATTER IDL files (.matter) and performs generated path expansion
@@ -72,13 +70,10 @@ def main(log_level, idl, path: list[str]):
     Baz.h
     """
     if _has_coloredlogs:
-        coloredlogs.install(level=__LOG_LEVELS__[
-                            log_level], fmt='%(asctime)s %(levelname)-7s %(message)s')
+        coloredlogs.install(level=__LOG_LEVELS__[log_level], fmt="%(asctime)s %(levelname)-7s %(message)s")
     else:
         logging.basicConfig(
-            level=__LOG_LEVELS__[log_level],
-            format='%(asctime)s %(levelname)-7s %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
+            level=__LOG_LEVELS__[log_level], format="%(asctime)s %(levelname)-7s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
         )
 
     with open(idl) as f:
@@ -94,5 +89,5 @@ def main(log_level, idl, path: list[str]):
             print(expanded)
 
 
-if __name__ == '__main__':
-    main(auto_envvar_prefix='CHIP')
+if __name__ == "__main__":
+    main(auto_envvar_prefix="CHIP")

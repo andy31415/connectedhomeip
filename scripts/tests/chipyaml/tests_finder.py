@@ -19,15 +19,15 @@ from typing import List
 
 import click
 
-_JSON_FILE_EXTENSION = '.json'
-_YAML_FILE_EXTENSION = '.yaml'
-_KNOWN_PREFIX = 'Test_TC_'
+_JSON_FILE_EXTENSION = ".json"
+_YAML_FILE_EXTENSION = ".yaml"
+_KNOWN_PREFIX = "Test_TC_"
 
-_KEYWORD_ALL_TESTS = 'all'
-_DEFAULT_DIRECTORY = 'src/app/tests/suites/'
+_KEYWORD_ALL_TESTS = "all"
+_DEFAULT_DIRECTORY = "src/app/tests/suites/"
 
-_CI_CONFIGURATION_NAME = 'ciTests'
-_MANUAL_CONFIGURATION_NAME = 'manualTests'
+_CI_CONFIGURATION_NAME = "ciTests"
+_MANUAL_CONFIGURATION_NAME = "manualTests"
 
 
 class TestsFinder:
@@ -45,7 +45,7 @@ class TestsFinder:
         test_names = []
 
         if self.__test_collections and test_name == _KEYWORD_ALL_TESTS:
-            for collection_name in self.__test_collections.get('collection'):
+            for collection_name in self.__test_collections.get("collection"):
                 for name in self.__test_collections.get(collection_name):
                     test_names.append(name)
         elif self.__test_collections and self.__test_collections.get(test_name):
@@ -70,15 +70,15 @@ class TestsFinder:
         if configuration_filepath:
             with open(configuration_filepath) as file:
                 data = json.load(file)
-                if 'include' in data:
-                    include_filepath = os.path.join(os.path.dirname(configuration_filepath), data.get('include'))
+                if "include" in data:
+                    include_filepath = os.path.join(os.path.dirname(configuration_filepath), data.get("include"))
                     with open(include_filepath) as included_file:
                         collections = json.load(included_file)
                 else:
                     collections = data
 
-                if collections and 'disable' in data:
-                    disabled_tests = data.get('disable')
+                if collections and "disable" in data:
+                    disabled_tests = data.get("disable")
                     for disabled_test in disabled_tests:
                         for collection in collections:
                             if disabled_test in collections.get(collection):
@@ -102,23 +102,35 @@ class TestsFinder:
 
 
 def test_finder_options(f):
-    f = click.option("--configuration_directory", type=click.Path(exists=True), required=True, show_default=True,
-                     default=_DEFAULT_DIRECTORY, help='Path to the directory containing the tests configuration.')(f)
-    return click.option("--configuration_name", type=str, required=True, show_default=True,
-                        default=_CI_CONFIGURATION_NAME, help='Name of the collection configuration json file to use.')(f)
+    f = click.option(
+        "--configuration_directory",
+        type=click.Path(exists=True),
+        required=True,
+        show_default=True,
+        default=_DEFAULT_DIRECTORY,
+        help="Path to the directory containing the tests configuration.",
+    )(f)
+    return click.option(
+        "--configuration_name",
+        type=str,
+        required=True,
+        show_default=True,
+        default=_CI_CONFIGURATION_NAME,
+        help="Name of the collection configuration json file to use.",
+    )(f)
 
 
 @click.command()
-@click.argument('test_name')
+@click.argument("test_name")
 @test_finder_options
 def run(test_name: str, configuration_directory: str, configuration_name: str):
-    """ Find a test or a set of tests."""
+    """Find a test or a set of tests."""
     tests_finder = TestsFinder(configuration_directory, configuration_name)
     tests = tests_finder.get(test_name)
     for test in tests:
         print(test)
-    print(f'{len(tests)} tests found.')
+    print(f"{len(tests)} tests found.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

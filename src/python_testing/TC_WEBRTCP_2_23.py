@@ -59,30 +59,43 @@ class TC_WEBRTCP_2_23(MatterBaseTest, WEBRTCPTestBase):
     def steps_TC_WEBRTCP_2_23(self) -> list[TestStep]:
         return [
             TestStep("precondition", "DUT commissioned", is_commissioning=True),
-            TestStep(1, "TH allocates both Audio and Video streams via CameraAVStreamManagement",
-                     "Valid stream IDs are obtained"),
-            TestStep(2, "TH reads the AllocatedAudioStreams and AllocatedVideoStreams attributes to check reference counts",
-                     "Reference counts for allocated streams are recorded"),
-            TestStep(3, "TH establishes a WebRTC session using the allocated streams",
-                     "Valid WebRTCSessionID is obtained and session is active"),
-            TestStep(4, "TH reads the stream attributes again to verify reference counts increased",
-                     "Reference counts for used streams have increased"),
-            TestStep(5, "TH sends the EndSession command with the valid WebRTCSessionID",
-                     "DUT responds with success status code"),
-            TestStep(6, "TH reads the stream attributes again to verify reference counts decreased",
-                     "Reference counts for streams have decremented back to their original values"),
-            TestStep(7, "TH deallocates the Audio and Video streams via AudioStreamDeallocate and VideoStreamDeallocate commands",
-                     "DUT responds with success status code for both deallocate commands")
+            TestStep(1, "TH allocates both Audio and Video streams via CameraAVStreamManagement", "Valid stream IDs are obtained"),
+            TestStep(
+                2,
+                "TH reads the AllocatedAudioStreams and AllocatedVideoStreams attributes to check reference counts",
+                "Reference counts for allocated streams are recorded",
+            ),
+            TestStep(
+                3,
+                "TH establishes a WebRTC session using the allocated streams",
+                "Valid WebRTCSessionID is obtained and session is active",
+            ),
+            TestStep(
+                4,
+                "TH reads the stream attributes again to verify reference counts increased",
+                "Reference counts for used streams have increased",
+            ),
+            TestStep(5, "TH sends the EndSession command with the valid WebRTCSessionID", "DUT responds with success status code"),
+            TestStep(
+                6,
+                "TH reads the stream attributes again to verify reference counts decreased",
+                "Reference counts for streams have decremented back to their original values",
+            ),
+            TestStep(
+                7,
+                "TH deallocates the Audio and Video streams via AudioStreamDeallocate and VideoStreamDeallocate commands",
+                "DUT responds with success status code for both deallocate commands",
+            ),
         ]
 
     def pics_TC_WEBRTCP_2_23(self) -> list[str]:
         return [
             "WEBRTCP.S",
-            "WEBRTCP.S.A0000",     # CurrentSessions attribute
-            "WEBRTCP.S.C06.Rsp",   # EndSession command
+            "WEBRTCP.S.A0000",  # CurrentSessions attribute
+            "WEBRTCP.S.C06.Rsp",  # EndSession command
             "AVSM.S",
-            "AVSM.S.F00",          # Audio Data Output feature
-            "AVSM.S.F01",          # Video Data Output feature
+            "AVSM.S.F00",  # Audio Data Output feature
+            "AVSM.S.F01",  # Video Data Output feature
         ]
 
     async def _get_stream_ref_count(self, stream_id: int, attribute, endpoint: int) -> int:
@@ -98,19 +111,19 @@ class TC_WEBRTCP_2_23(MatterBaseTest, WEBRTCPTestBase):
             The reference count for the specified stream
         """
         streams = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=Clusters.CameraAvStreamManagement,
-            attribute=attribute
+            endpoint=endpoint, cluster=Clusters.CameraAvStreamManagement, attribute=attribute
         )
 
         # Determine which field to use based on the attribute type
-        stream_id_field = 'audioStreamID' if attribute == Clusters.CameraAvStreamManagement.Attributes.AllocatedAudioStreams else 'videoStreamID'
+        stream_id_field = (
+            "audioStreamID" if attribute == Clusters.CameraAvStreamManagement.Attributes.AllocatedAudioStreams else "videoStreamID"
+        )
 
         for stream in streams:
             if getattr(stream, stream_id_field) == stream_id:
                 return stream.referenceCount
 
-        asserts.fail(f'Could not find stream {stream_id}')
+        asserts.fail(f"Could not find stream {stream_id}")
         return None
 
     @property
@@ -147,14 +160,10 @@ class TC_WEBRTCP_2_23(MatterBaseTest, WEBRTCPTestBase):
         log.info("Reading initial reference counts")
 
         initial_audio_ref_count = await self._get_stream_ref_count(
-            audio_stream_id,
-            Clusters.CameraAvStreamManagement.Attributes.AllocatedAudioStreams,
-            endpoint
+            audio_stream_id, Clusters.CameraAvStreamManagement.Attributes.AllocatedAudioStreams, endpoint
         )
         initial_video_ref_count = await self._get_stream_ref_count(
-            video_stream_id,
-            Clusters.CameraAvStreamManagement.Attributes.AllocatedVideoStreams,
-            endpoint
+            video_stream_id, Clusters.CameraAvStreamManagement.Attributes.AllocatedVideoStreams, endpoint
         )
 
         log.info(f"Initial reference counts - Audio: {initial_audio_ref_count}, Video: {initial_video_ref_count}")
@@ -222,21 +231,23 @@ class TC_WEBRTCP_2_23(MatterBaseTest, WEBRTCPTestBase):
         log.info("Reading reference counts after session establishment")
 
         active_audio_ref_count = await self._get_stream_ref_count(
-            audio_stream_id,
-            Clusters.CameraAvStreamManagement.Attributes.AllocatedAudioStreams,
-            endpoint
+            audio_stream_id, Clusters.CameraAvStreamManagement.Attributes.AllocatedAudioStreams, endpoint
         )
         active_video_ref_count = await self._get_stream_ref_count(
-            video_stream_id,
-            Clusters.CameraAvStreamManagement.Attributes.AllocatedVideoStreams,
-            endpoint
+            video_stream_id, Clusters.CameraAvStreamManagement.Attributes.AllocatedVideoStreams, endpoint
         )
 
         # Verify reference counts increased
-        asserts.assert_equal(active_audio_ref_count, initial_audio_ref_count + 1,
-                             f"Audio reference count should have increased from {initial_audio_ref_count} to {initial_audio_ref_count + 1}")
-        asserts.assert_equal(active_video_ref_count, initial_video_ref_count + 1,
-                             f"Video reference count should have increased from {initial_video_ref_count} to {initial_video_ref_count + 1}")
+        asserts.assert_equal(
+            active_audio_ref_count,
+            initial_audio_ref_count + 1,
+            f"Audio reference count should have increased from {initial_audio_ref_count} to {initial_audio_ref_count + 1}",
+        )
+        asserts.assert_equal(
+            active_video_ref_count,
+            initial_video_ref_count + 1,
+            f"Video reference count should have increased from {initial_video_ref_count} to {initial_video_ref_count + 1}",
+        )
         log.info(f"Reference counts increased - Audio: {active_audio_ref_count}, Video: {active_video_ref_count}")
 
         self.step(5)
@@ -244,8 +255,7 @@ class TC_WEBRTCP_2_23(MatterBaseTest, WEBRTCPTestBase):
         log.info(f"Sending EndSession command for session {session_id}")
         await self.send_single_cmd(
             cmd=Clusters.WebRTCTransportProvider.Commands.EndSession(
-                webRTCSessionID=session_id,
-                reason=Clusters.Objects.Globals.Enums.WebRTCEndReasonEnum.kUserHangup
+                webRTCSessionID=session_id, reason=Clusters.Objects.Globals.Enums.WebRTCEndReasonEnum.kUserHangup
             ),
             endpoint=endpoint,
             payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD,
@@ -257,21 +267,23 @@ class TC_WEBRTCP_2_23(MatterBaseTest, WEBRTCPTestBase):
         log.info("Reading reference counts after EndSession")
 
         final_audio_ref_count = await self._get_stream_ref_count(
-            audio_stream_id,
-            Clusters.CameraAvStreamManagement.Attributes.AllocatedAudioStreams,
-            endpoint
+            audio_stream_id, Clusters.CameraAvStreamManagement.Attributes.AllocatedAudioStreams, endpoint
         )
         final_video_ref_count = await self._get_stream_ref_count(
-            video_stream_id,
-            Clusters.CameraAvStreamManagement.Attributes.AllocatedVideoStreams,
-            endpoint
+            video_stream_id, Clusters.CameraAvStreamManagement.Attributes.AllocatedVideoStreams, endpoint
         )
 
         # Verify reference counts decreased back to original values
-        asserts.assert_equal(final_audio_ref_count, initial_audio_ref_count,
-                             f"Audio reference count should have decreased back to {initial_audio_ref_count}")
-        asserts.assert_equal(final_video_ref_count, initial_video_ref_count,
-                             f"Video reference count should have decreased back to {initial_video_ref_count}")
+        asserts.assert_equal(
+            final_audio_ref_count,
+            initial_audio_ref_count,
+            f"Audio reference count should have decreased back to {initial_audio_ref_count}",
+        )
+        asserts.assert_equal(
+            final_video_ref_count,
+            initial_video_ref_count,
+            f"Video reference count should have decreased back to {initial_video_ref_count}",
+        )
         log.info(f"Reference counts decreased - Audio: {final_audio_ref_count}, Video: {final_video_ref_count}")
 
         self.step(7)
@@ -280,18 +292,14 @@ class TC_WEBRTCP_2_23(MatterBaseTest, WEBRTCPTestBase):
 
         # Deallocate audio stream
         await self.send_single_cmd(
-            cmd=Clusters.CameraAvStreamManagement.Commands.AudioStreamDeallocate(
-                audioStreamID=audio_stream_id
-            ),
+            cmd=Clusters.CameraAvStreamManagement.Commands.AudioStreamDeallocate(audioStreamID=audio_stream_id),
             endpoint=endpoint,
         )
         log.info(f"Successfully deallocated audio stream {audio_stream_id}")
 
         # Deallocate video stream
         await self.send_single_cmd(
-            cmd=Clusters.CameraAvStreamManagement.Commands.VideoStreamDeallocate(
-                videoStreamID=video_stream_id
-            ),
+            cmd=Clusters.CameraAvStreamManagement.Commands.VideoStreamDeallocate(videoStreamID=video_stream_id),
             endpoint=endpoint,
         )
         log.info(f"Successfully deallocated video stream {video_stream_id}")

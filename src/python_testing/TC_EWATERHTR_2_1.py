@@ -55,39 +55,57 @@ log = logging.getLogger(__name__)
 
 
 class TC_EWATERHTR_2_1(MatterBaseTest, EWATERHTRBase):
-
     def desc_TC_EWATERHTR_2_1(self) -> str:
         """Returns a description of this test"""
-        return "[TC-EWATERHTR-2.1] Attributes with attributes with DUT as Server\n" \
+        return (
+            "[TC-EWATERHTR-2.1] Attributes with attributes with DUT as Server\n"
             "This test case verifies the non-global attributes of the Water Heater Management cluster server."
+        )
 
     def pics_TC_EWATERHTR_2_1(self):
-        """ This function returns a list of PICS for this test case that must be True for the test to be run"""
+        """This function returns a list of PICS for this test case that must be True for the test to be run"""
         return ["EWATERHTR.S"]
 
     def steps_TC_EWATERHTR_2_1(self) -> list[TestStep]:
         return [
-            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test).",
-                     is_commissioning=True),
-            TestStep("2", "TH reads from the DUT the FeatureMap attribute.",
-                     "Verify that the DUT response contains the FeatureMap attribute. Store the value as FeatureMap."),
-            TestStep("3", "TH reads from the DUT the HeaterTypes attribute.",
-                     "Verify that the DUT response contains a WaterHeaterTypeBitmap (enum8) greater than 0x00 (at least one type supported), and less than 0x20 (no undefined types supported)"),
-            TestStep("4", "TH reads from the DUT the HeatDemand attribute.",
-                     "Verify that the DUT response contains a WaterHeaterDemandBitmap (enum8) value less than 0x20 (no undefined types supported)."),
-            TestStep("5", "TH reads from the DUT the TankVolume attribute.",
-                     "Verify that the DUT response contains a uint16 value."),
-            TestStep("6", "TH reads from the DUT the EstimatedHeatRequired attribute.",
-                     "Verify that the DUT response contains an energy-mWh value that is greater or equal to 0."),
-            TestStep("7", "TH reads from the DUT the TankPercentage attribute.",
-                     "Verify that the DUT response contains a percent value that is between 0 and 100 inclusive."),
-            TestStep("8", "TH reads from the DUT the BoostState attribute.",
-                     "Verify that the DUT response contains a BoostStateEnum (enum8) value that is less than or equal to 1."),
+            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test).", is_commissioning=True),
+            TestStep(
+                "2",
+                "TH reads from the DUT the FeatureMap attribute.",
+                "Verify that the DUT response contains the FeatureMap attribute. Store the value as FeatureMap.",
+            ),
+            TestStep(
+                "3",
+                "TH reads from the DUT the HeaterTypes attribute.",
+                "Verify that the DUT response contains a WaterHeaterTypeBitmap (enum8) greater than 0x00 (at least one type supported), and less than 0x20 (no undefined types supported)",
+            ),
+            TestStep(
+                "4",
+                "TH reads from the DUT the HeatDemand attribute.",
+                "Verify that the DUT response contains a WaterHeaterDemandBitmap (enum8) value less than 0x20 (no undefined types supported).",
+            ),
+            TestStep(
+                "5", "TH reads from the DUT the TankVolume attribute.", "Verify that the DUT response contains a uint16 value."
+            ),
+            TestStep(
+                "6",
+                "TH reads from the DUT the EstimatedHeatRequired attribute.",
+                "Verify that the DUT response contains an energy-mWh value that is greater or equal to 0.",
+            ),
+            TestStep(
+                "7",
+                "TH reads from the DUT the TankPercentage attribute.",
+                "Verify that the DUT response contains a percent value that is between 0 and 100 inclusive.",
+            ),
+            TestStep(
+                "8",
+                "TH reads from the DUT the BoostState attribute.",
+                "Verify that the DUT response contains a BoostStateEnum (enum8) value that is less than or equal to 1.",
+            ),
         ]
 
     @async_test_body
     async def test_TC_EWATERHTR_2_1(self):
-
         self.step("1")
         # Commission DUT - already done
 
@@ -100,15 +118,20 @@ class TC_EWATERHTR_2_1(MatterBaseTest, EWATERHTRBase):
 
         self.step("3")
         heaterTypes = await self.read_whm_attribute_expect_success(attribute="HeaterTypes")
-        asserts.assert_greater(heaterTypes, 0,
-                               f"Unexpected HeaterTypes value - expected {heaterTypes} > 0")
-        asserts.assert_less_equal(heaterTypes, Clusters.WaterHeaterManagement.Bitmaps.WaterHeaterHeatSourceBitmap.kOther,
-                                  f"Unexpected HeaterTypes value - expected {heaterTypes} <= WaterHeaterHeatSourceBitmap.kOther")
+        asserts.assert_greater(heaterTypes, 0, f"Unexpected HeaterTypes value - expected {heaterTypes} > 0")
+        asserts.assert_less_equal(
+            heaterTypes,
+            Clusters.WaterHeaterManagement.Bitmaps.WaterHeaterHeatSourceBitmap.kOther,
+            f"Unexpected HeaterTypes value - expected {heaterTypes} <= WaterHeaterHeatSourceBitmap.kOther",
+        )
 
         self.step("4")
         heatDemand = await self.read_whm_attribute_expect_success(attribute="HeatDemand")
-        asserts.assert_less_equal(heatDemand, Clusters.WaterHeaterManagement.Bitmaps.WaterHeaterHeatSourceBitmap.kOther,
-                                  f"Unexpected HeatDemand value - expected {heatDemand} <= WaterHeaterHeatSourceBitmap.kOther")
+        asserts.assert_less_equal(
+            heatDemand,
+            Clusters.WaterHeaterManagement.Bitmaps.WaterHeaterHeatSourceBitmap.kOther,
+            f"Unexpected HeatDemand value - expected {heatDemand} <= WaterHeaterHeatSourceBitmap.kOther",
+        )
 
         self.step("5")
         if em_supported:
@@ -133,8 +156,11 @@ class TC_EWATERHTR_2_1(MatterBaseTest, EWATERHTRBase):
 
         self.step("8")
         boost_state = await self.read_whm_attribute_expect_success(attribute="BoostState")
-        asserts.assert_less_equal(boost_state, Clusters.WaterHeaterManagement.Enums.BoostStateEnum.kActive,
-                                  f"Unexpected BoostState value - expected {boost_state} should be BoostStateEnum (enum8) value in range 0x00 to 0x01")
+        asserts.assert_less_equal(
+            boost_state,
+            Clusters.WaterHeaterManagement.Enums.BoostStateEnum.kActive,
+            f"Unexpected BoostState value - expected {boost_state} should be BoostStateEnum (enum8) value in range 0x00 to 0x01",
+        )
 
 
 if __name__ == "__main__":

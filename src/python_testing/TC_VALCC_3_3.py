@@ -57,16 +57,24 @@ class TC_VALCC_3_3(MatterBaseTest):
             TestStep(3, "If the DefaultOpenLevel is not supported, skip all remaining steps in this test"),
             TestStep(4, "TH reads from the DUT the DefaultOpenLevel attribute. Store the value as defaultOpenLevel."),
             TestStep(5, "Set up a subscription to all attributes on the DUT", "Subscription is successful"),
-            TestStep(6, "Send a close command to the DUT and wait until the CurrentState is reported as closed", "DUT returns SUCCESS"),
+            TestStep(
+                6, "Send a close command to the DUT and wait until the CurrentState is reported as closed", "DUT returns SUCCESS"
+            ),
             # TODO: this test should probably SET the default open attribute as well and un-set it at the end, so we're not testing against the default.
             TestStep(7, "Send Open command with no fields populated", "DUT returns SUCCESS"),
-            TestStep(8, "Wait until TH receives the following reports (ordering does not matter): TargetState set to NULL, TargetLevel set to NULL, CurrentState set to Open, CurrentLevel set to defaultOpenLevel",
-                     "Expected attribute reports are received"),
+            TestStep(
+                8,
+                "Wait until TH receives the following reports (ordering does not matter): TargetState set to NULL, TargetLevel set to NULL, CurrentState set to Open, CurrentLevel set to defaultOpenLevel",
+                "Expected attribute reports are received",
+            ),
             TestStep(9, "Read CurrentState and TargetState attribute", "CurrentState is Open, TargetState is NULL"),
             TestStep(10, "Read CurrentLevel and TargetLevel attribute", "CurrentLevel is defaultOpenLevel, TargetLevel is NULL"),
             TestStep(11, "Send Close command", "DUT returns SUCCESS"),
-            TestStep(12, "Wait until TH receives the following reports (ordering does not matter): TargetState set to NULL, TargetLevel set to NULL, CurrentState set to Closed, CurrentLevel set to 0",
-                     "Expected attribute reports are received"),
+            TestStep(
+                12,
+                "Wait until TH receives the following reports (ordering does not matter): TargetState set to NULL, TargetLevel set to NULL, CurrentState set to Closed, CurrentLevel set to 0",
+                "Expected attribute reports are received",
+            ),
             TestStep(13, "Read CurrentState and TargetState attribute", "CurrentState is Closed, TargetState is NULL"),
             TestStep(14, "Read CurrentLevel and TargetLevel attribute", "CurrentLevel is 0, TargetLevel is NULL"),
         ]
@@ -82,7 +90,6 @@ class TC_VALCC_3_3(MatterBaseTest):
 
     @async_test_body
     async def test_TC_VALCC_3_3(self):
-
         endpoint = self.get_endpoint()
 
         self.step(1)
@@ -93,10 +100,12 @@ class TC_VALCC_3_3(MatterBaseTest):
 
         self.step(3)
         if attributes.DefaultOpenLevel.attribute_id not in attribute_list:
-            asserts.skip('Endpoint does not match test requirements')
+            asserts.skip("Endpoint does not match test requirements")
 
         self.step(4)
-        default_open_level = await self.read_valcc_attribute_expect_success(endpoint=endpoint, attribute=attributes.DefaultOpenLevel)
+        default_open_level = await self.read_valcc_attribute_expect_success(
+            endpoint=endpoint, attribute=attributes.DefaultOpenLevel
+        )
 
         self.step(5)
         cluster = Clusters.ValveConfigurationAndControl
@@ -110,20 +119,23 @@ class TC_VALCC_3_3(MatterBaseTest):
         current_state_dut = await self.read_valcc_attribute_expect_success(endpoint=endpoint, attribute=attributes.CurrentState)
         if current_state_dut != cluster.Enums.ValveStateEnum.kClosed:
             current_state_closed = AttributeValue(
-                endpoint_id=endpoint, attribute=attributes.CurrentState, value=cluster.Enums.ValveStateEnum.kClosed)
+                endpoint_id=endpoint, attribute=attributes.CurrentState, value=cluster.Enums.ValveStateEnum.kClosed
+            )
             attribute_subscription.await_all_final_values_reported(
-                expected_final_values=[current_state_closed], timeout_sec=timeout)
+                expected_final_values=[current_state_closed], timeout_sec=timeout
+            )
 
         self.step(7)
         attribute_subscription.reset()
         await self.send_single_cmd(cmd=Clusters.Objects.ValveConfigurationAndControl.Commands.Open(), endpoint=endpoint)
 
         self.step(8)
-        expected_final_state = [AttributeValue(endpoint_id=endpoint, attribute=attributes.TargetState, value=NullValue),
-                                AttributeValue(endpoint_id=endpoint, attribute=attributes.CurrentState,
-                                               value=cluster.Enums.ValveStateEnum.kOpen),
-                                AttributeValue(endpoint_id=endpoint, attribute=attributes.TargetLevel, value=NullValue),
-                                AttributeValue(endpoint_id=endpoint, attribute=attributes.CurrentLevel, value=default_open_level)]
+        expected_final_state = [
+            AttributeValue(endpoint_id=endpoint, attribute=attributes.TargetState, value=NullValue),
+            AttributeValue(endpoint_id=endpoint, attribute=attributes.CurrentState, value=cluster.Enums.ValveStateEnum.kOpen),
+            AttributeValue(endpoint_id=endpoint, attribute=attributes.TargetLevel, value=NullValue),
+            AttributeValue(endpoint_id=endpoint, attribute=attributes.CurrentLevel, value=default_open_level),
+        ]
         attribute_subscription.await_all_final_values_reported(expected_final_values=expected_final_state, timeout_sec=timeout)
 
         self.step(9)
@@ -143,11 +155,12 @@ class TC_VALCC_3_3(MatterBaseTest):
         await self.send_single_cmd(cmd=Clusters.Objects.ValveConfigurationAndControl.Commands.Close(), endpoint=endpoint)
 
         self.step(12)
-        expected_final_state = [AttributeValue(endpoint_id=endpoint, attribute=attributes.TargetState, value=NullValue),
-                                AttributeValue(endpoint_id=endpoint, attribute=attributes.CurrentState,
-                                               value=cluster.Enums.ValveStateEnum.kClosed),
-                                AttributeValue(endpoint_id=endpoint, attribute=attributes.TargetLevel, value=NullValue),
-                                AttributeValue(endpoint_id=endpoint, attribute=attributes.CurrentLevel, value=0)]
+        expected_final_state = [
+            AttributeValue(endpoint_id=endpoint, attribute=attributes.TargetState, value=NullValue),
+            AttributeValue(endpoint_id=endpoint, attribute=attributes.CurrentState, value=cluster.Enums.ValveStateEnum.kClosed),
+            AttributeValue(endpoint_id=endpoint, attribute=attributes.TargetLevel, value=NullValue),
+            AttributeValue(endpoint_id=endpoint, attribute=attributes.CurrentLevel, value=0),
+        ]
         attribute_subscription.await_all_final_values_reported(expected_final_values=expected_final_state, timeout_sec=timeout)
 
         self.step(13)

@@ -17,35 +17,35 @@ import json
 import re
 
 # These constants represent the vocabulary used for the incoming JSON.
-_CLUSTER_ID = 'clusterId'
-_ENDPOINT_ID = 'endpointId'
-_RESPONSE_ID = 'commandId'
-_ATTRIBUTE_ID = 'attributeId'
-_EVENT_ID = 'eventId'
+_CLUSTER_ID = "clusterId"
+_ENDPOINT_ID = "endpointId"
+_RESPONSE_ID = "commandId"
+_ATTRIBUTE_ID = "attributeId"
+_EVENT_ID = "eventId"
 
 # These constants represent the vocabulary used for the outgoing data.
-_CLUSTER = 'cluster'
-_ENDPOINT = 'endpoint'
-_RESPONSE = 'command'
-_ATTRIBUTE = 'attribute'
-_EVENT = 'event'
+_CLUSTER = "cluster"
+_ENDPOINT = "endpoint"
+_RESPONSE = "command"
+_ATTRIBUTE = "attribute"
+_EVENT = "event"
 
 
 # These constants represent the common vocabulary between input and output.
-_ERROR = 'error'
-_CLUSTER_ERROR = 'clusterError'
-_VALUE = 'value'
-_DATA_VERSION = 'dataVersion'
-_EVENT_NUMBER = 'eventNumber'
+_ERROR = "error"
+_CLUSTER_ERROR = "clusterError"
+_VALUE = "value"
+_DATA_VERSION = "dataVersion"
+_EVENT_NUMBER = "eventNumber"
 
 # FabricIndex is a special case where the field is added as a struct field by the SDK
 # if needed but is not part of the XML definition of the struct.
 # These constants are used to map from the field code (254) to the field name if such
 # a field is used for a fabric scoped struct.
-_FABRIC_INDEX_FIELD_CODE = '254'
-_FABRIC_INDEX_FIELD_NAME = 'FabricIndex'
-_FABRIC_INDEX_FIELD_NAME_DARWIN = 'fabricIndex'
-_FABRIC_INDEX_FIELD_TYPE = 'int8u'
+_FABRIC_INDEX_FIELD_CODE = "254"
+_FABRIC_INDEX_FIELD_NAME = "FabricIndex"
+_FABRIC_INDEX_FIELD_NAME_DARWIN = "fabricIndex"
+_FABRIC_INDEX_FIELD_TYPE = "int8u"
 
 
 class Decoder:
@@ -65,7 +65,7 @@ class Decoder:
 
         if len(payload) == 0:
             payload = [{}]
-        elif len(payload) > 1 and payload[-1] == {'error': 'FAILURE'}:
+        elif len(payload) > 1 and payload[-1] == {"error": "FAILURE"}:
             payload = payload[:-1]
         return payload, logs
 
@@ -83,12 +83,10 @@ class Decoder:
                     key = _ENDPOINT
                 elif key == _RESPONSE_ID:
                     key = _RESPONSE
-                    value = specs.get_response_name(
-                        payload[_CLUSTER_ID], value)
+                    value = specs.get_response_name(payload[_CLUSTER_ID], value)
                 elif key == _ATTRIBUTE_ID:
                     key = _ATTRIBUTE
-                    value = specs.get_attribute_name(
-                        payload[_CLUSTER_ID], value)
+                    value = specs.get_attribute_name(payload[_CLUSTER_ID], value)
                 elif key == _EVENT_ID:
                     key = _EVENT
                     value = specs.get_event_name(payload[_CLUSTER_ID], value)
@@ -109,10 +107,12 @@ class Decoder:
                     cluster_code = hex(payload[_CLUSTER_ID])
                     if key == _CLUSTER:
                         raise KeyError(
-                            f'Error: The cluster ({cluster_code}) definition can not be found. Please update the cluster definition.')
-                    value_code = hex(payload[key + 'Id'])
+                            f"Error: The cluster ({cluster_code}) definition can not be found. Please update the cluster definition."
+                        )
+                    value_code = hex(payload[key + "Id"])
                     raise KeyError(
-                        f'Error: The cluster ({cluster_code}) {key} ({value_code}) definition can not be found. Please update the cluster definition.')
+                        f"Error: The cluster ({cluster_code}) {key} ({value_code}) definition can not be found. Please update the cluster definition."
+                    )
 
                 translated_payload[key] = value
             translated_payloads.append(translated_payload)
@@ -121,26 +121,26 @@ class Decoder:
 
     def __get_payload_content(self, payload):
         json_payload = json.loads(payload)
-        results = json_payload.get('results')
-        logs = MatterLog.decode_logs(json_payload.get('logs'))
+        results = json_payload.get("results")
+        logs = MatterLog.decode_logs(json_payload.get("logs"))
         return results, logs
 
 
 class MatterLog:
     def __init__(self, log):
-        self.module = log['module']
-        self.level = log['category']
+        self.module = log["module"]
+        self.level = log["category"]
 
-        base64_message = log["message"].encode('utf-8')
+        base64_message = log["message"].encode("utf-8")
         decoded_message_bytes = base64.b64decode(base64_message)
         # TODO We do assume utf-8 encoding is used, it may not be true though.
-        self.message = decoded_message_bytes.decode('utf-8', 'replace')
+        self.message = decoded_message_bytes.decode("utf-8", "replace")
 
     def decode_logs(logs):
         return list(map(MatterLog, logs))
 
 
-class Converter():
+class Converter:
     """
     This class converts between the JSON representation used by chip-tool to transmit
     information and the response format expected by the test suite.
@@ -153,12 +153,7 @@ class Converter():
 
     def __init__(self, specifications):
         self.__specs = specifications
-        self.__converters = [
-            DarwinAnyFormatConverter(),
-            StructFieldsNameConverter(),
-            FloatConverter(),
-            OctetStringConverter()
-        ]
+        self.__converters = [DarwinAnyFormatConverter(), StructFieldsNameConverter(), FloatConverter(), OctetStringConverter()]
 
     def convert(self, payloads):
         return [self._convert(payload) for payload in payloads]
@@ -223,26 +218,22 @@ class Converter():
 
     def __run(self, value, cluster_name: str, typename: str, array: bool):
         for converter in self.__converters:
-            value = converter.run(self.__specs, value,
-                                  cluster_name, typename, array)
+            value = converter.run(self.__specs, value, cluster_name, typename, array)
         return value
 
 
 class BaseConverter:
     def run(self, specs, value, cluster_name: str, typename: str, array: bool):
         if isinstance(value, dict) and not array:
-            struct = specs.get_struct_by_name(
-                cluster_name, typename) or specs.get_event_by_name(cluster_name, typename)
+            struct = specs.get_struct_by_name(cluster_name, typename) or specs.get_event_by_name(cluster_name, typename)
             for field in struct.fields:
                 field_name = field.name
                 field_type = field.data_type.name
                 field_array = field.is_list
                 if field_name in value:
-                    value[field_name] = self.run(
-                        specs, value[field_name], cluster_name, field_type, field_array)
+                    value[field_name] = self.run(specs, value[field_name], cluster_name, field_type, field_array)
         elif isinstance(value, list) and array:
-            value = [self.run(specs, v, cluster_name, typename, False)
-                     for v in value]
+            value = [self.run(specs, v, cluster_name, typename, False) for v in value]
         elif value is not None:
             value = self.maybe_convert(typename.lower(), value)
 
@@ -259,7 +250,7 @@ class DarwinAnyFormatConverter(BaseConverter):
     """
 
     def run(self, specs, value, cluster_name: str, typename: str, array: bool):
-        if isinstance(value, list) and len(value) >= 1 and isinstance(value[0], dict) and value[0].get('data') is not None:
+        if isinstance(value, list) and len(value) >= 1 and isinstance(value[0], dict) and value[0].get("data") is not None:
             value = [self.__convert(item_value) for item_value in value]
         return value
 
@@ -267,23 +258,23 @@ class DarwinAnyFormatConverter(BaseConverter):
         if not isinstance(value, dict):
             return value
 
-        data = value.get('data')
+        data = value.get("data")
         if not isinstance(data, dict):
             return value
 
-        value = data.get('value')
+        value = data.get("value")
         if not isinstance(value, list):
             return value
 
-        value_type = data.get('type')
+        value_type = data.get("type")
 
-        if value_type == 'Structure':
+        if value_type == "Structure":
             struct = {}
             for field in value:
-                context_tag = field.get('contextTag')
+                context_tag = field.get("contextTag")
                 struct[str(context_tag)] = self.__convert(field)
             value = struct
-        elif value_type == 'Array':
+        elif value_type == "Array":
             value = [self.__convert(item_value) for item_value in value]
 
         return value
@@ -297,32 +288,31 @@ class FloatConverter(BaseConverter):
     """
 
     def maybe_convert(self, typename, value):
-        if typename == 'single':
+        if typename == "single":
             float_representation = float("%.16f" % value)
-            value = float('%g' % float_representation)
+            value = float("%g" % float_representation)
         return value
 
 
 class OctetStringConverter(BaseConverter):
     def maybe_convert(self, typename, value):
-        if typename == 'octet_string' or typename == 'long_octet_string':
-            if value == '':
+        if typename == "octet_string" or typename == "long_octet_string":
+            if value == "":
                 value = bytes()
-            elif value.startswith('base64:'):
-                value = base64.b64decode(value.removeprefix('base64:'))
+            elif value.startswith("base64:"):
+                value = base64.b64decode(value.removeprefix("base64:"))
 
         return value
 
 
-class StructFieldsNameConverter():
+class StructFieldsNameConverter:
     """
     Converts fields identifiers to the field names specified in the cluster definition.
     """
 
     def run(self, specs, value, cluster_name: str, typename: str, array: bool):
         if isinstance(value, dict) and not array:
-            struct = specs.get_struct_by_name(
-                cluster_name, typename) or specs.get_event_by_name(cluster_name, typename)
+            struct = specs.get_struct_by_name(cluster_name, typename) or specs.get_event_by_name(cluster_name, typename)
             for field in struct.fields:
                 field_code = field.code
                 field_name = field.name
@@ -343,30 +333,19 @@ class StructFieldsNameConverter():
                     # To not confuse the test suite, the field name is replaced by its field name
                     # equivalent from the spec and then removed.
 
-                    if field_name == 'Description' and 'descriptionString' in value:
+                    if field_name == "Description" and "descriptionString" in value:
                         # "Description" is returned as "descriptionString" since 'description' is a reserved keyword
                         # and can not be exposed in an objc struct.
-                        provided_field_name = 'descriptionString'
+                        provided_field_name = "descriptionString"
 
                     # If field_name starts with a sequence of capital letters lowercase all but the last one.
-                    provided_field_name = re.sub(
-                        '^([A-Z]+)([A-Z])',
-                        lambda m: m.group(1).lower() + m.group(2),
-                        provided_field_name
-                    )
+                    provided_field_name = re.sub("^([A-Z]+)([A-Z])", lambda m: m.group(1).lower() + m.group(2), provided_field_name)
 
                     # All field names in darwin-framework-tool start with a lowercase letter.
-                    provided_field_name = provided_field_name[0].lower(
-                    ) + provided_field_name[1:]
+                    provided_field_name = provided_field_name[0].lower() + provided_field_name[1:]
 
                 if provided_field_name in value:
-                    value[field_name] = self.run(
-                        specs,
-                        value[provided_field_name],
-                        cluster_name,
-                        field_type,
-                        field_array
-                    )
+                    value[field_name] = self.run(specs, value[provided_field_name], cluster_name, field_type, field_array)
                     if provided_field_name != field_name:
                         del value[provided_field_name]
 
@@ -376,12 +355,7 @@ class StructFieldsNameConverter():
                 elif _FABRIC_INDEX_FIELD_NAME_DARWIN in value:
                     key_name = _FABRIC_INDEX_FIELD_NAME_DARWIN
 
-                value[_FABRIC_INDEX_FIELD_NAME] = self.run(
-                    specs,
-                    value[key_name],
-                    cluster_name,
-                    _FABRIC_INDEX_FIELD_TYPE,
-                    False)
+                value[_FABRIC_INDEX_FIELD_NAME] = self.run(specs, value[key_name], cluster_name, _FABRIC_INDEX_FIELD_TYPE, False)
                 del value[key_name]
 
         elif isinstance(value, list) and array:
@@ -392,7 +366,6 @@ class StructFieldsNameConverter():
             # darwin-framework-tool any read-by-id 29 0 0x12344321 65535
             # returns value such as:
             # [[{'DeviceType': 17, 'Revision': 1}, {'DeviceType': 22, 'Revision': 1}], ...]
-            value = [self.run(specs, v, cluster_name, typename, isinstance(v, list))
-                     for v in value]
+            value = [self.run(specs, v, cluster_name, typename, isinstance(v, list)) for v in value]
 
         return value

@@ -87,7 +87,6 @@ class TC_VALCC_4_4(MatterBaseTest):
 
     @async_test_body
     async def test_TC_VALCC_4_4(self):
-
         endpoint = self.get_endpoint()
 
         self.step(1)
@@ -103,7 +102,7 @@ class TC_VALCC_4_4(MatterBaseTest):
             log.info("TimeSync feature not supported skipping test case")
 
             # Skipping all remainig steps
-            for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index:]:
+            for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index :]:
                 self.step(step.test_plan_number)
                 log.info("Test step skipped")
 
@@ -112,14 +111,22 @@ class TC_VALCC_4_4(MatterBaseTest):
         log.info("Test step skipped")
 
         self.step("3a")
-        utcTime = await self.read_single_attribute_check_success(endpoint=0, cluster=Clusters.Objects.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.UTCTime)
+        utcTime = await self.read_single_attribute_check_success(
+            endpoint=0, cluster=Clusters.Objects.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.UTCTime
+        )
 
         self.step("3b")
         if utcTime is NullValue:
             th_utc = utc_time_in_matter_epoch()
 
             try:
-                await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetUTCTime(UTCTime=th_utc, granularity=Clusters.Objects.TimeSynchronization.Enums.GranularityEnum.kMillisecondsGranularity), endpoint=0)
+                await self.send_single_cmd(
+                    cmd=Clusters.Objects.TimeSynchronization.Commands.SetUTCTime(
+                        UTCTime=th_utc,
+                        granularity=Clusters.Objects.TimeSynchronization.Enums.GranularityEnum.kMillisecondsGranularity,
+                    ),
+                    endpoint=0,
+                )
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
                 pass
@@ -129,20 +136,23 @@ class TC_VALCC_4_4(MatterBaseTest):
 
         self.step(4)
         try:
-            await self.send_single_cmd(cmd=Clusters.Objects.ValveConfigurationAndControl.Commands.Open(openDuration=60), endpoint=endpoint)
+            await self.send_single_cmd(
+                cmd=Clusters.Objects.ValveConfigurationAndControl.Commands.Open(openDuration=60), endpoint=endpoint
+            )
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
             pass
 
         self.step(5)
-        utcTime = await self.read_single_attribute_check_success(endpoint=0, cluster=Clusters.Objects.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.UTCTime)
+        utcTime = await self.read_single_attribute_check_success(
+            endpoint=0, cluster=Clusters.Objects.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.UTCTime
+        )
 
         self.step(6)
         auto_close_time_dut = await self.read_valcc_attribute_expect_success(endpoint=endpoint, attribute=attributes.AutoCloseTime)
 
         asserts.assert_true(auto_close_time_dut is not NullValue, "AutoCloseTime is null")
-        asserts.assert_greater_equal(auto_close_time_dut, (utcTime + 55000000),
-                                     "AutoCloseTime is not in the expected range")
+        asserts.assert_greater_equal(auto_close_time_dut, (utcTime + 55000000), "AutoCloseTime is not in the expected range")
         asserts.assert_less_equal(auto_close_time_dut, (utcTime + 60000000), "AutoCloseTime is not in the expected range")
 
         self.step(7)
@@ -166,7 +176,9 @@ class TC_VALCC_4_4(MatterBaseTest):
         if defaultOpenDuration is NullValue:
             defaultOpenDuration = 60
 
-            result = await self.default_controller.WriteAttribute(self.dut_node_id, [(endpoint, attributes.DefaultOpenDuration(defaultOpenDuration))])
+            result = await self.default_controller.WriteAttribute(
+                self.dut_node_id, [(endpoint, attributes.DefaultOpenDuration(defaultOpenDuration))]
+            )
             asserts.assert_equal(result[0].Status, Status.Success, "DefaultOpenDuration write failed")
         else:
             log.info("Test step skipped")
@@ -179,7 +191,9 @@ class TC_VALCC_4_4(MatterBaseTest):
             pass
 
         self.step(11)
-        utcTime2 = await self.read_single_attribute_check_success(endpoint=0, cluster=Clusters.Objects.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.UTCTime)
+        utcTime2 = await self.read_single_attribute_check_success(
+            endpoint=0, cluster=Clusters.Objects.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.UTCTime
+        )
 
         asserts.assert_true(utcTime2 is not NullValue, "OpenDuration is null")
 
@@ -187,10 +201,12 @@ class TC_VALCC_4_4(MatterBaseTest):
         auto_close_time_dut = await self.read_valcc_attribute_expect_success(endpoint=endpoint, attribute=attributes.AutoCloseTime)
 
         asserts.assert_true(auto_close_time_dut is not NullValue, "AutoCloseTime is null")
-        asserts.assert_greater_equal(auto_close_time_dut, (utcTime2 + ((defaultOpenDuration - 5) * 1000000)),
-                                     "AutoCloseTime is not in the expected range")
-        asserts.assert_less_equal(auto_close_time_dut, (utcTime2 + (defaultOpenDuration * 1000000)),
-                                  "AutoCloseTime is not in the expected range")
+        asserts.assert_greater_equal(
+            auto_close_time_dut, (utcTime2 + ((defaultOpenDuration - 5) * 1000000)), "AutoCloseTime is not in the expected range"
+        )
+        asserts.assert_less_equal(
+            auto_close_time_dut, (utcTime2 + (defaultOpenDuration * 1000000)), "AutoCloseTime is not in the expected range"
+        )
 
         self.step(13)
         try:

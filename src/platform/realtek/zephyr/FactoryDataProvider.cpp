@@ -131,7 +131,7 @@ CHIP_ERROR FactoryDataProvider::GetCertificationDeclaration(MutableByteSpan & ou
         0x7c,
     };
 
-    err                      = CopySpanToMutableSpan(ByteSpan(kCdForAllExamples), outBuffer);
+    err = CopySpanToMutableSpan(ByteSpan(kCdForAllExamples), outBuffer);
 #endif // CONFIG_ENABLE_FACTORY_DATA
 
     return err;
@@ -186,7 +186,7 @@ CHIP_ERROR FactoryDataProvider::GetDeviceAttestationCert(MutableByteSpan & outBu
         0x95, 0x45, 0xe1, 0x08, 0xe4, 0xe5, 0x4e, 0x70, 0x97, 0x13, 0x53,
     };
 
-    err                      = CopySpanToMutableSpan(ByteSpan(kDacCert), outBuffer);
+    err = CopySpanToMutableSpan(ByteSpan(kDacCert), outBuffer);
 #endif // CONFIG_ENABLE_FACTORY_DATA
 
     return err;
@@ -232,7 +232,7 @@ CHIP_ERROR FactoryDataProvider::GetProductAttestationIntermediateCert(MutableByt
         0x03, 0xf8, 0x91,
     };
 
-    err                             = CopySpanToMutableSpan(ByteSpan{ kPaiCert }, outBuffer);
+    err = CopySpanToMutableSpan(ByteSpan{ kPaiCert }, outBuffer);
 #endif // CONFIG_ENABLE_FACTORY_DATA
 
     return CHIP_NO_ERROR;
@@ -311,8 +311,8 @@ CHIP_ERROR FactoryDataProvider::GetSpake2pIterationCount(uint32_t & iterationCou
     err            = CHIP_NO_ERROR;
 #else
 #if defined(CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_ITERATION_COUNT) && CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_ITERATION_COUNT
-    iterationCount     = CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_ITERATION_COUNT;
-    err                = CHIP_NO_ERROR;
+    iterationCount = CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_ITERATION_COUNT;
+    err            = CHIP_NO_ERROR;
 #endif // defined(CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_ITERATION_COUNT) && CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_ITERATION_COUNT
 #endif // CONFIG_ENABLE_FACTORY_DATA
 
@@ -334,10 +334,10 @@ CHIP_ERROR FactoryDataProvider::GetSpake2pSalt(MutableByteSpan & saltBuf)
     err = CHIP_NO_ERROR;
 #else
 #if defined(CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_SALT)
-    saltB64Len         = strlen(CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_SALT);
+    saltB64Len = strlen(CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_SALT);
     VerifyOrReturnError(saltB64Len <= sizeof(saltB64), CHIP_ERROR_BUFFER_TOO_SMALL);
     memcpy(saltB64, CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_SALT, saltB64Len);
-    err            = CHIP_NO_ERROR;
+    err = CHIP_NO_ERROR;
 #endif // defined(CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_SALT)
 #endif // CONFIG_ENABLE_FACTORY_DATA
 
@@ -370,7 +370,7 @@ CHIP_ERROR FactoryDataProvider::GetSpake2pVerifier(MutableByteSpan & verifierBuf
     verifierB64Len = strlen(CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_VERIFIER);
     VerifyOrReturnError(verifierB64Len <= sizeof(verifierB64), CHIP_ERROR_BUFFER_TOO_SMALL);
     memcpy(verifierB64, CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_VERIFIER, verifierB64Len);
-    err           = CHIP_NO_ERROR;
+    err = CHIP_NO_ERROR;
 #endif // defined(CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_VERIFIER)
 #endif // CONFIG_ENABLE_FACTORY_DATA
 
@@ -419,7 +419,7 @@ CHIP_ERROR FactoryDataProvider::GetVendorName(char * buf, size_t bufSize)
 #else
     VerifyOrReturnError(bufSize >= sizeof(CHIP_DEVICE_CONFIG_DEVICE_VENDOR_NAME), CHIP_ERROR_BUFFER_TOO_SMALL);
     strcpy(buf, CHIP_DEVICE_CONFIG_DEVICE_VENDOR_NAME);
-    err      = CHIP_NO_ERROR;
+    err = CHIP_NO_ERROR;
 #endif // CONFIG_ENABLE_FACTORY_DATA
 
     return err;
@@ -452,7 +452,7 @@ CHIP_ERROR FactoryDataProvider::GetProductName(char * buf, size_t bufSize)
 #else
     VerifyOrReturnError(bufSize >= sizeof(CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_NAME), CHIP_ERROR_BUFFER_TOO_SMALL);
     strcpy(buf, CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_NAME);
-    err                 = CHIP_NO_ERROR;
+    err = CHIP_NO_ERROR;
 #endif // CONFIG_ENABLE_FACTORY_DATA
 
     return err;
@@ -466,8 +466,8 @@ CHIP_ERROR FactoryDataProvider::GetProductId(uint16_t & productId)
     productId = mFactoryData.dii.product_id;
     err       = CHIP_NO_ERROR;
 #else
-    productId           = static_cast<uint16_t>(CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_ID);
-    err                 = CHIP_NO_ERROR;
+    productId = static_cast<uint16_t>(CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_ID);
+    err       = CHIP_NO_ERROR;
 #endif // CONFIG_ENABLE_FACTORY_DATA
 
     return err;
@@ -513,7 +513,7 @@ CHIP_ERROR FactoryDataProvider::GetSerialNumber(char * buf, size_t bufSize)
     VerifyOrReturnError(serialNumLen < bufSize, CHIP_ERROR_BUFFER_TOO_SMALL);
     VerifyOrReturnError(buf[serialNumLen] == 0, CHIP_ERROR_INVALID_STRING_LENGTH);
 
-    err             = CHIP_NO_ERROR;
+    err = CHIP_NO_ERROR;
 #endif // CONFIG_ENABLE_FACTORY_DATA
 
     return err;
@@ -550,7 +550,7 @@ CHIP_ERROR FactoryDataProvider::GetManufacturingDate(uint16_t & year, uint8_t & 
 
     err = CHIP_NO_ERROR;
 #else
-    err             = CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE;
+    err = CHIP_ERROR_UNSUPPORTED_CHIP_FEATURE;
 #endif // CONFIG_ENABLE_FACTORY_DATA
 
 exit:

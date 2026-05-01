@@ -54,10 +54,11 @@ log = logging.getLogger(__name__)
 
 
 class TC_WebRTCP_2_31(MatterBaseTest, WEBRTCPTestBase):
-
     def desc_TC_WebRTCP_2_31(self) -> str:
         """Returns a description of this test"""
-        return "[TC-WEBRTCP-2.31] Validate interaction of SolicitOffer and stream allocation with DUT_Server - Release 1.5.1 or later"
+        return (
+            "[TC-WEBRTCP-2.31] Validate interaction of SolicitOffer and stream allocation with DUT_Server - Release 1.5.1 or later"
+        )
 
     def steps_TC_WebRTCP_2_31(self) -> list[TestStep]:
         return [
@@ -66,9 +67,18 @@ class TC_WebRTCP_2_31(MatterBaseTest, WEBRTCPTestBase):
             TestStep(3, "Allocate a Video stream via VideoStreamAllocate"),
             TestStep(4, "Allocate an Audio stream via AudioStreamAllocate"),
             TestStep(5, "Send SolicitOffer with valid AudioStreamID + invalid VideoStreamID => expect DYNAMIC_CONSTRAINT_ERROR"),
-            TestStep(6, "Send SolicitOffer with a supported-but-non-matching stream usage and the allocated stream IDs => expect SolicitOfferResponse"),
-            TestStep(7, "Send SolicitOffer with an unsupported stream usage and the allocated stream IDs => expect DYNAMIC_CONSTRAINT_ERROR"),
-            TestStep(8, "Send SolicitOffer with matching stream usage and allocated stream IDs => expect SolicitOfferResponse, save WebRTCSessionID"),
+            TestStep(
+                6,
+                "Send SolicitOffer with a supported-but-non-matching stream usage and the allocated stream IDs => expect SolicitOfferResponse",
+            ),
+            TestStep(
+                7,
+                "Send SolicitOffer with an unsupported stream usage and the allocated stream IDs => expect DYNAMIC_CONSTRAINT_ERROR",
+            ),
+            TestStep(
+                8,
+                "Send SolicitOffer with matching stream usage and allocated stream IDs => expect SolicitOfferResponse, save WebRTCSessionID",
+            ),
             TestStep(9, "Read CurrentSessions attribute => expect >= 1 session (>= 2 if step 6 was not skipped)"),
             TestStep(10, "Send EndSession with invalid WebRTCSessionID => expect NOT_FOUND"),
             TestStep(11, "Send EndSession with saved WebRTCSessionID from step 8 => expect success"),
@@ -76,7 +86,7 @@ class TC_WebRTCP_2_31(MatterBaseTest, WEBRTCPTestBase):
 
     def pics_TC_WebRTCP_2_31(self) -> list[str]:
         return [
-            "WEBRTCP.S",           # WebRTC Transport Provider Server
+            "WEBRTCP.S",  # WebRTC Transport Provider Server
         ]
 
     @property
@@ -91,9 +101,7 @@ class TC_WebRTCP_2_31(MatterBaseTest, WEBRTCPTestBase):
 
         # Read StreamUsagePriorities once upfront to derive usages needed for steps 6 and 7
         stream_usage_priorities = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=avsm_cluster,
-            attribute=avsm_cluster.Attributes.StreamUsagePriorities
+            endpoint=endpoint, cluster=avsm_cluster, attribute=avsm_cluster.Attributes.StreamUsagePriorities
         )
         log.info(f"Rx'd StreamUsagePriorities: {stream_usage_priorities}")
         asserts.assert_greater(len(stream_usage_priorities), 0, "StreamUsagePriorities must not be empty")
@@ -101,9 +109,7 @@ class TC_WebRTCP_2_31(MatterBaseTest, WEBRTCPTestBase):
         # Step 6: a supported usage that doesn't match the kLiveView allocation
         # (streams are allocated with kLiveView by the base class helpers)
         non_matching_supported_usage = next(
-            (u for u in stream_usage_priorities
-             if u != Globals.Enums.StreamUsageEnum.kLiveView),
-            None
+            (u for u in stream_usage_priorities if u != Globals.Enums.StreamUsageEnum.kLiveView), None
         )
 
         # Step 7: a usage that is not in StreamUsagePriorities at all
@@ -113,16 +119,11 @@ class TC_WebRTCP_2_31(MatterBaseTest, WEBRTCPTestBase):
             Globals.Enums.StreamUsageEnum.kRecording,
             Globals.Enums.StreamUsageEnum.kLiveView,
         ]
-        unsupported_usage = next(
-            (u for u in candidate_usages if u not in stream_usage_priorities),
-            None
-        )
+        unsupported_usage = next((u for u in candidate_usages if u not in stream_usage_priorities), None)
 
         # Read AVSM feature map once to determine which stream types are supported
         avsm_feature_map = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=avsm_cluster,
-            attribute=avsm_cluster.Attributes.FeatureMap
+            endpoint=endpoint, cluster=avsm_cluster, attribute=avsm_cluster.Attributes.FeatureMap
         )
         log.info(f"Rx'd AVSM FeatureMap: {avsm_feature_map}")
         video_supported = bool(avsm_feature_map & avsm_cluster.Bitmaps.Feature.kVideo)
@@ -131,20 +132,17 @@ class TC_WebRTCP_2_31(MatterBaseTest, WEBRTCPTestBase):
 
         self.step(1)
         current_sessions = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=cluster,
-            attribute=cluster.Attributes.CurrentSessions
+            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentSessions
         )
         asserts.assert_equal(len(current_sessions), 0, "CurrentSessions must be empty!")
 
         self.step(2)
         # Send SolicitOffer with no VideoStreams and no AudioStreams
-        cmd = cluster.Commands.SolicitOffer(
-            streamUsage=Globals.Enums.StreamUsageEnum.kLiveView,
-            originatingEndpointID=endpoint
-        )
+        cmd = cluster.Commands.SolicitOffer(streamUsage=Globals.Enums.StreamUsageEnum.kLiveView, originatingEndpointID=endpoint)
         try:
-            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+            await self.send_single_cmd(
+                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+            )
             asserts.fail("Unexpected success on SolicitOffer with no VideoStreams or AudioStreams")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.InvalidCommand, "Expected INVALID_COMMAND")
@@ -171,10 +169,12 @@ class TC_WebRTCP_2_31(MatterBaseTest, WEBRTCPTestBase):
             streamUsage=Globals.Enums.StreamUsageEnum.kLiveView,
             originatingEndpointID=endpoint,
             videoStreams=[9999],
-            audioStreams=[audioStreamID]
+            audioStreams=[audioStreamID],
         )
         try:
-            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+            await self.send_single_cmd(
+                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+            )
             asserts.fail("Unexpected success on SolicitOffer with invalid VideoStreamID")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.DynamicConstraintError, "Expected DYNAMIC_CONSTRAINT_ERROR")
@@ -189,11 +189,14 @@ class TC_WebRTCP_2_31(MatterBaseTest, WEBRTCPTestBase):
                 streamUsage=non_matching_supported_usage,
                 originatingEndpointID=endpoint,
                 videoStreams=[videoStreamID],
-                audioStreams=[audioStreamID]
+                audioStreams=[audioStreamID],
             )
-            resp = await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
-            asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse,
-                                 "Incorrect response type for step 6")
+            resp = await self.send_single_cmd(
+                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+            )
+            asserts.assert_equal(
+                type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse, "Incorrect response type for step 6"
+            )
 
         if unsupported_usage is None:
             # All known usages are supported; cannot test unsupported usage
@@ -205,10 +208,12 @@ class TC_WebRTCP_2_31(MatterBaseTest, WEBRTCPTestBase):
                 streamUsage=unsupported_usage,
                 originatingEndpointID=endpoint,
                 videoStreams=[videoStreamID],
-                audioStreams=[audioStreamID]
+                audioStreams=[audioStreamID],
             )
             try:
-                await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+                await self.send_single_cmd(
+                    cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+                )
                 asserts.fail("Unexpected success on SolicitOffer with unsupported stream usage")
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.DynamicConstraintError, "Expected DYNAMIC_CONSTRAINT_ERROR")
@@ -219,31 +224,30 @@ class TC_WebRTCP_2_31(MatterBaseTest, WEBRTCPTestBase):
             streamUsage=Globals.Enums.StreamUsageEnum.kLiveView,
             originatingEndpointID=endpoint,
             videoStreams=[videoStreamID],
-            audioStreams=[audioStreamID]
+            audioStreams=[audioStreamID],
         )
-        resp = await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
-        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse,
-                             "Incorrect response type for step 8")
+        resp = await self.send_single_cmd(
+            cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+        )
+        asserts.assert_equal(
+            type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse, "Incorrect response type for step 8"
+        )
         matter_asserts.assert_int_in_range(resp.webRTCSessionID, 0, 65534, "SolicitOfferResponse webRTCSessionID")
         saved_session_id = resp.webRTCSessionID
 
         self.step(9)
         current_sessions = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=cluster,
-            attribute=cluster.Attributes.CurrentSessions
+            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentSessions
         )
         # Steps 6 and 8 each created a session; step 6 may have been skipped.
         # The spec states 3, but logically 2 sessions result from this test flow.
         expected_min_sessions = 1 if non_matching_supported_usage is None else 2
         asserts.assert_greater_equal(
-            len(current_sessions),
-            expected_min_sessions,
-            f"Expected at least {expected_min_sessions} CurrentSession(s)"
+            len(current_sessions), expected_min_sessions, f"Expected at least {expected_min_sessions} CurrentSession(s)"
         )
         asserts.assert_true(
             any(s.id == saved_session_id for s in current_sessions),
-            f"Session from step 8 (ID={saved_session_id}) must be present in CurrentSessions"
+            f"Session from step 8 (ID={saved_session_id}) must be present in CurrentSessions",
         )
 
         self.step(10)

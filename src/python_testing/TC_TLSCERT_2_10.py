@@ -56,34 +56,67 @@ class TC_TLSCERT_2_10(TC_TLSCERT_Base):
         return [
             *self.get_two_fabric_substeps(),
             TestStep(2, "Populate myNonce with a random 32-octet values"),
-            TestStep(3, "CR1 sends sends ClientCSR command with Nonce set to myNonce.",
-                     "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid and CSR in myCsr."),
-            TestStep(4,
-                     "Set myBigCert to a valid DER encoding of a valid, self-signed x509 certificate using the public key from csr. The certificate should be large enough that the DER encoding is larger than 3000 octets."),
+            TestStep(
+                3,
+                "CR1 sends sends ClientCSR command with Nonce set to myNonce.",
+                "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid and CSR in myCsr.",
+            ),
+            TestStep(
+                4,
+                "Set myBigCert to a valid DER encoding of a valid, self-signed x509 certificate using the public key from csr. The certificate should be large enough that the DER encoding is larger than 3000 octets.",
+            ),
             TestStep(5, "Set myBadCert to an octstr under 3000 that is not a valid DER encoding."),
-            TestStep(6,
-                     "Set myWrongKey to a valid DER encoding of a valid, self-signed x509 certificate using a public key not equal to that in myCsr."),
-            TestStep(7,
-                     "Populate myIntermediateCerts with 1 DER-encoded x509 certificates that form a certificate chain up to (but not including) a root."),
-            TestStep(8,
-                     "Populate myClientCert with a distinct, valid, DER-encoded x509 certificates using the public key from myCsr and signed by myIntermediateCerts[0]."),
-            TestStep(9, "CR1 sends ProvisionClientCertificate command with CCDID set to myCcdid and ClientCertificate set to myBigCert.",
-                     test_plan_support.verify_status(Status.ConstraintError)),
-            TestStep(10, "CR1 sends ProvisionClientCertificate command with CCDID set to myCcdid, ClientCertificate set to myClientCert, and IntermediateCertificates set to myBigCert.",
-                     test_plan_support.verify_status(Status.ConstraintError)),
-            TestStep(11, "CR1 sends ProvisionClientCertificate command with CCDID set to myCcdid and ClientCertificate set to myBadCert.",
-                     test_plan_support.verify_status(Status.DynamicConstraintError)),
-            TestStep(12, "CR1 sends ProvisionClientCertificate command with CCDID set to myCcdid and ClientCertificate set to myWrongKey.",
-                     test_plan_support.verify_status(Status.DynamicConstraintError)),
-            TestStep(13, "CR1 sends ProvisionClientCertificate command with CCDID set to myCcdid, ClientCertificate set to myClientCert, and IntermediateCertificates set to myBadCert.",
-                     test_plan_support.verify_status(Status.DynamicConstraintError)),
-            TestStep(14, "CR1 sends ProvisionClientCertificate command with CCDID set to a value not equal to myCcdid and ClientCertificate set to myClientCert[0].",
-                     test_plan_support.verify_status(Status.NotFound)),
-            TestStep(15, "CR2 sends ProvisionClientCertificate command with CCDID set to myCcdid and ClientCertificate set to myClientCert.",
-                     test_plan_support.verify_status(Status.NotFound)),
-            TestStep(16, "CR1 sends RemoveClientCertificate command with CCDID set to myCcdid.",
-                     test_plan_support.verify_success()),
-            TestStep(17, test_plan_support.remove_fabric('CR2', 'CR1'), test_plan_support.verify_success()),
+            TestStep(
+                6,
+                "Set myWrongKey to a valid DER encoding of a valid, self-signed x509 certificate using a public key not equal to that in myCsr.",
+            ),
+            TestStep(
+                7,
+                "Populate myIntermediateCerts with 1 DER-encoded x509 certificates that form a certificate chain up to (but not including) a root.",
+            ),
+            TestStep(
+                8,
+                "Populate myClientCert with a distinct, valid, DER-encoded x509 certificates using the public key from myCsr and signed by myIntermediateCerts[0].",
+            ),
+            TestStep(
+                9,
+                "CR1 sends ProvisionClientCertificate command with CCDID set to myCcdid and ClientCertificate set to myBigCert.",
+                test_plan_support.verify_status(Status.ConstraintError),
+            ),
+            TestStep(
+                10,
+                "CR1 sends ProvisionClientCertificate command with CCDID set to myCcdid, ClientCertificate set to myClientCert, and IntermediateCertificates set to myBigCert.",
+                test_plan_support.verify_status(Status.ConstraintError),
+            ),
+            TestStep(
+                11,
+                "CR1 sends ProvisionClientCertificate command with CCDID set to myCcdid and ClientCertificate set to myBadCert.",
+                test_plan_support.verify_status(Status.DynamicConstraintError),
+            ),
+            TestStep(
+                12,
+                "CR1 sends ProvisionClientCertificate command with CCDID set to myCcdid and ClientCertificate set to myWrongKey.",
+                test_plan_support.verify_status(Status.DynamicConstraintError),
+            ),
+            TestStep(
+                13,
+                "CR1 sends ProvisionClientCertificate command with CCDID set to myCcdid, ClientCertificate set to myClientCert, and IntermediateCertificates set to myBadCert.",
+                test_plan_support.verify_status(Status.DynamicConstraintError),
+            ),
+            TestStep(
+                14,
+                "CR1 sends ProvisionClientCertificate command with CCDID set to a value not equal to myCcdid and ClientCertificate set to myClientCert[0].",
+                test_plan_support.verify_status(Status.NotFound),
+            ),
+            TestStep(
+                15,
+                "CR2 sends ProvisionClientCertificate command with CCDID set to myCcdid and ClientCertificate set to myClientCert.",
+                test_plan_support.verify_status(Status.NotFound),
+            ),
+            TestStep(
+                16, "CR1 sends RemoveClientCertificate command with CCDID set to myCcdid.", test_plan_support.verify_success()
+            ),
+            TestStep(17, test_plan_support.remove_fabric("CR2", "CR1"), test_plan_support.verify_success()),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.TlsCertificateManagement))
@@ -103,8 +136,9 @@ class TC_TLSCERT_2_10(TC_TLSCERT_Base):
 
         self.step(4)
         root = cr1_cmd.get_key()
-        my_big_cert = cr1_cmd.gen_cert_with_key(signer=root, public_key=my_csr.public_key(),
-                                                builder_lambda=self.pad_out_certificate)
+        my_big_cert = cr1_cmd.gen_cert_with_key(
+            signer=root, public_key=my_csr.public_key(), builder_lambda=self.pad_out_certificate
+        )
         asserts.assert_greater(len(my_big_cert), 3000)
 
         self.step(5)
@@ -119,23 +153,30 @@ class TC_TLSCERT_2_10(TC_TLSCERT_Base):
         signer_key = certs_with_key[0].key
 
         self.step(8)
-        my_client_cert = cr1_cmd.gen_cert_with_key(
-            signer_key, public_key=my_csr.public_key(), subject=my_csr.subject)
+        my_client_cert = cr1_cmd.gen_cert_with_key(signer_key, public_key=my_csr.public_key(), subject=my_csr.subject)
 
         self.step(9)
         await cr1_cmd.send_provision_client_command(ccdid=my_ccdid, certificate=my_big_cert, expected_status=Status.ConstraintError)
 
         self.step(10)
-        await cr1_cmd.send_provision_client_command(ccdid=my_ccdid, certificate=my_client_cert, intermediates=[my_big_cert], expected_status=Status.ConstraintError)
+        await cr1_cmd.send_provision_client_command(
+            ccdid=my_ccdid, certificate=my_client_cert, intermediates=[my_big_cert], expected_status=Status.ConstraintError
+        )
 
         self.step(11)
-        await cr1_cmd.send_provision_client_command(ccdid=my_ccdid, certificate=my_bad_cert, expected_status=Status.DynamicConstraintError)
+        await cr1_cmd.send_provision_client_command(
+            ccdid=my_ccdid, certificate=my_bad_cert, expected_status=Status.DynamicConstraintError
+        )
 
         self.step(12)
-        await cr1_cmd.send_provision_client_command(ccdid=my_ccdid, certificate=my_wrong_key_cert, expected_status=Status.DynamicConstraintError)
+        await cr1_cmd.send_provision_client_command(
+            ccdid=my_ccdid, certificate=my_wrong_key_cert, expected_status=Status.DynamicConstraintError
+        )
 
         self.step(13)
-        await cr1_cmd.send_provision_client_command(ccdid=my_ccdid, certificate=my_client_cert, intermediates=[my_bad_cert], expected_status=Status.DynamicConstraintError)
+        await cr1_cmd.send_provision_client_command(
+            ccdid=my_ccdid, certificate=my_client_cert, intermediates=[my_bad_cert], expected_status=Status.DynamicConstraintError
+        )
 
         self.step(14)
         await cr1_cmd.send_provision_client_command(ccdid=my_ccdid + 1, certificate=my_client_cert, expected_status=Status.NotFound)

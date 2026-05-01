@@ -104,8 +104,8 @@ public:
 
         SupportedCluster(ClusterId clusterId, uint32_t features, const std::vector<CommandId> & commandIds,
                          const std::vector<AttributeId> & attributeIds) :
-            mClusterIdentifier{ clusterId },
-            mFeatures{ features }, mOptionalCommandIdentifiers{ commandIds }, mOptionalAttributesIdentifiers{ attributeIds }
+            mClusterIdentifier{ clusterId }, mFeatures{ features }, mOptionalCommandIdentifiers{ commandIds },
+            mOptionalAttributesIdentifiers{ attributeIds }
         {}
 
         SupportedCluster(ClusterId clusterId) : mClusterIdentifier{ clusterId } {}

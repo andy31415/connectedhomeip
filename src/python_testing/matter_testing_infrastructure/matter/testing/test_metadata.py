@@ -20,8 +20,7 @@ from metadata import Metadata, MetadataReader
 
 
 class TestMetadataReader(unittest.TestCase):
-
-    test_file_content = '''
+    test_file_content = """
     # === BEGIN CI TEST ARGUMENTS ===
     # test-runner-runs:
     #  run1:
@@ -34,9 +33,9 @@ class TestMetadataReader(unittest.TestCase):
     #   factory-reset: true
     #   quiet: true
     # === END CI TEST ARGUMENTS ===
-    '''
+    """
 
-    env_file_content = '''
+    env_file_content = """
     ALL_CLUSTERS_APP: out/linux-x64-all-clusters-ipv6only-no-ble-no-wifi-tsan-clang-test/chip-all-clusters-app
     CHIP_LOCK_APP: out/linux-x64-lock-ipv6only-no-ble-no-wifi-tsan-clang-test/chip-lock-app
     ENERGY_GATEWAY_APP: out/linux-x64-energy-gateway-ipv6only-no-ble-no-wifi-tsan-clang-test/chip-energy-gateway-app
@@ -45,7 +44,7 @@ class TestMetadataReader(unittest.TestCase):
     TRACE_APP: out/trace_data/app-{SCRIPT_BASE_NAME}
     TRACE_TEST_JSON: out/trace_data/test-{SCRIPT_BASE_NAME}
     TRACE_TEST_PERFETTO: out/trace_data/test-{SCRIPT_BASE_NAME}
-    '''
+    """
 
     expected_metadata = Metadata(
         script_args="--commissioning-method on-network --trace-to json:out/trace_data/test-{SCRIPT_BASE_NAME}.json --trace-to perfetto:out/trace_data/test-{SCRIPT_BASE_NAME}.perfetto",
@@ -54,12 +53,12 @@ class TestMetadataReader(unittest.TestCase):
         run="run1",
         app="out/linux-x64-all-clusters-ipv6only-no-ble-no-wifi-tsan-clang-test/chip-all-clusters-app",
         factory_reset=True,
-        quiet=True
+        quiet=True,
     )
 
     def generate_temp_file(self, directory: str, file_content: str) -> str:
         fd, temp_file_path = tempfile.mkstemp(dir=directory)
-        with os.fdopen(fd, 'w') as fp:
+        with os.fdopen(fd, "w") as fp:
             fp.write(file_content)
         return temp_file_path
 

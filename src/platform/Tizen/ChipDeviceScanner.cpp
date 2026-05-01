@@ -145,8 +145,7 @@ CHIP_ERROR ChipDeviceScanner::StartScan(ScanFilterType filterType, const ScanFil
         ChipLogProgress(DeviceLayer, "Proceeding with filterless scan");
     }
 
-    err = PlatformMgrImpl().GLibMatterContextInvokeSync(
-        +[](ChipDeviceScanner * self) { return self->StartScanImpl(); }, this);
+    err = PlatformMgrImpl().GLibMatterContextInvokeSync(+[](ChipDeviceScanner * self) { return self->StartScanImpl(); }, this);
     VerifyOrReturnError(err == CHIP_NO_ERROR, err, TEMPORARY_RETURN_IGNORED StopScan());
 
     return CHIP_NO_ERROR;

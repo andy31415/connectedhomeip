@@ -127,11 +127,15 @@ class TC_JFADMIN_1_4(MatterBaseTest):
                 endpoint=self._JOINT_FABRIC_ADMINISTRATOR_ENDPOINT,
                 timedRequestTimeoutMs=self._REQUEST_TIMEOUT_MS,
             )
-        asserts.assert_equal(cm.exception.status, expected_error_status,
-                             f"Expected {expected_error_status}, got {cm.exception.status}")
+        asserts.assert_equal(
+            cm.exception.status, expected_error_status, f"Expected {expected_error_status}, got {cm.exception.status}"
+        )
         if expected_cluster_status is not None:
-            asserts.assert_equal(cm.exception.clusterStatus, expected_cluster_status,
-                                 f"Expected cluster status {expected_cluster_status}, got {cm.exception.clusterStatus}")
+            asserts.assert_equal(
+                cm.exception.clusterStatus,
+                expected_cluster_status,
+                f"Expected cluster status {expected_cluster_status}, got {cm.exception.clusterStatus}",
+            )
 
     async def discover_commissionable_nodes(self):
         return await self.dev_ctrl_eco_a.DiscoverCommissionableNodes(
@@ -157,19 +161,23 @@ class TC_JFADMIN_1_4(MatterBaseTest):
 
         self.jfc_server_app = self.user_params.get("jfc_server_app", None)
         if not self.jfc_server_app:
-            asserts.fail("This test requires a Joint Fabric Controller app. Specify app path with --string-arg jfc_server_app:<path_to_app>")
+            asserts.fail(
+                "This test requires a Joint Fabric Controller app. Specify app path with --string-arg jfc_server_app:<path_to_app>"
+            )
         if not os.path.exists(self.jfc_server_app):
             asserts.fail(f"The path {self.jfc_server_app} does not exist")
 
         self.jfa_server_app = self.user_params.get("jfa_server_app", None)
         if not self.jfa_server_app:
-            asserts.fail("This test requires a Joint Fabrics Admin app. Specify app path with --string-arg jfa_server_app:<path_to_app>")
+            asserts.fail(
+                "This test requires a Joint Fabrics Admin app. Specify app path with --string-arg jfa_server_app:<path_to_app>"
+            )
         if not os.path.exists(self.jfa_server_app):
             asserts.fail(f"The path {self.jfa_server_app} does not exist")
 
         # Create a temporary storage directory to keep KVS files if not provided by user.
         if self.storage_fabric_a is None:
-            self.storage_directory_ecosystem_a = tempfile.mkdtemp(prefix=self.__class__.__name__+"_A_")
+            self.storage_directory_ecosystem_a = tempfile.mkdtemp(prefix=self.__class__.__name__ + "_A_")
             self.storage_fabric_a = self.storage_directory_ecosystem_a
             log.info("Temporary storage directory: %s", self.storage_fabric_a)
 
@@ -186,10 +194,16 @@ class TC_JFADMIN_1_4(MatterBaseTest):
                 port=random.randint(5001, 5999),
                 discriminator=self.jfadmin_fabric_a_discriminator,
                 passcode=self.jfadmin_fabric_a_passcode,
-                extra_args=["--capabilities", "0x04", "--rpc-server-port", dut_rpc_server_port, "--min_commissioning_timeout", f"{self._MIN_COMMISSIONING_TIMEOUT}"])
-            self.fabric_a_admin.start(
-                expected_output="Updating services using commissioning mode 1",
-                timeout=30)
+                extra_args=[
+                    "--capabilities",
+                    "0x04",
+                    "--rpc-server-port",
+                    dut_rpc_server_port,
+                    "--min_commissioning_timeout",
+                    f"{self._MIN_COMMISSIONING_TIMEOUT}",
+                ],
+            )
+            self.fabric_a_admin.start(expected_output="Updating services using commissioning mode 1", timeout=30)
         else:
             dut_rpc_server_ip = self.user_params.get("dut_rpc_server_ip", None)
             if not dut_rpc_server_ip:
@@ -200,11 +214,13 @@ class TC_JFADMIN_1_4(MatterBaseTest):
             self.jfadmin_fabric_a_passcode = self.matter_test_config.setup_passcodes[0]
             if not self.jfadmin_fabric_a_passcode:
                 asserts.fail(
-                    "JF-Administrator passcode and discriminator must be specified via --passcode:<passcode> --discriminator:<discriminator>")
+                    "JF-Administrator passcode and discriminator must be specified via --passcode:<passcode> --discriminator:<discriminator>"
+                )
             self.jfadmin_fabric_a_discriminator = self.matter_test_config.discriminators[0]
             if not self.jfadmin_fabric_a_discriminator:
                 asserts.fail(
-                    "JF-Administrator passcode and discriminator must be specified via --passcode:<passcode> --discriminator:<discriminator>")
+                    "JF-Administrator passcode and discriminator must be specified via --passcode:<passcode> --discriminator:<discriminator>"
+                )
 
         self.jfctrl_fabric_a_vid = random.randint(0x0001, 0xFFF0)
         self.fabric_a_ctrl = JFControllerSubprocess(
@@ -213,10 +229,9 @@ class TC_JFADMIN_1_4(MatterBaseTest):
             rpc_server_port=dut_rpc_server_port,
             storage_dir=self.storage_fabric_a,
             vendor_id=self.jfctrl_fabric_a_vid,
-            extra_args=["--rpc-server-ip", dut_rpc_server_ip])
-        self.fabric_a_ctrl.start(
-            expected_output="CHIP task running",
-            timeout=30)
+            extra_args=["--rpc-server-ip", dut_rpc_server_ip],
+        )
+        self.fabric_a_ctrl.start(expected_output="CHIP task running", timeout=30)
 
     def teardown_class(self):
         if self.fabric_a_persistent_storage is not None:
@@ -233,44 +248,85 @@ class TC_JFADMIN_1_4(MatterBaseTest):
     def steps_TC_JFADMIN_1_4(self) -> list[TestStep]:
         return [
             TestStep("1", "Commission DUT to TH."),
-            TestStep("2", "TH sends OJCW command to DUT with valid parameters: CommissioningTimeout=180, PAKEPasscodeVerifier=valid_97_byte_verifier, Discriminator=3840, Iterations=2000, Salt=valid_16_byte_salt.",
-                     "DUT responds with SUCCESS status and opens its commissioning window."),
-            TestStep("3", "Verify commissioning window is open by checking DUT advertisement.",
-                     "DUT advertises commissioning service with correct discriminator."),
-            TestStep("4", "Wait for CommissioningTimeout to expire.",
-                     "DUT stops advertising commissioning service."),
-            TestStep("5", "TH sends OJCW command to DUT with CommissioningTimeout=0.",
-                     "DUT responds with INVALID_COMMAND status code."),
-            TestStep("6", "TH sends OJCW command to DUT with CommissioningTimeout=65535.",
-                     "DUT responds with INVALID_COMMAND status code."),
-            TestStep("7", "TH sends OJCW command to DUT with PAKEPasscodeVerifier of incorrect length (96 bytes).",
-                     "DUT responds with INVALID_COMMAND status code."),
-            TestStep("8", "TH sends OJCW command to DUT with PAKEPasscodeVerifier of incorrect length (98 bytes).",
-                     "DUT responds with INVALID_COMMAND status code."),
-            TestStep("9", "TH sends OJCW command to DUT with Discriminator=4096 (out of range).",
-                     "DUT responds with INVALID_COMMAND status code."),
-            TestStep("10", "TH sends OJCW command to DUT with Iterations=999 (below minimum).",
-                     "DUT responds with INVALID_COMMAND status code."),
-            TestStep("11", "TH sends OJCW command to DUT with Iterations=100001 (above maximum).",
-                     "DUT responds with INVALID_COMMAND status code."),
-            TestStep("12", "TH sends OJCW command to DUT with Salt of length 15 bytes (below minimum).",
-                     "DUT responds with INVALID_COMMAND status code."),
-            TestStep("13", "TH sends OJCW command to DUT with Salt of length 33 bytes (above maximum).",
-                     "DUT responds with INVALID_COMMAND status code."),
-            TestStep("14", "TH sends OJCW command to DUT with valid parameters: CommissioningTimeout=60, Iterations=1000 (minimum valid), Salt=valid_32_byte_salt (maximum valid).",
-                     "DUT responds with SUCCESS status and opens commissioning window."),
-            TestStep("15", "Verify commissioning window behavior with minimum/maximum valid parameters.",
-                     "DUT advertises commissioning service correctly."),
-            TestStep("16", "While commissioning window is open, TH sends another OJCW command.",
-                     "DUT responds with BUSY status code."),
-            TestStep("17", "Wait for commissioning window to close.",
-                     "DUT stops advertising commissioning service."),
-            TestStep("18", "TH sends OJCW command to DUT with Iterations=50000 (mid-range valid), Salt=valid_24_byte_salt (mid-range valid).",
-                     "DUT responds with SUCCESS status and opens commissioning window."),
-            TestStep("19", "Verify commissioning window opens with mid-range parameters.",
-                     "DUT advertises commissioning service correctly."),
-            TestStep("20", "Wait for commissioning window to close.",
-                     "DUT stops advertising commissioning service."),
+            TestStep(
+                "2",
+                "TH sends OJCW command to DUT with valid parameters: CommissioningTimeout=180, PAKEPasscodeVerifier=valid_97_byte_verifier, Discriminator=3840, Iterations=2000, Salt=valid_16_byte_salt.",
+                "DUT responds with SUCCESS status and opens its commissioning window.",
+            ),
+            TestStep(
+                "3",
+                "Verify commissioning window is open by checking DUT advertisement.",
+                "DUT advertises commissioning service with correct discriminator.",
+            ),
+            TestStep("4", "Wait for CommissioningTimeout to expire.", "DUT stops advertising commissioning service."),
+            TestStep(
+                "5", "TH sends OJCW command to DUT with CommissioningTimeout=0.", "DUT responds with INVALID_COMMAND status code."
+            ),
+            TestStep(
+                "6",
+                "TH sends OJCW command to DUT with CommissioningTimeout=65535.",
+                "DUT responds with INVALID_COMMAND status code.",
+            ),
+            TestStep(
+                "7",
+                "TH sends OJCW command to DUT with PAKEPasscodeVerifier of incorrect length (96 bytes).",
+                "DUT responds with INVALID_COMMAND status code.",
+            ),
+            TestStep(
+                "8",
+                "TH sends OJCW command to DUT with PAKEPasscodeVerifier of incorrect length (98 bytes).",
+                "DUT responds with INVALID_COMMAND status code.",
+            ),
+            TestStep(
+                "9",
+                "TH sends OJCW command to DUT with Discriminator=4096 (out of range).",
+                "DUT responds with INVALID_COMMAND status code.",
+            ),
+            TestStep(
+                "10",
+                "TH sends OJCW command to DUT with Iterations=999 (below minimum).",
+                "DUT responds with INVALID_COMMAND status code.",
+            ),
+            TestStep(
+                "11",
+                "TH sends OJCW command to DUT with Iterations=100001 (above maximum).",
+                "DUT responds with INVALID_COMMAND status code.",
+            ),
+            TestStep(
+                "12",
+                "TH sends OJCW command to DUT with Salt of length 15 bytes (below minimum).",
+                "DUT responds with INVALID_COMMAND status code.",
+            ),
+            TestStep(
+                "13",
+                "TH sends OJCW command to DUT with Salt of length 33 bytes (above maximum).",
+                "DUT responds with INVALID_COMMAND status code.",
+            ),
+            TestStep(
+                "14",
+                "TH sends OJCW command to DUT with valid parameters: CommissioningTimeout=60, Iterations=1000 (minimum valid), Salt=valid_32_byte_salt (maximum valid).",
+                "DUT responds with SUCCESS status and opens commissioning window.",
+            ),
+            TestStep(
+                "15",
+                "Verify commissioning window behavior with minimum/maximum valid parameters.",
+                "DUT advertises commissioning service correctly.",
+            ),
+            TestStep(
+                "16", "While commissioning window is open, TH sends another OJCW command.", "DUT responds with BUSY status code."
+            ),
+            TestStep("17", "Wait for commissioning window to close.", "DUT stops advertising commissioning service."),
+            TestStep(
+                "18",
+                "TH sends OJCW command to DUT with Iterations=50000 (mid-range valid), Salt=valid_24_byte_salt (mid-range valid).",
+                "DUT responds with SUCCESS status and opens commissioning window.",
+            ),
+            TestStep(
+                "19",
+                "Verify commissioning window opens with mid-range parameters.",
+                "DUT advertises commissioning service correctly.",
+            ),
+            TestStep("20", "Wait for commissioning window to close.", "DUT stops advertising commissioning service."),
         ]
 
     @async_test_body
@@ -279,10 +335,11 @@ class TC_JFADMIN_1_4(MatterBaseTest):
         self.fabric_a_ctrl.send(
             message=f"pairing onnetwork-long {self.dut_node_id} {self.jfadmin_fabric_a_passcode} {self.jfadmin_fabric_a_discriminator} --anchor true",
             expected_output=f"[JF] Anchor Administrator (nodeId={self.dut_node_id}) commissioned with success",
-            timeout=60)
+            timeout=60,
+        )
 
         jfc_storage = ConfigParser()
-        jfc_storage.read(os.path.join(self.storage_fabric_a, 'chip_tool_config.alpha.ini'))
+        jfc_storage.read(os.path.join(self.storage_fabric_a, "chip_tool_config.alpha.ini"))
         self.eco_a_ctrl_storage = {
             "sdk-config": {
                 "ExampleOpCredsCAKey1": jfc_storage.get("Default", "ExampleOpCredsCAKey0"),
@@ -290,30 +347,25 @@ class TC_JFADMIN_1_4(MatterBaseTest):
                 "ExampleCARootCert1": jfc_storage.get("Default", "ExampleCARootCert0"),
                 "ExampleCAIntermediateCert1": jfc_storage.get("Default", "ExampleCAIntermediateCert0"),
             },
-            "repl-config": {
-                "caList": {
-                    "1": [
-                        {
-                            "fabricId": 1,
-                            "vendorId": self.jfctrl_fabric_a_vid
-                        }
-                    ]
-                }
-            }
+            "repl-config": {"caList": {"1": [{"fabricId": 1, "vendorId": self.jfctrl_fabric_a_vid}]}},
         }
         # Extract CATs to be provided to the Python Controller later
-        self.eco_a_cats = int(base64.b64decode(jfc_storage.get("Default", "CommissionerCATs"))[::-1].hex().strip('0'), 16)
+        self.eco_a_cats = int(base64.b64decode(jfc_storage.get("Default", "CommissionerCATs"))[::-1].hex().strip("0"), 16)
 
         self.fabric_a_persistent_storage = VolatileTemporaryPersistentStorage(
-            self.eco_a_ctrl_storage['repl-config'], self.eco_a_ctrl_storage['sdk-config'])
+            self.eco_a_ctrl_storage["repl-config"], self.eco_a_ctrl_storage["sdk-config"]
+        )
         self.cert_authority_manager_a = CertificateAuthority.CertificateAuthorityManager(
-            chipStack=self.matter_stack._chip_stack,
-            persistentStorage=self.fabric_a_persistent_storage)
+            chipStack=self.matter_stack._chip_stack, persistentStorage=self.fabric_a_persistent_storage
+        )
         self.cert_authority_manager_a.LoadAuthoritiesFromStorage()
-        self.dev_ctrl_eco_a = self.cert_authority_manager_a.activeCaList[0].adminList[0].NewController(
-            nodeId=101,
-            paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path),
-            catTags=[self.eco_a_cats])
+        self.dev_ctrl_eco_a = (
+            self.cert_authority_manager_a.activeCaList[0]
+            .adminList[0]
+            .NewController(
+                nodeId=101, paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path), catTags=[self.eco_a_cats]
+            )
+        )
 
         admin_fabric_idx = await self.read_single_attribute_check_success(
             dev_ctrl=self.dev_ctrl_eco_a,
@@ -337,16 +389,12 @@ class TC_JFADMIN_1_4(MatterBaseTest):
 
         self.step("3")
         responses = await self.discover_commissionable_nodes()
-        asserts.assert_greater_equal(
-            len(responses), 1, "DUT should advertise commissioning service with discriminator 3840"
-        )
+        asserts.assert_greater_equal(len(responses), 1, "DUT should advertise commissioning service with discriminator 3840")
 
         self.step("4")
         await self.sleep(self._TIMEOUT_STEP_2 + 1)
         responses = await self.discover_commissionable_nodes()
-        asserts.assert_equal(
-            len(responses), 0, "DUT should have stopped advertising commissioning service with discriminator 3840"
-        )
+        asserts.assert_equal(len(responses), 0, "DUT should have stopped advertising commissioning service with discriminator 3840")
 
         self.step("5")
         await self.assert_ojcw(
@@ -371,7 +419,7 @@ class TC_JFADMIN_1_4(MatterBaseTest):
         )
 
         self.step("8")
-        invalid_98_byte_verifier = self._VALID_97_BYTE_VERIFIER + bytes([0xff])
+        invalid_98_byte_verifier = self._VALID_97_BYTE_VERIFIER + bytes([0xFF])
         await self.assert_ojcw(
             pake_passcode_verifier=invalid_98_byte_verifier,
             expected_error_status=Status.InvalidCommand,
@@ -421,9 +469,7 @@ class TC_JFADMIN_1_4(MatterBaseTest):
 
         self.step("15")
         responses = await self.discover_commissionable_nodes()
-        asserts.assert_greater_equal(
-            len(responses), 1, "DUT should advertise commissioning service with discriminator 3840"
-        )
+        asserts.assert_greater_equal(len(responses), 1, "DUT should advertise commissioning service with discriminator 3840")
 
         self.step("16")
         await self.assert_ojcw(
@@ -437,9 +483,7 @@ class TC_JFADMIN_1_4(MatterBaseTest):
         self.step("17")
         await self.sleep(self._DEFAULT_OJCW_TIMEOUT + 1)
         responses = await self.discover_commissionable_nodes()
-        asserts.assert_equal(
-            len(responses), 0, "DUT should have stopped advertising commissioning service with discriminator 3840"
-        )
+        asserts.assert_equal(len(responses), 0, "DUT should have stopped advertising commissioning service with discriminator 3840")
 
         self.step("18")
         valid_24_byte_salt = self._VALID_16_BYTE_SALT + bytes(range(8))
@@ -447,16 +491,12 @@ class TC_JFADMIN_1_4(MatterBaseTest):
 
         self.step("19")
         responses = await self.discover_commissionable_nodes()
-        asserts.assert_greater_equal(
-            len(responses), 1, "DUT should advertise commissioning service with discriminator 3840"
-        )
+        asserts.assert_greater_equal(len(responses), 1, "DUT should advertise commissioning service with discriminator 3840")
 
         self.step("20")
         await self.sleep(self._DEFAULT_OJCW_TIMEOUT + 1)
         responses = await self.discover_commissionable_nodes()
-        asserts.assert_equal(
-            len(responses), 0, "DUT should have stopped advertising commissioning service with discriminator 3840"
-        )
+        asserts.assert_equal(len(responses), 0, "DUT should have stopped advertising commissioning service with discriminator 3840")
 
 
 if __name__ == "__main__":

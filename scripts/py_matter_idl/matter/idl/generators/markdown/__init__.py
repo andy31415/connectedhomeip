@@ -32,6 +32,6 @@ class SummaryMarkdownGenerator(CodeGenerator):
             template_path="clusters_markdown.jinja",
             output_file_name="zap_clusters.md",
             vars={
-                'idl': self.idl,
-            }
+                "idl": self.idl,
+            },
         )

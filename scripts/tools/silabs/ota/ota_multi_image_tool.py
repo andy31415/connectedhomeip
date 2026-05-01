@@ -16,7 +16,7 @@
 #    limitations under the License.
 #
 
-'''This file should contain a way to generate custom OTA payloads.
+"""This file should contain a way to generate custom OTA payloads.
 
 The format of the custom payload is the following:
 | Total size of TLVs | TLV1 | ... | TLVn |
@@ -27,7 +27,7 @@ needed as input for a TLVReader.
 
 Currently, this script only supports Certification Declaration update,
 but it could be modified to support all factory data fields.
-'''
+"""
 
 import argparse
 import glob
@@ -41,12 +41,9 @@ import jsonschema
 
 log = logging.getLogger(__name__)
 
-sys.path.insert(0, os.path.join(
-    os.path.dirname(__file__), '../factory_data_generator'))
-sys.path.insert(0, os.path.join(
-    os.path.dirname(__file__), '../../../../src/controller/python'))
-sys.path.insert(0, os.path.join(
-    os.path.dirname(__file__), '../../../../src/app/'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../factory_data_generator"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../../src/controller/python"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../../src/app/"))
 
 import ota_image_tool  # noqa: E402 isort:skip
 from matter.tlv import TLVWriter  # noqa: E402 isort:skip
@@ -70,18 +67,14 @@ class TAG:
 
 def set_logger():
     stdout_handler = logging.StreamHandler(stream=sys.stdout)
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='[%(levelname)s] %(message)s',
-        handlers=[stdout_handler]
-    )
+    logging.basicConfig(level=logging.DEBUG, format="[%(levelname)s] %(message)s", handlers=[stdout_handler])
 
 
 def write_to_temp(path: str, payload: bytearray):
     with open(path, "wb") as _handle:
         _handle.write(payload)
 
-    log.info("Data payload size for '%s': %d", path.split('/')[-1], len(payload))
+    log.info("Data payload size for '%s': %d", path.split("/")[-1], len(payload))
 
 
 def generate_header(tag: int, length: int):
@@ -217,7 +210,7 @@ def generate_bootloader(args: object):
 
 
 def validate_json(data: str):
-    with open(os.path.join(os.path.dirname(__file__), 'ota_payload.schema'), 'r') as fd:
+    with open(os.path.join(os.path.dirname(__file__), "ota_payload.schema"), "r") as fd:
         payload_schema = json.load(fd)
 
     try:
@@ -270,7 +263,7 @@ def create_image(args: object):
     input_files = []
 
     if args.json:
-        with open(args.json, 'r') as fd:
+        with open(args.json, "r") as fd:
             data = json.load(fd)
         validate_json(data)
         input_files += generate_custom_tlvs(data)
@@ -312,122 +305,100 @@ def main():
     TLV data that will be embedded in the final OTA payload.
     """
 
-    def any_base_int(s): return int(s, 0)
+    def any_base_int(s):
+        return int(s, 0)
 
     set_logger()
-    parser = argparse.ArgumentParser(
-        description='Matter OTA (Over-the-air update) image utility', fromfile_prefix_chars='@')
-    subcommands = parser.add_subparsers(
-        dest='subcommand', title='valid subcommands', required=True)
+    parser = argparse.ArgumentParser(description="Matter OTA (Over-the-air update) image utility", fromfile_prefix_chars="@")
+    subcommands = parser.add_subparsers(dest="subcommand", title="valid subcommands", required=True)
 
-    create_parser = subcommands.add_parser('create', help='Create OTA image')
-    create_parser.add_argument('-v', '--vendor-id', type=any_base_int,
-                               required=True, help='Vendor ID')
-    create_parser.add_argument('-p', '--product-id', type=any_base_int,
-                               required=True, help='Product ID')
-    create_parser.add_argument('-vn', '--version', type=any_base_int,
-                               required=True, help='Software version (numeric)')
-    create_parser.add_argument('-vs', '--version-str', required=True,
-                               help='Software version (string)')
-    create_parser.add_argument('-da', '--digest-algorithm', choices=ota_image_tool.DIGEST_ALL_ALGORITHMS,
-                               required=True, help='Digest algorithm')
-    create_parser.add_argument('-mi', '--min-version', type=any_base_int,
-                               help='Minimum software version that can be updated to this image')
-    create_parser.add_argument('-ma', '--max-version', type=any_base_int,
-                               help='Maximum software version that can be updated to this image')
-    create_parser.add_argument('-rn', '--release-notes',
-                               help='Release note URL')
+    create_parser = subcommands.add_parser("create", help="Create OTA image")
+    create_parser.add_argument("-v", "--vendor-id", type=any_base_int, required=True, help="Vendor ID")
+    create_parser.add_argument("-p", "--product-id", type=any_base_int, required=True, help="Product ID")
+    create_parser.add_argument("-vn", "--version", type=any_base_int, required=True, help="Software version (numeric)")
+    create_parser.add_argument("-vs", "--version-str", required=True, help="Software version (string)")
+    create_parser.add_argument(
+        "-da", "--digest-algorithm", choices=ota_image_tool.DIGEST_ALL_ALGORITHMS, required=True, help="Digest algorithm"
+    )
+    create_parser.add_argument(
+        "-mi", "--min-version", type=any_base_int, help="Minimum software version that can be updated to this image"
+    )
+    create_parser.add_argument(
+        "-ma", "--max-version", type=any_base_int, help="Maximum software version that can be updated to this image"
+    )
+    create_parser.add_argument("-rn", "--release-notes", help="Release note URL")
 
-    create_parser.add_argument('-app', "--app-input-file",
-                               help='Path to application input file')
-    create_parser.add_argument('--app-version', type=any_base_int,
-                               help='Application Software version (numeric)')
-    create_parser.add_argument('--app-version-str', type=str,
-                               help='Application Software version (string)')
-    create_parser.add_argument('--app-build-date', type=str,
-                               help='Application build date (string)')
+    create_parser.add_argument("-app", "--app-input-file", help="Path to application input file")
+    create_parser.add_argument("--app-version", type=any_base_int, help="Application Software version (numeric)")
+    create_parser.add_argument("--app-version-str", type=str, help="Application Software version (string)")
+    create_parser.add_argument("--app-build-date", type=str, help="Application build date (string)")
 
-    create_parser.add_argument('-tai', "--wifi_ta_input_file",
-                               help='Path to OTA image for 917 wifi TA')
-    create_parser.add_argument('--wifi-ta-version', type=any_base_int,
-                               help='WiFi TA Software version (numeric)')
-    create_parser.add_argument('--wifi-ta-version-str', type=str,
-                               help='WiFi TA Software version (string)')
-    create_parser.add_argument('--wifi-ta-build-date', type=str,
-                               help='WiFi TA build date (string)')
+    create_parser.add_argument("-tai", "--wifi_ta_input_file", help="Path to OTA image for 917 wifi TA")
+    create_parser.add_argument("--wifi-ta-version", type=any_base_int, help="WiFi TA Software version (numeric)")
+    create_parser.add_argument("--wifi-ta-version-str", type=str, help="WiFi TA Software version (string)")
+    create_parser.add_argument("--wifi-ta-build-date", type=str, help="WiFi TA build date (string)")
 
-    create_parser.add_argument('-bl', '--bl-input-file',
-                               help='Path to input bootloader image payload file')
-    create_parser.add_argument('--bl-version', type=any_base_int,
-                               help='Bootloader Software version (numeric)')
-    create_parser.add_argument('--bl-version-str', type=str,
-                               help='Bootloader Software version (string)')
-    create_parser.add_argument('--bl-build-date', type=str,
-                               help='Bootloader build date (string)')
+    create_parser.add_argument("-bl", "--bl-input-file", help="Path to input bootloader image payload file")
+    create_parser.add_argument("--bl-version", type=any_base_int, help="Bootloader Software version (numeric)")
+    create_parser.add_argument("--bl-version-str", type=str, help="Bootloader Software version (string)")
+    create_parser.add_argument("--bl-build-date", type=str, help="Bootloader build date (string)")
 
     # Factory data specific arguments. Will be used to generate the TLV payload.
-    create_parser.add_argument('-fd', '--factory-data', action='store_true',
-                               help='If found, enable factory data payload generation.')
-    create_parser.add_argument("--cert_declaration", type=CertDeclaration,
-                               help="[path] Path to Certification Declaration in DER format")
-    create_parser.add_argument("--dac_cert", type=DacCert,
-                               help="[path] Path to DAC certificate in DER format")
-    create_parser.add_argument("--dac_key", type=DacPKey,
-                               help="[path] Path to DAC key in DER format")
-    create_parser.add_argument("--dac_key_password", type=str,
-                               help="[path] Password to decode DAC Key if available")
-    create_parser.add_argument("--pai_cert", type=PaiCert,
-                               help="[path] Path to PAI certificate in DER format")
+    create_parser.add_argument(
+        "-fd", "--factory-data", action="store_true", help="If found, enable factory data payload generation."
+    )
+    create_parser.add_argument(
+        "--cert_declaration", type=CertDeclaration, help="[path] Path to Certification Declaration in DER format"
+    )
+    create_parser.add_argument("--dac_cert", type=DacCert, help="[path] Path to DAC certificate in DER format")
+    create_parser.add_argument("--dac_key", type=DacPKey, help="[path] Path to DAC key in DER format")
+    create_parser.add_argument("--dac_key_password", type=str, help="[path] Password to decode DAC Key if available")
+    create_parser.add_argument("--pai_cert", type=PaiCert, help="[path] Path to PAI certificate in DER format")
 
     # Path to input JSON file which describes custom TLVs.
-    create_parser.add_argument('--json', help="[path] Path to the JSON describing custom TLVs")
+    create_parser.add_argument("--json", help="[path] Path to the JSON describing custom TLVs")
 
-    create_parser.add_argument('--enc_enable', action="store_true", help='enable ota encryption')
-    create_parser.add_argument('--input_ota_key', type=str, default="1234567890ABCDEFA1B2C3D4E5F6F1B4",
-                               help='Input OTA Encryption KEY (string:16Bytes)')
+    create_parser.add_argument("--enc_enable", action="store_true", help="enable ota encryption")
+    create_parser.add_argument(
+        "--input_ota_key", type=str, default="1234567890ABCDEFA1B2C3D4E5F6F1B4", help="Input OTA Encryption KEY (string:16Bytes)"
+    )
 
-    create_parser.add_argument('-i', '--input_files', default=[],
-                               help='Path to input image payload file')
-    create_parser.add_argument('output_file', help='Path to output image file')
+    create_parser.add_argument("-i", "--input_files", default=[], help="Path to input image payload file")
+    create_parser.add_argument("output_file", help="Path to output image file")
 
-    show_parser = subcommands.add_parser('show', help='Show OTA image info')
-    show_parser.add_argument('image_file', help='Path to OTA image file')
+    show_parser = subcommands.add_parser("show", help="Show OTA image info")
+    show_parser.add_argument("image_file", help="Path to OTA image file")
 
-    extract_tool = subcommands.add_parser('extract', help='Remove the OTA header from an image file')
-    extract_tool.add_argument('image_file', help='Path to OTA image file with header')
-    extract_tool.add_argument('output_file', help='Path to put the output file (no header)')
+    extract_tool = subcommands.add_parser("extract", help="Remove the OTA header from an image file")
+    extract_tool.add_argument("image_file", help="Path to OTA image file with header")
+    extract_tool.add_argument("output_file", help="Path to put the output file (no header)")
 
-    change_tool = subcommands.add_parser('change_header', help='Change the specified values in the header')
-    change_tool.add_argument('-v', '--vendor-id', type=any_base_int,
-                             help='Vendor ID')
-    change_tool.add_argument('-p', '--product-id', type=any_base_int,
-                             help='Product ID')
-    change_tool.add_argument('-vn', '--version', type=any_base_int,
-                             help='Software version (numeric)')
-    change_tool.add_argument('-vs', '--version-str',
-                             help='Software version (string)')
-    change_tool.add_argument('-da', '--digest-algorithm', choices=ota_image_tool.DIGEST_ALL_ALGORITHMS,
-                             help='Digest algorithm')
-    change_tool.add_argument('-mi', '--min-version', type=any_base_int,
-                             help='Minimum software version that can be updated to this image')
-    change_tool.add_argument('-ma', '--max-version', type=any_base_int,
-                             help='Maximum software version that can be updated to this image')
+    change_tool = subcommands.add_parser("change_header", help="Change the specified values in the header")
+    change_tool.add_argument("-v", "--vendor-id", type=any_base_int, help="Vendor ID")
+    change_tool.add_argument("-p", "--product-id", type=any_base_int, help="Product ID")
+    change_tool.add_argument("-vn", "--version", type=any_base_int, help="Software version (numeric)")
+    change_tool.add_argument("-vs", "--version-str", help="Software version (string)")
+    change_tool.add_argument("-da", "--digest-algorithm", choices=ota_image_tool.DIGEST_ALL_ALGORITHMS, help="Digest algorithm")
     change_tool.add_argument(
-        '-rn', '--release-notes', help='Release note URL')
-    change_tool.add_argument('image_file',
-                             help='Path to input OTA file')
-    change_tool.add_argument('output_file', help='Path to output OTA file')
+        "-mi", "--min-version", type=any_base_int, help="Minimum software version that can be updated to this image"
+    )
+    change_tool.add_argument(
+        "-ma", "--max-version", type=any_base_int, help="Maximum software version that can be updated to this image"
+    )
+    change_tool.add_argument("-rn", "--release-notes", help="Release note URL")
+    change_tool.add_argument("image_file", help="Path to input OTA file")
+    change_tool.add_argument("output_file", help="Path to output OTA file")
 
     args = parser.parse_args()
 
-    if args.subcommand == 'create':
+    if args.subcommand == "create":
         create_image(args)
-    elif args.subcommand == 'show':
+    elif args.subcommand == "show":
         ota_image_tool.show_header(args)
         show_payload(args)
-    elif args.subcommand == 'extract':
+    elif args.subcommand == "extract":
         ota_image_tool.remove_header(args)
-    elif args.subcommand == 'change_header':
+    elif args.subcommand == "change_header":
         ota_image_tool.update_header_args(args)
 
 

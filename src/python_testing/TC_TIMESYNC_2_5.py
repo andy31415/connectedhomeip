@@ -56,7 +56,9 @@ class TC_TIMESYNC_2_5(MatterBaseTest):
     async def send_set_dst_cmd(self, dst: typing.List[Clusters.Objects.TimeSynchronization.Structs.DSTOffsetStruct]) -> None:
         await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetDSTOffset(DSTOffset=dst))
 
-    async def send_set_dst_cmd_expect_error(self, dst: typing.List[Clusters.Objects.TimeSynchronization.Structs.DSTOffsetStruct], error: Status) -> None:
+    async def send_set_dst_cmd_expect_error(
+        self, dst: typing.List[Clusters.Objects.TimeSynchronization.Structs.DSTOffsetStruct], error: Status
+    ) -> None:
         try:
             await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetDSTOffset(DSTOffset=dst))
             asserts.assert_true(False, "Unexpected SetTimeZone command success")
@@ -69,7 +71,6 @@ class TC_TIMESYNC_2_5(MatterBaseTest):
 
     @async_test_body
     async def test_TC_TIMESYNC_2_5(self):
-
         # Time sync is required to be on endpoint 0 if it is present
         self.endpoint = 0
 
@@ -95,8 +96,10 @@ class TC_TIMESYNC_2_5(MatterBaseTest):
         self.print_step(4, "Test setting unsorted list - expect error")
         if dst_max_size_dut > 1:
             th_utc = utc_time_in_matter_epoch()
-            dst = [dst_struct(offset=3600, validStarting=th_utc, validUntil=th_utc+1.577e+13),
-                   dst_struct(offset=3600, validStarting=0, validUntil=th_utc)]
+            dst = [
+                dst_struct(offset=3600, validStarting=th_utc, validUntil=th_utc + 1.577e13),
+                dst_struct(offset=3600, validStarting=0, validUntil=th_utc),
+            ]
             await self.send_set_dst_cmd_expect_error(dst=dst, error=Status.ConstraintError)
 
         self.print_step(5, "Read DSTOffset attribute - expect empty")
@@ -107,8 +110,10 @@ class TC_TIMESYNC_2_5(MatterBaseTest):
         self.print_step(6, "Test setting list with invalid second entry - expect error")
         if dst_max_size_dut > 1:
             th_utc = utc_time_in_matter_epoch()
-            dst = [dst_struct(offset=3600, validStarting=0, validUntil=th_utc+3e+8),
-                   dst_struct(offset=3600, validStarting=th_utc, validUntil=th_utc+1.577e+13)]
+            dst = [
+                dst_struct(offset=3600, validStarting=0, validUntil=th_utc + 3e8),
+                dst_struct(offset=3600, validStarting=th_utc, validUntil=th_utc + 1.577e13),
+            ]
             await self.send_set_dst_cmd_expect_error(dst=dst, error=Status.ConstraintError)
 
         self.print_step(7, "Read DSTOffset attribute - expect empty")
@@ -119,8 +124,10 @@ class TC_TIMESYNC_2_5(MatterBaseTest):
         self.print_step(8, "Test setting list with two null values - expect error")
         if dst_max_size_dut > 1:
             th_utc = utc_time_in_matter_epoch()
-            dst = [dst_struct(offset=3600, validStarting=0, validUntil=NullValue),
-                   dst_struct(offset=3600, validStarting=th_utc+3e+8, validUntil=NullValue)]
+            dst = [
+                dst_struct(offset=3600, validStarting=0, validUntil=NullValue),
+                dst_struct(offset=3600, validStarting=th_utc + 3e8, validUntil=NullValue),
+            ]
             await self.send_set_dst_cmd_expect_error(dst=dst, error=Status.ConstraintError)
 
         self.print_step(9, "Read DSTOffset attribute - expect empty")
@@ -131,8 +138,10 @@ class TC_TIMESYNC_2_5(MatterBaseTest):
         self.print_step(10, "Test setting list with null value not at end - expect error")
         if dst_max_size_dut > 1:
             th_utc = utc_time_in_matter_epoch()
-            dst = [dst_struct(offset=3600, validStarting=0, validUntil=NullValue),
-                   dst_struct(offset=3600, validStarting=th_utc+3e+8, validUntil=th_utc+1.577e+13)]
+            dst = [
+                dst_struct(offset=3600, validStarting=0, validUntil=NullValue),
+                dst_struct(offset=3600, validStarting=th_utc + 3e8, validUntil=th_utc + 1.577e13),
+            ]
             await self.send_set_dst_cmd_expect_error(dst=dst, error=Status.ConstraintError)
 
         self.print_step(11, "Read DSTOffset attribute - expect empty")
@@ -143,11 +152,11 @@ class TC_TIMESYNC_2_5(MatterBaseTest):
         self.print_step(12, "Test setting too many entries")
         dst = []
         th_utc = utc_time_in_matter_epoch()
-        for i in range(dst_max_size_dut+1):
-            year = 3.156e+13
-            six_months = 1.577e+13
-            vstart = year*i + six_months
-            vuntil = year * (i+1)
+        for i in range(dst_max_size_dut + 1):
+            year = 3.156e13
+            six_months = 1.577e13
+            vstart = year * i + six_months
+            vuntil = year * (i + 1)
             dst.append(dst_struct(offset=3600, validStarting=vstart, validUntil=vuntil))
         await self.send_set_dst_cmd_expect_error(dst=dst, error=Status.ResourceExhausted)
 
@@ -157,7 +166,7 @@ class TC_TIMESYNC_2_5(MatterBaseTest):
 
         self.print_step(14, "Set valid list with null ValidUntil")
         th_utc = utc_time_in_matter_epoch()
-        dst = [dst_struct(offset=3600, validStarting=th_utc+3e+8, validUntil=NullValue)]
+        dst = [dst_struct(offset=3600, validStarting=th_utc + 3e8, validUntil=NullValue)]
         await self.send_set_dst_cmd(dst=dst)
 
         self.print_step(15, "Read back list")
@@ -166,7 +175,7 @@ class TC_TIMESYNC_2_5(MatterBaseTest):
 
         self.print_step(16, "Set valid list with non-null ValidUntil")
         th_utc = utc_time_in_matter_epoch()
-        dst = [dst_struct(offset=3600, validStarting=th_utc+3e+8, validUntil=th_utc+1.577e+13)]
+        dst = [dst_struct(offset=3600, validStarting=th_utc + 3e8, validUntil=th_utc + 1.577e13)]
         await self.send_set_dst_cmd(dst=dst)
 
         self.print_step(17, "Read back list")
@@ -177,10 +186,10 @@ class TC_TIMESYNC_2_5(MatterBaseTest):
         dst = []
         th_utc = utc_time_in_matter_epoch()
         for i in range(dst_max_size_dut):
-            year = 3.156e+13
-            six_months = 1.577e+13
-            vstart = th_utc + year*i + six_months
-            vuntil = th_utc + year * (i+1)
+            year = 3.156e13
+            six_months = 1.577e13
+            vstart = th_utc + year * i + six_months
+            vuntil = th_utc + year * (i + 1)
             dst.append(dst_struct(offset=3600, validStarting=vstart, validUntil=vuntil))
         await self.send_set_dst_cmd(dst=dst)
 

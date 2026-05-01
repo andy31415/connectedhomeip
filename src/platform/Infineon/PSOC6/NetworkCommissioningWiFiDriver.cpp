@@ -236,7 +236,7 @@ void P6WiFiDriver::scan_result_callback(cy_wcm_scan_result_t * result_ptr, void 
                 P6WiFiDriver::GetInstance().ConvertSecuritytype(scan_result_list[NumAP].security).Raw());
             NumAP++;
         } /* end of if ( result_ptr != NULL ) */
-    }     /* end of else */
+    } /* end of else */
 }
 
 CHIP_ERROR P6WiFiDriver::StartScanWiFiNetworks(ByteSpan ssid)

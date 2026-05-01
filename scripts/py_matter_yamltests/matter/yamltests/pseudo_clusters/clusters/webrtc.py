@@ -15,7 +15,7 @@
 
 from ..pseudo_cluster import PseudoCluster
 
-_DEFINITION = '''<?xml version="1.0"?>
+_DEFINITION = """<?xml version="1.0"?>
 <configurator>
 <cluster>
     <name>WebRTC</name>
@@ -30,11 +30,11 @@ _DEFINITION = '''<?xml version="1.0"?>
 
 </cluster>
 </configurator>
-'''
+"""
 
 
 class WebRTC(PseudoCluster):
-    name = 'WebRTC'
+    name = "WebRTC"
     definition = _DEFINITION
 
     async def VerifyVideoStream(self, request):

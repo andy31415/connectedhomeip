@@ -20,8 +20,7 @@ from .type_definitions import IdlFileType, InputIdlFile
 
 log = logging.getLogger(__name__)
 
-CODEGEN_PY_PATH = os.path.abspath(os.path.join(
-    os.path.dirname(__file__), '..', 'codegen.py'))
+CODEGEN_PY_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "codegen.py"))
 
 
 class CodegenTarget:
@@ -35,22 +34,23 @@ class CodegenTarget:
         self.options = options
 
         if idl.file_type != IdlFileType.MATTER:
-            raise Exception(
-                f"Can only code generate for `*.matter` input files, not for {idl}")
+            raise Exception(f"Can only code generate for `*.matter` input files, not for {idl}")
 
     def Generate(self, output_root: str):
-        '''Runs codegen.py to generate in the specified directory'''
+        """Runs codegen.py to generate in the specified directory"""
 
-        output_dir = os.path.join(
-            output_root, self.idl.pregen_subdir, self.generator)
+        output_dir = os.path.join(output_root, self.idl.pregen_subdir, self.generator)
 
         log.info("Generating: '%s:%s' into '%s'", self.generator, self.idl.full_path, output_dir)
 
         cmd = [
             CODEGEN_PY_PATH,
-            '--log-level', 'fatal',
-            '--generator', self.generator,
-            '--output-dir', output_dir,
+            "--log-level",
+            "fatal",
+            "--generator",
+            self.generator,
+            "--output-dir",
+            output_dir,
         ]
         for option in self.options:
             cmd.append("--option")
@@ -101,11 +101,11 @@ class CodegenCppAppPregenerator:
         if idl.file_type != IdlFileType.MATTER:
             return False
 
-        if '/lib/format/' in idl.relative_path:
+        if "/lib/format/" in idl.relative_path:
             return False
 
         # we should not be checked for these, but verify just in case
-        return '/tests/' not in idl.relative_path
+        return "/tests/" not in idl.relative_path
 
     def CreateTarget(self, idl: InputIdlFile, runner):
         return CodegenTarget(sdk_root=self.sdk_root, idl=idl, generator="cpp-app", runner=runner)
@@ -118,10 +118,12 @@ class CodegenCppProtocolsTLVMetaPregenerator:
         self.sdk_root = sdk_root
 
     def Accept(self, idl: InputIdlFile):
-        return (idl.file_type == IdlFileType.MATTER) and idl.relative_path.endswith('/protocol_messages.matter')
+        return (idl.file_type == IdlFileType.MATTER) and idl.relative_path.endswith("/protocol_messages.matter")
 
     def CreateTarget(self, idl: InputIdlFile, runner):
-        return CodegenTarget(sdk_root=self.sdk_root, idl=idl, generator="cpp-tlvmeta", options=["table_name:protocols_meta"], runner=runner)
+        return CodegenTarget(
+            sdk_root=self.sdk_root, idl=idl, generator="cpp-tlvmeta", options=["table_name:protocols_meta"], runner=runner
+        )
 
 
 class CodegenCppClustersTLVMetaPregenerator:
@@ -131,7 +133,9 @@ class CodegenCppClustersTLVMetaPregenerator:
         self.sdk_root = sdk_root
 
     def Accept(self, idl: InputIdlFile):
-        return (idl.file_type == IdlFileType.MATTER) and idl.relative_path.endswith('/controller-clusters.matter')
+        return (idl.file_type == IdlFileType.MATTER) and idl.relative_path.endswith("/controller-clusters.matter")
 
     def CreateTarget(self, idl: InputIdlFile, runner):
-        return CodegenTarget(sdk_root=self.sdk_root, idl=idl, generator="cpp-tlvmeta", options=["table_name:clusters_meta"], runner=runner)
+        return CodegenTarget(
+            sdk_root=self.sdk_root, idl=idl, generator="cpp-tlvmeta", options=["table_name:clusters_meta"], runner=runner
+        )

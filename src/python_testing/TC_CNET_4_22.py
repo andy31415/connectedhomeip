@@ -24,8 +24,13 @@ from mobly import asserts
 import matter.clusters as Clusters
 from matter.clusters.Types import NullValue
 from matter.testing.decorators import has_feature, run_if_endpoint_matches
-from matter.testing.matter_asserts import (assert_int_in_range, assert_string_length, assert_valid_uint8, assert_valid_uint16,
-                                           assert_valid_uint64)
+from matter.testing.matter_asserts import (
+    assert_int_in_range,
+    assert_string_length,
+    assert_valid_uint8,
+    assert_valid_uint16,
+    assert_valid_uint64,
+)
 from matter.testing.matter_testing import MatterBaseTest
 from matter.testing.runner import TestStep, default_matter_test_main
 
@@ -49,23 +54,27 @@ class TC_CNET_4_22(MatterBaseTest):
 
     def steps_TC_CNET_4_22(self):
         return [
-            TestStep('Precondition', 'TH is commissioned', is_commissioning=True),
-            TestStep(1, 'TH sends ScanNetworks command to the DUT with the SSID field omitted and the Breadcrumb field set to 1'),
-            TestStep(2, 'TH reads Breadcrumb attribute from the General Commissioning Cluster'),
-            TestStep(3, 'TH sends ScanNetworks command to the DUT with the SSID field set to null and the Breadcrumb field set to 2'),
-            TestStep(4, 'TH reads Breadcrumb attribute from the General Commissioning Cluster'),
-            TestStep(5, 'TH sends ScanNetworks command to the DUT with the SSID field set to a random string of ASCII characters with a size of between 1 and 31 characters and the Breadcrumb field set to 3'),
-            TestStep(6, 'TH reads Breadcrumb attribute from the General Commissioning Cluster')
+            TestStep("Precondition", "TH is commissioned", is_commissioning=True),
+            TestStep(1, "TH sends ScanNetworks command to the DUT with the SSID field omitted and the Breadcrumb field set to 1"),
+            TestStep(2, "TH reads Breadcrumb attribute from the General Commissioning Cluster"),
+            TestStep(
+                3, "TH sends ScanNetworks command to the DUT with the SSID field set to null and the Breadcrumb field set to 2"
+            ),
+            TestStep(4, "TH reads Breadcrumb attribute from the General Commissioning Cluster"),
+            TestStep(
+                5,
+                "TH sends ScanNetworks command to the DUT with the SSID field set to a random string of ASCII characters with a size of between 1 and 31 characters and the Breadcrumb field set to 3",
+            ),
+            TestStep(6, "TH reads Breadcrumb attribute from the General Commissioning Cluster"),
         ]
 
     def def_TC_CNET_4_22(self):
-        return '[TC-CNET-4.22] [Thread] Verification for ScanNetworks command [DUT-Server]'
+        return "[TC-CNET-4.22] [Thread] Verification for ScanNetworks command [DUT-Server]"
 
     def pics_TC_CNET_4_22(self):
-        return ['CNET.S.F01']
+        return ["CNET.S.F01"]
 
     def scan_network_response_thread_scan_results(self, thread_interfaces: list[str]):
-
         # Verify Thread interfaces are not None and length equal to 0
         asserts.assert_true(thread_interfaces is not None, "There are not any Thread interfaces available")
         asserts.assert_true(len(thread_interfaces) > 0, "Expected to find at least one Thread network")
@@ -74,7 +83,6 @@ class TC_CNET_4_22(MatterBaseTest):
 
         # Each element in the ThreadScanResults list will have the following fields:
         for thread_interface in thread_interfaces:
-
             log.info(f"Thread interface: {thread_interface}")
 
             # PanId with a range of 0 to 65534 (2**16-2)
@@ -94,11 +102,13 @@ class TC_CNET_4_22(MatterBaseTest):
 
             # ExtendedAddress is a hwaddr with a size of 8 bytes
             expected_len_bytes_extended_address = 8
-            asserts.assert_equal(len(thread_interface.extendedAddress), expected_len_bytes_extended_address,
-                                 f"The hwaddr value is {len(thread_interface.extendedAddress)} bytes long instead of {expected_len_bytes_extended_address}")
+            asserts.assert_equal(
+                len(thread_interface.extendedAddress),
+                expected_len_bytes_extended_address,
+                f"The hwaddr value is {len(thread_interface.extendedAddress)} bytes long instead of {expected_len_bytes_extended_address}",
+            )
 
-            asserts.assert_true(isinstance(thread_interface.extendedAddress, bytes),
-                                "ExtendedAddress is not a hwadr instance")
+            asserts.assert_true(isinstance(thread_interface.extendedAddress, bytes), "ExtendedAddress is not a hwadr instance")
 
             # RSSI is an of type int8 with a range of -120 to 0
             assert_int_in_range(thread_interface.rssi, -120, 0, "RSSI")
@@ -107,26 +117,29 @@ class TC_CNET_4_22(MatterBaseTest):
             assert_valid_uint8(thread_interface.lqi, "LQI")
 
     async def read_and_check_breadcrumb(self, expected_breadcrumb):
-
         # TH reads Breadcrumb attribute from the General Commissioning Cluster
-        breadcrumb = await self.read_single_attribute_check_success(cluster=Clusters.GeneralCommissioning, attribute=Clusters.GeneralCommissioning.Attributes.Breadcrumb)
+        breadcrumb = await self.read_single_attribute_check_success(
+            cluster=Clusters.GeneralCommissioning, attribute=Clusters.GeneralCommissioning.Attributes.Breadcrumb
+        )
 
         # Verify that the Breadcrumb attribute is set to 'expected_breadcrumb'
-        asserts.assert_equal(breadcrumb, expected_breadcrumb,
-                             f"Breadcrumb value is {breadcrumb} and it should be equal to {expected_breadcrumb}")
+        asserts.assert_equal(
+            breadcrumb, expected_breadcrumb, f"Breadcrumb value is {breadcrumb} and it should be equal to {expected_breadcrumb}"
+        )
 
-    @run_if_endpoint_matches(has_feature(Clusters.NetworkCommissioning, Clusters.NetworkCommissioning.Bitmaps.Feature.kThreadNetworkInterface))
+    @run_if_endpoint_matches(
+        has_feature(Clusters.NetworkCommissioning, Clusters.NetworkCommissioning.Bitmaps.Feature.kThreadNetworkInterface)
+    )
     async def test_TC_CNET_4_22(self):
-
         enum = Clusters.NetworkCommissioning.Enums.NetworkCommissioningStatusEnum
 
         # Commissioning is already done
-        self.step('Precondition')
+        self.step("Precondition")
 
         # TH sends ScanNetworks command to the DUT with the SSID field omitted and the Breadcrumb field set to 1
         self.step(1)
         empty_string = ""
-        empty_octstr = empty_string.encode('utf-8')
+        empty_octstr = empty_string.encode("utf-8")
         cmd = Clusters.NetworkCommissioning.Commands.ScanNetworks(ssid=empty_octstr, breadcrumb=1)
         scan_network_response = await self.send_single_cmd(cmd=cmd)
 
@@ -134,8 +147,7 @@ class TC_CNET_4_22(MatterBaseTest):
 
         # Verify that DUT sends ScanNetworksResponse command to the TH with the following fields:
         # NetworkingStatus field value is Success
-        asserts.assert_equal(scan_network_response.networkingStatus, enum.kSuccess,
-                             "NetworkingStatus is not Success")
+        asserts.assert_equal(scan_network_response.networkingStatus, enum.kSuccess, "NetworkingStatus is not Success")
 
         # DebugText is of type string with max length 512 or absent
         if scan_network_response.debugText:
@@ -143,8 +155,9 @@ class TC_CNET_4_22(MatterBaseTest):
             asserts.assert_less_equal(debug_text_len, 512, f"DebugText length {debug_text_len} was out of range")
 
         # Verify WiFiScanResults is None
-        asserts.assert_true(scan_network_response.wiFiScanResults is None,
-                            "WiFi network was found and it was not supposed to be found")
+        asserts.assert_true(
+            scan_network_response.wiFiScanResults is None, "WiFi network was found and it was not supposed to be found"
+        )
 
         self.scan_network_response_thread_scan_results(scan_network_response.threadScanResults)
 
@@ -161,8 +174,7 @@ class TC_CNET_4_22(MatterBaseTest):
 
         # Verify that DUT sends ScanNetworksResponse command to the TH with the following fields:
         # NetworkingStatus field value is Success
-        asserts.assert_equal(scan_network_response.networkingStatus, enum.kSuccess,
-                             "NetworkingStatus is not Success")
+        asserts.assert_equal(scan_network_response.networkingStatus, enum.kSuccess, "NetworkingStatus is not Success")
 
         # DebugText is of type string with max length 512 or absent
         if scan_network_response.debugText:
@@ -170,8 +182,9 @@ class TC_CNET_4_22(MatterBaseTest):
             asserts.assert_less_equal(debug_text_len, 512, f"DebugText length {debug_text_len} was out of range")
 
         # Verify WiFiScanResults is None
-        asserts.assert_true(scan_network_response.wiFiScanResults is None,
-                            "WiFi network was found and it was not supposed to be found")
+        asserts.assert_true(
+            scan_network_response.wiFiScanResults is None, "WiFi network was found and it was not supposed to be found"
+        )
 
         self.scan_network_response_thread_scan_results(scan_network_response.threadScanResults)
 
@@ -181,8 +194,9 @@ class TC_CNET_4_22(MatterBaseTest):
 
         # TH sends ScanNetworks command to the DUT with the SSID field set to a random string of ASCII characters with a size of between 1 and 31 characters and the Breadcrumb field set to 3
         self.step(5)
-        random_ASCII = ''.join(random.choices(string.ascii_letters + string.digits +
-                               string.punctuation, k=random.randint(1, 31))).encode('utf-8')
+        random_ASCII = "".join(
+            random.choices(string.ascii_letters + string.digits + string.punctuation, k=random.randint(1, 31))
+        ).encode("utf-8")
         cmd = Clusters.NetworkCommissioning.Commands.ScanNetworks(ssid=random_ASCII, breadcrumb=3)
         scan_network_response = await self.send_single_cmd(cmd=cmd)
 
@@ -190,8 +204,7 @@ class TC_CNET_4_22(MatterBaseTest):
 
         # Verify that DUT sends ScanNetworksResponse command to the TH with the following fields:
         # NetworkingStatus field value is Success
-        asserts.assert_equal(scan_network_response.networkingStatus, enum.kSuccess,
-                             "NetworkingStatus is not Success")
+        asserts.assert_equal(scan_network_response.networkingStatus, enum.kSuccess, "NetworkingStatus is not Success")
 
         # DebugText is of type string with max length 512 or absent
         if scan_network_response.debugText:
@@ -199,8 +212,9 @@ class TC_CNET_4_22(MatterBaseTest):
             asserts.assert_less_equal(debug_text_len, 512, f"DebugText length {debug_text_len} was out of range")
 
         # Verify WiFiScanResults is None
-        asserts.assert_true(scan_network_response.wiFiScanResults is None,
-                            "WiFi network was found and it was not supposed to be found")
+        asserts.assert_true(
+            scan_network_response.wiFiScanResults is None, "WiFi network was found and it was not supposed to be found"
+        )
 
         self.scan_network_response_thread_scan_results(scan_network_response.threadScanResults)
 

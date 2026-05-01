@@ -32,23 +32,30 @@ PIXIT_CNET_THREAD_2ND_OPERATIONALDATASET = "1111111122222222"
 
 
 class TC_CNET_4_16(MatterBaseTest):
-
     def steps_TC_CNET_4_16(self):
-        return [TestStep("precondition", "TH is commissioned", is_commissioning=True),
-                TestStep(1, 'TH sends ArmFailSafe command to the DUT with ExpiryLengthSeconds set to 900'),
-                TestStep(2, 'TH sends RemoveNetwork Command to the DUT with NetworkID field set to the extended PAN ID of PIXIT.CNET.THREAD_2ND_OPERATIONALDATASET, which does not match the commissioned network, and Breadcrumb field set to 1'),
-                TestStep(3, 'TH sends ConnectNetwork Command to the DUT with NetworkID value as the extended PAN ID of PIXIT.CNET.THREAD_2ND_OPERATIONALDATASET, which does not match the commissioned network, and Breadcrumb field set to 1'),
-                ]
+        return [
+            TestStep("precondition", "TH is commissioned", is_commissioning=True),
+            TestStep(1, "TH sends ArmFailSafe command to the DUT with ExpiryLengthSeconds set to 900"),
+            TestStep(
+                2,
+                "TH sends RemoveNetwork Command to the DUT with NetworkID field set to the extended PAN ID of PIXIT.CNET.THREAD_2ND_OPERATIONALDATASET, which does not match the commissioned network, and Breadcrumb field set to 1",
+            ),
+            TestStep(
+                3,
+                "TH sends ConnectNetwork Command to the DUT with NetworkID value as the extended PAN ID of PIXIT.CNET.THREAD_2ND_OPERATIONALDATASET, which does not match the commissioned network, and Breadcrumb field set to 1",
+            ),
+        ]
 
     def desc_TC_CNET_4_16(self):
-        return '[TC-CNET-4.16] [Thread] NetworkIDNotFound returned in LastNetworkingStatus field validation [DUT-Server]'
+        return "[TC-CNET-4.16] [Thread] NetworkIDNotFound returned in LastNetworkingStatus field validation [DUT-Server]"
 
     def pics_TC_CNET_4_16(self):
-        return ['CNET.S.F01']
+        return ["CNET.S.F01"]
 
-    @run_if_endpoint_matches(has_feature(Clusters.NetworkCommissioning, Clusters.NetworkCommissioning.Bitmaps.Feature.kThreadNetworkInterface))
+    @run_if_endpoint_matches(
+        has_feature(Clusters.NetworkCommissioning, Clusters.NetworkCommissioning.Bitmaps.Feature.kThreadNetworkInterface)
+    )
     async def test_TC_CNET_4_16(self):
-
         cnet = Clusters.NetworkCommissioning
         attr = cnet.Attributes
         thread_1st = self.matter_test_config.thread_operational_dataset
@@ -62,11 +69,11 @@ class TC_CNET_4_16(MatterBaseTest):
         networkID = await self.read_single_attribute_check_success(cluster=cnet, attribute=attr.LastNetworkID)
 
         asserts.assert_is_not_none(
-            networkID, "Failed to read LastNetworkID attribute. Returned None. Ensure DUT is commissioned to Thread network.")
+            networkID, "Failed to read LastNetworkID attribute. Returned None. Ensure DUT is commissioned to Thread network."
+        )
 
         log.info(f" --- NetworkID: {networkID.hex()}")
-        asserts.assert_in(networkID.hex(), thread_1st.hex(),
-                          f"NetworkID: {networkID.hex()} not in {thread_1st.hex()}")
+        asserts.assert_in(networkID.hex(), thread_1st.hex(), f"NetworkID: {networkID.hex()} not in {thread_1st.hex()}")
 
         # Precondition 3: DUT MaxNetworks attribute value is at least 1 and is saved as 'MaxNetworksValue' for future use
         maxNetworksValue = 0
@@ -98,11 +105,14 @@ class TC_CNET_4_16(MatterBaseTest):
             res = await self.send_single_cmd(cmd=cmd)
             log.info(f" --- NetworkingStatus on RemoveNetwork: {res.networkingStatus}")
             # Verify that DUT sends NetworkConfigResponse command to the TH1 with NetworkingStatus field set to NetworkIDNotFound
-            asserts.assert_true(isinstance(res, cnet.Commands.NetworkConfigResponse),
-                                f"{res} must be of type NetworkConfigResponse")
-            asserts.assert_equal(res.networkingStatus,
-                                 cnet.Enums.NetworkCommissioningStatusEnum.kNetworkIDNotFound,
-                                 f"Expected kNetworkIDNotFound but got: {res.networkingStatus}")
+            asserts.assert_true(
+                isinstance(res, cnet.Commands.NetworkConfigResponse), f"{res} must be of type NetworkConfigResponse"
+            )
+            asserts.assert_equal(
+                res.networkingStatus,
+                cnet.Enums.NetworkCommissioningStatusEnum.kNetworkIDNotFound,
+                f"Expected kNetworkIDNotFound but got: {res.networkingStatus}",
+            )
         else:
             asserts.fail("NetworkList is Empty")
 
@@ -116,9 +126,11 @@ class TC_CNET_4_16(MatterBaseTest):
         log.info(f" --- NetworkingStatus on ConnectNetwork: {res.networkingStatus}")
         # Verify that DUT sends ConnectNetworkResponse command to the TH1 with NetworkingStatus field set to NetworkIDNotFound
         asserts.assert_true(isinstance(res, cnet.Commands.ConnectNetworkResponse), f"{res} must be of type ConnectNetworkResponse")
-        asserts.assert_equal(res.networkingStatus,
-                             cnet.Enums.NetworkCommissioningStatusEnum.kNetworkIDNotFound,
-                             f"Expected NetworkIDNotFound but got {res.networkingStatus}")
+        asserts.assert_equal(
+            res.networkingStatus,
+            cnet.Enums.NetworkCommissioningStatusEnum.kNetworkIDNotFound,
+            f"Expected NetworkIDNotFound but got {res.networkingStatus}",
+        )
 
 
 if __name__ == "__main__":

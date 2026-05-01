@@ -82,9 +82,9 @@ class WebRTCTestHelper:
             aVideoSensorParams = await self.read_avstr_attribute_expect_success(endpoint, attrs.VideoSensorParams)
             dev_ctrl = self.default_controller
 
-            if (node_id is None):
+            if node_id is None:
                 node_id = self.dut_node_id
-            if (devCtrl is not None):
+            if devCtrl is not None:
                 dev_ctrl = devCtrl
 
             response = await self.send_single_cmd(
@@ -105,7 +105,7 @@ class WebRTCTestHelper:
                 ),
                 endpoint=endpoint,
                 dev_ctrl=dev_ctrl,
-                node_id=node_id
+                node_id=node_id,
             )
             return response.videoStreamID
 

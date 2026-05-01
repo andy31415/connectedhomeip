@@ -54,11 +54,20 @@ class TC_BRBINFO_3_2(MatterBaseTest):
     def steps_TC_BRBINFO_3_2(self) -> list[TestStep]:
         return [
             TestStep(0, "Commissioning, already done", is_commissioning=True),
-            TestStep(1, "TH reads ConfigurationVersion and stores the value as initialConfigurationVersion",
-                     "Verify that the value is in the inclusive range of 1 to 4294967295"),
-            TestStep(2, "On the corresponding bridged device, change the configuration version in a way which results in functionality to be added or removed (e.g. rewire thermostat to support a new mode)"),
-            TestStep(3, "TH reads ConfigurationVersion from the DUT (same endpoint as in step 1)",
-                     "Verify that the value is higher than the value of initialConfigurationVersion"),
+            TestStep(
+                1,
+                "TH reads ConfigurationVersion and stores the value as initialConfigurationVersion",
+                "Verify that the value is in the inclusive range of 1 to 4294967295",
+            ),
+            TestStep(
+                2,
+                "On the corresponding bridged device, change the configuration version in a way which results in functionality to be added or removed (e.g. rewire thermostat to support a new mode)",
+            ),
+            TestStep(
+                3,
+                "TH reads ConfigurationVersion from the DUT (same endpoint as in step 1)",
+                "Verify that the value is higher than the value of initialConfigurationVersion",
+            ),
         ]
 
     def pics_TC_BRBINFO_3_2(self) -> list[str]:
@@ -80,7 +89,9 @@ class TC_BRBINFO_3_2(MatterBaseTest):
         attributes = Clusters.BridgedDeviceBasicInformation.Attributes
 
         self.step(1)
-        initialConfigurationVersion = await self.read_brbinfo_attribute_expect_success(endpoint=endpoint, attribute=attributes.ConfigurationVersion)
+        initialConfigurationVersion = await self.read_brbinfo_attribute_expect_success(
+            endpoint=endpoint, attribute=attributes.ConfigurationVersion
+        )
         asserts.assert_greater_equal(initialConfigurationVersion, 1, "ConfigurationVersion attribute is out of range")
 
         self.step(2)
@@ -89,12 +100,18 @@ class TC_BRBINFO_3_2(MatterBaseTest):
             self.write_to_app_pipe(command_dict)
         else:
             self.wait_for_user_input(
-                prompt_msg="On the corresponding bridged device, change the configuration version in a way which results in functionality to be added or removed (e.g. rewire thermostat to support a new mode), then continue")
+                prompt_msg="On the corresponding bridged device, change the configuration version in a way which results in functionality to be added or removed (e.g. rewire thermostat to support a new mode), then continue"
+            )
 
         self.step(3)
-        newConfigurationVersion = await self.read_brbinfo_attribute_expect_success(endpoint=endpoint, attribute=attributes.ConfigurationVersion)
-        asserts.assert_greater(newConfigurationVersion, initialConfigurationVersion,
-                               "ConfigurationVersion attribute not grater than initialConfigurationVersion")
+        newConfigurationVersion = await self.read_brbinfo_attribute_expect_success(
+            endpoint=endpoint, attribute=attributes.ConfigurationVersion
+        )
+        asserts.assert_greater(
+            newConfigurationVersion,
+            initialConfigurationVersion,
+            "ConfigurationVersion attribute not grater than initialConfigurationVersion",
+        )
 
 
 if __name__ == "__main__":

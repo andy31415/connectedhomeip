@@ -204,8 +204,7 @@
     }
     [_controllers addObject:local];
 
-    __auto_type connectBlock = ^NSXPCConnection *
-    {
+    __auto_type connectBlock = ^NSXPCConnection * {
         return [[NSXPCConnection alloc] initWithListenerEndpoint:self.listener.endpoint];
     };
     __auto_type * xpcParams = [[MTRXPCDeviceControllerParameters alloc] initWithXPConnectionBlock:connectBlock uniqueIdentifier:local.uniqueIdentifier];
@@ -252,8 +251,7 @@
 {
     NSXPCConnection * (^connectBlock)(void) = nil;
 #if TARGET_OS_OSX
-    connectBlock = ^NSXPCConnection *
-    {
+    connectBlock = ^NSXPCConnection * {
         return [[NSXPCConnection alloc] initWithMachServiceName:serviceName options:0];
     };
 #elif TARGET_OS_MACCATALYST || TARGET_OS_IOS

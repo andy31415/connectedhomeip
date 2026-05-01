@@ -63,7 +63,6 @@ def str_to_attribute(cluster, str):
 
 
 class TC_ACE_1_4(MatterBaseTest):
-
     async def write_acl(self, acl):
         # This returns an attribute status
         result = await self.default_controller.WriteAttribute(self.dut_node_id, [(0, Clusters.AccessControl.Attributes.Acl(acl))])
@@ -78,14 +77,16 @@ class TC_ACE_1_4(MatterBaseTest):
         cluster = Clusters.Objects.Descriptor
         attribute = Clusters.Descriptor.Attributes.DeviceTypeList
         await self.read_single_attribute_expect_error(
-            endpoint=endpoint, cluster=cluster, attribute=attribute, error=Status.UnsupportedAccess)
+            endpoint=endpoint, cluster=cluster, attribute=attribute, error=Status.UnsupportedAccess
+        )
 
     async def read_appcluster_expect_success(self) -> None:
         await self.read_single_attribute_check_success(endpoint=self.endpoint, cluster=self.cluster, attribute=self.attribute)
 
     async def read_appcluster_expect_unsupported_access(self) -> None:
         await self.read_single_attribute_expect_error(
-            endpoint=self.endpoint, cluster=self.cluster, attribute=self.attribute, error=Status.UnsupportedAccess)
+            endpoint=self.endpoint, cluster=self.cluster, attribute=self.attribute, error=Status.UnsupportedAccess
+        )
 
     async def read_wildcard_endpoint(self, attribute: object) -> object:
         return await self.default_controller.ReadAttribute(self.dut_node_id, [(attribute)])
@@ -105,26 +106,33 @@ class TC_ACE_1_4(MatterBaseTest):
     @async_test_body
     async def test_TC_ACE_1_4(self):
         # TODO: Guard these on the PICS
-        asserts.assert_true('PIXIT.ACE.APPENDPOINT' in self.matter_test_config.global_test_params,
-                            "PIXIT.ACE.APPENDPOINT must be included on the command line in "
-                            "the --int-arg flag as PIXIT.ACE.APPENDPOINT:<endpoint>")
-        asserts.assert_true('PIXIT.ACE.APPCLUSTER' in self.matter_test_config.global_test_params,
-                            "PIXIT.ACE.APPCLUSTER must be included on the command line in "
-                            "the --string-arg flag as PIXIT.ACE.APPCLUSTER:<cluster_name>")
-        asserts.assert_true('PIXIT.ACE.APPATTRIBUTE' in self.matter_test_config.global_test_params,
-                            "PIXIT.ACE.APPATTRIBUTE must be included on the command line in "
-                            "the --string-arg flag as PIXIT.ACE.APPATTRIBUTE:<attribute_name>")
-        asserts.assert_true('PIXIT.ACE.APPDEVTYPEID' in self.matter_test_config.global_test_params,
-                            "PIXIT.ACE.APPDEVTYPEID must be included on the command line in "
-                            "the --int-arg flag as PIXIT.ACE.APPDEVTYPEID:<device_type_id>")
+        asserts.assert_true(
+            "PIXIT.ACE.APPENDPOINT" in self.matter_test_config.global_test_params,
+            "PIXIT.ACE.APPENDPOINT must be included on the command line in the --int-arg flag as PIXIT.ACE.APPENDPOINT:<endpoint>",
+        )
+        asserts.assert_true(
+            "PIXIT.ACE.APPCLUSTER" in self.matter_test_config.global_test_params,
+            "PIXIT.ACE.APPCLUSTER must be included on the command line in "
+            "the --string-arg flag as PIXIT.ACE.APPCLUSTER:<cluster_name>",
+        )
+        asserts.assert_true(
+            "PIXIT.ACE.APPATTRIBUTE" in self.matter_test_config.global_test_params,
+            "PIXIT.ACE.APPATTRIBUTE must be included on the command line in "
+            "the --string-arg flag as PIXIT.ACE.APPATTRIBUTE:<attribute_name>",
+        )
+        asserts.assert_true(
+            "PIXIT.ACE.APPDEVTYPEID" in self.matter_test_config.global_test_params,
+            "PIXIT.ACE.APPDEVTYPEID must be included on the command line in "
+            "the --int-arg flag as PIXIT.ACE.APPDEVTYPEID:<device_type_id>",
+        )
 
-        cluster_str = self.matter_test_config.global_test_params['PIXIT.ACE.APPCLUSTER']
-        attribute_str = self.matter_test_config.global_test_params['PIXIT.ACE.APPATTRIBUTE']
+        cluster_str = self.matter_test_config.global_test_params["PIXIT.ACE.APPCLUSTER"]
+        attribute_str = self.matter_test_config.global_test_params["PIXIT.ACE.APPATTRIBUTE"]
 
         self.cluster = str_to_cluster(cluster_str)
         self.attribute = str_to_attribute(self.cluster, attribute_str)
-        self.devtype = self.matter_test_config.global_test_params['PIXIT.ACE.APPDEVTYPEID']
-        self.endpoint = self.matter_test_config.global_test_params['PIXIT.ACE.APPENDPOINT']
+        self.devtype = self.matter_test_config.global_test_params["PIXIT.ACE.APPDEVTYPEID"]
+        self.endpoint = self.matter_test_config.global_test_params["PIXIT.ACE.APPENDPOINT"]
 
         asserts.assert_true(self.cluster is not None, "Invalid cluster name")
         asserts.assert_true(self.attribute is not None, "Invalue attribute name")
@@ -136,12 +144,14 @@ class TC_ACE_1_4(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=Clusters.AccessControl.id)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=Clusters.AccessControl.id)],
+        )
         all_view = Clusters.AccessControl.Structs.AccessControlEntryStruct(
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[])
+            targets=[],
+        )
         acl = [admin_acl, all_view]
         await self.write_acl(acl)
 
@@ -159,7 +169,8 @@ class TC_ACE_1_4(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(cluster=Clusters.Descriptor.id)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(cluster=Clusters.Descriptor.id)],
+        )
 
         acl = [admin_acl, descriptor_view]
         await self.write_acl(acl)
@@ -178,7 +189,8 @@ class TC_ACE_1_4(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(cluster=self.cluster.id)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(cluster=self.cluster.id)],
+        )
 
         acl = [admin_acl, appcluster_view]
         await self.write_acl(acl)
@@ -197,7 +209,10 @@ class TC_ACE_1_4(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=self.endpoint, cluster=Clusters.Descriptor.id)])
+            targets=[
+                Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=self.endpoint, cluster=Clusters.Descriptor.id)
+            ],
+        )
 
         acl = [admin_acl, descriptor_appendpoint_view]
         await self.write_acl(acl)
@@ -216,7 +231,8 @@ class TC_ACE_1_4(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=self.endpoint, cluster=self.cluster.id)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=self.endpoint, cluster=self.cluster.id)],
+        )
 
         acl = [admin_acl, appcluster_appendpoint_view]
         await self.write_acl(acl)
@@ -235,7 +251,8 @@ class TC_ACE_1_4(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=self.endpoint)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=self.endpoint)],
+        )
 
         acl = [admin_acl, allclusters_appendpoint_view]
         await self.write_acl(acl)
@@ -254,7 +271,8 @@ class TC_ACE_1_4(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(deviceType=0x0016)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(deviceType=0x0016)],
+        )
 
         acl = [admin_acl, rootnode_view]
         await self.write_acl(acl)
@@ -273,7 +291,8 @@ class TC_ACE_1_4(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(deviceType=self.devtype)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(deviceType=self.devtype)],
+        )
 
         acl = [admin_acl, appdevtype_view]
         await self.write_acl(acl)
@@ -292,7 +311,8 @@ class TC_ACE_1_4(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(cluster=0x001d, deviceType=self.devtype)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(cluster=0x001D, deviceType=self.devtype)],
+        )
 
         acl = [admin_acl, descriptor_appdevtype_view]
         await self.write_acl(acl)
@@ -311,7 +331,8 @@ class TC_ACE_1_4(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(cluster=self.cluster.id, deviceType=self.devtype)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(cluster=self.cluster.id, deviceType=self.devtype)],
+        )
 
         acl = [admin_acl, appcluster_appdevtype_view]
         await self.write_acl(acl)
@@ -330,8 +351,11 @@ class TC_ACE_1_4(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(cluster=Clusters.Descriptor.id, endpoint=0),
-                     Clusters.AccessControl.Structs.AccessControlTargetStruct(cluster=self.cluster.id, endpoint=self.endpoint)])
+            targets=[
+                Clusters.AccessControl.Structs.AccessControlTargetStruct(cluster=Clusters.Descriptor.id, endpoint=0),
+                Clusters.AccessControl.Structs.AccessControlTargetStruct(cluster=self.cluster.id, endpoint=self.endpoint),
+            ],
+        )
 
         acl = [admin_acl, multitarget_view]
         await self.write_acl(acl)
@@ -366,7 +390,8 @@ class TC_ACE_1_4(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[self.matter_test_config.controller_node_id],
-            targets=[])
+            targets=[],
+        )
 
         acl = [full_acl]
         await self.write_acl(acl)

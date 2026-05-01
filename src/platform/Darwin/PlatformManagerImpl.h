@@ -80,9 +80,9 @@ private:
     CHIP_ERROR _StopEventLoopTask();
 
     void _RunEventLoop();
-    void _LockChipStack(){};
+    void _LockChipStack() {};
     bool _TryLockChipStack() { return false; };
-    void _UnlockChipStack(){};
+    void _UnlockChipStack() {};
     CHIP_ERROR _PostEvent(const ChipDeviceEvent * event);
 #endif // CHIP_SYSTEM_CONFIG_USE_DISPATCH
 

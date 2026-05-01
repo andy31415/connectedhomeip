@@ -16,7 +16,7 @@
 #    limitations under the License.
 #
 
-'''This file should contain custom classes derived any class from default.py.
+"""This file should contain custom classes derived any class from default.py.
 
 Each class implemented here should describe an input parameter and should
 implement the InputArgument abstract interface, if its base class does not
@@ -45,7 +45,7 @@ option:
 
     parser.add_argument("--foo", required=True, type=FooArgument,
                         help="[int | hex] Foo argument.")
-'''
+"""
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.serialization import load_der_private_key
@@ -53,7 +53,6 @@ from default import FileArgument
 
 
 class DacPKey(FileArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
         self.private_key = None
@@ -62,11 +61,11 @@ class DacPKey(FileArgument):
         return 1
 
     def length(self):
-        assert (self.private_key is not None)
+        assert self.private_key is not None
         return len(self.private_key)
 
     def encode(self):
-        assert (self.private_key is not None)
+        assert self.private_key is not None
         return self.private_key
 
     def generate_private_key(self, password, use_sss_blob=True):
@@ -74,13 +73,10 @@ class DacPKey(FileArgument):
             self.private_key = self.val
         else:
             keys = load_der_private_key(self.val, password, backend=default_backend())
-            self.private_key = keys.private_numbers().private_value.to_bytes(
-                32, byteorder='big'
-            )
+            self.private_key = keys.private_numbers().private_value.to_bytes(32, byteorder="big")
 
 
 class DacCert(FileArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -89,7 +85,6 @@ class DacCert(FileArgument):
 
 
 class PaiCert(FileArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -98,7 +93,6 @@ class PaiCert(FileArgument):
 
 
 class CertDeclaration(FileArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 

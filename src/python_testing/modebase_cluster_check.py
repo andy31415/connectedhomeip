@@ -27,7 +27,7 @@ END_MFGTAGS_RANGE = 0xBFFF
 
 
 class ModeBaseClusterChecks:
-    """ Class that holds the common Mode checks between TCs
+    """Class that holds the common Mode checks between TCs
 
     Several TCs have similar checks in place for functionality that is common among them.
     This class holds most of this common functionality to avoid duplicating code with the same validations.
@@ -46,7 +46,7 @@ class ModeBaseClusterChecks:
         self.attributes = modebase_derived_cluster.Attributes
 
     async def check_supported_modes_and_labels(self, endpoint):
-        """ Verifies the device supported modes and labels.
+        """Verifies the device supported modes and labels.
 
         Checks that the SupportedModes attribute has the expected structure and values like:
         - Between 2 and 255 entries.
@@ -60,9 +60,9 @@ class ModeBaseClusterChecks:
           A list of ModeOptionStruct supported by the cluster.
         """
         # Get the supported modes
-        supported_modes = await self.read_single_attribute_check_success(endpoint=endpoint,
-                                                                         cluster=self.cluster,
-                                                                         attribute=self.attributes.SupportedModes)
+        supported_modes = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=self.cluster, attribute=self.attributes.SupportedModes
+        )
 
         # Check if the list of supported modes is larger than 2
         asserts.assert_greater_equal(len(supported_modes), 2, "SupportedModes must have at least 2 entries!")
@@ -87,7 +87,7 @@ class ModeBaseClusterChecks:
         return supported_modes
 
     def check_tags_in_lists(self, supported_modes, required_tags=None):
-        """ Validates the ModeTags values.
+        """Validates the ModeTags values.
 
         This function evaluates the ModeTags of each ModeOptionStruct:
         - Should have at least one tag.
@@ -120,7 +120,7 @@ class ModeBaseClusterChecks:
                     asserts.fail("Tag should not be larger than 16bits.")
 
                 # Check if is tag is common, derived or mfg.
-                is_mfg = (START_MFGTAGS_RANGE <= tag.value <= END_MFGTAGS_RANGE)
+                is_mfg = START_MFGTAGS_RANGE <= tag.value <= END_MFGTAGS_RANGE
                 value = hex(tag.value)
                 if not (is_mfg or tag.value in self.mode_tags):
                     asserts.fail(f"Mode tag value: {value} is not a common tag, derived tag or vendor tag")
@@ -152,9 +152,7 @@ class ModeBaseClusterChecks:
           supported_modes: A list of ModeOptionStruct.
           is_nullable: Optional argument to indicate if the tested mode allows NullValue
         """
-        mode_value = await self.read_single_attribute_check_success(endpoint=endpoint,
-                                                                    cluster=self.cluster,
-                                                                    attribute=mode)
+        mode_value = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=self.cluster, attribute=mode)
         supported_modes_dut = {mode_option_struct.mode for mode_option_struct in supported_modes}
         is_valid = mode_value in supported_modes_dut
         if is_nullable and mode_value == NullValue:

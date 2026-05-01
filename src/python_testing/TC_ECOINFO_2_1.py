@@ -79,7 +79,6 @@ log = logging.getLogger(__name__)
 
 
 class TC_ECOINFO_2_1(MatterBaseTest):
-
     @async_test_body
     async def setup_class(self):
         super().setup_class()
@@ -120,9 +119,7 @@ class TC_ECOINFO_2_1(MatterBaseTest):
         log.info("Temporary storage directory: %s", self.storage.name)
 
         self.th_server_port = 5544
-        self.th_server_setup_params = SetupParameters(
-            discriminator=random.randint(0, 4095),
-            passcode=20202021)
+        self.th_server_setup_params = SetupParameters(discriminator=random.randint(0, 4095), passcode=20202021)
 
         # Start the server app.
         self.th_server = AppServerSubprocess(
@@ -130,10 +127,9 @@ class TC_ECOINFO_2_1(MatterBaseTest):
             storage_dir=self.storage.name,
             port=self.th_server_port,
             discriminator=self.th_server_setup_params.discriminator,
-            passcode=self.th_server_setup_params.passcode)
-        self.th_server.start(
-            expected_output="Server initialization complete",
-            timeout=30)
+            passcode=self.th_server_setup_params.passcode,
+        )
+        self.th_server.start(expected_output="Server initialization complete", timeout=30)
 
         # Automatically commission some server to the DUT_FSA using the command line interface provided
         # by either the unified fabric-sync app or the fabric-admin + fabric-bridge apps.
@@ -166,18 +162,21 @@ class TC_ECOINFO_2_1(MatterBaseTest):
                 asserts.assert_true(matchers.is_type(device.deviceNameLastEdit, uint), "DeviceNameLastEdit should be a uint")
                 asserts.assert_greater(device.deviceNameLastEdit, 0, "DeviceNameLastEdit must be greater than 0")
             else:
-                asserts.assert_true(device.deviceNameLastEdit is None,
-                                    "DeviceNameLastEdit should not be provided when there is no DeviceName")
+                asserts.assert_true(
+                    device.deviceNameLastEdit is None, "DeviceNameLastEdit should not be provided when there is no DeviceName"
+                )
 
             asserts.assert_true(matchers.is_type(device.bridgedEndpoint, uint), "BridgedEndpoint should be a uint")
             asserts.assert_greater_equal(device.bridgedEndpoint, 0, "BridgedEndpoint >= 0")
-            asserts.assert_less_equal(device.bridgedEndpoint, 0xffff_ffff,
-                                      "BridgedEndpoint less than or equal to Invalid Endpoint value")
+            asserts.assert_less_equal(
+                device.bridgedEndpoint, 0xFFFF_FFFF, "BridgedEndpoint less than or equal to Invalid Endpoint value"
+            )
 
             asserts.assert_true(matchers.is_type(device.originalEndpoint, uint), "OriginalEndpoint should be a uint")
             asserts.assert_greater_equal(device.originalEndpoint, 0, "OriginalEndpoint >= 0")
-            asserts.assert_less(device.originalEndpoint, 0xffff_ffff,
-                                "OriginalEndpoint less than or equal to Invalid Endpoint value")
+            asserts.assert_less(
+                device.originalEndpoint, 0xFFFF_FFFF, "OriginalEndpoint less than or equal to Invalid Endpoint value"
+            )
 
             asserts.assert_true(matchers.is_type(device.deviceTypes, list), "DeviceTypes should be a list")
             asserts.assert_greater_equal(len(device.deviceTypes), 1, "DeviceTypes list must contains at least one entry")
@@ -193,12 +192,12 @@ class TC_ECOINFO_2_1(MatterBaseTest):
             for location_id in device.uniqueLocationIDs:
                 asserts.assert_true(matchers.is_type(location_id, str), "UniqueLocationId should be a string")
                 location_id_string_length = len(location_id)
-                asserts.assert_greater_equal(location_id_string_length, 1,
-                                             "UniqueLocationId must contain at least one character")
+                asserts.assert_greater_equal(location_id_string_length, 1, "UniqueLocationId must contain at least one character")
                 asserts.assert_less_equal(location_id_string_length, 64, "UniqueLocationId should be <= 64")
 
-            asserts.assert_true(matchers.is_type(device.uniqueLocationIDsLastEdit, uint),
-                                "UniqueLocationIdsLastEdit should be a uint")
+            asserts.assert_true(
+                matchers.is_type(device.uniqueLocationIDsLastEdit, uint), "UniqueLocationIdsLastEdit should be a uint"
+            )
             if num_of_unique_location_ids:
                 asserts.assert_greater(device.uniqueLocationIDsLastEdit, 0, "UniqueLocationIdsLastEdit must be non-zero")
 
@@ -207,36 +206,37 @@ class TC_ECOINFO_2_1(MatterBaseTest):
             if current_fabric_index != location.fabricIndex:
                 # Fabric sensitive field still exist in python, just that they have default values
                 asserts.assert_equal(location.uniqueLocationID, "", "Unexpected value in uniqueLocationID")
-                asserts.assert_equal(location.locationDescriptor.locationName, "",
-                                     "Unexpected value in locationDescriptor.locationName")
-                asserts.assert_equal(location.locationDescriptor.floorNumber, NullValue,
-                                     "Unexpected value in locationDescriptor.floorNumber")
-                asserts.assert_equal(location.locationDescriptor.areaType, NullValue,
-                                     "Unexpected value in locationDescriptor.areaType")
+                asserts.assert_equal(
+                    location.locationDescriptor.locationName, "", "Unexpected value in locationDescriptor.locationName"
+                )
+                asserts.assert_equal(
+                    location.locationDescriptor.floorNumber, NullValue, "Unexpected value in locationDescriptor.floorNumber"
+                )
+                asserts.assert_equal(
+                    location.locationDescriptor.areaType, NullValue, "Unexpected value in locationDescriptor.areaType"
+                )
                 asserts.assert_equal(location.locationDescriptorLastEdit, 0, "Unexpected value in locationDescriptorLastEdit")
                 continue
 
             asserts.assert_true(matchers.is_type(location.uniqueLocationID, str), "UniqueLocationId should be a string")
             location_id_string_length = len(location.uniqueLocationID)
-            asserts.assert_greater_equal(location_id_string_length, 1,
-                                         "UniqueLocationId must contain at least one character")
+            asserts.assert_greater_equal(location_id_string_length, 1, "UniqueLocationId must contain at least one character")
             asserts.assert_less_equal(location_id_string_length, 64, "UniqueLocationId should be <= 64")
 
-            asserts.assert_true(matchers.is_type(location.locationDescriptor.locationName, str),
-                                "LocationName should be a string")
+            asserts.assert_true(matchers.is_type(location.locationDescriptor.locationName, str), "LocationName should be a string")
             asserts.assert_less_equal(len(location.locationDescriptor.locationName), 64, "LocationName should be <= 64")
 
             if location.locationDescriptor.floorNumber is not NullValue:
-                asserts.assert_true(matchers.is_type(location.locationDescriptor.floorNumber, int),
-                                    "FloorNumber should be an int")
+                asserts.assert_true(matchers.is_type(location.locationDescriptor.floorNumber, int), "FloorNumber should be an int")
                 # TODO check in range of int16.
 
             if location.locationDescriptor.areaType is not NullValue:
                 # TODO check areaType is valid.
                 pass
 
-            asserts.assert_true(matchers.is_type(location.locationDescriptorLastEdit, uint),
-                                "UniqueLocationIdsLastEdit should be a uint")
+            asserts.assert_true(
+                matchers.is_type(location.locationDescriptorLastEdit, uint), "UniqueLocationIdsLastEdit should be a uint"
+            )
             asserts.assert_greater(location.locationDescriptorLastEdit, 0, "LocationDescriptorLastEdit must be non-zero")
 
     def steps_TC_ECOINFO_2_1(self) -> list[TestStep]:
@@ -261,11 +261,16 @@ class TC_ECOINFO_2_1(MatterBaseTest):
         if not self.is_pics_sdk_ci_only:
             self.wait_for_user_input(
                 "Paused test to allow for manufacturer to satisfy precondition where "
-                "one or more bridged devices of a supported type is connected to DUT")
+                "one or more bridged devices of a supported type is connected to DUT"
+            )
 
-        current_fabric_index = await self.read_single_attribute_check_success(cluster=Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex)
+        current_fabric_index = await self.read_single_attribute_check_success(
+            cluster=Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex
+        )
         self.step(1)
-        endpoint_wild_card_read = await dev_ctrl.ReadAttribute(dut_node_id, [(Clusters.EcosystemInformation.Attributes.ClusterRevision)])
+        endpoint_wild_card_read = await dev_ctrl.ReadAttribute(
+            dut_node_id, [(Clusters.EcosystemInformation.Attributes.ClusterRevision)]
+        )
         list_of_endpoints = list(endpoint_wild_card_read.keys())
         asserts.assert_greater(len(list_of_endpoints), 0, "Expecting at least one endpoint with Ecosystem Information Cluster")
 
@@ -277,7 +282,8 @@ class TC_ECOINFO_2_1(MatterBaseTest):
                 dut_node_id,
                 endpoint=cluster_endpoint,
                 attribute=Clusters.EcosystemInformation.Attributes.DeviceDirectory,
-                fabricFiltered=False)
+                fabricFiltered=False,
+            )
 
             self._validate_device_directory(current_fabric_index, device_directory)
 
@@ -288,19 +294,24 @@ class TC_ECOINFO_2_1(MatterBaseTest):
                 dut_node_id,
                 endpoint=cluster_endpoint,
                 attribute=Clusters.EcosystemInformation.Attributes.LocationDirectory,
-                fabricFiltered=False)
+                fabricFiltered=False,
+            )
 
             self._validate_location_directory(current_fabric_index, location_directory)
 
             if idx == 0:
                 self.step(4)
-            result = await dev_ctrl.WriteAttribute(dut_node_id, [(cluster_endpoint, Clusters.EcosystemInformation.Attributes.DeviceDirectory([]))])
+            result = await dev_ctrl.WriteAttribute(
+                dut_node_id, [(cluster_endpoint, Clusters.EcosystemInformation.Attributes.DeviceDirectory([]))]
+            )
             asserts.assert_equal(len(result), 1, "Expecting only one result from trying to write to DeviceDirectory Attribute")
             asserts.assert_equal(result[0].Status, Status.UnsupportedWrite, "Expecting Status of UnsupportedWrite")
 
             if idx == 0:
                 self.step(5)
-            result = await dev_ctrl.WriteAttribute(dut_node_id, [(cluster_endpoint, Clusters.EcosystemInformation.Attributes.DeviceDirectory([]))])
+            result = await dev_ctrl.WriteAttribute(
+                dut_node_id, [(cluster_endpoint, Clusters.EcosystemInformation.Attributes.DeviceDirectory([]))]
+            )
             asserts.assert_equal(len(result), 1, "Expecting only one result from trying to write to LocationDirectory Attribute")
             asserts.assert_equal(result[0].Status, Status.UnsupportedWrite, "Expecting Status of UnsupportedWrite")
 

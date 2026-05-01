@@ -88,9 +88,7 @@ class TC_PAVSTI_1_2(MatterBaseTest, AVSMTestBase, PAVSTIUtils):
 
     def steps_TC_PAVSTI_1_2(self) -> list[TestStep]:
         return [
-            TestStep(
-                "precondition", "Commissioning, already done", is_commissioning=True
-            ),
+            TestStep("precondition", "Commissioning, already done", is_commissioning=True),
             TestStep(
                 1,
                 "TH Reads CurrentConnections attribute from PushAV Stream Transport Cluster on DUT",
@@ -186,17 +184,13 @@ class TC_PAVSTI_1_2(MatterBaseTest, AVSMTestBase, PAVSTIUtils):
 
         self.step(1)
         currentConnections = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=pushavCluster,
-            attribute=pushavAttr.CurrentConnections
+            endpoint=endpoint, cluster=pushavCluster, attribute=pushavAttr.CurrentConnections
         )
         log.info(f"Rx'd CurrentConnections: {currentConnections}")
         if len(currentConnections) > 0:
             for connectionId in currentConnections:
                 await self.send_single_cmd(
-                    cmd=pushavCluster.Commands.DeallocatePushTransport(
-                        connectionID=connectionId
-                    ),
+                    cmd=pushavCluster.Commands.DeallocatePushTransport(connectionID=connectionId),
                     endpoint=endpoint,
                 )
 
@@ -207,16 +201,10 @@ class TC_PAVSTI_1_2(MatterBaseTest, AVSMTestBase, PAVSTIUtils):
             attribute=pushavAttr.SupportedFormats,
         )
         log.info(f"Rx'd SupportedFormats: {supportedFormats}")
-        asserts.assert_greater_equal(
-            len(supportedFormats), 1, "SupportedFormats must not be empty"
-        )
+        asserts.assert_greater_equal(len(supportedFormats), 1, "SupportedFormats must not be empty")
         for format in supportedFormats:
-            validContainerformat = (
-                format.containerFormat == pushavCluster.Enums.ContainerFormatEnum.kCmaf
-            )
-            isValidIngestMethod = (
-                format.ingestMethod == pushavCluster.Enums.IngestMethodsEnum.kCMAFIngest
-            )
+            validContainerformat = format.containerFormat == pushavCluster.Enums.ContainerFormatEnum.kCmaf
+            isValidIngestMethod = format.ingestMethod == pushavCluster.Enums.IngestMethodsEnum.kCMAFIngest
             asserts.assert_true(
                 (validContainerformat and isValidIngestMethod),
                 "(ContainerFormat and IngestMethod) must be defined values",
@@ -229,9 +217,7 @@ class TC_PAVSTI_1_2(MatterBaseTest, AVSMTestBase, PAVSTIUtils):
             attribute=avsmAttr.AllocatedVideoStreams,
         )
         log.info(f"Rx'd AllocatedVideoStreams: {allocatedVideoStreams}")
-        asserts.assert_true(
-            len(allocatedVideoStreams) != 0, "AllocatedVideoStreams must not be empty"
-        )
+        asserts.assert_true(len(allocatedVideoStreams) != 0, "AllocatedVideoStreams must not be empty")
 
         allocatedVideoStream = allocatedVideoStreams[0]
         videoStreamId = allocatedVideoStream.videoStreamID
@@ -243,9 +229,7 @@ class TC_PAVSTI_1_2(MatterBaseTest, AVSMTestBase, PAVSTIUtils):
             attribute=avsmAttr.AllocatedAudioStreams,
         )
         log.info(f"Rx'd AllocatedAudioStreams: {allocatedAudioStreams}")
-        asserts.assert_true(
-            len(allocatedAudioStreams) != 0, "AllocatedAudioStreams must not be empty"
-        )
+        asserts.assert_true(len(allocatedAudioStreams) != 0, "AllocatedAudioStreams must not be empty")
         allocatedAudioStream = allocatedAudioStreams[0]
         audioStreamId = allocatedAudioStream.audioStreamID
 
@@ -265,18 +249,20 @@ class TC_PAVSTI_1_2(MatterBaseTest, AVSMTestBase, PAVSTIUtils):
                     "containerFormat": pushavCluster.Enums.ContainerFormatEnum.kCmaf,
                     "containerOptions": {
                         "containerType": pushavCluster.Enums.ContainerFormatEnum.kCmaf,
-                        "CMAFContainerOptions": {"CMAFInterface": pushavCluster.Enums.CMAFInterfaceEnum.kInterface2DASH, "segmentDuration": 4000, "chunkDuration": 2000, "sessionGroup": 1, "trackName": trackName},
+                        "CMAFContainerOptions": {
+                            "CMAFInterface": pushavCluster.Enums.CMAFInterfaceEnum.kInterface2DASH,
+                            "segmentDuration": 4000,
+                            "chunkDuration": 2000,
+                            "sessionGroup": 1,
+                            "trackName": trackName,
+                        },
                     },
                 }
             ),
             endpoint=endpoint,
         )
-        log.info(
-            f"Rx'd allocatePushTransportResponse = {allocatePushTransportResponse}"
-        )
-        aConnectionID = (
-            allocatePushTransportResponse.transportConfiguration.connectionID
-        )
+        log.info(f"Rx'd allocatePushTransportResponse = {allocatePushTransportResponse}")
+        aConnectionID = allocatePushTransportResponse.transportConfiguration.connectionID
         if self.pics_guard(self.check_pics(PICS_PRIVACY)):
             self.step(6)
             aFeatureMap = await self.read_single_attribute_check_success(
@@ -285,9 +271,7 @@ class TC_PAVSTI_1_2(MatterBaseTest, AVSMTestBase, PAVSTIUtils):
             privacySupport = (aFeatureMap & avsmCluster.Bitmaps.Feature.kPrivacy) > 0
             asserts.assert_true(privacySupport, "Privacy Feature is not supported.")
 
-            result = await self.write_single_attribute(
-                avsmAttr.SoftRecordingPrivacyModeEnabled(True), endpoint_id=endpoint
-            )
+            result = await self.write_single_attribute(avsmAttr.SoftRecordingPrivacyModeEnabled(True), endpoint_id=endpoint)
             asserts.assert_equal(
                 result,
                 Status.Success,
@@ -295,9 +279,7 @@ class TC_PAVSTI_1_2(MatterBaseTest, AVSMTestBase, PAVSTIUtils):
             )
 
             self.step(7)
-            result = await self.write_single_attribute(
-                avsmAttr.SoftLivestreamPrivacyModeEnabled(True), endpoint_id=endpoint
-            )
+            result = await self.write_single_attribute(avsmAttr.SoftLivestreamPrivacyModeEnabled(True), endpoint_id=endpoint)
             asserts.assert_equal(
                 result,
                 Status.Success,
@@ -312,9 +294,7 @@ class TC_PAVSTI_1_2(MatterBaseTest, AVSMTestBase, PAVSTIUtils):
                     ),
                     endpoint=endpoint,
                 )
-                asserts.fail(
-                    "Unexpected success when expecting INVALID_IN_STATE due to SoftPrivacy mode set to True"
-                )
+                asserts.fail("Unexpected success when expecting INVALID_IN_STATE due to SoftPrivacy mode set to True")
             except InteractionModelError as e:
                 asserts.assert_equal(
                     e.status,
@@ -323,9 +303,7 @@ class TC_PAVSTI_1_2(MatterBaseTest, AVSMTestBase, PAVSTIUtils):
                 )
 
             self.step(9)
-            result = await self.write_single_attribute(
-                avsmAttr.SoftRecordingPrivacyModeEnabled(False), endpoint_id=endpoint
-            )
+            result = await self.write_single_attribute(avsmAttr.SoftRecordingPrivacyModeEnabled(False), endpoint_id=endpoint)
             asserts.assert_equal(
                 result,
                 Status.Success,
@@ -333,9 +311,7 @@ class TC_PAVSTI_1_2(MatterBaseTest, AVSMTestBase, PAVSTIUtils):
             )
 
             self.step(10)
-            result = await self.write_single_attribute(
-                avsmAttr.SoftLivestreamPrivacyModeEnabled(False), endpoint_id=endpoint
-            )
+            result = await self.write_single_attribute(avsmAttr.SoftLivestreamPrivacyModeEnabled(False), endpoint_id=endpoint)
             asserts.assert_equal(
                 result,
                 Status.Success,
@@ -351,7 +327,8 @@ class TC_PAVSTI_1_2(MatterBaseTest, AVSMTestBase, PAVSTIUtils):
         self.step(11)
         await self.send_single_cmd(
             cmd=pushavCluster.Commands.SetTransportStatus(
-                connectionID=aConnectionID, transportStatus=pushavCluster.Enums.TransportStatusEnum.kActive),
+                connectionID=aConnectionID, transportStatus=pushavCluster.Enums.TransportStatusEnum.kActive
+            ),
             endpoint=endpoint,
         )
 
@@ -363,9 +340,11 @@ class TC_PAVSTI_1_2(MatterBaseTest, AVSMTestBase, PAVSTIUtils):
 
             if skipped:
                 # For when running in CLI
-                prompt = ("\nVerify the video segments are being received by the server by viewing the logs with [PUSH_AV_SERVER] tag.\n"
-                          "The uploaded content must be accepted by the server without any errors.\n"
-                          "Enter 'y' to confirm.")
+                prompt = (
+                    "\nVerify the video segments are being received by the server by viewing the logs with [PUSH_AV_SERVER] tag.\n"
+                    "The uploaded content must be accepted by the server without any errors.\n"
+                    "Enter 'y' to confirm."
+                )
                 user_response = self.wait_for_user_input(
                     prompt_msg=prompt,
                     prompt_msg_placeholder="y",
@@ -376,23 +355,26 @@ class TC_PAVSTI_1_2(MatterBaseTest, AVSMTestBase, PAVSTIUtils):
         self.step(13)
         await self.send_single_cmd(
             cmd=pushavCluster.Commands.SetTransportStatus(
-                connectionID=aConnectionID, transportStatus=pushavCluster.Enums.TransportStatusEnum.kInactive),
+                connectionID=aConnectionID, transportStatus=pushavCluster.Enums.TransportStatusEnum.kInactive
+            ),
             endpoint=endpoint,
         )
 
         self.step(14)
         if not self.check_pics("PICS_SDK_CI_ONLY"):
-            prompt = ("Verify the video stream uploaded can be played. Verify that DUT has stopped uploading by viewing the uploaded content and ensure no new files are received.\n"
-                      "Click on the 'Refresh Streams' button to view the latest uploaded contents"
-                      "The uploaded segment's extended path must conform to the Matter's extended path format")
-            skipped = self.user_verify_push_av_stream(
-                prompt_msg=prompt
+            prompt = (
+                "Verify the video stream uploaded can be played. Verify that DUT has stopped uploading by viewing the uploaded content and ensure no new files are received.\n"
+                "Click on the 'Refresh Streams' button to view the latest uploaded contents"
+                "The uploaded segment's extended path must conform to the Matter's extended path format"
             )
+            skipped = self.user_verify_push_av_stream(prompt_msg=prompt)
             if skipped:
                 # For when running in CLI
-                prompt = ("\nVerify that DUT has stopped transmitting content by viewing the server logs with [PUSH_AV_SERVER] tag."
-                          "No new segments should be received."
-                          "Enter 'y' to confirm.")
+                prompt = (
+                    "\nVerify that DUT has stopped transmitting content by viewing the server logs with [PUSH_AV_SERVER] tag."
+                    "No new segments should be received."
+                    "Enter 'y' to confirm."
+                )
                 user_response = self.wait_for_user_input(
                     prompt_msg=prompt,
                     prompt_msg_placeholder="y",

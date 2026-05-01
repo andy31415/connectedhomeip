@@ -42,7 +42,7 @@ async def main():
         action="store",
         dest="testTimeout",
         default=90,
-        type='int',
+        type="int",
         help="The program will return with timeout after specified seconds.",
         metavar="<timeout-second>",
     )
@@ -51,19 +51,13 @@ async def main():
         "--address",
         action="store",
         dest="deviceAddress",
-        default='',
-        type='str',
+        default="",
+        type="str",
         help="Address of the device",
         metavar="<device-addr>",
     )
     optParser.add_option(
-        "--nodeid",
-        action="store",
-        dest="nodeid",
-        default=1,
-        type=int,
-        help="The Node ID issued to the device",
-        metavar="<node-id>"
+        "--nodeid", action="store", dest="nodeid", default=1, type=int, help="The Node ID issued to the device", metavar="<node-id>"
     )
     optParser.add_option(
         "--discriminator",
@@ -72,7 +66,7 @@ async def main():
         default=TEST_DISCRIMINATOR,
         type=int,
         help="Discriminator of the device",
-        metavar="<discriminator>"
+        metavar="<discriminator>",
     )
     optParser.add_option(
         "--setuppin",
@@ -81,26 +75,26 @@ async def main():
         default=TEST_SETUPPIN,
         type=int,
         help="Setup PIN of the device",
-        metavar="<pin>"
+        metavar="<pin>",
     )
     optParser.add_option(
         "-p",
         "--paa-trust-store-path",
         action="store",
         dest="paaTrustStorePath",
-        default='',
-        type='str',
+        default="",
+        type="str",
         help="Path that contains valid and trusted PAA Root Certificates.",
-        metavar="<paa-trust-store-path>"
+        metavar="<paa-trust-store-path>",
     )
     optParser.add_option(
         "--remote-server-app",
         action="store",
         dest="remoteServerApp",
-        default='',
-        type='str',
+        default="",
+        type="str",
         help="Remote Server App",
-        metavar="<remote-server-app>"
+        metavar="<remote-server-app>",
     )
 
     (options, remainingArgs) = optParser.parse_args(sys.argv[1:])
@@ -108,16 +102,19 @@ async def main():
     timeoutTicker = TestTimeout(options.testTimeout)
     timeoutTicker.start()
 
-    test = BaseTestHelper(
-        nodeId=112233, paaTrustStorePath=options.paaTrustStorePath, testCommissioner=True)
+    test = BaseTestHelper(nodeId=112233, paaTrustStorePath=options.paaTrustStorePath, testCommissioner=True)
 
     FailIfNot(
         await test.TestOnNetworkCommissioning(options.discriminator, options.setuppin, options.nodeid),
-        "Failed on on-network commissioning")
+        "Failed on on-network commissioning",
+    )
 
     FailIfNot(
-        await test.TestSubscriptionResumption(options.nodeid, TEST_ENDPOINT_ID, options.deviceAddress,
-                                              TEST_SSH_PORT, options.remoteServerApp), "Failed to resume subscription")
+        await test.TestSubscriptionResumption(
+            options.nodeid, TEST_ENDPOINT_ID, options.deviceAddress, TEST_SSH_PORT, options.remoteServerApp
+        ),
+        "Failed to resume subscription",
+    )
 
     timeoutTicker.stop()
 

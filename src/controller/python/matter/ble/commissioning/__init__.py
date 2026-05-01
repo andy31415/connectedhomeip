@@ -71,16 +71,13 @@ class Connection:
         self._controller.BlePair(deprecated_nodeid, pin, discriminator)
 
     def _OnNetworkCredentialsRequested(self):
-        self._pair_queue.put(_PairNotification(
-            PairNotificationType.NETWORK_CREDENTIALS, None, None))
+        self._pair_queue.put(_PairNotification(PairNotificationType.NETWORK_CREDENTIALS, None, None))
 
     def _OnOperationalCredentialsRequested(self, csr):
-        self._pair_queue.put(_PairNotification(
-            PairNotificationType.OPERATIONAL_CREDENTIALS, csr, None))
+        self._pair_queue.put(_PairNotification(PairNotificationType.OPERATIONAL_CREDENTIALS, csr, None))
 
     def _OnPairingComplete(self, err):
-        self._pair_queue.put(_PairNotification(
-            PairNotificationType.COMPLETE, None, err))
+        self._pair_queue.put(_PairNotification(PairNotificationType.COMPLETE, None, err))
 
     def _WaitForPairProgress(self):
         """Waits for some pairing callback progress.
@@ -100,8 +97,7 @@ class Connection:
 
         if step.type == PairNotificationType.COMPLETE:
             if step.error_code != 0:
-                raise Exception('Pairing ended with error code %d' %
-                                step.error_code)
+                raise Exception("Pairing ended with error code %d" % step.error_code)
 
 
 def _StartAsyncConnection(discriminator: int, pin: int, deprecated_nodeid: Optional[int] = None) -> Connection:
@@ -153,5 +149,5 @@ def Connect(discriminator: int, pin: int, deprecated_nodeid: Optional[int] = Non
 
 
 __all__ = [
-    'Connect',
+    "Connect",
 ]

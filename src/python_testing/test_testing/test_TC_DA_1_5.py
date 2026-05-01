@@ -19,36 +19,49 @@
 import os
 import subprocess
 
-CHIP_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
-RUNNER_SCRIPT_DIR = os.path.join(CHIP_ROOT, 'scripts/tests')
+CHIP_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+RUNNER_SCRIPT_DIR = os.path.join(CHIP_ROOT, "scripts/tests")
 
 
 def run_single_test(flag: str, factory_reset: bool = False) -> int:
-
     reset = ""
     if factory_reset:
-        reset = ' --factory-reset'
+        reset = " --factory-reset"
 
-    app = os.path.join(CHIP_ROOT, 'objdir-clone/linux-x64-all-clusters-ipv6only-no-ble-no-wifi-tsan-clang-test/chip-all-clusters-app')
+    app = os.path.join(
+        CHIP_ROOT, "objdir-clone/linux-x64-all-clusters-ipv6only-no-ble-no-wifi-tsan-clang-test/chip-all-clusters-app"
+    )
 
     # Certs in the commissioner_dut directory use 0x8000 as the PID
-    app_args = '--discriminator 1234 --KVS kvs1 ' + flag
+    app_args = "--discriminator 1234 --KVS kvs1 " + flag
 
-    ci_pics_values = os.path.abspath(os.path.join(CHIP_ROOT, 'src/app/tests/suites/certification/ci-pics-values'))
-    script_args = '--storage-path admin_storage.json --discriminator 1234 --passcode 20202021 --dut-node-id 1 --PICS ' + \
-        str(ci_pics_values)
+    ci_pics_values = os.path.abspath(os.path.join(CHIP_ROOT, "src/app/tests/suites/certification/ci-pics-values"))
+    script_args = "--storage-path admin_storage.json --discriminator 1234 --passcode 20202021 --dut-node-id 1 --PICS " + str(
+        ci_pics_values
+    )
 
     # for any test with a dac_provider, we don't want to recommission because there's a chance the
     # dac could be wrong and the commissioning would fail. Rely on the original commissioning. This is also faster.
     if factory_reset:
-        script_args = script_args + ' --commissioning-method on-network'
+        script_args = script_args + " --commissioning-method on-network"
 
-    script = os.path.abspath(os.path.join(CHIP_ROOT, 'src/python_testing/TC_DA_1_5.py'))
+    script = os.path.abspath(os.path.join(CHIP_ROOT, "src/python_testing/TC_DA_1_5.py"))
 
     # run_python_test uses click so call as a command
-    run_python_test = os.path.abspath(os.path.join(RUNNER_SCRIPT_DIR, 'run_python_test.py'))
-    cmd = str(run_python_test) + reset + ' --app ' + str(app) + ' --app-args "' + \
-        app_args + '" --script ' + str(script) + ' --script-args "' + script_args + '"'
+    run_python_test = os.path.abspath(os.path.join(RUNNER_SCRIPT_DIR, "run_python_test.py"))
+    cmd = (
+        str(run_python_test)
+        + reset
+        + " --app "
+        + str(app)
+        + ' --app-args "'
+        + app_args
+        + '" --script '
+        + str(script)
+        + ' --script-args "'
+        + script_args
+        + '"'
+    )
 
     return subprocess.call(cmd, shell=True)
 
@@ -59,14 +72,16 @@ def main():
     # test flag, test result, success expected
     passes.append(("", run_single_test("", factory_reset=True), True))
 
-    failure_flags = ['--cert_error_csr_incorrect_type',
-                     '--cert_error_csr_existing_keypair',
-                     '--cert_error_csr_nonce_incorrect_type',
-                     '--cert_error_csr_nonce_too_long',
-                     '--cert_error_csr_nonce_invalid',
-                     '--cert_error_nocsrelements_too_long',
-                     '--cert_error_attestation_signature_incorrect_type',
-                     '--cert_error_attestation_signature_invalid']
+    failure_flags = [
+        "--cert_error_csr_incorrect_type",
+        "--cert_error_csr_existing_keypair",
+        "--cert_error_csr_nonce_incorrect_type",
+        "--cert_error_csr_nonce_too_long",
+        "--cert_error_csr_nonce_invalid",
+        "--cert_error_nocsrelements_too_long",
+        "--cert_error_attestation_signature_incorrect_type",
+        "--cert_error_attestation_signature_invalid",
+    ]
 
     for f in failure_flags:
         passes.append((f, run_single_test(f), False))
@@ -75,11 +90,11 @@ def main():
     for p in passes:
         success = p[1] == 0
         if p[2] != success:
-            print('INCORRECT: ' + p[0])
+            print("INCORRECT: " + p[0])
             retval = 1
 
     return retval
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

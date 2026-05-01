@@ -35,7 +35,7 @@ class PushAvContext:
         working_directory: Optional[str],
         dns: Optional[str],
         server_ip: Optional[str],
-        strict_mode: bool
+        strict_mode: bool,
     ):
         self.directory = WorkingDirectory(working_directory)
         self.host = host
@@ -44,15 +44,9 @@ class PushAvContext:
         self.strict_mode = strict_mode
 
         # Create CA hierarchies (for webserver and devices)
-        self.device_hierarchy = CAHierarchy(
-            self.directory.mkdir("certs", "device"), "device", "client"
-        )
-        self.server_hierarchy = CAHierarchy(
-            self.directory.mkdir("certs", "server"), "server", "server"
-        )
-        (self.server_key_file, self.server_cert_file, _) = self.server_hierarchy.gen_keypair(
-            self.dns, ip_address=server_ip
-        )
+        self.device_hierarchy = CAHierarchy(self.directory.mkdir("certs", "device"), "device", "client")
+        self.server_hierarchy = CAHierarchy(self.directory.mkdir("certs", "server"), "server", "server")
+        (self.server_key_file, self.server_cert_file, _) = self.server_hierarchy.gen_keypair(self.dns, ip_address=server_ip)
 
         # mDNS configuration. Registration only happen if the dns isn't localhost.
         self.zeroconf = Zeroconf()
@@ -87,10 +81,7 @@ class PushAvContext:
                 # Re-raise HTTPException for FastAPI's default handler to process
                 raise exc
             logger.error(f"Exception: {exc}")
-            return JSONResponse(
-                status_code=500,
-                content={"detail": str(exc)}
-            )
+            return JSONResponse(status_code=500, content={"detail": str(exc)})
 
     def __enter__(self):
         return self
@@ -119,7 +110,7 @@ class PushAvContext:
             keyfile=self.server_key_file,
             certfile=self.server_cert_file,
             ca_certs=self.device_hierarchy.root_cert_path,
-            verify_mode=ssl.CERT_OPTIONAL
+            verify_mode=ssl.CERT_OPTIONAL,
         )
 
         try:
@@ -150,32 +141,19 @@ def main():
     parser.add_argument("--port", default=1234)
     parser.add_argument(
         "--working-directory",
-        help="Where to store content like certificates or uploaded streams. "
-        "Default to a temporary directory.",
+        help="Where to store content like certificates or uploaded streams. Default to a temporary directory.",
     )
-    parser.add_argument(
-        "--dns", help="A mDNS record to adversise, or none if left empty."
-    )
-    parser.add_argument(
-        "--server-ip",
-        help="The IP address of the server to include in the SSL certificate."
-    )
+    parser.add_argument("--dns", help="A mDNS record to adversise, or none if left empty.")
+    parser.add_argument("--server-ip", help="The IP address of the server to include in the SSL certificate.")
     parser.add_argument(
         "--strict-mode",
-        action='store_true',
-        help="When enabled, upload must happen on the path described by the Matter specification"
+        action="store_true",
+        help="When enabled, upload must happen on the path described by the Matter specification",
     )
 
     args = parser.parse_args()
 
-    with PushAvContext(
-        args.host,
-        args.port,
-        args.working_directory,
-        args.dns,
-        args.server_ip,
-        args.strict_mode
-    ) as ctx:
+    with PushAvContext(args.host, args.port, args.working_directory, args.dns, args.server_ip, args.strict_mode) as ctx:
         shutdown_event = asyncio.Event()
 
         def _signal_handler():

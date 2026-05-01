@@ -16,7 +16,7 @@
 #    limitations under the License.
 #
 
-'''This file should contain custom classes derived any class from default.py.
+"""This file should contain custom classes derived any class from default.py.
 
 Each class implemented here should describe an input parameter and should
 implement the InputArgument abstract interface, if its base class does not
@@ -45,7 +45,7 @@ option:
 
     parser.add_argument("--foo", required=True, type=FooArgument,
                         help="[int | hex] Foo argument.")
-'''
+"""
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.serialization import load_der_private_key
@@ -53,7 +53,6 @@ from default import Base64Argument, FileArgument, IntArgument, StrArgument
 
 
 class Verifier(Base64Argument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -62,7 +61,6 @@ class Verifier(Base64Argument):
 
 
 class Salt(Base64Argument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -71,7 +69,6 @@ class Salt(Base64Argument):
 
 
 class IterationCount(IntArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -80,7 +77,6 @@ class IterationCount(IntArgument):
 
 
 class DacPKey(FileArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
         self.private_key = None
@@ -89,11 +85,11 @@ class DacPKey(FileArgument):
         return 4
 
     def length(self):
-        assert (self.private_key is not None)
+        assert self.private_key is not None
         return len(self.private_key)
 
     def encode(self):
-        assert (self.private_key is not None)
+        assert self.private_key is not None
         return self.private_key
 
     def generate_private_key(self, password, use_sss_blob=False):
@@ -101,13 +97,10 @@ class DacPKey(FileArgument):
             self.private_key = self.val
         else:
             keys = load_der_private_key(self.val, password, backend=default_backend())
-            self.private_key = keys.private_numbers().private_value.to_bytes(
-                32, byteorder='big'
-            )
+            self.private_key = keys.private_numbers().private_value.to_bytes(32, byteorder="big")
 
 
 class DacCert(FileArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -116,7 +109,6 @@ class DacCert(FileArgument):
 
 
 class PaiCert(FileArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -125,7 +117,6 @@ class PaiCert(FileArgument):
 
 
 class Discriminator(IntArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -134,7 +125,6 @@ class Discriminator(IntArgument):
 
 
 class SetupPasscode(IntArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -143,7 +133,6 @@ class SetupPasscode(IntArgument):
 
 
 class VendorId(IntArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -155,7 +144,6 @@ class VendorId(IntArgument):
 
 
 class ProductId(IntArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -167,7 +155,6 @@ class ProductId(IntArgument):
 
 
 class CertDeclaration(FileArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -176,7 +163,6 @@ class CertDeclaration(FileArgument):
 
 
 class VendorName(StrArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -185,7 +171,6 @@ class VendorName(StrArgument):
 
 
 class ProductName(StrArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -194,7 +179,6 @@ class ProductName(StrArgument):
 
 
 class SerialNum(StrArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -203,7 +187,6 @@ class SerialNum(StrArgument):
 
 
 class ManufacturingDate(StrArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -215,7 +198,6 @@ class ManufacturingDate(StrArgument):
 
 
 class HardwareVersion(IntArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -227,7 +209,6 @@ class HardwareVersion(IntArgument):
 
 
 class HardwareVersionStr(StrArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -239,7 +220,6 @@ class HardwareVersionStr(StrArgument):
 
 
 class UniqueId(StrArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -248,7 +228,6 @@ class UniqueId(StrArgument):
 
 
 class PartNumber(StrArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -257,7 +236,6 @@ class PartNumber(StrArgument):
 
 
 class ProductURL(StrArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -269,7 +247,6 @@ class ProductURL(StrArgument):
 
 
 class ProductLabel(StrArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -281,7 +258,6 @@ class ProductLabel(StrArgument):
 
 
 class ProductFinish(StrArgument):
-
     VALUES = ["Other", "Matte", "Satin", "Polished", "Rugged", "Fabric"]
 
     def __init__(self, arg):
@@ -308,12 +284,28 @@ class ProductFinish(StrArgument):
 
 
 class ProductPrimaryColor(StrArgument):
-
     VALUES = [
-        "Black", "Navy", "Green", "Teal", "Maroon",
-        "Purple", "Olive", "Gray", "Blue", "Lime",
-        "Aqua", "Red", "Fuchsia", "Yellow", "White",
-        "Nickel", "Chrome", "Brass", "Copper", "Silver", "Gold"
+        "Black",
+        "Navy",
+        "Green",
+        "Teal",
+        "Maroon",
+        "Purple",
+        "Olive",
+        "Gray",
+        "Blue",
+        "Lime",
+        "Aqua",
+        "Red",
+        "Fuchsia",
+        "Yellow",
+        "White",
+        "Nickel",
+        "Chrome",
+        "Brass",
+        "Copper",
+        "Silver",
+        "Gold",
     ]
 
     def __init__(self, arg):
@@ -340,7 +332,6 @@ class ProductPrimaryColor(StrArgument):
 
 
 class El2GoObject(FileArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -349,7 +340,6 @@ class El2GoObject(FileArgument):
 
 
 class El2GoDacKeyID(IntArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 
@@ -358,7 +348,6 @@ class El2GoDacKeyID(IntArgument):
 
 
 class El2GoDacCertID(IntArgument):
-
     def __init__(self, arg):
         super().__init__(arg)
 

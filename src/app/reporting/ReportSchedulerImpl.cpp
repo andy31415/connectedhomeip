@@ -30,7 +30,7 @@ using ReadHandlerNode = ReportScheduler::ReadHandlerNode;
 /// the engine already verifies that read handlers are reportable before sending a report
 void ReportSchedulerImpl::ReportTimerCallback()
 {
-    TEMPORARY_RETURN_IGNORED InteractionModelEngine::GetInstance()->GetReportingEngine().ScheduleRun();
+    TEMPORARY_RETURN_IGNORED InteractionModelEngine::GetInstance() -> GetReportingEngine().ScheduleRun();
 }
 
 ReportSchedulerImpl::ReportSchedulerImpl(TimerDelegate * aTimerDelegate) : ReportScheduler(aTimerDelegate)

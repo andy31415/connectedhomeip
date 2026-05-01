@@ -74,8 +74,7 @@ class ParseHandler(xml.sax.handler.ContentHandler):
     def startElement(self, name: str, attrs):
         log.debug("ELEMENT START: %r / %r", name, attrs)
         self._context.path.push(name)
-        self._processing_stack.append(
-            self._processing_stack[-1].GetNextProcessor(name, attrs))
+        self._processing_stack.append(self._processing_stack[-1].GetNextProcessor(name, attrs))
 
     def endElement(self, name: str):
         log.debug("ELEMENT END: %r", name)
@@ -97,6 +96,7 @@ class ParseSource:
 
     Allows for named data sources to be parsed.
     """
+
     source: Union[str, typing.IO]  # filename or stream
     # actual filename to use, None if the source is a filename already
     name: Optional[str] = None
@@ -131,31 +131,27 @@ def ParseXmls(sources: List[ParseSource], include_meta_data=True) -> Idl:
 # Supported log levels, mapping string values required for argument
 # parsing into logging constants
 __LOG_LEVELS__ = {
-    'debug': logging.DEBUG,
-    'info': logging.INFO,
-    'warn': logging.WARNING,
-    'fatal': logging.FATAL,
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warn": logging.WARNING,
+    "fatal": logging.FATAL,
 }
 
 
 @click.command()
 @click.option(
-    '--log-level',
-    default='INFO',
+    "--log-level",
+    default="INFO",
     show_default=True,
     type=click.Choice(list(__LOG_LEVELS__.keys()), case_sensitive=False),
-    help='Determines the verbosity of script output.')
-@click.option(
-    '--no-print',
-    show_default=True,
-    default=False,
-    is_flag=True,
-    help='Do not print output data (parsed data)')
-@click.argument('filenames', nargs=-1)
+    help="Determines the verbosity of script output.",
+)
+@click.option("--no-print", show_default=True, default=False, is_flag=True, help="Do not print output data (parsed data)")
+@click.argument("filenames", nargs=-1)
 def main(log_level, no_print, filenames):
     logging.basicConfig(
         level=__LOG_LEVELS__[log_level],
-        format='%(asctime)s %(levelname)-7s %(message)s',
+        format="%(asctime)s %(levelname)-7s %(message)s",
     )
 
     log.info("Starting to parse ...")

@@ -28,14 +28,15 @@ _placeholder_count = 0
 
 
 class MatterIntEnum(IntEnum):
-    '''Matter implementation of integer enum.
+    """Matter implementation of integer enum.
 
     This provides flexibility so that we don't have to rely on the strongly typed
     nature of built in enum. By default, globally, all unknown enum mapping are
     turned into kUnknownEnumValue. This also give capability of extending the enum
     at runtime allowing for test code to test behaviour of sending out out of scope
     enum values.
-    '''
+    """
+
     @classmethod
     def _missing_(cls, value):
         if _map_missing_enum_to_unknown_enum_value:
@@ -53,13 +54,13 @@ class MatterIntEnum(IntEnum):
             global _placeholder_count_lock
             global _placeholder_count
             with _placeholder_count_lock:
-                return_value = extend_enum(cls, f'kUnknownPlaceholder{_placeholder_count}', value)
+                return_value = extend_enum(cls, f"kUnknownPlaceholder{_placeholder_count}", value)
                 _placeholder_count = _placeholder_count + 1
 
         return return_value
 
 
 def set_map_missing_enum_to_unknown_enum_value(value: bool):
-    '''Sets flag that handles what to do on unknown enum value type.'''
+    """Sets flag that handles what to do on unknown enum value type."""
     global _map_missing_enum_to_unknown_enum_value
     _map_missing_enum_to_unknown_enum_value = value

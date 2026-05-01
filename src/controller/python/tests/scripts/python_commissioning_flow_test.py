@@ -18,6 +18,7 @@
 #
 
 import asyncio
+
 # Commissioning test.
 import os
 import random
@@ -34,15 +35,17 @@ from matter.crypto import p256keypair
 
 # The thread network dataset tlv for testing, splited into T-L-V.
 
-TEST_THREAD_NETWORK_DATASET_TLV = "0e080000000000010000" + \
-    "000300000c" + \
-    "35060004001fffe0" + \
-    "0208fedcba9876543210" + \
-    "0708fd00000000001234" + \
-    "0510ffeeddccbbaa99887766554433221100" + \
-    "030e54657374696e674e6574776f726b" + \
-    "0102d252" + \
-    "041081cb3b2efa781cc778397497ff520fa50c0302a0ff"
+TEST_THREAD_NETWORK_DATASET_TLV = (
+    "0e080000000000010000"
+    + "000300000c"
+    + "35060004001fffe0"
+    + "0208fedcba9876543210"
+    + "0708fd00000000001234"
+    + "0510ffeeddccbbaa99887766554433221100"
+    + "030e54657374696e674e6574776f726b"
+    + "0102d252"
+    + "041081cb3b2efa781cc778397497ff520fa50c0302a0ff"
+)
 # Network id, for the thread network, current a const value, will be changed to XPANID of the thread network.
 TEST_THREAD_NETWORK_ID = "fedcba9876543210"
 TEST_DISCRIMINATOR = 3840
@@ -60,7 +63,7 @@ def main():
         action="store",
         dest="testTimeout",
         default=75,
-        type='int',
+        type="int",
         help="The program will return with timeout after specified seconds.",
         metavar="<timeout-second>",
     )
@@ -76,8 +79,8 @@ def main():
         "--discriminator",
         action="store",
         dest="discriminator",
-        default='',
-        type='str',
+        default="",
+        type="str",
         help="The long discriminator of the device",
         metavar="<device-addr>",
     )
@@ -85,26 +88,20 @@ def main():
         "--setup-payload",
         action="store",
         dest="setupPayload",
-        default='',
-        type='str',
+        default="",
+        type="str",
         help="Setup Payload (manual pairing code or QR code content)",
-        metavar="<setup-payload>"
+        metavar="<setup-payload>",
     )
     optParser.add_option(
-        "--nodeid",
-        action="store",
-        dest="nodeid",
-        default=1,
-        type=int,
-        help="The Node ID issued to the device",
-        metavar="<node-id>"
+        "--nodeid", action="store", dest="nodeid", default=1, type=int, help="The Node ID issued to the device", metavar="<node-id>"
     )
     optParser.add_option(
-        '--paa-trust-store-path',
+        "--paa-trust-store-path",
         dest="paaPath",
-        default='',
-        type='str',
-        help="Path that contains valid and trusted PAA Root Certificates."
+        default="",
+        type="str",
+        help="Path that contains valid and trusted PAA Root Certificates.",
     )
 
     (options, remainingArgs) = optParser.parse_args(sys.argv[1:])
@@ -113,7 +110,8 @@ def main():
     timeoutTicker.start()
 
     test = BaseTestHelper(
-        nodeId=112233, paaTrustStorePath=options.paaPath, testCommissioner=True, keypair=p256keypair.TestP256Keypair())
+        nodeId=112233, paaTrustStorePath=options.paaPath, testCommissioner=True, keypair=p256keypair.TestP256Keypair()
+    )
 
     class BadCredentialProvider:
         def __init__(self, devCtrl: ChipDeviceCtrl.ChipDeviceController):
@@ -125,10 +123,16 @@ def main():
         async def get_csr_nonce(self) -> bytes:
             return os.urandom(32)
 
-        async def get_commissionee_credentials(self, request: commissioning.GetCommissioneeCredentialsRequest) -> commissioning.GetCommissioneeCredentialsResponse:
+        async def get_commissionee_credentials(
+            self, request: commissioning.GetCommissioneeCredentialsRequest
+        ) -> commissioning.GetCommissioneeCredentialsResponse:
             node_id = random.randint(100000, 999999)
-            nocChain = await self._devCtrl.IssueNOCChain(Clusters.OperationalCredentials.Commands.CSRResponse(
-                NOCSRElements=request.csr_elements, attestationSignature=request.attestation_signature), nodeId=node_id)
+            nocChain = await self._devCtrl.IssueNOCChain(
+                Clusters.OperationalCredentials.Commands.CSRResponse(
+                    NOCSRElements=request.csr_elements, attestationSignature=request.attestation_signature
+                ),
+                nodeId=node_id,
+            )
             return commissioning.GetCommissioneeCredentialsResponse(
                 rcac=nocChain.rcacBytes[1:],
                 noc=nocChain.nocBytes[1:],
@@ -137,31 +141,39 @@ def main():
                 case_admin_node=self._devCtrl.nodeId,
                 admin_vendor_id=self._devCtrl.fabricAdmin.vendorId,
                 node_id=node_id,
-                fabric_id=self._devCtrl.fabricId)
+                fabric_id=self._devCtrl.fabricId,
+            )
 
     flow = example_python_commissioning_flow.ExampleCustomMatterCommissioningFlow(
         devCtrl=test.devCtrl,
-        credential_provider=BadCredentialProvider(
-            test.devCtrl) if options.badCertIssuer else example_python_commissioning_flow.ExampleCredentialProvider(test.devCtrl),
-        logger=logger)
+        credential_provider=BadCredentialProvider(test.devCtrl)
+        if options.badCertIssuer
+        else example_python_commissioning_flow.ExampleCredentialProvider(test.devCtrl),
+        logger=logger,
+    )
 
     try:
-        asyncio.run(flow.commission(commissioning.Parameters(
-            pase_param=commissioning.PaseOverIPParameters(
-                long_discriminator=options.discriminator,
-                setup_pin=20202021, temporary_nodeid=options.nodeid
-            ),
-            regulatory_config=commissioning.RegulatoryConfig(
-                location_type=commissioning.RegulatoryLocationType.INDOOR_OUTDOOR, country_code='US'),
-            fabric_label="TestFabric",
-            commissionee_info=commissioning.CommissioneeInfo(
-                endpoints={},
-                is_thread_device=True,
-                is_ethernet_device=False,
-                is_wifi_device=False,
-            ),
-            wifi_credentials=None,
-            thread_credentials=bytes.fromhex(TEST_THREAD_NETWORK_DATASET_TLV))))
+        asyncio.run(
+            flow.commission(
+                commissioning.Parameters(
+                    pase_param=commissioning.PaseOverIPParameters(
+                        long_discriminator=options.discriminator, setup_pin=20202021, temporary_nodeid=options.nodeid
+                    ),
+                    regulatory_config=commissioning.RegulatoryConfig(
+                        location_type=commissioning.RegulatoryLocationType.INDOOR_OUTDOOR, country_code="US"
+                    ),
+                    fabric_label="TestFabric",
+                    commissionee_info=commissioning.CommissioneeInfo(
+                        endpoints={},
+                        is_thread_device=True,
+                        is_ethernet_device=False,
+                        is_wifi_device=False,
+                    ),
+                    wifi_credentials=None,
+                    thread_credentials=bytes.fromhex(TEST_THREAD_NETWORK_DATASET_TLV),
+                )
+            )
+        )
         if options.badCertIssuer:
             raise AssertionError("The commission is expected to fail. (BadCredentialProvider used)")
     except Exception as ex:

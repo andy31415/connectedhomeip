@@ -43,8 +43,9 @@ class PushAvServer:
         self.router.add_api_route("/ui/streams/{stream_id}", self.ui_streams_details, methods=["GET"])
         self.router.add_api_route("/ui/streams/{stream_id}/{file_path:path}", self.ui_streams_file_details, methods=["GET"])
         self.router.add_api_route("/ui/certificates", self.ui_certificates_list, methods=["GET"], response_class=HTMLResponse)
-        self.router.add_api_route("/ui/certificates/{hierarchy}/{name}",
-                                  self.ui_certificates_details, methods=["GET"], response_class=HTMLResponse)
+        self.router.add_api_route(
+            "/ui/certificates/{hierarchy}/{name}", self.ui_certificates_details, methods=["GET"], response_class=HTMLResponse
+        )
 
         # HTTP API routes
         self.router.add_api_route("/streams", self.create_stream, methods=["POST"], status_code=201)
@@ -68,33 +69,31 @@ class PushAvServer:
     def ui_streams_list(self, request: Request):
         """Render streams list UI."""
         s = self.list_streams()
-        return self.templates.TemplateResponse(
-            request=request, name="streams_list.jinja2", context={"streams": s["streams"]}
-        )
+        return self.templates.TemplateResponse(request=request, name="streams_list.jinja2", context={"streams": s["streams"]})
 
     def ui_streams_details(self, request: Request, stream_id: int):
         """Render stream details UI."""
         stream = self.stream_service.get_stream(stream_id)
         if stream is None:
             raise HTTPException(status_code=400, detail="Stream ID doesn't exist")
-        return self.templates.TemplateResponse(request=request, name="streams_details.jinja2", context={'stream': stream})
+        return self.templates.TemplateResponse(request=request, name="streams_details.jinja2", context={"stream": stream})
 
     def ui_streams_file_details(self, request: Request, stream_id: int, file_path: str):
         """Render file details UI."""
         context = {}
-        context['streams'] = self.list_streams()['streams']
-        context['stream_id'] = stream_id
-        context['file_path'] = file_path
+        context["streams"] = self.list_streams()["streams"]
+        context["stream_id"] = stream_id
+        context["file_path"] = file_path
 
-        if file_path.endswith('.crt'):
-            context['type'] = 'cert'
+        if file_path.endswith(".crt"):
+            context["type"] = "cert"
             p = self.stream_service.wd.path("streams", str(stream_id), file_path)
             with open(p, "r") as f:
-                context['cert'] = json.load(f)
+                context["cert"] = json.load(f)
         else:
-            context['type'] = 'media'
-            context['probe'] = self.ffprobe_check(stream_id, file_path)
-            context['pretty_probe'] = json.dumps(context['probe'], sort_keys=True, indent=4)
+            context["type"] = "media"
+            context["probe"] = self.ffprobe_check(stream_id, file_path)
+            context["pretty_probe"] = json.dumps(context["probe"], sort_keys=True, indent=4)
 
         return self.templates.TemplateResponse(request=request, name="streams_file_details.jinja2", context=context)
 
@@ -138,9 +137,7 @@ class PushAvServer:
             body = await req.body()
 
             # Validate the incoming file upload
-            errors, session = self.validator.validate_upload(
-                stream, session, file_path, ext, body, dict(req.headers)
-            )
+            errors, session = self.validator.validate_upload(stream, session, file_path, ext, body, dict(req.headers))
 
             # Save the file to disk
             file_local_path = self.stream_service.wd.mkdir("streams", str(stream_id), file_path_with_ext, is_file=True)
@@ -153,7 +150,7 @@ class PushAvServer:
                 log.info(f"Backed up existing file to {backup_path}")
 
             # Save certificate details if available
-            cert_details = req.scope["extensions"]["ssl"].get('client_certificate', None)
+            cert_details = req.scope["extensions"]["ssl"].get("client_certificate", None)
             if cert_details:
                 with open(file_local_path.with_suffix(file_local_path.suffix + ".crt"), "w") as f:
                     f.write(json.dumps(cert_details))
@@ -185,22 +182,22 @@ class PushAvServer:
             raise HTTPException(404, detail="Media file doesn't exists")
 
         cmd = [
-            "ffprobe", "-allowed_extensions", "init,m4s",
-            "-show_streams", "-show_format", "-output_format", "json",
-            str(p.absolute())
+            "ffprobe",
+            "-allowed_extensions",
+            "init,m4s",
+            "-show_streams",
+            "-show_format",
+            "-output_format",
+            "json",
+            str(p.absolute()),
         ]
 
         proc = subprocess.run(cmd, capture_output=True)
 
         if proc.returncode != 0:
-            stderr_text = proc.stderr.decode('utf-8', errors='replace')
+            stderr_text = proc.stderr.decode("utf-8", errors="replace")
             raise HTTPException(
-                500,
-                detail={
-                    "message": "ffprobe failed to analyze the media file",
-                    "stderr": stderr_text,
-                    "command": " ".join(cmd)
-                }
+                500, detail={"message": "ffprobe failed to analyze the media file", "stderr": stderr_text, "command": " ".join(cmd)}
             )
 
         return json.loads(proc.stdout)
@@ -255,7 +252,7 @@ class PushAvServer:
                 "not_valid_after": cert.not_valid_after_utc,
                 "issuer": cert.issuer.rfc4514_string(),
                 "subject": cert.subject.rfc4514_string(),
-                "extensions": [str(ext) for ext in cert.extensions]
+                "extensions": [str(ext) for ext in cert.extensions],
             }
 
         return {"type": type, "key": key, "cert": cert}

@@ -23,7 +23,6 @@ import sys
 
 
 class Secrets:
-
     def __init__(self, filename: str):
         self.filename = filename
         self.dirty = False
@@ -89,34 +88,25 @@ This simple password manager circumvents the requirement of having functional
 D-Bus Secrets service (org.freedesktop.secrets) in the Docker container. As a
 storage this manager uses plain-text file with pickled data (~/.secretsdb).
 
-Please, DO NOT store real secrets in it!""")
-subparsers = parser.add_subparsers(dest='command', required=True)
+Please, DO NOT store real secrets in it!""",
+)
+subparsers = parser.add_subparsers(dest="command", required=True)
 
-parser_clear = subparsers.add_parser(
-    "clear", help="Remove password associated with given key value pairs")
-parser_clear.add_argument("-l", "--label", action='store', required=True,
-                          help="label for given key value pairs")
-parser_clear.add_argument("kw", nargs='*',
-                          help="key value pairs")
+parser_clear = subparsers.add_parser("clear", help="Remove password associated with given key value pairs")
+parser_clear.add_argument("-l", "--label", action="store", required=True, help="label for given key value pairs")
+parser_clear.add_argument("kw", nargs="*", help="key value pairs")
 
-parser_store = subparsers.add_parser(
-    "store", help="Store password for given key value pairs")
-parser_store.add_argument("-l", "--label", action='store', required=True,
-                          help="label for given key value pairs")
-parser_store.add_argument("-p", "--password", action='store', required=True,
-                          help="password for given key value pairs")
-parser_store.add_argument("kw", nargs='*',
-                          help="key value pairs")
+parser_store = subparsers.add_parser("store", help="Store password for given key value pairs")
+parser_store.add_argument("-l", "--label", action="store", required=True, help="label for given key value pairs")
+parser_store.add_argument("-p", "--password", action="store", required=True, help="password for given key value pairs")
+parser_store.add_argument("kw", nargs="*", help="key value pairs")
 
-parser_lookup = subparsers.add_parser(
-    "lookup", help="Retrieve password associated with given key value pairs")
-parser_lookup.add_argument("-l", "--label", action='store', required=True,
-                           help="label for given key value pairs")
-parser_lookup.add_argument("kw", nargs='*',
-                           help="key value pairs")
+parser_lookup = subparsers.add_parser("lookup", help="Retrieve password associated with given key value pairs")
+parser_lookup.add_argument("-l", "--label", action="store", required=True, help="label for given key value pairs")
+parser_lookup.add_argument("kw", nargs="*", help="key value pairs")
 
 args = parser.parse_args()
-kw = dict(zip(args.kw[:: 2], args.kw[1:: 2]))
+kw = dict(zip(args.kw[::2], args.kw[1::2]))
 
 with Secrets(os.path.expanduser("~/.secretsdb")) as secrets:
     if args.command == "clear":

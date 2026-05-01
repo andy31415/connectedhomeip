@@ -27,7 +27,7 @@ from matter.tlv import float32, uint
 
 
 def is_type(received_value, desired_type):
-    """ Checks if a received value matches an expected type.
+    """Checks if a received value matches an expected type.
 
     Handles unpacking Nullable and Optional types and
     compares list value types for non-empty lists.
@@ -65,4 +65,5 @@ def is_type(received_value, desired_type):
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

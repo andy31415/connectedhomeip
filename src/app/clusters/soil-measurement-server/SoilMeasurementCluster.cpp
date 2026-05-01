@@ -24,8 +24,7 @@ using namespace SoilMeasurement::Attributes;
 
 SoilMeasurementCluster::SoilMeasurementCluster(
     EndpointId endpointId, const SoilMoistureMeasurementLimits::TypeInfo::Type & soilMoistureMeasurementLimits) :
-    DefaultServerCluster({ endpointId, SoilMeasurement::Id }),
-    mSoilMoistureMeasurementLimits(soilMoistureMeasurementLimits)
+    DefaultServerCluster({ endpointId, SoilMeasurement::Id }), mSoilMoistureMeasurementLimits(soilMoistureMeasurementLimits)
 {
     mSoilMoistureMeasuredValue.SetNull();
 }

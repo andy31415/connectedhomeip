@@ -27,7 +27,7 @@
 #define LIGHT_LEVEL_MAX (100)
 #define LIGHT_LEVEL_DEFAULT (50)
 #define PWM_FREQUENCY_DEFAULT (1000)
-#define LEVEL_TO_PWM_RATIO(level) ((level) *10)
+#define LEVEL_TO_PWM_RATIO(level) ((level) * 10)
 
 static hal_pwm_channel_t convert_gpio_to_pwm_channel(hal_gpio_pin_t gpio)
 {

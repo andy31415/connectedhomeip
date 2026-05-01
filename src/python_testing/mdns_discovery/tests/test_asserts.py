@@ -17,17 +17,37 @@
 
 import unittest
 
-from mdns_discovery.utils.asserts import (assert_is_border_router_type, assert_is_commissionable_type, assert_is_commissioner_type,
-                                          assert_is_operational_type, assert_valid_cm_key,
-                                          assert_valid_commissionable_instance_name, assert_valid_d_key,
-                                          assert_valid_devtype_subtype, assert_valid_dn_key, assert_valid_dt_key,
-                                          assert_valid_hostname, assert_valid_icd_key, assert_valid_ipv6_addresses,
-                                          assert_valid_jf_key, assert_valid_long_discriminator_subtype,
-                                          assert_valid_operational_instance_name, assert_valid_ph_key,
-                                          assert_valid_ph_pi_relationship, assert_valid_pi_key, assert_valid_product_id,
-                                          assert_valid_ri_key, assert_valid_sai_key, assert_valid_sat_key,
-                                          assert_valid_short_discriminator_subtype, assert_valid_sii_key, assert_valid_t_key,
-                                          assert_valid_vendor_id, assert_valid_vendor_subtype, assert_valid_vp_key)
+from mdns_discovery.utils.asserts import (
+    assert_is_border_router_type,
+    assert_is_commissionable_type,
+    assert_is_commissioner_type,
+    assert_is_operational_type,
+    assert_valid_cm_key,
+    assert_valid_commissionable_instance_name,
+    assert_valid_d_key,
+    assert_valid_devtype_subtype,
+    assert_valid_dn_key,
+    assert_valid_dt_key,
+    assert_valid_hostname,
+    assert_valid_icd_key,
+    assert_valid_ipv6_addresses,
+    assert_valid_jf_key,
+    assert_valid_long_discriminator_subtype,
+    assert_valid_operational_instance_name,
+    assert_valid_ph_key,
+    assert_valid_ph_pi_relationship,
+    assert_valid_pi_key,
+    assert_valid_product_id,
+    assert_valid_ri_key,
+    assert_valid_sai_key,
+    assert_valid_sat_key,
+    assert_valid_short_discriminator_subtype,
+    assert_valid_sii_key,
+    assert_valid_t_key,
+    assert_valid_vendor_id,
+    assert_valid_vendor_subtype,
+    assert_valid_vp_key,
+)
 from mobly import signals
 
 
@@ -222,17 +242,17 @@ class TestAssertValidCmKey(unittest.TestCase):
 
 
 class TestAssertValidCommissionableInstanceName(unittest.TestCase):
-    LEN_MSG = 'Length must be exactly 16 characters'
-    HEX_MSG = 'Must only contain hexadecimal uppercase characters [A-F0-9]'
+    LEN_MSG = "Length must be exactly 16 characters"
+    HEX_MSG = "Must only contain hexadecimal uppercase characters [A-F0-9]"
 
     # Valid values (all exactly 16 chars)
     VALID_VALUES = [
-        "0000000000000000",   # all zeros
-        "FFFFFFFFFFFFFFFF",   # all F's
-        "1234567890ABCDEF",   # mix of digits and hex letters
-        "ABCDEF1234567890",   # reversed mix
-        "A1B2C3D4E5F60708",   # alternating pattern
-        "90ABCDEF12345678",   # shifted pattern (fixed to 16 chars)
+        "0000000000000000",  # all zeros
+        "FFFFFFFFFFFFFFFF",  # all F's
+        "1234567890ABCDEF",  # mix of digits and hex letters
+        "ABCDEF1234567890",  # reversed mix
+        "A1B2C3D4E5F60708",  # alternating pattern
+        "90ABCDEF12345678",  # shifted pattern (fixed to 16 chars)
     ]
 
     def test_valid_values(self):
@@ -303,11 +323,11 @@ class TestAssertValidDKey(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "0",       # minimum
-        "1",       # smallest nonzero
-        "1234",    # typical
-        "3840",    # example from docstring
-        "4095",    # maximum 12-bit
+        "0",  # minimum
+        "1",  # smallest nonzero
+        "1234",  # typical
+        "3840",  # example from docstring
+        "4095",  # maximum 12-bit
     ]
 
     def test_valid_values(self):
@@ -377,10 +397,10 @@ class TestAssertValidDevtypeSubtype(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "_T0._sub._matterc._udp.local.",                 # minimum valid
-        "_T1._sub._matterc._udp.local.",                 # smallest nonzero
-        "_T12345._sub._matterc._udp.local.",             # typical mid-range
-        "_T4294967295._sub._matterc._udp.local.",        # maximum valid (32-bit)
+        "_T0._sub._matterc._udp.local.",  # minimum valid
+        "_T1._sub._matterc._udp.local.",  # smallest nonzero
+        "_T12345._sub._matterc._udp.local.",  # typical mid-range
+        "_T4294967295._sub._matterc._udp.local.",  # maximum valid (32-bit)
     ]
 
     def test_valid_values(self):
@@ -454,12 +474,12 @@ class TestAssertValidDnKey(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "Living Room",                       # simple ASCII
-        "Kitchen",                           # shorter ASCII
-        "Cámara",                            # UTF-8 accented char
-        "设备",                              # UTF-8 multibyte chars, within 32 bytes
+        "Living Room",  # simple ASCII
+        "Kitchen",  # shorter ASCII
+        "Cámara",  # UTF-8 accented char
+        "设备",  # UTF-8 multibyte chars, within 32 bytes
         "12345678901234567890123456789012",  # exactly 32 ASCII chars
-        "",                                  # empty string allowed (0 bytes)
+        "",  # empty string allowed (0 bytes)
     ]
 
     def test_valid_values(self):
@@ -500,11 +520,11 @@ class TestAssertValidDtKey(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "0",                # minimum
-        "1",                # smallest nonzero
-        "10",               # typical
-        "4294967295",       # maximum (32-bit)
-        "123456789",        # mid-range
+        "0",  # minimum
+        "1",  # smallest nonzero
+        "10",  # typical
+        "4294967295",  # maximum (32-bit)
+        "123456789",  # mid-range
     ]
 
     def test_valid_values(self):
@@ -551,12 +571,12 @@ class TestAssertValidHostname(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "B75AFB458ECD.local.",                # 12-hex + .local. with trailing dot
-        "ABCDEF123456.local",                 # 12-hex + .local without trailing dot
-        "ABCDEF1234567890.local.",            # 16-hex + .local.
-        "1234567890ABCDEF.example",           # 16-hex + single-label domain
+        "B75AFB458ECD.local.",  # 12-hex + .local. with trailing dot
+        "ABCDEF123456.local",  # 12-hex + .local without trailing dot
+        "ABCDEF1234567890.local.",  # 16-hex + .local.
+        "1234567890ABCDEF.example",  # 16-hex + single-label domain
         "A1B2C3D4E5F60708.my-domain.local.",  # hyphenated domain labels allowed
-        "ABCDEF123456.example.com",           # multi-label domain
+        "ABCDEF123456.example.com",  # multi-label domain
     ]
 
     def test_valid_values(self):
@@ -627,9 +647,9 @@ class TestAssertValidHostname(unittest.TestCase):
 
 
 class TestAssertValidIcdKey(unittest.TestCase):
-    DEC_MSG = 'Encoded as a decimal number in ASCII text'
-    LEAD_MSG = 'Omitting any leading zeros'
-    VAL_MSG = 'Allowed values: 0 or 1'
+    DEC_MSG = "Encoded as a decimal number in ASCII text"
+    LEAD_MSG = "Omitting any leading zeros"
+    VAL_MSG = "Allowed values: 0 or 1"
 
     # Valid values
     VALID_VALUES = [
@@ -710,11 +730,7 @@ class TestAssertValidIPv6Addresses(unittest.TestCase):
 
     def test_valid_multiple_addresses(self):
         # Multiple valid IPv6 addresses should pass
-        assert_valid_ipv6_addresses([
-            "2001:db8::1",
-            "fe80::1",
-            "::1"
-        ])
+        assert_valid_ipv6_addresses(["2001:db8::1", "fe80::1", "::1"])
 
     def test_invalid_single_address(self):
         # One invalid IPv6 address should fail
@@ -746,9 +762,9 @@ class TestAssertValidJfKey(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "1",   # only bit 0
-        "2",   # only bit 1
-        "6",   # bits 1 and 2
+        "1",  # only bit 0
+        "2",  # only bit 1
+        "6",  # bits 1 and 2
         "14",  # bits 1,2,3
     ]
 
@@ -858,11 +874,11 @@ class TestAssertValidLongDiscriminatorSubtype(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "_L0._sub._matterc._udp.local.",       # minimum value
-        "_L1._sub._matterc._udp.local.",       # smallest nonzero
-        "_L4095._sub._matterc._udp.local.",    # maximum valid 12-bit
-        "_L123._sub._matterc._udp.local.",     # midrange
-        "_L3840._sub._matterc._udp.local.",    # example from spec
+        "_L0._sub._matterc._udp.local.",  # minimum value
+        "_L1._sub._matterc._udp.local.",  # smallest nonzero
+        "_L4095._sub._matterc._udp.local.",  # maximum valid 12-bit
+        "_L123._sub._matterc._udp.local.",  # midrange
+        "_L3840._sub._matterc._udp.local.",  # example from spec
     ]
 
     def test_valid_values(self):
@@ -876,8 +892,8 @@ class TestAssertValidLongDiscriminatorSubtype(unittest.TestCase):
 
     def test_invalid_due_to_leading_zero(self):
         msg = fail_msg(assert_valid_long_discriminator_subtype, "_L0123._sub._matterc._udp.local.")
-        self.assertIn(self.FMT_MSG, msg)   # format forbids leading zero
-        self.assertIn(self.DEC_MSG, msg)   # decimal rule forbids leading zero
+        self.assertIn(self.FMT_MSG, msg)  # format forbids leading zero
+        self.assertIn(self.DEC_MSG, msg)  # decimal rule forbids leading zero
         self.assertNotIn(self.RNG_MSG, msg)
 
     def test_invalid_due_to_non_decimal_value(self):
@@ -925,18 +941,18 @@ class TestAssertValidLongDiscriminatorSubtype(unittest.TestCase):
 
 
 class TestAssertValidOperationalInstanceName(unittest.TestCase):
-    HY_MSG = 'Contains exactly one hyphen separating two parts'
-    LEN_MSG = 'Each part is exactly 16 characters long'
-    HEX_MSG = 'Each part only contains hexadecimal uppercase characters [A-F0-9]'
+    HY_MSG = "Contains exactly one hyphen separating two parts"
+    LEN_MSG = "Each part is exactly 16 characters long"
+    HEX_MSG = "Each part only contains hexadecimal uppercase characters [A-F0-9]"
 
     # Valid values
     VALID_VALUES = [
-        "0000000000000000-0000000000000000",   # all zeros
-        "FFFFFFFFFFFFFFFF-FFFFFFFFFFFFFFFF",   # all hex letters
-        "ABCDEF1234567890-0123456789ABCDEF",   # mixed hex letters and digits
-        "A1B2C3D4E5F60708-90ABCDEF12345678",   # another mixed pattern
-        "0000000000000001-0000000000000001",   # leading zeros still valid
-        "1234567890ABCDEF-FEDCBA0987654321",   # reversed/varied
+        "0000000000000000-0000000000000000",  # all zeros
+        "FFFFFFFFFFFFFFFF-FFFFFFFFFFFFFFFF",  # all hex letters
+        "ABCDEF1234567890-0123456789ABCDEF",  # mixed hex letters and digits
+        "A1B2C3D4E5F60708-90ABCDEF12345678",  # another mixed pattern
+        "0000000000000001-0000000000000001",  # leading zeros still valid
+        "1234567890ABCDEF-FEDCBA0987654321",  # reversed/varied
     ]
 
     def test_valid_values(self):
@@ -1024,11 +1040,11 @@ class TestAssertValidPhKey(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "1",          # minimum allowed
-        "33",         # typical example
-        "8388607",    # all 22-bits enabled (1<<23 - 1)
-        "524288",     # power of two within 23 bits
-        "999999",     # large but still valid under mask
+        "1",  # minimum allowed
+        "33",  # typical example
+        "8388607",  # all 22-bits enabled (1<<23 - 1)
+        "524288",  # power of two within 23 bits
+        "999999",  # large but still valid under mask
     ]
 
     def test_valid_values(self):
@@ -1124,11 +1140,11 @@ class TestAssertValidPiKey(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "10",                              # simple ASCII
-        "Pairing instructions",            # plain ASCII
-        "Cámara",                          # accented UTF-8
-        "设备",                             # UTF-8 multibyte, well under 128 bytes
-        "a" * 128,                         # exactly 128 ASCII chars
+        "10",  # simple ASCII
+        "Pairing instructions",  # plain ASCII
+        "Cámara",  # accented UTF-8
+        "设备",  # UTF-8 multibyte, well under 128 bytes
+        "a" * 128,  # exactly 128 ASCII chars
     ]
 
     def test_valid_values(self):
@@ -1180,27 +1196,27 @@ class TestAssertValidPhPiRelationship(unittest.TestCase):
     def test_valid_ph_no_pi_needed(self):
         # PH has no mandatory PI bits set (e.g., bit 0, 1, 2, 3)
         # 7 = 0b0111
-        assert_valid_ph_pi_relationship({'PH': '7'})
+        assert_valid_ph_pi_relationship({"PH": "7"})
 
     def test_valid_ph_with_mandatory_pi_bits(self):
         # PH bit 4 is set, PI is present
         # 16 = 0b10000
-        assert_valid_ph_pi_relationship({'PH': '16', 'PI': 'some instruction'})
+        assert_valid_ph_pi_relationship({"PH": "16", "PI": "some instruction"})
 
     def test_invalid_ph_mandatory_pi_bit_set_no_pi(self):
         # PH bit 4 is set, but PI is missing
-        msg = fail_msg(assert_valid_ph_pi_relationship, {'PH': '16'})
+        msg = fail_msg(assert_valid_ph_pi_relationship, {"PH": "16"})
         self.assertIn("'PI' key must be present", msg)
 
     def test_invalid_pi_no_ph(self):
         # PI is present, but PH is missing
-        msg = fail_msg(assert_valid_ph_pi_relationship, {'PI': 'some instruction'})
+        msg = fail_msg(assert_valid_ph_pi_relationship, {"PI": "some instruction"})
         self.assertIn("'PH' key must be present", msg)
 
     def test_invalid_pi_with_ph_missing_related_bits(self):
         # PI is present, PH is present but has none of bits 4, 8-12, 15-22 set
         # 7 = 0b0111
-        msg = fail_msg(assert_valid_ph_pi_relationship, {'PH': '7', 'PI': 'some instruction'})
+        msg = fail_msg(assert_valid_ph_pi_relationship, {"PH": "7", "PI": "some instruction"})
         self.assertIn("'PH' key must have at least one of bits", msg)
 
     def test_empty_txt(self):
@@ -1214,11 +1230,11 @@ class TestAssertValidProductId(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "0",       # minimum
-        "1",       # smallest nonzero
-        "456",     # typical
-        "65535",   # maximum
-        "12345",   # valid large value
+        "0",  # minimum
+        "1",  # smallest nonzero
+        "456",  # typical
+        "65535",  # maximum
+        "12345",  # valid large value
     ]
 
     def test_valid_values(self):
@@ -1343,11 +1359,11 @@ class TestAssertValidSaiKey(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "0",          # minimum
-        "1",          # smallest nonzero
-        "1250",       # example mid-range
-        "3600000",    # maximum allowed
-        "250000",     # large but valid
+        "0",  # minimum
+        "1",  # smallest nonzero
+        "1250",  # example mid-range
+        "3600000",  # maximum allowed
+        "250000",  # large but valid
     ]
 
     def test_valid_values(self):
@@ -1400,11 +1416,11 @@ class TestAssertValidSatKey(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "0",        # minimum
-        "1",        # smallest nonzero
-        "1250",     # example mid-range
-        "65535",    # maximum allowed
-        "50000",    # large but valid
+        "0",  # minimum
+        "1",  # smallest nonzero
+        "1250",  # example mid-range
+        "65535",  # maximum allowed
+        "50000",  # large but valid
     ]
 
     def test_valid_values(self):
@@ -1458,10 +1474,10 @@ class TestAssertValidShortDiscriminatorSubtype(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "_S0._sub._matterc._udp.local.",    # minimum valid
-        "_S1._sub._matterc._udp.local.",    # smallest nonzero
-        "_S9._sub._matterc._udp.local.",    # single-digit
-        "_S15._sub._matterc._udp.local.",   # maximum 4-bit
+        "_S0._sub._matterc._udp.local.",  # minimum valid
+        "_S1._sub._matterc._udp.local.",  # smallest nonzero
+        "_S9._sub._matterc._udp.local.",  # single-digit
+        "_S15._sub._matterc._udp.local.",  # maximum 4-bit
     ]
 
     def test_valid_values(self):
@@ -1530,11 +1546,11 @@ class TestAssertValidSiiKey(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "0",          # minimum
-        "1",          # smallest nonzero
-        "5300",       # example mid-range
-        "3600000",    # maximum allowed
-        "999999",     # under max
+        "0",  # minimum
+        "1",  # smallest nonzero
+        "5300",  # example mid-range
+        "3600000",  # maximum allowed
+        "999999",  # under max
     ]
 
     def test_valid_values(self):
@@ -1588,7 +1604,9 @@ class TestAssertValidTKey(unittest.TestCase):
     TCP_CAP_MSG = "Value must match TCP capability: {4, 6} if TCP supported, {0} if not"
     MISMATCH_MSG = "TCP support in the PICS"
 
-    def _fail_msg(self, t_key: str, t_key_present: bool, supports_tcp_dut: bool, supports_tcp_pics: bool, enforce_provisional: bool = True) -> str:
+    def _fail_msg(
+        self, t_key: str, t_key_present: bool, supports_tcp_dut: bool, supports_tcp_pics: bool, enforce_provisional: bool = True
+    ) -> str:
         """Helper: run expecting failure and return assertion message"""
         try:
             assert_valid_t_key(t_key, t_key_present, supports_tcp_dut, supports_tcp_pics, enforce_provisional)
@@ -1774,11 +1792,11 @@ class TestAssertValidVendorId(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "0",       # minimum
-        "1",       # smallest nonzero
-        "123",     # typical
-        "65535",   # maximum
-        "54321",   # valid large value
+        "0",  # minimum
+        "1",  # smallest nonzero
+        "123",  # typical
+        "65535",  # maximum
+        "54321",  # valid large value
     ]
 
     def test_valid_values(self):
@@ -1854,10 +1872,10 @@ class TestAssertValidVendorSubtype(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "_V0._sub._matterc._udp.local.",        # minimum valid
-        "_V1._sub._matterc._udp.local.",        # smallest nonzero
-        "_V123._sub._matterc._udp.local.",      # typical value
-        "_V65535._sub._matterc._udp.local.",    # maximum valid (16-bit)
+        "_V0._sub._matterc._udp.local.",  # minimum valid
+        "_V1._sub._matterc._udp.local.",  # smallest nonzero
+        "_V123._sub._matterc._udp.local.",  # typical value
+        "_V65535._sub._matterc._udp.local.",  # maximum valid (16-bit)
     ]
 
     def test_valid_values(self):
@@ -1935,12 +1953,12 @@ class TestAssertValidVpKey(unittest.TestCase):
 
     # Valid values
     VALID_VALUES = [
-        "123",        # Vendor ID only
-        "0",          # Vendor ID only, minimum value
-        "65535",      # Vendor ID only, upper bound
-        "123+456",    # Vendor + Product
-        "1+65535",    # Vendor with max 16-bit product
-        "42+42",      # Vendor and product same
+        "123",  # Vendor ID only
+        "0",  # Vendor ID only, minimum value
+        "65535",  # Vendor ID only, upper bound
+        "123+456",  # Vendor + Product
+        "1+65535",  # Vendor with max 16-bit product
+        "42+42",  # Vendor and product same
     ]
 
     def test_valid_values(self):

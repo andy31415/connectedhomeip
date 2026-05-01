@@ -15,7 +15,7 @@
 
 from ..pseudo_cluster import PseudoCluster
 
-_DEFINITION = '''<?xml version="1.0"?>
+_DEFINITION = """<?xml version="1.0"?>
 <configurator>
 <cluster>
     <name>EqualityCommands</name>
@@ -41,31 +41,31 @@ _DEFINITION = '''<?xml version="1.0"?>
     </command>
 </cluster>
 </configurator>
-'''
+"""
 
 
 def Compare(request):
     value1 = None
     value2 = None
 
-    for argument in request.arguments['values']:
-        if argument['name'] == 'Value1':
-            value1 = argument['value']
-        elif argument['name'] == 'Value2':
-            value2 = argument['value']
+    for argument in request.arguments["values"]:
+        if argument["name"] == "Value1":
+            value1 = argument["value"]
+        elif argument["name"] == "Value2":
+            value2 = argument["value"]
 
     return value1 == value2
 
 
 class EqualityCommands(PseudoCluster):
-    name = 'EqualityCommands'
+    name = "EqualityCommands"
     definition = _DEFINITION
 
     async def BooleanEquals(self, request):
-        return {'value': {'Equals': Compare(request)}}
+        return {"value": {"Equals": Compare(request)}}
 
     async def SignedNumberEquals(self, request):
-        return {'value': {'Equals': Compare(request)}}
+        return {"value": {"Equals": Compare(request)}}
 
     async def UnsignedNumberEquals(self, request):
-        return {'value': {'Equals': Compare(request)}}
+        return {"value": {"Equals": Compare(request)}}

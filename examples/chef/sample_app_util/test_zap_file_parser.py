@@ -32,16 +32,14 @@ class TestZapFileParser(unittest.TestCase):
         """Tests generate_hash function."""
         with mock.patch.object(uuid, "uuid4", return_value="Xir1gEfjij"):
             hash_string = zap_file_parser.generate_hash()
-            self.assertEqual(hash_string, "Xir1gEfjij",
-                             "Hash is incorrectly generated.")
+            self.assertEqual(hash_string, "Xir1gEfjij", "Hash is incorrectly generated.")
 
     def test_generate_metadata(self):
         """Tests generate_metadata."""
         generated_metadata = zap_file_parser.generate_metadata(_TEST_FILE)
         with open(_TEST_METADATA) as f:
             expected_metadata = yaml.load(f.read(), Loader=yaml.FullLoader)
-        self.assertEqual(
-            generated_metadata, expected_metadata, "Metadata not generated correctly.")
+        self.assertEqual(generated_metadata, expected_metadata, "Metadata not generated correctly.")
 
     def test_generate_metadata_file(self):
         """Tests generate_metadata_file."""
@@ -51,19 +49,16 @@ class TestZapFileParser(unittest.TestCase):
             shutil.copy(_TEST_FILE, zap_file)
             zap_file_parser.generate_metadata_file(zap_file)
             with open(meta_file) as f:
-                generated_metadata = yaml.load(
-                    f.read(), Loader=yaml.FullLoader)
+                generated_metadata = yaml.load(f.read(), Loader=yaml.FullLoader)
             with open(_TEST_METADATA) as f:
                 expected_metadata = yaml.load(f.read(), Loader=yaml.FullLoader)
-            self.assertEqual(
-                generated_metadata, expected_metadata, "Metadata file not generated correctly.")
+            self.assertEqual(generated_metadata, expected_metadata, "Metadata file not generated correctly.")
 
     def test_generate_name(self):
         """Tests generate_name."""
         with mock.patch.object(uuid, "uuid4", return_value="Xir1gEfjij"):
             name = zap_file_parser.generate_name(_TEST_FILE)
-            self.assertEqual(
-                name, "rootnode_dimmablelight_Xir1gEfjij", "Name incorrectly generated.")
+            self.assertEqual(name, "rootnode_dimmablelight_Xir1gEfjij", "Name incorrectly generated.")
 
 
 if __name__ == "__main__":

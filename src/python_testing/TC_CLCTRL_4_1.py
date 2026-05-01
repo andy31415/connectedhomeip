@@ -59,6 +59,7 @@ def main_state_matcher(main_state: Clusters.ClosureControl.Enums.MainStateEnum) 
         if report.attribute != Clusters.ClosureControl.Attributes.MainState:
             return False
         return report.value == main_state
+
     return AttributeMatcher.from_callable(description=f"MainState is {main_state}", matcher=predicate)
 
 
@@ -67,6 +68,7 @@ def current_position_matcher(current_position: Clusters.ClosureControl.Enums.Cur
         if report.attribute != Clusters.ClosureControl.Attributes.OverallCurrentState:
             return False
         return report.value.position == current_position
+
     return AttributeMatcher.from_callable(description=f"OverallCurrentState.Position is {current_position}", matcher=predicate)
 
 
@@ -75,6 +77,7 @@ def current_speed_matcher(current_speed: Clusters.Globals.Enums.ThreeLevelAutoEn
         if report.attribute != Clusters.ClosureControl.Attributes.OverallCurrentState:
             return False
         return report.value.speed == current_speed
+
     return AttributeMatcher.from_callable(description=f"OverallCurrentState.speed is {current_speed}", matcher=predicate)
 
 
@@ -83,6 +86,7 @@ def current_latch_matcher(current_latch: bool) -> AttributeMatcher:
         if report.attribute != Clusters.ClosureControl.Attributes.OverallCurrentState:
             return False
         return report.value.latch == current_latch
+
     return AttributeMatcher.from_callable(description=f"OverallCurrentState.Latch is {current_latch}", matcher=predicate)
 
 
@@ -105,7 +109,10 @@ class TC_CLCTRL_4_1(MatterBaseTest):
             TestStep("2b", "If the PS feature is not supported on the cluster, skip remaining steps and end test case."),
             TestStep("2c", "TH reads TestEventTrigger attribute from the General Diagnostic Cluster."),
             TestStep("2d", "TH reads from the DUT the (0xFFFB) AttributeList attribute."),
-            TestStep("2e", "TH establishes a wildcard subscription to all attributes on the Closure Control Cluster, with MinIntervalFloor = 0, MaxIntervalCeiling = 30 and KeepSubscriptions = false."),
+            TestStep(
+                "2e",
+                "TH establishes a wildcard subscription to all attributes on the Closure Control Cluster, with MinIntervalFloor = 0, MaxIntervalCeiling = 30 and KeepSubscriptions = false.",
+            ),
             TestStep("3a", "TH reads from the DUT the OverallCurrentState attribute."),
             TestStep("3b", "If CurrentPosition = FullyClosed, skip steps 3c to 3d."),
             TestStep("3c", "TH sends command MoveTo with Position = MoveToFullyClosed."),
@@ -142,7 +149,9 @@ class TC_CLCTRL_4_1(MatterBaseTest):
             TestStep("8e", "Wait until TH receives a subscription report with OverallCurrentState.Position = FullyClosed."),
             TestStep("8f", "TH sends command MoveTo with Position = MoveToVentilationPosition."),
             TestStep("8g", "TH reads from the DUT the OverallTargetState attribute."),
-            TestStep("8h", "Wait until TH receives a subscription report with OverallCurrentState.Position = OpenedForVentilation."),
+            TestStep(
+                "8h", "Wait until TH receives a subscription report with OverallCurrentState.Position = OpenedForVentilation."
+            ),
             TestStep("8i", "Wait until TH receives a subscription report with MainState = Stopped."),
             TestStep("9a", "If PD feature is not supported on the cluster, skip steps 9b to 9i."),
             TestStep("9b", "TH reads from the DUT the OverallCurrentState attribute."),
@@ -173,16 +182,28 @@ class TC_CLCTRL_4_1(MatterBaseTest):
             TestStep("12f", "TH reads from the DUT the OverallTargetState attribute."),
             TestStep("12g", "Wait until TH receives a subscription report with OverallCurrentState.Speed = Low."),
             TestStep("13a", "If PT feature is not supported on the cluster, skip steps 13b to 13f."),
-            TestStep("13b", "TH sends TestEventTrigger command to General Diagnostic Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState is Protected Test Event."),
+            TestStep(
+                "13b",
+                "TH sends TestEventTrigger command to General Diagnostic Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState is Protected Test Event.",
+            ),
             TestStep("13c", "TH reads from the DUT the MainState attribute."),
             TestStep("13d", "TH sends command MoveTo with Position = MoveToFullyOpen."),
-            TestStep("13e", "TH sends TestEventTrigger command to General Diagnostic Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState Test Event Clear."),
+            TestStep(
+                "13e",
+                "TH sends TestEventTrigger command to General Diagnostic Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState Test Event Clear.",
+            ),
             TestStep("13f", "TH reads from the DUT the MainState attribute."),
             TestStep("14a", "If MO feature is not supported on the cluster, skip steps 14b to 14f."),
-            TestStep("14b", "TH sends TestEventTrigger command to General Diagnostic Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState is Disengaged Test Event."),
+            TestStep(
+                "14b",
+                "TH sends TestEventTrigger command to General Diagnostic Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState is Disengaged Test Event.",
+            ),
             TestStep("14c", "TH reads from the DUT the MainState attribute."),
             TestStep("14d", "TH sends command MoveTo with Position = MoveToFullyOpen."),
-            TestStep("14e", "TH sends TestEventTrigger command to General Diagnostic Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState Test Event Clear."),
+            TestStep(
+                "14e",
+                "TH sends TestEventTrigger command to General Diagnostic Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState Test Event Clear.",
+            ),
             TestStep("14f", "TH reads from the DUT the MainState attribute."),
             TestStep("15a", "If IS feature is not supported on the cluster, skip steps 15b to 15i."),
             TestStep("15b", "TH sends command MoveTo with Position = MoveToFullyOpen."),
@@ -196,9 +217,7 @@ class TC_CLCTRL_4_1(MatterBaseTest):
         ]
 
     def pics_TC_CLCTRL_4_1(self) -> list[str]:
-        return [
-            "CLCTRL.S", "CLCTRL.S.F00"
-        ]
+        return ["CLCTRL.S", "CLCTRL.S.F00"]
 
     @property
     def default_endpoint(self) -> int:
@@ -253,7 +272,9 @@ class TC_CLCTRL_4_1(MatterBaseTest):
         self.step("2e")
 
         sub_handler = AttributeSubscriptionHandler(expected_cluster=Clusters.ClosureControl)
-        await sub_handler.start(dev_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
+        await sub_handler.start(
+            dev_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False
+        )
 
         # STEP 3a: TH reads from the DUT the OverallCurrentState attribute
         self.step("3a")
@@ -265,8 +286,11 @@ class TC_CLCTRL_4_1(MatterBaseTest):
             asserts.assert_fail("OverallCurrentState is NullValue.")
 
         CurrentPosition = overall_current_state.position
-        asserts.assert_in(CurrentPosition, Clusters.ClosureControl.Enums.CurrentPositionEnum,
-                          "OverallCurrentState.position is not in the expected range")
+        asserts.assert_in(
+            CurrentPosition,
+            Clusters.ClosureControl.Enums.CurrentPositionEnum,
+            "OverallCurrentState.position is not in the expected range",
+        )
 
         # STEP 3b: If CurrentPosition = FullyClosed, skip steps 3c to 3d
         self.step("3b")
@@ -283,20 +307,25 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
             sub_handler.reset()
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(
+                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                 pass
 
             # STEP 3d: Wait until TH receives a subscription report with OverallCurrentState.Position = FullyClosed
             self.step("3d")
 
             log.info("Waiting for OverallCurrentState.Position to be FullyClosed")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
-                                                          timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
+                timeout_sec=timeout,
+            )
 
         # STEP 3e: If the LT feature is not supported on the cluster, skip steps 3f to 5e
         self.step("3e")
@@ -362,12 +391,11 @@ class TC_CLCTRL_4_1(MatterBaseTest):
                     self.step("3j")
 
                     try:
-                        await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                            latch=True
-                        ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                        await self.send_single_cmd(
+                            cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), endpoint=endpoint, timedRequestTimeoutMs=1000
+                        )
                     except InteractionModelError as e:
-                        asserts.assert_equal(
-                            e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                        asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                         pass
                     self.step("3k")
                     self.skip_step("3l")
@@ -376,28 +404,31 @@ class TC_CLCTRL_4_1(MatterBaseTest):
                 self.step("3m")
 
                 log.info("Waiting for OverallCurrentState.Latch to be True")
-                sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(True)],
-                                                              timeout_sec=timeout)
+                sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(True)], timeout_sec=timeout)
 
             # STEP 3n: TH reads from the DUT the MainState attribute
             self.step("3n")
 
             main_state = await self.read_clctrl_attribute_expect_success(endpoint, attributes.MainState)
             log.info(f"MainState: {main_state}")
-            asserts.assert_true(main_state == Clusters.ClosureControl.Enums.MainStateEnum.kStopped,
-                                "MainState is not in the expected state")
+            asserts.assert_true(
+                main_state == Clusters.ClosureControl.Enums.MainStateEnum.kStopped, "MainState is not in the expected state"
+            )
 
             # STEP 4a: TH sends command MoveTo with Position = MoveToFullyOpen
             self.step("4a")
 
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(
+                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
                 asserts.fail("Expected InvalidInState error, but command succeeded.")
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.InvalidInState, f"The MoveTo command sends an incorrect state: {e.status}")
+                asserts.assert_equal(e.status, Status.InvalidInState, f"The MoveTo command sends an incorrect state: {e.status}")
                 pass
 
             # STEP 5a: If LatchControlModes Bit 1 = 0 (RemoteUnlatching = False), skip step 5b
@@ -427,12 +458,11 @@ class TC_CLCTRL_4_1(MatterBaseTest):
                 self.step("5b")
 
                 try:
-                    await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                        latch=False
-                    ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                    await self.send_single_cmd(
+                        cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), endpoint=endpoint, timedRequestTimeoutMs=1000
+                    )
                 except InteractionModelError as e:
-                    asserts.assert_equal(
-                        e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                    asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                     pass
 
                 self.step("5c")
@@ -442,8 +472,7 @@ class TC_CLCTRL_4_1(MatterBaseTest):
             self.step("5e")
 
             log.info("Waiting for OverallCurrentState.Latch to be False")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(False)],
-                                                          timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(False)], timeout_sec=timeout)
         else:
             log.info("Motion Latching feature not supported, skipping steps 3f to 5e")
 
@@ -470,8 +499,9 @@ class TC_CLCTRL_4_1(MatterBaseTest):
                 asserts.assert_fail("OverallCurrentState is NullValue.")
 
             CurrentSpeed = overall_current_state.speed
-            asserts.assert_in(CurrentSpeed, Clusters.Globals.Enums.ThreeLevelAutoEnum,
-                              "OverallCurrentState.speed is not in the expected range")
+            asserts.assert_in(
+                CurrentSpeed, Clusters.Globals.Enums.ThreeLevelAutoEnum, "OverallCurrentState.speed is not in the expected range"
+            )
 
             # STEP 6c: If CurrentSpeed = Low, skip steps 6d to 6e
             self.step("6c")
@@ -490,32 +520,37 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
                 sub_handler.reset()
                 try:
-                    await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                        speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow
-                    ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                    await self.send_single_cmd(
+                        cmd=Clusters.ClosureControl.Commands.MoveTo(speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow),
+                        endpoint=endpoint,
+                        timedRequestTimeoutMs=1000,
+                    )
                 except InteractionModelError as e:
-                    asserts.assert_equal(
-                        e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                    asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                     pass
 
                 # STEP 6e: Wait until TH receives a subscription report with OverallCurrentState.Speed = Low
                 self.step("6e")
 
                 log.info("Waiting for OverallCurrentState.Speed to be Low")
-                sub_handler.await_all_expected_report_matches(expected_matchers=[current_speed_matcher(Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow)],
-                                                              timeout_sec=timeout)
+                sub_handler.await_all_expected_report_matches(
+                    expected_matchers=[current_speed_matcher(Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow)], timeout_sec=timeout
+                )
 
         # STEP 7a: TH sends command MoveTo with Position = MoveToSignaturePosition
         self.step("7a")
 
         sub_handler.reset()
         try:
-            await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToSignaturePosition,
-            ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+            await self.send_single_cmd(
+                cmd=Clusters.ClosureControl.Commands.MoveTo(
+                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToSignaturePosition,
+                ),
+                endpoint=endpoint,
+                timedRequestTimeoutMs=1000,
+            )
         except InteractionModelError as e:
-            asserts.assert_equal(
-                e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+            asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
             pass
 
         # STEP 7b: TH reads from the DUT the OverallTargetState attribute
@@ -523,22 +558,28 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
         overall_target = await self.read_clctrl_attribute_expect_success(endpoint, attributes.OverallTargetState)
         log.info(f"OverallTargetState: {overall_target}")
-        asserts.assert_equal(overall_target.position, Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToSignaturePosition,
-                             "OverallTarget.position is not MoveToSignaturePosition")
+        asserts.assert_equal(
+            overall_target.position,
+            Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToSignaturePosition,
+            "OverallTarget.position is not MoveToSignaturePosition",
+        )
 
         # STEP 7c: Wait until TH receives a subscription report with OverallCurrentState.Position = OpenedAtSignature
         self.step("7c")
 
         log.info("Waiting for OverallCurrentState.Position to be OpenedAtSignature")
-        sub_handler.await_all_expected_report_matches(expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kOpenedAtSignature)],
-                                                      timeout_sec=timeout)
+        sub_handler.await_all_expected_report_matches(
+            expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kOpenedAtSignature)],
+            timeout_sec=timeout,
+        )
 
         # STEP 7d: Wait until TH receives a subscription report with MainState = Stopped
         self.step("7d")
 
         log.info("Waiting for MainState to be Stopped")
-        sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)],
-                                                      timeout_sec=timeout)
+        sub_handler.await_all_expected_report_matches(
+            expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout
+        )
 
         # STEP 8a: If VT feature is not supported on the cluster, skip steps 8b to 8i
         self.step("8a")
@@ -574,32 +615,40 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
                 sub_handler.reset()
                 try:
-                    await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
-                    ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                    await self.send_single_cmd(
+                        cmd=Clusters.ClosureControl.Commands.MoveTo(
+                            position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
+                        ),
+                        endpoint=endpoint,
+                        timedRequestTimeoutMs=1000,
+                    )
                 except InteractionModelError as e:
-                    asserts.assert_equal(
-                        e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                    asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                     pass
 
                 # STEP 8e: Wait until TH receives a subscription report with OverallCurrentState.Position = FullyClosed
                 self.step("8e")
 
                 log.info("Waiting for OverallCurrentState.Position to be FullyClosed")
-                sub_handler.await_all_expected_report_matches(expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
-                                                              timeout_sec=timeout)
+                sub_handler.await_all_expected_report_matches(
+                    expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
+                    timeout_sec=timeout,
+                )
 
             # STEP 8f: TH sends command MoveTo with Position = MoveToVentilationPosition
             self.step("8f")
 
             sub_handler.reset()
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToVentilationPosition,
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(
+                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToVentilationPosition,
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                 pass
 
             # STEP 8g: TH reads from the DUT the OverallTargetState attribute
@@ -607,22 +656,30 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
             overall_target = await self.read_clctrl_attribute_expect_success(endpoint, attributes.OverallTargetState)
             log.info(f"OverallTargetState: {overall_target}")
-            asserts.assert_equal(overall_target.position, Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToVentilationPosition,
-                                 "OverallTargetState.position is not MoveToVentilationPosition")
+            asserts.assert_equal(
+                overall_target.position,
+                Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToVentilationPosition,
+                "OverallTargetState.position is not MoveToVentilationPosition",
+            )
 
             # STEP 8h: Wait until TH receives a subscription report with OverallCurrentState.Position = OpenedForVentilation
             self.step("8h")
 
             log.info("Waiting for OverallCurrentState.Position to be OpenedForVentilation")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kOpenedForVentilation)],
-                                                          timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[
+                    current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kOpenedForVentilation)
+                ],
+                timeout_sec=timeout,
+            )
 
             # STEP 8i: Wait until TH receives a subscription report with MainState = Stopped
             self.step("8i")
 
             log.info("Waiting for MainState to be Stopped")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)],
-                                                          timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout
+            )
 
         # STEP 9a: If PD feature is not supported on the cluster, skip steps 9b to 9i
         self.step("9a")
@@ -660,32 +717,40 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
                 sub_handler.reset()
                 try:
-                    await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
-                    ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                    await self.send_single_cmd(
+                        cmd=Clusters.ClosureControl.Commands.MoveTo(
+                            position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
+                        ),
+                        endpoint=endpoint,
+                        timedRequestTimeoutMs=1000,
+                    )
                 except InteractionModelError as e:
-                    asserts.assert_equal(
-                        e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                    asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                     pass
 
                 # STEP 9e: Wait until TH receives a subscription report with OverallCurrentState.Position = FullyClosed
                 self.step("9e")
 
                 log.info("Waiting for OverallCurrentState.Position to be FullyClosed")
-                sub_handler.await_all_expected_report_matches(expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
-                                                              timeout_sec=timeout)
+                sub_handler.await_all_expected_report_matches(
+                    expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
+                    timeout_sec=timeout,
+                )
 
             # STEP 9f: TH sends command MoveTo with Position = MoveToPedestrianPosition
             self.step("9f")
 
             sub_handler.reset()
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToPedestrianPosition,
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(
+                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToPedestrianPosition,
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                 pass
 
             # STEP 9g: TH reads from the DUT the OverallTargetState attribute
@@ -693,22 +758,30 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
             overall_target = await self.read_clctrl_attribute_expect_success(endpoint, attributes.OverallTargetState)
             log.info(f"OverallTargetState: {overall_target}")
-            asserts.assert_equal(overall_target.position, Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToPedestrianPosition,
-                                 "OverallTarget.position is not MoveToPedestrianPosition")
+            asserts.assert_equal(
+                overall_target.position,
+                Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToPedestrianPosition,
+                "OverallTarget.position is not MoveToPedestrianPosition",
+            )
 
             # STEP 9h: Wait until TH receives a subscription report with OverallCurrentState.Position = OpenedForPedestrian
             self.step("9h")
 
             log.info("Waiting for OverallCurrentState.Position to be OpenedForPedestrian")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kOpenedForPedestrian)],
-                                                          timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[
+                    current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kOpenedForPedestrian)
+                ],
+                timeout_sec=timeout,
+            )
 
             # STEP 9i: Wait until TH receives a subscription report with MainState = Stopped
             self.step("9i")
 
             log.info("Waiting for MainState to be Stopped")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)],
-                                                          timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout
+            )
 
         # STEP 10a: TH reads from the DUT the OverallCurrentState attribute
         self.step("10a")
@@ -734,32 +807,40 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
             sub_handler.reset()
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(
+                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                 pass
 
             # STEP 10d: Wait until TH receives a subscription report with OverallCurrentState.Position = FullyClosed
             self.step("10d")
 
             log.info("Waiting for OverallCurrentState.Position to be FullyClosed")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
-                                                          timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
+                timeout_sec=timeout,
+            )
 
         # STEP 10e: TH sends command MoveTo with Position = MoveToFullyOpen
         self.step("10e")
 
         sub_handler.reset()
         try:
-            await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
-            ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+            await self.send_single_cmd(
+                cmd=Clusters.ClosureControl.Commands.MoveTo(
+                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
+                ),
+                endpoint=endpoint,
+                timedRequestTimeoutMs=1000,
+            )
         except InteractionModelError as e:
-            asserts.assert_equal(
-                e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+            asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
             pass
 
         # STEP 10f: TH reads from the DUT the OverallTargetState attribute
@@ -767,34 +848,43 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
         overall_target = await self.read_clctrl_attribute_expect_success(endpoint, attributes.OverallTargetState)
         log.info(f"OverallTarget: {overall_target}")
-        asserts.assert_equal(overall_target.position, Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
-                             "OverallTargetState.position is not MoveToFullyOpen")
+        asserts.assert_equal(
+            overall_target.position,
+            Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
+            "OverallTargetState.position is not MoveToFullyOpen",
+        )
 
         # STEP 10g: Wait until TH receives a subscription report with OverallCurrentState.Position = FullyOpened
         self.step("10g")
 
         log.info("Waiting for OverallCurrentState.Position to be FullyOpened")
-        sub_handler.await_all_expected_report_matches(expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyOpened)],
-                                                      timeout_sec=timeout)
+        sub_handler.await_all_expected_report_matches(
+            expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyOpened)],
+            timeout_sec=timeout,
+        )
 
         # STEP 10h: Wait until TH receives a subscription report with MainState = Stopped
         self.step("10h")
 
         log.info("Waiting for MainState to be Stopped")
-        sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)],
-                                                      timeout_sec=timeout)
+        sub_handler.await_all_expected_report_matches(
+            expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout
+        )
 
         # STEP 11a: TH sends command MoveTo with Position = MoveToFullyClosed
         self.step("11a")
 
         sub_handler.reset()
         try:
-            await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
-            ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+            await self.send_single_cmd(
+                cmd=Clusters.ClosureControl.Commands.MoveTo(
+                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
+                ),
+                endpoint=endpoint,
+                timedRequestTimeoutMs=1000,
+            )
         except InteractionModelError as e:
-            asserts.assert_equal(
-                e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+            asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
             pass
 
         # STEP 11b: TH reads from the DUT the OverallTargetState attribute
@@ -802,22 +892,28 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
         overall_target = await self.read_clctrl_attribute_expect_success(endpoint, attributes.OverallTargetState)
         log.info(f"OverallTargetState: {overall_target}")
-        asserts.assert_equal(overall_target.position, Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
-                             "OverallTargetState.position is not MoveToFullyClosed")
+        asserts.assert_equal(
+            overall_target.position,
+            Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
+            "OverallTargetState.position is not MoveToFullyClosed",
+        )
 
         # STEP 11c: Wait until TH receives a subscription report with OverallCurrentState.Position = FullyClosed
         self.step("11c")
 
         log.info("Waiting for OverallCurrentState.Position to be FullyClosed")
-        sub_handler.await_all_expected_report_matches(expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
-                                                      timeout_sec=timeout)
+        sub_handler.await_all_expected_report_matches(
+            expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
+            timeout_sec=timeout,
+        )
 
         # STEP 11d: Wait until TH receives a subscription report with MainState = Stopped
         self.step("11d")
 
         log.info("Waiting for MainState to be Stopped")
-        sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)],
-                                                      timeout_sec=timeout)
+        sub_handler.await_all_expected_report_matches(
+            expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout
+        )
 
         # STEP 12a: If SP feature is not supported on the cluster, skip steps 12b to 12g
         self.step("12a")
@@ -833,12 +929,13 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
             sub_handler.reset()
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kHigh
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kHigh),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                 pass
 
             # STEP 12c: TH reads from the DUT the OverallTargetState attribute
@@ -846,27 +943,30 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
             overall_target = await self.read_clctrl_attribute_expect_success(endpoint, attributes.OverallTargetState)
             log.info(f"OverallTarget: {overall_target}")
-            asserts.assert_equal(overall_target.speed, Clusters.Globals.Enums.ThreeLevelAutoEnum.kHigh,
-                                 "OverallTargetState.speed is not High")
+            asserts.assert_equal(
+                overall_target.speed, Clusters.Globals.Enums.ThreeLevelAutoEnum.kHigh, "OverallTargetState.speed is not High"
+            )
 
             # STEP 12d: Wait until TH receives a subscription report with OverallCurrentState.Speed = High
             self.step("12d")
 
             log.info("Waiting for OverallCurrentState.Speed to be High")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[current_speed_matcher(Clusters.Globals.Enums.ThreeLevelAutoEnum.kHigh)],
-                                                          timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[current_speed_matcher(Clusters.Globals.Enums.ThreeLevelAutoEnum.kHigh)], timeout_sec=timeout
+            )
 
             # STEP 12e: TH sends command MoveTo with Speed = Low
             self.step("12e")
 
             sub_handler.reset()
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                 pass
 
             # STEP 12f: TH reads from the DUT the OverallTargetState attribute
@@ -874,15 +974,17 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
             overall_target = await self.read_clctrl_attribute_expect_success(endpoint, attributes.OverallTargetState)
             log.info(f"OverallTargetState: {overall_target}")
-            asserts.assert_equal(overall_target.speed, Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow,
-                                 "OverallTargetState.speed is not Low")
+            asserts.assert_equal(
+                overall_target.speed, Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow, "OverallTargetState.speed is not Low"
+            )
 
             # STEP 12g: Wait until TH receives a subscription report with OverallCurrentState.Speed = Low
             self.step("12g")
 
             log.info("Waiting for OverallCurrentState.Speed to be Low")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[current_speed_matcher(Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow)],
-                                                          timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[current_speed_matcher(Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow)], timeout_sec=timeout
+            )
 
         # STEP 13a: If PT feature is not supported on the cluster, skip steps 13b to 13f
         self.step("13a")
@@ -894,8 +996,7 @@ class TC_CLCTRL_4_1(MatterBaseTest):
             try:
                 await self.send_test_event_triggers(eventTrigger=triggerProtected)  # Protected
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
                 pass
 
             # STEP 13c: TH reads from the DUT the MainState attribute
@@ -903,20 +1004,22 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
             main_state = await self.read_clctrl_attribute_expect_success(endpoint, attributes.MainState)
             log.info(f"MainState: {main_state}")
-            asserts.assert_equal(main_state, Clusters.ClosureControl.Enums.MainStateEnum.kProtected,
-                                 "MainState is not Protected")
+            asserts.assert_equal(main_state, Clusters.ClosureControl.Enums.MainStateEnum.kProtected, "MainState is not Protected")
 
             # STEP 13d: TH sends command MoveTo with Position = MoveToFullyOpen
             self.step("13d")
 
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(
+                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
                 asserts.fail("Expected InvalidInState error, but command succeeded.")
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.InvalidInState, f"The MoveTo command sends an incorrect state: {e.status}")
+                asserts.assert_equal(e.status, Status.InvalidInState, f"The MoveTo command sends an incorrect state: {e.status}")
                 pass
 
             # STEP 13e: TH sends TestEventTrigger command to General Diagnostic Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState Test Event Clear
@@ -925,8 +1028,7 @@ class TC_CLCTRL_4_1(MatterBaseTest):
             try:
                 await self.send_test_event_triggers(eventTrigger=triggerClear)  # Test Event Clear
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
                 pass
 
             # STEP 13f: TH reads from the DUT the MainState attribute
@@ -951,8 +1053,7 @@ class TC_CLCTRL_4_1(MatterBaseTest):
             try:
                 await self.send_test_event_triggers(eventTrigger=triggerDisengaged)  # Disengaged
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
                 pass
 
             # STEP 14c: TH reads from the DUT the MainState attribute
@@ -960,20 +1061,22 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
             main_state = await self.read_clctrl_attribute_expect_success(endpoint, attributes.MainState)
             log.info(f"MainState: {main_state}")
-            asserts.assert_equal(main_state, Clusters.ClosureControl.Enums.MainStateEnum.kDisengaged,
-                                 "MainState is not Disengaged")
+            asserts.assert_equal(main_state, Clusters.ClosureControl.Enums.MainStateEnum.kDisengaged, "MainState is not Disengaged")
 
             # STEP 14d: TH sends command MoveTo with Position = MoveToFullyOpen
             self.step("14d")
 
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(
+                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
                 asserts.fail("Expected InvalidInState error, but command succeeded.")
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.InvalidInState, f"The MoveTo command sends an incorrect state: {e.status}")
+                asserts.assert_equal(e.status, Status.InvalidInState, f"The MoveTo command sends an incorrect state: {e.status}")
                 pass
 
             # STEP 14e: TH sends TestEventTrigger command to General Diagnostic Cluster on Endpoint 0 with EnableKey field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.CLCTRL.TEST_EVENT_TRIGGER for MainState Test Event Clear
@@ -982,8 +1085,7 @@ class TC_CLCTRL_4_1(MatterBaseTest):
             try:
                 await self.send_test_event_triggers(eventTrigger=triggerClear)  # Test Event Clear
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command TestEventTrigger: {e.status}")
                 pass
 
             # STEP 14f: TH reads from the DUT the MainState attribute
@@ -1007,12 +1109,15 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
             sub_handler.reset()
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    postion=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(
+                        postion=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                 pass
 
             # STEP 15c: TH reads from the DUT the OverallTargetState attribute
@@ -1020,8 +1125,11 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
             overall_target = await self.read_clctrl_attribute_expect_success(endpoint, attributes.OverallTargetState)
             log.info(f"OverallTargetState: {overall_target}")
-            asserts.assert_equal(overall_target.position, Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
-                                 "OverallTargetState.position is not MoveToFullyOpen")
+            asserts.assert_equal(
+                overall_target.position,
+                Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen,
+                "OverallTargetState.position is not MoveToFullyOpen",
+            )
 
             # STEP 15d: Wait 2 seconds and TH reads from the DUT the OverallCurrentState.Position = FullyOpened.
             self.step("15d")
@@ -1035,27 +1143,34 @@ class TC_CLCTRL_4_1(MatterBaseTest):
                 asserts.assert_fail("OverallCurrentState is NullValue.")
 
             log.info(f"OverallCurrentState: {overall_current_state}")
-            asserts.assert_equal(overall_current_state.position, Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyOpened,
-                                 "OverallCurrentState.position is not FullyOpened")
+            asserts.assert_equal(
+                overall_current_state.position,
+                Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyOpened,
+                "OverallCurrentState.position is not FullyOpened",
+            )
 
             # STEP 15e: Wait until TH receives a subscription report with MainState = Stopped.
             self.step("15e")
 
             log.info("Waiting for MainState to be Stopped")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)],
-                                                          timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout
+            )
 
             # STEP 15f: TH sends command MoveTo with Position = MoveToFullyClosed
             self.step("15f")
 
             sub_handler.reset()
             try:
-                await self.send_single_cmd(cmd=Clusters.ClosureControl.Commands.MoveTo(
-                    position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
-                ), endpoint=endpoint, timedRequestTimeoutMs=1000)
+                await self.send_single_cmd(
+                    cmd=Clusters.ClosureControl.Commands.MoveTo(
+                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
+                    ),
+                    endpoint=endpoint,
+                    timedRequestTimeoutMs=1000,
+                )
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
+                asserts.assert_equal(e.status, Status.Success, f"Failed to send command MoveTo: {e.status}")
                 pass
 
             # STEP 15g: TH reads from the DUT the OverallTargetState attribute
@@ -1063,8 +1178,11 @@ class TC_CLCTRL_4_1(MatterBaseTest):
 
             overall_target = await self.read_clctrl_attribute_expect_success(endpoint, attributes.OverallTargetState)
             log.info(f"OverallTarget: {overall_target}")
-            asserts.assert_equal(overall_target.position, Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
-                                 "OverallTargetState.position is not MoveToFullyClosed")
+            asserts.assert_equal(
+                overall_target.position,
+                Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed,
+                "OverallTargetState.position is not MoveToFullyClosed",
+            )
 
             # STEP 15h: Wait 2 seconds and TH reads from the DUT the OverallCurrentState.Position = FullyClosed.
             self.step("15h")
@@ -1077,15 +1195,19 @@ class TC_CLCTRL_4_1(MatterBaseTest):
                 asserts.assert_fail("OverallCurrentState is NullValue.")
 
             log.info(f"OverallCurrentState: {overall_current_state}")
-            asserts.assert_equal(overall_current_state.position, Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed,
-                                 "OverallCurrentState.position is not FullyClosed")
+            asserts.assert_equal(
+                overall_current_state.position,
+                Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed,
+                "OverallCurrentState.position is not FullyClosed",
+            )
 
             # STEP 15i: Wait until TH receives a subscription report with MainState = Stopped.
             self.step("15i")
 
             log.info("Waiting for MainState to be Stopped")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)],
-                                                          timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout
+            )
 
         else:
             log.info("Instantaneous feature not supported, skipping steps 15b to 15i")

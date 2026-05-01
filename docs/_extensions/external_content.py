@@ -48,9 +48,7 @@ __version__ = "0.1.0"
 DIRECTIVES = ("figure", "image", "include", "literalinclude")
 """Default directives for included content."""
 
-EXTERNAL_LINK_URL_PREFIX = (
-    "https://github.com/project-chip/connectedhomeip/blob/master/"
-)
+EXTERNAL_LINK_URL_PREFIX = "https://github.com/project-chip/connectedhomeip/blob/master/"
 
 
 def adjust_includes(
@@ -121,29 +119,25 @@ def adjust_includes(
     rules = [
         # Find any links and adjust the path
         (r"\[([^\[\]]*)\]\s*\((.*)\)", _adjust_links),
-
         # Find links that lead to an external folder and transform it
         # into an external link.
         (
             r"\[([^\[\]]*)\]\s*\((?:\.\./)*((?:" + "|".join(link_prefixes) + r")[^)]*)\)",
             _adjust_external,
         ),
-
         # Find links that lead to a non-presentable filetype and transform
         # it into an external link.
         (
             r"\[([^\[\]]*)\]\s*\((?:\.\./)*((?:[^()]+?/)*[^.()]+?(\.[^)/#]+))(?:#[^)]+)?\)",
             _adjust_filetype,
         ),
-
         # Find links that lead to a folder and transform it into an external link.
         (
             r"\[([^\[\]]*)\]\s*\((?:\.\./)*((?:[^()]+?/)+[^).#/]+)(\))",
             _adjust_filetype,
         ),
-
         # Find image links in img tags and adjust them
-        (r"(<img [^>]*src=[\"'])([^ >]+)([\"'][^>]*>)", _adjust_image_link)
+        (r"(<img [^>]*src=[\"'])([^ >]+)([\"'][^>]*>)", _adjust_image_link),
     ]
 
     with open(fname, "r+", encoding=encoding) as f:
@@ -170,20 +164,13 @@ def sync_contents(app: Sphinx) -> None:
     srcdir = Path(app.srcdir).resolve()
     to_copy = []
     to_delete = {f for f in srcdir.glob("**/*") if not f.is_dir()}
-    to_keep = {
-        f
-        for k in app.config.external_content_keep
-        for f in srcdir.glob(k)
-        if not f.is_dir()
-    }
+    to_keep = {f for k in app.config.external_content_keep for f in srcdir.glob(k) if not f.is_dir()}
 
     for content in app.config.external_content_contents:
         prefix_src, glob = content
         for src in prefix_src.glob(glob):
             if src.is_dir():
-                to_copy.extend(
-                    [(f, prefix_src) for f in src.glob("**/*") if not f.is_dir()]
-                )
+                to_copy.extend([(f, prefix_src) for f in src.glob("**/*") if not f.is_dir()])
             else:
                 to_copy.append((src, prefix_src))
 

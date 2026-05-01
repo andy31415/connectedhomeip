@@ -23,11 +23,36 @@ from lark import Lark
 from lark.lexer import Token
 from lark.visitors import Transformer, v_args
 
-from matter.idl.matter_idl_types import (AccessPrivilege, ApiMaturity, Attribute, AttributeInstantiation, AttributeOperation,
-                                         AttributeQuality, AttributeStorage, Bitmap, Cluster, Command, CommandInstantiation,
-                                         CommandQuality, ConstantEntry, DataType, DeviceType, Endpoint, Enum, Event, EventPriority,
-                                         EventQuality, Field, FieldQuality, Idl, ParseMetaData, ServerClusterInstantiation, Struct,
-                                         StructQuality, StructTag)
+from matter.idl.matter_idl_types import (
+    AccessPrivilege,
+    ApiMaturity,
+    Attribute,
+    AttributeInstantiation,
+    AttributeOperation,
+    AttributeQuality,
+    AttributeStorage,
+    Bitmap,
+    Cluster,
+    Command,
+    CommandInstantiation,
+    CommandQuality,
+    ConstantEntry,
+    DataType,
+    DeviceType,
+    Endpoint,
+    Enum,
+    Event,
+    EventPriority,
+    EventQuality,
+    Field,
+    FieldQuality,
+    Idl,
+    ParseMetaData,
+    ServerClusterInstantiation,
+    Struct,
+    StructQuality,
+    StructTag,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -50,7 +75,7 @@ class PrefixCppDocComment:
             return
 
         actual_pos = self.start_pos + self.value_len
-        while content[actual_pos] in ' \t\n\r':
+        while content[actual_pos] in " \t\n\r":
             actual_pos += 1
 
         # A doc comment will apply to any supported element assuming it immediately
@@ -87,12 +112,12 @@ class PrefixCppDocComment:
                     yield entry
 
     def __repr__(self):
-        return ("PREFIXDoc: %r at %r" % (self.value, self.start_pos))
+        return "PREFIXDoc: %r at %r" % (self.value, self.start_pos)
 
 
 class AddServerClusterToEndpointTransform:
     """Provides an 'apply' method that can be run on endpoints
-       to add a server cluster to the given endpoint.
+    to add a server cluster to the given endpoint.
     """
 
     def __init__(self, cluster: ServerClusterInstantiation):
@@ -104,7 +129,7 @@ class AddServerClusterToEndpointTransform:
 
 class AddBindingToEndpointTransform:
     """Provides an 'apply' method that can be run on endpoints
-       to add a cluster binding to the given endpoint.
+    to add a cluster binding to the given endpoint.
     """
 
     def __init__(self, name):
@@ -116,7 +141,7 @@ class AddBindingToEndpointTransform:
 
 class AddDeviceTypeToEndpointTransform:
     """Provides an 'apply' method that can be run on endpoints
-       to add a device type to it
+    to add a device type to it
     """
 
     def __init__(self, device_type: DeviceType):
@@ -156,13 +181,12 @@ class MatterIdlTransformer(Transformer):
         self.doc_comments = []
 
     def positive_integer(self, tokens):
-        """Numbers in the grammar are integers or hex numbers.
-        """
+        """Numbers in the grammar are integers or hex numbers."""
         if len(tokens) != 1:
             raise Exception("Unexpected argument counts")
 
         n = tokens[0].value
-        if n.startswith('0x'):
+        if n.startswith("0x"):
             return int(n[2:], 16)
         return int(n)
 
@@ -196,15 +220,13 @@ class MatterIdlTransformer(Transformer):
         return ApiMaturity.STABLE
 
     def id(self, tokens):
-        """An id is a string containing an identifier
-        """
+        """An id is a string containing an identifier"""
         if len(tokens) != 1:
             raise Exception("Unexpected argument counts")
         return tokens[0].value
 
     def type(self, tokens):
-        """A type is just a string for the type
-        """
+        """A type is just a string for the type"""
         if len(tokens) != 1:
             raise Exception("Unexpected argument counts")
         return tokens[0].value
@@ -241,7 +263,7 @@ class MatterIdlTransformer(Transformer):
     @v_args(meta=True)
     def field(self, meta, args):
         data_type, name = args[0], args[1]
-        is_list = (len(args) == 4)
+        is_list = len(args) == 4
         code = args[-1]
         meta = None if self.skip_meta else ParseMetaData(meta)
         return Field(data_type=data_type, name=name, code=code, is_list=is_list, parse_meta=meta)
@@ -319,9 +341,7 @@ class MatterIdlTransformer(Transformer):
         # Arguments
         #   - optional access for invoke
         #   - event identifier (name)
-        init_args = {
-            "name": args[-1]
-        }
+        init_args = {"name": args[-1]}
         if len(args) > 1:
             init_args["invokeacl"] = args[0]
 
@@ -342,7 +362,9 @@ class MatterIdlTransformer(Transformer):
         return Command(
             parse_meta=meta,
             qualities=args[0],
-            input_param=args[2], output_param=args[3], code=args[4],
+            input_param=args[2],
+            output_param=args[3],
+            code=args[4],
             **args[1],
         )
 
@@ -353,9 +375,7 @@ class MatterIdlTransformer(Transformer):
         # Arguments
         #   - optional access for read
         #   - event identifier (name)
-        init_args = {
-            "name": args[-1]
-        }
+        init_args = {"name": args[-1]}
         if len(args) > 1:
             init_args["readacl"] = args[0]
 
@@ -404,12 +424,11 @@ class MatterIdlTransformer(Transformer):
         if len(args) > 1:
             for operation, access in args[0]:
                 if operation == AttributeOperation.READ:
-                    acl['readacl'] = access
+                    acl["readacl"] = access
                 elif operation == AttributeOperation.WRITE:
-                    acl['writeacl'] = access
+                    acl["writeacl"] = access
                 else:
-                    raise Exception(
-                        "Unknown attribute operation: %r" % operation)
+                    raise Exception("Unknown attribute operation: %r" % operation)
 
         return (args[-1], acl)
 
@@ -439,7 +458,7 @@ class MatterIdlTransformer(Transformer):
 
     def ESCAPED_STRING(self, s):
         # handle escapes, skip the start and end quotes
-        return s.value[1:-1].encode('utf-8').decode('unicode-escape')
+        return s.value[1:-1].encode("utf-8").decode("unicode-escape")
 
     @v_args(meta=True, inline=True)
     def attribute(self, meta, qualities, definition_tuple):
@@ -504,7 +523,8 @@ class MatterIdlTransformer(Transformer):
             else:
                 events.add(item)
         return AddServerClusterToEndpointTransform(
-            ServerClusterInstantiation(parse_meta=meta, name=id, attributes=attributes, events_emitted=events, commands=commands))
+            ServerClusterInstantiation(parse_meta=meta, name=id, attributes=attributes, events_emitted=events, commands=commands)
+        )
 
     @v_args(inline=True)
     def cluster_content(self, api_maturity, element):
@@ -522,8 +542,7 @@ class MatterIdlTransformer(Transformer):
         if not revision:
             revision = 1
 
-        result = Cluster(parse_meta=meta, name=name, code=code,
-                         revision=revision, api_maturity=api_maturity)
+        result = Cluster(parse_meta=meta, name=name, code=code, revision=revision, api_maturity=api_maturity)
 
         for item in content:
             if isinstance(item, Enum):
@@ -559,15 +578,19 @@ class MatterIdlTransformer(Transformer):
             elif isinstance(item, Enum):
                 global_enums.append(dataclasses.replace(item, is_global=True))
             elif isinstance(item, Bitmap):
-                global_bitmaps.append(
-                    dataclasses.replace(item, is_global=True))
+                global_bitmaps.append(dataclasses.replace(item, is_global=True))
             elif isinstance(item, Struct):
-                global_structs.append(
-                    dataclasses.replace(item, is_global=True))
+                global_structs.append(dataclasses.replace(item, is_global=True))
             else:
                 raise Exception("UNKNOWN idl content item: %r" % item)
 
-        return Idl(clusters=clusters, endpoints=endpoints, global_bitmaps=global_bitmaps, global_enums=global_enums, global_structs=global_structs)
+        return Idl(
+            clusters=clusters,
+            endpoints=endpoints,
+            global_bitmaps=global_bitmaps,
+            global_enums=global_enums,
+            global_structs=global_structs,
+        )
 
     def prefix_doc_comment(self):
         print("TODO: prefix")
@@ -610,8 +633,7 @@ class GlobalMapping:
         self.enum_map = {e.name: e for e in idl.global_enums}
         self.struct_map = {s.name: s for s in idl.global_structs}
 
-        self.global_types = set(self.bitmap_map.keys()).union(
-            set(self.enum_map.keys())).union(set(self.struct_map.keys()))
+        self.global_types = set(self.bitmap_map.keys()).union(set(self.enum_map.keys())).union(set(self.struct_map.keys()))
 
         # Spec does not enforce unique naming in bitmap/enum/struct, however in practice
         # if we have both enum Foo and bitmap Foo for example, it would be impossible
@@ -629,12 +651,9 @@ class GlobalMapping:
         global_types_added = set()
 
         # cluster types are already accessible, so no need to add them back
-        global_types_added = global_types_added.union(
-            [v.name for v in cluster.bitmaps])
-        global_types_added = global_types_added.union(
-            [v.name for v in cluster.structs])
-        global_types_added = global_types_added.union(
-            [v.name for v in cluster.enums])
+        global_types_added = global_types_added.union([v.name for v in cluster.bitmaps])
+        global_types_added = global_types_added.union([v.name for v in cluster.structs])
+        global_types_added = global_types_added.union([v.name for v in cluster.enums])
 
         changed = True
         while changed:
@@ -684,13 +703,17 @@ class ParserWithLines:
         #    - 2.26s Earley parsing of the same thing.
         # For this reason, every attempt should be made to make the grammar context free
         self.parser = Lark.open(
-            'matter_grammar.lark', rel_to=__file__, start='idl', parser='lalr', propagate_positions=True,
+            "matter_grammar.lark",
+            rel_to=__file__,
+            start="idl",
+            parser="lalr",
+            propagate_positions=True,
             maybe_placeholders=True,
             # separate callbacks to ignore from regular parsing (no tokens)
             # while still getting notified about them
             lexer_callbacks={
-                'C_COMMENT': self.transformer.c_comment,
-            }
+                "C_COMMENT": self.transformer.c_comment,
+            },
         )
 
     def parse(self, file: str, file_name: Optional[str] = None):
@@ -713,8 +736,7 @@ class ParserWithLines:
         for c in idl.clusters:
             if c.code in clusters:
                 if c != clusters[c.code]:
-                    raise Exception(
-                        f"Different cluster definition for {c.name}/{c.code}")
+                    raise Exception(f"Different cluster definition for {c.name}/{c.code}")
             else:
                 clusters[c.code] = c
         idl.clusters = list(clusters.values())
@@ -749,27 +771,28 @@ def CreateParser(skip_meta: bool = False, merge_globals=True):
 # Supported log levels, mapping string values required for argument
 # parsing into logging constants
 __LOG_LEVELS__ = {
-    'debug': logging.DEBUG,
-    'info': logging.INFO,
-    'warn': logging.WARNING,
-    'fatal': logging.FATAL,
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warn": logging.WARNING,
+    "fatal": logging.FATAL,
 }
 
 
 @click.command()
 @click.option(
-    '--log-level',
-    default='INFO',
+    "--log-level",
+    default="INFO",
     type=click.Choice(list(__LOG_LEVELS__.keys()), case_sensitive=False),
-    help='Determines the verbosity of script output.')
-@click.argument('filename')
+    help="Determines the verbosity of script output.",
+)
+@click.argument("filename")
 def main(log_level, filename):
     # The IDL parser is generally not intended to be run as a stand-alone binary.
     # The ability to run is for debug and to print out the parsed AST.
 
     logging.basicConfig(
         level=__LOG_LEVELS__[log_level],
-        format='%(asctime)s %(levelname)-7s %(message)s',
+        format="%(asctime)s %(levelname)-7s %(message)s",
     )
 
     LOGGER.info("Starting to parse ...")

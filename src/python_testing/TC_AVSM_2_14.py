@@ -177,8 +177,9 @@ class TC_AVSM_2_14(MatterBaseTest):
             asserts.assert_is_not_none(
                 audioStreamAllocateResponse.audioStreamID, "AudioStreamAllocateResponse does not contain StreamID"
             )
-            asserts.assert_equal(audioStreamAllocateResponse.audioStreamID,
-                                 aAudioStreamID, "The previous audio stream is not reused")
+            asserts.assert_equal(
+                audioStreamAllocateResponse.audioStreamID, aAudioStreamID, "The previous audio stream is not reused"
+            )
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
             pass
@@ -197,7 +198,9 @@ class TC_AVSM_2_14(MatterBaseTest):
 
         for stream in aAllocatedAudioStreams:
             try:
-                await self.send_single_cmd(endpoint=endpoint, cmd=commands.AudioStreamDeallocate(audioStreamID=(stream.audioStreamID)))
+                await self.send_single_cmd(
+                    endpoint=endpoint, cmd=commands.AudioStreamDeallocate(audioStreamID=(stream.audioStreamID))
+                )
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 

@@ -36,7 +36,7 @@ class TC_DD_3_23(MatterBaseTest):
     def steps_TC_DD_3_23(self) -> list[TestStep]:
         return [
             TestStep(1, "Detecting the NFC Tag and reading the Payload", is_commissioning=False),
-            TestStep(2, 'Validate the NFC bit in payload and Perform the commissioning')
+            TestStep(2, "Validate the NFC bit in payload and Perform the commissioning"),
         ]
 
     def setup_test(self):
@@ -54,9 +54,7 @@ class TC_DD_3_23(MatterBaseTest):
             if isinstance(stage, bytes):
                 stage = stage.decode("utf-8", errors="replace")
 
-            log.info(
-                f"[_stage_start_listener] node=0x{node_id:X}, stage={stage}"
-            )
+            log.info(f"[_stage_start_listener] node=0x{node_id:X}, stage={stage}")
 
             self.commissionee_node_id = node_id
 
@@ -68,16 +66,15 @@ class TC_DD_3_23(MatterBaseTest):
                 log.info("Detected 'SendComplete' commissioning stage")
                 self.send_complete_seen = True
 
-        self._commissioning_stage_start_callback = _DevicePairingDelegate_OnCommissioningStageStartFunct(
-            _stage_start_listener
-        )
+        self._commissioning_stage_start_callback = _DevicePairingDelegate_OnCommissioningStageStartFunct(_stage_start_listener)
         self.default_controller.setCommissioningStageStartCallback(self._commissioning_stage_start_callback)
 
     @async_test_body
     async def test_TC_DD_3_23(self):
-
-        self.wait_for_user_input(prompt_msg="Put the DUT in commissionable mode, bring its NFC interface close to the NFC reader"
-                                 " and keep the DUT powered")
+        self.wait_for_user_input(
+            prompt_msg="Put the DUT in commissionable mode, bring its NFC interface close to the NFC reader"
+            " and keep the DUT powered"
+        )
 
         # Step 1: Here we check if the Tag is connected to the Host machine and read the NFC Tag data
         self.step(1)
@@ -87,10 +84,7 @@ class TC_DD_3_23(MatterBaseTest):
 
         nfc_tag_data = reader.read_nfc_tag_data()
         log.info(f"NFC Tag data : '{nfc_tag_data}'")
-        asserts.assert_true(
-            reader.is_onboarding_data(nfc_tag_data),
-            f"'{nfc_tag_data}' is not a valid Matter URI"
-        )
+        asserts.assert_true(reader.is_onboarding_data(nfc_tag_data), f"'{nfc_tag_data}' is not a valid Matter URI")
         self.matter_test_config.qr_code_content.append(nfc_tag_data)
 
         # Step 2: the NFC tag data is parsed and checked if the device supports NFC commissioning and commission begins
@@ -102,7 +96,7 @@ class TC_DD_3_23(MatterBaseTest):
         asserts.assert_is_not_none(commissioning_method, "in_test_commissioning_method must not be None")
         asserts.assert_true(
             str(commissioning_method).startswith("nfc-"),
-            f"Expected in_test_commissioning_method to start with 'nfc-', got: {commissioning_method}"
+            f"Expected in_test_commissioning_method to start with 'nfc-', got: {commissioning_method}",
         )
 
         self.matter_test_config.commissioning_method = commissioning_method

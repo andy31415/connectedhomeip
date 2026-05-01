@@ -57,7 +57,7 @@ class MatterTestConfig:
     thread_ba_port: Optional[int] = None
 
     # By default, let's set validity to 10 years
-    certificate_validity_period = int(timedelta(days=10*365).total_seconds())
+    certificate_validity_period = int(timedelta(days=10 * 365).total_seconds())
 
     qr_code_content: List[str] = field(default_factory=list)
     manual_code: List[str] = field(default_factory=list)

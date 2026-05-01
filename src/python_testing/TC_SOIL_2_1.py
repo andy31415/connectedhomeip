@@ -54,8 +54,12 @@ class TC_SOIL_2_1(MatterBaseTest):
             TestStep(1, "Commissioning, already done", is_commissioning=True),
             TestStep(2, "Read SoilMoistureMeasurementLimits attribute and saves the value as soil_moisture_limits"),
             TestStep(3, "Verify the MeasurementType field in soil_moisture_limits"),
-            TestStep(4, "Verify the MinMeasuredValue field in soil_moisture_limits and save the MinMeasuredValue field as min_bound"),
-            TestStep(5, "Verify the MaxMeasuredValue field in soil_moisture_limits and save the MaxMeasuredValue field as max_bound"),
+            TestStep(
+                4, "Verify the MinMeasuredValue field in soil_moisture_limits and save the MinMeasuredValue field as min_bound"
+            ),
+            TestStep(
+                5, "Verify the MaxMeasuredValue field in soil_moisture_limits and save the MaxMeasuredValue field as max_bound"
+            ),
             TestStep(6, "Verify the number of entries in the AccuracyRanges in soil_moisture_limits"),
             TestStep(7, "Verify the RangeMin field of the AccuracyRanges entry in soil_moisture_limits"),
             TestStep(8, "Verify the RangeMax field of the AccuracyRanges entry in soil_moisture_limits"),
@@ -71,14 +75,15 @@ class TC_SOIL_2_1(MatterBaseTest):
 
     @run_if_endpoint_matches(has_cluster(Clusters.SoilMeasurement))
     async def test_TC_SOIL_2_1(self):
-
         endpoint = self.get_endpoint()
 
         self.step(1)
         attributes = Clusters.SoilMeasurement.Attributes
 
         self.step(2)
-        soil_moisture_limits = await self.read_soil_attribute_expect_success(endpoint=endpoint, attribute=attributes.SoilMoistureMeasurementLimits)
+        soil_moisture_limits = await self.read_soil_attribute_expect_success(
+            endpoint=endpoint, attribute=attributes.SoilMoistureMeasurementLimits
+        )
 
         self.step(3)
         asserts.assert_equal(soil_moisture_limits.measurementType, 17, "MeasurementType field is not the correct value")
@@ -90,8 +95,7 @@ class TC_SOIL_2_1(MatterBaseTest):
 
         self.step(5)
         max_bound = soil_moisture_limits.maxMeasuredValue
-        asserts.assert_greater_equal(max_bound,
-                                     (min_bound + 1), "MaxMeasuredValue field is out of range")
+        asserts.assert_greater_equal(max_bound, (min_bound + 1), "MaxMeasuredValue field is out of range")
         asserts.assert_less_equal(max_bound, 100, "MaxMeasuredValue field is out of range")
 
         self.step(6)
@@ -113,11 +117,14 @@ class TC_SOIL_2_1(MatterBaseTest):
         self.step(10)
         for field in soil_moisture_limits.accuracyRanges[0].__dict__:
             if field not in ["rangeMin", "rangeMax", "percentMax"]:
-                asserts.assert_equal(soil_moisture_limits.accuracyRanges[0].__dict__[
-                                     field], None, f"Field {field} is present and contains a value")
+                asserts.assert_equal(
+                    soil_moisture_limits.accuracyRanges[0].__dict__[field], None, f"Field {field} is present and contains a value"
+                )
 
         self.step(11)
-        soil_moisture_measurement = await self.read_soil_attribute_expect_success(endpoint=endpoint, attribute=attributes.SoilMoistureMeasuredValue)
+        soil_moisture_measurement = await self.read_soil_attribute_expect_success(
+            endpoint=endpoint, attribute=attributes.SoilMoistureMeasuredValue
+        )
 
         # If the response is not NullValue, check if it is in the range of min_bound and max_bound
         if soil_moisture_measurement is not NullValue:

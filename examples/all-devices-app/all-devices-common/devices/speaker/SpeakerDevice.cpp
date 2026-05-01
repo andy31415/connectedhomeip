@@ -26,8 +26,8 @@ namespace app {
 
 SpeakerDevice::SpeakerDevice(Clusters::LevelControlDelegate & levelDelegate, Clusters::OnOffDelegate & onOffDelegate,
                              TimerDelegate & timerDelegate) :
-    SingleEndpointDevice(Span<const DataModel::DeviceTypeEntry>(&Device::Type::kSpeaker, 1)),
-    mLevelDelegate(levelDelegate), mOnOffDelegate(onOffDelegate), mTimerDelegate(timerDelegate)
+    SingleEndpointDevice(Span<const DataModel::DeviceTypeEntry>(&Device::Type::kSpeaker, 1)), mLevelDelegate(levelDelegate),
+    mOnOffDelegate(onOffDelegate), mTimerDelegate(timerDelegate)
 {}
 
 CHIP_ERROR SpeakerDevice::Register(chip::EndpointId endpoint, CodeDrivenDataModelProvider & provider, EndpointId parentId)

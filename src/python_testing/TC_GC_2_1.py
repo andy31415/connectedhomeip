@@ -51,13 +51,21 @@ class TC_GC_2_1(MatterBaseTest):
         return "[TC-GC-2.1] Attributes with DUT as Server - Provisional"
 
     def steps_TC_GC_2_1(self):
-        return [TestStep(1, "Commissioning, already done", is_commissioning=True),
-                TestStep(2, "TH reads from the DUT the Membership attribute"),
-                TestStep(3, "TH reads from the DUT the MaxMembershipCount attribute"),
-                TestStep("4a", "If PGA feature is not supported, TH reads from the DUT the MaxMcastAddrCount attribute, expecting it to be greater than or equal to 1"),
-                TestStep("4b", "If PGA feature is supported, TH reads from the DUT the MaxMcastAddrCount attribute, expecting it to be greater than or equal to 4 and less than or equal to the value in step 3"),
-                TestStep(5, "TH reads from the DUT the UsedMcastAddrCount attribute"),
-                TestStep(6, "TH reads from the DUT the FabricUnderTest attribute")]
+        return [
+            TestStep(1, "Commissioning, already done", is_commissioning=True),
+            TestStep(2, "TH reads from the DUT the Membership attribute"),
+            TestStep(3, "TH reads from the DUT the MaxMembershipCount attribute"),
+            TestStep(
+                "4a",
+                "If PGA feature is not supported, TH reads from the DUT the MaxMcastAddrCount attribute, expecting it to be greater than or equal to 1",
+            ),
+            TestStep(
+                "4b",
+                "If PGA feature is supported, TH reads from the DUT the MaxMcastAddrCount attribute, expecting it to be greater than or equal to 4 and less than or equal to the value in step 3",
+            ),
+            TestStep(5, "TH reads from the DUT the UsedMcastAddrCount attribute"),
+            TestStep(6, "TH reads from the DUT the FabricUnderTest attribute"),
+        ]
 
     def pics_TC_GC_2_1(self) -> list[str]:
         return ["GC.S"]
@@ -101,8 +109,9 @@ class TC_GC_2_1(MatterBaseTest):
 
         self.step(5)
         usedMcastAddrCount = await self.read_single_attribute_check_success(groupcast_cluster, used_mcast_addr_count_attribute)
-        asserts.assert_true(usedMcastAddrCount <= A_max,
-                            f"UsedMcastAddrCount ({usedMcastAddrCount}) should be <= MaxMcastAddrCount ({A_max})")
+        asserts.assert_true(
+            usedMcastAddrCount <= A_max, f"UsedMcastAddrCount ({usedMcastAddrCount}) should be <= MaxMcastAddrCount ({A_max})"
+        )
 
         self.step(6)
         fabricUnderTest = await self.read_single_attribute_check_success(groupcast_cluster, fabric_under_test_attribute)

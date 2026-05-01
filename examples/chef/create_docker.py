@@ -24,22 +24,22 @@ import docker
 client = docker.from_env()
 
 _CREATE_DOCKER_SCRIPT_PATH = os.path.dirname(__file__)
-_SUPPORTED_PLATFORM = 'linux_x86'
+_SUPPORTED_PLATFORM = "linux_x86"
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-c', '--commit_sha', required=True)
-parser.add_argument('-s', '--short_sha', required=True)
-parser.add_argument('-r', '--revision_id', required=True)
-parser.add_argument('-b', '--build_id', required=True)
-parser.add_argument('-i', '--image_name', required=True)
-parser.add_argument('-t', '--tar_path', required=True)
+parser.add_argument("-c", "--commit_sha", required=True)
+parser.add_argument("-s", "--short_sha", required=True)
+parser.add_argument("-r", "--revision_id", required=True)
+parser.add_argument("-b", "--build_id", required=True)
+parser.add_argument("-i", "--image_name", required=True)
+parser.add_argument("-t", "--tar_path", required=True)
 
 args = parser.parse_args()
 
-out_directory = f'{_CREATE_DOCKER_SCRIPT_PATH}/out'
+out_directory = f"{_CREATE_DOCKER_SCRIPT_PATH}/out"
 
 for device_file_name in os.listdir(args.tar_path):
-    platform, device = device_file_name.split('-')
+    platform, device = device_file_name.split("-")
     if _SUPPORTED_PLATFORM not in platform:
         continue
 
@@ -47,24 +47,23 @@ for device_file_name in os.listdir(args.tar_path):
     shutil.rmtree(out_directory, ignore_errors=True)
     os.mkdir(out_directory)
 
-    device = device.replace('.tar.gz', '')
+    device = device.replace(".tar.gz", "")
 
-    print(f'Extracting {platform} files of {device}')
-    with tarfile.open(f'{args.tar_path}/{device_file_name}') as tar:
+    print(f"Extracting {platform} files of {device}")
+    with tarfile.open(f"{args.tar_path}/{device_file_name}") as tar:
         tar.extractall(out_directory)
 
-    docker_image_name = f'{args.image_name}/{platform}/{device}'.lower()
+    docker_image_name = f"{args.image_name}/{platform}/{device}".lower()
 
-    print(f'Building {platform} docker image for {device}')
-    image = client.images.build(path=_CREATE_DOCKER_SCRIPT_PATH, buildargs={
-        'DEVICE_NAME': f'{device}'})
-    image[0].tag(docker_image_name, tag='latest')
-    image[0].tag(docker_image_name, tag=f'short-sha_{args.short_sha}')
-    image[0].tag(docker_image_name, tag=f'build-id_{args.build_id}')
-    image[0].tag(docker_image_name, tag=f'commit-sha_{args.commit_sha}')
-    image[0].tag(docker_image_name, tag=f'revision-id_{args.revision_id}')
+    print(f"Building {platform} docker image for {device}")
+    image = client.images.build(path=_CREATE_DOCKER_SCRIPT_PATH, buildargs={"DEVICE_NAME": f"{device}"})
+    image[0].tag(docker_image_name, tag="latest")
+    image[0].tag(docker_image_name, tag=f"short-sha_{args.short_sha}")
+    image[0].tag(docker_image_name, tag=f"build-id_{args.build_id}")
+    image[0].tag(docker_image_name, tag=f"commit-sha_{args.commit_sha}")
+    image[0].tag(docker_image_name, tag=f"revision-id_{args.revision_id}")
 
-    print(f'Pushing image: {docker_image_name}')
+    print(f"Pushing image: {docker_image_name}")
     response = client.images.push(docker_image_name, stream=True, decode=True)
     for line in response:
         print(line)

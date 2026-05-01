@@ -30,10 +30,10 @@ class InputIdlFile:
 
     @property
     def pregen_subdir(self):
-        '''
+        """
         Returns the relative path inside the pregenerate directory where
         data for this IDL file should be pregenerated.
-        '''
+        """
         top_dir = os.path.splitext(self.relative_path)[0]
 
         if self.file_type == IdlFileType.MATTER:

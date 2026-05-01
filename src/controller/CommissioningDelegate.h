@@ -735,9 +735,7 @@ struct CSRResponse
 struct NocChain
 {
     NocChain(ByteSpan newNoc, ByteSpan newIcac, ByteSpan newRcac, Crypto::IdentityProtectionKeySpan newIpk,
-             NodeId newAdminSubject) :
-        noc(newNoc),
-        icac(newIcac), rcac(newRcac), ipk(newIpk), adminSubject(newAdminSubject)
+             NodeId newAdminSubject) : noc(newNoc), icac(newIcac), rcac(newRcac), ipk(newIpk), adminSubject(newAdminSubject)
     {}
     ByteSpan noc;
     ByteSpan icac;

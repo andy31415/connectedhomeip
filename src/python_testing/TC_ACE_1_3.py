@@ -52,7 +52,6 @@ def acl_subject(cat: int) -> int:
 
 
 class TC_ACE_1_3(MatterBaseTest):
-
     async def write_acl(self, acl):
         # This returns an attribute status
         result = await self.default_controller.WriteAttribute(self.dut_node_id, [(0, Clusters.AccessControl.Attributes.Acl(acl))])
@@ -68,7 +67,8 @@ class TC_ACE_1_3(MatterBaseTest):
         cluster = Clusters.Objects.Descriptor
         attribute = Clusters.Descriptor.Attributes.DeviceTypeList
         await self.read_single_attribute_expect_error(
-            dev_ctrl=th, endpoint=0, cluster=cluster, attribute=attribute, error=Status.UnsupportedAccess)
+            dev_ctrl=th, endpoint=0, cluster=cluster, attribute=attribute, error=Status.UnsupportedAccess
+        )
 
     def desc_TC_ACE_1_3(self) -> str:
         return "[TC-ACE-1.3] Subjects"
@@ -132,7 +132,7 @@ class TC_ACE_1_3(MatterBaseTest):
             TestStep(55, "TH1 reads EP0 descriptor - expect UNSUPPORTED_ACCESS"),
             TestStep(56, "TH2 reads EP0 descriptor - expect UNSUPPORTED_ACCESS"),
             TestStep(57, "TH3 reads EP0 descriptor - expect UNSUPPORTED_ACCESS"),
-            TestStep(58, "TH0 writes ACL back to default")
+            TestStep(58, "TH0 writes ACL back to default"),
         ]
 
     @async_test_body
@@ -146,7 +146,7 @@ class TC_ACE_1_3(MatterBaseTest):
         cat2v1 = cat2_id | 0x0001
         cat2v2 = cat2_id | 0x0002
         cat2v3 = cat2_id | 0x0003
-        log.info('cat1v1 0x%x', cat1v1)
+        log.info("cat1v1 0x%x", cat1v1)
 
         self.step(1)
 
@@ -157,27 +157,29 @@ class TC_ACE_1_3(MatterBaseTest):
         TH2_nodeid = self.matter_test_config.controller_node_id + 2
         TH3_nodeid = self.matter_test_config.controller_node_id + 3
 
-        TH1 = fabric_admin.NewController(nodeId=TH1_nodeid,
-                                         paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path),
-                                         catTags=[cat1v3])
-        TH2 = fabric_admin.NewController(nodeId=TH2_nodeid,
-                                         paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path),
-                                         catTags=[cat1v2, cat2v1])
-        TH3 = fabric_admin.NewController(nodeId=TH3_nodeid,
-                                         paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path),
-                                         catTags=[cat1v1, cat2v2])
+        TH1 = fabric_admin.NewController(
+            nodeId=TH1_nodeid, paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path), catTags=[cat1v3]
+        )
+        TH2 = fabric_admin.NewController(
+            nodeId=TH2_nodeid, paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path), catTags=[cat1v2, cat2v1]
+        )
+        TH3 = fabric_admin.NewController(
+            nodeId=TH3_nodeid, paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path), catTags=[cat1v1, cat2v2]
+        )
 
         self.step(2)
         TH0_admin_acl = Clusters.AccessControl.Structs.AccessControlEntryStruct(
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH0_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=0x001f)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=0x001F)],
+        )
         all_view = Clusters.AccessControl.Structs.AccessControlEntryStruct(
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
+        )
         acl = [TH0_admin_acl, all_view]
         await self.write_acl(acl)
 
@@ -195,7 +197,8 @@ class TC_ACE_1_3(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH1_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
+        )
         acl = [TH0_admin_acl, th1_view]
         await self.write_acl(acl)
         self.step(7)
@@ -212,7 +215,8 @@ class TC_ACE_1_3(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH2_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
+        )
 
         acl = [TH0_admin_acl, th2_view]
         await self.write_acl(acl)
@@ -230,7 +234,8 @@ class TC_ACE_1_3(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH3_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
+        )
 
         acl = [TH0_admin_acl, th3_view]
         await self.write_acl(acl)
@@ -248,7 +253,8 @@ class TC_ACE_1_3(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH1_nodeid, TH2_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
+        )
 
         acl = [TH0_admin_acl, th12_view]
         await self.write_acl(acl)
@@ -266,7 +272,8 @@ class TC_ACE_1_3(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH1_nodeid, TH3_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
+        )
 
         acl = [TH0_admin_acl, th13_view]
         await self.write_acl(acl)
@@ -284,7 +291,8 @@ class TC_ACE_1_3(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH2_nodeid, TH3_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
+        )
 
         acl = [TH0_admin_acl, th23_view]
         await self.write_acl(acl)
@@ -302,7 +310,8 @@ class TC_ACE_1_3(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH1_nodeid, TH2_nodeid, TH3_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
+        )
 
         acl = [TH0_admin_acl, th123_view]
         await self.write_acl(acl)
@@ -320,7 +329,8 @@ class TC_ACE_1_3(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[acl_subject(cat1v1)],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
+        )
         acl = [TH0_admin_acl, cat1v1_view]
         await self.write_acl(acl)
 
@@ -338,7 +348,8 @@ class TC_ACE_1_3(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[acl_subject(cat1v2)],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
+        )
 
         acl = [TH0_admin_acl, cat1v2_view]
         await self.write_acl(acl)
@@ -357,7 +368,8 @@ class TC_ACE_1_3(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[acl_subject(cat1v3)],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
+        )
 
         acl = [TH0_admin_acl, cat1v3_view]
         await self.write_acl(acl)
@@ -376,7 +388,8 @@ class TC_ACE_1_3(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[acl_subject(cat2v1)],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
+        )
 
         acl = [TH0_admin_acl, cat2v1_view]
         await self.write_acl(acl)
@@ -395,7 +408,8 @@ class TC_ACE_1_3(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[acl_subject(cat2v2)],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
+        )
 
         acl = [TH0_admin_acl, cat2v2_view]
         await self.write_acl(acl)
@@ -414,7 +428,8 @@ class TC_ACE_1_3(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[acl_subject(cat2v3)],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
+        )
 
         acl = [TH0_admin_acl, cat2v3_view]
         await self.write_acl(acl)
@@ -434,7 +449,8 @@ class TC_ACE_1_3(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH0_nodeid],
-            targets=[])
+            targets=[],
+        )
 
         acl = [full_acl]
         await self.write_acl(acl)

@@ -34,11 +34,11 @@ _DEFAULT_CLUSTER_REVISION_ATTRIBUTE = {
         "reportable": 1,
         "minInterval": 1,
         "maxInterval": 65534,
-        "reportableChange": 0
+        "reportableChange": 0,
     },
     "clusterCode": None,
     "clusterParamKey": "attributes",
-    "side": "server"
+    "side": "server",
 }
 
 _DEFAULT_FEATURE_MAP_ATTRIBUTE = {
@@ -56,11 +56,11 @@ _DEFAULT_FEATURE_MAP_ATTRIBUTE = {
         "reportable": 1,
         "minInterval": 1,
         "maxInterval": 65534,
-        "reportableChange": 0
+        "reportableChange": 0,
     },
     "clusterCode": None,
     "clusterParamKey": "attributes",
-    "side": "server"
+    "side": "server",
 }
 
 _TEST_EVENT_TRIGGERS_ENABLED_ATTRIBUTE = {
@@ -78,25 +78,18 @@ _TEST_EVENT_TRIGGERS_ENABLED_ATTRIBUTE = {
         "reportable": 1,
         "minInterval": 1,
         "maxInterval": 65534,
-        "reportableChange": 0
+        "reportableChange": 0,
     },
     "clusterCode": 51,
     "clusterParamKey": "attributes",
-    "side": "server"
+    "side": "server",
 }
 
 _TEST_EVENT_TRIGGERS_CLIENT_COMMAND = {
-    "entry": {
-        "name": "TestEventTrigger",
-        "code": 0,
-        "mfgCode": None,
-        "source": "client",
-        "incoming": 1,
-        "outgoing": 0
-    },
+    "entry": {"name": "TestEventTrigger", "code": 0, "mfgCode": None, "source": "client", "incoming": 1, "outgoing": 0},
     "clusterCode": 51,
     "clusterParamKey": "commands",
-    "side": "server"
+    "side": "server",
 }
 
 
@@ -146,7 +139,7 @@ class ValidateMandatoryClusterParam(Mutator):
             return False
 
         # Valid clusters must have enabled and side.
-        if (("enabled" not in candidate) or ("side" not in candidate)):
+        if ("enabled" not in candidate) or ("side" not in candidate):
             return False
 
         if self._cluster_side not in candidate.get("side"):
@@ -161,27 +154,35 @@ class ValidateMandatoryClusterParam(Mutator):
 
     def _attributeSpecificChecks(self, param: object, cluster_name):
         if not param["included"]:
-            print("WARNING: param 0x%X(%s) in cluster %s found, but included is false" %
-                  (self._param_entry["code"], self._param_entry["name"], cluster_name))
+            print(
+                "WARNING: param 0x%X(%s) in cluster %s found, but included is false"
+                % (self._param_entry["code"], self._param_entry["name"], cluster_name)
+            )
             if self._forces_enable:
                 param["included"] = self._param_entry["included"]
 
         if param["storageOption"] == "NVM":
-            print("WARNING: param 0x%X(%s) in cluster %s found, but storageOption was NVM" %
-                  (self._param_entry["code"], self._param_entry["name"], cluster_name))
+            print(
+                "WARNING: param 0x%X(%s) in cluster %s found, but storageOption was NVM"
+                % (self._param_entry["code"], self._param_entry["name"], cluster_name)
+            )
             if self._replace_if_storage_nvm:
                 param["storageOption"] = self._param_entry["storageOption"]
 
     def _commandSpecificChecks(self, param: object, cluster_name):
         if param["incoming"] != self._param_entry["incoming"]:
-            print("WARNING: param 0x%X(%s) in cluster %s found, but incoming field isn't correct" %
-                  (self._param_entry["code"], self._param_entry["name"], cluster_name))
+            print(
+                "WARNING: param 0x%X(%s) in cluster %s found, but incoming field isn't correct"
+                % (self._param_entry["code"], self._param_entry["name"], cluster_name)
+            )
             if self._forces_enable:
                 param["incoming"] = self._param_entry["incoming"]
 
         if param["outgoing"] != self._param_entry["outgoing"]:
-            print("WARNING: param 0x%X(%s) in cluster %s found, but outgoing field isn't correct" %
-                  (self._param_entry["code"], self._param_entry["name"], cluster_name))
+            print(
+                "WARNING: param 0x%X(%s) in cluster %s found, but outgoing field isn't correct"
+                % (self._param_entry["code"], self._param_entry["name"], cluster_name)
+            )
             if self._forces_enable:
                 param["outgoing"] = self._param_entry["outgoing"]
 
@@ -195,9 +196,9 @@ class ValidateMandatoryClusterParam(Mutator):
 
             if param["name"] != self._param_entry["name"]:
                 print(
-                    "WARNING: param 0x%X has mismatching name %s (should be %s)" %
-                    (self._param_entry["code"], param["name"],
-                     self._param_entry["name"]))
+                    "WARNING: param 0x%X has mismatching name %s (should be %s)"
+                    % (self._param_entry["code"], param["name"], self._param_entry["name"])
+                )
 
             if self._param_key == "attributes":
                 self._attributeSpecificChecks(param, candidate["name"])
@@ -206,8 +207,9 @@ class ValidateMandatoryClusterParam(Mutator):
             break
         else:
             print(
-                "WARNING: Did not find mandatory param %s in cluster %s (0x%X)" %
-                (self._param_entry["name"], candidate["name"], candidate["code"]))
+                "WARNING: Did not find mandatory param %s in cluster %s (0x%X)"
+                % (self._param_entry["name"], candidate["name"], candidate["code"])
+            )
             if self._add_if_missing:
                 self._addEntry(candidate)
 
@@ -239,15 +241,26 @@ def mutateZapbody(body: object, mutators: List[Mutator]):
 
 
 def setupArgumentsParser():
-    parser = argparse.ArgumentParser(description='Mutate ZAP files')
-    parser.add_argument('zap_filenames', metavar='zap-filename', type=str, nargs='+',
-                        help='zapfiles that need mutating')
-    parser.add_argument('--add-missing-cluster-param', default=False, action='store_true',
-                        help="Add missing mandatory cluster parameters (default: False)")
-    parser.add_argument('--force-enable-cluster-param', default=False, action='store_true',
-                        help="If mandatory cluster paramater is not missing and not enabled, enable it (default: False)")
-    parser.add_argument('--mandatory-attributes-replace-if-storage-nvm', default=False, action='store_true',
-                        help="Enforce mandatory attribute use default storage type (default: False)")
+    parser = argparse.ArgumentParser(description="Mutate ZAP files")
+    parser.add_argument("zap_filenames", metavar="zap-filename", type=str, nargs="+", help="zapfiles that need mutating")
+    parser.add_argument(
+        "--add-missing-cluster-param",
+        default=False,
+        action="store_true",
+        help="Add missing mandatory cluster parameters (default: False)",
+    )
+    parser.add_argument(
+        "--force-enable-cluster-param",
+        default=False,
+        action="store_true",
+        help="If mandatory cluster paramater is not missing and not enabled, enable it (default: False)",
+    )
+    parser.add_argument(
+        "--mandatory-attributes-replace-if-storage-nvm",
+        default=False,
+        action="store_true",
+        help="Enforce mandatory attribute use default storage type (default: False)",
+    )
     return parser.parse_args()
 
 
@@ -255,24 +268,25 @@ def main():
     args = setupArgumentsParser()
 
     mutators = []
-    add_missing_cluster_revision = ValidateMandatoryClusterParam(
-        _DEFAULT_CLUSTER_REVISION_ATTRIBUTE, args)
-    add_missing_feature_map = ValidateMandatoryClusterParam(
-        _DEFAULT_FEATURE_MAP_ATTRIBUTE, args)
-    add_general_diagnostic_test_event_trigger_enabled = ValidateMandatoryClusterParam(
-        _TEST_EVENT_TRIGGERS_ENABLED_ATTRIBUTE, args)
-    add_general_diagnostic_test_event_trigger_command = ValidateMandatoryClusterParam(
-        _TEST_EVENT_TRIGGERS_CLIENT_COMMAND, args)
+    add_missing_cluster_revision = ValidateMandatoryClusterParam(_DEFAULT_CLUSTER_REVISION_ATTRIBUTE, args)
+    add_missing_feature_map = ValidateMandatoryClusterParam(_DEFAULT_FEATURE_MAP_ATTRIBUTE, args)
+    add_general_diagnostic_test_event_trigger_enabled = ValidateMandatoryClusterParam(_TEST_EVENT_TRIGGERS_ENABLED_ATTRIBUTE, args)
+    add_general_diagnostic_test_event_trigger_command = ValidateMandatoryClusterParam(_TEST_EVENT_TRIGGERS_CLIENT_COMMAND, args)
 
-    mutators.extend([add_missing_cluster_revision, add_missing_feature_map,
-                    add_general_diagnostic_test_event_trigger_enabled, add_general_diagnostic_test_event_trigger_command])
+    mutators.extend(
+        [
+            add_missing_cluster_revision,
+            add_missing_feature_map,
+            add_general_diagnostic_test_event_trigger_enabled,
+            add_general_diagnostic_test_event_trigger_command,
+        ]
+    )
 
     for zap_filename in args.zap_filenames:
         body = loadZapfile(zap_filename)
 
         print("==== Processing %s ====" % zap_filename)
-        mutateZapbody(
-            body, mutators=mutators)
+        mutateZapbody(body, mutators=mutators)
         saveZapfile(body, zap_filename)
 
 

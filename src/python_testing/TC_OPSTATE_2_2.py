@@ -47,14 +47,10 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_OPSTATE_2_2(MatterBaseTest, TC_OPSTATE_BASE):
-
     def __init__(self, *args):
         super().__init__(*args)
 
-        test_info = TestInfo(
-            pics_code="OPSTATE",
-            cluster=Clusters.OperationalState
-        )
+        test_info = TestInfo(pics_code="OPSTATE", cluster=Clusters.OperationalState)
 
         super().setup_base(test_info=test_info)
 

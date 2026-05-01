@@ -62,8 +62,7 @@ public:
                                OnErrorCallbackType aOnError, OnDoneCallbackType aOnDone,
                                OnSubscriptionEstablishedCallbackType aOnSubscriptionEstablished = nullptr,
                                OnResubscriptionAttemptCallbackType aOnResubscriptionAttempt     = nullptr) :
-        mClusterId(aClusterId),
-        mAttributeId(aAttributeId), mOnSuccess(aOnSuccess), mOnError(aOnError), mOnDone(aOnDone),
+        mClusterId(aClusterId), mAttributeId(aAttributeId), mOnSuccess(aOnSuccess), mOnError(aOnError), mOnDone(aOnDone),
         mOnSubscriptionEstablished(aOnSubscriptionEstablished), mOnResubscriptionAttempt(aOnResubscriptionAttempt),
         mBufferedReadAdapter(*this)
     {}
@@ -186,8 +185,7 @@ public:
     TypedReadEventCallback(OnSuccessCallbackType aOnSuccess, OnErrorCallbackType aOnError, OnDoneCallbackType aOnDone,
                            OnSubscriptionEstablishedCallbackType aOnSubscriptionEstablished = nullptr,
                            OnResubscriptionAttemptCallbackType aOnResubscriptionAttempt     = nullptr) :
-        mOnSuccess(aOnSuccess),
-        mOnError(aOnError), mOnDone(aOnDone), mOnSubscriptionEstablished(aOnSubscriptionEstablished),
+        mOnSuccess(aOnSuccess), mOnError(aOnError), mOnDone(aOnDone), mOnSubscriptionEstablished(aOnSubscriptionEstablished),
         mOnResubscriptionAttempt(aOnResubscriptionAttempt)
     {}
 

@@ -59,22 +59,54 @@ log = logging.getLogger(__name__)
 # the factory data version set in the nRF Connect platform Kconfig file (CHIP_FACTORY_DATA_VERSION).
 FACTORY_DATA_VERSION = 1
 
-MATTER_ROOT = os.path.dirname(os.path.realpath(__file__))[:-len("/scripts/tools/nrfconnect")]
+MATTER_ROOT = os.path.dirname(os.path.realpath(__file__))[: -len("/scripts/tools/nrfconnect")]
 HEX_PREFIX = "hex:"
-PUB_KEY_PREFIX = b'\x04'
-INVALID_PASSCODES = [00000000, 11111111, 22222222, 33333333, 44444444,
-                     55555555, 66666666, 77777777, 88888888, 99999999, 12345678, 87654321]
+PUB_KEY_PREFIX = b"\x04"
+INVALID_PASSCODES = [
+    00000000,
+    11111111,
+    22222222,
+    33333333,
+    44444444,
+    55555555,
+    66666666,
+    77777777,
+    88888888,
+    99999999,
+    12345678,
+    87654321,
+]
 PRODUCT_FINISH_ENUM = {"other": 0, "matte": 1, "satin": 2, "polished": 3, "rugged": 4, "fabric": 5}
-PRODUCT_COLOR_ENUM = {"black": 0, "navy": 1, "green": 2, "teal": 3, "maroon": 4, "purple": 5, "olive": 6, "gray": 7, "blue": 8, "lime": 9,
-                      "aqua": 10, "red": 11, "fuchsia": 12, "yellow": 13, "white": 14, "nickel": 15, "chrome": 16, "brass": 18, "cooper": 19,
-                      "silver": 19, "gold": 20}
+PRODUCT_COLOR_ENUM = {
+    "black": 0,
+    "navy": 1,
+    "green": 2,
+    "teal": 3,
+    "maroon": 4,
+    "purple": 5,
+    "olive": 6,
+    "gray": 7,
+    "blue": 8,
+    "lime": 9,
+    "aqua": 10,
+    "red": 11,
+    "fuchsia": 12,
+    "yellow": 13,
+    "white": 14,
+    "nickel": 15,
+    "chrome": 16,
+    "brass": 18,
+    "cooper": 19,
+    "silver": 19,
+    "gold": 20,
+}
 
-sys.path.insert(0, os.path.join(MATTER_ROOT, 'scripts', 'tools', 'spake2p'))
+sys.path.insert(0, os.path.join(MATTER_ROOT, "scripts", "tools", "spake2p"))
 from spake2p import generate_verifier  # noqa: E402 isort:skip
 
 
 def get_raw_private_key_der(der_file: str, password: str):
-    """ Split given der file to get separated key pair consisting of public and private keys.
+    """Split given der file to get separated key pair consisting of public and private keys.
 
     Args:
         der_file (str): Path to .der file containing public and private keys
@@ -84,27 +116,29 @@ def get_raw_private_key_der(der_file: str, password: str):
         hex string: return a hex string containing extracted and decrypted private KEY from given .der file.
     """
     try:
-        with open(der_file, 'rb') as file:
+        with open(der_file, "rb") as file:
             key_data = file.read()
             if password is None:
                 log.warning("KEY password has not been provided. It means that DAC key is not encrypted.")
             keys = load_der_private_key(key_data, password, backend=default_backend())
-            return keys.private_numbers().private_value.to_bytes(32, byteorder='big')
+            return keys.private_numbers().private_value.to_bytes(32, byteorder="big")
 
     except IOError or ValueError:
         return None
 
 
-def gen_test_certs(chip_cert_exe: str,
-                   output: str,
-                   vendor_id: int,
-                   product_id: int,
-                   device_name: str,
-                   generate_cd: bool = False,
-                   cd_type: int = 1,
-                   paa_cert_path: str = None,
-                   paa_key_path: str = None,
-                   generate_all_certs: bool = False):
+def gen_test_certs(
+    chip_cert_exe: str,
+    output: str,
+    vendor_id: int,
+    product_id: int,
+    device_name: str,
+    generate_cd: bool = False,
+    cd_type: int = 1,
+    paa_cert_path: str = None,
+    paa_key_path: str = None,
+    generate_all_certs: bool = False,
+):
     """
     Generate Matter certificates according to given Vendor ID and Product ID using the chip-cert executable.
     To use own Product Attestation Authority certificate provide paa_cert_path and paa_key_path arguments.
@@ -132,84 +166,123 @@ def gen_test_certs(chip_cert_exe: str,
 
     CD_PATH = MATTER_ROOT + "/credentials/test/certification-declaration/Chip-Test-CD-Signing-Cert.pem"
     CD_KEY_PATH = MATTER_ROOT + "/credentials/test/certification-declaration/Chip-Test-CD-Signing-Key.pem"
-    PAA_PATH = paa_cert_path if paa_cert_path is not None else (MATTER_ROOT +
-                                                                "/credentials/test/attestation/Chip-Test-PAA-NoVID-Cert.pem")
-    PAA_KEY_PATH = paa_key_path if paa_key_path is not None else (MATTER_ROOT +
-                                                                  "/credentials/test/attestation/Chip-Test-PAA-NoVID-Key.pem")
+    PAA_PATH = (
+        paa_cert_path if paa_cert_path is not None else (MATTER_ROOT + "/credentials/test/attestation/Chip-Test-PAA-NoVID-Cert.pem")
+    )
+    PAA_KEY_PATH = (
+        paa_key_path if paa_key_path is not None else (MATTER_ROOT + "/credentials/test/attestation/Chip-Test-PAA-NoVID-Key.pem")
+    )
 
     attestation_certs = namedtuple("attestation_certs", ["dac_cert", "dac_key", "pai_cert"])
 
     if generate_cd:
-
         log.info("Generating new Certification Declaration using chip-cert...")
 
         # generate Certification Declaration
-        cmd = [chip_cert_exe, "gen-cd",
-               "--key", CD_KEY_PATH,
-               "--cert", CD_PATH,
-               "--out", output + "/CD.der",
-               "--format-version",  "1",
-               "--vendor-id",  hex(vendor_id),
-               "--product-id",  hex(product_id),
-               "--device-type-id", "0",
-               "--certificate-id", "FFFFFFFFFFFFFFFFFFF",
-               "--security-level",  "0",
-               "--security-info",  "0",
-               "--certification-type",  str(cd_type),
-               "--version-number", "0xFFFF",
-               ]
+        cmd = [
+            chip_cert_exe,
+            "gen-cd",
+            "--key",
+            CD_KEY_PATH,
+            "--cert",
+            CD_PATH,
+            "--out",
+            output + "/CD.der",
+            "--format-version",
+            "1",
+            "--vendor-id",
+            hex(vendor_id),
+            "--product-id",
+            hex(product_id),
+            "--device-type-id",
+            "0",
+            "--certificate-id",
+            "FFFFFFFFFFFFFFFFFFF",
+            "--security-level",
+            "0",
+            "--security-info",
+            "0",
+            "--certification-type",
+            str(cd_type),
+            "--version-number",
+            "0xFFFF",
+        ]
         subprocess.run(cmd)
 
-    new_certificates = {"PAI_CERT": output + "/PAI_cert",
-                        "PAI_KEY": output + "/PAI_key",
-                        "DAC_CERT": output + "/DAC_cert",
-                        "DAC_KEY": output + "/DAC_key"
-                        }
+    new_certificates = {
+        "PAI_CERT": output + "/PAI_cert",
+        "PAI_KEY": output + "/PAI_key",
+        "DAC_CERT": output + "/DAC_cert",
+        "DAC_KEY": output + "/DAC_key",
+    }
 
     if generate_all_certs:
         log.info("Generating new PAI and DAC certificates using chip-cert...")
 
         # generate PAI
-        cmd = [chip_cert_exe, "gen-att-cert",
-               "-t", "i",
-               "-c", device_name,
-               "-V", hex(vendor_id),
-               "-C", PAA_PATH,
-               "-K", PAA_KEY_PATH,
-               "-o", new_certificates["PAI_CERT"] + ".pem",
-               "-O", new_certificates["PAI_KEY"] + ".pem",
-               "-l", str(10000),
-               ]
+        cmd = [
+            chip_cert_exe,
+            "gen-att-cert",
+            "-t",
+            "i",
+            "-c",
+            device_name,
+            "-V",
+            hex(vendor_id),
+            "-C",
+            PAA_PATH,
+            "-K",
+            PAA_KEY_PATH,
+            "-o",
+            new_certificates["PAI_CERT"] + ".pem",
+            "-O",
+            new_certificates["PAI_KEY"] + ".pem",
+            "-l",
+            str(10000),
+        ]
         subprocess.run(cmd)
 
         # generate DAC
-        cmd = [chip_cert_exe, "gen-att-cert",
-               "-t", "d",
-               "-c", device_name,
-               "-V", hex(vendor_id),
-               "-P", hex(product_id),
-               "-C", new_certificates["PAI_CERT"] + ".pem",
-               "-K", new_certificates["PAI_KEY"] + ".pem",
-               "-o", new_certificates["DAC_CERT"] + ".pem",
-               "-O", new_certificates["DAC_KEY"] + ".pem",
-               "-l", str(10000),
-               ]
+        cmd = [
+            chip_cert_exe,
+            "gen-att-cert",
+            "-t",
+            "d",
+            "-c",
+            device_name,
+            "-V",
+            hex(vendor_id),
+            "-P",
+            hex(product_id),
+            "-C",
+            new_certificates["PAI_CERT"] + ".pem",
+            "-K",
+            new_certificates["PAI_KEY"] + ".pem",
+            "-o",
+            new_certificates["DAC_CERT"] + ".pem",
+            "-O",
+            new_certificates["DAC_KEY"] + ".pem",
+            "-l",
+            str(10000),
+        ]
         subprocess.run(cmd)
 
         # convert to .der files
         for cert_k, cert_v in new_certificates.items():
             action_type = "convert-cert" if cert_k.find("CERT") != -1 else "convert-key"
             log.info("%s.der", cert_v)
-            cmd = [chip_cert_exe, action_type,
-                   cert_v + ".pem",
-                   cert_v + ".der",
-                   "--x509-der",
-                   ]
+            cmd = [
+                chip_cert_exe,
+                action_type,
+                cert_v + ".pem",
+                cert_v + ".der",
+                "--x509-der",
+            ]
             subprocess.run(cmd)
 
-        return attestation_certs(new_certificates["DAC_CERT"] + ".der",
-                                 new_certificates["DAC_KEY"] + ".der",
-                                 new_certificates["PAI_CERT"] + ".der")
+        return attestation_certs(
+            new_certificates["DAC_CERT"] + ".der", new_certificates["DAC_KEY"] + ".der", new_certificates["PAI_CERT"] + ".der"
+        )
 
     return attestation_certs(None, None, None)
 
@@ -231,7 +304,7 @@ class FactoryDataGenerator:
 
         # If .json extension is included in the output path, remove it, as script adds it automatically.
         if self._args.output.endswith(".json"):
-            self._args.output = self._args.output[:-len(".json")]
+            self._args.output = self._args.output[: -len(".json")]
 
         try:
             self._validate_args()
@@ -245,12 +318,15 @@ class FactoryDataGenerator:
                 self._user_data = json.loads(self._args.user)
             except json.decoder.JSONDecodeError as e:
                 raise AssertionError("Provided wrong user data, this is not a JSON format! {}".format(e))
-        assert self._args.spake2_verifier or self._args.passcode, \
+        assert self._args.spake2_verifier or self._args.passcode, (
             "Cannot find Spake2+ verifier, to generate a new one please provide passcode (--passcode)"
-        assert ((self._args.gen_certs and self._args.chip_cert_path) or (self._args.dac_cert and self._args.pai_cert and self._args.dac_key)), \
+        )
+        assert (self._args.gen_certs and self._args.chip_cert_path) or (
+            self._args.dac_cert and self._args.pai_cert and self._args.dac_key
+        ), (
             "Cannot find paths to DAC or PAI certificates .der files. To generate a new ones please provide a path to chip-cert executable (--chip_cert_path) and add --gen_certs argument"
-        assert self._args.passcode not in INVALID_PASSCODES, \
-            "Provided invalid passcode!"
+        )
+        assert self._args.passcode not in INVALID_PASSCODES, "Provided invalid passcode!"
 
     def generate_json(self):
         """
@@ -284,16 +360,18 @@ class FactoryDataGenerator:
         # convert salt to bytestring to be coherent with Spake2+ verifier type
         spake_2_salt = self._args.spake2_salt
 
-        certs = gen_test_certs(self._args.chip_cert_path,
-                               self._args.output[:self._args.output.rfind("/")],
-                               self._args.vendor_id,
-                               self._args.product_id,
-                               self._args.vendor_name + "_" + self._args.product_name,
-                               self._args.gen_cd,
-                               self._args.cd_type,
-                               self._args.paa_cert,
-                               self._args.paa_key,
-                               self._args.gen_certs)
+        certs = gen_test_certs(
+            self._args.chip_cert_path,
+            self._args.output[: self._args.output.rfind("/")],
+            self._args.vendor_id,
+            self._args.product_id,
+            self._args.vendor_name + "_" + self._args.product_name,
+            self._args.gen_cd,
+            self._args.cd_type,
+            self._args.paa_cert,
+            self._args.paa_key,
+            self._args.gen_certs,
+        )
 
         dac_cert = certs.dac_cert
         pai_cert = certs.pai_cert
@@ -313,9 +391,9 @@ class FactoryDataGenerator:
             sys.exit(-1)
 
         try:
-            json_file = open(self._args.output+".json", "w+")  # noqa: SIM115
+            json_file = open(self._args.output + ".json", "w+")  # noqa: SIM115
         except FileNotFoundError:
-            print("Cannot create JSON file in this location: {}".format(self._args.output+".json"))
+            print("Cannot create JSON file in this location: {}".format(self._args.output + ".json"))
             sys.exit(-1)
         with json_file:
             # serialize data
@@ -370,20 +448,20 @@ class FactoryDataGenerator:
                 self._generate_onboarding_data()
 
     def _add_entry(self, name: str, value: any):
-        """ Add single entry to list of tuples ("key", "value") """
-        if (isinstance(value, (bytes, bytearray))):
+        """Add single entry to list of tuples ("key", "value")"""
+        if isinstance(value, (bytes, bytearray)):
             value = HEX_PREFIX + value.hex()
         if value or (isinstance(value, int) and value == 0):
             log.debug("Adding entry '%s' with size %d and type '%s'", name, sys.getsizeof(value), type(value))
             self._factory_data.append((name, value))
 
     def _generate_spake2_verifier(self):
-        """ If verifier has not been provided in arguments list it should be generated via external script """
+        """If verifier has not been provided in arguments list it should be generated via external script"""
         log.info("Generating SPAKE2+ Verifier...")
         return generate_verifier(self._args.passcode, self._args.spake2_salt, self._args.spake2_it)
 
     def _generate_rotating_device_uid(self):
-        """ If rotating device unique ID has not been provided it should be generated """
+        """If rotating device unique ID has not been provided it should be generated"""
         log.warning("Cannot find rotating device UID in provided arguments list. A new one will be generated.")
         rdu = secrets.token_bytes(16)
         log.info("\n\nThe new rotate device UID: '%s'\n", rdu.hex())
@@ -411,19 +489,21 @@ class FactoryDataGenerator:
     def _process_der(self, path: str):
         log.debug("Processing der file...")
         try:
-            with open(path, 'rb') as f:
+            with open(path, "rb") as f:
                 return f.read()
         except IOError as e:
             log.exception(e)
             raise e
 
     def _generate_onboarding_data(self):
-        setup_payload = SetupPayload(discriminator=self._args.discriminator,
-                                     pincode=self._args.passcode,
-                                     rendezvous=2,  # fixed pairing BLE
-                                     flow=CommissioningFlow.Standard,
-                                     vid=self._args.vendor_id,
-                                     pid=self._args.product_id)
+        setup_payload = SetupPayload(
+            discriminator=self._args.discriminator,
+            pincode=self._args.passcode,
+            rendezvous=2,  # fixed pairing BLE
+            flow=CommissioningFlow.Standard,
+            vid=self._args.vendor_id,
+            pid=self._args.product_id,
+        )
         with open(self._args.output + ".txt", "w") as manual_code_file:
             manual_code_file.write("Manualcode : " + setup_payload.generate_manualcode() + "\n")
             manual_code_file.write("QRCode : " + setup_payload.generate_qrcode())
@@ -434,148 +514,235 @@ class FactoryDataGenerator:
 def main():
     parser = argparse.ArgumentParser(description="nRF Connect Factory Data generator tool")
 
-    def allow_any_int(i): return int(i, 0)
-    def base64_str(s): return base64.b64decode(s)
+    def allow_any_int(i):
+        return int(i, 0)
+
+    def base64_str(s):
+        return base64.b64decode(s)
 
     mandatory_arguments = parser.add_argument_group("Mandatory keys", "These arguments must be provided to generate JSON file")
     optional_arguments = parser.add_argument_group(
-        "Optional keys", "These arguments are optional and they depend on the user-purpose")
-    parser.add_argument("-s", "--schema", type=str,
-                        help="JSON schema file to validate JSON output data")
-    parser.add_argument("-o", "--output", type=str, required=True,
-                        help="Output path to store .json file, e.g. my_dir/output."
-                             "The .json extension will be automatically added by the script and does not need to be provided."
-                             "If provided, an extension will not be added."
-                             "If optional --size and --offset arguments are provided, the script also generates .hex file with factory data.")
-    parser.add_argument("-v", "--verbose", action="store_true",
-                        help="Run this script with DEBUG logging level")
-    parser.add_argument("--include_passcode", action="store_true",
-                        help="Include passcode in factory data. By default, it is used only for generating Spake2+ verifier.")
-    parser.add_argument("--overwrite", action="store_true",
-                        help="If output JSON file exist this argument allows to generate new factory data and overwrite it.")
+        "Optional keys", "These arguments are optional and they depend on the user-purpose"
+    )
+    parser.add_argument("-s", "--schema", type=str, help="JSON schema file to validate JSON output data")
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        required=True,
+        help="Output path to store .json file, e.g. my_dir/output."
+        "The .json extension will be automatically added by the script and does not need to be provided."
+        "If provided, an extension will not be added."
+        "If optional --size and --offset arguments are provided, the script also generates .hex file with factory data.",
+    )
+    parser.add_argument("-v", "--verbose", action="store_true", help="Run this script with DEBUG logging level")
+    parser.add_argument(
+        "--include_passcode",
+        action="store_true",
+        help="Include passcode in factory data. By default, it is used only for generating Spake2+ verifier.",
+    )
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="If output JSON file exist this argument allows to generate new factory data and overwrite it.",
+    )
     # Json known-keys values
     # mandatory keys
-    mandatory_arguments.add_argument("--sn", type=str, required=True,
-                                     help=("[ascii string] Serial number of a device which can be used to identify "
-                                           "the serial number field in the Matter certificate structure. "
-                                           "Maximum length of serial number is 20 bytes. "
-                                           "Strings longer than 20 bytes will be declined in script"))
-    mandatory_arguments.add_argument("--vendor_id", type=allow_any_int,
-                                     help="[int | hex int] Provide Vendor Identification Number")
-    mandatory_arguments.add_argument("--product_id", type=allow_any_int,
-                                     help="[int | hex int] Provide Product Identification Number")
-    mandatory_arguments.add_argument("--vendor_name", type=str,
-                                     help="[string] provide human-readable vendor name")
-    mandatory_arguments.add_argument("--product_name", type=str,
-                                     help="[string] provide human-readable product name")
-    mandatory_arguments.add_argument("--date", type=str, required=True,
-                                     help=("[ascii string] Provide manufacturing date "
-                                           "A manufacturing date specifies the date that the Node was manufactured. "
-                                           "Used format for providing a manufacturing date is ISO 8601 e.g. YYYY-MM-DD."))
-    mandatory_arguments.add_argument("--hw_ver", type=allow_any_int, required=True,
-                                     help="[int | hex int] Provide hardware version in int format.")
-    mandatory_arguments.add_argument("--hw_ver_str", type=str, required=True,
-                                     help="[ascii string] Provide hardware version in string format.")
-    mandatory_arguments.add_argument("--spake2_it", type=allow_any_int, required=True,
-                                     help="[int | hex int] Provide Spake2+ iteration count.")
-    mandatory_arguments.add_argument("--spake2_salt", type=base64_str, required=True,
-                                     help="[base64 string] Provide Spake2+ salt.")
-    mandatory_arguments.add_argument("--discriminator", type=allow_any_int, required=True,
-                                     help="[int] Provide BLE pairing discriminator. \
+    mandatory_arguments.add_argument(
+        "--sn",
+        type=str,
+        required=True,
+        help=(
+            "[ascii string] Serial number of a device which can be used to identify "
+            "the serial number field in the Matter certificate structure. "
+            "Maximum length of serial number is 20 bytes. "
+            "Strings longer than 20 bytes will be declined in script"
+        ),
+    )
+    mandatory_arguments.add_argument("--vendor_id", type=allow_any_int, help="[int | hex int] Provide Vendor Identification Number")
+    mandatory_arguments.add_argument(
+        "--product_id", type=allow_any_int, help="[int | hex int] Provide Product Identification Number"
+    )
+    mandatory_arguments.add_argument("--vendor_name", type=str, help="[string] provide human-readable vendor name")
+    mandatory_arguments.add_argument("--product_name", type=str, help="[string] provide human-readable product name")
+    mandatory_arguments.add_argument(
+        "--date",
+        type=str,
+        required=True,
+        help=(
+            "[ascii string] Provide manufacturing date "
+            "A manufacturing date specifies the date that the Node was manufactured. "
+            "Used format for providing a manufacturing date is ISO 8601 e.g. YYYY-MM-DD."
+        ),
+    )
+    mandatory_arguments.add_argument(
+        "--hw_ver", type=allow_any_int, required=True, help="[int | hex int] Provide hardware version in int format."
+    )
+    mandatory_arguments.add_argument(
+        "--hw_ver_str", type=str, required=True, help="[ascii string] Provide hardware version in string format."
+    )
+    mandatory_arguments.add_argument(
+        "--spake2_it", type=allow_any_int, required=True, help="[int | hex int] Provide Spake2+ iteration count."
+    )
+    mandatory_arguments.add_argument("--spake2_salt", type=base64_str, required=True, help="[base64 string] Provide Spake2+ salt.")
+    mandatory_arguments.add_argument(
+        "--discriminator",
+        type=allow_any_int,
+        required=True,
+        help="[int] Provide BLE pairing discriminator. \
                                      A 12-bit value matching the field of the same name in \
-                                     the setup code. Discriminator is used during a discovery process.")
+                                     the setup code. Discriminator is used during a discovery process.",
+    )
 
     # optional keys
-    optional_arguments.add_argument("--product_url", type=str,
-                                    help="[string] provide link to product-specific web page")
-    optional_arguments.add_argument("--product_label", type=str,
-                                    help="[string] provide human-readable product label")
-    optional_arguments.add_argument("--part_number", type=str,
-                                    help="[string] provide human-readable product number")
-    optional_arguments.add_argument("--chip_cert_path", type=str,
-                                    help=("Generate DAC and PAI certificates instead giving a path to .der files. "
-                                          "This option requires a path to chip-cert executable."
-                                          "By default you can find chip-cert in connectedhomeip/src/tools/chip-cert directory "
-                                          "and build it there."))
-    optional_arguments.add_argument("--gen_certs", action="store_true",
-                                    help="Generate a new DAC nad PAI certificates")
-    optional_arguments.add_argument("--dac_cert", type=str,
-                                    help="[.der] Provide the path to .der file containing DAC certificate.")
-    optional_arguments.add_argument("--dac_key", type=str,
-                                    help="[.der] Provide the path to .der file containing DAC keys.")
-    optional_arguments.add_argument("--generate_rd_uid", action="store_true",
-                                    help=("Generate a new rotating device unique ID, print it out to console output "
-                                          "and store it in factory data."))
-    optional_arguments.add_argument("--dac_key_password", type=str,
-                                    help=("Provide a password to decode dac key. If dac key is not encrypted do not "
-                                          "provide this argument."))
-    optional_arguments.add_argument("--pai_cert", type=str,
-                                    help="[.der] Provide the path to .der file containing PAI certificate.")
-    optional_arguments.add_argument("--rd_uid", type=str,
-                                    help=("[hex string] [128-bit hex-encoded] Provide the rotating device unique ID. "
-                                          "If this argument is not provided a new rotating device id unique id will be generated."))
-    optional_arguments.add_argument("--passcode", type=allow_any_int,
-                                    help=("[int | hex] Default PASE session passcode. "
-                                          "(This is mandatory to generate Spake2+ verifier)."))
-    optional_arguments.add_argument("--spake2_verifier", type=base64_str,
-                                    help="[base64 string] Provide Spake2+ verifier without generating it.")
-    optional_arguments.add_argument("--enable_key", type=str,
-                                    help=("[hex string] [128-bit hex-encoded] The Enable Key is a 128-bit value that "
-                                          "triggers manufacturer-specific action while invoking the TestEventTrigger Command."
-                                          "This value is used during Certification Tests, and should "
-                                          "not be present on production devices."))
-    optional_arguments.add_argument("--user", type=str,
-                                    help=("[string] Provide additional user-specific keys in JSON format: "
-                                          "{'name_1': 'value_1', 'name_2': 'value_2', ... 'name_n', 'value_n'}."))
-    optional_arguments.add_argument("--gen_cd", action="store_true", default=False,
-                                    help=("Generate a new Certificate Declaration in .der format according to used Vendor ID "
-                                          "and Product ID. This certificate will not be included to the factory data."))
-    optional_arguments.add_argument("--cd_type", type=int, default=1,
-                                    help=("[int] Type of generated Certification Declaration: "
-                                          "0 - development, 1 - provisional, 2 - official"))
-    optional_arguments.add_argument("--paa_cert", type=str,
-                                    help=("Provide a path to the Product Attestation Authority (PAA) certificate to generate "
-                                          "the PAI certificate. Without providing it, a testing PAA stored in the Matter "
-                                          "repository will be used."))
-    optional_arguments.add_argument("--paa_key", type=str,
-                                    help=("Provide a path to the Product Attestation Authority (PAA) key to generate "
-                                          "the PAI certificate. Without providing it, a testing PAA key stored in the Matter "
-                                          "repository will be used."))
-    optional_arguments.add_argument("--generate_onboarding", action="store_true",
-                                    help=("Generate a Manual Code and QR Code according to provided factory data set."
-                                          "As a result a PNG image containing QRCode and a .txt file containing Manual Code will be available within output directory"))
-    optional_arguments.add_argument("--product_finish", type=str, choices=PRODUCT_FINISH_ENUM.keys(),
-                                    help="[string] Provide one of the product finishes")
-    optional_arguments.add_argument("--product_color", type=str, choices=PRODUCT_COLOR_ENUM.keys(),
-                                    help="[string] Provide one of the product colors.")
-    optional_arguments.add_argument("--offset", type=allow_any_int,
-                                    help="Partition offset - an address in device's NVM memory, where factory data will be stored.")
-    optional_arguments.add_argument("--size", type=allow_any_int,
-                                    help="The maximum partition size.")
+    optional_arguments.add_argument("--product_url", type=str, help="[string] provide link to product-specific web page")
+    optional_arguments.add_argument("--product_label", type=str, help="[string] provide human-readable product label")
+    optional_arguments.add_argument("--part_number", type=str, help="[string] provide human-readable product number")
+    optional_arguments.add_argument(
+        "--chip_cert_path",
+        type=str,
+        help=(
+            "Generate DAC and PAI certificates instead giving a path to .der files. "
+            "This option requires a path to chip-cert executable."
+            "By default you can find chip-cert in connectedhomeip/src/tools/chip-cert directory "
+            "and build it there."
+        ),
+    )
+    optional_arguments.add_argument("--gen_certs", action="store_true", help="Generate a new DAC nad PAI certificates")
+    optional_arguments.add_argument("--dac_cert", type=str, help="[.der] Provide the path to .der file containing DAC certificate.")
+    optional_arguments.add_argument("--dac_key", type=str, help="[.der] Provide the path to .der file containing DAC keys.")
+    optional_arguments.add_argument(
+        "--generate_rd_uid",
+        action="store_true",
+        help=("Generate a new rotating device unique ID, print it out to console output and store it in factory data."),
+    )
+    optional_arguments.add_argument(
+        "--dac_key_password",
+        type=str,
+        help=("Provide a password to decode dac key. If dac key is not encrypted do not provide this argument."),
+    )
+    optional_arguments.add_argument("--pai_cert", type=str, help="[.der] Provide the path to .der file containing PAI certificate.")
+    optional_arguments.add_argument(
+        "--rd_uid",
+        type=str,
+        help=(
+            "[hex string] [128-bit hex-encoded] Provide the rotating device unique ID. "
+            "If this argument is not provided a new rotating device id unique id will be generated."
+        ),
+    )
+    optional_arguments.add_argument(
+        "--passcode",
+        type=allow_any_int,
+        help=("[int | hex] Default PASE session passcode. (This is mandatory to generate Spake2+ verifier)."),
+    )
+    optional_arguments.add_argument(
+        "--spake2_verifier", type=base64_str, help="[base64 string] Provide Spake2+ verifier without generating it."
+    )
+    optional_arguments.add_argument(
+        "--enable_key",
+        type=str,
+        help=(
+            "[hex string] [128-bit hex-encoded] The Enable Key is a 128-bit value that "
+            "triggers manufacturer-specific action while invoking the TestEventTrigger Command."
+            "This value is used during Certification Tests, and should "
+            "not be present on production devices."
+        ),
+    )
+    optional_arguments.add_argument(
+        "--user",
+        type=str,
+        help=(
+            "[string] Provide additional user-specific keys in JSON format: "
+            "{'name_1': 'value_1', 'name_2': 'value_2', ... 'name_n', 'value_n'}."
+        ),
+    )
+    optional_arguments.add_argument(
+        "--gen_cd",
+        action="store_true",
+        default=False,
+        help=(
+            "Generate a new Certificate Declaration in .der format according to used Vendor ID "
+            "and Product ID. This certificate will not be included to the factory data."
+        ),
+    )
+    optional_arguments.add_argument(
+        "--cd_type",
+        type=int,
+        default=1,
+        help=("[int] Type of generated Certification Declaration: 0 - development, 1 - provisional, 2 - official"),
+    )
+    optional_arguments.add_argument(
+        "--paa_cert",
+        type=str,
+        help=(
+            "Provide a path to the Product Attestation Authority (PAA) certificate to generate "
+            "the PAI certificate. Without providing it, a testing PAA stored in the Matter "
+            "repository will be used."
+        ),
+    )
+    optional_arguments.add_argument(
+        "--paa_key",
+        type=str,
+        help=(
+            "Provide a path to the Product Attestation Authority (PAA) key to generate "
+            "the PAI certificate. Without providing it, a testing PAA key stored in the Matter "
+            "repository will be used."
+        ),
+    )
+    optional_arguments.add_argument(
+        "--generate_onboarding",
+        action="store_true",
+        help=(
+            "Generate a Manual Code and QR Code according to provided factory data set."
+            "As a result a PNG image containing QRCode and a .txt file containing Manual Code will be available within output directory"
+        ),
+    )
+    optional_arguments.add_argument(
+        "--product_finish", type=str, choices=PRODUCT_FINISH_ENUM.keys(), help="[string] Provide one of the product finishes"
+    )
+    optional_arguments.add_argument(
+        "--product_color", type=str, choices=PRODUCT_COLOR_ENUM.keys(), help="[string] Provide one of the product colors."
+    )
+    optional_arguments.add_argument(
+        "--offset",
+        type=allow_any_int,
+        help="Partition offset - an address in device's NVM memory, where factory data will be stored.",
+    )
+    optional_arguments.add_argument("--size", type=allow_any_int, help="The maximum partition size.")
     args = parser.parse_args()
 
     if args.verbose:
-        logging.basicConfig(format='[%(asctime)s][%(levelname)s] %(message)s', level=logging.DEBUG)
+        logging.basicConfig(format="[%(asctime)s][%(levelname)s] %(message)s", level=logging.DEBUG)
     else:
-        logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.INFO)
+        logging.basicConfig(format="[%(levelname)s] %(message)s", level=logging.INFO)
 
     # check if json file already exist
-    if (exists(args.output + ".json") and not args.overwrite):
-        log.error("Output file: '%s' already exist, to create a new one add argument '--overwrite'. "
-                  "By default overwriting is disabled", args.output+".json")
+    if exists(args.output + ".json") and not args.overwrite:
+        log.error(
+            "Output file: '%s' already exist, to create a new one add argument '--overwrite'. By default overwriting is disabled",
+            args.output + ".json",
+        )
         sys.exit(1)
 
     if args.schema and no_jsonschema_module:
-        log.error(("Requested verification of the JSON file using jsonschema, but the module is not installed. \n"
-                  "Install only the module by invoking: pip3 install jsonschema \n"
-                   "Alternatively, install it with all dependencies for Matter by invoking: pip3 install "
-                   "-r ./scripts/setup/requirements.nrfconnect.txt from the Matter root directory."))
+        log.error(
+            (
+                "Requested verification of the JSON file using jsonschema, but the module is not installed. \n"
+                "Install only the module by invoking: pip3 install jsonschema \n"
+                "Alternatively, install it with all dependencies for Matter by invoking: pip3 install "
+                "-r ./scripts/setup/requirements.nrfconnect.txt from the Matter root directory."
+            )
+        )
         sys.exit(1)
 
     if args.generate_onboarding and no_onboarding_modules:
-        log.error(("Requested generation of onboarding codes, but the some modules are not installed. \n"
-                  "Install all dependencies for Matter by invoking: pip3 install "
-                   "-r ./scripts/setup/requirements.nrfconnect.txt from the Matter root directory."))
+        log.error(
+            (
+                "Requested generation of onboarding codes, but the some modules are not installed. \n"
+                "Install all dependencies for Matter by invoking: pip3 install "
+                "-r ./scripts/setup/requirements.nrfconnect.txt from the Matter root directory."
+            )
+        )
         sys.exit(1)
 
     generator = FactoryDataGenerator(args)

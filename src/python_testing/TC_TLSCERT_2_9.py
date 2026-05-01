@@ -50,7 +50,7 @@ class TC_TLSCERT_2_9(TC_TLSCERT_Base):
         return "[TC-TLSCERT-2.9] ProvisionClientCertificate command verification"
 
     def pics_TC_TLSCERT_2_9(self):
-        """ This function returns a list of PICS for this test case that must be True for the test to be run"""
+        """This function returns a list of PICS for this test case that must be True for the test to be run"""
         # In this case - there is no feature flags needed to run this test case
         return ["TLSCERT.S"]
 
@@ -58,49 +58,108 @@ class TC_TLSCERT_2_9(TC_TLSCERT_Base):
         return [
             *self.get_two_fabric_substeps(),
             TestStep(2, "Populate my_nonce[] with 4 distinct, random 32-octet values"),
-            TestStep(3, "CR1 sends ClientCSR command with Nonce set to my_nonce[i], for each i in [0..1]",
-                     "Verify the fields CCDID, CSR and Nonce with types TLSCCDID, octstr and octstr respectively. Store TLSCCDID in my_ccdid[i] and CSR in my_csr[i]."),
-            TestStep(4, "CR2 sends sends ClientCSR command with Nonce set to my_nonce[2]",
-                     "Verify the fields CCDID, CSR and Nonce with types TLSCCDID, octstr and octstr respectively. Store TLSCCDID in my_ccdid[2] and CSR in my_csr[2]."),
-            TestStep(5, "Populate my_intermediate_certs_1 with 10 DER-encoded x509 certificates that form a certificate chain up to (but not including) a root"),
-            TestStep(6, "Populate my_intermediate_certs_2 with 1 DER-encoded x509 certificates that form a certificate chain up to (but not including) a root"),
-            TestStep(7, "Populate my_client_cert[] with 3 distinct, valid, DER-encoded x509 certificates using each respective public key from my_csr[i], signed by signed by [a root, my_intermediate_certs_1[0], my_intermediate_certs_2[0]]"),
             TestStep(
-                8, "CR1 sends ProvisionClientCertificate command with CCDID set to my_ccdid[0] and ClientCertificate set to my_client_cert[0]", test_plan_support.verify_success()),
+                3,
+                "CR1 sends ClientCSR command with Nonce set to my_nonce[i], for each i in [0..1]",
+                "Verify the fields CCDID, CSR and Nonce with types TLSCCDID, octstr and octstr respectively. Store TLSCCDID in my_ccdid[i] and CSR in my_csr[i].",
+            ),
             TestStep(
-                9, "CR1 sends ProvisionClientCertificate command with CCDID set to my_ccdid[1], ClientCertificate set to my_client_cert[1], and IntermediateCertificates set to my_intermediate_certs_1", test_plan_support.verify_success()),
+                4,
+                "CR2 sends sends ClientCSR command with Nonce set to my_nonce[2]",
+                "Verify the fields CCDID, CSR and Nonce with types TLSCCDID, octstr and octstr respectively. Store TLSCCDID in my_ccdid[2] and CSR in my_csr[2].",
+            ),
             TestStep(
-                10, "CR2 sends ProvisionClientCertificate command with CCDID set to my_ccdid[2], ClientCertificate set to my_client_cert[2], and IntermediateCertificates set to my_intermediate_certs_2", test_plan_support.verify_success()),
-            TestStep(11, "CR1 reads ProvisionedClientCertificates attribute using a fabric-filtered read on Large Message-capable transport",
-                     "Verify a list of TLSClientCertificateDetailStruct with two entries corresponding to my_ccdid[0..1]. The ClientCertificate value should be set to my_client_cert[0..1] and IntermediateCertificates set to my_intermediate_certs_1 for my my_ccdid[1]."),
-            TestStep(12, "CR2 reads ProvisionedClientCertificates attribute using a fabric-filtered read on Large Message-capable transport",
-                     "Verify a list of TLSClientCertificateDetailStruct with one entry corresponding to my_ccdid[2]. The ClientCertificate value should be set to my_client_cert[2] and IntermediateCertificates set to my_intermediate_certs_2."),
-            TestStep(13, "CR1 reads ProvisionedClientCertificates attribute using a fabric-filtered read",
-                     "Verify a list of TLSClientCertificateDetailStruct with two entries corresponding to my_ccdid[0..1]. The ClientCertificate and IntermediateCertificates values should not be populated (non-present)."),
-            TestStep(14, "CR1 sends FindClientCertificate command with null CCDID",
-                     "Verify a list of TLSClientCertificateDetailStruct with two entries. The entries should correspond to my_client_cert[0..1]"),
-            TestStep(15, "CR2 sends FindClientCertificate command with null CCDID",
-                     "Verify a  list of TLSClientCertificateDetailStruct with one entry. The entry should correspond to my_client_cert[2]"),
-            TestStep(16, "CR1 sends ClientCSR command with CCDID set to my_ccdid[0] and Nonce set to my_nonce[3]",
-                     "the fields CCDID, CSR and Nonce with types TLSCCDID, octstr and octstr respectively. CCDID should equal my_ccdid[0]. The public key of the resulting CSR should be equal to the public key in my_csr[0]. NonceSignature should be a signature of my_nonce[3] using public key in CSR"),
+                5,
+                "Populate my_intermediate_certs_1 with 10 DER-encoded x509 certificates that form a certificate chain up to (but not including) a root",
+            ),
             TestStep(
-                17, "CR1 sends ProvisionClientCertificate command with CCDID set to my_ccdid[0] and ClientCertificateDetails set to my_client_cert[3]", test_plan_support.verify_success()),
-            TestStep(18, "CR1 reads ProvisionedClientCertificates attribute using a fabric-filtered read on Large Message-capable transport",
-                     "Verify a list of TLSClientCertificateDetailStruct with two entries. The entries should correspond to my_client_cert[0,3]"),
-            TestStep(19, "CR2 reads ProvisionedClientCertificates attribute using a fabric-filtered read on Large Message-capable transport",
-                     "Verify a list of TLSClientCertificateDetailStruct with one entry. The entry should correspond to my_client_cert[2]"),
-            TestStep(20, "CR1 sends FindClientCertificate command with CCDID set to my_ccdid[0]",
-                     "Verify a list of TLSClientCertificateDetailStruct with one entry. The entry should correspond to my_client_cert[3]"),
-            TestStep(21, "CR2 sends FindClientCertificate command with CCDID set to my_ccdid[2]",
-                     "Verify a list of TLSClientCertificateDetailStruct with one entry. The entry should correspond to my_client_cert[2]"),
-            TestStep(22, "CR1 sends RemoveClientCertificate command with CCDID set to my_ccdid[i], for each i in [0..1]",
-                     test_plan_support.verify_success()),
-            TestStep(23, test_plan_support.remove_fabric('CR2', 'CR1'), test_plan_support.verify_success()),
+                6,
+                "Populate my_intermediate_certs_2 with 1 DER-encoded x509 certificates that form a certificate chain up to (but not including) a root",
+            ),
+            TestStep(
+                7,
+                "Populate my_client_cert[] with 3 distinct, valid, DER-encoded x509 certificates using each respective public key from my_csr[i], signed by signed by [a root, my_intermediate_certs_1[0], my_intermediate_certs_2[0]]",
+            ),
+            TestStep(
+                8,
+                "CR1 sends ProvisionClientCertificate command with CCDID set to my_ccdid[0] and ClientCertificate set to my_client_cert[0]",
+                test_plan_support.verify_success(),
+            ),
+            TestStep(
+                9,
+                "CR1 sends ProvisionClientCertificate command with CCDID set to my_ccdid[1], ClientCertificate set to my_client_cert[1], and IntermediateCertificates set to my_intermediate_certs_1",
+                test_plan_support.verify_success(),
+            ),
+            TestStep(
+                10,
+                "CR2 sends ProvisionClientCertificate command with CCDID set to my_ccdid[2], ClientCertificate set to my_client_cert[2], and IntermediateCertificates set to my_intermediate_certs_2",
+                test_plan_support.verify_success(),
+            ),
+            TestStep(
+                11,
+                "CR1 reads ProvisionedClientCertificates attribute using a fabric-filtered read on Large Message-capable transport",
+                "Verify a list of TLSClientCertificateDetailStruct with two entries corresponding to my_ccdid[0..1]. The ClientCertificate value should be set to my_client_cert[0..1] and IntermediateCertificates set to my_intermediate_certs_1 for my my_ccdid[1].",
+            ),
+            TestStep(
+                12,
+                "CR2 reads ProvisionedClientCertificates attribute using a fabric-filtered read on Large Message-capable transport",
+                "Verify a list of TLSClientCertificateDetailStruct with one entry corresponding to my_ccdid[2]. The ClientCertificate value should be set to my_client_cert[2] and IntermediateCertificates set to my_intermediate_certs_2.",
+            ),
+            TestStep(
+                13,
+                "CR1 reads ProvisionedClientCertificates attribute using a fabric-filtered read",
+                "Verify a list of TLSClientCertificateDetailStruct with two entries corresponding to my_ccdid[0..1]. The ClientCertificate and IntermediateCertificates values should not be populated (non-present).",
+            ),
+            TestStep(
+                14,
+                "CR1 sends FindClientCertificate command with null CCDID",
+                "Verify a list of TLSClientCertificateDetailStruct with two entries. The entries should correspond to my_client_cert[0..1]",
+            ),
+            TestStep(
+                15,
+                "CR2 sends FindClientCertificate command with null CCDID",
+                "Verify a  list of TLSClientCertificateDetailStruct with one entry. The entry should correspond to my_client_cert[2]",
+            ),
+            TestStep(
+                16,
+                "CR1 sends ClientCSR command with CCDID set to my_ccdid[0] and Nonce set to my_nonce[3]",
+                "the fields CCDID, CSR and Nonce with types TLSCCDID, octstr and octstr respectively. CCDID should equal my_ccdid[0]. The public key of the resulting CSR should be equal to the public key in my_csr[0]. NonceSignature should be a signature of my_nonce[3] using public key in CSR",
+            ),
+            TestStep(
+                17,
+                "CR1 sends ProvisionClientCertificate command with CCDID set to my_ccdid[0] and ClientCertificateDetails set to my_client_cert[3]",
+                test_plan_support.verify_success(),
+            ),
+            TestStep(
+                18,
+                "CR1 reads ProvisionedClientCertificates attribute using a fabric-filtered read on Large Message-capable transport",
+                "Verify a list of TLSClientCertificateDetailStruct with two entries. The entries should correspond to my_client_cert[0,3]",
+            ),
+            TestStep(
+                19,
+                "CR2 reads ProvisionedClientCertificates attribute using a fabric-filtered read on Large Message-capable transport",
+                "Verify a list of TLSClientCertificateDetailStruct with one entry. The entry should correspond to my_client_cert[2]",
+            ),
+            TestStep(
+                20,
+                "CR1 sends FindClientCertificate command with CCDID set to my_ccdid[0]",
+                "Verify a list of TLSClientCertificateDetailStruct with one entry. The entry should correspond to my_client_cert[3]",
+            ),
+            TestStep(
+                21,
+                "CR2 sends FindClientCertificate command with CCDID set to my_ccdid[2]",
+                "Verify a list of TLSClientCertificateDetailStruct with one entry. The entry should correspond to my_client_cert[2]",
+            ),
+            TestStep(
+                22,
+                "CR1 sends RemoveClientCertificate command with CCDID set to my_ccdid[i], for each i in [0..1]",
+                test_plan_support.verify_success(),
+            ),
+            TestStep(23, test_plan_support.remove_fabric("CR2", "CR1"), test_plan_support.verify_success()),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.TlsCertificateManagement))
     async def test_TC_TLSCERT_2_9(self):
-
         setup_data = await self.common_two_fabric_setup()
         cr1_cmd = setup_data.cr1_cmd
         cr2_cmd = setup_data.cr2_cmd
@@ -117,7 +176,7 @@ class TC_TLSCERT_2_9(TC_TLSCERT_Base):
             my_ccdid[i] = response.ccdid
             my_csr[i] = cr1_cmd.assert_valid_csr(response, my_nonce[i])
             if i > 0:
-                asserts.assert_not_equal(my_ccdid[i-1], my_ccdid[i], "CCDID should be unique")
+                asserts.assert_not_equal(my_ccdid[i - 1], my_ccdid[i], "CCDID should be unique")
 
         self.step(4)
         response = await cr2_cmd.send_csr_command(nonce=my_nonce[2])
@@ -145,28 +204,35 @@ class TC_TLSCERT_2_9(TC_TLSCERT_Base):
         await cr1_cmd.send_provision_client_command(ccdid=my_ccdid[0], certificate=my_client_cert[0])
 
         self.step(9)
-        await cr1_cmd.send_provision_client_command(ccdid=my_ccdid[1], certificate=my_client_cert[1], intermediates=my_intermediate_certs_1)
+        await cr1_cmd.send_provision_client_command(
+            ccdid=my_ccdid[1], certificate=my_client_cert[1], intermediates=my_intermediate_certs_1
+        )
 
         self.step(10)
-        await cr2_cmd.send_provision_client_command(ccdid=my_ccdid[2], certificate=my_client_cert[2], intermediates=my_intermediate_certs_2)
+        await cr2_cmd.send_provision_client_command(
+            ccdid=my_ccdid[2], certificate=my_client_cert[2], intermediates=my_intermediate_certs_2
+        )
 
         self.step(11)
         found_certs = await cr1_cmd.read_client_certs_attribute_as_map(TransportPayloadCapability.LARGE_PAYLOAD)
         asserts.assert_equal(len(found_certs), 2, "Expected 2 certificates")
         for i in range(2):
             asserts.assert_in(my_ccdid[i], found_certs, "ProvisionedClientCertificates should contain provisioned client cert")
-            asserts.assert_equal(found_certs[my_ccdid[i]].clientCertificate,
-                                 my_client_cert[i], "Expected matching certificate detail")
-        asserts.assert_equal(found_certs[my_ccdid[1]].intermediateCertificates,
-                             my_intermediate_certs_1, "Expected matching certificate detail")
+            asserts.assert_equal(
+                found_certs[my_ccdid[i]].clientCertificate, my_client_cert[i], "Expected matching certificate detail"
+            )
+        asserts.assert_equal(
+            found_certs[my_ccdid[1]].intermediateCertificates, my_intermediate_certs_1, "Expected matching certificate detail"
+        )
 
         self.step(12)
         found_certs = await cr2_cmd.read_client_certs_attribute_as_map(TransportPayloadCapability.LARGE_PAYLOAD)
         asserts.assert_equal(len(found_certs), 1, "Expected 1 certificate")
         asserts.assert_in(my_ccdid[2], found_certs, "ProvisionedClientCertificates should contain provisioned client cert")
         asserts.assert_equal(found_certs[my_ccdid[2]].clientCertificate, my_client_cert[2], "Expected matching certificate detail")
-        asserts.assert_equal(found_certs[my_ccdid[2]].intermediateCertificates,
-                             my_intermediate_certs_2, "Expected matching certificate detail")
+        asserts.assert_equal(
+            found_certs[my_ccdid[2]].intermediateCertificates, my_intermediate_certs_2, "Expected matching certificate detail"
+        )
 
         self.step(13)
         # Must close session so we don't re-use large payload session
@@ -182,18 +248,21 @@ class TC_TLSCERT_2_9(TC_TLSCERT_Base):
         asserts.assert_equal(len(found_certs), 2, "Expected 2 certificates")
         for i in range(2):
             asserts.assert_in(my_ccdid[i], found_certs, "FindClientCertificate should contain provisioned client cert")
-            asserts.assert_equal(found_certs[my_ccdid[i]].clientCertificate,
-                                 my_client_cert[i], "Expected matching certificate detail")
-        asserts.assert_equal(found_certs[my_ccdid[1]].intermediateCertificates,
-                             my_intermediate_certs_1, "Expected matching certificate detail")
+            asserts.assert_equal(
+                found_certs[my_ccdid[i]].clientCertificate, my_client_cert[i], "Expected matching certificate detail"
+            )
+        asserts.assert_equal(
+            found_certs[my_ccdid[1]].intermediateCertificates, my_intermediate_certs_1, "Expected matching certificate detail"
+        )
 
         self.step(15)
         found_certs = await cr2_cmd.send_find_client_command_as_map()
         asserts.assert_equal(len(found_certs), 1, "Expected 1 certificate")
         asserts.assert_in(my_ccdid[2], found_certs, "FindClientCertificate should contain provisioned client cert")
         asserts.assert_equal(found_certs[my_ccdid[2]].clientCertificate, my_client_cert[2], "Expected matching certificate detail")
-        asserts.assert_equal(found_certs[my_ccdid[2]].intermediateCertificates,
-                             my_intermediate_certs_2, "Expected matching certificate detail")
+        asserts.assert_equal(
+            found_certs[my_ccdid[2]].intermediateCertificates, my_intermediate_certs_2, "Expected matching certificate detail"
+        )
 
         self.step(16)
         response = await cr1_cmd.send_csr_command(ccdid=my_ccdid[0], nonce=my_nonce[3])
@@ -211,8 +280,9 @@ class TC_TLSCERT_2_9(TC_TLSCERT_Base):
         expected_certs = [my_client_cert[3], my_client_cert[1]]
         for i in range(2):
             asserts.assert_in(my_ccdid[i], found_certs, "ProvisionedClientCertificates should contain provisioned client cert")
-            asserts.assert_equal(found_certs[my_ccdid[i]].clientCertificate,
-                                 expected_certs[i], "Expected matching certificate detail")
+            asserts.assert_equal(
+                found_certs[my_ccdid[i]].clientCertificate, expected_certs[i], "Expected matching certificate detail"
+            )
 
         self.step(19)
         found_certs = await cr2_cmd.read_client_certs_attribute_as_map(TransportPayloadCapability.LARGE_PAYLOAD)

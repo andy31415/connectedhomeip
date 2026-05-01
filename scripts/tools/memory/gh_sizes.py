@@ -81,41 +81,39 @@ from memdf import Config, ConfigDescription, DFs, SectionDF
 
 log = logging.getLogger(__name__)
 
-PLATFORM_CONFIG_DIR = pathlib.Path('scripts/tools/memory/platform')
+PLATFORM_CONFIG_DIR = pathlib.Path("scripts/tools/memory/platform")
 
 
 CONFIG: ConfigDescription = {
-    'event': {
-        'help': 'Github workflow event name',
-        'metavar': 'NAME',
-        'default': os.environ.get('GITHUB_EVENT_NAME'),
+    "event": {
+        "help": "Github workflow event name",
+        "metavar": "NAME",
+        "default": os.environ.get("GITHUB_EVENT_NAME"),
     },
-    'pr': {
-        'help': 'Github PR number',
-        'metavar': 'NUMBER',
-        'default': int(os.environ.get('GH_EVENT_PR', '0')),
+    "pr": {
+        "help": "Github PR number",
+        "metavar": "NUMBER",
+        "default": int(os.environ.get("GH_EVENT_PR", "0")),
     },
-    'hash': {
-        'help': 'Current commit hash',
-        'metavar': 'HASH',
-        'default': os.environ.get('GH_EVENT_HASH'),
+    "hash": {
+        "help": "Current commit hash",
+        "metavar": "HASH",
+        "default": os.environ.get("GH_EVENT_HASH"),
     },
-    'parent': {
-        'help': 'Parent commit hash',
-        'metavar': 'HASH',
-        'default': os.environ.get('GH_EVENT_PARENT'),
+    "parent": {
+        "help": "Parent commit hash",
+        "metavar": "HASH",
+        "default": os.environ.get("GH_EVENT_PARENT"),
     },
-    'ref': {
-        'help': 'Target ref',
-        'metavar': 'REF',
-        'default': os.environ.get('GH_EVENT_REF'),
+    "ref": {
+        "help": "Target ref",
+        "metavar": "REF",
+        "default": os.environ.get("GH_EVENT_REF"),
     },
-    'timestamp': {
-        'help': 'Build timestamp',
-        'metavar': 'TIME',
-        'default': int(float(
-            os.environ.get('GH_EVENT_TIMESTAMP')
-            or datetime.datetime.now().timestamp())),
+    "timestamp": {
+        "help": "Build timestamp",
+        "metavar": "TIME",
+        "default": int(float(os.environ.get("GH_EVENT_TIMESTAMP") or datetime.datetime.now().timestamp())),
     },
 }
 
@@ -135,7 +133,10 @@ def main(argv):
             For other purposes, a general program for the same operations is
             %s/report_summary.py
 
-            """, program.name, program.parent)
+            """,
+            program.name,
+            program.parent,
+        )
         return 1
 
     try:
@@ -143,13 +144,13 @@ def main(argv):
         if config_file.is_file():
             platform = config_file.stem
         else:
-            config_file = (PLATFORM_CONFIG_DIR / platform).with_suffix('.cfg')
+            config_file = (PLATFORM_CONFIG_DIR / platform).with_suffix(".cfg")
 
-        output_base = f'{platform}-{config_name}-{target_name}-sizes.json'
-        if args and not args[0].startswith('-'):
+        output_base = f"{platform}-{config_name}-{target_name}-sizes.json"
+        if args and not args[0].startswith("-"):
             out, *args = args
             output = pathlib.Path(out)
-            if out.endswith('/') and not output.exists():
+            if out.endswith("/") and not output.exists():
                 output.mkdir(parents=True)
             if output.is_dir():
                 output = output / output_base
@@ -164,65 +165,58 @@ def main(argv):
             **CONFIG,
         }
         # In case there is no platform configuration file, default to using a popular set of section names.
-        config_desc['section.select']['default'] = [
-            '.text', '.rodata', '.data', '.bss']
+        config_desc["section.select"]["default"] = [".text", ".rodata", ".data", ".bss"]
 
         config = Config().init(config_desc)
-        config.put('output.file', output)
-        config.put('output.format', 'json_records')
+        config.put("output.file", output)
+        config.put("output.format", "json_records")
         if config_file.is_file():
             config.read_config_file(config_file)
         else:
             log.warning("Missing config file: '%s'", config_file)
         config.parse([argv[0]] + args)
 
-        config.put('output.metadata.platform', platform)
-        config.put('output.metadata.config', config_name)
-        config.put('output.metadata.target', target_name)
-        config.put('output.metadata.time', config['timestamp'])
-        config.put('output.metadata.input', binary)
-        config.put('output.metadata.by', 'section')
-        for key in ['event', 'hash', 'parent', 'pr', 'ref']:
+        config.put("output.metadata.platform", platform)
+        config.put("output.metadata.config", config_name)
+        config.put("output.metadata.target", target_name)
+        config.put("output.metadata.time", config["timestamp"])
+        config.put("output.metadata.input", binary)
+        config.put("output.metadata.by", "section")
+        for key in ["event", "hash", "parent", "pr", "ref"]:
             if value := config[key]:
-                config.putl(['output', 'metadata', key], value)
+                config.putl(["output", "metadata", key], value)
 
         # In case there is no platform configuration file or it does not define regions,
         # try to find reasonable groups.
-        if not config.get('region.sections'):
-            sections = {'FLASH': [], 'RAM': []}
-            for section in config.get('section.select'):
-                print('section:', section)
-                for substring, region in [('text', 'FLASH'), ('rodata', 'FLASH'), ('data', 'RAM'), ('bss', 'RAM')]:
+        if not config.get("region.sections"):
+            sections = {"FLASH": [], "RAM": []}
+            for section in config.get("section.select"):
+                print("section:", section)
+                for substring, region in [("text", "FLASH"), ("rodata", "FLASH"), ("data", "RAM"), ("bss", "RAM")]:
                     if substring in section:
                         sections[region].append(section)
                         break
-            config.put('region.sections', sections)
+            config.put("region.sections", sections)
 
         collected: DFs = memdf.collect.collect_files(config, [binary])
 
         sections = collected[SectionDF.name]
-        section_summary = sections[['section',
-                                    'size']].sort_values(by='section')
-        section_summary.attrs['name'] = "section"
+        section_summary = sections[["section", "size"]].sort_values(by="section")
+        section_summary.attrs["name"] = "section"
 
-        region_summary = memdf.select.groupby(
-            config, collected['section'], 'region')
-        region_summary.attrs['name'] = "region"
+        region_summary = memdf.select.groupby(config, collected["section"], "region")
+        region_summary.attrs["name"] = "region"
 
         summaries = {
-            'section': section_summary,
-            'region': region_summary,
+            "section": section_summary,
+            "region": region_summary,
         }
 
         # Write configured (json) report to the output file.
         memdf.report.write_dfs(config, summaries)
 
         # Write text report to stdout.
-        memdf.report.write_dfs(config,
-                               summaries,
-                               sys.stdout,
-                               'simple',
-                               floatfmt='.0f')
+        memdf.report.write_dfs(config, summaries, sys.stdout, "simple", floatfmt=".0f")
 
     except Exception as exception:
         raise exception
@@ -230,5 +224,5 @@ def main(argv):
     return status
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -1,4 +1,3 @@
-
 #
 #    Copyright (c) 2026 Project CHIP Authors
 #
@@ -28,5 +27,5 @@ __all__ = [
     "DBusTestSystemBus",
     "IsolatedNetworkNamespace",
     "ThreadBorderRouter",
-    "WpaSupplicantMock"
+    "WpaSupplicantMock",
 ]

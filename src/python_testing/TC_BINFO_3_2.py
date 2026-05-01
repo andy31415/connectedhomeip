@@ -54,11 +54,20 @@ class TC_BINFO_3_2(MatterBaseTest):
     def steps_TC_BINFO_3_2(self) -> list[TestStep]:
         return [
             TestStep(0, "Commissioning, already done", is_commissioning=True),
-            TestStep(1, "TH reads ConfigurationVersion from the DUT and stores the value as initialConfigurationVersion",
-                     "Verify that the value is in the inclusive range of 1 to 4294967295"),
-            TestStep(2, "Change the configuration version in a way which results in functionality to be added or removed (e.g. rewire thermostat to support a new mode)"),
-            TestStep(3, "TH reads ConfigurationVersion from the DUT",
-                     "Verify that the value is higher than the value of initialConfigurationVersion"),
+            TestStep(
+                1,
+                "TH reads ConfigurationVersion from the DUT and stores the value as initialConfigurationVersion",
+                "Verify that the value is in the inclusive range of 1 to 4294967295",
+            ),
+            TestStep(
+                2,
+                "Change the configuration version in a way which results in functionality to be added or removed (e.g. rewire thermostat to support a new mode)",
+            ),
+            TestStep(
+                3,
+                "TH reads ConfigurationVersion from the DUT",
+                "Verify that the value is higher than the value of initialConfigurationVersion",
+            ),
         ]
 
     def pics_TC_BINFO_3_2(self) -> list[str]:
@@ -75,7 +84,9 @@ class TC_BINFO_3_2(MatterBaseTest):
         attributes = Clusters.BasicInformation.Attributes
 
         self.step(1)
-        initialConfigurationVersion = await self.read_binfo_attribute_expect_success(endpoint=endpoint, attribute=attributes.ConfigurationVersion)
+        initialConfigurationVersion = await self.read_binfo_attribute_expect_success(
+            endpoint=endpoint, attribute=attributes.ConfigurationVersion
+        )
         asserts.assert_greater_equal(initialConfigurationVersion, 1, "ConfigurationVersion attribute is out of range")
 
         self.step(2)
@@ -84,12 +95,18 @@ class TC_BINFO_3_2(MatterBaseTest):
             self.write_to_app_pipe(command_dict)
         else:
             self.wait_for_user_input(
-                prompt_msg="Change the configuration version in a way which results in functionality to be added or removed, then continue")
+                prompt_msg="Change the configuration version in a way which results in functionality to be added or removed, then continue"
+            )
 
         self.step(3)
-        newConfigurationVersion = await self.read_binfo_attribute_expect_success(endpoint=endpoint, attribute=attributes.ConfigurationVersion)
-        asserts.assert_greater(newConfigurationVersion, initialConfigurationVersion,
-                               "ConfigurationVersion attribute not grater than initialConfigurationVersion")
+        newConfigurationVersion = await self.read_binfo_attribute_expect_success(
+            endpoint=endpoint, attribute=attributes.ConfigurationVersion
+        )
+        asserts.assert_greater(
+            newConfigurationVersion,
+            initialConfigurationVersion,
+            "ConfigurationVersion attribute not grater than initialConfigurationVersion",
+        )
 
 
 if __name__ == "__main__":

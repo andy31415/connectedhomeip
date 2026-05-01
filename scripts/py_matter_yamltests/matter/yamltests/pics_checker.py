@@ -16,29 +16,32 @@
 import unicodedata
 from typing import List
 
-_COMMENT_CHARACTER = '#'
-_VALUE_SEPARATOR = '='
-_VALUE_DISABLED = '0'
-_VALUE_ENABLED = '1'
-_CONTROL_CHARACTER_IDENTIFIER = 'C'
+_COMMENT_CHARACTER = "#"
+_VALUE_SEPARATOR = "="
+_VALUE_DISABLED = "0"
+_VALUE_ENABLED = "1"
+_CONTROL_CHARACTER_IDENTIFIER = "C"
 
 
 class InvalidPICSConfigurationError(Exception):
     "Raised when the configured pics entry can not be parsed."
+
     pass
 
 
 class InvalidPICSConfigurationValueError(Exception):
     "Raised when the configured pics value is not an authorized value."
+
     pass
 
 
 class InvalidPICSParsingError(Exception):
     "Raised when a parsing error occured."
+
     pass
 
 
-class PICSChecker():
+class PICSChecker:
     """Class to compute a PICS expression"""
 
     def __init__(self, pics_file: str):
@@ -66,13 +69,11 @@ class PICSChecker():
                     items = preprocessed_line.split(_VALUE_SEPARATOR)
                     # There should always be one key and one value, nothing else.
                     if len(items) != 2:
-                        raise InvalidPICSConfigurationError(
-                            f'Invalid expression: {line}')
+                        raise InvalidPICSConfigurationError(f"Invalid expression: {line}")
 
                     key, value = items
                     if value != _VALUE_DISABLED and value != _VALUE_ENABLED:
-                        raise InvalidPICSConfigurationValueError(
-                            f'Invalid expression: {line}')
+                        raise InvalidPICSConfigurationValueError(f"Invalid expression: {line}")
 
                     pics[key] = value == _VALUE_ENABLED
 
@@ -86,35 +87,35 @@ class PICSChecker():
 
         token = tokens[self.__expression_index]
 
-        if token == ')':
+        if token == ")":
             return leftExpr
 
         token = tokens[self.__expression_index]
 
-        if token == '&&':
+        if token == "&&":
             self.__expression_index += 1
             rightExpr = self.__evaluate_expression(tokens, pics)
             return leftExpr and rightExpr
 
-        if token == '||':
+        if token == "||":
             self.__expression_index += 1
             rightExpr = self.__evaluate_expression(tokens, pics)
             return leftExpr or rightExpr
 
-        raise InvalidPICSParsingError(f'Unknown token: {token}')
+        raise InvalidPICSParsingError(f"Unknown token: {token}")
 
     def __evaluate_sub_expression(self, tokens: List[str], pics: dict):
         token = tokens[self.__expression_index]
-        if token == '(':
+        if token == "(":
             self.__expression_index += 1
             expr = self.__evaluate_expression(tokens, pics)
-            if tokens[self.__expression_index] != ')':
+            if tokens[self.__expression_index] != ")":
                 raise KeyError('Missing ")"')
 
             self.__expression_index += 1
             return expr
 
-        if token == '!':
+        if token == "!":
             self.__expression_index += 1
             expr = self.__evaluate_sub_expression(tokens, pics)
             return not expr
@@ -130,23 +131,23 @@ class PICSChecker():
         return pics.get(token)
 
     def __tokenize(self, expression: str):
-        token = ''
+        token = ""
         tokens = []
 
         for c in expression:
-            if c == ' ' or c == '\t' or c == '\n':
+            if c == " " or c == "\t" or c == "\n":
                 pass
-            elif c == '(' or c == ')' or c == '!':
+            elif c == "(" or c == ")" or c == "!":
                 if token:
                     tokens.append(token)
-                    token = ''
+                    token = ""
                 tokens.append(c)
-            elif c == '&' or c == '|':
+            elif c == "&" or c == "|":
                 if token and token[-1] == c:
                     token = token[:-1]
                     if token:
                         tokens.append(token)
-                        token = ''
+                        token = ""
                     tokens.append(c + c)
                 else:
                     token += c
@@ -155,7 +156,7 @@ class PICSChecker():
 
         if token:
             tokens.append(token)
-            token = ''
+            token = ""
 
         return tokens
 
@@ -169,10 +170,10 @@ class PICSChecker():
         return value if not value else value.split(_COMMENT_CHARACTER, 1)[0]
 
     def __remove_control_characters(self, value: str) -> str:
-        return ''.join(c for c in value if unicodedata.category(c)[0] != _CONTROL_CHARACTER_IDENTIFIER)
+        return "".join(c for c in value if unicodedata.category(c)[0] != _CONTROL_CHARACTER_IDENTIFIER)
 
     def __remove_whitespaces(self, value: str) -> str:
-        return value.replace(' ', '')
+        return value.replace(" ", "")
 
     def __make_lowercase(self, value: str) -> str:
         return value.lower()

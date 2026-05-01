@@ -48,7 +48,6 @@ log = logging.getLogger(__name__)
 
 
 class TC_FAN_3_3(MatterBaseTest):
-
     async def read_fc_attribute_expect_success(self, endpoint, attribute):
         cluster = Clusters.Objects.FanControl
         return await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attribute)
@@ -60,11 +59,15 @@ class TC_FAN_3_3(MatterBaseTest):
         return await self.read_fc_attribute_expect_success(endpoint, Clusters.FanControl.Attributes.RockSetting)
 
     async def write_rock_setting(self, endpoint, rock_setting):
-        result = await self.default_controller.WriteAttribute(self.dut_node_id, [(endpoint, Clusters.FanControl.Attributes.RockSetting(rock_setting))])
+        result = await self.default_controller.WriteAttribute(
+            self.dut_node_id, [(endpoint, Clusters.FanControl.Attributes.RockSetting(rock_setting))]
+        )
         asserts.assert_equal(result[0].Status, Status.Success, "RockSetting write failed")
 
     async def write_rock_setting_expect_failure(self, endpoint, rock_setting):
-        result = await self.default_controller.WriteAttribute(self.dut_node_id, [(endpoint, Clusters.FanControl.Attributes.RockSetting(rock_setting))])
+        result = await self.default_controller.WriteAttribute(
+            self.dut_node_id, [(endpoint, Clusters.FanControl.Attributes.RockSetting(rock_setting))]
+        )
         asserts.assert_equal(result[0].Status, Status.ConstraintError, "Expected ConstraintError but received a different error.")
 
     def desc_TC_FAN_3_3(self) -> str:
@@ -122,7 +125,8 @@ class TC_FAN_3_3(MatterBaseTest):
 
             self.step(5)
             self.write_rock_setting_expect_failure(
-                endpoint=endpoint, rock_setting=Clusters.FanControl.Bitmaps.RockBitmap.kRockLeftRight)
+                endpoint=endpoint, rock_setting=Clusters.FanControl.Bitmaps.RockBitmap.kRockLeftRight
+            )
 
         if rock_support & Clusters.FanControl.Bitmaps.RockBitmap.kRockUpDown:
             self.step(6)
@@ -138,7 +142,9 @@ class TC_FAN_3_3(MatterBaseTest):
             self.skip_step(7)
 
             self.step(8)
-            await self.write_rock_setting_expect_failure(endpoint=endpoint, rock_setting=Clusters.FanControl.Bitmaps.RockBitmap.kRockUpDown)
+            await self.write_rock_setting_expect_failure(
+                endpoint=endpoint, rock_setting=Clusters.FanControl.Bitmaps.RockBitmap.kRockUpDown
+            )
 
         if rock_support & Clusters.FanControl.Bitmaps.RockBitmap.kRockRound:
             self.step(9)
@@ -153,7 +159,9 @@ class TC_FAN_3_3(MatterBaseTest):
             self.skip_step(10)
 
             self.step(11)
-            await self.write_rock_setting_expect_failure(endpoint=endpoint, rock_setting=Clusters.FanControl.Bitmaps.RockBitmap.kRockRound)
+            await self.write_rock_setting_expect_failure(
+                endpoint=endpoint, rock_setting=Clusters.FanControl.Bitmaps.RockBitmap.kRockRound
+            )
 
         self.step(12)
         await self.write_rock_setting(endpoint=endpoint, rock_setting=0x00)

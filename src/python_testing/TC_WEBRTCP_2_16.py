@@ -60,22 +60,31 @@ class TC_WEBRTCP_2_16(MatterBaseTest, WEBRTCPTestBase):
     def steps_TC_WEBRTCP_2_16(self) -> list[TestStep]:
         return [
             TestStep("precondition", "DUT commissioned", is_commissioning=True),
-            TestStep(1, "TH allocates both Audio and Video streams via AudioStreamAllocate and VideoStreamAllocate commands to CameraAVStreamManagement",
-                     "DUT responds with success and provides stream IDs"),
-            TestStep(2, "TH sends multiple ProvideOffer commands to exhaust DUT's session capacity (DUT-specific limit)",
-                     "DUT responds with ProvideOfferResponse for each until capacity is reached"),
-            TestStep(3, "TH sends an additional ProvideOffer command beyond DUT's capacity",
-                     "DUT responds with RESOURCE_EXHAUSTED status code"),
+            TestStep(
+                1,
+                "TH allocates both Audio and Video streams via AudioStreamAllocate and VideoStreamAllocate commands to CameraAVStreamManagement",
+                "DUT responds with success and provides stream IDs",
+            ),
+            TestStep(
+                2,
+                "TH sends multiple ProvideOffer commands to exhaust DUT's session capacity (DUT-specific limit)",
+                "DUT responds with ProvideOfferResponse for each until capacity is reached",
+            ),
+            TestStep(
+                3,
+                "TH sends an additional ProvideOffer command beyond DUT's capacity",
+                "DUT responds with RESOURCE_EXHAUSTED status code",
+            ),
         ]
 
     def pics_TC_WEBRTCP_2_16(self) -> list[str]:
         return [
             "WEBRTCP.S",
-            "WEBRTCP.S.C02.Rsp",   # ProvideOffer command
-            "WEBRTCP.S.C03.Tx",    # ProvideOfferResponse command
+            "WEBRTCP.S.C02.Rsp",  # ProvideOffer command
+            "WEBRTCP.S.C03.Tx",  # ProvideOfferResponse command
             "AVSM.S",
-            "AVSM.S.F00",          # Audio Data Output feature
-            "AVSM.S.F01",          # Video Data Output feature
+            "AVSM.S.F00",  # Audio Data Output feature
+            "AVSM.S.F01",  # Video Data Output feature
         ]
 
     @property
@@ -150,19 +159,18 @@ class TC_WEBRTCP_2_16(MatterBaseTest, WEBRTCPTestBase):
             streamUsage=3,
             originatingEndpointID=1,
             videoStreamID=video_stream_id,
-            audioStreamID=audio_stream_id
+            audioStreamID=audio_stream_id,
         )
 
         # Try to allocate multiple sessions to reach the DUT's capacity limit
         for attempt in range(max_attempts):
             log.info(f"Attempt {attempt + 1}: Sending ProvideOffer command")
             resp = await self.send_single_cmd(
-                cmd=provide_offer_cmd,
-                endpoint=1,
-                payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+                cmd=provide_offer_cmd, endpoint=1, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
             )
-            asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.ProvideOfferResponse,
-                                 "Incorrect response type")
+            asserts.assert_equal(
+                type(resp), Clusters.WebRTCTransportProvider.Commands.ProvideOfferResponse, "Incorrect response type"
+            )
             log.info(f"Successfully created ProvideOffer session {attempt + 1}")
 
         self.step(3)
@@ -172,16 +180,13 @@ class TC_WEBRTCP_2_16(MatterBaseTest, WEBRTCPTestBase):
         # This should fail with RESOURCE_EXHAUSTED status
         try:
             resp = await self.send_single_cmd(
-                cmd=provide_offer_cmd,
-                endpoint=endpoint,
-                payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+                cmd=provide_offer_cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
             )
             # If we reach here, the command succeeded when it should have failed
             asserts.fail("Expected RESOURCE_EXHAUSTED error but ProvideOffer command succeeded")
         except InteractionModelError as e:
             # Verify that we got the expected RESOURCE_EXHAUSTED status
-            asserts.assert_equal(e.status, Status.ResourceExhausted,
-                                 f"Expected RESOURCE_EXHAUSTED status, got {e.status}")
+            asserts.assert_equal(e.status, Status.ResourceExhausted, f"Expected RESOURCE_EXHAUSTED status, got {e.status}")
             log.info(f"Correctly received RESOURCE_EXHAUSTED status: {e.status}")
 
         log.info("Successfully validated ProvideOffer resource exhaustion behavior")

@@ -49,7 +49,6 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_WebRTCP_2_28(MatterBaseTest, WEBRTCPTestBase):
-
     def desc_TC_WebRTCP_2_28(self) -> str:
         """Returns a description of this test"""
         return "[TC-WEBRTCP-2.28] Validate immediate processing of SolicitOffer with DUT_Server - Release 1.5.1 or later"
@@ -62,8 +61,12 @@ class TC_WebRTCP_2_28(MatterBaseTest, WEBRTCPTestBase):
             TestStep("precondition", "DUT commissioned", is_commissioning=True),
             TestStep(1, "Read CurrentSessions attribute => expect 0"),
             TestStep(2, "Send SolicitOffer with no VideoStreams or AudioStreams => expect INVALID_COMMAND"),
-            TestStep(3, "Send SolicitOffer with valid parameters including VideoStreams and AudioStreams => expect DeferredOffer=FALSE"),
-            TestStep(4, "Read CurrentSessions attribute => expect 1 with valid session data including VideoStreams and AudioStreams"),
+            TestStep(
+                3, "Send SolicitOffer with valid parameters including VideoStreams and AudioStreams => expect DeferredOffer=FALSE"
+            ),
+            TestStep(
+                4, "Read CurrentSessions attribute => expect 1 with valid session data including VideoStreams and AudioStreams"
+            ),
             TestStep(5, "Send EndSession with WebRTCSessionID from step 3 + 1 => expect NOT_FOUND"),
             TestStep(6, "Send EndSession with WebRTCSessionID from step 3 => expect SUCCESS"),
         ]
@@ -73,7 +76,7 @@ class TC_WebRTCP_2_28(MatterBaseTest, WEBRTCPTestBase):
         Return the list of PICS applicable to this test case.
         """
         return [
-            "WEBRTCP.S",           # WebRTC Transport Provider Server
+            "WEBRTCP.S",  # WebRTC Transport Provider Server
         ]
 
     @property
@@ -100,18 +103,19 @@ class TC_WebRTCP_2_28(MatterBaseTest, WEBRTCPTestBase):
 
         self.step(1)
         current_sessions = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=cluster,
-            attribute=cluster.Attributes.CurrentSessions
+            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentSessions
         )
         asserts.assert_equal(len(current_sessions), 0, "CurrentSessions must be empty!")
 
         self.step(2)
         # Send SolicitOffer with no VideoStreams and no AudioStreams
         cmd = cluster.Commands.SolicitOffer(
-            streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView, originatingEndpointID=endpoint)
+            streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView, originatingEndpointID=endpoint
+        )
         try:
-            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+            await self.send_single_cmd(
+                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+            )
             asserts.fail("Unexpected success on SolicitOffer with no VideoStreams or AudioStreams")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.InvalidCommand, "Expected INVALID_COMMAND")
@@ -119,11 +123,15 @@ class TC_WebRTCP_2_28(MatterBaseTest, WEBRTCPTestBase):
         self.step(3)
         # Send valid SolicitOffer command using multi-stream list API
         cmd = cluster.Commands.SolicitOffer(
-            streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView, originatingEndpointID=endpoint,
-            videoStreams=[videoStreamID], audioStreams=[audioStreamID])
-        resp = await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
-        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse,
-                             "Incorrect response type")
+            streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView,
+            originatingEndpointID=endpoint,
+            videoStreams=[videoStreamID],
+            audioStreams=[audioStreamID],
+        )
+        resp = await self.send_single_cmd(
+            cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+        )
+        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse, "Incorrect response type")
         asserts.assert_false(resp.deferredOffer, "Expected 'deferredOffer' to be False.")
 
         # Save the session ID for later steps
@@ -132,9 +140,7 @@ class TC_WebRTCP_2_28(MatterBaseTest, WEBRTCPTestBase):
         self.step(4)
         # Verify CurrentSessions contains valid session data with multi-stream fields
         current_sessions = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=cluster,
-            attribute=cluster.Attributes.CurrentSessions
+            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentSessions
         )
 
         asserts.assert_equal(len(current_sessions), 1, "Expected CurrentSessions to be 1")
@@ -153,21 +159,26 @@ class TC_WebRTCP_2_28(MatterBaseTest, WEBRTCPTestBase):
 
         # StreamUsage is StreamUsageEnum type and contains a valid StreamUsageEnum value
         matter_asserts.assert_valid_enum(session.streamUsage, "StreamUsage", Clusters.Globals.Enums.StreamUsageEnum)
-        asserts.assert_not_equal(session.streamUsage, Clusters.Globals.Enums.StreamUsageEnum.kUnknownEnumValue,
-                                 "StreamUsage should be a valid known StreamUsageEnum value")
+        asserts.assert_not_equal(
+            session.streamUsage,
+            Clusters.Globals.Enums.StreamUsageEnum.kUnknownEnumValue,
+            "StreamUsage should be a valid known StreamUsageEnum value",
+        )
 
         # Verify the stored session ID matches the one returned in the SolicitOfferResponse
         asserts.assert_equal(session.id, current_session_id, "Session ID in CurrentSessions should match SolicitOfferResponse")
 
         # Verify VideoStreams contains the allocated VideoStreamID
         asserts.assert_true(len(session.videoStreams) > 0, "VideoStreams should not be empty")
-        asserts.assert_true(videoStreamID in session.videoStreams,
-                            f"VideoStreams should contain allocated VideoStreamID {videoStreamID}")
+        asserts.assert_true(
+            videoStreamID in session.videoStreams, f"VideoStreams should contain allocated VideoStreamID {videoStreamID}"
+        )
 
         # Verify AudioStreams contains the allocated AudioStreamID
         asserts.assert_true(len(session.audioStreams) > 0, "AudioStreams should not be empty")
-        asserts.assert_true(audioStreamID in session.audioStreams,
-                            f"AudioStreams should contain allocated AudioStreamID {audioStreamID}")
+        asserts.assert_true(
+            audioStreamID in session.audioStreams, f"AudioStreams should contain allocated AudioStreamID {audioStreamID}"
+        )
 
         self.step(5)
         # Send EndSession with invalid WebRTCSessionID (current + 1), wrapped to stay in valid range

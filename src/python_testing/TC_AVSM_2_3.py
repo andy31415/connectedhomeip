@@ -81,10 +81,7 @@ class TC_AVSM_2_3(MatterBaseTest, AVSMTestBase):
                 "TH sends the SnapshotStreamModify command with SnapshotStreamID set to aStreamID + 1.",
                 "DUT responds with an NOT_FOUND status code.",
             ),
-            TestStep(
-                5,
-                "Establish a subscription to the AllocatedSnapshotStreams attribute"
-            ),
+            TestStep(5, "Establish a subscription to the AllocatedSnapshotStreams attribute"),
             TestStep(
                 6,
                 "TH sends the SnapshotStreamModify command with SnapshotStreamID set to aStreamID. If WMARK is supported, set WaterMarkEnabled to !aWmark`and if OSD is supported, set OSDEnabled to `!aOSD in the command.",
@@ -170,7 +167,14 @@ class TC_AVSM_2_3(MatterBaseTest, AVSMTestBase):
         self.step(5)
         # Establish subscription to AllocatedSnapshotStreams
         sub_handler = AttributeSubscriptionHandler(cluster, attr.AllocatedSnapshotStreams)
-        await sub_handler.start(self.default_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
+        await sub_handler.start(
+            self.default_controller,
+            self.dut_node_id,
+            endpoint=endpoint,
+            min_interval_sec=0,
+            max_interval_sec=30,
+            keepSubscriptions=False,
+        )
 
         sub_handler.reset()
 
@@ -193,8 +197,12 @@ class TC_AVSM_2_3(MatterBaseTest, AVSMTestBase):
         if aHardwareEncoder:
             expected_wmark = None if aWmark is None else not aWmark
             expected_osd = None if aOSD is None else not aOSD
-            sub_handler.await_all_expected_report_matches(expected_matchers=[wmark_osd_matcher(
-                attr.AllocatedSnapshotStreams, expected_wmark, expected_osd, wmarkSupport, osdSupport)], timeout_sec=20)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[
+                    wmark_osd_matcher(attr.AllocatedSnapshotStreams, expected_wmark, expected_osd, wmarkSupport, osdSupport)
+                ],
+                timeout_sec=20,
+            )
 
         self.step(8)
         aAllocatedSnapshotStreams = await self.read_single_attribute_check_success(
@@ -215,7 +223,9 @@ class TC_AVSM_2_3(MatterBaseTest, AVSMTestBase):
 
         for stream in aAllocatedSnapshotStreams:
             try:
-                await self.send_single_cmd(endpoint=endpoint, cmd=commands.SnapshotStreamDeallocate(snapshotStreamID=(stream.snapshotStreamID)))
+                await self.send_single_cmd(
+                    endpoint=endpoint, cmd=commands.SnapshotStreamDeallocate(snapshotStreamID=(stream.snapshotStreamID))
+                )
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 

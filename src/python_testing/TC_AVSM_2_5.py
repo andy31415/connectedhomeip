@@ -233,7 +233,11 @@ class TC_AVSM_2_5(MatterBaseTest):
 
         self.step(9)
         notSupportedStreamUsage = next(
-            (e for e in Globals.Enums.StreamUsageEnum if e not in aStreamUsagePriorities and e != Globals.Enums.StreamUsageEnum.kInternal),
+            (
+                e
+                for e in Globals.Enums.StreamUsageEnum
+                if e not in aStreamUsagePriorities and e != Globals.Enums.StreamUsageEnum.kInternal
+            ),
             Globals.Enums.StreamUsageEnum.kUnknownEnumValue,
         )
 
@@ -403,7 +407,9 @@ class TC_AVSM_2_5(MatterBaseTest):
 
         for stream in aAllocatedAudioStreams:
             try:
-                await self.send_single_cmd(endpoint=endpoint, cmd=commands.AudioStreamDeallocate(audioStreamID=(stream.audioStreamID)))
+                await self.send_single_cmd(
+                    endpoint=endpoint, cmd=commands.AudioStreamDeallocate(audioStreamID=(stream.audioStreamID))
+                )
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 

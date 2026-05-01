@@ -65,12 +65,13 @@ CHIP_ERROR RequestCommissioning(int index)
  */
 void PrepareForCommissioning(const Dnssd::CommissionNodeData * selectedCommissioner)
 {
-    TEMPORARY_RETURN_IGNORED CastingServer::GetInstance()->Init();
+    TEMPORARY_RETURN_IGNORED CastingServer::GetInstance() -> Init();
 
     CommissioningCallbacks commissioningCallbacks;
     commissioningCallbacks.commissioningComplete = HandleCommissioningCompleteCallback;
-    TEMPORARY_RETURN_IGNORED CastingServer::GetInstance()->OpenBasicCommissioningWindow(
-        commissioningCallbacks, OnConnectionSuccess, OnConnectionFailure, OnNewOrUpdatedEndpoint);
+    TEMPORARY_RETURN_IGNORED CastingServer::GetInstance() -> OpenBasicCommissioningWindow(commissioningCallbacks,
+                                                                                          OnConnectionSuccess, OnConnectionFailure,
+                                                                                          OnNewOrUpdatedEndpoint);
 
     // Display onboarding payload
     chip::DeviceLayer::ConfigurationMgr().LogDeviceConfig();

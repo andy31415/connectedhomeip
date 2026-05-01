@@ -37,24 +37,36 @@ class CommissioningTest:
         self.queue = queue
         self.command = cmd
 
-        parser = argparse.ArgumentParser(description='Process pairing arguments.')
+        parser = argparse.ArgumentParser(description="Process pairing arguments.")
 
-        parser.add_argument('command', help="Command name")
-        parser.add_argument('-t', '--timeout', help="The program will return with timeout after specified seconds", default='200')
-        parser.add_argument('-a', '--address', help="Address of the device")
-        parser.add_argument('-p', '--port', help="Port of the remote device", default='5540')
-        parser.add_argument('-s', '--setup-payload', dest='setup_payload',
-                            help="Setup Payload (manual pairing code or QR code content)")
-        parser.add_argument('-c', '--setup-pin-code', dest='setup_pin_code',
-                            help=("Setup PIN code which can be used for password-authenticated "
-                                  "session establishment (PASE) with the Commissionee"))
-        parser.add_argument('-n', '--nodeid', help="The Node ID issued to the device", default='1')
-        parser.add_argument('-d', '--discriminator', help="Discriminator of the device", default='3840')
-        parser.add_argument('-o', '--discover-once', help="Enable to disable PASE auto retry mechanism", default='false')
-        parser.add_argument('-u', '--use-only-onnetwork-discovery',
-                            help="Enable when the commissionable device is available on the network", default='false')
-        parser.add_argument('-r', '--paa-trust-store-path', dest='paa_trust_store_path',
-                            help="Path that contains valid and trusted PAA Root Certificates")
+        parser.add_argument("command", help="Command name")
+        parser.add_argument("-t", "--timeout", help="The program will return with timeout after specified seconds", default="200")
+        parser.add_argument("-a", "--address", help="Address of the device")
+        parser.add_argument("-p", "--port", help="Port of the remote device", default="5540")
+        parser.add_argument(
+            "-s", "--setup-payload", dest="setup_payload", help="Setup Payload (manual pairing code or QR code content)"
+        )
+        parser.add_argument(
+            "-c",
+            "--setup-pin-code",
+            dest="setup_pin_code",
+            help=("Setup PIN code which can be used for password-authenticated session establishment (PASE) with the Commissionee"),
+        )
+        parser.add_argument("-n", "--nodeid", help="The Node ID issued to the device", default="1")
+        parser.add_argument("-d", "--discriminator", help="Discriminator of the device", default="3840")
+        parser.add_argument("-o", "--discover-once", help="Enable to disable PASE auto retry mechanism", default="false")
+        parser.add_argument(
+            "-u",
+            "--use-only-onnetwork-discovery",
+            help="Enable when the commissionable device is available on the network",
+            default="false",
+        )
+        parser.add_argument(
+            "-r",
+            "--paa-trust-store-path",
+            dest="paa_trust_store_path",
+            help="Path that contains valid and trusted PAA Root Certificates",
+        )
 
         args = parser.parse_args(args.split())
 
@@ -72,58 +84,64 @@ class CommissioningTest:
         logging.basicConfig(level=logging.INFO)
 
     def TestCmdOnnetworkLong(self, nodeid, setuppin, discriminator, timeout):
-        java_command = self.command + ['pairing', 'onnetwork-long', nodeid, setuppin, discriminator, timeout]
+        java_command = self.command + ["pairing", "onnetwork-long", nodeid, setuppin, discriminator, timeout]
         log.info("Execute: %s", shlex.join(java_command))
-        java_process = subprocess.Popen(
-            java_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        java_process = subprocess.Popen(java_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         DumpProgramOutputToQueue(self.thread_list, Fore.GREEN + "JAVA " + Style.RESET_ALL, java_process, self.queue)
         return java_process.wait()
 
     def TestCmdAlreadyDiscovered(self, nodeid, setuppin, address, port, timeout):
-        java_command = self.command + ['pairing', 'already-discovered', nodeid, setuppin, address, port, timeout]
+        java_command = self.command + ["pairing", "already-discovered", nodeid, setuppin, address, port, timeout]
         log.info("Execute: %s", shlex.join(java_command))
-        java_process = subprocess.Popen(
-            java_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        java_process = subprocess.Popen(java_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         DumpProgramOutputToQueue(self.thread_list, Fore.GREEN + "JAVA " + Style.RESET_ALL, java_process, self.queue)
         return java_process.wait()
 
     def TestCmdAddressPaseOnly(self, nodeid, setuppin, address, port, timeout):
-        java_command = self.command + ['pairing', 'address-paseonly', nodeid, setuppin, address, port, timeout]
+        java_command = self.command + ["pairing", "address-paseonly", nodeid, setuppin, address, port, timeout]
         log.info("Execute: %s", shlex.join(java_command))
-        java_process = subprocess.Popen(
-            java_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        java_process = subprocess.Popen(java_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         DumpProgramOutputToQueue(self.thread_list, Fore.GREEN + "JAVA " + Style.RESET_ALL, java_process, self.queue)
         return java_process.wait()
 
     def TestCmdCode(self, nodeid, setup_payload, discover_once, use_only_onnetwork_discovery, timeout):
-        java_command = self.command + ['pairing', 'code', nodeid, setup_payload, timeout,
-                                       '--discover-once', discover_once, '--use-only-onnetwork-discovery', use_only_onnetwork_discovery]
+        java_command = self.command + [
+            "pairing",
+            "code",
+            nodeid,
+            setup_payload,
+            timeout,
+            "--discover-once",
+            discover_once,
+            "--use-only-onnetwork-discovery",
+            use_only_onnetwork_discovery,
+        ]
         log.info("Execute: %s", shlex.join(java_command))
-        java_process = subprocess.Popen(
-            java_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        java_process = subprocess.Popen(java_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         DumpProgramOutputToQueue(self.thread_list, Fore.GREEN + "JAVA " + Style.RESET_ALL, java_process, self.queue)
         return java_process.wait()
 
     def RunTest(self):
-        if self.command_name == 'onnetwork-long':
+        if self.command_name == "onnetwork-long":
             log.info("Testing pairing onnetwork-long")
             code = self.TestCmdOnnetworkLong(self.nodeid, self.setup_pin_code, self.discriminator, self.timeout)
             if code != 0:
                 raise RuntimeError(f"Testing pairing onnetwork-long failed with error {code}")
-        elif self.command_name == 'already-discovered':
+        elif self.command_name == "already-discovered":
             log.info("Testing pairing already-discovered")
             code = self.TestCmdAlreadyDiscovered(self.nodeid, self.setup_pin_code, self.address, self.port, self.timeout)
             if code != 0:
                 raise RuntimeError(f"Testing pairing already-discovered failed with error {code}")
-        elif self.command_name == 'address-paseonly':
+        elif self.command_name == "address-paseonly":
             log.info("Testing pairing address-paseonly")
             code = self.TestCmdAddressPaseOnly(self.nodeid, self.setup_pin_code, self.address, self.port, self.timeout)
             if code != 0:
                 raise RuntimeError(f"Testing pairing address-paseonly failed with error {code}")
-        elif self.command_name == 'code':
+        elif self.command_name == "code":
             log.info("Testing pairing setup-code")
-            code = self.TestCmdCode(self.nodeid, self.setup_payload, self.discover_once,
-                                    self.use_only_onnetwork_discovery, self.timeout)
+            code = self.TestCmdCode(
+                self.nodeid, self.setup_payload, self.discover_once, self.use_only_onnetwork_discovery, self.timeout
+            )
             if code != 0:
                 raise RuntimeError(f"Testing pairing code failed with error {code}")
         else:

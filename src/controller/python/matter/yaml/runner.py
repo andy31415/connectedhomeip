@@ -39,8 +39,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 class _ActionStatus(Enum):
-    SUCCESS = 'success'
-    ERROR = 'error'
+    SUCCESS = "success"
+    ERROR = "error"
 
 
 class _TestFabricId(IntEnum):
@@ -80,7 +80,8 @@ class _EventSubscriptionCallbackResult:
 
 @dataclass
 class _ExecutionContext:
-    ''' Objects that is commonly passed around this file that are vital to test execution.'''
+    """Objects that is commonly passed around this file that are vital to test execution."""
+
     # Data model lookup to get python attribute, cluster, command object.
     data_model_lookup: DataModelLookup
     # List of subscriptions.
@@ -93,7 +94,7 @@ class _ExecutionContext:
 
 
 class BaseAction(ABC):
-    '''Interface for a single YAML action that is to be executed.'''
+    """Interface for a single YAML action that is to be executed."""
 
     def __init__(self, test_step):
         self._label = test_step.label
@@ -122,7 +123,7 @@ class DefaultPseudoCluster(BaseAction):
         super().__init__(test_step)
         self._test_step = test_step
         if not _PSEUDO_CLUSTERS.supports(test_step):
-            raise ActionCreationError(f'Default cluster {test_step.cluster} {test_step.command}, not supported')
+            raise ActionCreationError(f"Default cluster {test_step.cluster} {test_step.command}, not supported")
 
     async def run_action(self, dev_ctrl: ChipDeviceController) -> _ActionResult:
         response = await _PSEUDO_CLUSTERS.execute(self._test_step)
@@ -130,10 +131,10 @@ class DefaultPseudoCluster(BaseAction):
 
 
 class InvokeAction(BaseAction):
-    '''Single invoke action to be executed.'''
+    """Single invoke action to be executed."""
 
     def __init__(self, test_step, cluster: str, context: _ExecutionContext):
-        '''Converts 'test_step' to invoke command action that can execute with ChipDeviceController.
+        """Converts 'test_step' to invoke command action that can execute with ChipDeviceController.
 
         Args:
           'test_step': Step containing information required to run invoke command action.
@@ -145,7 +146,7 @@ class InvokeAction(BaseAction):
             it is expected that the action to invoke and the provided cluster is an action
             to be invoked on a pseudo cluster.
           UnexpectedActionCreationError: Raised if there is an unexpected parsing error.
-        '''
+        """
         super().__init__(test_step)
         self._busy_wait_ms = test_step.busy_wait_ms
         self._command_name = to_pascal_case(test_step.command)
@@ -158,26 +159,23 @@ class InvokeAction(BaseAction):
         self._group_id = test_step.group_id
 
         if self._node_id is None and self._group_id is None:
-            raise UnexpectedActionCreationError(
-                'Both node_id and group_id are None, at least one needs to be provided')
+            raise UnexpectedActionCreationError("Both node_id and group_id are None, at least one needs to be provided")
 
         command = context.data_model_lookup.get_command(self._cluster, self._command_name)
 
         if command is None:
             # If we have not found a command it could me that it is a pseudo cluster command.
-            raise ActionCreationError(
-                f'Failed to find cluster:{self._cluster} Command:{self._command_name}')
+            raise ActionCreationError(f"Failed to find cluster:{self._cluster} Command:{self._command_name}")
 
         command_object = command()
-        if (test_step.arguments):
-            args = test_step.arguments['values']
+        if test_step.arguments:
+            args = test_step.arguments["values"]
             request_data_as_dict = Converter.convert_list_of_name_value_pair_to_dict(args)
 
             try:
-                request_data = Converter.convert_to_data_model_type(
-                    request_data_as_dict, type(command_object))
+                request_data = Converter.convert_to_data_model_type(request_data_as_dict, type(command_object))
             except ValueError:
-                raise UnexpectedActionCreationError('Could not covert yaml type')
+                raise UnexpectedActionCreationError("Could not covert yaml type")
 
             self._request_object = command_object.FromDict(request_data)
         else:
@@ -186,14 +184,15 @@ class InvokeAction(BaseAction):
     async def run_action(self, dev_ctrl: ChipDeviceController) -> _ActionResult:
         try:
             if self._group_id:
-                resp = dev_ctrl.SendGroupCommand(
-                    self._group_id, self._request_object,
-                    busyWaitMs=self._busy_wait_ms)
+                resp = dev_ctrl.SendGroupCommand(self._group_id, self._request_object, busyWaitMs=self._busy_wait_ms)
             else:
                 resp = await dev_ctrl.SendCommand(
-                    self._node_id, self._endpoint, self._request_object,
+                    self._node_id,
+                    self._endpoint,
+                    self._request_object,
                     timedRequestTimeoutMs=self._interation_timeout_ms,
-                    busyWaitMs=self._busy_wait_ms)
+                    busyWaitMs=self._busy_wait_ms,
+                )
         except MatterInteractionModel.InteractionModelError as error:
             return _ActionResult(status=_ActionStatus.ERROR, response=error)
 
@@ -202,10 +201,10 @@ class InvokeAction(BaseAction):
 
 
 class ReadAttributeAction(BaseAction):
-    '''Single read attribute action to be executed.'''
+    """Single read attribute action to be executed."""
 
     def __init__(self, test_step, cluster: str, context: _ExecutionContext):
-        '''Converts 'test_step' to read attribute action that can execute with ChipDeviceController.
+        """Converts 'test_step' to read attribute action that can execute with ChipDeviceController.
 
         Args:
           'test_step': Step containing information required to run read attribute action.
@@ -213,7 +212,7 @@ class ReadAttributeAction(BaseAction):
           'context': Contains test-wide common objects such as DataModelLookup instance.
         Raises:
           UnexpectedActionCreationError: Raised if there is an unexpected parsing error.
-        '''
+        """
         super().__init__(test_step)
         self._attribute_name = to_pascal_case(test_step.attribute)
         self._cluster = cluster
@@ -228,29 +227,25 @@ class ReadAttributeAction(BaseAction):
 
         self._cluster_object = context.data_model_lookup.get_cluster(self._cluster)
         if self._cluster_object is None:
-            raise UnexpectedActionCreationError(
-                f'ReadAttribute failed to find cluster object:{self._cluster}')
+            raise UnexpectedActionCreationError(f"ReadAttribute failed to find cluster object:{self._cluster}")
 
-        self._request_object = context.data_model_lookup.get_attribute(
-            self._cluster, self._attribute_name)
+        self._request_object = context.data_model_lookup.get_attribute(self._cluster, self._attribute_name)
         if self._request_object is None:
             raise UnexpectedActionCreationError(
-                f'ReadAttribute failed to find cluster:{self._cluster} '
-                f'Attribute:{self._attribute_name}')
+                f"ReadAttribute failed to find cluster:{self._cluster} Attribute:{self._attribute_name}"
+            )
 
         if test_step.arguments:
-            raise UnexpectedActionCreationError(
-                f'ReadAttribute should not contain arguments. {self.label}')
+            raise UnexpectedActionCreationError(f"ReadAttribute should not contain arguments. {self.label}")
 
         if self._request_object.attribute_type is None:
-            raise UnexpectedActionCreationError(
-                f'ReadAttribute doesnt have valid attribute_type. {self.label}')
+            raise UnexpectedActionCreationError(f"ReadAttribute doesnt have valid attribute_type. {self.label}")
 
     async def run_action(self, dev_ctrl: ChipDeviceController) -> _ActionResult:
         try:
-            raw_resp = await dev_ctrl.ReadAttribute(self._node_id,
-                                                    [(self._endpoint, self._request_object)],
-                                                    fabricFiltered=self._fabric_filtered)
+            raw_resp = await dev_ctrl.ReadAttribute(
+                self._node_id, [(self._endpoint, self._request_object)], fabricFiltered=self._fabric_filtered
+            )
         except MatterInteractionModel.InteractionModelError as error:
             return _ActionResult(status=_ActionStatus.ERROR, response=error)
         except ChipStackError as error:
@@ -279,10 +274,10 @@ class ReadAttributeAction(BaseAction):
 
 
 class ReadEventAction(BaseAction):
-    ''' Read Event action to be executed.'''
+    """Read Event action to be executed."""
 
     def __init__(self, test_step, cluster: str, context: _ExecutionContext):
-        '''Converts 'test_step' to read event action that can execute with ChipDeviceController.
+        """Converts 'test_step' to read event action that can execute with ChipDeviceController.
 
         Args:
           'test_step': Step containing information required to run read event action.
@@ -290,7 +285,7 @@ class ReadEventAction(BaseAction):
           'context': Contains test-wide common objects such as DataModelLookup instance.
         Raises:
           UnexpectedActionCreationError: Raised if there is an unexpected parsing error.
-        '''
+        """
         super().__init__(test_step)
         self._event_name = to_pascal_case(test_step.event)
         self._cluster = cluster
@@ -304,22 +299,20 @@ class ReadEventAction(BaseAction):
         if test_step.fabric_filtered is not None:
             self._fabric_filtered = test_step.fabric_filtered
 
-        self._request_object = context.data_model_lookup.get_event(self._cluster,
-                                                                   self._event_name)
+        self._request_object = context.data_model_lookup.get_event(self._cluster, self._event_name)
         if self._request_object is None:
-            raise UnexpectedActionCreationError(
-                f'ReadEvent failed to find cluster:{self._cluster} Event:{self._event_name}')
+            raise UnexpectedActionCreationError(f"ReadEvent failed to find cluster:{self._cluster} Event:{self._event_name}")
 
         if test_step.arguments:
-            raise UnexpectedActionCreationError(
-                f'ReadEvent should not contain arguments. {self.label}')
+            raise UnexpectedActionCreationError(f"ReadEvent should not contain arguments. {self.label}")
 
     async def run_action(self, dev_ctrl: ChipDeviceController) -> _ActionResult:
         try:
             urgent = 0
             request = [(self._endpoint, self._request_object, urgent)]
-            resp = await dev_ctrl.ReadEvent(self._node_id, events=request, eventNumberFilter=self._event_number_filter,
-                                            fabricFiltered=self._fabric_filtered)
+            resp = await dev_ctrl.ReadEvent(
+                self._node_id, events=request, eventNumberFilter=self._event_number_filter, fabricFiltered=self._fabric_filtered
+            )
         except MatterInteractionModel.InteractionModelError as error:
             return _ActionResult(status=_ActionStatus.ERROR, response=error)
 
@@ -328,7 +321,7 @@ class ReadEventAction(BaseAction):
 
 
 class WaitForCommissioneeAction(BaseAction):
-    ''' Wait for commissionee action to be executed.'''
+    """Wait for commissionee action to be executed."""
 
     def __init__(self, test_step):
         super().__init__(test_step)
@@ -341,7 +334,7 @@ class WaitForCommissioneeAction(BaseAction):
             # Nothing left for us to do the default values are what we want
             return
 
-        args = test_step.arguments['values']
+        args = test_step.arguments["values"]
         request_data_as_dict = Converter.convert_list_of_name_value_pair_to_dict(args)
 
         # There's a chance the commissionee may have rebooted before this call here as part of a
@@ -349,11 +342,11 @@ class WaitForCommissioneeAction(BaseAction):
         # explicitly set, the default behaviour it to make sure we're not re-using any cached CASE
         # sessions that will now be stale and mismatched with the peer, causing subsequent
         # interactions to fail.
-        self._expire_existing_session = request_data_as_dict.get('expireExistingSession', True)
-        self._node_id = request_data_as_dict['nodeId']
-        if 'timeout' in request_data_as_dict:
+        self._expire_existing_session = request_data_as_dict.get("expireExistingSession", True)
+        self._node_id = request_data_as_dict["nodeId"]
+        if "timeout" in request_data_as_dict:
             # Timeout is provided in seconds we need to conver to milliseconds.
-            self._timeout_ms = request_data_as_dict['timeout'] * 1000
+            self._timeout_ms = request_data_as_dict["timeout"] * 1000
 
     async def run_action(self, dev_ctrl: ChipDeviceController) -> _ActionResult:
         try:
@@ -367,8 +360,7 @@ class WaitForCommissioneeAction(BaseAction):
 
 
 class AttributeChangeAccumulator:
-    def __init__(self, name: str, expected_attribute: ClusterObjects.ClusterAttributeDescriptor,
-                 output_queue: queue.SimpleQueue):
+    def __init__(self, name: str, expected_attribute: ClusterObjects.ClusterAttributeDescriptor, output_queue: queue.SimpleQueue):
         self._name = name
         self._expected_attribute = expected_attribute
         self._output_queue = output_queue
@@ -379,8 +371,7 @@ class AttributeChangeAccumulator:
             result = _ActionResult(status=_ActionStatus.SUCCESS, response=path.AttributeType(data))
 
             item = _AttributeSubscriptionCallbackResult(self._name, path, result)
-            LOGGER.debug(
-                f'Got subscription report on client {self.name} for {path.AttributeType}: {data}')
+            LOGGER.debug(f"Got subscription report on client {self.name} for {path.AttributeType}: {data}")
             self._output_queue.put(item)
 
     @property
@@ -395,13 +386,15 @@ class EventChangeAccumulator:
         self._output_queue = output_queue
 
     def __call__(self, event_result: EventReadResult, transaction: SubscriptionTransaction):
-        if (self._expected_event.cluster_id == event_result.Header.ClusterId and
-                self._expected_event.event_id == event_result.Header.EventId):
+        if (
+            self._expected_event.cluster_id == event_result.Header.ClusterId
+            and self._expected_event.event_id == event_result.Header.EventId
+        ):
             event_response = EventResponse(event_result_list=[event_result])
             result = _ActionResult(status=_ActionStatus.SUCCESS, response=event_response)
 
             item = _EventSubscriptionCallbackResult(self._name, result)
-            LOGGER.debug(f'Got subscription report on client {self.name}')
+            LOGGER.debug(f"Got subscription report on client {self.name}")
             self._output_queue.put(item)
 
     @property
@@ -410,10 +403,10 @@ class EventChangeAccumulator:
 
 
 class SubscribeAttributeAction(ReadAttributeAction):
-    '''Single subscribe attribute action to be executed.'''
+    """Single subscribe attribute action to be executed."""
 
     def __init__(self, test_step, cluster: str, context: _ExecutionContext):
-        '''Converts 'test_step' to subscribe attribute action that can execute with ChipDeviceController.
+        """Converts 'test_step' to subscribe attribute action that can execute with ChipDeviceController.
 
         Args:
           'test_step': Step containing information required to run write attribute action.
@@ -421,30 +414,30 @@ class SubscribeAttributeAction(ReadAttributeAction):
           'context': Contains test-wide common objects such as DataModelLookup instance.
         Raises:
           UnexpectedActionCreationError: Raised if there is an unexpected parsing error.
-        '''
+        """
         super().__init__(test_step, cluster, context)
         self._context = context
         if test_step.min_interval is None:
-            raise UnexpectedActionCreationError(
-                f'SubscribeAttribute action does not have min_interval {self.label}')
+            raise UnexpectedActionCreationError(f"SubscribeAttribute action does not have min_interval {self.label}")
         self._min_interval = test_step.min_interval
 
         if test_step.max_interval is None:
-            raise UnexpectedActionCreationError(
-                f'SubscribeAttribute action does not have max_interval {self.label}')
+            raise UnexpectedActionCreationError(f"SubscribeAttribute action does not have max_interval {self.label}")
         self._max_interval = test_step.max_interval
 
     async def run_action(self, dev_ctrl: ChipDeviceController) -> _ActionResult:
         try:
-            subscription = await dev_ctrl.ReadAttribute(self._node_id, [(self._endpoint, self._request_object)],
-                                                        reportInterval=(self._min_interval, self._max_interval),
-                                                        keepSubscriptions=False)
+            subscription = await dev_ctrl.ReadAttribute(
+                self._node_id,
+                [(self._endpoint, self._request_object)],
+                reportInterval=(self._min_interval, self._max_interval),
+                keepSubscriptions=False,
+            )
         except MatterInteractionModel.InteractionModelError as error:
             return _ActionResult(status=_ActionStatus.ERROR, response=error)
 
         self._context.subscriptions.append(subscription)
-        output_queue = self._context.subscription_callback_result_queue.get(self._attribute_name,
-                                                                            None)
+        output_queue = self._context.subscription_callback_result_queue.get(self._attribute_name, None)
         if output_queue is None:
             output_queue = queue.SimpleQueue()
             self._context.subscription_callback_result_queue[self._attribute_name] = output_queue
@@ -452,8 +445,7 @@ class SubscribeAttributeAction(ReadAttributeAction):
         while not output_queue.empty():
             output_queue.get(block=False)
 
-        subscription_handler = AttributeChangeAccumulator(self.label, self._request_object,
-                                                          output_queue)
+        subscription_handler = AttributeChangeAccumulator(self.label, self._request_object, output_queue)
 
         subscription.SetAttributeUpdateCallback(subscription_handler)
 
@@ -462,10 +454,10 @@ class SubscribeAttributeAction(ReadAttributeAction):
 
 
 class SubscribeEventAction(ReadEventAction):
-    '''Single subscribe event action to be executed.'''
+    """Single subscribe event action to be executed."""
 
     def __init__(self, test_step, cluster: str, context: _ExecutionContext):
-        '''Converts 'test_step' to subscribe event action that can execute with ChipDeviceController.
+        """Converts 'test_step' to subscribe event action that can execute with ChipDeviceController.
 
         Args:
           'test_step': Step containing information required to run subscribe event action.
@@ -473,32 +465,33 @@ class SubscribeEventAction(ReadEventAction):
           'context': Contains test-wide common objects such as DataModelLookup instance.
         Raises:
           UnexpectedActionCreationError: Raised if there is an unexpected parsing error.
-        '''
+        """
         super().__init__(test_step, cluster, context)
         self._context = context
         if test_step.min_interval is None:
-            raise UnexpectedActionCreationError(
-                f'SubscribeEvent action does not have min_interval {self.label}')
+            raise UnexpectedActionCreationError(f"SubscribeEvent action does not have min_interval {self.label}")
         self._min_interval = test_step.min_interval
 
         if test_step.max_interval is None:
-            raise UnexpectedActionCreationError(
-                f'SubscribeEvent action does not have max_interval {self.label}')
+            raise UnexpectedActionCreationError(f"SubscribeEvent action does not have max_interval {self.label}")
         self._max_interval = test_step.max_interval
 
     async def run_action(self, dev_ctrl: ChipDeviceController) -> _ActionResult:
         try:
             urgent = 0
             request = [(self._endpoint, self._request_object, urgent)]
-            subscription = await dev_ctrl.ReadEvent(self._node_id, events=request, eventNumberFilter=self._event_number_filter,
-                                                    reportInterval=(self._min_interval, self._max_interval),
-                                                    keepSubscriptions=False)
+            subscription = await dev_ctrl.ReadEvent(
+                self._node_id,
+                events=request,
+                eventNumberFilter=self._event_number_filter,
+                reportInterval=(self._min_interval, self._max_interval),
+                keepSubscriptions=False,
+            )
         except MatterInteractionModel.InteractionModelError as error:
             return _ActionResult(status=_ActionStatus.ERROR, response=error)
 
         self._context.subscriptions.append(subscription)
-        output_queue = self._context.subscription_callback_result_queue.get(self._event_name,
-                                                                            None)
+        output_queue = self._context.subscription_callback_result_queue.get(self._event_name, None)
         if output_queue is None:
             output_queue = queue.SimpleQueue()
             self._context.subscription_callback_result_queue[self._event_name] = output_queue
@@ -516,10 +509,10 @@ class SubscribeEventAction(ReadEventAction):
 
 
 class WriteAttributeAction(BaseAction):
-    '''Single write attribute action to be executed.'''
+    """Single write attribute action to be executed."""
 
     def __init__(self, test_step, cluster: str, context: _ExecutionContext):
-        '''Converts 'test_step' to write attribute action that can execute with ChipDeviceController.
+        """Converts 'test_step' to write attribute action that can execute with ChipDeviceController.
 
         Args:
           'test_step': Step containing information required to run write attribute action.
@@ -527,7 +520,7 @@ class WriteAttributeAction(BaseAction):
           'context': Contains test-wide common objects such as DataModelLookup instance.
         Raises:
           UnexpectedActionCreationError: Raised if there is an unexpected parsing error.
-        '''
+        """
         super().__init__(test_step)
         self._attribute_name = to_pascal_case(test_step.attribute)
         self._busy_wait_ms = test_step.busy_wait_ms
@@ -539,29 +532,26 @@ class WriteAttributeAction(BaseAction):
         self._request_object = None
 
         if self._node_id is None and self._group_id is None:
-            raise UnexpectedActionCreationError(
-                'Both node_id and group_id are None, at least one needs to be provided')
+            raise UnexpectedActionCreationError("Both node_id and group_id are None, at least one needs to be provided")
 
-        attribute = context.data_model_lookup.get_attribute(
-            self._cluster, self._attribute_name)
+        attribute = context.data_model_lookup.get_attribute(self._cluster, self._attribute_name)
         if attribute is None:
             raise UnexpectedActionCreationError(
-                f'WriteAttribute failed to find cluster:{self._cluster} '
-                f'Attribute:{self._attribute_name}')
+                f"WriteAttribute failed to find cluster:{self._cluster} Attribute:{self._attribute_name}"
+            )
 
         if not test_step.arguments:
-            raise UnexpectedActionCreationError(f'WriteAttribute action does have arguments {self.label}')
+            raise UnexpectedActionCreationError(f"WriteAttribute action does have arguments {self.label}")
 
-        args = test_step.arguments['values']
+        args = test_step.arguments["values"]
         if len(args) != 1:
-            raise UnexpectedActionCreationError('WriteAttribute is trying to write multiple values')
+            raise UnexpectedActionCreationError("WriteAttribute is trying to write multiple values")
         request_data_as_dict = args[0]
         try:
             # TODO this is an ugly hack
-            request_data = Converter.convert_to_data_model_type(
-                request_data_as_dict['value'], attribute.attribute_type.Type)
+            request_data = Converter.convert_to_data_model_type(request_data_as_dict["value"], attribute.attribute_type.Type)
         except ValueError:
-            raise UnexpectedActionCreationError('Could not covert yaml type')
+            raise UnexpectedActionCreationError("Could not covert yaml type")
 
         # Create a cluster object for the request from the provided YAML data.
         self._request_object = attribute(request_data)
@@ -569,12 +559,14 @@ class WriteAttributeAction(BaseAction):
     async def run_action(self, dev_ctrl: ChipDeviceController) -> _ActionResult:
         try:
             if self._group_id:
-                resp = dev_ctrl.WriteGroupAttribute(self._group_id, [(self._request_object,)],
-                                                    busyWaitMs=self._busy_wait_ms)
+                resp = dev_ctrl.WriteGroupAttribute(self._group_id, [(self._request_object,)], busyWaitMs=self._busy_wait_ms)
             else:
-                resp = await dev_ctrl.WriteAttribute(self._node_id, [(self._endpoint, self._request_object)],
-                                                     timedRequestTimeoutMs=self._interation_timeout_ms,
-                                                     busyWaitMs=self._busy_wait_ms)
+                resp = await dev_ctrl.WriteAttribute(
+                    self._node_id,
+                    [(self._endpoint, self._request_object)],
+                    timedRequestTimeoutMs=self._interation_timeout_ms,
+                    busyWaitMs=self._busy_wait_ms,
+                )
         except MatterInteractionModel.InteractionModelError as error:
             return _ActionResult(status=_ActionStatus.ERROR, response=error)
 
@@ -593,29 +585,28 @@ class WriteAttributeAction(BaseAction):
 
 
 class WaitForReportAction(BaseAction):
-    '''Single WaitForReport action to be executed.'''
+    """Single WaitForReport action to be executed."""
 
     def __init__(self, test_step, context: _ExecutionContext):
-        '''Converts 'test_step' to wait for report action.
+        """Converts 'test_step' to wait for report action.
 
         Args:
           'test_step': Step containing information required to run wait for report action.
           'context': Contains test-wide common objects such as DataModelLookup instance.
         Raises:
           UnexpectedActionCreationError: Raised if the expected queue does not exist.
-        '''
+        """
         super().__init__(test_step)
         if test_step.attribute is not None:
             queue_name = to_pascal_case(test_step.attribute)
         elif test_step.event is not None:
             queue_name = to_pascal_case(test_step.event)
         else:
-            raise UnexpectedActionCreationError(
-                'WaitForReport needs to wait on either attribute or event, neither were provided')
+            raise UnexpectedActionCreationError("WaitForReport needs to wait on either attribute or event, neither were provided")
 
         self._output_queue = context.subscription_callback_result_queue.get(queue_name, None)
         if self._output_queue is None:
-            raise UnexpectedActionCreationError('Could not find output queue')
+            raise UnexpectedActionCreationError("Could not find output queue")
 
     async def run_action(self, dev_ctrl: ChipDeviceController) -> _ActionResult:
         try:
@@ -632,37 +623,37 @@ class WaitForReportAction(BaseAction):
 
 
 class CommissionerCommandAction(BaseAction):
-    '''Single Commissioner Command action to be executed.'''
+    """Single Commissioner Command action to be executed."""
 
     def __init__(self, test_step):
-        '''Converts 'test_step' to commissioner command action.
+        """Converts 'test_step' to commissioner command action.
 
         Args:
           'test_step': Step containing information required to run wait for report action.
         Raises:
           UnexpectedActionCreationError: Raised if the expected queue does not exist.
-        '''
+        """
         super().__init__(test_step)
         self._command = test_step.command
-        if test_step.command == 'GetCommissionerNodeId':
+        if test_step.command == "GetCommissionerNodeId":
             # Just setting the self._command is enough for run_action below.
             pass
-        elif test_step.command in ('PairWithCode', 'EstablishPASESession'):
-            args = test_step.arguments['values']
+        elif test_step.command in ("PairWithCode", "EstablishPASESession"):
+            args = test_step.arguments["values"]
             request_data_as_dict = Converter.convert_list_of_name_value_pair_to_dict(args)
-            self._setup_payload = request_data_as_dict['payload']
-            self._node_id = request_data_as_dict['nodeId']
+            self._setup_payload = request_data_as_dict["payload"]
+            self._node_id = request_data_as_dict["nodeId"]
         else:
-            raise UnexpectedActionCreationError(f'Unexpected CommisionerCommand {test_step.command}')
+            raise UnexpectedActionCreationError(f"Unexpected CommisionerCommand {test_step.command}")
 
     async def run_action(self, dev_ctrl: ChipDeviceController) -> _ActionResult:
-        if self._command == 'GetCommissionerNodeId':
+        if self._command == "GetCommissionerNodeId":
             return _ActionResult(status=_ActionStatus.SUCCESS, response=_GetCommissionerNodeIdResult(dev_ctrl.nodeId))
 
         try:
-            if self._command == 'PairWithCode':
+            if self._command == "PairWithCode":
                 await dev_ctrl.CommissionWithCode(self._setup_payload, self._node_id)
-            elif self._command == 'EstablishPASESession':
+            elif self._command == "EstablishPASESession":
                 await dev_ctrl.EstablishPASESession(self._setup_payload, self._node_id)
             return _ActionResult(status=_ActionStatus.SUCCESS, response=None)
         except ChipStackError:
@@ -675,35 +666,35 @@ class DiscoveryCommandAction(BaseAction):
     @staticmethod
     def _filter_for_step(test_step) -> Tuple[discovery.FilterType, Any]:
         """Given a test step, figure out the correct filters to give to
-           DiscoverCommissionableNodes.
+        DiscoverCommissionableNodes.
         """
 
-        if test_step.command == 'FindCommissionable':
+        if test_step.command == "FindCommissionable":
             return discovery.FilterType.NONE, None
 
-        if test_step.command == 'FindCommissionableByCommissioningMode':
+        if test_step.command == "FindCommissionableByCommissioningMode":
             # this is just a "_CM" subtype
             return discovery.FilterType.COMMISSIONING_MODE, None
 
         # all the items below require a "value" to use for filtering
-        args = test_step.arguments['values']
+        args = test_step.arguments["values"]
         request_data_as_dict = Converter.convert_list_of_name_value_pair_to_dict(args)
 
-        filter = request_data_as_dict['value']
+        filter = request_data_as_dict["value"]
 
-        if test_step.command == 'FindCommissionableByDeviceType':
+        if test_step.command == "FindCommissionableByDeviceType":
             return discovery.FilterType.DEVICE_TYPE, filter
 
-        if test_step.command == 'FindCommissionableByLongDiscriminator':
+        if test_step.command == "FindCommissionableByLongDiscriminator":
             return discovery.FilterType.LONG_DISCRIMINATOR, filter
 
-        if test_step.command == 'FindCommissionableByShortDiscriminator':
+        if test_step.command == "FindCommissionableByShortDiscriminator":
             return discovery.FilterType.SHORT_DISCRIMINATOR, filter
 
-        if test_step.command == 'FindCommissionableByVendorId':
+        if test_step.command == "FindCommissionableByVendorId":
             return discovery.FilterType.VENDOR_ID, filter
 
-        raise UnexpectedActionCreationError(f'Invalid command: {test_step.command}')
+        raise UnexpectedActionCreationError(f"Invalid command: {test_step.command}")
 
     def __init__(self, test_step):
         super().__init__(test_step)
@@ -711,7 +702,8 @@ class DiscoveryCommandAction(BaseAction):
 
     async def run_action(self, dev_ctrl: ChipDeviceController) -> _ActionResult:
         devices = await dev_ctrl.DiscoverCommissionableNodes(
-            filterType=self.filterType, filter=self.filter, stopOnFirst=True, timeoutSecond=5)
+            filterType=self.filterType, filter=self.filter, stopOnFirst=True, timeoutSecond=5
+        )
 
         # Devices will be a list: [CommissionableNode(), ...]
         LOGGER.info("Discovered devices: %r" % devices)
@@ -738,10 +730,10 @@ class NotImplementedAction(BaseAction):
 
 
 class ReplTestRunner:
-    '''Test runner to encode/decode values from YAML test Parser for executing the TestStep.
+    """Test runner to encode/decode values from YAML test Parser for executing the TestStep.
 
     Uses ChipDeviceController from matter-repl to execute parsed YAML TestSteps.
-    '''
+    """
 
     def __init__(self, test_spec_definition, certificate_authority_manager, alpha_dev_ctrl):
         self._test_spec_definition = test_spec_definition
@@ -751,10 +743,10 @@ class ReplTestRunner:
 
         if alpha_dev_ctrl is not None:
             alpha_dev_ctrl.InitGroupTestingData()
-        self._dev_ctrls['alpha'] = alpha_dev_ctrl
+        self._dev_ctrls["alpha"] = alpha_dev_ctrl
 
     def _invoke_action_factory(self, test_step, cluster: str):
-        '''Creates cluster invoke action command from TestStep.
+        """Creates cluster invoke action command from TestStep.
 
         Args:
           'test_step': Step containing information required to run an invoke command action.
@@ -763,28 +755,28 @@ class ReplTestRunner:
           InvokeAction if 'test_step' is a valid action to be executed.
           None if we were unable to use the provided 'test_step' for a known reason that is not
           fatal to test execution.
-        '''
+        """
         try:
             return InvokeAction(test_step, cluster, self._context)
         except ActionCreationError:
             return None
 
     def _attribute_read_action_factory(self, test_step, cluster: str):
-        '''Creates read attribute command TestStep.
+        """Creates read attribute command TestStep.
 
         Args:
           'test_step': Step containing information required to run read attribute action.
           'cluster': Name of cluster read attribute action is targeting.
         Returns:
           ReadAttributeAction if 'test_step' is a valid read attribute to be executed.
-        '''
+        """
         return ReadAttributeAction(test_step, cluster, self._context)
 
     def _event_read_action_factory(self, test_step, cluster: str):
         return ReadEventAction(test_step, cluster, self._context)
 
     def _attribute_subscribe_action_factory(self, test_step, cluster: str):
-        '''Creates subscribe attribute command from TestStep provided.
+        """Creates subscribe attribute command from TestStep provided.
 
         Args:
           'test_step': Step containing information required to run subscribe attribute action.
@@ -793,22 +785,22 @@ class ReplTestRunner:
           SubscribeAttributeAction if 'test_step' is a valid subscribe attribute to be executed.
           None if we were unable to use the provided 'test_step' for a known reason that is not
           fatal to test execution.
-        '''
+        """
         return SubscribeAttributeAction(test_step, cluster, self._context)
 
     def _attribute_subscribe_event_factory(self, test_step, cluster: str):
-        '''Creates subscribe event command from TestStep provided.
+        """Creates subscribe event command from TestStep provided.
 
         Args:
           'test_step': Step containing information required to run subscribe attribute action.
           'cluster': Name of cluster write attribute action is targeting.
         Returns:
           SubscribeEventAction if 'test_step' is a valid subscribe attribute to be executed.
-        '''
+        """
         return SubscribeEventAction(test_step, cluster, self._context)
 
     def _attribute_write_action_factory(self, test_step, cluster: str):
-        '''Creates write attribute command TestStep.
+        """Creates write attribute command TestStep.
 
         Args:
           'test_step': Step containing information required to run write attribute action.
@@ -817,7 +809,7 @@ class ReplTestRunner:
           WriteAttributeAction if 'test_step' is a valid write attribute to be executed.
           None if we were unable to use the provided 'test_step' for a known reason that is not
           fatal to test execution.
-        '''
+        """
         return WriteAttributeAction(test_step, cluster, self._context)
 
     def _wait_for_commissionee_action_factory(self, test_step):
@@ -838,28 +830,28 @@ class ReplTestRunner:
 
     def encode(self, request) -> Optional[BaseAction]:
         action: Optional[BaseAction] = None
-        cluster = request.cluster.replace(' ', '').replace('/', '').replace('.', '')
+        cluster = request.cluster.replace(" ", "").replace("/", "").replace(".", "")
         command = request.command
-        if cluster == 'CommissionerCommands':
+        if cluster == "CommissionerCommands":
             return self._commissioner_command_action_factory(request)
         # Some of the tests contain 'cluster over-rides' that refer to a different
         # cluster than that specified in 'config'.
 
-        if cluster == 'DiscoveryCommands':
+        if cluster == "DiscoveryCommands":
             return DiscoveryCommandAction(request)
-        if cluster == 'DelayCommands' and command == 'WaitForCommissionee':
+        if cluster == "DelayCommands" and command == "WaitForCommissionee":
             action = self._wait_for_commissionee_action_factory(request)
-        elif command == 'writeAttribute':
+        elif command == "writeAttribute":
             action = self._attribute_write_action_factory(request, cluster)
-        elif command == 'readAttribute':
+        elif command == "readAttribute":
             action = self._attribute_read_action_factory(request, cluster)
-        elif command == 'readEvent':
+        elif command == "readEvent":
             action = self._event_read_action_factory(request, cluster)
-        elif command == 'subscribeAttribute':
+        elif command == "subscribeAttribute":
             action = self._attribute_subscribe_action_factory(request, cluster)
-        elif command == 'subscribeEvent':
+        elif command == "subscribeEvent":
             action = self._attribute_subscribe_event_factory(request, cluster)
-        elif command == 'waitForReport':
+        elif command == "waitForReport":
             action = self._wait_for_report_action_factory(request)
         else:
             action = self._invoke_action_factory(request, cluster)
@@ -878,7 +870,7 @@ class ReplTestRunner:
             # TODO Once yamltest and idl python packages are properly packaged as a single module
             # the type we are returning will be formalized. For now TestStep.post_process_response
             # expects this particular case to be sent an empty dict or a dict with an error.
-            return {} if result.status == _ActionStatus.SUCCESS else {'error': 'FAILURE'}
+            return {} if result.status == _ActionStatus.SUCCESS else {"error": "FAILURE"}
 
         response = result.response
 
@@ -887,44 +879,42 @@ class ReplTestRunner:
             return response
 
         if isinstance(response, MatterInteractionModel.InteractionModelError):
-            decoded_response['error'] = to_snake_case(response.status.name).upper()
-            decoded_response['clusterError'] = response.clusterStatus
+            decoded_response["error"] = to_snake_case(response.status.name).upper()
+            decoded_response["clusterError"] = response.clusterStatus
             return decoded_response
 
         if isinstance(response, MatterInteractionModel.Status):
-            decoded_response['error'] = to_snake_case(response.name).upper()
+            decoded_response["error"] = to_snake_case(response.name).upper()
             return decoded_response
 
         if isinstance(response, _GetCommissionerNodeIdResult):
-            decoded_response['value'] = {'nodeId': response.node_id}
+            decoded_response["value"] = {"nodeId": response.node_id}
             return decoded_response
 
         if isinstance(response, discovery.CommissionableNode):
-            decoded_response['value'] = {
-                'instanceName': response.instanceName,
-                'hostName': response.hostName,
-                'port': response.port,
-                'longDiscriminator': response.longDiscriminator,
-                'vendorId': response.vendorId,
-                'productId': response.productId,
-                'commissioningMode': response.commissioningMode,
-                'deviceType': response.deviceType,
-                'deviceName': response.deviceName,
-                'pairingInstruction': response.pairingInstruction,
-                'pairingHint': response.pairingHint,
-                'mrpRetryIntervalIdle': response.mrpRetryIntervalIdle,
-                'mrpRetryIntervalActive': response.mrpRetryIntervalActive,
-                'mrpRetryActiveThreshold': response.mrpRetryActiveThreshold,
-                'supportsTcpClient': response.supportsTcpClient,
-                'supportsTcpServer': response.supportsTcpServer,
-                'isICDOperatingAsLIT': response.isICDOperatingAsLIT,
-                'addresses': response.addresses,
-                'rotatingId': response.rotatingId,
-
+            decoded_response["value"] = {
+                "instanceName": response.instanceName,
+                "hostName": response.hostName,
+                "port": response.port,
+                "longDiscriminator": response.longDiscriminator,
+                "vendorId": response.vendorId,
+                "productId": response.productId,
+                "commissioningMode": response.commissioningMode,
+                "deviceType": response.deviceType,
+                "deviceName": response.deviceName,
+                "pairingInstruction": response.pairingInstruction,
+                "pairingHint": response.pairingHint,
+                "mrpRetryIntervalIdle": response.mrpRetryIntervalIdle,
+                "mrpRetryIntervalActive": response.mrpRetryIntervalActive,
+                "mrpRetryActiveThreshold": response.mrpRetryActiveThreshold,
+                "supportsTcpClient": response.supportsTcpClient,
+                "supportsTcpServer": response.supportsTcpServer,
+                "isICDOperatingAsLIT": response.isICDOperatingAsLIT,
+                "addresses": response.addresses,
+                "rotatingId": response.rotatingId,
                 # derived values
-                'rotatingIdLen': 0 if not response.rotatingId else len(response.rotatingId),
-                'numIPs': len(response.addresses),
-
+                "rotatingIdLen": 0 if not response.rotatingId else len(response.rotatingId),
+                "numIPs": len(response.addresses),
             }
             return decoded_response
 
@@ -937,7 +927,7 @@ class ReplTestRunner:
             for event in response.event_result_list:
                 if event.Status != MatterInteractionModel.Status.Success:
                     error_message = to_snake_case(event.Status.name).upper()
-                    decoded_response.append({'error': error_message})
+                    decoded_response.append({"error": error_message})
                     continue
                 cluster_id = event.Header.ClusterId
                 cluster_name = self._test_spec_definition.get_cluster_name(cluster_id)
@@ -947,33 +937,33 @@ class ReplTestRunner:
                 event_definition = self._test_spec_definition.get_event_by_name(cluster_name, event_name)
                 is_fabric_scoped = bool(event_definition.is_fabric_sensitive)
                 decoded_event = Converter.from_data_model_to_test_definition(
-                    self._test_spec_definition, cluster_name, event_definition.fields, event.Data, is_fabric_scoped)
-                decoded_response.append({'value': decoded_event, 'eventNumber': event_number})
+                    self._test_spec_definition, cluster_name, event_definition.fields, event.Data, is_fabric_scoped
+                )
+                decoded_response.append({"value": decoded_event, "eventNumber": event_number})
             return decoded_response
 
         if isinstance(response, ChipStackError):
-            decoded_response['error'] = 'FAILURE'
+            decoded_response["error"] = "FAILURE"
             return decoded_response
 
         cluster_name = self._test_spec_definition.get_cluster_name(response.cluster_id)
         if cluster_name is None:
             raise Exception("Cannot find cluster name for id 0x%0X / %d" % (response.cluster_id, response.cluster_id))
 
-        decoded_response['clusterId'] = cluster_name
+        decoded_response["clusterId"] = cluster_name
 
-        if hasattr(response, 'command_id'):
-            decoded_response['command'] = self._test_spec_definition.get_response_name(
-                response.cluster_id, response.command_id)
-            response_definition = self._test_spec_definition.get_response_by_name(
-                cluster_name, decoded_response['command'])
-            decoded_response['value'] = Converter.from_data_model_to_test_definition(
-                self._test_spec_definition, cluster_name, response_definition.fields, response)
+        if hasattr(response, "command_id"):
+            decoded_response["command"] = self._test_spec_definition.get_response_name(response.cluster_id, response.command_id)
+            response_definition = self._test_spec_definition.get_response_by_name(cluster_name, decoded_response["command"])
+            decoded_response["value"] = Converter.from_data_model_to_test_definition(
+                self._test_spec_definition, cluster_name, response_definition.fields, response
+            )
 
-        if hasattr(response, 'attribute_id'):
-            decoded_response['attribute'] = self._test_spec_definition.get_attribute_name(
-                response.cluster_id, response.attribute_id)
-            attribute = self._test_spec_definition.get_attribute_by_name(
-                cluster_name, decoded_response['attribute'])
+        if hasattr(response, "attribute_id"):
+            decoded_response["attribute"] = self._test_spec_definition.get_attribute_name(
+                response.cluster_id, response.attribute_id
+            )
+            attribute = self._test_spec_definition.get_attribute_by_name(cluster_name, decoded_response["attribute"])
             # TODO Once we fix the issue of not being able to find the global attribute properly
             # we should be able to remove this if/else statement below.
             if attribute is None:
@@ -981,14 +971,16 @@ class ReplTestRunner:
                 # FeatureMap. Fortunately for these types we can get away with using
                 # 'response.value' directly if it is a list and mapping to int if not a list.
                 if isinstance(response.value, list):
-                    decoded_response['value'] = response.value
+                    decoded_response["value"] = response.value
                 else:
-                    decoded_response['value'] = Converter.from_data_model_to_test_definition(
-                        self._test_spec_definition, cluster_name, int, response.value)
+                    decoded_response["value"] = Converter.from_data_model_to_test_definition(
+                        self._test_spec_definition, cluster_name, int, response.value
+                    )
 
             else:
-                decoded_response['value'] = Converter.from_data_model_to_test_definition(
-                    self._test_spec_definition, cluster_name, attribute.definition, response.value)
+                decoded_response["value"] = Converter.from_data_model_to_test_definition(
+                    self._test_spec_definition, cluster_name, attribute.definition, response.value
+                )
 
         return decoded_response
 
@@ -1007,13 +999,12 @@ class ReplTestRunner:
                         fabric = existing_admin
 
                 if fabric is None:
-                    fabric = certificate_authority.NewFabricAdmin(vendorId=0xFFF1,
-                                                                  fabricId=fabric_id)
+                    fabric = certificate_authority.NewFabricAdmin(vendorId=0xFFF1, fabricId=fabric_id)
                 dev_ctrl = fabric.NewController()
                 dev_ctrl.InitGroupTestingData()
                 self._dev_ctrls[action.identity] = dev_ctrl
         else:
-            dev_ctrl = self._dev_ctrls['alpha']
+            dev_ctrl = self._dev_ctrls["alpha"]
 
         return dev_ctrl
 

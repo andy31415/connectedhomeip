@@ -24,12 +24,12 @@ from matter.testing.step_extractor import extract_steps_from_method, extract_ste
 
 
 def test_simple_sequential_steps():
-    source = '''
+    source = """
     def test_foo(self):
         self.step(1, "First step")
         self.step(2, "Second step")
         self.step(3, "Third step")
-    '''
+    """
     steps = extract_steps_from_source(source)
     assert len(steps) == 3
     assert steps[0] == TestStep(test_plan_number=1, description="First step")
@@ -38,11 +38,11 @@ def test_simple_sequential_steps():
 
 
 def test_string_step_numbers():
-    source = '''
+    source = """
     def test_foo(self):
         self.step("4a", "Sub-step a")
         self.step("4b", "Sub-step b")
-    '''
+    """
     steps = extract_steps_from_source(source)
     assert len(steps) == 2
     assert steps[0].test_plan_number == "4a"
@@ -50,25 +50,25 @@ def test_string_step_numbers():
 
 
 def test_conditional_if_step():
-    source = '''
+    source = """
     def test_foo(self):
         self.step(1, "Always")
         if self.step(2, "Conditional"):
             pass
         self.step(3, "Always again")
-    '''
+    """
     steps = extract_steps_from_source(source)
     assert len(steps) == 3
 
 
 def test_duplicate_steps_in_if_else():
-    source = '''
+    source = """
     def test_foo(self):
         if condition:
             self.step(1, "Branch A")
         else:
             self.step(1, "Branch B")
-    '''
+    """
     steps = extract_steps_from_source(source)
     assert len(steps) == 1
     assert steps[0].test_plan_number == 1
@@ -77,13 +77,13 @@ def test_duplicate_steps_in_if_else():
 
 def test_duplicate_prefers_description():
     """When merging duplicates, prefer the entry with a description."""
-    source = '''
+    source = """
     def test_foo(self):
         if condition:
             self.step(1)
         else:
             self.step(1, "Has description")
-    '''
+    """
     steps = extract_steps_from_source(source)
     assert len(steps) == 1
     assert steps[0].description == "Has description"
@@ -91,13 +91,13 @@ def test_duplicate_prefers_description():
 
 def test_duplicate_prefers_metadata():
     """When merging duplicates, prefer the entry with metadata."""
-    source = '''
+    source = """
     def test_foo(self):
         if condition:
             self.step(1)
         else:
             self.step(1, "Commissioning", is_commissioning=True, expectation="Verify success")
-    '''
+    """
     steps = extract_steps_from_source(source)
     assert len(steps) == 1
     assert steps[0].description == "Commissioning"
@@ -106,22 +106,22 @@ def test_duplicate_prefers_metadata():
 
 
 def test_no_description():
-    source = '''
+    source = """
     def test_foo(self):
         self.step(1)
-    '''
+    """
     steps = extract_steps_from_source(source)
     assert len(steps) == 1
     assert steps[0].description == ""
 
 
 def test_dynamic_step_number_raises():
-    source = '''
+    source = """
     def test_foo(self):
         self.step(1, "Static")
         self.step(step_var, "Dynamic")
         self.step(3, "Static again")
-    '''
+    """
     try:
         extract_steps_from_source(source)
         assert False, "Expected ValueError for dynamic step number"
@@ -130,32 +130,32 @@ def test_dynamic_step_number_raises():
 
 
 def test_keyword_description():
-    source = '''
+    source = """
     def test_foo(self):
         self.step(1, description="Keyword desc")
-    '''
+    """
     steps = extract_steps_from_source(source)
     assert len(steps) == 1
     assert steps[0].description == "Keyword desc"
 
 
 def test_nested_for_loop():
-    source = '''
+    source = """
     def test_foo(self):
         self.step(1, "Before loop")
         for i in range(3):
             self.step(2, "In loop")
         self.step(3, "After loop")
-    '''
+    """
     steps = extract_steps_from_source(source)
     assert len(steps) == 3
 
 
 def test_empty_method():
-    source = '''
+    source = """
     def test_foo(self):
         pass
-    '''
+    """
     steps = extract_steps_from_source(source)
     assert len(steps) == 0
 
@@ -172,12 +172,12 @@ def test_extract_from_live_method():
 
 
 def test_current_style_no_description():
-    source = '''
+    source = """
     def test_foo(self):
         self.step(0)
         self.step(1)
         self.step(2)
-    '''
+    """
     steps = extract_steps_from_source(source)
     assert len(steps) == 3
     assert all(s.description == "" for s in steps)
@@ -185,7 +185,7 @@ def test_current_style_no_description():
 
 def test_if_else_branches():
     """Steps from both branches of an if/else are extracted and deduplicated."""
-    source = '''
+    source = """
     def test_TC_SC_5_1(self):
         self.step("0", "Commissioning")
         self.step("1", "TH writes ACL")
@@ -196,19 +196,19 @@ def test_if_else_branches():
             self.step("3", "Legacy bind")
             self.step("4", "Legacy remove")
         self.step("10", "KeySetRead")
-    '''
+    """
     steps = extract_steps_from_source(source)
     numbers = [s.test_plan_number for s in steps]
     assert numbers == ["0", "1", "3", "4", "10"]
 
 
 def test_keyword_only_args():
-    source = '''
+    source = """
     def test_foo(self):
         self.step(1, "Commissioning", is_commissioning=True)
         self.step(2, "Do something", expectation="Verify success")
         self.step(3, "Plain step")
-    '''
+    """
     steps = extract_steps_from_source(source)
     assert len(steps) == 3
     assert steps[0].is_commissioning is True

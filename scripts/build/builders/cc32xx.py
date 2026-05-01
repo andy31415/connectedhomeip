@@ -25,40 +25,34 @@ class cc32xxApp(Enum):
 
     def ExampleName(self):
         if self == cc32xxApp.LOCK:
-            return 'lock-app'
+            return "lock-app"
         if self == cc32xxApp.AIR_PURIFIER:
-            return 'air-purifier-app'
-        raise Exception('Unknown app type: %r' % self)
+            return "air-purifier-app"
+        raise Exception("Unknown app type: %r" % self)
 
     def AppNamePrefix(self):
         if self == cc32xxApp.LOCK:
-            return 'chip-CC3235SF_LAUNCHXL-lock-example'
+            return "chip-CC3235SF_LAUNCHXL-lock-example"
         if self == cc32xxApp.AIR_PURIFIER:
-            return 'chip-CC3235SF_LAUNCHXL-air-purifier-example'
-        raise Exception('Unknown app type: %r' % self)
+            return "chip-CC3235SF_LAUNCHXL-air-purifier-example"
+        raise Exception("Unknown app type: %r" % self)
 
     def BuildRoot(self, root):
-        return os.path.join(root, 'examples', self.ExampleName(), 'cc32xx')
+        return os.path.join(root, "examples", self.ExampleName(), "cc32xx")
 
 
 class cc32xxBuilder(GnBuilder):
-
-    def __init__(self,
-                 root,
-                 runner,
-                 app: cc32xxApp = cc32xxApp.LOCK):
-        super(cc32xxBuilder, self).__init__(
-            root=app.BuildRoot(root),
-            runner=runner)
+    def __init__(self, root, runner, app: cc32xxApp = cc32xxApp.LOCK):
+        super(cc32xxBuilder, self).__init__(root=app.BuildRoot(root), runner=runner)
         self.code_root = root
         self.app = app
 
     def GnBuildArgs(self):
         try:
-            sysconfig_root = os.environ['TI_SYSCONFIG_ROOT_CC32XX']
+            sysconfig_root = os.environ["TI_SYSCONFIG_ROOT_CC32XX"]
         except KeyError:
             raise Exception(
-                'TI_SYSCONFIG_ROOT_CC32XX environment variable must be set for CC32XX builds. Please point it to the TI SysConfig installation directory.'
+                "TI_SYSCONFIG_ROOT_CC32XX environment variable must be set for CC32XX builds. Please point it to the TI SysConfig installation directory."
             )
 
         args = super().GnBuildArgs()
@@ -66,12 +60,12 @@ class cc32xxBuilder(GnBuilder):
         return args
 
     def build_outputs(self):
-        if (self.app == cc32xxApp.LOCK):
+        if self.app == cc32xxApp.LOCK:
             extensions = ["out", "bin"]
-        elif (self.app == cc32xxApp.AIR_PURIFIER):
+        elif self.app == cc32xxApp.AIR_PURIFIER:
             extensions = ["out", "bin"]
         else:
-            raise Exception('Unknown app type: %r' % self.app)
+            raise Exception("Unknown app type: %r" % self.app)
         if self.options.enable_link_map_file:
             extensions.append("out.map")
         for ext in extensions:

@@ -51,60 +51,60 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_EEVSE_2_5(MatterBaseTest, EEVSEBaseTestHelper):
-
     def desc_TC_EEVSE_2_5(self) -> str:
         """Returns a description of this test"""
         return "5.1.6. [TC-EEVSE-2.5] Optional diagnostics functionality with DUT as Server"
 
     def pics_TC_EEVSE_2_5(self):
-        """ This function returns a list of PICS for this test case that must be True for the test to be run"""
+        """This function returns a list of PICS for this test case that must be True for the test to be run"""
         # In this case - we need the EVSE to support the StartDiagnostics command
         return ["EEVSE.S", "EEVSE.S.C04.Rsp"]
 
     def steps_TC_EEVSE_2_5(self) -> list[TestStep]:
         return [
-            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test)",
-                     is_commissioning=True),
-            TestStep("2", "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster",
-                     "Value has to be 1 (True)"),
-            TestStep("3", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EEVSE.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.EEVSE.TESTEVENTTRIGGER for Basic Functionality Test Event",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep("3a", "TH reads from the DUT the State",
-                     "Value has to be 0x00 (NotPluggedIn)"),
-            TestStep("3b", "TH reads from the DUT the SupplyState",
-                     "Value has to be 0x00 (Disabled)"),
-            TestStep("3c", "TH reads from the DUT the FaultState",
-                     "Value has to be 0x00 (NoError)"),
-            TestStep("4", "TH sends command EnableCharging with ChargingEnabledUntil=null, minimumChargeCurrent=6000, maximumChargeCurrent=60000",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep("4a", "TH reads from the DUT the State",
-                     "Value has to be 0x00 (NotPluggedIn)"),
-            TestStep("4b", "TH reads from the DUT the SupplyState",
-                     "Value has to be 0x01 (ChargingEnabled)"),
-            TestStep("5", "TH sends command StartDiagnostics",
-                     "Verify DUT responds w/ status FAILURE(0x01)"),
-            TestStep("6", "TH sends command Disable",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep("6a", "TH reads from the DUT the State",
-                     "Value has to be 0x00 (NotPluggedIn)"),
-            TestStep("6b", "TH reads from the DUT the SupplyState",
-                     "Value has to be 0x00 (Disabled)"),
-            TestStep("7", "TH sends command StartDiagnostics",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep("7a", "TH reads from the DUT the SupplyState",
-                     "Value has to be 0x04 (DisabledDiagnostics)"),
-            TestStep("8", "TH sends command EnableCharging with ChargingEnabledUntil=null, minimumChargeCurrent=6000, maximumChargeCurrent=60000",
-                     "Verify DUT responds w/ status FAILURE(0x01)"),
-            TestStep("8a", "TH reads from the DUT the SupplyState",
-                     "Value has to be 0x04 (DisabledDiagnostics)"),
-            TestStep("9", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EEVSE.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.EEVSE.TESTEVENTTRIGGER for EVSE Diagnostics Complete Event",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep("9a", "TH reads from the DUT the State",
-                     "Value has to be 0x00 (NotPluggedIn)"),
-            TestStep("9b", "TH reads from the DUT the SupplyState",
-                     "Value has to be 0x00 (Disabled)"),
-            TestStep("10", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EEVSE.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.EEVSE.TESTEVENTTRIGGER for Basic Functionality Test Event Clear",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
+            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test)", is_commissioning=True),
+            TestStep(
+                "2", "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster", "Value has to be 1 (True)"
+            ),
+            TestStep(
+                "3",
+                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EEVSE.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.EEVSE.TESTEVENTTRIGGER for Basic Functionality Test Event",
+                "Verify DUT responds w/ status SUCCESS(0x00)",
+            ),
+            TestStep("3a", "TH reads from the DUT the State", "Value has to be 0x00 (NotPluggedIn)"),
+            TestStep("3b", "TH reads from the DUT the SupplyState", "Value has to be 0x00 (Disabled)"),
+            TestStep("3c", "TH reads from the DUT the FaultState", "Value has to be 0x00 (NoError)"),
+            TestStep(
+                "4",
+                "TH sends command EnableCharging with ChargingEnabledUntil=null, minimumChargeCurrent=6000, maximumChargeCurrent=60000",
+                "Verify DUT responds w/ status SUCCESS(0x00)",
+            ),
+            TestStep("4a", "TH reads from the DUT the State", "Value has to be 0x00 (NotPluggedIn)"),
+            TestStep("4b", "TH reads from the DUT the SupplyState", "Value has to be 0x01 (ChargingEnabled)"),
+            TestStep("5", "TH sends command StartDiagnostics", "Verify DUT responds w/ status FAILURE(0x01)"),
+            TestStep("6", "TH sends command Disable", "Verify DUT responds w/ status SUCCESS(0x00)"),
+            TestStep("6a", "TH reads from the DUT the State", "Value has to be 0x00 (NotPluggedIn)"),
+            TestStep("6b", "TH reads from the DUT the SupplyState", "Value has to be 0x00 (Disabled)"),
+            TestStep("7", "TH sends command StartDiagnostics", "Verify DUT responds w/ status SUCCESS(0x00)"),
+            TestStep("7a", "TH reads from the DUT the SupplyState", "Value has to be 0x04 (DisabledDiagnostics)"),
+            TestStep(
+                "8",
+                "TH sends command EnableCharging with ChargingEnabledUntil=null, minimumChargeCurrent=6000, maximumChargeCurrent=60000",
+                "Verify DUT responds w/ status FAILURE(0x01)",
+            ),
+            TestStep("8a", "TH reads from the DUT the SupplyState", "Value has to be 0x04 (DisabledDiagnostics)"),
+            TestStep(
+                "9",
+                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EEVSE.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.EEVSE.TESTEVENTTRIGGER for EVSE Diagnostics Complete Event",
+                "Verify DUT responds w/ status SUCCESS(0x00)",
+            ),
+            TestStep("9a", "TH reads from the DUT the State", "Value has to be 0x00 (NotPluggedIn)"),
+            TestStep("9b", "TH reads from the DUT the SupplyState", "Value has to be 0x00 (Disabled)"),
+            TestStep(
+                "10",
+                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EEVSE.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.EEVSE.TESTEVENTTRIGGER for Basic Functionality Test Event Clear",
+                "Verify DUT responds w/ status SUCCESS(0x00)",
+            ),
         ]
 
     @async_test_body
@@ -114,9 +114,7 @@ class TC_EEVSE_2_5(MatterBaseTest, EEVSEBaseTestHelper):
 
         # Subscribe to Events and when they are sent push them to a queue for checking later
         events_callback = EventSubscriptionHandler(expected_cluster=Clusters.EnergyEvse)
-        await events_callback.start(self.default_controller,
-                                    self.dut_node_id,
-                                    self.get_endpoint())
+        await events_callback.start(self.default_controller, self.dut_node_id, self.get_endpoint())
 
         self.step("2")
         await self.check_test_event_triggers_enabled()
@@ -137,7 +135,9 @@ class TC_EEVSE_2_5(MatterBaseTest, EEVSEBaseTestHelper):
         charge_until = NullValue
         min_charge_current = 6000
         max_charge_current = 60000
-        await self.send_enable_charge_command(charge_until=charge_until, min_charge=min_charge_current, max_charge=max_charge_current)
+        await self.send_enable_charge_command(
+            charge_until=charge_until, min_charge=min_charge_current, max_charge=max_charge_current
+        )
 
         self.step("4a")
         await self.check_evse_attribute("State", Clusters.EnergyEvse.Enums.StateEnum.kNotPluggedIn)
@@ -165,8 +165,9 @@ class TC_EEVSE_2_5(MatterBaseTest, EEVSEBaseTestHelper):
         await self.check_evse_attribute("SupplyState", Clusters.EnergyEvse.Enums.SupplyStateEnum.kDisabledDiagnostics)
 
         self.step("8")
-        await self.send_enable_charge_command(charge_until=charge_until, min_charge=min_charge_current,
-                                              max_charge=max_charge_current, expected_status=Status.Failure)
+        await self.send_enable_charge_command(
+            charge_until=charge_until, min_charge=min_charge_current, max_charge=max_charge_current, expected_status=Status.Failure
+        )
 
         self.step("8a")
         await self.check_evse_attribute("SupplyState", Clusters.EnergyEvse.Enums.SupplyStateEnum.kDisabledDiagnostics)

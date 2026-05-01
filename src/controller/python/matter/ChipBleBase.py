@@ -31,7 +31,7 @@ import shlex
 class ChipBleBase(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def scan(self, line):
-        """ API to initiate BLE scanning for -t user_timeout seconds."""
+        """API to initiate BLE scanning for -t user_timeout seconds."""
         return
 
     @abc.abstractmethod
@@ -64,8 +64,7 @@ class ChipBleBase(metaclass=abc.ABCMeta):
                 type="float",
                 default=10.0,
             )
-            optParser.add_option(
-                "-q", "--quiet", action="store_true", dest="quiet")
+            optParser.add_option("-q", "--quiet", action="store_true", dest="quiet")
 
         try:
             (options, remainingArgs) = optParser.parse_args(args)

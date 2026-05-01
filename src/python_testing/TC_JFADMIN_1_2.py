@@ -67,13 +67,15 @@ class TC_JFADMIN_1_2(MatterBaseTest):
 
         self.jfa_server_app = self.user_params.get("jfa_server_app", None)
         if not self.jfa_server_app:
-            asserts.fail("This test requires a Joint Fabrics Admin app. Specify app path with --string-arg jfa_server_app:<path_to_app>")
+            asserts.fail(
+                "This test requires a Joint Fabrics Admin app. Specify app path with --string-arg jfa_server_app:<path_to_app>"
+            )
         if not os.path.exists(self.jfa_server_app):
             asserts.fail(f"The path {self.jfa_server_app} does not exist")
 
         # Create a temporary storage directory to keep KVS files if not already provided by user.
         if self.fabric_storage is None:
-            self.storage_directory_ecosystem_a = tempfile.TemporaryDirectory(prefix=self.__class__.__name__+"_A_")
+            self.storage_directory_ecosystem_a = tempfile.TemporaryDirectory(prefix=self.__class__.__name__ + "_A_")
             self.fabric_storage = self.storage_directory_ecosystem_a.name
             log.info("Temporary storage directory: %s", self.fabric_storage)
 
@@ -90,14 +92,14 @@ class TC_JFADMIN_1_2(MatterBaseTest):
                 port=random.randint(5001, 5999),
                 discriminator=self.admin_discriminator,
                 passcode=self.admin_passcode,
-                extra_args=["--capabilities", "0x04", "--rpc-server-port", "33033"])
-            self.jf_admin.start(
-                expected_output="Server initialization complete",
-                timeout=10)
+                extra_args=["--capabilities", "0x04", "--rpc-server-port", "33033"],
+            )
+            self.jf_admin.start(expected_output="Server initialization complete", timeout=10)
         else:
             if not self.matter_test_config.setup_passcodes or not self.matter_test_config.discriminators:
                 asserts.fail(
-                    "JF-Administrator passcode and discriminator must be specified via --passcode:<passcode> --discriminator:<discriminator>")
+                    "JF-Administrator passcode and discriminator must be specified via --passcode:<passcode> --discriminator:<discriminator>"
+                )
             self.admin_passcode = self.matter_test_config.setup_passcodes[0]
             self.admin_discriminator = self.matter_test_config.discriminators[0]
 
@@ -111,43 +113,63 @@ class TC_JFADMIN_1_2(MatterBaseTest):
     def steps_TC_JFADMIN_1_2(self) -> list[TestStep]:
         return [
             TestStep("1", "Commission DUT to TH."),
-            TestStep("2", "TH sends ICACCSRRequest command to DUT.",
-                     "DUT response contains status code FAILSAFEREQUIRED."),
-            TestStep("3", "TH sends ArmFailSafe command to DUT with ExpiryLengthSeconds set to 10 and Breadcrumb 1.",
-                     "DUT respond with ArmFailSafeResponse Command."),
-            TestStep("4", "TH sends ICACCSRRequest command to DUT.",
-                     "DUT response contains status code VIDNotVerified."),
-            TestStep("5", "TH sends AddICAC command to DUT using icac1 as parameter.",
-                     "DUT responds with SUCCESS status."),
-            TestStep("6", "TH sends ICACCSRRequest command to DUT.",
-                     "DUT responds with status code CONSTRAINTERROR."),
+            TestStep("2", "TH sends ICACCSRRequest command to DUT.", "DUT response contains status code FAILSAFEREQUIRED."),
+            TestStep(
+                "3",
+                "TH sends ArmFailSafe command to DUT with ExpiryLengthSeconds set to 10 and Breadcrumb 1.",
+                "DUT respond with ArmFailSafeResponse Command.",
+            ),
+            TestStep("4", "TH sends ICACCSRRequest command to DUT.", "DUT response contains status code VIDNotVerified."),
+            TestStep("5", "TH sends AddICAC command to DUT using icac1 as parameter.", "DUT responds with SUCCESS status."),
+            TestStep("6", "TH sends ICACCSRRequest command to DUT.", "DUT responds with status code CONSTRAINTERROR."),
             TestStep("7", "Wait for ArmFailSafe to expire."),
-            TestStep("8", "TH sends AddICAC command to DUT using icac1 as parameter.",
-                     "DUT response contains status code FAILSAFEREQUIRED."),
-            TestStep("9", "TH sends ArmFailSafe command to DUT with ExpiryLengthSeconds set to 20 and Breadcrumb 1.",
-                     "DUT respond with ArmFailSafeResponse Command."),
-            TestStep("10", "TH sends AddICAC command to DUT using icac1 as parameter.",
-                     "DUT responds with SUCCESS status."),
-            TestStep("11", "TH sends AddICAC command to DUT using icac1 as parameter.",
-                     "DUT responds with status code CONSTRAINTERROR."),
+            TestStep(
+                "8",
+                "TH sends AddICAC command to DUT using icac1 as parameter.",
+                "DUT response contains status code FAILSAFEREQUIRED.",
+            ),
+            TestStep(
+                "9",
+                "TH sends ArmFailSafe command to DUT with ExpiryLengthSeconds set to 20 and Breadcrumb 1.",
+                "DUT respond with ArmFailSafeResponse Command.",
+            ),
+            TestStep("10", "TH sends AddICAC command to DUT using icac1 as parameter.", "DUT responds with SUCCESS status."),
+            TestStep(
+                "11", "TH sends AddICAC command to DUT using icac1 as parameter.", "DUT responds with status code CONSTRAINTERROR."
+            ),
             TestStep("12", "Wait for ArmFailSafe to expire."),
-            TestStep("13", "TH sends ArmFailSafe command to DUT with ExpiryLengthSeconds set to 20 and Breadcrumb 1.",
-                     "DUT respond with ArmFailSafeResponse Command."),
-            TestStep("14", "TH sends AddICAC command to DUT using an ICAC that is not associated with the RCAC of TH as parameter.",
-                     "DUT ICACResponse contains status 2 (InvalidICAC)."),
-            TestStep("15", "TH sends AddICAC command to DUT using an ICAC with a different public key than the public key present in ICACCSRResponse",
-                     "DUT ICACResponse contains status 1 (InvalidPublicKey)."),
-            TestStep("16", "TH sends AddICAC command to DUT using a certificate that doesn't follow DN encoding for ICAC",
-                     "DUT ICACResponse contains status 2 (InvalidICAC)."),
-            TestStep("17", "TH sends OJCW command to DUT (check Precondition 1)",
-                     "DUT responds with status code 0x06 (InvalidAdministratorFabricIndex)."),
+            TestStep(
+                "13",
+                "TH sends ArmFailSafe command to DUT with ExpiryLengthSeconds set to 20 and Breadcrumb 1.",
+                "DUT respond with ArmFailSafeResponse Command.",
+            ),
+            TestStep(
+                "14",
+                "TH sends AddICAC command to DUT using an ICAC that is not associated with the RCAC of TH as parameter.",
+                "DUT ICACResponse contains status 2 (InvalidICAC).",
+            ),
+            TestStep(
+                "15",
+                "TH sends AddICAC command to DUT using an ICAC with a different public key than the public key present in ICACCSRResponse",
+                "DUT ICACResponse contains status 1 (InvalidPublicKey).",
+            ),
+            TestStep(
+                "16",
+                "TH sends AddICAC command to DUT using a certificate that doesn't follow DN encoding for ICAC",
+                "DUT ICACResponse contains status 2 (InvalidICAC).",
+            ),
+            TestStep(
+                "17",
+                "TH sends OJCW command to DUT (check Precondition 1)",
+                "DUT responds with status code 0x06 (InvalidAdministratorFabricIndex).",
+            ),
         ]
 
     def desc_TC_JFADMIN_1_2(self):
         return "[TC-JFADMIN-1.2] Validate commands behavior outside Joint Commissioning Method"
 
     def pics_TC_JFADMIN_1_2(self):
-        return ['JFADMIN.S']
+        return ["JFADMIN.S"]
 
     @async_test_body
     async def test_TC_JFADMIN_1_2(self):
@@ -194,13 +216,15 @@ class TC_JFADMIN_1_2(MatterBaseTest):
         response = await self.default_controller.ReadAttribute(
             nodeId=self.dut_node_id,
             attributes=[(self._OPERATIONAL_CREDENTIALS_ENDPOINT, Clusters.OperationalCredentials.Attributes.NOCs)],
-            returnClusterObject=True)
+            returnClusterObject=True,
+        )
         icac1 = response[0][Clusters.OperationalCredentials].NOCs[0].icac
         resp = await self.send_single_cmd(
             dev_ctrl=self.default_controller,
             node_id=self.dut_node_id,
             endpoint=self._JOINT_FABRIC_ADMINISTRATOR_ENDPOINT,
-            cmd=Clusters.JointFabricAdministrator.Commands.AddICAC(icac1))
+            cmd=Clusters.JointFabricAdministrator.Commands.AddICAC(icac1),
+        )
         self._assert_icac_response_status(
             resp,
             Clusters.JointFabricAdministrator.Enums.ICACResponseStatusEnum.kInvalidPublicKey,
@@ -233,7 +257,8 @@ class TC_JFADMIN_1_2(MatterBaseTest):
             dev_ctrl=self.default_controller,
             node_id=self.dut_node_id,
             endpoint=self._JOINT_FABRIC_ADMINISTRATOR_ENDPOINT,
-            cmd=Clusters.JointFabricAdministrator.Commands.AddICAC(icac1))
+            cmd=Clusters.JointFabricAdministrator.Commands.AddICAC(icac1),
+        )
         self._assert_icac_response_status(
             resp,
             Clusters.JointFabricAdministrator.Enums.ICACResponseStatusEnum.kInvalidPublicKey,
@@ -261,7 +286,8 @@ class TC_JFADMIN_1_2(MatterBaseTest):
             dev_ctrl=self.default_controller,
             node_id=self.dut_node_id,
             endpoint=self._OPERATIONAL_CREDENTIALS_ENDPOINT,
-            cmd=Clusters.OperationalCredentials.Commands.CSRRequest(CSRNonce=csr_nonce, isForUpdateNOC=True))
+            cmd=Clusters.OperationalCredentials.Commands.CSRRequest(CSRNonce=csr_nonce, isForUpdateNOC=True),
+        )
         other_ca = self.certificate_authority_manager.NewCertificateAuthority()
         other_admin = other_ca.NewFabricAdmin(vendorId=0xFFF1, fabricId=0x1234)
         other_ctrl = other_admin.NewController(nodeId=102)
@@ -273,7 +299,8 @@ class TC_JFADMIN_1_2(MatterBaseTest):
             dev_ctrl=self.default_controller,
             node_id=self.dut_node_id,
             endpoint=self._JOINT_FABRIC_ADMINISTRATOR_ENDPOINT,
-            cmd=Clusters.JointFabricAdministrator.Commands.AddICAC(other_icac))
+            cmd=Clusters.JointFabricAdministrator.Commands.AddICAC(other_icac),
+        )
         self._assert_icac_response_status(
             resp,
             Clusters.JointFabricAdministrator.Enums.ICACResponseStatusEnum.kInvalidICAC,
@@ -293,7 +320,8 @@ class TC_JFADMIN_1_2(MatterBaseTest):
             dev_ctrl=self.default_controller,
             node_id=self.dut_node_id,
             endpoint=self._JOINT_FABRIC_ADMINISTRATOR_ENDPOINT,
-            cmd=Clusters.JointFabricAdministrator.Commands.AddICAC(icac_wrong_public_key.icacBytes))
+            cmd=Clusters.JointFabricAdministrator.Commands.AddICAC(icac_wrong_public_key.icacBytes),
+        )
         self._assert_icac_response_status(
             resp,
             Clusters.JointFabricAdministrator.Enums.ICACResponseStatusEnum.kInvalidPublicKey,
@@ -312,7 +340,8 @@ class TC_JFADMIN_1_2(MatterBaseTest):
             dev_ctrl=self.default_controller,
             node_id=self.dut_node_id,
             endpoint=self._OPERATIONAL_CREDENTIALS_ENDPOINT,
-            cmd=Clusters.OperationalCredentials.Commands.CSRRequest(CSRNonce=csr_nonce, isForUpdateNOC=True))
+            cmd=Clusters.OperationalCredentials.Commands.CSRRequest(CSRNonce=csr_nonce, isForUpdateNOC=True),
+        )
         valid_icac_chain = await self.default_controller.IssueNOCChain(csr_response_step16, self.dut_node_id)
 
         # Corrupt Subject DN encoding by changing the Subject container from a DN path to a structure.
@@ -326,7 +355,8 @@ class TC_JFADMIN_1_2(MatterBaseTest):
             dev_ctrl=self.default_controller,
             node_id=self.dut_node_id,
             endpoint=self._JOINT_FABRIC_ADMINISTRATOR_ENDPOINT,
-            cmd=Clusters.JointFabricAdministrator.Commands.AddICAC(invalid_dn_icac))
+            cmd=Clusters.JointFabricAdministrator.Commands.AddICAC(invalid_dn_icac),
+        )
         self._assert_icac_response_status(
             resp,
             Clusters.JointFabricAdministrator.Enums.ICACResponseStatusEnum.kInvalidICAC,
@@ -350,7 +380,7 @@ class TC_JFADMIN_1_2(MatterBaseTest):
         asserts.assert_equal(
             cluster_status,
             Clusters.JointFabricAdministrator.Enums.ICACCSRResponseStatusCodeEnum.kInvalidAdministratorFabricIndex,
-            f'Expected InvalidAdministratorFabricIndex status code (0x06), but got 0x{(cluster_status):02x} ({str(cm.exception)})',
+            f"Expected InvalidAdministratorFabricIndex status code (0x06), but got 0x{(cluster_status):02x} ({str(cm.exception)})",
         )
 
     async def _arm_failsafe(self, expiry_length_seconds):
@@ -362,7 +392,8 @@ class TC_JFADMIN_1_2(MatterBaseTest):
             dev_ctrl=self.default_controller,
             node_id=self.dut_node_id,
             endpoint=self._GENERAL_COMMISSIONING_ENDPOINT,
-            cmd=Clusters.GeneralCommissioning.Commands.ArmFailSafe(expiryLengthSeconds=expiry_length_seconds, breadcrumb=1))
+            cmd=Clusters.GeneralCommissioning.Commands.ArmFailSafe(expiryLengthSeconds=expiry_length_seconds, breadcrumb=1),
+        )
         asserts.assert_true(
             isinstance(resp, Clusters.GeneralCommissioning.Commands.ArmFailSafeResponse),
             f"Unexpected response type: {type(resp)}",
@@ -384,12 +415,15 @@ class TC_JFADMIN_1_2(MatterBaseTest):
 
     async def _assert_im_error(self, cmd, expected_status, expected_cluster_status=None, error_label=None):
         expected_error = error_label if error_label is not None else expected_status
-        with asserts.assert_raises(InteractionModelError, f"Expected InteractionModelError with {expected_error}, but no exception occurred.") as cm:
+        with asserts.assert_raises(
+            InteractionModelError, f"Expected InteractionModelError with {expected_error}, but no exception occurred."
+        ) as cm:
             await self.send_single_cmd(
                 dev_ctrl=self.default_controller,
                 node_id=self.dut_node_id,
                 endpoint=self._JOINT_FABRIC_ADMINISTRATOR_ENDPOINT,
-                cmd=cmd)
+                cmd=cmd,
+            )
         asserts.assert_equal(
             cm.exception.status,
             expected_status,

@@ -99,6 +99,7 @@ class Symbol:
     size: int
     tree_path: list[str]
 
+
 # These expressions are callbacks defined in
 # callbacks.zapt
 #   - void emberAf{{asUpperCamelCase label}}ClusterInitCallback(chip::EndpointId endpoint);
@@ -114,18 +115,15 @@ class Symbol:
 
 
 _CLUSTER_EXPRESSIONS = [
-    re.compile(r'emberAf(?P<cluster>.+)ClusterClientInitCallback\('),
-    re.compile(r'emberAf(?P<cluster>.+)ClusterInitCallback\('),
-    re.compile(r'emberAf(?P<cluster>.+)ClusterServerInitCallback\('),
-
-
-
-    re.compile(r'emberAf(?P<cluster>.+)ClusterServerTickCallback\('),
-    re.compile(r'Matter(?P<cluster>.+)ClusterServerAttributeChangedCallback\('),
-    re.compile(r'Matter(?P<cluster>.+)ClusterServerPreAttributeChangedCallback\('),
-    re.compile(r'Matter(?P<cluster>.+)ClusterServerShutdownCallback\('),
+    re.compile(r"emberAf(?P<cluster>.+)ClusterClientInitCallback\("),
+    re.compile(r"emberAf(?P<cluster>.+)ClusterInitCallback\("),
+    re.compile(r"emberAf(?P<cluster>.+)ClusterServerInitCallback\("),
+    re.compile(r"emberAf(?P<cluster>.+)ClusterServerTickCallback\("),
+    re.compile(r"Matter(?P<cluster>.+)ClusterServerAttributeChangedCallback\("),
+    re.compile(r"Matter(?P<cluster>.+)ClusterServerPreAttributeChangedCallback\("),
+    re.compile(r"Matter(?P<cluster>.+)ClusterServerShutdownCallback\("),
     # commands
-    re.compile(r'emberAf(?P<cluster>.+)Cluster(?P<command>.+)Callback\('),
+    re.compile(r"emberAf(?P<cluster>.+)Cluster(?P<command>.+)Callback\("),
 ]
 
 
@@ -147,13 +145,19 @@ def tree_display_name(name: str) -> list[str]:
         name = name[11:]
 
     # Known variables for ember:
-    for variable_name in ['::generatedAttributes', '::generatedClusters', '::generatedEmberAfEndpointTypes', '::fixedDeviceTypeList', '::generatedCommands']:
+    for variable_name in [
+        "::generatedAttributes",
+        "::generatedClusters",
+        "::generatedEmberAfEndpointTypes",
+        "::fixedDeviceTypeList",
+        "::generatedCommands",
+    ]:
         if variable_name in name:
             return ["EMBER", "METADATA", name]
 
     # to abvoid treating '(anonymous namespace)::' as special because of space,
     # replace it with something that looks similar
-    name = name.replace('(anonymous namespace)::', 'ANONYMOUS_NAMESPACE::')
+    name = name.replace("(anonymous namespace)::", "ANONYMOUS_NAMESPACE::")
 
     # Ember methods are generally c-style that are in a particular format:
     #   - emAf* are INTERNAL ember functions
@@ -176,11 +180,11 @@ def tree_display_name(name: str) -> list[str]:
             continue
         d = m.groupdict()
         log.debug("Ember callback found: '%s' -> %r", name, d)
-        if 'command' in d:
-            return ["chip", "app", "Clusters", d['cluster'], "EMBER", d['command'], name]
-        return ["chip", "app", "Clusters", d['cluster'], "EMBER", name]
+        if "command" in d:
+            return ["chip", "app", "Clusters", d["cluster"], "EMBER", d["command"], name]
+        return ["chip", "app", "Clusters", d["cluster"], "EMBER", name]
 
-    if 'MatterPreAttributeChangeCallback' in name:
+    if "MatterPreAttributeChangeCallback" in name:
         return ["EMBER", "CALLBACKS", name]
 
     if name.startswith("emberAfPlugin"):
@@ -197,7 +201,7 @@ def tree_display_name(name: str) -> list[str]:
         return ["EMBER", "CALLBACKS", "PLUGIN", name]
 
     # We also capture '(anonymous namespace)::emAfWriteAttribute or similar
-    if name.startswith("emAf") or name.startswith("emberAf") or ("::emAf" in name) or ('::emberAf' in name):
+    if name.startswith("emAf") or name.startswith("emberAf") or ("::emAf" in name) or ("::emberAf" in name):
         # Place this as ::EMBER::API (these are internal and public functions from ember)
         return ["EMBER", "API", name]
 
@@ -282,7 +286,7 @@ def tree_display_name(name: str) -> list[str]:
             return ["ot", "C"] + result
         return ["C"] + result
 
-    return [r.replace('ANONYMOUS_NAMESPACE', '(anonymous namespace)') for r in result]
+    return [r.replace("ANONYMOUS_NAMESPACE", "(anonymous namespace)") for r in result]
 
 
 # TO run the test, install pytest and do
@@ -293,16 +297,37 @@ def test_tree_display_name():
     assert tree_display_name("MatterSomeCall") == ["C", "MatterSomeCall"]
 
     assert tree_display_name("emberAfFooBarClusterServerInitCallback()") == [
-        "chip", "app", "Clusters", "FooBar", "EMBER", "emberAfFooBarClusterServerInitCallback()"
+        "chip",
+        "app",
+        "Clusters",
+        "FooBar",
+        "EMBER",
+        "emberAfFooBarClusterServerInitCallback()",
     ]
     assert tree_display_name("emberAfFooBarClusterInitCallback()") == [
-        "chip", "app", "Clusters", "FooBar", "EMBER", "emberAfFooBarClusterInitCallback()"
+        "chip",
+        "app",
+        "Clusters",
+        "FooBar",
+        "EMBER",
+        "emberAfFooBarClusterInitCallback()",
     ]
     assert tree_display_name("MatterFooBarClusterServerShutdownCallback()") == [
-        "chip", "app", "Clusters", "FooBar", "EMBER", "MatterFooBarClusterServerShutdownCallback()"
+        "chip",
+        "app",
+        "Clusters",
+        "FooBar",
+        "EMBER",
+        "MatterFooBarClusterServerShutdownCallback()",
     ]
     assert tree_display_name("emberAfFooBarClusterSomeCommandCallback()") == [
-        "chip", "app", "Clusters", "FooBar", "EMBER", "SomeCommand", "emberAfFooBarClusterSomeCommandCallback()"
+        "chip",
+        "app",
+        "Clusters",
+        "FooBar",
+        "EMBER",
+        "SomeCommand",
+        "emberAfFooBarClusterSomeCommandCallback()",
     ]
 
     assert tree_display_name("chip::Some::Constructor()") == [
@@ -317,9 +342,7 @@ def test_tree_display_name():
         "Constructor(int arg1, int arg2)",
     ]
 
-    assert tree_display_name(
-        "chip::Some<a::b::C>::Constructor(int arg1, int arg2)"
-    ) == [
+    assert tree_display_name("chip::Some<a::b::C>::Constructor(int arg1, int arg2)") == [
         "chip",
         "Some<a::b::C>",
         "Constructor(int arg1, int arg2)",
@@ -340,29 +363,33 @@ def test_tree_display_name():
         "function",
         "chip::test<foo::bar>::baz call()",
     ]
-    assert tree_display_name(
-        "chip::test<foo::bar, 1, 2>::baz my::function::call()"
-    ) == [
+    assert tree_display_name("chip::test<foo::bar, 1, 2>::baz my::function::call()") == [
         "my",
         "function",
         "chip::test<foo::bar, 1, 2>::baz call()",
     ]
-    assert tree_display_name(
-        "chip::app::CommandIsFabricScoped(unsigned int, unsigned int)"
-    ) == ["chip", "app", "CommandIsFabricScoped(unsigned int, unsigned int)"]
+    assert tree_display_name("chip::app::CommandIsFabricScoped(unsigned int, unsigned int)") == [
+        "chip",
+        "app",
+        "CommandIsFabricScoped(unsigned int, unsigned int)",
+    ]
     assert tree_display_name("chip::app::AdvertiseAsOperational()") == [
         "chip",
         "app",
         "AdvertiseAsOperational()",
     ]
 
-    assert tree_display_name(
-        "void foo::bar<baz>::method(my::arg name, other::arg::type)"
-    ) == ["foo", "bar<baz>", "void method(my::arg name, other::arg::type)"]
+    assert tree_display_name("void foo::bar<baz>::method(my::arg name, other::arg::type)") == [
+        "foo",
+        "bar<baz>",
+        "void method(my::arg name, other::arg::type)",
+    ]
 
-    assert tree_display_name(
-        "(anonymous namespace)::AccessControlAttribute::Read(args)"
-    ) == ["(anonymous namespace)", "AccessControlAttribute", "Read(args)"]
+    assert tree_display_name("(anonymous namespace)::AccessControlAttribute::Read(args)") == [
+        "(anonymous namespace)",
+        "AccessControlAttribute",
+        "Read(args)",
+    ]
 
 
 def shorten_name(full_name: str) -> str:
@@ -377,15 +404,15 @@ def shorten_name(full_name: str) -> str:
 
     Remove all before '::', however '::' found before the first of < or (
     """
-    limit1 = full_name.find('<')
-    limit2 = full_name.find('(')
+    limit1 = full_name.find("<")
+    limit2 = full_name.find("(")
     if limit1 >= 0 and limit1 < limit2:
         limit = limit1
     else:
         limit = limit2
-    separate_idx = full_name.rfind('::', 0, limit)
+    separate_idx = full_name.rfind("::", 0, limit)
     if separate_idx > 0:
-        short_name = full_name[separate_idx+2:]
+        short_name = full_name[separate_idx + 2 :]
     else:
         short_name = full_name
     return short_name
@@ -502,8 +529,8 @@ def build_treemap(
 
     extra_args = {}
     if color is not None:
-        extra_args['color_continuous_scale'] = color
-        extra_args['color'] = "size"
+        extra_args["color_continuous_scale"] = color
+        extra_args["color"] = "size"
 
     fig = figure_generator(
         data,
@@ -524,31 +551,30 @@ def build_treemap(
 
 
 def symbols_from_objdump(elf_file: str) -> list[Symbol]:
-
     sources = {}
-    SOURCE_RE = re.compile(r'^(.*third_party/connectedhomeip/)?(?P<path>.*\.(cpp|c|asm)$)')
+    SOURCE_RE = re.compile(r"^(.*third_party/connectedhomeip/)?(?P<path>.*\.(cpp|c|asm)$)")
 
     # First try to figure out `source paths`. Do the "ugly" way and search for all strings that
     # seem to match a 'source'
-    for line in subprocess.check_output(["strings", elf_file]).decode("utf8").split('\n'):
-        if '/' not in line:
+    for line in subprocess.check_output(["strings", elf_file]).decode("utf8").split("\n"):
+        if "/" not in line:
             # want directory paths...
             continue
         m = SOURCE_RE.match(line)
         if not m:
             continue
 
-        path = m.groupdict()['path']
+        path = m.groupdict()["path"]
 
         # heuristics:
         #   - some paths start with relative paths and we remove that
         #   - remove intermediate ../
-        while path.startswith('../'):
+        while path.startswith("../"):
             path = path[3:]
 
         parts = []
-        for item in path.split('/'):
-            if item == '..':
+        for item in path.split("/"):
+            if item == "..":
                 parts.pop()
             else:
                 parts.append(item)
@@ -623,7 +649,7 @@ def symbols_from_objdump(elf_file: str) -> list[Symbol]:
     #      if may be slightly off - we need to track these as .text seem to potentially be aligned
     #    - symbols are have size
 
-    LINE_RE = re.compile(r'^(?P<offset>[0-9a-f]{8})\s(?P<flags>.{7})\s+(?P<section>\S+)\s+(?P<size>\S+)\s*(?P<name>.*)$')
+    LINE_RE = re.compile(r"^(?P<offset>[0-9a-f]{8})\s(?P<flags>.{7})\s+(?P<section>\S+)\s+(?P<size>\S+)\s*(?P<name>.*)$")
     current_file_name = None
 
     offset_file_map = {}
@@ -638,10 +664,10 @@ def symbols_from_objdump(elf_file: str) -> list[Symbol]:
             continue
 
         captures = m.groupdict()
-        size = int(captures['size'], 16)
-        offset = int(captures['offset'], 16)
-        if captures['flags'].endswith('df') and captures['section'] == '*ABS*' and size == 0:
-            current_file_name = captures['name']
+        size = int(captures["size"], 16)
+        offset = int(captures["offset"], 16)
+        if captures["flags"].endswith("df") and captures["section"] == "*ABS*" and size == 0:
+            current_file_name = captures["name"]
             continue
 
         if size == 0:
@@ -658,15 +684,15 @@ def symbols_from_objdump(elf_file: str) -> list[Symbol]:
 
         if symbol_file_name not in sources:
             if symbol_file_name not in unknown_file_names:
-                log.warning('Source %r is not known', symbol_file_name)
+                log.warning("Source %r is not known", symbol_file_name)
                 unknown_file_names.add(symbol_file_name)
-            path = [captures['section'], 'UNKNOWN', symbol_file_name, captures['name']]
+            path = [captures["section"], "UNKNOWN", symbol_file_name, captures["name"]]
         else:
-            path = [captures['section']] + sources[symbol_file_name] + [captures['name']]
+            path = [captures["section"]] + sources[symbol_file_name] + [captures["name"]]
 
         s = Symbol(
-            name=captures['name'],
-            symbol_type=captures['section'],
+            name=captures["name"],
+            symbol_type=captures["section"],
             size=size,
             tree_path=path,
         )
@@ -730,13 +756,12 @@ def symbols_from_nm(elf_file: str) -> list[Symbol]:
 
 
 def fetch_symbols(elf_file: str, fetch: FetchStyle, glob_filter: Optional[str]) -> Tuple[list[Symbol], str]:
-    """Returns the sumbol list and the separator used to split symbols
-    """
+    """Returns the sumbol list and the separator used to split symbols"""
     match fetch:
         case FetchStyle.NM:
             symbols, separator = symbols_from_nm(elf_file), "::"
         case FetchStyle.OBJDUMP:
-            symbols, separator = symbols_from_objdump(elf_file), '/'
+            symbols, separator = symbols_from_objdump(elf_file), "/"
     if glob_filter is not None:
         symbols = [s for s in symbols if fnmatch.fnmatch(s.name, glob_filter)]
 
@@ -772,17 +797,23 @@ def compute_symbol_diff(orig: list[Symbol], base: list[Symbol]) -> list[Symbol]:
             if not base_symbol:
                 raise AssertionError("Internal logic error: paths should be valid somewhere")
 
-            result.append(replace(base_symbol,
-                                  name=f"REMOVED: {base_symbol.name}",
-                                  tree_path=["DECREASE"] + base_symbol.tree_path,
-                                  ))
+            result.append(
+                replace(
+                    base_symbol,
+                    name=f"REMOVED: {base_symbol.name}",
+                    tree_path=["DECREASE"] + base_symbol.tree_path,
+                )
+            )
             continue
 
         if not base_symbol:
-            result.append(replace(orig_symbol,
-                                  name=f"ADDED: {orig_symbol.name}",
-                                  tree_path=["INCREASE"] + orig_symbol.tree_path,
-                                  ))
+            result.append(
+                replace(
+                    orig_symbol,
+                    name=f"ADDED: {orig_symbol.name}",
+                    tree_path=["INCREASE"] + orig_symbol.tree_path,
+                )
+            )
             continue
 
         if orig_symbol.size == base_symbol.size:
@@ -792,17 +823,23 @@ def compute_symbol_diff(orig: list[Symbol], base: list[Symbol]) -> list[Symbol]:
         size_delta = orig_symbol.size - base_symbol.size
 
         if size_delta > 0:
-            result.append(replace(orig_symbol,
-                                  name=f"CHANGED: {orig_symbol.name}",
-                                  tree_path=["INCREASE"] + orig_symbol.tree_path,
-                                  size=size_delta,
-                                  ))
+            result.append(
+                replace(
+                    orig_symbol,
+                    name=f"CHANGED: {orig_symbol.name}",
+                    tree_path=["INCREASE"] + orig_symbol.tree_path,
+                    size=size_delta,
+                )
+            )
         else:
-            result.append(replace(orig_symbol,
-                                  name=f"CHANGED: {orig_symbol.name}",
-                                  tree_path=["DECREASE"] + orig_symbol.tree_path,
-                                  size=-size_delta,
-                                  ))
+            result.append(
+                replace(
+                    orig_symbol,
+                    name=f"CHANGED: {orig_symbol.name}",
+                    tree_path=["DECREASE"] + orig_symbol.tree_path,
+                    size=-size_delta,
+                )
+            )
 
     return result
 
@@ -891,9 +928,7 @@ def main(
         symbols = compute_symbol_diff(symbols, diff_symbols)
         title += f" COMPARED TO {diff}"
 
-    build_treemap(
-        title, symbols, separator, __CHART_STYLES__[display_type], __COLOR_SCALES__[color], max_depth, zoom, strip
-    )
+    build_treemap(title, symbols, separator, __CHART_STYLES__[display_type], __COLOR_SCALES__[color], max_depth, zoom, strip)
 
 
 if __name__ == "__main__":

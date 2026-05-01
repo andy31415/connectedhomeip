@@ -31,54 +31,54 @@ log = logging.getLogger(__name__)
 
 def postprocess_config(config: Config, _key: str, _info: Mapping) -> None:
     """Postprocess --github-repository."""
-    if config['github.repository']:
-        owner, repo = config.get('github.repository').split('/', 1)
-        config.put('github.owner', owner)
-        config.put('github.repo', repo)
-        if not config['github.token']:
-            config['github.token'] = os.environ.get('GITHUB_TOKEN')
-            if not config['github.token']:
+    if config["github.repository"]:
+        owner, repo = config.get("github.repository").split("/", 1)
+        config.put("github.owner", owner)
+        config.put("github.repo", repo)
+        if not config["github.token"]:
+            config["github.token"] = os.environ.get("GITHUB_TOKEN")
+            if not config["github.token"]:
                 log.error("Missing --github-token")
 
 
 CONFIG: ConfigDescription = {
-    Config.group_def('github'): {
-        'title': 'github options',
+    Config.group_def("github"): {
+        "title": "github options",
     },
-    'github.token': {
-        'help': 'Github API token, or "SKIP" to suppress connecting to github',
-        'metavar': 'TOKEN',
-        'default': '',
-        'argparse': {
-            'alias': ['--github-api-token', '--token'],
+    "github.token": {
+        "help": 'Github API token, or "SKIP" to suppress connecting to github',
+        "metavar": "TOKEN",
+        "default": "",
+        "argparse": {
+            "alias": ["--github-api-token", "--token"],
         },
     },
-    'github.repository': {
-        'help': 'Github repostiory',
-        'metavar': 'OWNER/REPO',
-        'default': '',
-        'argparse': {
-            'alias': ['--repo'],
+    "github.repository": {
+        "help": "Github repostiory",
+        "metavar": "OWNER/REPO",
+        "default": "",
+        "argparse": {
+            "alias": ["--repo"],
         },
-        'postprocess': postprocess_config,
+        "postprocess": postprocess_config,
     },
-    'github.dryrun-comment': {
-        'help': "Don't actually post comments",
-        'default': False,
+    "github.dryrun-comment": {
+        "help": "Don't actually post comments",
+        "default": False,
     },
-    'github.keep': {
-        'help': "Don't remove PR artifacts",
-        'default': False,
-        'argparse': {
-            'alias': ['--keep'],
+    "github.keep": {
+        "help": "Don't remove PR artifacts",
+        "default": False,
+        "argparse": {
+            "alias": ["--keep"],
         },
     },
-    'github.limit-artifact-pages': {
-        'help': 'Examine no more than COUNT pages of artifacts',
-        'metavar': 'COUNT',
-        'default': 0,
-        'argparse': {
-            'type': int,
+    "github.limit-artifact-pages": {
+        "help": "Examine no more than COUNT pages of artifacts",
+        "metavar": "COUNT",
+        "default": 0,
+        "argparse": {
+            "type": int,
         },
     },
 }
@@ -92,10 +92,10 @@ class Gh:
         self.ghapi: Optional[ghapi.all.GhApi] = None
         self.deleted_artifacts: set[int] = set()
 
-        owner = config['github.owner']
-        repo = config['github.repo']
-        token = config['github.token']
-        if owner and repo and token and token != 'SKIP':
+        owner = config["github.owner"]
+        repo = config["github.repo"]
+        token = config["github.token"]
+        if owner and repo and token and token != "SKIP":
             self.ghapi = ghapi.all.GhApi(owner=owner, repo=repo, token=token)
 
     def __bool__(self):
@@ -105,8 +105,7 @@ class Gh:
         """Iterate PR comments."""
         assert self.ghapi
         try:
-            return itertools.chain.from_iterable(
-                ghapi.all.paged(self.ghapi.issues.list_comments, pr))
+            return itertools.chain.from_iterable(ghapi.all.paged(self.ghapi.issues.list_comments, pr))
         except Exception as e:
             log.exception("Failed to get comments for PR #%d: %r", pr, e)
             return []
@@ -115,8 +114,7 @@ class Gh:
         """Iterate PR commits."""
         assert self.ghapi
         try:
-            return itertools.chain.from_iterable(
-                ghapi.all.paged(self.ghapi.pulls.list_commits, pr))
+            return itertools.chain.from_iterable(ghapi.all.paged(self.ghapi.pulls.list_commits, pr))
         except Exception as e:
             log.exception("Failed to get commits for PR #%d: %r", pr, e)
             return []
@@ -124,15 +122,13 @@ class Gh:
     def get_artifacts(self, page_limit: int = -1, per_page: int = -1):
         """Iterate artifact descriptions."""
         if page_limit < 0:
-            page_limit = self.config['github.limit-artifact-pages']
+            page_limit = self.config["github.limit-artifact-pages"]
         if per_page < 0:
-            per_page = self.config['github.artifacts-per-page'] or 100
+            per_page = self.config["github.artifacts-per-page"] or 100
 
         assert self.ghapi
         try:
-            for page, i in enumerate(ghapi.all.paged(
-                    self.ghapi.actions.list_artifacts_for_repo,
-                    per_page=per_page)):
+            for page, i in enumerate(ghapi.all.paged(self.ghapi.actions.list_artifacts_for_repo, per_page=per_page)):
                 if not i.artifacts:
                     break
                 for a in i.artifacts:
@@ -143,17 +139,14 @@ class Gh:
         except Exception as e:
             log.exception("Failed to get artifact list: %r", e)
 
-    def get_size_artifacts(self,
-                           page_limit: int = -1,
-                           per_page: int = -1,
-                           label: str = ''):
+    def get_size_artifacts(self, page_limit: int = -1, per_page: int = -1, label: str = ""):
         """Iterate size artifact descriptions."""
         for a in self.get_artifacts(page_limit, per_page):
             # Size artifacts have names of the form:
             #   Size,{group},{pr},{commit_hash},{parent_hash}[,{event}]
             # This information is added to the attribute record from GitHub.
-            if a.name.startswith('Size,') and a.name.count(',') >= 4:
-                _, group, pr, commit, parent, *etc = a.name.split(',')
+            if a.name.startswith("Size,") and a.name.count(",") >= 4:
+                _, group, pr, commit, parent, *etc = a.name.split(",")
                 if label and group != label:
                     continue
                 a.group = group
@@ -165,7 +158,7 @@ class Gh:
                 if etc:
                     event = etc[0]
                 else:
-                    event = 'push' if pr == '0' else 'pull_request'
+                    event = "push" if pr == "0" else "pull_request"
                 a.event = event
                 yield a
 
@@ -181,22 +174,26 @@ class Gh:
             # This makes `self.ghapi.actions.download_artifact` not work
             #
             # Oddly enough downloading via CURL seems ok
-            owner = self.config['github.owner']
-            repo = self.config['github.repo']
-            token = self.config['github.token']
+            owner = self.config["github.owner"]
+            repo = self.config["github.repo"]
+            token = self.config["github.token"]
 
             download_url = f"https://api.github.com/repos/{owner}/{repo}/actions/artifacts/{artifact_id}/zip"
 
             # Follow https://docs.github.com/en/rest/actions/artifacts?apiVersion=2022-11-28#download-an-artifact
             return subprocess.check_output(
                 [
-                    'curl',
-                    '-L',
-                    '-H', 'Accept: application/vnd.github+json',
-                    '-H', f'Authorization: Bearer {token}',
-                    '-H', 'X-GitHub-Api-Version: 2022-11-28',
-                    '--output', '-',
-                    download_url
+                    "curl",
+                    "-L",
+                    "-H",
+                    "Accept: application/vnd.github+json",
+                    "-H",
+                    f"Authorization: Bearer {token}",
+                    "-H",
+                    "X-GitHub-Api-Version: 2022-11-28",
+                    "--output",
+                    "-",
+                    download_url,
                 ]
             )
         except Exception as e:
@@ -209,7 +206,7 @@ class Gh:
             return True
         self.deleted_artifacts.add(artifact_id)
 
-        if self.config['github.keep']:
+        if self.config["github.keep"]:
             log.info("Suppressed deleting artifact %d", artifact_id)
             return False
 
@@ -229,7 +226,7 @@ class Gh:
 
     def create_comment(self, issue_id: int, text: str) -> bool:
         """Create a GitHub comment."""
-        if self.config['github.dryrun-comment']:
+        if self.config["github.dryrun-comment"]:
             log.info("Suppressed creating comment on issue #%d", issue_id)
             log.debug(text)
             return False
@@ -245,7 +242,7 @@ class Gh:
 
     def update_comment(self, comment_id: int, text: str) -> bool:
         """Update a GitHub comment."""
-        if self.config['github.dryrun-comment']:
+        if self.config["github.dryrun-comment"]:
             log.info("Suppressed updating comment #%d", comment_id)
             log.debug(text)
             return False

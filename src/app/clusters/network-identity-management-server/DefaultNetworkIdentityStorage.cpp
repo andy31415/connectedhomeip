@@ -735,8 +735,7 @@ CHIP_ERROR DefaultNetworkIdentityStorage::RemoveNetworkIdentity(uint16_t index)
 DefaultNetworkIdentityStorage::NetworkIdentityIteratorImpl::NetworkIdentityIteratorImpl(DefaultNetworkIdentityStorage & storage,
                                                                                         BitFlags<NetworkIdentityFlags> flags,
                                                                                         MutableByteSpan buffer) :
-    mStorage(storage),
-    mFlags(flags), mBuffer(buffer)
+    mStorage(storage), mFlags(flags), mBuffer(buffer)
 {}
 
 size_t DefaultNetworkIdentityStorage::NetworkIdentityIteratorImpl::Count()
@@ -1189,8 +1188,7 @@ CHIP_ERROR DefaultNetworkIdentityStorage::UpdateClientNetworkIdentityIndex(uint1
 
 DefaultNetworkIdentityStorage::ClientIteratorImpl::ClientIteratorImpl(DefaultNetworkIdentityStorage & storage,
                                                                       BitFlags<ClientFlags> flags, MutableByteSpan buffer) :
-    mStorage(storage),
-    mFlags(flags), mBuffer(buffer)
+    mStorage(storage), mFlags(flags), mBuffer(buffer)
 {}
 
 size_t DefaultNetworkIdentityStorage::ClientIteratorImpl::Count()

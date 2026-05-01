@@ -29,9 +29,9 @@ DimmableLightDevice::DimmableLightDevice(Clusters::OnOffDelegate & onOffDelegate
                                          Clusters::LevelControlDelegate & levelControlDelegate,
                                          Clusters::OnOffEffectDelegate & effectDelegate,
                                          Clusters::IdentifyDelegate & identifyDelegate, const Context & context) :
-    SingleEndpointDevice(Span<const DataModel::DeviceTypeEntry>(&Device::Type::kDimmableLight, 1)),
-    mOnOffDelegate(onOffDelegate), mLevelControlDelegate(levelControlDelegate), mEffectDelegate(effectDelegate),
-    mIdentifyDelegate(identifyDelegate), mContext(context)
+    SingleEndpointDevice(Span<const DataModel::DeviceTypeEntry>(&Device::Type::kDimmableLight, 1)), mOnOffDelegate(onOffDelegate),
+    mLevelControlDelegate(levelControlDelegate), mEffectDelegate(effectDelegate), mIdentifyDelegate(identifyDelegate),
+    mContext(context)
 {}
 
 CHIP_ERROR DimmableLightDevice::Register(chip::EndpointId endpoint, CodeDrivenDataModelProvider & provider, EndpointId parentId)

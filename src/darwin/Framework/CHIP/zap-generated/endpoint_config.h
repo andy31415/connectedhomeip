@@ -34,5 +34,5 @@
  */
 #define ATTRIBUTE_LARGEST 1
 
-#define GENERATED_ATTRIBUTES {}
-
+#define GENERATED_ATTRIBUTES                                                                                                       \
+    {}

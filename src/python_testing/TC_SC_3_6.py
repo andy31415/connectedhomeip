@@ -69,12 +69,7 @@ class AttributeChangeAccumulator:
         if path.AttributeType == self._expected_attribute:
             data = transaction.GetAttribute(path)
 
-            value = {
-                'name': self._name,
-                'endpoint': path.Path.EndpointId,
-                'attribute': path.AttributeType,
-                'value': data
-            }
+            value = {"name": self._name, "endpoint": path.Path.EndpointId, "attribute": path.AttributeType, "value": data}
             log.info("Got subscription report on client %s for %s: %s" % (self.name, path.AttributeType, data))
             self._output.put(value)
 
@@ -134,40 +129,45 @@ class TC_SC_3_6(MatterBaseTest):
         all_names = []
         for fabric_idx in range(num_fabrics_to_commission):
             for controller_idx in range(num_controllers_per_fabric):
-                all_names.append("RD%d%s" % (fabric_idx + 1, chr(ord('A') + controller_idx)))
+                all_names.append("RD%d%s" % (fabric_idx + 1, chr(ord("A") + controller_idx)))
         log.info("Client names that will be used: %s" % all_names)
         client_list = []
 
         log.info("Pre-conditions: validate CapabilityMinima.CaseSessionsPerFabric >= 3")
 
         capability_minima = await self.read_single_attribute(
-            dev_ctrl,
-            node_id=self.dut_node_id,
-            endpoint=0,
-            attribute=Clusters.BasicInformation.Attributes.CapabilityMinima
+            dev_ctrl, node_id=self.dut_node_id, endpoint=0, attribute=Clusters.BasicInformation.Attributes.CapabilityMinima
         )
         asserts.assert_greater_equal(capability_minima.caseSessionsPerFabric, 3)
 
         log.info("Pre-condition: Remove all pre-existing fabrics on the device that do not belong to the TH")
         commissioned_fabric_count: int = await self.read_single_attribute(
-            dev_ctrl, node_id=self.dut_node_id,
-            endpoint=0, attribute=Clusters.OperationalCredentials.Attributes.CommissionedFabrics)
+            dev_ctrl, node_id=self.dut_node_id, endpoint=0, attribute=Clusters.OperationalCredentials.Attributes.CommissionedFabrics
+        )
 
         if commissioned_fabric_count > 1:
             fabrics: List[Clusters.OperationalCredentials.Structs.FabricDescriptorStruct] = await self.read_single_attribute(
-                dev_ctrl, node_id=self.dut_node_id, endpoint=0,
-                attribute=Clusters.OperationalCredentials.Attributes.Fabrics, fabricFiltered=False)
-            current_fabric_index = await self.read_single_attribute_check_success(cluster=Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex)
+                dev_ctrl,
+                node_id=self.dut_node_id,
+                endpoint=0,
+                attribute=Clusters.OperationalCredentials.Attributes.Fabrics,
+                fabricFiltered=False,
+            )
+            current_fabric_index = await self.read_single_attribute_check_success(
+                cluster=Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex
+            )
             for fabric in fabrics:
                 if fabric.fabricIndex == current_fabric_index:
                     continue
                 # This is not the test client's fabric, so remove it.
                 log.info(f"Removing extra fabric at {fabric.fabricIndex} from device.")
                 await dev_ctrl.SendCommand(
-                    self.dut_node_id, 0, Clusters.OperationalCredentials.Commands.RemoveFabric(fabricIndex=fabric.fabricIndex))
+                    self.dut_node_id, 0, Clusters.OperationalCredentials.Commands.RemoveFabric(fabricIndex=fabric.fabricIndex)
+                )
 
-        log.info("Pre-conditions: use existing fabric to configure new fabrics so that total is %d fabrics" %
-                 num_fabrics_to_commission)
+        log.info(
+            "Pre-conditions: use existing fabric to configure new fabrics so that total is %d fabrics" % num_fabrics_to_commission
+        )
 
         # Generate Node IDs for subsequent controllers start at 200, follow 200, 300, ...
         node_ids = [200 + (i * 100) for i in range(num_controllers_per_fabric - 1)]
@@ -182,7 +182,7 @@ class TC_SC_3_6(MatterBaseTest):
                 adminDevCtrl=dev_ctrl,
                 controllerNodeIds=node_ids,
                 privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
-                targetNodeId=self.dut_node_id
+                targetNodeId=self.dut_node_id,
             )
             for controller in new_controllers:
                 controller.name = all_names.pop(0)
@@ -201,7 +201,7 @@ class TC_SC_3_6(MatterBaseTest):
                 commissionerDevCtrl=dev_ctrl,
                 newFabricDevCtrl=new_admin_ctrl,
                 existingNodeId=self.dut_node_id,
-                newNodeId=self.dut_node_id
+                newNodeId=self.dut_node_id,
             )
 
             if num_controllers_per_fabric > 1:
@@ -210,20 +210,22 @@ class TC_SC_3_6(MatterBaseTest):
                     adminDevCtrl=new_admin_ctrl,
                     controllerNodeIds=node_ids,
                     privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
-                    targetNodeId=self.dut_node_id
+                    targetNodeId=self.dut_node_id,
                 )
                 for controller in new_controllers:
                     controller.name = all_names.pop(0)
 
                 client_list.extend(new_controllers)
 
-        asserts.assert_equal(len(client_list), num_fabrics_to_commission *
-                             num_controllers_per_fabric, "Must have the right number of clients")
+        asserts.assert_equal(
+            len(client_list), num_fabrics_to_commission * num_controllers_per_fabric, "Must have the right number of clients"
+        )
 
         # Before subscribing, set the NodeLabel to "Before Subscriptions"
         log.info("Pre-conditions: writing initial value of NodeLabel, so that we can control for change of attribute detection")
-        await client_list[0].WriteAttribute(self.dut_node_id,
-                                            [(0, Clusters.BasicInformation.Attributes.NodeLabel(value=BEFORE_LABEL))])
+        await client_list[0].WriteAttribute(
+            self.dut_node_id, [(0, Clusters.BasicInformation.Attributes.NodeLabel(value=BEFORE_LABEL))]
+        )
 
         # Subscribe with all clients to NodeLabel attribute
         sub_handlers = []
@@ -238,12 +240,13 @@ class TC_SC_3_6(MatterBaseTest):
                 nodeId=self.dut_node_id,
                 attributes=[(0, Clusters.BasicInformation.Attributes.NodeLabel)],
                 reportInterval=(min_report_interval_sec, max_report_interval_sec),
-                keepSubscriptions=False
+                keepSubscriptions=False,
             )
             self._subscriptions.append(sub)
 
             attribute_handler = AttributeChangeAccumulator(
-                name=client.name, expected_attribute=Clusters.BasicInformation.Attributes.NodeLabel, output=output_queue)
+                name=client.name, expected_attribute=Clusters.BasicInformation.Attributes.NodeLabel, output=output_queue
+            )
             sub.SetAttributeUpdateCallback(attribute_handler)
             sub_handlers.append(attribute_handler)
 
@@ -255,11 +258,11 @@ class TC_SC_3_6(MatterBaseTest):
         asserts.assert_equal(len(self._subscriptions), len(client_list), "Must have the right number of subscriptions")
 
         # Trigger a change on NodeLabel
-        log.info(
-            "Step 1 (second part): Change attribute with one client, await all attributes changed within time")
+        log.info("Step 1 (second part): Change attribute with one client, await all attributes changed within time")
         await asyncio.sleep(1)
-        await client_list[0].WriteAttribute(self.dut_node_id,
-                                            [(0, Clusters.BasicInformation.Attributes.NodeLabel(value=AFTER_LABEL))])
+        await client_list[0].WriteAttribute(
+            self.dut_node_id, [(0, Clusters.BasicInformation.Attributes.NodeLabel(value=AFTER_LABEL))]
+        )
 
         all_changes = {client.name: False for client in client_list}
 
@@ -271,7 +274,7 @@ class TC_SC_3_6(MatterBaseTest):
         while time_remaining > 0:
             try:
                 item = output_queue.get(block=True, timeout=time_remaining)
-                client_name, endpoint, attribute, value = item['name'], item['endpoint'], item['attribute'], item['value']
+                client_name, endpoint, attribute, value = item["name"], item["endpoint"], item["attribute"], item["value"]
 
                 # Record arrival of an expected subscription change when seen
                 if endpoint == 0 and attribute == Clusters.BasicInformation.Attributes.NodeLabel and value == AFTER_LABEL:
@@ -302,8 +305,10 @@ class TC_SC_3_6(MatterBaseTest):
 
         all_reports_gotten = all(all_changes.values())
         if not all_reports_gotten:
-            log.error("Missing reports from the following clients: %s" %
-                      ", ".join([name for name, value in all_changes.items() if value is False]))
+            log.error(
+                "Missing reports from the following clients: %s"
+                % ", ".join([name for name, value in all_changes.items() if value is False])
+            )
             failed = True
         else:
             log.info("Got successful reports from all clients, meaning all concurrent CASE sessions worked")

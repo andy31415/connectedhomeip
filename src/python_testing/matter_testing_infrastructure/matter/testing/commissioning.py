@@ -46,6 +46,7 @@ class SetupPayloadInfo:
         filter_value (int): The value associated with the filter type. Default is `0`.
         passcode (int): A unique code or password required for setup. Default is `0`.
     """
+
     filter_type: discovery.FilterType = discovery.FilterType.LONG_DISCRIMINATOR
     filter_value: int = 0
     passcode: int = 0
@@ -79,6 +80,7 @@ class CommissioningInfo:
         tc_user_response_to_simulate (Optional[int]):
             The user response to simulate for the Terms and Conditions, if applicable.
     """
+
     commissionee_ip_address_just_for_testing: Optional[str] = None
     commissioning_method: Optional[str] = None
     thread_operational_dataset: Optional[bytes] = None
@@ -99,6 +101,7 @@ class CustomCommissioningParameters:
         commissioningParameters (CommissioningParameters): The underlying commissioning parameters.
         randomDiscriminator (int): A randomly generated value used to uniquely identify or distinguish instances during commissioning processes.
     """
+
     commissioningParameters: CommissioningParameters
     randomDiscriminator: int
 
@@ -162,8 +165,9 @@ async def commission_device(
     elif commissioning_info.commissioning_method == "ble-wifi":
         try:
             asserts.assert_is_not_none(commissioning_info.wifi_ssid, "WiFi SSID must be provided for ble-wifi commissioning")
-            asserts.assert_is_not_none(commissioning_info.wifi_passphrase,
-                                       "WiFi Passphrase must be provided for ble-wifi commissioning")
+            asserts.assert_is_not_none(
+                commissioning_info.wifi_passphrase, "WiFi Passphrase must be provided for ble-wifi commissioning"
+            )
             # Type assertions to help mypy understand these are not None after the asserts
             assert commissioning_info.wifi_ssid is not None
             assert commissioning_info.wifi_passphrase is not None
@@ -181,8 +185,9 @@ async def commission_device(
             return PairingStatus(exception=e)
     elif commissioning_info.commissioning_method == "ble-thread":
         try:
-            asserts.assert_is_not_none(commissioning_info.thread_operational_dataset,
-                                       "Thread dataset must be provided for ble-thread commissioning")
+            asserts.assert_is_not_none(
+                commissioning_info.thread_operational_dataset, "Thread dataset must be provided for ble-thread commissioning"
+            )
             # Type assertion to help mypy understand this is not None after the assert
             assert commissioning_info.thread_operational_dataset is not None
             await dev_ctrl.CommissionBleThread(
@@ -198,8 +203,9 @@ async def commission_device(
             return PairingStatus(exception=e)
     elif commissioning_info.commissioning_method == "nfc-thread":
         try:
-            asserts.assert_is_not_none(commissioning_info.thread_operational_dataset,
-                                       "Thread dataset must be provided for nfc-thread commissioning")
+            asserts.assert_is_not_none(
+                commissioning_info.thread_operational_dataset, "Thread dataset must be provided for nfc-thread commissioning"
+            )
             # Type assertion to help mypy understand this is not None after the assert
             assert commissioning_info.thread_operational_dataset is not None
             await dev_ctrl.CommissionNfcThread(
@@ -215,8 +221,9 @@ async def commission_device(
     elif commissioning_info.commissioning_method == "nfc-wifi":
         try:
             asserts.assert_is_not_none(commissioning_info.wifi_ssid, "WiFi SSID must be provided for nfc-wifi commissioning")
-            asserts.assert_is_not_none(commissioning_info.wifi_passphrase,
-                                       "WiFi Passphrase must be provided for nfc-wifi commissioning")
+            asserts.assert_is_not_none(
+                commissioning_info.wifi_passphrase, "WiFi Passphrase must be provided for nfc-wifi commissioning"
+            )
             # Type assertion to help mypy understand this is not None after the assert
             assert commissioning_info.wifi_ssid is not None
             assert commissioning_info.wifi_passphrase is not None
@@ -233,16 +240,19 @@ async def commission_device(
             return PairingStatus(exception=e)
     elif commissioning_info.commissioning_method == "thread-meshcop":
         try:
-            asserts.assert_is_not_none(commissioning_info.thread_operational_dataset,
-                                       "Thread dataset must be provided for thread-meshcop commissioning")
+            asserts.assert_is_not_none(
+                commissioning_info.thread_operational_dataset, "Thread dataset must be provided for thread-meshcop commissioning"
+            )
             # Type assertion to help mypy understand this is not None after the assert
             assert commissioning_info.thread_operational_dataset is not None
-            asserts.assert_is_not_none(commissioning_info.thread_ba_host,
-                                       "thread_ba_host must be provided for thread-meshcop commissioning")
+            asserts.assert_is_not_none(
+                commissioning_info.thread_ba_host, "thread_ba_host must be provided for thread-meshcop commissioning"
+            )
             # Type assertion to help mypy understand this is not None after the assert
             assert commissioning_info.thread_ba_host is not None
-            asserts.assert_is_not_none(commissioning_info.thread_ba_port,
-                                       "thread_ba_port must be provided for thread-meshcop commissioning")
+            asserts.assert_is_not_none(
+                commissioning_info.thread_ba_port, "thread_ba_port must be provided for thread-meshcop commissioning"
+            )
             # Type assertion to help mypy understand this is not None after the assert
             assert commissioning_info.thread_ba_port is not None
 
@@ -304,7 +314,9 @@ def get_setup_payload_info_config(matter_test_config: Any) -> List[SetupPayloadI
     for qr_code in matter_test_config.qr_code_content:
         try:
             setup_payloads.append(SetupPayload().ParseQrCode(qr_code))
-        except ChipStackError:  # chipstack-ok: This disables ChipStackError linter check. Can not use 'with' because it is not expected to fail
+        except (
+            ChipStackError
+        ):  # chipstack-ok: This disables ChipStackError linter check. Can not use 'with' because it is not expected to fail
             asserts.fail(f"QR code '{qr_code} failed to parse properly as a Matter setup code.")
 
     manual_code_equivalents = [(s.long_discriminator >> 8, s.setup_passcode) for s in setup_payloads]
@@ -317,9 +329,12 @@ def get_setup_payload_info_config(matter_test_config: Any) -> List[SetupPayloadI
             if (temp_payload.short_discriminator, temp_payload.setup_passcode) in manual_code_equivalents:
                 continue
             setup_payloads.append(temp_payload)
-        except ChipStackError:  # chipstack-ok: This disables ChipStackError linter check. Can not use 'with' because it is not expected to fail
+        except (
+            ChipStackError
+        ):  # chipstack-ok: This disables ChipStackError linter check. Can not use 'with' because it is not expected to fail
             asserts.fail(
-                f"Manual code code '{manual_code}' failed to parse properly as a Matter setup code. Check that all digits are correct and length is 11 or 21 characters.")
+                f"Manual code code '{manual_code}' failed to parse properly as a Matter setup code. Check that all digits are correct and length is 11 or 21 characters."
+            )
 
     infos = []
     for setup_payload in setup_payloads:
@@ -362,6 +377,7 @@ class SetupParameters:
         version (Optional[int]): Version number.
 
     """
+
     passcode: int
     vendor_id: int = 0xFFF1
     product_id: int = 0x8001
@@ -372,10 +388,12 @@ class SetupParameters:
 
     @property
     def qr_code(self):
-        return SetupPayload().GenerateQrCode(self.passcode, self.vendor_id, self.product_id, self.discriminator,
-                                             self.custom_flow, self.capabilities, self.version)
+        return SetupPayload().GenerateQrCode(
+            self.passcode, self.vendor_id, self.product_id, self.discriminator, self.custom_flow, self.capabilities, self.version
+        )
 
     @property
     def manual_code(self):
-        return SetupPayload().GenerateManualPairingCode(self.passcode, self.vendor_id, self.product_id, self.discriminator,
-                                                        self.custom_flow, self.capabilities, self.version)
+        return SetupPayload().GenerateManualPairingCode(
+            self.passcode, self.vendor_id, self.product_id, self.discriminator, self.custom_flow, self.capabilities, self.version
+        )

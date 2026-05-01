@@ -15,8 +15,8 @@
 
 import yaml
 
-_ERROR_START_TAG = '__error_start__'
-_ERROR_END_TAG = '__error_end__'
+_ERROR_START_TAG = "__error_start__"
+_ERROR_END_TAG = "__error_end__"
 
 
 class TestStepError(Exception):
@@ -31,11 +31,7 @@ class TestStepError(Exception):
         return self.message
 
     def update_context(self, context, step_index):
-        self.context = yaml.dump(
-            context,
-            default_flow_style=False,
-            sort_keys=False
-        )
+        self.context = yaml.dump(context, default_flow_style=False, sort_keys=False)
         self.step_index = step_index
 
     def tag_key_with_error(self, content, target_key):
@@ -69,8 +65,7 @@ class TestStepError(Exception):
         for _ in range(len(content)):
             key, value = content.popitem()
             if key.startswith(tag_start) and key.endswith(tag_end):
-                reversed_dictionary[key.replace(
-                    tag_start, '').replace(tag_end, '')] = value
+                reversed_dictionary[key.replace(tag_start, "").replace(tag_end, "")] = value
             else:
                 reversed_dictionary[key] = value
 
@@ -101,7 +96,7 @@ class TestStepValueNameError(TestStepError):
                 break
         super().__init__(message)
 
-        self.tag_key_with_error(content, 'name')
+        self.tag_key_with_error(content, "name")
 
 
 class TestStepInvalidTypeError(TestStepError):
@@ -109,9 +104,9 @@ class TestStepInvalidTypeError(TestStepError):
 
     def __init__(self, content, key, expected_type):
         if isinstance(expected_type, tuple):
-            expected_name = ''
+            expected_name = ""
             for _type in expected_type:
-                expected_name += _type.__name__ + ','
+                expected_name += _type.__name__ + ","
             expected_name = expected_name[:-1]
         else:
             expected_name = expected_type.__name__
@@ -126,22 +121,22 @@ class TestStepGroupResponseError(TestStepError):
     """Raise when a test step targeting a group of nodes expects a response."""
 
     def __init__(self, content):
-        message = 'Group command should not expect a response'
+        message = "Group command should not expect a response"
         super().__init__(message)
 
-        self.tag_key_with_error(content, 'groupId')
-        self.tag_key_with_error(content, 'response')
+        self.tag_key_with_error(content, "groupId")
+        self.tag_key_with_error(content, "response")
 
 
 class TestStepGroupEndPointError(TestStepError):
     """Raise when a test step targeting a group of nodes targets an endpoint."""
 
     def __init__(self, content):
-        message = 'Group command should not target an endpoint'
+        message = "Group command should not target an endpoint"
         super().__init__(message)
 
-        self.tag_key_with_error(content, 'groupId')
-        self.tag_key_with_error(content, 'endpoint')
+        self.tag_key_with_error(content, "groupId")
+        self.tag_key_with_error(content, "endpoint")
 
 
 class TestStepVerificationStandaloneError(TestStepError):
@@ -151,7 +146,7 @@ class TestStepVerificationStandaloneError(TestStepError):
         message = 'Step using "verification" key should either set "disabled: true" or "PICS: PICS_USER_PROMPT"'
         super().__init__(message)
 
-        self.tag_key_with_error(content, 'verification')
+        self.tag_key_with_error(content, "verification")
 
 
 class TestStepNodeIdAndGroupIdError(TestStepError):
@@ -161,8 +156,8 @@ class TestStepNodeIdAndGroupIdError(TestStepError):
         message = '"nodeId" and "groupId" are mutually exclusive'
         super().__init__(message)
 
-        self.tag_key_with_error(content, 'nodeId')
-        self.tag_key_with_error(content, 'groupId')
+        self.tag_key_with_error(content, "nodeId")
+        self.tag_key_with_error(content, "groupId")
 
 
 class TestStepValueAndValuesError(TestStepError):
@@ -172,32 +167,31 @@ class TestStepValueAndValuesError(TestStepError):
         message = '"value" and "values" are mutually exclusive'
         super().__init__(message)
 
-        self.tag_key_with_error(content, 'value')
-        self.tag_key_with_error(content, 'values')
+        self.tag_key_with_error(content, "value")
+        self.tag_key_with_error(content, "values")
 
 
 class TestStepWaitResponseError(TestStepError):
     """Raise when a test step is waiting for a particular event (e.g an attribute read) using the
-       wait keyword but also specify a response.
+    wait keyword but also specify a response.
     """
 
     def __init__(self, content):
         message = 'The "wait" key can not be used in conjuction with the "response" key'
         super().__init__(message)
 
-        self.tag_key_with_error(content, 'wait')
-        self.tag_key_with_error(content, 'response')
+        self.tag_key_with_error(content, "wait")
+        self.tag_key_with_error(content, "response")
 
 
 class TestStepResponseVariableError(TestStepError):
-    """Raise when a test step response use a variable but this variable does not exist in the config section.
-    """
+    """Raise when a test step response use a variable but this variable does not exist in the config section."""
 
     def __init__(self, content):
-        message = 'The variable does not exist in the config section.'
+        message = "The variable does not exist in the config section."
         super().__init__(message)
 
-        self.tag_key_with_error(content, 'response')
+        self.tag_key_with_error(content, "response")
 
 
 class TestStepArgumentsValueError(TestStepError):
@@ -207,9 +201,9 @@ class TestStepArgumentsValueError(TestStepError):
         message = 'The "value" key can not be used in conjuction with a command that is not "writeAttribute"'
         super().__init__(message)
 
-        self.tag_key_with_error(content, 'command')
-        arguments = content.get('arguments')
-        self.tag_key_with_error(arguments, 'value')
+        self.tag_key_with_error(content, "command")
+        arguments = content.get("arguments")
+        self.tag_key_with_error(arguments, "value")
 
 
 class TestStepSaveAsNameError(TestStepError):
@@ -219,9 +213,9 @@ class TestStepSaveAsNameError(TestStepError):
         message = 'The "saveAs" key can not be the same than the "attribute" key'
         super().__init__(message)
 
-        self.tag_key_with_error(content, 'attribute')
-        response = content.get('response')
-        self.tag_key_with_error(response, 'saveAs')
+        self.tag_key_with_error(content, "attribute")
+        response = content.get("response")
+        self.tag_key_with_error(response, "saveAs")
 
 
 class TestStepEnumError(TestStepError):

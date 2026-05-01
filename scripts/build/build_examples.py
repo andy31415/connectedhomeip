@@ -35,10 +35,10 @@ log = logging.getLogger(__name__)
 # Supported log levels, mapping string values required for argument
 # parsing into logging constants
 __LOG_LEVELS__ = {
-    'debug': logging.DEBUG,
-    'info': logging.INFO,
-    'warn': logging.WARNING,
-    'fatal': logging.FATAL,
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warn": logging.WARNING,
+    "fatal": logging.FATAL,
 }
 
 
@@ -46,16 +46,14 @@ def ValidateRepoPath(context, parameter, value):
     """
     Validates that the given path looks like a valid chip repository checkout.
     """
-    if value.startswith('/TEST/'):
+    if value.startswith("/TEST/"):
         # Hackish command to allow for unit testing
         return value
 
-    for name in ['BUILD.gn', '.gn', os.path.join('scripts', 'bootstrap.sh')]:
+    for name in ["BUILD.gn", ".gn", os.path.join("scripts", "bootstrap.sh")]:
         expected_file = os.path.join(value, name)
         if not os.path.exists(expected_file):
-            raise click.BadParameter(
-                ("'%s' does not look like a valid repository path: "
-                 "%s not found.") % (value, expected_file))
+            raise click.BadParameter(("'%s' does not look like a valid repository path: %s not found.") % (value, expected_file))
     return value
 
 
@@ -64,112 +62,85 @@ def ValidateTargetNames(context, parameter, values):
     Validates that the given target name is valid.
     """
     for value in values:
-        if not any(target.StringIntoTargetParts(value.lower())
-                   for target in build.targets.BUILD_TARGETS):
-            raise click.BadParameter(
-                "'%s' is not a valid target name." % value)
+        if not any(target.StringIntoTargetParts(value.lower()) for target in build.targets.BUILD_TARGETS):
+            raise click.BadParameter("'%s' is not a valid target name." % value)
     return values
 
 
 @click.group(chain=True)
 @click.option(
-    '--log-level',
-    default='INFO',
+    "--log-level",
+    default="INFO",
     type=click.Choice(__LOG_LEVELS__.keys(), case_sensitive=False),
-    help='Determines the verbosity of script output.')
-@click.option(
-    '--verbose',
-    default=False,
-    is_flag=True,
-    help='Pass verbose flag to ninja.')
-@click.option(
-    '--quiet',
-    default=False,
-    is_flag=True,
-    help='Pass quiet flag to ninja.')
-@click.option(
-    '--target',
-    default=[],
-    multiple=True,
-    callback=ValidateTargetNames,
-    help='Build target(s)')
+    help="Determines the verbosity of script output.",
+)
+@click.option("--verbose", default=False, is_flag=True, help="Pass verbose flag to ninja.")
+@click.option("--quiet", default=False, is_flag=True, help="Pass quiet flag to ninja.")
+@click.option("--target", default=[], multiple=True, callback=ValidateTargetNames, help="Build target(s)")
 @click.option(
     "--build-profile",
     default=BuildProfile.DEFAULT,
     type=click.Choice(BuildProfile, case_sensitive=False),
-    help="The build profile to use.")
+    help="The build profile to use.",
+)
+@click.option("--enable-link-map-file", default=False, is_flag=True, help="Enable generation of link map files.")
+@click.option("--enable-flashbundle", default=False, is_flag=True, help="Also generate the flashbundles for the app.")
+@click.option("--repo", default=".", callback=ValidateRepoPath, help="Path to the root of the CHIP SDK repository checkout.")
 @click.option(
-    '--enable-link-map-file',
-    default=False,
-    is_flag=True,
-    help='Enable generation of link map files.')
-@click.option(
-    '--enable-flashbundle',
-    default=False,
-    is_flag=True,
-    help='Also generate the flashbundles for the app.')
-@click.option(
-    '--repo',
-    default='.',
-    callback=ValidateRepoPath,
-    help='Path to the root of the CHIP SDK repository checkout.')
-@click.option(
-    '--out-prefix',
-    default='./out',
+    "--out-prefix",
+    default="./out",
     type=click.Path(file_okay=False, resolve_path=True),
-    help='Prefix for the generated file output.')
+    help="Prefix for the generated file output.",
+)
+@click.option("--ninja-jobs", type=int, is_flag=False, flag_value=0, default=None, help="Number of ninja jobs")
 @click.option(
-    '--ninja-jobs',
-    type=int,
-    is_flag=False,
-    flag_value=0,
-    default=None,
-    help='Number of ninja jobs')
-@click.option(
-    '--pregen-dir',
+    "--pregen-dir",
     default=None,
     type=click.Path(file_okay=False, resolve_path=True),
-    help='Directory where generated files have been pre-generated.')
+    help="Directory where generated files have been pre-generated.",
+)
+@click.option("--clean", default=False, is_flag=True, help="Clean output directory before running the command")
+@click.option("--dry-run", default=False, is_flag=True, help="Only print out shell commands that would be executed")
+@click.option("--dry-run-output", default="-", type=click.File("wt"), help="Where to write the dry run output")
+@click.option("--log-timestamps/--no-log-timestamps", default=True, help="Show timestamps in log output")
 @click.option(
-    '--clean',
-    default=False,
-    is_flag=True,
-    help='Clean output directory before running the command')
-@click.option(
-    '--dry-run',
-    default=False,
-    is_flag=True,
-    help='Only print out shell commands that would be executed')
-@click.option(
-    '--dry-run-output',
-    default="-",
-    type=click.File("wt"),
-    help='Where to write the dry run output')
-@click.option(
-    '--log-timestamps/--no-log-timestamps',
-    default=True,
-    help='Show timestamps in log output')
-@click.option(
-    '--pw-command-launcher',
+    "--pw-command-launcher",
     default=None,
-    help=(
-        'Set pigweed command launcher. E.g.: "--pw-command-launcher=ccache" '
-        'for using ccache when building examples.'))
+    help=('Set pigweed command launcher. E.g.: "--pw-command-launcher=ccache" for using ccache when building examples.'),
+)
 @click.pass_context
-def main(context, log_level, verbose, quiet, target, build_profile, enable_link_map_file, repo,
-         out_prefix, ninja_jobs, pregen_dir, clean, dry_run, dry_run_output,
-         enable_flashbundle, log_timestamps, pw_command_launcher):
+def main(
+    context,
+    log_level,
+    verbose,
+    quiet,
+    target,
+    build_profile,
+    enable_link_map_file,
+    repo,
+    out_prefix,
+    ninja_jobs,
+    pregen_dir,
+    clean,
+    dry_run,
+    dry_run_output,
+    enable_flashbundle,
+    log_timestamps,
+    pw_command_launcher,
+):
     # Ensures somewhat pretty logging of what is going on
-    log_fmt = '%(asctime)s.%(msecs)03d %(levelname)-7s %(message)s' if log_timestamps else '%(levelname)-7s %(message)s'
+    log_fmt = "%(asctime)s.%(msecs)03d %(levelname)-7s %(message)s" if log_timestamps else "%(levelname)-7s %(message)s"
     coloredlogs.install(level=__LOG_LEVELS__[log_level], fmt=log_fmt)
 
-    if 'PW_PROJECT_ROOT' not in os.environ:
-        raise click.UsageError("""
+    if "PW_PROJECT_ROOT" not in os.environ:
+        raise click.UsageError(
+            """
 PW_PROJECT_ROOT not set in the current environment.
 
 Please make sure you `source scripts/bootstrap.sh` or `source scripts/activate.sh`
 before running this script.
-""".strip())
+""".strip()
+        )
 
     if dry_run:
         runner = PrintOnlyRunner(dry_run_output, root=repo)
@@ -177,37 +148,36 @@ before running this script.
         runner = ShellRunner(root=repo)
 
     context.obj = build.Context(
-        repository_path=repo, output_prefix=out_prefix, verbose=verbose, quiet=quiet,
-        ninja_jobs=ninja_jobs, runner=runner
+        repository_path=repo, output_prefix=out_prefix, verbose=verbose, quiet=quiet, ninja_jobs=ninja_jobs, runner=runner
     )
 
     requested_targets = {t.lower() for t in target}
-    context.obj.SetupBuilders(targets=requested_targets, options=BuilderOptions(
-        build_profile=build_profile,
-        enable_link_map_file=enable_link_map_file,
-        enable_flashbundle=enable_flashbundle,
-        pw_command_launcher=pw_command_launcher,
-        pregen_dir=pregen_dir,
-    ))
+    context.obj.SetupBuilders(
+        targets=requested_targets,
+        options=BuilderOptions(
+            build_profile=build_profile,
+            enable_link_map_file=enable_link_map_file,
+            enable_flashbundle=enable_flashbundle,
+            pw_command_launcher=pw_command_launcher,
+            pregen_dir=pregen_dir,
+        ),
+    )
 
     if clean:
         context.obj.CleanOutputDirectories()
 
 
-@main.command(
-    'gen', help='Generate ninja/makefiles (but does not run the compilation)')
+@main.command("gen", help="Generate ninja/makefiles (but does not run the compilation)")
 @click.pass_context
 def cmd_generate(context):
     context.obj.Generate()
 
 
-@main.command(
-    'targets',
-    help=('Lists the targets that can be used with the build and gen commands'))
+@main.command("targets", help=("Lists the targets that can be used with the build and gen commands"))
 @click.option(
-    '--format',
-    default='summary',
-    type=click.Choice(['summary', 'expanded', 'json', 'completion'], case_sensitive=False),
+    "--format",
+    default="summary",
+    type=click.Choice(["summary", "expanded", "json", "completion"], case_sensitive=False),
     help="""
         summary - list of shorthand strings summarizing the available targets;
 
@@ -216,18 +186,19 @@ def cmd_generate(context):
         json - a JSON representation of the available targets;
 
         completion - a list of strings suitable for shell completion;
-        """)
-@click.argument('COMPLETION-PREFIX', default='')
+        """,
+)
+@click.argument("COMPLETION-PREFIX", default="")
 @click.pass_context
 def cmd_targets(context, format, completion_prefix):
-    if format == 'expanded':
+    if format == "expanded":
         build.target.report_rejected_parts = False
         for target in build.targets.BUILD_TARGETS:
             for s in target.AllVariants():
                 print(s)
-    elif format == 'json':
+    elif format == "json":
         print(json.dumps([target.ToDict() for target in build.targets.BUILD_TARGETS], indent=4))
-    elif format == 'completion':
+    elif format == "completion":
         build.target.report_rejected_parts = False
         for target in build.targets.BUILD_TARGETS:
             for s in target.CompletionStrings(completion_prefix):
@@ -237,17 +208,19 @@ def cmd_targets(context, format, completion_prefix):
             print(target.HumanString())
 
 
-@main.command('build', help='generate and run ninja/make as needed to compile')
+@main.command("build", help="generate and run ninja/make as needed to compile")
 @click.option(
-    '--copy-artifacts-to',
+    "--copy-artifacts-to",
     default=None,
     type=click.Path(file_okay=False, resolve_path=True),
-    help='Prefix for the generated file output.')
+    help="Prefix for the generated file output.",
+)
 @click.option(
-    '--create-archives',
+    "--create-archives",
     default=None,
     type=click.Path(file_okay=False, resolve_path=True),
-    help='Prefix of compressed archives of the generated files.')
+    help="Prefix of compressed archives of the generated files.",
+)
 @click.pass_context
 def cmd_build(context, copy_artifacts_to, create_archives):
     try:
@@ -263,5 +236,5 @@ def cmd_build(context, copy_artifacts_to, create_archives):
         context.obj.CreateArtifactArchives(create_archives)
 
 
-if __name__ == '__main__':
-    main(auto_envvar_prefix='CHIP')
+if __name__ == "__main__":
+    main(auto_envvar_prefix="CHIP")

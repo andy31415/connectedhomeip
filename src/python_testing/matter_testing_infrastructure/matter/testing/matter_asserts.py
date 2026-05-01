@@ -6,10 +6,11 @@ from typing import Any, Callable, List, Optional, Type, TypeVar
 
 from mobly import asserts
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 # Internal helper functions
+
 
 def is_valid_uint_value(value: Any, bit_count: int = 64) -> bool:
     """
@@ -42,76 +43,68 @@ def is_valid_bool_value(value: Any) -> bool:
 
 # Integer assertions
 
+
 def assert_valid_uint64(value: Any, description: str) -> None:
     """
     Asserts that the value is a valid uint64 (0 <= value < 2^64).
     """
-    asserts.assert_true(is_valid_uint_value(value, bit_count=64),
-                        f"{description} must be a valid uint64 integer")
+    asserts.assert_true(is_valid_uint_value(value, bit_count=64), f"{description} must be a valid uint64 integer")
 
 
 def assert_valid_uint32(value: Any, description: str) -> None:
     """
     Asserts that the value is a valid uint32 (0 <= value < 2^32).
     """
-    asserts.assert_true(is_valid_uint_value(value, bit_count=32),
-                        f"{description} must be a valid uint32 integer")
+    asserts.assert_true(is_valid_uint_value(value, bit_count=32), f"{description} must be a valid uint32 integer")
 
 
 def assert_valid_uint16(value: Any, description: str) -> None:
     """
     Asserts that the value is a valid uint16 (0 <= value < 2^16).
     """
-    asserts.assert_true(is_valid_uint_value(value, bit_count=16),
-                        f"{description} must be a valid uint16 integer")
+    asserts.assert_true(is_valid_uint_value(value, bit_count=16), f"{description} must be a valid uint16 integer")
 
 
 def assert_valid_uint8(value: Any, description: str) -> None:
     """
     Asserts that the value is a valid uint8 (0 <= value < 2^8).
     """
-    asserts.assert_true(is_valid_uint_value(value, bit_count=8),
-                        f"{description} must be a valid uint8 integer")
+    asserts.assert_true(is_valid_uint_value(value, bit_count=8), f"{description} must be a valid uint8 integer")
 
 
 def assert_valid_int64(value: Any, description: str) -> None:
     """
     Asserts that the value is a valid int64 (-2^63 <= value <= 2^63-1).
     """
-    asserts.assert_true(is_valid_int_value(value, bit_count=64),
-                        f"{description} must be a valid int64 integer")
+    asserts.assert_true(is_valid_int_value(value, bit_count=64), f"{description} must be a valid int64 integer")
 
 
 def assert_valid_int32(value: Any, description: str) -> None:
     """
     Asserts that the value is a valid int32 (-2^31 <= value <= 2^31-1).
     """
-    asserts.assert_true(is_valid_int_value(value, bit_count=32),
-                        f"{description} must be a valid int32 integer")
+    asserts.assert_true(is_valid_int_value(value, bit_count=32), f"{description} must be a valid int32 integer")
 
 
 def assert_valid_int16(value: Any, description: str) -> None:
     """
     Asserts that the value is a valid int16 (-2^15 <= value <= 2^15-1).
     """
-    asserts.assert_true(is_valid_int_value(value, bit_count=16),
-                        f"{description} must be a valid int16 integer")
+    asserts.assert_true(is_valid_int_value(value, bit_count=16), f"{description} must be a valid int16 integer")
 
 
 def assert_valid_int8(value: Any, description: str) -> None:
     """
     Asserts that the value is a valid int8 (-128 <= value <= 127).
     """
-    asserts.assert_true(is_valid_int_value(value, bit_count=8),
-                        f"{description} must be a valid int8 integer")
+    asserts.assert_true(is_valid_int_value(value, bit_count=8), f"{description} must be a valid int8 integer")
 
 
 def assert_valid_bool(value: Any, description: str) -> None:
     """
     Asserts that the value is a valid bool (True/False).
     """
-    asserts.assert_true(is_valid_bool_value(value),
-                        f"{description} must be a valid bool (True/False)")
+    asserts.assert_true(is_valid_bool_value(value), f"{description} must be a valid bool (True/False)")
 
 
 def assert_int_in_range(value: Any, min_value: int, max_value: int, description: str) -> None:
@@ -134,6 +127,7 @@ def assert_int_in_range(value: Any, min_value: int, max_value: int, description:
 
 # List assertions
 
+
 def assert_list(value: Any, description: str, min_length: Optional[int] = None, max_length: Optional[int] = None) -> None:
     """
     Asserts that the value is a list with optional length constraints.
@@ -150,12 +144,10 @@ def assert_list(value: Any, description: str, min_length: Optional[int] = None, 
     asserts.assert_true(isinstance(value, list), f"{description} must be a list")
 
     if min_length is not None:
-        asserts.assert_greater_equal(len(value), min_length,
-                                     f"{description} must have at least {min_length} elements")
+        asserts.assert_greater_equal(len(value), min_length, f"{description} must have at least {min_length} elements")
 
     if max_length is not None:
-        asserts.assert_less_equal(len(value), max_length,
-                                  f"{description} must not exceed {max_length} elements")
+        asserts.assert_less_equal(len(value), max_length, f"{description} must not exceed {max_length} elements")
 
 
 def assert_all(value: List[T], condition: Callable[[T], bool], description: str) -> None:
@@ -194,11 +186,11 @@ def assert_list_element_type(value: List[Any], expected_type: Type[T], descripti
     if not allow_empty and not value:
         asserts.fail(f"{description} must not be empty")
     for i, item in enumerate(value):
-        asserts.assert_true(isinstance(item, expected_type),
-                            f"{description}[{i}] must be of type {expected_type.__name__}")
+        asserts.assert_true(isinstance(item, expected_type), f"{description}[{i}] must be of type {expected_type.__name__}")
 
 
 # String assertions
+
 
 def assert_is_string(value: Any, description: str) -> None:
     """
@@ -233,11 +225,9 @@ def assert_string_length(value: Any, description: str, min_length: Optional[int]
     """
     assert_is_string(value, description)
     if min_length is not None:
-        asserts.assert_greater_equal(len(value), min_length,
-                                     f"{description} length must be at least {min_length} characters")
+        asserts.assert_greater_equal(len(value), min_length, f"{description} length must be at least {min_length} characters")
     if max_length is not None:
-        asserts.assert_less_equal(len(value), max_length,
-                                  f"{description} length must not exceed {max_length} characters")
+        asserts.assert_less_equal(len(value), max_length, f"{description} length must not exceed {max_length} characters")
 
 
 def assert_non_empty_string(value: Any, description: str) -> None:
@@ -270,6 +260,7 @@ def assert_is_octstr(value: Any, description: str) -> None:
 
 # Matter-specific assertions
 
+
 def assert_string_matches_pattern(value: str, description: str, pattern: str) -> None:
     """
     Asserts that the string matches the given regex pattern.
@@ -283,9 +274,9 @@ def assert_string_matches_pattern(value: str, description: str, pattern: str) ->
         AssertionError: If value is not a string or doesn't match the pattern
     """
     import re
+
     assert_is_string(value, description)
-    asserts.assert_true(bool(re.match(pattern, value)),
-                        f"{description} must match pattern: {pattern}")
+    asserts.assert_true(bool(re.match(pattern, value)), f"{description} must match pattern: {pattern}")
 
 
 def assert_valid_attribute_id(id: int, allow_test: bool = False) -> None:
@@ -300,8 +291,8 @@ def assert_valid_attribute_id(id: int, allow_test: bool = False) -> None:
         AssertionError: If the ID is not a valid attribute ID
     """
     from matter.testing.global_attribute_ids import is_valid_attribute_id
-    asserts.assert_true(is_valid_attribute_id(id, allow_test),
-                        f"Invalid attribute ID: {hex(id)}")
+
+    asserts.assert_true(is_valid_attribute_id(id, allow_test), f"Invalid attribute ID: {hex(id)}")
 
 
 def assert_standard_attribute_id(id: int) -> None:
@@ -315,8 +306,8 @@ def assert_standard_attribute_id(id: int) -> None:
         AssertionError: If the ID is not a standard attribute ID
     """
     from matter.testing.global_attribute_ids import is_standard_attribute_id
-    asserts.assert_true(is_standard_attribute_id(id),
-                        f"Not a standard attribute ID: {hex(id)}")
+
+    asserts.assert_true(is_standard_attribute_id(id), f"Not a standard attribute ID: {hex(id)}")
 
 
 def assert_valid_command_id(id: int, allow_test: bool = False) -> None:
@@ -331,8 +322,8 @@ def assert_valid_command_id(id: int, allow_test: bool = False) -> None:
         AssertionError: If the ID is not a valid command ID
     """
     from matter.testing.global_attribute_ids import is_valid_command_id
-    asserts.assert_true(is_valid_command_id(id, allow_test),
-                        f"Invalid command ID: {hex(id)}")
+
+    asserts.assert_true(is_valid_command_id(id, allow_test), f"Invalid command ID: {hex(id)}")
 
 
 def assert_standard_command_id(id: int) -> None:
@@ -346,16 +337,16 @@ def assert_standard_command_id(id: int) -> None:
         AssertionError: If the ID is not a standard command ID
     """
     from matter.testing.global_attribute_ids import is_standard_command_id
-    asserts.assert_true(is_standard_command_id(id),
-                        f"Not a standard command ID: {hex(id)}")
+
+    asserts.assert_true(is_standard_command_id(id), f"Not a standard command ID: {hex(id)}")
 
 
 def assert_valid_enum(value: Any, description: str, enum_type: type) -> None:
     """
     Asserts that 'value' is a valid instance of the specified enum type.
     """
-    asserts.assert_true(isinstance(value, enum_type),
-                        f"{description} must be of type {enum_type.__name__}")
+    asserts.assert_true(isinstance(value, enum_type), f"{description} must be of type {enum_type.__name__}")
+
 
 # map8 bitmap
 
@@ -364,7 +355,5 @@ def assert_valid_map8(value: Any, description: str = "Value") -> None:
     """
     Asserts that 'value' is a valid 8-bit bitmap (map8).
     """
-    asserts.assert_true(isinstance(value, int),
-                        f"{description} must be an integer")
-    asserts.assert_true(0 <= value <= 0xFF,
-                        f"{description} must be between 0 and 255 (inclusive)")
+    asserts.assert_true(isinstance(value, int), f"{description} must be an integer")
+    asserts.assert_true(0 <= value <= 0xFF, f"{description} must be between 0 and 255 (inclusive)")

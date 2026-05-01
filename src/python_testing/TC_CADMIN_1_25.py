@@ -49,59 +49,151 @@ class TC_CADMIN_1_25(MatterBaseTest):
 
     async def get_fabrics(self, th: ChipDeviceCtrl) -> int:
         OC_cluster = Clusters.OperationalCredentials
-        return await self.read_single_attribute_check_success(dev_ctrl=th, fabric_filtered=False, endpoint=0, cluster=OC_cluster, attribute=OC_cluster.Attributes.Fabrics)
+        return await self.read_single_attribute_check_success(
+            dev_ctrl=th, fabric_filtered=False, endpoint=0, cluster=OC_cluster, attribute=OC_cluster.Attributes.Fabrics
+        )
 
     def steps_TC_CADMIN_1_25(self) -> list[TestStep]:
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
-            TestStep(2, "TH_CR1 subscribes to WindowStatus attribute on DUT_CE",
-                     "Verify TH_CR1 receives WindowStatus subscription notification"),
-            TestStep(3, "TH_CR1 subscribes to AdminFabricIndex attribute on DUT_CE",
-                     "Verify TH_CR1 receives AdminFabricIndex subscription notification"),
-            TestStep(4, "TH_CR1 subscribes to AdminVendorId attribute on DUT_CE",
-                     "Verify TH_CR1 receives AdminVendorId subscription notification"),
-            TestStep(5, "TH_CR1 reads the BasicCommissioningInfo attribute from the General Commissioning cluster and saves the MaxCumulativeFailsafeSeconds field as `max_window_duration`."),
-            TestStep(6, "TH_CR1 send an OpenCommissioningWindow command to DUT_CE using a commissioning timeout of `max_window_duration`",
-                     "{resDutSuccess}"),
-            TestStep(7, "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 1, AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR1's fabric, AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR1's fabric"),
-            TestStep(8, "TH_CR2 starts a commissioning process with DUT_CE", "DUT_CE is commissioned by TH_CR2"),
-            TestStep(9, "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 0, AdminFabricIndex value to be null, AdminVendorId to be null"),
-            TestStep(10, "TH_CR2 subscribes to WindowStatus attribute on DUT_CE",
-                     "Verify TH_CR2 receives WindowStatus subscription notification"),
-            TestStep(11, "TH_CR2 subscribes to AdminFabricIndex attribute on DUT_CE",
-                     "Verify TH_CR2 receives AdminFabricIndex subscription notification"),
-            TestStep(12, "TH_CR2 subscribes to AdminVendorId attribute on DUT_CE",
-                     "Verify TH_CR2 receives AdminVendorId subscription notification"),
-            TestStep(13, "TH_CR1 sends an OpenCommissioningWindow command to DUT_CE using a commissioning timeout of `max_window_duration`",
-                     "{resDutSuccess}"),
-            TestStep(14, "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 1, AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR1's fabric, AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR1's fabric"),
-            TestStep(15, "Verify TH_CR2 receives subscription notifications which show WindowStatus value to be 1, AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR1's fabric, AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR1's fabric"),
-            TestStep(16, "TH_CR1 revokes the commissioning window on DUT_CE using RevokeCommissioning command",
-                     "Verify DUT_CE closes its Commissioning window"),
-            TestStep(17, "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 0, AdminFabricIndex value to be null, AdminVendorId to be null"),
-            TestStep(18, "Verify TH_CR2 receives subscription notifications which show WindowStatus value to be 0, AdminFabricIndex value to be null, AdminVendorId to be null"),
-            TestStep(19, "TH_CR2 opens a commissioning window on DUT_CE using ECM with commissioning timeout of `max_window_duration`",
-                     "{resDutSuccess}"),
-            TestStep(20, "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 1, AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR2's fabric, AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR2's fabric"),
-            TestStep(21, "Verify TH_CR2 receives subscription notifications which show WindowStatus value to be 1, AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR2's fabric, AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR2's fabric"),
-            TestStep(22, "TH_CR1 revokes the commissioning window on DUT_CE using RevokeCommissioning command",
-                     "Verify DUT_CE closes its Commissioning window"),
-            TestStep(23, "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 0, AdminFabricIndex value to be null, AdminVendorId to be null"),
-            TestStep(24, "Verify TH_CR2 receives subscription notifications which show WindowStatus value to be 0, AdminFabricIndex value to be null, AdminVendorId to be null"),
             TestStep(
-                25, "TH_CR2 send an OpenCommissioningWindow command to DUT_CE using ECM with a commissioning timeout of `max_window_duration`", "{resDutSuccess}"),
-            TestStep(26, "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 1, AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR2's fabric, AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR2's fabric"),
-            TestStep(27, "Verify TH_CR2 receives subscription notifications which show WindowStatus value to be 1, AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR2's fabric, AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR2's fabric"),
-            TestStep(28, "Before expiration of `max_window_duration` set in step 25, TH_CR1 sends RemoveFabric command to DUT_CE with FabricIndex set to the fabric index of TH_CR2's fabric",
-                     "Verify DUT_CE responses with NOCResponse with a StatusCode OK (note that expecting OK should ONLY work if an administrator/commissioner on another fabric than the one being removed is invoking RemoveFabric)."),
+                2,
+                "TH_CR1 subscribes to WindowStatus attribute on DUT_CE",
+                "Verify TH_CR1 receives WindowStatus subscription notification",
+            ),
+            TestStep(
+                3,
+                "TH_CR1 subscribes to AdminFabricIndex attribute on DUT_CE",
+                "Verify TH_CR1 receives AdminFabricIndex subscription notification",
+            ),
+            TestStep(
+                4,
+                "TH_CR1 subscribes to AdminVendorId attribute on DUT_CE",
+                "Verify TH_CR1 receives AdminVendorId subscription notification",
+            ),
+            TestStep(
+                5,
+                "TH_CR1 reads the BasicCommissioningInfo attribute from the General Commissioning cluster and saves the MaxCumulativeFailsafeSeconds field as `max_window_duration`.",
+            ),
+            TestStep(
+                6,
+                "TH_CR1 send an OpenCommissioningWindow command to DUT_CE using a commissioning timeout of `max_window_duration`",
+                "{resDutSuccess}",
+            ),
+            TestStep(
+                7,
+                "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 1, AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR1's fabric, AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR1's fabric",
+            ),
+            TestStep(8, "TH_CR2 starts a commissioning process with DUT_CE", "DUT_CE is commissioned by TH_CR2"),
+            TestStep(
+                9,
+                "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 0, AdminFabricIndex value to be null, AdminVendorId to be null",
+            ),
+            TestStep(
+                10,
+                "TH_CR2 subscribes to WindowStatus attribute on DUT_CE",
+                "Verify TH_CR2 receives WindowStatus subscription notification",
+            ),
+            TestStep(
+                11,
+                "TH_CR2 subscribes to AdminFabricIndex attribute on DUT_CE",
+                "Verify TH_CR2 receives AdminFabricIndex subscription notification",
+            ),
+            TestStep(
+                12,
+                "TH_CR2 subscribes to AdminVendorId attribute on DUT_CE",
+                "Verify TH_CR2 receives AdminVendorId subscription notification",
+            ),
+            TestStep(
+                13,
+                "TH_CR1 sends an OpenCommissioningWindow command to DUT_CE using a commissioning timeout of `max_window_duration`",
+                "{resDutSuccess}",
+            ),
+            TestStep(
+                14,
+                "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 1, AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR1's fabric, AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR1's fabric",
+            ),
+            TestStep(
+                15,
+                "Verify TH_CR2 receives subscription notifications which show WindowStatus value to be 1, AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR1's fabric, AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR1's fabric",
+            ),
+            TestStep(
+                16,
+                "TH_CR1 revokes the commissioning window on DUT_CE using RevokeCommissioning command",
+                "Verify DUT_CE closes its Commissioning window",
+            ),
+            TestStep(
+                17,
+                "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 0, AdminFabricIndex value to be null, AdminVendorId to be null",
+            ),
+            TestStep(
+                18,
+                "Verify TH_CR2 receives subscription notifications which show WindowStatus value to be 0, AdminFabricIndex value to be null, AdminVendorId to be null",
+            ),
+            TestStep(
+                19,
+                "TH_CR2 opens a commissioning window on DUT_CE using ECM with commissioning timeout of `max_window_duration`",
+                "{resDutSuccess}",
+            ),
+            TestStep(
+                20,
+                "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 1, AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR2's fabric, AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR2's fabric",
+            ),
+            TestStep(
+                21,
+                "Verify TH_CR2 receives subscription notifications which show WindowStatus value to be 1, AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR2's fabric, AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR2's fabric",
+            ),
+            TestStep(
+                22,
+                "TH_CR1 revokes the commissioning window on DUT_CE using RevokeCommissioning command",
+                "Verify DUT_CE closes its Commissioning window",
+            ),
+            TestStep(
+                23,
+                "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 0, AdminFabricIndex value to be null, AdminVendorId to be null",
+            ),
+            TestStep(
+                24,
+                "Verify TH_CR2 receives subscription notifications which show WindowStatus value to be 0, AdminFabricIndex value to be null, AdminVendorId to be null",
+            ),
+            TestStep(
+                25,
+                "TH_CR2 send an OpenCommissioningWindow command to DUT_CE using ECM with a commissioning timeout of `max_window_duration`",
+                "{resDutSuccess}",
+            ),
+            TestStep(
+                26,
+                "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 1, AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR2's fabric, AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR2's fabric",
+            ),
+            TestStep(
+                27,
+                "Verify TH_CR2 receives subscription notifications which show WindowStatus value to be 1, AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR2's fabric, AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR2's fabric",
+            ),
+            TestStep(
+                28,
+                "Before expiration of `max_window_duration` set in step 25, TH_CR1 sends RemoveFabric command to DUT_CE with FabricIndex set to the fabric index of TH_CR2's fabric",
+                "Verify DUT_CE responses with NOCResponse with a StatusCode OK (note that expecting OK should ONLY work if an administrator/commissioner on another fabric than the one being removed is invoking RemoveFabric).",
+            ),
             TestStep(29, "Verify TH_CR1 receives subscription notifications which show AdminFabricIndex value to be null"),
-            TestStep(30, "TH_CR1 reads WindowStatus attribute from DUT_CE",
-                     "verify the value to be 1 indicating the window is still open"),
-            TestStep(31, "TH_CR1 reads AdminVendorID attribute from DUT_CE",
-                     "verify the value to be the same as the Admin Vendor ID of the Fabrics attribute list entry corresponding to TH_CR2's fabric"),
-            TestStep(32, "TH_CR1 revokes the commissioning window on DUT_CE using RevokeCommissioning command",
-                     "Verify DUT_CE closes its Commissioning window"),
-            TestStep(33, "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 0, AdminVendorId to be null"),
+            TestStep(
+                30,
+                "TH_CR1 reads WindowStatus attribute from DUT_CE",
+                "verify the value to be 1 indicating the window is still open",
+            ),
+            TestStep(
+                31,
+                "TH_CR1 reads AdminVendorID attribute from DUT_CE",
+                "verify the value to be the same as the Admin Vendor ID of the Fabrics attribute list entry corresponding to TH_CR2's fabric",
+            ),
+            TestStep(
+                32,
+                "TH_CR1 revokes the commissioning window on DUT_CE using RevokeCommissioning command",
+                "Verify DUT_CE closes its Commissioning window",
+            ),
+            TestStep(
+                33,
+                "Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 0, AdminVendorId to be null",
+            ),
         ]
 
     def pics_TC_CADMIN_1_25(self) -> list[str]:
@@ -120,32 +212,44 @@ class TC_CADMIN_1_25(MatterBaseTest):
         self.step(2)
         # TH_CR1 subscribes to WindowStatus attribute on DUT_CE
         th1_window_status_accumulator = AttributeSubscriptionHandler(
-            Clusters.AdministratorCommissioning,
-            Clusters.AdministratorCommissioning.Attributes.WindowStatus)
+            Clusters.AdministratorCommissioning, Clusters.AdministratorCommissioning.Attributes.WindowStatus
+        )
         await th1_window_status_accumulator.start(
-            self.th1, self.dut_node_id, 0, fabric_filtered=True,
+            self.th1,
+            self.dut_node_id,
+            0,
+            fabric_filtered=True,
             min_interval_sec=self.min_report_interval_sec,
-            max_interval_sec=self.max_report_interval_sec)
+            max_interval_sec=self.max_report_interval_sec,
+        )
 
         self.step(3)
         # TH_CR1 subscribes to AdminFabricIndex attribute on DUT_CE
         th1_admin_fabric_index_accumulator = AttributeSubscriptionHandler(
-            Clusters.AdministratorCommissioning,
-            Clusters.AdministratorCommissioning.Attributes.AdminFabricIndex)
+            Clusters.AdministratorCommissioning, Clusters.AdministratorCommissioning.Attributes.AdminFabricIndex
+        )
         await th1_admin_fabric_index_accumulator.start(
-            self.th1, self.dut_node_id, 0, fabric_filtered=True,
+            self.th1,
+            self.dut_node_id,
+            0,
+            fabric_filtered=True,
             min_interval_sec=self.min_report_interval_sec,
-            max_interval_sec=self.max_report_interval_sec)
+            max_interval_sec=self.max_report_interval_sec,
+        )
 
         self.step(4)
         # TH_CR1 subscribes to AdminVendorId attribute on DUT_CE
         th1_admin_vendor_id_accumulator = AttributeSubscriptionHandler(
-            Clusters.AdministratorCommissioning,
-            Clusters.AdministratorCommissioning.Attributes.AdminVendorId)
+            Clusters.AdministratorCommissioning, Clusters.AdministratorCommissioning.Attributes.AdminVendorId
+        )
         await th1_admin_vendor_id_accumulator.start(
-            self.th1, self.dut_node_id, 0, fabric_filtered=True,
+            self.th1,
+            self.dut_node_id,
+            0,
+            fabric_filtered=True,
             min_interval_sec=self.min_report_interval_sec,
-            max_interval_sec=self.max_report_interval_sec)
+            max_interval_sec=self.max_report_interval_sec,
+        )
 
         self.step(5)
         # TH_CR1 reads the BasicCommissioningInfo attribute from the General Commissioning cluster
@@ -159,8 +263,8 @@ class TC_CADMIN_1_25(MatterBaseTest):
         # TH_CR1 send an OpenCommissioningWindow command to DUT_CE using a commissioning timeout of `max_window_duration`
         self.discriminator = random.randint(0, 4095)
         params = await self.th1.OpenCommissioningWindow(
-            nodeId=self.dut_node_id, timeout=max_window_duration, iteration=10000,
-            discriminator=self.discriminator, option=1)
+            nodeId=self.dut_node_id, timeout=max_window_duration, iteration=10000, discriminator=self.discriminator, option=1
+        )
 
         self.step(7)
         # Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 1,
@@ -171,17 +275,15 @@ class TC_CADMIN_1_25(MatterBaseTest):
         th1_admin_fabric_index = fabrics[0].fabricIndex
 
         # Create attribute matchers
-        window_status_match = AttributeMatcher.from_callable(
-            "WindowStatus is 1",
-            lambda report: report.value == 1)
+        window_status_match = AttributeMatcher.from_callable("WindowStatus is 1", lambda report: report.value == 1)
 
         fabric_index_match = AttributeMatcher.from_callable(
-            f"AdminFabricIndex is {th1_admin_fabric_index}",
-            lambda report: report.value == th1_admin_fabric_index)
+            f"AdminFabricIndex is {th1_admin_fabric_index}", lambda report: report.value == th1_admin_fabric_index
+        )
 
         vendor_id_match = AttributeMatcher.from_callable(
-            f"AdminVendorId is {th1_admin_fabric_vendor_id}",
-            lambda report: report.value == th1_admin_fabric_vendor_id)
+            f"AdminVendorId is {th1_admin_fabric_vendor_id}", lambda report: report.value == th1_admin_fabric_vendor_id
+        )
 
         # Wait for attribute reports to match
         th1_window_status_accumulator.await_all_expected_report_matches([window_status_match], timeout_sec=10)
@@ -199,19 +301,17 @@ class TC_CADMIN_1_25(MatterBaseTest):
             nodeId=self.dut_node_id,
             setupPinCode=params.setupPinCode,
             filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
-            filter=self.discriminator
+            filter=self.discriminator,
         )
 
         self.step(9)
         # Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 0
         # AdminFabricIndex value to be null and AdminVendorId to be null
-        window_status_0_match = AttributeMatcher.from_callable(
-            "WindowStatus is 0",
-            lambda report: report.value == 0)
+        window_status_0_match = AttributeMatcher.from_callable("WindowStatus is 0", lambda report: report.value == 0)
 
         null_match = AttributeMatcher.from_callable(
-            "Attribute is null",
-            lambda report: str(type(report.value)).find('matter.clusters.Types.Nullable') >= 0)
+            "Attribute is null", lambda report: str(type(report.value)).find("matter.clusters.Types.Nullable") >= 0
+        )
 
         th1_window_status_accumulator.await_all_expected_report_matches([window_status_0_match], timeout_sec=10)
         th1_admin_fabric_index_accumulator.await_all_expected_report_matches([null_match], timeout_sec=10)
@@ -225,38 +325,50 @@ class TC_CADMIN_1_25(MatterBaseTest):
         self.step(10)
         # TH_CR2 subscribes to WindowStatus attribute on DUT_CE
         th2_window_status_accumulator = AttributeSubscriptionHandler(
-            Clusters.AdministratorCommissioning,
-            Clusters.AdministratorCommissioning.Attributes.WindowStatus)
+            Clusters.AdministratorCommissioning, Clusters.AdministratorCommissioning.Attributes.WindowStatus
+        )
         await th2_window_status_accumulator.start(
-            self.th2, self.dut_node_id, 0, fabric_filtered=True,
+            self.th2,
+            self.dut_node_id,
+            0,
+            fabric_filtered=True,
             min_interval_sec=self.min_report_interval_sec,
-            max_interval_sec=self.max_report_interval_sec)
+            max_interval_sec=self.max_report_interval_sec,
+        )
 
         self.step(11)
         # TH_CR2 subscribes to AdminFabricIndex attribute on DUT_CE
         th2_admin_fabric_index_accumulator = AttributeSubscriptionHandler(
-            Clusters.AdministratorCommissioning,
-            Clusters.AdministratorCommissioning.Attributes.AdminFabricIndex)
+            Clusters.AdministratorCommissioning, Clusters.AdministratorCommissioning.Attributes.AdminFabricIndex
+        )
         await th2_admin_fabric_index_accumulator.start(
-            self.th2, self.dut_node_id, 0, fabric_filtered=True,
+            self.th2,
+            self.dut_node_id,
+            0,
+            fabric_filtered=True,
             min_interval_sec=self.min_report_interval_sec,
-            max_interval_sec=self.max_report_interval_sec)
+            max_interval_sec=self.max_report_interval_sec,
+        )
 
         self.step(12)
         # TH_CR2 subscribes to AdminVendorId attribute on DUT_CE
         th2_admin_vendor_id_accumulator = AttributeSubscriptionHandler(
-            Clusters.AdministratorCommissioning,
-            Clusters.AdministratorCommissioning.Attributes.AdminVendorId)
+            Clusters.AdministratorCommissioning, Clusters.AdministratorCommissioning.Attributes.AdminVendorId
+        )
         await th2_admin_vendor_id_accumulator.start(
-            self.th2, self.dut_node_id, 0, fabric_filtered=True,
+            self.th2,
+            self.dut_node_id,
+            0,
+            fabric_filtered=True,
             min_interval_sec=self.min_report_interval_sec,
-            max_interval_sec=self.max_report_interval_sec)
+            max_interval_sec=self.max_report_interval_sec,
+        )
 
         self.step(13)
         # TH_CR1 sends an OpenCommissioningWindow command to DUT_CE using a commissioning timeout of `max_window_duration`
         await self.th1.OpenCommissioningWindow(
-            nodeId=self.dut_node_id, timeout=max_window_duration, iteration=10000,
-            discriminator=self.discriminator, option=1)
+            nodeId=self.dut_node_id, timeout=max_window_duration, iteration=10000, discriminator=self.discriminator, option=1
+        )
 
         self.step(14)
         # Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 1
@@ -280,12 +392,12 @@ class TC_CADMIN_1_25(MatterBaseTest):
         th2_admin_fabric_index = th2_fabrics[1].fabricIndex
 
         th2_fabric_index_match = AttributeMatcher.from_callable(
-            f"AdminFabricIndex is {th1_admin_fabric_index}",
-            lambda report: report.value == th1_admin_fabric_index)
+            f"AdminFabricIndex is {th1_admin_fabric_index}", lambda report: report.value == th1_admin_fabric_index
+        )
 
         th2_vendor_id_match = AttributeMatcher.from_callable(
-            f"AdminVendorId is {th1_admin_fabric_vendor_id}",
-            lambda report: report.value == th1_admin_fabric_vendor_id)
+            f"AdminVendorId is {th1_admin_fabric_vendor_id}", lambda report: report.value == th1_admin_fabric_vendor_id
+        )
 
         th2_window_status_accumulator.await_all_expected_report_matches([window_status_match], timeout_sec=10)
         th2_admin_fabric_index_accumulator.await_all_expected_report_matches([th2_fabric_index_match], timeout_sec=10)
@@ -326,20 +438,20 @@ class TC_CADMIN_1_25(MatterBaseTest):
         self.step(19)
         # TH_CR2 opens a commissioning window on DUT_CE using ECM with commissioning timeout of `max_window_duration`
         await self.th2.OpenCommissioningWindow(
-            nodeId=self.dut_node_id, timeout=max_window_duration, iteration=10000,
-            discriminator=self.discriminator, option=1)
+            nodeId=self.dut_node_id, timeout=max_window_duration, iteration=10000, discriminator=self.discriminator, option=1
+        )
 
         self.step(20)
         # Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 1
         # AdminFabricIndex value to be the same as the Fabric Index of the Fabrics attribute list entry corresponding to TH_CR2's fabric
         # AdminVendorId to be the same as the Vendor ID field of Fabrics attribute list entry corresponding to TH_CR2's fabric
         th2_fabric_admin_index_match = AttributeMatcher.from_callable(
-            f"AdminFabricIndex is {th2_admin_fabric_index}",
-            lambda report: report.value == th2_admin_fabric_index)
+            f"AdminFabricIndex is {th2_admin_fabric_index}", lambda report: report.value == th2_admin_fabric_index
+        )
 
         th2_fabric_vendor_id_match = AttributeMatcher.from_callable(
-            f"AdminVendorId is {th2_admin_fabric_vendor_id}",
-            lambda report: report.value == th2_admin_fabric_vendor_id)
+            f"AdminVendorId is {th2_admin_fabric_vendor_id}", lambda report: report.value == th2_admin_fabric_vendor_id
+        )
 
         th1_window_status_accumulator.await_all_expected_report_matches([window_status_match], timeout_sec=10)
         th1_admin_fabric_index_accumulator.await_all_expected_report_matches([th2_fabric_admin_index_match], timeout_sec=10)
@@ -395,8 +507,8 @@ class TC_CADMIN_1_25(MatterBaseTest):
         self.step(25)
         # TH_CR2 send an OpenCommissioningWindow command to DUT_CE using ECM with a commissioning timeout of `max_window_duration`
         await self.th2.OpenCommissioningWindow(
-            nodeId=self.dut_node_id, timeout=max_window_duration, iteration=10000,
-            discriminator=self.discriminator, option=1)
+            nodeId=self.dut_node_id, timeout=max_window_duration, iteration=10000, discriminator=self.discriminator, option=1
+        )
 
         self.step(26)
         # Verify TH_CR1 receives subscription notifications which show WindowStatus value to be 1
@@ -428,8 +540,8 @@ class TC_CADMIN_1_25(MatterBaseTest):
         # Before expiration of `max_window_duration` set in step 25,
         # TH_CR1 sends RemoveFabric command to DUT_CE with FabricIndex set to the fabric index of TH_CR2's fabric
         th2_idx = await self.th2.ReadAttribute(
-            nodeId=self.dut_node_id,
-            attributes=[(0, Clusters.OperationalCredentials.Attributes.CurrentFabricIndex)])
+            nodeId=self.dut_node_id, attributes=[(0, Clusters.OperationalCredentials.Attributes.CurrentFabricIndex)]
+        )
         outer_key = list(th2_idx.keys())[0]
         inner_key = list(th2_idx[outer_key].keys())[0]
         attribute_key = list(th2_idx[outer_key][inner_key].keys())[1]
@@ -445,21 +557,20 @@ class TC_CADMIN_1_25(MatterBaseTest):
         # verify the value to be 1 indicating the window is still open
         AC_cluster = Clusters.AdministratorCommissioning
         window_status = await self.read_single_attribute_check_success(
-            dev_ctrl=self.th1, fabric_filtered=False, endpoint=0,
-            cluster=AC_cluster, attribute=AC_cluster.Attributes.WindowStatus)
+            dev_ctrl=self.th1, fabric_filtered=False, endpoint=0, cluster=AC_cluster, attribute=AC_cluster.Attributes.WindowStatus
+        )
         asserts.assert_equal(
             window_status,
             Clusters.AdministratorCommissioning.Enums.CommissioningWindowStatusEnum.kEnhancedWindowOpen,
-            "Commissioning window is expected to be open, but was found to be closed")
+            "Commissioning window is expected to be open, but was found to be closed",
+        )
 
         self.step(31)
         # TH_CR1 reads AdminVendorID attribute from DUT_CE
         admin_vendor_id = await self.read_single_attribute_check_success(
-            dev_ctrl=self.th1, fabric_filtered=False, endpoint=0,
-            cluster=AC_cluster, attribute=AC_cluster.Attributes.AdminVendorId)
-        asserts.assert_equal(
-            admin_vendor_id, th2_admin_fabric_vendor_id,
-            "AdminVendorId is not the expected value")
+            dev_ctrl=self.th1, fabric_filtered=False, endpoint=0, cluster=AC_cluster, attribute=AC_cluster.Attributes.AdminVendorId
+        )
+        asserts.assert_equal(admin_vendor_id, th2_admin_fabric_vendor_id, "AdminVendorId is not the expected value")
 
         self.step(32)
         # TH_CR1 revokes the commissioning window on DUT_CE using RevokeCommissioning command

@@ -41,19 +41,25 @@ from mobly.test_runner import TestRunner
 
 import matter.testing.global_stash as global_stash
 from matter.clusters import Attribute
+
 # Add imports for argument parsing dependencies
 from matter.testing.defaults import TestingDefaults
+
 # Add imports for argument parsing dependencies
 from matter.testing.pics import read_pics_from_file
 
 try:
     from matter_yamltests.hooks import TestRunnerHooks
 except ImportError:
+
     class TestRunnerHooks:  # type: ignore[no-redef] # Conditional fallback, not a true redefinition
         pass
+
+
 try:
     from matter.tracing import TracingContext
 except ImportError:
+
     class TracingContext:  # type: ignore[no-redef] # Conditional fallback, not a true redefinition
         def __enter__(self):
             return self
@@ -63,6 +69,7 @@ except ImportError:
 
         def StartFromString(self, destination):
             pass
+
 
 from typing import TYPE_CHECKING
 
@@ -126,7 +133,7 @@ class InternalTestRunnerHooks(TestRunnerHooks):
         Args:
             count: The number of tests in the set.
         """
-        LOGGER.info(f'Starting test set, running {count} tests')
+        LOGGER.info(f"Starting test set, running {count} tests")
 
     def stop(self, duration: int):
         """
@@ -135,14 +142,9 @@ class InternalTestRunnerHooks(TestRunnerHooks):
         Args:
             duration: The duration of the test set in milliseconds.
         """
-        LOGGER.info(f'Finished test set, ran for {duration}ms')
+        LOGGER.info(f"Finished test set, ran for {duration}ms")
 
-    def test_start(
-            self,
-            filename: str,
-            name: str,
-            count: int,
-            steps: list[str] = []):
+    def test_start(self, filename: str, name: str, count: int, steps: list[str] = []):
         """
         Called when an individual test starts.
 
@@ -152,7 +154,7 @@ class InternalTestRunnerHooks(TestRunnerHooks):
             count: Number of steps in the test
             steps: List of step descriptions
         """
-        LOGGER.info(f'Starting test from {filename}: {name} - {count} steps')
+        LOGGER.info(f"Starting test from {filename}: {name} - {count} steps")
 
     def test_stop(self, exception: Exception, duration: int):
         """
@@ -162,7 +164,7 @@ class InternalTestRunnerHooks(TestRunnerHooks):
             exception: Exception raised during test execution, or None if successful
             duration: Test execution duration in milliseconds
         """
-        LOGGER.info(f'Finished test in {duration}ms')
+        LOGGER.info(f"Finished test in {duration}ms")
 
     def step_skipped(self, name: str, expression: str):
         """
@@ -174,7 +176,7 @@ class InternalTestRunnerHooks(TestRunnerHooks):
         """
         # TODO: Do we really need the expression as a string? We can evaluate
         # this in code very easily
-        LOGGER.info(f'\t\t**** Skipping: {name}')
+        LOGGER.info(f"\t\t**** Skipping: {name}")
 
     def step_start(self, name: str):
         """
@@ -185,7 +187,7 @@ class InternalTestRunnerHooks(TestRunnerHooks):
         """
         # The way I'm calling this, the name is already includes the step
         # number, but it seems like it might be good to separate these
-        LOGGER.info(f'\t\t***** Test Step {name}')
+        LOGGER.info(f"\t\t***** Test Step {name}")
 
     def step_success(self, logger, logs, duration: int, request):
         """
@@ -210,11 +212,11 @@ class InternalTestRunnerHooks(TestRunnerHooks):
             request: The original test request
             received: The actual response received
         """
-        LOGGER.info('\t\t***** Test Failure : ')
+        LOGGER.info("\t\t***** Test Failure : ")
         if received is not None:
-            LOGGER.info(f'\t\t      Received: {received}')
+            LOGGER.info(f"\t\t      Received: {received}")
         if request is not None:
-            LOGGER.info(f'\t\t      Expected: {request}')
+            LOGGER.info(f"\t\t      Expected: {request}")
 
     def step_unknown(self):
         """
@@ -222,10 +224,7 @@ class InternalTestRunnerHooks(TestRunnerHooks):
         """
         pass
 
-    def show_prompt(self,
-                    msg: str,
-                    placeholder: Optional[str] = None,
-                    default_value: Optional[str] = None) -> None:
+    def show_prompt(self, msg: str, placeholder: Optional[str] = None, default_value: Optional[str] = None) -> None:
         """
         This method is called when the test runner needs to prompt the user for input.
 
@@ -255,7 +254,7 @@ class TestStep:
     is_commissioning: bool = False
 
     def __str__(self):
-        return f'{self.test_plan_number}: {self.description}\tExpected outcome: {self.expectation}'
+        return f"{self.test_plan_number}: {self.description}\tExpected outcome: {self.expectation}"
 
 
 @dataclass
@@ -307,7 +306,7 @@ def _find_test_class():
     from matter.testing.matter_testing import MatterBaseTest
 
     def get_subclasses(cls: Any):
-        subclasses = utils.find_subclasses_in_module([cls], sys.modules['__main__'])
+        subclasses = utils.find_subclasses_in_module([cls], sys.modules["__main__"])
         return [c for c in subclasses if c.__name__ != cls.__name__]
 
     def has_subclasses(cls: Any):
@@ -318,8 +317,9 @@ def _find_test_class():
 
     if len(leaf_subclasses) != 1:
         print(
-            'Exactly one subclass of `MatterBaseTest` should be in the main file. Found %s.' %
-            str([subclass.__name__ for subclass in leaf_subclasses]))
+            "Exactly one subclass of `MatterBaseTest` should be in the main file. Found %s."
+            % str([subclass.__name__ for subclass in leaf_subclasses])
+        )
         sys.exit(1)
 
     return leaf_subclasses[0]
@@ -358,19 +358,19 @@ def get_test_info(test_class, matter_test_config) -> list[TestInfo]:
 
     info = []
     for t in tests:
-        info.append(TestInfo(t, steps=base.get_test_steps(
-            t), desc=base.get_test_desc(t), pics=base.get_test_pics(t)))
+        info.append(TestInfo(t, steps=base.get_test_steps(t), desc=base.get_test_desc(t), pics=base.get_test_pics(t)))
 
     return info
 
 
 def run_tests_no_exit(
-        test_class,
-        matter_test_config,
-        event_loop: asyncio.AbstractEventLoop,
-        hooks: TestRunnerHooks,
-        default_controller=None,
-        external_stack=None) -> bool:
+    test_class,
+    matter_test_config,
+    event_loop: asyncio.AbstractEventLoop,
+    hooks: TestRunnerHooks,
+    default_controller=None,
+    external_stack=None,
+) -> bool:
     """
     Run Matter tests without exiting the process on failure.
 
@@ -420,24 +420,26 @@ def run_tests_no_exit(
         # TODO: If CASE Admin Subject is a CAT tag range, then make sure to
         # issue NOC with that CAT tag
         if not default_controller:
-            default_controller = stack.certificate_authorities[0].adminList[0].NewController(
-                nodeId=matter_test_config.controller_node_id,
-                paaTrustStorePath=str(
-                    matter_test_config.paa_trust_store_path),
-                catTags=matter_test_config.controller_cat_tags,
-                dacRevocationSetPath=matter_test_config.dac_revocation_set_path if matter_test_config.dac_revocation_set_path else ""
+            default_controller = (
+                stack.certificate_authorities[0]
+                .adminList[0]
+                .NewController(
+                    nodeId=matter_test_config.controller_node_id,
+                    paaTrustStorePath=str(matter_test_config.paa_trust_store_path),
+                    catTags=matter_test_config.controller_cat_tags,
+                    dacRevocationSetPath=matter_test_config.dac_revocation_set_path
+                    if matter_test_config.dac_revocation_set_path
+                    else "",
+                )
             )
-        test_config.user_params["default_controller"] = global_stash.stash_globally(
-            default_controller)
-        test_config.user_params["matter_test_config"] = global_stash.stash_globally(
-            matter_test_config)
+        test_config.user_params["default_controller"] = global_stash.stash_globally(default_controller)
+        test_config.user_params["matter_test_config"] = global_stash.stash_globally(matter_test_config)
         test_config.user_params["hooks"] = global_stash.stash_globally(hooks)
 
         # Execute the test class with the config
         ok = True
 
-        test_config.user_params["certificate_authority_manager"] = global_stash.stash_globally(
-            stack.certificate_authority_manager)
+        test_config.user_params["certificate_authority_manager"] = global_stash.stash_globally(stack.certificate_authority_manager)
 
         # Execute the test class with the config
         ok = True
@@ -451,8 +453,7 @@ def run_tests_no_exit(
         # Set custom exception handler to catch unhandled exceptions.
         event_loop.set_exception_handler(_handler)
 
-        runner = TestRunner(log_dir=test_config.log_path,
-                            testbed_name=test_config.testbed_name)
+        runner = TestRunner(log_dir=test_config.log_path, testbed_name=test_config.testbed_name)
 
         with runner.mobly_logger():
             if matter_test_config.commissioning_method is not None:
@@ -481,18 +482,18 @@ def run_tests_no_exit(
             except signals.TestAbortAll:
                 ok = False
             except Exception:
-                LOGGER.exception('Exception when executing %s.',
-                                 test_config.testbed_name)
+                LOGGER.exception("Exception when executing %s.", test_config.testbed_name)
                 ok = False
 
     if hooks:
-        duration = (datetime.now(timezone.utc) -
-                    runner_start_time) / timedelta(microseconds=1)
+        duration = (datetime.now(timezone.utc) - runner_start_time) / timedelta(microseconds=1)
         hooks.stop(duration=duration)
 
     if not external_stack:
+
         async def shutdown():
             stack.Shutdown()
+
         # Shutdown the stack when all done. Use the async runner to ensure that
         # during the shutdown callbacks can use tha same async context which was used
         # during the initialization.
@@ -505,12 +506,7 @@ def run_tests_no_exit(
     return ok
 
 
-def run_tests(
-        test_class,
-        matter_test_config,
-        hooks: TestRunnerHooks,
-        default_controller=None,
-        external_stack=None) -> None:
+def run_tests(test_class, matter_test_config, hooks: TestRunnerHooks, default_controller=None, external_stack=None) -> None:
     """
     Run Matter tests and exit the process with status code 1 on failure.
 
@@ -525,13 +521,7 @@ def run_tests(
         external_stack: Optional external Matter stack
     """
     with asyncio.Runner() as runner:
-        if not run_tests_no_exit(
-                test_class,
-                matter_test_config,
-                runner.get_loop(),
-                hooks,
-                default_controller,
-                external_stack):
+        if not run_tests_no_exit(test_class, matter_test_config, runner.get_loop(), hooks, default_controller, external_stack):
             sys.exit(1)
 
 
@@ -546,7 +536,7 @@ class AsyncMock(MagicMock):
         return super(AsyncMock, self).__call__(*args, **kwargs)
 
 
-class MockTestRunner():
+class MockTestRunner:
     """
     Test runner for mocking Matter device interactions.
 
@@ -554,25 +544,36 @@ class MockTestRunner():
     mocking the controller's Read method and other interactions.
     """
 
-    def __init__(self, abs_filename: str, classname: str, test: str, endpoint: Optional[int] = None,
-                 pics: Optional[dict[str, bool]] = None, paa_trust_store_path=None):
-
+    def __init__(
+        self,
+        abs_filename: str,
+        classname: str,
+        test: str,
+        endpoint: Optional[int] = None,
+        pics: Optional[dict[str, bool]] = None,
+        paa_trust_store_path=None,
+    ):
         from matter.testing.matter_stack_state import MatterStackState
         from matter.testing.matter_test_config import MatterTestConfig
 
-        self.kvs_storage = 'kvs_admin.json'
+        self.kvs_storage = "kvs_admin.json"
 
-        self.config = MatterTestConfig(endpoint=endpoint, paa_trust_store_path=paa_trust_store_path,
-                                       pics=pics or {}, storage_path=Path(self.kvs_storage))
+        self.config = MatterTestConfig(
+            endpoint=endpoint, paa_trust_store_path=paa_trust_store_path, pics=pics or {}, storage_path=Path(self.kvs_storage)
+        )
         self.set_test(abs_filename, classname, test)
 
         self.set_test_config(self.config)
 
         self.stack = MatterStackState(self.config)
-        self.default_controller = self.stack.certificate_authorities[0].adminList[0].NewController(
-            nodeId=self.config.controller_node_id,
-            paaTrustStorePath=str(self.config.paa_trust_store_path),
-            catTags=self.config.controller_cat_tags
+        self.default_controller = (
+            self.stack.certificate_authorities[0]
+            .adminList[0]
+            .NewController(
+                nodeId=self.config.controller_node_id,
+                paaTrustStorePath=str(self.config.paa_trust_store_path),
+                catTags=self.config.controller_cat_tags,
+            )
         )
 
     def set_test(self, abs_filename: str, classname: str, test: str):
@@ -588,8 +589,9 @@ class MockTestRunner():
 
         self.test_class = getattr(module, classname)
 
-    def set_test_config(self, test_config: Optional['MatterTestConfig'] = None):
+    def set_test_config(self, test_config: Optional["MatterTestConfig"] = None):
         from matter.testing.matter_test_config import MatterTestConfig
+
         if test_config is None:
             test_config = MatterTestConfig()
 
@@ -608,11 +610,11 @@ class MockTestRunner():
         self.default_controller.FindOrEstablishPASESession = AsyncMock(return_value=None)
         self.default_controller.GetConnectedDevice = AsyncMock(return_value=None)
         with asyncio.Runner() as runner:
-            return run_tests_no_exit(self.test_class, self.config, runner.get_loop(),
-                                     hooks, self.default_controller, self.stack)
+            return run_tests_no_exit(self.test_class, self.config, runner.get_loop(), hooks, self.default_controller, self.stack)
 
 
 # Argument parsing helper functions
+
 
 def populate_commissioning_args(args: argparse.Namespace, config) -> bool:
     config.root_of_trust_index = args.root_index
@@ -662,7 +664,7 @@ def populate_commissioning_args(args: argparse.Namespace, config) -> bool:
     #
     # For this reason, commissioning data validation is intentionally skipped in this scenario.
 
-    if 'nfc' not in (args.in_test_commissioning_method or []):
+    if "nfc" not in (args.in_test_commissioning_method or []):
         if len(config.dut_node_ids) > len(device_descriptors):
             print("error: More node IDs provided than discriminators")
             return False
@@ -695,28 +697,34 @@ def populate_commissioning_args(args: argparse.Namespace, config) -> bool:
             print("error: Duplicate values in node id list")
             return False
 
-    wifi_args = ['ble-wifi', 'nfc-wifi']
-    thread_args = ['ble-thread', 'nfc-thread', 'thread-meshcop']
+    wifi_args = ["ble-wifi", "nfc-wifi"]
+    thread_args = ["ble-thread", "nfc-thread", "thread-meshcop"]
     if commissioning_method in wifi_args:
         if args.wifi_ssid is None:
-            print("error: missing --wifi-ssid <SSID> for --commissioning-method "
-                  "or --in-test-commissioning-method ble-wifi or nfc-wifi!")
+            print(
+                "error: missing --wifi-ssid <SSID> for --commissioning-method "
+                "or --in-test-commissioning-method ble-wifi or nfc-wifi!"
+            )
             return False
 
         if args.wifi_passphrase is None:
-            print("error: missing --wifi-passphrase <passphrase> for --commissioning-method or "
-                  "--in-test-commissioning-method ble-wifi or nfc-wifi!")
+            print(
+                "error: missing --wifi-passphrase <passphrase> for --commissioning-method or "
+                "--in-test-commissioning-method ble-wifi or nfc-wifi!"
+            )
             return False
 
         config.wifi_ssid = args.wifi_ssid
         config.wifi_passphrase = args.wifi_passphrase
     elif commissioning_method in thread_args:
         if args.thread_dataset_hex is None:
-            print("error: missing --thread-dataset-hex <DATASET_HEX> for --commissioning-method or "
-                  "--in-test-commissioning-method ble-thread, nfc-thread or thread-meshcop!")
+            print(
+                "error: missing --thread-dataset-hex <DATASET_HEX> for --commissioning-method or "
+                "--in-test-commissioning-method ble-thread, nfc-thread or thread-meshcop!"
+            )
             return False
         config.thread_operational_dataset = args.thread_dataset_hex
-        if commissioning_method == 'thread-meshcop':
+        if commissioning_method == "thread-meshcop":
             if args.thread_ba_host is None or args.thread_ba_port is None:
                 print("error: missing --thread-ba-host or --thread-ba-port for --commissioning-method thread-meshcop!")
                 return False
@@ -746,8 +754,11 @@ def convert_args_to_matter_config(args: argparse.Namespace):
 
     # Accumulate all command-line-passed named args
     all_global_args = []
-    argsets = [item for item in (args.int_arg, args.float_arg, args.string_arg, args.json_arg,
-                                 args.hex_arg, args.bool_arg) if item is not None]
+    argsets = [
+        item
+        for item in (args.int_arg, args.float_arg, args.string_arg, args.json_arg, args.hex_arg, args.bool_arg)
+        if item is not None
+    ]
     for argset in chain.from_iterable(argsets):
         all_global_args.extend(argset)
 
@@ -756,18 +767,19 @@ def convert_args_to_matter_config(args: argparse.Namespace):
         config.global_test_params[name] = value
 
     if "nfc" in (args.commissioning_method or []):
-
         if "NFC_Reader_index" not in config.global_test_params:
-            LOGGER.error("Error: Missing required argument --int-arg NFC_Reader_index:<int-value> for "
-                         "NFC commissioning tests")
+            LOGGER.error("Error: Missing required argument --int-arg NFC_Reader_index:<int-value> for NFC commissioning tests")
             sys.exit(1)
 
         if any([args.passcodes, args.discriminators, args.manual_code, args.qr_code]):
-            LOGGER.error("Error: Do not provide discriminator, passcode, manual code or qr-code for NFC commissioning. "
-                         "The onboarding data is read directly from the NFC tag.")
+            LOGGER.error(
+                "Error: Do not provide discriminator, passcode, manual code or qr-code for NFC commissioning. "
+                "The onboarding data is read directly from the NFC tag."
+            )
             sys.exit(1)
 
         from matter.testing.nfc import NFCReader
+
         nfc_reader_index = config.global_test_params.get("NFC_Reader_index", 0)
         reader = NFCReader(nfc_reader_index)
         nfc_tag_data = reader.read_nfc_tag_data()
@@ -922,11 +934,7 @@ def bytes_as_hex_named_arg(s: str) -> Tuple[str, bytes]:
 
 
 def root_index(s: str) -> int:
-    CHIP_TOOL_COMPATIBILITY = {
-        "alpha": 1,
-        "beta": 2,
-        "gamma": 3
-    }
+    CHIP_TOOL_COMPATIBILITY = {"alpha": 1, "beta": 2, "gamma": 3}
 
     for name, id in CHIP_TOOL_COMPATIBILITY.items():
         if s.lower() == name:
@@ -939,134 +947,271 @@ def root_index(s: str) -> int:
 
 
 def parse_matter_test_args(argv: Optional[List[str]] = None):
-    parser = argparse.ArgumentParser(description='Matter standalone Python test')
+    parser = argparse.ArgumentParser(description="Matter standalone Python test")
 
     basic_group = parser.add_argument_group(title="Basic arguments", description="Overall test execution arguments")
 
-    basic_group.add_argument('--tests', '--test-case', action='append', nargs='+', type=str, metavar='test_NAME',
-                             help='A list of tests in the test class to execute.')
-    basic_group.add_argument('--fail-on-skipped', action="store_true", default=False,
-                             help="Fail the test if any test cases are skipped")
-    basic_group.add_argument('--trace-to', nargs="*", default=[],
-                             help="Where to trace (e.g perfetto, perfetto:path, json:log, json:path)")
-    basic_group.add_argument('--storage-path', action="store", type=pathlib.Path,
-                             metavar="PATH", help="Location for persisted storage of instance")
-    basic_group.add_argument('--logs-path', action="store", type=pathlib.Path, metavar="PATH", help="Location for test logs")
+    basic_group.add_argument(
+        "--tests",
+        "--test-case",
+        action="append",
+        nargs="+",
+        type=str,
+        metavar="test_NAME",
+        help="A list of tests in the test class to execute.",
+    )
+    basic_group.add_argument(
+        "--fail-on-skipped", action="store_true", default=False, help="Fail the test if any test cases are skipped"
+    )
+    basic_group.add_argument(
+        "--trace-to", nargs="*", default=[], help="Where to trace (e.g perfetto, perfetto:path, json:log, json:path)"
+    )
+    basic_group.add_argument(
+        "--storage-path", action="store", type=pathlib.Path, metavar="PATH", help="Location for persisted storage of instance"
+    )
+    basic_group.add_argument("--logs-path", action="store", type=pathlib.Path, metavar="PATH", help="Location for test logs")
     paa_path_default = get_default_paa_trust_store(pathlib.Path.cwd())
-    basic_group.add_argument('--paa-trust-store-path', action="store", type=pathlib.Path, metavar="PATH", default=paa_path_default,
-                             help="PAA trust store path (default: %s)" % str(paa_path_default))
-    basic_group.add_argument('--dac-revocation-set-path', action="store", type=pathlib.Path, metavar="PATH",
-                             help="Path to JSON file containing the device attestation revocation set.")
-    basic_group.add_argument('--ble-controller', action="store", type=int,
-                             metavar="CONTROLLER_ID", help="BLE controller selector, see example or platform docs for details")
-    basic_group.add_argument('-N', '--controller-node-id', type=int_decimal_or_hex,
-                             metavar='NODE_ID',
-                             default=TestingDefaults.CONTROLLER_NODE_ID,
-                             help='NodeID to use for initial/default controller (default: %d)' % TestingDefaults.CONTROLLER_NODE_ID)
-    basic_group.add_argument('-n', '--dut-node-id', '--nodeId', type=int_decimal_or_hex,
-                             metavar='NODE_ID', dest='dut_node_ids', default=[],
-                             help='Node ID for primary DUT communication, '
-                             'and NodeID to assign if commissioning (default: %d)' % TestingDefaults.DUT_NODE_ID, nargs="+")
-    basic_group.add_argument('--endpoint', type=int, default=None, help="Endpoint under test")
-    basic_group.add_argument('--app-pipe', type=str, default=None,
-                             help="The full path of the app to send an out-of-band command from test to app")
-    basic_group.add_argument('--app-pipe-out', type=str, default=None,
-                             help="The full path of the app to read an out-of-band command from app to test")
-    basic_group.add_argument('--restart-flag-file', type=str, default=None,
-                             help="The full path of the file to use to signal a restart to the app")
-    basic_group.add_argument('--debug', action="store_true", default=False,
-                             help="Run the script in debug mode. This is needed to capture attribute dump at end of test modules if there are problems found during testing.")
-    basic_group.add_argument('--timeout', type=int, help="Test timeout in seconds")
+    basic_group.add_argument(
+        "--paa-trust-store-path",
+        action="store",
+        type=pathlib.Path,
+        metavar="PATH",
+        default=paa_path_default,
+        help="PAA trust store path (default: %s)" % str(paa_path_default),
+    )
+    basic_group.add_argument(
+        "--dac-revocation-set-path",
+        action="store",
+        type=pathlib.Path,
+        metavar="PATH",
+        help="Path to JSON file containing the device attestation revocation set.",
+    )
+    basic_group.add_argument(
+        "--ble-controller",
+        action="store",
+        type=int,
+        metavar="CONTROLLER_ID",
+        help="BLE controller selector, see example or platform docs for details",
+    )
+    basic_group.add_argument(
+        "-N",
+        "--controller-node-id",
+        type=int_decimal_or_hex,
+        metavar="NODE_ID",
+        default=TestingDefaults.CONTROLLER_NODE_ID,
+        help="NodeID to use for initial/default controller (default: %d)" % TestingDefaults.CONTROLLER_NODE_ID,
+    )
+    basic_group.add_argument(
+        "-n",
+        "--dut-node-id",
+        "--nodeId",
+        type=int_decimal_or_hex,
+        metavar="NODE_ID",
+        dest="dut_node_ids",
+        default=[],
+        help="Node ID for primary DUT communication, "
+        "and NodeID to assign if commissioning (default: %d)" % TestingDefaults.DUT_NODE_ID,
+        nargs="+",
+    )
+    basic_group.add_argument("--endpoint", type=int, default=None, help="Endpoint under test")
+    basic_group.add_argument(
+        "--app-pipe", type=str, default=None, help="The full path of the app to send an out-of-band command from test to app"
+    )
+    basic_group.add_argument(
+        "--app-pipe-out", type=str, default=None, help="The full path of the app to read an out-of-band command from app to test"
+    )
+    basic_group.add_argument(
+        "--restart-flag-file", type=str, default=None, help="The full path of the file to use to signal a restart to the app"
+    )
+    basic_group.add_argument(
+        "--debug",
+        action="store_true",
+        default=False,
+        help="Run the script in debug mode. This is needed to capture attribute dump at end of test modules if there are problems found during testing.",
+    )
+    basic_group.add_argument("--timeout", type=int, help="Test timeout in seconds")
     basic_group.add_argument("--PICS", help="PICS file path", type=str)
 
-    basic_group.add_argument("--use-legacy-test-event-triggers", action="store_true", default=False,
-                             help="Send test event triggers with endpoint 0 for older devices")
+    basic_group.add_argument(
+        "--use-legacy-test-event-triggers",
+        action="store_true",
+        default=False,
+        help="Send test event triggers with endpoint 0 for older devices",
+    )
 
     commission_group = parser.add_argument_group(title="Commissioning", description="Arguments to commission a node")
 
-    commission_group.add_argument('-m', '--commissioning-method', type=str,
-                                  metavar='METHOD_NAME',
-                                  choices=["on-network", "ble-wifi", "ble-thread", "nfc-thread", "nfc-wifi", "thread-meshcop"],
-                                  help='Name of commissioning method to use')
-    commission_group.add_argument('--in-test-commissioning-method', type=str,
-                                  metavar='METHOD_NAME',
-                                  choices=["on-network", "ble-wifi", "ble-thread", "nfc-thread", "nfc-wifi", "thread-meshcop"],
-                                  help='Name of commissioning method to use, for commissioning tests')
-    commission_group.add_argument('-d', '--discriminator', type=int_decimal_or_hex,
-                                  metavar='LONG_DISCRIMINATOR',
-                                  dest='discriminators',
-                                  default=[],
-                                  help='Discriminator to use for commissioning', nargs="+")
-    commission_group.add_argument('-p', '--passcode', type=int_decimal_or_hex,
-                                  metavar='PASSCODE',
-                                  dest='passcodes',
-                                  default=[],
-                                  help='PAKE passcode to use', nargs="+")
+    commission_group.add_argument(
+        "-m",
+        "--commissioning-method",
+        type=str,
+        metavar="METHOD_NAME",
+        choices=["on-network", "ble-wifi", "ble-thread", "nfc-thread", "nfc-wifi", "thread-meshcop"],
+        help="Name of commissioning method to use",
+    )
+    commission_group.add_argument(
+        "--in-test-commissioning-method",
+        type=str,
+        metavar="METHOD_NAME",
+        choices=["on-network", "ble-wifi", "ble-thread", "nfc-thread", "nfc-wifi", "thread-meshcop"],
+        help="Name of commissioning method to use, for commissioning tests",
+    )
+    commission_group.add_argument(
+        "-d",
+        "--discriminator",
+        type=int_decimal_or_hex,
+        metavar="LONG_DISCRIMINATOR",
+        dest="discriminators",
+        default=[],
+        help="Discriminator to use for commissioning",
+        nargs="+",
+    )
+    commission_group.add_argument(
+        "-p",
+        "--passcode",
+        type=int_decimal_or_hex,
+        metavar="PASSCODE",
+        dest="passcodes",
+        default=[],
+        help="PAKE passcode to use",
+        nargs="+",
+    )
 
-    commission_group.add_argument('--wifi-ssid', type=str,
-                                  metavar='SSID',
-                                  help='Wi-Fi SSID for ble-wifi commissioning')
-    commission_group.add_argument('--wifi-passphrase', type=str,
-                                  metavar='PASSPHRASE',
-                                  help='Wi-Fi passphrase for ble-wifi commissioning')
+    commission_group.add_argument("--wifi-ssid", type=str, metavar="SSID", help="Wi-Fi SSID for ble-wifi commissioning")
+    commission_group.add_argument(
+        "--wifi-passphrase", type=str, metavar="PASSPHRASE", help="Wi-Fi passphrase for ble-wifi commissioning"
+    )
 
-    commission_group.add_argument('--thread-dataset-hex', type=byte_string_from_hex,
-                                  metavar='OPERATIONAL_DATASET_HEX',
-                                  help='Thread operational dataset as a hex string for ble-thread commissioning')
+    commission_group.add_argument(
+        "--thread-dataset-hex",
+        type=byte_string_from_hex,
+        metavar="OPERATIONAL_DATASET_HEX",
+        help="Thread operational dataset as a hex string for ble-thread commissioning",
+    )
 
-    commission_group.add_argument('--admin-vendor-id', action="store", type=int_decimal_or_hex, default=TestingDefaults.ADMIN_VENDOR_ID,
-                                  metavar="VENDOR_ID",
-                                  help="VendorID to use during commissioning (default 0x%04X)" % TestingDefaults.ADMIN_VENDOR_ID)
-    commission_group.add_argument('--case-admin-subject', action="store", type=int_decimal_or_hex,
-                                  metavar="CASE_ADMIN_SUBJECT",
-                                  help="Set the CASE admin subject to an explicit value (default to commissioner Node ID)")
-    commission_group.add_argument('--thread-ba-host', action="store", type=str,
-                                  help="Border Agent IP address")
-    commission_group.add_argument('--thread-ba-port', action="store", type=int,
-                                  help="Border Agent port")
+    commission_group.add_argument(
+        "--admin-vendor-id",
+        action="store",
+        type=int_decimal_or_hex,
+        default=TestingDefaults.ADMIN_VENDOR_ID,
+        metavar="VENDOR_ID",
+        help="VendorID to use during commissioning (default 0x%04X)" % TestingDefaults.ADMIN_VENDOR_ID,
+    )
+    commission_group.add_argument(
+        "--case-admin-subject",
+        action="store",
+        type=int_decimal_or_hex,
+        metavar="CASE_ADMIN_SUBJECT",
+        help="Set the CASE admin subject to an explicit value (default to commissioner Node ID)",
+    )
+    commission_group.add_argument("--thread-ba-host", action="store", type=str, help="Border Agent IP address")
+    commission_group.add_argument("--thread-ba-port", action="store", type=int, help="Border Agent port")
 
-    commission_group.add_argument('--commission-only', action="store_true", default=False,
-                                  help="If true, test exits after commissioning without running subsequent tests")
+    commission_group.add_argument(
+        "--commission-only",
+        action="store_true",
+        default=False,
+        help="If true, test exits after commissioning without running subsequent tests",
+    )
 
-    commission_group.add_argument('--tc-version-to-simulate', type=int, help="Terms and conditions version")
+    commission_group.add_argument("--tc-version-to-simulate", type=int, help="Terms and conditions version")
 
-    commission_group.add_argument('--tc-user-response-to-simulate', type=int, help="Terms and conditions acknowledgements")
+    commission_group.add_argument("--tc-user-response-to-simulate", type=int, help="Terms and conditions acknowledgements")
 
     code_group = parser.add_argument_group(title="Setup codes")
 
-    code_group.add_argument('-q', '--qr-code', type=str,
-                            metavar="QR_CODE", default=[], help="QR setup code content (overrides passcode and discriminator)", nargs="+")
-    code_group.add_argument('--manual-code', type=str_from_manual_code,
-                            metavar="MANUAL_CODE", default=[], help="Manual setup code content (overrides passcode and discriminator)", nargs="+")
+    code_group.add_argument(
+        "-q",
+        "--qr-code",
+        type=str,
+        metavar="QR_CODE",
+        default=[],
+        help="QR setup code content (overrides passcode and discriminator)",
+        nargs="+",
+    )
+    code_group.add_argument(
+        "--manual-code",
+        type=str_from_manual_code,
+        metavar="MANUAL_CODE",
+        default=[],
+        help="Manual setup code content (overrides passcode and discriminator)",
+        nargs="+",
+    )
 
     fabric_group = parser.add_argument_group(
-        title="Fabric selection", description="Fabric selection for single-fabric basic usage, and commissioning")
-    fabric_group.add_argument('-f', '--fabric-id', type=int_decimal_or_hex,
-                              metavar='FABRIC_ID',
-                              help='Fabric ID on which to operate under the root of trust')
+        title="Fabric selection", description="Fabric selection for single-fabric basic usage, and commissioning"
+    )
+    fabric_group.add_argument(
+        "-f",
+        "--fabric-id",
+        type=int_decimal_or_hex,
+        metavar="FABRIC_ID",
+        help="Fabric ID on which to operate under the root of trust",
+    )
 
-    fabric_group.add_argument('-r', '--root-index', type=root_index,
-                              metavar='ROOT_INDEX_OR_NAME', default=TestingDefaults.TRUST_ROOT_INDEX,
-                              help='Root of trust under which to operate/commission for single-fabric basic usage. '
-                              'alpha/beta/gamma are aliases for 1/2/3. Default (%d)' % TestingDefaults.TRUST_ROOT_INDEX)
+    fabric_group.add_argument(
+        "-r",
+        "--root-index",
+        type=root_index,
+        metavar="ROOT_INDEX_OR_NAME",
+        default=TestingDefaults.TRUST_ROOT_INDEX,
+        help="Root of trust under which to operate/commission for single-fabric basic usage. "
+        "alpha/beta/gamma are aliases for 1/2/3. Default (%d)" % TestingDefaults.TRUST_ROOT_INDEX,
+    )
 
-    fabric_group.add_argument('-c', '--chip-tool-credentials-path', type=pathlib.Path,
-                              metavar='PATH',
-                              help='Path to chip-tool credentials file root')
+    fabric_group.add_argument(
+        "-c", "--chip-tool-credentials-path", type=pathlib.Path, metavar="PATH", help="Path to chip-tool credentials file root"
+    )
 
     args_group = parser.add_argument_group(title="Config arguments", description="Test configuration global arguments set")
-    args_group.add_argument('--int-arg', nargs='+', action='append', type=int_named_arg, metavar="NAME:VALUE",
-                            help="Add a named test argument for an integer as hex or decimal (e.g. -2 or 0xFFFF_1234)")
-    args_group.add_argument('--bool-arg', nargs='+', action='append', type=bool_named_arg, metavar="NAME:VALUE",
-                            help="Add a named test argument for an boolean value (e.g. true/false or 0/1)")
-    args_group.add_argument('--float-arg', nargs='+', action='append', type=float_named_arg, metavar="NAME:VALUE",
-                            help="Add a named test argument for a floating point value (e.g. -2.1 or 6.022e23)")
-    args_group.add_argument('--string-arg', nargs='+', action='append', type=str_named_arg, metavar="NAME:VALUE",
-                            help="Add a named test argument for a string value")
-    args_group.add_argument('--json-arg', nargs='+', action='append', type=json_named_arg, metavar="NAME:VALUE",
-                            help="Add a named test argument for JSON stored as a list or dict")
-    args_group.add_argument('--hex-arg', nargs='+', action='append', type=bytes_as_hex_named_arg, metavar="NAME:VALUE",
-                            help="Add a named test argument for an octet string in hex (e.g. 0011cafe or 00:11:CA:FE)")
+    args_group.add_argument(
+        "--int-arg",
+        nargs="+",
+        action="append",
+        type=int_named_arg,
+        metavar="NAME:VALUE",
+        help="Add a named test argument for an integer as hex or decimal (e.g. -2 or 0xFFFF_1234)",
+    )
+    args_group.add_argument(
+        "--bool-arg",
+        nargs="+",
+        action="append",
+        type=bool_named_arg,
+        metavar="NAME:VALUE",
+        help="Add a named test argument for an boolean value (e.g. true/false or 0/1)",
+    )
+    args_group.add_argument(
+        "--float-arg",
+        nargs="+",
+        action="append",
+        type=float_named_arg,
+        metavar="NAME:VALUE",
+        help="Add a named test argument for a floating point value (e.g. -2.1 or 6.022e23)",
+    )
+    args_group.add_argument(
+        "--string-arg",
+        nargs="+",
+        action="append",
+        type=str_named_arg,
+        metavar="NAME:VALUE",
+        help="Add a named test argument for a string value",
+    )
+    args_group.add_argument(
+        "--json-arg",
+        nargs="+",
+        action="append",
+        type=json_named_arg,
+        metavar="NAME:VALUE",
+        help="Add a named test argument for JSON stored as a list or dict",
+    )
+    args_group.add_argument(
+        "--hex-arg",
+        nargs="+",
+        action="append",
+        type=bytes_as_hex_named_arg,
+        metavar="NAME:VALUE",
+        help="Add a named test argument for an octet string in hex (e.g. 0011cafe or 00:11:CA:FE)",
+    )
 
     if not argv:
         argv = sys.argv[1:]

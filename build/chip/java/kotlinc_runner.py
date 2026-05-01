@@ -59,18 +59,18 @@ def FindCommand(command):
         if IsExecutable(command):
             return command
 
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         # On Windows, if the command does not have an extension, cmd.exe will
         # try all extensions from PATHEXT when resolving the full path.
         command, ext = os.path.splitext(command)
         if not ext:
-            exts = os.environ['PATHEXT'].split(os.path.pathsep)
+            exts = os.environ["PATHEXT"].split(os.path.pathsep)
         else:
             exts = [ext]
     else:
-        exts = ['']
+        exts = [""]
 
-    for path in os.environ['PATH'].split(os.path.pathsep):
+    for path in os.environ["PATH"].split(os.path.pathsep):
         for ext in exts:
             path = os.path.join(path, command) + ext
             if IsExecutable(path):
@@ -80,41 +80,28 @@ def FindCommand(command):
 
 
 def ReadBuildConfig(build_config):
-    with open(build_config, 'r') as file:
+    with open(build_config, "r") as file:
         return json.load(file)
 
 
 def ComputeClasspath(build_config_json):
-    unique_jars = build_config_json['deps_info']['deps_jars']
-    if sys.platform == 'win32':
+    unique_jars = build_config_json["deps_info"]["deps_jars"]
+    if sys.platform == "win32":
         return ";".join(unique_jars)
     return ":".join(unique_jars)
 
 
 def main():
-    kotlin_path = FindCommand('kotlinc')
+    kotlin_path = FindCommand("kotlinc")
     if not kotlin_path:
-        sys.stderr.write('kotlinc: command not found\n')
+        sys.stderr.write("kotlinc: command not found\n")
         sys.exit(EXIT_FAILURE)
 
-    parser = argparse.ArgumentParser('Kotkinc runner')
-    parser.add_argument(
-        '--classdir',
-        dest='classdir',
-        required=True,
-        help='Directory that will contain class files')
-    parser.add_argument(
-        '--outfile',
-        dest='outfile',
-        required=True,
-        help='Output file containing a list of classes')
-    parser.add_argument(
-        '--build-config',
-        dest='build_config',
-        required=True,
-        help='Build config')
-    parser.add_argument(
-        'rest', metavar='KOTLINC_ARGS', nargs='*', help='Argumets to pass to kotlinc')
+    parser = argparse.ArgumentParser("Kotkinc runner")
+    parser.add_argument("--classdir", dest="classdir", required=True, help="Directory that will contain class files")
+    parser.add_argument("--outfile", dest="outfile", required=True, help="Output file containing a list of classes")
+    parser.add_argument("--build-config", dest="build_config", required=True, help="Build config")
+    parser.add_argument("rest", metavar="KOTLINC_ARGS", nargs="*", help="Argumets to pass to kotlinc")
 
     args = parser.parse_args()
     if not os.path.isdir(args.classdir):
@@ -126,23 +113,22 @@ def main():
     if classpath:
         kotlin_args += ["-classpath", classpath]
 
-    kotlin_args += ["-J-Xms256m", "-J-Xmx4096m", "-J-XX:ReservedCodeCacheSize=225m",
-                    "-J-XX:+UseCompressedOops"]
+    kotlin_args += ["-J-Xms256m", "-J-Xmx4096m", "-J-XX:ReservedCodeCacheSize=225m", "-J-XX:+UseCompressedOops"]
 
     retcode = subprocess.check_call(kotlin_args + args.rest)
     if retcode != EXIT_SUCCESS:
         return retcode
 
-    with open(args.outfile, 'wt') as f:
+    with open(args.outfile, "wt") as f:
         prefixlen = len(args.classdir) + 1
         for root, dirnames, filenames in os.walk(args.classdir):
             for filename in filenames:
-                if filename.endswith('.class'):
+                if filename.endswith(".class"):
                     f.write(os.path.join(root[prefixlen:], filename))
-                    f.write('\n')
+                    f.write("\n")
 
     return EXIT_SUCCESS
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

@@ -23,9 +23,9 @@ from memdf.util.config import Config, ConfigDescription
 CONFIG: ConfigDescription = {}
 
 
-def read_file(config: Config, filename: str, method: str = ',') -> DFs:
+def read_file(config: Config, filename: str, method: str = ",") -> DFs:
     """Read a csv or tsv file into a data frame."""
-    delimiter = {'csv': ',', 'tsv': '\t'}.get(method, method)
+    delimiter = {"csv": ",", "tsv": "\t"}.get(method, method)
     with open(filename) as f:
         df = pd.read_csv(f, sep=delimiter, na_filter=False)
     if df_class := memdf.df.find_class(df):

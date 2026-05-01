@@ -64,7 +64,8 @@ class TC_SEAR_1_6(MatterBaseTest):
     async def read_supported_areas(self, step):
         self.print_step(step, "Read SupportedAreas attribute")
         supported_areas = await self.read_sear_attribute_expect_success(
-            endpoint=self.endpoint, attribute=Clusters.ServiceArea.Attributes.SupportedAreas)
+            endpoint=self.endpoint, attribute=Clusters.ServiceArea.Attributes.SupportedAreas
+        )
         log.info("SupportedAreas: %s" % supported_areas)
 
         return [a.areaID for a in supported_areas]
@@ -72,7 +73,8 @@ class TC_SEAR_1_6(MatterBaseTest):
     async def read_selected_areas(self, step):
         self.print_step(step, "Read SelectedAreas attribute")
         selected_areas = await self.read_sear_attribute_expect_success(
-            endpoint=self.endpoint, attribute=Clusters.ServiceArea.Attributes.SelectedAreas)
+            endpoint=self.endpoint, attribute=Clusters.ServiceArea.Attributes.SelectedAreas
+        )
         log.info(f"SelectedAreas {selected_areas}")
 
         return selected_areas
@@ -80,7 +82,8 @@ class TC_SEAR_1_6(MatterBaseTest):
     async def read_progress(self, step):
         self.print_step(step, "Read Progress attribute")
         progress = await self.read_sear_attribute_expect_success(
-            endpoint=self.endpoint, attribute=Clusters.ServiceArea.Attributes.Progress)
+            endpoint=self.endpoint, attribute=Clusters.ServiceArea.Attributes.Progress
+        )
         log.info(f"Progress {progress}")
 
         return progress
@@ -100,11 +103,14 @@ class TC_SEAR_1_6(MatterBaseTest):
         if self.is_ci:
             self.write_to_app_pipe({"Name": "Reset"})
 
-        test_step = "Manually intervene to put the device in the idle state and ensure SupportedAreas and SelectedAreas are not empty"
+        test_step = (
+            "Manually intervene to put the device in the idle state and ensure SupportedAreas and SelectedAreas are not empty"
+        )
         self.print_step("2", test_step)
         if self.is_ci:
-            await self.send_single_cmd(cmd=Clusters.Objects.ServiceArea.Commands.SelectAreas(newAreas=[7, 1234567]),
-                                       endpoint=self.endpoint)
+            await self.send_single_cmd(
+                cmd=Clusters.Objects.ServiceArea.Commands.SelectAreas(newAreas=[7, 1234567]), endpoint=self.endpoint
+            )
         else:
             self.wait_for_user_input(prompt_msg=f"{test_step}, and press Enter when done.\n")
 
@@ -117,41 +123,51 @@ class TC_SEAR_1_6(MatterBaseTest):
         test_step = "Manually intervene to put the device in the operating state"
         self.print_step("5", test_step)
         if self.is_ci:
-            await self.send_single_cmd(cmd=Clusters.Objects.RvcRunMode.Commands.ChangeToMode(newMode=1),
-                                       endpoint=self.endpoint)
+            await self.send_single_cmd(cmd=Clusters.Objects.RvcRunMode.Commands.ChangeToMode(newMode=1), endpoint=self.endpoint)
         else:
             self.wait_for_user_input(prompt_msg=f"{test_step}, and press Enter when done.\n")
 
         progress_list_operating = await self.read_progress(step=6)
-        asserts.assert_true(len(selected_areas) == len(progress_list_operating),
-                            f"len of SelectedAreas({len(selected_areas)}) should be equal to len of Progress({len(progress_list_operating)})")
+        asserts.assert_true(
+            len(selected_areas) == len(progress_list_operating),
+            f"len of SelectedAreas({len(selected_areas)}) should be equal to len of Progress({len(progress_list_operating)})",
+        )
 
         for p in progress_list_operating:
             asserts.assert_true(p.areaID in selected_areas, f"Progress entry with unknown AreaID({p.areaID})")
-            asserts.assert_true(p.status in (Clusters.ServiceArea.Enums.OperationalStatusEnum.kPending,
-                                             Clusters.ServiceArea.Enums.OperationalStatusEnum.kOperating),
-                                f"Progress entry with unexpected Status({p.status})")
-            asserts.assert_true(type(p.totalOperationalTime) in [type(None), type(
-                NullValue)], "Progress.TotalOperationalTime has a value")
+            asserts.assert_true(
+                p.status
+                in (
+                    Clusters.ServiceArea.Enums.OperationalStatusEnum.kPending,
+                    Clusters.ServiceArea.Enums.OperationalStatusEnum.kOperating,
+                ),
+                f"Progress entry with unexpected Status({p.status})",
+            )
+            asserts.assert_true(
+                type(p.totalOperationalTime) in [type(None), type(NullValue)], "Progress.TotalOperationalTime has a value"
+            )
 
         test_step = "While all entries in Progress show the Pending or Operating status (i.e. \
                     before any area is skipped or completed), manually intervene to put the device \
                     in the idle state, by ending the operation unexpectedly (e.g. force an error)"
         self.print_step("7", test_step)
         if self.is_ci:
-            await self.send_single_cmd(cmd=Clusters.Objects.RvcRunMode.Commands.ChangeToMode(newMode=0),
-                                       endpoint=self.endpoint)
+            await self.send_single_cmd(cmd=Clusters.Objects.RvcRunMode.Commands.ChangeToMode(newMode=0), endpoint=self.endpoint)
         else:
             self.wait_for_user_input(prompt_msg=f"{test_step}, and press Enter when done.\n")
 
         progress_list_idle = await self.read_progress(step=8)
-        asserts.assert_true(len(selected_areas) == len(progress_list_idle),
-                            f"len of SelectedAreas({len(selected_areas)}) should be equal to len of Progress({len(progress_list_idle)})")
+        asserts.assert_true(
+            len(selected_areas) == len(progress_list_idle),
+            f"len of SelectedAreas({len(selected_areas)}) should be equal to len of Progress({len(progress_list_idle)})",
+        )
 
         for p in progress_list_idle:
             asserts.assert_true(p.areaID in selected_areas, f"Progress entry with unknown AreaID({p.areaID})")
-            asserts.assert_true(p.status == Clusters.ServiceArea.Enums.OperationalStatusEnum.kSkipped,
-                                f"Progress entry with unexpected Status({p.status})")
+            asserts.assert_true(
+                p.status == Clusters.ServiceArea.Enums.OperationalStatusEnum.kSkipped,
+                f"Progress entry with unexpected Status({p.status})",
+            )
 
 
 if __name__ == "__main__":

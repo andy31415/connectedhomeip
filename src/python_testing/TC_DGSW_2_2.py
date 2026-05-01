@@ -49,7 +49,6 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_DGSW_2_2(MatterBaseTest):
-
     async def send_software_fault_test_event_trigger(self):
         await self.send_test_event_triggers(eventTrigger=0x0034000000000000)
 
@@ -81,17 +80,19 @@ class TC_DGSW_2_2(MatterBaseTest):
     def steps_TC_DGSW_2_2(self) -> list[TestStep]:
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
-            TestStep(2, "TH subscribes to the SoftwareDiagnostics cluster in the DUT to receive SoftwareFault events. "
-                     "The DUT is triggered to emit a SoftwareFault event. Wait for the SoftwareFault event to arrive.",
-                     "Validate the SoftwareFault event fields."
-                     "The Id field of the struct is mandatory and shall be set with software thread ID that last software fault occurred."
-                     "Name field shall be set to vendor specific name strings that last software fault occurred."
-                     "FaultRecording field shall be set by a vendor specific payload in octstr format."),
+            TestStep(
+                2,
+                "TH subscribes to the SoftwareDiagnostics cluster in the DUT to receive SoftwareFault events. "
+                "The DUT is triggered to emit a SoftwareFault event. Wait for the SoftwareFault event to arrive.",
+                "Validate the SoftwareFault event fields."
+                "The Id field of the struct is mandatory and shall be set with software thread ID that last software fault occurred."
+                "Name field shall be set to vendor specific name strings that last software fault occurred."
+                "FaultRecording field shall be set by a vendor specific payload in octstr format.",
+            ),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.SoftwareDiagnostics))
     async def test_TC_DGSW_2_2(self):
-
         endpoint = self.get_endpoint()
 
         # STEP 1: Commission DUT (already done)
@@ -103,18 +104,16 @@ class TC_DGSW_2_2(MatterBaseTest):
         # Create and start an EventSubscriptionHandler to subscribe for events
         events_callback = EventSubscriptionHandler(expected_cluster=Clusters.SoftwareDiagnostics)
         await events_callback.start(
-            self.default_controller,     # The controller
-            self.dut_node_id,            # DUT's node id
-            endpoint                     # The endpoint on which we expect SoftwareDiagnostics events
+            self.default_controller,  # The controller
+            self.dut_node_id,  # DUT's node id
+            endpoint,  # The endpoint on which we expect SoftwareDiagnostics events
         )
 
         # Trigger a SoftwareFault event on the DUT
         await self.send_software_fault_test_event_trigger()
 
         # Wait (block) for the SoftwareFault event to arrive
-        event_data = events_callback.wait_for_event_report(
-            Clusters.SoftwareDiagnostics.Events.SoftwareFault
-        )
+        event_data = events_callback.wait_for_event_report(Clusters.SoftwareDiagnostics.Events.SoftwareFault)
 
         # Validate the SoftwareFault event fields
         self.validate_soft_fault_event_data(event_data)

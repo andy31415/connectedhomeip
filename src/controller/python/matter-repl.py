@@ -28,7 +28,7 @@ def main():
     c.InteractiveShellApp.exec_lines = [
         "import importlib.util",
         "spec = importlib.util.find_spec('matter.ReplStartup')",
-        "%run {spec.origin} " + " ".join(sys.argv[1:])
+        "%run {spec.origin} " + " ".join(sys.argv[1:]),
     ]
 
     sys.argv = [sys.argv[0]]

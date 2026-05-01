@@ -50,11 +50,9 @@ cluster_demm_mode = Clusters.DeviceEnergyManagementMode
 
 
 class TC_DEMM_1_2(MatterBaseTest, ModeBaseClusterChecks):
-
     def __init__(self, *args):
         MatterBaseTest.__init__(self, *args)
-        ModeBaseClusterChecks.__init__(self,
-                                       modebase_derived_cluster=cluster_demm_mode)
+        ModeBaseClusterChecks.__init__(self, modebase_derived_cluster=cluster_demm_mode)
 
     def desc_TC_DEMM_1_2(self) -> str:
         return "[TC-DEMM-1.2] Cluster attributes with DUT as Server"
@@ -67,9 +65,7 @@ class TC_DEMM_1_2(MatterBaseTest, ModeBaseClusterChecks):
         ]
 
     def pics_TC_DEMM_1_2(self) -> list[str]:
-        return [
-            "DEMM.S"
-        ]
+        return ["DEMM.S"]
 
     def validate_no_optimization_modes(self, supported_modes):
         """
@@ -90,9 +86,9 @@ class TC_DEMM_1_2(MatterBaseTest, ModeBaseClusterChecks):
             if cluster_demm_mode.Enums.ModeTag.kNoOptimization in tags:
                 # Verifying that No Optimization is not combined with other optimization tags
                 if (
-                    cluster_demm_mode.Enums.ModeTag.kDeviceOptimization in tags or
-                    cluster_demm_mode.Enums.ModeTag.kLocalOptimization in tags or
-                    cluster_demm_mode.Enums.ModeTag.kGridOptimization in tags
+                    cluster_demm_mode.Enums.ModeTag.kDeviceOptimization in tags
+                    or cluster_demm_mode.Enums.ModeTag.kLocalOptimization in tags
+                    or cluster_demm_mode.Enums.ModeTag.kGridOptimization in tags
                 ):
                     # Fails - No Optimization is combined with another optimization tag
                     all_modes_valid = False
@@ -100,16 +96,17 @@ class TC_DEMM_1_2(MatterBaseTest, ModeBaseClusterChecks):
                 else:
                     # Success - No Optimization is not combined with other tags
                     log.info(
-                        f'Extra Check - Mode {mode.label}: No Optimization is valid, not combined with any other optimization tags.')
+                        f"Extra Check - Mode {mode.label}: No Optimization is valid, not combined with any other optimization tags."
+                    )
             else:
                 # No Optimization tag is not found in mode
-                log.info(f'Extra Check - {mode.label}: No Optimization tag not found.')
+                log.info(f"Extra Check - {mode.label}: No Optimization tag not found.")
 
         # Log the final result for the extra check after processing all modes
         if all_modes_valid:
-            log.info('Extra Check: All modes passed No Optimization validation successfully.')
+            log.info("Extra Check: All modes passed No Optimization validation successfully.")
         else:
-            log.info('Extra Check: One or more modes failed No Optimization validation.')
+            log.info("Extra Check: One or more modes failed No Optimization validation.")
 
     @property
     def default_endpoint(self) -> int:
@@ -117,7 +114,6 @@ class TC_DEMM_1_2(MatterBaseTest, ModeBaseClusterChecks):
 
     @async_test_body
     async def test_TC_DEMM_1_2(self):
-
         # Setup common mode check
         endpoint = self.get_endpoint()
 

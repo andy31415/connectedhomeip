@@ -26,6 +26,7 @@ class WorkingDirectory:
     """
     Collection of utilities to add convention to the files used by this program.
     """
+
     tmp = None
 
     def __init__(self, directory: Optional[str] = None) -> None:
@@ -71,6 +72,7 @@ class WorkingDirectory:
 
     def print_tree(self):
         """Print a visual tree representation of the directory structure."""
+
         # TODO Convert this helper to build a HTML representation for use in the UI
         def tree(dir_path: pathlib.Path, prefix: str = ""):
             """A recursive generator, given a directory Path object
@@ -93,6 +95,7 @@ class WorkingDirectory:
                     extension = branch if pointer == tee else space
                     # i.e. space because last, └── , above so no more |
                     yield from tree(path, prefix=prefix + extension)
+
         root = self.root_dir()
         print(root)
         for line in tree(pathlib.Path(root)):

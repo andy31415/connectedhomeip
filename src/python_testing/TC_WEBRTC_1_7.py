@@ -75,7 +75,9 @@ class TC_WEBRTC_1_7(MatterBaseTest, WebRTCTestHelper):
                 description="Either or both TH1 and DUT exchange ICE candidates if ICE candidates are not shared in  the SDP Offer / Answer.",
             ),
             TestStep(
-                5, description="TH1 waits for 5 seconds.", expectation="Verify the WebRTC session has been successfully established."
+                5,
+                description="TH1 waits for 5 seconds.",
+                expectation="Verify the WebRTC session has been successfully established.",
             ),
             TestStep(
                 6,
@@ -171,7 +173,7 @@ class TC_WEBRTC_1_7(MatterBaseTest, WebRTCTestHelper):
         local_candidates_struct_list = [
             Objects.Globals.Structs.ICECandidateStruct(candidate=cand.candidate) for cand in local_candidates
         ]
-        if (len(local_candidates_struct_list) > 0):
+        if len(local_candidates_struct_list) > 0:
             await self.send_single_cmd(
                 cmd=WebRTCTransportProvider.Commands.ProvideICECandidates(
                     webRTCSessionID=answer_sessionId, ICECandidates=local_candidates_struct_list
@@ -236,7 +238,7 @@ class TC_WEBRTC_1_7(MatterBaseTest, WebRTCTestHelper):
             Objects.Globals.Structs.ICECandidateStruct(candidate=cand.candidate) for cand in local_candidates
         ]
 
-        if (len(local_candidates_struct_list) > 0):
+        if len(local_candidates_struct_list) > 0:
             await self.send_single_cmd(
                 cmd=WebRTCTransportProvider.Commands.ProvideICECandidates(
                     webRTCSessionID=answer_sessionId, ICECandidates=local_candidates_struct_list
@@ -244,7 +246,7 @@ class TC_WEBRTC_1_7(MatterBaseTest, WebRTCTestHelper):
                 endpoint=endpoint,
                 payloadCapability=TransportPayloadCapability.LARGE_PAYLOAD,
                 dev_ctrl=dev_ctrl,
-                node_id=map_nodeId
+                node_id=map_nodeId,
             )
         else:
             ice_session_id, remote_candidates = await webrtc_peer2.get_remote_ice_candidates()
@@ -273,25 +275,25 @@ async def webrtc_create_test_harness_controller(self):
     self.th1 = self.default_controller
     self.discriminator = random.randint(0, 4095)
     params = await self.th1.OpenCommissioningWindow(
-        nodeId=self.dut_node_id, timeout=900, iteration=10000, discriminator=self.discriminator, option=1)
-
-    th2_certificate_authority = (
-        self.certificate_authority_manager.NewCertificateAuthority()
-    )
-    th2_fabric_admin = th2_certificate_authority.NewFabricAdmin(
-        vendorId=0xFFF1, fabricId=self.th1.fabricId + 1
+        nodeId=self.dut_node_id, timeout=900, iteration=10000, discriminator=self.discriminator, option=1
     )
 
-    self.th2 = th2_fabric_admin.NewController(
-        nodeId=2, useTestCommissioner=True)
+    th2_certificate_authority = self.certificate_authority_manager.NewCertificateAuthority()
+    th2_fabric_admin = th2_certificate_authority.NewFabricAdmin(vendorId=0xFFF1, fabricId=self.th1.fabricId + 1)
+
+    self.th2 = th2_fabric_admin.NewController(nodeId=2, useTestCommissioner=True)
 
     setupPinCode = params.setupPinCode
 
     await self.th2.CommissionOnNetwork(
-        nodeId=self.dut_node_id+1, setupPinCode=setupPinCode,
-        filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR, filter=self.discriminator)
+        nodeId=self.dut_node_id + 1,
+        setupPinCode=setupPinCode,
+        filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
+        filter=self.discriminator,
+    )
 
     return self.th2
+
 
 if __name__ == "__main__":
     default_matter_test_main()

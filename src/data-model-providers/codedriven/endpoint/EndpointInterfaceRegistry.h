@@ -42,8 +42,7 @@ struct EndpointInterfaceRegistration
 
     EndpointInterfaceRegistration(EndpointInterface & interface, DataModel::EndpointEntry entry,
                                   EndpointInterfaceRegistration * next_item = nullptr) :
-        endpointInterface(&interface),
-        endpointEntry(entry), next(next_item)
+        endpointInterface(&interface), endpointEntry(entry), next(next_item)
     {}
     EndpointInterfaceRegistration(EndpointInterfaceRegistration && other) = default;
 

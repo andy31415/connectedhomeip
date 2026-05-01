@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 
 try:
     import coloredlogs
+
     _has_coloredlogs = True
 except ImportError:
     _has_coloredlogs = False
@@ -27,33 +28,30 @@ __LOG_LEVELS__ = logging.getLevelNamesMapping()
 # A list of things to copy. Tuples of
 #  (zap_platform, zap_architecture, cipd_platform)
 __ZAP_ARCHITECTURES__ = [
-    ('linux', 'arm64', 'linux-arm64'),
-    ('linux', 'x64', 'linux-amd64'),
-    ('mac', 'arm64', 'mac-arm64'),
-    ('mac', 'x64', 'mac-amd64'),
-    ('win', 'x64', 'windows-amd64'),
+    ("linux", "arm64", "linux-arm64"),
+    ("linux", "x64", "linux-amd64"),
+    ("mac", "arm64", "mac-arm64"),
+    ("mac", "x64", "mac-amd64"),
+    ("win", "x64", "windows-amd64"),
 ]
 
 
 @click.command()
 @click.option(
-    '--log-level',
-    default='INFO',
+    "--log-level",
+    default="INFO",
     show_default=True,
     type=click.Choice(__LOG_LEVELS__.keys(), case_sensitive=False),
     callback=lambda c, p, v: __LOG_LEVELS__[v],
-    help='Determines the verbosity of script output')
-@click.option('--no-temp-clean', is_flag=True)
-@click.option('--version', help='Zap version to use', required=True)
+    help="Determines the verbosity of script output",
+)
+@click.option("--no-temp-clean", is_flag=True)
+@click.option("--version", help="Zap version to use", required=True)
 def main(log_level: str, version: str, no_temp_clean: bool):
     if _has_coloredlogs:
-        coloredlogs.install(level=log_level, fmt='%(asctime)s %(name)s %(levelname)-7s %(message)s')
+        coloredlogs.install(level=log_level, fmt="%(asctime)s %(name)s %(levelname)-7s %(message)s")
     else:
-        logging.basicConfig(
-            level=log_level,
-            format='%(asctime)s %(name)s %(levelname)-7s %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
+        logging.basicConfig(level=log_level, format="%(asctime)s %(name)s %(levelname)-7s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
     with tempfile.TemporaryDirectory(prefix="zap_", suffix="_cipd", delete=(not no_temp_clean)) as tmpdir:
         log.info("Temporary Directory: '%s'", tmpdir)
@@ -85,5 +83,5 @@ def main(log_level: str, version: str, no_temp_clean: bool):
             subprocess.check_call(cmd, cwd=download_path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

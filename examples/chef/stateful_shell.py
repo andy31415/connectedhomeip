@@ -41,11 +41,11 @@ class StatefulShell:
 
     def __init__(self) -> None:
         if sys.platform == "linux" or sys.platform == "linux2":
-            self.shell_app = '/bin/bash'
+            self.shell_app = "/bin/bash"
         elif sys.platform == "darwin":
-            self.shell_app = '/bin/zsh'
+            self.shell_app = "/bin/zsh"
         elif sys.platform == "win32":
-            print('Windows is currently not supported. Use Linux or MacOS platforms')
+            print("Windows is currently not supported. Use Linux or MacOS platforms")
             exit(1)
 
         self.env: Dict[str, str] = os.environ.copy()
@@ -64,7 +64,9 @@ class StatefulShell:
                 print(f"export {env_var}={quoted_value}")
 
     def run_cmd(
-        self, cmd: str, *,
+        self,
+        cmd: str,
+        *,
         raise_on_returncode=True,
         return_cmd_output=False,
     ) -> Optional[str]:
@@ -95,7 +97,7 @@ class StatefulShell:
             if return_cmd_output:
                 # Piping won't work here because piping will affect how environment variables
                 # are propagated. This solution uses tee without piping to preserve env variables.
-                redirect = f" > >(tee \"{cmd_output_path}\") 2>&1 "  # include stderr
+                redirect = f' > >(tee "{cmd_output_path}") 2>&1 '  # include stderr
             else:
                 redirect = ""
 
@@ -106,14 +108,10 @@ class StatefulShell:
             # are unsupported in env variables.
             save_env_cmd = f"env > {envfile_path}"
 
-            command_with_state = (
-                f"OLDPWD={self.env.get('OLDPWD', '')}; {cmd} {redirect}; RETCODE=$?; "
-                f"{save_env_cmd}; exit $RETCODE")
+            command_with_state = f"OLDPWD={self.env.get('OLDPWD', '')}; {cmd} {redirect}; RETCODE=$?; {save_env_cmd}; exit $RETCODE"
             try:
                 with subprocess.Popen(
-                    [command_with_state],
-                    env=self.env, cwd=self.cwd,
-                    shell=True, executable=self.shell_app
+                    [command_with_state], env=self.env, cwd=self.cwd, shell=True, executable=self.shell_app
                 ) as proc:
                     returncode = proc.wait()
             except Exception:
@@ -136,10 +134,7 @@ class StatefulShell:
                 self.cwd = self.env["PWD"]
 
             if raise_on_returncode and returncode != 0:
-                raise RuntimeError(
-                    "Error. Nonzero return code."
-                    f"\nReturncode: {returncode}"
-                    f"\nCmd: {cmd}")
+                raise RuntimeError(f"Error. Nonzero return code.\nReturncode: {returncode}\nCmd: {cmd}")
 
             if return_cmd_output:
                 # Poll for file due to give 'tee' time to close.
@@ -154,8 +149,7 @@ class StatefulShell:
                     time.sleep(0.1)
                 else:
                     raise TimeoutError(
-                        f"Error. Output file: {cmd_output_path} not created within "
-                        f"the alloted time of: {_TEE_WAIT_TIMEOUT}s"
+                        f"Error. Output file: {cmd_output_path} not created within the alloted time of: {_TEE_WAIT_TIMEOUT}s"
                     )
 
                 return output

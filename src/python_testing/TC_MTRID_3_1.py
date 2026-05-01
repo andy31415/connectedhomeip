@@ -71,70 +71,123 @@ class TC_MTRID_3_1(MeterIdentificationTestBaseHelper):
         return ["MTRID.S"]
 
     def steps_TC_MTRID_3_1(self) -> list[TestStep]:
-
         return [
             TestStep("1", "Commissioning, already done", "DUT is commissioned.", is_commissioning=True),
-            TestStep("2", """Set up a subscription to the Meter Identification cluster:
+            TestStep(
+                "2",
+                """Set up a subscription to the Meter Identification cluster:
                      - MinIntervalFloor: 0
-                     - MaxIntervalCeiling: 10""", "Subscription successfully established."),
-            TestStep("3", "TH reads MeterType attribute.", """
+                     - MaxIntervalCeiling: 10""",
+                "Subscription successfully established.",
+            ),
+            TestStep(
+                "3",
+                "TH reads MeterType attribute.",
+                """
                      - DUT replies a null or a MeterTypeEnum value;
                      - Verify that value in range 0 - 2;
-                     - Store value as meter_type."""),
-            TestStep("4", "TH reads PointOfDelivery attribute.", """
+                     - Store value as meter_type.""",
+            ),
+            TestStep(
+                "4",
+                "TH reads PointOfDelivery attribute.",
+                """
                      - DUT replies a null or a value of string type;
                      - Verify that size is in range 0 - 64;
-                     - Store value as point_of_delivery."""),
-            TestStep("5", "TH reads MeterSerialNumber attribute.", """
+                     - Store value as point_of_delivery.""",
+            ),
+            TestStep(
+                "5",
+                "TH reads MeterSerialNumber attribute.",
+                """
                      - DUT replies a null or a value of string type;
                      - Verify that size is in range 0 - 64;
-                     - Store value as meter_serial_number."""),
-            TestStep("6", "TH reads ProtocolVersion attribute.", """
+                     - Store value as meter_serial_number.""",
+            ),
+            TestStep(
+                "6",
+                "TH reads ProtocolVersion attribute.",
+                """
                      - DUT replies a null or a value of string type;
                      - Verify that size is in range 0 - 64;
-                     - Store value as protocol_version."""),
-            TestStep("7", "TH reads PowerThreshold attribute.", """
+                     - Store value as protocol_version.""",
+            ),
+            TestStep(
+                "7",
+                "TH reads PowerThreshold attribute.",
+                """
                      - DUT replies a null or a value of PowerThresholdStruct type;
                      - PowerThreshold field has type int64;
                      - ApparentPowerThreshold field has type int64;
                      - PowerThresholdSource field has type PowerThresholdSourceEnum and value in range 0 - 2;
-                     - Store value as power_threshold."""),
-            TestStep("8", "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster.",
-                     "TestEventTriggersEnabled is True."),
-            TestStep("9", """TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.MTRID.TEST_EVENT_TRIGGER_KEY
+                     - Store value as power_threshold.""",
+            ),
+            TestStep(
+                "8",
+                "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster.",
+                "TestEventTriggersEnabled is True.",
+            ),
+            TestStep(
+                "9",
+                """TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.MTRID.TEST_EVENT_TRIGGER_KEY
                      and EventTrigger field set to PIXIT.MTRID.TEST_EVENT_TRIGGER for Attributes Value Set Test Event.""",
-                     "DUT returns SUCCESS."),
-            TestStep("10", "TH awaits a MeterType attribute with 10s timeout.", """
+                "DUT returns SUCCESS.",
+            ),
+            TestStep(
+                "10",
+                "TH awaits a MeterType attribute with 10s timeout.",
+                """
                      - Verify the report is received and contains a null or a MeterTypeEnum value;
                      - Value in range 0 - 2;
-                     - The value does not match the meter_type."""),
-            TestStep("11", "TH awaits a PointOfDelivery attribute with 10s timeout.", """
+                     - The value does not match the meter_type.""",
+            ),
+            TestStep(
+                "11",
+                "TH awaits a PointOfDelivery attribute with 10s timeout.",
+                """
                      - Verify the report is received and contains a null or a value of string type;
                      - Size in range 0 - 64;
-                     - The value does not match the point_of_delivery."""),
-            TestStep("12", "TH awaits a MeterSerialNumber attribute with 10s timeout.", """
+                     - The value does not match the point_of_delivery.""",
+            ),
+            TestStep(
+                "12",
+                "TH awaits a MeterSerialNumber attribute with 10s timeout.",
+                """
                      - Verify the report is received and contains a null or a value of string type;
                      - Size in range 0 - 64;
-                     - The value does not match the meter_serial_number."""),
-            TestStep("13", "TH awaits a ProtocolVersion attribute with 10s timeout.", """
+                     - The value does not match the meter_serial_number.""",
+            ),
+            TestStep(
+                "13",
+                "TH awaits a ProtocolVersion attribute with 10s timeout.",
+                """
                      - Verify the report is received and contains a null or a value of string type;
                      - Size in range 0 - 64;
-                     - The value does not match the protocol_version."""),
-            TestStep("14", "TH awaits a PowerThreshold attribute with 10s timeout.", """
+                     - The value does not match the protocol_version.""",
+            ),
+            TestStep(
+                "14",
+                "TH awaits a PowerThreshold attribute with 10s timeout.",
+                """
                      - Verify the report is received and contains a null or a value of PowerThresholdStruct type;
                      - PowerThreshold field has type int64;
                      - ApparentPowerThreshold field has type int64;
                      - PowerThresholdSource field has type PowerThresholdSourceEnum and value in range 0 - 2;
-                     - The value does not match the power_threshold."""),
-            TestStep("15", """TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.MTRID.TEST_EVENT_TRIGGER_KEY
+                     - The value does not match the power_threshold.""",
+            ),
+            TestStep(
+                "15",
+                """TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.MTRID.TEST_EVENT_TRIGGER_KEY
                      and EventTrigger field set to PIXIT.MTRID.TEST_EVENT_TRIGGER for Test Event Clear.""",
-                     "DUT returns SUCCESS."),
-            TestStep("16", "TH removes the subscriptions to the Meter Identification cluster.", "Subscription successfully removed."),
+                "DUT returns SUCCESS.",
+            ),
+            TestStep(
+                "16", "TH removes the subscriptions to the Meter Identification cluster.", "Subscription successfully removed."
+            ),
         ]
 
     @async_test_body
     async def test_TC_MTRID_3_1(self):
-
         endpoint = self.get_endpoint()
 
         matcher_list = self.get_mandatory_matchers()
@@ -144,10 +197,9 @@ class TC_MTRID_3_1(MeterIdentificationTestBaseHelper):
 
         self.step("2")
         subscription_handler = AttributeSubscriptionHandler(cluster)
-        await subscription_handler.start(self.default_controller, self.dut_node_id,
-                                         endpoint,
-                                         min_interval_sec=0,
-                                         max_interval_sec=10, keepSubscriptions=True)
+        await subscription_handler.start(
+            self.default_controller, self.dut_node_id, endpoint, min_interval_sec=0, max_interval_sec=10, keepSubscriptions=True
+        )
 
         self.step("3")
         meter_type = await self.read_single_attribute_check_success(
@@ -169,7 +221,6 @@ class TC_MTRID_3_1(MeterIdentificationTestBaseHelper):
 
         # Checks if ProtocolVersion attribute is supported
         if await self.attribute_guard(endpoint=endpoint, attribute=cluster.Attributes.ProtocolVersion):
-
             self.step("6")
 
             if not self.check_pics("MTRID.S.A0003"):  # for cases when it is supported by DUT, but disabled in PICS
@@ -182,17 +233,16 @@ class TC_MTRID_3_1(MeterIdentificationTestBaseHelper):
             await self.check_protocol_version_attribute(endpoint, protocol_version)
             matcher_list.append(self._protocol_version_matcher())
         else:
-
             if self.check_pics("MTRID.S.A0003"):  # for cases when it is not supported by DUT, but enabled in PICS
                 self.step("6")
                 asserts.fail(
-                    "PICS file does not correspond to real DUT functionality. ProtocolVersion is not actually supported, but MTRID.S.A0003 is True.")
+                    "PICS file does not correspond to real DUT functionality. ProtocolVersion is not actually supported, but MTRID.S.A0003 is True."
+                )
             else:  # attribute is not supported at all
                 self.skip_step("6")
 
         # Checks if PowerThreshold feature is supported
         if await self.feature_guard(endpoint=endpoint, cluster=cluster, feature_int=cluster.Bitmaps.Feature.kPowerThreshold):
-
             self.step("7")
 
             if not self.check_pics("MTRID.S.A0004"):
@@ -205,11 +255,11 @@ class TC_MTRID_3_1(MeterIdentificationTestBaseHelper):
             await self.check_power_threshold_attribute(endpoint, power_threshold)
             matcher_list.append(self._power_threshold_matcher())
         else:
-
             if self.check_pics("MTRID.S.A0004"):
                 self.step("7")
                 asserts.fail(
-                    "PICS file does not correspond to real DUT functionality. PowerThreshold feature is not actually supported, but MTRID.S.A0004 is True.")
+                    "PICS file does not correspond to real DUT functionality. PowerThreshold feature is not actually supported, but MTRID.S.A0004 is True."
+                )
             else:
                 self.skip_step("7")
 
@@ -221,22 +271,28 @@ class TC_MTRID_3_1(MeterIdentificationTestBaseHelper):
         subscription_handler.await_all_expected_report_matches(matcher_list, timeout_sec=10)
 
         self.step("10")
-        await self.check_meter_type_attribute(endpoint, subscription_handler.attribute_reports[cluster.Attributes.MeterType][0].value)
+        await self.check_meter_type_attribute(
+            endpoint, subscription_handler.attribute_reports[cluster.Attributes.MeterType][0].value
+        )
         await self.verify_reporting(subscription_handler.attribute_reports, cluster.Attributes.MeterType, "MeterType", meter_type)
 
         self.step("11")
-        await self.check_point_of_delivery_attribute(endpoint, subscription_handler.attribute_reports[cluster.Attributes.PointOfDelivery][0].value)
-        await self.verify_reporting(subscription_handler.attribute_reports,
-                                    cluster.Attributes.PointOfDelivery, "PointOfDelivery", point_of_delivery)
+        await self.check_point_of_delivery_attribute(
+            endpoint, subscription_handler.attribute_reports[cluster.Attributes.PointOfDelivery][0].value
+        )
+        await self.verify_reporting(
+            subscription_handler.attribute_reports, cluster.Attributes.PointOfDelivery, "PointOfDelivery", point_of_delivery
+        )
 
         self.step("12")
         await self.check_meter_serial_number_attribute(
-            endpoint, subscription_handler.attribute_reports[cluster.Attributes.MeterSerialNumber][0].value)
-        await self.verify_reporting(subscription_handler.attribute_reports, cluster.Attributes.MeterSerialNumber,
-                                    "MeterSerialNumber", meter_serial_number)
+            endpoint, subscription_handler.attribute_reports[cluster.Attributes.MeterSerialNumber][0].value
+        )
+        await self.verify_reporting(
+            subscription_handler.attribute_reports, cluster.Attributes.MeterSerialNumber, "MeterSerialNumber", meter_serial_number
+        )
 
         if await self.attribute_guard(endpoint=endpoint, attribute=cluster.Attributes.ProtocolVersion):
-
             self.step("13")
 
             if not self.check_pics("MTRID.S.A0003"):  # for cases when it is supported by DUT, but disabled in PICS
@@ -244,20 +300,21 @@ class TC_MTRID_3_1(MeterIdentificationTestBaseHelper):
 
             # TH reads ProtocolVersion attribute, expects a null or a value of string type
             await self.check_protocol_version_attribute(
-                endpoint, subscription_handler.attribute_reports[cluster.Attributes.ProtocolVersion][0].value)
-            await self.verify_reporting(subscription_handler.attribute_reports,
-                                        cluster.Attributes.ProtocolVersion, "ProtocolVersion", protocol_version)
+                endpoint, subscription_handler.attribute_reports[cluster.Attributes.ProtocolVersion][0].value
+            )
+            await self.verify_reporting(
+                subscription_handler.attribute_reports, cluster.Attributes.ProtocolVersion, "ProtocolVersion", protocol_version
+            )
         else:
-
             if self.check_pics("MTRID.S.A0003"):  # for cases when it is not supported by DUT, but enabled in PICS
                 self.step("13")
                 asserts.fail(
-                    "PICS file does not correspond to real DUT functionality. ProtocolVersion is not actually supported, but MTRID.S.A0003 is True.")
+                    "PICS file does not correspond to real DUT functionality. ProtocolVersion is not actually supported, but MTRID.S.A0003 is True."
+                )
             else:  # attribute is not supported at all
                 self.skip_step("13")
 
         if await self.feature_guard(endpoint=endpoint, cluster=cluster, feature_int=cluster.Bitmaps.Feature.kPowerThreshold):
-
             self.step("14")
 
             if not self.check_pics("MTRID.S.A0004"):
@@ -265,15 +322,17 @@ class TC_MTRID_3_1(MeterIdentificationTestBaseHelper):
 
             # TH reads PowerThreshold attribute, expects a null or a value of PowerThresholdStruct type
             await self.check_power_threshold_attribute(
-                endpoint, subscription_handler.attribute_reports[cluster.Attributes.PowerThreshold][0].value)
-            await self.verify_reporting(subscription_handler.attribute_reports,
-                                        cluster.Attributes.PowerThreshold, "PowerThreshold", power_threshold)
+                endpoint, subscription_handler.attribute_reports[cluster.Attributes.PowerThreshold][0].value
+            )
+            await self.verify_reporting(
+                subscription_handler.attribute_reports, cluster.Attributes.PowerThreshold, "PowerThreshold", power_threshold
+            )
         else:
-
             if self.check_pics("MTRID.S.A0004"):
                 self.step("14")
                 asserts.fail(
-                    "PICS file does not correspond to real DUT functionality. PowerThreshold feature is not actually supported, but MTRID.S.A0004 is True.")
+                    "PICS file does not correspond to real DUT functionality. PowerThreshold feature is not actually supported, but MTRID.S.A0004 is True."
+                )
             else:
                 self.skip_step("14")
 

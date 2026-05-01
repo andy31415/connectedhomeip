@@ -153,9 +153,7 @@ DeviceInfoProvider::UserLabelIterator * AllClustersExampleDeviceInfoProviderImpl
 }
 
 AllClustersExampleDeviceInfoProviderImpl::UserLabelIteratorImpl::UserLabelIteratorImpl(
-    AllClustersExampleDeviceInfoProviderImpl & provider, EndpointId endpoint) :
-    mProvider(provider),
-    mEndpoint(endpoint)
+    AllClustersExampleDeviceInfoProviderImpl & provider, EndpointId endpoint) : mProvider(provider), mEndpoint(endpoint)
 {
     size_t total = 0;
 

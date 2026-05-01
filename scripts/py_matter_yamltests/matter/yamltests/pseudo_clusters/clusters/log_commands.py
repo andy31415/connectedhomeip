@@ -15,7 +15,7 @@
 
 from ..pseudo_cluster import PseudoCluster
 
-_DEFINITION = '''<?xml version="1.0"?>
+_DEFINITION = """<?xml version="1.0"?>
 <configurator>
 <cluster>
     <name>LogCommands</name>
@@ -41,20 +41,19 @@ _DEFINITION = '''<?xml version="1.0"?>
     </command>
 </cluster>
 </configurator>
-'''
+"""
 
 
 class LogCommands(PseudoCluster):
-    name = 'LogCommands'
+    name = "LogCommands"
     definition = _DEFINITION
 
     async def UserPrompt(self, request):
         expected_value = None
         for value in request.arguments.get("values", []):
-            if value.get('name') and 'expectedValue' in value['name']:
-                expected_value = value['value']
-                request.responses = [
-                    {"values": [{"name": "expectedValue", "value": expected_value}]}]
+            if value.get("name") and "expectedValue" in value["name"]:
+                expected_value = value["value"]
+                request.responses = [{"values": [{"name": "expectedValue", "value": expected_value}]}]
 
         if expected_value is not None:
             input_result = input("")

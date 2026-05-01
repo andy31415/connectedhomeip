@@ -29,16 +29,17 @@ c_uint8_p = POINTER(c_uint8)
 
 
 _OnTransferObtainedCallbackFunct = CFUNCTYPE(
-    None, py_object, c_void_p, c_uint8, c_uint16, c_uint64, c_uint64, c_uint8_p, c_uint16, c_uint8_p, c_size_t)
+    None, py_object, c_void_p, c_uint8, c_uint16, c_uint64, c_uint64, c_uint8_p, c_uint16, c_uint8_p, c_size_t
+)
 _OnFailedToObtainTransferCallbackFunct = CFUNCTYPE(None, py_object, PyChipError)
 _OnDataReceivedCallbackFunct = CFUNCTYPE(None, py_object, c_uint8_p, c_size_t)
 _OnTransferCompletedCallbackFunct = CFUNCTYPE(None, py_object, PyChipError)
 
 
 class AsyncTransferObtainedTransaction:
-    ''' The Python context when obtaining a transfer. This is passed into the C++ code to be sent back to Python as part
+    """The Python context when obtaining a transfer. This is passed into the C++ code to be sent back to Python as part
     of the callback when a transfer is obtained, and sets the result of the future after being called back.
-    '''
+    """
 
     def __init__(self, future, event_loop, data=None):
         self._future = future
@@ -60,9 +61,9 @@ class AsyncTransferObtainedTransaction:
 
 
 class AsyncTransferCompletedTransaction:
-    ''' The Python context when accepting a transfer. This is passed into the C++ code to be sent back to Python as part
+    """The Python context when accepting a transfer. This is passed into the C++ code to be sent back to Python as part
     of the callback when the transfer completes, and sets the result of the future after being called back.
-    '''
+    """
 
     def __init__(self, future, event_loop):
         self._future = future
@@ -79,9 +80,18 @@ class AsyncTransferCompletedTransaction:
 
 
 @_OnTransferObtainedCallbackFunct
-def _OnTransferObtainedCallback(transaction: AsyncTransferObtainedTransaction, bdxTransfer, transferControlFlags: int,
-                                maxBlockSize: int, startOffset: int, length: int, fileDesignator, fileDesignatorLength: int,
-                                metadata, metadataLength: int):
+def _OnTransferObtainedCallback(
+    transaction: AsyncTransferObtainedTransaction,
+    bdxTransfer,
+    transferControlFlags: int,
+    maxBlockSize: int,
+    startOffset: int,
+    length: int,
+    fileDesignator,
+    fileDesignatorLength: int,
+    metadata,
+    metadataLength: int,
+):
     fileDesignatorData = ctypes.string_at(fileDesignator, fileDesignatorLength)
     metadataData = ctypes.string_at(metadata, metadataLength)
 
@@ -114,13 +124,13 @@ def _OnTransferCompletedCallback(transaction: AsyncTransferCompletedTransaction,
 
 
 def _PrepareForBdxTransfer(future: Future, data: Optional[bytes], max_block_size: Optional[int] = None) -> PyChipError:
-    ''' Prepares the BDX system for a BDX transfer. The BDX transfer is set as the future's result. This must be called
+    """Prepares the BDX system for a BDX transfer. The BDX transfer is set as the future's result. This must be called
     before the BDX transfer is initiated.
 
     If max_block_size is provided (1..65535), it overrides the controller's default cap.
 
     Returns the CHIP_ERROR result from the C++ side.
-    '''
+    """
     handle = GetLibraryHandle()
     transaction = AsyncTransferObtainedTransaction(future=future, event_loop=asyncio.get_running_loop(), data=data)
 
@@ -129,12 +139,11 @@ def _PrepareForBdxTransfer(future: Future, data: Optional[bytes], max_block_size
         if not fut.cancelled():
             return
         ctypes.pythonapi.Py_IncRef(ctypes.py_object(transaction))
-        res = builtins.chipStack.Call(
-            lambda: handle.pychip_Bdx_StopExpectingBdxTransfer(ctypes.py_object(transaction))
-        )
+        res = builtins.chipStack.Call(lambda: handle.pychip_Bdx_StopExpectingBdxTransfer(ctypes.py_object(transaction)))
         if not res.is_success:
             ctypes.pythonapi.Py_DecRef(ctypes.py_object(transaction))
         res.raise_on_error()
+
     future.add_done_callback(_on_done)
 
     ctypes.pythonapi.Py_IncRef(ctypes.py_object(transaction))
@@ -151,7 +160,7 @@ def _PrepareForBdxTransfer(future: Future, data: Optional[bytes], max_block_size
 
 
 def PrepareToReceiveBdxData(future: Future, max_block_size: Optional[int] = None) -> PyChipError:
-    ''' Prepares the BDX system for a BDX transfer where this device receives data. This must be called before the BDX
+    """Prepares the BDX system for a BDX transfer where this device receives data. This must be called before the BDX
     transfer is initiated.
 
     When a BDX transfer is found it's set as the future's result. If an error occurs while waiting it is set as the future's exception.
@@ -159,7 +168,7 @@ def PrepareToReceiveBdxData(future: Future, max_block_size: Optional[int] = None
     If max_block_size is provided (1..65535), it overrides the controller's default cap.
 
     Returns an error if there was an issue preparing to wait a BDX transfer.
-    '''
+    """
     # Validate max_block_size to fit in uint16.
     if max_block_size is not None and not (1 <= max_block_size <= 0xFFFF):
         raise ValueError("max_block_size must be in [1, 65535]")
@@ -168,24 +177,24 @@ def PrepareToReceiveBdxData(future: Future, max_block_size: Optional[int] = None
 
 
 def PrepareToSendBdxData(future: Future, data: bytes) -> PyChipError:
-    ''' Prepares the BDX system for a BDX transfer where this device sends data. This must be called before the BDX
+    """Prepares the BDX system for a BDX transfer where this device sends data. This must be called before the BDX
     transfer is initiated.
 
     When a BDX transfer is found it's set as the future's result. If an error occurs while waiting it is set as the future's exception.
 
     Returns an error if there was an issue preparing to wait a BDX transfer.
-    '''
+    """
     return _PrepareForBdxTransfer(future, data)
 
 
 def AcceptTransferAndReceiveData(transfer: c_void_p, dataReceivedClosure: Callable[[bytes], None], transferComplete: Future):
-    ''' Accepts a BDX transfer with the intent of receiving data.
+    """Accepts a BDX transfer with the intent of receiving data.
 
     The data will be returned block-by-block in dataReceivedClosure.
     transferComplete will be fulfilled when the transfer completes.
 
     Returns an error if one is encountered while accepting the transfer.
-    '''
+    """
     handle = GetLibraryHandle()
     complete_transaction = AsyncTransferCompletedTransaction(future=transferComplete, event_loop=asyncio.get_running_loop())
     ctypes.pythonapi.Py_IncRef(ctypes.py_object(dataReceivedClosure))
@@ -200,13 +209,13 @@ def AcceptTransferAndReceiveData(transfer: c_void_p, dataReceivedClosure: Callab
 
 
 def AcceptTransferAndSendData(transfer: c_void_p, data: bytearray, transferComplete: Future):
-    ''' Accepts a BDX transfer with the intent of sending data.
+    """Accepts a BDX transfer with the intent of sending data.
 
     The data will be copied by C++.
     transferComplete will be fulfilled when the transfer completes.
 
     Returns an error if one is encountered while accepting the transfer.
-    '''
+    """
     handle = GetLibraryHandle()
     complete_transaction = AsyncTransferCompletedTransaction(future=transferComplete, event_loop=asyncio.get_running_loop())
     ctypes.pythonapi.Py_IncRef(ctypes.py_object(complete_transaction))
@@ -219,14 +228,12 @@ def AcceptTransferAndSendData(transfer: c_void_p, data: bytearray, transferCompl
 
 
 async def RejectTransfer(transfer: c_void_p):
-    ''' Rejects a BDX transfer.
+    """Rejects a BDX transfer.
 
     Returns an error if one is encountered while rejecting the transfer.
-    '''
+    """
     handle = GetLibraryHandle()
-    return await builtins.chipStack.CallAsyncWithResult(
-        lambda: handle.pychip_Bdx_RejectTransfer(transfer)
-    )
+    return await builtins.chipStack.CallAsyncWithResult(lambda: handle.pychip_Bdx_RejectTransfer(transfer))
 
 
 def Init():
@@ -235,29 +242,31 @@ def Init():
     if not handle.pychip_Bdx_ExpectBdxTransfer.argtypes:
         setter = NativeLibraryHandleMethodArguments(handle)
 
-        setter.Set('pychip_Bdx_ExpectBdxTransfer',
-                   PyChipError, [py_object, c_uint16])
-        setter.Set('pychip_Bdx_StopExpectingBdxTransfer',
-                   PyChipError, [py_object])
-        setter.Set('pychip_Bdx_AcceptTransferAndReceiveData',
-                   PyChipError, [c_void_p, py_object, py_object])
-        setter.Set('pychip_Bdx_AcceptTransferAndSendData',
-                   PyChipError, [c_void_p, c_uint8_p, c_size_t])
-        setter.Set('pychip_Bdx_RejectTransfer',
-                   PyChipError, [c_void_p])
-        setter.Set('pychip_Bdx_InitCallbacks', None, [
-                   _OnTransferObtainedCallbackFunct, _OnFailedToObtainTransferCallbackFunct, _OnDataReceivedCallbackFunct,
-                   _OnTransferCompletedCallbackFunct])
-        setter.Set('pychip_Bdx_Shutdown',
-                   None, [])
+        setter.Set("pychip_Bdx_ExpectBdxTransfer", PyChipError, [py_object, c_uint16])
+        setter.Set("pychip_Bdx_StopExpectingBdxTransfer", PyChipError, [py_object])
+        setter.Set("pychip_Bdx_AcceptTransferAndReceiveData", PyChipError, [c_void_p, py_object, py_object])
+        setter.Set("pychip_Bdx_AcceptTransferAndSendData", PyChipError, [c_void_p, c_uint8_p, c_size_t])
+        setter.Set("pychip_Bdx_RejectTransfer", PyChipError, [c_void_p])
+        setter.Set(
+            "pychip_Bdx_InitCallbacks",
+            None,
+            [
+                _OnTransferObtainedCallbackFunct,
+                _OnFailedToObtainTransferCallbackFunct,
+                _OnDataReceivedCallbackFunct,
+                _OnTransferCompletedCallbackFunct,
+            ],
+        )
+        setter.Set("pychip_Bdx_Shutdown", None, [])
 
     handle.pychip_Bdx_InitCallbacks(
-        _OnTransferObtainedCallback, _OnFailedToObtainTransferCallback, _OnDataReceivedCallback, _OnTransferCompletedCallback)
+        _OnTransferObtainedCallback, _OnFailedToObtainTransferCallback, _OnDataReceivedCallback, _OnTransferCompletedCallback
+    )
 
 
 def Shutdown():
-    '''
+    """
     Shut down the BDX server.
-    '''
+    """
     handle = GetLibraryHandle()
     handle.pychip_Bdx_Shutdown()

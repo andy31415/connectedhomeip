@@ -31,23 +31,96 @@ import sys
 
 from six.moves import range
 
-__all__ = ['ComputeCheckChar',   'VerifyCheckChar',
-           'ComputeCheckChar16', 'VerifyCheckChar16',
-           'ComputeCheckChar32', 'VerifyCheckChar32',
-           'ComputeCheckChar36', 'VerifyCheckChar36']
+__all__ = [
+    "ComputeCheckChar",
+    "VerifyCheckChar",
+    "ComputeCheckChar16",
+    "VerifyCheckChar16",
+    "ComputeCheckChar32",
+    "VerifyCheckChar32",
+    "ComputeCheckChar36",
+    "VerifyCheckChar36",
+]
 
 CharSet_Base10 = "0123456789"
 CharSet_Base16 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 CharSet_Base32 = "0123456789ABCDEFGHJKLMNPRSTUVWXY"  # Excludes I, O, Q and Z
 CharSet_Base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-PermTable_Base10 = [1,   5,  7,  6,  2,  8,  3,  0,  9,  4]
-PermTable_Base16 = [4,   7,  5, 14,  8, 12,
-                    15,  0,  2, 11,  3, 13, 10,  6,  9,  1]
-PermTable_Base32 = [7,   2,  1, 30, 16, 20, 27, 11, 31,  6,  8, 13, 29,  5,
-                    10, 21, 22,  3, 24,  0, 23, 25, 12,  9, 28, 14,  4, 15, 17, 18, 19, 26]
-PermTable_Base36 = [29,  0, 32, 11, 35, 20,  7, 27,  2,  4, 19, 28, 30,  1,  5, 12,
-                    3,  9, 16, 22,  6, 33,  8, 24, 26, 21, 14, 10, 34, 31, 15, 25, 17, 13, 23, 18]
+PermTable_Base10 = [1, 5, 7, 6, 2, 8, 3, 0, 9, 4]
+PermTable_Base16 = [4, 7, 5, 14, 8, 12, 15, 0, 2, 11, 3, 13, 10, 6, 9, 1]
+PermTable_Base32 = [
+    7,
+    2,
+    1,
+    30,
+    16,
+    20,
+    27,
+    11,
+    31,
+    6,
+    8,
+    13,
+    29,
+    5,
+    10,
+    21,
+    22,
+    3,
+    24,
+    0,
+    23,
+    25,
+    12,
+    9,
+    28,
+    14,
+    4,
+    15,
+    17,
+    18,
+    19,
+    26,
+]
+PermTable_Base36 = [
+    29,
+    0,
+    32,
+    11,
+    35,
+    20,
+    7,
+    27,
+    2,
+    4,
+    19,
+    28,
+    30,
+    1,
+    5,
+    12,
+    3,
+    9,
+    16,
+    22,
+    6,
+    33,
+    8,
+    24,
+    26,
+    21,
+    14,
+    10,
+    34,
+    31,
+    15,
+    25,
+    17,
+    13,
+    23,
+    18,
+]
 
 
 def DihedralMultiply(x, y, n):
@@ -56,24 +129,24 @@ def DihedralMultiply(x, y, n):
     x = x % n2
     y = y % n2
 
-    if (x < n):
-        if (y < n):
+    if x < n:
+        if y < n:
             return (x + y) % n
         return ((x + (y - n)) % n) + n
-    if (y < n):
+    if y < n:
         return ((n + (x - n) - y) % n) + n
     return (n + (x - n) - (y - n)) % n
 
 
 def DihedralInvert(val, n):
-    if (val > 0 and val < n):
+    if val > 0 and val < n:
         return n - val
     return val
 
 
 def Permute(val, permTable, iterCount):
     val = val % len(permTable)
-    if (iterCount == 0):
+    if iterCount == 0:
         return val
     return Permute(permTable[val], permTable, iterCount - 1)
 
@@ -81,7 +154,7 @@ def Permute(val, permTable, iterCount):
 def _ComputeCheckChar(str, strLen, polygonSize, permTable, charSet):
     str = str.upper()
     c = 0
-    for i in range(1, strLen+1):
+    for i in range(1, strLen + 1):
         ch = str[strLen - i]
         val = charSet.index(ch)
         p = Permute(val, permTable, i)
@@ -95,8 +168,7 @@ def ComputeCheckChar(str, charSet=CharSet_Base10):
 
 
 def VerifyCheckChar(str, charSet=CharSet_Base10):
-    expectedCheckCh = _ComputeCheckChar(str, len(
-        str)-1, polygonSize=5, permTable=PermTable_Base10, charSet=CharSet_Base10)
+    expectedCheckCh = _ComputeCheckChar(str, len(str) - 1, polygonSize=5, permTable=PermTable_Base10, charSet=CharSet_Base10)
     return str[-1] == expectedCheckCh
 
 
@@ -105,8 +177,7 @@ def ComputeCheckChar16(str, charSet=CharSet_Base16):
 
 
 def VerifyCheckChar16(str, charSet=CharSet_Base16):
-    expectedCheckCh = _ComputeCheckChar(
-        str, len(str)-1, polygonSize=8, permTable=PermTable_Base16, charSet=charSet)
+    expectedCheckCh = _ComputeCheckChar(str, len(str) - 1, polygonSize=8, permTable=PermTable_Base16, charSet=charSet)
     return str[-1] == expectedCheckCh
 
 
@@ -115,8 +186,7 @@ def ComputeCheckChar32(str, charSet=CharSet_Base32):
 
 
 def VerifyCheckChar32(str, charSet=CharSet_Base32):
-    expectedCheckCh = _ComputeCheckChar(
-        str, len(str)-1, polygonSize=16, permTable=PermTable_Base32, charSet=charSet)
+    expectedCheckCh = _ComputeCheckChar(str, len(str) - 1, polygonSize=16, permTable=PermTable_Base32, charSet=charSet)
     return str[-1] == expectedCheckCh
 
 
@@ -125,13 +195,11 @@ def ComputeCheckChar36(str, charSet=CharSet_Base36):
 
 
 def VerifyCheckChar36(str, charSet=CharSet_Base36):
-    expectedCheckCh = _ComputeCheckChar(
-        str, len(str)-1, polygonSize=18, permTable=PermTable_Base36, charSet=charSet)
+    expectedCheckCh = _ComputeCheckChar(str, len(str) - 1, polygonSize=18, permTable=PermTable_Base36, charSet=charSet)
     return str[-1] == expectedCheckCh
 
 
 if __name__ == "__main__":
-
     usage = """Usage: %s <command> [ <args> ]
 
 Commands:
@@ -140,30 +208,30 @@ Commands:
   gen-multiply-table <base>
 """ % (sys.argv[0])
 
-    if (len(sys.argv) < 2):
+    if len(sys.argv) < 2:
         print(usage)
-    elif (sys.argv[1] == "generate"):
-        if (len(sys.argv) < 3):
+    elif sys.argv[1] == "generate":
+        if len(sys.argv) < 3:
             print(usage)
             sys.exit(-1)
         ch = ComputeCheckChar(sys.argv[2])
         print("%s%c" % (sys.argv[2], ch))
-    elif (sys.argv[1] == "verify"):
-        if (len(sys.argv) < 3):
+    elif sys.argv[1] == "verify":
+        if len(sys.argv) < 3:
             print(usage)
             sys.exit(-1)
-        if (VerifyCheckChar(sys.argv[2])):
+        if VerifyCheckChar(sys.argv[2]):
             print("%s is VALID" % (sys.argv[2]))
             sys.exit(0)
         else:
             print("%s is INVALID" % (sys.argv[2]))
             sys.exit(-1)
-    elif (sys.argv[1] == "gen-multiply-table"):
-        if (len(sys.argv) < 3):
+    elif sys.argv[1] == "gen-multiply-table":
+        if len(sys.argv) < 3:
             print(usage)
             sys.exit(-1)
         base = int(sys.argv[2])
-        if (base % 2 != 0):
+        if base % 2 != 0:
             print("Base must be even")
             sys.exit(-1)
         n = base / 2

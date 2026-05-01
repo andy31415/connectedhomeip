@@ -30,9 +30,8 @@ namespace chip::app::Clusters::ApplicationBasic::Chef {
 ChefDelegate::ChefDelegate(EndpointId endpointId, const char * vendorName, uint16_t catalogVendorId, const char * applicationId,
                            const char * applicationName, const char * applicationVersion,
                            const Span<const uint16_t> allowedVendorList, const uint16_t productId) :
-    Delegate(catalogVendorId, applicationId),
-    mEndpointId(endpointId), mApplicationName(applicationName), mVendorName(vendorName), mProductId(productId),
-    mApplicationVersion(applicationVersion), mAllowedVendorList(allowedVendorList)
+    Delegate(catalogVendorId, applicationId), mEndpointId(endpointId), mApplicationName(applicationName), mVendorName(vendorName),
+    mProductId(productId), mApplicationVersion(applicationVersion), mAllowedVendorList(allowedVendorList)
 {}
 
 CHIP_ERROR ChefDelegate::HandleGetApplicationName(app::AttributeValueEncoder & aEncoder)

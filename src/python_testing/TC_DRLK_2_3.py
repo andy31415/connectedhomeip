@@ -55,7 +55,6 @@ from matter.testing.runner import default_matter_test_main
 
 
 class TC_DRLK_2_3(MatterBaseTest, DRLK_COMMON):
-
     @async_test_body
     async def teardown_test(self):
         await self.teardown()

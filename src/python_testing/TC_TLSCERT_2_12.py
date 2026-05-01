@@ -56,43 +56,91 @@ class TC_TLSCERT_2_12(TC_TLSCERT_Base):
         return [
             *self.get_two_fabric_substeps(),
             TestStep(2, "Populate myNonce[] with 3 distinct, random 32-octet values"),
-            TestStep(3, "CR1 sends LookupClientCertificate command with Fingerprint set to the empty octstr.",
-                     test_plan_support.verify_status(Status.NotFound)),
-            TestStep(4, "CR1 sends LookupClientCertificate command with Fingerprint set to and arbitrary octstr.",
-                     test_plan_support.verify_status(Status.NotFound)),
-            TestStep(5, "CR1 sends ClientCSR command with Nonce set to myNonce[i], for each i in [0..1].",
-                     "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid[i] and CSR in myCsr[i]."),
-            TestStep(6, "CR2 sends ClientCSR command with Nonce set to myNonce[2].",
-                     "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid[2] and CSR in myCsr[2]."),
-            TestStep(7,
-                     "Populate myClientCert[] with 3 distinct, valid, self-signed, DER-encoded x509 certificates using each respective public key from myCsr[i]."),
+            TestStep(
+                3,
+                "CR1 sends LookupClientCertificate command with Fingerprint set to the empty octstr.",
+                test_plan_support.verify_status(Status.NotFound),
+            ),
+            TestStep(
+                4,
+                "CR1 sends LookupClientCertificate command with Fingerprint set to and arbitrary octstr.",
+                test_plan_support.verify_status(Status.NotFound),
+            ),
+            TestStep(
+                5,
+                "CR1 sends ClientCSR command with Nonce set to myNonce[i], for each i in [0..1].",
+                "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid[i] and CSR in myCsr[i].",
+            ),
+            TestStep(
+                6,
+                "CR2 sends ClientCSR command with Nonce set to myNonce[2].",
+                "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid[2] and CSR in myCsr[2].",
+            ),
+            TestStep(
+                7,
+                "Populate myClientCert[] with 3 distinct, valid, self-signed, DER-encoded x509 certificates using each respective public key from myCsr[i].",
+            ),
             TestStep(8, "Populate myClientCertFingerprint[] with the fingerprints corresponding to myClientCert[]."),
             TestStep(9, "Set myBigFingerprint to myClientCertFingerprint[0] concatenated with enough characters to exceed 64."),
-            TestStep(10, "CR1 sends LookupClientCertificate command with Fingerprint set to the empty octstr.",
-                     test_plan_support.verify_status(Status.NotFound)),
-            TestStep(11, "CR1 sends LookupClientCertificate command with Fingerprint set to and arbitrary octstr.",
-                     test_plan_support.verify_status(Status.NotFound)),
-            TestStep(12, "CR1 sends LookupClientCertificate command with Fingerprint set to the myClientCertFingerprint[0]",
-                     test_plan_support.verify_status(Status.NotFound)),
-            TestStep(13, "CR1 sends ProvisionClientCertificate command with CCDID set to myCcdid[i] and ClientCertificate set to myClientCert[i], for each i in [0..1].",
-                     test_plan_support.verify_success()),
-            TestStep(14, "CR2 sends ProvisionClientCertificate command with CCDID set to myCcdid[2] and ClientCertificate set to myClientCert[2].",
-                     test_plan_support.verify_success()),
-            TestStep(15, "CR1 sends LookupClientCertificate command with Fingerprint set to myClientCertFingerprint[0].",
-                     "DUT replies with a TLSCCDID value equal to myCcdid[0]."),
-            TestStep(16, "CR1 sends LookupClientCertificate command with Fingerprint set to myClientCertFingerprint[1].",
-                     "DUT replies with a TLSCCDID value equal to myCcdid[1]."),
-            TestStep(17, "CR1 sends LookupClientCertificate command with Fingerprint set to myClientCertFingerprint[2].",
-                     test_plan_support.verify_status(Status.NotFound)),
-            TestStep(18, "CR2 sends LookupClientCertificate command with Fingerprint set to myClientCertFingerprint[2].",
-                     "DUT replies with a TLSCCDID value equal to myCcdid[2]."),
-            TestStep(19, "CR1 sends LookupClientCertificate command with Fingerprint set to myBigFingerprint.",
-                     test_plan_support.verify_status(Status.ConstraintError)),
-            TestStep(20, "CR1 sends RemoveClientCertificate command with CCDID set to myCcdid[i], for each i in [0..1].",
-                     test_plan_support.verify_success()),
-            TestStep(21, "CR2 sends RemoveClientCertificate command with CCDID set to myCcdid[2].",
-                     test_plan_support.verify_success()),
-            TestStep(22, test_plan_support.remove_fabric('CR2', 'CR1'), test_plan_support.verify_success()),
+            TestStep(
+                10,
+                "CR1 sends LookupClientCertificate command with Fingerprint set to the empty octstr.",
+                test_plan_support.verify_status(Status.NotFound),
+            ),
+            TestStep(
+                11,
+                "CR1 sends LookupClientCertificate command with Fingerprint set to and arbitrary octstr.",
+                test_plan_support.verify_status(Status.NotFound),
+            ),
+            TestStep(
+                12,
+                "CR1 sends LookupClientCertificate command with Fingerprint set to the myClientCertFingerprint[0]",
+                test_plan_support.verify_status(Status.NotFound),
+            ),
+            TestStep(
+                13,
+                "CR1 sends ProvisionClientCertificate command with CCDID set to myCcdid[i] and ClientCertificate set to myClientCert[i], for each i in [0..1].",
+                test_plan_support.verify_success(),
+            ),
+            TestStep(
+                14,
+                "CR2 sends ProvisionClientCertificate command with CCDID set to myCcdid[2] and ClientCertificate set to myClientCert[2].",
+                test_plan_support.verify_success(),
+            ),
+            TestStep(
+                15,
+                "CR1 sends LookupClientCertificate command with Fingerprint set to myClientCertFingerprint[0].",
+                "DUT replies with a TLSCCDID value equal to myCcdid[0].",
+            ),
+            TestStep(
+                16,
+                "CR1 sends LookupClientCertificate command with Fingerprint set to myClientCertFingerprint[1].",
+                "DUT replies with a TLSCCDID value equal to myCcdid[1].",
+            ),
+            TestStep(
+                17,
+                "CR1 sends LookupClientCertificate command with Fingerprint set to myClientCertFingerprint[2].",
+                test_plan_support.verify_status(Status.NotFound),
+            ),
+            TestStep(
+                18,
+                "CR2 sends LookupClientCertificate command with Fingerprint set to myClientCertFingerprint[2].",
+                "DUT replies with a TLSCCDID value equal to myCcdid[2].",
+            ),
+            TestStep(
+                19,
+                "CR1 sends LookupClientCertificate command with Fingerprint set to myBigFingerprint.",
+                test_plan_support.verify_status(Status.ConstraintError),
+            ),
+            TestStep(
+                20,
+                "CR1 sends RemoveClientCertificate command with CCDID set to myCcdid[i], for each i in [0..1].",
+                test_plan_support.verify_success(),
+            ),
+            TestStep(
+                21, "CR2 sends RemoveClientCertificate command with CCDID set to myCcdid[2].", test_plan_support.verify_success()
+            ),
+            TestStep(22, test_plan_support.remove_fabric("CR2", "CR1"), test_plan_support.verify_success()),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.TlsCertificateManagement))
@@ -108,10 +156,10 @@ class TC_TLSCERT_2_12(TC_TLSCERT_Base):
         my_client_cert = [None] * 3
 
         self.step(3)
-        await cr1_cmd.send_lookup_client_command(fingerprint=b'', expected_status=Status.NotFound)
+        await cr1_cmd.send_lookup_client_command(fingerprint=b"", expected_status=Status.NotFound)
 
         self.step(4)
-        await cr1_cmd.send_lookup_client_command(fingerprint=b'arbitrary', expected_status=Status.NotFound)
+        await cr1_cmd.send_lookup_client_command(fingerprint=b"arbitrary", expected_status=Status.NotFound)
 
         self.step(5)
         for i in range(2):
@@ -135,13 +183,13 @@ class TC_TLSCERT_2_12(TC_TLSCERT_Base):
         my_client_cert_fingerprint = [cr1_cmd.get_fingerprint(cert) for cert in my_client_cert]
 
         self.step(9)
-        my_big_fingerprint = my_client_cert_fingerprint[0] + b'\x00' * (65 - len(my_client_cert_fingerprint[0]))
+        my_big_fingerprint = my_client_cert_fingerprint[0] + b"\x00" * (65 - len(my_client_cert_fingerprint[0]))
 
         self.step(10)
-        await cr1_cmd.send_lookup_client_command(fingerprint=b'', expected_status=Status.NotFound)
+        await cr1_cmd.send_lookup_client_command(fingerprint=b"", expected_status=Status.NotFound)
 
         self.step(11)
-        await cr1_cmd.send_lookup_client_command(fingerprint=b'arbitrary', expected_status=Status.NotFound)
+        await cr1_cmd.send_lookup_client_command(fingerprint=b"arbitrary", expected_status=Status.NotFound)
 
         self.step(12)
         await cr1_cmd.send_lookup_client_command(fingerprint=my_client_cert_fingerprint[0], expected_status=Status.NotFound)
