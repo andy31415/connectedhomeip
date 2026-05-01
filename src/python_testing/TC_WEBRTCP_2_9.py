@@ -54,54 +54,35 @@ class TC_WEBRTCP_2_9(MatterBaseTest, WEBRTCPTestBase):
     def steps_TC_WEBRTCP_2_9(self) -> list[TestStep]:
         return [
             TestStep("precondition", "DUT commissioned", is_commissioning=True),
-            TestStep(
-                1,
-                "TH allocates both Audio and Video streams via AudioStreamAllocate and VideoStreamAllocate commands to CameraAVStreamManagement",
-                "DUT responds with success and provides stream IDs",
-            ),
-            TestStep(
-                2,
-                "TH sends the SolicitOffer command with valid parameters and no ICEServers or ICETransportPolicy fields",
-                "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID",
-            ),
-            TestStep(
-                3,
-                "TH sends the SolicitOffer command with valid parameters and ICEServers field containing valid STUN/TURN server list",
-                "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID and accepts ICE servers",
-            ),
-            TestStep(
-                4,
-                "TH sends the SolicitOffer command with valid parameters and ICETransportPolicy = 0 (All)",
-                "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID and accepts ICE transport policy 'all'",
-            ),
-            TestStep(
-                5,
-                "TH sends the SolicitOffer command with valid parameters and ICETransportPolicy = 1 (Relay)",
-                "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID and accepts ICE transport policy 'relay'",
-            ),
-            TestStep(
-                6,
-                "TH sends the SolicitOffer command with both ICEServers and ICETransportPolicy fields",
-                "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID and accepts both ICE servers and transport policy",
-            ),
+            TestStep(1, "TH allocates both Audio and Video streams via AudioStreamAllocate and VideoStreamAllocate commands to CameraAVStreamManagement",
+                     "DUT responds with success and provides stream IDs"),
+            TestStep(2, "TH sends the SolicitOffer command with valid parameters and no ICEServers or ICETransportPolicy fields",
+                     "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID"),
+            TestStep(3, "TH sends the SolicitOffer command with valid parameters and ICEServers field containing valid STUN/TURN server list",
+                     "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID and accepts ICE servers"),
+            TestStep(4, "TH sends the SolicitOffer command with valid parameters and ICETransportPolicy = 0 (All)",
+                     "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID and accepts ICE transport policy 'all'"),
+            TestStep(5, "TH sends the SolicitOffer command with valid parameters and ICETransportPolicy = 1 (Relay)",
+                     "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID and accepts ICE transport policy 'relay'"),
+            TestStep(6, "TH sends the SolicitOffer command with both ICEServers and ICETransportPolicy fields",
+                     "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID and accepts both ICE servers and transport policy"),
         ]
 
     def pics_TC_WEBRTCP_2_9(self) -> list[str]:
         return [
             "WEBRTCP.S",
-            "WEBRTCP.S.C00.Rsp",  # SolicitOffer command
-            "WEBRTCP.S.C01.Tx",  # SolicitOfferResponse command
+            "WEBRTCP.S.C00.Rsp",   # SolicitOffer command
+            "WEBRTCP.S.C01.Tx",    # SolicitOfferResponse command
             "AVSM.S",
-            "AVSM.S.F00",  # Audio Data Output feature
-            "AVSM.S.F01",  # Video Data Output feature
+            "AVSM.S.F00",          # Audio Data Output feature
+            "AVSM.S.F01",          # Video Data Output feature
         ]
 
     async def _send_and_test_solicit_offer_and_cleanup(self, solicit_offer_request, success_message, endpoint):
         """Helper method to test SolicitOffer request and clean up the session"""
-        resp = await self.send_single_cmd(
-            solicit_offer_request, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
-        )
-        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse, "Incorrect response type")
+        resp = await self.send_single_cmd(solicit_offer_request, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse,
+                             "Incorrect response type")
         asserts.assert_is_not_none(resp.webRTCSessionID, success_message)
 
         # End the session to clean up
@@ -139,19 +120,23 @@ class TC_WEBRTCP_2_9(MatterBaseTest, WEBRTCPTestBase):
             streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView,
             originatingEndpointID=endpoint,
             videoStreamID=videoStreamID,
-            audioStreamID=audioStreamID,
+            audioStreamID=audioStreamID
         )
-        await self._send_and_test_solicit_offer_and_cleanup(
-            solicit_offer_request_basic, "WebRTC session ID should be allocated", endpoint
-        )
+        await self._send_and_test_solicit_offer_and_cleanup(solicit_offer_request_basic, "WebRTC session ID should be allocated", endpoint)
 
         self.step(3)
         # Send SolicitOffer with ICEServers field containing valid STUN/TURN server list
         ice_servers = [
-            Clusters.Globals.Structs.ICEServerStruct(URLs=["stun:stun.l.google.com:19302"], username="", credential=""),
             Clusters.Globals.Structs.ICEServerStruct(
-                URLs=["turn:turn.example.com:3478"], username="testuser", credential="testpass"
+                URLs=["stun:stun.l.google.com:19302"],
+                username="",
+                credential=""
             ),
+            Clusters.Globals.Structs.ICEServerStruct(
+                URLs=["turn:turn.example.com:3478"],
+                username="testuser",
+                credential="testpass"
+            )
         ]
 
         solicit_offer_request_ice_servers = Clusters.WebRTCTransportProvider.Commands.SolicitOffer(
@@ -159,11 +144,9 @@ class TC_WEBRTCP_2_9(MatterBaseTest, WEBRTCPTestBase):
             originatingEndpointID=endpoint,
             videoStreamID=videoStreamID,
             audioStreamID=audioStreamID,
-            ICEServers=ice_servers,
+            ICEServers=ice_servers
         )
-        await self._send_and_test_solicit_offer_and_cleanup(
-            solicit_offer_request_ice_servers, "WebRTC session ID should be allocated with ICE servers", endpoint
-        )
+        await self._send_and_test_solicit_offer_and_cleanup(solicit_offer_request_ice_servers, "WebRTC session ID should be allocated with ICE servers", endpoint)
 
         self.step(4)
         # Send SolicitOffer with ICETransportPolicy = 'all'
@@ -172,11 +155,9 @@ class TC_WEBRTCP_2_9(MatterBaseTest, WEBRTCPTestBase):
             originatingEndpointID=endpoint,
             videoStreamID=videoStreamID,
             audioStreamID=audioStreamID,
-            ICETransportPolicy="all",
+            ICETransportPolicy="all"
         )
-        await self._send_and_test_solicit_offer_and_cleanup(
-            solicit_offer_request_policy_all, "WebRTC session ID should be allocated with ICE policy All", endpoint
-        )
+        await self._send_and_test_solicit_offer_and_cleanup(solicit_offer_request_policy_all, "WebRTC session ID should be allocated with ICE policy All", endpoint)
 
         self.step(5)
         # Send SolicitOffer with ICETransportPolicy = 'relay'
@@ -185,11 +166,9 @@ class TC_WEBRTCP_2_9(MatterBaseTest, WEBRTCPTestBase):
             originatingEndpointID=endpoint,
             videoStreamID=videoStreamID,
             audioStreamID=audioStreamID,
-            ICETransportPolicy="relay",
+            ICETransportPolicy="relay"
         )
-        await self._send_and_test_solicit_offer_and_cleanup(
-            solicit_offer_request_policy_relay, "WebRTC session ID should be allocated with ICE policy Relay", endpoint
-        )
+        await self._send_and_test_solicit_offer_and_cleanup(solicit_offer_request_policy_relay, "WebRTC session ID should be allocated with ICE policy Relay", endpoint)
 
         self.step(6)
         # Send SolicitOffer with both ICEServers and ICETransportPolicy fields
@@ -199,11 +178,9 @@ class TC_WEBRTCP_2_9(MatterBaseTest, WEBRTCPTestBase):
             videoStreamID=videoStreamID,
             audioStreamID=audioStreamID,
             ICEServers=ice_servers,
-            ICETransportPolicy="all",
+            ICETransportPolicy="all"
         )
-        await self._send_and_test_solicit_offer_and_cleanup(
-            solicit_offer_request_both, "WebRTC session ID should be allocated with both ICE servers and policy", endpoint
-        )
+        await self._send_and_test_solicit_offer_and_cleanup(solicit_offer_request_both, "WebRTC session ID should be allocated with both ICE servers and policy", endpoint)
 
 
 if __name__ == "__main__":

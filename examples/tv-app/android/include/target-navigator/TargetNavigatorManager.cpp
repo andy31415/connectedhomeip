@@ -31,7 +31,8 @@ using namespace chip::literals;
 using ContentAppAttributeDelegate = chip::AppPlatform::ContentAppAttributeDelegate;
 
 TargetNavigatorManager::TargetNavigatorManager(ContentAppAttributeDelegate * attributeDelegate, std::list<std::string> targets,
-                                               uint8_t currentTarget) : mAttributeDelegate(attributeDelegate)
+                                               uint8_t currentTarget) :
+    mAttributeDelegate(attributeDelegate)
 {
     mTargets       = targets;
     mCurrentTarget = currentTarget;

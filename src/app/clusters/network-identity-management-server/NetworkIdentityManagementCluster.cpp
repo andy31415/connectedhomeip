@@ -45,7 +45,8 @@ namespace chip::app::Clusters {
 NetworkIdentityManagementCluster::NetworkIdentityManagementCluster(EndpointId endpoint, NetworkIdentityStorage & storage,
                                                                    Crypto::NetworkIdentityKeystore & keystore,
                                                                    NetworkIdentityManagement::AuthenticatorDriver & authenticator) :
-    DefaultServerCluster({ endpoint, Id }), mStorage(storage), mKeystore(keystore), mAuthenticator(authenticator)
+    DefaultServerCluster({ endpoint, Id }),
+    mStorage(storage), mKeystore(keystore), mAuthenticator(authenticator)
 {}
 
 CHIP_ERROR NetworkIdentityManagementCluster::Startup(ServerClusterContext & context)

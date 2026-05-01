@@ -28,39 +28,45 @@ log = logging.getLogger(__name__)
 
 
 class ArtifactInfo(github.GithubObject.NonCompletableGithubObject):
+
     def _initAttributes(self):
         pass
 
     def _useAttributes(self, attr):
-        if "id" in attr:
-            self.id = self._makeIntAttribute(attr["id"]).value
-        if "node_id" in attr:
-            self.node_id = self._makeStringAttribute(attr["node_id"]).value
-        if "name" in attr:
-            self.name = self._makeStringAttribute(attr["name"]).value
-        if "size_in_bytes" in attr:
-            self.size_in_bytes = self._makeIntAttribute(attr["size_in_bytes"]).value
-        if "url" in attr:
-            self.url = self._makeStringAttribute(attr["url"]).value
-        if "archive_download_url" in attr:
-            self.archive_download_url = self._makeStringAttribute(attr["archive_download_url"]).value
-        if "expired" in attr:
-            self.expired = self._makeBoolAttribute(attr["expired"]).value
-        if "created_at" in attr:
-            self.created_at = self._makeDatetimeAttribute(attr["created_at"]).value
-        if "updated_at" in attr:
-            self.expires_at = self._makeDatetimeAttribute(attr["updated_at"]).value
+        if 'id' in attr:
+            self.id = self._makeIntAttribute(attr['id']).value
+        if 'node_id' in attr:
+            self.node_id = self._makeStringAttribute(attr['node_id']).value
+        if 'name' in attr:
+            self.name = self._makeStringAttribute(attr['name']).value
+        if 'size_in_bytes' in attr:
+            self.size_in_bytes = self._makeIntAttribute(
+                attr['size_in_bytes']).value
+        if 'url' in attr:
+            self.url = self._makeStringAttribute(attr['url']).value
+        if 'archive_download_url' in attr:
+            self.archive_download_url = self._makeStringAttribute(
+                attr['archive_download_url']).value
+        if 'expired' in attr:
+            self.expired = self._makeBoolAttribute(attr['expired']).value
+        if 'created_at' in attr:
+            self.created_at = self._makeDatetimeAttribute(
+                attr['created_at']).value
+        if 'updated_at' in attr:
+            self.expires_at = self._makeDatetimeAttribute(
+                attr['updated_at']).value
 
     def downloadBlob(self):
         url = self.archive_download_url
         log.info("Fetching: %r", url)
 
-        status, headers, _ = self._requester.requestBlob("GET", url)
+        status, headers, _ = self._requester.requestBlob('GET', url)
 
         if status != 302:
-            raise Exception("Expected a redirect during blob download but got status %d, headers %r." % (status, headers))
+            raise Exception(
+                'Expected a redirect during blob download but got status %d, headers %r.' % (status, headers))
 
-        response = requests.get(headers["location"])
+        response = requests.get(headers['location'])
         response.raise_for_status()
 
         return response.content
@@ -68,12 +74,13 @@ class ArtifactInfo(github.GithubObject.NonCompletableGithubObject):
     def delete(self):
         """Delete this artifact."""
         log.warning("DELETING artifact '%s'", self.url)
-        self._requester.requestJsonAndCheck("DELETE", self.url)
+        self._requester.requestJsonAndCheck('DELETE', self.url)
 
 
 class ArtifactFetcher(github.GithubObject.NonCompletableGithubObject):
+
     def __init__(self, repo):
-        self.url = repo.url + "/actions/artifacts"
+        self.url = repo.url + '/actions/artifacts'
         self._requester = repo._requester
 
     def get_artifacts(self):
@@ -82,8 +89,8 @@ class ArtifactFetcher(github.GithubObject.NonCompletableGithubObject):
             self._requester,
             self.url,
             None,
-            headers={"Accept": "application/vnd.github.v3+json"},
-            list_item="artifacts",
+            headers={'Accept': 'application/vnd.github.v3+json'},
+            list_item='artifacts',
         )
 
 

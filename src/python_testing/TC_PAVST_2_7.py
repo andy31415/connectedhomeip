@@ -171,7 +171,9 @@ class TC_PAVST_2_7(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         self.step(1)
         # Commission DUT - already done
         status = await self.check_and_delete_all_push_av_transports(endpoint, pvattr)
-        asserts.assert_equal(status, Status.Success, "Status must be SUCCESS!")
+        asserts.assert_equal(
+            status, Status.Success, "Status must be SUCCESS!"
+        )
 
         aAllocatedVideoStreams = await self.allocate_one_video_stream()
         asserts.assert_greater_equal(
@@ -187,20 +189,19 @@ class TC_PAVST_2_7(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             "AllocatedAudioStreams must not be empty",
         )
 
-        status = await self.allocate_one_pushav_transport(
-            endpoint,
-            triggerType=pvcluster.Enums.TransportTriggerTypeEnum.kContinuous,
-            tlsEndPoint=self.tlsEndpointId,
-            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
+        status = await self.allocate_one_pushav_transport(endpoint, triggerType=pvcluster.Enums.TransportTriggerTypeEnum.kContinuous,
+                                                          tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(
+            status, Status.Success, "Push AV Transport should be allocated successfully"
         )
-        asserts.assert_equal(status, Status.Success, "Push AV Transport should be allocated successfully")
 
         self.step(2)
-        transportConfigs = await self.read_pavst_attribute_expect_success(
-            endpoint,
-            pvattr.CurrentConnections,
+        transportConfigs = await self.read_pavst_attribute_expect_success(endpoint,
+                                                                          pvattr.CurrentConnections,
+                                                                          )
+        asserts.assert_greater_equal(
+            len(transportConfigs), 1, "TransportConfigurations must not be empty!"
         )
-        asserts.assert_greater_equal(len(transportConfigs), 1, "TransportConfigurations must not be empty!")
         aConnectionID = transportConfigs[0].connectionID
 
         # TH1 sends command
@@ -208,7 +209,8 @@ class TC_PAVST_2_7(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         all_connectionID = [tc.connectionID for tc in transportConfigs]
         max_connectionID = max(all_connectionID)
         cmd = pvcluster.Commands.ManuallyTriggerTransport(
-            connectionID=max_connectionID + 1, activationReason=pvcluster.Enums.TriggerActivationReasonEnum.kEmergency
+            connectionID=max_connectionID + 1,
+            activationReason=pvcluster.Enums.TriggerActivationReasonEnum.kEmergency
         )
         status = await self.psvt_manually_trigger_transport(cmd)
         asserts.assert_true(
@@ -221,7 +223,8 @@ class TC_PAVST_2_7(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         # Establishing TH2 controller
         th2 = await self.psvt_create_test_harness_controller()
         cmd = pvcluster.Commands.ManuallyTriggerTransport(
-            connectionID=aConnectionID, activationReason=pvcluster.Enums.TriggerActivationReasonEnum.kEmergency
+            connectionID=aConnectionID,
+            activationReason=pvcluster.Enums.TriggerActivationReasonEnum.kEmergency
         )
         status = await self.psvt_manually_trigger_transport(cmd, devCtrl=th2)
         asserts.assert_true(
@@ -231,28 +234,26 @@ class TC_PAVST_2_7(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
 
         resp = await self.psvt_remove_current_fabric(th2)
         asserts.assert_equal(
-            resp.statusCode,
-            Clusters.OperationalCredentials.Enums.NodeOperationalCertStatusEnum.kOk,
-            "Expected removal of TH2's fabric to succeed",
-        )
+            resp.statusCode, Clusters.OperationalCredentials.Enums.NodeOperationalCertStatusEnum.kOk, "Expected removal of TH2's fabric to succeed")
 
         self.step(5)
         cmd = pvcluster.Commands.SetTransportStatus(
-            connectionID=aConnectionID, transportStatus=pvcluster.Enums.TransportStatusEnum.kInactive
+            connectionID=aConnectionID,
+            transportStatus=pvcluster.Enums.TransportStatusEnum.kInactive
         )
         status = await self.psvt_set_transport_status(cmd)
-        asserts.assert_true(status == Status.Success, "DUT responds with SUCCESS status code.")
+        asserts.assert_true(
+            status == Status.Success,
+            "DUT responds with SUCCESS status code.")
 
         self.step(6)
         timeControl = {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1}
         cmd = pvcluster.Commands.ManuallyTriggerTransport(
             connectionID=aConnectionID,
             activationReason=pvcluster.Enums.TriggerActivationReasonEnum.kEmergency,
-            timeControl=timeControl,
+            timeControl=timeControl
         )
-        status = await self.psvt_manually_trigger_transport(
-            cmd, expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidTransportStatus
-        )
+        status = await self.psvt_manually_trigger_transport(cmd, expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidTransportStatus)
         asserts.assert_true(
             status == pvcluster.Enums.StatusCodeEnum.kInvalidTransportStatus,
             "DUT must respond with TransportStatus Inactive.",
@@ -260,62 +261,72 @@ class TC_PAVST_2_7(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
 
         self.step(7)
         cmd = pvcluster.Commands.SetTransportStatus(
-            connectionID=aConnectionID, transportStatus=pvcluster.Enums.TransportStatusEnum.kActive
+            connectionID=aConnectionID,
+            transportStatus=pvcluster.Enums.TransportStatusEnum.kActive
         )
         status = await self.psvt_set_transport_status(cmd)
-        asserts.assert_true(status == Status.Success, "DUT responds with SUCCESS status code.")
+        asserts.assert_true(
+            status == Status.Success,
+            "DUT responds with SUCCESS status code.")
 
         self.step(8)
         timeControl = {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1}
         cmd = pvcluster.Commands.ManuallyTriggerTransport(
             connectionID=aConnectionID,
             activationReason=pvcluster.Enums.TriggerActivationReasonEnum.kEmergency,
-            timeControl=timeControl,
+            timeControl=timeControl
         )
-        status = await self.psvt_manually_trigger_transport(
-            cmd, expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidTriggerType
-        )
+        status = await self.psvt_manually_trigger_transport(cmd, expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidTriggerType)
         asserts.assert_true(
             status == pvcluster.Enums.StatusCodeEnum.kInvalidTriggerType,
             "DUT must respond with InvalidTriggerType status code.",
         )
 
         self.step(9)
-        cmd = pvcluster.Commands.DeallocatePushTransport(connectionID=aConnectionID)
+        cmd = pvcluster.Commands.DeallocatePushTransport(
+            connectionID=aConnectionID
+        )
         status = await self.psvt_deallocate_push_transport(cmd)
-        asserts.assert_true(status == Status.Success, "DUT responds with SUCCESS status code.")
+        asserts.assert_true(
+            status == Status.Success,
+            "DUT responds with SUCCESS status code.")
 
         self.step(10)
         status = await self.check_and_delete_all_push_av_transports(endpoint, pvattr)
-        asserts.assert_equal(status, Status.Success, "Status must be SUCCESS!")
+        asserts.assert_equal(
+            status, Status.Success, "Status must be SUCCESS!"
+        )
 
         aAllocatedVideoStreams = await self.allocate_one_video_stream()
 
         aAllocatedAudioStreams = await self.allocate_one_audio_stream()
 
-        triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kCommand, "maxPreRollLen": 4000}
+        triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kCommand,
+                          "maxPreRollLen": 4000}
 
-        status = await self.allocate_one_pushav_transport(
-            endpoint,
-            trigger_Options=triggerOptions,
-            tlsEndPoint=self.tlsEndpointId,
-            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
+        status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions, tlsEndPoint=self.tlsEndpointId,
+                                                          url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(
+            status, Status.Success, "Push AV Transport should be allocated successfully"
         )
-        asserts.assert_equal(status, Status.Success, "Push AV Transport should be allocated successfully")
 
-        transportConfigs = await self.read_pavst_attribute_expect_success(
-            endpoint,
-            pvattr.CurrentConnections,
+        transportConfigs = await self.read_pavst_attribute_expect_success(endpoint,
+                                                                          pvattr.CurrentConnections,
+                                                                          )
+        asserts.assert_greater_equal(
+            len(transportConfigs), 1, "TransportConfigurations must not be empty!"
         )
-        asserts.assert_greater_equal(len(transportConfigs), 1, "TransportConfigurations must not be empty!")
         aConnectionID = transportConfigs[0].connectionID
 
         self.step(11)
         cmd = pvcluster.Commands.SetTransportStatus(
-            connectionID=aConnectionID, transportStatus=pvcluster.Enums.TransportStatusEnum.kActive
+            connectionID=aConnectionID,
+            transportStatus=pvcluster.Enums.TransportStatusEnum.kActive
         )
         status = await self.psvt_set_transport_status(cmd)
-        asserts.assert_true(status == Status.Success, "DUT responds with SUCCESS status code.")
+        asserts.assert_true(
+            status == Status.Success,
+            "DUT responds with SUCCESS status code.")
 
         self.step(12)
         cmd = pvcluster.Commands.ManuallyTriggerTransport(
@@ -333,29 +344,23 @@ class TC_PAVST_2_7(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         cmd = pvcluster.Commands.ManuallyTriggerTransport(
             connectionID=aConnectionID,
             activationReason=pvcluster.Enums.TriggerActivationReasonEnum.kUserInitiated,
-            timeControl=timeControl,
+            timeControl=timeControl
         )
 
         # Check if privacy feature is supported before testing privacy mode
         aFeatureMap = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=Clusters.CameraAvStreamManagement,
-            attribute=Clusters.CameraAvStreamManagement.Attributes.FeatureMap,
+            endpoint=endpoint, cluster=Clusters.CameraAvStreamManagement, attribute=Clusters.CameraAvStreamManagement.Attributes.FeatureMap
         )
         privacySupported = aFeatureMap & Clusters.CameraAvStreamManagement.Bitmaps.Feature.kPrivacy
         if privacySupported:
             # The stream usage will be the first item in supported stream usages. Set the privacy appropriate to the usage
             aStreamUsagePriorities = await self.read_single_attribute_check_success(
-                endpoint=endpoint,
-                cluster=Clusters.CameraAvStreamManagement,
-                attribute=Clusters.CameraAvStreamManagement.Attributes.StreamUsagePriorities,
+                endpoint=endpoint, cluster=Clusters.CameraAvStreamManagement, attribute=Clusters.CameraAvStreamManagement.Attributes.StreamUsagePriorities
             )
 
             streamUsage = aStreamUsagePriorities[0]
 
-            if (streamUsage == Globals.Enums.StreamUsageEnum.kRecording) or (
-                streamUsage == Globals.Enums.StreamUsageEnum.kAnalysis
-            ):
+            if (streamUsage == Globals.Enums.StreamUsageEnum.kRecording) or (streamUsage == Globals.Enums.StreamUsageEnum.kAnalysis):
                 # Write SoftRecordingPrivacyModeEnabled=true and test INVALID_IN_STATE
                 await self.write_single_attribute(
                     attribute_value=Clusters.CameraAvStreamManagement.Attributes.SoftRecordingPrivacyModeEnabled(True),
@@ -370,10 +375,10 @@ class TC_PAVST_2_7(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
                 )
 
             status = await self.psvt_manually_trigger_transport(cmd, expected_status=Status.InvalidInState)
-            asserts.assert_true(
-                status == Status.InvalidInState,
-                (f"Unexpected response {status} received on Manually Triggered push with privacy mode enabled"),
-            )
+            asserts.assert_true(status == Status.InvalidInState,
+                                (f"Unexpected response {status} received on Manually Triggered push "
+                                 "with privacy mode enabled")
+                                )
 
             await self.write_single_attribute(
                 attribute_value=Clusters.CameraAvStreamManagement.Attributes.SoftRecordingPrivacyModeEnabled(False),

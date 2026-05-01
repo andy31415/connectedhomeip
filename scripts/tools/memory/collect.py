@@ -34,9 +34,11 @@ import memdf.select
 def main(argv):
     status = 0
     try:
-        config = memdf.collect.parse_args(
-            {**memdf.select.CONFIG, **memdf.report.REPORT_DEMANGLE_CONFIG, **memdf.report.OUTPUT_CONFIG}, argv
-        )
+        config = memdf.collect.parse_args({
+            **memdf.select.CONFIG,
+            **memdf.report.REPORT_DEMANGLE_CONFIG,
+            **memdf.report.OUTPUT_CONFIG
+        }, argv)
         memdf.report.write_dfs(config, memdf.collect.collect_files(config))
 
     except Exception as exception:
@@ -45,5 +47,5 @@ def main(argv):
     return status
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main(sys.argv))

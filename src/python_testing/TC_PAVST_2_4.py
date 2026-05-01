@@ -107,7 +107,7 @@ class TC_PAVST_2_4(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
                 6,
                 "TH1 Reads CurrentConnections attribute from PushAV Stream Transport Cluster on DUT over a large-payload session.",
                 "Verify that ConnectionID == aConnectionID and ExpiryTime in TransportConfiguration.TransportOptions is incremented by 120.",
-            ),
+            )
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.PushAvStreamTransport))
@@ -131,7 +131,9 @@ class TC_PAVST_2_4(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         self.step(1)
         # Commission DUT - already done
         status = await self.check_and_delete_all_push_av_transports(endpoint, pvattr)
-        asserts.assert_equal(status, Status.Success, "Status must be SUCCESS!")
+        asserts.assert_equal(
+            status, Status.Success, "Status must be SUCCESS!"
+        )
 
         aAllocatedVideoStreams = await self.allocate_one_video_stream()
         asserts.assert_greater_equal(
@@ -147,17 +149,18 @@ class TC_PAVST_2_4(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             "AllocatedAudioStreams must not be empty",
         )
 
-        status = await self.allocate_one_pushav_transport(
-            endpoint, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/"
+        status = await self.allocate_one_pushav_transport(endpoint, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(
+            status, Status.Success, "Push AV Transport should be allocated successfully"
         )
-        asserts.assert_equal(status, Status.Success, "Push AV Transport should be allocated successfully")
 
         self.step(2)
-        transportConfigs = await self.read_pavst_attribute_expect_success(
-            endpoint,
-            pvattr.CurrentConnections,
+        transportConfigs = await self.read_pavst_attribute_expect_success(endpoint,
+                                                                          pvattr.CurrentConnections,
+                                                                          )
+        asserts.assert_greater_equal(
+            len(transportConfigs), 1, "TransportConfigurations must not be empty!"
         )
-        asserts.assert_greater_equal(len(transportConfigs), 1, "TransportConfigurations must not be empty!")
         aTransportOptions = transportConfigs[0].transportOptions
         aConnectionID = transportConfigs[0].connectionID
 
@@ -165,7 +168,10 @@ class TC_PAVST_2_4(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         self.step(3)
         all_connectionID = [tc.connectionID for tc in transportConfigs]
         max_connectionID = max(all_connectionID)
-        cmd = pvcluster.Commands.ModifyPushTransport(connectionID=max_connectionID + 1, transportOptions=aTransportOptions)
+        cmd = pvcluster.Commands.ModifyPushTransport(
+            connectionID=max_connectionID + 1,
+            transportOptions=aTransportOptions
+        )
         status = await self.psvt_modify_push_transport(cmd)
         asserts.assert_true(
             status == Status.NotFound,
@@ -176,7 +182,10 @@ class TC_PAVST_2_4(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         self.step(4)
         th2 = await self.psvt_create_test_harness_controller()
 
-        cmd = pvcluster.Commands.ModifyPushTransport(connectionID=aConnectionID, transportOptions=aTransportOptions)
+        cmd = pvcluster.Commands.ModifyPushTransport(
+            connectionID=aConnectionID,
+            transportOptions=aTransportOptions
+        )
         status = await self.psvt_modify_push_transport(cmd, devCtrl=th2)
         asserts.assert_true(
             status == Status.NotFound,
@@ -185,10 +194,7 @@ class TC_PAVST_2_4(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
 
         resp = await self.psvt_remove_current_fabric(th2)
         asserts.assert_equal(
-            resp.statusCode,
-            Clusters.OperationalCredentials.Enums.NodeOperationalCertStatusEnum.kOk,
-            "Expected removal of TH2's fabric to succeed",
-        )
+            resp.statusCode, Clusters.OperationalCredentials.Enums.NodeOperationalCertStatusEnum.kOk, "Expected removal of TH2's fabric to succeed")
 
         self.step(5)
         aModifiedTransportOptions = aTransportOptions.expiryTime
@@ -202,16 +208,26 @@ class TC_PAVST_2_4(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             transportOptions=aTransportOptions,
         )
         status = await self.psvt_modify_push_transport(cmd)
-        asserts.assert_true(status == Status.Success, "DUT responds with SUCCESS status code.")
+        asserts.assert_true(
+            status == Status.Success,
+            "DUT responds with SUCCESS status code.")
 
         self.step(6)
-        transportConfigs = await self.read_pavst_attribute_expect_success(endpoint, pvattr.CurrentConnections)
-        asserts.assert_greater_equal(len(transportConfigs), 1, "TransportConfigurations must not be empty!")
+        transportConfigs = await self.read_pavst_attribute_expect_success(
+            endpoint, pvattr.CurrentConnections
+        )
+        asserts.assert_greater_equal(
+            len(transportConfigs), 1, "TransportConfigurations must not be empty!"
+        )
         result = (
-            transportConfigs[0].transportOptions.expiryTime == aModifiedTransportOptions
+            transportConfigs[0].transportOptions.expiryTime
+            == aModifiedTransportOptions
             and transportConfigs[0].connectionID == aConnectionID
         )
-        asserts.assert_true(result, "ConnectionID or ExpiryTime should match as per the modified transport options")
+        asserts.assert_true(
+            result,
+            "ConnectionID or ExpiryTime should match as per the modified transport options"
+        )
 
 
 if __name__ == "__main__":

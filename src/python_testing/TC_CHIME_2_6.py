@@ -64,6 +64,7 @@ log = logging.getLogger(__name__)
 
 
 class TC_CHIME_2_6(MatterBaseTest, CHIMETestBase):
+
     def desc_TC_CHIME_2_6(self) -> str:
         return "[TC-CHIME-2.6] Verify the generation of the ChimeStartedPlaying Event"
 
@@ -102,7 +103,9 @@ class TC_CHIME_2_6(MatterBaseTest, CHIMETestBase):
         # TH establishes a subscription to all of the Events from the Cluster
         self.step(2)
         event_callback = EventSubscriptionHandler(expected_cluster=Clusters.Chime)
-        await event_callback.start(self.default_controller, self.dut_node_id, self.get_endpoint())
+        await event_callback.start(self.default_controller,
+                                   self.dut_node_id,
+                                   self.get_endpoint())
 
         self.step(3)
         await self.write_chime_attribute_expect_success(endpoint, attributes.Enabled, True)
@@ -113,11 +116,9 @@ class TC_CHIME_2_6(MatterBaseTest, CHIMETestBase):
         self.step(5)
         await self.send_play_chime_sound_command(endpoint)
         if not self.is_ci:
-            user_response = self.wait_for_user_input(
-                prompt_msg="A chime sound should have been played, is this correct? Enter 'y' or 'n'",
-                prompt_msg_placeholder="y",
-                default_value="y",
-            )
+            user_response = self.wait_for_user_input(prompt_msg="A chime sound should have been played, is this correct? Enter 'y' or 'n'",
+                                                     prompt_msg_placeholder="y",
+                                                     default_value="y")
             if user_response is not None:
                 log.info(f"TC-CHIME-2.6: response '{user_response}' received confirmation of chime sound")
                 asserts.assert_equal(user_response.lower(), "y")

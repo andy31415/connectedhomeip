@@ -25,7 +25,8 @@ from .types import DeviceScannedCallback, ScanDoneCallback, ScanErrorCallback
 
 
 @DeviceScannedCallback
-def ScanFoundCallback(closure, address: str, discriminator: int, vendor: int, product: int):
+def ScanFoundCallback(closure, address: str, discriminator: int, vendor: int,
+                      product: int):
     closure.OnDeviceScanned(address, discriminator, vendor, product)
 
 
@@ -49,10 +50,10 @@ class DeviceInfo:
 
 class _DeviceInfoReceiver:
     """Uses a queue to notify of objects received asynchronously
-    from a BLE scan.
+       from a BLE scan.
 
-    Internal queue gets filled on DeviceFound and ends with None when
-    ScanCompleted.
+       Internal queue gets filled on DeviceFound and ends with None when
+       ScanCompleted.
     """
 
     def __init__(self):
@@ -93,25 +94,22 @@ def DiscoverSync(timeoutMs: int, adapter=None) -> Generator[DeviceInfo, None, No
 
     nativeList = handle.pychip_ble_adapter_list_new()
     if nativeList == 0:
-        raise Exception("Failed to list available adapters")
+        raise Exception('Failed to list available adapters')
 
     try:
         while handle.pychip_ble_adapter_list_next(nativeList):
-            if adapter and (adapter != handle.pychip_ble_adapter_list_get_address(nativeList).decode("utf8")):
+            if adapter and (adapter != handle.pychip_ble_adapter_list_get_address(
+                    nativeList).decode('utf8')):
                 continue
 
             receiver = _DeviceInfoReceiver()
             scanner = handle.pychip_ble_scanner_start(
                 ctypes.py_object(receiver),
                 handle.pychip_ble_adapter_list_get_raw_adapter(nativeList),
-                timeoutMs,
-                ScanFoundCallback,
-                ScanIsDoneCallback,
-                ScanHasErrorCallback,
-            )
+                timeoutMs, ScanFoundCallback, ScanIsDoneCallback, ScanHasErrorCallback)
 
             if scanner == 0:
-                raise Exception("Failed to start BLE scan")
+                raise Exception('Failed to start BLE scan')
 
             while True:
                 data = receiver.queue.get()
@@ -146,5 +144,7 @@ def DiscoverAsync(timeoutMs: int, scanCallback, doneCallback, errorCallback, ada
             scanCallback(device.address, device.discriminator, device.vendor, device.product)
         doneCallback()
 
-    t = Thread(target=_DiscoverAsync, args=(timeoutMs, scanCallback, doneCallback, errorCallback, adapter), daemon=True)
+    t = Thread(target=_DiscoverAsync,
+               args=(timeoutMs, scanCallback, doneCallback, errorCallback, adapter),
+               daemon=True)
     t.start()

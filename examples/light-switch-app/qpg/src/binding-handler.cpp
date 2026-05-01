@@ -239,6 +239,6 @@ void SwitchWorkerFunction(intptr_t context)
         Platform::Delete(data);
     }
 
-    TEMPORARY_RETURN_IGNORED Binding::Manager::GetInstance().NotifyBoundClusterChanged(data -> localEndpointId, data->clusterId,
+    TEMPORARY_RETURN_IGNORED Binding::Manager::GetInstance().NotifyBoundClusterChanged(data->localEndpointId, data->clusterId,
                                                                                        static_cast<void *>(data));
 }

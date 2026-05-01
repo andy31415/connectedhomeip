@@ -20,23 +20,24 @@ import shutil
 import subprocess
 import traceback
 
-CHIP_ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), "../../.."))
+CHIP_ROOT_DIR = os.path.realpath(
+    os.path.join(os.path.dirname(__file__), '../../..'))
 
 
 def getClangFormatBinaryChoices():
     """
     Returns an ordered list of paths that may be suitable clang-format versions
     """
-    PW_CLANG_FORMAT_PATH = "cipd/packages/pigweed/bin/clang-format"
+    PW_CLANG_FORMAT_PATH = 'cipd/packages/pigweed/bin/clang-format'
 
-    if "PW_ENVIRONMENT_ROOT" in os.environ:
+    if 'PW_ENVIRONMENT_ROOT' in os.environ:
         yield os.path.join(os.environ["PW_ENVIRONMENT_ROOT"], PW_CLANG_FORMAT_PATH)
 
-    dot_name = os.path.join(CHIP_ROOT_DIR, ".environment", PW_CLANG_FORMAT_PATH)
+    dot_name = os.path.join(CHIP_ROOT_DIR, '.environment', PW_CLANG_FORMAT_PATH)
     if os.path.exists(dot_name):
         yield dot_name
 
-    os_name = shutil.which("clang-format")
+    os_name = shutil.which('clang-format')
     if os_name:
         yield os_name
 
@@ -53,26 +54,24 @@ def getClangFormatBinary():
         # the SHA at the end generally should match pigweed version
 
         try:
-            version_string = subprocess.check_output([binary, "--version"]).decode("utf8")
+            version_string = subprocess.check_output([binary, '--version']).decode('utf8')
 
-            with open(
-                os.path.join(CHIP_ROOT_DIR, "third_party/pigweed/repo/pw_env_setup/py/pw_env_setup/cipd_setup/pigweed.json")
-            ) as f:
+            with open(os.path.join(CHIP_ROOT_DIR, 'third_party/pigweed/repo/pw_env_setup/py/pw_env_setup/cipd_setup/pigweed.json')) as f:
                 pigweed_config = json.load(f)
-            clang_config = [p for p in pigweed_config["packages"] if p["path"].startswith("fuchsia/third_party/clang/")][0]
+            clang_config = [p for p in pigweed_config['packages'] if p['path'].startswith('fuchsia/third_party/clang/')][0]
 
             # Tags should be like:
             #   ['git_revision:895b55537870cdaf6e4c304a09f4bf01954ccbd6']
-            prefix, sha = clang_config["tags"][0].split(":")
+            prefix, sha = clang_config['tags'][0].split(':')
 
             if sha not in version_string:
-                print("WARNING: clang-format may not be the right version:")
-                print("   PIGWEED TAG:    %s" % clang_config["tags"][0])
-                print("   ACTUAL VERSION: %s" % version_string)
+                print('WARNING: clang-format may not be the right version:')
+                print('   PIGWEED TAG:    %s' % clang_config['tags'][0])
+                print('   ACTUAL VERSION: %s' % version_string)
         except Exception:
             print("Failed to validate clang version.")
             traceback.print_last()
 
         return binary
 
-    raise Exception("Could not find a suitable clang-format")
+    raise Exception('Could not find a suitable clang-format')

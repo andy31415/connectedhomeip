@@ -49,8 +49,8 @@ class BuildTimer:
 class Context:
     """Represents a grouped list of platform/board/app builders to use
 
-    to generate make/ninja instructions and to compile.
-    """
+         to generate make/ninja instructions and to compile.
+      """
 
     def __init__(self, runner, repository_path: str, output_prefix: str, verbose: bool, quiet: bool, ninja_jobs: int):
         self.builders = []
@@ -73,16 +73,9 @@ class Context:
         for target in targets:
             found_choice = None
             for choice in BUILD_TARGETS:
-                builder = choice.Create(
-                    target,
-                    self.runner,
-                    self.repository_path,
-                    self.output_prefix,
-                    self.verbose,
-                    self.quiet,
-                    self.ninja_jobs,
-                    options,
-                )
+                builder = choice.Create(target, self.runner, self.repository_path,
+                                        self.output_prefix, self.verbose, self.quiet, self.ninja_jobs,
+                                        options)
                 if builder:
                     self.builders.append(builder)
                     found_choice = choice
@@ -98,7 +91,7 @@ class Context:
                 # we want to ensure identical settings across builds. For now ensure that
                 # variants are identical
                 actual_modifiers = {x.name for x in found_choice.modifiers}
-                variants = "-".join([x.name for x in parts if x.name in actual_modifiers])
+                variants = '-'.join([x.name for x in parts if x.name in actual_modifiers])
                 if unified_variants is None:
                     unified_variants = variants
                 elif unified_variants != variants:
@@ -119,7 +112,7 @@ class Context:
 
         for builder in self.builders:
             if not builder.quiet:
-                log.info("Generating %s", builder.output_dir)
+                log.info('Generating %s', builder.output_dir)
             builder.generate()
 
         self.completed_steps.add(BuildSteps.GENERATED)
@@ -134,7 +127,7 @@ class Context:
 
     def CleanOutputDirectories(self):
         for builder in self.builders:
-            log.warning("Cleaning %s", builder.output_dir)
+            log.warning('Cleaning %s', builder.output_dir)
             if os.path.exists(builder.output_dir):
                 shutil.rmtree(builder.output_dir)
 
@@ -142,15 +135,16 @@ class Context:
         self.completed_steps.discard(BuildSteps.GENERATED)
 
     def CreateArtifactArchives(self, directory: str):
-        log.info("Copying build artifacts to %s", directory)
+        log.info('Copying build artifacts to %s', directory)
         if not os.path.exists(directory):
             os.makedirs(directory)
         for builder in self.builders:
             # FIXME: builder subdir...
-            builder.CompressArtifacts(os.path.join(directory, f"{builder.identifier}.tar.gz"))
+            builder.CompressArtifacts(os.path.join(
+                directory, f'{builder.identifier}.tar.gz'))
 
     def CopyArtifactsTo(self, path: str):
-        log.info("Copying build artifacts to %s", path)
+        log.info('Copying build artifacts to %s', path)
         if not os.path.exists(path):
             os.makedirs(path)
 

@@ -53,42 +53,25 @@ class TC_TLSCERT_2_7(TC_TLSCERT_Base):
         return [
             *self.get_two_fabric_substeps(),
             TestStep(2, "Set myRootCert to a valid, self-signed, DER-encoded x509 certificate."),
-            TestStep(
-                3, "CR1 sends RemoveRootCertificate command with CAID set to 1.", test_plan_support.verify_status(Status.NotFound)
-            ),
-            TestStep(
-                4,
-                "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert.",
-                "DUT replies with a TLSCAID value. Store the returned value as myCaid.",
-            ),
-            TestStep(
-                5,
-                "CR2 sends RemoveRootCertificate command with CAID set to myCaid.",
-                test_plan_support.verify_status(Status.NotFound),
-            ),
-            TestStep(
-                6,
-                "CR1 sends ProvisionEndpoint command with valid Hostname, Port, CAID myCaid and null EndpointID.",
-                "DUT replies with a TLSEndpointID value. Store the returned value as myEndpoint.",
-            ),
-            TestStep(
-                7,
-                "CR1 sends RemoveRootCertificate command with CAID set to myCaid.",
-                test_plan_support.verify_status(Status.InvalidInState),
-            ),
-            TestStep(8, "CR1 sends RemoveEndpoint command with EndpointID set to myEndpoint.", test_plan_support.verify_success()),
-            TestStep(9, "CR1 sends RemoveRootCertificate command with CAID set to myCaid.", test_plan_support.verify_success()),
-            TestStep(
-                10,
-                "CR1 sends FindRootCertificate command with CAID set to myCaid.",
-                test_plan_support.verify_status(Status.NotFound),
-            ),
-            TestStep(
-                11,
-                "CR1 sends RemoveRootCertificate command with CAID set to myCaid.",
-                test_plan_support.verify_status(Status.NotFound),
-            ),
-            TestStep(12, test_plan_support.remove_fabric("CR2", "CR1"), test_plan_support.verify_success()),
+            TestStep(3, "CR1 sends RemoveRootCertificate command with CAID set to 1.",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(4, "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert.",
+                     "DUT replies with a TLSCAID value. Store the returned value as myCaid."),
+            TestStep(5, "CR2 sends RemoveRootCertificate command with CAID set to myCaid.",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(6, "CR1 sends ProvisionEndpoint command with valid Hostname, Port, CAID myCaid and null EndpointID.",
+                     "DUT replies with a TLSEndpointID value. Store the returned value as myEndpoint."),
+            TestStep(7, "CR1 sends RemoveRootCertificate command with CAID set to myCaid.",
+                     test_plan_support.verify_status(Status.InvalidInState)),
+            TestStep(8, "CR1 sends RemoveEndpoint command with EndpointID set to myEndpoint.",
+                     test_plan_support.verify_success()),
+            TestStep(9, "CR1 sends RemoveRootCertificate command with CAID set to myCaid.",
+                     test_plan_support.verify_success()),
+            TestStep(10, "CR1 sends FindRootCertificate command with CAID set to myCaid.",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(11, "CR1 sends RemoveRootCertificate command with CAID set to myCaid.",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(12, test_plan_support.remove_fabric('CR2', 'CR1'), test_plan_support.verify_success()),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.TlsCertificateManagement))

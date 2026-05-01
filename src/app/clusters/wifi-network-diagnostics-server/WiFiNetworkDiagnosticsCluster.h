@@ -42,8 +42,9 @@ public:
     WiFiDiagnosticsServerCluster(EndpointId endpointId, DeviceLayer::DiagnosticDataProvider & diagnosticProvider,
                                  const OptionalAttributeSet & optionalAttributeSet,
                                  BitFlags<WiFiNetworkDiagnostics::Feature> featureFlags) :
-        DefaultServerCluster({ endpointId, WiFiNetworkDiagnostics::Id }), mEndpointId(endpointId),
-        mDiagnosticProvider(diagnosticProvider), mOptionalAttributeSet(optionalAttributeSet), mFeatureFlags(featureFlags)
+        DefaultServerCluster({ endpointId, WiFiNetworkDiagnostics::Id }),
+        mEndpointId(endpointId), mDiagnosticProvider(diagnosticProvider), mOptionalAttributeSet(optionalAttributeSet),
+        mFeatureFlags(featureFlags)
     {
         mDiagnosticProvider.SetWiFiDiagnosticsDelegate(this);
     }

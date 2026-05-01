@@ -56,61 +56,32 @@ class TC_TLSCERT_2_13(TC_TLSCERT_Base):
             *self.get_two_fabric_substeps(),
             TestStep(2, "Set myNonce to a random 32-octet value"),
             TestStep(3, "Set myRootCert to a valid, self-signed, DER-encoded x509 certificate"),
-            TestStep(
-                4,
-                "CR1 sends RemoveClientCertificate command with CCDID set to 1.",
-                test_plan_support.verify_status(Status.NotFound),
-            ),
-            TestStep(
-                5,
-                "CR1 sends ClientCSR command with Nonce set to myNonce.",
-                "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid.",
-            ),
-            TestStep(
-                6,
-                "Populate myClientCert with a valid, self-signed, DER-encoded x509 certificate using the public key from the CSR.",
-            ),
-            TestStep(
-                7,
-                "CR1 sends ProvisionClientCertificate command with CCDID set to myCcdid and ClientCertificate set to myClientCert.",
-                test_plan_support.verify_success(),
-            ),
-            TestStep(
-                8,
-                "CR2 sends RemoveClientCertificate command with CCDID set to myCcdid.",
-                test_plan_support.verify_status(Status.NotFound),
-            ),
-            TestStep(
-                9,
-                "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert.",
-                "DUT replies with a TLSCAID value. Store the returned value as myCaid.",
-            ),
-            TestStep(
-                10,
-                "CR1 sends ProvisionEndpoint command with valid Hostname, Port, CAID myCaid and null EndpointID.",
-                "DUT replies with a TLSEndpointID value. Store the returned value as myEndpoint.",
-            ),
-            TestStep(
-                11,
-                "CR1 sends RemoveClientCertificate command with CCDID set to myCcdid.",
-                test_plan_support.verify_status(Status.InvalidInState),
-            ),
-            TestStep(12, "CR1 sends RemoveEndpoint command with EndpointID set to myEndpoint.", test_plan_support.verify_success()),
-            TestStep(
-                13, "CR1 sends RemoveClientCertificate command with CCDID set to myCcdid.", test_plan_support.verify_success()
-            ),
-            TestStep(
-                14,
-                "CR1 sends FindClientCertificate command with CCDID set to myCcdid.",
-                test_plan_support.verify_status(Status.NotFound),
-            ),
-            TestStep(
-                15,
-                "CR1 sends RemoveClientCertificate command with CCDID set to myCcdid.",
-                test_plan_support.verify_status(Status.NotFound),
-            ),
-            TestStep(16, "CR1 sends RemoveRootCertificate command with CAID set to myCaid.", test_plan_support.verify_success()),
-            TestStep(17, test_plan_support.remove_fabric("CR2", "CR1"), test_plan_support.verify_success()),
+            TestStep(4, "CR1 sends RemoveClientCertificate command with CCDID set to 1.",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(5, "CR1 sends ClientCSR command with Nonce set to myNonce.",
+                     "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid."),
+            TestStep(6, "Populate myClientCert with a valid, self-signed, DER-encoded x509 certificate using the public key from the CSR."),
+            TestStep(7, "CR1 sends ProvisionClientCertificate command with CCDID set to myCcdid and ClientCertificate set to myClientCert.",
+                     test_plan_support.verify_success()),
+            TestStep(8, "CR2 sends RemoveClientCertificate command with CCDID set to myCcdid.",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(9, "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert.",
+                     "DUT replies with a TLSCAID value. Store the returned value as myCaid."),
+            TestStep(10, "CR1 sends ProvisionEndpoint command with valid Hostname, Port, CAID myCaid and null EndpointID.",
+                     "DUT replies with a TLSEndpointID value. Store the returned value as myEndpoint."),
+            TestStep(11, "CR1 sends RemoveClientCertificate command with CCDID set to myCcdid.",
+                     test_plan_support.verify_status(Status.InvalidInState)),
+            TestStep(12, "CR1 sends RemoveEndpoint command with EndpointID set to myEndpoint.",
+                     test_plan_support.verify_success()),
+            TestStep(13, "CR1 sends RemoveClientCertificate command with CCDID set to myCcdid.",
+                     test_plan_support.verify_success()),
+            TestStep(14, "CR1 sends FindClientCertificate command with CCDID set to myCcdid.",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(15, "CR1 sends RemoveClientCertificate command with CCDID set to myCcdid.",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(16, "CR1 sends RemoveRootCertificate command with CAID set to myCaid.",
+                     test_plan_support.verify_success()),
+            TestStep(17, test_plan_support.remove_fabric('CR2', 'CR1'), test_plan_support.verify_success()),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.TlsCertificateManagement))
@@ -150,9 +121,7 @@ class TC_TLSCERT_2_13(TC_TLSCERT_Base):
         my_caid = response.caid
 
         self.step(10)
-        endpoint_response = await cr1_cmd.send_provision_tls_endpoint_command(
-            hostname=b"my_hostname", port=1000, caid=my_caid, ccdid=my_ccdid
-        )
+        endpoint_response = await cr1_cmd.send_provision_tls_endpoint_command(hostname=b"my_hostname", port=1000, caid=my_caid, ccdid=my_ccdid)
         my_endpoint = endpoint_response.endpointID
 
         self.step(11)

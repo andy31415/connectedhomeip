@@ -27,7 +27,7 @@ import matter.clusters as Clusters
 
 
 def bytes_from_hex(hex: str) -> bytes:
-    """Converts hex string to bytes, handling various formats (colons, spaces, newlines).
+    """ Converts hex string to bytes, handling various formats (colons, spaces, newlines).
 
     Examples:
         >>> bytes_from_hex("01:ab:cd")
@@ -43,7 +43,7 @@ def bytes_from_hex(hex: str) -> bytes:
 
 
 def hex_from_bytes(b: bytes) -> str:
-    """Converts a bytes object to a hexadecimal string.
+    """ Converts a bytes object to a hexadecimal string.
 
     This function performs the inverse operation of bytes_from_hex(). It converts
     a bytes object into a continuous hexadecimal string without any separators.
@@ -65,7 +65,7 @@ def hex_from_bytes(b: bytes) -> str:
 
 
 def format_decimal_and_hex(number):
-    """Formats a number showing both decimal and hexadecimal representations.
+    """ Formats a number showing both decimal and hexadecimal representations.
 
     Creates a string representation of a number showing both its decimal value
     and its hex representation in parentheses.
@@ -85,13 +85,13 @@ def format_decimal_and_hex(number):
         '255 (0xff)'
     """
     try:
-        return f"{number} (0x{number:02x})"
+        return f'{number} (0x{number:02x})'
     except (TypeError, ValueError):
-        return f"{number}"
+        return f'{number}'
 
 
 def cluster_id_with_name(id):
-    """Formats a Matter cluster ID with its name and numeric representation.
+    """ Formats a Matter cluster ID with its name and numeric representation.
 
     Uses format_decimal_and_hex() for numeric formatting and looks up cluster name from registry.
     Falls back to "Unknown cluster" if ID not recognized.
@@ -112,10 +112,9 @@ def cluster_id_with_name(id):
         s = Clusters.ClusterObjects.ALL_CLUSTERS[id].__name__
     else:
         s = "Unknown cluster"
-    return f"{format_decimal_and_hex(id)} {s}"
+    return f'{format_decimal_and_hex(id)} {s}'
 
 
 if __name__ == "__main__":
     import doctest
-
     doctest.testmod()

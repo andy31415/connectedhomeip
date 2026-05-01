@@ -60,53 +60,27 @@ class TC_TLSCERT_2_8(TC_TLSCERT_Base):
             TestStep(2, "CR2 reads MaxClientCertificates attribute into myMaxClientCerts."),
             TestStep(3, "Populate myNonce[] with myMaxClientCerts+1 distinct, random 32-octet values."),
             TestStep(4, "Set myBigNonce to a value exceeding 32 octets."),
-            TestStep(
-                5,
-                "CR1 sends ClientCSR command with Nonce set to myBigNonce.",
-                test_plan_support.verify_status(Status.ConstraintError),
-            ),
-            TestStep(
-                6,
-                "CR1 sends ClientCSR command with Nonce set to myNonce[0].",
-                "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid[0].",
-            ),
-            TestStep(
-                7,
-                "CR2 sends ClientCSR command with Nonce set to myNonce[i], for each i in [1..myMaxClientCerts].",
-                "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid[i].",
-            ),
-            TestStep(
-                8,
-                "CR1 reads ProvisionedClientCertificates attribute using a fabric-filtered read.",
-                "DUT replies with a list of TLSClientCertificateDetailStruct with one entry for myCcdid[0].",
-            ),
-            TestStep(
-                9,
-                "CR2 reads ProvisionedClientCertificates attribute using a fabric-filtered read.",
-                "DUT replies with a list of TLSClientCertificateDetailStruct with myMaxClientCerts entries.",
-            ),
-            TestStep(
-                10,
-                "CR2 sends ClientCSR command with Nonce set to myNonce[myMaxClientCerts].",
-                test_plan_support.verify_status(Status.ResourceExhausted),
-            ),
-            TestStep(
-                11, "CR2 sends RemoveClientCertificate command with CCDID set to myCcdid[1].", test_plan_support.verify_success()
-            ),
-            TestStep(
-                12,
-                "CR2 sends ClientCSR command with Nonce set to myNonce[myMaxClientCerts].",
-                "DUT replies with CCDID, CSR and Nonce.",
-            ),
-            TestStep(
-                13,
-                "CR2 reads ProvisionedClientCertificates attribute.",
-                "DUT replies with a list of TLSClientCertificateDetailStruct with myMaxClientCerts entries.",
-            ),
-            TestStep(14, test_plan_support.remove_fabric("CR2", "CR1"), test_plan_support.verify_success()),
-            TestStep(
-                15, "CR1 sends RemoveClientCertificate command with CCDID set to myCcdid[0].", test_plan_support.verify_success()
-            ),
+            TestStep(5, "CR1 sends ClientCSR command with Nonce set to myBigNonce.",
+                     test_plan_support.verify_status(Status.ConstraintError)),
+            TestStep(6, "CR1 sends ClientCSR command with Nonce set to myNonce[0].",
+                     "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid[0]."),
+            TestStep(7, "CR2 sends ClientCSR command with Nonce set to myNonce[i], for each i in [1..myMaxClientCerts].",
+                     "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid[i]."),
+            TestStep(8, "CR1 reads ProvisionedClientCertificates attribute using a fabric-filtered read.",
+                     "DUT replies with a list of TLSClientCertificateDetailStruct with one entry for myCcdid[0]."),
+            TestStep(9, "CR2 reads ProvisionedClientCertificates attribute using a fabric-filtered read.",
+                     "DUT replies with a list of TLSClientCertificateDetailStruct with myMaxClientCerts entries."),
+            TestStep(10, "CR2 sends ClientCSR command with Nonce set to myNonce[myMaxClientCerts].",
+                     test_plan_support.verify_status(Status.ResourceExhausted)),
+            TestStep(11, "CR2 sends RemoveClientCertificate command with CCDID set to myCcdid[1].",
+                     test_plan_support.verify_success()),
+            TestStep(12, "CR2 sends ClientCSR command with Nonce set to myNonce[myMaxClientCerts].",
+                     "DUT replies with CCDID, CSR and Nonce."),
+            TestStep(13, "CR2 reads ProvisionedClientCertificates attribute.",
+                     "DUT replies with a list of TLSClientCertificateDetailStruct with myMaxClientCerts entries."),
+            TestStep(14, test_plan_support.remove_fabric('CR2', 'CR1'), test_plan_support.verify_success()),
+            TestStep(15, "CR1 sends RemoveClientCertificate command with CCDID set to myCcdid[0].",
+                     test_plan_support.verify_success()),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.TlsCertificateManagement))
@@ -147,28 +121,20 @@ class TC_TLSCERT_2_8(TC_TLSCERT_Base):
         client_certs = await cr1_cmd.read_client_certs_attribute_as_map(TransportPayloadCapability.LARGE_PAYLOAD)
         asserts.assert_equal(len(client_certs), 1)
         asserts.assert_in(my_ccdid[0], client_certs)
-        asserts.assert_equal(
-            client_certs[my_ccdid[0]].clientCertificate, NullValue, "Expected no certificate for unprovisioned certificate"
-        )
-        asserts.assert_equal(
-            len(client_certs[my_ccdid[0]].intermediateCertificates),
-            0,
-            "Expected no intermediate certificates for unprovisioned certificate",
-        )
+        asserts.assert_equal(client_certs[my_ccdid[0]].clientCertificate, NullValue,
+                             "Expected no certificate for unprovisioned certificate")
+        asserts.assert_equal(len(client_certs[my_ccdid[0]].intermediateCertificates), 0,
+                             "Expected no intermediate certificates for unprovisioned certificate")
 
         self.step(9)
         client_certs = await cr2_cmd.read_client_certs_attribute_as_map(TransportPayloadCapability.LARGE_PAYLOAD)
         asserts.assert_equal(len(client_certs), my_max_client_certs)
         for i in range(1, my_max_client_certs + 1):
             asserts.assert_in(my_ccdid[i], client_certs)
-            asserts.assert_equal(
-                client_certs[my_ccdid[i]].clientCertificate, NullValue, "Expected no certificate for unprovisioned certificate"
-            )
-            asserts.assert_equal(
-                len(client_certs[my_ccdid[i]].intermediateCertificates),
-                0,
-                "Expected no intermediate certificates for unprovisioned certificate",
-            )
+            asserts.assert_equal(client_certs[my_ccdid[i]].clientCertificate, NullValue,
+                                 "Expected no certificate for unprovisioned certificate")
+            asserts.assert_equal(len(client_certs[my_ccdid[i]].intermediateCertificates), 0,
+                                 "Expected no intermediate certificates for unprovisioned certificate")
 
         self.step(10)
         await cr2_cmd.send_csr_command(nonce=my_nonce[my_max_client_certs], expected_status=Status.ResourceExhausted)
@@ -187,14 +153,10 @@ class TC_TLSCERT_2_8(TC_TLSCERT_Base):
         asserts.assert_equal(len(client_certs), my_max_client_certs)
         for i in range(2, my_max_client_certs + 2):
             asserts.assert_in(my_ccdid[i], client_certs)
-            asserts.assert_equal(
-                client_certs[my_ccdid[i]].clientCertificate, NullValue, "Expected no certificate for unprovisioned certificate"
-            )
-            asserts.assert_equal(
-                len(client_certs[my_ccdid[i]].intermediateCertificates),
-                0,
-                "Expected no intermediate certificates for unprovisioned certificate",
-            )
+            asserts.assert_equal(client_certs[my_ccdid[i]].clientCertificate, NullValue,
+                                 "Expected no certificate for unprovisioned certificate")
+            asserts.assert_equal(len(client_certs[my_ccdid[i]].intermediateCertificates), 0,
+                                 "Expected no intermediate certificates for unprovisioned certificate")
 
         self.step(14)
         await cr1_cmd.send_remove_fabric_command(cr2_cmd.fabric_index)

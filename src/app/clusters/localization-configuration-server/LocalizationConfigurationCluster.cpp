@@ -64,7 +64,8 @@ namespace chip::app::Clusters {
 
 LocalizationConfigurationCluster::LocalizationConfigurationCluster(DeviceLayer::DeviceInfoProvider & aDeviceInfoProvider,
                                                                    CharSpan activeLocale) :
-    DefaultServerCluster({ kRootEndpointId, LocalizationConfiguration::Id }), mDeviceInfoProvider(aDeviceInfoProvider)
+    DefaultServerCluster({ kRootEndpointId, LocalizationConfiguration::Id }),
+    mDeviceInfoProvider(aDeviceInfoProvider)
 {
     DataModel::ActionReturnStatus status = SetActiveLocale(activeLocale);
     if (status != Protocols::InteractionModel::Status::Success)

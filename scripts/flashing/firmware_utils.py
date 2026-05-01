@@ -32,14 +32,14 @@ OPTIONS = {
     # Configuration options define properties used in flashing operations.
     # (The outer level of an options definition corresponds to option groups
     # in the command-line help message.)
-    "configuration": {
+    'configuration': {
         # Script configuration options.
-        "verbose": {
-            "help": "Report more verbosely",
-            "default": 0,
-            "alias": ["-v"],
-            "argparse": {
-                "action": "count",
+        'verbose': {
+            'help': 'Report more verbosely',
+            'default': 0,
+            'alias': ['-v'],
+            'argparse': {
+                'action': 'count',
             },
             # Levels:
             #   0   - error message
@@ -48,53 +48,64 @@ OPTIONS = {
             #   3+  - details
         },
     },
+
     # Action control options specify operations that Flasher.action() or
     # the function interface flash_command() will perform.
-    "operations": {
+    'operations': {
         # Action control options.
-        "erase": {
-            "help": "Erase device",
-            "default": False,
-            "argparse": {"action": "store_true"},
-        },
-        "application": {
-            "help": "Flash an image",
-            "default": None,
-            "argparse": {
-                "metavar": "FILE",
-                "type": pathlib.Path,
+        'erase': {
+            'help': 'Erase device',
+            'default': False,
+            'argparse': {
+                'action': 'store_true'
             },
         },
-        "verify_application": {
-            "help": "Verify the image after flashing",
-            "default": False,
-            "argparse": {"action": "store_true"},
+        'application': {
+            'help': 'Flash an image',
+            'default': None,
+            'argparse': {
+                'metavar': 'FILE',
+                'type': pathlib.Path,
+            },
+        },
+        'verify_application': {
+            'help': 'Verify the image after flashing',
+            'default': False,
+            'argparse': {
+                'action': 'store_true'
+            },
         },
         # 'reset' is a three-way switch; if None, action() will reset the
         # device if and only if an application image is flashed. So, we add
         # an explicit option to set it false.
-        "reset": {
-            "help": "Reset device after flashing",
-            "default": None,  # None = Reset iff application was flashed.
-            "argparse": {"action": "store_true"},
+        'reset': {
+            'help': 'Reset device after flashing',
+            'default': None,  # None = Reset iff application was flashed.
+            'argparse': {
+                'action': 'store_true'
+            },
         },
-        "skip_reset": {
-            "help": "Do not reset device after flashing",
-            "default": None,  # None = Reset iff application was flashed.
-            "argparse": {"dest": "reset", "action": "store_false"},
-        },
+        'skip_reset': {
+            'help': 'Do not reset device after flashing',
+            'default': None,  # None = Reset iff application was flashed.
+            'argparse': {
+                'dest': 'reset',
+                'action': 'store_false'
+            },
+        }
     },
+
     # Internal; these properties do not have command line options
     # (because they don't have an `argparse` key).
-    "internal": {
+    'internal': {
         # Script configuration options.
-        "platform": {
-            "help": "Short name of the current platform",
-            "default": None,
+        'platform': {
+            'help': 'Short name of the current platform',
+            'default': None,
         },
-        "module": {
-            "help": "Invoking Python module, for generating scripts",
-            "default": None,
+        'module': {
+            'help': 'Invoking Python module, for generating scripts',
+            'default': None,
         },
     },
 }
@@ -127,7 +138,8 @@ class Flasher:
 
         # Argument parser for `parse_argv()`. Normally defines command-line
         # options for most of the `self.option` keys.
-        self.parser = argparse.ArgumentParser(description="Flash {} device".format(self.option.platform or "a"))
+        self.parser = argparse.ArgumentParser(
+            description='Flash {} device'.format(self.option.platform or 'a'))
 
         # Argument parser groups.
         self.group = {}
@@ -142,20 +154,24 @@ class Flasher:
                 self.group[group] = self.parser.add_argument_group(group)
             for key, info in group_options.items():
                 setattr(self.info, key, info)
-                if "argparse" not in info:
+                if 'argparse' not in info:
                     continue
-                argument = info["argparse"]
-                attribute = argument.get("dest", key)
+                argument = info['argparse']
+                attribute = argument.get('dest', key)
                 # Set default value.
                 if attribute not in self.option:
-                    setattr(self.option, attribute, info["default"])
+                    setattr(self.option, attribute, info['default'])
                 # Add command line argument.
-                names = ["--" + key]
-                if "_" in key:
-                    names.append("--" + key.replace("_", "-"))
-                if "alias" in info:
-                    names += info["alias"]
-                self.group[group].add_argument(*names, help=info["help"], default=getattr(self.option, attribute), **argument)
+                names = ['--' + key]
+                if '_' in key:
+                    names.append('--' + key.replace('_', '-'))
+                if 'alias' in info:
+                    names += info['alias']
+                self.group[group].add_argument(
+                    *names,
+                    help=info['help'],
+                    default=getattr(self.option, attribute),
+                    **argument)
         return self
 
     def status(self):
@@ -171,12 +187,18 @@ class Flasher:
         if self.option.verbose >= level:
             print(*args, file=sys.stderr)
 
-    def run_tool(
-        self, tool, arguments, options=None, name=None, pass_message=None, fail_message=None, fail_level=0, capture_output=False
-    ):
+    def run_tool(self,
+                 tool,
+                 arguments,
+                 options=None,
+                 name=None,
+                 pass_message=None,
+                 fail_message=None,
+                 fail_level=0,
+                 capture_output=False):
         """Run an external tool."""
         if name is None:
-            name = "Run " + tool
+            name = 'Run ' + tool
         self.log(1, name)
 
         option_map = vars(self.option)
@@ -186,25 +208,29 @@ class Flasher:
         if not getattr(self.option, tool, None):
             setattr(self.option, tool, self.locate_tool(tool))
         tool_info = getattr(self.info, tool)
-        command_template = tool_info.get("command", ["{" + tool + "}", ()])
+        command_template = tool_info.get('command', ['{' + tool + '}', ()])
         command = self.format_command(command_template, arguments, option_map)
-        self.log(3, "Execute:", *command)
+        self.log(3, 'Execute:', *command)
 
         try:
             if capture_output:
                 result = None
-                result = subprocess.run(command, check=True, encoding=locale.getpreferredencoding(), capture_output=True)
+                result = subprocess.run(
+                    command,
+                    check=True,
+                    encoding=locale.getpreferredencoding(),
+                    capture_output=True)
             else:
                 result = self
                 self.error = subprocess.check_call(command)
         except subprocess.CalledProcessError as exception:
             self.err = exception.returncode
             if capture_output:
-                self.log(fail_level, "--- stdout ---")
+                self.log(fail_level, '--- stdout ---')
                 self.log(fail_level, exception.stdout)
-                self.log(fail_level, "--- stderr ---")
+                self.log(fail_level, '--- stderr ---')
                 self.log(fail_level, exception.stderr)
-                self.log(fail_level, "---")
+                self.log(fail_level, '---')
         except FileNotFoundError as exception:
             self.err = exception.errno
             if self.err == errno.ENOENT:
@@ -214,9 +240,9 @@ class Flasher:
                     raise exception
 
         if self.err:
-            self.log(fail_level, fail_message or ("FAILED: " + name))
+            self.log(fail_level, fail_message or ('FAILED: ' + name))
         else:
-            self.log(2, pass_message or (name + " complete"))
+            self.log(2, pass_message or (name + ' complete'))
         return result
 
     def locate_tool(self, tool):
@@ -229,7 +255,7 @@ class Flasher:
         Prints a configurable error and returns False if not.
         """
         tool_info = getattr(self.info, tool)
-        command_template = tool_info.get("verify")
+        command_template = tool_info.get('verify')
         if not command_template:
             return True
         command = self.format_command(command_template, opt=vars(self.option))
@@ -238,10 +264,10 @@ class Flasher:
         except OSError as ex:
             self.err = ex.errno
         if self.err:
-            note = tool_info.get("error", "Unable to execute {tool}.")
+            note = tool_info.get('error', 'Unable to execute {tool}.')
             note = textwrap.dedent(note).format(tool=tool, **vars(self.option))
             # textwrap.fill only handles single paragraphs:
-            note = "\n\n".join((textwrap.fill(p) for p in note.split("\n\n")))
+            note = '\n\n'.join((textwrap.fill(p) for p in note.split('\n\n')))
             print(note, file=sys.stderr)
             return False
         return True
@@ -314,37 +340,37 @@ class Flasher:
         elif template == ():
             result = args or []
         elif isinstance(template, dict):
-            if "optional" in template:
-                name = template["optional"]
+            if 'optional' in template:
+                name = template['optional']
                 value = opt.get(name)
                 if value is True:
-                    result = ["--" + name]
+                    result = ['--' + name]
                 elif value:
-                    result = ["--" + name, value]
+                    result = ['--' + name, value]
                 else:
                     result = []
-            elif "option" in template:
-                name = template["option"]
+            elif 'option' in template:
+                name = template['option']
                 value = opt.get(name)
                 if value:
-                    result = template.get("result", value)
+                    result = template.get('result', value)
                 else:
-                    result = template.get("else")
-            elif "match" in template:
-                value = template["match"]
-                for compare, result in template["test"]:
+                    result = template.get('else')
+            elif 'match' in template:
+                value = template['match']
+                for compare, result in template['test']:
                     if value == compare:
                         break
                 else:
-                    result = template.get("else")
-            if result and template.get("expand"):
+                    result = template.get('else')
+            if result and template.get('expand'):
                 result = self.format_command(result, args, opt)
             elif result is None:
                 result = []
             elif not isinstance(result, list):
                 result = [result]
         else:
-            raise ValueError("Unknown: {}".format(template))
+            raise ValueError('Unknown: {}'.format(template))
         return result
 
     def parse_argv(self, argv):
@@ -373,8 +399,12 @@ class Flasher:
 
         # Note: this modifies the argument parser, so the same Flasher instance
         # should not be used for both parse_argv() and make_wrapper().
-        self.parser.description = "Generate a flashing script."
-        self.parser.add_argument("--output", metavar="FILENAME", required=True, help="flashing script name")
+        self.parser.description = 'Generate a flashing script.'
+        self.parser.add_argument(
+            '--output',
+            metavar='FILENAME',
+            required=True,
+            help='flashing script name')
         self.argv0 = argv[0]
         args = self.parser.parse_args(argv[1:])
 
@@ -392,9 +422,10 @@ class Flasher:
         for key, value in vars(args).items():
             if key in self.option and value != getattr(self.option, key):
                 if isinstance(value, pathlib.Path):
-                    defaults.append("  {}: os.path.join(os.path.dirname(sys.argv[0]), {}),".format(repr(key), repr(str(value))))
+                    defaults.append('  {}: os.path.join(os.path.dirname(sys.argv[0]), {}),'.format(
+                        repr(key), repr(str(value))))
                 else:
-                    defaults.append("  {}: {},".format(repr(key), repr(value)))
+                    defaults.append('  {}: {},'.format(repr(key), repr(value)))
 
         script = """
             import sys
@@ -410,15 +441,15 @@ class Flasher:
                 sys.exit({module}.Flasher(**DEFAULTS).flash_command(sys.argv))
         """
 
-        script = "#!/usr/bin/env python3" + textwrap.dedent(script).format(module=self.option.module, defaults="\n".join(defaults))
+        script = ('#!/usr/bin/env python3' + textwrap.dedent(script).format(
+            module=self.option.module, defaults='\n'.join(defaults)))
 
         try:
-            with open(args.output, "w") as script_file:
+            with open(args.output, 'w') as script_file:
                 script_file.write(script)
-            os.chmod(
-                args.output,
-                (stat.S_IXUSR | stat.S_IRUSR | stat.S_IWUSR | stat.S_IXGRP | stat.S_IRGRP | stat.S_IXOTH | stat.S_IROTH),
-            )
+            os.chmod(args.output, (stat.S_IXUSR | stat.S_IRUSR | stat.S_IWUSR
+                                   | stat.S_IXGRP | stat.S_IRGRP
+                                   | stat.S_IXOTH | stat.S_IROTH))
         except OSError:
             traceback.print_last()
             return 1

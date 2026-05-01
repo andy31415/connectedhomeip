@@ -57,34 +57,21 @@ class TC_TLSCERT_2_11(TC_TLSCERT_Base):
         return [
             *self.get_two_fabric_substeps(),
             TestStep(2, "Set myNonce to a random 32-octet value"),
-            TestStep(
-                3, "CR1 sends FindClientCertificate command with null CCDID.", test_plan_support.verify_status(Status.NotFound)
-            ),
-            TestStep(
-                4,
-                "CR1 sends ClientCSR command with Nonce set to myNonce.",
-                "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid.",
-            ),
-            TestStep(
-                5,
-                "CR1 sends FindClientCertificate command with CCDID set to myCcdid.",
-                "DUT replies with a list of TLSClientCertificateDetailsStruct with one entry. The entry should have CCDID with value myCcdid with ClientCertificate and IntermediateCertificates unset.",
-            ),
-            TestStep(
-                6,
-                "CR1 sends FindClientCertificate command with CCDID set to myCcdid + 1.",
-                test_plan_support.verify_status(Status.NotFound),
-            ),
-            TestStep(
-                7, "CR2 sends FindClientCertificate command with null CCDID.", test_plan_support.verify_status(Status.NotFound)
-            ),
-            TestStep(
-                8,
-                "CR2 sends FindClientCertificate command with CCDID set to myCcdid.",
-                test_plan_support.verify_status(Status.NotFound),
-            ),
-            TestStep(9, "CR1 sends RemoveClientCertificate command with CCDID set to myCcdid.", test_plan_support.verify_success()),
-            TestStep(10, test_plan_support.remove_fabric("CR2", "CR1"), test_plan_support.verify_success()),
+            TestStep(3, "CR1 sends FindClientCertificate command with null CCDID.",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(4, "CR1 sends ClientCSR command with Nonce set to myNonce.",
+                     "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid."),
+            TestStep(5, "CR1 sends FindClientCertificate command with CCDID set to myCcdid.",
+                     "DUT replies with a list of TLSClientCertificateDetailsStruct with one entry. The entry should have CCDID with value myCcdid with ClientCertificate and IntermediateCertificates unset."),
+            TestStep(6, "CR1 sends FindClientCertificate command with CCDID set to myCcdid + 1.",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(7, "CR2 sends FindClientCertificate command with null CCDID.",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(8, "CR2 sends FindClientCertificate command with CCDID set to myCcdid.",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(9, "CR1 sends RemoveClientCertificate command with CCDID set to myCcdid.",
+                     test_plan_support.verify_success()),
+            TestStep(10, test_plan_support.remove_fabric('CR2', 'CR1'), test_plan_support.verify_success()),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.TlsCertificateManagement))

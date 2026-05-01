@@ -190,7 +190,8 @@ void PrettyPrintCurrentValue(const TLVReader & reader, chip::StringBuilderBase &
 
 PayloadDecoderBase::PayloadDecoderBase(const PayloadDecoderInitParams & params, StringBuilderBase & nameBuilder,
                                        StringBuilderBase & valueBuilder) :
-    mProtocol(params.GetProtocol()), mMessageType(params.GetMessageType()), mNameBuilder(nameBuilder), mValueBuilder(valueBuilder),
+    mProtocol(params.GetProtocol()),
+    mMessageType(params.GetMessageType()), mNameBuilder(nameBuilder), mValueBuilder(valueBuilder),
 
     mPayloadPosition(params.GetProtocolDecodeTree(), params.GetProtocolDecodeTreeSize()),
     mIMContentPosition(params.GetClusterDecodeTree(), params.GetClusterDecodeTreeSize())

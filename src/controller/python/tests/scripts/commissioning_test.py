@@ -28,17 +28,15 @@ from base import BaseTestHelper, FailIfNot, TestFail, TestTimeout, logger
 
 # The thread network dataset tlv for testing, splitted into T-L-V.
 
-TEST_THREAD_NETWORK_DATASET_TLV = (
-    "0e080000000000010000"
-    + "000300000c"
-    + "35060004001fffe0"
-    + "0208fedcba9876543210"
-    + "0708fd00000000001234"
-    + "0510ffeeddccbbaa99887766554433221100"
-    + "030e54657374696e674e6574776f726b"
-    + "0102d252"
-    + "041081cb3b2efa781cc778397497ff520fa50c0302a0ff"
-)
+TEST_THREAD_NETWORK_DATASET_TLV = "0e080000000000010000" + \
+    "000300000c" + \
+    "35060004001fffe0" + \
+    "0208fedcba9876543210" + \
+    "0708fd00000000001234" + \
+    "0510ffeeddccbbaa99887766554433221100" + \
+    "030e54657374696e674e6574776f726b" + \
+    "0102d252" + \
+    "041081cb3b2efa781cc778397497ff520fa50c0302a0ff"
 # Network id, for the thread network, current a const value, will be changed to XPANID of the thread network.
 TEST_THREAD_NETWORK_ID = "fedcba9876543210"
 TEST_DISCRIMINATOR = 3840
@@ -57,7 +55,7 @@ async def main():
         action="store",
         dest="testTimeout",
         default=75,
-        type="int",
+        type='int',
         help="The program will return with timeout after specified seconds.",
         metavar="<timeout-second>",
     )
@@ -65,13 +63,19 @@ async def main():
         "--setup-payload",
         action="store",
         dest="setupPayload",
-        default="",
-        type="str",
+        default='',
+        type='str',
         help="Setup Payload (manual pairing code or QR code content)",
-        metavar="<setup-payload>",
+        metavar="<setup-payload>"
     )
     optParser.add_option(
-        "--nodeid", action="store", dest="nodeid", default=1, type=int, help="The Node ID issued to the device", metavar="<node-id>"
+        "--nodeid",
+        action="store",
+        dest="nodeid",
+        default=1,
+        type=int,
+        help="The Node ID issued to the device",
+        metavar="<node-id>"
     )
     optParser.add_option(
         "--discriminator",
@@ -80,17 +84,17 @@ async def main():
         default=TEST_DISCRIMINATOR,
         type=int,
         help="Discriminator of the device",
-        metavar="<discriminator>",
+        metavar="<discriminator>"
     )
     optParser.add_option(
         "-p",
         "--paa-trust-store-path",
         action="store",
         dest="paaTrustStorePath",
-        default="",
-        type="str",
+        default='',
+        type='str',
         help="Path that contains valid and trusted PAA Root Certificates.",
-        metavar="<paa-trust-store-path>",
+        metavar="<paa-trust-store-path>"
     )
     optParser.add_option(
         "--discovery-type",
@@ -99,7 +103,7 @@ async def main():
         default=TEST_DISCOVERY_TYPE,
         type=int,
         help="Discovery type of commissioning. (0: networkOnly 1: networkOnlyWithoutPASEAutoRetry 2: All<Ble & Network>)",
-        metavar="<discovery-type>",
+        metavar="<discovery-type>"
     )
 
     (options, remainingArgs) = optParser.parse_args(sys.argv[1:])
@@ -107,30 +111,31 @@ async def main():
     timeoutTicker = TestTimeout(options.testTimeout)
     timeoutTicker.start()
 
-    test = BaseTestHelper(nodeId=112233, paaTrustStorePath=options.paaTrustStorePath, testCommissioner=True)
+    test = BaseTestHelper(
+        nodeId=112233, paaTrustStorePath=options.paaTrustStorePath, testCommissioner=True)
 
     logger.info("Testing discovery")
-    FailIfNot(await test.TestDiscovery(discriminator=options.discriminator), "Failed to discover any devices.")
+    FailIfNot(await test.TestDiscovery(discriminator=options.discriminator),
+              "Failed to discover any devices.")
 
-    FailIfNot(
-        test.SetNetworkCommissioningParameters(dataset=TEST_THREAD_NETWORK_DATASET_TLV), "Failed to finish network commissioning"
-    )
+    FailIfNot(test.SetNetworkCommissioningParameters(dataset=TEST_THREAD_NETWORK_DATASET_TLV),
+              "Failed to finish network commissioning")
 
     if options.setupPayload:
         logger.info("Testing commissioning (w/ Setup Payload)")
-        FailIfNot(
-            await test.TestCommissioningWithSetupPayload(
-                setupPayload=options.setupPayload, nodeId=options.nodeid, discoveryType=options.discoveryType
-            ),
-            "Failed to finish commissioning",
-        )
+        FailIfNot(await test.TestCommissioningWithSetupPayload(setupPayload=options.setupPayload,
+                                                               nodeId=options.nodeid,
+                                                               discoveryType=options.discoveryType),
+                  "Failed to finish commissioning")
     else:
         TestFail("Must provide device setup payload to commissioning the device")
 
     logger.info("Testing on off cluster")
-    FailIfNot(await test.TestOnOffCluster(nodeId=options.nodeid, endpoint=LIGHTING_ENDPOINT_ID), "Failed to test on off cluster")
+    FailIfNot(await test.TestOnOffCluster(nodeId=options.nodeid,
+                                          endpoint=LIGHTING_ENDPOINT_ID), "Failed to test on off cluster")
 
-    FailIfNot(test.TestUsedTestCommissioner(), "Test commissioner check failed")
+    FailIfNot(test.TestUsedTestCommissioner(),
+              "Test commissioner check failed")
 
     timeoutTicker.stop()
 

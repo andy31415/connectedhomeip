@@ -67,12 +67,8 @@ class TC_TIMESYNC_2_13(MatterBaseTest):
 
         try:
             ret = cb.get_event_from_queue(block=True, timeout=timeout)
-            asserts.assert_true(
-                matchers.is_type(
-                    received_value=ret.Data, desired_type=Clusters.TimeSynchronization.Events.MissingTrustedTimeSource
-                ),
-                "Incorrect type received for event",
-            )
+            asserts.assert_true(matchers.is_type(received_value=ret.Data,
+                                desired_type=Clusters.TimeSynchronization.Events.MissingTrustedTimeSource), "Incorrect type received for event")
         except queue.Empty:
             asserts.fail("Did not receive MissingTrustedTimeSouce event")
 
@@ -81,14 +77,14 @@ class TC_TIMESYNC_2_13(MatterBaseTest):
 
     @async_test_body
     async def test_TC_TIMESYNC_2_13(self):
+
         self.endpoint = 0
 
         self.print_step(0, "Commissioning, already done")
 
         self.print_step(1, "TH1 opens a commissioning window")
         params = await self.default_controller.OpenCommissioningWindow(
-            nodeId=self.dut_node_id, timeout=600, iteration=10000, discriminator=1234, option=1
-        )
+            nodeId=self.dut_node_id, timeout=600, iteration=10000, discriminator=1234, option=1)
 
         self.print_step(2, "Commission to TH2")
         new_certificate_authority = self.certificate_authority_manager.NewCertificateAuthority()
@@ -96,32 +92,22 @@ class TC_TIMESYNC_2_13(MatterBaseTest):
         TH2 = new_fabric_admin.NewController(nodeId=112233)
 
         await TH2.CommissionOnNetwork(
-            nodeId=self.dut_node_id,
-            setupPinCode=params.setupPinCode,
-            filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
-            filter=1234,
-        )
+            nodeId=self.dut_node_id, setupPinCode=params.setupPinCode,
+            filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR, filter=1234)
 
         self.print_step(3, "TH2 reads the current fabric")
         th2_fabric_idx = await self.read_single_attribute_check_success(
-            dev_ctrl=TH2,
-            cluster=Clusters.OperationalCredentials,
-            attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex,
-        )
+            dev_ctrl=TH2, cluster=Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex)
 
         self.print_step(4, "TH2 sends the SetTrustedTimeSource command to the DUT with its nodeID")
         tts = Clusters.TimeSynchronization.Structs.FabricScopedTrustedTimeSourceStruct(nodeID=TH2.nodeId, endpoint=0)
-        await self.send_single_cmd(
-            dev_ctrl=TH2, cmd=Clusters.TimeSynchronization.Commands.SetTrustedTimeSource(trustedTimeSource=tts)
-        )
+        await self.send_single_cmd(dev_ctrl=TH2, cmd=Clusters.TimeSynchronization.Commands.SetTrustedTimeSource(trustedTimeSource=tts))
 
         self.print_step(5, "TH1 subscribeds to the MissingTrustedTimeSource event")
         event = Clusters.TimeSynchronization.Events.MissingTrustedTimeSource
         cb = EventSubscriptionHandler(expected_cluster_id=event.cluster_id, expected_event_id=event.event_id)
         urgent = 1
-        subscription = await self.default_controller.ReadEvent(
-            nodeId=self.dut_node_id, events=[(self.endpoint, event, urgent)], reportInterval=[1, 3]
-        )
+        subscription = await self.default_controller.ReadEvent(nodeId=self.dut_node_id, events=[(self.endpoint, event, urgent)], reportInterval=[1, 3])
         subscription.SetEventUpdateCallback(callback=cb)
 
         self.print_step(6, "TH1 removes the TH2 fabric")
@@ -132,8 +118,7 @@ class TC_TIMESYNC_2_13(MatterBaseTest):
 
         self.print_step(8, "TH1 sends a SetTrusteTimeSource command")
         tts = Clusters.TimeSynchronization.Structs.FabricScopedTrustedTimeSourceStruct(
-            nodeID=self.default_controller.nodeId, endpoint=0
-        )
+            nodeID=self.default_controller.nodeId, endpoint=0)
         await self.send_single_cmd(cmd=Clusters.TimeSynchronization.Commands.SetTrustedTimeSource(trustedTimeSource=tts))
 
         self.print_step(9, "TH1 waits 5 seconds")

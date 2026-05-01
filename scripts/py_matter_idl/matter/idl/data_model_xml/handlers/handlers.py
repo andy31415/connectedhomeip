@@ -17,39 +17,14 @@ import logging
 from typing import Optional
 from xml.sax.xmlreader import AttributesImpl
 
-from matter.idl.matter_idl_types import (
-    ApiMaturity,
-    Attribute,
-    AttributeQuality,
-    Bitmap,
-    Cluster,
-    Command,
-    CommandQuality,
-    ConstantEntry,
-    DataType,
-    Enum,
-    Field,
-    FieldQuality,
-    Idl,
-    Struct,
-    StructTag,
-)
+from matter.idl.matter_idl_types import (ApiMaturity, Attribute, AttributeQuality, Bitmap, Cluster, Command, CommandQuality,
+                                         ConstantEntry, DataType, Enum, Field, FieldQuality, Idl, Struct, StructTag)
 
 from .base import BaseHandler, HandledDepth
 from .context import Context
 from .derivation import AddBaseInfoPostProcessor
-from .parsing import (
-    AttributesToAttribute,
-    AttributesToBitFieldConstantEntry,
-    AttributesToCommand,
-    AttributesToEvent,
-    AttributesToField,
-    NormalizeDataType,
-    NormalizeName,
-    ParseInt,
-    ParseOptionalInt,
-    StringToAccessPrivilege,
-)
+from .parsing import (AttributesToAttribute, AttributesToBitFieldConstantEntry, AttributesToCommand, AttributesToEvent,
+                      AttributesToField, NormalizeDataType, NormalizeName, ParseInt, ParseOptionalInt, StringToAccessPrivilege)
 
 log = logging.getLogger(__name__)
 
@@ -57,17 +32,18 @@ log = logging.getLogger(__name__)
 def is_unused_name(attrs: AttributesImpl):
     """Existing XML adds various entries for base/derived reserved items.
 
-    Those items seem to have no actual meaning.
+       Those items seem to have no actual meaning.
 
-    https://github.com/csa-data-model/projects/issues/363
+       https://github.com/csa-data-model/projects/issues/363
     """
-    if "name" not in attrs:
+    if 'name' not in attrs:
         return False
 
-    return attrs["name"] in {"base reserved", "derived reserved"}
+    return attrs['name'] in {'base reserved', 'derived reserved'}
 
 
 class FeaturesHandler(BaseHandler):
+
     def __init__(self, context: Context, cluster: Cluster):
         super().__init__(context, handled=HandledDepth.SINGLE_TAG)
         self._cluster = cluster
@@ -82,10 +58,11 @@ class FeaturesHandler(BaseHandler):
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
         if name == "feature":
             if is_unused_name(attrs):
-                log.warning("Ignoring feature constant data for '%s'", attrs["name"])
+                log.warning("Ignoring feature constant data for '%s'", attrs['name'])
                 return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
 
-            self._bitmap.entries.append(AttributesToBitFieldConstantEntry(attrs))
+            self._bitmap.entries.append(
+                AttributesToBitFieldConstantEntry(attrs))
             # assume everything handled. Sub-item is only section
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
         return BaseHandler(self.context)
@@ -97,7 +74,8 @@ class BitmapHandler(BaseHandler):
         self._cluster = cluster
 
         # TODO: base type is GUESSED here because xml does not contain it
-        self._bitmap = Bitmap(name=NormalizeName(attrs["name"]), base_type="UNKNOWN", entries=[])
+        self._bitmap = Bitmap(name=NormalizeName(
+            attrs["name"]), base_type="UNKNOWN", entries=[])
 
     def EndProcessing(self):
         if not self._bitmap.entries:
@@ -131,7 +109,8 @@ class BitmapHandler(BaseHandler):
             # Documentation data, skipped
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
         if name == "bitfield":
-            self._bitmap.entries.append(AttributesToBitFieldConstantEntry(attrs))
+            self._bitmap.entries.append(
+                AttributesToBitFieldConstantEntry(attrs))
             # Assume fully handled. We do not parse "mandatoryConform and such"
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
         return BaseHandler(self.context)
@@ -228,7 +207,7 @@ class FieldHandler(BaseHandler):
         if name == "optionalConform":
             self._field.qualities |= FieldQuality.OPTIONAL
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
-        if name in {"disallowConform", "describedConform"}:
+        if name in {'disallowConform', 'describedConform'}:
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
         if name == "access":
             # per-field access is not something we model
@@ -300,7 +279,8 @@ class EventHandler(BaseHandler):
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
         if name == "access":
             if "readPrivilege" in attrs:
-                self._event.readacl = StringToAccessPrivilege(attrs["readPrivilege"])
+                self._event.readacl = StringToAccessPrivilege(
+                    attrs["readPrivilege"])
             return BaseHandler(self.context, handled=HandledDepth.SINGLE_TAG)
         return BaseHandler(self.context)
 
@@ -311,7 +291,8 @@ class EnumHandler(BaseHandler):
         self._cluster = cluster
 
         # TODO: base type is GUESSED here because xml does not contain it
-        self._enum = Enum(name=NormalizeName(attrs["name"]), base_type="UNKNOWN", entries=[])
+        self._enum = Enum(name=NormalizeName(
+            attrs["name"]), base_type="UNKNOWN", entries=[])
 
     def EndProcessing(self):
         if not self._enum.entries:
@@ -339,16 +320,15 @@ class EnumHandler(BaseHandler):
         if name == "item":
             for key in ["name", "value"]:
                 if key not in attrs:
-                    log.error(
-                        "Enumeration '%s' entry is missing a '%s' entry (at %r)",
-                        self._enum.name,
-                        key,
-                        self.context.GetCurrentLocationMeta(),
-                    )
+                    log.error("Enumeration '%s' entry is missing a '%s' entry (at %r)",
+                              self._enum.name, key, self.context.GetCurrentLocationMeta())
                     # bad entry, nothing I can do about it.
                     return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
 
-            self._enum.entries.append(ConstantEntry(name="k" + NormalizeName(attrs["name"]), code=ParseInt(attrs["value"])))
+            self._enum.entries.append(
+                ConstantEntry(
+                    name="k" + NormalizeName(attrs["name"]), code=ParseInt(attrs["value"]))
+            )
             # Assume fully handled
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
         return BaseHandler(self.context)
@@ -396,25 +376,21 @@ class AttributeHandler(BaseHandler):
 
     def GetNextProcessor(self, name: str, attrs: AttributesImpl):
         if name == "enum":
-            log.warning(
-                "Anonymous enumeration not supported when handling attribute '%s::%s'",
-                self._cluster.name,
-                self._attribute.definition.name,
-            )
+            log.warning("Anonymous enumeration not supported when handling attribute '%s::%s'",
+                        self._cluster.name, self._attribute.definition.name)
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
         if name == "bitmap":
-            log.warning(
-                "Anonymous bitmap not supported when handling attribute '%s::%s'",
-                self._cluster.name,
-                self._attribute.definition.name,
-            )
+            log.warning("Anonymous bitmap not supported when handling attribute '%s::%s'",
+                        self._cluster.name, self._attribute.definition.name)
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
         if name == "access":
             if "readPrivilege" in attrs:
-                self._attribute.readacl = StringToAccessPrivilege(attrs["readPrivilege"])
+                self._attribute.readacl = StringToAccessPrivilege(
+                    attrs["readPrivilege"])
 
             if "writePrivilege" in attrs:
-                self._attribute.writeacl = StringToAccessPrivilege(attrs["writePrivilege"])
+                self._attribute.writeacl = StringToAccessPrivilege(
+                    attrs["writePrivilege"])
 
             if "read" in attrs and attrs["read"] != "false":
                 self._attribute.qualities = self._attribute.qualities | AttributeQuality.READABLE
@@ -455,7 +431,7 @@ class AttributesHandler(BaseHandler):
     def GetNextProcessor(self, name: str, attrs: AttributesImpl):
         if name == "attribute":
             if is_unused_name(attrs):
-                log.warning("Ignoring attribute data for '%s'", attrs["name"])
+                log.warning("Ignoring attribute data for '%s'", attrs['name'])
                 return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
             return AttributeHandler(self.context, self._cluster, attrs)
         return BaseHandler(self.context)
@@ -491,18 +467,18 @@ class CommandHandler(BaseHandler):
         elif ("direction" in attrs) and attrs["direction"] == "responseFromServer":
             is_command = False  # response
         else:
-            log.warning("Could not clearly determine command direction: %s", attrs.items())
+            log.warning("Could not clearly determine command direction: %s",
+                        attrs.items())
             # Do a best-guess. However we should NOT need to guess once
             # we have a good data set
             is_command = not attrs["name"].endswith("Response")
 
         if is_command:
             self._command = AttributesToCommand(attrs)
-            self._struct = Struct(
-                name=NormalizeName(attrs["name"] + "Request"),
-                fields=[],
-                tag=StructTag.REQUEST,
-            )
+            self._struct = Struct(name=NormalizeName(attrs["name"] + "Request"),
+                                  fields=[],
+                                  tag=StructTag.REQUEST,
+                                  )
         else:
             self._struct = Struct(
                 name=NormalizeName(attrs["name"]),
@@ -531,7 +507,8 @@ class CommandHandler(BaseHandler):
             # <access invokePrivilege="admin" timed="true"/>
             if "invokePrivilege" in attrs:
                 if self._command:
-                    self._command.invokeacl = StringToAccessPrivilege(attrs["invokePrivilege"])
+                    self._command.invokeacl = StringToAccessPrivilege(
+                        attrs["invokePrivilege"])
                 else:
                     log.warning("Ignoring invoke privilege for '%s'", self._struct.name)
 
@@ -558,11 +535,11 @@ class CommandsHandler(BaseHandler):
     def GetNextProcessor(self, name: str, attrs: AttributesImpl):
         if name == "command":
             if is_unused_name(attrs):
-                log.warning("Ignoring command data for '%s'", attrs["name"])
+                log.warning("Ignoring command data for '%s'", attrs['name'])
                 return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
 
-            if "id" not in attrs:
-                log.error("Could not process command '%s': no id", attrs["name"])
+            if 'id' not in attrs:
+                log.error("Could not process command '%s': no id", attrs['name'])
                 # TODO: skip over these without failing the processing
                 #
                 # https://github.com/csa-data-model/projects/issues/364
@@ -595,10 +572,10 @@ class RevisionHistoryHandler(BaseHandler):
 
     def GetNextProcessor(self, name: str, attrs: AttributesImpl):
         if name == "revision":
-            if "revision" not in attrs:
+            if 'revision' not in attrs:
                 log.error("Could not find a revision for %s: no revision data", attrs)
                 return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
-            rev = int(attrs["revision"])
+            rev = int(attrs['revision'])
             if self._cluster.revision < rev:
                 self._cluster.revision = rev
             return BaseHandler(self.context, handled=HandledDepth.SINGLE_TAG)
@@ -657,19 +634,19 @@ class ClusterHandlerPostProcessing(enum.Enum):
 
 
 class ClusterHandler(BaseHandler):
-    """Handling /cluster elements."""
+    """ Handling /cluster elements."""
 
     @staticmethod
     def ForAttributes(context: Context, idl: Idl, attrs: AttributesImpl):
-        assert "name" in attrs
-        assert "id" in attrs
+        assert ("name" in attrs)
+        assert ("id" in attrs)
 
-        return ClusterHandler(
-            context,
-            idl,
-            Cluster(name=NormalizeName(attrs["name"]), code=ParseInt(attrs["id"]), parse_meta=context.GetCurrentLocationMeta()),
-            ClusterHandlerPostProcessing.FINALIZE_AND_ADD_TO_IDL,
-        )
+        return ClusterHandler(context, idl,
+                              Cluster(
+                                  name=NormalizeName(attrs["name"]),
+                                  code=ParseInt(attrs["id"]),
+                                  parse_meta=context.GetCurrentLocationMeta()
+                              ), ClusterHandlerPostProcessing.FINALIZE_AND_ADD_TO_IDL)
 
     @staticmethod
     def IntoCluster(context: Context, idl: Idl, cluster: Cluster):
@@ -690,26 +667,21 @@ class ClusterHandler(BaseHandler):
         # Global things MUST be available everywhere
         to_add = [
             # type, code, name, is_list
-            ("attrib_id", 65531, "attributeList", True),
-            ("event_id", 65530, "eventList", True),
-            ("command_id", 65529, "acceptedCommandList", True),
-            ("command_id", 65528, "generatedCommandList", True),
-            ("bitmap32", 65532, "featureMap", False),
-            ("int16u", 65533, "clusterRevision", False),
+            ('attrib_id', 65531, 'attributeList', True),
+            ('event_id', 65530, 'eventList', True),
+            ('command_id', 65529, 'acceptedCommandList', True),
+            ('command_id', 65528, 'generatedCommandList', True),
+            ('bitmap32', 65532, 'featureMap', False),
+            ('int16u', 65533, 'clusterRevision', False),
         ]
 
         for data_type, code, name, is_list in to_add:
-            self._cluster.attributes.append(
-                Attribute(
-                    definition=Field(
-                        data_type=DataType(name=data_type),
-                        code=code,
-                        name=name,
-                        is_list=is_list,
-                    ),
-                    qualities=AttributeQuality.READABLE,
-                )
-            )
+            self._cluster.attributes.append(Attribute(definition=Field(
+                data_type=DataType(name=data_type),
+                code=code,
+                name=name,
+                is_list=is_list,
+            ), qualities=AttributeQuality.READABLE))
         self._idl.clusters.append(self._cluster)
 
     def GetNextProcessor(self, name: str, attrs: AttributesImpl):
@@ -721,14 +693,14 @@ class ClusterHandler(BaseHandler):
             # Documentation data, skipped
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
         if name == "classification":
-            if attrs["hierarchy"] == "derived":
+            if attrs['hierarchy'] == 'derived':
                 # This is a derived cluster. We have to add everything from the
                 # base cluster
-                self.context.AddIdlPostProcessor(
-                    AddBaseInfoPostProcessor(
-                        destination_cluster=self._cluster, source_cluster_name=attrs["baseCluster"], context=self.context
-                    )
-                )
+                self.context.AddIdlPostProcessor(AddBaseInfoPostProcessor(
+                    destination_cluster=self._cluster,
+                    source_cluster_name=attrs['baseCluster'],
+                    context=self.context
+                ))
             # other elements like picsCode, scope and primaryTransaction seem to have
             # no direct mapping in the data model
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)

@@ -52,13 +52,13 @@ def expand_response_file(flag):
     # Handle both @path and @"path" formats
     if flag.startswith('@"') and flag.endswith('"'):
         response_file_path = flag[2:-1]  # Remove @" and trailing "
-    elif flag.startswith("@"):
+    elif flag.startswith('@'):
         response_file_path = flag[1:]  # Remove @
     else:
         return [flag]
 
     try:
-        with open(response_file_path, "r") as f:
+        with open(response_file_path, 'r') as f:
             content = f.read()
             return shlex.split(content)
     except (IOError, OSError) as e:
@@ -92,13 +92,13 @@ with open(compile_commands_path) as compile_commands_json:
         # Escape any embedded double quotes for GN string syntax, then wrap in quotes
         def quote_for_gn(flag):
             # Escape backslashes first, then escape double quotes
-            escaped = flag.replace("\\", "\\\\").replace('"', '\\"')
+            escaped = flag.replace('\\', '\\\\').replace('"', '\\"')
             return f'"{escaped}"'
 
         expanded_flags = [quote_for_gn(f).replace(replace, replace_with) for f in expanded_flags]
 
         if args.filter_out:
-            filter_out = [f'"{f}"' for f in args.filter_out.split(";")]
+            filter_out = [f'"{f}"' for f in args.filter_out.split(';')]
             expanded_flags = [c for c in expanded_flags if c not in filter_out]
 
         return expanded_flags
@@ -109,6 +109,6 @@ with open(compile_commands_path) as compile_commands_json:
     with open(args.input) as args_input, open(args.output, "w") as args_output:
         args_output.write(args_input.read())
 
-        args_output.write("target_cflags_c = [%s]" % ", ".join(c_flags))
+        args_output.write("target_cflags_c = [%s]" % ', '.join(c_flags))
         args_output.write("\n")
-        args_output.write("target_cflags_cc = [%s]" % ", ".join(cpp_flags))
+        args_output.write("target_cflags_cc = [%s]" % ', '.join(cpp_flags))

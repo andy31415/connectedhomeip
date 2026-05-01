@@ -76,6 +76,7 @@ class TC_VALCC_4_5(MatterBaseTest):
 
     @async_test_body
     async def test_TC_VALCC_4_5(self):
+
         endpoint = self.get_endpoint()
 
         self.step(1)
@@ -83,9 +84,7 @@ class TC_VALCC_4_5(MatterBaseTest):
 
         self.step(2)
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.Objects.ValveConfigurationAndControl.Commands.Open(openDuration=5), endpoint=endpoint
-            )
+            await self.send_single_cmd(cmd=Clusters.Objects.ValveConfigurationAndControl.Commands.Open(openDuration=5), endpoint=endpoint)
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
             pass
@@ -96,9 +95,7 @@ class TC_VALCC_4_5(MatterBaseTest):
         asserts.assert_equal(open_duration_dut, 5, "OpenDuration is not the expected value")
 
         self.step(4)
-        remaining_duration_dut = await self.read_valcc_attribute_expect_success(
-            endpoint=endpoint, attribute=attributes.RemainingDuration
-        )
+        remaining_duration_dut = await self.read_valcc_attribute_expect_success(endpoint=endpoint, attribute=attributes.RemainingDuration)
         asserts.assert_true(remaining_duration_dut is not NullValue, "RemainingDuration is null")
         asserts.assert_greater_equal(remaining_duration_dut, 1, "RemainingDuration is not in the expected range")
         asserts.assert_less_equal(remaining_duration_dut, 5, "RemainingDuration is not in the expected range")
@@ -113,11 +110,8 @@ class TC_VALCC_4_5(MatterBaseTest):
             current_state_dut = await self.read_valcc_attribute_expect_success(endpoint=endpoint, attribute=attributes.CurrentState)
             asserts.assert_true(current_state_dut is not NullValue, "CurrentState is null")
 
-        asserts.assert_equal(
-            current_state_dut,
-            Clusters.Objects.ValveConfigurationAndControl.Enums.ValveStateEnum.kOpen,
-            "CurrentState is not the expected value",
-        )
+        asserts.assert_equal(current_state_dut, Clusters.Objects.ValveConfigurationAndControl.Enums.ValveStateEnum.kOpen,
+                             "CurrentState is not the expected value")
 
         self.step(6)
         await asyncio.sleep(6)
@@ -127,19 +121,14 @@ class TC_VALCC_4_5(MatterBaseTest):
         asserts.assert_true(open_duration_dut is NullValue, "OpenDuration is not null")
 
         self.step(8)
-        remaining_duration_dut = await self.read_valcc_attribute_expect_success(
-            endpoint=endpoint, attribute=attributes.RemainingDuration
-        )
+        remaining_duration_dut = await self.read_valcc_attribute_expect_success(endpoint=endpoint, attribute=attributes.RemainingDuration)
         asserts.assert_true(remaining_duration_dut is NullValue, "RemainingDuration is not null")
 
         self.step(9)
         current_state_dut = await self.read_valcc_attribute_expect_success(endpoint=endpoint, attribute=attributes.CurrentState)
         asserts.assert_true(current_state_dut is not NullValue, "CurrentState is null")
-        asserts.assert_equal(
-            current_state_dut,
-            Clusters.Objects.ValveConfigurationAndControl.Enums.ValveStateEnum.kClosed,
-            "CurrentState is not the expected value",
-        )
+        asserts.assert_equal(current_state_dut, Clusters.Objects.ValveConfigurationAndControl.Enums.ValveStateEnum.kClosed,
+                             "CurrentState is not the expected value")
 
 
 if __name__ == "__main__":

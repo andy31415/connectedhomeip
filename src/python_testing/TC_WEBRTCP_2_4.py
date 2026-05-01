@@ -49,6 +49,7 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_WebRTCP_2_4(MatterBaseTest, WEBRTCPTestBase):
+
     def desc_TC_WebRTCP_2_4(self) -> str:
         """Returns a description of this test"""
         return "[TC-{picsCode}-2.4] Validate setting an SDP Offer for an existing session with {DUT_Server}"
@@ -72,13 +73,13 @@ class TC_WebRTCP_2_4(MatterBaseTest, WEBRTCPTestBase):
         Return the list of PICS applicable to this test case.
         """
         return [
-            "WEBRTCP.S",  # WebRTC Transport Provider Server
-            "WEBRTCP.S.A0000",  # CurrentSessions attribute
-            "WEBRTCP.S.C02.Rsp",  # ProvideOffer command
-            "WEBRTCP.S.C03.Tx",  # ProvideOfferResponse command
-            "AVSM.S",  # CameraAVStreamManagement Server
-            "AVSM.S.F00",  # Audio Data Output feature
-            "AVSM.S.F01",  # Video Data Output feature
+            "WEBRTCP.S",           # WebRTC Transport Provider Server
+            "WEBRTCP.S.A0000",     # CurrentSessions attribute
+            "WEBRTCP.S.C02.Rsp",   # ProvideOffer command
+            "WEBRTCP.S.C03.Tx",    # ProvideOfferResponse command
+            "AVSM.S",              # CameraAVStreamManagement Server
+            "AVSM.S.F00",          # Audio Data Output feature
+            "AVSM.S.F01",          # Video Data Output feature
         ]
 
     @property
@@ -96,7 +97,9 @@ class TC_WebRTCP_2_4(MatterBaseTest, WEBRTCPTestBase):
 
         self.step(1)
         current_sessions = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentSessions
+            endpoint=endpoint,
+            cluster=cluster,
+            attribute=cluster.Attributes.CurrentSessions
         )
         asserts.assert_equal(len(current_sessions), 0, "CurrentSessions must be empty!")
 
@@ -136,9 +139,7 @@ class TC_WebRTCP_2_4(MatterBaseTest, WEBRTCPTestBase):
             audioStreamID=audioStreamID,
         )
         try:
-            await self.send_single_cmd(
-                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
-            )
+            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
             asserts.fail("Unexpected success on ProvideOffer")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.NotFound, "ProvideOffer should return NotFound for unknown session")
@@ -168,12 +169,11 @@ class TC_WebRTCP_2_4(MatterBaseTest, WEBRTCPTestBase):
             streamUsage=3,
             originatingEndpointID=endpoint,
             videoStreamID=videoStreamID,
-            audioStreamID=audioStreamID,
+            audioStreamID=audioStreamID
         )
-        resp = await self.send_single_cmd(
-            cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
-        )
-        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.ProvideOfferResponse, "Incorrect response type")
+        resp = await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.ProvideOfferResponse,
+                             "Incorrect response type")
         saved_session_id = resp.webRTCSessionID
         asserts.assert_equal(videoStreamID, resp.videoStreamID, "Video stream ID does not match that in the command")
         asserts.assert_equal(audioStreamID, resp.audioStreamID, "Audio stream ID does not match that in the command")
@@ -219,9 +219,7 @@ class TC_WebRTCP_2_4(MatterBaseTest, WEBRTCPTestBase):
             audioStreamID=videoStreamID,
         )
         try:
-            await self.send_single_cmd(
-                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
-            )
+            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
             asserts.fail("ProvideOffer unexpectedly succeeded for wrong session ID")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.NotFound, "ProvideOffer should return NotFound for wrong session ID")
@@ -253,10 +251,9 @@ class TC_WebRTCP_2_4(MatterBaseTest, WEBRTCPTestBase):
             videoStreamID=videoStreamID,
             audioStreamID=audioStreamID,
         )
-        resp = await self.send_single_cmd(
-            cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
-        )
-        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.ProvideOfferResponse, "Incorrect response type")
+        resp = await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.ProvideOfferResponse,
+                             "Incorrect response type")
         asserts.assert_equal(
             resp.webRTCSessionID,
             saved_session_id,

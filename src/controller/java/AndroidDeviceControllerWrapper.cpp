@@ -380,7 +380,7 @@ AndroidDeviceControllerWrapper * AndroidDeviceControllerWrapper::AllocateNew(
     *errInfoOnFailure = chip::Credentials::SetSingleIpkEpochKey(
         &wrapper->mGroupDataProvider, wrapper->Controller()->GetFabricIndex(), ipkSpan, compressedFabricIdSpan);
 
-    TEMPORARY_RETURN_IGNORED getICDClientStorage() -> UpdateFabricList(wrapper->Controller()->GetFabricIndex());
+    TEMPORARY_RETURN_IGNORED getICDClientStorage()->UpdateFabricList(wrapper->Controller()->GetFabricIndex());
 
     auto engine       = chip::app::InteractionModelEngine::GetInstance();
     *errInfoOnFailure = wrapper->mCheckInDelegate.Init(getICDClientStorage(), engine);

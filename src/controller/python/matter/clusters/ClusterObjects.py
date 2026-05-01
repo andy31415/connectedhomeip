@@ -27,24 +27,24 @@ from ..clusters.Types import Nullable, NullValue
 
 
 def GetUnionUnderlyingType(typeToCheck, matchingType=None):
-    """This retrieves the underlying types behind a unioned type by appropriately
-    passing in the required matching type in the matchingType input argument.
+    ''' This retrieves the underlying types behind a unioned type by appropriately
+        passing in the required matching type in the matchingType input argument.
 
-    If that is 'None' (not to be confused with NoneType), then it will retrieve
-    the 'real' type behind the union, i.e not Nullable && not None
-    """
+        If that is 'None' (not to be confused with NoneType), then it will retrieve
+        the 'real' type behind the union, i.e not Nullable && not None
+    '''
     if typing.get_origin(typeToCheck) != typing.Union:
         return None
 
     for t in typing.get_args(typeToCheck):
-        if matchingType is None:
+        if (matchingType is None):
             # Comparison below explicitly not using 'isinstance' as that doesn't do what we want.
             # type_none is simple hack for Flake8 E721
             type_none = type(None)
-            if t != type_none and t != Nullable:
+            if (t != type_none and t != Nullable):
                 return t
         else:
-            if t == matchingType:
+            if (t == matchingType):
                 return t
 
     return None
@@ -52,32 +52,37 @@ def GetUnionUnderlyingType(typeToCheck, matchingType=None):
 
 @dataclass
 class ClusterObjectFieldDescriptor:
-    Label: str = ""
+    Label: str = ''
     Tag: typing.Optional[int] = None
     Type: type = type(None)
 
-    def _PutSingleElementToTLV(self, tag, val, elementType, writer: tlv.TLVWriter, debugPath: str = "?"):
+    def _PutSingleElementToTLV(self, tag, val, elementType, writer: tlv.TLVWriter, debugPath: str = '?'):
         if issubclass(elementType, ClusterObject):
             if not isinstance(val, dict):
-                raise ValueError(f"Field {debugPath}.{self.Label} expected a struct, but got {type(val)}")
-            elementType.descriptor.DictToTLVWithWriter(f"{debugPath}.{self.Label}", tag, val, writer)
+                raise ValueError(
+                    f"Field {debugPath}.{self.Label} expected a struct, but got {type(val)}")
+            elementType.descriptor.DictToTLVWithWriter(
+                f'{debugPath}.{self.Label}', tag, val, writer)
             return
 
         try:
             val = elementType(val)
         except Exception:
-            raise ValueError(f"Field {debugPath}.{self.Label} expected {elementType}, but got {type(val)}")
+            raise ValueError(
+                f"Field {debugPath}.{self.Label} expected {elementType}, but got {type(val)}")
         writer.put(tag, val)
 
-    def PutFieldToTLV(self, tag, val, writer: tlv.TLVWriter, debugPath: str = "?"):
-        if val == NullValue:
-            if GetUnionUnderlyingType(self.Type, Nullable) is None:
-                raise ValueError(f"Field {debugPath}.{self.Label} was not nullable, but got a null")
+    def PutFieldToTLV(self, tag, val, writer: tlv.TLVWriter, debugPath: str = '?'):
+        if (val == NullValue):
+            if (GetUnionUnderlyingType(self.Type, Nullable) is None):
+                raise ValueError(
+                    f"Field {debugPath}.{self.Label} was not nullable, but got a null")
 
             writer.put(tag, None)
-        elif val is None:
-            if GetUnionUnderlyingType(self.Type, type(None)) is None:
-                raise ValueError(f"Field {debugPath}.{self.Label} was not optional, but encountered None")
+        elif (val is None):
+            if (GetUnionUnderlyingType(self.Type, type(None)) is None):
+                raise ValueError(
+                    f"Field {debugPath}.{self.Label} was not optional, but encountered None")
         else:
             #
             # If it is an optional or nullable type, it's going to be a union.
@@ -85,11 +90,12 @@ class ClusterObjectFieldDescriptor:
             # since at this point, we're guarenteed to not get None or Null as values.
             #
             elementType = GetUnionUnderlyingType(self.Type)
-            if elementType is None:
+            if (elementType is None):
                 elementType = self.Type
 
             if not isinstance(val, List):
-                self._PutSingleElementToTLV(tag, val, elementType, writer, debugPath)
+                self._PutSingleElementToTLV(
+                    tag, val, elementType, writer, debugPath)
                 return
 
             writer.startArray(tag)
@@ -97,15 +103,15 @@ class ClusterObjectFieldDescriptor:
             # Get the type of the list. This is a generic, which has its sub-type information of the list element
             # inside its type argument.
             try:
-                (listGenericArg,) = typing.get_args(elementType)
+                (listGenericArg, ) = typing.get_args(elementType)
             except ValueError:
                 raise ValueError(
-                    f"Failed to decode field {debugPath} of type {self.Type}: Failed to find type of elements in {elementType}"
-                )
+                    f"Failed to decode field {debugPath} of type {self.Type}: Failed to find type of elements in {elementType}")
             elementType = listGenericArg
 
             for i, v in enumerate(val):
-                self._PutSingleElementToTLV(None, v, elementType, writer, debugPath + f"[{i}]")
+                self._PutSingleElementToTLV(
+                    None, v, elementType, writer, debugPath + f'[{i}]')
             writer.endContainer()
 
 
@@ -127,14 +133,16 @@ class ClusterObjectDescriptor:
 
     def _ConvertNonArray(self, debugPath: str, elementType, value: Any) -> Any:
         if not issubclass(elementType, ClusterObject):
-            if issubclass(elementType, enum.Enum):
+            if (issubclass(elementType, enum.Enum)):
                 value = elementType(value)
 
             if not isinstance(value, elementType):
-                raise ValueError(f"Failed to decode field {debugPath}, expected type {elementType}, got {type(value)}")
+                raise ValueError(
+                    f"Failed to decode field {debugPath}, expected type {elementType}, got {type(value)}")
             return value
         if not isinstance(value, Mapping):
-            raise ValueError(f"Failed to decode field {debugPath}, struct expected.")
+            raise ValueError(
+                f"Failed to decode field {debugPath}, struct expected.")
         return elementType.descriptor.TagDictToLabelDict(debugPath, value)
 
     def TagDictToLabelDict(self, debugPath: str, tlvData: Dict[int, Any]) -> Dict[str, Any]:
@@ -146,42 +154,45 @@ class ClusterObjectDescriptor:
                 ret[tag] = value
                 continue
 
-            if value is None:
+            if (value is None):
                 ret[descriptor.Label] = NullValue
                 continue
 
-            if typing.get_origin(descriptor.Type) == typing.Union:
+            if (typing.get_origin(descriptor.Type) == typing.Union):
                 realType = GetUnionUnderlyingType(descriptor.Type)
-                if realType is None:
-                    raise ValueError(f"Field {debugPath}.{descriptor.Label} has no valid underlying data model type")
+                if (realType is None):
+                    raise ValueError(
+                        f"Field {debugPath}.{descriptor.Label} has no valid underlying data model type")
 
                 valueType = realType
             else:
                 valueType = descriptor.Type
 
-            if typing.get_origin(valueType) == list:
+            if (typing.get_origin(valueType) == list):
                 listElementType = typing.get_args(valueType)[0]
                 ret[descriptor.Label] = [
-                    self._ConvertNonArray(f"{debugPath}[{i}]", listElementType, v) for i, v in enumerate(value)
-                ]
+                    self._ConvertNonArray(
+                        f'{debugPath}[{i}]', listElementType, v)
+                    for i, v in enumerate(value)]
                 continue
-            ret[descriptor.Label] = self._ConvertNonArray(f"{debugPath}.{descriptor.Label}", valueType, value)
+            ret[descriptor.Label] = self._ConvertNonArray(
+                f'{debugPath}.{descriptor.Label}', valueType, value)
         return ret
 
     def TLVToDict(self, tlvBuf: bytes) -> Dict[str, Any]:
-        tlvData = tlv.TLVReader(tlvBuf).get().get("Any", {})
-        return self.TagDictToLabelDict("", tlvData)
+        tlvData = tlv.TLVReader(tlvBuf).get().get('Any', {})
+        return self.TagDictToLabelDict('', tlvData)
 
     def DictToTLVWithWriter(self, debugPath: str, tag, data: Mapping, writer: tlv.TLVWriter):
         writer.startStructure(tag)
         for _field in self.Fields:
             val = data.get(_field.Label, None)
-            _field.PutFieldToTLV(_field.Tag, val, writer, debugPath + f".{_field.Label}")
+            _field.PutFieldToTLV(_field.Tag, val, writer, debugPath + f'.{_field.Label}')
         writer.endContainer()
 
     def DictToTLV(self, data: dict) -> bytes:
         tlvwriter = tlv.TLVWriter(bytearray())
-        self.DictToTLVWithWriter("", None, data, tlvwriter)
+        self.DictToTLVWithWriter('', None, data, tlvwriter)
         return bytes(tlvwriter.encoding)
 
 
@@ -248,15 +259,14 @@ class ClusterCommand(ClusterObject):
 
 
 class Cluster(ClusterObject):
-    """
+    '''
     When send read requests with returnClusterObject=True, we will set the data_version property of the object.
     Otherwise the [endpoint][cluster][Clusters.DataVersion] will be set to the DataVersion of the cluster.
 
     For data_version, we do not make it a real property so we can distinguish it with real attributes internally,
     especially the TLV decoding logic. Also ThreadNetworkDiagnostics has an attribute with the same name so we
     picked data_version as its name.
-    """
-
+    '''
     id: Any
 
     def __init_subclass__(cls, *args, **kwargs) -> None:
@@ -270,9 +280,9 @@ class Cluster(ClusterObject):
         return self._data_version
 
     def __rich_repr__(self):
-        """
+        '''
         Override the default behavior of rich.pretty.pprint for adding the cluster data version.
-        """
+        '''
         if self._data_version is not None:
             yield "(data version)", self.data_version
         for k in self.__dataclass_fields__:
@@ -284,7 +294,7 @@ class Cluster(ClusterObject):
 
 
 class ClusterAttributeDescriptor:
-    """
+    '''
     The ClusterAttributeDescriptor is used for holding an attribute's metadata like its cluster id, attribute id and its type.
 
     Users should not initialize an object based on this class. Instead, users should pass
@@ -292,7 +302,7 @@ class ClusterAttributeDescriptor:
 
     The implementation of this functions is quite tricky, it will create a cluster object on-the-fly,
     and use it for actual encode / decode routine to save lines of code.
-    """
+    '''
 
     def __init_subclass__(cls, *args, **kwargs) -> None:
         """Register a subclass."""
@@ -307,20 +317,20 @@ class ClusterAttributeDescriptor:
     def ToTLV(cls, tag: Union[int, None], value):
         writer = tlv.TLVWriter()
         wrapped_value = cls._cluster_object(Value=value)
-        cls.attribute_type.PutFieldToTLV(tag, asdict(wrapped_value)["Value"], writer, "")
+        cls.attribute_type.PutFieldToTLV(tag,
+                                         asdict(wrapped_value)['Value'], writer, '')
         return writer.encoding
 
     @classmethod
     def FromTLV(cls, tlvBuffer: bytes):
         obj_class = cls._cluster_object
         return obj_class.FromDict(
-            obj_class.descriptor.TagDictToLabelDict("", {0: tlv.TLVReader(tlvBuffer).get().get("Any", {})})
-        ).Value
+            obj_class.descriptor.TagDictToLabelDict('', {0: tlv.TLVReader(tlvBuffer).get().get('Any', {})})).Value
 
     @classmethod
     def FromTagDictOrRawValue(cls, val: Any):
         obj_class = cls._cluster_object
-        return obj_class.FromDict(obj_class.descriptor.TagDictToLabelDict("", {0: val})).Value
+        return obj_class.FromDict(obj_class.descriptor.TagDictToLabelDict('', {0: val})).Value
 
     @ChipUtility.classproperty
     def cluster_id(self) -> int:
@@ -344,22 +354,20 @@ class ClusterAttributeDescriptor:
 
     @ChipUtility.classproperty
     def _cluster_object(cls) -> ClusterObject:
-        return make_dataclass(
-            "InternalClass",
-            [
-                ("Value", cls.attribute_type.Type, field(default=None)),
-                (
-                    "descriptor",
-                    ClassVar[ClusterObjectDescriptor],
-                    field(
-                        default=ClusterObjectDescriptor(
-                            Fields=[ClusterObjectFieldDescriptor(Label="Value", Tag=0, Type=cls.attribute_type.Type)]
-                        )
-                    ),
-                ),
-            ],
-            bases=(ClusterObject,),
-        )
+        return make_dataclass('InternalClass',
+                              [
+                                  ('Value', cls.attribute_type.Type,
+                                   field(default=None)),
+                                  ('descriptor', ClassVar[ClusterObjectDescriptor],
+                                   field(
+                                      default=ClusterObjectDescriptor(
+                                          Fields=[ClusterObjectFieldDescriptor(
+                                              Label='Value', Tag=0, Type=cls.attribute_type.Type)]
+                                      )
+                                  )
+                                  )
+                              ],
+                              bases=(ClusterObject,))
 
 
 class ClusterEvent(ClusterObject):

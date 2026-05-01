@@ -47,9 +47,11 @@ cluster_lwm_mode = Clusters.LaundryWasherMode
 
 
 class TC_LWM_1_2(MatterBaseTest, ModeBaseClusterChecks):
+
     def __init__(self, *args):
         MatterBaseTest.__init__(self, *args)
-        ModeBaseClusterChecks.__init__(self, modebase_derived_cluster=cluster_lwm_mode)
+        ModeBaseClusterChecks.__init__(self,
+                                       modebase_derived_cluster=cluster_lwm_mode)
 
     def desc_TC_LWM_1_2(self) -> str:
         return "[TC-LWM-1.2] Cluster attributes with DUT as Server"
@@ -58,11 +60,13 @@ class TC_LWM_1_2(MatterBaseTest, ModeBaseClusterChecks):
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
             TestStep(2, "TH reads from the DUT the SupportedModes attribute."),
-            TestStep(3, "TH reads from the DUT the CurrentMode attribute."),
+            TestStep(3, "TH reads from the DUT the CurrentMode attribute.")
         ]
 
     def pics_TC_LWM_1_2(self) -> list[str]:
-        return ["LWM.S"]
+        return [
+            "LWM.S"
+        ]
 
     @property
     def default_endpoint(self) -> int:
@@ -70,6 +74,7 @@ class TC_LWM_1_2(MatterBaseTest, ModeBaseClusterChecks):
 
     @async_test_body
     async def test_TC_LWM_1_2(self):
+
         # Setup common mode check
         endpoint = self.get_endpoint()
 

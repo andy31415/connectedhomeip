@@ -26,11 +26,12 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_BRBINFO_3_1(ProductAppearanceBase):
+
     def steps_TC_BRBINFO_3_1(self) -> list[TestStep]:
         return self.steps()
 
     def pics_TC_BRBINFO_3_1(self) -> list[str]:
-        return self.pics("BRBINFO")
+        return self.pics('BRBINFO')
 
     @run_if_endpoint_matches(has_attribute(Clusters.BridgedDeviceBasicInformation.Attributes.ProductAppearance))
     async def test_TC_BRBINFO_3_1(self):

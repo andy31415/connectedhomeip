@@ -57,6 +57,7 @@ class RvcStatusEnum(enum.IntEnum):
 
 
 class TC_RVCCLEANM_2_2(MatterBaseTest):
+
     def __init__(self, *args):
         super().__init__(*args)
         self.endpoint = 0
@@ -69,26 +70,28 @@ class TC_RVCCLEANM_2_2(MatterBaseTest):
         self.is_ci = False
 
     async def read_mod_attribute_expect_success(self, cluster, attribute):
-        return await self.read_single_attribute_check_success(endpoint=self.endpoint, cluster=cluster, attribute=attribute)
+        return await self.read_single_attribute_check_success(
+            endpoint=self.endpoint, cluster=cluster, attribute=attribute)
 
     async def read_run_supported_modes(self) -> Clusters.Objects.RvcRunMode.Attributes.SupportedModes:
-        return await self.read_mod_attribute_expect_success(Clusters.RvcRunMode, Clusters.RvcRunMode.Attributes.SupportedModes)
+        return await self.read_mod_attribute_expect_success(
+            Clusters.RvcRunMode,
+            Clusters.RvcRunMode.Attributes.SupportedModes)
 
     async def read_clean_supported_modes(self) -> Clusters.Objects.RvcCleanMode.Attributes.SupportedModes:
-        return await self.read_mod_attribute_expect_success(Clusters.RvcCleanMode, Clusters.RvcCleanMode.Attributes.SupportedModes)
+        return await self.read_mod_attribute_expect_success(
+            Clusters.RvcCleanMode,
+            Clusters.RvcCleanMode.Attributes.SupportedModes)
 
     async def read_feature_map_attribute(self):
-        return await self.read_mod_attribute_expect_success(Clusters.RvcCleanMode, Clusters.RvcCleanMode.Attributes.FeatureMap)
+        return await self.read_mod_attribute_expect_success(Clusters.RvcCleanMode,
+                                                            Clusters.RvcCleanMode.Attributes.FeatureMap)
 
     async def send_clean_change_to_mode_cmd(self, newMode) -> Clusters.Objects.RvcCleanMode.Commands.ChangeToModeResponse:
-        return await self.send_single_cmd(
-            cmd=Clusters.Objects.RvcCleanMode.Commands.ChangeToMode(newMode=newMode), endpoint=self.endpoint
-        )
+        return await self.send_single_cmd(cmd=Clusters.Objects.RvcCleanMode.Commands.ChangeToMode(newMode=newMode), endpoint=self.endpoint)
 
     async def send_run_change_to_mode_cmd(self, newMode) -> Clusters.Objects.RvcRunMode.Commands.ChangeToModeResponse:
-        return await self.send_single_cmd(
-            cmd=Clusters.Objects.RvcRunMode.Commands.ChangeToMode(newMode=newMode), endpoint=self.endpoint
-        )
+        return await self.send_single_cmd(cmd=Clusters.Objects.RvcRunMode.Commands.ChangeToMode(newMode=newMode), endpoint=self.endpoint)
 
     # Prints the instruction and waits for a user input to continue
     def print_instruction(self, step_number, instruction):
@@ -115,15 +118,12 @@ class TC_RVCCLEANM_2_2(MatterBaseTest):
             self.write_to_app_pipe({"Name": "Reset"})
 
         self.print_step(
-            2,
-            "Manually put the device in a state in which the RVC Run Mode cluster’s CurrentMode attribute is set to a mode without the Idle mode tag.",
-        )
+            2, "Manually put the device in a state in which the RVC Run Mode cluster’s CurrentMode attribute is set to a mode without the Idle mode tag.")
         if self.is_ci:
             await self.send_run_change_to_mode_cmd(1)
         else:
             self.wait_for_user_input(
-                prompt_msg="Manually put the device in a state in which the RVC Run Mode cluster’s CurrentMode attribute is set to a mode without the Idle mode tag, and press Enter when done."
-            )
+                prompt_msg="Manually put the device in a state in which the RVC Run Mode cluster’s CurrentMode attribute is set to a mode without the Idle mode tag, and press Enter when done.")
 
         self.print_step(3, "Read the RvcRunMode SupportedModes attribute")
         supported_run_modes = await self.read_run_supported_modes()
@@ -134,18 +134,16 @@ class TC_RVCCLEANM_2_2(MatterBaseTest):
 
         self.print_step(4, "Read the RvcRunMode CurrentMode attribute")
         current_run_mode = await self.read_mod_attribute_expect_success(
-            Clusters.RvcRunMode, Clusters.RvcRunMode.Attributes.CurrentMode
-        )
+            Clusters.RvcRunMode,
+            Clusters.RvcRunMode.Attributes.CurrentMode)
 
         # Save the value as run_mode_dut
         self.run_mode_dut = current_run_mode
 
         # Verify that the supported_run_modes_dut entry matching run_mode_dut does not have the Idle (0x4000) mode tag.
         for t in self.supported_run_modes[current_run_mode].modeTags:
-            asserts.assert_true(
-                t.value != Clusters.RvcRunMode.Enums.ModeTag.kIdle,
-                "The device must be in a mode without the Idle (0x4000) mode tag.",
-            )
+            asserts.assert_true(t.value != Clusters.RvcRunMode.Enums.ModeTag.kIdle,
+                                "The device must be in a mode without the Idle (0x4000) mode tag.")
 
         self.print_step(5, "Read the RvcCleanMode SupportedModes attribute")
         supported_clean_modes = await self.read_clean_supported_modes()
@@ -155,8 +153,8 @@ class TC_RVCCLEANM_2_2(MatterBaseTest):
 
         self.print_step(6, "Read the RvcCleanMode CurrentMode attribute")
         current_clean_mode = await self.read_mod_attribute_expect_success(
-            Clusters.RvcCleanMode, Clusters.RvcCleanMode.Attributes.CurrentMode
-        )
+            Clusters.RvcCleanMode,
+            Clusters.RvcCleanMode.Attributes.CurrentMode)
 
         # Save the value as old_clean_mode_dut
         self.old_clean_mode_dut = current_clean_mode
@@ -174,22 +172,16 @@ class TC_RVCCLEANM_2_2(MatterBaseTest):
 
         self.print_step("7b", "Send ChangeToMode command")
         response = await self.send_clean_change_to_mode_cmd(self.new_clean_mode_th)
-        asserts.assert_true(
-            matchers.is_type(response, Clusters.RvcCleanMode.Commands.ChangeToModeResponse),
-            "The response should ChangeToModeResponse command",
-        )
+        asserts.assert_true(matchers.is_type(response, Clusters.RvcCleanMode.Commands.ChangeToModeResponse),
+                            "The response should ChangeToModeResponse command")
         if directmode_enabled:
-            asserts.assert_equal(
-                response.status,
-                RvcStatusEnum.Success,
-                "The response should contain a ChangeToModeResponse command with the Status set to Success(0x0).",
-            )
+            asserts.assert_equal(response.status, RvcStatusEnum.Success,
+                                 "The response should contain a ChangeToModeResponse command "
+                                 "with the Status set to Success(0x0).")
         else:
-            asserts.assert_equal(
-                response.status,
-                RvcStatusEnum.InvalidInMode,
-                "The response should contain a ChangeToModeResponse command with the Status set to InvalidInMode(0x03).",
-            )
+            asserts.assert_equal(response.status, RvcStatusEnum.InvalidInMode,
+                                 "The response should contain a ChangeToModeResponse command "
+                                 "with the Status set to InvalidInMode(0x03).")
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@ def ParseInt(value: str, data_type: Optional[DataType] = None) -> int:
 
     Supports decimal or hex values prefixed with '0x'
     """
-    if value.startswith("0x"):
+    if value.startswith('0x'):
         value = int(value[2:], 16)
         if data_type and IsSignedDataType(data_type):
             bits = GetDataTypeSizeInBits(data_type)
@@ -36,65 +36,70 @@ def ParseInt(value: str, data_type: Optional[DataType] = None) -> int:
 
 def AttrsToAccessPrivilege(attrs) -> AccessPrivilege:
     """Given attributes of an '<access .../>' tag, generate the underlying
-    access privilege by looking at the role/privilege attribute.
+       access privilege by looking at the role/privilege attribute.
     """
 
     # XML seems to use both role and privilege to mean the same thing
     # they are used interchangeably
-    if "role" in attrs:
-        role = attrs["role"]
+    if 'role' in attrs:
+        role = attrs['role']
     else:
-        role = attrs["privilege"]
+        role = attrs['privilege']
 
-    if role.lower() == "view":
+    if role.lower() == 'view':
         return AccessPrivilege.VIEW
-    if role.lower() == "operate":
+    if role.lower() == 'operate':
         return AccessPrivilege.OPERATE
-    if role.lower() == "manage":
+    if role.lower() == 'manage':
         return AccessPrivilege.MANAGE
-    if role.lower() == "administer":
+    if role.lower() == 'administer':
         return AccessPrivilege.ADMINISTER
-    raise Exception("Unknown ACL role: %r" % role)
+    raise Exception('Unknown ACL role: %r' % role)
 
 
 def AttrsToAttribute(attrs) -> Attribute:
     """Given the attributes of an '<attribute .../>' tag, generate the
-    underlying IDL Attribute dataclass.
+       underlying IDL Attribute dataclass.
     """
 
-    if attrs["type"].lower() == "array":
-        data_type = DataType(name=attrs["entryType"])
+    if attrs['type'].lower() == 'array':
+        data_type = DataType(name=attrs['entryType'])
     else:
-        data_type = DataType(name=attrs["type"])
+        data_type = DataType(name=attrs['type'])
 
-    if "minLength" in attrs:
-        data_type.min_length = ParseInt(attrs["minLength"])
+    if 'minLength' in attrs:
+        data_type.min_length = ParseInt(attrs['minLength'])
 
-    if "length" in attrs:
-        data_type.max_length = ParseInt(attrs["length"])
+    if 'length' in attrs:
+        data_type.max_length = ParseInt(attrs['length'])
 
-    if "min" in attrs:
-        data_type.min_value = ParseInt(attrs["min"], data_type)
+    if 'min' in attrs:
+        data_type.min_value = ParseInt(attrs['min'], data_type)
 
-    if "max" in attrs:
-        data_type.max_value = ParseInt(attrs["max"], data_type)
+    if 'max' in attrs:
+        data_type.max_value = ParseInt(attrs['max'], data_type)
 
-    name = attrs.get("name", "")
+    name = attrs.get('name', '')
 
-    field = Field(data_type=data_type, code=ParseInt(attrs["code"]), name=name, is_list=(attrs["type"].lower() == "array"))
+    field = Field(
+        data_type=data_type,
+        code=ParseInt(attrs['code']),
+        name=name,
+        is_list=(attrs['type'].lower() == 'array')
+    )
 
     attribute = Attribute(definition=field)
 
-    if attrs.get("optional", "false").lower() == "true":
+    if attrs.get('optional', "false").lower() == 'true':
         attribute.definition.qualities |= FieldQuality.OPTIONAL
 
-    if attrs.get("isNullable", "false").lower() == "true":
+    if attrs.get('isNullable', "false").lower() == 'true':
         attribute.definition.qualities |= FieldQuality.NULLABLE
 
-    if attrs.get("readable", "true").lower() == "true":
+    if attrs.get('readable', "true").lower() == 'true':
         attribute.qualities |= AttributeQuality.READABLE
 
-    if attrs.get("writable", "false").lower() == "true":
+    if attrs.get('writable', "false").lower() == 'true':
         attribute.qualities |= AttributeQuality.WRITABLE
 
     # TODO(#22937): NOSUBSCRIBE attribute tag is not available - could find no

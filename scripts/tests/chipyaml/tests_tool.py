@@ -27,36 +27,20 @@ from matter.yamltests.websocket_runner import WebSocketRunner, WebSocketRunnerCo
 
 
 @click.pass_context
-def send_yaml_command(
-    ctx,
-    test_tool,
-    test_name: str,
-    server_path: str,
-    server_arguments: str,
-    show_adapter_logs: bool,
-    specifications_paths: str,
-    pics: str,
-    additional_pseudo_clusters_directory: str,
-    commands: List[str],
-):
-    kwargs = {
-        "test_name": test_name,
-        "show_adapter_logs": show_adapter_logs,
-        "specifications_paths": specifications_paths,
-        "pics": pics,
-        "additional_pseudo_clusters_directory": additional_pseudo_clusters_directory,
-    }
+def send_yaml_command(ctx, test_tool, test_name: str, server_path: str, server_arguments: str, show_adapter_logs: bool, specifications_paths: str, pics: str, additional_pseudo_clusters_directory: str, commands: List[str]):
+    kwargs = {'test_name': test_name, 'show_adapter_logs': show_adapter_logs, 'specifications_paths': specifications_paths, 'pics': pics,
+              'additional_pseudo_clusters_directory': additional_pseudo_clusters_directory}
 
     index = 0
     while len(commands) - index > 1:
-        kwargs[commands[index].replace("--", "")] = commands[index + 1]
+        kwargs[commands[index].replace('--', '')] = commands[index+1]
         index += 2
     ctx.invoke(runner_base, **kwargs)
 
-    del ctx.params["commands"]
-    del ctx.params["specifications_paths"]
-    del ctx.params["pics"]
-    del ctx.params["additional_pseudo_clusters_directory"]
+    del ctx.params['commands']
+    del ctx.params['specifications_paths']
+    del ctx.params['pics']
+    del ctx.params['additional_pseudo_clusters_directory']
 
     return ctx.forward(test_tool)
 
@@ -64,8 +48,7 @@ def send_yaml_command(
 def send_raw_command(command: str, server_path: str, server_arguments: str):
     websocket_runner_hooks = WebSocketRunnerLogger()
     websocket_runner_config = WebSocketRunnerConfig(
-        server_path=server_path, server_arguments=server_arguments, hooks=websocket_runner_hooks
-    )
+        server_path=server_path, server_arguments=server_arguments, hooks=websocket_runner_hooks)
     runner = WebSocketRunner(websocket_runner_config)
 
     async def send_over_websocket():
@@ -81,6 +64,6 @@ def send_raw_command(command: str, server_path: str, server_arguments: str):
     json_payload = json.loads(payload)
 
     log_printer = TestColoredLogPrinter()
-    log_printer.print(MatterLog.decode_logs(json_payload.get("logs")))
+    log_printer.print(MatterLog.decode_logs(json_payload.get('logs')))
 
-    return not bool(len([lambda x: x.get("error") for x in json_payload.get("results")]))
+    return not bool(len([lambda x: x.get('error') for x in json_payload.get('results')]))

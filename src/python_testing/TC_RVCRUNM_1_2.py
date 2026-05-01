@@ -50,7 +50,8 @@ cluster_rvcrunm_mode = Clusters.RvcRunMode
 class TC_RVCRUNM_1_2(MatterBaseTest, ModeBaseClusterChecks):
     def __init__(self, *args):
         MatterBaseTest.__init__(self, *args)
-        ModeBaseClusterChecks.__init__(self, modebase_derived_cluster=cluster_rvcrunm_mode)
+        ModeBaseClusterChecks.__init__(self,
+                                       modebase_derived_cluster=cluster_rvcrunm_mode)
 
     def pics_TC_RVCRUNM_1_2(self) -> list[str]:
         return ["RVCRUNM.S"]
@@ -62,6 +63,7 @@ class TC_RVCRUNM_1_2(MatterBaseTest, ModeBaseClusterChecks):
 
         self.print_step(1, "Commissioning, already done")
         if self.check_pics("RVCRUNM.S.A0000"):
+
             self.print_step(2, "Read SupportedModes attribute")
             # Verify common checks for Mode Base as described in the TC-RVCRUNM-1.2
             supported_modes = await self.check_supported_modes_and_labels(self.endpoint)
@@ -91,13 +93,13 @@ class TC_RVCRUNM_1_2(MatterBaseTest, ModeBaseClusterChecks):
                         count_of_idle_cleaning_or_mapping_mode_tags += 1
 
                 if count_of_idle_cleaning_or_mapping_mode_tags > 1:
-                    asserts.fail(
-                        "A ModeOptionsStruct entry includes more than one of the following "
-                        "mode tags: Idle(0x4000), Cleaning(0x4001), Mapping(0x4002)!"
-                    )
+                    asserts.fail("A ModeOptionsStruct entry includes more than one of the following "
+                                 "mode tags: Idle(0x4000), Cleaning(0x4001), Mapping(0x4002)!")
 
-            asserts.assert_true(at_least_one_idle_mode_tag, "The Supported Modes does not have an entry of Idle(0x4000)")
-            asserts.assert_true(at_least_one_cleaning_mode_tag, "The Supported Modes does not have an entry of Cleaning(0x4001)")
+            asserts.assert_true(at_least_one_idle_mode_tag,
+                                "The Supported Modes does not have an entry of Idle(0x4000)")
+            asserts.assert_true(at_least_one_cleaning_mode_tag,
+                                "The Supported Modes does not have an entry of Cleaning(0x4001)")
 
         if self.check_pics("RVCRUNM.S.A0001"):
             self.print_step(3, "Read CurrentMode attribute")

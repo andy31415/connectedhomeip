@@ -26,12 +26,7 @@ from matter.commissioning import commissioning_flow_blocks, pase
 
 
 class ExampleCustomMatterCommissioningFlow(commissioning_flow_blocks.CommissioningFlowBlocks):
-    def __init__(
-        self,
-        devCtrl: ChipDeviceCtrl.ChipDeviceControllerBase,
-        credential_provider: commissioning.CredentialProvider,
-        logger: logging.Logger,
-    ):
+    def __init__(self, devCtrl: ChipDeviceCtrl.ChipDeviceControllerBase, credential_provider: commissioning.CredentialProvider, logger: logging.Logger):
         super().__init__(devCtrl=devCtrl, credential_provider=credential_provider, logger=logger)
         self._logger = logger
 
@@ -71,16 +66,10 @@ class ExampleCredentialProvider:
     async def get_csr_nonce(self) -> bytes:
         return os.urandom(32)
 
-    async def get_commissionee_credentials(
-        self, request: commissioning.GetCommissioneeCredentialsRequest
-    ) -> commissioning.GetCommissioneeCredentialsResponse:
+    async def get_commissionee_credentials(self, request: commissioning.GetCommissioneeCredentialsRequest) -> commissioning.GetCommissioneeCredentialsResponse:
         node_id = random.randint(100000, 999999)
-        nocChain = await self._devCtrl.IssueNOCChain(
-            Clusters.OperationalCredentials.Commands.CSRResponse(
-                NOCSRElements=request.csr_elements, attestationSignature=request.attestation_signature
-            ),
-            nodeId=node_id,
-        )
+        nocChain = await self._devCtrl.IssueNOCChain(Clusters.OperationalCredentials.Commands.CSRResponse(
+            NOCSRElements=request.csr_elements, attestationSignature=request.attestation_signature), nodeId=node_id)
         return commissioning.GetCommissioneeCredentialsResponse(
             rcac=nocChain.rcacBytes,
             noc=nocChain.nocBytes,
@@ -89,5 +78,4 @@ class ExampleCredentialProvider:
             case_admin_node=self._devCtrl.nodeId,
             admin_vendor_id=self._devCtrl.fabricAdmin.vendorId,
             node_id=node_id,
-            fabric_id=self._devCtrl.fabricId,
-        )
+            fabric_id=self._devCtrl.fabricId)

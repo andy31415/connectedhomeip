@@ -16,7 +16,7 @@
 from ..pseudo_cluster import PseudoCluster
 from .accessory_server_bridge import AccessoryServerBridge
 
-_DEFINITION = """<?xml version="1.0"?>
+_DEFINITION = '''<?xml version="1.0"?>
 <configurator>
 <cluster>
     <name>SystemCommands</name>
@@ -70,11 +70,11 @@ _DEFINITION = """<?xml version="1.0"?>
 
 </cluster>
 </configurator>
-"""
+'''
 
 
 class SystemCommands(PseudoCluster):
-    name = "SystemCommands"
+    name = 'SystemCommands'
     definition = _DEFINITION
 
     async def Start(self, request):

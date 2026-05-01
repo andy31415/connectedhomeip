@@ -18,7 +18,7 @@ from typing import Optional
 from .parser import TestStep
 
 
-class TestParserHooks:
+class TestParserHooks():
     __test__ = False
 
     def parsing_start(self, count: int):
@@ -79,7 +79,7 @@ class TestParserHooks:
         pass
 
 
-class TestRunnerHooks:
+class TestRunnerHooks():
     __test__ = False
 
     def start(self, count: int):
@@ -218,13 +218,12 @@ class TestRunnerHooks:
         """
         pass
 
-    async def show_prompt(
-        self,
-        msg: str,
-        placeholder: Optional[str] = None,
-        default_value: Optional[str] = None,
-        endpoint_id: Optional[int] = None,
-    ) -> str | None:
+    async def show_prompt(self,
+                          msg: str,
+                          placeholder: Optional[str] = None,
+                          default_value: Optional[str] = None,
+                          endpoint_id: Optional[int] = None,
+                          ) -> str | None:
         """
         This method is called when the step needs to ask the user to perform some action or provide some value.
         """
@@ -237,7 +236,7 @@ class TestRunnerHooks:
         pass
 
 
-class WebSocketRunnerHooks:
+class WebSocketRunnerHooks():
     def connecting(self, url: str):
         """
         This method is called when the websocket is attempting to connect to a remote.

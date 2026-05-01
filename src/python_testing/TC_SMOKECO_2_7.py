@@ -53,7 +53,7 @@ log = logging.getLogger(__name__)
 class TC_SMOKECO_2_7(MatterBaseTest):
     def setup_test(self):
         super().setup_test()
-        self.is_ci = self.matter_test_config.global_test_params.get("simulate_mounting", False)
+        self.is_ci = self.matter_test_config.global_test_params.get('simulate_mounting', False)
 
     async def read_smokeco_attribute_expect_success(self, attribute):
         cluster = Clusters.Objects.SmokeCoAlarm
@@ -135,17 +135,15 @@ class TC_SMOKECO_2_7(MatterBaseTest):
                 # CI call to trigger unmounted.
                 self.write_to_app_pipe({"Name": "SetUnmounted", "EndpointId": endpoint, "Unmounted": 1})
             else:
-                self.wait_for_user_input(prompt_msg="Unmount DUT and press enter")
+                self.wait_for_user_input(
+                    prompt_msg="Unmount DUT and press enter")
 
         # Step 7, "TH waits for a report of Unmounted attribute from DUT with a timeout of 60 seconds."
         self.step(7)
         if has_unmounted:
             sub_handler.wait_for_attribute_report(timeout_sec=60)
-            asserts.assert_equal(
-                sub_handler.attribute_reports[cluster.Attributes.Unmounted][0].value,
-                1,
-                msg="Received unexpected value for Unmounted",
-            )
+            asserts.assert_equal(sub_handler.attribute_reports[cluster.Attributes.Unmounted]
+                                 [0].value, 1, msg="Received unexpected value for Unmounted")
             sub_handler.reset()
 
         # Step 8, "TH reads ExpressedState attribute from DUT."
@@ -161,17 +159,15 @@ class TC_SMOKECO_2_7(MatterBaseTest):
                 # CI call to trigger mounted.
                 self.write_to_app_pipe({"Name": "SetUnmounted", "EndpointId": endpoint, "Unmounted": 0})
             else:
-                self.wait_for_user_input(prompt_msg="Mount DUT and press enter")
+                self.wait_for_user_input(
+                    prompt_msg="Mount DUT and press enter")
 
         # Step 10, "TH waits for a report of Unmounted attribute from DUT with a timeout of 60 seconds."
         self.step(10)
         if has_unmounted:
             sub_handler.wait_for_attribute_report(timeout_sec=60)
-            asserts.assert_equal(
-                sub_handler.attribute_reports[cluster.Attributes.Unmounted][0].value,
-                0,
-                msg="Received unexpected value for Unmounted",
-            )
+            asserts.assert_equal(sub_handler.attribute_reports[cluster.Attributes.Unmounted]
+                                 [0].value, 0, msg="Received unexpected value for Unmounted")
 
         # Step 11, "TH reads ExpressedState attribute from DUT."
         self.step(11)

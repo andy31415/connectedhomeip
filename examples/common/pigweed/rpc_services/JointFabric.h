@@ -25,7 +25,8 @@ private:
     {
         OwnershipTransferContext(uint64_t nodeId, bool jcm, chip::ByteSpan trustedIcacPublicKeyB,
                                  uint16_t peerAdminJFAdminClusterEndpointId) :
-            mNodeId(nodeId), mJCM(jcm), mPeerAdminJFAdminClusterEndpointId(peerAdminJFAdminClusterEndpointId)
+            mNodeId(nodeId),
+            mJCM(jcm), mPeerAdminJFAdminClusterEndpointId(peerAdminJFAdminClusterEndpointId)
         {
             memcpy(keyRawBytes, trustedIcacPublicKeyB.data(), chip::Crypto::kP256_PublicKey_Length);
             mTrustedIcacPublicKeyBSerialized = keyRawBytes;
@@ -43,7 +44,7 @@ private:
     {
         OwnershipTransferContext * data = reinterpret_cast<OwnershipTransferContext *>(arg);
         TEMPORARY_RETURN_IGNORED chip::JFAMgr().FinalizeCommissioning(
-            data -> mNodeId, data->mJCM, data->mTrustedIcacPublicKeyBSerialized, data->mPeerAdminJFAdminClusterEndpointId);
+            data->mNodeId, data->mJCM, data->mTrustedIcacPublicKeyBSerialized, data->mPeerAdminJFAdminClusterEndpointId);
         chip::Platform::Delete(data);
     }
 

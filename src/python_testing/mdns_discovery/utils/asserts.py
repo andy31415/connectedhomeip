@@ -30,7 +30,6 @@ def not_none_args(func):
     Decorator that asserts all arguments
     passed to the function are not None.
     """
-
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         bound = inspect.signature(func).bind(*args, **kwargs)
@@ -40,9 +39,7 @@ def not_none_args(func):
             asserts.assert_is_not_none(value, f"{func.__name__}: '{arg_name}' cannot be None")
 
         return func(*args, **kwargs)
-
     return wrapper
-
 
 # Discovery
 
@@ -68,13 +65,13 @@ def assert_valid_operational_instance_name(instance_name: str) -> None:
         https://github.com/CHIP-Specifications/connectedhomeip-spec/blob/master/src/secure_channel/Discovery.adoc#21-operational-instance-name
     """
     consts = [
-        "Contains exactly one hyphen separating two parts",
-        "Each part is exactly 16 characters long",
-        "Each part only contains hexadecimal uppercase characters [A-F0-9]",
+        'Contains exactly one hyphen separating two parts',
+        'Each part is exactly 16 characters long',
+        'Each part only contains hexadecimal uppercase characters [A-F0-9]',
     ]
 
     failed: list[str] = []
-    parts = instance_name.split("-")
+    parts = instance_name.split('-')
 
     # Hyphen count must yield exactly two parts
     if len(parts) != 2:
@@ -91,12 +88,15 @@ def assert_valid_operational_instance_name(instance_name: str) -> None:
             failed.append(consts[1])
 
         # Charset checks (evaluate regardless of length so we can accumulate)
-        hex_ok_a = bool(re.fullmatch(r"[A-F0-9]+", part_a))
-        hex_ok_b = bool(re.fullmatch(r"[A-F0-9]+", part_b))
+        hex_ok_a = bool(re.fullmatch(r'[A-F0-9]+', part_a))
+        hex_ok_b = bool(re.fullmatch(r'[A-F0-9]+', part_b))
         if not (hex_ok_a and hex_ok_b):
             failed.append(consts[2])
 
-    asserts.assert_true(not failed, f"Invalid operational instance name: '{instance_name}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid operational instance name: '{instance_name}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -119,8 +119,8 @@ def assert_valid_commissionable_instance_name(instance_name: str) -> None:
         https://github.com/CHIP-Specifications/connectedhomeip-spec/blob/master/src/secure_channel/Discovery.adoc#1-commissionable-node-discovery
     """
     consts = [
-        "Length must be exactly 16 characters",
-        "Must only contain hexadecimal uppercase characters [A-F0-9]",
+        'Length must be exactly 16 characters',
+        'Must only contain hexadecimal uppercase characters [A-F0-9]',
     ]
 
     failed: list[str] = []
@@ -130,10 +130,13 @@ def assert_valid_commissionable_instance_name(instance_name: str) -> None:
         failed.append(consts[0])
 
     # Require exactly 16 uppercase hex characters for charset constraint
-    if not re.fullmatch(r"[A-F0-9]{16}", instance_name):
+    if not re.fullmatch(r'[A-F0-9]{16}', instance_name):
         failed.append(consts[1])
 
-    asserts.assert_true(not failed, f"Invalid commissionable instance name: '{instance_name}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid commissionable instance name: '{instance_name}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -158,33 +161,35 @@ def assert_valid_hostname(hostname: str) -> None:
     """
     constraints = [
         "Must start with 12 or 16 uppercase hexadecimal characters [A-F0-9]",
-        "Must be followed by a valid domain suffix (e.g., .local.)",
+        "Must be followed by a valid domain suffix (e.g., .local.)"
     ]
 
     failed: list[str] = []
 
     # Independent check 1: Hex prefix (uppercase A-F and digits), length 12 or 16
-    m = re.match(r"^([A-F0-9]+)", hostname)
-    leading_hex = m.group(1) if m else ""
+    m = re.match(r'^([A-F0-9]+)', hostname)
+    leading_hex = m.group(1) if m else ''
     if len(leading_hex) not in (12, 16):
         failed.append(constraints[0])
 
     # Independent check 2: Domain suffix after the first dot, regardless of hex validity
-    dot_idx = hostname.find(".")
+    dot_idx = hostname.find('.')
     if dot_idx == -1:
         # No dot at all -> suffix invalid
         failed.append(constraints[1])
     else:
-        domain_part = hostname[dot_idx + 1 :]  # everything after the first '.'
+        domain_part = hostname[dot_idx + 1:]  # everything after the first '.'
         # Must be label(s) of [A-Za-z0-9-], separated by dots; optional trailing dot allowed
-        if not domain_part or not re.fullmatch(r"[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.?", domain_part):
+        if not domain_part or not re.fullmatch(r'[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.?', domain_part):
             failed.append(constraints[1])
 
-    asserts.assert_true(not failed, f"Invalid hostname: '{hostname}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid hostname: '{hostname}', failed constraint(s): {failed}"
+    )
 
 
 # Commissionable Subtypes
-
 
 @not_none_args
 def assert_valid_long_discriminator_subtype(ld_subtype: str) -> None:
@@ -215,22 +220,24 @@ def assert_valid_long_discriminator_subtype(ld_subtype: str) -> None:
     failed: list[str] = []
 
     # Strict format check
-    strict = re.compile(rf"_L(0|[1-9]\d{{0,3}})\._sub\.{re.escape(MdnsServiceType.COMMISSIONABLE.value)}")
+    strict = re.compile(
+        rf'_L(0|[1-9]\d{{0,3}})\._sub\.{re.escape(MdnsServiceType.COMMISSIONABLE.value)}'
+    )
     if not strict.fullmatch(ld_subtype):
         failed.append(constraints[0])
 
     # Best-effort value extraction to evaluate DEC and RNG independently
     val_str = None
-    m = re.search(r"_L(?P<val>[^.]*)", ld_subtype)
+    m = re.search(r'_L(?P<val>[^.]*)', ld_subtype)
     if m:
-        val_str = m.group("val")
+        val_str = m.group('val')
 
     # Decimal without leading zeroes
-    if val_str is None or not re.fullmatch(r"(0|[1-9]\d*)", val_str):
+    if val_str is None or not re.fullmatch(r'(0|[1-9]\d*)', val_str):
         failed.append(constraints[1])
 
     # Range (only when digits-only)
-    if val_str is not None and re.fullmatch(r"\d+", val_str):
+    if val_str is not None and re.fullmatch(r'\d+', val_str):
         try:
             v = int(val_str)
             if v > 4095:
@@ -238,7 +245,10 @@ def assert_valid_long_discriminator_subtype(ld_subtype: str) -> None:
         except ValueError:
             failed.append(constraints[1])
 
-    asserts.assert_true(not failed, f"Invalid long discriminator subtype: '{ld_subtype}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid long discriminator subtype: '{ld_subtype}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -274,21 +284,21 @@ def assert_valid_short_discriminator_subtype(sd_subtype: str) -> None:
     service = re.escape(MdnsServiceType.COMMISSIONABLE.value)
 
     # Strict format check (structure only)
-    if not re.fullmatch(rf"_S[^.]*\._sub\.{service}", sd_subtype):
+    if not re.fullmatch(rf'_S[^.]*\._sub\.{service}', sd_subtype):
         failed.append(constraints[0])
 
     # Try to extract the value string between "_S" and "._sub."
     val_str: str | None = None
-    m_val = re.search(r"_S(?P<val>[^.]*)\._sub\.", sd_subtype)
+    m_val = re.search(r'_S(?P<val>[^.]*)\._sub\.', sd_subtype)
     if m_val:
         val_str = m_val.group("val")
 
     # Decimal without leading zeroes
-    if val_str is None or not re.fullmatch(r"(0|[1-9]\d*)", val_str):
+    if val_str is None or not re.fullmatch(r'(0|[1-9]\d*)', val_str):
         failed.append(constraints[1])
 
     # Range check if the value is digits (allow leading zeros here to enable multi-fail)
-    if val_str is not None and re.fullmatch(r"\d+", val_str):
+    if val_str is not None and re.fullmatch(r'\d+', val_str):
         try:
             val = int(val_str)
             if val > 15:
@@ -297,7 +307,10 @@ def assert_valid_short_discriminator_subtype(sd_subtype: str) -> None:
             # Ignore; decimal check already captured above
             pass
 
-    asserts.assert_true(not failed, f"Invalid short discriminator subtype: '{sd_subtype}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid short discriminator subtype: '{sd_subtype}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -331,21 +344,21 @@ def assert_valid_vendor_subtype(vendor_subtype: str) -> None:
     service = re.escape(MdnsServiceType.COMMISSIONABLE.value)
 
     # Strict format check (structure & placement of tokens)
-    strict = re.fullmatch(rf"_V(?P<val>0|[1-9]\d*)\._sub\.{service}", vendor_subtype)
+    strict = re.fullmatch(rf'_V(?P<val>0|[1-9]\d*)\._sub\.{service}', vendor_subtype)
     if not strict:
         failed.append(constraints[0])
 
     # Try to extract the raw value using a loose pattern so we can independently
     # validate decimal/leading-zero and range even when the strict format fails.
-    m_val = re.search(r"_V(?P<val>[^.]*)\._sub\.", vendor_subtype)
+    m_val = re.search(r'_V(?P<val>[^.]*)\._sub\.', vendor_subtype)
     val_str = m_val.group("val") if m_val else None
 
     # Decimal without leading zeroes (except "0")
-    if val_str is None or not re.fullmatch(r"(0|[1-9]\d*)", val_str):
+    if val_str is None or not re.fullmatch(r'(0|[1-9]\d*)', val_str):
         failed.append(constraints[1])
 
     # Range check whenever value is all digits (even if leading zeroes were present)
-    if val_str is not None and re.fullmatch(r"\d+", val_str):
+    if val_str is not None and re.fullmatch(r'\d+', val_str):
         try:
             v = int(val_str)
             if v > 65_535:
@@ -354,7 +367,10 @@ def assert_valid_vendor_subtype(vendor_subtype: str) -> None:
             # Decimal check already recorded above
             pass
 
-    asserts.assert_true(not failed, f"Invalid vendor subtype: '{vendor_subtype}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid vendor subtype: '{vendor_subtype}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -386,7 +402,9 @@ def assert_valid_devtype_subtype(devtype_subtype: str) -> None:
     failed: list[str] = []
 
     # Strict format check (enforces correct service type and no leading zeros)
-    strict_re = re.compile(rf"_T(0|[1-9]\d*)\._sub\.{re.escape(MdnsServiceType.COMMISSIONABLE.value)}")
+    strict_re = re.compile(
+        rf'_T(0|[1-9]\d*)\._sub\.{re.escape(MdnsServiceType.COMMISSIONABLE.value)}'
+    )
     format_ok = bool(strict_re.fullmatch(devtype_subtype))
     if not format_ok:
         failed.append(constraints[0])
@@ -395,16 +413,16 @@ def assert_valid_devtype_subtype(devtype_subtype: str) -> None:
     val_str: str | None = None
 
     # Try to extract value between '_T' and the next dot, regardless of other pieces.
-    m = re.search(r"_T(?P<val>[^.]*)", devtype_subtype)
+    m = re.search(r'_T(?P<val>[^.]*)', devtype_subtype)
     if m:
-        val_str = m.group("val")
+        val_str = m.group('val')
 
     # Decimal-without-leading-zeroes rule
-    if val_str is None or not re.fullmatch(r"(0|[1-9]\d*)", val_str):
+    if val_str is None or not re.fullmatch(r'(0|[1-9]\d*)', val_str):
         failed.append(constraints[1])
 
     # Range rule: only if we can parse an integer
-    if val_str is not None and re.fullmatch(r"\d+", val_str):
+    if val_str is not None and re.fullmatch(r'\d+', val_str):
         try:
             val = int(val_str)
             if val > 0xFFFFFFFF:
@@ -413,11 +431,13 @@ def assert_valid_devtype_subtype(devtype_subtype: str) -> None:
             # Shouldn't happen due to \d+ guard; keep parity with safety.
             failed.append(constraints[1])
 
-    asserts.assert_true(not failed, f"Invalid device type subtype: '{devtype_subtype}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid device type subtype: '{devtype_subtype}', failed constraint(s): {failed}"
+    )
 
 
 # Commissionable Node Discovery TXT Record Keys
-
 
 @not_none_args
 def assert_valid_d_key(d_key: str) -> None:
@@ -452,12 +472,12 @@ def assert_valid_d_key(d_key: str) -> None:
 
     failed: list[str] = []
 
-    is_decimal = bool(re.fullmatch(r"\d+", d_key))
+    is_decimal = bool(re.fullmatch(r'\d+', d_key))
     if not is_decimal:
         failed.append(constraints[0])
 
     # Leading zeroes check applies only to decimal strings
-    if is_decimal and not re.fullmatch(r"(0|[1-9]\d*)", d_key):
+    if is_decimal and not re.fullmatch(r'(0|[1-9]\d*)', d_key):
         failed.append(constraints[1])
 
     # Range check applies only to decimal strings
@@ -471,7 +491,10 @@ def assert_valid_d_key(d_key: str) -> None:
             # but keep parity with original safety.
             failed.append(constraints[0])
 
-    asserts.assert_true(not failed, f"Invalid D key: '{d_key}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid D key: '{d_key}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -507,7 +530,7 @@ def assert_valid_vp_key(vp_key: str) -> None:
 
     failed: list[str] = []
 
-    if "+" not in vp_key:
+    if '+' not in vp_key:
         # Vendor ID only
         try:
             assert_valid_vendor_id(vp_key)
@@ -515,10 +538,10 @@ def assert_valid_vp_key(vp_key: str) -> None:
             failed.append(constraints[2])
     else:
         # '+' present
-        if vp_key.count("+") != 1:
+        if vp_key.count('+') != 1:
             failed.append(constraints[1])
         else:
-            vid_str, pid_str = vp_key.split("+", 1)
+            vid_str, pid_str = vp_key.split('+', 1)
 
             # Vendor ID check
             try:
@@ -534,7 +557,10 @@ def assert_valid_vp_key(vp_key: str) -> None:
             except (TestFailure, ValueError):
                 failed.append(constraints[3])
 
-    asserts.assert_true(not failed, f"Invalid VP key: '{vp_key}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid VP key: '{vp_key}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -564,7 +590,7 @@ def assert_valid_cm_key(cm_key: str) -> None:
 
     failed: list[str] = []
 
-    is_decimal = bool(re.fullmatch(r"\d+", cm_key))
+    is_decimal = bool(re.fullmatch(r'\d+', cm_key))
     if not is_decimal:
         failed.append(constraints[0])
 
@@ -572,7 +598,10 @@ def assert_valid_cm_key(cm_key: str) -> None:
     if cm_key not in {"0", "1", "2", "3"}:
         failed.append(constraints[1])
 
-    asserts.assert_true(not failed, f"Invalid CM key: '{cm_key}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid CM key: '{cm_key}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -604,12 +633,12 @@ def assert_valid_dt_key(dt_key: str) -> None:
     failed: list[str] = []
 
     # Independently evaluate the integer/leading-zero rule
-    is_int_no_leading = bool(re.fullmatch(r"(0|[1-9]\d*)", dt_key))
+    is_int_no_leading = bool(re.fullmatch(r'(0|[1-9]\d*)', dt_key))
     if not is_int_no_leading:
         failed.append(constraints[0])
 
     # Independently evaluate the range rule whenever it's numeric (digits only)
-    if re.fullmatch(r"\d+", dt_key):
+    if re.fullmatch(r'\d+', dt_key):
         try:
             val = int(dt_key)
             if val > 0xFFFFFFFF:
@@ -618,7 +647,10 @@ def assert_valid_dt_key(dt_key: str) -> None:
             # Defensive: shouldn't happen with \d+ guard
             failed.append(constraints[0])
 
-    asserts.assert_true(not failed, f"Invalid DT key: '{dt_key}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid DT key: '{dt_key}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -655,7 +687,10 @@ def assert_valid_dn_key(dn_key: str) -> None:
     except UnicodeEncodeError:
         failed.append(constraints[0])
 
-    asserts.assert_true(not failed, f"Invalid DN key: '{dn_key}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid DN key: '{dn_key}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -687,14 +722,17 @@ def assert_valid_ri_key(ri_key: str) -> None:
     failed: list[str] = []
 
     # Check charset independently of length
-    if not re.fullmatch(r"[A-F0-9]+", ri_key):
+    if not re.fullmatch(r'[A-F0-9]+', ri_key):
         failed.append(constraints[0])
 
     # Check length independently of charset
     if not (1 <= len(ri_key) <= 100):
         failed.append(constraints[1])
 
-    asserts.assert_true(not failed, f"Invalid RI key: '{ri_key}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid RI key: '{ri_key}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -728,8 +766,8 @@ def assert_valid_ph_key(ph_key: str) -> None:
     failed: list[str] = []
 
     # Evaluate constraints independently to accumulate failures where meaningful.
-    is_digits = bool(re.fullmatch(r"\d+", ph_key))
-    is_dec_no_leading = bool(re.fullmatch(r"(0|[1-9]\d*)", ph_key))
+    is_digits = bool(re.fullmatch(r'\d+', ph_key))
+    is_dec_no_leading = bool(re.fullmatch(r'(0|[1-9]\d*)', ph_key))
     if not is_dec_no_leading:
         failed.append(constraints[0])
 
@@ -745,7 +783,10 @@ def assert_valid_ph_key(ph_key: str) -> None:
         except ValueError:
             failed.append(constraints[0])
 
-    asserts.assert_true(not failed, f"Invalid PH key: '{ph_key}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid PH key: '{ph_key}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -782,7 +823,10 @@ def assert_valid_pi_key(pi_key: str) -> None:
     except UnicodeEncodeError:
         failed.append(constraints[0])
 
-    asserts.assert_true(not failed, f"Invalid PI key: '{pi_key}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid PI key: '{pi_key}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -797,27 +841,25 @@ def assert_valid_ph_pi_relationship(txt: dict[str, str]) -> None:
     Raises:
         TestFailure: If the relationship constraints are violated.
     """
-    ph_key = txt.get("PH")
-    pi_key = txt.get("PI")
+    ph_key = txt.get('PH')
+    pi_key = txt.get('PI')
 
     if ph_key:
         try:
             ph_val = int(ph_key)
             mandatory_pi_bits = [4, 8, 10, 12, 15, 17, 19, 20, 21, 22]
             if any((ph_val & (1 << bit)) for bit in mandatory_pi_bits):
-                asserts.assert_in("PI", txt, f"'PI' key must be present if any of bits {mandatory_pi_bits} are set in 'PH' key.")
+                asserts.assert_in('PI', txt, f"'PI' key must be present if any of bits {mandatory_pi_bits} are set in 'PH' key.")
         except (ValueError, TypeError):
             pass
 
     if pi_key is not None:
-        asserts.assert_in("PH", txt, "'PH' key must be present if 'PI' key is present.")
+        asserts.assert_in('PH', txt, "'PH' key must be present if 'PI' key is present.")
         try:
             ph_val = int(ph_key)
             pi_related_bits = [4, 8, 9, 10, 11, 12, 15, 16, 17, 18, 19, 20, 21, 22]
-            asserts.assert_true(
-                any((ph_val & (1 << bit)) for bit in pi_related_bits),
-                f"'PH' key must have at least one of bits {pi_related_bits} set if 'PI' key is present.",
-            )
+            asserts.assert_true(any((ph_val & (1 << bit)) for bit in pi_related_bits),
+                                f"'PH' key must have at least one of bits {pi_related_bits} set if 'PI' key is present.")
         except (ValueError, TypeError):
             pass
 
@@ -857,7 +899,7 @@ def assert_valid_jf_key(jf_key: str) -> None:
     failed: list[str] = []
 
     # Decimal check without leading zeroes
-    if not re.fullmatch(r"(0|[1-9]\d*)", jf_key):
+    if not re.fullmatch(r'(0|[1-9]\d*)', jf_key):
         failed.append(constraints[0])
     else:
         try:
@@ -876,11 +918,13 @@ def assert_valid_jf_key(jf_key: str) -> None:
         except ValueError:
             failed.append(constraints[0])
 
-    asserts.assert_true(not failed, f"Invalid JF key: '{jf_key}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid JF key: '{jf_key}', failed constraint(s): {failed}"
+    )
 
 
 # Common TXT Record Keys
-
 
 @not_none_args
 def assert_valid_sii_key(sii_key: str) -> None:
@@ -912,11 +956,11 @@ def assert_valid_sii_key(sii_key: str) -> None:
     failed: list[str] = []
 
     # Check decimal-without-leading-zeroes independently
-    if not re.fullmatch(r"(0|[1-9]\d*)", sii_key):
+    if not re.fullmatch(r'(0|[1-9]\d*)', sii_key):
         failed.append(constraints[0])
 
     # Range check if it's digits-only (even if leading zeroes are present)
-    if re.fullmatch(r"\d+", sii_key):
+    if re.fullmatch(r'\d+', sii_key):
         try:
             val = int(sii_key)
             if val > 3_600_000:
@@ -925,7 +969,10 @@ def assert_valid_sii_key(sii_key: str) -> None:
             # Defensive: parsing failed, format already captured above if relevant
             pass
 
-    asserts.assert_true(not failed, f"Invalid SII key: '{sii_key}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid SII key: '{sii_key}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -958,11 +1005,11 @@ def assert_valid_sai_key(sai_key: str) -> None:
     failed: list[str] = []
 
     # Format (no leading zeroes) — evaluated independently
-    if not re.fullmatch(r"(0|[1-9]\d*)", sai_key):
+    if not re.fullmatch(r'(0|[1-9]\d*)', sai_key):
         failed.append(constraints[0])
 
     # Range — parse if it's all digits (even if leading zeroes present) to allow multi-fail
-    if re.fullmatch(r"\d+", sai_key):
+    if re.fullmatch(r'\d+', sai_key):
         try:
             val = int(sai_key)
             if val > 3_600_000:
@@ -971,7 +1018,10 @@ def assert_valid_sai_key(sai_key: str) -> None:
             # If somehow int() fails despite digits-only, still mark format as bad (already added above if applicable)
             pass
 
-    asserts.assert_true(not failed, f"Invalid SAI key: '{sai_key}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid SAI key: '{sai_key}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -1004,11 +1054,11 @@ def assert_valid_sat_key(sat_key: str) -> None:
     failed: list[str] = []
 
     # Format (no leading zeroes) — evaluated independently
-    if not re.fullmatch(r"(0|[1-9]\d*)", sat_key):
+    if not re.fullmatch(r'(0|[1-9]\d*)', sat_key):
         failed.append(constraints[0])
 
     # Range — parse if it's all digits (even if leading zeroes present) to allow multi-fail
-    if re.fullmatch(r"\d+", sat_key):
+    if re.fullmatch(r'\d+', sat_key):
         try:
             val = int(sat_key)
             if val > 65_535:
@@ -1017,12 +1067,13 @@ def assert_valid_sat_key(sat_key: str) -> None:
             # If parse fails despite digits, ignore (format already captured)
             pass
 
-    asserts.assert_true(not failed, f"Invalid SAT key: '{sat_key}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid SAT key: '{sat_key}', failed constraint(s): {failed}"
+    )
 
 
-def assert_valid_t_key(
-    t_key: str, t_key_present: bool, supports_tcp_dut: bool, supports_tcp_pics: bool, enforce_provisional: bool = True
-) -> None:
+def assert_valid_t_key(t_key: str, t_key_present: bool, supports_tcp_dut: bool, supports_tcp_pics: bool, enforce_provisional: bool = True) -> None:
     """
     **Transport Protocol Modes**
 
@@ -1080,33 +1131,34 @@ def assert_valid_t_key(
         return
 
     # Verify that DUT and PICS TCP support matches (both unsupported or both supported)
-    asserts.assert_true(
-        supports_tcp_dut == supports_tcp_pics,
-        f"TCP support in the PICS ({supports_tcp_pics}) must match TCP support in the DUT ({supports_tcp_dut}).",
-    )
+    asserts.assert_true(supports_tcp_dut == supports_tcp_pics,
+                        f"TCP support in the PICS ({supports_tcp_pics}) must match TCP support in the DUT ({supports_tcp_dut}).")
 
     # Integer format (no leading zeroes except "0") — independent of bit checks
-    if not re.fullmatch(r"(0|[1-9]\d*)", t_key):
+    if not re.fullmatch(r'(0|[1-9]\d*)', t_key):
         failed.append(constraints[0])
 
     # Bit checks: run whenever it's digits-only (even if leading zeros were present)
-    if re.fullmatch(r"\d+", t_key):
+    if re.fullmatch(r'\d+', t_key):
         try:
             v = int(t_key)
             if v & ~0x7:
-                failed.append(constraints[1])  # bits above 2 present
+                failed.append(constraints[1])   # bits above 2 present
             if v & 0x1:
-                failed.append(constraints[2])  # bit 0 must be 0
+                failed.append(constraints[2])   # bit 0 must be 0
             if enforce_provisional and (v & 0x6):
-                failed.append(constraints[3])  # bits 1 or 2 set (strict mode)
+                failed.append(constraints[3])   # bits 1 or 2 set (strict mode)
             allowed = {4, 6} if supports_tcp_dut else {0}
             if v not in allowed:
-                failed.append(constraints[4])  # value must match TCP capability
+                failed.append(constraints[4])   # value must match TCP capability
         except ValueError:
             # Defensive: if parsing somehow fails, treat as integer-format error
             failed.append(constraints[0])
 
-    asserts.assert_true(not failed, f"Invalid T key: '{t_key}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid T key: '{t_key}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -1130,31 +1182,33 @@ def assert_valid_icd_key(icd_key: str) -> None:
         https://github.com/CHIP-Specifications/connectedhomeip-spec/blob/master/src/secure_channel/Discovery.adoc#4-common-txt-keyvalue-pairs
     """
     consts = [
-        "Encoded as a decimal number in ASCII text",
-        "Omitting any leading zeros",
-        "Allowed values: 0 or 1",
+        'Encoded as a decimal number in ASCII text',
+        'Omitting any leading zeros',
+        'Allowed values: 0 or 1',
     ]
 
     failed: list[str] = []
 
     # Check decimal ASCII
-    is_decimal = bool(re.fullmatch(r"\d+", icd_key))
+    is_decimal = bool(re.fullmatch(r'\d+', icd_key))
     if not is_decimal:
         failed.append(consts[0])
 
     # Check leading zeros (applies only to purely decimal strings)
-    if is_decimal and not re.fullmatch(r"0|[1-9]\d*", icd_key):
+    if is_decimal and not re.fullmatch(r'0|[1-9]\d*', icd_key):
         failed.append(consts[1])
 
     # Check allowed set independently (string membership)
     if icd_key not in ("0", "1"):
         failed.append(consts[2])
 
-    asserts.assert_true(not failed, f"Invalid ICD key: '{icd_key}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid ICD key: '{icd_key}', failed constraint(s): {failed}"
+    )
 
 
 # Device Identity Attributes
-
 
 @not_none_args
 def assert_valid_vendor_id(vendor_id: str) -> None:
@@ -1184,11 +1238,11 @@ def assert_valid_vendor_id(vendor_id: str) -> None:
     failed: list[str] = []
 
     # Check integer/format constraint independently
-    if not re.fullmatch(r"(0|[1-9]\d{0,4})", vendor_id):
+    if not re.fullmatch(r'(0|[1-9]\d{0,4})', vendor_id):
         failed.append(constraints[0])
 
     # Check numeric range constraint independently (if digits-only)
-    if re.fullmatch(r"\d+", vendor_id):
+    if re.fullmatch(r'\d+', vendor_id):
         try:
             val = int(vendor_id)
             if val > 65_535:
@@ -1196,7 +1250,10 @@ def assert_valid_vendor_id(vendor_id: str) -> None:
         except ValueError:
             failed.append(constraints[0])
 
-    asserts.assert_true(not failed, f"Invalid Vendor ID: '{vendor_id}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid Vendor ID: '{vendor_id}', failed constraint(s): {failed}"
+    )
 
 
 @not_none_args
@@ -1227,7 +1284,7 @@ def assert_valid_product_id(product_id: str) -> None:
     failed: list[str] = []
 
     # Syntactic check: decimal without leading zeroes (except "0") and up to 5 digits
-    syntactic_ok = bool(re.fullmatch(r"(0|[1-9]\d{0,4})", product_id))
+    syntactic_ok = bool(re.fullmatch(r'(0|[1-9]\d{0,4})', product_id))
     if not syntactic_ok:
         failed.append(constraints[0])
     else:
@@ -1240,11 +1297,13 @@ def assert_valid_product_id(product_id: str) -> None:
             # Defensive: should not happen when syntactic_ok is True
             failed.append(constraints[0])
 
-    asserts.assert_true(not failed, f"Invalid Product ID: '{product_id}', failed constraint(s): {failed}")
+    asserts.assert_true(
+        not failed,
+        f"Invalid Product ID: '{product_id}', failed constraint(s): {failed}"
+    )
 
 
 # Service Types
-
 
 @not_none_args
 def assert_is_commissionable_type(commissionable_type: str) -> None:
@@ -1261,7 +1320,7 @@ def assert_is_commissionable_type(commissionable_type: str) -> None:
     asserts.assert_equal(
         commissionable_type,
         MdnsServiceType.COMMISSIONABLE.value,
-        f"Invalid commissionable service type: '{commissionable_type}', must be '{MdnsServiceType.COMMISSIONABLE.value}'",
+        f"Invalid commissionable service type: '{commissionable_type}', must be '{MdnsServiceType.COMMISSIONABLE.value}'"
     )
 
 
@@ -1280,7 +1339,7 @@ def assert_is_commissioner_type(commissioner_type: str) -> None:
     asserts.assert_equal(
         commissioner_type,
         MdnsServiceType.COMMISSIONER.value,
-        f"Invalid commissioner service type: '{commissioner_type}', must be '{MdnsServiceType.COMMISSIONER.value}'",
+        f"Invalid commissioner service type: '{commissioner_type}', must be '{MdnsServiceType.COMMISSIONER.value}'"
     )
 
 
@@ -1299,7 +1358,7 @@ def assert_is_operational_type(operational_type: str) -> None:
     asserts.assert_equal(
         operational_type,
         MdnsServiceType.OPERATIONAL.value,
-        f"Invalid operational service type: '{operational_type}', must be '{MdnsServiceType.OPERATIONAL.value}'",
+        f"Invalid operational service type: '{operational_type}', must be '{MdnsServiceType.OPERATIONAL.value}'"
     )
 
 
@@ -1318,12 +1377,11 @@ def assert_is_border_router_type(border_router_type: str) -> None:
     asserts.assert_equal(
         border_router_type,
         MdnsServiceType.BORDER_ROUTER.value,
-        f"Invalid border router service type: '{border_router_type}', must be '{MdnsServiceType.BORDER_ROUTER.value}'",
+        f"Invalid border router service type: '{border_router_type}', must be '{MdnsServiceType.BORDER_ROUTER.value}'"
     )
 
 
 # Other
-
 
 @not_none_args
 def assert_valid_ipv6_addresses(addresses: list[str]) -> None:

@@ -83,11 +83,12 @@ _ROOT_ENDPOINT_ID = 0
 
 
 class TC_BRBINFO_4_1(MatterBaseTest):
+
     # This test has some manual steps and also multiple sleeps >= 30 seconds. Test typically runs under 3 mins,
     # so 6 minutes is more than enough.
     @property
     def default_timeout(self) -> int:
-        return 6 * 60
+        return 6*60
 
     def desc_TC_BRBINFO_4_1(self) -> str:
         """Returns a description of this test"""
@@ -101,10 +102,8 @@ class TC_BRBINFO_4_1(MatterBaseTest):
 
     def steps_TC_BRBINFO_4_1(self) -> list[TestStep]:
         return [
-            TestStep("0", "DUT commissioned and preconditions", is_commissioning=True),
-            TestStep(
-                "1", "TH reads from the ICD the A_IDLE_MODE_DURATION, A_ACTIVE_MODE_DURATION, and ACTIVE_MODE_THRESHOLD attributes"
-            ),
+            TestStep("0",  "DUT commissioned and preconditions", is_commissioning=True),
+            TestStep("1", "TH reads from the ICD the A_IDLE_MODE_DURATION, A_ACTIVE_MODE_DURATION, and ACTIVE_MODE_THRESHOLD attributes"),
             TestStep("2", "Setting up subscribe to ActiveChange event"),
             TestStep("3", "Check TimeoutMs too low fails"),
             TestStep("4", "Check TimeoutMs too high fails"),
@@ -115,24 +114,12 @@ class TC_BRBINFO_4_1(MatterBaseTest):
             TestStep("9", "Send multiple KeepActive commands during window where ICD device will not check in"),
             TestStep("10", "Validate previous command results in single ActiveChanged event shortly after ICD device checks-in"),
             TestStep("11", "Validate we received no additional ActiveChanged event after subsequent ICD check in"),
-            TestStep(
-                "12", "Send KeepActive command with shortest TimeoutMs value while TH_ICD is prevented from sending check-ins"
-            ),
+            TestStep("12", "Send KeepActive command with shortest TimeoutMs value while TH_ICD is prevented from sending check-ins"),
             TestStep("13", "TH allows TH_ICD to resume sending check-ins after timeout should have expired"),
-            TestStep(
-                "14",
-                "Wait for TH_ICD to check into TH twice, then confirm we have had no new ActiveChanged events reported from DUT",
-            ),
-            TestStep(
-                "15", "Send KeepActive command with shortest TimeoutMs value while TH_ICD is prevented from sending check-ins"
-            ),
-            TestStep(
-                "16", "Wait 15 seconds then send second KeepActive command with double the TimeoutMs value of the previous step"
-            ),
-            TestStep(
-                "17",
-                "TH allows TH_ICD to resume sending check-ins after timeout from step 15 expired but before second timeout from step 16 still valid",
-            ),
+            TestStep("14", "Wait for TH_ICD to check into TH twice, then confirm we have had no new ActiveChanged events reported from DUT"),
+            TestStep("15", "Send KeepActive command with shortest TimeoutMs value while TH_ICD is prevented from sending check-ins"),
+            TestStep("16", "Wait 15 seconds then send second KeepActive command with double the TimeoutMs value of the previous step"),
+            TestStep("17", "TH allows TH_ICD to resume sending check-ins after timeout from step 15 expired but before second timeout from step 16 still valid"),
             TestStep("18", "Wait for TH_ICD to check into TH, then confirm we have received new event from DUT"),
         ]
 
@@ -144,29 +131,18 @@ class TC_BRBINFO_4_1(MatterBaseTest):
             f"- setupQRCode: {setupQRCode}\n"
             f"- setupManualCode: {setupManualCode}\n"
             f"If using FabricSync Admin test app, you may type:\n"
-            f">>> pairing onnetwork 111 {setupPinCode} --icd-registration true"
-        )
+            f">>> pairing onnetwork 111 {setupPinCode} --icd-registration true")
 
     async def _send_keep_active_command(self, stay_active_duration_ms, timeout_ms, endpoint_id) -> int:
         log.info("Sending keep active command")
-        return await self.default_controller.SendCommand(
-            nodeId=self.dut_node_id,
-            endpoint=endpoint_id,
-            payload=Clusters.Objects.BridgedDeviceBasicInformation.Commands.KeepActive(
-                stayActiveDuration=stay_active_duration_ms, timeoutMs=timeout_ms
-            ),
-        )
+        return await self.default_controller.SendCommand(nodeId=self.dut_node_id, endpoint=endpoint_id, payload=Clusters.Objects.BridgedDeviceBasicInformation.Commands.KeepActive(stayActiveDuration=stay_active_duration_ms, timeoutMs=timeout_ms))
 
     async def _get_dynamic_endpoint(self) -> int:
-        root_part_list = await self.read_single_attribute_check_success(
-            cluster=Clusters.Descriptor, attribute=Clusters.Descriptor.Attributes.PartsList, endpoint=_ROOT_ENDPOINT_ID
-        )
+        root_part_list = await self.read_single_attribute_check_success(cluster=Clusters.Descriptor, attribute=Clusters.Descriptor.Attributes.PartsList, endpoint=_ROOT_ENDPOINT_ID)
         set_of_endpoints_after_adding_device = set(root_part_list)
 
-        asserts.assert_true(
-            set_of_endpoints_after_adding_device.issuperset(self.set_of_dut_endpoints_before_adding_device),
-            "Expected only new endpoints to be added",
-        )
+        asserts.assert_true(set_of_endpoints_after_adding_device.issuperset(
+            self.set_of_dut_endpoints_before_adding_device), "Expected only new endpoints to be added")
         unique_endpoints_set = set_of_endpoints_after_adding_device - self.set_of_dut_endpoints_before_adding_device
         asserts.assert_equal(len(unique_endpoints_set), 1, "Expected only one new endpoint")
         return list(unique_endpoints_set)[0]
@@ -178,8 +154,9 @@ class TC_BRBINFO_4_1(MatterBaseTest):
         # These steps are not explicitly, but they help identify the dynamically added endpoint
         # The second part of this process happens on _get_dynamic_endpoint()
         root_part_list = await self.read_single_attribute_check_success(
-            cluster=Clusters.Descriptor, attribute=Clusters.Descriptor.Attributes.PartsList, endpoint=_ROOT_ENDPOINT_ID
-        )
+            cluster=Clusters.Descriptor,
+            attribute=Clusters.Descriptor.Attributes.PartsList,
+            endpoint=_ROOT_ENDPOINT_ID)
         self.set_of_dut_endpoints_before_adding_device = set(root_part_list)
 
         self._active_change_event_subscription = None
@@ -189,11 +166,9 @@ class TC_BRBINFO_4_1(MatterBaseTest):
 
         th_icd_server_app = self.user_params.get("th_icd_server_app_path", None)
         if not th_icd_server_app:
-            asserts.fail(
-                "This test requires a TH_ICD_SERVER app. Specify app path with --string-arg th_icd_server_app_path:<path_to_app>"
-            )
+            asserts.fail('This test requires a TH_ICD_SERVER app. Specify app path with --string-arg th_icd_server_app_path:<path_to_app>')
         if not os.path.exists(th_icd_server_app):
-            asserts.fail(f"The path {th_icd_server_app} does not exist")
+            asserts.fail(f'The path {th_icd_server_app} does not exist')
 
         # Create a temporary storage directory for keeping KVS files.
         self.storage = tempfile.TemporaryDirectory(prefix=self.__class__.__name__)
@@ -216,9 +191,10 @@ class TC_BRBINFO_4_1(MatterBaseTest):
             storage_dir=self.storage.name,
             port=self.th_icd_server_port,
             discriminator=self.th_icd_server_discriminator,
-            passcode=self.th_icd_server_passcode,
-        )
-        self.th_icd_server.start(expected_output="Server initialization complete", timeout=30)
+            passcode=self.th_icd_server_passcode)
+        self.th_icd_server.start(
+            expected_output="Server initialization complete",
+            timeout=30)
 
         log.info("Commissioning of ICD to fabric one (TH)")
         self.icd_nodeid = 1111
@@ -228,8 +204,7 @@ class TC_BRBINFO_4_1(MatterBaseTest):
             nodeId=self.icd_nodeid,
             setupPinCode=self.th_icd_server_passcode,
             filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
-            filter=self.th_icd_server_discriminator,
-        )
+            filter=self.th_icd_server_discriminator)
 
         log.info("Commissioning of ICD to fabric two (DUT)")
         params = await self.open_commissioning_window(dev_ctrl=self.default_controller, node_id=self.icd_nodeid)
@@ -239,8 +214,7 @@ class TC_BRBINFO_4_1(MatterBaseTest):
                 params.randomDiscriminator,
                 params.commissioningParameters.setupPinCode,
                 params.commissioningParameters.setupManualCode,
-                params.commissioningParameters.setupQRCode,
-            )
+                params.commissioningParameters.setupQRCode)
         else:
             # Automatically commission the ICD server to the DUT using the command line interface
             # provided by either the unified fabric-sync app or the fabric-admin + fabric-bridge apps.
@@ -324,9 +298,7 @@ class TC_BRBINFO_4_1(MatterBaseTest):
         event = brb_info_cluster.Events.ActiveChanged
         urgent = 1
         cb = EventSubscriptionHandler(expected_cluster_id=event.cluster_id, expected_event_id=event.event_id)
-        self._active_change_event_subscription = await self.default_controller.ReadEvent(
-            nodeId=self.dut_node_id, events=[(dynamic_endpoint_id, event, urgent)], reportInterval=[1, 3]
-        )
+        self._active_change_event_subscription = await self.default_controller.ReadEvent(nodeId=self.dut_node_id, events=[(dynamic_endpoint_id, event, urgent)], reportInterval=[1, 3])
         self._active_change_event_subscription.SetEventUpdateCallback(callback=cb)
 
         self.step("3")
@@ -336,9 +308,8 @@ class TC_BRBINFO_4_1(MatterBaseTest):
             await self._send_keep_active_command(stay_active_duration_ms, keep_active_timeout_ms, dynamic_endpoint_id)
             asserts.fail("KeepActive with invalid TimeoutMs was expected to fail")
         except InteractionModelError as e:
-            asserts.assert_equal(
-                e.status, Status.ConstraintError, "DUT sent back an unexpected error, we were expecting ConstraintError"
-            )
+            asserts.assert_equal(e.status, Status.ConstraintError,
+                                 "DUT sent back an unexpected error, we were expecting ConstraintError")
 
         self.step("4")
         keep_active_timeout_ms = 3600001
@@ -346,26 +317,22 @@ class TC_BRBINFO_4_1(MatterBaseTest):
             await self._send_keep_active_command(stay_active_duration_ms, keep_active_timeout_ms, dynamic_endpoint_id)
             asserts.fail("KeepActive with invalid TimeoutMs was expected to fail")
         except InteractionModelError as e:
-            asserts.assert_equal(
-                e.status, Status.ConstraintError, "DUT sent back an unexpected error, we were expecting ConstraintError"
-            )
+            asserts.assert_equal(e.status, Status.ConstraintError,
+                                 "DUT sent back an unexpected error, we were expecting ConstraintError")
 
         self.step("5")
         keep_active_timeout_ms = 30000
         await self._send_keep_active_command(stay_active_duration_ms, keep_active_timeout_ms, dynamic_endpoint_id)
 
         self.step("6")
-        wait_for_icd_checkin_timeout_s = idle_mode_duration_s + max(active_mode_duration_ms, stay_active_duration_ms) / 1000
+        wait_for_icd_checkin_timeout_s = idle_mode_duration_s + max(active_mode_duration_ms, stay_active_duration_ms)/1000
         wait_for_dut_event_subscription_s = 5
         # This will throw exception if timeout is exceeded.
-        await self.default_controller.WaitForActive(
-            self.icd_nodeid, timeoutSeconds=wait_for_icd_checkin_timeout_s, stayActiveDurationMs=5000
-        )
+        await self.default_controller.WaitForActive(self.icd_nodeid, timeoutSeconds=wait_for_icd_checkin_timeout_s, stayActiveDurationMs=5000)
         promised_active_duration_ms = self._wait_for_active_changed_event(cb, event, wait_for_dut_event_subscription_s)
 
-        asserts.assert_greater_equal(
-            promised_active_duration_ms, stay_active_duration_ms, "PromisedActiveDuration < StayActiveDuration"
-        )
+        asserts.assert_greater_equal(promised_active_duration_ms, stay_active_duration_ms,
+                                     "PromisedActiveDuration < StayActiveDuration")
         asserts.assert_equal(cb.get_size(), 0, "Unexpected event received from DUT")
 
         self.step("7")
@@ -374,13 +341,10 @@ class TC_BRBINFO_4_1(MatterBaseTest):
 
         self.step("8")
         # This will throw exception if timeout is exceeded.
-        await self.default_controller.WaitForActive(
-            self.icd_nodeid, timeoutSeconds=wait_for_icd_checkin_timeout_s, stayActiveDurationMs=5000
-        )
+        await self.default_controller.WaitForActive(self.icd_nodeid, timeoutSeconds=wait_for_icd_checkin_timeout_s, stayActiveDurationMs=5000)
         promised_active_duration_ms = self._wait_for_active_changed_event(cb, event, wait_for_dut_event_subscription_s)
-        asserts.assert_greater_equal(
-            promised_active_duration_ms, stay_active_duration_ms, "PromisedActiveDuration < StayActiveDuration"
-        )
+        asserts.assert_greater_equal(promised_active_duration_ms, stay_active_duration_ms,
+                                     "PromisedActiveDuration < StayActiveDuration")
         asserts.assert_equal(cb.get_size(), 0, "Unexpected event received from DUT")
 
         self.step("9")
@@ -397,16 +361,12 @@ class TC_BRBINFO_4_1(MatterBaseTest):
 
         self.step("10")
         self.th_icd_server.resume()
-        await self.default_controller.WaitForActive(
-            self.icd_nodeid, timeoutSeconds=wait_for_icd_checkin_timeout_s, stayActiveDurationMs=5000
-        )
+        await self.default_controller.WaitForActive(self.icd_nodeid, timeoutSeconds=wait_for_icd_checkin_timeout_s, stayActiveDurationMs=5000)
         promised_active_duration_ms = self._wait_for_active_changed_event(cb, event, wait_for_dut_event_subscription_s)
         asserts.assert_equal(cb.get_size(), 0, "More than one event received from DUT")
 
         self.step("11")
-        await self.default_controller.WaitForActive(
-            self.icd_nodeid, timeoutSeconds=wait_for_icd_checkin_timeout_s, stayActiveDurationMs=5000
-        )
+        await self.default_controller.WaitForActive(self.icd_nodeid, timeoutSeconds=wait_for_icd_checkin_timeout_s, stayActiveDurationMs=5000)
         asserts.assert_equal(cb.get_size(), 0, "More than one event received from DUT")
 
         self.step("12")
@@ -420,12 +380,8 @@ class TC_BRBINFO_4_1(MatterBaseTest):
         self.th_icd_server.resume()
 
         self.step("14")
-        await self.default_controller.WaitForActive(
-            self.icd_nodeid, timeoutSeconds=wait_for_icd_checkin_timeout_s, stayActiveDurationMs=5000
-        )
-        await self.default_controller.WaitForActive(
-            self.icd_nodeid, timeoutSeconds=wait_for_icd_checkin_timeout_s, stayActiveDurationMs=5000
-        )
+        await self.default_controller.WaitForActive(self.icd_nodeid, timeoutSeconds=wait_for_icd_checkin_timeout_s, stayActiveDurationMs=5000)
+        await self.default_controller.WaitForActive(self.icd_nodeid, timeoutSeconds=wait_for_icd_checkin_timeout_s, stayActiveDurationMs=5000)
         asserts.assert_equal(cb.get_size(), 0, "Unexpected event received from DUT")
 
         self.step("15")
@@ -445,9 +401,7 @@ class TC_BRBINFO_4_1(MatterBaseTest):
         self.th_icd_server.resume()
 
         self.step("18")
-        await self.default_controller.WaitForActive(
-            self.icd_nodeid, timeoutSeconds=wait_for_icd_checkin_timeout_s, stayActiveDurationMs=5000
-        )
+        await self.default_controller.WaitForActive(self.icd_nodeid, timeoutSeconds=wait_for_icd_checkin_timeout_s, stayActiveDurationMs=5000)
         promised_active_duration_ms = self._wait_for_active_changed_event(cb, event, wait_for_dut_event_subscription_s)
         asserts.assert_equal(cb.get_size(), 0, "More than one event received from DUT")
 

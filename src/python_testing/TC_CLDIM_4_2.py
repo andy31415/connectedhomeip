@@ -55,7 +55,6 @@ def current_latch_matcher(latch: bool) -> AttributeMatcher:
         if report.attribute != Clusters.ClosureDimension.Attributes.CurrentState:
             return False
         return report.value.latch == latch
-
     return AttributeMatcher.from_callable(description=f"CurrentState.Latch is {latch}", matcher=predicate)
 
 
@@ -87,7 +86,9 @@ class TC_CLDIM_4_2(MatterBaseTest):
         ]
 
     def pics_TC_CLDIM_4_2(self) -> list[str]:
-        return ["CLDIM.S", "CLDIM.S.F00"]
+        return [
+            "CLDIM.S", "CLDIM.S.F00"
+        ]
 
     @property
     def default_endpoint(self) -> int:
@@ -105,7 +106,9 @@ class TC_CLDIM_4_2(MatterBaseTest):
         # STEP 2a: Read FeatureMap attribute
         self.step("2a")
         feature_map = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=Clusters.Objects.ClosureDimension, attribute=attributes.FeatureMap
+            endpoint=endpoint,
+            cluster=Clusters.Objects.ClosureDimension,
+            attribute=attributes.FeatureMap
         )
 
         is_positioning_supported: bool = feature_map & Clusters.ClosureDimension.Bitmaps.Feature.kPositioning
@@ -122,14 +125,7 @@ class TC_CLDIM_4_2(MatterBaseTest):
         # STEP 2c: Establish wildcard subscription to all attributes"
         self.step("2c")
         sub_handler = AttributeSubscriptionHandler(expected_cluster=Clusters.ClosureDimension)
-        await sub_handler.start(
-            self.default_controller,
-            self.dut_node_id,
-            endpoint=endpoint,
-            min_interval_sec=0,
-            max_interval_sec=30,
-            keepSubscriptions=False,
-        )
+        await sub_handler.start(self.default_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
 
         # STEP 2d: Read CurrentState attribute
         self.step("2d")
@@ -143,9 +139,7 @@ class TC_CLDIM_4_2(MatterBaseTest):
         else:
             # STEP 2f: Read LatchControlModes attribute
             self.step("2f")
-            latch_control_modes = await self.read_cldim_attribute_expect_success(
-                endpoint=endpoint, attribute=attributes.LatchControlModes
-            )
+            latch_control_modes = await self.read_cldim_attribute_expect_success(endpoint=endpoint, attribute=attributes.LatchControlModes)
 
             # STEP 2g: If LatchControlModes is manual unlatching, skip step 2h
             self.step("2g")
@@ -159,8 +153,7 @@ class TC_CLDIM_4_2(MatterBaseTest):
                 try:
                     await self.send_single_cmd(
                         cmd=Clusters.Objects.ClosureDimension.Commands.SetTarget(latch=False),
-                        endpoint=endpoint,
-                        timedRequestTimeoutMs=1000,
+                        endpoint=endpoint, timedRequestTimeoutMs=1000
                     )
                 except InteractionModelError as e:
                     asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -177,17 +170,18 @@ class TC_CLDIM_4_2(MatterBaseTest):
 
             # STEP 2k: Wait for CurrentState.Latched to be False
             self.step("2k")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(False)], timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[current_latch_matcher(False)], timeout_sec=timeout)
 
         # STEP 3: Send Step command with invalid Direction
         self.step(3)
         try:
             await self.send_single_cmd(
                 cmd=Clusters.Objects.ClosureDimension.Commands.Step(
-                    direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kUnknownEnumValue, numberOfSteps=1
+                    direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kUnknownEnumValue,
+                    numberOfSteps=1
                 ),
-                endpoint=endpoint,
-                timedRequestTimeoutMs=1000,
+                endpoint=endpoint, timedRequestTimeoutMs=1000
             )
 
             asserts.fail("Expected ConstraintError for invalid Direction")
@@ -205,8 +199,7 @@ class TC_CLDIM_4_2(MatterBaseTest):
                         numberOfSteps=1,
                         speed=Globals.Enums.ThreeLevelAutoEnum.kUnknownEnumValue,
                     ),
-                    endpoint=endpoint,
-                    timedRequestTimeoutMs=1000,
+                    endpoint=endpoint, timedRequestTimeoutMs=1000
                 )
 
                 asserts.fail("Expected ConstraintError for invalid Speed")
@@ -219,10 +212,10 @@ class TC_CLDIM_4_2(MatterBaseTest):
         try:
             await self.send_single_cmd(
                 cmd=Clusters.Objects.ClosureDimension.Commands.Step(
-                    direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kIncrease, numberOfSteps=0
+                    direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kIncrease,
+                    numberOfSteps=0
                 ),
-                endpoint=endpoint,
-                timedRequestTimeoutMs=1000,
+                endpoint=endpoint, timedRequestTimeoutMs=1000
             )
 
             asserts.fail("Expected ConstraintError for NumberOfSteps = 0")

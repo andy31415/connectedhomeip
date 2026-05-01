@@ -35,27 +35,15 @@ import pyqrcode
 from intelhex import IntelHex
 
 TOOLS = {
-    "spake2p": None,
-    "chip-cert": None,
-    "chip-tool": None,
+    'spake2p': None,
+    'chip-cert': None,
+    'chip-tool': None,
 }
 
 log = logging.getLogger(__name__)
 
-INVALID_PASSCODES = [
-    00000000,
-    11111111,
-    22222222,
-    33333333,
-    44444444,
-    55555555,
-    66666666,
-    77777777,
-    88888888,
-    99999999,
-    12345678,
-    87654321,
-]
+INVALID_PASSCODES = [00000000, 11111111, 22222222, 33333333, 44444444, 55555555,
+                     66666666, 77777777, 88888888, 99999999, 12345678, 87654321]
 
 FACTORY_DATA_VERSION = 1
 SERIAL_NUMBER_LEN = 32
@@ -87,36 +75,36 @@ def nvs_memory_update(key, value):
 
 def check_tools_exists(args):
     if args.spake2_path:
-        TOOLS["spake2p"] = shutil.which(args.spake2_path)
+        TOOLS['spake2p'] = shutil.which(args.spake2_path)
     else:
-        TOOLS["spake2p"] = shutil.which("spake2p")
+        TOOLS['spake2p'] = shutil.which('spake2p')
 
-    if TOOLS["spake2p"] is None:
+    if TOOLS['spake2p'] is None:
         log.error("spake2p not found, please specify --spake2-path argument")
         sys.exit(1)
     # if the certs and keys are not in the generated partitions or the specific dac cert and key are used,
     # the chip-cert is not needed.
     if args.paa or (args.pai and (args.dac_cert is None and args.dac_key is None)):
         if args.chip_cert_path:
-            TOOLS["chip-cert"] = shutil.which(args.chip_cert_path)
+            TOOLS['chip-cert'] = shutil.which(args.chip_cert_path)
         else:
-            TOOLS["chip-cert"] = shutil.which("chip-cert")
-        if TOOLS["chip-cert"] is None:
+            TOOLS['chip-cert'] = shutil.which('chip-cert')
+        if TOOLS['chip-cert'] is None:
             log.error("chip-cert not found, please specify --chip-cert-path argument")
             sys.exit(1)
 
     if args.chip_tool_path:
-        TOOLS["chip-tool"] = shutil.which(args.chip_tool_path)
+        TOOLS['chip-tool'] = shutil.which(args.chip_tool_path)
     else:
-        TOOLS["chip-tool"] = shutil.which("chip-tool")
-    if TOOLS["chip-tool"] is None:
+        TOOLS['chip-tool'] = shutil.which('chip-tool')
+    if TOOLS['chip-tool'] is None:
         log.error("chip-tool not found, please specify --chip-tool-path argument")
         sys.exit(1)
 
     log.debug("Using following tools:")
-    log.debug("spake2p:    '%s'", TOOLS["spake2p"])
-    log.debug("chip-cert:  '%s'", TOOLS["chip-cert"])
-    log.debug("chip-tool:  '%s'", TOOLS["chip-tool"])
+    log.debug("spake2p:    '%s'", TOOLS['spake2p'])
+    log.debug("chip-cert:  '%s'", TOOLS['chip-cert'])
+    log.debug("chip-tool:  '%s'", TOOLS['chip-tool'])
 
 
 def execute_cmd(cmd):
@@ -127,7 +115,7 @@ def execute_cmd(cmd):
         status.check_returncode()
     except subprocess.CalledProcessError as e:
         if status.stderr:
-            log.error("[stderr]: %s", status.stderr.decode("utf-8").strip())
+            log.error("[stderr]: %s", status.stderr.decode('utf-8').strip())
         log.exception("Command failed with error: %r", e)
         sys.exit(1)
 
@@ -145,13 +133,13 @@ def check_int_range(value, min_value, max_value, name):
 
 
 def vid_pid_str(vid, pid):
-    return "_".join([hex(vid)[2:], hex(pid)[2:]])
+    return '_'.join([hex(vid)[2:], hex(pid)[2:]])
 
 
 def read_der_file(path: str):
     log.debug("Reading der file '%s'...", path)
     try:
-        with open(path, "rb") as f:
+        with open(path, 'rb') as f:
             return f.read()
     except IOError as e:
         log.exception(e)
@@ -160,7 +148,7 @@ def read_der_file(path: str):
 
 def read_key_bin_file(path: str):
     try:
-        with open(path, "rb") as file:
+        with open(path, 'rb') as file:
             return file.read()
 
     except IOError or ValueError:
@@ -176,28 +164,28 @@ def setup_out_dir(out_dir_top, args, serial: str):
     os.makedirs(out_dir, exist_ok=True)
 
     dirs = {
-        "output": os.sep.join([out_dir, serial]),
-        "internal": os.sep.join([out_dir, serial, "internal"]),
+        'output': os.sep.join([out_dir, serial]),
+        'internal': os.sep.join([out_dir, serial, 'internal']),
     }
 
     if args.in_tree:
-        dirs["output"] = out_dir
-        dirs["internal"] = os.sep.join([out_dir, "internal"])
+        dirs['output'] = out_dir
+        dirs['internal'] = os.sep.join([out_dir, 'internal'])
 
-    os.makedirs(dirs["output"], exist_ok=True)
-    os.makedirs(dirs["internal"], exist_ok=True)
+    os.makedirs(dirs['output'], exist_ok=True)
+    os.makedirs(dirs['internal'], exist_ok=True)
 
     return dirs
 
 
 def convert_x509_cert_from_pem_to_der(pem_file, out_der_file):
-    with open(pem_file, "rb") as f:
+    with open(pem_file, 'rb') as f:
         pem_data = f.read()
 
     pem_cert = cryptography.x509.load_pem_x509_certificate(pem_data, cryptography.hazmat.backends.default_backend())
     der_cert = pem_cert.public_bytes(cryptography.hazmat.primitives.serialization.Encoding.DER)
 
-    with open(out_der_file, "wb") as f:
+    with open(out_der_file, 'wb') as f:
         f.write(der_cert)
 
 
@@ -205,19 +193,15 @@ def generate_passcode(args, out_dirs):
     salt_len_max = 32
 
     cmd = [
-        TOOLS["spake2p"],
-        "gen-verifier",
-        "--iteration-count",
-        str(args.spake2_it),
-        "--salt-len",
-        str(salt_len_max),
-        "--out",
-        os.sep.join([out_dirs["output"], "pin.csv"]),
+        TOOLS['spake2p'], 'gen-verifier',
+        '--iteration-count', str(args.spake2_it),
+        '--salt-len', str(salt_len_max),
+        '--out', os.sep.join([out_dirs['output'], 'pin.csv'])
     ]
 
     # If passcode is provided, use it
-    if args.passcode:
-        cmd.extend(["--pin-code", str(args.passcode)])
+    if (args.passcode):
+        cmd.extend(['--pin-code', str(args.passcode)])
 
     execute_cmd(cmd)
 
@@ -229,50 +213,39 @@ def generate_discriminator(args, out_dirs):
     else:
         disc = random.randint(0x0000, 0x0FFF)
     # Append discriminator to each line of the passcode file
-    with open(os.sep.join([out_dirs["output"], "pin.csv"]), "r") as fd:
+    with open(os.sep.join([out_dirs['output'], 'pin.csv']), 'r') as fd:
         lines = fd.readlines()
 
-    lines[0] = ",".join([lines[0].strip(), "Discriminator"])
+    lines[0] = ','.join([lines[0].strip(), 'Discriminator'])
     for i in range(1, len(lines)):
-        lines[i] = ",".join([lines[i].strip(), str(disc)])
+        lines[i] = ','.join([lines[i].strip(), str(disc)])
 
-    with open(os.sep.join([out_dirs["output"], "pin_disc.csv"]), "w") as fd:
-        fd.write("\n".join(lines) + "\n")
+    with open(os.sep.join([out_dirs['output'], 'pin_disc.csv']), 'w') as fd:
+        fd.write('\n'.join(lines) + '\n')
 
-    os.remove(os.sep.join([out_dirs["output"], "pin.csv"]))
+    os.remove(os.sep.join([out_dirs['output'], 'pin.csv']))
 
 
 def generate_pai_certs(args, ca_key, ca_cert, out_key, out_cert):
     cmd = [
-        TOOLS["chip-cert"],
-        "gen-att-cert",
-        "--type",
-        "i",
-        "--subject-cn",
-        '"{} PAI {}"'.format(args.cn_prefix, "00"),
-        "--out-key",
-        out_key,
-        "--out",
-        out_cert,
+        TOOLS['chip-cert'], 'gen-att-cert',
+        '--type', 'i',
+        '--subject-cn', '"{} PAI {}"'.format(args.cn_prefix, '00'),
+        '--out-key', out_key,
+        '--out', out_cert,
     ]
 
     if args.lifetime:
-        cmd.extend(["--lifetime", str(args.lifetime)])
+        cmd.extend(['--lifetime', str(args.lifetime)])
     if args.valid_from:
-        cmd.extend(["--valid-from", str(args.valid_from)])
+        cmd.extend(['--valid-from', str(args.valid_from)])
 
-    cmd.extend(
-        [
-            "--subject-vid",
-            hex(args.vendor_id)[2:],
-            "--subject-pid",
-            hex(args.product_id)[2:],
-            "--ca-key",
-            ca_key,
-            "--ca-cert",
-            ca_cert,
-        ]
-    )
+    cmd.extend([
+        '--subject-vid', hex(args.vendor_id)[2:],
+        '--subject-pid', hex(args.product_id)[2:],
+        '--ca-key', ca_key,
+        '--ca-cert', ca_cert,
+    ])
 
     execute_cmd(cmd)
     log.info("Generated PAI certificate: '%s'", out_cert)
@@ -281,36 +254,36 @@ def generate_pai_certs(args, ca_key, ca_cert, out_key, out_cert):
 
 def setup_root_certificates(args, dirs):
     pai_cert = {
-        "cert_pem": None,
-        "cert_der": None,
-        "key_pem": None,
+        'cert_pem': None,
+        'cert_der': None,
+        'key_pem': None,
     }
     # If PAA is passed as input, then generate PAI certificate
     if args.paa:
         # output file names
-        pai_cert["cert_pem"] = os.sep.join([dirs["internal"], "pai_cert.pem"])
-        pai_cert["cert_der"] = os.sep.join([dirs["internal"], "pai_cert.der"])
-        pai_cert["key_pem"] = os.sep.join([dirs["internal"], "pai_key.pem"])
+        pai_cert['cert_pem'] = os.sep.join([dirs['internal'], 'pai_cert.pem'])
+        pai_cert['cert_der'] = os.sep.join([dirs['internal'], 'pai_cert.der'])
+        pai_cert['key_pem'] = os.sep.join([dirs['internal'], 'pai_key.pem'])
 
-        generate_pai_certs(args, args.key, args.cert, pai_cert["key_pem"], pai_cert["cert_pem"])
-        convert_x509_cert_from_pem_to_der(pai_cert["cert_pem"], pai_cert["cert_der"])
-        log.info("Generated PAI certificate in DER format: '%s'", pai_cert["cert_der"])
+        generate_pai_certs(args, args.key, args.cert, pai_cert['key_pem'], pai_cert['cert_pem'])
+        convert_x509_cert_from_pem_to_der(pai_cert['cert_pem'], pai_cert['cert_der'])
+        log.info("Generated PAI certificate in DER format: '%s'", pai_cert['cert_der'])
 
     # If PAI is passed as input, generate DACs
     elif args.pai:
-        pai_cert["cert_pem"] = args.cert
-        pai_cert["key_pem"] = args.key
-        pai_cert["cert_der"] = os.sep.join([dirs["internal"], "pai_cert.der"])
+        pai_cert['cert_pem'] = args.cert
+        pai_cert['key_pem'] = args.key
+        pai_cert['cert_der'] = os.sep.join([dirs['internal'], 'pai_cert.der'])
 
-        convert_x509_cert_from_pem_to_der(pai_cert["cert_pem"], pai_cert["cert_der"])
-        log.info("Generated PAI certificate in DER format: '%s'", pai_cert["cert_der"])
+        convert_x509_cert_from_pem_to_der(pai_cert['cert_pem'], pai_cert['cert_der'])
+        log.info("Generated PAI certificate in DER format: '%s'", pai_cert['cert_der'])
 
     return pai_cert
 
 
 # Generate the Public and Private key pair binaries
 def generate_keypair_bin(pem_file, out_privkey_bin, out_pubkey_bin):
-    with open(pem_file, "rb") as f:
+    with open(pem_file, 'rb') as f:
         pem_data = f.read()
 
     key_pem = cryptography.hazmat.primitives.serialization.load_pem_private_key(pem_data, None)
@@ -319,52 +292,40 @@ def generate_keypair_bin(pem_file, out_privkey_bin, out_pubkey_bin):
     public_number_y = key_pem.public_key().public_numbers().y
     public_key_first_byte = 0x04
 
-    with open(out_privkey_bin, "wb") as f:
-        f.write(private_number_val.to_bytes(32, byteorder="big"))
+    with open(out_privkey_bin, 'wb') as f:
+        f.write(private_number_val.to_bytes(32, byteorder='big'))
 
-    with open(out_pubkey_bin, "wb") as f:
-        f.write(public_key_first_byte.to_bytes(1, byteorder="big"))
-        f.write(public_number_x.to_bytes(32, byteorder="big"))
-        f.write(public_number_y.to_bytes(32, byteorder="big"))
+    with open(out_pubkey_bin, 'wb') as f:
+        f.write(public_key_first_byte.to_bytes(1, byteorder='big'))
+        f.write(public_number_x.to_bytes(32, byteorder='big'))
+        f.write(public_number_y.to_bytes(32, byteorder='big'))
 
 
 def generate_dac_cert(iteration, args, out_dirs, discriminator, passcode, ca_key, ca_cert):
-    out_key_pem = os.sep.join([out_dirs["internal"], "DAC_key.pem"])
-    out_cert_pem = out_key_pem.replace("key.pem", "cert.pem")
-    out_cert_der = out_key_pem.replace("key.pem", "cert.der")
-    out_private_key_bin = out_key_pem.replace("key.pem", "private_key.bin")
-    out_public_key_bin = out_key_pem.replace("key.pem", "public_key.bin")
+    out_key_pem = os.sep.join([out_dirs['internal'], 'DAC_key.pem'])
+    out_cert_pem = out_key_pem.replace('key.pem', 'cert.pem')
+    out_cert_der = out_key_pem.replace('key.pem', 'cert.der')
+    out_private_key_bin = out_key_pem.replace('key.pem', 'private_key.bin')
+    out_public_key_bin = out_key_pem.replace('key.pem', 'public_key.bin')
 
     cmd = [
-        TOOLS["chip-cert"],
-        "gen-att-cert",
-        "--type",
-        "d",
-        "--subject-cn",
-        '"{} DAC {}"'.format(args.cn_prefix, iteration),
-        "--out-key",
-        out_key_pem,
-        "--out",
-        out_cert_pem,
+        TOOLS['chip-cert'], 'gen-att-cert',
+        '--type', 'd',
+        '--subject-cn', '"{} DAC {}"'.format(args.cn_prefix, iteration),
+        '--out-key', out_key_pem,
+        '--out', out_cert_pem,
     ]
 
     if args.lifetime:
-        cmd.extend(["--lifetime", str(args.lifetime)])
+        cmd.extend(['--lifetime', str(args.lifetime)])
     if args.valid_from:
-        cmd.extend(["--valid-from", str(args.valid_from)])
+        cmd.extend(['--valid-from', str(args.valid_from)])
 
-    cmd.extend(
-        [
-            "--subject-vid",
-            hex(args.vendor_id)[2:],
-            "--subject-pid",
-            hex(args.product_id)[2:],
-            "--ca-key",
-            ca_key,
-            "--ca-cert",
-            ca_cert,
-        ]
-    )
+    cmd.extend(['--subject-vid', hex(args.vendor_id)[2:],
+                '--subject-pid', hex(args.product_id)[2:],
+                '--ca-key', ca_key,
+                '--ca-cert', ca_cert,
+                ])
 
     execute_cmd(cmd)
     log.info("Generated DAC certificate: '%s'", out_cert_pem)
@@ -386,9 +347,9 @@ def use_dac_cert_from_args(args, out_dirs):
     log.info("DAC Private Key: '%s'", args.dac_key)
 
     # There should be only one UUID in the UUIDs list if DAC is specified
-    out_cert_der = os.sep.join([out_dirs["internal"], "DAC_cert.der"])
-    out_private_key_bin = out_cert_der.replace("cert.der", "private_key.bin")
-    out_public_key_bin = out_cert_der.replace("cert.der", "public_key.bin")
+    out_cert_der = os.sep.join([out_dirs['internal'], 'DAC_cert.der'])
+    out_private_key_bin = out_cert_der.replace('cert.der', 'private_key.bin')
+    out_public_key_bin = out_cert_der.replace('cert.der', 'public_key.bin')
 
     convert_x509_cert_from_pem_to_der(args.dac_cert, out_cert_der)
     log.info("Generated DAC certificate in DER format: '%s'", out_cert_der)
@@ -402,42 +363,42 @@ def use_dac_cert_from_args(args, out_dirs):
 
 def get_manualcode_args(vid, pid, flow, discriminator, passcode):
     payload_args = []
-    payload_args.append("--discriminator")
+    payload_args.append('--discriminator')
     payload_args.append(str(discriminator))
-    payload_args.append("--setup-pin-code")
+    payload_args.append('--setup-pin-code')
     payload_args.append(str(passcode))
-    payload_args.append("--version")
-    payload_args.append("0")
-    payload_args.append("--vendor-id")
+    payload_args.append('--version')
+    payload_args.append('0')
+    payload_args.append('--vendor-id')
     payload_args.append(str(vid))
-    payload_args.append("--product-id")
+    payload_args.append('--product-id')
     payload_args.append(str(pid))
-    payload_args.append("--commissioning-mode")
+    payload_args.append('--commissioning-mode')
     payload_args.append(str(flow))
     return payload_args
 
 
 def get_qrcode_args(vid, pid, flow, discriminator, passcode, disc_mode):
     payload_args = get_manualcode_args(vid, pid, flow, discriminator, passcode)
-    payload_args.append("--rendezvous")
+    payload_args.append('--rendezvous')
     payload_args.append(str(1 << disc_mode))
     return payload_args
 
 
 def get_chip_qrcode(chip_tool, vid, pid, flow, discriminator, passcode, disc_mode):
     payload_args = get_qrcode_args(vid, pid, flow, discriminator, passcode, disc_mode)
-    cmd_args = [chip_tool, "payload", "generate-qrcode"]
+    cmd_args = [chip_tool, 'payload', 'generate-qrcode']
     cmd_args.extend(payload_args)
     data = subprocess.check_output(cmd_args)
 
     # Command output is as below:
     # \x1b[0;32m[1655386003372] [23483:7823617] CHIP: [TOO] QR Code: MT:Y.K90-WB010E7648G00\x1b[0m
-    return data.decode("utf-8").split("QR Code: ")[1][:QRCODE_LEN]
+    return data.decode('utf-8').split('QR Code: ')[1][:QRCODE_LEN]
 
 
 def get_chip_manualcode(chip_tool, vid, pid, flow, discriminator, passcode):
     payload_args = get_manualcode_args(vid, pid, flow, discriminator, passcode)
-    cmd_args = [chip_tool, "payload", "generate-manualcode"]
+    cmd_args = [chip_tool, 'payload', 'generate-manualcode']
     cmd_args.extend(payload_args)
     data = subprocess.check_output(cmd_args)
 
@@ -449,30 +410,28 @@ def get_chip_manualcode(chip_tool, vid, pid, flow, discriminator, passcode):
     #   For standard commissioning flow it is 11 digits
     #   For User-intent and custom commissioning flow it is 21 digits
     manual_code_len = LONG_MANUALCODE_LEN if flow else SHORT_MANUALCODE_LEN
-    return data.decode("utf-8").split("Manual Code: ")[1][:manual_code_len]
+    return data.decode('utf-8').split('Manual Code: ')[1][:manual_code_len]
 
 
 def generate_onboarding_data(args, out_dirs, discriminator, passcode):
-    chip_manualcode = get_chip_manualcode(
-        TOOLS["chip-tool"], args.vendor_id, args.product_id, args.commissioning_flow, discriminator, passcode
-    )
-    chip_qrcode = get_chip_qrcode(
-        TOOLS["chip-tool"], args.vendor_id, args.product_id, args.commissioning_flow, discriminator, passcode, args.discovery_mode
-    )
+    chip_manualcode = get_chip_manualcode(TOOLS['chip-tool'], args.vendor_id, args.product_id,
+                                          args.commissioning_flow, discriminator, passcode)
+    chip_qrcode = get_chip_qrcode(TOOLS['chip-tool'], args.vendor_id, args.product_id,
+                                  args.commissioning_flow, discriminator, passcode, args.discovery_mode)
 
     log.info("Generated QR code: '%s'", chip_qrcode)
     log.info("Generated manual code: '%s'", chip_manualcode)
 
-    csv_data = "qrcode,manualcode,discriminator,passcode\n"
-    csv_data += chip_qrcode + "," + chip_manualcode + "," + str(discriminator) + "," + str(passcode) + "\n"
+    csv_data = 'qrcode,manualcode,discriminator,passcode\n'
+    csv_data += chip_qrcode + ',' + chip_manualcode + ',' + str(discriminator) + ',' + str(passcode) + '\n'
 
-    onboarding_data_file = os.sep.join([out_dirs["output"], "onb_codes.csv"])
-    with open(onboarding_data_file, "w") as f:
+    onboarding_data_file = os.sep.join([out_dirs['output'], 'onb_codes.csv'])
+    with open(onboarding_data_file, 'w') as f:
         f.write(csv_data)
 
     # Create QR code image as mentioned in the spec
-    qrcode_file = os.sep.join([out_dirs["output"], "qrcode.png"])
-    chip_qr = pyqrcode.create(chip_qrcode, version=2, error="M")
+    qrcode_file = os.sep.join([out_dirs['output'], 'qrcode.png'])
+    chip_qr = pyqrcode.create(chip_qrcode, version=2, error='M')
     chip_qr.png(qrcode_file, scale=6)
 
     log.info("Generated onboarding data and QR Code")
@@ -481,41 +440,34 @@ def generate_onboarding_data(args, out_dirs, discriminator, passcode):
 # This function generates the DACs, picks the commissionable data from the already present csv file,
 # and generates the onboarding payloads, and writes everything to the master csv
 def write_device_unique_data(args, out_dirs, pai_cert):
-    with open(os.sep.join([out_dirs["output"], "pin_disc.csv"]), "r") as csvf:
+    with open(os.sep.join([out_dirs['output'], 'pin_disc.csv']), 'r') as csvf:
         pin_disc_dict = csv.DictReader(csvf)
         row = pin_disc_dict.__next__()
 
-        nvs_memory_append("discriminator", int(row["Discriminator"]))
-        nvs_memory_append("spake2_it", int(row["Iteration Count"]))
-        nvs_memory_append("spake2_salt", base64.b64decode(row["Salt"]))
-        nvs_memory_append("spake2_verifier", base64.b64decode(row["Verifier"]))
-        nvs_memory_append("passcode", int(row["PIN Code"]))
+        nvs_memory_append('discriminator', int(row['Discriminator']))
+        nvs_memory_append('spake2_it', int(row['Iteration Count']))
+        nvs_memory_append('spake2_salt', base64.b64decode(row['Salt']))
+        nvs_memory_append('spake2_verifier', base64.b64decode(row['Verifier']))
+        nvs_memory_append('passcode', int(row['PIN Code']))
 
         if args.paa or args.pai:
             if args.dac_key is not None and args.dac_cert is not None:
                 dacs = use_dac_cert_from_args(args, out_dirs)
             else:
-                dacs = generate_dac_cert(
-                    int(row["Index"]),
-                    args,
-                    out_dirs,
-                    int(row["Discriminator"]),
-                    int(row["PIN Code"]),
-                    pai_cert["key_pem"],
-                    pai_cert["cert_pem"],
-                )
+                dacs = generate_dac_cert(int(row['Index']), args, out_dirs, int(row['Discriminator']),
+                                         int(row['PIN Code']), pai_cert['key_pem'], pai_cert['cert_pem'])
 
-            nvs_memory_append("dac_cert", read_der_file(dacs[0]))
-            nvs_memory_append("dac_key", read_key_bin_file(dacs[1]))
-            nvs_memory_append("pai_cert", read_der_file(pai_cert["cert_der"]))
+            nvs_memory_append('dac_cert', read_der_file(dacs[0]))
+            nvs_memory_append('dac_key', read_key_bin_file(dacs[1]))
+            nvs_memory_append('pai_cert', read_der_file(pai_cert['cert_der']))
 
-        nvs_memory_append("cert_dclrn", read_der_file(args.cert_dclrn))
+        nvs_memory_append('cert_dclrn', read_der_file(args.cert_dclrn))
 
         if (args.enable_rotating_device_id is True) and (args.rd_id_uid is None):
-            nvs_memory_update("rd_uid", os.urandom(ROTATING_DEVICE_ID_UNIQUE_ID_LEN))
+            nvs_memory_update('rd_uid', os.urandom(ROTATING_DEVICE_ID_UNIQUE_ID_LEN))
 
         # Generate onboarding data
-        generate_onboarding_data(args, out_dirs, int(row["Discriminator"]), int(row["PIN Code"]))
+        generate_onboarding_data(args, out_dirs, int(row['Discriminator']), int(row['PIN Code']))
 
         return dacs
 
@@ -528,27 +480,27 @@ def generate_partition(args, out_dirs):
         raise ValueError("generated CBOR file exceeds declared maximum partition size! {} > {}".format(len(cbor_data), args.size))
     ih = IntelHex()
     ih.putsz(args.offset, cbor_data)
-    ih.write_hex_file(os.sep.join([out_dirs["output"], "factory_data.hex"]), True)
-    ih.tobinfile(os.sep.join([out_dirs["output"], "factory_data.bin"]))
+    ih.write_hex_file(os.sep.join([out_dirs['output'], 'factory_data.hex']), True)
+    ih.tobinfile(os.sep.join([out_dirs['output'], 'factory_data.bin']))
 
 
 def generate_json_summary(args, out_dirs, pai_certs, dacs_cert, serial_num: str):
     json_dict = {}
 
-    json_dict["serial_num"] = serial_num
+    json_dict['serial_num'] = serial_num
 
     for key, nvs_value in NVS_MEMORY.items():
-        if not isinstance(nvs_value, bytes) and not isinstance(nvs_value, bytearray):
+        if (not isinstance(nvs_value, bytes) and not isinstance(nvs_value, bytearray)):
             json_dict[key] = nvs_value
 
-    with open(os.sep.join([out_dirs["output"], "pin_disc.csv"]), "r") as csvf:
+    with open(os.sep.join([out_dirs['output'], 'pin_disc.csv']), 'r') as csvf:
         pin_disc_dict = csv.DictReader(csvf)
         row = pin_disc_dict.__next__()
-        json_dict["passcode"] = row["PIN Code"]
-        json_dict["spake2_salt"] = row["Salt"]
-        json_dict["spake2_verifier"] = row["Verifier"]
+        json_dict['passcode'] = row['PIN Code']
+        json_dict['spake2_salt'] = row['Salt']
+        json_dict['spake2_verifier'] = row['Verifier']
 
-    with open(os.sep.join([out_dirs["output"], "onb_codes.csv"]), "r") as csvf:
+    with open(os.sep.join([out_dirs['output'], 'onb_codes.csv']), 'r') as csvf:
         pin_disc_dict = csv.DictReader(csvf)
         row = pin_disc_dict.__next__()
         for key, value in row.items():
@@ -558,188 +510,141 @@ def generate_json_summary(args, out_dirs, pai_certs, dacs_cert, serial_num: str)
         json_dict[key] = value
 
     if dacs_cert is not None:
-        json_dict["dac_cert"] = dacs_cert[0]
-        json_dict["dac_priv_key"] = dacs_cert[1]
-        json_dict["dac_pub_key"] = dacs_cert[2]
+        json_dict['dac_cert'] = dacs_cert[0]
+        json_dict['dac_priv_key'] = dacs_cert[1]
+        json_dict['dac_pub_key'] = dacs_cert[2]
 
-    json_dict["cert_dclrn"] = args.cert_dclrn
+    json_dict['cert_dclrn'] = args.cert_dclrn
 
     # Format vid & pid as hex
-    json_dict["vendor_id"] = hex(json_dict["vendor_id"])
-    json_dict["product_id"] = hex(json_dict["product_id"])
+    json_dict['vendor_id'] = hex(json_dict['vendor_id'])
+    json_dict['product_id'] = hex(json_dict['product_id'])
 
-    with open(os.sep.join([out_dirs["output"], "summary.json"]), "w") as json_file:
+    with open(os.sep.join([out_dirs['output'], 'summary.json']), 'w') as json_file:
         json.dump(json_dict, json_file, indent=4)
 
 
 def add_additional_kv(args, serial_num):
     # Device instance information
     if args.vendor_id is not None:
-        nvs_memory_append("vendor_id", args.vendor_id)
+        nvs_memory_append('vendor_id', args.vendor_id)
     if args.vendor_name is not None:
-        nvs_memory_append("vendor_name", args.vendor_name)
+        nvs_memory_append('vendor_name', args.vendor_name)
     if args.product_id is not None:
-        nvs_memory_append("product_id", args.product_id)
+        nvs_memory_append('product_id', args.product_id)
     if args.product_name is not None:
-        nvs_memory_append("product_name", args.product_name)
+        nvs_memory_append('product_name', args.product_name)
     if args.hw_ver is not None:
-        nvs_memory_append("hw_ver", args.hw_ver)
+        nvs_memory_append('hw_ver', args.hw_ver)
     if args.hw_ver_str is not None:
-        nvs_memory_append("hw_ver_str", args.hw_ver_str)
+        nvs_memory_append('hw_ver_str', args.hw_ver_str)
     if args.mfg_date is not None:
-        nvs_memory_append("date", args.mfg_date)
+        nvs_memory_append('date', args.mfg_date)
     if args.enable_rotating_device_id:
-        nvs_memory_append("rd_uid", args.rd_id_uid)
+        nvs_memory_append('rd_uid', args.rd_id_uid)
 
     # Add the serial-num
-    nvs_memory_append("sn", serial_num)
+    nvs_memory_append('sn', serial_num)
 
-    nvs_memory_append("version", FACTORY_DATA_VERSION)
+    nvs_memory_append('version', FACTORY_DATA_VERSION)
 
     if args.enable_key:
-        nvs_memory_append("enable_key", args.enable_key)
+        nvs_memory_append('enable_key', args.enable_key)
 
     # Keys from basic clusters
     if args.product_label is not None:
-        nvs_memory_append("product_label", args.product_label)
+        nvs_memory_append('product_label', args.product_label)
     if args.product_url is not None:
-        nvs_memory_append("product_url", args.product_url)
+        nvs_memory_append('product_url', args.product_url)
     if args.part_number is not None:
-        nvs_memory_append("part_number", args.part_number)
+        nvs_memory_append('part_number', args.part_number)
 
 
 def get_and_validate_args():
-    def allow_any_int(i):
-        return int(i, 0)
+    def allow_any_int(i): return int(i, 0)
+    def base64_str(s): return base64.b64decode(s)
 
-    def base64_str(s):
-        return base64.b64decode(s)
-
-    parser = argparse.ArgumentParser(
-        description="Manufacuring partition generator tool",
-        formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=50),
-    )
+    parser = argparse.ArgumentParser(description='Manufacuring partition generator tool',
+                                     formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=50))
 
     # General options
-    general_args = parser.add_argument_group("General options")
-    general_args.add_argument(
-        "-n",
-        "--count",
-        type=allow_any_int,
-        default=1,
-        help="The number of manufacturing partition binaries to generate. Default is 1.",
-    )
-    general_args.add_argument(
-        "--output", type=str, required=False, default="out", help="[string] Output path where generated data will be stored."
-    )
-    general_args.add_argument("--spake2-path", type=str, required=False, help="[string] Provide Spake2+ tool path")
-    general_args.add_argument("--chip-tool-path", type=str, required=False, help="[string] Provide chip-tool path")
-    general_args.add_argument("--chip-cert-path", type=str, required=False, help="[string] Provide chip-cert path")
-    general_args.add_argument(
-        "--overwrite",
-        action="store_true",
-        default=False,
-        help="If output directory exist this argument allows to generate new factory data and overwrite it.",
-    )
-    general_args.add_argument(
-        "--in-tree", action="store_true", default=False, help="Use it only when building factory data from Matter source code."
-    )
-    general_args.add_argument(
-        "--enable-key",
-        type=str,
-        help="[hex string] [128-bit hex-encoded] The Enable Key is a 128-bit value that triggers manufacturer-specific action while invoking the TestEventTrigger Command."
-        "This value is used during Certification Tests, and should not be present on production devices.",
-    )
+    general_args = parser.add_argument_group('General options')
+    general_args.add_argument('-n', '--count', type=allow_any_int, default=1,
+                              help='The number of manufacturing partition binaries to generate. Default is 1.')
+    general_args.add_argument("--output", type=str, required=False, default="out",
+                              help="[string] Output path where generated data will be stored.")
+    general_args.add_argument("--spake2-path", type=str, required=False,
+                              help="[string] Provide Spake2+ tool path")
+    general_args.add_argument("--chip-tool-path", type=str, required=False,
+                              help="[string] Provide chip-tool path")
+    general_args.add_argument("--chip-cert-path", type=str, required=False,
+                              help="[string] Provide chip-cert path")
+    general_args.add_argument("--overwrite", action="store_true", default=False,
+                              help="If output directory exist this argument allows to generate new factory data and overwrite it.")
+    general_args.add_argument("--in-tree", action="store_true", default=False,
+                              help="Use it only when building factory data from Matter source code.")
+    general_args.add_argument("--enable-key", type=str,
+                              help="[hex string] [128-bit hex-encoded] The Enable Key is a 128-bit value that triggers manufacturer-specific action while invoking the TestEventTrigger Command."
+                              "This value is used during Certification Tests, and should not be present on production devices.")
     # Commissioning options
-    commissioning_args = parser.add_argument_group("Commisioning options")
-    commissioning_args.add_argument(
-        "--passcode", type=allow_any_int, help="The passcode for pairing. Randomly generated if not specified."
-    )
-    commissioning_args.add_argument("--spake2-it", type=allow_any_int, default=1000, help="[int] Provide Spake2+ iteration count.")
-    commissioning_args.add_argument(
-        "--discriminator", type=allow_any_int, help="The discriminator for pairing. Randomly generated if not specified."
-    )
-    commissioning_args.add_argument(
-        "-cf",
-        "--commissioning-flow",
-        type=allow_any_int,
-        default=0,
-        help="Device commissioning flow, 0:Standard, 1:User-Intent, 2:Custom. \
-                                    Default is 0.",
-        choices=[0, 1, 2],
-    )
-    commissioning_args.add_argument(
-        "-dm",
-        "--discovery-mode",
-        type=allow_any_int,
-        default=1,
-        help="Commissionable device discovery networking technology. \
-                                          0:WiFi-SoftAP, 1:BLE, 2:On-network. Default is BLE.",
-        choices=[0, 1, 2],
-    )
+    commissioning_args = parser.add_argument_group('Commisioning options')
+    commissioning_args.add_argument('--passcode', type=allow_any_int,
+                                    help='The passcode for pairing. Randomly generated if not specified.')
+    commissioning_args.add_argument("--spake2-it", type=allow_any_int, default=1000,
+                                    help="[int] Provide Spake2+ iteration count.")
+    commissioning_args.add_argument('--discriminator', type=allow_any_int,
+                                    help='The discriminator for pairing. Randomly generated if not specified.')
+    commissioning_args.add_argument('-cf', '--commissioning-flow', type=allow_any_int, default=0,
+                                    help='Device commissioning flow, 0:Standard, 1:User-Intent, 2:Custom. \
+                                    Default is 0.', choices=[0, 1, 2])
+    commissioning_args.add_argument('-dm', '--discovery-mode', type=allow_any_int, default=1,
+                                    help='Commissionable device discovery networking technology. \
+                                          0:WiFi-SoftAP, 1:BLE, 2:On-network. Default is BLE.', choices=[0, 1, 2])
 
     # Device insrance information
-    dev_inst_args = parser.add_argument_group("Device instance information options")
-    dev_inst_args.add_argument("-v", "--vendor-id", type=allow_any_int, required=False, help="Vendor id")
-    dev_inst_args.add_argument("--vendor-name", type=str, required=False, help="Vendor name")
-    dev_inst_args.add_argument("-p", "--product-id", type=allow_any_int, required=False, help="Product id")
-    dev_inst_args.add_argument("--product-name", type=str, required=False, help="Product name")
-    dev_inst_args.add_argument("--hw-ver", type=allow_any_int, required=False, help="Hardware version")
-    dev_inst_args.add_argument("--hw-ver-str", type=str, required=False, help="Hardware version string")
-    dev_inst_args.add_argument("--mfg-date", type=str, required=False, help="Manufacturing date in format YYYY-MM-DD")
-    dev_inst_args.add_argument("--serial-num", type=str, required=False, help="Serial number in hex format")
-    dev_inst_args.add_argument(
-        "--enable-rotating-device-id", action="store_true", help="Enable Rotating device id in the generated binaries"
-    )
-    dev_inst_args.add_argument(
-        "--rd-id-uid",
-        type=str,
-        required=False,
-        help='128-bit unique identifier for generating rotating device identifier, provide 32-byte hex string, e.g. "1234567890abcdef1234567890abcdef"',
-    )
+    dev_inst_args = parser.add_argument_group('Device instance information options')
+    dev_inst_args.add_argument('-v', '--vendor-id', type=allow_any_int, required=False, help='Vendor id')
+    dev_inst_args.add_argument('--vendor-name', type=str, required=False, help='Vendor name')
+    dev_inst_args.add_argument('-p', '--product-id', type=allow_any_int, required=False, help='Product id')
+    dev_inst_args.add_argument('--product-name', type=str, required=False, help='Product name')
+    dev_inst_args.add_argument('--hw-ver', type=allow_any_int, required=False, help='Hardware version')
+    dev_inst_args.add_argument('--hw-ver-str', type=str, required=False, help='Hardware version string')
+    dev_inst_args.add_argument('--mfg-date', type=str, required=False, help='Manufacturing date in format YYYY-MM-DD')
+    dev_inst_args.add_argument('--serial-num', type=str, required=False, help='Serial number in hex format')
+    dev_inst_args.add_argument('--enable-rotating-device-id', action='store_true',
+                               help='Enable Rotating device id in the generated binaries')
+    dev_inst_args.add_argument('--rd-id-uid', type=str, required=False,
+                               help='128-bit unique identifier for generating rotating device identifier, provide 32-byte hex string, e.g. "1234567890abcdef1234567890abcdef"')
 
-    dac_args = parser.add_argument_group("Device attestation credential options")
+    dac_args = parser.add_argument_group('Device attestation credential options')
     # If DAC is present then PAI key is not required, so it is marked as not required here
     # but, if DAC is not present then PAI key is required and that case is validated in validate_args()
-    dac_args.add_argument("-c", "--cert", type=str, required=False, help="The input certificate file in PEM format.")
-    dac_args.add_argument("-k", "--key", type=str, required=False, help="The input key file in PEM format.")
-    dac_args.add_argument("-cd", "--cert-dclrn", type=str, required=True, help="The certificate declaration file in DER format.")
-    dac_args.add_argument("--dac-cert", type=str, help="The input DAC certificate file in PEM format.")
-    dac_args.add_argument("--dac-key", type=str, help="The input DAC private key file in PEM format.")
-    dac_args.add_argument(
-        "-cn", "--cn-prefix", type=str, default="Telink", help="The common name prefix of the subject of the generated certificate."
-    )
-    dac_args.add_argument(
-        "-lt",
-        "--lifetime",
-        default=4294967295,
-        type=allow_any_int,
-        help="Lifetime of the generated certificate. Default is 4294967295 if not specified, \
-                              this indicate that certificate does not have well defined expiration date.",
-    )
-    dac_args.add_argument(
-        "-vf",
-        "--valid-from",
-        type=str,
-        help="The start date for the certificate validity period in format <YYYY>-<MM>-<DD> [ <HH>:<MM>:<SS> ]. \
-                              Default is current date.",
-    )
+    dac_args.add_argument('-c', '--cert', type=str, required=False, help='The input certificate file in PEM format.')
+    dac_args.add_argument('-k', '--key', type=str, required=False, help='The input key file in PEM format.')
+    dac_args.add_argument('-cd', '--cert-dclrn', type=str, required=True, help='The certificate declaration file in DER format.')
+    dac_args.add_argument('--dac-cert', type=str, help='The input DAC certificate file in PEM format.')
+    dac_args.add_argument('--dac-key', type=str, help='The input DAC private key file in PEM format.')
+    dac_args.add_argument('-cn', '--cn-prefix', type=str, default='Telink',
+                          help='The common name prefix of the subject of the generated certificate.')
+    dac_args.add_argument('-lt', '--lifetime', default=4294967295, type=allow_any_int,
+                          help='Lifetime of the generated certificate. Default is 4294967295 if not specified, \
+                              this indicate that certificate does not have well defined expiration date.')
+    dac_args.add_argument('-vf', '--valid-from', type=str,
+                          help='The start date for the certificate validity period in format <YYYY>-<MM>-<DD> [ <HH>:<MM>:<SS> ]. \
+                              Default is current date.')
     input_cert_group = dac_args.add_mutually_exclusive_group(required=False)
-    input_cert_group.add_argument("--paa", action="store_true", help="Use input certificate as PAA certificate.")
-    input_cert_group.add_argument("--pai", action="store_true", help="Use input certificate as PAI certificate.")
+    input_cert_group.add_argument('--paa', action='store_true', help='Use input certificate as PAA certificate.')
+    input_cert_group.add_argument('--pai', action='store_true', help='Use input certificate as PAI certificate.')
 
-    basic_args = parser.add_argument_group("Few more Basic clusters options")
-    basic_args.add_argument("--product-label", type=str, required=False, help="Product label")
-    basic_args.add_argument("--product-url", type=str, required=False, help="Product URL")
-    basic_args.add_argument("--part_number", type=str, required=False, help="Provide human-readable product number")
+    basic_args = parser.add_argument_group('Few more Basic clusters options')
+    basic_args.add_argument('--product-label', type=str, required=False, help='Product label')
+    basic_args.add_argument('--product-url', type=str, required=False, help='Product URL')
+    basic_args.add_argument('--part_number', type=str, required=False, help='Provide human-readable product number')
 
-    part_gen_args = parser.add_argument_group("Partition generator options")
-    part_gen_args.add_argument(
-        "--offset",
-        type=allow_any_int,
-        help="Partition offset - an address in devices NVM memory, where factory data will be stored",
-    )
-    part_gen_args.add_argument("--size", type=allow_any_int, help="The maximum partition size")
+    part_gen_args = parser.add_argument_group('Partition generator options')
+    part_gen_args.add_argument('--offset', type=allow_any_int,
+                               help='Partition offset - an address in devices NVM memory, where factory data will be stored')
+    part_gen_args.add_argument('--size', type=allow_any_int, help='The maximum partition size')
 
     args = parser.parse_args()
 
@@ -749,24 +654,24 @@ def get_and_validate_args():
         sys.exit(1)
 
     # Validate discriminator and passcode
-    check_int_range(args.discriminator, 0x0000, 0x0FFF, "Discriminator")
+    check_int_range(args.discriminator, 0x0000, 0x0FFF, 'Discriminator')
     if args.passcode is not None:
-        if (args.passcode < 0x0000001 and args.passcode > 0x5F5E0FE) or (args.passcode in INVALID_PASSCODES):
+        if ((args.passcode < 0x0000001 and args.passcode > 0x5F5E0FE) or (args.passcode in INVALID_PASSCODES)):
             log.error("Invalid passcode '%s'", args.passcode)
             sys.exit(1)
 
     # Validate the device instance information
-    check_int_range(args.product_id, 0x0000, 0xFFFF, "Product id")
-    check_int_range(args.vendor_id, 0x0000, 0xFFFF, "Vendor id")
-    check_int_range(args.hw_ver, 0x0000, 0xFFFF, "Hardware version")
-    check_int_range(args.spake2_it, 1, 10000, "Spake2+ iteration count")
-    check_str_range(args.serial_num, 1, SERIAL_NUMBER_LEN, "Serial number")
-    check_str_range(args.vendor_name, 1, 32, "Vendor name")
-    check_str_range(args.product_name, 1, 32, "Product name")
-    check_str_range(args.hw_ver_str, 1, 64, "Hardware version string")
-    check_str_range(args.mfg_date, 8, 16, "Manufacturing date")
-    check_str_range(args.rd_id_uid, 16, 32, "Rotating device Unique id")
-    check_str_range(args.enable_key, 32, 32, "Enable Key")
+    check_int_range(args.product_id, 0x0000, 0xFFFF, 'Product id')
+    check_int_range(args.vendor_id, 0x0000, 0xFFFF, 'Vendor id')
+    check_int_range(args.hw_ver, 0x0000, 0xFFFF, 'Hardware version')
+    check_int_range(args.spake2_it, 1, 10000, 'Spake2+ iteration count')
+    check_str_range(args.serial_num, 1, SERIAL_NUMBER_LEN, 'Serial number')
+    check_str_range(args.vendor_name, 1, 32, 'Vendor name')
+    check_str_range(args.product_name, 1, 32, 'Product name')
+    check_str_range(args.hw_ver_str, 1, 64, 'Hardware version string')
+    check_str_range(args.mfg_date, 8, 16, 'Manufacturing date')
+    check_str_range(args.rd_id_uid, 16, 32, 'Rotating device Unique id')
+    check_str_range(args.enable_key, 32, 32, 'Enable Key')
 
     # Validates the attestation related arguments
     # DAC key and DAC cert both should be present or none
@@ -793,15 +698,15 @@ def get_and_validate_args():
             log.error("CA key and certificate are required to generate DAC key and certificate")
             sys.exit(1)
 
-    check_str_range(args.product_label, 1, 64, "Product Label")
-    check_str_range(args.product_url, 1, 256, "Product URL")
-    check_str_range(args.part_number, 1, 32, "Part Number")
+    check_str_range(args.product_label, 1, 64, 'Product Label')
+    check_str_range(args.product_url, 1, 256, 'Product URL')
+    check_str_range(args.part_number, 1, 32, 'Part Number')
 
     return args
 
 
 def main():
-    logging.basicConfig(format="[%(asctime)s] [%(levelname)7s] - %(message)s", level=logging.INFO)
+    logging.basicConfig(format='[%(asctime)s] [%(levelname)7s] - %(message)s', level=logging.INFO)
     args = get_and_validate_args()
     check_tools_exists(args)
 
@@ -828,9 +733,9 @@ def main():
 
         for i in range(args.count):
             pai_cert = {}
-            serial_num_str = format(serial_num_int + i, "x")
+            serial_num_str = format(serial_num_int + i, 'x')
             log.info("Generating for '%s'", serial_num_str)
-            f.write(serial_num_str + "\n")
+            f.write(serial_num_str + '\n')
             out_dirs = setup_out_dir(out_dir_top, args, serial_num_str)
             add_additional_kv(args, serial_num_str)
             generate_passcode(args, out_dirs)

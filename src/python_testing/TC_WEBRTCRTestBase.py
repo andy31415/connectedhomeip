@@ -65,10 +65,8 @@ class WEBRTCRTestBase(MatterBaseTest):
                 log.info("Received command response")
 
         except ConnectionRefusedError as e:
-            log.error(
-                f"Failed to connect to WebSocket server at {SERVER_URI}: Connection refused. "
-                f"Is the DUT WebSocket server running? Error: {e}"
-            )
+            log.error(f"Failed to connect to WebSocket server at {SERVER_URI}: Connection refused. "
+                      f"Is the DUT WebSocket server running? Error: {e}")
             raise
 
         except websockets.exceptions.WebSocketException as e:

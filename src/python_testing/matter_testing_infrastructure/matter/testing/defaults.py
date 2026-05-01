@@ -18,11 +18,11 @@
 """
 This module contains global variables that are used across several scripts and classes.
 """
-
 from typing import final
 
 
 class TestingDefaults:
+
     ADMIN_VENDOR_ID: final = 0xFFF1
     STORAGE_PATH: final = "admin_storage.json"
     LOG_PATH: final = "/tmp/matter_testing/logs"

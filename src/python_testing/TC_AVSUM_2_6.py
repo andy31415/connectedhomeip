@@ -46,6 +46,7 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_AVSUM_2_6(MatterBaseTest, AVSUMTestBase):
+
     def desc_TC_AVSUM_2_6(self) -> str:
         return "[TC-AVSUM-2.6] MPTZRemovePreset command validation"
 
@@ -55,37 +56,23 @@ class TC_AVSUM_2_6(MatterBaseTest, AVSUMTestBase):
             TestStep(2, "Read the value of MaxPresets, fail if unsupported."),
             TestStep(3, "Read the value of MPTZPresets, fail if unsupported"),
             TestStep(4, "Send a MPTZRemovePreset for a value larger than MaxPresets, verify failure"),
-            TestStep(
-                5,
-                "If MPTZPresets is not empty, send MPTZRemovePreset for the first item in the list. Verify it has been removed. Otherwise skip to step 8.",
-            ),
+            TestStep(5, "If MPTZPresets is not empty, send MPTZRemovePreset for the first item in the list. Verify it has been removed. Otherwise skip to step 8."),
             TestStep(6, "Read MPTZPresets, verify the entry has been removed."),
-            TestStep(
-                7,
-                "Repeat step 5, sending a MPTZRemovePreset command for the already removed preset. Verify failurre. End the test case.",
-            ),
-            TestStep(
-                8,
-                "If MPTZPresets is empty, via the MPTZSavePreset command, create a new saved preset with PresetID of MaxPresets, name of 'newpreset'",
-            ),
-            TestStep(
-                9,
-                "Read the value of MPTZPresets. Ensure it has an entry for a PresetID of MaxPresets with a name 'newpreset' that matches the saved MPTZPosition",
-            ),
+            TestStep(7, "Repeat step 5, sending a MPTZRemovePreset command for the already removed preset. Verify failurre. End the test case."),
+            TestStep(8, "If MPTZPresets is empty, via the MPTZSavePreset command, create a new saved preset with PresetID of MaxPresets, name of 'newpreset'"),
+            TestStep(9, "Read the value of MPTZPresets. Ensure it has an entry for a PresetID of MaxPresets with a name 'newpreset' that matches the saved MPTZPosition"),
             TestStep(10, "Via MPTZRemovePreset remove the saved preset."),
             TestStep(11, "Read MPTZPresets, verify this is empty."),
             TestStep(12, "Repeat step 10, sending a MPTZRemovePreset command for a PresetID of MaxPresets. Verify failure."),
         ]
 
     def pics_TC_AVSUM_2_6(self) -> list[str]:
-        return ["AVSUM.S", "AVSUM.S.F04"]
+        return [
+            "AVSUM.S", "AVSUM.S.F04"
+        ]
 
-    @run_if_endpoint_matches(
-        has_feature(
-            Clusters.CameraAvSettingsUserLevelManagement,
-            Clusters.CameraAvSettingsUserLevelManagement.Bitmaps.Feature.kMechanicalPresets,
-        )
-    )
+    @run_if_endpoint_matches(has_feature(Clusters.CameraAvSettingsUserLevelManagement,
+                                         Clusters.CameraAvSettingsUserLevelManagement.Bitmaps.Feature.kMechanicalPresets))
     async def test_TC_AVSUM_2_6(self):
         cluster = Clusters.Objects.CameraAvSettingsUserLevelManagement
         attributes = cluster.Attributes
@@ -95,19 +82,17 @@ class TC_AVSUM_2_6(MatterBaseTest, AVSUMTestBase):
         attribute_list = await self.read_avsum_attribute_expect_success(endpoint, attributes.AttributeList)
 
         self.step(2)
-        asserts.assert_in(
-            attributes.MaxPresets.attribute_id, attribute_list, "MaxPresets attribute is a mandatory attribute if MPRESETS."
-        )
+        asserts.assert_in(attributes.MaxPresets.attribute_id, attribute_list,
+                          "MaxPresets attribute is a mandatory attribute if MPRESETS.")
         max_presets_dut = await self.read_avsum_attribute_expect_success(endpoint, attributes.MaxPresets)
 
         self.step(3)
-        asserts.assert_in(
-            attributes.MPTZPresets.attribute_id, attribute_list, "MPTZPresets attribute is a mandatory attribut if MPRESETS."
-        )
+        asserts.assert_in(attributes.MPTZPresets.attribute_id, attribute_list,
+                          "MPTZPresets attribute is a mandatory attribut if MPRESETS.")
         mptz_presets_dut = await self.read_avsum_attribute_expect_success(endpoint, attributes.MPTZPresets)
 
         self.step(4)
-        await self.send_remove_preset_command(endpoint, max_presets_dut + 1, expected_status=Status.ConstraintError)
+        await self.send_remove_preset_command(endpoint, max_presets_dut+1, expected_status=Status.ConstraintError)
 
         if mptz_presets_dut:
             # Save the presetID of the first preset in the list

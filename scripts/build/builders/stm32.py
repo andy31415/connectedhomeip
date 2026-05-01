@@ -24,21 +24,21 @@ class stm32App(Enum):
 
     def ExampleName(self):
         if self == stm32App.LIGHT:
-            return "lighting-app"
-        raise Exception("Unknown app type: %r" % self)
+            return 'lighting-app'
+        raise Exception('Unknown app type: %r' % self)
 
     def AppNamePrefix(self):
         if self == stm32App.LIGHT:
-            return "chip-stm32-lighting-example"
-        raise Exception("Unknown app type: %r" % self)
+            return 'chip-stm32-lighting-example'
+        raise Exception('Unknown app type: %r' % self)
 
     def FlashBundleName(self):
         if self == stm32App.LIGHT:
-            return "lighting_app.flashbundle.txt"
-        raise Exception("Unknown app type: %r" % self)
+            return 'lighting_app.flashbundle.txt'
+        raise Exception('Unknown app type: %r' % self)
 
     def BuildRoot(self, root):
-        return os.path.join(root, "examples", self.ExampleName(), "stm32")
+        return os.path.join(root, 'examples', self.ExampleName(), 'stm32')
 
 
 class stm32Board(Enum):
@@ -46,13 +46,20 @@ class stm32Board(Enum):
 
     def GetIC(self):
         if self == stm32Board.STM32WB55XX:
-            return "STM32WB5MM-DK"
-        raise Exception("Unknown board #: %r" % self)
+            return 'STM32WB5MM-DK'
+        raise Exception('Unknown board #: %r' % self)
 
 
 class stm32Builder(GnBuilder):
-    def __init__(self, root, runner, app: stm32App = stm32App.LIGHT, board: stm32Board = stm32Board.STM32WB55XX):
-        super(stm32Builder, self).__init__(root=app.BuildRoot(root), runner=runner)
+
+    def __init__(self,
+                 root,
+                 runner,
+                 app: stm32App = stm32App.LIGHT,
+                 board: stm32Board = stm32Board.STM32WB55XX):
+        super(stm32Builder, self).__init__(
+            root=app.BuildRoot(root),
+            runner=runner)
 
         self.board = board
         self.app = app
@@ -60,8 +67,8 @@ class stm32Builder(GnBuilder):
         stm32_chip = self.board.GetIC()
         self.extra_gn_options = ['stm32_ic_family="%s"' % stm32_chip]
 
-        self.extra_gn_options.append("chip_config_network_layer_ble=true")
-        self.extra_gn_options.append("treat_warnings_as_errors=false")
+        self.extra_gn_options.append('chip_config_network_layer_ble=true')
+        self.extra_gn_options.append('treat_warnings_as_errors=false')
 
     def GnBuildArgs(self):
         args = super().GnBuildArgs()
@@ -79,4 +86,6 @@ class stm32Builder(GnBuilder):
         # Figure out flash bundle files and build accordingly
         with open(os.path.join(self.output_dir, self.app.FlashBundleName())) as f:
             for name in filter(None, [x.strip() for x in f.readlines()]):
-                yield BuilderOutput(os.path.join(self.output_dir, name), os.path.join("flashbundle", name))
+                yield BuilderOutput(
+                    os.path.join(self.output_dir, name),
+                    os.path.join('flashbundle', name))

@@ -51,15 +51,10 @@ def create_onoff_endpoint(endpoint: int) -> dict[int, dict[int, dict[int, Any]]]
     attrs[attr.AcceptedCommandList.attribute_id] = []
     attrs[attr.GeneratedCommandList.attribute_id] = []
     attrs[attr.ClusterRevision.attribute_id] = descriptor_cluster_revision
-    attrs[attr.DeviceTypeList.attribute_id] = [
-        Clusters.Descriptor.Structs.DeviceTypeStruct(deviceType=on_off_device_type_id, revision=on_off_device_type_revision)
-    ]
-    attrs[attr.ServerList.attribute_id] = [
-        Clusters.Identify.id,
-        Clusters.Groups.id,
-        Clusters.ScenesManagement.id,
-        Clusters.OnOff.id,
-    ]
+    attrs[attr.DeviceTypeList.attribute_id] = [Clusters.Descriptor.Structs.DeviceTypeStruct(
+        deviceType=on_off_device_type_id, revision=on_off_device_type_revision)]
+    attrs[attr.ServerList.attribute_id] = [Clusters.Identify.id,
+                                           Clusters.Groups.id, Clusters.ScenesManagement.id, Clusters.OnOff.id]
     attrs[attr.ClientList.attribute_id] = []
     attrs[attr.PartsList.attribute_id] = []
     attrs[attr.AttributeList.attribute_id] = []
@@ -87,14 +82,8 @@ def create_onoff_endpoint(endpoint: int) -> dict[int, dict[int, dict[int, Any]]]
     # device type requires LT feature
     attrs[attr.FeatureMap.attribute_id] = Clusters.OnOff.Bitmaps.Feature.kLighting
     cmd = Clusters.OnOff.Commands
-    attrs[attr.AcceptedCommandList.attribute_id] = [
-        cmd.Off.command_id,
-        cmd.On.command_id,
-        cmd.Toggle.command_id,
-        cmd.OffWithEffect.command_id,
-        cmd.OnWithRecallGlobalScene.command_id,
-        cmd.OnWithTimedOff.command_id,
-    ]
+    attrs[attr.AcceptedCommandList.attribute_id] = [cmd.Off.command_id, cmd.On.command_id, cmd.Toggle.command_id,
+                                                    cmd.OffWithEffect.command_id, cmd.OnWithRecallGlobalScene.command_id, cmd.OnWithTimedOff.command_id]
     attrs[attr.GeneratedCommandList.attribute_id] = []
     attrs[attr.ClusterRevision.attribute_id] = on_off_cluster_revision
     attrs[attr.OnOff.attribute_id] = False
@@ -112,23 +101,11 @@ def create_onoff_endpoint(endpoint: int) -> dict[int, dict[int, dict[int, Any]]]
     attrs = {}
     attrs[attr.FeatureMap.attribute_id] = 0
     cmd = Clusters.ScenesManagement.Commands
-    attrs[attr.AcceptedCommandList.attribute_id] = [
-        cmd.AddScene.command_id,
-        cmd.ViewScene.command_id,
-        cmd.RemoveScene.command_id,
-        cmd.RemoveAllScenes.command_id,
-        cmd.StoreScene.command_id,
-        cmd.RecallScene.command_id,
-        cmd.GetSceneMembership.command_id,
-    ]
-    attrs[attr.GeneratedCommandList.attribute_id] = [
-        cmd.AddSceneResponse.command_id,
-        cmd.ViewSceneResponse.command_id,
-        cmd.RemoveSceneResponse.command_id,
-        cmd.RemoveAllScenesResponse.command_id,
-        cmd.StoreSceneResponse.command_id,
-        cmd.GetSceneMembershipResponse.command_id,
-    ]
+    attrs[attr.AcceptedCommandList.attribute_id] = [cmd.AddScene.command_id, cmd.ViewScene.command_id, cmd.RemoveScene.command_id,
+                                                    cmd.RemoveAllScenes.command_id, cmd.StoreScene.command_id, cmd.RecallScene.command_id, cmd.GetSceneMembership.command_id]
+    attrs[attr.GeneratedCommandList.attribute_id] = [cmd.AddSceneResponse.command_id, cmd.ViewSceneResponse.command_id,
+                                                     cmd.RemoveSceneResponse.command_id, cmd.RemoveAllScenesResponse.command_id,
+                                                     cmd.StoreSceneResponse.command_id, cmd.GetSceneMembershipResponse.command_id]
     attrs[attr.ClusterRevision.attribute_id] = scenes_cluster_revision
     attrs[attr.SceneTableSize.attribute_id] = 16
     attrs[attr.FabricSceneInfo.attribute_id] = []
@@ -157,49 +134,33 @@ class TestConformanceTest(DeviceConformanceTests):
 
         # The CI flag here is to deal with example code that improperly implements the network commissioning cluster.
         # It does not apply here.
-        success, problems = self.check_conformance(
-            ignore_in_progress_test_event_only_disallowed_for_certification=False,
-            is_ci=False,
-            allow_provisional_test_event_only_disallowed_for_certification=False,
-        )
+        success, problems = self.check_conformance(ignore_in_progress_test_event_only_disallowed_for_certification=False,
+                                                   is_ci=False, allow_provisional_test_event_only_disallowed_for_certification=False)
         asserts.assert_false(success, "Unexpected success parsing endpoint with provisional cluster")
 
-        success, problems = self.check_conformance(
-            ignore_in_progress_test_event_only_disallowed_for_certification=False,
-            is_ci=False,
-            allow_provisional_test_event_only_disallowed_for_certification=True,
-        )
+        success, problems = self.check_conformance(ignore_in_progress_test_event_only_disallowed_for_certification=False,
+                                                   is_ci=False, allow_provisional_test_event_only_disallowed_for_certification=True)
         asserts.assert_true(
-            success,
-            "Unexpected failure parsing endpoint with provisional cluster and allow_provisional_test_event_only_disallowed_for_certification enabled",
-        )
+            success, "Unexpected failure parsing endpoint with provisional cluster and allow_provisional_test_event_only_disallowed_for_certification enabled")
 
         self.xml_clusters[Clusters.ScenesManagement.id].is_provisional = False
-        success, problems = self.check_conformance(
-            ignore_in_progress_test_event_only_disallowed_for_certification=False,
-            is_ci=False,
-            allow_provisional_test_event_only_disallowed_for_certification=False,
-        )
+        success, problems = self.check_conformance(ignore_in_progress_test_event_only_disallowed_for_certification=False,
+                                                   is_ci=False, allow_provisional_test_event_only_disallowed_for_certification=False)
         asserts.assert_true(success, "Unexpected failure parsing endpoint with no clusters marked as provisional")
 
-    def add_macl(
-        self, root_endpoint: dict[int, dict[int, Any]], populate_arl: bool = False, populate_commissioning_arl: bool = False
-    ):
+    def add_macl(self, root_endpoint: dict[int, dict[int, Any]], populate_arl: bool = False, populate_commissioning_arl: bool = False):
         ac = Clusters.AccessControl
         root_endpoint[ac.id][ac.Attributes.FeatureMap.attribute_id] = ac.Bitmaps.Feature.kManagedDevice
         root_endpoint[ac.id][ac.Attributes.Arl.attribute_id] = []
         root_endpoint[ac.id][ac.Attributes.CommissioningARL.attribute_id] = []
-        root_endpoint[ac.id][ac.Attributes.AttributeList.attribute_id].extend(
-            [ac.Attributes.Arl.attribute_id, ac.Attributes.CommissioningARL.attribute_id]
-        )
+        root_endpoint[ac.id][ac.Attributes.AttributeList.attribute_id].extend([
+            ac.Attributes.Arl.attribute_id, ac.Attributes.CommissioningARL.attribute_id])
         root_endpoint[ac.id][ac.Attributes.AcceptedCommandList.attribute_id].append(ac.Commands.ReviewFabricRestrictions.command_id)
         root_endpoint[ac.id][ac.Attributes.GeneratedCommandList.attribute_id].append(
-            ac.Commands.ReviewFabricRestrictionsResponse.command_id
-        )
+            ac.Commands.ReviewFabricRestrictionsResponse.command_id)
 
         generic_restriction = ac.Structs.AccessRestrictionStruct(
-            type=ac.Enums.AccessRestrictionTypeEnum.kAttributeAccessForbidden, id=1
-        )
+            type=ac.Enums.AccessRestrictionTypeEnum.kAttributeAccessForbidden, id=1)
         entry = ac.Structs.CommissioningAccessRestrictionEntryStruct(endpoint=1, cluster=2, restrictions=generic_restriction)
         if populate_arl:
             root_endpoint[ac.id][ac.Attributes.Arl.attribute_id] = [entry]
@@ -207,56 +168,46 @@ class TestConformanceTest(DeviceConformanceTests):
             root_endpoint[ac.id][ac.Attributes.CommissioningARL.attribute_id] = [entry]
 
     def test_macl_handling(self):
-        nim_id = self._get_device_type_id("network infrastructure manager")
-        root_node_id = self._get_device_type_id("root node")
-        on_off_id = self._get_device_type_id("On/Off Light")
+        nim_id = self._get_device_type_id('network infrastructure manager')
+        root_node_id = self._get_device_type_id('root node')
+        on_off_id = self._get_device_type_id('On/Off Light')
 
         root = create_minimal_dt(self.xml_clusters, self.xml_device_types, device_type_id=root_node_id)
         nim = create_minimal_dt(self.xml_clusters, self.xml_device_types, device_type_id=nim_id)
         self.endpoints_tlv = {0: root, 1: nim}
 
-        root_no_tlv = create_minimal_dt(
-            self.xml_clusters, self.xml_device_types, device_type_id=root_node_id, is_tlv_endpoint=False
-        )
+        root_no_tlv = create_minimal_dt(self.xml_clusters, self.xml_device_types,
+                                        device_type_id=root_node_id, is_tlv_endpoint=False)
         nim_no_tlv = create_minimal_dt(self.xml_clusters, self.xml_device_types, device_type_id=nim_id, is_tlv_endpoint=False)
         self.endpoints = {0: root_no_tlv, 1: nim_no_tlv}
         asserts.assert_true(self._has_device_type_supporting_macl(), "Did not find supported device in generated device")
 
-        success, problems = self.check_conformance(
-            ignore_in_progress_test_event_only_disallowed_for_certification=False,
-            is_ci=False,
-            allow_provisional_test_event_only_disallowed_for_certification=True,
-        )
+        success, problems = self.check_conformance(ignore_in_progress_test_event_only_disallowed_for_certification=False,
+                                                   is_ci=False, allow_provisional_test_event_only_disallowed_for_certification=True)
         self.problems.extend(problems)
         asserts.assert_true(success, "Unexpected failure parsing minimal dt")
 
         self.add_macl(root)
         # A MACL is allowed when there is a NIM, so this should succeed as well
-        success, problems = self.check_conformance(
-            ignore_in_progress_test_event_only_disallowed_for_certification=False,
-            is_ci=False,
-            allow_provisional_test_event_only_disallowed_for_certification=True,
-        )
+        success, problems = self.check_conformance(ignore_in_progress_test_event_only_disallowed_for_certification=False,
+                                                   is_ci=False, allow_provisional_test_event_only_disallowed_for_certification=True)
         self.problems.extend(problems)
         asserts.assert_true(success, "Unexpected failure with NIM and MACL")
 
         # A MACL is not allowed when there is no NIM
-        self.endpoints[1] = create_minimal_dt(
-            self.xml_clusters, self.xml_device_types, device_type_id=on_off_id, is_tlv_endpoint=False
-        )
-        success, problems = self.check_conformance(
-            ignore_in_progress_test_event_only_disallowed_for_certification=False,
-            is_ci=False,
-            allow_provisional_test_event_only_disallowed_for_certification=True,
-        )
+        self.endpoints[1] = create_minimal_dt(self.xml_clusters, self.xml_device_types,
+                                              device_type_id=on_off_id, is_tlv_endpoint=False)
+        success, problems = self.check_conformance(ignore_in_progress_test_event_only_disallowed_for_certification=False,
+                                                   is_ci=False, allow_provisional_test_event_only_disallowed_for_certification=True)
         self.problems.extend(problems)
         asserts.assert_false(success, "Unexpected success with On/Off and MACL")
 
         # TODO: what happens if there is a NIM and a non-NIM endpoint?
 
     def test_macl_restrictions(self):
-        nim_id = self._get_device_type_id("network infrastructure manager")
-        root_node_id = self._get_device_type_id("root node")
+
+        nim_id = self._get_device_type_id('network infrastructure manager')
+        root_node_id = self._get_device_type_id('root node')
 
         root = create_minimal_dt(self.xml_clusters, self.xml_device_types, device_type_id=root_node_id)
         nim = create_minimal_dt(self.xml_clusters, self.xml_device_types, device_type_id=nim_id)
@@ -292,20 +243,17 @@ class TestConformanceTest(DeviceConformanceTests):
         asserts.assert_true(arl_data.have_carl, "Did not find expected Commissioning ARL")
 
     def test_error_locations(self):
-        root_node_id = self._get_device_type_id("root node")
-        on_off_id = self._get_device_type_id("On/Off Light")
-        eevse_id = self._get_device_type_id("Energy EVSE")
+        root_node_id = self._get_device_type_id('root node')
+        on_off_id = self._get_device_type_id('On/Off Light')
+        eevse_id = self._get_device_type_id('Energy EVSE')
 
         root = create_minimal_dt(self.xml_clusters, self.xml_device_types, device_type_id=root_node_id)
         on_off = create_minimal_dt(self.xml_clusters, self.xml_device_types, device_type_id=on_off_id)
         eevse = create_minimal_dt(self.xml_clusters, self.xml_device_types, device_type_id=eevse_id)
         self.endpoints_tlv = {0: root, 1: on_off, 2: eevse}
 
-        success, problems = self.check_conformance(
-            ignore_in_progress_test_event_only_disallowed_for_certification=False,
-            is_ci=False,
-            allow_provisional_test_event_only_disallowed_for_certification=False,
-        )
+        success, problems = self.check_conformance(ignore_in_progress_test_event_only_disallowed_for_certification=False,
+                                                   is_ci=False, allow_provisional_test_event_only_disallowed_for_certification=False)
         for p in problems:
             log.info(p)
         asserts.assert_true(success, "Unexpected failure on minimal on/off device")
@@ -319,18 +267,14 @@ class TestConformanceTest(DeviceConformanceTests):
             kChoice = "choice"
 
         def run_check_with_expected_failure(msg_suffix: str, expected_location: ProblemLocation, problem_type: ProblemType):
-            success, problems = self.check_conformance(
-                ignore_in_progress_test_event_only_disallowed_for_certification=False,
-                is_ci=False,
-                allow_provisional_test_event_only_disallowed_for_certification=False,
-            )
+            success, problems = self.check_conformance(ignore_in_progress_test_event_only_disallowed_for_certification=False,
+                                                       is_ci=False, allow_provisional_test_event_only_disallowed_for_certification=False)
             asserts.assert_false(success, f"Unexpected success on minimal on/off device {msg_suffix}")
             log.info("Problems reported (expect at least 1)")
             for p in problems:
                 log.info(p)
             asserts.assert_greater_equal(
-                len(problems), 1, "Did not receive expected number of problem reports for on/off device type (expected at least 1)"
-            )
+                len(problems), 1, "Did not receive expected number of problem reports for on/off device type (expected at least 1)")
             locations = [p.location for p in problems]
             asserts.assert_in(expected_location, locations, "Did not get expected problem location")
             for p in problems:
@@ -372,11 +316,8 @@ class TestConformanceTest(DeviceConformanceTests):
         # This will have no features populated by default - mark ethernet - this doesn't require any additional attributes or commands
         feature_map_id = Clusters.NetworkCommissioning.Attributes.FeatureMap.attribute_id
         self.endpoints_tlv[0][cluster_id][feature_map_id] = Clusters.NetworkCommissioning.Bitmaps.Feature.kEthernetNetworkInterface
-        success, problems = self.check_conformance(
-            ignore_in_progress_test_event_only_disallowed_for_certification=False,
-            is_ci=False,
-            allow_provisional_test_event_only_disallowed_for_certification=False,
-        )
+        success, problems = self.check_conformance(ignore_in_progress_test_event_only_disallowed_for_certification=False,
+                                                   is_ci=False, allow_provisional_test_event_only_disallowed_for_certification=False)
         for p in problems:
             log.info(p)
         asserts.assert_true(success, f"Unexpected failure on device {msg_suffix}")
@@ -457,12 +398,8 @@ class TestConformanceTest(DeviceConformanceTests):
             problems = self.check_root_node_restricted_clusters()
             asserts.assert_equal(len(problems), 2, f"Did not see both endpoint problems listed with {cluster}")
 
-        root_node_restricted_clusters = [
-            Clusters.AccessControl,
-            Clusters.TimeSynchronization,
-            Clusters.TlsCertificateManagement,
-            Clusters.TlsClientManagement,
-        ]
+        root_node_restricted_clusters = [Clusters.AccessControl, Clusters.TimeSynchronization,
+                                         Clusters.TlsCertificateManagement, Clusters.TlsClientManagement]
         for cluster in root_node_restricted_clusters:
             check_cluster(cluster)
 
@@ -478,19 +415,18 @@ class TestConformanceTest(DeviceConformanceTests):
         for cluster in root_node_restricted_clusters:
             self.endpoints[1][cluster] = {}
         problems = self.check_root_node_restricted_clusters()
-        asserts.assert_equal(
-            len(problems), len(root_node_restricted_clusters), "Did not see expected problems with all clusters on EP1"
-        )
+        asserts.assert_equal(len(problems), len(root_node_restricted_clusters),
+                             "Did not see expected problems with all clusters on EP1")
 
     def test_closure_restricted_clusters(self):
         # This test is specific to clusters at 1.5 revisions
         xml_clusters, _ = build_xml_clusters(PrebuiltDataModelDirectory.k1_5)
         xml_device_types, _ = build_xml_device_types(PrebuiltDataModelDirectory.k1_5)
         # TODO: change this once https://github.com/project-chip/matter-test-scripts/issues/689 is implemented
-        closure_id = [id for id, xml in xml_device_types.items() if xml.name == "Closure"][0]
-        closure_panel_id = [id for id, xml in xml_device_types.items() if xml.name == "Closure Panel"][0]
-        window_covering_id = [id for id, xml in xml_device_types.items() if xml.name == "Window Covering"][0]
-        on_off_id = [id for id, xml in xml_device_types.items() if xml.name == "On/Off Light"][0]
+        closure_id = [id for id, xml in xml_device_types.items() if xml.name == 'Closure'][0]
+        closure_panel_id = [id for id, xml in xml_device_types.items() if xml.name == 'Closure Panel'][0]
+        window_covering_id = [id for id, xml in xml_device_types.items() if xml.name == 'Window Covering'][0]
+        on_off_id = [id for id, xml in xml_device_types.items() if xml.name == 'On/Off Light'][0]
 
         def run_checks_for_device_type(id: int):
             one_five_revision = xml_device_types[id].revision
@@ -517,24 +453,24 @@ class TestConformanceTest(DeviceConformanceTests):
             asserts.assert_equal(len(problems), 1, "Did not find expected problem with closure")
 
             # Below 1.5 rev with both - not OK
-            create_endpoint(one_five_revision - 1, [Clusters.ClosureControl, Clusters.WindowCovering])
+            create_endpoint(one_five_revision-1, [Clusters.ClosureControl, Clusters.WindowCovering])
             problems = self.check_closure_restricted_clusters()
             asserts.assert_equal(len(problems), 1, "Did not find expected problem with closure")
-            create_endpoint(one_five_revision - 1, [Clusters.ClosureDimension, Clusters.WindowCovering])
+            create_endpoint(one_five_revision-1, [Clusters.ClosureDimension, Clusters.WindowCovering])
             problems = self.check_closure_restricted_clusters()
             asserts.assert_equal(len(problems), 1, "Did not find expected problem with closure")
-            create_endpoint(one_five_revision - 1, [Clusters.ClosureControl, Clusters.ClosureDimension, Clusters.WindowCovering])
+            create_endpoint(one_five_revision-1, [Clusters.ClosureControl, Clusters.ClosureDimension, Clusters.WindowCovering])
             problems = self.check_closure_restricted_clusters()
             asserts.assert_equal(len(problems), 1, "Did not find expected problem with closure")
 
             # Above 1.5 rev with both - OK (though this won't pass the revision test)
-            create_endpoint(one_five_revision + 1, [Clusters.ClosureControl, Clusters.WindowCovering])
+            create_endpoint(one_five_revision+1, [Clusters.ClosureControl, Clusters.WindowCovering])
             problems = self.check_closure_restricted_clusters()
             asserts.assert_equal(len(problems), 0, "Unexpected problem with closures above 1.5 revision")
-            create_endpoint(one_five_revision + 1, [Clusters.ClosureDimension, Clusters.WindowCovering])
+            create_endpoint(one_five_revision+1, [Clusters.ClosureDimension, Clusters.WindowCovering])
             problems = self.check_closure_restricted_clusters()
             asserts.assert_equal(len(problems), 0, "Unexpected problem with closures above 1.5 revision")
-            create_endpoint(one_five_revision + 1, [Clusters.ClosureControl, Clusters.ClosureDimension, Clusters.WindowCovering])
+            create_endpoint(one_five_revision+1, [Clusters.ClosureControl, Clusters.ClosureDimension, Clusters.WindowCovering])
             problems = self.check_closure_restricted_clusters()
             asserts.assert_equal(len(problems), 0, "Unexpected problem with closures above 1.5 revision")
 
@@ -578,10 +514,10 @@ class TestConformanceTest(DeviceConformanceTests):
         xml_device_types, _ = build_xml_device_types(PrebuiltDataModelDirectory.k1_5)
         xml_namespaces, _ = build_xml_namespaces(PrebuiltDataModelDirectory.k1_5)
         # TODO: change this once https://github.com/project-chip/matter-test-scripts/issues/689 is implemented
-        closure_id = [id for id, xml in xml_device_types.items() if xml.name == "Closure"][0]
-        closure_panel_id = [id for id, xml in xml_device_types.items() if xml.name == "Closure Panel"][0]
-        closure_namespace_id = [id for id, xml in xml_namespaces.items() if xml.name == "Closure"][0]
-        closure_panel_namespace_id = [id for id, xml in xml_namespaces.items() if xml.name == "Closure Panel"][0]
+        closure_id = [id for id, xml in xml_device_types.items() if xml.name == 'Closure'][0]
+        closure_panel_id = [id for id, xml in xml_device_types.items() if xml.name == 'Closure Panel'][0]
+        closure_namespace_id = [id for id, xml in xml_namespaces.items() if xml.name == 'Closure'][0]
+        closure_panel_namespace_id = [id for id, xml in xml_namespaces.items() if xml.name == 'Closure Panel'][0]
 
         def create_endpoint(id: int, rev: int, tag_list: list[Clusters.Globals.Structs.SemanticTagStruct]):
             self.endpoints = {1: create_minimal_dt(xml_clusters, xml_device_types, id, is_tlv_endpoint=False)}
@@ -600,19 +536,15 @@ class TestConformanceTest(DeviceConformanceTests):
         asserts.assert_equal(len(problems), 1, "Did not find expected problem with Closure tags")
 
         # Multiple Closure tags present - not OK
-        tags = [
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_namespace_id, tag=0),
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_namespace_id, tag=1),
-        ]
+        tags = [Clusters.Globals.Structs.SemanticTagStruct(
+            namespaceID=closure_namespace_id, tag=0), Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_namespace_id, tag=1)]
         create_endpoint(closure_id, one_five_revision, tags)
         problems = self.check_closure_restricted_sem_tags()
         asserts.assert_equal(len(problems), 1, "Did not find expected problem with Closure tags")
 
         # Closure Panel and Closure tag present - not OK
-        tags = [
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_namespace_id, tag=0),
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_panel_namespace_id, tag=0),
-        ]
+        tags = [Clusters.Globals.Structs.SemanticTagStruct(
+            namespaceID=closure_namespace_id, tag=0), Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_panel_namespace_id, tag=0)]
         create_endpoint(closure_id, one_five_revision, tags)
         problems = self.check_closure_restricted_sem_tags()
         asserts.assert_equal(len(problems), 1, "Did not find expected problem with Closure tags")
@@ -624,31 +556,30 @@ class TestConformanceTest(DeviceConformanceTests):
         asserts.assert_equal(len(problems), 2, "Did not find expected problem with Closure tags")
 
         # Multiple Closure Panel tags present and no Closure tag - not OK
-        tags = [
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_panel_namespace_id, tag=0),
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_panel_namespace_id, tag=1),
-        ]
+        tags = [Clusters.Globals.Structs.SemanticTagStruct(
+            namespaceID=closure_panel_namespace_id, tag=0), Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_panel_namespace_id, tag=1)]
         create_endpoint(closure_id, one_five_revision, tags)
         problems = self.check_closure_restricted_sem_tags()
         asserts.assert_equal(len(problems), 3, "Did not find expected problem with Closure tags")
 
         # Other tag from unrelated namespace and no Closure tag
-        tags = [Clusters.Globals.Structs.SemanticTagStruct(namespaceID=0x11, tag=0x31)]
+        tags = [Clusters.Globals.Structs.SemanticTagStruct(
+            namespaceID=0x11, tag=0x31)]
         create_endpoint(closure_id, one_five_revision, tags)
         problems = self.check_closure_restricted_sem_tags()
         asserts.assert_equal(len(problems), 1, "Did not find expected problem with Closure tags")
 
         # Single Closure tag - OK
-        tags = [Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_namespace_id, tag=0)]
+        tags = [Clusters.Globals.Structs.SemanticTagStruct(
+            namespaceID=closure_namespace_id, tag=0)]
         create_endpoint(closure_id, one_five_revision, tags)
         problems = self.check_closure_restricted_sem_tags()
         asserts.assert_equal(len(problems), 0, "Unexpected problem with Closure tags")
 
         # Single Closure tag with other tag from unrelated namespace - OK
-        tags = [
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_namespace_id, tag=0),
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=0x11, tag=0x31),
-        ]
+        tags = [Clusters.Globals.Structs.SemanticTagStruct(
+            namespaceID=closure_namespace_id, tag=0), Clusters.Globals.Structs.SemanticTagStruct(
+            namespaceID=0x11, tag=0x31)]
         create_endpoint(closure_id, one_five_revision, tags)
         problems = self.check_closure_restricted_sem_tags()
         asserts.assert_equal(len(problems), 0, "Unexpected problem with Closure tags")
@@ -663,19 +594,15 @@ class TestConformanceTest(DeviceConformanceTests):
         asserts.assert_equal(len(problems), 1, "Did not find expected problem with Closure Panel tags")
 
         # Multiple Closure Panel tags present - not OK
-        tags = [
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_panel_namespace_id, tag=0),
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_panel_namespace_id, tag=1),
-        ]
+        tags = [Clusters.Globals.Structs.SemanticTagStruct(
+            namespaceID=closure_panel_namespace_id, tag=0), Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_panel_namespace_id, tag=1)]
         create_endpoint(closure_panel_id, one_five_revision, tags)
         problems = self.check_closure_restricted_sem_tags()
         asserts.assert_equal(len(problems), 1, "Did not find expected problem with Closure Panel tags")
 
         # Closure Panel and Closure tag present - not OK
-        tags = [
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_namespace_id, tag=0),
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_panel_namespace_id, tag=0),
-        ]
+        tags = [Clusters.Globals.Structs.SemanticTagStruct(
+            namespaceID=closure_namespace_id, tag=0), Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_panel_namespace_id, tag=0)]
         create_endpoint(closure_panel_id, one_five_revision, tags)
         problems = self.check_closure_restricted_sem_tags()
         asserts.assert_equal(len(problems), 1, "Did not find expected problem with Closure Panel tags")
@@ -687,31 +614,30 @@ class TestConformanceTest(DeviceConformanceTests):
         asserts.assert_equal(len(problems), 2, "Did not find expected problem with Closure Panel tags")
 
         # Multiple Closure tags present and no Closure Panel tag - not OK
-        tags = [
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_namespace_id, tag=0),
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_namespace_id, tag=1),
-        ]
+        tags = [Clusters.Globals.Structs.SemanticTagStruct(
+            namespaceID=closure_namespace_id, tag=0), Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_namespace_id, tag=1)]
         create_endpoint(closure_panel_id, one_five_revision, tags)
         problems = self.check_closure_restricted_sem_tags()
         asserts.assert_equal(len(problems), 3, "Did not find expected problem with Closure Panel tags")
 
         # Other tag from unrelated namespace and no Closure Panel tag - not ok
-        tags = [Clusters.Globals.Structs.SemanticTagStruct(namespaceID=0x11, tag=0x31)]
+        tags = [Clusters.Globals.Structs.SemanticTagStruct(
+            namespaceID=0x11, tag=0x31)]
         create_endpoint(closure_panel_id, one_five_revision, tags)
         problems = self.check_closure_restricted_sem_tags()
         asserts.assert_equal(len(problems), 1, "Did not find expected problem with Closure Panel tags")
 
         # Single Closure Panel tag - OK
-        tags = [Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_panel_namespace_id, tag=0)]
+        tags = [Clusters.Globals.Structs.SemanticTagStruct(
+            namespaceID=closure_panel_namespace_id, tag=0)]
         create_endpoint(closure_panel_id, one_five_revision, tags)
         problems = self.check_closure_restricted_sem_tags()
         asserts.assert_equal(len(problems), 0, "Unexpected problem with Closure Panel tags")
 
         # Single Closure Panel tag with other tag from unrelated namespace - OK
-        tags = [
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=closure_panel_namespace_id, tag=0),
-            Clusters.Globals.Structs.SemanticTagStruct(namespaceID=0x11, tag=0x31),
-        ]
+        tags = [Clusters.Globals.Structs.SemanticTagStruct(
+            namespaceID=closure_panel_namespace_id, tag=0), Clusters.Globals.Structs.SemanticTagStruct(
+            namespaceID=0x11, tag=0x31)]
         create_endpoint(closure_panel_id, one_five_revision, tags)
         problems = self.check_closure_restricted_sem_tags()
         asserts.assert_equal(len(problems), 0, "Unexpected problem with Closure Panel tags")

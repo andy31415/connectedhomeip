@@ -484,7 +484,7 @@ static int ecjpake_write_len_binary(uint8_t ** p, const uint8_t * end, const uin
     (*p)[0] = (unsigned char) ((len >> 24) & 0xFF);
     (*p)[1] = (unsigned char) ((len >> 16) & 0xFF);
     (*p)[2] = (unsigned char) ((len >> 8) & 0xFF);
-    (*p)[3] = (unsigned char) ((len) & 0xFF);
+    (*p)[3] = (unsigned char) ((len) &0xFF);
 
     *p += 4 + len;
 

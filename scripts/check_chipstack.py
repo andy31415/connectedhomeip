@@ -19,7 +19,7 @@ for py_file in TARGET_DIR.rglob("*.py"):
         lines = f.readlines()
         for i, line in enumerate(lines):
             if is_exception_line(line):
-                failures.append(f"{py_file}: {i + 1}: 'except ChipStackError' without # chipstack-ok -> {line.strip()}")
+                failures.append(f"{py_file}: {i+1}: 'except ChipStackError' without # chipstack-ok -> {line.strip()}")
 
 if failures:
     print("\n".join(failures))

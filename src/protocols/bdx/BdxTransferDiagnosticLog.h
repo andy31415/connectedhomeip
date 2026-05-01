@@ -34,7 +34,8 @@ class BdxTransferDiagnosticLog : public Responder
 public:
     BdxTransferDiagnosticLog(BDXTransferServerDelegate * delegate, BdxTransferDiagnosticLogPoolDelegate * poolDelegate,
                              System::Layer * systemLayer) :
-        mSystemLayer(systemLayer), mDelegate(delegate), mPoolDelegate(poolDelegate){};
+        mSystemLayer(systemLayer),
+        mDelegate(delegate), mPoolDelegate(poolDelegate){};
 
     ~BdxTransferDiagnosticLog() { Reset(); };
 

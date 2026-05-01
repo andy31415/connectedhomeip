@@ -36,7 +36,8 @@ class BluetoothMock(subprocess.Popen[str]):
 
     def __init__(self):
         adapters = [f"--adapter={mac}" for mac in self.ADAPTERS]
-        super().__init__(["bluezoo", "--auto-enable"] + adapters, stderr=subprocess.PIPE, text=True)
+        super().__init__(["bluezoo", "--auto-enable"] + adapters,
+                         stderr=subprocess.PIPE, text=True)
         self.event = threading.Event()
         threading.Thread(target=self.__forward_stderr, daemon=True).start()
         # Wait for the adapters to be ready.

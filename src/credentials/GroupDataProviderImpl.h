@@ -186,7 +186,8 @@ protected:
         GroupKeyContext(GroupDataProviderImpl & provider) : mProvider(provider) {}
 
         GroupKeyContext(GroupDataProviderImpl & provider, const Crypto::Symmetric128BitsKeyByteArray & encryptionKey, uint16_t hash,
-                        const Crypto::Symmetric128BitsKeyByteArray & privacyKey) : mProvider(provider)
+                        const Crypto::Symmetric128BitsKeyByteArray & privacyKey) :
+            mProvider(provider)
 
         {
             TEMPORARY_RETURN_IGNORED Initialize(encryptionKey, hash, privacyKey);

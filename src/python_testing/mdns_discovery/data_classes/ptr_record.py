@@ -38,7 +38,7 @@ class PtrRecord(JsonSerializable):
 
             # Remove the base_type from the service_name
             if self.service_name.endswith(base_type):
-                self.instance_name = self.service_name[: -len(base_type)].rstrip(".")
+                self.instance_name = self.service_name[: -len(base_type)].rstrip('.')
             else:
                 self.instance_name = self.service_name  # fallback
         except (AttributeError, IndexError, TypeError) as e:

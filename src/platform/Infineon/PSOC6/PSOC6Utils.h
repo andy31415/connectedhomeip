@@ -167,7 +167,7 @@ typedef struct xtlv
 #define XTLV_OPTION_LENU8 0x0004   /* shorted length */
 #define OFFSETOF(type, member) ((uintptr_t) & ((type *) 0)->member)
 #define _LTOH16_UA(cp) ((cp)[0] | ((cp)[1] << 8))
-#define P6_ALIGN_SIZE(value, align_to) (((value) + (align_to) - 1) & ~((align_to) - 1))
+#define P6_ALIGN_SIZE(value, align_to) (((value) + (align_to) -1) & ~((align_to) -1))
 
 #define CHK_CNTBUF_DATALEN(cntbuf, ioctl_buflen)                                                                                   \
     do                                                                                                                             \

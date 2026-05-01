@@ -90,208 +90,113 @@ class TC_CLCTRL_4_3(MatterBaseTest):
     def steps_TC_CLCTRL_4_3(self) -> list[TestStep]:
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
-            TestStep(
-                "2a",
-                "Read the FeatureMap attribute to determine supported features",
-                "FeatureMap of the ClosureControl cluster is returned by the DUT",
-            ),
-            TestStep(
-                "2b",
-                "Establish a wildcard subscription to all attributes on the ClosureControl cluster",
-                "Subscription successfully established",
-            ),
-            TestStep(
-                "2c",
-                "If LT is supported, read the LatchControlModes attribute",
-                "LatchControlModes of the ClosureControl cluster is returned by the DUT; Value saved as LatchControlModes",
-            ),
+            TestStep("2a", "Read the FeatureMap attribute to determine supported features",
+                     "FeatureMap of the ClosureControl cluster is returned by the DUT"),
+            TestStep("2b", "Establish a wildcard subscription to all attributes on the ClosureControl cluster",
+                     "Subscription successfully established"),
+            TestStep("2c", "If LT is supported, read the LatchControlModes attribute",
+                     "LatchControlModes of the ClosureControl cluster is returned by the DUT; Value saved as LatchControlModes"),
             TestStep(3, "Send MoveTo command with no fields", "Receive INVALID_COMMAND response from the DUT"),
-            TestStep(
-                "4a",
-                "Check PS and LT feature support",
-                "Skip steps 4b to 4h if the PS feature is not supported or the LT feature is supported",
-            ),
-            TestStep(
-                "4b",
-                "Read the OverallCurrentState attribute",
-                "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Position field is saved as CurrentPosition",
-            ),
+            TestStep("4a", "Check PS and LT feature support",
+                     "Skip steps 4b to 4h if the PS feature is not supported or the LT feature is supported"),
+            TestStep("4b", "Read the OverallCurrentState attribute",
+                     "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Position field is saved as CurrentPosition"),
             TestStep("4c", "Preparing Position-State: If CurrentPosition is FullyClosed, skip steps 4d and 4e"),
             TestStep("4d", "Send MoveTo command with Position = MoveToFullyClosed", "Receive SUCCESS response from the DUT"),
-            TestStep(
-                "4e",
-                "Wait until a subscription report with OverallCurrentState.Position is received",
-                "OverallCurrentState.Position should be FullyClosed",
-            ),
+            TestStep("4e", "Wait until a subscription report with OverallCurrentState.Position is received",
+                     "OverallCurrentState.Position should be FullyClosed"),
             TestStep("4f", "Send MoveTo command with Latch = True", "Receive SUCCESS response from the DUT"),
-            TestStep(
-                "4g",
-                "Send MoveTo command with Latch = True and Position = MoveToFullyOpen",
-                "Receive SUCCESS response from the DUT",
-            ),
-            TestStep(
-                "4h",
-                "Wait until a subscription report with OverallCurrentState.Position is received",
-                "OverallCurrentState.Position should be FullyOpened",
-            ),
-            TestStep(
-                "5a",
-                "Check PS and LT feature support",
-                "Skip steps 5b to 5u if the PS feature is supported or the LT feature is not supported",
-            ),
-            TestStep(
-                "5b",
-                "Read the OverallCurrentState attribute",
-                "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Latching field is saved as CurrentLatch",
-            ),
+            TestStep("4g", "Send MoveTo command with Latch = True and Position = MoveToFullyOpen",
+                     "Receive SUCCESS response from the DUT"),
+            TestStep("4h", "Wait until a subscription report with OverallCurrentState.Position is received",
+                     "OverallCurrentState.Position should be FullyOpened"),
+            TestStep("5a", "Check PS and LT feature support",
+                     "Skip steps 5b to 5u if the PS feature is supported or the LT feature is not supported"),
+            TestStep("5b", "Read the OverallCurrentState attribute",
+                     "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Latching field is saved as CurrentLatch"),
             TestStep("5c", "Preparing Latch-State: If CurrentLatch is False, skip steps 5d to 5h"),
             TestStep("5d", "If LatchControlModes Bit 1 = 0, skip step 5e"),
             TestStep("5e", "Send MoveTo command with Latch = False", "Receive SUCCESS response from the DUT"),
             TestStep("5f", "If LatchControlModes Bit 1 = 1, skip step 5g"),
             TestStep("5g", "Unlatch the device manually"),
-            TestStep(
-                "5h",
-                "Wait until a subscription report with OverallCurrentState.Latch is received",
-                "OverallCurrentState.Latch should be False",
-            ),
+            TestStep("5h", "Wait until a subscription report with OverallCurrentState.Latch is received",
+                     "OverallCurrentState.Latch should be False"),
             TestStep("5i", "Send MoveTo command with Position = MoveToFullyOpen", "Receive SUCCESS response from the DUT"),
             TestStep("5j", "If LatchControlModes Bit 0 = 0, skip step 5k and 5l"),
-            TestStep(
-                "5k", "Send MoveTo command with Positon = MoveToFullyOpen and Latch = True", "Receive SUCCESS response from the DUT"
-            ),
-            TestStep(
-                "5l",
-                "Wait until a subscription report with OverallCurrentState.Latch is received",
-                "OverallCurrentState.Latch should be True",
-            ),
-            TestStep(
-                "5m",
-                "Read the OverallCurrentState attribute",
-                "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Latching field is saved as CurrentLatch",
-            ),
+            TestStep("5k", "Send MoveTo command with Positon = MoveToFullyOpen and Latch = True",
+                     "Receive SUCCESS response from the DUT"),
+            TestStep("5l", "Wait until a subscription report with OverallCurrentState.Latch is received",
+                     "OverallCurrentState.Latch should be True"),
+            TestStep("5m", "Read the OverallCurrentState attribute",
+                     "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Latching field is saved as CurrentLatch"),
             TestStep("5n", "Preparing Latch-State: If CurrentLatch is False, skip steps 5o to 5s"),
             TestStep("5o", "If LatchControlModes Bit 1 = 0, skip step 5p"),
-            TestStep("5p", "Send MoveTo command with Latch = False", "Receive SUCCESS response from the DUT"),
+            TestStep("5p", "Send MoveTo command with Latch = False",
+                     "Receive SUCCESS response from the DUT"),
             TestStep("5q", "If LatchControlModes Bit 1 = 1, skip step 5r"),
-            TestStep("5r", "Unlatch the device manually", "Wait for user input to confirm the device is unlatched"),
-            TestStep(
-                "5s",
-                "Wait until a subscription report with OverallCurrentState.Latch is received",
-                "OverallCurrentState.Latch should be False",
-            ),
+            TestStep("5r", "Unlatch the device manually",
+                     "Wait for user input to confirm the device is unlatched"),
+            TestStep("5s", "Wait until a subscription report with OverallCurrentState.Latch is received",
+                     "OverallCurrentState.Latch should be False"),
             TestStep("5t", "If LatchControlModes Bit 0 = 1, skip step 5u"),
-            TestStep(
-                "5u",
-                "Send MoveTo command with Position = MoveToFullyOpen and Latch = True",
-                "Receive INVALID_IN_STATE response from the DUT",
-            ),
-            TestStep(
-                "6a",
-                "Check SP and LT feature support",
-                "Skip steps 6b to 6h if the LT feature is supported or the SP feature is not supported",
-            ),
-            TestStep(
-                "6b",
-                "Read the OverallCurrentState attribute",
-                "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Speed field is saved as CurrentSpeed",
-            ),
+            TestStep("5u", "Send MoveTo command with Position = MoveToFullyOpen and Latch = True",
+                     "Receive INVALID_IN_STATE response from the DUT"),
+            TestStep("6a", "Check SP and LT feature support",
+                     "Skip steps 6b to 6h if the LT feature is supported or the SP feature is not supported"),
+            TestStep("6b", "Read the OverallCurrentState attribute",
+                     "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Speed field is saved as CurrentSpeed"),
             TestStep("6c", "Preparing Speed-State: If CurrentSpeed is High, skip steps 6d and 6e"),
             TestStep("6d", "Send MoveTo command with Speed = High", "Receive SUCCESS response from the DUT"),
-            TestStep(
-                "6e",
-                "Wait until a subscription report with OverallCurrentState.Speed is received",
-                "OverallCurrentState.Speed should be High",
-            ),
+            TestStep("6e", "Wait until a subscription report with OverallCurrentState.Speed is received",
+                     "OverallCurrentState.Speed should be High"),
             TestStep("6f", "Send MoveTo command with Latch = True", "Receive SUCCESS response from the DUT"),
             TestStep("6g", "Send MoveTo command with Latch = True and Speed = Low", "Receive SUCCESS response from the DUT"),
-            TestStep(
-                "6h",
-                "Wait until a subscription report with OverallCurrentState.Speed is received",
-                "OverallCurrentState.Speed should be Low",
-            ),
-            TestStep(
-                "7a",
-                "If the PS feature is supported, send MoveTo command with Position = 6",
-                "Receive CONSTRAINT_ERROR response from the DUT",
-            ),
-            TestStep(
-                "7b",
-                "If the SP feature is supported, send MoveTo command with Speed = 4",
-                "Receive CONSTRAINT_ERROR response from the DUT",
-            ),
-            TestStep(
-                "7c",
-                "If the SP feature is supported, send MoveTo command with Position = 6 and Speed = High",
-                "Receive CONSTRAINT_ERROR response from the DUT",
-            ),
-            TestStep(
-                "7d",
-                "If the SP feature is supported, send MoveTo command with Position = MoveToFullyClosed and Speed = 4",
-                "Receive CONSTRAINT_ERROR response from the DUT",
-            ),
+            TestStep("6h", "Wait until a subscription report with OverallCurrentState.Speed is received",
+                     "OverallCurrentState.Speed should be Low"),
+            TestStep("7a", "If the PS feature is supported, send MoveTo command with Position = 6",
+                     "Receive CONSTRAINT_ERROR response from the DUT"),
+            TestStep("7b", "If the SP feature is supported, send MoveTo command with Speed = 4",
+                     "Receive CONSTRAINT_ERROR response from the DUT"),
+            TestStep("7c", "If the SP feature is supported, send MoveTo command with Position = 6 and Speed = High",
+                     "Receive CONSTRAINT_ERROR response from the DUT"),
+            TestStep("7d", "If the SP feature is supported, send MoveTo command with Position = MoveToFullyClosed and Speed = 4",
+                     "Receive CONSTRAINT_ERROR response from the DUT"),
             TestStep("8a", "Check LT feature support", "Skip steps 8b to 8f if the LT feature is not supported"),
-            TestStep(
-                "8b",
-                "Read the OverallCurrentState attribute",
-                "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Latching field is saved as CurrentLatch",
-            ),
-            TestStep(
-                "8c",
-                "Send MoveTo command with Latch = CurrentLatch, when CurrentLatch is True and LatchControlModes Bit 0 = 1",
-                "Receive SUCCESS response from the DUT",
-            ),
-            TestStep(
-                "8d",
-                "Send MoveTo command with Latch = CurrentLatch, when CurrentLatch is True and LatchControlModes Bit 0 = 0",
-                "Receive INVALID_IN_STATE response from the DUT",
-            ),
-            TestStep(
-                "8e",
-                "Send MoveTo command with Latch = CurrentLatch, when CurrentLatch is False and LatchControlModes Bit 1 = 1",
-                "Receive SUCCESS response from the DUT",
-            ),
-            TestStep(
-                "8f",
-                "Send MoveTo command with Latch = CurrentLatch, when CurrentLatch is False and LatchControlModes Bit 1 = 0",
-                "Receive INVALID_IN_STATE response from the DUT",
-            ),
+            TestStep("8b", "Read the OverallCurrentState attribute",
+                     "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Latching field is saved as CurrentLatch"),
+            TestStep("8c", "Send MoveTo command with Latch = CurrentLatch, when CurrentLatch is True and LatchControlModes Bit 0 = 1",
+                     "Receive SUCCESS response from the DUT"),
+            TestStep("8d", "Send MoveTo command with Latch = CurrentLatch, when CurrentLatch is True and LatchControlModes Bit 0 = 0",
+                     "Receive INVALID_IN_STATE response from the DUT"),
+            TestStep("8e", "Send MoveTo command with Latch = CurrentLatch, when CurrentLatch is False and LatchControlModes Bit 1 = 1",
+                     "Receive SUCCESS response from the DUT"),
+            TestStep("8f", "Send MoveTo command with Latch = CurrentLatch, when CurrentLatch is False and LatchControlModes Bit 1 = 0",
+                     "Receive INVALID_IN_STATE response from the DUT"),
             TestStep("9a", "Check PS feature support", "Skip steps 9b and 9i if the PS feature is not supported"),
-            TestStep(
-                "9b",
-                "Read the OverallCurrentState attribute",
-                "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Position field is saved as CurrentPosition, Latch field is saved as CurrentLatch",
-            ),
-            TestStep(
-                "9c", "Preparing Latch-State: If the LT feature is not supported or CurrentLatch is False, skip steps 9d to 9h"
-            ),
+            TestStep("9b", "Read the OverallCurrentState attribute",
+                     "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Position field is saved as CurrentPosition, Latch field is saved as CurrentLatch"),
+            TestStep("9c", "Preparing Latch-State: If the LT feature is not supported or CurrentLatch is False, skip steps 9d to 9h"),
             TestStep("9d", "If LatchControlModes Bit 1 = 0, skip step 9e"),
-            TestStep("9e", "Send MoveTo command with Latch = False", "Receive SUCCESS response from the DUT"),
+            TestStep("9e", "Send MoveTo command with Latch = False",
+                     "Receive SUCCESS response from the DUT"),
             TestStep("9f", "If LatchControlModes Bit 1 = 1, skip step 9g"),
-            TestStep("9g", "Unlatch the device manually", "Wait for user input to confirm the device is unlatched"),
-            TestStep(
-                "9h",
-                "Wait until a subscription report with OverallCurrentState.Latch is received",
-                "OverallCurrentState.Latch has to be False",
-            ),
+            TestStep("9g", "Unlatch the device manually",
+                     "Wait for user input to confirm the device is unlatched"),
+            TestStep("9h", "Wait until a subscription report with OverallCurrentState.Latch is received",
+                     "OverallCurrentState.Latch has to be False"),
             TestStep("9i", "Send MoveTo command with Position = CurrentPosition", "Receive SUCCESS response from the DUT"),
             TestStep("10a", "Check SP feature support", "Skip steps 10b and 10i if the PS feature is not supported"),
-            TestStep(
-                "10b",
-                "Read the OverallCurrentState attribute",
-                "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Speed field is saved as CurrentSpeed, Latch field is saved as CurrentLatch",
-            ),
-            TestStep(
-                "10c", "Preparing Latch-State: If the LT feature is not supported or CurrentLatch is False, skip steps 10d to 10g"
-            ),
+            TestStep("10b", "Read the OverallCurrentState attribute",
+                     "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Speed field is saved as CurrentSpeed, Latch field is saved as CurrentLatch"),
+            TestStep("10c", "Preparing Latch-State: If the LT feature is not supported or CurrentLatch is False, skip steps 10d to 10g"),
             TestStep("10d", "If LatchControlModes Bit 1 = 0, skip step 10e"),
-            TestStep("10e", "Send MoveTo command with Latch = False", "Receive SUCCESS response from the DUT"),
+            TestStep("10e", "Send MoveTo command with Latch = False",
+                     "Receive SUCCESS response from the DUT"),
             TestStep("10f", "If LatchControlModes Bit 1 = 1, skip step 10g"),
-            TestStep("10g", "Unlatch the device manually", "Wait for user input to confirm the device is unlatched"),
-            TestStep(
-                "10h",
-                "Wait until a subscription report with OverallCurrentState.Latch is received",
-                "OverallCurrentState.Latch has to be False",
-            ),
+            TestStep("10g", "Unlatch the device manually",
+                     "Wait for user input to confirm the device is unlatched"),
+            TestStep("10h", "Wait until a subscription report with OverallCurrentState.Latch is received",
+                     "OverallCurrentState.Latch has to be False"),
             TestStep("10i", "Send MoveTo command with Speed = CurrentSpeed", "Receive SUCCESS response from the DUT"),
         ]
 
@@ -306,10 +211,9 @@ class TC_CLCTRL_4_3(MatterBaseTest):
 
     @async_test_body
     async def test_TC_CLCTRL_4_3(self):
+
         endpoint = self.get_endpoint()
-        timeout: uint = (
-            self.matter_test_config.timeout if self.matter_test_config.timeout is not None else self.default_timeout
-        )  # default_timeout = 90 seconds
+        timeout: uint = self.matter_test_config.timeout if self.matter_test_config.timeout is not None else self.default_timeout  # default_timeout = 90 seconds
 
         self.step(1)
         attributes: typing.List[uint] = Clusters.ClosureControl.Attributes
@@ -323,20 +227,11 @@ class TC_CLCTRL_4_3(MatterBaseTest):
 
         self.step("2b")
         sub_handler = AttributeSubscriptionHandler(expected_cluster=Clusters.ClosureControl)
-        await sub_handler.start(
-            self.default_controller,
-            self.dut_node_id,
-            endpoint=endpoint,
-            min_interval_sec=0,
-            max_interval_sec=30,
-            keepSubscriptions=False,
-        )
+        await sub_handler.start(self.default_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
 
         if is_latching_supported:
             self.step("2c")
-            latch_control_modes: uint = await self.read_clctrl_attribute_expect_success(
-                endpoint=endpoint, attribute=attributes.LatchControlModes
-            )
+            latch_control_modes: uint = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.LatchControlModes)
             log.info(f"LatchControlModes: {latch_control_modes}")
         else:
             log.info("LatchControlModes attribute is not supported, skipping read")
@@ -349,9 +244,8 @@ class TC_CLCTRL_4_3(MatterBaseTest):
             asserts.assert_true(False, "MoveTo command with no fields should have failed but succeeded")
         except InteractionModelError as e:
             log.info(f"MoveTo command with no fields failed: {e}")
-            asserts.assert_equal(
-                e.status, Status.InvalidCommand, f"Expected INVALID_COMMAND status for MoveTo with no fields, but got: {e}"
-            )
+            asserts.assert_equal(e.status, Status.InvalidCommand,
+                                 f"Expected INVALID_COMMAND status for MoveTo with no fields, but got: {e}")
 
         self.step("4a")
         if not is_position_supported or is_latching_supported:
@@ -359,9 +253,7 @@ class TC_CLCTRL_4_3(MatterBaseTest):
             self.mark_step_range_skipped("4b", "4h")
         else:
             self.step("4b")
-            overall_current_state: typing.Union[
-                Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct
-            ] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
+            overall_current_state: typing.Union[Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
             current_position: Clusters.ClosureControl.Enums.CurrentPositionEnum = None
 
             if overall_current_state is NullValue:
@@ -378,62 +270,37 @@ class TC_CLCTRL_4_3(MatterBaseTest):
             else:
                 self.step("4d")
                 try:
-                    await self.send_single_cmd(
-                        endpoint=endpoint,
-                        cmd=Clusters.ClosureControl.Commands.MoveTo(
-                            position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed
-                        ),
-                        timedRequestTimeoutMs=1000,
-                    )
+                    await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed), timedRequestTimeoutMs=1000)
                     log.info("MoveTo command with Position = MoveToFullyClosed sent successfully")
                 except InteractionModelError as e:
                     log.error(f"MoveTo command with Position = MoveToFullyClosed failed: {e}")
-                    asserts.assert_equal(
-                        e.status,
-                        Status.Success,
-                        f"Expected Success status for MoveTo with Position = MoveToFullyClosed, but got: {e}",
-                    )
+                    asserts.assert_equal(e.status, Status.Success,
+                                         f"Expected Success status for MoveTo with Position = MoveToFullyClosed, but got: {e}")
 
                 self.step("4e")
-                sub_handler.await_all_expected_report_matches(
-                    expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)],
-                    timeout_sec=timeout,
-                )
+                sub_handler.await_all_expected_report_matches(expected_matchers=[current_position_matcher(
+                    Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyClosed)], timeout_sec=timeout)
 
             self.step("4f")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), timedRequestTimeoutMs=1000
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), timedRequestTimeoutMs=1000)
                 log.info("MoveTo command with Latch = True sent successfully")
             except InteractionModelError as e:
                 log.error(f"MoveTo command with Latch = True failed: {e}")
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Expected Success status for MoveTo with Latch = True, but got: {e}"
-                )
+                asserts.assert_equal(e.status, Status.Success,
+                                     f"Expected Success status for MoveTo with Latch = True, but got: {e}")
 
             self.step("4g")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint,
-                    cmd=Clusters.ClosureControl.Commands.MoveTo(
-                        latch=True, position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen
-                    ),
-                    timedRequestTimeoutMs=1000,
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True, position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen), timedRequestTimeoutMs=1000)
                 log.info("MoveTo command with Latch = True and Position = MoveToFullyOpen sent successfully")
             except InteractionModelError as e:
                 log.error(f"MoveTo command with Latch = True and Position = MoveToFullyOpen failed: {e}")
-                asserts.assert_equal(
-                    e.status,
-                    Status.Success,
-                    f"Expected Success status for MoveTo with Latch = True and Position = MoveToFullyOpen, but got: {e}",
-                )
+                asserts.assert_equal(e.status, Status.Success,
+                                     f"Expected Success status for MoveTo with Latch = True and Position = MoveToFullyOpen, but got: {e}")
             self.step("4h")
-            sub_handler.await_all_expected_report_matches(
-                expected_matchers=[current_position_matcher(Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyOpened)],
-                timeout_sec=timeout,
-            )
+            sub_handler.await_all_expected_report_matches(expected_matchers=[current_position_matcher(
+                Clusters.ClosureControl.Enums.CurrentPositionEnum.kFullyOpened)], timeout_sec=timeout)
             sub_handler.reset()
 
         self.step("5a")
@@ -442,9 +309,7 @@ class TC_CLCTRL_4_3(MatterBaseTest):
             self.mark_step_range_skipped("5b", "5u")
         else:
             self.step("5b")
-            overall_current_state: typing.Union[
-                Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct
-            ] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
+            overall_current_state: typing.Union[Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
             current_latch: typing.Union[Nullable, bool] = None
             if overall_current_state is NullValue:
                 current_latch = NullValue
@@ -473,9 +338,7 @@ class TC_CLCTRL_4_3(MatterBaseTest):
                     log.info("LatchControlModes Bit 1 is 1, sending MoveTo command with Latch = False")
 
                     try:
-                        await self.send_single_cmd(
-                            endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000
-                        )
+                        await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000)
                     except InteractionModelError as e:
                         asserts.assert_equal(e.status, Status.Success, f"MoveTo command with Latch = False failed: {e}")
 
@@ -488,19 +351,12 @@ class TC_CLCTRL_4_3(MatterBaseTest):
 
             self.step("5i")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint,
-                    cmd=Clusters.ClosureControl.Commands.MoveTo(
-                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen
-                    ),
-                    timedRequestTimeoutMs=1000,
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen), timedRequestTimeoutMs=1000)
                 log.info("MoveTo command with Position = MoveToFullyOpen sent successfully")
             except InteractionModelError as e:
                 log.error(f"MoveTo command with Position = MoveToFullyOpen failed: {e}")
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Expected Success status for MoveTo with Position = MoveToFullyOpen, but got: {e}"
-                )
+                asserts.assert_equal(e.status, Status.Success,
+                                     f"Expected Success status for MoveTo with Position = MoveToFullyOpen, but got: {e}")
 
             self.step("5j")
             if not latch_control_modes & Clusters.ClosureControl.Bitmaps.LatchControlModesBitmap.kRemoteLatching:
@@ -510,21 +366,12 @@ class TC_CLCTRL_4_3(MatterBaseTest):
             else:
                 self.step("5k")
                 try:
-                    await self.send_single_cmd(
-                        endpoint=endpoint,
-                        cmd=Clusters.ClosureControl.Commands.MoveTo(
-                            position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen, latch=True
-                        ),
-                        timedRequestTimeoutMs=1000,
-                    )
+                    await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen, latch=True), timedRequestTimeoutMs=1000)
                     log.info("MoveTo command with Position = MoveToFullyOpen and Latch = True sent successfully")
                 except InteractionModelError as e:
                     log.error(f"MoveTo command with Position = MoveToFullyOpen and Latch = True failed: {e}")
-                    asserts.assert_equal(
-                        e.status,
-                        Status.Success,
-                        f"Expected Success status for MoveTo with Position = MoveToFullyOpen and Latch = True, but got: {e}",
-                    )
+                    asserts.assert_equal(e.status, Status.Success,
+                                         f"Expected Success status for MoveTo with Position = MoveToFullyOpen and Latch = True, but got: {e}")
 
                 self.step("5l")
                 sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(True)], timeout_sec=timeout)
@@ -532,9 +379,7 @@ class TC_CLCTRL_4_3(MatterBaseTest):
             sub_handler.reset()
 
             self.step("5m")
-            overall_current_state: typing.Union[
-                Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct
-            ] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
+            overall_current_state: typing.Union[Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
             current_latch: typing.Union[Nullable, bool] = None
             if overall_current_state is NullValue:
                 current_latch = NullValue
@@ -555,15 +400,12 @@ class TC_CLCTRL_4_3(MatterBaseTest):
                 else:
                     self.step("5p")
                     try:
-                        await self.send_single_cmd(
-                            endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000
-                        )
+                        await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000)
                         log.info("MoveTo command with Latch = False sent successfully")
                     except InteractionModelError as e:
                         log.error(f"MoveTo command with Latch = False failed: {e}")
-                        asserts.assert_equal(
-                            e.status, Status.Success, f"Expected Success status for MoveTo with Latch = False, but got: {e}"
-                        )
+                        asserts.assert_equal(e.status, Status.Success,
+                                             f"Expected Success status for MoveTo with Latch = False, but got: {e}")
 
                 self.step("5q")
                 if latch_control_modes & Clusters.ClosureControl.Bitmaps.LatchControlModesBitmap.kRemoteUnlatching:
@@ -584,24 +426,14 @@ class TC_CLCTRL_4_3(MatterBaseTest):
             else:
                 self.step("5u")
                 try:
-                    await self.send_single_cmd(
-                        endpoint=endpoint,
-                        cmd=Clusters.ClosureControl.Commands.MoveTo(
-                            position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen, latch=True
-                        ),
-                        timedRequestTimeoutMs=1000,
-                    )
+                    await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyOpen, latch=True), timedRequestTimeoutMs=1000)
                     log.error("MoveTo command with Position = MoveToFullyOpen and Latch = True should have failed but succeeded")
                     asserts.assert_true(
-                        False, "MoveTo command with Position = MoveToFullyOpen and Latch = True should have failed but succeeded"
-                    )
+                        False, "MoveTo command with Position = MoveToFullyOpen and Latch = True should have failed but succeeded")
                 except InteractionModelError as e:
                     log.info(f"Exception caught for MoveTo with Position = MoveToFullyOpen and Latch = True: {e}")
-                    asserts.assert_equal(
-                        e.status,
-                        Status.InvalidInState,
-                        f"Expected INVALID_IN_STATE for MoveTo with Position = MoveToFullyOpen and Latch = True but got: {e}",
-                    )
+                    asserts.assert_equal(e.status, Status.InvalidInState,
+                                         f"Expected INVALID_IN_STATE for MoveTo with Position = MoveToFullyOpen and Latch = True but got: {e}")
             sub_handler.reset()
 
         self.step("6a")
@@ -610,9 +442,7 @@ class TC_CLCTRL_4_3(MatterBaseTest):
             self.mark_step_range_skipped("6b", "6h")
         else:
             self.step("6b")
-            overall_current_state: typing.Union[
-                Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct
-            ] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
+            overall_current_state: typing.Union[Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
             current_speed: Clusters.Globals.Enums.ThreeLevelAutoEnum = None
             if overall_current_state is NullValue:
                 current_speed = NullValue
@@ -628,66 +458,48 @@ class TC_CLCTRL_4_3(MatterBaseTest):
             else:
                 self.step("6d")
                 try:
-                    await self.send_single_cmd(
-                        endpoint=endpoint,
-                        cmd=Clusters.ClosureControl.Commands.MoveTo(speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kHigh),
-                        timedRequestTimeoutMs=1000,
-                    )
+                    await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kHigh), timedRequestTimeoutMs=1000)
                     log.info("MoveTo command with Speed = High sent successfully")
                 except InteractionModelError as e:
                     log.error(f"MoveTo command with Speed = High failed: {e}")
-                    asserts.assert_equal(
-                        e.status, Status.Success, f"Expected Success status for MoveTo with Speed = High, but got: {e}"
-                    )
+                    asserts.assert_equal(e.status, Status.Success,
+                                         f"Expected Success status for MoveTo with Speed = High, but got: {e}")
 
                 self.step("6e")
-                sub_handler.await_all_expected_report_matches(
-                    expected_matchers=[current_speed_matcher(Clusters.Globals.Enums.ThreeLevelAutoEnum.kHigh)], timeout_sec=timeout
-                )
+                sub_handler.await_all_expected_report_matches(expected_matchers=[current_speed_matcher(
+                    Clusters.Globals.Enums.ThreeLevelAutoEnum.kHigh)], timeout_sec=timeout)
 
             self.step("6f")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), timedRequestTimeoutMs=1000
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), timedRequestTimeoutMs=1000)
                 log.info("MoveTo command with Latch = True sent successfully")
             except InteractionModelError as e:
                 log.error(f"MoveTo command with Latch = True failed: {e}")
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Expected Success status for MoveTo with Latch = True, but got: {e}"
-                )
+                asserts.assert_equal(e.status, Status.Success,
+                                     f"Expected Success status for MoveTo with Latch = True, but got: {e}")
             self.step("6g")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint,
-                    cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True, speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow),
-                    timedRequestTimeoutMs=1000,
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True, speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow), timedRequestTimeoutMs=1000)
                 log.info("MoveTo command with Latch = True and Speed = Low sent successfully")
             except InteractionModelError as e:
                 log.error(f"MoveTo command with Latch = True and Speed = Low failed: {e}")
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Expected Success status for MoveTo with Latch = True and Speed = Low, but got: {e}"
-                )
+                asserts.assert_equal(e.status, Status.Success,
+                                     f"Expected Success status for MoveTo with Latch = True and Speed = Low, but got: {e}")
             self.step("6h")
-            sub_handler.await_all_expected_report_matches(
-                expected_matchers=[current_speed_matcher(Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow)], timeout_sec=timeout
-            )
+            sub_handler.await_all_expected_report_matches(expected_matchers=[current_speed_matcher(
+                Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow)], timeout_sec=timeout)
             sub_handler.reset()
 
         if is_position_supported:
             self.step("7a")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(position=6), timedRequestTimeoutMs=1000
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(position=6), timedRequestTimeoutMs=1000)
                 log.error("MoveTo command with Position = 6 should have failed but succeeded")
                 asserts.assert_true(False, "MoveTo command with Position = 6 should have failed but succeeded")
             except InteractionModelError as e:
                 log.info(f"Exception caught for MoveTo with Position = 6: {e}")
-                asserts.assert_equal(
-                    e.status, Status.ConstraintError, f"Expected CONSTRAINT_ERROR for MoveTo with Position = 6 but got: {e}"
-                )
+                asserts.assert_equal(e.status, Status.ConstraintError,
+                                     f"Expected CONSTRAINT_ERROR for MoveTo with Position = 6 but got: {e}")
         else:
             log.info("Skipping step 7a as Positioning feature is not supported")
             self.skip_step("7a")
@@ -695,152 +507,97 @@ class TC_CLCTRL_4_3(MatterBaseTest):
         if is_speed_supported:
             self.step("7b")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(speed=4), timedRequestTimeoutMs=1000
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(speed=4), timedRequestTimeoutMs=1000)
                 log.error("MoveTo command with Speed = 4 should have failed but succeeded")
                 asserts.assert_true(False, "MoveTo command with Speed = 4 should have failed but succeeded")
             except InteractionModelError as e:
                 log.info(f"Exception caught for MoveTo with Speed = 4: {e}")
-                asserts.assert_equal(
-                    e.status, Status.ConstraintError, f"Expected CONSTRAINT_ERROR for MoveTo with Speed = 4 but got: {e}"
-                )
+                asserts.assert_equal(e.status, Status.ConstraintError,
+                                     f"Expected CONSTRAINT_ERROR for MoveTo with Speed = 4 but got: {e}")
             self.step("7c")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint,
-                    cmd=Clusters.ClosureControl.Commands.MoveTo(position=6, speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kHigh),
-                    timedRequestTimeoutMs=1000,
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(position=6, speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kHigh), timedRequestTimeoutMs=1000)
                 log.error("MoveTo command with Position = 6 and Speed = High should have failed but succeeded")
                 asserts.assert_true(False, "MoveTo command with Position = 6 and Speed = High should have failed but succeeded")
             except InteractionModelError as e:
                 log.info(f"Exception caught for MoveTo with Position = 6 and Speed = High: {e}")
-                asserts.assert_equal(
-                    e.status,
-                    Status.ConstraintError,
-                    f"Expected CONSTRAINT_ERROR for MoveTo with Position = 6 and Speed = High but got: {e}",
-                )
+                asserts.assert_equal(e.status, Status.ConstraintError,
+                                     f"Expected CONSTRAINT_ERROR for MoveTo with Position = 6 and Speed = High but got: {e}")
             self.step("7d")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint,
-                    cmd=Clusters.ClosureControl.Commands.MoveTo(
-                        position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed, speed=4
-                    ),
-                    timedRequestTimeoutMs=1000,
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(position=Clusters.ClosureControl.Enums.TargetPositionEnum.kMoveToFullyClosed, speed=4), timedRequestTimeoutMs=1000)
                 log.error("MoveTo command with Position = MoveToFullyClosed and Speed = 4 should have failed but succeeded")
                 asserts.assert_true(
-                    False, "MoveTo command with Position = MoveToFullyClosed and Speed = 4 should have failed but succeeded"
-                )
+                    False, "MoveTo command with Position = MoveToFullyClosed and Speed = 4 should have failed but succeeded")
             except InteractionModelError as e:
                 log.info(f"Exception caught for MoveTo with Position = MoveToFullyClosed and Speed = 4: {e}")
-                asserts.assert_equal(
-                    e.status,
-                    Status.ConstraintError,
-                    f"Expected CONSTRAINT_ERROR for MoveTo with Position = MoveToFullyClosed and Speed = 4 but got: {e}",
-                )
+                asserts.assert_equal(e.status, Status.ConstraintError,
+                                     f"Expected CONSTRAINT_ERROR for MoveTo with Position = MoveToFullyClosed and Speed = 4 but got: {e}")
         else:
             self.mark_step_range_skipped("7b", "7d")
 
         self.step("8a")
         if is_latching_supported:
+
             self.step("8b")
-            overall_current_state: typing.Union[
-                Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct
-            ] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
+            overall_current_state: typing.Union[Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
             current_latch: typing.Union[Nullable, bool] = overall_current_state.latch
             log.info(f"CurrentLatch: {current_latch}")
 
-            if (
-                current_latch is True
-                and latch_control_modes & Clusters.ClosureControl.Bitmaps.LatchControlModesBitmap.kRemoteLatching
-            ):
+            if current_latch is True and latch_control_modes & Clusters.ClosureControl.Bitmaps.LatchControlModesBitmap.kRemoteLatching:
                 self.step("8c")
                 log.info("CurrentLatch is True and LatchControlModes Bit 0 = 1, sending MoveTo command with Latch = CurrentLatch")
                 try:
-                    await self.send_single_cmd(
-                        endpoint=endpoint,
-                        cmd=Clusters.ClosureControl.Commands.MoveTo(latch=current_latch),
-                        timedRequestTimeoutMs=1000,
-                    )
+                    await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=current_latch), timedRequestTimeoutMs=1000)
                     log.info("MoveTo command with Latch = CurrentLatch sent successfully")
                 except InteractionModelError as e:
                     log.error(f"MoveTo command with Latch = CurrentLatch failed: {e}")
-                    asserts.assert_equal(
-                        e.status, Status.Success, f"Expected Success status for MoveTo with Latch = CurrentLatch, but got: {e}"
-                    )
+                    asserts.assert_equal(e.status, Status.Success,
+                                         f"Expected Success status for MoveTo with Latch = CurrentLatch, but got: {e}")
             else:
                 log.info("CurrentLatch is False or LatchControlModes Bit 0 = 0, skipping step 8c")
                 self.skip_step("8c")
 
-            if current_latch is True and not (
-                latch_control_modes & Clusters.ClosureControl.Bitmaps.LatchControlModesBitmap.kRemoteLatching
-            ):
+            if current_latch is True and not (latch_control_modes & Clusters.ClosureControl.Bitmaps.LatchControlModesBitmap.kRemoteLatching):
                 self.step("8d")
                 log.info("CurrentLatch is True and LatchControlModes Bit 0 = 0, sending MoveTo command with Latch = CurrentLatch")
                 try:
-                    await self.send_single_cmd(
-                        endpoint=endpoint,
-                        cmd=Clusters.ClosureControl.Commands.MoveTo(latch=current_latch),
-                        timedRequestTimeoutMs=1000,
-                    )
+                    await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=current_latch), timedRequestTimeoutMs=1000)
                     log.error("MoveTo command with Latch = CurrentLatch should have failed but succeeded")
                     asserts.assert_fail("MoveTo command with Latch = CurrentLatch should have failed but succeeded")
                 except InteractionModelError as e:
                     log.info(f"Exception caught for MoveTo with Latch = CurrentLatch: {e}")
-                    asserts.assert_equal(
-                        e.status,
-                        Status.InvalidInState,
-                        f"Expected INVALID_IN_STATE for MoveTo with Latch = CurrentLatch but got: {e}",
-                    )
+                    asserts.assert_equal(e.status, Status.InvalidInState,
+                                         f"Expected INVALID_IN_STATE for MoveTo with Latch = CurrentLatch but got: {e}")
             else:
                 log.info("CurrentLatch is False or LatchControlModes Bit 0 = 1, skipping step 8d")
                 self.skip_step("8d")
 
-            if (
-                current_latch is False
-                and latch_control_modes & Clusters.ClosureControl.Bitmaps.LatchControlModesBitmap.kRemoteUnlatching
-            ):
+            if current_latch is False and latch_control_modes & Clusters.ClosureControl.Bitmaps.LatchControlModesBitmap.kRemoteUnlatching:
                 self.step("8e")
                 log.info("CurrentLatch is False and LatchControlModes Bit 1 = 1, sending MoveTo command with Latch = CurrentLatch")
                 try:
-                    await self.send_single_cmd(
-                        endpoint=endpoint,
-                        cmd=Clusters.ClosureControl.Commands.MoveTo(latch=current_latch),
-                        timedRequestTimeoutMs=1000,
-                    )
+                    await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=current_latch), timedRequestTimeoutMs=1000)
                     log.info("MoveTo command with Latch = CurrentLatch sent successfully")
                 except InteractionModelError as e:
                     log.error(f"MoveTo command with Latch = CurrentLatch failed: {e}")
-                    asserts.assert_equal(
-                        e.status, Status.Success, f"Expected Success status for MoveTo with Latch = CurrentLatch, but got: {e}"
-                    )
+                    asserts.assert_equal(e.status, Status.Success,
+                                         f"Expected Success status for MoveTo with Latch = CurrentLatch, but got: {e}")
             else:
                 log.info("CurrentLatch is True or LatchControlModes Bit 1 = 0, skipping step 8e")
                 self.skip_step("8e")
 
-            if current_latch is False and not (
-                latch_control_modes & Clusters.ClosureControl.Bitmaps.LatchControlModesBitmap.kRemoteUnlatching
-            ):
+            if current_latch is False and not (latch_control_modes & Clusters.ClosureControl.Bitmaps.LatchControlModesBitmap.kRemoteUnlatching):
                 self.step("8f")
                 log.info("CurrentLatch is False and LatchControlModes Bit 1 = 0, sending MoveTo command with Latch = CurrentLatch")
                 try:
-                    await self.send_single_cmd(
-                        endpoint=endpoint,
-                        cmd=Clusters.ClosureControl.Commands.MoveTo(latch=current_latch),
-                        timedRequestTimeoutMs=1000,
-                    )
+                    await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=current_latch), timedRequestTimeoutMs=1000)
                     log.error("MoveTo command with Latch = CurrentLatch should have failed but succeeded")
                     asserts.assert_true(False, "MoveTo command with Latch = CurrentLatch should have failed but succeeded")
                 except InteractionModelError as e:
                     log.info(f"Exception caught for MoveTo with Latch = CurrentLatch: {e}")
-                    asserts.assert_equal(
-                        e.status,
-                        Status.InvalidInState,
-                        f"Expected INVALID_IN_STATE for MoveTo with Latch = CurrentLatch but got: {e}",
-                    )
+                    asserts.assert_equal(e.status, Status.InvalidInState,
+                                         f"Expected INVALID_IN_STATE for MoveTo with Latch = CurrentLatch but got: {e}")
             else:
                 log.info("CurrentLatch is True or LatchControlModes Bit 1 = 1, skipping step 8f")
                 self.skip_step("8f")
@@ -850,14 +607,12 @@ class TC_CLCTRL_4_3(MatterBaseTest):
 
         self.step("9a")
         if is_position_supported:
+
             self.step("9b")
-            overall_current_state: typing.Union[
-                Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct
-            ] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
+            overall_current_state: typing.Union[Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
             current_position: Clusters.ClosureControl.Enums.CurrentPositionEnum = overall_current_state.position
-            current_latch: typing.Union[Nullable, bool] = (
-                overall_current_state.latch if overall_current_state is not NullValue else NullValue
-            )
+            current_latch: typing.Union[Nullable,
+                                        bool] = overall_current_state.latch if overall_current_state is not NullValue else NullValue
             log.info(f"current_position: {current_position}, current_latch: {current_latch}")
 
             self.step("9c")
@@ -878,9 +633,7 @@ class TC_CLCTRL_4_3(MatterBaseTest):
                     log.info("LatchControlModes Bit 1 is 1, sending MoveTo command with Latch = False")
 
                     try:
-                        await self.send_single_cmd(
-                            endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000
-                        )
+                        await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000)
                     except InteractionModelError as e:
                         asserts.assert_equal(e.status, Status.Success, f"MoveTo command with Latch = False failed: {e}")
 
@@ -896,17 +649,12 @@ class TC_CLCTRL_4_3(MatterBaseTest):
 
             self.step("9i")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint,
-                    cmd=Clusters.ClosureControl.Commands.MoveTo(position=current_position),
-                    timedRequestTimeoutMs=1000,
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(position=current_position), timedRequestTimeoutMs=1000)
                 log.info("MoveTo command with Position = CurrentPosition sent successfully")
             except InteractionModelError as e:
                 log.error(f"MoveTo command with Position = CurrentPosition failed: {e}")
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Expected Success status for MoveTo with Position = CurrentPosition, but got: {e}"
-                )
+                asserts.assert_equal(e.status, Status.Success,
+                                     f"Expected Success status for MoveTo with Position = CurrentPosition, but got: {e}")
             sub_handler.reset()
         else:
             log.info("Skipping steps 9b to 9i as Positioning feature is not supported")
@@ -914,14 +662,12 @@ class TC_CLCTRL_4_3(MatterBaseTest):
 
         self.step("10a")
         if is_speed_supported:
+
             self.step("10b")
-            overall_current_state: typing.Union[
-                Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct
-            ] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
+            overall_current_state: typing.Union[Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
             current_speed: Clusters.Globals.Enums.ThreeLevelAutoEnum = overall_current_state.speed
-            current_latch: typing.Union[Nullable, bool] = (
-                overall_current_state.latch if overall_current_state is not NullValue else NullValue
-            )
+            current_latch: typing.Union[Nullable,
+                                        bool] = overall_current_state.latch if overall_current_state is not NullValue else NullValue
             log.info(f"current_speed: {current_speed}, current_latch: {current_latch}")
 
             self.step("10c")
@@ -942,9 +688,7 @@ class TC_CLCTRL_4_3(MatterBaseTest):
                     log.info("LatchControlModes Bit 1 is 1, sending MoveTo command with Latch = False")
 
                     try:
-                        await self.send_single_cmd(
-                            endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000
-                        )
+                        await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000)
                     except InteractionModelError as e:
                         asserts.assert_equal(e.status, Status.Success, f"MoveTo command with Latch = False failed: {e}")
 
@@ -961,15 +705,12 @@ class TC_CLCTRL_4_3(MatterBaseTest):
 
             self.step("10i")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(speed=current_speed), timedRequestTimeoutMs=1000
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(speed=current_speed), timedRequestTimeoutMs=1000)
                 log.info("MoveTo command with Speed = CurrentSpeed sent successfully")
             except InteractionModelError as e:
                 log.error(f"MoveTo command with Speed = CurrentSpeed failed: {e}")
-                asserts.assert_equal(
-                    e.status, Status.Success, f"Expected Success status for MoveTo with Speed = CurrentSpeed, but got: {e}"
-                )
+                asserts.assert_equal(e.status, Status.Success,
+                                     f"Expected Success status for MoveTo with Speed = CurrentSpeed, but got: {e}")
             sub_handler.reset()
 
         else:

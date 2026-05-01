@@ -54,28 +54,21 @@ from matter.tlv import uint
 
 
 class TC_TIMESYNC_2_10(MatterBaseTest):
-    async def send_set_time_zone_cmd(
-        self, tz: typing.List[Clusters.Objects.TimeSynchronization.Structs.TimeZoneStruct]
-    ) -> Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse:
-        return await self.send_single_cmd(
-            cmd=Clusters.Objects.TimeSynchronization.Commands.SetTimeZone(timeZone=tz), endpoint=self.endpoint
-        )
+    async def send_set_time_zone_cmd(self, tz: typing.List[Clusters.Objects.TimeSynchronization.Structs.TimeZoneStruct]) -> Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse:
+        return await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetTimeZone(timeZone=tz), endpoint=self.endpoint)
 
     async def send_set_dst_cmd(self, dst: typing.List[Clusters.Objects.TimeSynchronization.Structs.DSTOffsetStruct]) -> None:
         await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetDSTOffset(DSTOffset=dst))
 
     async def send_set_utc_cmd(self, utc: uint) -> None:
-        await self.send_single_cmd(
-            cmd=Clusters.Objects.TimeSynchronization.Commands.SetUTCTime(
-                UTCTime=utc, granularity=Clusters.Objects.TimeSynchronization.Enums.GranularityEnum.kMillisecondsGranularity
-            )
-        )
+        await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetUTCTime(UTCTime=utc, granularity=Clusters.Objects.TimeSynchronization.Enums.GranularityEnum.kMillisecondsGranularity))
 
     def pics_TC_TIMESYNC_2_10(self) -> list[str]:
         return ["TIMESYNC.S.F00"]
 
     @async_test_body
     async def test_TC_TIMESYNC_2_10(self):
+
         self.endpoint = 0
 
         self.print_step(0, "Commissioning, already done")
@@ -102,9 +95,7 @@ class TC_TIMESYNC_2_10(MatterBaseTest):
         event = time_cluster.Events.DSTTableEmpty
         cb = EventSubscriptionHandler(expected_cluster_id=event.cluster_id, expected_event_id=event.event_id)
         urgent = 1
-        subscription = await self.default_controller.ReadEvent(
-            nodeId=self.dut_node_id, events=[(self.endpoint, event, urgent)], reportInterval=[1, 3]
-        )
+        subscription = await self.default_controller.ReadEvent(nodeId=self.dut_node_id, events=[(self.endpoint, event, urgent)], reportInterval=[1, 3])
         subscription.SetEventUpdateCallback(callback=cb)
 
         self.print_step(5, "Send SetTimeZone command")
@@ -125,9 +116,8 @@ class TC_TIMESYNC_2_10(MatterBaseTest):
         await asyncio.sleep(get_wait_seconds_from_set_time(th_utc, 15))
 
         self.print_step(9, "Read LocalTime from the DUT")
-        await self.read_single_attribute_check_success(
-            cluster=Clusters.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.LocalTime
-        )
+        await self.read_single_attribute_check_success(cluster=Clusters.TimeSynchronization,
+                                                       attribute=Clusters.TimeSynchronization.Attributes.LocalTime)
 
         self.print_step(10, "Wait for DSTTableEmpty event")
         timeout = get_wait_seconds_from_set_time(th_utc, 20)

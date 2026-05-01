@@ -47,8 +47,8 @@ public:
 protected:
     UnauthenticatedSession(SessionRole sessionRole, NodeId ephemeralInitiatorNodeID, const Transport::PeerAddress & peerAddress,
                            const ReliableMessageProtocolConfig & config) :
-        mEphemeralInitiatorNodeId(ephemeralInitiatorNodeID), mSessionRole(sessionRole), mPeerAddress(peerAddress),
-        mLastActivityTime(System::SystemClock().GetMonotonicTimestamp()),
+        mEphemeralInitiatorNodeId(ephemeralInitiatorNodeID),
+        mSessionRole(sessionRole), mPeerAddress(peerAddress), mLastActivityTime(System::SystemClock().GetMonotonicTimestamp()),
         mLastPeerActivityTime(System::Clock::kZero), // Start at zero to default to IDLE state
         mRemoteSessionParams(config)
     {}

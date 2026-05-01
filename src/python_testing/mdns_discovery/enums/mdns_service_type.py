@@ -22,7 +22,6 @@ class MdnsServiceType(Enum):
     """
     Enum for Matter mDNS service types used in network service discovery.
     """
-
     COMMISSIONER = "_matterd._udp.local."
     COMMISSIONABLE = "_matterc._udp.local."
     OPERATIONAL = "_matter._tcp.local."

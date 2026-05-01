@@ -51,6 +51,7 @@ log = logging.getLogger(__name__)
 
 
 class TC_AVSM_2_21(MatterBaseTest, AVSMTestBase):
+
     def desc_TC_AVSM_2_21(self) -> str:
         return "[TC-AVSM-2.21] Validate persistence of stream usage priorities with DUT"
 
@@ -58,27 +59,13 @@ class TC_AVSM_2_21(MatterBaseTest, AVSMTestBase):
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
             TestStep(2, "TH reads FeatureMap attribute from CameraAVStreamManagement Cluster on DUT. Verify F_VDO is supported."),
-            TestStep(
-                3,
-                "TH reads AllocatedVideoStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated video streams in the list is 0.",
-            ),
-            TestStep(
-                4,
-                "TH reads SupportedStreamUsages attribute from CameraAVStreamManagement Cluster on DUT. Store this value in aSupportedStreamUsages.",
-            ),
-            TestStep(
-                5, "TH sends the SetStreamPriorities command with StreamPriorities set as a subset of aSupportedStreamUsages."
-            ),
-            TestStep(
-                6,
-                "TH reads StreamUsagePriorities attribute from CameraAVStreamManagement Cluster on DUT. Store this value in aStreamUsagePriorities.",
-            ),
+            TestStep(3, "TH reads AllocatedVideoStreams attribute from CameraAVStreamManagement Cluster on DUT. Verify the number of allocated video streams in the list is 0."),
+            TestStep(4, "TH reads SupportedStreamUsages attribute from CameraAVStreamManagement Cluster on DUT. Store this value in aSupportedStreamUsages."),
+            TestStep(5, "TH sends the SetStreamPriorities command with StreamPriorities set as a subset of aSupportedStreamUsages."),
+            TestStep(6, "TH reads StreamUsagePriorities attribute from CameraAVStreamManagement Cluster on DUT. Store this value in aStreamUsagePriorities."),
             TestStep(7, "TH reboots the DUT."),
             TestStep(8, "TH waits for the DUT to come back online."),
-            TestStep(
-                9,
-                "TH reads StreamUsagePriorities attribute from CameraAVStreamManagement Cluster on DUT. Verify this value is same as aStreamUsagePriorities.",
-            ),
+            TestStep(9, "TH reads StreamUsagePriorities attribute from CameraAVStreamManagement Cluster on DUT. Verify this value is same as aStreamUsagePriorities."),
         ]
 
     def pics_TC_AVSM_2_21(self) -> list[str]:
@@ -101,15 +88,11 @@ class TC_AVSM_2_21(MatterBaseTest, AVSMTestBase):
         asserts.assert_true(has_f_vdo, "FeatureMap F_VDO is not set")
 
         self.step(3)
-        allocated_video_streams = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedVideoStreams
-        )
+        allocated_video_streams = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.AllocatedVideoStreams)
         asserts.assert_equal(len(allocated_video_streams), 0, "AllocatedVideoStreams should be empty")
 
         self.step(4)
-        supported_stream_usages = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=cluster, attribute=attr.SupportedStreamUsages
-        )
+        supported_stream_usages = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.SupportedStreamUsages)
         asserts.assert_greater(len(supported_stream_usages), 0, "SupportedStreamUsages should not be empty")
 
         self.step(5)
@@ -118,9 +101,7 @@ class TC_AVSM_2_21(MatterBaseTest, AVSMTestBase):
         await self.send_single_cmd(cmd=commands.SetStreamPriorities(streamPriorities=new_priorities), endpoint=endpoint)
 
         self.step(6)
-        stream_usage_priorities = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=cluster, attribute=attr.StreamUsagePriorities
-        )
+        stream_usage_priorities = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.StreamUsagePriorities)
         asserts.assert_equal(stream_usage_priorities, new_priorities, "StreamUsagePriorities not set correctly")
 
         self.step(7)
@@ -128,12 +109,9 @@ class TC_AVSM_2_21(MatterBaseTest, AVSMTestBase):
         self.step(8)
 
         self.step(9)
-        stream_usage_priorities_after_reboot = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=cluster, attribute=attr.StreamUsagePriorities
-        )
-        asserts.assert_equal(
-            stream_usage_priorities_after_reboot, new_priorities, "StreamUsagePriorities did not persist after reboot"
-        )
+        stream_usage_priorities_after_reboot = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.StreamUsagePriorities)
+        asserts.assert_equal(stream_usage_priorities_after_reboot, new_priorities,
+                             "StreamUsagePriorities did not persist after reboot")
 
 
 if __name__ == "__main__":

@@ -47,6 +47,7 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_AVSUM_2_4(MatterBaseTest, AVSUMTestBase):
+
     def verify_preset_matches(self, preset, position):
         if self.has_feature_mpan:
             asserts.assert_equal(preset.settings.pan, position.pan)
@@ -70,28 +71,16 @@ class TC_AVSUM_2_4(MatterBaseTest, AVSUMTestBase):
             TestStep(6, "If MPTZPresets is empty, jump to step 11"),
             TestStep(7, "Verify that the size of the Presets List is not greater than MaxPresets"),
             TestStep(8, "Loop over the supported presets, for each verify the PresetID and Name are in range"),
-            TestStep(
-                9,
-                "For each found preset, invoke MoveToPreset with the PresetID. Wait on the subscription report showing movement complete, then verify that the MPTZPosition is that from the Preset",
-            ),
-            TestStep(
-                10,
-                "If PIXIT.CANBEMADEBUSY is set, place the DUT into a state where it cannot accept a command. Else exit the test case.",
-            ),
+            TestStep(9, "For each found preset, invoke MoveToPreset with the PresetID. Wait on the subscription report showing movement complete, then verify that the MPTZPosition is that from the Preset"),
+            TestStep(10, "If PIXIT.CANBEMADEBUSY is set, place the DUT into a state where it cannot accept a command. Else exit the test case."),
             TestStep(11, "Send an MPTZMoveToPreset Command with a valid presetID. Verify busy failure response. End the text case"),
             TestStep(12, "Send a MPTZMovePreset command with a presetID of MaxPresets. Verify Not Found failure response."),
             TestStep(13, "Create a new saved preset with PresetID of MaxPresets"),
             TestStep(14, "Create a new MPTZPosition that is the mid-point of all support PTZ attributes"),
             TestStep(15, "Move to a the MPTZPosition created in step 13."),
             TestStep(16, "Move to the saved preset from step 12"),
-            TestStep(
-                17,
-                "Wait on the subscription report showing movement complete, then verify that the MPTZPosition is that of the preset",
-            ),
-            TestStep(
-                18,
-                "If PIXIT.CANBEMADEBUSY is set, place the DUT into a state where it cannot accept a command. Else exit the test case.",
-            ),
+            TestStep(17, "Wait on the subscription report showing movement complete, then verify that the MPTZPosition is that of the preset"),
+            TestStep(18, "If PIXIT.CANBEMADEBUSY is set, place the DUT into a state where it cannot accept a command. Else exit the test case."),
             TestStep(19, "Send an MPTZMoveToPreset Command with a valid presetID. Verify busy failure response."),
         ]
 
@@ -100,12 +89,8 @@ class TC_AVSUM_2_4(MatterBaseTest, AVSUMTestBase):
             "AVSUM.S",
         ]
 
-    @run_if_endpoint_matches(
-        has_feature(
-            Clusters.CameraAvSettingsUserLevelManagement,
-            Clusters.CameraAvSettingsUserLevelManagement.Bitmaps.Feature.kMechanicalPresets,
-        )
-    )
+    @run_if_endpoint_matches(has_feature(Clusters.CameraAvSettingsUserLevelManagement,
+                                         Clusters.CameraAvSettingsUserLevelManagement.Bitmaps.Feature.kMechanicalPresets))
     async def test_TC_AVSUM_2_4(self):
         cluster = Clusters.Objects.CameraAvSettingsUserLevelManagement
         attributes = cluster.Attributes
@@ -141,49 +126,42 @@ class TC_AVSUM_2_4(MatterBaseTest, AVSUMTestBase):
         # Check that.
         # Move to a discovered preset, or the created Preset.  Verify content.
         self.step(2)
-        asserts.assert_in(
-            attributes.MaxPresets.attribute_id, attribute_list, "MaxPresets attribute is a mandatory attribute if MPRESETS."
-        )
+        asserts.assert_in(attributes.MaxPresets.attribute_id, attribute_list,
+                          "MaxPresets attribute is a mandatory attribute if MPRESETS.")
         max_presets_dut = await self.read_avsum_attribute_expect_success(endpoint, attributes.MaxPresets)
 
         self.step(3)
-        asserts.assert_in(
-            attributes.MPTZPresets.attribute_id, attribute_list, "MPTZPresets attribute is a mandatory attribut if MPRESETS."
-        )
+        asserts.assert_in(attributes.MPTZPresets.attribute_id, attribute_list,
+                          "MPTZPresets attribute is a mandatory attribut if MPRESETS.")
 
         mptz_presets_dut = await self.read_avsum_attribute_expect_success(endpoint, attributes.MPTZPresets)
 
         self.step(4)
-        await self.send_move_to_preset_command(endpoint, max_presets_dut + 1, expected_status=Status.ConstraintError)
+        await self.send_move_to_preset_command(endpoint, max_presets_dut+1, expected_status=Status.ConstraintError)
 
         self.step(5)
         # Establish subscription to MovementState
         sub_handler = AttributeSubscriptionHandler(cluster, attributes.MovementState)
-        await sub_handler.start(
-            self.default_controller,
-            self.dut_node_id,
-            endpoint=endpoint,
-            min_interval_sec=0,
-            max_interval_sec=30,
-            keepSubscriptions=False,
-        )
+        await sub_handler.start(self.default_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
 
         # Create attribute matchers
         movement_state_match = AttributeMatcher.from_callable(
-            "MovementState is IDLE", lambda report: report.value == cluster.Enums.PhysicalMovementEnum.kIdle
-        )
+            "MovementState is IDLE",
+            lambda report: report.value == cluster.Enums.PhysicalMovementEnum.kIdle)
 
         self.step(6)
         if mptz_presets_dut:
             self.step(7)
-            asserts.assert_less_equal(len(mptz_presets_dut), max_presets_dut, "MPTZPresets size is greater than the allowed max.")
+            asserts.assert_less_equal(len(mptz_presets_dut), max_presets_dut,
+                                      "MPTZPresets size is greater than the allowed max.")
 
             self.step(8)
             self.step(9)
             for mptzpreset in mptz_presets_dut:
                 asserts.assert_less_equal(mptzpreset.presetID, max_presets_dut, "PresetID is out of range")
                 asserts.assert_less_equal(len(mptzpreset.name), 32, "Preset name is too long")
-                self.ptz_range_validation(mptzpreset.settings, tilt_min_dut, tilt_max_dut, pan_min_dut, pan_max_dut, zoom_max_dut)
+                self.ptz_range_validation(mptzpreset.settings, tilt_min_dut, tilt_max_dut,
+                                          pan_min_dut, pan_max_dut, zoom_max_dut)
 
                 sub_handler.reset()
 
@@ -223,11 +201,11 @@ class TC_AVSUM_2_4(MatterBaseTest, AVSUMTestBase):
         self.step(14)
         newPan = newTilt = newZoom = None
         if self.has_feature_mpan:
-            newPan = (pan_max_dut - pan_min_dut) // 2
+            newPan = (pan_max_dut - pan_min_dut)//2
         if self.has_feature_mtilt:
-            newTilt = (tilt_max_dut - tilt_min_dut) // 2
+            newTilt = (tilt_max_dut - tilt_min_dut)//2
         if self.has_feature_mzoom:
-            newZoom = (zoom_max_dut) // 2
+            newZoom = (zoom_max_dut)//2
 
         sub_handler.reset()
 

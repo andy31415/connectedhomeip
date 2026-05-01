@@ -56,15 +56,23 @@ import firmware_utils
 # object (as dictionary keys) and/or passed as command line options.
 NRF5_OPTIONS = {
     # Configuration options define properties used in flashing operations.
-    "configuration": {
+    'configuration': {
         # Tool configuration options.
-        "nrfjprog": {
-            "help": "File name of the nrfjprog executable",
-            "default": "nrfjprog",
-            "argparse": {"metavar": "FILE"},
-            "command": ["{nrfjprog}", {"optional": "family"}, {"optional": "snr"}, ()],
-            "verify": ["{nrfjprog}", "--version"],
-            "error": """\
+        'nrfjprog': {
+            'help': 'File name of the nrfjprog executable',
+            'default': 'nrfjprog',
+            'argparse': {
+                'metavar': 'FILE'
+            },
+            'command': [
+                '{nrfjprog}',
+                {'optional': 'family'},
+                {'optional': 'snr'},
+                ()
+            ],
+            'verify': ['{nrfjprog}', '--version'],
+            'error':
+                """\
                 Unable to execute {nrfjprog}.
 
                 Please ensure that this tool is installed and
@@ -73,17 +81,22 @@ NRF5_OPTIONS = {
 
                 """,
         },
-        "snr": {
-            "help": "Serial number of device to flash",
-            "default": None,
-            "alias": ["--serial", "-s"],
-            "argparse": {"metavar": "SERIAL"},
+        'snr': {
+            'help': 'Serial number of device to flash',
+            'default': None,
+            'alias': ['--serial', '-s'],
+            'argparse': {
+                'metavar': 'SERIAL'
+            },
         },
+
         # Device configuration options.
-        "family": {
-            "help": "NRF5 device family",
-            "default": None,
-            "argparse": {"metavar": "FAMILY"},
+        'family': {
+            'help': 'NRF5 device family',
+            'default': None,
+            'argparse': {
+                'metavar': 'FAMILY'
+            },
         },
     },
 }
@@ -93,35 +106,35 @@ class Flasher(firmware_utils.Flasher):
     """Manage nrf5 flashing."""
 
     def __init__(self, **options):
-        super().__init__(platform="NRF5", module=__name__, **options)
+        super().__init__(platform='NRF5', module=__name__, **options)
         self.define_options(NRF5_OPTIONS)
 
     def erase(self):
         """Perform nrfjprog --eraseall"""
-        return self.run_tool("nrfjprog", ["--eraseall"], name="Erase all")
+        return self.run_tool('nrfjprog', ['--eraseall'], name='Erase all')
 
     def verify(self, image):
         """Verify image."""
-        return self.run_tool(
-            "nrfjprog",
-            ["--quiet", "--verify", image],
-            name="Verify",
-            pass_message="Verified",
-            fail_message="Not verified",
-            fail_level=2,
-        )
+        return self.run_tool('nrfjprog',
+                             ['--quiet', '--verify', image],
+                             name='Verify',
+                             pass_message='Verified',
+                             fail_message='Not verified',
+                             fail_level=2)
 
     def flash(self, image):
         """Flash image."""
-        return self.run_tool("nrfjprog", ["--program", image, "--sectoranduicrerase"], name="Flash")
+        return self.run_tool('nrfjprog',
+                             ['--program', image, '--sectoranduicrerase'],
+                             name='Flash')
 
     def reset(self):
         """Reset the device."""
-        return self.run_tool("nrfjprog", ["--reset"], name="Reset")
+        return self.run_tool('nrfjprog', ['--reset'], name='Reset')
 
     def actions(self):
         """Perform actions on the device according to self.option."""
-        self.log(3, "Options:", self.option)
+        self.log(3, 'Options:', self.option)
 
         if self.option.erase:
             if self.erase().err:
@@ -143,7 +156,6 @@ class Flasher(firmware_utils.Flasher):
 
         return self
 
-
 # Mobly integration
 
 
@@ -156,7 +168,7 @@ class Nrf5Platform:
 
 
 def verify_platform_args(platform_args):
-    required_args = ["application"]
+    required_args = ['application']
     for r in required_args:
         if r not in platform_args:
             raise ValueError("Required argument %s missing" % r)
@@ -166,9 +178,8 @@ def create_platform(platform_args):
     verify_platform_args(platform_args[0])
     return Nrf5Platform(platform_args[0])
 
-
 # End of Mobly integration
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(Flasher().flash_command(sys.argv))

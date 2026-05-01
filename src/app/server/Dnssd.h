@@ -145,17 +145,17 @@ public:
     /**
      * @brief dnssd server has no action to do on this ICD event. Do nothing.
      */
-    void OnEnterActiveMode() override {};
+    void OnEnterActiveMode() override{};
 
     /**
      * @brief dnssd server has no action to do on this ICD event. Do nothing.
      */
-    void OnTransitionToIdle() override {};
+    void OnTransitionToIdle() override{};
 
     /**
      * @brief dnssd server has no action to do on this ICD event. Do nothing.
      */
-    void OnEnterIdleMode() override {};
+    void OnEnterIdleMode() override{};
 
 private:
     /// Overloaded utility method for commissioner and commissionable advertisement

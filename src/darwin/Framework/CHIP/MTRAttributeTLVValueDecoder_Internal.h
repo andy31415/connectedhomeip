@@ -26,10 +26,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Decodes an attribute value TLV into a typed ObjC value (see MTRStructsObjc.h)
 id _Nullable MTRDecodeAttributeValue(const chip::app::ConcreteAttributePath & aPath, chip::TLV::TLVReader & aReader,
-    CHIP_ERROR * aError);
+                                     CHIP_ERROR * aError);
 
 // Wrapper around the precending function that reads the attribute from a ClusterStateCache.
 id _Nullable MTRDecodeAttributeValue(const chip::app::ConcreteAttributePath & aPath, const chip::app::ClusterStateCache & aCache,
-    CHIP_ERROR * aError);
+                                     CHIP_ERROR * aError);
 
 NS_ASSUME_NONNULL_END

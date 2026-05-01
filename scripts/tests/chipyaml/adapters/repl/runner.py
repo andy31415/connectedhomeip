@@ -41,15 +41,15 @@ class Runner(TestRunner):
         matter.logging.RedirectToPythonLogging()
         chip_stack = ChipStack(PersistentStorageJSON(self._repl_storage_path))
         certificate_authority_manager = matter.CertificateAuthority.CertificateAuthorityManager(
-            chip_stack, chip_stack.GetStorageManager()
-        )
+            chip_stack, chip_stack.GetStorageManager())
         certificate_authority_manager.LoadAuthoritiesFromStorage()
 
         if len(certificate_authority_manager.activeCaList) == 0:
             certificate_authority_manager.NewCertificateAuthority()
 
         if len(certificate_authority_manager.activeCaList[0].adminList) == 0:
-            certificate_authority_manager.activeCaList[0].NewFabricAdmin(vendorId=0xFFF1, fabricId=1)
+            certificate_authority_manager.activeCaList[0].NewFabricAdmin(
+                vendorId=0xFFF1, fabricId=1)
 
         ca_list = certificate_authority_manager.activeCaList
 
@@ -60,7 +60,7 @@ class Runner(TestRunner):
         # device with the provided node id.
         if self._node_id_to_commission is not None:
             # Magic value is the defaults expected for YAML tests.
-            await dev_ctrl.CommissionWithCode("MT:-24J0AFN00KA0648G00", self._node_id_to_commission)
+            await dev_ctrl.CommissionWithCode('MT:-24J0AFN00KA0648G00', self._node_id_to_commission)
 
         self._chip_stack = chip_stack
         self._certificate_authority_manager = certificate_authority_manager

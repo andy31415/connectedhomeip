@@ -26,7 +26,7 @@ from matter.testing.runner import MockTestRunner
 
 
 @dataclass
-class TestSpec:
+class TestSpec():
     max_paths: int
     dmtest_feature_map: int
     expect_pass: bool
@@ -46,14 +46,14 @@ def test_spec_to_attribute_cache(test_spec: TestSpec) -> Attribute.AsyncReadTran
     gd = Clusters.GeneralDiagnostics
     gd_attr = gd.Attributes
     resp = Attribute.AsyncReadTransaction.ReadResponse({}, [], {})
-    resp.attributes = {
-        0: {bi: {bi_attr.MaxPathsPerInvoke: test_spec.max_paths}, gd: {gd_attr.FeatureMap: test_spec.dmtest_feature_map}}
-    }
+    resp.attributes = {0: {bi: {bi_attr.MaxPathsPerInvoke: test_spec.max_paths},
+                           gd: {gd_attr.FeatureMap: test_spec.dmtest_feature_map}}}
     return resp
 
 
 def main():
-    test_runner = MockTestRunner(Path(__file__).parent / "../TC_DGGEN_3_2.py", "TC_DGGEN_3_2", "test_TC_DGGEN_3_2", 0)
+    test_runner = MockTestRunner(Path(__file__).parent / '../TC_DGGEN_3_2.py',
+                                 'TC_DGGEN_3_2', 'test_TC_DGGEN_3_2', 0)
     failures = []
     for idx, t in enumerate(TEST_CASES):
         ok = test_runner.run_test_with_mock_read(test_spec_to_attribute_cache(t)) == t.expect_pass
@@ -62,8 +62,7 @@ def main():
 
     test_runner.Shutdown()
     print(
-        f"Test of tests: run {len(TEST_CASES)}, test response correct: {len(TEST_CASES) - len(failures)} test response incorrect: {len(failures)}"
-    )
+        f"Test of tests: run {len(TEST_CASES)}, test response correct: {len(TEST_CASES) - len(failures)} test response incorrect: {len(failures)}")
     for f in failures:
         print(f)
 

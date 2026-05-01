@@ -54,10 +54,13 @@ class Canceller:
                     cutoff,
                 )
                 break
-            log.info("Examining PR #%d updated at '%s': '%s'", pr.number, pr_update, pr.title)
+            log.info(
+                "Examining PR #%d updated at '%s': '%s'", pr.number, pr_update, pr.title
+            )
             self.check_pr(pr, required_runs)
 
     def check_pr(self, pr: PullRequest, required_runs):
+
         last_commit: Optional[Commit] = None
 
         for commit in pr.get_commits():
@@ -95,7 +98,9 @@ class Canceller:
                 #       so need whatever is after run.
                 m = re.match(r".*/actions/runs/([\d]+)/job/.*", run.html_url)
                 if not m:
-                    log.error("Failed to extract workflow number from '%s'", run.html_url)
+                    log.error(
+                        "Failed to extract workflow number from '%s'", run.html_url
+                    )
                     continue
 
                 workflow_id = int(m.group(1))
@@ -135,8 +140,12 @@ class Canceller:
 @click.option("--gh-api-token", help="Github token to use")
 @click.option("--token-file", help="Read github token from the given file")
 @click.option("--dry-run", default=False, is_flag=True, help="Actually cancel or not")
-@click.option("--max-pr-age-days", default=0, type=int, help="How many days to look at PRs")
-@click.option("--max-pr-age-minutes", default=0, type=int, help="How many minutes to look at PRs")
+@click.option(
+    "--max-pr-age-days", default=0, type=int, help="How many days to look at PRs"
+)
+@click.option(
+    "--max-pr-age-minutes", default=0, type=int, help="How many minutes to look at PRs"
+)
 @click.option("--require", multiple=True, default=[], help="Name of required runs")
 def main(
     log_level,
@@ -147,7 +156,9 @@ def main(
     max_pr_age_minutes,
     require,
 ):
-    coloredlogs.install(level=__LOG_LEVELS__[log_level], fmt="%(asctime)s %(levelname)-7s %(message)s")
+    coloredlogs.install(
+        level=__LOG_LEVELS__[log_level], fmt="%(asctime)s %(levelname)-7s %(message)s"
+    )
 
     if gh_api_token:
         gh_token = gh_api_token
@@ -159,7 +170,9 @@ def main(
 
     max_age = datetime.timedelta(days=max_pr_age_days, minutes=max_pr_age_minutes)
     if max_age == datetime.timedelta():
-        raise Exception("Please specifiy a max age of minutes or days (--max-pr-age-days or --max-pr-age-minutes)")
+        raise Exception(
+            "Please specifiy a max age of minutes or days (--max-pr-age-days or --max-pr-age-minutes)"
+        )
 
     Canceller(gh_token, dry_run).check_all_pending_prs(max_age, require)
 

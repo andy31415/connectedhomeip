@@ -29,50 +29,43 @@ log = logging.getLogger(__name__)
 
 
 class ElectricalGridConditionsTestBaseHelper:
+
     # Spec derived constants
-    kMaxForecastEntries = 56  # Maximum number of list entries for Forecasts
+    kMaxForecastEntries = 56    # Maximum number of list entries for Forecasts
 
     # Test event trigger IDs
     kEventTriggerCurrentConditionsUpdate = 0x00A0000000000000
     kEventTriggerForecastConditionsUpdate = 0x00A0000000000001
 
-    def check_ForecastConditions(self, cluster: Clusters.ElectricalGridConditions, forecastConditions: list):
+    def check_ForecastConditions(self,
+                                 cluster: Clusters.ElectricalGridConditions,
+                                 forecastConditions: list):
         matter_asserts.assert_list(forecastConditions, "ForecastConditions must be a list")
         matter_asserts.assert_list_element_type(
-            forecastConditions,
-            cluster.Structs.ElectricalGridConditionsStruct,
+            forecastConditions, cluster.Structs.ElectricalGridConditionsStruct,
             "ForecastConditions attribute must contain ElectricalGridConditionsStruct elements",
-            allow_empty=True,
-        )
+            allow_empty=True)
 
-        asserts.assert_less_equal(
-            len(forecastConditions),
-            self.kMaxForecastEntries,
-            f"ForecastConditions list must be less than {self.kMaxForecastEntries} entries",
-        )
+        asserts.assert_less_equal(len(forecastConditions),
+                                  self.kMaxForecastEntries,
+                                  f"ForecastConditions list must be less than {self.kMaxForecastEntries} entries")
         for item in forecastConditions:
             self.check_ElectricalGridConditionsStruct(cluster=cluster, struct=item)
 
-    def check_ElectricalGridConditionsStruct(
-        self,
-        cluster: Clusters.ElectricalGridConditions,
-        struct: Clusters.ElectricalGridConditions.Structs.ElectricalGridConditionsStruct,
-    ):
-        matter_asserts.assert_valid_uint32(struct.periodStart, "PeriodStart")
+    def check_ElectricalGridConditionsStruct(self,
+                                             cluster: Clusters.ElectricalGridConditions,
+                                             struct: Clusters.ElectricalGridConditions.Structs.ElectricalGridConditionsStruct):
+        matter_asserts.assert_valid_uint32(struct.periodStart, 'PeriodStart')
         if struct.periodEnd is not NullValue:
-            matter_asserts.assert_valid_uint32(struct.periodEnd, "PeriodEnd")
-        matter_asserts.assert_valid_int16(struct.gridCarbonIntensity, "GridCarbonIntensity")
+            matter_asserts.assert_valid_uint32(struct.periodEnd, 'PeriodEnd')
+        matter_asserts.assert_valid_int16(struct.gridCarbonIntensity, 'GridCarbonIntensity')
         matter_asserts.assert_valid_enum(
-            struct.gridCarbonLevel, "GridCarbonLevel attribute must return a ThreeLevelEnum", cluster.Enums.ThreeLevelEnum
-        )
-        matter_asserts.assert_valid_int16(struct.localCarbonIntensity, "LocalCarbonIntensity")
+            struct.gridCarbonLevel, "GridCarbonLevel attribute must return a ThreeLevelEnum", cluster.Enums.ThreeLevelEnum)
+        matter_asserts.assert_valid_int16(struct.localCarbonIntensity, 'LocalCarbonIntensity')
         matter_asserts.assert_valid_enum(
-            struct.localCarbonLevel, "LocalCarbonLevel attribute must return a ThreeLevelEnum", cluster.Enums.ThreeLevelEnum
-        )
+            struct.localCarbonLevel, "LocalCarbonLevel attribute must return a ThreeLevelEnum", cluster.Enums.ThreeLevelEnum)
 
-        log.info(
-            f"EGC: from: {self.convert_epoch_s_to_time(struct.periodStart, tz=None)} to {self.convert_epoch_s_to_time(struct.periodEnd, tz=None)} : GridC: {struct.gridCarbonIntensity} / GridCLevel: {struct.gridCarbonLevel} / LocalC: {struct.localCarbonIntensity} / LocalCLevel: {struct.localCarbonLevel}"
-        )
+        log.info(f"EGC: from: {self.convert_epoch_s_to_time(struct.periodStart, tz=None)} to {self.convert_epoch_s_to_time(struct.periodEnd, tz=None)} : GridC: {struct.gridCarbonIntensity} / GridCLevel: {struct.gridCarbonLevel} / LocalC: {struct.localCarbonIntensity} / LocalCLevel: {struct.localCarbonLevel}")
 
     async def send_test_event_trigger_current_conditions_update(self):
         await self.send_test_event_triggers(eventTrigger=self.kEventTriggerCurrentConditionsUpdate)

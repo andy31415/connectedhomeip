@@ -124,7 +124,8 @@ void Device::SetChangeCallback(DeviceCallback_fn aChanged_CB)
 
 DeviceTempSensor::DeviceTempSensor(const char * szDeviceName, std::string szLocation, int16_t min, int16_t max,
                                    int16_t measuredValue) :
-    Device(szDeviceName, szLocation.c_str()), mMin(min), mMax(max), mMeasurement(measuredValue)
+    Device(szDeviceName, szLocation.c_str()),
+    mMin(min), mMax(max), mMeasurement(measuredValue)
 {}
 
 void DeviceTempSensor::SetMeasuredValue(int16_t measurement)

@@ -68,6 +68,7 @@ class TC_TIMESYNC_2_6(MatterBaseTest):
 
     @async_test_body
     async def test_TC_TIMESYNC_2_6(self):
+
         # Time sync is required to be on endpoint 0 if it is present
         self.endpoint = 0
 

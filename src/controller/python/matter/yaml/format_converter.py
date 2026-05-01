@@ -41,16 +41,15 @@ def _case_insensitive_getattr(object, attr_name, default):
 
 def _get_target_type_info(test_spec_definition, cluster_name, target_name) -> _TargetTypeInfo:
     element = test_spec_definition.get_type_by_name(cluster_name, target_name)
-    if hasattr(element, "fields"):
+    if hasattr(element, 'fields'):
         is_fabric_scoped = test_spec_definition.is_fabric_scoped(element)
         return _TargetTypeInfo(element.fields, is_fabric_scoped)
     return _TargetTypeInfo(None, False)
 
 
-def from_data_model_to_test_definition(
-    test_spec_definition, cluster_name, response_definition, response_value, is_fabric_scoped=False
-):
-    """Converts value from data model to definitions provided in test_spec_definition.
+def from_data_model_to_test_definition(test_spec_definition, cluster_name, response_definition,
+                                       response_value, is_fabric_scoped=False):
+    '''Converts value from data model to definitions provided in test_spec_definition.
 
     Args:
         'test_spec_definition': The spec cluster definition used by the test parser.
@@ -58,7 +57,7 @@ def from_data_model_to_test_definition(
         'response_definition': Type we are converting 'response_value' to. This will be one of
             two types: list[idl.matter_idl_types.Field] or idl.matter_idl_types.Field
         'response_value': Response value that we want to convert to
-    """
+    '''
     if response_value is None:
         return response_value
 
@@ -70,12 +69,13 @@ def from_data_model_to_test_definition(
         # is_fabric_scoped will only be relevant for struct types, hence why it is only checked
         # here.
         if is_fabric_scoped:
-            rv["FabricIndex"] = _case_insensitive_getattr(response_value, "fabricIndex", None)
+            rv['FabricIndex'] = _case_insensitive_getattr(response_value, 'fabricIndex', None)
         for item in response_definition:
             value = _case_insensitive_getattr(response_value, item.name, None)
             if item.is_optional and value is None:
                 continue
-            rv[item.name] = from_data_model_to_test_definition(test_spec_definition, cluster_name, item, value)
+            rv[item.name] = from_data_model_to_test_definition(test_spec_definition, cluster_name,
+                                                               item, value)
         return rv
 
     # We convert uint to python int because constraints first check that it is an expected type.
@@ -93,10 +93,11 @@ def from_data_model_to_test_definition(
     # it naturally give 6 most significat digits for us which is the amount of prcision we are
     # looking for to give parity results to what chip-tool was getting (For TestCluster.yaml it
     # give value back of `0.100000`.
-    if response_value_type == float32 and response_definition.data_type.name.lower() == "single":
-        return float("%g" % response_value)
+    if response_value_type == float32 and response_definition.data_type.name.lower() == 'single':
+        return float('%g' % response_value)
 
-    target_type_info = _get_target_type_info(test_spec_definition, cluster_name, response_definition.data_type.name)
+    target_type_info = _get_target_type_info(test_spec_definition, cluster_name,
+                                             response_definition.data_type.name)
 
     response_sub_definition = target_type_info.field
     is_sub_definition_fabric_scoped = target_type_info.is_fabric_scoped
@@ -104,35 +105,34 @@ def from_data_model_to_test_definition(
     # Check below is to see if the field itself is an array, for example array of ints.
     if response_definition.is_list:
         return [
-            from_data_model_to_test_definition(
-                test_spec_definition, cluster_name, response_sub_definition, item, is_sub_definition_fabric_scoped
-            )
-            for item in response_value
+            from_data_model_to_test_definition(test_spec_definition, cluster_name,
+                                               response_sub_definition, item,
+                                               is_sub_definition_fabric_scoped) for item in response_value
         ]
 
-    return from_data_model_to_test_definition(
-        test_spec_definition, cluster_name, response_sub_definition, response_value, is_sub_definition_fabric_scoped
-    )
+    return from_data_model_to_test_definition(test_spec_definition, cluster_name,
+                                              response_sub_definition, response_value,
+                                              is_sub_definition_fabric_scoped)
 
 
 def convert_list_of_name_value_pair_to_dict(arg_values):
-    """Converts list of dict with items with keys 'name' and 'value' into single dict.
+    '''Converts list of dict with items with keys 'name' and 'value' into single dict.
 
     The test step contains a list of arguments that have multiple properties other than
     'name' and 'value'. For the purposes of executing a test all these other attributes are not
     important. We only want a simple dictionary of a new key/value where with the key being the
     value of the 'name' field, and the value being 'value' field.
-    """
+    '''
     ret_value = {}
 
     for item in arg_values:
-        ret_value[item["name"]] = item["value"]
+        ret_value[item['name']] = item['value']
 
     return ret_value
 
 
 def convert_to_data_model_type(field_value, field_type):
-    """Converts value to provided data model pythonic object type.
+    '''Converts value to provided data model pythonic object type.
 
     The values provided by parser does not line up to the python data model for the various
     command/attribute/event object types. This function converts 'field_value' to the provided
@@ -141,13 +141,13 @@ def convert_to_data_model_type(field_value, field_type):
     Args:
         'field_value': Value as extracted by YAML parser.
         'field_type': Pythonic command/attribute/event object type that we are converting value to.
-    """
+    '''
     origin = typing.get_origin(field_type)
 
     if field_value is None:
         field_value = NullValue
 
-    if origin == typing.Union or origin == typing.Optional or origin == Nullable:
+    if (origin == typing.Union or origin == typing.Optional or origin == Nullable):
         underlying_field_type = None
 
         if field_value is NullValue:
@@ -163,13 +163,13 @@ def convert_to_data_model_type(field_value, field_type):
                 underlying_field_type = t
                 break
 
-        if underlying_field_type is None:
+        if (underlying_field_type is None):
             raise ValueError(f"Can't find the underling type for {field_type}")
 
         field_type = underlying_field_type
 
     # Dictionary represents a data model struct.
-    if type(field_value) is dict:
+    if (type(field_value) is dict):
         return_field_value = {}
         field_descriptors = field_type.descriptor
         for item in field_value:
@@ -177,16 +177,20 @@ def convert_to_data_model_type(field_value, field_type):
                 # We search for a matching item in the list of field descriptors
                 # for this struct and ensure we can find a field with a matching
                 # label.
-                field_descriptor = next(x for x in field_descriptors.Fields if x.Label.lower() == item.lower())
+                field_descriptor = next(
+                    x for x in field_descriptors.Fields if x.Label.lower() ==
+                    item.lower())
             except StopIteration:
-                raise ValidationError(f'Did not find field "{item}" in {str(field_type)}') from None
+                raise ValidationError(
+                    f'Did not find field "{item}" in {str(field_type)}') from None
 
-            return_field_value[field_descriptor.Label] = convert_to_data_model_type(field_value[item], field_descriptor.Type)
+            return_field_value[field_descriptor.Label] = convert_to_data_model_type(
+                field_value[item], field_descriptor.Type)
         return return_field_value
-    if type(field_value) is float:
+    if (type(field_value) is float):
         return float32(field_value)
     # list represents a data model list
-    if type(field_value) is list:
+    if (type(field_value) is list):
         list_element_type = typing.get_args(field_type)[0]
 
         # The field type passed in is the type of the list element and not list[T].
@@ -195,13 +199,13 @@ def convert_to_data_model_type(field_value, field_type):
         return field_value
     # YAML conversion treats all numbers as ints. Convert to a uint type if the schema
     # type indicates so.
-    if type(field_value) is str and field_type == uint:
+    if (type(field_value) is str and field_type == uint):
         # Longer number are stored as strings. Need to make this conversion first.
         # The value can be represented in binary, octal, decimal or hexadecimal
         # format.
         return field_type(int(field_value, 0))
     # YAML treats enums as ints. Convert to the typed enum class.
-    if issubclass(field_type, MatterIntEnum):
+    if (issubclass(field_type, MatterIntEnum)):
         return field_type.extend_enum_if_value_doesnt_exist(field_value)
     # By default, just return the field_value casted to field_type.
     return field_type(field_value)

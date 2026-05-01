@@ -35,7 +35,8 @@ using ContentAppAttributeDelegate = chip::AppPlatform::ContentAppAttributeDelega
 
 AppContentLauncherManager::AppContentLauncherManager(ContentAppAttributeDelegate * attributeDelegate,
                                                      std::list<std::string> acceptHeaderList,
-                                                     uint32_t supportedStreamingProtocols) : mAttributeDelegate(attributeDelegate)
+                                                     uint32_t supportedStreamingProtocols) :
+    mAttributeDelegate(attributeDelegate)
 {
     mAcceptHeaderList            = acceptHeaderList;
     mSupportedStreamingProtocols = supportedStreamingProtocols;

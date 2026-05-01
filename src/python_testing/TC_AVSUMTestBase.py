@@ -88,14 +88,15 @@ class AVSUMTestBase:
 
     async def check_avsum_attribute(self, attribute, expected_value, endpoint):
         value = await self.read_avsum_attribute_expect_success(endpoint=endpoint, attribute=attribute)
-        asserts.assert_equal(value, expected_value, f"Unexpected '{attribute}' value - expected {expected_value}, was {value}")
+        asserts.assert_equal(value, expected_value,
+                             f"Unexpected '{attribute}' value - expected {expected_value}, was {value}")
 
     async def send_save_preset_command(self, endpoint, name: str, presetID: int = None, expected_status: Status = Status.Success):
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.MPTZSavePreset(name=name, presetID=presetID),
-                endpoint=endpoint,
-            )
+            await self.send_single_cmd(cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.MPTZSavePreset(
+                name=name,
+                presetID=presetID),
+                endpoint=endpoint)
 
             asserts.assert_equal(expected_status, Status.Success)
 
@@ -104,9 +105,9 @@ class AVSUMTestBase:
 
     async def send_move_to_preset_command(self, endpoint, presetID, expected_status: Status = Status.Success):
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.MPTZMoveToPreset(presetID=presetID), endpoint=endpoint
-            )
+            await self.send_single_cmd(cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.MPTZMoveToPreset(
+                presetID=presetID),
+                endpoint=endpoint)
 
             asserts.assert_equal(expected_status, Status.Success)
 
@@ -115,9 +116,9 @@ class AVSUMTestBase:
 
     async def send_remove_preset_command(self, endpoint, presetID, expected_status: Status = Status.Success):
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.MPTZRemovePreset(presetID=presetID), endpoint=endpoint
-            )
+            await self.send_single_cmd(cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.MPTZRemovePreset(
+                presetID=presetID),
+                endpoint=endpoint)
 
             asserts.assert_equal(expected_status, Status.Success)
 
@@ -126,34 +127,25 @@ class AVSUMTestBase:
 
     async def send_dptz_set_viewport_command(self, endpoint, streamID, viewport, expected_status: Status = Status.Success):
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.DPTZSetViewport(
-                    videoStreamID=streamID, viewport=viewport
-                ),
-                endpoint=endpoint,
-            )
+            await self.send_single_cmd(cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.DPTZSetViewport(
+                videoStreamID=streamID,
+                viewport=viewport),
+                endpoint=endpoint)
 
             asserts.assert_equal(expected_status, Status.Success)
 
         except InteractionModelError as e:
             asserts.assert_equal(e.status, expected_status, "Unexpected error returned")
 
-    async def send_dptz_relative_move_command(
-        self,
-        endpoint,
-        streamID,
-        deltaX: int = None,
-        deltaY: int = None,
-        zoomDelta: int = None,
-        expected_status: Status = Status.Success,
-    ):
+    async def send_dptz_relative_move_command(self, endpoint, streamID, deltaX: int = None, deltaY: int = None,
+                                              zoomDelta: int = None, expected_status: Status = Status.Success):
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.DPTZRelativeMove(
-                    videoStreamID=streamID, deltaX=deltaX, deltaY=deltaY, zoomDelta=zoomDelta
-                ),
-                endpoint=endpoint,
-            )
+            await self.send_single_cmd(cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.DPTZRelativeMove(
+                videoStreamID=streamID,
+                deltaX=deltaX,
+                deltaY=deltaY,
+                zoomDelta=zoomDelta),
+                endpoint=endpoint)
 
             asserts.assert_equal(expected_status, Status.Success)
 
@@ -175,10 +167,9 @@ class AVSUMTestBase:
     async def send_null_mptz_set_position_command(self, endpoint, expected_status: Status = Status.Success):
         pan = tilt = zoom = None
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.MPTZSetPosition(pan=pan, tilt=tilt, zoom=zoom),
-                endpoint=endpoint,
-            )
+            await self.send_single_cmd(cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.MPTZSetPosition(
+                pan=pan, tilt=tilt, zoom=zoom),
+                endpoint=endpoint)
 
             asserts.assert_equal(expected_status, Status.Success)
 
@@ -187,10 +178,9 @@ class AVSUMTestBase:
 
     async def send_mptz_set_position_command(self, endpoint, pan, tilt, zoom, expected_status: Status = Status.Success):
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.MPTZSetPosition(pan=pan, tilt=tilt, zoom=zoom),
-                endpoint=endpoint,
-            )
+            await self.send_single_cmd(cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.MPTZSetPosition(
+                pan=pan, tilt=tilt, zoom=zoom),
+                endpoint=endpoint)
 
             asserts.assert_equal(expected_status, Status.Success)
 
@@ -212,28 +202,20 @@ class AVSUMTestBase:
     async def send_null_mptz_relative_move_command(self, endpoint, expected_status: Status = Status.Success):
         panDelta = tiltDelta = zoomDelta = None
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.MPTZRelativeMove(
-                    panDelta=panDelta, tiltDelta=tiltDelta, zoomDelta=zoomDelta
-                ),
-                endpoint=endpoint,
-            )
+            await self.send_single_cmd(cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.MPTZRelativeMove(
+                panDelta=panDelta, tiltDelta=tiltDelta, zoomDelta=zoomDelta),
+                endpoint=endpoint)
 
             asserts.assert_equal(expected_status, Status.Success)
 
         except InteractionModelError as e:
             asserts.assert_equal(e.status, expected_status, "Unexpected error returned")
 
-    async def send_mptz_relative_move_command(
-        self, endpoint, panDelta, tiltDelta, zoomDelta, expected_status: Status = Status.Success
-    ):
+    async def send_mptz_relative_move_command(self, endpoint, panDelta, tiltDelta, zoomDelta, expected_status: Status = Status.Success):
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.MPTZRelativeMove(
-                    panDelta=panDelta, tiltDelta=tiltDelta, zoomDelta=zoomDelta
-                ),
-                endpoint=endpoint,
-            )
+            await self.send_single_cmd(cmd=Clusters.CameraAvSettingsUserLevelManagement.Commands.MPTZRelativeMove(
+                panDelta=panDelta, tiltDelta=tiltDelta, zoomDelta=zoomDelta),
+                endpoint=endpoint)
 
             asserts.assert_equal(expected_status, Status.Success)
 
@@ -241,15 +223,13 @@ class AVSUMTestBase:
             asserts.assert_equal(e.status, expected_status, "Unexpected error returned")
 
     async def dptzstreamentryvalid(self, endpoint, videoStreamID, viewport):
-        dptz_streams_dut = await self.read_avsum_attribute_expect_success(
-            endpoint, Clusters.Objects.CameraAvSettingsUserLevelManagement.Attributes.DPTZStreams
-        )
+        dptz_streams_dut = await self.read_avsum_attribute_expect_success(endpoint, Clusters.Objects.CameraAvSettingsUserLevelManagement.Attributes.DPTZStreams)
         match_found = False
         if dptz_streams_dut is not None:
             for streams in dptz_streams_dut:
                 if streams.videoStreamID == videoStreamID:
                     # verify the viewport matches
-                    if streams.viewport == viewport:
+                    if (streams.viewport == viewport):
                         match_found = True
                         break
 
@@ -282,24 +262,21 @@ class AVSUMTestBase:
         aVideoSensorParams = await self.read_avstr_attribute_expect_success(endpoint, attrs.VideoSensorParams)
 
         try:
-            response = await self.send_single_cmd(
-                cmd=Clusters.CameraAvStreamManagement.Commands.VideoStreamAllocate(
-                    streamUsage=aStreamUsagePriorities[0],
-                    videoCodec=aRateDistortionTradeOffPoints[0].codec,
-                    minFrameRate=min(15, aVideoSensorParams.maxFPS),
-                    maxFrameRate=aVideoSensorParams.maxFPS,
-                    minResolution=aMinViewportRes,
-                    maxResolution=Clusters.CameraAvStreamManagement.Structs.VideoResolutionStruct(
-                        width=aVideoSensorParams.sensorWidth, height=aVideoSensorParams.sensorHeight
-                    ),
-                    minBitRate=aRateDistortionTradeOffPoints[0].minBitRate,
-                    maxBitRate=aRateDistortionTradeOffPoints[0].minBitRate,
-                    keyFrameInterval=4000,
-                    watermarkEnabled=watermark,
-                    OSDEnabled=osd,
-                ),
-                endpoint=endpoint,
-            )
+            response = await self.send_single_cmd(cmd=Clusters.CameraAvStreamManagement.Commands.VideoStreamAllocate(
+                streamUsage=aStreamUsagePriorities[0],
+                videoCodec=aRateDistortionTradeOffPoints[0].codec,
+                minFrameRate=min(15, aVideoSensorParams.maxFPS),
+                maxFrameRate=aVideoSensorParams.maxFPS,
+                minResolution=aMinViewportRes,
+                maxResolution=Clusters.CameraAvStreamManagement.Structs.VideoResolutionStruct(width=aVideoSensorParams.sensorWidth,
+                                                                                              height=aVideoSensorParams.sensorHeight),
+                minBitRate=aRateDistortionTradeOffPoints[0].minBitRate,
+                maxBitRate=aRateDistortionTradeOffPoints[0].minBitRate,
+                keyFrameInterval=4000,
+                watermarkEnabled=watermark,
+                OSDEnabled=osd
+            ),
+                endpoint=endpoint)
 
             asserts.assert_equal(expected_status, Status.Success)
             return response.videoStreamID

@@ -85,184 +85,78 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
     def steps_TC_PAVST_2_11(self) -> list[TestStep]:
         return [
             TestStep("precondition", "Commissioning, already done", is_commissioning=True),
-            TestStep(
-                1,
-                "TH Reads CurrentConnections attribute from PushAV Stream Transport Cluster on DUT",
-                "Verify the number of PushAV Connections in the list is 0. If not 0, issue DeAllocatePushAVTransport with ConnectionID to remove any connections.",
-            ),
-            TestStep(
-                2,
-                "TH Reads SupportedFormats attribute from PushAV Stream Transport Cluster on DUT",
-                "Store value as aSupportedFormats.",
-            ),
-            TestStep(
-                3,
-                "After ensuring that no streams have been allocated, TH sends an AllocatePushTransport command with Null for the video and audio stream IDs",
-                "DUT responds with InvalidInState as no streams have been allocated.",
-            ),
-            TestStep(
-                4,
-                "If no video streams are allocated, TH sends a VideoStreamAllocate command. Otherwise the first allocated video stream is used.",
-                "If the command is sent, the DUT responds with VideoStreamAllocateResponse, store this as aAllocatedVideoStreams.",
-            ),
-            TestStep(
-                5,
-                "If no audio streams are allocated, TH sends a AudioStreamAllocate command. Otherwise the first allocated audio stream is used.",
-                "If the command is sent, the DUT responds with AudioStreamAllocateResponse, store this as aAllocatedAudioStreams.",
-            ),
-            TestStep(
-                6,
-                "TH sends the AllocatePushTransport command with valid parameters",
-                "DUT responds with `AllocatePushTransportResponse` containing the allocated `ConnectionID`, `TransportOptions`, and `TransportStatus` in the `TransportConfigurationStruct`. Store ConnectionID as `aConnectionID_1`.",
-            ),
-            TestStep(
-                7,
-                "TH Reads CurrentConnections attribute from PushAV Stream Transport Cluster on DUT over a large-payload session",
-                "Verify the number of PushAV Connections is 1. Verify that the TransportStatus field is Inactive.",
-            ),
-            TestStep(
-                8,
-                "TH Reads Zones attribute from Zones Management Cluster on DUT, if the zone management cluster is present on this endpoint",
-                "Store value as aZones.",
-            ),
-            TestStep(
-                9,
-                "TH Reads MaxZones attribute from Zones Management Cluster on DUT, if the zone management cluster is present on this endpoint",
-                "Store value as aMaxZones.",
-            ),
-            TestStep(
-                10,
-                "TH Reads ProvisionedEndpoints attribute from TLS Client Management Cluster on DUT",
-                "Store value as aProvisionedEndpoints.",
-            ),
-            TestStep(
-                11,
-                "TH sends the AllocatePushTransport command with a TLSEndpointID not in aProvisionedEndpoints in the TransportOptions struct.",
-                "DUT responds with Status Code InvalidTLSEndpoint.",
-            ),
-            TestStep(
-                12,
-                "TH sends the AllocatePushTransport command with an invalid IngestMethod.",
-                "DUT responds with Status Code ConstraintError.",
-            ),
-            TestStep(
-                13, "TH sends the AllocatePushTransport command with Invalid URL.", "DUT responds with Status Code InvalidURL."
-            ),
-            TestStep(
-                14,
-                "TH sends the AllocatePushTransport command with an invalid TriggerType in the TransportTriggerOptions struct field.",
-                "DUT responds with Status Code ConstraintError.",
-            ),
-            TestStep(
-                15,
-                "If the zone management cluster is present on this endpoint, TH sends the AllocatePushTransport command with a Null Zone in MotionZones.",
-                "DUT responds with Success.",
-            ),
-            TestStep(
-                16,
-                "If the zone management cluster is present on this endpoint, TH sends the AllocatePushTransport command with duplicate numeric Zone IDs within MotionZones.",
-                "DUT responds with Status Code AlreadyExists.",
-            ),
-            TestStep(
-                17,
-                "If the zone management cluster is present on this endpoint, TH sends the AllocatePushTransport command with duplicate Null Zone IDs within MotionZones.",
-                "DUT responds with Status Code AlreadyExists.",
-            ),
-            TestStep(
-                18,
-                "If the zone management cluster is present on this endpoint, TH sends the AllocatePushTransport command with an invalid ZoneID that is not present in aZones.",
-                "DUT responds with Status Code InvalidZone.",
-            ),
-            TestStep(
-                19,
-                "TH sends the AllocatePushTransport command with VideoStreams containing a VideoStreamID not present in aAllocatedVideoStreams.",
-                "DUT responds with Status Code InvalidStream.",
-            ),
-            TestStep(
-                20,
-                "TH sends the AllocatePushTransport command with AudioStreams containing an AudioStreamID not present in aAllocatedAudioStreams.",
-                "DUT responds with Status Code InvalidStream.",
-            ),
-            TestStep(
-                21,
-                "TH sends the AllocatePushTransport command with both `VideoStreams` and `AudioStreams` absent.",
-                "DUT responds with Status Code `InvalidCommand`.",
-            ),
-            TestStep(
-                "21a",
-                "TH sends the AllocatePushTransport command with a VideoStreamID set to an allocated stream ID, and a VideoStreams containing the same allocated stream ID",
-                "DUT responds with INVALID_COMMAND status code.",
-            ),
-            TestStep(
-                22,
-                "TH sends the AllocatePushTransport command with both `VideoStreamID` and `AudioStreamID` set to NULL and no `VideoStreams` or `AudioStreams` fields present.",
-                'DUT responds with `AllocatePushTransportResponse` containing the allocated `ConnectionID`, store this as \'aConnectionID-2\'. If the `AllocatePushTransportResponse` contains a TransportOptions, verify the following: * AudioStreamId field is present containing the allocated audio stream ID * VideoStreamId field is present containing the allocated video stream ID * VideoStreams field is present with an entry that has the allocated video stream ID, and a VideoStreamName of "video" * AudioStreams field is present with an entry that has the allocated audio stream ID, and an AudioStreamName of "audio"',
-            ),
-            TestStep(
-                23,
-                "If the zone management cluster is present on this endpoint, TH sends the AllocatePushTransport command with the TriggerType = Motion and size of the MotionZones list to be greater than aMaxZones.",
-                "DUT responds with DynamicConstraintError.",
-            ),
-            TestStep(
-                24,
-                "TH sends the AllocatePushTransport command with the TriggerType = Motion and valid value for MotionSensitivity if DUT supports PerZoneSensitivity.",
-                "DUT responds with InvalidCommand.",
-            ),
-            TestStep(
-                25,
-                "TH sends the AllocatePushTransport command with the TriggerType = Motion and MotionSensitivity > 10 if DUT does not support PerZoneSensitivity.",
-                "DUT responds with ConstraintError.",
-            ),
-            TestStep(
-                26,
-                "TH sends the AllocatePushTransport command with the TriggerType = Motion and MotionTimeControl omitted.",
-                "DUT responds with InvalidCommand.",
-            ),
-            TestStep(
-                27,
-                "TH sends the AllocatePushTransport command with the TriggerType = Motion and MotionTimeControl struct with InitialDuration = 0.",
-                "DUT responds with ConstraintError.",
-            ),
-            TestStep(
-                28,
-                "TH sends the AllocatePushTransport command with the TriggerType = Motion and MotionTimeControl struct with MaxDuration = 0.",
-                "DUT responds with ConstraintError.",
-            ),
-            TestStep(
-                29,
-                "TH sends a `DeallocatePushTransport`command with `aConnectionID_1`. TH sends the AllocatePushTransport command with all valid parameters. The `TriggerType = Motion` and `MotionZones` and `MotionSensitivity` fields are present and NULL.",
-                "DUT responds with AllocatePushTransportResponse containing the allocated ConnectionID.",
-            ),
-            TestStep(
-                30,
-                "TH sends a `DeallocatePushTransport` command with `aConnectionID-2`. TH sends the AllocatePushTransport command with all valid parameters. The `TriggerType = Motion` and `MotionZones` field is empty.",
-                "DUT responds with `AllocatePushTransportResponse` containing the allocated `ConnectionID`.",
-            ),
-            TestStep(
-                31,
-                "TH sends the AllocatePushTransport command with an invalid value for StreamUsage in the TransportOptions struct.",
-                "DUT responds with InvalidCommand.",
-            ),
-            TestStep(
-                32,
-                "TH sends the AllocatePushTransport command with ContainerType = CMAF and CMAFContainerOptions omitted.",
-                "DUT responds with InvalidCommand.",
-            ),
-            TestStep(
-                33,
-                "TH sends the AllocatePushTransport command with ContainerType = CMAF and CMAFContainerOptions having a segment that is not an exact multiplier of the KeyFrameInterval of the allocated video stream ID.",
-                "DUT responds with InvalidOptions.",
-            ),
-            TestStep(
-                34,
-                "TH sends the AllocatePushTransport command with a value for StreamUsage not in SupportedStreamUsages.",
-                "DUT responds with InvalidStreamUsage.",
-            ),
-            TestStep(
-                35,
-                "TH sends the AllocatePushTransport command with a non-zero MaxPreRollLen that is less than the KeyFrameInterval value of the selected allocated video stream ID",
-                "DUT responds with InvalidPreRollLength.",
-            ),
+            TestStep(1, "TH Reads CurrentConnections attribute from PushAV Stream Transport Cluster on DUT",
+                     "Verify the number of PushAV Connections in the list is 0. If not 0, issue DeAllocatePushAVTransport with ConnectionID to remove any connections."),
+            TestStep(2, "TH Reads SupportedFormats attribute from PushAV Stream Transport Cluster on DUT",
+                     "Store value as aSupportedFormats."),
+            TestStep(3, "After ensuring that no streams have been allocated, TH sends an AllocatePushTransport command with Null for the video and audio stream IDs",
+                     "DUT responds with InvalidInState as no streams have been allocated."),
+            TestStep(4, "If no video streams are allocated, TH sends a VideoStreamAllocate command. Otherwise the first allocated video stream is used.",
+                     "If the command is sent, the DUT responds with VideoStreamAllocateResponse, store this as aAllocatedVideoStreams."),
+            TestStep(5, "If no audio streams are allocated, TH sends a AudioStreamAllocate command. Otherwise the first allocated audio stream is used.",
+                     "If the command is sent, the DUT responds with AudioStreamAllocateResponse, store this as aAllocatedAudioStreams."),
+            TestStep(6, "TH sends the AllocatePushTransport command with valid parameters",
+                     "DUT responds with `AllocatePushTransportResponse` containing the allocated `ConnectionID`, `TransportOptions`, and `TransportStatus` in the `TransportConfigurationStruct`. Store ConnectionID as `aConnectionID_1`."),
+            TestStep(7, "TH Reads CurrentConnections attribute from PushAV Stream Transport Cluster on DUT over a large-payload session",
+                     "Verify the number of PushAV Connections is 1. Verify that the TransportStatus field is Inactive."),
+            TestStep(8, "TH Reads Zones attribute from Zones Management Cluster on DUT, if the zone management cluster is present on this endpoint",
+                     "Store value as aZones."),
+            TestStep(9, "TH Reads MaxZones attribute from Zones Management Cluster on DUT, if the zone management cluster is present on this endpoint",
+                     "Store value as aMaxZones."),
+            TestStep(10, "TH Reads ProvisionedEndpoints attribute from TLS Client Management Cluster on DUT",
+                     "Store value as aProvisionedEndpoints."),
+            TestStep(11, "TH sends the AllocatePushTransport command with a TLSEndpointID not in aProvisionedEndpoints in the TransportOptions struct.",
+                     "DUT responds with Status Code InvalidTLSEndpoint."),
+            TestStep(12, "TH sends the AllocatePushTransport command with an invalid IngestMethod.",
+                     "DUT responds with Status Code ConstraintError."),
+            TestStep(13, "TH sends the AllocatePushTransport command with Invalid URL.",
+                     "DUT responds with Status Code InvalidURL."),
+            TestStep(14, "TH sends the AllocatePushTransport command with an invalid TriggerType in the TransportTriggerOptions struct field.",
+                     "DUT responds with Status Code ConstraintError."),
+            TestStep(15, "If the zone management cluster is present on this endpoint, TH sends the AllocatePushTransport command with a Null Zone in MotionZones.",
+                     "DUT responds with Success."),
+            TestStep(16, "If the zone management cluster is present on this endpoint, TH sends the AllocatePushTransport command with duplicate numeric Zone IDs within MotionZones.",
+                     "DUT responds with Status Code AlreadyExists."),
+            TestStep(17, "If the zone management cluster is present on this endpoint, TH sends the AllocatePushTransport command with duplicate Null Zone IDs within MotionZones.",
+                     "DUT responds with Status Code AlreadyExists."),
+            TestStep(18, "If the zone management cluster is present on this endpoint, TH sends the AllocatePushTransport command with an invalid ZoneID that is not present in aZones.",
+                     "DUT responds with Status Code InvalidZone."),
+            TestStep(19, "TH sends the AllocatePushTransport command with VideoStreams containing a VideoStreamID not present in aAllocatedVideoStreams.",
+                     "DUT responds with Status Code InvalidStream."),
+            TestStep(20, "TH sends the AllocatePushTransport command with AudioStreams containing an AudioStreamID not present in aAllocatedAudioStreams.",
+                     "DUT responds with Status Code InvalidStream."),
+            TestStep(21, "TH sends the AllocatePushTransport command with both `VideoStreams` and `AudioStreams` absent.",
+                     "DUT responds with Status Code `InvalidCommand`."),
+            TestStep("21a", "TH sends the AllocatePushTransport command with a VideoStreamID set to an allocated stream ID, and a VideoStreams containing the same allocated stream ID",
+                     "DUT responds with INVALID_COMMAND status code."),
+            TestStep(22, "TH sends the AllocatePushTransport command with both `VideoStreamID` and `AudioStreamID` set to NULL and no `VideoStreams` or `AudioStreams` fields present.",
+                     "DUT responds with `AllocatePushTransportResponse` containing the allocated `ConnectionID`, store this as 'aConnectionID-2'. If the `AllocatePushTransportResponse` contains a TransportOptions, verify the following: * AudioStreamId field is present containing the allocated audio stream ID * VideoStreamId field is present containing the allocated video stream ID * VideoStreams field is present with an entry that has the allocated video stream ID, and a VideoStreamName of \"video\" * AudioStreams field is present with an entry that has the allocated audio stream ID, and an AudioStreamName of \"audio\""),
+            TestStep(23, "If the zone management cluster is present on this endpoint, TH sends the AllocatePushTransport command with the TriggerType = Motion and size of the MotionZones list to be greater than aMaxZones.",
+                     "DUT responds with DynamicConstraintError."),
+            TestStep(24, "TH sends the AllocatePushTransport command with the TriggerType = Motion and valid value for MotionSensitivity if DUT supports PerZoneSensitivity.",
+                     "DUT responds with InvalidCommand."),
+            TestStep(25, "TH sends the AllocatePushTransport command with the TriggerType = Motion and MotionSensitivity > 10 if DUT does not support PerZoneSensitivity.",
+                     "DUT responds with ConstraintError."),
+            TestStep(26, "TH sends the AllocatePushTransport command with the TriggerType = Motion and MotionTimeControl omitted.",
+                     "DUT responds with InvalidCommand."),
+            TestStep(27, "TH sends the AllocatePushTransport command with the TriggerType = Motion and MotionTimeControl struct with InitialDuration = 0.",
+                     "DUT responds with ConstraintError."),
+            TestStep(28, "TH sends the AllocatePushTransport command with the TriggerType = Motion and MotionTimeControl struct with MaxDuration = 0.",
+                     "DUT responds with ConstraintError."),
+            TestStep(29, "TH sends a `DeallocatePushTransport`command with `aConnectionID_1`. TH sends the AllocatePushTransport command with all valid parameters. The `TriggerType = Motion` and `MotionZones` and `MotionSensitivity` fields are present and NULL.",
+                     "DUT responds with AllocatePushTransportResponse containing the allocated ConnectionID."),
+            TestStep(30, "TH sends a `DeallocatePushTransport` command with `aConnectionID-2`. TH sends the AllocatePushTransport command with all valid parameters. The `TriggerType = Motion` and `MotionZones` field is empty.",
+                     "DUT responds with `AllocatePushTransportResponse` containing the allocated `ConnectionID`."),
+            TestStep(31, "TH sends the AllocatePushTransport command with an invalid value for StreamUsage in the TransportOptions struct.",
+                     "DUT responds with InvalidCommand."),
+            TestStep(32, "TH sends the AllocatePushTransport command with ContainerType = CMAF and CMAFContainerOptions omitted.",
+                     "DUT responds with InvalidCommand."),
+            TestStep(33, "TH sends the AllocatePushTransport command with ContainerType = CMAF and CMAFContainerOptions having a segment that is not an exact multiplier of the KeyFrameInterval of the allocated video stream ID.",
+                     "DUT responds with InvalidOptions."),
+            TestStep(34, "TH sends the AllocatePushTransport command with a value for StreamUsage not in SupportedStreamUsages.",
+                     "DUT responds with InvalidStreamUsage."),
+            TestStep(35, "TH sends the AllocatePushTransport command with a non-zero MaxPreRollLen that is less than the KeyFrameInterval value of the selected allocated video stream ID",
+                     "DUT responds with InvalidPreRollLength."),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.PushAvStreamTransport))
@@ -281,65 +175,52 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         # Precondition
         self.step("precondition")
         host_ip = self.user_params.get("host_ip", None)
-        self.tlsEndpointId, host_ip = await self.precondition_provision_tls_endpoint(server=self.server, host_ip=host_ip)
+        self.tlsEndpointId, host_ip = await self.precondition_provision_tls_endpoint(
+            server=self.server, host_ip=host_ip)
         uploadStreamId = self.server.create_stream(SupportedIngestInterface.cmaf.value)
 
         # Step 1: Reads CurrentConnections attribute
         self.step(1)
         transport_configs = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=pvcluster, attribute=pvattr.CurrentConnections
-        )
+            endpoint=endpoint, cluster=pvcluster, attribute=pvattr.CurrentConnections)
         for cfg in transport_configs:
             if cfg.ConnectionID != 0:
                 try:
                     await self.send_single_cmd(
-                        cmd=pvcluster.Commands.DeallocatePushTransport(connectionID=cfg.ConnectionID), endpoint=endpoint
-                    )
+                        cmd=pvcluster.Commands.DeallocatePushTransport(connectionID=cfg.ConnectionID),
+                        endpoint=endpoint)
                 except InteractionModelError as e:
                     log.warning(f"Failed to deallocate connection {cfg.ConnectionID} during cleanup: {e}")
 
         # Step 2: Read supported formats
         self.step(2)
         aSupportedFormats = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=pvcluster, attribute=pvattr.SupportedFormats
-        )
+            endpoint=endpoint, cluster=pvcluster, attribute=pvattr.SupportedFormats)
         log.info(f"aSupportedFormats={aSupportedFormats}")
 
         # Step 3: Try to allocate transport with null stream IDs when no streams are allocated
         self.step(3)
         try:
-            status = await self.send_single_cmd(
-                cmd=pvcluster.Commands.AllocatePushTransport(
-                    {
-                        "streamUsage": Globals.Enums.StreamUsageEnum.kRecording,
-                        "videoStreamID": NullValue,
-                        "audioStreamID": NullValue,
-                        "TLSEndpointID": self.tlsEndpointId,
-                        "url": f"https://{host_ip}:1234/streams/1/",
-                        "triggerOptions": {"triggerType": 2},
-                        "ingestMethod": 0,
-                        "containerOptions": {
-                            "containerType": 0,
-                            "CMAFContainerOptions": {
-                                "CMAFInterface": 0,
-                                "segmentDuration": 4000,
-                                "chunkDuration": 2000,
-                                "sessionGroup": 1,
-                                "trackName": "media",
-                            },
-                        },
-                        "expiryTime": 5,
-                    }
-                ),
-                endpoint=endpoint,
-            )
-            asserts.assert_equal(
-                status, Status.InvalidInState, "Unexpected success when the DUT must respond with Status Code InvalidInState."
-            )
+            status = await self.send_single_cmd(cmd=pvcluster.Commands.AllocatePushTransport(
+                {
+                    "streamUsage": Globals.Enums.StreamUsageEnum.kRecording,
+                    "videoStreamID": NullValue,
+                    "audioStreamID": NullValue,
+                    "TLSEndpointID": self.tlsEndpointId,
+                    "url": f"https://{host_ip}:1234/streams/1/",
+                    "triggerOptions": {"triggerType": 2},
+                    "ingestMethod": 0,
+                    "containerOptions": {
+                        "containerType": 0,
+                        "CMAFContainerOptions": {"CMAFInterface": 0, "segmentDuration": 4000, "chunkDuration": 2000, "sessionGroup": 1, "trackName": "media"}
+                    },
+                    "expiryTime": 5
+                }), endpoint=endpoint)
+            asserts.assert_equal(status, Status.InvalidInState,
+                                 "Unexpected success when the DUT must respond with Status Code InvalidInState.")
         except InteractionModelError as e:
-            asserts.assert_equal(
-                e.status, Status.InvalidInState, f"DUT must respond with Status Code InvalidInState, received {e.status}."
-            )
+            asserts.assert_equal(e.status, Status.InvalidInState,
+                                 f"DUT must respond with Status Code InvalidInState, received {e.status}.")
 
         # Step 4: Allocate video stream
         self.step(4)
@@ -362,14 +243,15 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         # Step 6: Allocate push transport with valid parameters
         self.step(6)
         status = await self.allocate_one_pushav_transport(
-            endpoint, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/"
-        )
-        asserts.assert_equal(status, Status.Success, "Push AV Transport should be allocated successfully")
+            endpoint,
+            tlsEndPoint=self.tlsEndpointId,
+            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(
+            status, Status.Success, "Push AV Transport should be allocated successfully")
 
         # Get the connection ID from CurrentConnections
         transport_configs = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=pvcluster, attribute=pvattr.CurrentConnections
-        )
+            endpoint=endpoint, cluster=pvcluster, attribute=pvattr.CurrentConnections)
         aConnectionID_1 = None
         if len(transport_configs) > 0:
             aConnectionID_1 = transport_configs[0].connectionID
@@ -378,13 +260,10 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         # Step 7: Read CurrentConnections over large-payload session
         self.step(7)
         transport_configs = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=pvcluster, attribute=pvattr.CurrentConnections
-        )
+            endpoint=endpoint, cluster=pvcluster, attribute=pvattr.CurrentConnections)
         asserts.assert_equal(len(transport_configs), 1, "TransportConfigurations must be 1")
-        asserts.assert_true(
-            transport_configs[0].transportStatus == pvcluster.Enums.TransportStatusEnum.kInactive,
-            "Transport status should be Inactive",
-        )
+        asserts.assert_true(transport_configs[0].transportStatus ==
+                            pvcluster.Enums.TransportStatusEnum.kInactive, "Transport status should be Inactive")
 
         # Step 8: Read Zones attribute if zone management cluster is present
         self.step(8)
@@ -418,52 +297,33 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         self.step(11)
         if self.pics_guard(self.check_pics("PAVST.S")):
             try:
-                status = await self.send_single_cmd(
-                    cmd=pvcluster.Commands.AllocatePushTransport(
-                        {
-                            "streamUsage": 0,
-                            "videoStreamID": 1,
-                            "audioStreamID": 1,
-                            "TLSEndpointID": 5,
-                            "url": f"https://{host_ip}:1234/streams/1/",
-                            "triggerOptions": {"triggerType": 2},
-                            "ingestMethod": 0,
-                            "containerOptions": {
-                                "containerType": 0,
-                                "CMAFContainerOptions": {
-                                    "CMAFInterface": 0,
-                                    "segmentDuration": 4000,
-                                    "chunkDuration": 2000,
-                                    "sessionGroup": 1,
-                                    "trackName": "media",
-                                },
-                            },
-                            "expiryTime": 5,
-                        }
-                    ),
-                    endpoint=endpoint,
-                )
-                asserts.assert_equal(
-                    status,
-                    pvcluster.Enums.StatusCodeEnum.kInvalidTLSEndpoint,
-                    "DUT must responds with Status Code InvalidTLSEndpoint.",
-                )
+                status = await self.send_single_cmd(cmd=pvcluster.Commands.AllocatePushTransport(
+                    {
+                        "streamUsage": 0,
+                        "videoStreamID": 1,
+                        "audioStreamID": 1,
+                        "TLSEndpointID": 5,
+                        "url": f"https://{host_ip}:1234/streams/1/",
+                        "triggerOptions": {"triggerType": 2},
+                        "ingestMethod": 0,
+                        "containerOptions": {
+                            "containerType": 0,
+                            "CMAFContainerOptions": {"CMAFInterface": 0, "segmentDuration": 4000, "chunkDuration": 2000, "sessionGroup": 1, "trackName": "media"}
+                        },
+                        "expiryTime": 5
+                    }), endpoint=endpoint)
+                asserts.assert_equal(status, pvcluster.Enums.StatusCodeEnum.kInvalidTLSEndpoint,
+                                     "DUT must responds with Status Code InvalidTLSEndpoint.")
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.clusterStatus,
-                    pvcluster.Enums.StatusCodeEnum.kInvalidTLSEndpoint,
-                    "DUT must responds with Status Code InvalidTLSEndpoint.",
-                )
+                asserts.assert_equal(e.clusterStatus, pvcluster.Enums.StatusCodeEnum.kInvalidTLSEndpoint,
+                                     "DUT must responds with Status Code InvalidTLSEndpoint.")
 
         # Step 12: Try to allocate transport with invalid IngestMethod
         self.step(12)
-        status = await self.allocate_one_pushav_transport(
-            endpoint,
-            ingestMethod=pvcluster.Enums.IngestMethodsEnum.kUnknownEnumValue,
-            tlsEndPoint=self.tlsEndpointId,
-            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-        )
-        asserts.assert_equal(status, Status.ConstraintError, "DUT must respond with Status Code ConstraintError.")
+        status = await self.allocate_one_pushav_transport(endpoint, ingestMethod=pvcluster.Enums.IngestMethodsEnum.kUnknownEnumValue,
+                                                          tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(status, Status.ConstraintError,
+                             "DUT must respond with Status Code ConstraintError.")
 
         # Step 13: Try to allocate transport with invalid URL
         self.step(13)
@@ -472,117 +332,77 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             endpoint,
             url=f"http://{host_ip}:1234/streams/{stream_id}/",
             tlsEndPoint=self.tlsEndpointId,
-            expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidURL,
-        )
-        asserts.assert_equal(
-            status, pvcluster.Enums.StatusCodeEnum.kInvalidURL, "Push AV Transport should return InvalidURL for invalid URL"
-        )
+            expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidURL)
+        asserts.assert_equal(status, pvcluster.Enums.StatusCodeEnum.kInvalidURL,
+                             "Push AV Transport should return InvalidURL for invalid URL")
 
         # Step 14: Try to allocate transport with invalid TriggerType
         self.step(14)
         # Create transport options with invalid trigger type
-        invalid_trigger_options = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kUnknownEnumValue}
+        invalid_trigger_options = {
+            "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kUnknownEnumValue
+        }
         status = await self.allocate_one_pushav_transport(
             endpoint,
             trigger_Options=invalid_trigger_options,
             tlsEndPoint=self.tlsEndpointId,
-            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-        )
-        asserts.assert_equal(status, Status.ConstraintError, "DUT must respond with Status Code ConstraintError.")
+            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(status, Status.ConstraintError,
+                             "DUT must respond with Status Code ConstraintError.")
 
         self.step(15)
         # Verify a null Zone is handled
         try:
             zoneList = [{"zone": NullValue, "sensitivity": 4}]
-            triggerOptions = {
-                "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
-                "maxPreRollLen": 4000,
-                "motionZones": zoneList,
-                "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1},
-            }
-            status = await self.allocate_one_pushav_transport(
-                endpoint,
-                trigger_Options=triggerOptions,
-                tlsEndPoint=self.tlsEndpointId,
-                url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-            )
+            triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
+                              "maxPreRollLen": 4000,
+                              "motionZones": zoneList,
+                              "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1}}
+            status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
             asserts.assert_equal(status, Status.Success, "DUT should respond with Status Code Success with a Null Zone.")
         except InteractionModelError as e:
             asserts.assert_fail(f"Unexpected error when setting a Zone that is Null (meaning all Zones). Error received {e.status}")
 
         # Step 16: Try to allocate transport with duplicate numeric Zone IDs within MotionZones (if zone management cluster is present)
         self.step(16)
-        zoneList = [
-            {"zone": 1, "sensitivity": 4},
-            {"zone": 2, "sensitivity": 4},
-            {"zone": 3, "sensitivity": 4},
-            {"zone": 1, "sensitivity": 4},
-        ]
-        triggerOptions = {
-            "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
-            "maxPreRollLen": 4000,
-            "motionZones": zoneList,
-            "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1},
-        }
-        status = await self.allocate_one_pushav_transport(
-            endpoint,
-            trigger_Options=triggerOptions,
-            tlsEndPoint=self.tlsEndpointId,
-            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-        )
-        asserts.assert_equal(
-            status, Status.AlreadyExists, "DUT should respond with Status Code AlreadyExists with a Duplicate Zone."
-        )
+        zoneList = [{"zone": 1, "sensitivity": 4}, {"zone": 2, "sensitivity": 4},
+                    {"zone": 3, "sensitivity": 4}, {"zone": 1, "sensitivity": 4}]
+        triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
+                          "maxPreRollLen": 4000,
+                          "motionZones": zoneList,
+                          "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1}}
+        status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(status, Status.AlreadyExists,
+                             "DUT should respond with Status Code AlreadyExists with a Duplicate Zone.")
 
         # Step 17: Try to allocate transport with duplicate Null Zone IDs within MotionZones (if zone management cluster is present)
         self.step(17)
         # Duplicate Zone ID rejection with Nulls
-        zoneList = [
-            {"zone": 1, "sensitivity": 4},
-            {"zone": NullValue, "sensitivity": 4},
-            {"zone": 3, "sensitivity": 4},
-            {"zone": NullValue, "sensitivity": 4},
-        ]
-        triggerOptions = {
-            "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
-            "maxPreRollLen": 4000,
-            "motionZones": zoneList,
-            "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1},
-        }
-        status = await self.allocate_one_pushav_transport(
-            endpoint,
-            trigger_Options=triggerOptions,
-            tlsEndPoint=self.tlsEndpointId,
-            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-        )
-        asserts.assert_equal(
-            status, Status.AlreadyExists, "DUT should respond with Status Code AlreadyExists with Duplicate Null Zones."
-        )
+        zoneList = [{"zone": 1, "sensitivity": 4}, {"zone": NullValue, "sensitivity": 4},
+                    {"zone": 3, "sensitivity": 4}, {"zone": NullValue, "sensitivity": 4}]
+        triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
+                          "maxPreRollLen": 4000,
+                          "motionZones": zoneList,
+                          "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1}}
+        status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(status, Status.AlreadyExists,
+                             "DUT should respond with Status Code AlreadyExists with Duplicate Null Zones.")
 
         # Step 18: Try to allocate transport with invalid ZoneID (if zone management cluster is present)
         self.step(18)
         try:
             zoneList = [{"zone": 14, "sensitivity": 4}]
-            triggerOptions = {
-                "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
-                "maxPreRollLen": 4000,
-                "motionZones": zoneList,
-                "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1},
-            }
-            status = await self.allocate_one_pushav_transport(
-                endpoint,
-                trigger_Options=triggerOptions,
-                expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidZone,
-                tlsEndPoint=self.tlsEndpointId,
-                url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-            )
-            asserts.assert_equal(
-                status, pvcluster.Enums.StatusCodeEnum.kInvalidZone, "DUT must responds with Status Code InvalidZone."
-            )
+            triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
+                              "maxPreRollLen": 4000,
+                              "motionZones": zoneList,
+                              "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1}}
+            status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions, expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidZone,
+                                                              tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+            asserts.assert_equal(status, pvcluster.Enums.StatusCodeEnum.kInvalidZone,
+                                 "DUT must responds with Status Code InvalidZone.")
         except InteractionModelError as e:
-            asserts.assert_equal(
-                e.clusterStatus, pvcluster.Enums.StatusCodeEnum.kInvalidZone, "DUT must responds with Status Code InvalidZone."
-            )
+            asserts.assert_equal(e.clusterStatus, pvcluster.Enums.StatusCodeEnum.kInvalidZone,
+                                 "DUT must responds with Status Code InvalidZone.")
 
         # Step 19: Try to allocate transport with invalid VideoStreamID
         self.step(19)
@@ -592,13 +412,9 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             videoStream_ID=invalid_video_stream_id,
             tlsEndPoint=self.tlsEndpointId,
             url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-            expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidStream,
-        )
-        asserts.assert_equal(
-            status,
-            pvcluster.Enums.StatusCodeEnum.kInvalidStream,
-            "Push AV Transport should return InvalidStream for invalid VideoStreamID",
-        )
+            expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidStream)
+        asserts.assert_equal(status, pvcluster.Enums.StatusCodeEnum.kInvalidStream,
+                             "Push AV Transport should return InvalidStream for invalid VideoStreamID")
 
         # Step 20: Try to allocate transport with invalid AudioStreamID
         self.step(20)
@@ -608,13 +424,9 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             audioStream_ID=invalid_audio_stream_id,
             tlsEndPoint=self.tlsEndpointId,
             url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-            expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidStream,
-        )
-        asserts.assert_equal(
-            status,
-            pvcluster.Enums.StatusCodeEnum.kInvalidStream,
-            "Push AV Transport should return InvalidStream for invalid AudioStreamID",
-        )
+            expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidStream)
+        asserts.assert_equal(status, pvcluster.Enums.StatusCodeEnum.kInvalidStream,
+                             "Push AV Transport should return InvalidStream for invalid AudioStreamID")
 
         # Step 21: Try to allocate transport with both VideoStreams and AudioStreams absent
         self.step(21)
@@ -627,31 +439,23 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             streamUsage = aStreamUsagePriorities[0]
             containerOptions = {
                 "containerType": pvcluster.Enums.ContainerFormatEnum.kCmaf,
-                "CMAFContainerOptions": {
-                    "CMAFInterface": pvcluster.Enums.CMAFInterfaceEnum.kInterface1,
-                    "chunkDuration": 4,
-                    "segmentDuration": 4000,
-                    "sessionGroup": 3,
-                    "trackName": "media",
-                },
+                "CMAFContainerOptions": {"CMAFInterface": pvcluster.Enums.CMAFInterfaceEnum.kInterface1, "chunkDuration": 4, "segmentDuration": 4000,
+                                         "sessionGroup": 3, "trackName": "media"},
             }
-            status = await self.send_single_cmd(
-                cmd=pvcluster.Commands.AllocatePushTransport(
-                    {
-                        "streamUsage": streamUsage,
-                        "TLSEndpointID": self.tlsEndpointId,
-                        "url": f"https://{host_ip}:1234/streams/1/",
-                        "triggerOptions": {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kContinuous},
-                        "ingestMethod": pvcluster.Enums.IngestMethodsEnum.kCMAFIngest,
-                        "containerOptions": containerOptions,
-                        "expiryTime": 5,
-                    }
-                ),
-                endpoint=endpoint,
-            )
-            asserts.assert_equal(status, Status.InvalidCommand, "DUT must respond with Status Code InvalidCommand.")
+            status = await self.send_single_cmd(cmd=pvcluster.Commands.AllocatePushTransport(
+                {"streamUsage": streamUsage,
+                 "TLSEndpointID": self.tlsEndpointId,
+                 "url": f"https://{host_ip}:1234/streams/1/",
+                 "triggerOptions": {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kContinuous},
+                 "ingestMethod": pvcluster.Enums.IngestMethodsEnum.kCMAFIngest,
+                 "containerOptions": containerOptions,
+                 "expiryTime": 5
+                 }), endpoint=endpoint)
+            asserts.assert_equal(status, Status.InvalidCommand,
+                                 "DUT must respond with Status Code InvalidCommand.")
         except InteractionModelError as e:
-            asserts.assert_equal(e.status, Status.InvalidCommand, "DUT must respond with Status Code InvalidCommand.")
+            asserts.assert_equal(e.status, Status.InvalidCommand,
+                                 "DUT must respond with Status Code InvalidCommand.")
 
         # Step 21a: Try to allocate transport with VideoStreamID and VideoStreams containing same ID
         self.step("21a")
@@ -667,16 +471,16 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             "streamUsage": aStreamUsagePriorities[0],
             "videoStreamID": aAllocatedVideoStreams[0],  # Use first allocated video stream ID
             "audioStreamID": NullValue,
-            "videoStreams": [
-                {
-                    "videoStreamID": aAllocatedVideoStreams[0],  # Same ID as videoStreamID - this creates the conflict
-                    "videoStreamName": "video",
-                }
-            ],
+            "videoStreams": [{
+                "videoStreamID": aAllocatedVideoStreams[0],  # Same ID as videoStreamID - this creates the conflict
+                "videoStreamName": "video"
+            }],
             "audioStreams": [],
             "TLSEndpointID": self.tlsEndpointId,
             "url": f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-            "triggerOptions": {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kContinuous},
+            "triggerOptions": {
+                "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kContinuous
+            },
             "ingestMethod": pvcluster.Enums.IngestMethodsEnum.kCMAFIngest,
             "containerOptions": {
                 "containerType": pvcluster.Enums.ContainerFormatEnum.kCmaf,
@@ -685,17 +489,20 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
                     "chunkDuration": 4,
                     "segmentDuration": 4000,
                     "sessionGroup": 3,
-                    "trackName": "media",
-                },
+                    "trackName": "media"
+                }
             },
-            "expiryTime": 30,
+            "expiryTime": 30
         }
 
         try:
-            await self.send_single_cmd(cmd=pvcluster.Commands.AllocatePushTransport(transport_options_21a), endpoint=endpoint)
+            await self.send_single_cmd(
+                cmd=pvcluster.Commands.AllocatePushTransport(transport_options_21a),
+                endpoint=endpoint)
             asserts.fail("Step 21a failed: Expected INVALID_COMMAND status code")
         except InteractionModelError as e:
-            asserts.assert_equal(e.status, Status.InvalidCommand, "Push AV Transport should return INVALID_COMMAND for step 21a")
+            asserts.assert_equal(e.status, Status.InvalidCommand,
+                                 "Push AV Transport should return INVALID_COMMAND for step 21a")
 
         # Step 22: Try to allocate transport with both VideoStreamID and AudioStreamID set to NULL
         self.step(22)
@@ -703,92 +510,83 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         # and no VideoStreams or AudioStreams fields present
         try:
             allocatePushTransportResponse = await self.send_single_cmd(
-                cmd=pvcluster.Commands.AllocatePushTransport(
-                    {
-                        "streamUsage": streamUsage,
-                        "videoStreamID": Nullable(),
-                        "audioStreamID": Nullable(),
-                        "TLSEndpointID": self.tlsEndpointId,
-                        "url": f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-                        "triggerOptions": {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kContinuous},
-                        "ingestMethod": pvcluster.Enums.IngestMethodsEnum.kCMAFIngest,
-                        "containerOptions": {
-                            "containerType": pvcluster.Enums.ContainerFormatEnum.kCmaf,
-                            "CMAFContainerOptions": {
-                                "CMAFInterface": pvcluster.Enums.CMAFInterfaceEnum.kInterface1,
-                                "segmentDuration": 4000,
-                                "chunkDuration": 2000,
-                                "sessionGroup": 1,
-                                "trackName": "media",
-                            },
-                        },
-                        "expiryTime": 5,
-                    }
-                ),
-                endpoint=endpoint,
+                cmd=pvcluster.Commands.AllocatePushTransport({
+                    "streamUsage": streamUsage,
+                    "videoStreamID": Nullable(),
+                    "audioStreamID": Nullable(),
+                    "TLSEndpointID": self.tlsEndpointId,
+                    "url": f"https://{host_ip}:1234/streams/{uploadStreamId}/",
+                    "triggerOptions": {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kContinuous},
+                    "ingestMethod": pvcluster.Enums.IngestMethodsEnum.kCMAFIngest,
+                    "containerOptions": {
+                        "containerType": pvcluster.Enums.ContainerFormatEnum.kCmaf,
+                        "CMAFContainerOptions": {
+                            "CMAFInterface": pvcluster.Enums.CMAFInterfaceEnum.kInterface1,
+                            "segmentDuration": 4000,
+                            "chunkDuration": 2000,
+                            "sessionGroup": 1,
+                            "trackName": "media"
+                        }
+                    },
+                    "expiryTime": 5
+                }),
+                endpoint=endpoint
             )
 
             # DUT responds with AllocatePushTransportResponse containing the allocated ConnectionID, store this as aConnectionID-2
             asserts.assert_is_not_none(allocatePushTransportResponse, "AllocatePushTransportResponse must not be None")
-            asserts.assert_is_not_none(
-                allocatePushTransportResponse.transportConfiguration.connectionID, "ConnectionID must be present in response"
-            )
+            asserts.assert_is_not_none(allocatePushTransportResponse.transportConfiguration.connectionID,
+                                       "ConnectionID must be present in response")
             aConnectionID_2 = allocatePushTransportResponse.transportConfiguration.connectionID
 
             # If TransportOptions is present, verify the required fields
             transportOptions = allocatePushTransportResponse.transportConfiguration.transportOptions
             if transportOptions is not None:
                 # Verify AudioStreamId field is present containing the allocated audio stream ID
-                asserts.assert_true(
-                    hasattr(transportOptions, "audioStreamID"), "AudioStreamId field must be present in TransportOptions"
-                )
+                asserts.assert_true(hasattr(transportOptions, 'audioStreamID'),
+                                    "AudioStreamId field must be present in TransportOptions")
 
                 # Handle both nullable and plain uint cases
-                if hasattr(transportOptions.audioStreamID, "IsNull"):
-                    asserts.assert_false(transportOptions.audioStreamID.IsNull(), "AudioStreamId must not be null")
+                if hasattr(transportOptions.audioStreamID, 'IsNull'):
+                    asserts.assert_false(transportOptions.audioStreamID.IsNull(),
+                                         "AudioStreamId must not be null")
                     allocatedAudioStreamID = transportOptions.audioStreamID.Value()
                 else:
                     allocatedAudioStreamID = transportOptions.audioStreamID
 
                 # Verify VideoStreamId field is present containing the allocated video stream ID
-                asserts.assert_true(
-                    hasattr(transportOptions, "videoStreamID"), "VideoStreamId field must be present in TransportOptions"
-                )
+                asserts.assert_true(hasattr(transportOptions, 'videoStreamID'),
+                                    "VideoStreamId field must be present in TransportOptions")
 
                 # Handle both nullable and plain uint cases
-                if hasattr(transportOptions.videoStreamID, "IsNull"):
-                    asserts.assert_false(transportOptions.videoStreamID.IsNull(), "VideoStreamId must not be null")
+                if hasattr(transportOptions.videoStreamID, 'IsNull'):
+                    asserts.assert_false(transportOptions.videoStreamID.IsNull(),
+                                         "VideoStreamId must not be null")
                     allocatedVideoStreamID = transportOptions.videoStreamID.Value()
                 else:
                     allocatedVideoStreamID = transportOptions.videoStreamID
 
                 # Verify VideoStreams field is present with correct entry
-                asserts.assert_true(
-                    hasattr(transportOptions, "videoStreams"), "VideoStreams field must be present in TransportOptions"
-                )
+                asserts.assert_true(hasattr(transportOptions, 'videoStreams'),
+                                    "VideoStreams field must be present in TransportOptions")
                 videoStreams = transportOptions.videoStreams
                 asserts.assert_is_not_none(videoStreams, "VideoStreams must not be None")
                 asserts.assert_equal(len(videoStreams), 1, "VideoStreams must contain exactly one entry")
-                asserts.assert_equal(
-                    videoStreams[0].videoStreamID,
-                    allocatedVideoStreamID,
-                    "VideoStreamID in VideoStreams must match allocated VideoStreamId",
-                )
-                asserts.assert_equal(videoStreams[0].videoStreamName, "video", "VideoStreamName must be 'video'")
+                asserts.assert_equal(videoStreams[0].videoStreamID, allocatedVideoStreamID,
+                                     "VideoStreamID in VideoStreams must match allocated VideoStreamId")
+                asserts.assert_equal(videoStreams[0].videoStreamName, "video",
+                                     "VideoStreamName must be 'video'")
 
                 # Verify AudioStreams field is present with correct entry
-                asserts.assert_true(
-                    hasattr(transportOptions, "audioStreams"), "AudioStreams field must be present in TransportOptions"
-                )
+                asserts.assert_true(hasattr(transportOptions, 'audioStreams'),
+                                    "AudioStreams field must be present in TransportOptions")
                 audioStreams = transportOptions.audioStreams
                 asserts.assert_is_not_none(audioStreams, "AudioStreams must not be None")
                 asserts.assert_equal(len(audioStreams), 1, "AudioStreams must contain exactly one entry")
-                asserts.assert_equal(
-                    audioStreams[0].audioStreamID,
-                    allocatedAudioStreamID,
-                    "AudioStreamID in AudioStreams must match allocated AudioStreamId",
-                )
-                asserts.assert_equal(audioStreams[0].audioStreamName, "audio", "AudioStreamName must be 'audio'")
+                asserts.assert_equal(audioStreams[0].audioStreamID, allocatedAudioStreamID,
+                                     "AudioStreamID in AudioStreams must match allocated AudioStreamId")
+                asserts.assert_equal(audioStreams[0].audioStreamName, "audio",
+                                     "AudioStreamName must be 'audio'")
 
         except InteractionModelError as e:
             asserts.fail(f"AllocatePushTransport command failed: {e.status}")
@@ -797,40 +595,29 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         self.step(23)
         # Create a zoneList that is one larger than max zones that we have already read
         zoneList = []
-        for i in range(aMaxZones + 1):
+        for i in range(aMaxZones+1):
             itemToAppend = {"zone": i, "sensitivity": 4}
             zoneList.append(itemToAppend)
-        triggerOptions = {
-            "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
-            "maxPreRollLen": 4000,
-            "motionZones": zoneList,
-            "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1},
-        }
-        status = await self.allocate_one_pushav_transport(
-            endpoint,
-            trigger_Options=triggerOptions,
-            tlsEndPoint=self.tlsEndpointId,
-            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-        )
-        asserts.assert_equal(status, Status.DynamicConstraintError, "DUT must respond with Status code DynamicConstraintError")
+        triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
+                          "maxPreRollLen": 4000,
+                          "motionZones": zoneList,
+                          "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1}}
+        status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions,
+                                                          tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(status, Status.DynamicConstraintError,
+                             "DUT must respond with Status code DynamicConstraintError")
 
         # Step 24: Only run if DUT supports PerZoneSensitivity
         if self.perZoneSenseSupported:
             self.step(24)
             zoneList = []
-            triggerOptions = {
-                "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
-                "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1},
-                "motionSensitivity": 3,
-                "motionZones": zoneList,
-            }
-            status = await self.allocate_one_pushav_transport(
-                endpoint,
-                trigger_Options=triggerOptions,
-                tlsEndPoint=self.tlsEndpointId,
-                url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-            )
-            asserts.assert_equal(status, Status.InvalidCommand, "DUT must responds with Status Code InvalidCommand.")
+            triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
+                              "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1},
+                              "motionSensitivity": 3,
+                              "motionZones": zoneList}
+            status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+            asserts.assert_equal(status, Status.InvalidCommand,
+                                 "DUT must responds with Status Code InvalidCommand.")
         else:
             self.skip_step(24)
 
@@ -838,123 +625,93 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         if not self.perZoneSenseSupported:
             self.step(25)
             zoneList = []
-            triggerOptions = {
-                "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
-                "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1},
-                "motionSensitivity": 11,
-                "motionZones": zoneList,
-            }
-            status = await self.allocate_one_pushav_transport(
-                endpoint,
-                trigger_Options=triggerOptions,
-                tlsEndPoint=self.tlsEndpointId,
-                url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-            )
-            asserts.assert_equal(status, Status.ConstraintError, "DUT must responds with Status Code ConstraintError.")
+            triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
+                              "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1},
+                              "motionSensitivity": 11,
+                              "motionZones": zoneList}
+            status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+            asserts.assert_equal(status, Status.ConstraintError,
+                                 "DUT must responds with Status Code ConstraintError.")
         else:
             self.skip_step(25)
 
         # Step 26: Try to allocate transport with MotionTimeControl omitted
         self.step(26)
         zoneList = []
-        triggerOptions = {
-            "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
-            "motionZones": zoneList,
-            "motionSensitivity": 3,
-        }
-        status = await self.allocate_one_pushav_transport(
-            endpoint,
-            trigger_Options=triggerOptions,
-            tlsEndPoint=self.tlsEndpointId,
-            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-        )
-        asserts.assert_equal(status, Status.InvalidCommand, "DUT must  responds with Status Code InvalidCommand.")
+        triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
+                          "motionZones": zoneList,
+                          "motionSensitivity": 3}
+        status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(status, Status.InvalidCommand,
+                             "DUT must  responds with Status Code InvalidCommand.")
 
         # Step 27: Try to allocate transport with MotionTimeControl.InitialDuration = 0
         self.step(27)
         zoneList = []
-        triggerOptions = {
-            "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
-            "motionZones": zoneList,
-            "motionSensitivity": 3,
-            "motionTimeControl": {"initialDuration": 0, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1},
-        }
-        status = await self.allocate_one_pushav_transport(
-            endpoint,
-            trigger_Options=triggerOptions,
-            tlsEndPoint=self.tlsEndpointId,
-            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-        )
-        asserts.assert_equal(status, Status.ConstraintError, "DUT must  responds with Status code ConstraintError")
+        triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
+                          "motionZones": zoneList,
+                          "motionSensitivity": 3,
+                          "motionTimeControl": {"initialDuration": 0, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1}}
+        status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(status, Status.ConstraintError,
+                             "DUT must  responds with Status code ConstraintError")
 
         self.step(28)
         zoneList = []
-        triggerOptions = {
-            "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
-            "motionZones": zoneList,
-            "motionSensitivity": 3,
-            "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 0, "blindDuration": 1},
-        }
-        status = await self.allocate_one_pushav_transport(
-            endpoint,
-            trigger_Options=triggerOptions,
-            tlsEndPoint=self.tlsEndpointId,
-            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-        )
-        asserts.assert_equal(status, Status.ConstraintError, "DUT must  responds with Status code ConstraintError")
+        triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
+                          "motionZones": zoneList,
+                          "motionSensitivity": 3,
+                          "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 0, "blindDuration": 1}}
+        status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(status, Status.ConstraintError,
+                             "DUT must  responds with Status code ConstraintError")
 
         # Step 29: Deallocate transport and allocate new one with MotionZones and MotionSensitivity NULL
         self.step(29)
         # First deallocate the existing transport
-        cmd = pvcluster.Commands.DeallocatePushTransport(connectionID=aConnectionID_1)
-        status = await self.psvt_deallocate_push_transport(cmd)
-        asserts.assert_true(status == Status.Success, "DUT responds with SUCCESS status code.")
-        zoneList = []
-        triggerOptions = {
-            "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
-            "maxPreRollLen": 4000,
-            "motionZones": zoneList,
-            "MotionSensitivity": NullValue,
-            "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1},
-        }
-
-        status = await self.allocate_one_pushav_transport(
-            endpoint,
-            trigger_Options=triggerOptions,
-            tlsEndPoint=self.tlsEndpointId,
-            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
+        cmd = pvcluster.Commands.DeallocatePushTransport(
+            connectionID=aConnectionID_1
         )
-        asserts.assert_equal(status, Status.Success, "DUT must  responds with Status Code Success.")
+        status = await self.psvt_deallocate_push_transport(cmd)
+        asserts.assert_true(status == Status.Success,
+                            "DUT responds with SUCCESS status code.")
+        zoneList = []
+        triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
+                          "maxPreRollLen": 4000,
+                          "motionZones": zoneList,
+                          "MotionSensitivity": NullValue,
+                          "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1}}
+
+        status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(status, Status.Success,
+                             "DUT must  responds with Status Code Success.")
         current_connections = await self.read_single_attribute_check_success(
             endpoint=endpoint, cluster=pvcluster, attribute=pvcluster.Attributes.CurrentConnections
         )
-        aConnectionID = current_connections[len(current_connections) - 1].connectionID
+        aConnectionID = current_connections[len(current_connections)-1].connectionID
 
         # Step 30: Deallocate transport and allocate new one with empty MotionZones
         self.step(30)
         # First deallocate the existing transport
-        cmd = pvcluster.Commands.DeallocatePushTransport(connectionID=aConnectionID_2)
-        status = await self.psvt_deallocate_push_transport(cmd)
-        asserts.assert_true(status == Status.Success, "DUT responds with SUCCESS status code.")
-        zoneList = []
-        triggerOptions = {
-            "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
-            "maxPreRollLen": 4000,
-            "motionZones": zoneList,
-            "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1},
-        }
-
-        status = await self.allocate_one_pushav_transport(
-            endpoint,
-            trigger_Options=triggerOptions,
-            tlsEndPoint=self.tlsEndpointId,
-            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
+        cmd = pvcluster.Commands.DeallocatePushTransport(
+            connectionID=aConnectionID_2
         )
-        asserts.assert_equal(status, Status.Success, "DUT must  responds with Status Code Success.")
+        status = await self.psvt_deallocate_push_transport(cmd)
+        asserts.assert_true(status == Status.Success,
+                            "DUT responds with SUCCESS status code.")
+        zoneList = []
+        triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
+                          "maxPreRollLen": 4000,
+                          "motionZones": zoneList,
+                          "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1}}
+
+        status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(status, Status.Success,
+                             "DUT must  responds with Status Code Success.")
         current_connections = await self.read_single_attribute_check_success(
             endpoint=endpoint, cluster=pvcluster, attribute=pvcluster.Attributes.CurrentConnections
         )
-        aConnectionID = current_connections[len(current_connections) - 1].connectionID
+        aConnectionID = current_connections[len(current_connections)-1].connectionID
         log.info(f"aConnectionID: {aConnectionID}")
 
         # Step 31: Try to allocate transport with invalid StreamUsage
@@ -963,20 +720,16 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             endpoint,
             stream_Usage=Clusters.Globals.Enums.StreamUsageEnum.kUnknownEnumValue,
             tlsEndPoint=self.tlsEndpointId,
-            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-        )
-        asserts.assert_equal(status, Status.ConstraintError, "DUT must  responds with Status code ConstraintError")
+            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(status, Status.ConstraintError,
+                             "DUT must  responds with Status code ConstraintError")
 
         # Step 32: Try to allocate transport with ContainerType = CMAF and CMAFContainerOptions omitted
         self.step(32)
         containerOptions = {"containerType": pvcluster.Enums.ContainerFormatEnum.kCmaf}
-        status = await self.allocate_one_pushav_transport(
-            endpoint,
-            container_Options=containerOptions,
-            tlsEndPoint=self.tlsEndpointId,
-            url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-        )
-        asserts.assert_equal(status, Status.InvalidCommand, "DUT must  responds with Status code InvalidCommand")
+        status = await self.allocate_one_pushav_transport(endpoint, container_Options=containerOptions, tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+        asserts.assert_equal(status, Status.InvalidCommand,
+                             "DUT must  responds with Status code InvalidCommand")
 
         # Step 33: Try to allocate transport with CMAFContainerOptions having invalid segment duration
         self.step(33)
@@ -994,21 +747,17 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
                 "chunkDuration": 4,
                 "segmentDuration": 1001,  # Not a multiple of common keyFrameIntervals
                 "sessionGroup": 3,
-                "trackName": "media",
-            },
+                "trackName": "media"
+            }
         }
         status = await self.allocate_one_pushav_transport(
             endpoint,
             container_Options=invalid_segment_container_options,
             tlsEndPoint=self.tlsEndpointId,
             url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-            expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidOptions,
-        )
-        asserts.assert_equal(
-            status,
-            pvcluster.Enums.StatusCodeEnum.kInvalidOptions,
-            "Push AV Transport should return InvalidOptions for invalid segment duration",
-        )
+            expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidOptions)
+        asserts.assert_equal(status, pvcluster.Enums.StatusCodeEnum.kInvalidOptions,
+                             "Push AV Transport should return InvalidOptions for invalid segment duration")
 
         # Step 34: Try to allocate transport with StreamUsage not in SupportedStreamUsages
         self.step(34)
@@ -1019,19 +768,17 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             stream_Usage=invalid_stream_usage,
             tlsEndPoint=self.tlsEndpointId,
             url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-            expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidStreamUsage,
-        )
-        asserts.assert_equal(
-            status,
-            pvcluster.Enums.StatusCodeEnum.kInvalidStreamUsage,
-            "Push AV Transport should return InvalidStreamUsage for invalid StreamUsage",
-        )
+            expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidStreamUsage)
+        asserts.assert_equal(status, pvcluster.Enums.StatusCodeEnum.kInvalidStreamUsage,
+                             "Push AV Transport should return InvalidStreamUsage for invalid StreamUsage")
 
         # Step 35: Try to allocate transport with MaxPreRollLen less than KeyFrameInterval
         self.step(35)
         # Read the KeyFrameInterval from the allocated video stream
         videoStreamConfig = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=avcluster, attribute=avattr.AllocatedVideoStreams
+            endpoint=endpoint,
+            cluster=avcluster,
+            attribute=avattr.AllocatedVideoStreams
         )
         keyFrameInterval = videoStreamConfig[0].keyFrameInterval
         print(f"keyframeinterval: {keyFrameInterval}")
@@ -1042,7 +789,7 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             "maxPreRollLen": 200,  # Less than KeyFrameInterval
             "motionZones": [],  # Required for kMotion trigger type
             # Required for kMotion trigger type
-            "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1},
+            "motionTimeControl": {"initialDuration": 1, "augmentationDuration": 1, "maxDuration": 1, "blindDuration": 1}
         }
 
         status = await self.allocate_one_pushav_transport(
@@ -1050,12 +797,11 @@ class TC_PAVST_2_11(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             trigger_Options=triggerOptions,
             tlsEndPoint=self.tlsEndpointId,
             url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-            expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidPreRollLength,
+            expected_cluster_status=pvcluster.Enums.StatusCodeEnum.kInvalidPreRollLength
         )
         asserts.assert_equal(
-            status,
-            pvcluster.Enums.StatusCodeEnum.kInvalidPreRollLength,
-            "DUT must respond with InvalidPreRollLength when maxPreRollLen < KeyFrameInterval",
+            status, pvcluster.Enums.StatusCodeEnum.kInvalidPreRollLength,
+            "DUT must respond with InvalidPreRollLength when maxPreRollLen < KeyFrameInterval"
         )
 
 

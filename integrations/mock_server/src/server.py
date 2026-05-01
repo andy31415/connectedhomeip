@@ -25,7 +25,12 @@ log = logging.getLogger(__name__)
 
 
 def run_server(
-    port: int, config_path: Path, routing_config_dir: Path, cert_path: Path | None, key_path: Path | None, use_https: bool = True
+    port: int,
+    config_path: Path,
+    routing_config_dir: Path,
+    cert_path: Path | None,
+    key_path: Path | None,
+    use_https: bool = True
 ) -> None:
     """
     Starts an HTTP or HTTPS server with mock endpoints defined by configuration files.

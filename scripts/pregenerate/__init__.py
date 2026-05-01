@@ -20,13 +20,8 @@ from dataclasses import dataclass, field
 from typing import Iterator, List, Optional
 
 from .type_definitions import IdlFileType, InputIdlFile
-from .using_codegen import (
-    CodegenCppAppPregenerator,
-    CodegenCppClustersTLVMetaPregenerator,
-    CodegenCppProtocolsTLVMetaPregenerator,
-    CodegenJavaClassPregenerator,
-    CodegenJavaJNIPregenerator,
-)
+from .using_codegen import (CodegenCppAppPregenerator, CodegenCppClustersTLVMetaPregenerator,
+                            CodegenCppProtocolsTLVMetaPregenerator, CodegenJavaClassPregenerator, CodegenJavaJNIPregenerator)
 from .using_zap import ZapApplicationPregenerator
 
 log = logging.getLogger(__name__)
@@ -35,27 +30,23 @@ log = logging.getLogger(__name__)
 def _IdlsInDirectory(top_directory_name: str, truncate_length: int):
     for root, dirs, files in os.walk(top_directory_name):
         for file in files:
-            if file.endswith(".zap"):
-                yield InputIdlFile(
-                    file_type=IdlFileType.ZAP,
-                    full_path=os.path.join(root, file),
-                    relative_path=os.path.join(root[truncate_length:], file),
-                )
-            if file.endswith(".matter"):
-                yield InputIdlFile(
-                    file_type=IdlFileType.MATTER,
-                    full_path=os.path.join(root, file),
-                    relative_path=os.path.join(root[truncate_length:], file),
-                )
+            if file.endswith('.zap'):
+                yield InputIdlFile(file_type=IdlFileType.ZAP,
+                                   full_path=os.path.join(root, file),
+                                   relative_path=os.path.join(root[truncate_length:], file))
+            if file.endswith('.matter'):
+                yield InputIdlFile(file_type=IdlFileType.MATTER,
+                                   full_path=os.path.join(root, file),
+                                   relative_path=os.path.join(root[truncate_length:], file))
 
 
 def _FindAllIdls(sdk_root: str, external_roots: Optional[List[str]]) -> Iterator[InputIdlFile]:
     relevant_subdirs = [
-        "examples",  # all example apps
-        "src",  # realistically only controller/data_model
+        'examples',  # all example apps
+        'src',      # realistically only controller/data_model
     ]
 
-    while sdk_root.endswith("/"):
+    while sdk_root.endswith('/'):
         sdk_root = sdk_root[:-1]
     sdk_root_length = len(sdk_root)
 
@@ -63,7 +54,7 @@ def _FindAllIdls(sdk_root: str, external_roots: Optional[List[str]]) -> Iterator
     for subdir_name in relevant_subdirs:
         top_directory_name = os.path.join(sdk_root, subdir_name)
         log.debug("Searching '%s'", top_directory_name)
-        for idl in _IdlsInDirectory(top_directory_name, sdk_root_length + 1):
+        for idl in _IdlsInDirectory(top_directory_name, sdk_root_length+1):
             yield idl
 
     # next external roots
@@ -95,10 +86,10 @@ class GlobMatcher:
 
 def FindPregenerationTargets(sdk_root: str, external_roots: Optional[List[str]], filter: TargetFilter, runner):
     """Finds all relevand pre-generation targets in the given
-    SDK root.
+       SDK root.
 
-    Pre-generation targets are based on zap and matter files with options
-    on what rules to pregenerate and how.
+       Pre-generation targets are based on zap and matter files with options
+       on what rules to pregenerate and how.
     """
 
     generators = [
@@ -108,6 +99,7 @@ def FindPregenerationTargets(sdk_root: str, external_roots: Optional[List[str]],
         CodegenCppAppPregenerator(sdk_root),
         CodegenCppClustersTLVMetaPregenerator(sdk_root),
         CodegenCppProtocolsTLVMetaPregenerator(sdk_root),
+
         # ZAP codegen
         ZapApplicationPregenerator(sdk_root),
     ]

@@ -16,16 +16,8 @@ import os
 
 from matter.idl.generators import CodeGenerator
 from matter.idl.generators.storage import GeneratorStorage
-from matter.idl.matter_idl_types import (
-    AccessPrivilege,
-    Attribute,
-    AttributeQuality,
-    Command,
-    CommandQuality,
-    FieldQuality,
-    Idl,
-    Struct,
-)
+from matter.idl.matter_idl_types import (AccessPrivilege, Attribute, AttributeQuality, Command, CommandQuality, FieldQuality, Idl,
+                                         Struct)
 
 
 def as_privilege(privilege: AccessPrivilege) -> str:
@@ -44,13 +36,13 @@ def extract_attribute_quality_flags(attribute: Attribute) -> list[str]:
     result = []
 
     if attribute.qualities & AttributeQuality.TIMED_WRITE:
-        result.append("DataModel::AttributeQualityFlags::kTimed")
+        result.append('DataModel::AttributeQualityFlags::kTimed')
 
     if attribute.definition.is_list:
-        result.append("DataModel::AttributeQualityFlags::kListAttribute")
+        result.append('DataModel::AttributeQualityFlags::kListAttribute')
 
     if attribute.definition.qualities & FieldQuality.FABRIC_SENSITIVE:
-        result.append("DataModel::AttributeQualityFlags::kFabricSensitive")
+        result.append('DataModel::AttributeQualityFlags::kFabricSensitive')
 
     # TODO: kChangesOmitted is not available
     # TODO: kFabricScoped is not available here (it is a struct/field quality...)
@@ -62,10 +54,10 @@ def extract_command_quality_flags(command: Command) -> list[str]:
     result = []
 
     if command.qualities & CommandQuality.FABRIC_SCOPED:
-        result.append("DataModel::CommandQualityFlags::kFabricScoped")
+        result.append('DataModel::CommandQualityFlags::kFabricScoped')
 
     if command.qualities & CommandQuality.TIMED_INVOKE:
-        result.append("DataModel::CommandQualityFlags::kTimed")
+        result.append('DataModel::CommandQualityFlags::kTimed')
 
     # TODO: kLargeMessage is not available
 
@@ -108,13 +100,13 @@ class SdkGenerator(CodeGenerator):
         filters as required by the java .jinja templates to function.
         """
         super().__init__(storage, idl, fs_loader_searchpath=os.path.dirname(__file__))
-        self.jinja_env.filters["as_privilege"] = as_privilege
-        self.jinja_env.filters["extract_attribute_quality_flags"] = extract_attribute_quality_flags
-        self.jinja_env.filters["extract_command_quality_flags"] = extract_command_quality_flags
-        self.jinja_env.filters["name_for_id_usage"] = name_for_id_usage
-        self.jinja_env.tests["global_attribute"] = global_attribute
-        self.jinja_env.tests["response_struct"] = response_struct
-        self.jinja_env.tests["is_optional"] = is_optional
+        self.jinja_env.filters['as_privilege'] = as_privilege
+        self.jinja_env.filters['extract_attribute_quality_flags'] = extract_attribute_quality_flags
+        self.jinja_env.filters['extract_command_quality_flags'] = extract_command_quality_flags
+        self.jinja_env.filters['name_for_id_usage'] = name_for_id_usage
+        self.jinja_env.tests['global_attribute'] = global_attribute
+        self.jinja_env.tests['response_struct'] = response_struct
+        self.jinja_env.tests['is_optional'] = is_optional
 
     def internal_render_all(self):
         """
@@ -140,11 +132,14 @@ class SdkGenerator(CodeGenerator):
         )
 
         for cluster in self.idl.clusters:
+
             build_targets = {
                 "Build.jinja": "BUILD.gn",
+
                 # contains `*Entry` items for attributes and commands
                 "Metadata.h.jinja": "Metadata.h",
                 "MetadataProvider.h.jinja": "MetadataProvider.h",
+
                 # contains id definitions
                 "AttributeIds.h.jinja": "AttributeIds.h",
                 "ClusterId.h.jinja": "ClusterId.h",

@@ -17,7 +17,6 @@ class FaultType(IntEnum):
 # BEGIN-IF-CHANGE-ALSO-CHANGE(/src/lib/support/CHIPFaultInjection.h)
 class CHIPFaultId(IntEnum):
     """Fault IDs for CHIP fault injection, matching the `Id` enum in src/lib/support/CHIPFaultInjection.h"""
-
     AllocExchangeContext = 0
     DropIncomingUDPMsg = 1
     DropOutgoingUDPMsg = 2
@@ -57,7 +56,6 @@ class CHIPFaultId(IntEnum):
     ClearInMemoryAllocatedSnapshotStreams = 36
     LoadPersistedAllocatedVideoStreams = 37
 
-
 # END-IF-CHANGE-ALSO-CHANGE(/src/lib/support/CHIPFaultInjection.h)
 # IMPORTANT: CHIPFaultId enum above must be kept in sync with the 'Id' enum in src/lib/support/CHIPFaultInjection.h
 # If you change values in the C/C++ header, update them here as well.
@@ -70,50 +68,47 @@ def _GetNlFaultInjectionLibraryHandle() -> ctypes.CDLL:
     if not handle.pychip_faultinjection_fail_at_fault.argtypes:
         setter = NativeLibraryHandleMethodArguments(handle)
 
-        setter.Set("pychip_faultinjection_get_num_faults", ctypes.c_uint32, None)
+        setter.Set('pychip_faultinjection_get_num_faults', ctypes.c_uint32, None)
 
-        setter.Set(
-            "pychip_faultinjection_fail_at_fault",
-            ctypes.c_uint32,
-            [ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_bool],
-        )
+        setter.Set('pychip_faultinjection_fail_at_fault', ctypes.c_uint32, [
+                   ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_bool])
 
-        setter.Set("pychip_faultinjection_get_fault_counter", ctypes.c_uint32, [ctypes.c_uint32])
+        setter.Set('pychip_faultinjection_get_fault_counter', ctypes.c_uint32, [
+                   ctypes.c_uint32])
 
-        setter.Set("pychip_faultinjection_reset_fault_counters", None, None)
+        setter.Set('pychip_faultinjection_reset_fault_counters', None, None)
 
         num_faults = handle.pychip_faultinjection_get_num_faults()
-        assert len(CHIPFaultId) == num_faults, (
-            "The Number of Faults in the CHIPFaultId Enum doesn't match that in the C++ CHIPFaultInjection Header"
-        )
+        assert len(CHIPFaultId) == num_faults, "The Number of Faults in the CHIPFaultId Enum doesn't match that in the C++ CHIPFaultInjection Header"
 
     return handle
 
 
 def FailAtFault(faultID: CHIPFaultId, numCallsToSkip: int, numCallsToFail: int, takeMutex: bool = True):
-    """Configure a fault to be triggered
+    """ Configure a fault to be triggered
     This should only be used to inject faults locally into the Client being run by the script. Otherwise to inject Faults over the data model, use the FailAtFault variant in clusters/Objects.py"""
     handle = _GetNlFaultInjectionLibraryHandle()
 
-    nlfaultinjectionReturnCode = handle.pychip_faultinjection_fail_at_fault(faultID, numCallsToSkip, numCallsToFail, takeMutex)
+    nlfaultinjectionReturnCode = handle.pychip_faultinjection_fail_at_fault(
+        faultID, numCallsToSkip, numCallsToFail, takeMutex)
 
     if nlfaultinjectionReturnCode != 0:
         raise Exception(f"Fault injection failed with return code: {nlfaultinjectionReturnCode}")
 
 
 def GetFaultCounter(faultID: CHIPFaultId):
-    """Returns the number of times a specific fault was checked during execution.
+    """ Returns the number of times a specific fault was checked during execution.
 
     This is useful for verifying that the code path containing the fault injection was actually executed,
     Note: The count includes all checks, even if the fault was not triggered.
-    """
+      """
 
     handle = _GetNlFaultInjectionLibraryHandle()
     return handle.pychip_faultinjection_get_fault_counter(faultID)
 
 
 def ResetFaultCounters():
-    """Resets the counter that checks the number of times a specific fault was checked"""
+    """ Resets the counter that checks the number of times a specific fault was checked """
 
     handle = _GetNlFaultInjectionLibraryHandle()
     handle.pychip_faultinjection_reset_fault_counters()

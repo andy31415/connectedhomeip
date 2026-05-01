@@ -210,7 +210,8 @@ public:
 
     ReadAttribute(chip::ClusterId clusterId, const char * attributeName, chip::AttributeId attributeId,
                   CredentialIssuerCommands * credsIssuerConfig) :
-        ReadCommand("read", credsIssuerConfig), mClusterIds(1, clusterId), mAttributeIds(1, attributeId)
+        ReadCommand("read", credsIssuerConfig),
+        mClusterIds(1, clusterId), mAttributeIds(1, attributeId)
     {
         AddArgument("attr-name", attributeName);
         AddCommonArguments();
@@ -271,7 +272,8 @@ public:
 
     SubscribeAttribute(chip::ClusterId clusterId, const char * attributeName, chip::AttributeId attributeId,
                        CredentialIssuerCommands * credsIssuerConfig) :
-        SubscribeCommand("subscribe", credsIssuerConfig), mClusterIds(1, clusterId), mAttributeIds(1, attributeId)
+        SubscribeCommand("subscribe", credsIssuerConfig),
+        mClusterIds(1, clusterId), mAttributeIds(1, attributeId)
     {
         AddArgument("attr-name", attributeName);
         AddCommonArguments();
@@ -339,7 +341,8 @@ public:
 
     ReadEvent(chip::ClusterId clusterId, const char * eventName, chip::EventId eventId,
               CredentialIssuerCommands * credsIssuerConfig) :
-        ReadCommand("read-event", credsIssuerConfig), mClusterIds(1, clusterId), mEventIds(1, eventId)
+        ReadCommand("read-event", credsIssuerConfig),
+        mClusterIds(1, clusterId), mEventIds(1, eventId)
     {
         AddArgument("event-name", eventName);
         AddArgument("fabric-filtered", 0, 1, &mFabricFiltered);
@@ -384,7 +387,8 @@ public:
 
     SubscribeEvent(chip::ClusterId clusterId, const char * eventName, chip::EventId eventId,
                    CredentialIssuerCommands * credsIssuerConfig) :
-        SubscribeCommand("subscribe-event", credsIssuerConfig), mClusterIds(1, clusterId), mEventIds(1, eventId)
+        SubscribeCommand("subscribe-event", credsIssuerConfig),
+        mClusterIds(1, clusterId), mEventIds(1, eventId)
     {
         AddArgument("event-name", eventName, "Event name.");
         AddCommonArguments();

@@ -69,44 +69,39 @@ class TestICDManagementCluster(MatterBaseTest):
     async def test_active_mode_test_event_trigger(self):
         dev_ctrl = self.default_controller
         is_test_event_triggers_enabled = await self.read_single_attribute(
-            dev_ctrl, self.dut_node_id, endpoint=0, attribute=Clusters.GeneralDiagnostics.Attributes.TestEventTriggersEnabled
+            dev_ctrl,
+            self.dut_node_id,
+            endpoint=0,
+            attribute=Clusters.GeneralDiagnostics.Attributes.TestEventTriggersEnabled
         )
-        asserts.assert_true(is_test_event_triggers_enabled, "This test expects Test Event Triggers are Enabled")
+        asserts.assert_true(is_test_event_triggers_enabled,
+                            "This test expects Test Event Triggers are Enabled")
 
         # No response to command --> Success yields "None".
         asserts.assert_is_none(
             await dev_ctrl.SendCommand(
                 self.dut_node_id,
                 endpoint=kRootEndpointId,
-                payload=Clusters.GeneralDiagnostics.Commands.TestEventTrigger(
-                    enableKey=kTestEventTriggerKey, eventTrigger=ICDTestEventTriggerOperations.kAddActiveModeReq
-                ),
+                payload=Clusters.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=kTestEventTriggerKey,
+                                                                              eventTrigger=ICDTestEventTriggerOperations.kAddActiveModeReq)
             )
         )
 
-        startingICDCounter = await self.read_single_attribute_check_success(
-            endpoint=kRootEndpointId, cluster=Clusters.Objects.IcdManagement, attribute=Clusters.IcdManagement.Attributes.ICDCounter
-        )
+        startingICDCounter = await self.read_single_attribute_check_success(endpoint=kRootEndpointId, cluster=Clusters.Objects.IcdManagement, attribute=Clusters.IcdManagement.Attributes.ICDCounter)
 
         asserts.assert_is_none(
             await dev_ctrl.SendCommand(
                 self.dut_node_id,
                 endpoint=kRootEndpointId,
-                payload=Clusters.GeneralDiagnostics.Commands.TestEventTrigger(
-                    enableKey=kTestEventTriggerKey, eventTrigger=ICDTestEventTriggerOperations.kInvalidateHalfCounterValues
-                ),
+                payload=Clusters.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=kTestEventTriggerKey,
+                                                                              eventTrigger=ICDTestEventTriggerOperations.kInvalidateHalfCounterValues)
             )
         )
-        currentICDCounter = await self.read_single_attribute_check_success(
-            endpoint=kRootEndpointId, cluster=Clusters.Objects.IcdManagement, attribute=Clusters.IcdManagement.Attributes.ICDCounter
-        )
+        currentICDCounter = await self.read_single_attribute_check_success(endpoint=kRootEndpointId, cluster=Clusters.Objects.IcdManagement, attribute=Clusters.IcdManagement.Attributes.ICDCounter)
 
         # Check new current counter value has the expected value
-        asserts.assert_equal(
-            (ctypes.c_uint32(startingICDCounter + kHalfMaxUint32Value).value),
-            currentICDCounter,
-            "Incorrect ICDCounter value after kInvalidateHalfCounterValues opration",
-        )
+        asserts.assert_equal((ctypes.c_uint32(startingICDCounter + kHalfMaxUint32Value).value),
+                             currentICDCounter, "Incorrect ICDCounter value after kInvalidateHalfCounterValues opration")
 
         # Set starting counter to currentICDCounter for next test
         startingICDCounter = currentICDCounter
@@ -115,29 +110,22 @@ class TestICDManagementCluster(MatterBaseTest):
             await dev_ctrl.SendCommand(
                 self.dut_node_id,
                 endpoint=kRootEndpointId,
-                payload=Clusters.GeneralDiagnostics.Commands.TestEventTrigger(
-                    enableKey=kTestEventTriggerKey, eventTrigger=ICDTestEventTriggerOperations.kInvalidateAllCounterValues
-                ),
+                payload=Clusters.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=kTestEventTriggerKey,
+                                                                              eventTrigger=ICDTestEventTriggerOperations.kInvalidateAllCounterValues)
             )
         )
-        currentICDCounter = await self.read_single_attribute_check_success(
-            endpoint=kRootEndpointId, cluster=Clusters.Objects.IcdManagement, attribute=Clusters.IcdManagement.Attributes.ICDCounter
-        )
+        currentICDCounter = await self.read_single_attribute_check_success(endpoint=kRootEndpointId, cluster=Clusters.Objects.IcdManagement, attribute=Clusters.IcdManagement.Attributes.ICDCounter)
 
         # Check new current counter value has the expected value
-        asserts.assert_equal(
-            (ctypes.c_uint32(startingICDCounter + kMaxUint32Value).value),
-            currentICDCounter,
-            "Incorrect ICDCounter value after kInvalidateHalfCounterValues opration",
-        )
+        asserts.assert_equal((ctypes.c_uint32(startingICDCounter + kMaxUint32Value).value),
+                             currentICDCounter, "Incorrect ICDCounter value after kInvalidateHalfCounterValues opration")
 
         asserts.assert_is_none(
             await dev_ctrl.SendCommand(
                 self.dut_node_id,
                 endpoint=kRootEndpointId,
-                payload=Clusters.GeneralDiagnostics.Commands.TestEventTrigger(
-                    enableKey=kTestEventTriggerKey, eventTrigger=ICDTestEventTriggerOperations.kRemoveActiveModeReq
-                ),
+                payload=Clusters.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=kTestEventTriggerKey,
+                                                                              eventTrigger=ICDTestEventTriggerOperations.kRemoveActiveModeReq)
             )
         )
 
@@ -145,9 +133,8 @@ class TestICDManagementCluster(MatterBaseTest):
             await dev_ctrl.SendCommand(
                 self.dut_node_id,
                 endpoint=kRootEndpointId,
-                payload=Clusters.GeneralDiagnostics.Commands.TestEventTrigger(
-                    enableKey=kTestEventTriggerKey, eventTrigger=ICDTestEventTriggerOperations.kForceMaximumCheckInBackOffState
-                ),
+                payload=Clusters.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=kTestEventTriggerKey,
+                                                                              eventTrigger=ICDTestEventTriggerOperations.kForceMaximumCheckInBackOffState)
             )
         )
 

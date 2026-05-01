@@ -61,107 +61,53 @@ class TC_ZONEMGMT_2_4(MatterBaseTest):
     def steps_TC_ZONEMGMT_2_4(self) -> list[TestStep]:
         return [
             TestStep("1", "Commissioning, already done", is_commissioning=True),
-            TestStep(
-                "2",
-                "If DUT supports TwoDCartesianZone and User defined zones, TH sends CreateTwoDCartesianZone command with",
-                " valid parameters",
-                "Verify that the DUT response contains a new zoneId and the corresponding zone information matches.",
-            ),
-            TestStep(
-                "2a",
-                "TH sends CreateOrUpdateTrigger command with a valid ZoneTriggerControlStruct and ZoneID set to the created ZoneID in step 2 ",
-                "Verify that the DUT responds with a Success status code.",
-                "Verify that the new ZoneTrigger is added to the Triggers list",
-            ),
-            TestStep(
-                "2b",
-                "TH reads the Triggers attribute from DUT",
-                "Verify that the response contains a list of ZoneTriggerControlStruct entries",
-                "Verify that the Trigger list contains the Trigger created in step 2a",
-            ),
-            TestStep(
-                "3",
-                "Trigger the DUT to generate ZoneTriggered event",
-                "Verify that the TH receives the ZoneTriggered event and the ZoneID matches one created in step 2",
-                "Verify that the reason is 0(Motion) and the event has priority set as INFO",
-            ),
+            TestStep("2", "If DUT supports TwoDCartesianZone and User defined zones, TH sends CreateTwoDCartesianZone command with",
+                     " valid parameters",
+                     "Verify that the DUT response contains a new zoneId and the corresponding zone information matches."),
+            TestStep("2a", "TH sends CreateOrUpdateTrigger command with a valid ZoneTriggerControlStruct and ZoneID set to the created ZoneID in step 2 ",
+                     "Verify that the DUT responds with a Success status code.",
+                     "Verify that the new ZoneTrigger is added to the Triggers list"),
+            TestStep("2b", "TH reads the Triggers attribute from DUT",
+                     "Verify that the response contains a list of ZoneTriggerControlStruct entries",
+                     "Verify that the Trigger list contains the Trigger created in step 2a"),
+            TestStep("3", "Trigger the DUT to generate ZoneTriggered event",
+                     "Verify that the TH receives the ZoneTriggered event and the ZoneID matches one created in step 2",
+                     "Verify that the reason is 0(Motion) and the event has priority set as INFO"),
             TestStep("3a", "Prevent DUT from detecting motion for period > InitialDuration"),
-            TestStep(
-                "3b",
-                "DUT sends the ZoneStopped event",
-                "Verify that the TH receives the ZoneStopped event and the ZoneID matches one created in step 2",
-                "Verify that the reason is 0(ActionStopped)",
-            ),
+            TestStep("3b", "DUT sends the ZoneStopped event",
+                     "Verify that the TH receives the ZoneStopped event and the ZoneID matches one created in step 2",
+                     "Verify that the reason is 0(ActionStopped)"),
             TestStep("4", "Repeat step 3"),
-            TestStep(
-                "4a",
-                "Trigger the DUT to generate another ZoneTriggered event to increment the TriggerDetectedDuration by the AugmentationDuration",
-            ),
-            TestStep(
-                "4b",
-                "DUT sends the ZoneStopped event",
-                "Verify that the TH receives the ZoneStopped event after (InitialDuration + AugmentationDuration) and the ZoneID matches one in step 2",
-                "Verify that the reason is 0(ActionStopped)",
-            ),
+            TestStep("4a", "Trigger the DUT to generate another ZoneTriggered event to increment the TriggerDetectedDuration by the AugmentationDuration"),
+            TestStep("4b", "DUT sends the ZoneStopped event",
+                     "Verify that the TH receives the ZoneStopped event after (InitialDuration + AugmentationDuration) and the ZoneID matches one in step 2",
+                     "Verify that the reason is 0(ActionStopped)"),
             TestStep("5", "Repeat step 3"),
             TestStep("5a", "Make the DUT keep detecting motion for a period > MaxDuration"),
-            TestStep(
-                "5b",
-                "DUT sends the ZoneStopped event",
-                "Verify that the TH receives the ZoneStopped event and the ZoneID matches one created in step 2",
-                "Verify that the reason is 1(Timeout)",
-            ),
-            TestStep(
-                "5c",
-                "Trigger the DUT to generate ZoneTriggered event during BlindDuration after ZoneStopped event was received",
-                "Verify that the TH does not receive any ZoneTriggered event from DUT",
-            ),
-            TestStep(
-                "6",
-                "TH sends CreateOrUpdateTrigger command with a ZoneID that does not exist in the Zones attribute",
-                "Verify that the DUT responds with a NotFound status code.",
-            ),
-            TestStep(
-                "7",
-                "If DUT supports TwoDCartesianZone and User defined zones, TH sends CreateTwoDCartesianZone command with",
-                "ZoneUse = Privacy and other valid parameters",
-                "Verify that the DUT response contains a new zoneId and the corresponding zone information matches.",
-            ),
-            TestStep(
-                "7a",
-                "TH sends CreateOrUpdateTrigger command with a ZoneID of the Privacy Zone created in step 6",
-                "Verify that the DUT responds with a ConstraintError status code.",
-            ),
-            TestStep(
-                "8",
-                "TH sends RemoveZone command with ZoneID set to the created ZoneID in step 2",
-                "Verify that the DUT responds with a InvalidInState status code.",
-            ),
-            TestStep(
-                "8a",
-                "TH sends RemoveTrigger command with ZoneID that does not exist in Zones attribute",
-                "Verify that the DUT responds with a NotFound status code",
-            ),
-            TestStep(
-                "8b",
-                "TH sends RemoveTrigger command with ZoneID set to the created ZoneID in step 2",
-                "Verify that the DUT responds with a Success status code.",
-            ),
-            TestStep(
-                "8c",
-                "TH sends RemoveZone command with ZoneID set to the created ZoneID in step 2",
-                "Verify that the DUT responds with a Success status code.",
-            ),
-            TestStep(
-                "9",
-                "TH retrieves a zone whose ZoneSource is Mfg, if it exists and attempts to remove that zone",
-                "Verify that the DUT responds with a ConstraintError status code",
-            ),
-            TestStep(
-                "10",
-                "TH sends RemoveZone command with ZoneID that does not exist in Zones attribute",
-                "Verify that the DUT responds with a NotFound status code",
-            ),
+            TestStep("5b", "DUT sends the ZoneStopped event",
+                     "Verify that the TH receives the ZoneStopped event and the ZoneID matches one created in step 2",
+                     "Verify that the reason is 1(Timeout)"),
+            TestStep("5c", "Trigger the DUT to generate ZoneTriggered event during BlindDuration after ZoneStopped event was received",
+                     "Verify that the TH does not receive any ZoneTriggered event from DUT"),
+            TestStep("6", "TH sends CreateOrUpdateTrigger command with a ZoneID that does not exist in the Zones attribute",
+                     "Verify that the DUT responds with a NotFound status code."),
+            TestStep("7", "If DUT supports TwoDCartesianZone and User defined zones, TH sends CreateTwoDCartesianZone command with",
+                     "ZoneUse = Privacy and other valid parameters",
+                     "Verify that the DUT response contains a new zoneId and the corresponding zone information matches."),
+            TestStep("7a", "TH sends CreateOrUpdateTrigger command with a ZoneID of the Privacy Zone created in step 6",
+                     "Verify that the DUT responds with a ConstraintError status code."),
+            TestStep("8", "TH sends RemoveZone command with ZoneID set to the created ZoneID in step 2",
+                     "Verify that the DUT responds with a InvalidInState status code."),
+            TestStep("8a", "TH sends RemoveTrigger command with ZoneID that does not exist in Zones attribute",
+                     "Verify that the DUT responds with a NotFound status code"),
+            TestStep("8b", "TH sends RemoveTrigger command with ZoneID set to the created ZoneID in step 2",
+                     "Verify that the DUT responds with a Success status code."),
+            TestStep("8c", "TH sends RemoveZone command with ZoneID set to the created ZoneID in step 2",
+                     "Verify that the DUT responds with a Success status code."),
+            TestStep("9", "TH retrieves a zone whose ZoneSource is Mfg, if it exists and attempts to remove that zone",
+                     "Verify that the DUT responds with a ConstraintError status code"),
+            TestStep("10", "TH sends RemoveZone command with ZoneID that does not exist in Zones attribute",
+                     "Verify that the DUT responds with a NotFound status code"),
         ]
 
     async def _trigger_motion_event(self, zone_id, prompt_msg=None):
@@ -174,7 +120,8 @@ class TC_ZONEMGMT_2_4(MatterBaseTest):
                 prompt_msg = f"Press enter and immediately start motion activity in zone {zone_id}."
             self.wait_for_user_input(prompt_msg=prompt_msg)
 
-    @run_if_endpoint_matches(has_cluster(Clusters.ZoneManagement) and has_cluster(Clusters.CameraAvStreamManagement))
+    @run_if_endpoint_matches(has_cluster(Clusters.ZoneManagement) and
+                             has_cluster(Clusters.CameraAvStreamManagement))
     async def test_TC_ZONEMGMT_2_4(self):
         endpoint = self.get_endpoint()
         cluster = Clusters.ZoneManagement
@@ -205,20 +152,25 @@ class TC_ZONEMGMT_2_4(MatterBaseTest):
                 cluster.Structs.TwoDCartesianVertexStruct(10, 10),
                 cluster.Structs.TwoDCartesianVertexStruct(20, 10),
                 cluster.Structs.TwoDCartesianVertexStruct(20, 20),
-                cluster.Structs.TwoDCartesianVertexStruct(10, 20),
+                cluster.Structs.TwoDCartesianVertexStruct(10, 20)
             ]
             zoneToCreate = cluster.Structs.TwoDCartesianZoneStruct(
-                name="Zone1", use=enums.ZoneUseEnum.kMotion, vertices=zoneVertices, color="#00FFFF"
+                name="Zone1", use=enums.ZoneUseEnum.kMotion, vertices=zoneVertices,
+                color="#00FFFF")
+            createTwoDCartesianCmd = commands.CreateTwoDCartesianZone(
+                zone=zoneToCreate
             )
-            createTwoDCartesianCmd = commands.CreateTwoDCartesianZone(zone=zoneToCreate)
             cmdResponse = await self.send_single_cmd(endpoint=endpoint, cmd=createTwoDCartesianCmd)
             log.info(f"Rx'd CreateTwoDCartesianZoneResponse : {cmdResponse}")
-            asserts.assert_equal(type(cmdResponse), commands.CreateTwoDCartesianZoneResponse, "Incorrect response type")
-            asserts.assert_is_not_none(cmdResponse.zoneID, "CreateTwoDCartesianCmdResponse does not contain ZoneID")
+            asserts.assert_equal(type(cmdResponse), commands.CreateTwoDCartesianZoneResponse,
+                                 "Incorrect response type")
+            asserts.assert_is_not_none(
+                cmdResponse.zoneID, "CreateTwoDCartesianCmdResponse does not contain ZoneID")
             zoneID1 = cmdResponse.zoneID
 
             # Check that zoneID1 did not exist before
-            matchingZone = next((z for z in zonesBeforeCreate if z.zoneID == zoneID1), None)
+            matchingZone = next(
+                (z for z in zonesBeforeCreate if z.zoneID == zoneID1), None)
             asserts.assert_is_none(matchingZone, "fZone with {zoneID1} already existed in Zones")
 
             # Fetch the zones attribute after Create
@@ -227,17 +179,15 @@ class TC_ZONEMGMT_2_4(MatterBaseTest):
             )
             log.info(f"Rx'd Zones: {zonesAfterCreate}")
 
-            matchingZone = next((z for z in zonesAfterCreate if z.zoneID == zoneID1), None)
+            matchingZone = next(
+                (z for z in zonesAfterCreate if z.zoneID == zoneID1), None)
             asserts.assert_is_not_none(matchingZone, "fZone with {zoneID1} not found")
-            asserts.assert_equal(
-                matchingZone.zoneType, enums.ZoneTypeEnum.kTwoDCARTZone, "ZoneType of created Zone is not of type TwoDCartZone"
-            )
-            asserts.assert_equal(
-                matchingZone.zoneSource, enums.ZoneSourceEnum.kUser, "ZoneSource of created Zone is not of type User"
-            )
-            asserts.assert_equal(
-                matchingZone.twoDCartesianZone.vertices, zoneVertices, "ZoneVertices of created Zone are mismatched"
-            )
+            asserts.assert_equal(matchingZone.zoneType, enums.ZoneTypeEnum.kTwoDCARTZone,
+                                 "ZoneType of created Zone is not of type TwoDCartZone")
+            asserts.assert_equal(matchingZone.zoneSource, enums.ZoneSourceEnum.kUser,
+                                 "ZoneSource of created Zone is not of type User")
+            asserts.assert_equal(matchingZone.twoDCartesianZone.vertices, zoneVertices,
+                                 "ZoneVertices of created Zone are mismatched")
         else:
             log.info("TwoDCartZone or UserDefinedZones Feature not supported. Test steps skipped")
             self.skip_step("2")
@@ -250,7 +200,8 @@ class TC_ZONEMGMT_2_4(MatterBaseTest):
         log.info(f"Rx'd Triggers: {triggersBeforeCreate}")
 
         # Check that zoneID1 trigger did not exist before
-        matchingTrigger = next((t for t in triggersBeforeCreate if t.zoneID == zoneID1), None)
+        matchingTrigger = next(
+            (t for t in triggersBeforeCreate if t.zoneID == zoneID1), None)
         asserts.assert_is_none(matchingTrigger, "fTrigger with {zoneID1} already existed in Triggers")
 
         # Define the parameters of the trigger
@@ -265,13 +216,7 @@ class TC_ZONEMGMT_2_4(MatterBaseTest):
 
         # Create a ZoneTrigger command with a valid ZoneTriggerControlStruct
         zoneTrigger = cluster.Structs.ZoneTriggerControlStruct(
-            zoneID=zoneID1,
-            initialDuration=initDuration,
-            augmentationDuration=augDuration,
-            maxDuration=maxDuration,
-            blindDuration=blindDuration,
-            sensitivity=sensitivity,
-        )
+            zoneID=zoneID1, initialDuration=initDuration, augmentationDuration=augDuration, maxDuration=maxDuration, blindDuration=blindDuration, sensitivity=sensitivity)
         try:
             log.info(f"Create/Update Trigger with ID = {zoneID1}")
             await self.send_single_cmd(endpoint=endpoint, cmd=commands.CreateOrUpdateTrigger(trigger=zoneTrigger))
@@ -284,28 +229,36 @@ class TC_ZONEMGMT_2_4(MatterBaseTest):
         )
         log.info(f"Rx'd Triggers: {triggersAfterCreate}")
 
-        matchingTrigger = next((t for t in triggersAfterCreate if t.zoneID == zoneID1), None)
+        matchingTrigger = next(
+            (t for t in triggersAfterCreate if t.zoneID == zoneID1), None)
         asserts.assert_is_not_none(matchingTrigger, "fTrigger with {zoneID1} not found")
 
         self.step("2b")
 
-        triggers = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.Triggers)
+        triggers = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.Triggers
+        )
         log.info(f"Rx'd Triggers: {triggers}")
 
         asserts.assert_is(type(triggers), list)
         for t in triggers:
-            asserts.assert_is(type(t), cluster.Structs.ZoneTriggerControlStruct, "Invalid entry in Triggers")
+            asserts.assert_is(type(t), cluster.Structs.ZoneTriggerControlStruct,
+                              "Invalid entry in Triggers")
 
-        matchingTrigger = next((t for t in triggers if t.zoneID == zoneID1), None)
+        matchingTrigger = next(
+            (t for t in triggers if t.zoneID == zoneID1), None)
         asserts.assert_is_not_none(matchingTrigger, "fTrigger with {zoneID1} not found")
-        asserts.assert_equal(matchingTrigger.initialDuration, initDuration, "InitialDuration of created Trigger does not match")
-        asserts.assert_equal(
-            matchingTrigger.augmentationDuration, augDuration, "AugmentationDuration of created Trigger does not match"
-        )
-        asserts.assert_equal(matchingTrigger.maxDuration, maxDuration, "MaxDuration of created Trigger does not match")
-        asserts.assert_equal(matchingTrigger.blindDuration, blindDuration, "BlindDuration of created Trigger does not match")
+        asserts.assert_equal(matchingTrigger.initialDuration, initDuration,
+                             "InitialDuration of created Trigger does not match")
+        asserts.assert_equal(matchingTrigger.augmentationDuration, augDuration,
+                             "AugmentationDuration of created Trigger does not match")
+        asserts.assert_equal(matchingTrigger.maxDuration, maxDuration,
+                             "MaxDuration of created Trigger does not match")
+        asserts.assert_equal(matchingTrigger.blindDuration, blindDuration,
+                             "BlindDuration of created Trigger does not match")
         if self.perZoneSenseSupported:
-            asserts.assert_equal(matchingTrigger.sensitivity, sensitivity, "Sensitivity of created Trigger does not match")
+            asserts.assert_equal(matchingTrigger.sensitivity, sensitivity,
+                                 "Sensitivity of created Trigger does not match")
 
         self.step("3")
 
@@ -314,13 +267,12 @@ class TC_ZONEMGMT_2_4(MatterBaseTest):
         event_listener = EventSubscriptionHandler(expected_cluster=cluster)
         await event_listener.start(dev_ctrl, node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30)
         event_delay_seconds = 5.0
-        await self._trigger_motion_event(
-            zoneID1,
-            prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.",
-        )
+        await self._trigger_motion_event(zoneID1, prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.")
 
-        event = event_listener.wait_for_event_report(cluster.Events.ZoneTriggered, timeout_sec=event_delay_seconds)
-        asserts.assert_equal(type(event), cluster.Events.ZoneTriggered, "Incorrect event type")
+        event = event_listener.wait_for_event_report(
+            cluster.Events.ZoneTriggered, timeout_sec=event_delay_seconds)
+        asserts.assert_equal(type(event), cluster.Events.ZoneTriggered,
+                             "Incorrect event type")
         asserts.assert_equal(event.zone, zoneID1, "Unexpected zoneID on ZoneTriggered")
         asserts.assert_equal(event.reason, enums.ZoneEventTriggeredReasonEnum.kMotion, "Unexpected reason on ZoneTriggered")
 
@@ -329,8 +281,10 @@ class TC_ZONEMGMT_2_4(MatterBaseTest):
         # any more events
         event_delay_seconds = initDuration + 1
         self.step("3b")
-        event = event_listener.wait_for_event_report(cluster.Events.ZoneStopped, timeout_sec=event_delay_seconds)
-        asserts.assert_equal(type(event), cluster.Events.ZoneStopped, "Incorrect event type")
+        event = event_listener.wait_for_event_report(
+            cluster.Events.ZoneStopped, timeout_sec=event_delay_seconds)
+        asserts.assert_equal(type(event), cluster.Events.ZoneStopped,
+                             "Incorrect event type")
         asserts.assert_equal(event.zone, zoneID1, "Unexpected zoneID on ZoneTriggered")
         asserts.assert_equal(event.reason, enums.ZoneEventStoppedReasonEnum.kActionStopped, "Unexpected reason on ZoneStopped")
         await asyncio.sleep(blindDuration)
@@ -341,39 +295,37 @@ class TC_ZONEMGMT_2_4(MatterBaseTest):
         event_listener = EventSubscriptionHandler(expected_cluster=cluster)
         await event_listener.start(dev_ctrl, node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30)
         event_delay_seconds = 5.0
-        await self._trigger_motion_event(
-            zoneID1,
-            prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1}. Stop after 2-3 seconds. Be ready for a second prompt for another motion activity to trigger an event.",
-        )
+        await self._trigger_motion_event(zoneID1, prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1}. Stop after 2-3 seconds. Be ready for a second prompt for another motion activity to trigger an event.")
 
-        event = event_listener.wait_for_event_report(cluster.Events.ZoneTriggered, timeout_sec=event_delay_seconds)
-        asserts.assert_equal(type(event), cluster.Events.ZoneTriggered, "Incorrect event type")
+        event = event_listener.wait_for_event_report(
+            cluster.Events.ZoneTriggered, timeout_sec=event_delay_seconds)
+        asserts.assert_equal(type(event), cluster.Events.ZoneTriggered,
+                             "Incorrect event type")
         asserts.assert_equal(event.zone, zoneID1, "Unexpected zoneID on ZoneTriggered")
         asserts.assert_equal(event.reason, enums.ZoneEventTriggeredReasonEnum.kMotion, "Unexpected reason on ZoneTriggered")
 
         self.step("4a")
-        await self._trigger_motion_event(
-            zoneID1,
-            prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} for a second time in quick succession.",
-        )
+        await self._trigger_motion_event(zoneID1, prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} for a second time in quick succession.")
 
         event_delay_seconds = initDuration + augDuration + 1
 
         self.step("4b")
-        event = event_listener.wait_for_event_report(cluster.Events.ZoneStopped, timeout_sec=event_delay_seconds)
-        asserts.assert_equal(type(event), cluster.Events.ZoneStopped, "Incorrect event type")
+        event = event_listener.wait_for_event_report(
+            cluster.Events.ZoneStopped, timeout_sec=event_delay_seconds)
+        asserts.assert_equal(type(event), cluster.Events.ZoneStopped,
+                             "Incorrect event type")
         asserts.assert_equal(event.zone, zoneID1, "Unexpected zoneID on ZoneTriggered")
         asserts.assert_equal(event.reason, enums.ZoneEventStoppedReasonEnum.kActionStopped, "Unexpected reason on ZoneStopped")
         await asyncio.sleep(blindDuration)
 
         self.step("5")
         # Repeat Step 3
-        await self._trigger_motion_event(
-            zoneID1, prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1}. Stop after 2-3 seconds."
-        )
+        await self._trigger_motion_event(zoneID1, prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1}. Stop after 2-3 seconds.")
 
-        event = event_listener.wait_for_event_report(cluster.Events.ZoneTriggered, timeout_sec=event_delay_seconds)
-        asserts.assert_equal(type(event), cluster.Events.ZoneTriggered, "Incorrect event type")
+        event = event_listener.wait_for_event_report(
+            cluster.Events.ZoneTriggered, timeout_sec=event_delay_seconds)
+        asserts.assert_equal(type(event), cluster.Events.ZoneTriggered,
+                             "Incorrect event type")
         asserts.assert_equal(event.zone, zoneID1, "Unexpected zoneID on ZoneTriggered")
         asserts.assert_equal(event.reason, enums.ZoneEventTriggeredReasonEnum.kMotion, "Unexpected reason on ZoneTriggered")
 
@@ -389,14 +341,15 @@ class TC_ZONEMGMT_2_4(MatterBaseTest):
         else:
             self.wait_for_user_input(
                 prompt_msg=f"""Press enter and immediately start, and keep generating motion activity from zone {zoneID1} for a period exceeding {maxDuration} seconds.
-After {maxDuration}, keep generating some motion activity during the {blindDuration} seconds blind duration phase. DUT should not send any ZoneTriggered event during this phase."""
-            )
+After {maxDuration}, keep generating some motion activity during the {blindDuration} seconds blind duration phase. DUT should not send any ZoneTriggered event during this phase.""")
 
         event_delay_seconds = maxDuration
-        event = event_listener.wait_for_event_report(cluster.Events.ZoneStopped, timeout_sec=event_delay_seconds)
+        event = event_listener.wait_for_event_report(
+            cluster.Events.ZoneStopped, timeout_sec=event_delay_seconds)
 
         self.step("5b")
-        asserts.assert_equal(type(event), cluster.Events.ZoneStopped, "Incorrect event type")
+        asserts.assert_equal(type(event), cluster.Events.ZoneStopped,
+                             "Incorrect event type")
         asserts.assert_equal(event.zone, zoneID1, "Unexpected zoneID on ZoneTriggered")
         asserts.assert_equal(event.reason, enums.ZoneEventStoppedReasonEnum.kTimeout, "Unexpected reason on ZoneStopped")
 
@@ -410,7 +363,9 @@ After {maxDuration}, keep generating some motion activity during the {blindDurat
         self.step("6")
 
         # Fetch the zones attribute
-        zones = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.Zones)
+        zones = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.Zones
+        )
         log.info(f"Rx'd Zones: {zones}")
         maxZoneId = 0
         # Get the max zoneId
@@ -423,13 +378,7 @@ After {maxDuration}, keep generating some motion activity during the {blindDurat
 
         # Create a ZoneTrigger command with the non-existing ZoneId
         zoneTrigger = cluster.Structs.ZoneTriggerControlStruct(
-            zoneID=nonExistentZoneId,
-            initialDuration=10,
-            augmentationDuration=2,
-            maxDuration=50,
-            blindDuration=5,
-            sensitivity=sensitivity,
-        )
+            zoneID=nonExistentZoneId, initialDuration=10, augmentationDuration=2, maxDuration=50, blindDuration=5, sensitivity=sensitivity)
         try:
             await self.send_single_cmd(endpoint=endpoint, cmd=commands.CreateOrUpdateTrigger(trigger=zoneTrigger))
             asserts.fail("Unexpected success when expecting NOT_FOUND due to new zone id being used")
@@ -449,17 +398,21 @@ After {maxDuration}, keep generating some motion activity during the {blindDurat
                 cluster.Structs.TwoDCartesianVertexStruct(10, 10),
                 cluster.Structs.TwoDCartesianVertexStruct(20, 10),
                 cluster.Structs.TwoDCartesianVertexStruct(20, 20),
-                cluster.Structs.TwoDCartesianVertexStruct(10, 20),
+                cluster.Structs.TwoDCartesianVertexStruct(10, 20)
             ]
             zoneToCreate = cluster.Structs.TwoDCartesianZoneStruct(
-                name="Zone4", use=enums.ZoneUseEnum.kPrivacy, vertices=zoneVertices, color="#00FFFF"
-            )
+                name="Zone4", use=enums.ZoneUseEnum.kPrivacy, vertices=zoneVertices,
+                color="#00FFFF")
 
-            createTwoDCartesianCmd = commands.CreateTwoDCartesianZone(zone=zoneToCreate)
+            createTwoDCartesianCmd = commands.CreateTwoDCartesianZone(
+                zone=zoneToCreate
+            )
             cmdResponse = await self.send_single_cmd(endpoint=endpoint, cmd=createTwoDCartesianCmd)
             log.info(f"Rx'd CreateTwoDCartesianZoneResponse : {cmdResponse}")
-            asserts.assert_equal(type(cmdResponse), commands.CreateTwoDCartesianZoneResponse, "Incorrect response type")
-            asserts.assert_is_not_none(cmdResponse.zoneID, "CreateTwoDCartesianCmdResponse does not contain ZoneID")
+            asserts.assert_equal(type(cmdResponse), commands.CreateTwoDCartesianZoneResponse,
+                                 "Incorrect response type")
+            asserts.assert_is_not_none(
+                cmdResponse.zoneID, "CreateTwoDCartesianCmdResponse does not contain ZoneID")
             zoneID4 = cmdResponse.zoneID
 
             # Fetch the zones attribute after Create
@@ -468,24 +421,21 @@ After {maxDuration}, keep generating some motion activity during the {blindDurat
             )
             log.info(f"Rx'd Zones: {zonesAfterCreate}")
 
-            matchingZone = next((z for z in zonesAfterCreate if z.zoneID == zoneID4), None)
+            matchingZone = next(
+                (z for z in zonesAfterCreate if z.zoneID == zoneID4), None)
             asserts.assert_is_not_none(matchingZone, "fZone with {zoneID4} not found")
-            asserts.assert_equal(
-                matchingZone.zoneType, enums.ZoneTypeEnum.kTwoDCARTZone, "ZoneType of created Zone is not of type TwoDCartZone"
-            )
-            asserts.assert_equal(
-                matchingZone.zoneSource, enums.ZoneSourceEnum.kUser, "ZoneSource of created Zone is not of type User"
-            )
-            asserts.assert_equal(
-                matchingZone.twoDCartesianZone.vertices, zoneVertices, "ZoneVertices of created Zone are mismatched"
-            )
+            asserts.assert_equal(matchingZone.zoneType, enums.ZoneTypeEnum.kTwoDCARTZone,
+                                 "ZoneType of created Zone is not of type TwoDCartZone")
+            asserts.assert_equal(matchingZone.zoneSource, enums.ZoneSourceEnum.kUser,
+                                 "ZoneSource of created Zone is not of type User")
+            asserts.assert_equal(matchingZone.twoDCartesianZone.vertices, zoneVertices,
+                                 "ZoneVertices of created Zone are mismatched")
 
             self.step("7a")
 
             # Create a ZoneTrigger command for ZoneID4(Privacy Zone)
             zoneTrigger = cluster.Structs.ZoneTriggerControlStruct(
-                zoneID=zoneID4, initialDuration=10, augmentationDuration=2, maxDuration=50, blindDuration=5, sensitivity=sensitivity
-            )
+                zoneID=zoneID4, initialDuration=10, augmentationDuration=2, maxDuration=50, blindDuration=5, sensitivity=sensitivity)
             try:
                 await self.send_single_cmd(endpoint=endpoint, cmd=commands.CreateOrUpdateTrigger(trigger=zoneTrigger))
                 asserts.fail("Unexpected success when expecting CONSTRAINT_ERROR due to zone use not being User")
@@ -517,7 +467,9 @@ After {maxDuration}, keep generating some motion activity during the {blindDurat
 
             self.step("8a")
             # Fetch the zones attribute
-            zones = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.Zones)
+            zones = await self.read_single_attribute_check_success(
+                endpoint=endpoint, cluster=cluster, attribute=attr.Zones
+            )
             log.info(f"Rx'd Zones: {zones}")
             maxZoneId = 0
             # Get the max zoneId
@@ -563,9 +515,12 @@ After {maxDuration}, keep generating some motion activity during the {blindDurat
             self.skip_step("8c")
 
         # Fetch the zones attribute
-        zones = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.Zones)
+        zones = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.Zones
+        )
         log.info(f"Rx'd Zones: {zones}")
-        matchingZone = next((z for z in zones if z.zoneSource == enums.ZoneSourceEnum.kMfg), None)
+        matchingZone = next(
+            (z for z in zones if z.zoneSource == enums.ZoneSourceEnum.kMfg), None)
         if matchingZone is not None:
             self.step("9")
             log.info(f"Found Mfg Zone with Id : {matchingZone.zoneID}")
@@ -586,7 +541,9 @@ After {maxDuration}, keep generating some motion activity during the {blindDurat
 
         self.step("10")
         # Fetch the zones attribute
-        zones = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.Zones)
+        zones = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.Zones
+        )
         log.info(f"Rx'd Zones: {zones}")
         maxZoneId = 0
         # Get the max zoneId

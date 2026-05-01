@@ -46,7 +46,8 @@ public:
     {
     public:
         MediaClusterBase(chip::Messaging::ExchangeManager & exchangeManager, const chip::SessionHandle & session,
-                         chip::EndpointId endpoint) : ClusterBase(exchangeManager, session, endpoint)
+                         chip::EndpointId endpoint) :
+            ClusterBase(exchangeManager, session, endpoint)
         {}
     };
 

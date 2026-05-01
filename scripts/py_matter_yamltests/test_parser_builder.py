@@ -21,11 +21,11 @@ from matter.yamltests.hooks import TestParserHooks
 from matter.yamltests.parser import TestParser
 from matter.yamltests.parser_builder import TestParserBuilder, TestParserBuilderConfig
 
-simple_yaml = """
+simple_yaml = '''
 name: Hello World
-"""
+'''
 
-valid_yaml = """
+valid_yaml = '''
 name: TestOnOff
 
 tests:
@@ -36,9 +36,9 @@ tests:
     - label: "Toggle the light"
       cluster: "OnOff"
       command: "Toggle"
-"""
+'''
 
-invalid_yaml = """
+invalid_yaml = '''
 name: TestOnOff
 
 tests:
@@ -61,7 +61,7 @@ tests:
     - label: "Toggle the light"
       cluster: "OnOff"
       command: "Toggle"
-"""
+'''
 
 
 class TestHooks(TestParserHooks):
@@ -94,7 +94,7 @@ def mock_open_with_parameter_content(content):
     return file_object
 
 
-@patch("builtins.open", new=mock_open_with_parameter_content)
+@patch('builtins.open', new=mock_open_with_parameter_content)
 class TestSuiteParserBuilder(unittest.TestCase):
     def test_parser_builder_config_defaults(self):
         parser_builder_config = TestParserBuilderConfig()
@@ -203,5 +203,5 @@ class TestSuiteParserBuilder(unittest.TestCase):
         self.assertEqual(hooks.test_failure_count, 1)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

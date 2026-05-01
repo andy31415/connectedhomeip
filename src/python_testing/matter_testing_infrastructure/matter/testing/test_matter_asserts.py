@@ -80,12 +80,12 @@ class TestMatterAsserts(unittest.TestCase):
     def test_assert_valid_int64(self):
         """Test assert_valid_int64 with valid and invalid values."""
         # Valid cases
-        matter_asserts.assert_valid_int64(-(2**63), "test_min")
+        matter_asserts.assert_valid_int64(-2**63, "test_min")
         matter_asserts.assert_valid_int64(2**63 - 1, "test_max")
 
         # Invalid cases
         with self.assertRaises(signals.TestFailure):
-            matter_asserts.assert_valid_int64(-(2**63) - 1, "test_too_small")
+            matter_asserts.assert_valid_int64(-2**63 - 1, "test_too_small")
         with self.assertRaises(signals.TestFailure):
             matter_asserts.assert_valid_int64(2**63, "test_too_large")
         with self.assertRaises(signals.TestFailure):
@@ -94,12 +94,12 @@ class TestMatterAsserts(unittest.TestCase):
     def test_assert_valid_int32(self):
         """Test assert_valid_int32 with valid and invalid values."""
         # Valid cases
-        matter_asserts.assert_valid_int32(-(2**31), "test_min")
+        matter_asserts.assert_valid_int32(-2**31, "test_min")
         matter_asserts.assert_valid_int32(2**31 - 1, "test_max")
 
         # Invalid cases
         with self.assertRaises(signals.TestFailure):
-            matter_asserts.assert_valid_int32(-(2**31) - 1, "test_too_small")
+            matter_asserts.assert_valid_int32(-2**31 - 1, "test_too_small")
         with self.assertRaises(signals.TestFailure):
             matter_asserts.assert_valid_int32(2**31, "test_too_large")
         with self.assertRaises(signals.TestFailure):
@@ -108,12 +108,12 @@ class TestMatterAsserts(unittest.TestCase):
     def test_assert_valid_int16(self):
         """Test assert_valid_int16 with valid and invalid values."""
         # Valid cases
-        matter_asserts.assert_valid_int16(-(2**15), "test_min")
+        matter_asserts.assert_valid_int16(-2**15, "test_min")
         matter_asserts.assert_valid_int16(2**15 - 1, "test_max")
 
         # Invalid cases
         with self.assertRaises(signals.TestFailure):
-            matter_asserts.assert_valid_int16(-(2**15) - 1, "test_too_small")
+            matter_asserts.assert_valid_int16(-2**15 - 1, "test_too_small")
         with self.assertRaises(signals.TestFailure):
             matter_asserts.assert_valid_int16(2**15, "test_too_large")
         with self.assertRaises(signals.TestFailure):
@@ -173,7 +173,7 @@ class TestMatterAsserts(unittest.TestCase):
 
         # Invalid cases
         with self.assertRaises(signals.TestFailure):
-            matter_asserts.assert_all([1, 2, "a"], lambda x: isinstance(x, int), "mixed types")
+            matter_asserts.assert_all([1, 2, 'a'], lambda x: isinstance(x, int), "mixed types")
         with self.assertRaises(signals.TestFailure):
             matter_asserts.assert_all("not a list", lambda x: True, "not a list")
 
@@ -246,14 +246,14 @@ class TestMatterAsserts(unittest.TestCase):
     def test_assert_string_matches_pattern(self):
         """Test assert_string_matches_pattern with valid and invalid values."""
         # Valid cases
-        matter_asserts.assert_string_matches_pattern("abc123", "test_alphanumeric", r"^[a-z0-9]+$")
-        matter_asserts.assert_string_matches_pattern("hello", "test_hello", r"^hello$")
+        matter_asserts.assert_string_matches_pattern("abc123", "test_alphanumeric", r'^[a-z0-9]+$')
+        matter_asserts.assert_string_matches_pattern("hello", "test_hello", r'^hello$')
 
         # Invalid cases
         with self.assertRaises(signals.TestFailure):
-            matter_asserts.assert_string_matches_pattern(123, "test_not_string", r"^.*$")
+            matter_asserts.assert_string_matches_pattern(123, "test_not_string", r'^.*$')
         with self.assertRaises(signals.TestFailure):
-            matter_asserts.assert_string_matches_pattern("abc!", "test_pattern_mismatch", r"^[a-z0-9]+$")
+            matter_asserts.assert_string_matches_pattern("abc!", "test_pattern_mismatch", r'^[a-z0-9]+$')
 
     def test_assert_valid_enum(self):
         """Test assert_valid_enum with valid and invalid values."""
@@ -304,5 +304,5 @@ class TestMatterAsserts(unittest.TestCase):
             matter_asserts.assert_standard_command_id(0x0001_0000)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

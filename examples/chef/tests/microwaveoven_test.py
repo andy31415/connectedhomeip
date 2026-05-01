@@ -37,40 +37,34 @@ class TC_MICROWAVEOVEN(MatterBaseTest):
         return "[TC_MICROWAVEOVEN] chef microwave oven functionality test."
 
     def steps_TC_MICROWAVEOVEN(self):
-        return [
-            TestStep(1, "Commissioning already done.", is_commissioning=True),
-            TestStep(2, "Stop microwave if running."),
-            TestStep(3, "Start microwave in defrost mode for 1 minute and verify state."),
-            TestStep(4, "Add more time and verify cookTime."),
-        ]
+        return [TestStep(1, "Commissioning already done.", is_commissioning=True),
+                TestStep(2, "Stop microwave if running."),
+                TestStep(3, "Start microwave in defrost mode for 1 minute and verify state."),
+                TestStep(4, "Add more time and verify cookTime.")]
 
     async def _read_operational_state(self):
         return await self.read_single_attribute_check_success(
             endpoint=self._MICROWAVEOVEN_ENDPOINT,
             cluster=Clusters.Objects.OperationalState,
-            attribute=Clusters.Objects.OperationalState.Attributes.OperationalState,
-        )
+            attribute=Clusters.Objects.OperationalState.Attributes.OperationalState)
 
     async def _read_cook_time(self):
         return await self.read_single_attribute_check_success(
             endpoint=self._MICROWAVEOVEN_ENDPOINT,
             cluster=Clusters.Objects.MicrowaveOvenControl,
-            attribute=Clusters.Objects.MicrowaveOvenControl.Attributes.CookTime,
-        )
+            attribute=Clusters.Objects.MicrowaveOvenControl.Attributes.CookTime)
 
     async def _read_current_mode(self):
         return await self.read_single_attribute_check_success(
             endpoint=self._MICROWAVEOVEN_ENDPOINT,
             cluster=Clusters.Objects.MicrowaveOvenMode,
-            attribute=Clusters.Objects.MicrowaveOvenMode.Attributes.CurrentMode,
-        )
+            attribute=Clusters.Objects.MicrowaveOvenMode.Attributes.CurrentMode)
 
     async def _read_countdown_time(self):
         return await self.read_single_attribute_check_success(
             endpoint=self._MICROWAVEOVEN_ENDPOINT,
             cluster=Clusters.Objects.OperationalState,
-            attribute=Clusters.Objects.OperationalState.Attributes.CountdownTime,
-        )
+            attribute=Clusters.Objects.OperationalState.Attributes.CountdownTime)
 
     @async_test_body
     async def test_TC_MICROWAVEOVEN(self):
@@ -83,7 +77,9 @@ class TC_MICROWAVEOVEN(MatterBaseTest):
         # Step 2: Stop operational cycle if running.
         op_state = await self._read_operational_state()
         if op_state != Clusters.Objects.OperationalState.Enums.OperationalStateEnum.kStopped:
-            await self.send_single_cmd(cmd=Clusters.Objects.OperationalState.Commands.Stop(), endpoint=self._MICROWAVEOVEN_ENDPOINT)
+            await self.send_single_cmd(
+                cmd=Clusters.Objects.OperationalState.Commands.Stop(),
+                endpoint=self._MICROWAVEOVEN_ENDPOINT)
 
         self.step(3)
         await self.test_start_microwave_in_defrost_mode()
@@ -95,10 +91,10 @@ class TC_MICROWAVEOVEN(MatterBaseTest):
         # Step 3: Start microwave in defrost mode for 1 minute
         await self.send_single_cmd(
             cmd=Clusters.Objects.MicrowaveOvenControl.Commands.SetCookingParameters(
-                cookMode=self._MODE_DEFROST, cookTime=60, startAfterSetting=True
-            ),
-            endpoint=self._MICROWAVEOVEN_ENDPOINT,
-        )
+                cookMode=self._MODE_DEFROST,
+                cookTime=60,
+                startAfterSetting=True),
+            endpoint=self._MICROWAVEOVEN_ENDPOINT)
 
         # Verify cookTime is 60.
         cook_time = await self._read_cook_time()
@@ -106,15 +102,13 @@ class TC_MICROWAVEOVEN(MatterBaseTest):
 
         # Verify currentMode is Defrost.
         current_mode = await self._read_current_mode()
-        asserts.assert_equal(
-            current_mode, self._MODE_DEFROST, f"Microwave Oven Mode should be Defrost ({self._MODE_DEFROST}), got {current_mode}"
-        )
+        asserts.assert_equal(current_mode, self._MODE_DEFROST,
+                             f"Microwave Oven Mode should be Defrost ({self._MODE_DEFROST}), got {current_mode}")
 
         # Verify operationalState is Running.
         op_state = await self._read_operational_state()
         asserts.assert_equal(
-            op_state, Clusters.Objects.OperationalState.Enums.OperationalStateEnum.kRunning, "Operational State should be Running"
-        )
+            op_state, Clusters.Objects.OperationalState.Enums.OperationalStateEnum.kRunning, "Operational State should be Running")
 
         # Verify countdownTime is greater than 0.
         countdown_time = await self._read_countdown_time()
@@ -123,20 +117,23 @@ class TC_MICROWAVEOVEN(MatterBaseTest):
         # Cleanup: Stop microwave if running.
         op_state = await self._read_operational_state()
         if op_state != Clusters.Objects.OperationalState.Enums.OperationalStateEnum.kStopped:
-            await self.send_single_cmd(cmd=Clusters.Objects.OperationalState.Commands.Stop(), endpoint=self._MICROWAVEOVEN_ENDPOINT)
+            await self.send_single_cmd(
+                cmd=Clusters.Objects.OperationalState.Commands.Stop(),
+                endpoint=self._MICROWAVEOVEN_ENDPOINT)
 
     async def test_add_time(self):
         # Step 4: Add more time and verify cookTime.
         # Start microwave with 60 seconds
         await self.send_single_cmd(
-            cmd=Clusters.Objects.MicrowaveOvenControl.Commands.SetCookingParameters(cookTime=60, startAfterSetting=True),
-            endpoint=self._MICROWAVEOVEN_ENDPOINT,
-        )
+            cmd=Clusters.Objects.MicrowaveOvenControl.Commands.SetCookingParameters(
+                cookTime=60,
+                startAfterSetting=True),
+            endpoint=self._MICROWAVEOVEN_ENDPOINT)
 
         # Add 10 seconds
         await self.send_single_cmd(
-            cmd=Clusters.Objects.MicrowaveOvenControl.Commands.AddMoreTime(timeToAdd=10), endpoint=self._MICROWAVEOVEN_ENDPOINT
-        )
+            cmd=Clusters.Objects.MicrowaveOvenControl.Commands.AddMoreTime(timeToAdd=10),
+            endpoint=self._MICROWAVEOVEN_ENDPOINT)
 
         # Verify cookTime is 70.
         cook_time = await self._read_cook_time()
@@ -145,7 +142,9 @@ class TC_MICROWAVEOVEN(MatterBaseTest):
         # Cleanup: Stop microwave if running.
         op_state = await self._read_operational_state()
         if op_state != Clusters.Objects.OperationalState.Enums.OperationalStateEnum.kStopped:
-            await self.send_single_cmd(cmd=Clusters.Objects.OperationalState.Commands.Stop(), endpoint=self._MICROWAVEOVEN_ENDPOINT)
+            await self.send_single_cmd(
+                cmd=Clusters.Objects.OperationalState.Commands.Stop(),
+                endpoint=self._MICROWAVEOVEN_ENDPOINT)
 
 
 if __name__ == "__main__":

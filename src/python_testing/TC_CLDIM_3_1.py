@@ -55,7 +55,6 @@ def current_latch_matcher(latch: bool) -> AttributeMatcher:
         if report.attribute != Clusters.ClosureDimension.Attributes.CurrentState:
             return False
         return report.value.latch == latch
-
     return AttributeMatcher.from_callable(description=f"CurrentState.Latch is {latch}", matcher=predicate)
 
 
@@ -64,7 +63,6 @@ def current_position_matcher(position: int) -> AttributeMatcher:
         if report.attribute != Clusters.ClosureDimension.Attributes.CurrentState:
             return False
         return report.value.position == position
-
     return AttributeMatcher.from_callable(description=f"CurrentState.Position is {position}", matcher=predicate)
 
 
@@ -73,7 +71,6 @@ def current_speed_matcher(speed: Globals.Enums.ThreeLevelAutoEnum) -> AttributeM
         if report.attribute != Clusters.ClosureDimension.Attributes.CurrentState:
             return False
         return report.value.speed == speed
-
     return AttributeMatcher.from_callable(description=f"CurrentState.Speed is {speed}", matcher=predicate)
 
 
@@ -82,10 +79,7 @@ def current_position_and_speed_matcher(position: int, speed: Globals.Enums.Three
         if report.attribute != Clusters.ClosureDimension.Attributes.CurrentState:
             return False
         return (report.value.position == position) and (report.value.speed == speed)
-
-    return AttributeMatcher.from_callable(
-        description=f"CurrentState.Position is {position} and CurrentState.Speed is {speed}", matcher=predicate
-    )
+    return AttributeMatcher.from_callable(description=f"CurrentState.Position is {position} and CurrentState.Speed is {speed}", matcher=predicate)
 
 
 class TC_CLDIM_3_1(MatterBaseTest):
@@ -129,7 +123,9 @@ class TC_CLDIM_3_1(MatterBaseTest):
         ]
 
     def pics_TC_CLDIM_3_1(self) -> list[str]:
-        return ["CLDIM.S", "CLDIM.S.F00"]
+        return [
+            "CLDIM.S", "CLDIM.S.F00"
+        ]
 
     @property
     def default_endpoint(self) -> int:
@@ -174,14 +170,7 @@ class TC_CLDIM_3_1(MatterBaseTest):
         # STEP 2d: Establish wildcard subscription to all attributes"
         self.step("2d")
         sub_handler = AttributeSubscriptionHandler(expected_cluster=Clusters.ClosureDimension)
-        await sub_handler.start(
-            self.default_controller,
-            self.dut_node_id,
-            endpoint=endpoint,
-            min_interval_sec=0,
-            max_interval_sec=30,
-            keepSubscriptions=False,
-        )
+        await sub_handler.start(self.default_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
 
         # STEP 2e: Read CurrentState attribute
         self.step("2e")
@@ -195,9 +184,7 @@ class TC_CLDIM_3_1(MatterBaseTest):
         else:
             # STEP 2g: Read LatchControlModes attribute
             self.step("2g")
-            latch_control_modes = await self.read_cldim_attribute_expect_success(
-                endpoint=endpoint, attribute=attributes.LatchControlModes
-            )
+            latch_control_modes = await self.read_cldim_attribute_expect_success(endpoint=endpoint, attribute=attributes.LatchControlModes)
 
             # STEP 2h: If LatchControlModes is manual unlatching, skip step 2i
             self.step("2h")
@@ -211,8 +198,7 @@ class TC_CLDIM_3_1(MatterBaseTest):
                 try:
                     await self.send_single_cmd(
                         cmd=Clusters.Objects.ClosureDimension.Commands.SetTarget(latch=False),
-                        endpoint=endpoint,
-                        timedRequestTimeoutMs=1000,
+                        endpoint=endpoint, timedRequestTimeoutMs=1000
                     )
                 except InteractionModelError as e:
                     asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -229,7 +215,8 @@ class TC_CLDIM_3_1(MatterBaseTest):
 
             # STEP 2l: Wait for CurrentState.Latched to be False
             self.step("2l")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(False)], timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[current_latch_matcher(False)], timeout_sec=timeout)
 
         # STEP 3a: If Position = MaxPosition, skip steps 3b to 3d
         self.step("3a")
@@ -243,8 +230,7 @@ class TC_CLDIM_3_1(MatterBaseTest):
             try:
                 await self.send_single_cmd(
                     cmd=Clusters.Objects.ClosureDimension.Commands.SetTarget(position=max_position),
-                    endpoint=endpoint,
-                    timedRequestTimeoutMs=1000,
+                    endpoint=endpoint, timedRequestTimeoutMs=1000
                 )
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -257,8 +243,7 @@ class TC_CLDIM_3_1(MatterBaseTest):
             # STEP 3d: Wait for CurrentState.Position to be updated to MaxPosition
             self.step("3d")
             sub_handler.await_all_expected_report_matches(
-                expected_matchers=[current_position_matcher(max_position)], timeout_sec=timeout
-            )
+                expected_matchers=[current_position_matcher(max_position)], timeout_sec=timeout)
 
         # STEP 4a: If Speed feature is not supported, skip step 4b to 4d
         self.step("4a")
@@ -271,9 +256,9 @@ class TC_CLDIM_3_1(MatterBaseTest):
             sub_handler.reset()
             try:
                 await self.send_single_cmd(
-                    cmd=Clusters.Objects.ClosureDimension.Commands.SetTarget(speed=Globals.Enums.ThreeLevelAutoEnum.kMedium),
-                    endpoint=endpoint,
-                    timedRequestTimeoutMs=1000,
+                    cmd=Clusters.Objects.ClosureDimension.Commands.SetTarget(
+                        speed=Globals.Enums.ThreeLevelAutoEnum.kMedium),
+                    endpoint=endpoint, timedRequestTimeoutMs=1000
                 )
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -281,15 +266,13 @@ class TC_CLDIM_3_1(MatterBaseTest):
             # STEP 4c: Verify TargetState attribute is updated
             self.step("4c")
             target_state = await self.read_cldim_attribute_expect_success(endpoint=endpoint, attribute=attributes.TargetState)
-            asserts.assert_equal(
-                target_state.speed, Globals.Enums.ThreeLevelAutoEnum.kMedium, "TargetState Speed does not match Medium"
-            )
+            asserts.assert_equal(target_state.speed, Globals.Enums.ThreeLevelAutoEnum.kMedium,
+                                 "TargetState Speed does not match Medium")
 
             # STEP 4d: Wait for CurrentState.Speed to be updated to Medium
             self.step("4d")
             sub_handler.await_all_expected_report_matches(
-                expected_matchers=[current_speed_matcher(Globals.Enums.ThreeLevelAutoEnum.kMedium)], timeout_sec=timeout
-            )
+                expected_matchers=[current_speed_matcher(Globals.Enums.ThreeLevelAutoEnum.kMedium)], timeout_sec=timeout)
 
         # STEP 5a: Set Position to min_position
         self.step("5a")
@@ -297,8 +280,7 @@ class TC_CLDIM_3_1(MatterBaseTest):
         try:
             await self.send_single_cmd(
                 cmd=Clusters.Objects.ClosureDimension.Commands.SetTarget(position=min_position),
-                endpoint=endpoint,
-                timedRequestTimeoutMs=1000,
+                endpoint=endpoint, timedRequestTimeoutMs=1000
             )
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -311,8 +293,7 @@ class TC_CLDIM_3_1(MatterBaseTest):
         # STEP 5c: Wait for CurrentState.Position to be updated to MinPosition
         self.step("5c")
         sub_handler.await_all_expected_report_matches(
-            expected_matchers=[current_position_matcher(min_position)], timeout_sec=timeout
-        )
+            expected_matchers=[current_position_matcher(min_position)], timeout_sec=timeout)
 
         # STEP 6a: If Speed feature is not supported, skip step 6b to 6d
         self.step("6a")
@@ -326,10 +307,8 @@ class TC_CLDIM_3_1(MatterBaseTest):
             try:
                 await self.send_single_cmd(
                     cmd=Clusters.Objects.ClosureDimension.Commands.SetTarget(
-                        position=max_position, speed=Globals.Enums.ThreeLevelAutoEnum.kHigh
-                    ),
-                    endpoint=endpoint,
-                    timedRequestTimeoutMs=1000,
+                        position=max_position, speed=Globals.Enums.ThreeLevelAutoEnum.kHigh),
+                    endpoint=endpoint, timedRequestTimeoutMs=1000
                 )
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -338,16 +317,13 @@ class TC_CLDIM_3_1(MatterBaseTest):
             self.step("6c")
             target_state = await self.read_cldim_attribute_expect_success(endpoint=endpoint, attribute=attributes.TargetState)
             asserts.assert_equal(target_state.position, max_position, "TargetState Position does not match MaxPosition")
-            asserts.assert_equal(
-                target_state.speed, Globals.Enums.ThreeLevelAutoEnum.kHigh, "TargetState Speed does not match High"
-            )
+            asserts.assert_equal(target_state.speed, Globals.Enums.ThreeLevelAutoEnum.kHigh,
+                                 "TargetState Speed does not match High")
 
             # STEP 6d: Wait for CurrentState.Position to be updated to MaxPosition and CurrentState.Speed to High
             self.step("6d")
             sub_handler.await_all_expected_report_matches(
-                expected_matchers=[current_position_and_speed_matcher(max_position, Globals.Enums.ThreeLevelAutoEnum.kHigh)],
-                timeout_sec=timeout,
-            )
+                expected_matchers=[current_position_and_speed_matcher(max_position, Globals.Enums.ThreeLevelAutoEnum.kHigh)], timeout_sec=timeout)
 
 
 if __name__ == "__main__":

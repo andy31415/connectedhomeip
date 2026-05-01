@@ -80,7 +80,9 @@ class TC_WebRTCR_2_5(WEBRTCRTestBase):
             port=5682,  # Use unique port number to avoid port conflict
         )
 
-        self.th_server.start(expected_output="Server initialization complete", timeout=30)
+        self.th_server.start(
+            expected_output="Server initialization complete",
+            timeout=30)
 
         time.sleep(1)
 
@@ -115,9 +117,9 @@ class TC_WebRTCR_2_5(WEBRTCRTestBase):
         Return the list of PICS applicable to this test case.
         """
         return [
-            "WEBRTCR.S",  # WebRTC Transport Requestor Server
-            "WEBRTCR.S.A0000",  # CurrentSessions attribute
-            "WEBRTCR.S.C03.Rsp",  # End command
+            "WEBRTCR.S",           # WebRTC Transport Requestor Server
+            "WEBRTCR.S.A0000",     # CurrentSessions attribute
+            "WEBRTCR.S.C03.Rsp",   # End command
         ]
 
     # This test has multiple manual steps for attribute reads and session management.
@@ -138,18 +140,12 @@ class TC_WebRTCR_2_5(WEBRTCRTestBase):
         self.discriminator = random.randint(0, 4095)
 
         self.step(1)
-        await self.default_controller.CommissionOnNetwork(
-            nodeId=self.th_server_local_nodeid,
-            setupPinCode=passcode,
-            filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
-            filter=discriminator,
-        )
+        await self.default_controller.CommissionOnNetwork(nodeId=self.th_server_local_nodeid, setupPinCode=passcode, filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR, filter=discriminator)
         log.info("Commissioning TH_SERVER complete")
 
         self.step(2)
         params = await self.default_controller.OpenCommissioningWindow(
-            nodeId=self.th_server_local_nodeid, timeout=3 * 60, iteration=10000, discriminator=self.discriminator, option=1
-        )
+            nodeId=self.th_server_local_nodeid, timeout=3*60, iteration=10000, discriminator=self.discriminator, option=1)
         passcode = params.setupPinCode
         await asyncio.sleep(1)
 
@@ -165,14 +161,18 @@ class TC_WebRTCR_2_5(WEBRTCRTestBase):
 
         if self.is_pics_sdk_ci_only:
             await self.send_command(f"pairing onnetwork 1 {passcode}")
-            resp = "Y"
+            resp = 'Y'
         else:
             resp = self.wait_for_user_input(prompt_msg)
 
-        commissioning_success = resp.lower() == "y"
+        commissioning_success = resp.lower() == 'y'
 
         # Verify results
-        asserts.assert_equal(commissioning_success, True, f"Commissioning {'succeeded' if commissioning_success else 'failed'}")
+        asserts.assert_equal(
+            commissioning_success,
+            True,
+            f"Commissioning {'succeeded' if commissioning_success else 'failed'}"
+        )
 
         self.step(4)
         # Prompt user to read CurrentSessions attribute before establishing session
@@ -185,17 +185,17 @@ class TC_WebRTCR_2_5(WEBRTCRTestBase):
 
         if self.is_pics_sdk_ci_only:
             # TODO: read attribute via websocket and verify empty list
-            resp = "Y"
+            resp = 'Y'
         else:
             resp = self.wait_for_user_input(prompt_msg)
 
-        read_success = resp.lower() == "y"
+        read_success = resp.lower() == 'y'
 
         # Verify results
         asserts.assert_equal(
             read_success,
             True,
-            f"CurrentSessions attribute read {'succeeded with empty list' if read_success else 'failed or returned non-empty list'}",
+            f"CurrentSessions attribute read {'succeeded with empty list' if read_success else 'failed or returned non-empty list'}"
         )
 
         self.step(5)
@@ -216,17 +216,19 @@ class TC_WebRTCR_2_5(WEBRTCRTestBase):
                 # Wait up to 90s until the provider logs that the data‑channel opened
                 if not self.th_server.event.wait(90):
                     raise TimeoutError("PeerConnection is not connected within 90s")
-                resp = "Y"
+                resp = 'Y'
             except TimeoutError:
-                resp = "N"
+                resp = 'N'
         else:
             resp = self.wait_for_user_input(prompt_msg)
 
-        session_success = resp.lower() == "y"
+        session_success = resp.lower() == 'y'
 
         # Verify results
         asserts.assert_equal(
-            session_success, True, f"WebRTC session {'established successfully' if session_success else 'failed to establish'}"
+            session_success,
+            True,
+            f"WebRTC session {'established successfully' if session_success else 'failed to establish'}"
         )
 
         self.step(6)
@@ -246,7 +248,7 @@ class TC_WebRTCR_2_5(WEBRTCRTestBase):
             session_read_success = True
         else:
             resp = self.wait_for_user_input(prompt_msg)
-            if resp.lower() == "n":
+            if resp.lower() == 'n':
                 session_read_success = False
                 self.session_id = None
             else:
@@ -263,10 +265,8 @@ class TC_WebRTCR_2_5(WEBRTCRTestBase):
         asserts.assert_equal(
             session_read_success,
             True,
-            (
-                "CurrentSessions attribute read "
-                f"{'succeeded with session info' if session_read_success else 'failed or returned incorrect data'}"
-            ),
+            ("CurrentSessions attribute read "
+             f"{'succeeded with session info' if session_read_success else 'failed or returned incorrect data'}")
         )
 
         # Ensure we have a valid session ID before proceeding
@@ -284,17 +284,17 @@ class TC_WebRTCR_2_5(WEBRTCRTestBase):
 
         if self.is_pics_sdk_ci_only:
             # TODO: end session via websocket
-            resp = "Y"
+            resp = 'Y'
         else:
             resp = self.wait_for_user_input(prompt_msg)
 
-        session_end_success = resp.lower() == "y"
+        session_end_success = resp.lower() == 'y'
 
         # Verify results
         asserts.assert_equal(
             session_end_success,
             True,
-            f"WebRTC session {'terminated successfully' if session_end_success else 'failed to terminate'}",
+            f"WebRTC session {'terminated successfully' if session_end_success else 'failed to terminate'}"
         )
 
         self.step(8)
@@ -308,20 +308,18 @@ class TC_WebRTCR_2_5(WEBRTCRTestBase):
 
         if self.is_pics_sdk_ci_only:
             # TODO: read attribute via websocket and verify empty list
-            resp = "Y"
+            resp = 'Y'
         else:
             resp = self.wait_for_user_input(prompt_msg)
 
-        final_read_success = resp.lower() == "y"
+        final_read_success = resp.lower() == 'y'
 
         # Verify results
         asserts.assert_equal(
             final_read_success,
             True,
-            (
-                "CurrentSessions attribute read"
-                f"{'succeeded with empty list' if final_read_success else 'failed or returned non-empty list'}"
-            ),
+            ("CurrentSessions attribute read"
+             f"{'succeeded with empty list' if final_read_success else 'failed or returned non-empty list'}")
         )
 
 

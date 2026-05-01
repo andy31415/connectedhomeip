@@ -65,22 +65,14 @@ class TC_EGC_2_1(ElectricalGridConditionsTestBaseHelper, MatterBaseTest):
 
     def steps_TC_EGC_2_1(self) -> list[TestStep]:
         return [
-            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test).", is_commissioning=True),
-            TestStep(
-                "2",
-                "TH reads from the DUT the LocalGenerationAvailable attribute.",
-                "Verify that the DUT response contains either null or a bool value.",
-            ),
-            TestStep(
-                "3",
-                "TH reads from the DUT the CurrentConditions attribute.",
-                "Verify that the DUT response contains either null or an ElectricalGridConditionsStruct value.",
-            ),
-            TestStep(
-                "4",
-                "TH reads from the DUT the ForecastConditions attribute.",
-                "Verify that the DUT response contains a list of ElectricalGridConditionsStruct entries",
-            ),
+            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test).",
+                     is_commissioning=True),
+            TestStep("2", "TH reads from the DUT the LocalGenerationAvailable attribute.",
+                     "Verify that the DUT response contains either null or a bool value."),
+            TestStep("3", "TH reads from the DUT the CurrentConditions attribute.",
+                     "Verify that the DUT response contains either null or an ElectricalGridConditionsStruct value."),
+            TestStep("4", "TH reads from the DUT the ForecastConditions attribute.",
+                     "Verify that the DUT response contains a list of ElectricalGridConditionsStruct entries"),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.ElectricalGridConditions))
@@ -92,28 +84,20 @@ class TC_EGC_2_1(ElectricalGridConditionsTestBaseHelper, MatterBaseTest):
         # Commission DUT - already done
 
         self.step("2")
-        val = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.LocalGenerationAvailable
-        )
+        val = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.LocalGenerationAvailable)
         if val is not NullValue:
-            matter_asserts.assert_valid_bool(val, "LocalGenerationAvailable")
+            matter_asserts.assert_valid_bool(val, 'LocalGenerationAvailable')
 
         self.step("3")
-        val = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentConditions
-        )
+        val = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentConditions)
         if val is not NullValue:
-            asserts.assert_true(
-                isinstance(val, cluster.Structs.ElectricalGridConditionsStruct),
-                "val must be of type ElectricalGridConditionsStruct",
-            )
+            asserts.assert_true(isinstance(
+                val, cluster.Structs.ElectricalGridConditionsStruct), "val must be of type ElectricalGridConditionsStruct")
             self.check_ElectricalGridConditionsStruct(cluster=cluster, struct=val)
 
         self.step("4")
         if await self.attribute_guard(endpoint=endpoint, attribute=attributes.ForecastConditions):
-            val = await self.read_single_attribute_check_success(
-                endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.ForecastConditions
-            )
+            val = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.ForecastConditions)
             self.check_ForecastConditions(cluster=cluster, forecastConditions=val)
 
 

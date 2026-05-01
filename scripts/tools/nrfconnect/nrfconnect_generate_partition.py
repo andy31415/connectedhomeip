@@ -102,7 +102,7 @@ class PartitionCreator:
             if not isinstance(entry, dict):
                 log.debug("Processing entry '%s'", entry)
                 if isinstance(data[entry], str) and data[entry].startswith(HEX_PREFIX):
-                    output_dict[entry] = codecs.decode(data[entry][len(HEX_PREFIX) :], "hex")
+                    output_dict[entry] = codecs.decode(data[entry][len(HEX_PREFIX):], "hex")
                 elif isinstance(data[entry], str):
                     output_dict[entry] = data[entry].encode("utf-8")
                 else:
@@ -138,46 +138,32 @@ def print_flashing_help():
 
 
 def main():
-    def allow_any_int(i):
-        return int(i, 0)
+
+    def allow_any_int(i): return int(i, 0)
 
     parser = argparse.ArgumentParser(description="NrfConnect Factory Data NVS partition generator tool")
-    parser.add_argument("-i", "--input", type=str, required=True, help="Path to input .json file")
-    parser.add_argument(
-        "-o",
-        "--output",
-        type=str,
-        required=True,
-        help=(
-            "Prefix for output file paths, e.g. setting dir/output causes creation of the following files: "
-            "dir/output.hex, and dir/output.bin"
-        ),
-    )
-    parser.add_argument(
-        "--offset",
-        type=allow_any_int,
-        required=True,
-        help="Partition offset - an address in device's NVM memory, where factory data will be stored",
-    )
-    parser.add_argument("--size", type=allow_any_int, required=True, help="The maximum partition size")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Run this script with DEBUG logging level")
-    parser.add_argument(
-        "-r",
-        "--raw",
-        action="store_true",
-        help=(
-            "Do not print flashing help and other logs, only generate a .hex file. "
-            "It can be useful when the script is used by other script."
-        ),
-    )
+    parser.add_argument("-i", "--input", type=str, required=True,
+                        help="Path to input .json file")
+    parser.add_argument("-o", "--output", type=str, required=True,
+                        help=("Prefix for output file paths, e.g. setting dir/output causes creation of the following files: "
+                              "dir/output.hex, and dir/output.bin"))
+    parser.add_argument("--offset", type=allow_any_int, required=True,
+                        help="Partition offset - an address in device's NVM memory, where factory data will be stored")
+    parser.add_argument("--size", type=allow_any_int, required=True,
+                        help="The maximum partition size")
+    parser.add_argument("-v", "--verbose", action="store_true",
+                        help="Run this script with DEBUG logging level")
+    parser.add_argument("-r", "--raw", action="store_true",
+                        help=("Do not print flashing help and other logs, only generate a .hex file. "
+                              "It can be useful when the script is used by other script."))
     args = parser.parse_args()
 
     if args.verbose:
-        logging.basicConfig(format="[%(asctime)s][%(levelname)s] %(message)s", level=logging.DEBUG)
+        logging.basicConfig(format='[%(asctime)s][%(levelname)s] %(message)s', level=logging.DEBUG)
     elif args.raw:
-        logging.basicConfig(format="%(message)s", level=logging.ERROR)
+        logging.basicConfig(format='%(message)s', level=logging.ERROR)
     else:
-        logging.basicConfig(format="[%(asctime)s] %(message)s", level=logging.INFO)
+        logging.basicConfig(format='[%(asctime)s] %(message)s', level=logging.INFO)
 
     partition_creator = PartitionCreator(args.offset, args.size, args.input, args.output)
     cbor_data = partition_creator.generate_cbor()

@@ -18,7 +18,8 @@ repos:
       rev: 41d2daf392fbf43341a77f24a9c6481a4b66af98 # v0.9.10
       hooks:
           - id: ruff
-            args: [--fix-only]
+            args: [--fix]
+          - id: ruff-format
 
     - repo: https://github.com/hhatto/autopep8
       rev: 4046ad49e25b7fa1db275bf66b1b7d60600ac391 # v2.3.2

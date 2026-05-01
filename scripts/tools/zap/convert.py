@@ -23,24 +23,26 @@ import sys
 
 from zap_execution import ZapTool
 
-CHIP_ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), "../../.."))
+CHIP_ROOT_DIR = os.path.realpath(
+    os.path.join(os.path.dirname(__file__), '../../..'))
 
 
 def checkPythonVersion():
     if sys.version_info[0] < 3:
-        print("Must use Python 3. Current version is " + str(sys.version_info[0]))
+        print('Must use Python 3. Current version is ' +
+              str(sys.version_info[0]))
         exit(1)
 
 
 def checkFileExists(path):
     if not os.path.isfile(path):
-        print("Error: " + path + " does not exists or is not a file.")
+        print('Error: ' + path + ' does not exists or is not a file.')
         exit(1)
 
 
 def checkDirExists(path):
     if not os.path.isdir(path):
-        print("Error: " + path + " does not exists or is not a directory.")
+        print('Error: ' + path + ' does not exists or is not a directory.')
         exit(1)
 
 
@@ -57,14 +59,11 @@ def getDirPath(name):
 
 
 def runArgumentsParser():
-    parser = argparse.ArgumentParser(description="Convert .zap files to the current zap version")
-    parser.add_argument("zap", help="Path to the application .zap file")
-    parser.add_argument(
-        "--run-bootstrap",
-        default=None,
-        action="store_true",
-        help="Automatically run ZAP bootstrap. By default the bootstrap is not triggered",
-    )
+    parser = argparse.ArgumentParser(
+        description='Convert .zap files to the current zap version')
+    parser.add_argument('zap', help='Path to the application .zap file')
+    parser.add_argument('--run-bootstrap', default=None, action='store_true',
+                        help='Automatically run ZAP bootstrap. By default the bootstrap is not triggered')
     args = parser.parse_args()
 
     zap_file = getFilePath(args.zap)
@@ -75,7 +74,7 @@ def runArgumentsParser():
 def detectZclFile(zapFile):
     print(f"Searching for zcl file from {zapFile}")
 
-    path = "src/app/zap-templates/zcl/zcl.json"
+    path = 'src/app/zap-templates/zcl/zcl.json'
 
     with open(zapFile) as f:
         data = json.load(f)
@@ -85,7 +84,8 @@ def detectZclFile(zapFile):
 
         # found the right path, try to figure out the actual path
         if package["pathRelativity"] == "relativeToZap":
-            path = os.path.abspath(os.path.join(os.path.dirname(zapFile), package["path"]))
+            path = os.path.abspath(os.path.join(
+                os.path.dirname(zapFile), package["path"]))
         else:
             path = package["path"]
 
@@ -93,10 +93,11 @@ def detectZclFile(zapFile):
 
 
 def runConversion(zap_file):
-    templates_file = getFilePath("src/app/zap-templates/app-templates.json")
+    templates_file = getFilePath('src/app/zap-templates/app-templates.json')
     zcl_file = detectZclFile(zap_file)
     tool = ZapTool()
-    tool.run("convert", "-z", zcl_file, "-g", templates_file, "-o", zap_file, zap_file)
+    tool.run('convert', '-z', zcl_file, '-g',
+             templates_file, '-o', zap_file, zap_file)
 
 
 def main():
@@ -104,12 +105,13 @@ def main():
     zap_file, run_bootstrap = runArgumentsParser()
 
     if run_bootstrap:
-        subprocess.check_call(getFilePath("scripts/tools/zap/zap_bootstrap.sh"), shell=True)
+        subprocess.check_call(getFilePath(
+            "scripts/tools/zap/zap_bootstrap.sh"), shell=True)
 
     os.chdir(CHIP_ROOT_DIR)
 
     runConversion(zap_file)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

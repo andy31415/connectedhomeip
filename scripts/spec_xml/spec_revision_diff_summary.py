@@ -40,16 +40,16 @@ def str_changes(element, added, removed, change_ids, old, new):
 
     ret = []
     if added:
-        ret.append(f"\t{element} added: {added}")
+        ret.append(f'\t{element} added: {added}')
     if removed:
-        ret.append(f"\t{element} removed: {removed}")
+        ret.append(f'\t{element} removed: {removed}')
     if change_ids:
-        ret.append(f"\t{element} changed:")
+        ret.append(f'\t{element} changed:')
     for id in change_ids:
-        name = old[id].name if old[id].name == new[id].name else f"{new[id].name} (previously {old[id].name})"
-        ret.append(f"\t\t{name}")
-        ret.append(f"\t\t\t{old[id]}")
-        ret.append(f"\t\t\t{new[id]}")
+        name = old[id].name if old[id].name == new[id].name else f'{new[id].name} (previously {old[id].name})'
+        ret.append(f'\t\t{name}')
+        ret.append(f'\t\t\t{old[id]}')
+        ret.append(f'\t\t\t{new[id]}')
     return ret
 
 
@@ -65,34 +65,34 @@ def diff_clusters(prior_revision: PrebuiltDataModelDirectory, new_revision: Preb
 
     additional_clusters, removed_clusters, same_cluster_ids = get_changes(prior_clusters, new_clusters)
 
-    print(f"\n\nClusters newly added in {new_revision.dirname}")
+    print(f'\n\nClusters newly added in {new_revision.dirname}')
     print(additional_clusters)
-    print(f"\n\nClusters removed since {prior_revision.dirname}")
+    print(f'\n\nClusters removed since {prior_revision.dirname}')
     print(removed_clusters)
 
     for cid in same_cluster_ids:
         new = new_clusters[cid]
         old = prior_clusters[cid]
 
-        name = old.name if old.name == new.name else f"{new.name} (previously {old.name})"
+        name = old.name if old.name == new.name else f'{new.name} (previously {old.name})'
 
         changes = []
         if old.revision != new.revision:
-            changes.append(f"\tRevision change - old: {old.revision} new: {new.revision}")
-            for r in range(old.revision + 1, new.revision + 1):
+            changes.append(f'\tRevision change - old: {old.revision} new: {new.revision}')
+            for r in range(old.revision+1, new.revision+1):
                 try:
-                    changes.append(f"\t\t{r}: {new.revision_desc[r]}")
+                    changes.append(f'\t\t{r}: {new.revision_desc[r]}')
                 except KeyError:
-                    changes.append(f"\t\t{r}: NOT PRESENT IN SPEC")
-        changes.extend(str_element_changes("Features", old.features, new.features))
-        changes.extend(str_element_changes("Attributes", old.attributes, new.attributes))
-        changes.extend(str_element_changes("Accepted Commands", old.accepted_commands, new.accepted_commands))
-        changes.extend(str_element_changes("Generated Commands", old.generated_commands, new.generated_commands))
-        changes.extend(str_element_changes("Events", old.events, new.events))
+                    changes.append(f'\t\t{r}: NOT PRESENT IN SPEC')
+        changes.extend(str_element_changes('Features', old.features, new.features))
+        changes.extend(str_element_changes('Attributes', old.attributes, new.attributes))
+        changes.extend(str_element_changes('Accepted Commands', old.accepted_commands, new.accepted_commands))
+        changes.extend(str_element_changes('Generated Commands', old.generated_commands, new.generated_commands))
+        changes.extend(str_element_changes('Events', old.events, new.events))
 
         if changes:
-            print(f"\n\nCluster {name}")
-            print("\n".join(changes))
+            print(f'\n\nCluster {name}')
+            print('\n'.join(changes))
 
 
 def diff_device_types(prior_revision: PrebuiltDataModelDirectory, new_revision: PrebuiltDataModelDirectory) -> None:
@@ -101,31 +101,31 @@ def diff_device_types(prior_revision: PrebuiltDataModelDirectory, new_revision: 
 
     additional_device_types, removed_device_types, same_device_type_ids = get_changes(prior_device_types, new_device_types)
 
-    print(f"\n\nDevice Types newly added in {new_revision.dirname}")
+    print(f'\n\nDevice Types newly added in {new_revision.dirname}')
     print(additional_device_types)
-    print(f"\n\nDevice Types removed since {prior_revision.dirname}")
+    print(f'\n\nDevice Types removed since {prior_revision.dirname}')
     print(removed_device_types)
 
     for cid in same_device_type_ids:
         new = new_device_types[cid]
         old = prior_device_types[cid]
 
-        name = old.name if old.name == new.name else f"{new.name} (previously {old.name})"
+        name = old.name if old.name == new.name else f'{new.name} (previously {old.name})'
 
         changes = []
         if old.revision != new.revision:
-            changes.append(f"\tRevision change - old: {old.revision} new: {new.revision}")
-            for r in range(old.revision + 1, new.revision + 1):
+            changes.append(f'\tRevision change - old: {old.revision} new: {new.revision}')
+            for r in range(old.revision+1, new.revision+1):
                 try:
-                    changes.append(f"\t\t{r}: {new.revision_desc[r]}")
+                    changes.append(f'\t\t{r}: {new.revision_desc[r]}')
                 except KeyError:
-                    changes.append(f"\t\t{r}: NOT PRESENT IN SPEC")
-        changes.extend(str_element_changes("Server Clusters", old.server_clusters, new.server_clusters))
-        changes.extend(str_element_changes("Client Clusters", old.client_clusters, new.client_clusters))
+                    changes.append(f'\t\t{r}: NOT PRESENT IN SPEC')
+        changes.extend(str_element_changes('Server Clusters', old.server_clusters, new.server_clusters))
+        changes.extend(str_element_changes('Client Clusters', old.client_clusters, new.client_clusters))
 
         if changes:
-            print(f"\n\nDevice Type {name}")
-            print("\n".join(changes))
+            print(f'\n\nDevice Type {name}')
+            print('\n'.join(changes))
 
 
 def _get_provisional(items):
@@ -140,8 +140,8 @@ def get_provisional_diff(rev1: PrebuiltDataModelDirectory, rev2: PrebuiltDataMod
     provisional_clusters_rev2 = [c.name for c in clusters_rev2.values() if c.is_provisional]
 
     rev2_additional_provisional_clusters = set(provisional_clusters_rev2) - set(provisional_clusters_rev1)
-    print(f"\n\nProvisional clusters in {rev2.dirname} not in {rev1.dirname}")
-    print(f"\t{sorted(rev2_additional_provisional_clusters)}")
+    print(f'\n\nProvisional clusters in {rev2.dirname} not in {rev1.dirname}')
+    print(f'\t{sorted(rev2_additional_provisional_clusters)}')
 
     for id, c2 in clusters_rev2.items():
         if id not in clusters_rev1:
@@ -170,18 +170,18 @@ def get_provisional_diff(rev1: PrebuiltDataModelDirectory, rev2: PrebuiltDataMod
         if not features and not attributes and not accepted_commands and not generated_commands and not events:
             continue
 
-        print(f"\n{c2.name}")
-        print(f"Provisional elements in {rev2.dirname} that are not provisional in {rev1.dirname}")
+        print(f'\n{c2.name}')
+        print(f'Provisional elements in {rev2.dirname} that are not provisional in {rev1.dirname}')
         if features:
-            print(f"\tFeatures: {features}")
+            print(f'\tFeatures: {features}')
         if attributes:
-            print(f"\tAttributes: {attributes}")
+            print(f'\tAttributes: {attributes}')
         if accepted_commands:
-            print(f"\tAccepted commands: {accepted_commands}")
+            print(f'\tAccepted commands: {accepted_commands}')
         if generated_commands:
-            print(f"\tGenerated commands: {generated_commands}")
+            print(f'\tGenerated commands: {generated_commands}')
         if events:
-            print(f"\tEvents: {events}")
+            print(f'\tEvents: {events}')
 
 
 def get_all_provisional_clusters(prior_revision: PrebuiltDataModelDirectory, new_revision: PrebuiltDataModelDirectory):
@@ -198,31 +198,29 @@ def get_all_provisional_device_types(new_revision: PrebuiltDataModelDirectory):
         if not server_clusters and not client_clusters:
             continue
 
-        print(f"\n{d.name}")
+        print(f'\n{d.name}')
         if server_clusters:
-            print(f"\tProvisional server clusters: {server_clusters}")
+            print(f'\tProvisional server clusters: {server_clusters}')
         if client_clusters:
-            print(f"\tProvisional client clusters: {client_clusters}")
+            print(f'\tProvisional client clusters: {client_clusters}')
 
 
-REVISIONS = {
-    "1.3": PrebuiltDataModelDirectory.k1_3,
-    "1.4": PrebuiltDataModelDirectory.k1_4,
-    "1.4.1": PrebuiltDataModelDirectory.k1_4_1,
-    "1.4.2": PrebuiltDataModelDirectory.k1_4_2,
-    "1.5": PrebuiltDataModelDirectory.k1_5,
-    "1.5.1": PrebuiltDataModelDirectory.k1_5_1,
-    "1.6": PrebuiltDataModelDirectory.k1_6,
-}
+REVISIONS = {'1.3': PrebuiltDataModelDirectory.k1_3,
+             '1.4': PrebuiltDataModelDirectory.k1_4,
+             '1.4.1': PrebuiltDataModelDirectory.k1_4_1,
+             '1.4.2': PrebuiltDataModelDirectory.k1_4_2,
+             '1.5': PrebuiltDataModelDirectory.k1_5,
+             '1.5.1': PrebuiltDataModelDirectory.k1_5_1,
+             '1.6': PrebuiltDataModelDirectory.k1_6}
 
 
 @click.command()
-@click.argument("prior_revision", type=click.Choice(list(REVISIONS.keys())))
-@click.argument("new_revision", type=click.Choice(list(REVISIONS.keys())))
+@click.argument('prior_revision', type=click.Choice(list(REVISIONS.keys())))
+@click.argument('new_revision', type=click.Choice(list(REVISIONS.keys())))
 def main(prior_revision: str, new_revision: str):
     diff_clusters(REVISIONS[prior_revision], REVISIONS[new_revision])
     diff_device_types(REVISIONS[prior_revision], REVISIONS[new_revision])
-    print("\n\n---------------Provisional checks----------------")
+    print('\n\n---------------Provisional checks----------------')
     get_all_provisional_clusters(REVISIONS[prior_revision], REVISIONS[new_revision])
     get_all_provisional_device_types(REVISIONS[new_revision])
 

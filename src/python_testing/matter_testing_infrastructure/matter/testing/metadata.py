@@ -50,7 +50,7 @@ def extract_runs_args(py_script_path: str) -> Dict[str, Dict[str, str]]:
     runs_arg_lines: Dict[str, Dict[str, str]] = {}
 
     ci_args_section_lines = []
-    with open(py_script_path, "r", encoding="utf8") as py_script:
+    with open(py_script_path, 'r', encoding='utf8') as py_script:
         for line_idx, line in enumerate(py_script.readlines()):
             line = line.strip()
 
@@ -74,7 +74,7 @@ def extract_runs_args(py_script_path: str) -> Dict[str, Dict[str, str]]:
             runs = yaml.safe_load(NamedStringIO("\n".join(ci_args_section_lines), py_script_path))
             for run, args in runs.get("test-runner-runs", {}).items():
                 runs_arg_lines[run] = {}
-                runs_arg_lines[run]["run"] = run
+                runs_arg_lines[run]['run'] = run
                 runs_arg_lines[run].update(args)
         except yaml.YAMLError as e:
             LOGGER.error(f"Failed to parse CI arguments YAML: {e}")
@@ -119,7 +119,7 @@ class MetadataReader:
                 continue
             # We do not expect to recurse (like ${FOO_${BAR}}) so just expand once
             for name, value in self.env.items():
-                arg_val = arg_val.replace(f"${{{name}}}", value)
+                arg_val = arg_val.replace(f'${{{name}}}', value)
             metadata_dict[arg] = arg_val.strip()
 
     def parse_script(self, py_script_path: str) -> List[Metadata]:
@@ -145,18 +145,16 @@ class MetadataReader:
 
         for run, attr in runs_args.items():
             self.__resolve_env_vals__(attr)
-            runs_metadata.append(
-                Metadata(
-                    py_script_path=py_script_path,
-                    run=run,
-                    app=attr.get("app", ""),
-                    app_args=attr.get("app-args"),
-                    app_ready_pattern=attr.get("app-ready-pattern"),
-                    app_stdin_pipe=attr.get("app-stdin-pipe"),
-                    script_args=attr.get("script-args"),
-                    factory_reset=str(attr.get("factory-reset", False)).lower() == "true",
-                    quiet=str(attr.get("quiet", True)).lower() == "true",
-                )
-            )
+            runs_metadata.append(Metadata(
+                py_script_path=py_script_path,
+                run=run,
+                app=attr.get("app", ""),
+                app_args=attr.get("app-args"),
+                app_ready_pattern=attr.get("app-ready-pattern"),
+                app_stdin_pipe=attr.get("app-stdin-pipe"),
+                script_args=attr.get("script-args"),
+                factory_reset=str(attr.get("factory-reset", False)).lower() == 'true',
+                quiet=str(attr.get("quiet", True)).lower() == 'true',
+            ))
 
         return runs_metadata

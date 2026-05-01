@@ -282,7 +282,9 @@ private:
 #else
                                    AndroidOperationalCredentialsIssuerPtr opCredsIssuer
 #endif
-                                   ) : mController(std::move(controller)), mOpCredsIssuer(std::move(opCredsIssuer))
+                                   ) :
+        mController(std::move(controller)),
+        mOpCredsIssuer(std::move(opCredsIssuer))
     {}
 };
 

@@ -51,42 +51,29 @@ class TC_CGEN_2_11(MatterBaseTest):
         return "[TC-CGEN-2.11] Verification that TCAcknowledgements and TCAcceptedVersion can be updated after being commissioned [DUT as Server]"
 
     def pics_TC_CGEN_2_11(self) -> list[str]:
-        """This function returns a list of PICS for this test case that must be True for the test to be run"""
+        """ This function returns a list of PICS for this test case that must be True for the test to be run"""
         return ["CGEN.S", "CGEN.S.F00"]
 
     def steps_TC_CGEN_2_11(self) -> list[TestStep]:
         return [
-            TestStep(
-                1,
-                "TH begins commissioning the DUT and performs the following steps in order:\n* Security setup using PASE\n* Setup fail-safe timer, with ExpiryLengthSeconds field set to PIXIT.CGEN.FailsafeExpiryLengthSeconds and the Breadcrumb value as 1\n* Configure information- UTC time, regulatory, etc.",
-                is_commissioning=False,
-            ),
-            TestStep(
-                2,
-                "TH sends SetTCAcknowledgements to DUT with the following values:\n* TCVersion: PIXIT.CGEN.TCRevision\n* TCUserResponse: PIXIT.CGEN.RequiredTCAcknowledgements",
-            ),
+            TestStep(1, "TH begins commissioning the DUT and performs the following steps in order:\n* Security setup using PASE\n* Setup fail-safe timer, with ExpiryLengthSeconds field set to PIXIT.CGEN.FailsafeExpiryLengthSeconds and the Breadcrumb value as 1\n* Configure information- UTC time, regulatory, etc.", is_commissioning=False),
+            TestStep(2, "TH sends SetTCAcknowledgements to DUT with the following values:\n* TCVersion: PIXIT.CGEN.TCRevision\n* TCUserResponse: PIXIT.CGEN.RequiredTCAcknowledgements"),
             TestStep(3, "TH sends CommissioningComplete to DUT."),
-            TestStep(
-                4,
-                "TH Sends the SetTCAcknowledgements command to the DUT with the fields set as follows:\n* TCVersion: PIXIT.CGEN.TCRevision + 1\n* TCUserResponse: PIXIT.CGEN.RequiredTCAcknowledgements",
-            ),
+            TestStep(4, "TH Sends the SetTCAcknowledgements command to the DUT with the fields set as follows:\n* TCVersion: PIXIT.CGEN.TCRevision + 1\n* TCUserResponse: PIXIT.CGEN.RequiredTCAcknowledgements"),
             TestStep(5, "TH reads from the DUT the attribute TCAcceptedVersion."),
-            TestStep(
-                6,
-                "TH Sends the SetTCAcknowledgements command to the DUT with the fields set as follows:\n* TCVersion: PIXIT.CGEN.TCRevision + 1\n* TCUserResponse: 65535",
-            ),
+            TestStep(6, "TH Sends the SetTCAcknowledgements command to the DUT with the fields set as follows:\n* TCVersion: PIXIT.CGEN.TCRevision + 1\n* TCUserResponse: 65535"),
             TestStep(7, "TH reads from the DUT the attribute TCAcknowledgements."),
         ]
 
     @async_test_body
     async def test_TC_CGEN_2_11(self):
         commissioner: ChipDeviceCtrl.ChipDeviceController = self.default_controller
-        failsafe_expiry_length_seconds = self.matter_test_config.global_test_params["PIXIT.CGEN.FailsafeExpiryLengthSeconds"]
-        tc_version_to_simulate = self.matter_test_config.global_test_params["PIXIT.CGEN.TCRevision"]
-        tc_user_response_to_simulate = self.matter_test_config.global_test_params["PIXIT.CGEN.RequiredTCAcknowledgements"]
+        failsafe_expiry_length_seconds = self.matter_test_config.global_test_params['PIXIT.CGEN.FailsafeExpiryLengthSeconds']
+        tc_version_to_simulate = self.matter_test_config.global_test_params['PIXIT.CGEN.TCRevision']
+        tc_user_response_to_simulate = self.matter_test_config.global_test_params['PIXIT.CGEN.RequiredTCAcknowledgements']
 
         if not self.check_pics("CGEN.S.F00"):
-            asserts.skip("Root endpoint does not support the [commissioning] feature under test")
+            asserts.skip('Root endpoint does not support the [commissioning] feature under test')
             return
 
         # Step 1: Begin commissioning with PASE and failsafe
@@ -101,8 +88,7 @@ class TC_CGEN_2_11(MatterBaseTest):
             nodeId=self.dut_node_id,
             endpoint=ROOT_ENDPOINT_ID,
             payload=Clusters.GeneralCommissioning.Commands.ArmFailSafe(
-                expiryLengthSeconds=failsafe_expiry_length_seconds, breadcrumb=1
-            ),
+                expiryLengthSeconds=failsafe_expiry_length_seconds, breadcrumb=1),
         )
         asserts.assert_equal(
             response.errorCode,
@@ -162,12 +148,8 @@ class TC_CGEN_2_11(MatterBaseTest):
 
         # Step 5: Verify TCAcceptedVersion is updated
         self.step(5)
-        response = await commissioner.ReadAttribute(
-            nodeId=self.dut_node_id, attributes=[(ROOT_ENDPOINT_ID, Clusters.GeneralCommissioning.Attributes.TCAcceptedVersion)]
-        )
-        current_version = response[ROOT_ENDPOINT_ID][Clusters.GeneralCommissioning][
-            Clusters.GeneralCommissioning.Attributes.TCAcceptedVersion
-        ]
+        response = await commissioner.ReadAttribute(nodeId=self.dut_node_id, attributes=[(ROOT_ENDPOINT_ID, Clusters.GeneralCommissioning.Attributes.TCAcceptedVersion)])
+        current_version = response[ROOT_ENDPOINT_ID][Clusters.GeneralCommissioning][Clusters.GeneralCommissioning.Attributes.TCAcceptedVersion]
         asserts.assert_equal(current_version, updated_tc_version, "TCAcceptedVersion not updated correctly")
 
         # Step 6: Send SetTCAcknowledgements with maximum acknowledgements
@@ -189,12 +171,8 @@ class TC_CGEN_2_11(MatterBaseTest):
 
         # Step 7: Verify TCAcknowledgements is updated
         self.step(7)
-        response = await commissioner.ReadAttribute(
-            nodeId=self.dut_node_id, attributes=[(ROOT_ENDPOINT_ID, Clusters.GeneralCommissioning.Attributes.TCAcknowledgements)]
-        )
-        current_acknowledgements = response[ROOT_ENDPOINT_ID][Clusters.GeneralCommissioning][
-            Clusters.GeneralCommissioning.Attributes.TCAcknowledgements
-        ]
+        response = await commissioner.ReadAttribute(nodeId=self.dut_node_id, attributes=[(ROOT_ENDPOINT_ID, Clusters.GeneralCommissioning.Attributes.TCAcknowledgements)])
+        current_acknowledgements = response[ROOT_ENDPOINT_ID][Clusters.GeneralCommissioning][Clusters.GeneralCommissioning.Attributes.TCAcknowledgements]
         asserts.assert_equal(current_acknowledgements, 65535, "TCAcknowledgements not updated to maximum value")
 
 

@@ -51,15 +51,8 @@
 import logging
 
 from mdns_discovery.mdns_discovery import MdnsDiscovery, MdnsServiceType
-from mdns_discovery.utils.asserts import (
-    assert_valid_hostname,
-    assert_valid_icd_key,
-    assert_valid_ipv6_addresses,
-    assert_valid_sai_key,
-    assert_valid_sat_key,
-    assert_valid_sii_key,
-    assert_valid_t_key,
-)
+from mdns_discovery.utils.asserts import (assert_valid_hostname, assert_valid_icd_key, assert_valid_ipv6_addresses,
+                                          assert_valid_sai_key, assert_valid_sat_key, assert_valid_sii_key, assert_valid_t_key)
 from mdns_discovery.utils.network import is_dut_tcp_supported
 from mobly import asserts
 
@@ -70,14 +63,14 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 log = logging.getLogger(__name__)
 
-"""
+'''
 Purpose
 The purpose of this test case is to verify that a Matter node is discoverable
 and can advertise its services in a Matter network.
 
 Test Plan
 https://github.com/CHIP-Specifications/chip-test-plans/blob/master/src/securechannel.adoc#343-tc-sc-43-discovery-dut_commissionee
-"""
+'''
 
 TCP_PICS_STR = "MCORE.SC.TCP"
 ONE_HOUR_IN_MS = 3600000
@@ -86,71 +79,39 @@ MAX_T_VALUE = 6
 
 
 class TC_SC_4_3(MatterBaseTest):
+
     def steps_TC_SC_4_3(self):
-        return [
-            TestStep(1, "DUT is commissioned on the same fabric as TH.", is_commissioning=True),
-            TestStep(
-                2,
-                "TH reads ServerList attribute from the Descriptor cluster on EP0. ",
-                "If the ICD Management cluster ID (70,0x46) is present in the list, set supports_icd to true, otherwise set supports_icd to false.",
-            ),
-            TestStep(
-                3,
-                "If supports_icd is true, TH reads ActiveModeThreshold from the ICD Management cluster on EP0 and saves as active_mode_threshold.",
-                "",
-            ),
-            TestStep(
-                4,
-                "If supports_icd is true, TH reads FeatureMap from the ICD Management cluster on EP0. If the LITS feature is set, set supports_lit to true. Otherwise set supports_lit to false.",
-                "",
-            ),
-            TestStep(
-                5, "TH checks if TCP is supported by the DUT.", "Set supports_tcp_dut to True if supported, otherwise, to False"
-            ),
-            TestStep(
-                6, "TH checks if TCP is supported by the PICS.", "Set supports_tcp_pics to True if supported, otherwise, to False"
-            ),
-            TestStep(
-                7,
-                "TH constructs the instance name for the DUT as the 64-bit compressed Fabric identifier, and the assigned 64-bit Node identifier, each expressed as a fixed-length sixteen-character hexadecimal string, encoded as ASCII (UTF-8) text using capital letters, separated by a hyphen.",
-                "",
-            ),
-            TestStep(
-                8, "TH performs a query for the SRV record against the qname instance_qname.", "Verify SRV record is returned"
-            ),
-            TestStep(
-                9,
-                "TH performs a query for the TXT record against the qname instance_qname.",
-                "Verify TXT record is returned if the device supports ICD or TCP. The TXT record MAY be returned if these are not supported, but it is not required.",
-            ),
-            TestStep(
-                10,
-                "TH performs a query for the AAAA record against the target listed in the SRV record",
-                "Verify AAAA record is returned",
-            ),
-            TestStep(
-                11,
-                "TH verifies the following from the returned records:",
-                "The hostname must be a fixed-length twelve-character (or sixteen-character) hexadecimal string, encoded as ASCII (UTF-8) text using capital letters.. ICD TXT key: • If supports_lit is false, verify that the ICD key is NOT present in the TXT record • If supports_lit is true, verify the ICD key IS present in the TXT record, and it has the value of 0 or 1 (ASCII) SII TXT key: • If supports_icd is true and supports_lit is false, set sit_mode to true • If supports_icd is true and supports_lit is true, set sit_mode to true if ICD=0 otherwise set sit_mode to false • If supports_icd is false, set sit_mode to false • If sit_mode is true, verify that the SII key IS present in the TXT record • if the SII key is present, verify it is a decimal value with no leading zeros and is less than or equal to 3600000 (1h in ms) SAI TXT key: • if supports_icd is true, verify that the SAI key is present in the TXT record • If the SAI key is present, verify it is a decimal value with no leading zeros and is less than or equal to 3600000 (1h in ms)",
-            ),
-            TestStep(
-                12,
-                "TH performs a DNS-SD browse for _I<hhhh>._sub._matter._tcp.local, where <hhhh> is the 64-bit compressed Fabric identifier, expressed as a fixed-length, sixteencharacter hexadecimal string, encoded as ASCII (UTF-8) text using capital letters.",
-                "Verify DUT returns a PTR record with DNS-SD instance name set to instance_name",
-            ),
-            TestStep(
-                13,
-                "TH performs a DNS-SD browse for _matter._tcp.local",
-                "Verify DUT returns a PTR record with DNS-SD instance name set to instance_name",
-            ),
-        ]
+        return [TestStep(1, "DUT is commissioned on the same fabric as TH.", is_commissioning=True),
+                TestStep(2, "TH reads ServerList attribute from the Descriptor cluster on EP0. ",
+                         "If the ICD Management cluster ID (70,0x46) is present in the list, set supports_icd to true, otherwise set supports_icd to false."),
+                TestStep(3,
+                         "If supports_icd is true, TH reads ActiveModeThreshold from the ICD Management cluster on EP0 and saves as active_mode_threshold.", ""),
+                TestStep(4, "If supports_icd is true, TH reads FeatureMap from the ICD Management cluster on EP0. If the LITS feature is set, set supports_lit to true. Otherwise set supports_lit to false.", ""),
+                TestStep(5, "TH checks if TCP is supported by the DUT.",
+                         "Set supports_tcp_dut to True if supported, otherwise, to False"),
+                TestStep(6, "TH checks if TCP is supported by the PICS.",
+                         "Set supports_tcp_pics to True if supported, otherwise, to False"),
+                TestStep(7, "TH constructs the instance name for the DUT as the 64-bit compressed Fabric identifier, and the assigned 64-bit Node identifier, each expressed as a fixed-length sixteen-character hexadecimal string, encoded as ASCII (UTF-8) text using capital letters, separated by a hyphen.", ""),
+                TestStep(8, "TH performs a query for the SRV record against the qname instance_qname.",
+                         "Verify SRV record is returned"),
+                TestStep(9, "TH performs a query for the TXT record against the qname instance_qname.",
+                         "Verify TXT record is returned if the device supports ICD or TCP. The TXT record MAY be returned if these are not supported, but it is not required."),
+                TestStep(10, "TH performs a query for the AAAA record against the target listed in the SRV record",
+                         "Verify AAAA record is returned"),
+                TestStep(11, "TH verifies the following from the returned records:",
+                         "The hostname must be a fixed-length twelve-character (or sixteen-character) hexadecimal string, encoded as ASCII (UTF-8) text using capital letters.. ICD TXT key: • If supports_lit is false, verify that the ICD key is NOT present in the TXT record • If supports_lit is true, verify the ICD key IS present in the TXT record, and it has the value of 0 or 1 (ASCII) SII TXT key: • If supports_icd is true and supports_lit is false, set sit_mode to true • If supports_icd is true and supports_lit is true, set sit_mode to true if ICD=0 otherwise set sit_mode to false • If supports_icd is false, set sit_mode to false • If sit_mode is true, verify that the SII key IS present in the TXT record • if the SII key is present, verify it is a decimal value with no leading zeros and is less than or equal to 3600000 (1h in ms) SAI TXT key: • if supports_icd is true, verify that the SAI key is present in the TXT record • If the SAI key is present, verify it is a decimal value with no leading zeros and is less than or equal to 3600000 (1h in ms)"),
+                TestStep(12, "TH performs a DNS-SD browse for _I<hhhh>._sub._matter._tcp.local, where <hhhh> is the 64-bit compressed Fabric identifier, expressed as a fixed-length, sixteencharacter hexadecimal string, encoded as ASCII (UTF-8) text using capital letters.",
+                         "Verify DUT returns a PTR record with DNS-SD instance name set to instance_name"),
+                TestStep(13, "TH performs a DNS-SD browse for _matter._tcp.local",
+                         "Verify DUT returns a PTR record with DNS-SD instance name set to instance_name"),
+                ]
 
     async def get_descriptor_server_list(self):
         return await self.read_single_attribute_check_success(
             endpoint=0,
             dev_ctrl=self.default_controller,
             cluster=Clusters.Descriptor,
-            attribute=Clusters.Descriptor.Attributes.ServerList,
+            attribute=Clusters.Descriptor.Attributes.ServerList
         )
 
     async def get_idle_mode_threshhold_ms(self):
@@ -158,7 +119,7 @@ class TC_SC_4_3(MatterBaseTest):
             endpoint=0,
             dev_ctrl=self.default_controller,
             cluster=Clusters.IcdManagement,
-            attribute=Clusters.IcdManagement.Attributes.ActiveModeThreshold,
+            attribute=Clusters.IcdManagement.Attributes.ActiveModeThreshold
         )
 
     async def get_icd_feature_map(self):
@@ -166,20 +127,20 @@ class TC_SC_4_3(MatterBaseTest):
             endpoint=0,
             dev_ctrl=self.default_controller,
             cluster=Clusters.IcdManagement,
-            attribute=Clusters.IcdManagement.Attributes.FeatureMap,
+            attribute=Clusters.IcdManagement.Attributes.FeatureMap
         )
 
     def get_dut_instance_name(self, log_result: bool = False) -> str:
         node_id = self.dut_node_id
         compressed_fabric_id = self.default_controller.GetCompressedFabricId()
-        instance_name = f"{compressed_fabric_id:016X}-{node_id:016X}"
+        instance_name = f'{compressed_fabric_id:016X}-{node_id:016X}'
         if log_result:
             log.info(f"\n\n\tDUT Instance Name: {instance_name}\n")
         return instance_name
 
     def get_operational_subtype(self, log_result: bool = False) -> str:
         compressed_fabric_id = self.default_controller.GetCompressedFabricId()
-        operational_subtype = f"_I{compressed_fabric_id:016X}._sub.{MdnsServiceType.OPERATIONAL.value}"
+        operational_subtype = f'_I{compressed_fabric_id:016X}._sub.{MdnsServiceType.OPERATIONAL.value}'
         if log_result:
             log.info(f"\n\n\tOperational Subtype: {operational_subtype}\n")
         return operational_subtype
@@ -294,7 +255,9 @@ class TC_SC_4_3(MatterBaseTest):
         self.step(8)
         mdns = MdnsDiscovery()
         srv_record = await mdns.get_srv_record(
-            service_name=instance_qname, service_type=MdnsServiceType.OPERATIONAL.value, log_output=True
+            service_name=instance_qname,
+            service_type=MdnsServiceType.OPERATIONAL.value,
+            log_output=True
         )
 
         # Verify SRV record is returned
@@ -306,11 +269,14 @@ class TC_SC_4_3(MatterBaseTest):
         # Verify TXT record is returned
         self.step(9)
         txt_record = await mdns.get_txt_record(
-            service_name=instance_qname, service_type=MdnsServiceType.OPERATIONAL.value, log_output=True
+            service_name=instance_qname,
+            service_type=MdnsServiceType.OPERATIONAL.value,
+            log_output=True
         )
 
         # Request the TXT record. The device may opt not to return a TXT record if there are no mandatory TXT keys
-        txt_record_returned = txt_record is not None and txt_record.txt is not None and bool(txt_record.txt)
+        txt_record_returned = txt_record is not None and txt_record.txt is not None and bool(
+            txt_record.txt)
         txt_record_required = supports_icd or supports_tcp_pics
 
         if txt_record_required:
@@ -319,7 +285,10 @@ class TC_SC_4_3(MatterBaseTest):
         # *** STEP 10 ***
         # TH performs a query for the AAAA record against the target listed in the SRV record.
         self.step(10)
-        quada_records = await mdns.get_quada_records(hostname=srv_record.hostname, log_output=True)
+        quada_records = await mdns.get_quada_records(
+            hostname=srv_record.hostname,
+            log_output=True
+        )
 
         # Verify AAAA record is returned
         asserts.assert_greater(len(quada_records), 0, f"No AAAA addresses were resolved for hostname '{srv_record.hostname}'")
@@ -344,26 +313,24 @@ class TC_SC_4_3(MatterBaseTest):
 
         # ICD TXT KEY
         if supports_lit:
-            log.info(
-                "supports_lit is true, verify the ICD key IS present in the TXT record, and it has the value of 0 or 1 (ASCII)."
-            )
+            log.info("supports_lit is true, verify the ICD key IS present in the TXT record, and it has the value of 0 or 1 (ASCII).")
 
             # Verify the ICD key IS present
-            asserts.assert_true(txt_has_key("ICD"), "ICD key is NOT present in the TXT record.")
+            asserts.assert_true(txt_has_key('ICD'), "ICD key is NOT present in the TXT record.")
 
             # Verify it has the value of 0 or 1 (ASCII)
-            assert_valid_icd_key(txt_record.txt["ICD"])
+            assert_valid_icd_key(txt_record.txt['ICD'])
         else:
             log.info("supports_lit is false, verify that the ICD key is NOT present in the TXT record.")
             if txt_record_returned:
-                asserts.assert_not_in("ICD", txt_record.txt, "ICD key is present in the TXT record.")
+                asserts.assert_not_in('ICD', txt_record.txt, "ICD key is present in the TXT record.")
 
         # SII TXT KEY
         if supports_icd and not supports_lit:
             sit_mode = True
 
         if supports_icd and supports_lit:
-            if int(txt_record.txt["ICD"]) == 0:
+            if int(txt_record.txt['ICD']) == 0:
                 sit_mode = True
             else:
                 sit_mode = False
@@ -373,35 +340,34 @@ class TC_SC_4_3(MatterBaseTest):
 
         if sit_mode:
             log.info("sit_mode is True, verify the SII key IS present.")
-            asserts.assert_true(txt_has_key("SII"), "SII key is NOT present in the TXT record.")
+            asserts.assert_true(txt_has_key('SII'), "SII key is NOT present in the TXT record.")
 
             log.info("Verify SII value is a decimal with no leading zeros and is less than or equal to 3600000 (1h in ms).")
-            assert_valid_sii_key(txt_record.txt["SII"])
+            assert_valid_sii_key(txt_record.txt['SII'])
 
         # SAI TXT KEY
         if supports_icd:
             log.info("supports_icd is True, verify the SAI key IS present.")
-            asserts.assert_true(txt_has_key("SAI"), "SAI key is NOT present in the TXT record.")
+            asserts.assert_true(txt_has_key('SAI'), "SAI key is NOT present in the TXT record.")
 
             log.info("Verify SAI value is a decimal with no leading zeros and is less than or equal to 3600000 (1h in ms).")
-            assert_valid_sai_key(txt_record.txt["SAI"])
+            assert_valid_sai_key(txt_record.txt['SAI'])
 
         # SAT TXT KEY
-        if txt_has_key("SAT"):
+        if txt_has_key('SAT'):
             log.info(
-                "SAT key is present in TXT record, verify that it is a decimal value with no leading zeros and is less than or equal to 65535."
-            )
-            assert_valid_sat_key(txt_record.txt["SAT"])
+                "SAT key is present in TXT record, verify that it is a decimal value with no leading zeros and is less than or equal to 65535.")
+            assert_valid_sat_key(txt_record.txt['SAT'])
 
             if supports_icd:
                 log.info("supports_icd is True, verify the SAT value is equal to active_mode_threshold.")
-                asserts.assert_equal(int(txt_record.txt["SAT"]), active_mode_threshold_ms)
+                asserts.assert_equal(int(txt_record.txt['SAT']), active_mode_threshold_ms)
 
         # T TXT KEY
-        t_key_present = "T" in txt_record.txt
+        t_key_present = 'T' in txt_record.txt
         if supports_tcp_dut:
             asserts.assert_true(t_key_present, "T key must be present if DUT supports TCP.")
-        t_key = txt_record.txt.get("T", None)
+        t_key = txt_record.txt.get('T', None)
         assert_valid_t_key(t_key, t_key_present, supports_tcp_dut, supports_tcp_pics, enforce_provisional=False)
 
         # Verify the AAAA records contain a valid IPv6 address
@@ -423,7 +389,7 @@ class TC_SC_4_3(MatterBaseTest):
         # Verify DUT returns a PTR record with DNS-SD instance name set to instance_name
         asserts.assert_true(
             any(r.instance_name == instance_name for r in ptr_records),
-            f"No PTR record with DNS-SD instance name '{instance_name}' was found.",
+            f"No PTR record with DNS-SD instance name '{instance_name}' was found."
         )
 
         # # *** STEP 13 ***
@@ -437,7 +403,7 @@ class TC_SC_4_3(MatterBaseTest):
         # Verify DUT returns a PTR record with DNS-SD instance name set to instance_name
         asserts.assert_true(
             any(r.instance_name == instance_name for r in ptr_records),
-            f"No PTR record with DNS-SD instance name '{instance_name}' was found.",
+            f"No PTR record with DNS-SD instance name '{instance_name}' was found."
         )
 
 

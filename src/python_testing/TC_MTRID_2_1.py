@@ -70,43 +70,23 @@ class TC_MTRID_2_1(MeterIdentificationTestBaseHelper):
     def steps_TC_MTRID_2_1(self) -> list[TestStep]:
         return [
             TestStep("1", "Commissioning, already done", "DUT is commissioned.", is_commissioning=True),
-            TestStep(
-                "2",
-                "TH reads MeterType attribute",
-                """
+            TestStep("2", "TH reads MeterType attribute", """
                      - DUT replies a null or a MeterTypeEnum value;
-                     - Verify that value in range 0 - 2.""",
-            ),
-            TestStep(
-                "3",
-                "TH reads PointOfDelivery attribute",
-                """
+                     - Verify that value in range 0 - 2."""),
+            TestStep("3", "TH reads PointOfDelivery attribute", """
                      - DUT replies a null or a value of string type;
-                     - Verify that size is in range 0 - 64.""",
-            ),
-            TestStep(
-                "4",
-                "TH reads MeterSerialNumber attribute",
-                """
+                     - Verify that size is in range 0 - 64."""),
+            TestStep("4", "TH reads MeterSerialNumber attribute", """
                      - DUT replies a null or a value of string type;
-                     - Verify that size is in range 0 - 64.""",
-            ),
-            TestStep(
-                "5",
-                "TH reads ProtocolVersion attribute",
-                """
+                     - Verify that size is in range 0 - 64."""),
+            TestStep("5", "TH reads ProtocolVersion attribute", """
                      - DUT replies a null or a value of string type;
-                     - Verify that size is in range 0 - 64.""",
-            ),
-            TestStep(
-                "6",
-                "TH reads PowerThreshold attribute",
-                """
+                     - Verify that size is in range 0 - 64."""),
+            TestStep("6", "TH reads PowerThreshold attribute", """
                      - DUT replies a null or a value of PowerThresholdStruct type;
                      - PowerThreshold field has type int64;
                      - ApparentPowerThreshold field has type int64;
-                     - PowerThresholdSource field has type PowerThresholdSourceEnum and value in range 0 - 2.""",
-            ),
+                     - PowerThresholdSource field has type PowerThresholdSourceEnum and value in range 0 - 2."""),
         ]
 
     @async_test_body
@@ -132,6 +112,7 @@ class TC_MTRID_2_1(MeterIdentificationTestBaseHelper):
 
         # Checks if ProtocolVersion attribute is supported
         if await self.attribute_guard(endpoint=endpoint, attribute=cluster.Attributes.ProtocolVersion):
+
             self.step("5")
 
             if not self.check_pics("MTRID.S.A0003"):  # for cases when it is supported by DUT, but disabled in PICS
@@ -141,16 +122,17 @@ class TC_MTRID_2_1(MeterIdentificationTestBaseHelper):
             await self.check_protocol_version_attribute(endpoint)
 
         else:
+
             if self.check_pics("MTRID.S.A0003"):  # for cases when it is not supported by DUT, but enabled in PICS
                 self.step("5")
                 asserts.fail(
-                    "PICS file does not correspond to real DUT functionality. ProtocolVersion is not actually supported, but MTRID.S.A0003 is True."
-                )
+                    "PICS file does not correspond to real DUT functionality. ProtocolVersion is not actually supported, but MTRID.S.A0003 is True.")
             else:  # attribute is not supported at all
                 self.skip_step("5")
 
         # Checks if PowerThreshold feature is supported
         if await self.feature_guard(endpoint=endpoint, cluster=cluster, feature_int=cluster.Bitmaps.Feature.kPowerThreshold):
+
             self.step("6")
 
             if not self.check_pics("MTRID.S.A0004"):
@@ -160,11 +142,11 @@ class TC_MTRID_2_1(MeterIdentificationTestBaseHelper):
             await self.check_power_threshold_attribute(endpoint)
 
         else:
+
             if self.check_pics("MTRID.S.A0004"):
                 self.step("6")
                 asserts.fail(
-                    "PICS file does not correspond to real DUT functionality. PowerThreshold feature is not actually supported, but MTRID.S.A0004 is True."
-                )
+                    "PICS file does not correspond to real DUT functionality. PowerThreshold feature is not actually supported, but MTRID.S.A0004 is True.")
             else:
                 self.skip_step("6")
 

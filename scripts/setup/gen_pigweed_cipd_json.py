@@ -23,15 +23,18 @@ import platform
 log = logging.getLogger(__name__)
 
 _LIST_OF_PACKAGES_TO_EXCLUDE = {
-    "fuchsia/third_party/rust/",
-    "infra/3pp/tools/renode",
+    'fuchsia/third_party/rust/',
+    'infra/3pp/tools/renode',
 }
 
 
 def include_package(package: dict) -> bool:
-    if "path" in package:
-        path = package["path"]
-        exclusion_match = any(path.startswith(package_to_exclude) for package_to_exclude in _LIST_OF_PACKAGES_TO_EXCLUDE)
+    if 'path' in package:
+        path = package['path']
+        exclusion_match = any(
+            path.startswith(package_to_exclude)
+            for package_to_exclude in _LIST_OF_PACKAGES_TO_EXCLUDE
+        )
         if exclusion_match:
             return False
     return True
@@ -41,7 +44,7 @@ def generate_new_cipd_package_json(input, output, extra):
     with open(input) as ins:
         packages = json.load(ins)
 
-        file_packages = packages.get("packages")
+        file_packages = packages.get('packages')
         new_file_packages = [x for x in file_packages if include_package(x)]
 
     # Extra is a list of platform:json.
@@ -53,7 +56,7 @@ def generate_new_cipd_package_json(input, output, extra):
     # Extra chain because extra is a list of lists like:
     # [['darwin:path1'], ['windows:path2']]
     for item in itertools.chain.from_iterable(extra):
-        inject_platform, path = item.split(":", 1)
+        inject_platform, path = item.split(':', 1)
 
         if inject_platform.lower() != my_platform:
             log.info("Skipping: '%s' (i.e. %s)", inject_platform.lower(), path)
@@ -62,11 +65,11 @@ def generate_new_cipd_package_json(input, output, extra):
         log.info("Appending: '%s' for this platform", path)
 
         with open(path) as ins:
-            for package in json.load(ins).get("packages"):
+            for package in json.load(ins).get('packages'):
                 new_file_packages.append(package)
 
-    new_packages = {"packages": new_file_packages}
-    with open(output, "w") as f:
+    new_packages = {'packages': new_file_packages}
+    with open(output, 'w') as f:
         json.dump(new_packages, f, indent=2)
 
     log.debug("PACKAGES:\n%s\n", json.dumps(new_packages, indent=2))
@@ -77,20 +80,20 @@ def main():
         description=__doc__,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--input", "-i", required=True)
-    parser.add_argument("--output", "-o", required=True)
     parser.add_argument(
-        "--extra",
-        "-e",
-        nargs="*",
-        action="append",
-        default=[],
-        help="Inject extra packages for specific platforms. Format is <platform>:<path_to_json>",
+        '--input', '-i', required=True
+    )
+    parser.add_argument(
+        '--output', '-o', required=True
+    )
+    parser.add_argument(
+        '--extra', '-e', nargs='*', action="append", default=[],
+        help="Inject extra packages for specific platforms. Format is <platform>:<path_to_json>"
     )
 
-    logging.basicConfig(format="%(asctime)s %(message)s", level=logging.WARNING)
+    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.WARNING)
     generate_new_cipd_package_json(**vars(parser.parse_args()))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -32,99 +32,51 @@ class BasicInformationAttributesVerificationBase(MatterBaseTest):
     def steps(self) -> list[TestStep]:
         return [
             TestStep(0, "DUT commissioned if not already done", is_commissioning=True),
-            TestStep(
-                1,
-                "TH reads DataModelRevision from the DUT.",
-                "Verify that the value is DataModelRevision of current matter version 1.5 which is value 19",
-            ),
+            TestStep(1, "TH reads DataModelRevision from the DUT.",
+                     "Verify that the value is DataModelRevision of current matter version 1.5 which is value 19"),
             TestStep(2, "TH reads VendorName from the DUT.", "Verify that the VendorName returns a string with max 32 bytes"),
             TestStep(3, "TH reads VendorID from the DUT.", "Verify value is in the range of 0x0001 to 0xFFF4"),
             TestStep(4, "TH reads ProductName from the DUT.", "Verify it is a string with max length of 32 bytes."),
             TestStep(5, "TH reads ProductID from the DUT.", "Verify value is in the inclusive range of 1 to 65534"),
-            TestStep(
-                6, "TH reads NodeLabel from the DUT", "Verify it is of type string, and length is less than or equal to 32 bytes"
-            ),
-            TestStep(
-                7,
-                "TH reads Location from the DUT.",
-                "Verify it is of type string, length is less than or equal to 2 characters, and verify that the Location is a valid CountryCode value per ISO 3166-1 alpha-2",
-            ),
+            TestStep(6, "TH reads NodeLabel from the DUT", "Verify it is of type string, and length is less than or equal to 32 bytes"),
+            TestStep(7, "TH reads Location from the DUT.",
+                     "Verify it is of type string, length is less than or equal to 2 characters, and verify that the Location is a valid CountryCode value per ISO 3166-1 alpha-2"),
             TestStep(8, "TH reads HardwareVersion from the DUT.", "Verify that the value is in range of 0 to 65534"),
-            TestStep(
-                9,
-                "TH reads HardwareVersionString from the DUT.",
-                "Verify it is of type string, and value length in the range of 1 to 64 bytes",
-            ),
+            TestStep(9, "TH reads HardwareVersionString from the DUT.",
+                     "Verify it is of type string, and value length in the range of 1 to 64 bytes"),
             TestStep(10, "TH reads SoftwareVersion from the DUT", "Verify that the value is the range of 0 to 4294967294"),
-            TestStep(
-                11, "TH reads SoftwareVersionString from the DUT.", "Verify it is of type string, has a length of 1 to 64 bytes"
-            ),
-            TestStep(
-                12,
-                "TH reads ManufacturingDate from the DUT",
-                "Verify it is of type string, length in the range of 8 to 16 bytes, and the first 8 characters specify date according to YYYYMMDD, additionally the date should not be in the future and not before the first Matter release date (2022-10-04).",
-            ),
+            TestStep(11, "TH reads SoftwareVersionString from the DUT.",
+                     "Verify it is of type string, has a length of 1 to 64 bytes"),
+            TestStep(12, "TH reads ManufacturingDate from the DUT",
+                     "Verify it is of type string, length in the range of 8 to 16 bytes, and the first 8 characters specify date according to YYYYMMDD, additionally the date should not be in the future and not before the first Matter release date (2022-10-04)."),
             TestStep(13, "TH reads PartNumber from the DUT", "Verify it is of type string, and has a max length of 32 bytes"),
-            TestStep(
-                14,
-                "TH reads ProductURL from the DUT.",
-                "Verify it is of type string, less than or equal to 256 ASCII characters, and follows the syntax rules specified in RFC 3986",
-            ),
-            TestStep(
-                15,
-                "TH reads ProductLabel from the DUT.",
-                "Verify it is of type string, less than or equal to 64 bytes, and does not include the name of the vendor as defined within the VendorName attribute",
-            ),
+            TestStep(14, "TH reads ProductURL from the DUT.",
+                     "Verify it is of type string, less than or equal to 256 ASCII characters, and follows the syntax rules specified in RFC 3986"),
+            TestStep(15, "TH reads ProductLabel from the DUT.",
+                     "Verify it is of type string, less than or equal to 64 bytes, and does not include the name of the vendor as defined within the VendorName attribute"),
             TestStep(16, "TH reads SerialNumber from the DUT.", "Verify it is of type string, and has a max length of 32 bytes"),
             TestStep(17, "TH reads LocalConfigDisabled from the DUT.", "Verify it is of type boolean, and is set to false"),
             TestStep(18, "TH reads Reachable from the DUT.", "Verify it is of type boolean, and is set to true"),
-            TestStep(
-                19,
-                "TH reads UniqueID from the DUT.",
-                "Verify it is of type string, and verify that the value is not identical to SerialNumber attribute if SerialNumber attribute is supported",
-            ),
-            TestStep(
-                20,
-                "TH reads CapabilityMinima attribute from the DUT",
-                "If cluster revision is less than 6 verify that the CaseSessionsPerFabric is in the range of 3 to 65535, and SubscriptionsPerFabric is in the inclusive range of 3 to 65535. "
-                + "If cluster revision is greater than or equal to 6 verify that the CaseSessionsPerFabric and SubscriptionsPerFabric are in the inclusive range of 3 to 10000, "
-                + "that new struct fields SimultaneousInvocationsSupported and SimultaneousWritesSupported are present and in inclusive range of 1 to 10000, "
-                + "that new struct fields ReadPathsSupported is present and in inclusive range of 9 to 10000, while SubscribePathsSupported is present and in inclusive range of 3 to 10000.",
-            ),
+            TestStep(19, "TH reads UniqueID from the DUT.",
+                     "Verify it is of type string, and verify that the value is not identical to SerialNumber attribute if SerialNumber attribute is supported"),
+            TestStep(20, "TH reads CapabilityMinima attribute from the DUT",
+                     "If cluster revision is less than 6 verify that the CaseSessionsPerFabric is in the range of 3 to 65535, and SubscriptionsPerFabric is in the inclusive range of 3 to 65535. " +
+                     "If cluster revision is greater than or equal to 6 verify that the CaseSessionsPerFabric and SubscriptionsPerFabric are in the inclusive range of 3 to 10000, " +
+                     "that new struct fields SimultaneousInvocationsSupported and SimultaneousWritesSupported are present and in inclusive range of 1 to 10000, " +
+                     "that new struct fields ReadPathsSupported is present and in inclusive range of 9 to 10000, while SubscribePathsSupported is present and in inclusive range of 3 to 10000."),
             TestStep(21, "TH reads ProductAppearance from the DUT.", "Verify it is of type ProductAppearanceStruct."),
-            TestStep(
-                22,
-                "TH reads SpecificationVersion from the DUT.",
-                "Value should be set to a valid Major, Minor, and Dot version with the lower 8 bits set to zero.",
-            ),
+            TestStep(22, "TH reads SpecificationVersion from the DUT.",
+                     "Value should be set to a valid Major, Minor, and Dot version with the lower 8 bits set to zero."),
             TestStep(23, "TH reads MaxPathsPerInvoke from the DUT.", "Verify that the value is in the range of 1 to 65535."),
             # IF Devicelocation is null, skip test steps 24-28
-            TestStep(
-                24,
-                "TH reads DeviceLocation from the DUT.",
-                "Verify that the value is a DeviceLocationStruct with the following fields: "
-                + "LocationName (not null and max 128 characters), FloorNumber (either null or an int16 value), and AreaType (either null or in the range of 0x0000 to 0x005F which corresponds to the tag values defined in the Common Area Namespace specification).",
-            ),
-            TestStep(
-                25,
-                "TH writes DeviceLocation to the DUT, with the `LocationName` field set to an empty string, the `FloorNumber` field set to -1, and the `AreaType` field set to null.",
-                "DUT expected to respond with SUCCESS",
-            ),
-            TestStep(
-                26,
-                "TH reads DeviceLocation from the DUT.",
-                "Verify that the value is a DeviceLocationStruct with the following fields: LocationName (an empty string), FloorNumber (-1), and AreaType (null).",
-            ),
-            TestStep(
-                27,
-                "TH writes DeviceLocation to the DUT, with the `LocationName` field set to a string of 128 characters (e.g. 16 concatenations of the word 'location'), the `FloorNumber` field set to 200, and the `AreaType` field set to 0x2",
-                "DUT expected to respond with SUCCESS",
-            ),
-            TestStep(
-                28,
-                "TH reads DeviceLocation from the DUT.",
-                "Verify that the `LocationName` field of the DeviceLocation struct value matches the string used at the previous step, Verify that the `FloorNumber` field of the DeviceLocation struct value is 200, and Verify that the `AreaType` field of the DeviceLocation struct value is 0x2",
-            ),
+            TestStep(24, "TH reads DeviceLocation from the DUT.", "Verify that the value is a DeviceLocationStruct with the following fields: " +
+                     "LocationName (not null and max 128 characters), FloorNumber (either null or an int16 value), and AreaType (either null or in the range of 0x0000 to 0x005F which corresponds to the tag values defined in the Common Area Namespace specification)."),
+            TestStep(25, "TH writes DeviceLocation to the DUT, with the `LocationName` field set to an empty string, the `FloorNumber` field set to -1, and the `AreaType` field set to null.",
+                     "DUT expected to respond with SUCCESS"),
+            TestStep(26, "TH reads DeviceLocation from the DUT.",
+                     "Verify that the value is a DeviceLocationStruct with the following fields: LocationName (an empty string), FloorNumber (-1), and AreaType (null)."),
+            TestStep(27, "TH writes DeviceLocation to the DUT, with the `LocationName` field set to a string of 128 characters (e.g. 16 concatenations of the word 'location'), the `FloorNumber` field set to 200, and the `AreaType` field set to 0x2", "DUT expected to respond with SUCCESS"),
+            TestStep(28, "TH reads DeviceLocation from the DUT.", "Verify that the `LocationName` field of the DeviceLocation struct value matches the string used at the previous step, Verify that the `FloorNumber` field of the DeviceLocation struct value is 200, and Verify that the `AreaType` field of the DeviceLocation struct value is 0x2"),
             TestStep(29, "TH reads ConfigurationVersion from the DUT", "Verify that the value is in the range of 1 to 4294967295"),
         ]
 
@@ -136,12 +88,10 @@ class BasicInformationAttributesVerificationBase(MatterBaseTest):
         self.step(0)  # commissioning already done
 
         self.step(1)
-        if hasattr(cluster.Attributes, "DataModelRevision") and await self.attribute_guard(
-            endpoint=self.endpoint, attribute=cluster.Attributes.DataModelRevision
-        ):
+        if hasattr(cluster.Attributes, 'DataModelRevision') and await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.DataModelRevision):
             ret1 = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.DataModelRevision)
             asserts.assert_equal(ret1, 19, "DataModelRevision should be 19")
-        elif not hasattr(cluster.Attributes, "DataModelRevision"):
+        elif not hasattr(cluster.Attributes, 'DataModelRevision'):
             self.mark_current_step_skipped()
 
         # Step 2: VendorName
@@ -180,9 +130,7 @@ class BasicInformationAttributesVerificationBase(MatterBaseTest):
 
         # Step 7: Location
         self.step(7)
-        if hasattr(cluster.Attributes, "Location") and await self.attribute_guard(
-            endpoint=self.endpoint, attribute=cluster.Attributes.Location
-        ):
+        if hasattr(cluster.Attributes, 'Location') and await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.Location):
             ret7 = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.Location)
             asserts.assert_true(isinstance(ret7, str), "Location should be a string")
             asserts.assert_less_equal(len(ret7), 2, "Location should have max 2 characters")
@@ -191,7 +139,7 @@ class BasicInformationAttributesVerificationBase(MatterBaseTest):
                 # Use pycountry to validate the country code
                 country = pycountry.countries.get(alpha_2=ret7)
                 asserts.assert_is_not_none(country, f"Location '{ret7}' should be a valid ISO 3166-1 alpha-2 country code")
-        elif not hasattr(cluster.Attributes, "Location"):
+        elif not hasattr(cluster.Attributes, 'Location'):
             self.mark_current_step_skipped()
 
         # Step 8: HardwareVersion
@@ -204,9 +152,7 @@ class BasicInformationAttributesVerificationBase(MatterBaseTest):
         # Step 9: HardwareVersionString
         self.step(9)
         if await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.HardwareVersionString):
-            ret9 = await self.read_single_attribute_check_success(
-                cluster=cluster, attribute=cluster.Attributes.HardwareVersionString
-            )
+            ret9 = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.HardwareVersionString)
             asserts.assert_true(isinstance(ret9, str), "HardwareVersionString should be a string")
             asserts.assert_equal(len(ret9) <= 64, True, "HardwareVersionString should be a string with max 64 bytes")
 
@@ -220,9 +166,7 @@ class BasicInformationAttributesVerificationBase(MatterBaseTest):
         # Step 11: SoftwareVersionString
         self.step(11)
         if await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.SoftwareVersionString):
-            ret11 = await self.read_single_attribute_check_success(
-                cluster=cluster, attribute=cluster.Attributes.SoftwareVersionString
-            )
+            ret11 = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.SoftwareVersionString)
             asserts.assert_true(isinstance(ret11, str), "SoftwareVersionString should be a string")
             asserts.assert_equal(len(ret11) <= 64, True, "SoftwareVersionString should be a string with max 64 bytes")
 
@@ -250,14 +194,11 @@ class BasicInformationAttributesVerificationBase(MatterBaseTest):
                     is_valid_date = parsed_date >= first_matter_release or parsed_date == sdk_default_date
                     asserts.assert_true(
                         is_valid_date,
-                        "ManufacturingDate should not be before the first Matter release date (2022-10-04), except for SDK default value (2020-01-01)",
-                    )
+                        "ManufacturingDate should not be before the first Matter release date (2022-10-04), except for SDK default value (2020-01-01)")
                 else:
                     asserts.assert_greater_equal(
-                        parsed_date,
-                        first_matter_release,
-                        "ManufacturingDate should not be before the first Matter release date (2022-10-04)",
-                    )
+                        parsed_date, first_matter_release,
+                        "ManufacturingDate should not be before the first Matter release date (2022-10-04)")
             except ValueError:
                 asserts.fail(f"ManufacturingDate '{date_str}' is not a valid date in YYYYMMDD format")
 
@@ -285,35 +226,24 @@ class BasicInformationAttributesVerificationBase(MatterBaseTest):
             asserts.assert_true(isinstance(ret15, str), "ProductLabel should be a string")
             asserts.assert_equal(len(ret15) <= 64, True, "ProductLabel should be a string with max 64 bytes")
             await self._populate_wildcard()
-            if _has_attribute(
-                wildcard=self.stored_global_wildcard, endpoint=self.endpoint, attribute=cluster.Attributes.VendorName
-            ):
+            if _has_attribute(wildcard=self.stored_global_wildcard, endpoint=self.endpoint, attribute=cluster.Attributes.VendorName):
                 asserts.assert_not_in(
-                    vendor_name,
-                    ret15,
-                    "ProductLabel should not include the name of the vendor as defined within the VendorName attribute",
-                )
+                    vendor_name, ret15, "ProductLabel should not include the name of the vendor as defined within the VendorName attribute")
 
         # Step 16: SerialNumber
         self.step(16)
         if await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.SerialNumber):
-            serial_number = await self.read_single_attribute_check_success(
-                cluster=cluster, attribute=cluster.Attributes.SerialNumber
-            )
+            serial_number = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.SerialNumber)
             asserts.assert_true(isinstance(serial_number, str), "SerialNumber should be a string")
             asserts.assert_less_equal(len(serial_number), 32, "SerialNumber should be a string with max 32 bytes")
 
         # Step 17: LocalConfigDisabled
         self.step(17)
-        if hasattr(cluster.Attributes, "LocalConfigDisabled") and await self.attribute_guard(
-            endpoint=self.endpoint, attribute=cluster.Attributes.LocalConfigDisabled
-        ):
-            ret17 = await self.read_single_attribute_check_success(
-                cluster=cluster, attribute=cluster.Attributes.LocalConfigDisabled
-            )
+        if hasattr(cluster.Attributes, 'LocalConfigDisabled') and await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.LocalConfigDisabled):
+            ret17 = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.LocalConfigDisabled)
             asserts.assert_true(isinstance(ret17, bool), "LocalConfigDisabled should be a boolean")
             asserts.assert_equal(ret17, False, "LocalConfigDisabled should be set to false")
-        elif not hasattr(cluster.Attributes, "LocalConfigDisabled"):
+        elif not hasattr(cluster.Attributes, 'LocalConfigDisabled'):
             self.mark_current_step_skipped()
 
         # Step 18: Reachable
@@ -329,225 +259,148 @@ class BasicInformationAttributesVerificationBase(MatterBaseTest):
             ret19 = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.UniqueID)
             asserts.assert_true(isinstance(ret19, str), "UniqueID should be a string")
             await self._populate_wildcard()
-            if _has_attribute(
-                wildcard=self.stored_global_wildcard, endpoint=self.endpoint, attribute=cluster.Attributes.SerialNumber
-            ):
+            if _has_attribute(wildcard=self.stored_global_wildcard, endpoint=self.endpoint, attribute=cluster.Attributes.SerialNumber):
                 asserts.assert_not_equal(
-                    ret19,
-                    serial_number,
-                    "UniqueID should not be identical to SerialNumber attribute if SerialNumber attribute is supported",
-                )
+                    ret19, serial_number, "UniqueID should not be identical to SerialNumber attribute if SerialNumber attribute is supported")
 
         # Step 20: CapabilityMinima
         self.step(20)
-        if hasattr(cluster.Attributes, "CapabilityMinima") and await self.attribute_guard(
-            endpoint=self.endpoint, attribute=cluster.Attributes.CapabilityMinima
-        ):
-            capability_minima = await self.read_single_attribute_check_success(
-                cluster=cluster, attribute=cluster.Attributes.CapabilityMinima
-            )
-            cluster_revision = await self.read_single_attribute_check_success(
-                cluster=cluster, attribute=cluster.Attributes.ClusterRevision
-            )
+        if hasattr(cluster.Attributes, 'CapabilityMinima') and await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.CapabilityMinima):
+            capability_minima = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.CapabilityMinima)
+            cluster_revision = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.ClusterRevision)
 
-            asserts.assert_greater_equal(
-                capability_minima.caseSessionsPerFabric, 3, "CaseSessionsPerFabric should be greater than or equal to 3"
-            )
-            asserts.assert_greater_equal(
-                capability_minima.subscriptionsPerFabric, 3, "SubscriptionsPerFabric should be greater than or equal to 3"
-            )
+            asserts.assert_greater_equal(capability_minima.caseSessionsPerFabric, 3,
+                                         "CaseSessionsPerFabric should be greater than or equal to 3")
+            asserts.assert_greater_equal(capability_minima.subscriptionsPerFabric, 3,
+                                         "SubscriptionsPerFabric should be greater than or equal to 3")
 
             # New constraints: when ClusterRevision >= 6, enforce upper bound of 10000 on all CapabilityMinima fields.
             if cluster_revision >= 6:
                 # Original fields (always present)
-                asserts.assert_less_equal(
-                    capability_minima.caseSessionsPerFabric, 10000, "CaseSessionsPerFabric should be less than or equal to 10000"
-                )
-                asserts.assert_less_equal(
-                    capability_minima.subscriptionsPerFabric, 10000, "SubscriptionsPerFabric should be less than or equal to 10000"
-                )
+                asserts.assert_less_equal(capability_minima.caseSessionsPerFabric, 10000,
+                                          "CaseSessionsPerFabric should be less than or equal to 10000")
+                asserts.assert_less_equal(capability_minima.subscriptionsPerFabric, 10000,
+                                          "SubscriptionsPerFabric should be less than or equal to 10000")
                 # Additional fields are expected to be present at ClusterRevision >= 6.
-                asserts.assert_is_not_none(
-                    capability_minima.simultaneousInvocationsSupported,
-                    "SimultaneousInvocationsSupported should be present when ClusterRevision >= 6",
-                )
-                asserts.assert_is_not_none(
-                    capability_minima.simultaneousWritesSupported,
-                    "SimultaneousWritesSupported should be present when ClusterRevision >= 6",
-                )
-                asserts.assert_is_not_none(
-                    capability_minima.readPathsSupported, "ReadPathsSupported should be present when ClusterRevision >= 6"
-                )
-                asserts.assert_is_not_none(
-                    capability_minima.subscribePathsSupported, "SubscribePathsSupported should be present when ClusterRevision >= 6"
-                )
+                asserts.assert_is_not_none(capability_minima.simultaneousInvocationsSupported,
+                                           "SimultaneousInvocationsSupported should be present when ClusterRevision >= 6")
+                asserts.assert_is_not_none(capability_minima.simultaneousWritesSupported,
+                                           "SimultaneousWritesSupported should be present when ClusterRevision >= 6")
+                asserts.assert_is_not_none(capability_minima.readPathsSupported,
+                                           "ReadPathsSupported should be present when ClusterRevision >= 6")
+                asserts.assert_is_not_none(capability_minima.subscribePathsSupported,
+                                           "SubscribePathsSupported should be present when ClusterRevision >= 6")
 
-                asserts.assert_greater_equal(
-                    capability_minima.simultaneousInvocationsSupported,
-                    1,
-                    "SimultaneousInvocationsSupported should be greater than or equal to 1",
-                )
-                asserts.assert_less_equal(
-                    capability_minima.simultaneousInvocationsSupported,
-                    10000,
-                    "SimultaneousInvocationsSupported should be less than or equal to 10000",
-                )
-                asserts.assert_greater_equal(
-                    capability_minima.simultaneousWritesSupported,
-                    1,
-                    "SimultaneousWritesSupported should be greater than or equal to 1",
-                )
-                asserts.assert_less_equal(
-                    capability_minima.simultaneousWritesSupported,
-                    10000,
-                    "SimultaneousWritesSupported should be less than or equal to 10000",
-                )
-                asserts.assert_greater_equal(
-                    capability_minima.readPathsSupported, 9, "ReadPathsSupported should be greater than or equal to 9"
-                )
-                asserts.assert_less_equal(
-                    capability_minima.readPathsSupported, 10000, "ReadPathsSupported should be less than or equal to 10000"
-                )
-                asserts.assert_greater_equal(
-                    capability_minima.subscribePathsSupported, 3, "SubscribePathsSupported should be greater than or equal to 3"
-                )
-                asserts.assert_less_equal(
-                    capability_minima.subscribePathsSupported,
-                    10000,
-                    "SubscribePathsSupported should be less than or equal to 10000",
-                )
+                asserts.assert_greater_equal(capability_minima.simultaneousInvocationsSupported, 1,
+                                             "SimultaneousInvocationsSupported should be greater than or equal to 1")
+                asserts.assert_less_equal(capability_minima.simultaneousInvocationsSupported, 10000,
+                                          "SimultaneousInvocationsSupported should be less than or equal to 10000")
+                asserts.assert_greater_equal(capability_minima.simultaneousWritesSupported, 1,
+                                             "SimultaneousWritesSupported should be greater than or equal to 1")
+                asserts.assert_less_equal(capability_minima.simultaneousWritesSupported, 10000,
+                                          "SimultaneousWritesSupported should be less than or equal to 10000")
+                asserts.assert_greater_equal(capability_minima.readPathsSupported, 9,
+                                             "ReadPathsSupported should be greater than or equal to 9")
+                asserts.assert_less_equal(capability_minima.readPathsSupported, 10000,
+                                          "ReadPathsSupported should be less than or equal to 10000")
+                asserts.assert_greater_equal(capability_minima.subscribePathsSupported, 3,
+                                             "SubscribePathsSupported should be greater than or equal to 3")
+                asserts.assert_less_equal(capability_minima.subscribePathsSupported, 10000,
+                                          "SubscribePathsSupported should be less than or equal to 10000")
             else:
                 # Legacy behavior: some SDK configurations may report UINT16_MAX (65535) for subscriptionsPerFabric.
-                asserts.assert_less_equal(
-                    capability_minima.caseSessionsPerFabric, 65535, "CaseSessionsPerFabric should be less than or equal to 65535"
-                )
-                asserts.assert_less_equal(
-                    capability_minima.subscriptionsPerFabric, 65535, "SubscriptionsPerFabric should be less than or equal to 65535"
-                )
-        elif not hasattr(cluster.Attributes, "CapabilityMinima"):
+                asserts.assert_less_equal(capability_minima.caseSessionsPerFabric, 65535,
+                                          "CaseSessionsPerFabric should be less than or equal to 65535")
+                asserts.assert_less_equal(capability_minima.subscriptionsPerFabric, 65535,
+                                          "SubscriptionsPerFabric should be less than or equal to 65535")
+        elif not hasattr(cluster.Attributes, 'CapabilityMinima'):
             self.mark_current_step_skipped()
 
         # Step 21: ProductAppearance
         self.step(21)
         if await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.ProductAppearance):
             ret21 = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.ProductAppearance)
-            asserts.assert_true(
-                isinstance(ret21, cluster.Structs.ProductAppearanceStruct), "ProductAppearance should be a ProductAppearanceStruct"
-            )
+            asserts.assert_true(isinstance(ret21, cluster.Structs.ProductAppearanceStruct),
+                                "ProductAppearance should be a ProductAppearanceStruct")
 
         # Step 22: SpecificationVersion
         self.step(22)
-        if hasattr(cluster.Attributes, "SpecificationVersion") and await self.attribute_guard(
-            endpoint=self.endpoint, attribute=cluster.Attributes.SpecificationVersion
-        ):
-            ret22 = await self.read_single_attribute_check_success(
-                cluster=cluster, attribute=cluster.Attributes.SpecificationVersion
-            )
+        if hasattr(cluster.Attributes, 'SpecificationVersion') and await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.SpecificationVersion):
+            ret22 = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.SpecificationVersion)
             try:
                 dm_from_spec_version(ret22)
             except ConformanceException:
-                asserts.fail(f"Unknown SpecificationVersion {ret22:08X}")
-        elif not hasattr(cluster.Attributes, "SpecificationVersion"):
+                asserts.fail(f'Unknown SpecificationVersion {ret22:08X}')
+        elif not hasattr(cluster.Attributes, 'SpecificationVersion'):
             self.mark_current_step_skipped()
 
         # Step 23: MaxPathsPerInvoke
         self.step(23)
-        if hasattr(cluster.Attributes, "MaxPathsPerInvoke") and await self.attribute_guard(
-            endpoint=self.endpoint, attribute=cluster.Attributes.MaxPathsPerInvoke
-        ):
+        if hasattr(cluster.Attributes, 'MaxPathsPerInvoke') and await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.MaxPathsPerInvoke):
             ret23 = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.MaxPathsPerInvoke)
             asserts.assert_greater_equal(ret23, 1, "MaxPathsPerInvoke should be greater than or equal to 1")
             asserts.assert_less_equal(ret23, 65535, "MaxPathsPerInvoke should be less than or equal to 65535")
-        elif not hasattr(cluster.Attributes, "MaxPathsPerInvoke"):
+        elif not hasattr(cluster.Attributes, 'MaxPathsPerInvoke'):
             self.mark_current_step_skipped()
 
         # Step 24: DeviceLocation
         self.step(24)
-        if hasattr(cluster.Attributes, "DeviceLocation") and await self.attribute_guard(
-            endpoint=self.endpoint, attribute=cluster.Attributes.DeviceLocation
-        ):
+        if hasattr(cluster.Attributes, 'DeviceLocation') and await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.DeviceLocation):
             ret24 = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.DeviceLocation)
-            asserts.assert_true(
-                isinstance(ret24, cluster.Structs.DeviceLocationStruct), "DeviceLocation should be a DeviceLocationStruct"
-            )
+            asserts.assert_true(isinstance(ret24, cluster.Structs.DeviceLocationStruct),
+                                "DeviceLocation should be a DeviceLocationStruct")
             asserts.assert_is_not_none(ret24.locationName, "LocationName should not be null")
             asserts.assert_less_equal(len(ret24.locationName), 128, "LocationName should have max 128 characters")
-            asserts.assert_true(
-                ret24.floorNumber is None or isinstance(ret24.floorNumber, int),
-                "FloorNumber should be either null or an int16 value",
-            )
-            asserts.assert_true(
-                ret24.areaType is None or (ret24.areaType >= 0x0000 and ret24.areaType <= 0x005F),
-                "AreaType should be either null or in the range of 0x0000 to 0x005F",
-            )
-        elif not hasattr(cluster.Attributes, "DeviceLocation"):
+            asserts.assert_true(ret24.floorNumber is None or isinstance(ret24.floorNumber, int),
+                                "FloorNumber should be either null or an int16 value")
+            asserts.assert_true(ret24.areaType is None or (ret24.areaType >= 0x0000 and ret24.areaType <= 0x005F),
+                                "AreaType should be either null or in the range of 0x0000 to 0x005F")
+        elif not hasattr(cluster.Attributes, 'DeviceLocation'):
             self.mark_current_step_skipped()
 
         # Step 25: Write empty DeviceLocation
         self.step(25)
-        if hasattr(cluster.Attributes, "DeviceLocation") and await self.attribute_guard(
-            endpoint=self.endpoint, attribute=cluster.Attributes.DeviceLocation
-        ):
-            await self.write_single_attribute_check_success(
-                cluster=cluster,
-                attribute=cluster.Attributes.DeviceLocation,
-                value=cluster.Structs.DeviceLocationStruct(locationName="", floorNumber=-1, areaType=None),
-            )
-        elif not hasattr(cluster.Attributes, "DeviceLocation"):
+        if hasattr(cluster.Attributes, 'DeviceLocation') and await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.DeviceLocation):
+            await self.write_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.DeviceLocation, value=cluster.Structs.DeviceLocationStruct(locationName="", floorNumber=-1, areaType=None))
+        elif not hasattr(cluster.Attributes, 'DeviceLocation'):
             self.mark_current_step_skipped()
 
         # Step 26: Validate write to DeviceLocation from test step 25
         self.step(26)
-        if hasattr(cluster.Attributes, "DeviceLocation") and await self.attribute_guard(
-            endpoint=self.endpoint, attribute=cluster.Attributes.DeviceLocation
-        ):
+        if hasattr(cluster.Attributes, 'DeviceLocation') and await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.DeviceLocation):
             ret26 = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.DeviceLocation)
-            asserts.assert_true(
-                isinstance(ret26, cluster.Structs.DeviceLocationStruct), "DeviceLocation should be a DeviceLocationStruct"
-            )
+            asserts.assert_true(isinstance(ret26, cluster.Structs.DeviceLocationStruct),
+                                "DeviceLocation should be a DeviceLocationStruct")
             asserts.assert_equal(ret26.locationName, "", "LocationName should be an empty string")
             asserts.assert_equal(ret26.floorNumber, -1, "FloorNumber should be -1")
             asserts.assert_equal(ret26.areaType, None, "AreaType should be null")
-        elif not hasattr(cluster.Attributes, "DeviceLocation"):
+        elif not hasattr(cluster.Attributes, 'DeviceLocation'):
             self.mark_current_step_skipped()
 
         # Step 27: Write DeviceLocation with location name of 128 characters
         self.step(27)
-        if hasattr(cluster.Attributes, "DeviceLocation") and await self.attribute_guard(
-            endpoint=self.endpoint, attribute=cluster.Attributes.DeviceLocation
-        ):
-            await self.write_single_attribute_check_success(
-                cluster=cluster,
-                attribute=cluster.Attributes.DeviceLocation,
-                value=cluster.Structs.DeviceLocationStruct(locationName="location" * 16, floorNumber=200, areaType=0x0002),
-            )
-        elif not hasattr(cluster.Attributes, "DeviceLocation"):
+        if hasattr(cluster.Attributes, 'DeviceLocation') and await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.DeviceLocation):
+            await self.write_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.DeviceLocation, value=cluster.Structs.DeviceLocationStruct(locationName="location" * 16, floorNumber=200, areaType=0x0002))
+        elif not hasattr(cluster.Attributes, 'DeviceLocation'):
             self.mark_current_step_skipped()
 
         # Step 28: Validate write to DeviceLocation from test step 27
         self.step(28)
-        if hasattr(cluster.Attributes, "DeviceLocation") and await self.attribute_guard(
-            endpoint=self.endpoint, attribute=cluster.Attributes.DeviceLocation
-        ):
+        if hasattr(cluster.Attributes, 'DeviceLocation') and await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.DeviceLocation):
             ret28 = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.DeviceLocation)
-            asserts.assert_true(
-                isinstance(ret28, cluster.Structs.DeviceLocationStruct), "DeviceLocation should be a DeviceLocationStruct"
-            )
+            asserts.assert_true(isinstance(ret28, cluster.Structs.DeviceLocationStruct),
+                                "DeviceLocation should be a DeviceLocationStruct")
             asserts.assert_equal(ret28.locationName, "location" * 16, "LocationName should be a string of 128 characters")
             asserts.assert_equal(ret28.floorNumber, 200, "FloorNumber should be 200")
             asserts.assert_equal(ret28.areaType, 0x0002, "AreaType should be 0x0002")
-        elif not hasattr(cluster.Attributes, "DeviceLocation"):
+        elif not hasattr(cluster.Attributes, 'DeviceLocation'):
             self.mark_current_step_skipped()
 
         # Step 29: Read ConfigurationVersion
         self.step(29)
-        if hasattr(cluster.Attributes, "ConfigurationVersion") and await self.attribute_guard(
-            endpoint=self.endpoint, attribute=cluster.Attributes.ConfigurationVersion
-        ):
-            ret29 = await self.read_single_attribute_check_success(
-                cluster=cluster, attribute=cluster.Attributes.ConfigurationVersion
-            )
+        if hasattr(cluster.Attributes, 'ConfigurationVersion') and await self.attribute_guard(endpoint=self.endpoint, attribute=cluster.Attributes.ConfigurationVersion):
+            ret29 = await self.read_single_attribute_check_success(cluster=cluster, attribute=cluster.Attributes.ConfigurationVersion)
             asserts.assert_greater_equal(ret29, 1, "ConfigurationVersion should be greater than or equal to 1")
             asserts.assert_less_equal(ret29, 4294967295, "ConfigurationVersion should be less than or equal to 4294967295")
-        elif not hasattr(cluster.Attributes, "ConfigurationVersion"):
+        elif not hasattr(cluster.Attributes, 'ConfigurationVersion'):
             self.mark_current_step_skipped()

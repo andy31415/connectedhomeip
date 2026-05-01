@@ -54,31 +54,22 @@ class TC_WEBRTCP_2_10(MatterBaseTest, WEBRTCPTestBase):
     def steps_TC_WEBRTCP_2_10(self) -> list[TestStep]:
         return [
             TestStep("precondition", "DUT commissioned", is_commissioning=True),
-            TestStep(
-                1,
-                "TH allocates both Audio and Video streams via AudioStreamAllocate and VideoStreamAllocate commands to CameraAVStreamManagement",
-                "DUT responds with success and provides stream IDs",
-            ),
-            TestStep(
-                2,
-                "TH sends the SolicitOffer command with valid parameters from a specific endpoint ID",
-                "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID",
-            ),
-            TestStep(
-                3,
-                "TH reads currentSessions attribute from WebRTCTransportProvider on DUT",
-                "Verify the WebRTCSession entry has PeerEndpointID matching the OriginatingEndpointID from step 2",
-            ),
+            TestStep(1, "TH allocates both Audio and Video streams via AudioStreamAllocate and VideoStreamAllocate commands to CameraAVStreamManagement",
+                     "DUT responds with success and provides stream IDs"),
+            TestStep(2, "TH sends the SolicitOffer command with valid parameters from a specific endpoint ID",
+                     "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID"),
+            TestStep(3, "TH reads currentSessions attribute from WebRTCTransportProvider on DUT",
+                     "Verify the WebRTCSession entry has PeerEndpointID matching the OriginatingEndpointID from step 2"),
         ]
 
     def pics_TC_WEBRTCP_2_10(self) -> list[str]:
         return [
             "WEBRTCP.S",
-            "WEBRTCP.S.C00.Rsp",  # SolicitOffer command
-            "WEBRTCP.S.C01.Tx",  # SolicitOfferResponse command
+            "WEBRTCP.S.C00.Rsp",   # SolicitOffer command
+            "WEBRTCP.S.C01.Tx",    # SolicitOfferResponse command
             "AVSM.S",
-            "AVSM.S.F00",  # Audio Data Output feature
-            "AVSM.S.F01",  # Video Data Output feature
+            "AVSM.S.F00",          # Audio Data Output feature
+            "AVSM.S.F01",          # Video Data Output feature
         ]
 
     @property
@@ -112,13 +103,12 @@ class TC_WEBRTCP_2_10(MatterBaseTest, WEBRTCPTestBase):
             streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView,
             originatingEndpointID=originating_endpoint_id,
             videoStreamID=videoStreamID,
-            audioStreamID=audioStreamID,
+            audioStreamID=audioStreamID
         )
 
-        resp = await self.send_single_cmd(
-            solicit_offer_request, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
-        )
-        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse, "Incorrect response type")
+        resp = await self.send_single_cmd(solicit_offer_request, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse,
+                             "Incorrect response type")
         asserts.assert_is_not_none(resp.webRTCSessionID, "WebRTC session ID should be allocated")
 
         # Store the session ID for validation
@@ -129,7 +119,7 @@ class TC_WEBRTCP_2_10(MatterBaseTest, WEBRTCPTestBase):
         current_sessions = await self.read_single_attribute_check_success(
             endpoint=endpoint,
             cluster=Clusters.WebRTCTransportProvider,
-            attribute=Clusters.WebRTCTransportProvider.Attributes.CurrentSessions,
+            attribute=Clusters.WebRTCTransportProvider.Attributes.CurrentSessions
         )
 
         # Find the session we just created
@@ -138,11 +128,8 @@ class TC_WEBRTCP_2_10(MatterBaseTest, WEBRTCPTestBase):
             if session.id == webrtc_session_id:
                 session_found = True
                 # Verify that peerEndpointID matches the OriginatingEndpointID we sent
-                asserts.assert_equal(
-                    session.peerEndpointID,
-                    originating_endpoint_id,
-                    f"peerEndpointID {session.peerEndpointID} should match OriginatingEndpointID {originating_endpoint_id}",
-                )
+                asserts.assert_equal(session.peerEndpointID, originating_endpoint_id,
+                                     f"peerEndpointID {session.peerEndpointID} should match OriginatingEndpointID {originating_endpoint_id}")
                 break
 
         asserts.assert_true(session_found, f"WebRTC session {webrtc_session_id} should be found in currentSessions")

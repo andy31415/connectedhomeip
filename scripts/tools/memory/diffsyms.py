@@ -37,17 +37,19 @@ def main(argv):
     status = 0
     try:
         config = Config().init(CONFIG)
-        config.argparse.add_argument("inputs", metavar="FILE", nargs=2)
+        config.argparse.add_argument('inputs', metavar='FILE', nargs=2)
         config.parse(argv)
-        config["args.fill_holes"] = False
+        config['args.fill_holes'] = False
 
-        inputs = config.get("args.inputs")
+        inputs = config.get('args.inputs')
 
         a_dfs = memdf.collect.collect_files(config, files=[inputs[0]])
         b_dfs = memdf.collect.collect_files(config, files=[inputs[1]])
 
-        a_syms = a_dfs[SymbolDF.name].sort_values(by="symbol", ignore_index=True)
-        b_syms = b_dfs[SymbolDF.name].sort_values(by="symbol", ignore_index=True)
+        a_syms = a_dfs[SymbolDF.name].sort_values(by='symbol',
+                                                  ignore_index=True)
+        b_syms = b_dfs[SymbolDF.name].sort_values(by='symbol',
+                                                  ignore_index=True)
 
         # TBD: Differences other than size, configurably.
         differences = []
@@ -73,13 +75,15 @@ def main(argv):
         for b in bi:
             differences.append((b.size, 0, b.size, b.symbol))
 
-        df = pd.DataFrame(differences, columns=["change", "a-size", "b-size", "symbol"])
-        if config["report.demangle"]:
+        df = pd.DataFrame(differences,
+                          columns=['change', 'a-size', 'b-size', 'symbol'])
+        if config['report.demangle']:
             # Demangle early to sort by demangled name.
-            df["symbol"] = df["symbol"].apply(memdf.report.demangle)
-            config["report.demangle"] = False
-        df.sort_values(by=["change", "symbol"], ascending=[False, True], inplace=True)
-        memdf.report.write_dfs(config, {"Differences": df})
+            df['symbol'] = df['symbol'].apply(memdf.report.demangle)
+            config['report.demangle'] = False
+        df.sort_values(by=['change', 'symbol'], ascending=[False, True],
+                       inplace=True)
+        memdf.report.write_dfs(config, {'Differences': df})
 
     except Exception as exception:
         raise exception
@@ -87,5 +91,5 @@ def main(argv):
     return status
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main(sys.argv))

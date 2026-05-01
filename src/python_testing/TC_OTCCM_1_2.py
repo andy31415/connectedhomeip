@@ -47,9 +47,11 @@ cluster_otccm_mode = Clusters.OvenMode
 
 
 class TC_OTCCM_1_2(MatterBaseTest, ModeBaseClusterChecks):
+
     def __init__(self, *args):
         MatterBaseTest.__init__(self, *args)
-        ModeBaseClusterChecks.__init__(self, modebase_derived_cluster=cluster_otccm_mode)
+        ModeBaseClusterChecks.__init__(self,
+                                       modebase_derived_cluster=cluster_otccm_mode)
 
     def desc_TC_OTCCM_1_2(self) -> str:
         return "[TC-OTCCM-1.2] Cluster attributes with DUT as Server"
@@ -62,7 +64,9 @@ class TC_OTCCM_1_2(MatterBaseTest, ModeBaseClusterChecks):
         ]
 
     def pics_TC_OTCCM_1_2(self) -> list[str]:
-        return ["OTCCM.S"]
+        return [
+            "OTCCM.S"
+        ]
 
     @property
     def default_endpoint(self) -> int:
@@ -70,6 +74,7 @@ class TC_OTCCM_1_2(MatterBaseTest, ModeBaseClusterChecks):
 
     @async_test_body
     async def test_TC_OTCCM_1_2(self):
+
         # Setup common mode check
         endpoint = self.get_endpoint()
 

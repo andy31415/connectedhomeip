@@ -15,7 +15,7 @@
 
 from ..pseudo_cluster import PseudoCluster
 
-_DEFINITION = """<?xml version="1.0"?>
+_DEFINITION = '''<?xml version="1.0"?>
 <configurator>
 <cluster>
     <name>CommissionerCommands</name>
@@ -64,9 +64,9 @@ _DEFINITION = """<?xml version="1.0"?>
 
 </cluster>
 </configurator>
-"""
+'''
 
 
 class CommissionerCommands(PseudoCluster):
-    name = "CommissionerCommands"
+    name = 'CommissionerCommands'
     definition = _DEFINITION

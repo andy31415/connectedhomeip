@@ -128,7 +128,9 @@ struct CommandContext
 {
     CommandContext(memory::Strong<core::Endpoint> endpoint, RequestType request, void * context,
                    CommandSuccessCallbackType<typename RequestType::ResponseType> successCb, CommandFailureCallbackType failureCb,
-                   const chip::Optional<uint16_t> & timedInvokeTimeoutMs) : mSuccessCb(successCb), mFailureCb(failureCb)
+                   const chip::Optional<uint16_t> & timedInvokeTimeoutMs) :
+        mSuccessCb(successCb),
+        mFailureCb(failureCb)
     {
         mEndpoint             = endpoint;
         mRequest              = request;

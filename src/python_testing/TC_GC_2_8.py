@@ -64,10 +64,7 @@ class TC_GC_2_8(MatterBaseTest):
             TestStep(6, "TH awaits subscription report of new FabricUnderTest attribute. (value == 0)"),
             TestStep(7, "Enable a test operation for 10 seconds. GroupcastTesting (TestOperation='see notes', DurationSeconds=10)"),
             TestStep(8, "TH awaits subscription report of new FabricUnderTest attribute. (value == F1)"),
-            TestStep(
-                9,
-                "TH awaits subscription report of new FabricUnderTest attribute after DurationSeconds of step 7 has elapsed. (value == 0)",
-            ),
+            TestStep(9, "TH awaits subscription report of new FabricUnderTest attribute after DurationSeconds of step 7 has elapsed. (value == 0)"),
         ]
 
     def pics_TC_GC_2_8(self) -> list[str]:
@@ -87,7 +84,8 @@ class TC_GC_2_8(MatterBaseTest):
 
         self.step("1c")
         currentFabricIndex = await self.read_single_attribute_check_success(
-            cluster=Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex
+            cluster=Clusters.OperationalCredentials,
+            attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex
         )
         F1 = currentFabricIndex
 
@@ -102,7 +100,9 @@ class TC_GC_2_8(MatterBaseTest):
             testOperation = Clusters.Groupcast.Enums.GroupcastTestingEnum.kEnableSenderTesting
 
         sub.reset()
-        await self.send_single_cmd(Clusters.Groupcast.Commands.GroupcastTesting(testOperation=testOperation))
+        await self.send_single_cmd(Clusters.Groupcast.Commands.GroupcastTesting(
+            testOperation=testOperation)
+        )
 
         self.step(4)
         fabric_matcher = generate_fabric_under_test_matcher(F1)
@@ -110,10 +110,8 @@ class TC_GC_2_8(MatterBaseTest):
 
         self.step(5)
         sub.reset()
-        await self.send_single_cmd(
-            Clusters.Groupcast.Commands.GroupcastTesting(
-                testOperation=Clusters.Groupcast.Enums.GroupcastTestingEnum.kDisableTesting
-            )
+        await self.send_single_cmd(Clusters.Groupcast.Commands.GroupcastTesting(
+            testOperation=Clusters.Groupcast.Enums.GroupcastTestingEnum.kDisableTesting)
         )
 
         self.step(6)
@@ -123,8 +121,9 @@ class TC_GC_2_8(MatterBaseTest):
         self.step(7)
         durationSeconds = 10
         sub.reset()
-        await self.send_single_cmd(
-            Clusters.Groupcast.Commands.GroupcastTesting(testOperation=testOperation, durationSeconds=durationSeconds)
+        await self.send_single_cmd(Clusters.Groupcast.Commands.GroupcastTesting(
+            testOperation=testOperation,
+            durationSeconds=durationSeconds)
         )
 
         self.step(8)

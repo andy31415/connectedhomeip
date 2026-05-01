@@ -45,12 +45,12 @@ WS_LENGTH = NIST256p.baselen + 8
 
 
 def generate_verifier(passcode: int, salt: bytes, iterations: int) -> bytes:
-    ws = hashlib.pbkdf2_hmac("sha256", struct.pack("<I", passcode), salt, iterations, WS_LENGTH * 2)
-    w0 = int.from_bytes(ws[:WS_LENGTH], byteorder="big") % NIST256p.order
-    w1 = int.from_bytes(ws[WS_LENGTH:], byteorder="big") % NIST256p.order
+    ws = hashlib.pbkdf2_hmac('sha256', struct.pack('<I', passcode), salt, iterations, WS_LENGTH * 2)
+    w0 = int.from_bytes(ws[:WS_LENGTH], byteorder='big') % NIST256p.order
+    w1 = int.from_bytes(ws[WS_LENGTH:], byteorder='big') % NIST256p.order
     L = NIST256p.generator * w1
 
-    return w0.to_bytes(NIST256p.baselen, byteorder="big") + L.to_bytes("uncompressed")
+    return w0.to_bytes(NIST256p.baselen, byteorder='big') + L.to_bytes('uncompressed')
 
 
 def main():
@@ -58,10 +58,10 @@ def main():
         passcode = int(arg)
 
         if not 0 <= passcode <= 99999999:
-            raise argparse.ArgumentTypeError("passcode out of range")
+            raise argparse.ArgumentTypeError('passcode out of range')
 
         if passcode in INVALID_PASSCODES:
-            raise argparse.ArgumentTypeError("invalid passcode")
+            raise argparse.ArgumentTypeError('invalid passcode')
 
         return passcode
 
@@ -69,7 +69,7 @@ def main():
         salt = base64.b64decode(arg)
 
         if not 16 <= len(salt) <= 32:
-            raise argparse.ArgumentTypeError("invalid salt length")
+            raise argparse.ArgumentTypeError('invalid salt length')
 
         return salt
 
@@ -77,31 +77,27 @@ def main():
         iterations = int(arg)
 
         if not 1000 <= iterations <= 100000:
-            raise argparse.ArgumentTypeError("iteration count out of range")
+            raise argparse.ArgumentTypeError('iteration count out of range')
 
         return iterations
 
-    parser = argparse.ArgumentParser(description="SPAKE2+ Python Tool", fromfile_prefix_chars="@")
-    commands = parser.add_subparsers(dest="command", metavar="subcommand".ljust(16), required=True)
+    parser = argparse.ArgumentParser(description='SPAKE2+ Python Tool', fromfile_prefix_chars='@')
+    commands = parser.add_subparsers(dest='command', metavar='subcommand'.ljust(16), required=True)
 
-    gen_verifier = commands.add_parser("gen-verifier", help="Generate SPAKE2+ Verifier")
-    gen_verifier.add_argument("-p", "--passcode", type=passcode_arg, required=True, help="8-digit passcode")
-    gen_verifier.add_argument("-s", "--salt", type=salt_arg, required=True, help="Salt of length 16 to 32 octets encoded in Base64")
-    gen_verifier.add_argument(
-        "-i",
-        "--iteration-count",
-        type=iterations_arg,
-        metavar="count",
-        required=True,
-        help="Iteration count between 1000 and 100000",
-    )
+    gen_verifier = commands.add_parser('gen-verifier', help='Generate SPAKE2+ Verifier')
+    gen_verifier.add_argument('-p', '--passcode', type=passcode_arg,
+                              required=True, help='8-digit passcode')
+    gen_verifier.add_argument('-s', '--salt', type=salt_arg,
+                              required=True, help='Salt of length 16 to 32 octets encoded in Base64')
+    gen_verifier.add_argument('-i', '--iteration-count', type=iterations_arg,
+                              metavar='count', required=True, help='Iteration count between 1000 and 100000')
 
     args = parser.parse_args()
 
-    if args.command == "gen-verifier":
+    if args.command == 'gen-verifier':
         verifier = generate_verifier(args.passcode, args.salt, args.iteration_count)
-        print(base64.b64encode(verifier).decode("ascii"))
+        print(base64.b64encode(verifier).decode('ascii'))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

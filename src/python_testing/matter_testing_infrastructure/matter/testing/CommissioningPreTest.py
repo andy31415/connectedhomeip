@@ -57,12 +57,10 @@ class CommissionDeviceTest(MatterBaseTest):
         Raises:
             signals.TestAbortAll: Failed to commission node(s)
         """
-        if not self.event_loop.run_until_complete(
-            commission_devices(
-                dev_ctrl=self.default_controller,
-                dut_node_ids=self.dut_node_ids,
-                setup_payloads=self.setup_payloads,
-                commissioning_info=self.commissioning_info,
-            )
-        ):
+        if not self.event_loop.run_until_complete(commission_devices(
+            dev_ctrl=self.default_controller,
+            dut_node_ids=self.dut_node_ids,
+            setup_payloads=self.setup_payloads,
+            commissioning_info=self.commissioning_info
+        )):
             raise signals.TestAbortAll("Failed to commission node(s)")

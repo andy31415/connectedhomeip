@@ -46,7 +46,7 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 class TC_TLSCERT_2_2(TC_TLSCERT_Base):
     def pics_TC_TLSCERT_2_2(self):
-        """This function returns a list of PICS for this test case that must be True for the test to be run"""
+        """ This function returns a list of PICS for this test case that must be True for the test to be run"""
         # In this case - there is no feature flags needed to run this test case
         return ["TLSCERT.S"]
 
@@ -57,90 +57,45 @@ class TC_TLSCERT_2_2(TC_TLSCERT_Base):
         return [
             *self.get_two_fabric_substeps(),
             TestStep(2, "Populate myRootCert[] with 3 distinct, valid, self-signed, DER-encoded x509 certificates"),
-            TestStep(
-                3,
-                "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[0]",
-                "Verify returned TLSCAID value. Store the returned value as myCaid[0].",
-            ),
-            TestStep(
-                4,
-                "CR1 Reads ProvisionedRootCertificates attribute using a fabric-filtered read on Large Message-capable transport",
-                "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[0] and Certificate equal to myRootCert[0]",
-            ),
-            TestStep(
-                5,
-                "CR1 Reads ProvisionedRootCertificates attribute using a fabric-filtered read",
-                "Verify result a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[0] and Certificate not populated (null)",
-            ),
-            TestStep(
-                6, "CR2 Reads ProvisionedRootCertificates attribute using a fabric-filtered read", "Verify result is an empty list"
-            ),
-            TestStep(
-                7,
-                "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[0]",
-                test_plan_support.verify_status(Status.AlreadyExists),
-            ),
-            TestStep(
-                8,
-                "CR1 Reads ProvisionedRootCertificates attribute using a fabric-filtered read on Large Message-capable transport",
-                "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[0] and Certificate equal to myRootCert[0]",
-            ),
-            TestStep(
-                9,
-                "CR1 sends FindRootCertificate command with null CAID",
-                "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[0] and Certificate equal to myRootCert[0]",
-            ),
-            TestStep(
-                10,
-                "CR1 sends ProvisionRootCertificate command with CAID set to myCaid[0] and Certificate set to myRootCert[1]",
-                "Verify returned TLSCAID value equal to myCaid[0]",
-            ),
-            TestStep(
-                11, "CR2 Reads ProvisionedRootCertificates attribute using a fabric-filtered read", "Verify result is an empty list"
-            ),
-            TestStep(
-                12,
-                "CR1 sends FindRootCertificate command with null CAID",
-                "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[0] and Certificate equal to myRootCert[1]",
-            ),
-            TestStep(13, "CR2 sends FindRootCertificate command with null CAID", test_plan_support.verify_status(Status.NotFound)),
-            TestStep(
-                14,
-                "CR2 sends ProvisionRootCertificate command with CAID set to myCaid[0] and Certificate set to myRootCert[2]",
-                test_plan_support.verify_status(Status.NotFound),
-            ),
-            TestStep(
-                15,
-                "CR2 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[2]",
-                "Verify returned TLSCAID value. Store the returned value as myCaid[1].",
-            ),
-            TestStep(
-                16,
-                "CR2 sends ProvisionRootCertificate command with CAID set to myCaid[1] and Certificate set to myRootCert[2]",
-                test_plan_support.verify_status(Status.AlreadyExists),
-            ),
-            TestStep(
-                17,
-                "CR1 Reads ProvisionedRootCertificates attribute using a fabric-filtered read on Large Message-capable transport",
-                "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[0] and Certificate equal to myRootCert[1]",
-            ),
-            TestStep(
-                18,
-                "CR2 Reads ProvisionedRootCertificates attribute using a fabric-filtered read on Large Message-capable transport",
-                "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[1] and Certificate equal to myRootCert[2]",
-            ),
-            TestStep(
-                19,
-                "CR1 sends FindRootCertificate command with null CAID",
-                "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[0] and Certificate equal to myRootCert[1]",
-            ),
-            TestStep(
-                20,
-                "CR2 sends FindRootCertificate command with null CAID",
-                "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[1] and Certificate equal to myRootCert[2]",
-            ),
-            TestStep(21, "CR1 sends RemoveRootCertificate command with CAID set to myCaid[0]", test_plan_support.verify_success()),
-            TestStep(22, test_plan_support.remove_fabric("CR2", "CR1"), test_plan_support.verify_success()),
+            TestStep(3, "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[0]",
+                     "Verify returned TLSCAID value. Store the returned value as myCaid[0]."),
+            TestStep(4, "CR1 Reads ProvisionedRootCertificates attribute using a fabric-filtered read on Large Message-capable transport",
+                     "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[0] and Certificate equal to myRootCert[0]"),
+            TestStep(5, "CR1 Reads ProvisionedRootCertificates attribute using a fabric-filtered read",
+                     "Verify result a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[0] and Certificate not populated (null)"),
+            TestStep(6, "CR2 Reads ProvisionedRootCertificates attribute using a fabric-filtered read",
+                     "Verify result is an empty list"),
+            TestStep(7, "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[0]",
+                     test_plan_support.verify_status(Status.AlreadyExists)),
+            TestStep(8, "CR1 Reads ProvisionedRootCertificates attribute using a fabric-filtered read on Large Message-capable transport",
+                     "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[0] and Certificate equal to myRootCert[0]"),
+            TestStep(9, "CR1 sends FindRootCertificate command with null CAID",
+                     "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[0] and Certificate equal to myRootCert[0]"),
+            TestStep(10, "CR1 sends ProvisionRootCertificate command with CAID set to myCaid[0] and Certificate set to myRootCert[1]",
+                     "Verify returned TLSCAID value equal to myCaid[0]"),
+            TestStep(11, "CR2 Reads ProvisionedRootCertificates attribute using a fabric-filtered read",
+                     "Verify result is an empty list"),
+            TestStep(12, "CR1 sends FindRootCertificate command with null CAID",
+                     "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[0] and Certificate equal to myRootCert[1]"),
+            TestStep(13, "CR2 sends FindRootCertificate command with null CAID",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(14, "CR2 sends ProvisionRootCertificate command with CAID set to myCaid[0] and Certificate set to myRootCert[2]",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(15, "CR2 sends ProvisionRootCertificate command with null CAID and Certificate set to myRootCert[2]",
+                     "Verify returned TLSCAID value. Store the returned value as myCaid[1]."),
+            TestStep(16, "CR2 sends ProvisionRootCertificate command with CAID set to myCaid[1] and Certificate set to myRootCert[2]",
+                     test_plan_support.verify_status(Status.AlreadyExists)),
+            TestStep(17, "CR1 Reads ProvisionedRootCertificates attribute using a fabric-filtered read on Large Message-capable transport",
+                     "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[0] and Certificate equal to myRootCert[1]"),
+            TestStep(18, "CR2 Reads ProvisionedRootCertificates attribute using a fabric-filtered read on Large Message-capable transport",
+                     "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[1] and Certificate equal to myRootCert[2]"),
+            TestStep(19, "CR1 sends FindRootCertificate command with null CAID",
+                     "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[0] and Certificate equal to myRootCert[1]"),
+            TestStep(20, "CR2 sends FindRootCertificate command with null CAID",
+                     "Verify result is a list of TLSCertStruct with one entry. The entry should have CAID equal to myCaid[1] and Certificate equal to myRootCert[2]"),
+            TestStep(21, "CR1 sends RemoveRootCertificate command with CAID set to myCaid[0]",
+                     test_plan_support.verify_success()),
+            TestStep(22, test_plan_support.remove_fabric('CR2', 'CR1'), test_plan_support.verify_success()),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.TlsCertificateManagement))
@@ -220,9 +175,7 @@ class TC_TLSCERT_2_2(TC_TLSCERT_Base):
         my_caid[1] = response.caid
 
         self.step(16)
-        await cr2_cmd.send_provision_root_command(
-            certificate=my_root_cert[2], caid=my_caid[1], expected_status=Status.AlreadyExists
-        )
+        await cr2_cmd.send_provision_root_command(certificate=my_root_cert[2], caid=my_caid[1], expected_status=Status.AlreadyExists)
 
         self.step(17)
         found_certs = await cr1_cmd.read_root_certs_attribute_as_map()

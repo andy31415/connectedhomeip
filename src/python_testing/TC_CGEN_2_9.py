@@ -51,6 +51,7 @@ log = logging.getLogger(__name__)
 
 
 class TC_CGEN_2_9(MatterBaseTest):
+
     async def remove_commissioner_fabric(self):
         commissioner: ChipDeviceCtrl.ChipDeviceController = self.default_controller
 
@@ -58,8 +59,7 @@ class TC_CGEN_2_9(MatterBaseTest):
             dev_ctrl=commissioner,
             node_id=self.dut_node_id,
             endpoint=ROOT_ENDPOINT_ID,
-            attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex,
-        )
+            attribute=Clusters.OperationalCredentials.Attributes.CurrentFabricIndex)
         log.info(f"Commissioner's fabricIndex on DUT: {commissioner_fabric_index_on_dut}")
 
         fabrics: list[Clusters.OperationalCredentials.Structs.FabricDescriptorStruct] = await self.read_single_attribute(
@@ -67,8 +67,7 @@ class TC_CGEN_2_9(MatterBaseTest):
             node_id=self.dut_node_id,
             endpoint=ROOT_ENDPOINT_ID,
             attribute=Clusters.OperationalCredentials.Attributes.Fabrics,
-            fabricFiltered=False,
-        )
+            fabricFiltered=False)
 
         log.info(f"Fabrics table on DUT: {fabrics}")
 
@@ -90,43 +89,30 @@ class TC_CGEN_2_9(MatterBaseTest):
         return "[TC-CGEN-2.9] Verification that TCAcknowledgements is reset after all fabrics removed [DUT as Server]"
 
     def pics_TC_CGEN_2_9(self) -> list[str]:
-        """This function returns a list of PICS for this test case that must be True for the test to be run"""
+        """ This function returns a list of PICS for this test case that must be True for the test to be run"""
         return ["CGEN.S", "CGEN.S.F00"]
 
     def steps_TC_CGEN_2_9(self) -> list[TestStep]:
         return [
-            TestStep(
-                1,
-                "TH begins commissioning the DUT and performs the following steps in order:\n* Security setup using PASE\n* Setup fail-safe timer, with ExpiryLengthSeconds field set to PIXIT.CGEN.FailsafeExpiryLengthSeconds and the Breadcrumb value as 1\n* Configure information- UTC time, regulatory, etc.",
-                is_commissioning=False,
-            ),
-            TestStep(
-                2,
-                "TH sends SetTCAcknowledgements to DUT with the following values:\n* TCVersion: PIXIT.CGEN.TCRevision\n* TCUserResponse: PIXIT.CGEN.RequiredTCAcknowledgements",
-            ),
-            TestStep(
-                3,
-                "TH continues commissioning with the DUT and performs the steps from 'Operation CSR exchange' through 'Security setup using CASE'",
-            ),
+            TestStep(1, "TH begins commissioning the DUT and performs the following steps in order:\n* Security setup using PASE\n* Setup fail-safe timer, with ExpiryLengthSeconds field set to PIXIT.CGEN.FailsafeExpiryLengthSeconds and the Breadcrumb value as 1\n* Configure information- UTC time, regulatory, etc.", is_commissioning=False),
+            TestStep(2, "TH sends SetTCAcknowledgements to DUT with the following values:\n* TCVersion: PIXIT.CGEN.TCRevision\n* TCUserResponse: PIXIT.CGEN.RequiredTCAcknowledgements"),
+            TestStep(3, "TH continues commissioning with the DUT and performs the steps from 'Operation CSR exchange' through 'Security setup using CASE'"),
             TestStep(4, "TH sends CommissioningComplete to DUT."),
             TestStep(5, "TH removes all fabrics from DUT with RemoveFabric."),
             TestStep(6, "Perform the necessary actions to put the DUT into a commissionable state."),
-            TestStep(
-                7,
-                "TH begins commissioning the DUT and performs all steps from 'Device discovery and establish commissioning channel' through 'Security setup using CASE', skipping the 'Configure TC acknowledgements' step",
-            ),
+            TestStep(7, "TH begins commissioning the DUT and performs all steps from 'Device discovery and establish commissioning channel' through 'Security setup using CASE', skipping the 'Configure TC acknowledgements' step"),
             TestStep(8, "TH sends CommissioningComplete to DUT."),
         ]
 
     @async_test_body
     async def test_TC_CGEN_2_9(self):
         commissioner: ChipDeviceCtrl.ChipDeviceController = self.default_controller
-        failsafe_expiry_length_seconds = self.matter_test_config.global_test_params["PIXIT.CGEN.FailsafeExpiryLengthSeconds"]
-        tc_version_to_simulate = self.matter_test_config.global_test_params["PIXIT.CGEN.TCRevision"]
-        tc_user_response_to_simulate = self.matter_test_config.global_test_params["PIXIT.CGEN.RequiredTCAcknowledgements"]
+        failsafe_expiry_length_seconds = self.matter_test_config.global_test_params['PIXIT.CGEN.FailsafeExpiryLengthSeconds']
+        tc_version_to_simulate = self.matter_test_config.global_test_params['PIXIT.CGEN.TCRevision']
+        tc_user_response_to_simulate = self.matter_test_config.global_test_params['PIXIT.CGEN.RequiredTCAcknowledgements']
 
         if not self.check_pics("CGEN.S.F00"):
-            asserts.skip("Root endpoint does not support the [commissioning] feature under test")
+            asserts.skip('Root endpoint does not support the [commissioning] feature under test')
             return
 
         # Step 1: Begin commissioning with PASE and failsafe
@@ -141,8 +127,7 @@ class TC_CGEN_2_9(MatterBaseTest):
             nodeId=self.dut_node_id,
             endpoint=ROOT_ENDPOINT_ID,
             payload=Clusters.GeneralCommissioning.Commands.ArmFailSafe(
-                expiryLengthSeconds=failsafe_expiry_length_seconds, breadcrumb=1
-            ),
+                expiryLengthSeconds=failsafe_expiry_length_seconds, breadcrumb=1),
         )
         asserts.assert_equal(
             response.errorCode,
@@ -195,7 +180,7 @@ class TC_CGEN_2_9(MatterBaseTest):
 
         # Step 6: Put device in commissioning mode (requiring user input, so skip in CI)
         self.step(6)
-        if not self.check_pics("PICS_USER_PROMPT"):
+        if not self.check_pics('PICS_USER_PROMPT'):
             self.mark_all_remaining_steps_skipped(7)
             return
 

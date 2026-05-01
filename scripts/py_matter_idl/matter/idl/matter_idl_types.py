@@ -25,7 +25,6 @@ class ApiMaturity(enum.Enum):
     INTERNAL = enum.auto()
     DEPRECATED = enum.auto()
 
-
 # Information about parsing location for specific items
 # Helpful when referencing data items in logs when processing
 
@@ -36,13 +35,11 @@ class ParseMetaData:
     column: Optional[int]
     start_pos: Optional[int]
 
-    def __init__(
-        self, meta: Optional[Meta] = None, line: Optional[int] = None, column: Optional[int] = None, start_pos: Optional[int] = None
-    ):
+    def __init__(self, meta: Optional[Meta] = None, line: Optional[int] = None, column: Optional[int] = None, start_pos: Optional[int] = None):
         if meta:
-            self.line = getattr(meta, "line", None)
-            self.column = getattr(meta, "column", None)
-            self.start_pos = getattr(meta, "start_pos", None)
+            self.line = getattr(meta, 'line', None)
+            self.column = getattr(meta, 'column', None)
+            self.start_pos = getattr(meta, 'start_pos', None)
         else:
             self.line = line
             self.column = column
@@ -328,7 +325,8 @@ class DeviceType:
 class Endpoint:
     number: int
     device_types: List[DeviceType] = field(default_factory=list)
-    server_clusters: List[ServerClusterInstantiation] = field(default_factory=list)
+    server_clusters: List[ServerClusterInstantiation] = field(
+        default_factory=list)
     client_bindings: List[str] = field(default_factory=list)
 
 

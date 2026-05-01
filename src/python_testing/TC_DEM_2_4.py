@@ -72,138 +72,106 @@ class TC_DEM_2_4(MatterBaseTest, DEMTestBase):
 
     def steps_TC_DEM_2_4(self) -> list[TestStep]:
         return [
-            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test)", is_commissioning=True),
-            TestStep(
-                "2",
-                "TH reads from the DUT the _FeatureMap_ attribute",
-                "Verify that the DUT response contains the _FeatureMap_ attribute. Verify Pausable feature is supported on the cluster. Verify PowerForecastReporting or StateForecastReporting feature is supported on the cluster.",
-            ),
+            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test)",
+                     is_commissioning=True),
+            TestStep("2", "TH reads from the DUT the _FeatureMap_ attribute",
+                     "Verify that the DUT response contains the _FeatureMap_ attribute. Verify Pausable feature is supported on the cluster. Verify PowerForecastReporting or StateForecastReporting feature is supported on the cluster."),
             TestStep("3", "Set up a subscription to all DeviceEnergyManagement cluster events"),
-            TestStep(
-                "4", "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster", "Value has to be 1 (True)"
-            ),
-            TestStep(
-                "5",
-                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.DEM.TEST_EVENT_TRIGGER for Pausable Test Event",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
-            TestStep("5a", "TH reads from the DUT the ESAState", "Value has to be 0x01 (Online)"),
-            TestStep(
-                "5b",
-                "TH reads from the DUT the Forecast",
-                "Value has to include IsPausable=True, slots[0].SlotIsPausable=True, slots[0].MinPauseDuration>1, slots[0].MaxPauseDuration>1, slots[1].SlotIsPausable=False, ActiveSlotNumber=0, and ForecastUpdateReason=Internal Optimization",
-            ),
-            TestStep("5c", "TH reads from the DUT the OptOutState", "Value has to be 0x00 (NoOptOut)"),
-            TestStep(
-                "6",
-                "TH sends command PauseRequest with Duration=Forecast.slots[0].MinPauseDuration-1, Cause=LocalOptimization",
-                "Verify DUT responds w/ status CONSTRAINT_ERROR(0x87)",
-            ),
-            TestStep("6a", "TH reads from the DUT the ESAState", "Value has to be 0x01 (Online)"),
-            TestStep(
-                "7",
-                "TH sends command PauseRequest with Duration=Forecast.slots[0].MaxPauseDuration+1, Cause=LocalOptimization",
-                "Verify DUT responds w/ status CONSTRAINT_ERROR(0x87)",
-            ),
-            TestStep("7a", "TH reads from the DUT the ESAState", "Value has to be 0x01 (Online)"),
-            TestStep(
-                "8",
-                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.DEM.TEST_EVENT_TRIGGER for User Opt-out Grid Optimization Test Event",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
-            TestStep("8a", "TH reads from the DUT the ESAState", "Value has to be 0x01 (Online)"),
-            TestStep("8b", "TH reads from the DUT the OptOutState", "Value has to be 0x02 (GridOptOut)"),
-            TestStep(
-                "9",
-                "TH sends command PauseRequest with Duration=Forecast.slots[0].MinPauseDuration, Cause=GridOptimization",
-                "Verify DUT responds w/ status CONSTRAINT_ERROR(0x87)",
-            ),
-            TestStep("9a", "TH reads from the DUT the ESAState", "Value has to be 0x01 (Online)"),
-            TestStep(
-                "10",
-                "TH sends command PauseRequest with Duration=Forecast.slots[0].MinPauseDuration, Cause=LocalOptimization",
-                "Verify DUT responds w/ status SUCCESS(0x00) and Event DEM.S.E02(Paused) sent",
-            ),
-            TestStep("10a", "TH reads from the DUT the ESAState", "Value has to be 0x05 (Paused)"),
-            TestStep(
-                "11",
-                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.DEM.TEST_EVENT_TRIGGER for User Opt-out Local Optimization Test Event",
-                "Verify DUT responds w/ status SUCCESS(0x00) and Event DEM.S.E03(Resumed) sent with Cause=3 (UserOptOut)",
-            ),
-            TestStep("11a", "TH reads from the DUT the ESAState", "Value has to be 0x01 (Online)"),
-            TestStep("11b", "TH reads from the DUT the OptOutState", "Value has to be 0x03 (OptOut)"),
-            TestStep(
-                "11c", "TH reads from the DUT the Forecast", "Value has to include  ForecastUpdateReason=Internal Optimization"
-            ),
-            TestStep(
-                "12",
-                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.DEM.TEST_EVENT_TRIGGER for User Opt-out Test Event Clear",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
-            TestStep("12a", "TH reads from the DUT the ESAState", "Value has to be 0x01 (Online)"),
-            TestStep("12b", "TH reads from the DUT the OptOutState", "Value has to be 0x00 (NoOptOut)"),
-            TestStep(
-                "13",
-                "TH sends command PauseRequest with Duration=Forecast.slots[0].MinPauseDuration, Cause=LocalOptimization",
-                "Verify DUT responds w/ status SUCCESS(0x00) and Event DEM.S.E02(Paused) sent",
-            ),
-            TestStep("13a", "TH reads from the DUT the ESAState", "Value has to be 0x05 (Paused)"),
-            TestStep("13b", "TH reads from the DUT the Forecast", "Value has to include ForecastUpdateReason=Local Optimization"),
-            TestStep(
-                "14",
-                "TH sends command ResumeRequest",
-                "Verify DUT responds w/ status SUCCESS(0x00) and Event DEM.S.E03(Resumed) sent with Cause=4 (Cancelled)",
-            ),
-            TestStep("14a", "TH reads from the DUT the ESAState", "Value has to be 0x01 (Online)"),
-            TestStep(
-                "14b",
-                "TH reads from the DUT the Forecast",
-                "Value has to include IsPausable=True, slots[0].SlotIsPausable=True, slots[0].MinPauseDuration>1, slots[0].MaxPauseDuration>1, slots[1].SlotIsPausable=False, ActiveSlotNumber=0, ForecastUpdateReason=InternalOptimization",
-            ),
-            TestStep(
-                "15",
-                "TH sends command PauseRequest with Duration=Forecast.slots[0].MinPauseDuration, Cause=LocalOptimization",
-                "Verify DUT responds w/ status SUCCESS(0x00) and Event DEM.S.E02(Paused) sent",
-            ),
-            TestStep("15a", "TH reads from the DUT the ESAState", "Value has to be 0x05 (Paused)"),
-            TestStep("15b", "TH reads from the DUT the Forecast", "Value has to include ForecastUpdateReason=Local Optimization"),
-            TestStep(
-                "16",
-                "TH sends command ResumeRequest",
-                "Verify DUT responds w/ status SUCCESS(0x00) and Event DEM.S.E03(Resumed) sent with Cause=4 (Cancelled)",
-            ),
-            TestStep("16a", "TH reads from the DUT the ESAState", "Value has to be 0x01 (Online)"),
-            TestStep(
-                "17",
-                "TH sends command PauseRequest with Duration=Forecast.slots[0].MinPauseDuration, Cause=LocalOptimization",
-                "Verify DUT responds w/ status SUCCESS(0x00) and Event DEM.S.E02(Paused) sent",
-            ),
-            TestStep("17a", "TH reads from the DUT the ESAState", "Value has to be 0x05 (Paused)"),
-            TestStep("18", "Wait for minPauseDuration.", "Event DEM.S.E03(Resumed) sent with Cause=0 (NormalCompletion)"),
-            TestStep("18a", "TH reads from the DUT the ESAState", "Value has to be 0x01 (Online)"),
-            TestStep(
-                "19",
-                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.DEM.TEST_EVENT_TRIGGER for Pausable Test Event Next Slot",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
-            TestStep("19a", "TH reads from the DUT the ESAState", "Value has to be 0x01 (Online)"),
-            TestStep("19b", "TH reads from the DUT the Forecast", "Value has to include ActiveSlotNumber=1"),
-            TestStep(
-                "20",
-                "TH sends command PauseRequest with Duration=Forecast.slots[0].MinPauseDuration, Cause=LocalOptimization",
-                "Verify DUT responds w/ status FAILURE(0x01)",
-            ),
-            TestStep("20a", "TH reads from the DUT the ESAState", "Value has to be 0x01 (Online)"),
-            TestStep("21", "TH sends command ResumeRequest", "Verify DUT responds w/ status INVALID_IN_STATE(0xcb)"),
-            TestStep(
-                "22",
-                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.DEM.TEST_EVENT_TRIGGER for Pausable Test Event Clear",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
+            TestStep("4", "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster",
+                     "Value has to be 1 (True)"),
+            TestStep("5", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.DEM.TEST_EVENT_TRIGGER for Pausable Test Event",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
+            TestStep("5a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x01 (Online)"),
+            TestStep("5b", "TH reads from the DUT the Forecast",
+                     "Value has to include IsPausable=True, slots[0].SlotIsPausable=True, slots[0].MinPauseDuration>1, slots[0].MaxPauseDuration>1, slots[1].SlotIsPausable=False, ActiveSlotNumber=0, and ForecastUpdateReason=Internal Optimization"),
+            TestStep("5c", "TH reads from the DUT the OptOutState",
+                     "Value has to be 0x00 (NoOptOut)"),
+            TestStep("6", "TH sends command PauseRequest with Duration=Forecast.slots[0].MinPauseDuration-1, Cause=LocalOptimization",
+                     "Verify DUT responds w/ status CONSTRAINT_ERROR(0x87)"),
+            TestStep("6a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x01 (Online)"),
+            TestStep("7", "TH sends command PauseRequest with Duration=Forecast.slots[0].MaxPauseDuration+1, Cause=LocalOptimization",
+                     "Verify DUT responds w/ status CONSTRAINT_ERROR(0x87)"),
+            TestStep("7a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x01 (Online)"),
+            TestStep("8", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.DEM.TEST_EVENT_TRIGGER for User Opt-out Grid Optimization Test Event",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
+            TestStep("8a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x01 (Online)"),
+            TestStep("8b", "TH reads from the DUT the OptOutState",
+                     "Value has to be 0x02 (GridOptOut)"),
+            TestStep("9", "TH sends command PauseRequest with Duration=Forecast.slots[0].MinPauseDuration, Cause=GridOptimization",
+                     "Verify DUT responds w/ status CONSTRAINT_ERROR(0x87)"),
+            TestStep("9a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x01 (Online)"),
+            TestStep("10", "TH sends command PauseRequest with Duration=Forecast.slots[0].MinPauseDuration, Cause=LocalOptimization",
+                     "Verify DUT responds w/ status SUCCESS(0x00) and Event DEM.S.E02(Paused) sent"),
+            TestStep("10a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x05 (Paused)"),
+            TestStep("11", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.DEM.TEST_EVENT_TRIGGER for User Opt-out Local Optimization Test Event",
+                     "Verify DUT responds w/ status SUCCESS(0x00) and Event DEM.S.E03(Resumed) sent with Cause=3 (UserOptOut)"),
+            TestStep("11a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x01 (Online)"),
+            TestStep("11b", "TH reads from the DUT the OptOutState",
+                     "Value has to be 0x03 (OptOut)"),
+            TestStep("11c", "TH reads from the DUT the Forecast",
+                     "Value has to include  ForecastUpdateReason=Internal Optimization"),
+            TestStep("12", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.DEM.TEST_EVENT_TRIGGER for User Opt-out Test Event Clear",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
+            TestStep("12a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x01 (Online)"),
+            TestStep("12b", "TH reads from the DUT the OptOutState",
+                     "Value has to be 0x00 (NoOptOut)"),
+            TestStep("13", "TH sends command PauseRequest with Duration=Forecast.slots[0].MinPauseDuration, Cause=LocalOptimization",
+                     "Verify DUT responds w/ status SUCCESS(0x00) and Event DEM.S.E02(Paused) sent"),
+            TestStep("13a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x05 (Paused)"),
+            TestStep("13b", "TH reads from the DUT the Forecast",
+                     "Value has to include ForecastUpdateReason=Local Optimization"),
+            TestStep("14", "TH sends command ResumeRequest",
+                     "Verify DUT responds w/ status SUCCESS(0x00) and Event DEM.S.E03(Resumed) sent with Cause=4 (Cancelled)"),
+            TestStep("14a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x01 (Online)"),
+            TestStep("14b", "TH reads from the DUT the Forecast",
+                     "Value has to include IsPausable=True, slots[0].SlotIsPausable=True, slots[0].MinPauseDuration>1, slots[0].MaxPauseDuration>1, slots[1].SlotIsPausable=False, ActiveSlotNumber=0, ForecastUpdateReason=InternalOptimization"),
+            TestStep("15", "TH sends command PauseRequest with Duration=Forecast.slots[0].MinPauseDuration, Cause=LocalOptimization",
+                     "Verify DUT responds w/ status SUCCESS(0x00) and Event DEM.S.E02(Paused) sent"),
+            TestStep("15a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x05 (Paused)"),
+            TestStep("15b", "TH reads from the DUT the Forecast",
+                     "Value has to include ForecastUpdateReason=Local Optimization"),
+            TestStep("16", "TH sends command ResumeRequest",
+                     "Verify DUT responds w/ status SUCCESS(0x00) and Event DEM.S.E03(Resumed) sent with Cause=4 (Cancelled)"),
+            TestStep("16a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x01 (Online)"),
+            TestStep("17", "TH sends command PauseRequest with Duration=Forecast.slots[0].MinPauseDuration, Cause=LocalOptimization",
+                     "Verify DUT responds w/ status SUCCESS(0x00) and Event DEM.S.E02(Paused) sent"),
+            TestStep("17a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x05 (Paused)"),
+            TestStep("18", "Wait for minPauseDuration.",
+                     "Event DEM.S.E03(Resumed) sent with Cause=0 (NormalCompletion)"),
+            TestStep("18a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x01 (Online)"),
+            TestStep("19", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.DEM.TEST_EVENT_TRIGGER for Pausable Test Event Next Slot",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
+            TestStep("19a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x01 (Online)"),
+            TestStep("19b", "TH reads from the DUT the Forecast",
+                     "Value has to include ActiveSlotNumber=1"),
+            TestStep("20", "TH sends command PauseRequest with Duration=Forecast.slots[0].MinPauseDuration, Cause=LocalOptimization",
+                     "Verify DUT responds w/ status FAILURE(0x01)"),
+            TestStep("20a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x01 (Online)"),
+            TestStep("21", "TH sends command ResumeRequest",
+                     "Verify DUT responds w/ status INVALID_IN_STATE(0xcb)"),
+            TestStep("22", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.DEM.TEST_EVENT_TRIGGER for Pausable Test Event Clear",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
         ]
 
     @async_test_body
     async def test_TC_DEM_2_4(self):
+
         log.info(Clusters.Objects.DeviceEnergyManagement.Attributes.FeatureMap)
 
         self.step("1")
@@ -216,7 +184,9 @@ class TC_DEM_2_4(MatterBaseTest, DEMTestBase):
         self.step("3")
         # Subscribe to Events and when they are sent push them to a queue for checking later
         events_callback = EventSubscriptionHandler(expected_cluster=Clusters.DeviceEnergyManagement)
-        await events_callback.start(self.default_controller, self.dut_node_id, self.get_endpoint())
+        await events_callback.start(self.default_controller,
+                                    self.dut_node_id,
+                                    self.get_endpoint())
 
         self.step("4")
         await self.check_test_event_triggers_enabled()
@@ -238,42 +208,29 @@ class TC_DEM_2_4(MatterBaseTest, DEMTestBase):
         asserts.assert_equal(forecast.slots[1].slotIsPausable, False)
         asserts.assert_equal(forecast.activeSlotNumber, 0)
 
-        asserts.assert_less_equal(
-            forecast.earliestStartTime,
-            forecast.startTime,
-            f"Expected forecast earliestStartTime {forecast.earliestStartTime} to be <= startTime {forecast.startTime}",
-        )
-        asserts.assert_greater_equal(
-            forecast.latestEndTime,
-            forecast.endTime,
-            f"Expected forecast latestEndTime {forecast.latestEndTime} to be >= endTime {forecast.endTime}",
-        )
-        asserts.assert_equal(
-            forecast.forecastUpdateReason,
-            Clusters.DeviceEnergyManagement.Enums.ForecastUpdateReasonEnum.kInternalOptimization,
-            f"Expected forecast forecastUpdateReason {forecast.forecastUpdateReason} to be == Clusters.DeviceEnergyManagement.Enums.ForecastUpdateReasonEnum.kInternalOptimization",
-        )
+        asserts.assert_less_equal(forecast.earliestStartTime, forecast.startTime,
+                                  f"Expected forecast earliestStartTime {forecast.earliestStartTime} to be <= startTime {forecast.startTime}")
+        asserts.assert_greater_equal(forecast.latestEndTime, forecast.endTime,
+                                     f"Expected forecast latestEndTime {forecast.latestEndTime} to be >= endTime {forecast.endTime}")
+        asserts.assert_equal(forecast.forecastUpdateReason, Clusters.DeviceEnergyManagement.Enums.ForecastUpdateReasonEnum.kInternalOptimization,
+                             f"Expected forecast forecastUpdateReason {forecast.forecastUpdateReason} to be == Clusters.DeviceEnergyManagement.Enums.ForecastUpdateReasonEnum.kInternalOptimization")
         self.print_forecast(forecast)
 
         self.step("5c")
         await self.check_dem_attribute("OptOutState", Clusters.DeviceEnergyManagement.Enums.OptOutStateEnum.kNoOptOut)
 
         self.step("6")
-        await self.send_pause_request_command(
-            forecast.slots[0].minPauseDuration - 1,
-            Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization,
-            expected_status=Status.ConstraintError,
-        )
+        await self.send_pause_request_command(forecast.slots[0].minPauseDuration - 1,
+                                              Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization,
+                                              expected_status=Status.ConstraintError)
 
         self.step("6a")
         await self.check_dem_attribute("ESAState", Clusters.DeviceEnergyManagement.Enums.ESAStateEnum.kOnline)
 
         self.step("7")
-        await self.send_pause_request_command(
-            forecast.slots[0].maxPauseDuration + 1,
-            Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization,
-            expected_status=Status.ConstraintError,
-        )
+        await self.send_pause_request_command(forecast.slots[0].maxPauseDuration + 1,
+                                              Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization,
+                                              expected_status=Status.ConstraintError)
 
         self.step("7a")
         await self.check_dem_attribute("ESAState", Clusters.DeviceEnergyManagement.Enums.ESAStateEnum.kOnline)
@@ -288,19 +245,16 @@ class TC_DEM_2_4(MatterBaseTest, DEMTestBase):
         await self.check_dem_attribute("OptOutState", Clusters.DeviceEnergyManagement.Enums.OptOutStateEnum.kGridOptOut)
 
         self.step("9")
-        await self.send_pause_request_command(
-            forecast.slots[0].minPauseDuration,
-            Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kGridOptimization,
-            expected_status=Status.ConstraintError,
-        )
+        await self.send_pause_request_command(forecast.slots[0].minPauseDuration,
+                                              Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kGridOptimization,
+                                              expected_status=Status.ConstraintError)
 
         self.step("9a")
         await self.check_dem_attribute("ESAState", Clusters.DeviceEnergyManagement.Enums.ESAStateEnum.kOnline)
 
         self.step("10")
-        await self.send_pause_request_command(
-            forecast.slots[0].minPauseDuration, Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization
-        )
+        await self.send_pause_request_command(forecast.slots[0].minPauseDuration,
+                                              Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization)
 
         event_data = events_callback.wait_for_event_report(Clusters.DeviceEnergyManagement.Events.Paused)
 
@@ -322,9 +276,8 @@ class TC_DEM_2_4(MatterBaseTest, DEMTestBase):
         forecast = await self.read_dem_attribute_expect_success(attribute="Forecast")
 
         asserts.assert_not_equal(forecast, NullValue)
-        asserts.assert_equal(
-            forecast.forecastUpdateReason, Clusters.DeviceEnergyManagement.Enums.ForecastUpdateReasonEnum.kInternalOptimization
-        )
+        asserts.assert_equal(forecast.forecastUpdateReason,
+                             Clusters.DeviceEnergyManagement.Enums.ForecastUpdateReasonEnum.kInternalOptimization)
 
         self.step("12")
         await self.send_test_event_trigger_user_opt_out_clear_all()
@@ -336,9 +289,8 @@ class TC_DEM_2_4(MatterBaseTest, DEMTestBase):
         await self.check_dem_attribute("OptOutState", Clusters.DeviceEnergyManagement.Enums.OptOutStateEnum.kNoOptOut)
 
         self.step("13")
-        await self.send_pause_request_command(
-            forecast.slots[0].minPauseDuration, Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization
-        )
+        await self.send_pause_request_command(forecast.slots[0].minPauseDuration,
+                                              Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization)
         event_data = events_callback.wait_for_event_report(Clusters.DeviceEnergyManagement.Events.Paused)
 
         self.step("13a")
@@ -346,9 +298,8 @@ class TC_DEM_2_4(MatterBaseTest, DEMTestBase):
 
         self.step("13b")
         forecast = await self.read_dem_attribute_expect_success(attribute="Forecast")
-        asserts.assert_equal(
-            forecast.forecastUpdateReason, Clusters.DeviceEnergyManagement.Enums.ForecastUpdateReasonEnum.kLocalOptimization
-        )
+        asserts.assert_equal(forecast.forecastUpdateReason,
+                             Clusters.DeviceEnergyManagement.Enums.ForecastUpdateReasonEnum.kLocalOptimization)
 
         self.step("14")
         await self.send_resume_request_command()
@@ -366,14 +317,12 @@ class TC_DEM_2_4(MatterBaseTest, DEMTestBase):
         asserts.assert_equal(forecast.slots[0].slotIsPausable, True)
         asserts.assert_equal(forecast.slots[1].slotIsPausable, False)
         asserts.assert_equal(forecast.activeSlotNumber, 0)
-        asserts.assert_equal(
-            forecast.forecastUpdateReason, Clusters.DeviceEnergyManagement.Enums.ForecastUpdateReasonEnum.kInternalOptimization
-        )
+        asserts.assert_equal(forecast.forecastUpdateReason,
+                             Clusters.DeviceEnergyManagement.Enums.ForecastUpdateReasonEnum.kInternalOptimization)
 
         self.step("15")
-        await self.send_pause_request_command(
-            forecast.slots[0].minPauseDuration, Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization
-        )
+        await self.send_pause_request_command(forecast.slots[0].minPauseDuration,
+                                              Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization)
         event_data = events_callback.wait_for_event_report(Clusters.DeviceEnergyManagement.Events.Paused)
 
         self.step("15a")
@@ -381,9 +330,8 @@ class TC_DEM_2_4(MatterBaseTest, DEMTestBase):
 
         self.step("15b")
         forecast = await self.read_dem_attribute_expect_success(attribute="Forecast")
-        asserts.assert_equal(
-            forecast.forecastUpdateReason, Clusters.DeviceEnergyManagement.Enums.ForecastUpdateReasonEnum.kLocalOptimization
-        )
+        asserts.assert_equal(forecast.forecastUpdateReason,
+                             Clusters.DeviceEnergyManagement.Enums.ForecastUpdateReasonEnum.kLocalOptimization)
 
         self.step("16")
         await self.send_resume_request_command()
@@ -394,9 +342,8 @@ class TC_DEM_2_4(MatterBaseTest, DEMTestBase):
         await self.check_dem_attribute("ESAState", Clusters.DeviceEnergyManagement.Enums.ESAStateEnum.kOnline)
 
         self.step("17")
-        await self.send_pause_request_command(
-            forecast.slots[0].minPauseDuration, Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization
-        )
+        await self.send_pause_request_command(forecast.slots[0].minPauseDuration,
+                                              Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization)
         event_data = events_callback.wait_for_event_report(Clusters.DeviceEnergyManagement.Events.Paused)
 
         self.step("17a")
@@ -422,11 +369,9 @@ class TC_DEM_2_4(MatterBaseTest, DEMTestBase):
         asserts.assert_equal(forecast.activeSlotNumber, 1)
 
         self.step("20")
-        await self.send_pause_request_command(
-            forecast.slots[0].minPauseDuration,
-            Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization,
-            expected_status=Status.Failure,
-        )
+        await self.send_pause_request_command(forecast.slots[0].minPauseDuration,
+                                              Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization,
+                                              expected_status=Status.Failure)
 
         self.step("20a")
         await self.check_dem_attribute("ESAState", Clusters.DeviceEnergyManagement.Enums.ESAStateEnum.kOnline)

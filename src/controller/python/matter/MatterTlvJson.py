@@ -26,19 +26,19 @@ from .clusters.Attribute import AttributeCache, AttributePath, ValueDecodeFailur
 from .tlv import TLVReader
 
 
-class TLVJsonConverter:
-    """Converter class used to convert MatterJsonTlv attribute wildcard dump files into an AttributeCache.
+class TLVJsonConverter():
+    ''' Converter class used to convert MatterJsonTlv attribute wildcard dump files into an AttributeCache.
 
-    Attribute wildcard dump files can be generated as a side effect of basic composition tests, or
-    by running the IDM-12.1 cerification test case. The file contains a representation of this
-    data in MatterTlvJson format. This class is used to convert this data back into a python-based
-    representation.
+        Attribute wildcard dump files can be generated as a side effect of basic composition tests, or
+        by running the IDM-12.1 cerification test case. The file contains a representation of this
+        data in MatterTlvJson format. This class is used to convert this data back into a python-based
+        representation.
 
-    More information on the MatterTlvJson format can be found here:
-    https://github.com/project-chip/connectedhomeip/blob/master/src/lib/support/jsontlv/README.md
-    """
+        More information on the MatterTlvJson format can be found here:
+        https://github.com/project-chip/connectedhomeip/blob/master/src/lib/support/jsontlv/README.md
+    '''
 
-    def __init__(self, name: str = ""):
+    def __init__(self, name: str = ''):
         self._ChipStack = builtins.chipStack  # type: ignore[attr-defined]  # 'chipStack' is dynamically added to builtins
 
         self._dmLib = CDLL(self._ChipStack.LocateChipDLL())
@@ -47,7 +47,7 @@ class TLVJsonConverter:
         self._dmLib.pychip_JsonToTlv.restype = c_size_t
 
     def _attribute_to_tlv(self, json_string: str) -> bytearray:
-        """Converts the MatterJsonTlv for one attribute into TLV that can be parsed and put into the cache."""
+        ''' Converts the MatterJsonTlv for one attribute into TLV that can be parsed and put into the cache.'''
         # We don't currently have a way to size this properly, but we know attributes need to fit into 1 MTU.
         size = 1280
         buf = bytearray(size)
@@ -55,20 +55,20 @@ class TLVJsonConverter:
         return buf[:encoded_bytes]
 
     def convert_dump_to_cache(self, json_tlv: typing.Any) -> AttributeCache:
-        """Converts a json object containing the MatterJsonTlv dump of an entire device into an AttributeCache object.
-        Input:
-          json_tlv: json loaded from from the dump file.
-        Returns:
-          AttributeCache with the data from the json_string
-        """
+        ''' Converts a json object containing the MatterJsonTlv dump of an entire device into an AttributeCache object.
+            Input:
+              json_tlv: json loaded from from the dump file.
+            Returns:
+              AttributeCache with the data from the json_string
+        '''
         cache = AttributeCache()
         for endpoint_id_str, endpoint in json_tlv.items():
             endpoint_id = int(endpoint_id_str, 0)
             for cluster_id_and_type_str, cluster in endpoint.items():
-                cluster_id_str, _ = cluster_id_and_type_str.split(":", 2)
+                cluster_id_str, _ = cluster_id_and_type_str.split(':', 2)
                 cluster_id = int(cluster_id_str)
                 for attribute_id_and_type_str, attribute in cluster.items():
-                    attribute_id_str, _ = attribute_id_and_type_str.split(":", 2)
+                    attribute_id_str, _ = attribute_id_and_type_str.split(':', 2)
                     attribute_id = int(attribute_id_str)
                     json_str = json.dumps({attribute_id_and_type_str: attribute}, indent=2)
                     tmp = self._attribute_to_tlv(json_str)

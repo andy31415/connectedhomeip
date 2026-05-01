@@ -49,7 +49,8 @@ constexpr TLV::Tag SimpleSubscriptionResumptionStorage::kEventPathTypeTag;
 constexpr TLV::Tag SimpleSubscriptionResumptionStorage::kResumptionRetriesTag;
 
 SimpleSubscriptionResumptionStorage::SimpleSubscriptionInfoIterator::SimpleSubscriptionInfoIterator(
-    SimpleSubscriptionResumptionStorage & storage) : mStorage(storage)
+    SimpleSubscriptionResumptionStorage & storage) :
+    mStorage(storage)
 {
     mNextIndex = 0;
 }

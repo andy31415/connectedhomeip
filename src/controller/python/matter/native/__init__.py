@@ -45,8 +45,8 @@ def _AllDirsToRoot(dir):
 
 
 class ErrorRange(enum.IntEnum):
-    """The enum of chip::ChipError::Range"""
-
+    ''' The enum of chip::ChipError::Range
+    '''
     SDK = 0x0
     OS = 0x1
     POSIX = 0x2
@@ -56,8 +56,8 @@ class ErrorRange(enum.IntEnum):
 
 
 class ErrorSDKPart(enum.IntEnum):
-    """The enum of chip::ChipError::SDKPart"""
-
+    ''' The enum of chip::ChipError::SDKPart
+    '''
     CORE = 0
     INET = 1
     DEVICE = 2
@@ -69,7 +69,7 @@ class ErrorSDKPart(enum.IntEnum):
 
 
 class PyChipError(ctypes.Structure):
-    """The ChipError for Python library.
+    ''' The ChipError for Python library.
 
     We are using the following struct for passing the information of CHIP_ERROR between C++ and Python:
 
@@ -81,9 +81,8 @@ class PyChipError(ctypes.Structure):
         const char * mFile;
     };
     ```
-    """
-
-    _fields_ = [("code", ctypes.c_uint32), ("line", ctypes.c_uint32), ("file", ctypes.c_void_p)]
+    '''
+    _fields_ = [('code', ctypes.c_uint32), ('line', ctypes.c_uint32), ('file', ctypes.c_void_p)]
 
     def raise_on_error(self) -> None:
         if self.code != 0:
@@ -171,7 +170,6 @@ def PostAttributeChangeCallback(func):
         value: ctypes.POINTER(ctypes.c_char),
     ):
         return func(endpoint, clusterId, attributeId, xx_type, size, value[:size])
-
     return c_PostAttributeChangeCallback(wrapper)
 
 
@@ -185,8 +183,7 @@ def FindNativeLibraryPath(library: Library) -> str:
     # modules.
     dmDLLPath = os.path.join(
         os.path.dirname(scriptDir),  # file should be inside 'chip'
-        library.value,
-    )
+        library.value)
     if os.path.exists(dmDLLPath):
         return dmDLLPath
 
@@ -194,7 +191,8 @@ def FindNativeLibraryPath(library: Library) -> str:
     # running script looking for an CHIP build directory containing the Chip Device
     # Manager DLL. This makes it possible to import and use the ChipDeviceMgr module
     # directly from a built copy of the CHIP source tree.
-    buildMachineGlob = "%s-*-%s*" % (platform.machine(), platform.system().lower())
+    buildMachineGlob = "%s-*-%s*" % (platform.machine(),
+                                     platform.system().lower())
     relDMDLLPathGlob = os.path.join(
         "build",
         buildMachineGlob,
@@ -207,7 +205,8 @@ def FindNativeLibraryPath(library: Library) -> str:
             if os.path.exists(dmDLLPath):
                 return dmDLLPath
 
-    raise Exception(f"Unable to locate CHIP DLL ({library.value}); expected location: {scriptDir}")
+    raise Exception(
+        f"Unable to locate CHIP DLL ({library.value}); expected location: {scriptDir}")
 
 
 class NativeLibraryHandleMethodArguments:
@@ -236,13 +235,15 @@ def _GetLibraryHandle(lib: Library, expectAlreadyInitialized: bool) -> _Handle:
 
     global _nativeLibraryHandles
     if lib not in _nativeLibraryHandles:
+
         handle = _Handle(ctypes.CDLL(FindNativeLibraryPath(lib)))
         _nativeLibraryHandles[lib] = handle
 
         setter = NativeLibraryHandleMethodArguments(handle.dll)
         if lib == Library.CONTROLLER:
             setter.Set("pychip_CommonStackInit", PyChipError, [ctypes.c_char_p])
-            setter.Set("pychip_FormatError", None, [ctypes.POINTER(PyChipError), ctypes.c_char_p, ctypes.c_uint32])
+            setter.Set("pychip_FormatError", None,
+                       [ctypes.POINTER(PyChipError), ctypes.c_char_p, ctypes.c_uint32])
         elif lib == Library.SERVER:
             setter.Set("pychip_server_native_init", PyChipError, [])
             setter.Set("pychip_server_set_callbacks", None, [c_PostAttributeChangeCallback])
@@ -258,7 +259,7 @@ def Init(bluetoothAdapter: typing.Optional[int] = None):
     CommonStackParams = construct.Struct(
         "BluetoothAdapterId" / construct.Int32ul,
     )
-    params = CommonStackParams.parse(b"\x00" * CommonStackParams.sizeof())
+    params = CommonStackParams.parse(b'\x00' * CommonStackParams.sizeof())
     params.BluetoothAdapterId = bluetoothAdapter if bluetoothAdapter is not None else 0
     params = CommonStackParams.build(params)
 

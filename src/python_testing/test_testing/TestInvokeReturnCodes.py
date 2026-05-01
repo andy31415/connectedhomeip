@@ -75,7 +75,9 @@ class TestInvokeReturnCodes(MatterBaseTest):
             )
             asserts.fail("Unexpected command success on an invalid endpoint")
         except InteractionModelError as e:
-            asserts.assert_equal(e.status, Status.UnsupportedEndpoint, "Unexpected error returned")
+            asserts.assert_equal(
+                e.status, Status.UnsupportedEndpoint, "Unexpected error returned"
+            )
 
 
 if __name__ == "__main__":

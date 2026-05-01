@@ -26,7 +26,10 @@ from typing import BinaryIO, Callable, Optional, Union
 LOGGER = logging.getLogger(__name__)
 
 
-def forward_f(f_in: BinaryIO, f_out: BinaryIO, cb: Optional[Callable[[bytes, bool], bytes]] = None, is_stderr: bool = False):
+def forward_f(f_in: BinaryIO,
+              f_out: BinaryIO,
+              cb: Optional[Callable[[bytes, bool], bytes]] = None,
+              is_stderr: bool = False):
     """Forward f_in to f_out.
 
     This function can optionally post-process received lines using a callback
@@ -42,9 +45,9 @@ def forward_f(f_in: BinaryIO, f_out: BinaryIO, cb: Optional[Callable[[bytes, boo
 
 
 class SubprocessKind(StrEnum):
-    APP = "app"
-    TOOL = "tool"
-    MGMT = "mgmt"
+    APP = 'app'
+    TOOL = 'tool'
+    MGMT = 'mgmt'
 
 
 @dataclass
@@ -70,14 +73,10 @@ class SubprocessInfo:
 class Subprocess(threading.Thread):
     """Run a subprocess in a thread."""
 
-    def __init__(
-        self,
-        program: str,
-        *args,
-        output_cb: Optional[Callable[[bytes, bool], bytes]] = None,
-        f_stdout: BinaryIO = sys.stdout.buffer,
-        f_stderr: BinaryIO = sys.stderr.buffer,
-    ):
+    def __init__(self, program: str, *args,
+                 output_cb: Optional[Callable[[bytes, bool], bytes]] = None,
+                 f_stdout: BinaryIO = sys.stdout.buffer,
+                 f_stderr: BinaryIO = sys.stderr.buffer):
         """Initialize the subprocess.
 
         Args:
@@ -123,15 +122,21 @@ class Subprocess(threading.Thread):
         forwarding_stdout_thread = None
         forwarding_stderr_thread = None
         try:
-            self.p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
+            self.p = subprocess.Popen(command,
+                                      stdin=subprocess.PIPE,
+                                      stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE,
+                                      bufsize=0)
             self.event_started.set()
 
             # Forward stdout and stderr with a tag attached.
-            forwarding_stdout_thread = threading.Thread(target=forward_f, args=(self.p.stdout, self.f_stdout, self._check_output))
+            forwarding_stdout_thread = threading.Thread(
+                target=forward_f,
+                args=(self.p.stdout, self.f_stdout, self._check_output))
             forwarding_stdout_thread.start()
             forwarding_stderr_thread = threading.Thread(
-                target=forward_f, args=(self.p.stderr, self.f_stderr, self._check_output, True)
-            )
+                target=forward_f,
+                args=(self.p.stderr, self.f_stderr, self._check_output, True))
             forwarding_stderr_thread.start()
 
         except Exception:
@@ -155,7 +160,9 @@ class Subprocess(threading.Thread):
             if forwarding_stderr_thread is not None:
                 forwarding_stderr_thread.join()
 
-    def start(self, expected_output: Optional[Union[str, re.Pattern]] = None, timeout: Optional[float] = None):
+    def start(self,
+              expected_output: Optional[Union[str, re.Pattern]] = None,
+              timeout: Optional[float] = None):
         """Start a subprocess and optionally wait for a specific output."""
 
         if expected_output is not None:
@@ -175,7 +182,9 @@ class Subprocess(threading.Thread):
                 raise TimeoutError("Expected output '%r' not found within %s seconds" % (expected_output, timeout))
             self.expected_output = None
 
-    def send(self, message: str, end: str = "\n", expected_output: Optional[Union[str, re.Pattern]] = None, timeout: float = 300):
+    def send(self, message: str, end: str = "\n",
+             expected_output: Optional[Union[str, re.Pattern]] = None,
+             timeout: float = 300):
         """Send a message to a process and optionally wait for a response."""
 
         if expected_output is not None:

@@ -78,6 +78,7 @@ class TC_VALCC_4_3(MatterBaseTest):
 
     @async_test_body
     async def test_TC_VALCC_4_3(self):
+
         endpoint = self.get_endpoint()
 
         self.step(1)
@@ -93,7 +94,7 @@ class TC_VALCC_4_3(MatterBaseTest):
             log.info("TimeSync feature not supported skipping test case")
 
             # Skipping all remainig steps
-            for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index :]:
+            for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index:]:
                 self.step(step.test_plan_number)
                 log.info("Test step skipped")
 
@@ -102,16 +103,14 @@ class TC_VALCC_4_3(MatterBaseTest):
         log.info("Test step skipped")
 
         self.step("3a")
-        utcTime = await self.read_single_attribute_check_success(
-            endpoint=0, cluster=Clusters.Objects.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.UTCTime
-        )
+        utcTime = await self.read_single_attribute_check_success(endpoint=0, cluster=Clusters.Objects.TimeSynchronization, attribute=Clusters.TimeSynchronization.Attributes.UTCTime)
 
         self.step("3b")
         if utcTime is not NullValue:
             log.info("UTCTime is not null, skipping test case")
 
             # Skipping all remainig steps
-            for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index :]:
+            for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index:]:
                 self.step(step.test_plan_number)
                 log.info("Test step skipped")
 

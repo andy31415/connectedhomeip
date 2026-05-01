@@ -53,27 +53,16 @@ class TC_TLSCERT_2_4(TC_TLSCERT_Base):
     def steps_TC_TLSCERT_2_4(self) -> list[TestStep]:
         return [
             *self.get_common_substeps(),
-            TestStep(
-                2,
-                "Set myBigRootCert to a valid DER encoding of a valid, self-signed x509 certificate. The certificate should be large enough that the DER encoding is larger than 3000 octets.",
-            ),
+            TestStep(2,
+                     "Set myBigRootCert to a valid DER encoding of a valid, self-signed x509 certificate. The certificate should be large enough that the DER encoding is larger than 3000 octets."),
             TestStep(3, "Set myBadRootCert to an octstr under 3000 that is not a valid DER encoding."),
             TestStep(4, "Set myRootCert to a valid, self-signed, DER-encoded x509 certificate."),
-            TestStep(
-                5,
-                "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myBigRootCert.",
-                test_plan_support.verify_status(Status.ConstraintError),
-            ),
-            TestStep(
-                6,
-                "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myBadRootCert.",
-                test_plan_support.verify_status(Status.DynamicConstraintError),
-            ),
-            TestStep(
-                7,
-                "CR1 sends ProvisionRootCertificate command with CAID set to 10 and Certificate set to myRootCert.",
-                test_plan_support.verify_status(Status.NotFound),
-            ),
+            TestStep(5, "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myBigRootCert.",
+                     test_plan_support.verify_status(Status.ConstraintError)),
+            TestStep(6, "CR1 sends ProvisionRootCertificate command with null CAID and Certificate set to myBadRootCert.",
+                     test_plan_support.verify_status(Status.DynamicConstraintError)),
+            TestStep(7, "CR1 sends ProvisionRootCertificate command with CAID set to 10 and Certificate set to myRootCert.",
+                     test_plan_support.verify_status(Status.NotFound)),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.TlsCertificateManagement))

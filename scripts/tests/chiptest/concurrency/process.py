@@ -52,13 +52,9 @@ def with_annotated_exception(fn: Callable[Concatenate[S, P], R]) -> Callable[Con
         try:
             return fn(self, *args, **kwargs)
         except BaseException as e:
-            kind = (
-                "thread"
-                if isinstance(self, threading.Thread)
-                else "process"
-                if isinstance(self, (multiprocessing.Process, WrappedProcess))
-                else self.__class__.__name__
-            )
+            kind = ("thread" if isinstance(self, threading.Thread) else
+                    "process" if isinstance(self, (multiprocessing.Process, WrappedProcess)) else
+                    self.__class__.__name__)
 
             e.add_note(f"Exception in {kind} {self.name}")
             raise
@@ -207,17 +203,10 @@ class WrappedProcess(ABC, Generic[WorkRequestT, WorkResponseT]):
 
     Subclasses are expected to implement `_proc_init()` and `_proc_cleanup()`, and may optionally override `_proc_work()`.
     """
-
     # Methods run in the parent process.
 
-    def __init__(
-        self,
-        mp_context: SpawnContext,
-        mp_manager: SyncManager,
-        config: ProcessConfig,
-        work_queue: CancellableQueue[WorkRequestT],
-        rsp_queue: CancellableQueue[WorkResponseT],
-    ) -> None:
+    def __init__(self, mp_context: SpawnContext, mp_manager: SyncManager, config: ProcessConfig,
+                 work_queue: CancellableQueue[WorkRequestT], rsp_queue: CancellableQueue[WorkResponseT]) -> None:
         # Neither mp_context or mp_manager should be saved as fields, as they are not picklable between processes. They can be used
         # to initialize some shared resources in the constructor.
 
@@ -255,9 +244,8 @@ class WrappedProcess(ABC, Generic[WorkRequestT, WorkResponseT]):
         self._proc.start()
 
         try:
-            if not self.state.wait_for(
-                lambda phase, _: phase not in (ProcessPhase.NOT_STARTED, ProcessPhase.UNINITIALIZED), self._config.start_timeout_sec
-            ):
+            if not self.state.wait_for(lambda phase, _: phase not in (ProcessPhase.NOT_STARTED, ProcessPhase.UNINITIALIZED),
+                                       self._config.start_timeout_sec):
                 raise TimeoutError("Timeout when waiting for initialization")
 
             with self.state:
@@ -381,9 +369,8 @@ class WrappedProcess(ABC, Generic[WorkRequestT, WorkResponseT]):
 
                 # In case of an exception during cleanup, we want to preserve the original exception if it exists.
                 if op_exc is not None:
-                    self.state.exception = BaseExceptionGroup(
-                        "Failed to cleanup process after previous failure", [op_exc, self.state.exception]
-                    )
+                    self.state.exception = BaseExceptionGroup("Failed to cleanup process after previous failure",
+                                                              [op_exc, self.state.exception])
             finally:
                 self.state.phase = ProcessPhase.CLOSED
 

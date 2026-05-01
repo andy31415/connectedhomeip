@@ -20,7 +20,6 @@ These files are to be bundled with whl packages of the matter_testing_infrastruc
 so that methods requiring data model files work just by installing the python
 package without requiring a full chip SDK checkout.
 """
-
 import os
 from pathlib import Path
 
@@ -69,7 +68,7 @@ GNI_TEMPLATE = """\
 
 
 def get_file_names(directory: str, file_globs: list[str]):
-    """Function to find and collect all files matching glob patterns"""
+    ''' Function to find and collect all files matching glob patterns'''
     file_list = []
     globs = []
     for g in file_globs:
@@ -84,7 +83,7 @@ def get_file_names(directory: str, file_globs: list[str]):
 
 
 def _generate_gni_file(zip_dir: str, prefix: str, file_extensions: tuple[str], output_filename: str):
-    """Main function to generate the data_model_xmls.gni file"""
+    '''Main function to generate the data_model_xmls.gni file'''
     environment = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
     template = environment.from_string(GNI_TEMPLATE)
     output_content_per_dir = []
@@ -98,7 +97,7 @@ def _generate_gni_file(zip_dir: str, prefix: str, file_extensions: tuple[str], o
     for directory in dirs:
         file_list = get_file_names(os.path.join(zip_dir, directory), file_extensions)
         # Step 2: Render the template with the file list
-        output_content_per_dir.append(template.render(prefix=prefix, dir=directory.replace(".", "_"), file_list=file_list))
+        output_content_per_dir.append(template.render(prefix=prefix, dir=directory.replace('.', '_'), file_list=file_list))
 
     output_content = GNI_HEADER + "".join(output_content_per_dir)
 
@@ -124,12 +123,8 @@ def generate_dm_gni_file():
 
 
 def generate_credential_gni_file():
-    _generate_gni_file(
-        credentials_dir,
-        CREDENTIALS_PREFIX,
-        ["paa-root-certs/**/*.der", "paa-root-certs/**/*.pem", "cd-certs/**/*.der", "cd-certs/**/*.pem"],
-        "credential_files.gni",
-    )
+    _generate_gni_file(credentials_dir, CREDENTIALS_PREFIX, [
+                       "paa-root-certs/**/*.der", "paa-root-certs/**/*.pem", "cd-certs/**/*.der", "cd-certs/**/*.pem"], "credential_files.gni")
 
 
 # Run the function to generate the .gni file

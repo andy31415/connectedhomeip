@@ -53,31 +53,27 @@ log = logging.getLogger(__name__)
 
 
 class TC_MWOCTRL_2_2(MatterBaseTest):
+
     async def read_mwoctrl_attribute_expect_success(self, endpoint, attribute):
         cluster = Clusters.Objects.MicrowaveOvenControl
         return await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attribute)
 
     async def set_power_setting_expect_success(self, endpoint, value):
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.Objects.MicrowaveOvenControl.Commands.SetCookingParameters(powerSetting=value), endpoint=endpoint
-            )
+            await self.send_single_cmd(cmd=Clusters.Objects.MicrowaveOvenControl.Commands.SetCookingParameters(powerSetting=value), endpoint=endpoint)
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Error while trying to set the power setting.")
 
     async def set_power_setting_expect_failure(self, endpoint, value):
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.Objects.MicrowaveOvenControl.Commands.SetCookingParameters(powerSetting=value), endpoint=endpoint
-            )
+            await self.send_single_cmd(cmd=Clusters.Objects.MicrowaveOvenControl.Commands.SetCookingParameters(powerSetting=value), endpoint=endpoint)
             asserts.assert_fail("Expected an exception but received none.")
         except InteractionModelError as e:
-            asserts.assert_equal(e.status, Status.ConstraintError, "Expected ConstraintError but received a different response")
+            asserts.assert_equal(e.status, Status.ConstraintError,
+                                 "Expected ConstraintError but received a different response")
 
     async def read_and_check_power_setting_value(self, endpoint, value):
-        powerValue = await self.read_mwoctrl_attribute_expect_success(
-            endpoint=endpoint, attribute=Clusters.MicrowaveOvenControl.Attributes.PowerSetting
-        )
+        powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=Clusters.MicrowaveOvenControl.Attributes.PowerSetting)
         asserts.assert_equal(powerValue, value, "PowerSetting was not correctly set")
 
     def desc_TC_MWOCTRL_2_2(self) -> str:
@@ -116,6 +112,7 @@ class TC_MWOCTRL_2_2(MatterBaseTest):
 
     @async_test_body
     async def test_TC_MWOCTRL_2_2(self):
+
         endpoint = self.get_endpoint()
 
         self.step(1)
@@ -160,23 +157,22 @@ class TC_MWOCTRL_2_2(MatterBaseTest):
             powerStepValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerStep)
             asserts.assert_greater_equal(powerStepValue, 1, "PowerStep is less than 1")
             asserts.assert_less_equal(powerStepValue, maxPowerValue, "PowerStep is greater than MaxPower")
-            asserts.assert_true(
-                (maxPowerValue - minPowerValue) % powerStepValue == 0, "PowerStep is not correct for MaxPower - MinPower"
-            )
+            asserts.assert_true((maxPowerValue - minPowerValue) % powerStepValue ==
+                                0, "PowerStep is not correct for MaxPower - MinPower")
         log.info("PowerStep is %s" % powerStepValue)
 
         self.step(8)
         powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
         asserts.assert_greater_equal(powerValue, minPowerValue, "PowerSetting is less than the minimum.")
         asserts.assert_less_equal(powerValue, maxPowerValue, "PowerSetting is greater than the maxium")
-        asserts.assert_true((powerValue - minPowerValue) % powerStepValue == 0, "PowerSetting is not a multiple of power step")
+        asserts.assert_true((powerValue-minPowerValue) % powerStepValue == 0, "PowerSetting is not a multiple of power step")
 
         self.step(9)
         log.info("minPowerValue is %s" % minPowerValue)
         log.info("maxPowerValue is %s" % maxPowerValue)
         log.info("powerStepValue is %s" % powerStepValue)
         log.info("powerValue is %s" % powerValue)
-        newPowerValue = (powerValue - minPowerValue) % (maxPowerValue - minPowerValue) + powerStepValue + minPowerValue
+        newPowerValue = (powerValue-minPowerValue) % (maxPowerValue-minPowerValue)+powerStepValue+minPowerValue
         log.info("newPowerValue is %s" % newPowerValue)
         await self.set_power_setting_expect_success(endpoint, newPowerValue)
 
@@ -196,7 +192,7 @@ class TC_MWOCTRL_2_2(MatterBaseTest):
         await self.read_and_check_power_setting_value(endpoint, maxPowerValue)
 
         self.step(15)
-        newPowerValue = maxPowerValue + 1
+        newPowerValue = maxPowerValue+1
         await self.set_power_setting_expect_failure(endpoint, newPowerValue)
 
         self.step(16)

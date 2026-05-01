@@ -28,17 +28,15 @@ from base import BaseTestHelper, FailIfNot, TestFail, TestTimeout, logger
 
 # The thread network dataset tlv for testing, splitted into T-L-V.
 
-TEST_THREAD_NETWORK_DATASET_TLV = (
-    "0e080000000000010000"
-    + "000300000c"
-    + "35060004001fffe0"
-    + "0208fedcba9876543210"
-    + "0708fd00000000001234"
-    + "0510ffeeddccbbaa99887766554433221100"
-    + "030e54657374696e674e6574776f726b"
-    + "0102d252"
-    + "041081cb3b2efa781cc778397497ff520fa50c0302a0ff"
-)
+TEST_THREAD_NETWORK_DATASET_TLV = "0e080000000000010000" + \
+    "000300000c" + \
+    "35060004001fffe0" + \
+    "0208fedcba9876543210" + \
+    "0708fd00000000001234" + \
+    "0510ffeeddccbbaa99887766554433221100" + \
+    "030e54657374696e674e6574776f726b" + \
+    "0102d252" + \
+    "041081cb3b2efa781cc778397497ff520fa50c0302a0ff"
 # Network id, for the thread network, current a const value, will be changed to XPANID of the thread network.
 TEST_THREAD_NETWORK_ID = "fedcba9876543210"
 TEST_DISCRIMINATOR = 3840
@@ -56,7 +54,7 @@ async def main():
         action="store",
         dest="testTimeout",
         default=75,
-        type="int",
+        type='int',
         help="The program will return with timeout after specified seconds.",
         metavar="<timeout-second>",
     )
@@ -65,7 +63,7 @@ async def main():
         "--discriminator",
         action="store",
         dest="discriminator",
-        type="int",
+        type='int',
         help="Discriminator of the device",
     )
     optParser.add_option(
@@ -73,7 +71,7 @@ async def main():
         "--passcode",
         action="store",
         dest="passcode",
-        type="int",
+        type='int',
         help="Passcode of the device",
     )
     optParser.add_option(
@@ -81,10 +79,10 @@ async def main():
         "--paa-trust-store-path",
         action="store",
         dest="paaTrustStorePath",
-        default="",
-        type="str",
+        default='',
+        type='str',
         help="Path that contains valid and trusted PAA Root Certificates.",
-        metavar="<paa-trust-store-path>",
+        metavar="<paa-trust-store-path>"
     )
 
     (options, remainingArgs) = optParser.parse_args(sys.argv[1:])
@@ -92,20 +90,21 @@ async def main():
     timeoutTicker = TestTimeout(options.testTimeout)
     timeoutTicker.start()
 
-    test = BaseTestHelper(nodeId=112233, paaTrustStorePath=options.paaTrustStorePath, testCommissioner=False)
+    test = BaseTestHelper(
+        nodeId=112233, paaTrustStorePath=options.paaTrustStorePath, testCommissioner=False)
 
     logger.info("Testing discovery")
-    FailIfNot(await test.TestDiscovery(discriminator=TEST_DISCRIMINATOR), "Failed to discover any devices.")
+    FailIfNot(await test.TestDiscovery(discriminator=TEST_DISCRIMINATOR),
+              "Failed to discover any devices.")
 
-    FailIfNot(
-        test.SetNetworkCommissioningParameters(dataset=TEST_THREAD_NETWORK_DATASET_TLV), "Failed to finish network commissioning"
-    )
+    FailIfNot(test.SetNetworkCommissioningParameters(dataset=TEST_THREAD_NETWORK_DATASET_TLV),
+              "Failed to finish network commissioning")
 
     logger.info("Testing commissioning")
-    FailIfNot(
-        await test.TestOnNetworkCommissioning(discriminator=options.discriminator, setuppin=options.passcode, nodeId=1),
-        "Failed to finish key exchange",
-    )
+    FailIfNot(await test.TestOnNetworkCommissioning(discriminator=options.discriminator,
+                                                    setuppin=options.passcode,
+                                                    nodeId=1),
+              "Failed to finish key exchange")
 
     FailIfNot(await test.TestFailsafe(nodeId=1), "Failed failsafe test")
 

@@ -54,6 +54,7 @@ MAX_NUM_PATHS_IN_MTU = 50
 
 
 class TC_IDM_2_3(BasicCompositionTests):
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.endpoint = 0
@@ -64,17 +65,10 @@ class TC_IDM_2_3(BasicCompositionTests):
 
     def steps_TC_IDM_2_3(self) -> list[TestStep]:
         return [
-            TestStep(
-                1, "TH reads from the DUT the CapabilityMinima attribute from the Basic Information Cluster.", is_commissioning=True
-            ),
-            TestStep(
-                2, "TH reads from the DUT all attributes from all clusters on all endpoints, to collect valid AttributePaths."
-            ),
+            TestStep(1, "TH reads from the DUT the CapabilityMinima attribute from the Basic Information Cluster.", is_commissioning=True),
+            TestStep(2, "TH reads from the DUT all attributes from all clusters on all endpoints, to collect valid AttributePaths."),
             TestStep(3, "TH sends a Read Request Message to the DUT with a number of paths up to the ReadPathsSupported value."),
-            TestStep(
-                4,
-                "TH sends a Subscribe Request Message to the DUT with a number of paths up to the SubscribePathsSupported value. TH then modifies one of the subscribed attributes and waits for a Report Data Action.",
-            ),
+            TestStep(4, "TH sends a Subscribe Request Message to the DUT with a number of paths up to the SubscribePathsSupported value. TH then modifies one of the subscribed attributes and waits for a Report Data Action."),
         ]
 
     def verify_paths_in_response(self, requested_paths, response_tlv):
@@ -84,15 +78,12 @@ class TC_IDM_2_3(BasicCompositionTests):
             cluster_id = path.ClusterId
             attribute_id = path.AttributeId
 
-            asserts.assert_in(endpoint_id, response_tlv, f"Endpoint {endpoint_id} missing in response")
-            asserts.assert_in(
-                cluster_id, response_tlv[endpoint_id], f"Cluster {cluster_id} missing in response for endpoint {endpoint_id}"
-            )
-            asserts.assert_in(
-                attribute_id,
-                response_tlv[endpoint_id][cluster_id],
-                f"Attribute {attribute_id} missing in response for endpoint {endpoint_id}, cluster {cluster_id}",
-            )
+            asserts.assert_in(endpoint_id, response_tlv,
+                              f"Endpoint {endpoint_id} missing in response")
+            asserts.assert_in(cluster_id, response_tlv[endpoint_id],
+                              f"Cluster {cluster_id} missing in response for endpoint {endpoint_id}")
+            asserts.assert_in(attribute_id, response_tlv[endpoint_id][cluster_id],
+                              f"Attribute {attribute_id} missing in response for endpoint {endpoint_id}, cluster {cluster_id}")
 
     def get_paths(self, count, all_paths):
         path_list = []
@@ -111,7 +102,8 @@ class TC_IDM_2_3(BasicCompositionTests):
         # Step 1: CapabilityMinima
         self.step(1)
         cluster_revision = await self.read_single_attribute_check_success(
-            cluster=Clusters.BasicInformation, attribute=Clusters.BasicInformation.Attributes.ClusterRevision
+            cluster=Clusters.BasicInformation,
+            attribute=Clusters.BasicInformation.Attributes.ClusterRevision
         )
 
         # Default values for number of read paths and subscribe paths
@@ -119,29 +111,24 @@ class TC_IDM_2_3(BasicCompositionTests):
         num_subscribe_paths_supported = 3
 
         capability_minima = await self.read_single_attribute_check_success(
-            cluster=Clusters.BasicInformation, attribute=Clusters.BasicInformation.Attributes.CapabilityMinima
+            cluster=Clusters.BasicInformation,
+            attribute=Clusters.BasicInformation.Attributes.CapabilityMinima
         )
 
         if cluster_revision >= 6:
-            asserts.assert_is_not_none(
-                capability_minima.readPathsSupported, "ReadPathsSupported should be present when ClusterRevision >= 6"
-            )
-            asserts.assert_is_not_none(
-                capability_minima.subscribePathsSupported, "SubscribePathsSupported should be present when ClusterRevision >= 6"
-            )
+            asserts.assert_is_not_none(capability_minima.readPathsSupported,
+                                       "ReadPathsSupported should be present when ClusterRevision >= 6")
+            asserts.assert_is_not_none(capability_minima.subscribePathsSupported,
+                                       "SubscribePathsSupported should be present when ClusterRevision >= 6")
 
             # Extract values, providing defaults if optional fields are missing
             num_read_paths_supported = capability_minima.readPathsSupported
             num_subscribe_paths_supported = capability_minima.subscribePathsSupported
         else:
-            log.info(
-                "Basic Information Cluster revision is less than 6, read paths and subscribe paths are not part of CapabilityMinima struct."
-            )
+            log.info("Basic Information Cluster revision is less than 6, read paths and subscribe paths are not part of CapabilityMinima struct.")
 
-        log.info(
-            f"CapabilityMinima: readPathsSupported={num_read_paths_supported}, "
-            f"subscribePathsSupported={num_subscribe_paths_supported}"
-        )
+        log.info(f"CapabilityMinima: readPathsSupported={num_read_paths_supported}, "
+                 f"subscribePathsSupported={num_subscribe_paths_supported}")
 
         # Step 2: Collect available paths
         self.step(2)
@@ -158,13 +145,8 @@ class TC_IDM_2_3(BasicCompositionTests):
 
         if not all_paths:
             # Fallback for empty devices (unlikely)
-            all_paths = [
-                AttributePath(
-                    EndpointId=0,
-                    ClusterId=Clusters.BasicInformation.id,
-                    AttributeId=Clusters.BasicInformation.Attributes.NodeLabel.attribute_id,
-                )
-            ]
+            all_paths = [AttributePath(EndpointId=0, ClusterId=Clusters.BasicInformation.id,
+                                       AttributeId=Clusters.BasicInformation.Attributes.NodeLabel.attribute_id)]
 
         # Step 3: Read max number of paths
         self.step(3)
@@ -187,8 +169,7 @@ class TC_IDM_2_3(BasicCompositionTests):
 
         read_response = await conduct_request_with_potential_path_size_reduction(read_paths, num_read_paths_supported, read_request)
         asserts.assert_is_not_none(
-            read_response, "No response returned from read request. Ensure the number of paths in request is valid."
-        )
+            read_response, "No response returned from read request. Ensure the number of paths in request is valid.")
         self.verify_paths_in_response(read_paths, read_response.tlvAttributes)
         log.info("Successfully completed read request")
 
@@ -196,31 +177,32 @@ class TC_IDM_2_3(BasicCompositionTests):
         self.step(4)
 
         initial_node_label = await self.read_single_attribute_check_success(
-            cluster=Clusters.BasicInformation, attribute=Clusters.BasicInformation.Attributes.NodeLabel
+            cluster=Clusters.BasicInformation,
+            attribute=Clusters.BasicInformation.Attributes.NodeLabel
         )
 
         # TODO: Should have resilience to a missing node label
         sub_paths = self.get_paths(num_subscribe_paths_supported, all_paths)
-        sub_paths[0] = AttributePath(
-            EndpointId=0,
-            ClusterId=Clusters.BasicInformation.id,
-            AttributeId=Clusters.BasicInformation.Attributes.NodeLabel.attribute_id,
-        )
+        sub_paths[0] = AttributePath(EndpointId=0, ClusterId=Clusters.BasicInformation.id,
+                                     AttributeId=Clusters.BasicInformation.Attributes.NodeLabel.attribute_id)
 
         handler = AttributeSubscriptionHandler(
-            expected_cluster=Clusters.BasicInformation, expected_attribute=Clusters.BasicInformation.Attributes.NodeLabel
+            expected_cluster=Clusters.BasicInformation,
+            expected_attribute=Clusters.BasicInformation.Attributes.NodeLabel
         )
 
         async def subscribe_request(paths):
             log.info("Conducting subscribe request")
-            return await self.default_controller.Read(self.dut_node_id, paths, reportInterval=(1, 1000), keepSubscriptions=False)
+            return await self.default_controller.Read(
+                self.dut_node_id,
+                paths,
+                reportInterval=(1, 1000),
+                keepSubscriptions=False
+            )
 
-        sub_transaction = await conduct_request_with_potential_path_size_reduction(
-            sub_paths, num_subscribe_paths_supported, subscribe_request
-        )
+        sub_transaction = await conduct_request_with_potential_path_size_reduction(sub_paths, num_subscribe_paths_supported, subscribe_request)
         asserts.assert_is_not_none(
-            sub_transaction, "No response returned from subscribe request. Ensure the number of paths in request is valid."
-        )
+            sub_transaction, "No response returned from subscribe request. Ensure the number of paths in request is valid.")
         log.info("Successfully completed subscribe request")
         sub_transaction.SetAttributeUpdateCallback(handler)
 
@@ -229,11 +211,16 @@ class TC_IDM_2_3(BasicCompositionTests):
         new_label = initial_node_label
         while new_label == initial_node_label:
             new_label = str(random.randint(0, 999999))
-        await self.write_single_attribute(Clusters.BasicInformation.Attributes.NodeLabel(value=new_label), endpoint_id=0)
+        await self.write_single_attribute(
+            Clusters.BasicInformation.Attributes.NodeLabel(value=new_label),
+            endpoint_id=0
+        )
 
         # Verify change of NodeLabel received.
         handler.await_sequence_of_reports(
-            attribute=Clusters.BasicInformation.Attributes.NodeLabel, sequence=[new_label], timeout_sec=10
+            attribute=Clusters.BasicInformation.Attributes.NodeLabel,
+            sequence=[new_label],
+            timeout_sec=10
         )
 
         log.info("Successfully subscribed and verified report sequence.")

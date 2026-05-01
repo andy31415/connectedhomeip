@@ -249,7 +249,8 @@ public:
     PairingCommand()
 #if CHIP_DEVICE_CONFIG_APP_PLATFORM_ENABLED
         :
-        mOnDeviceConnectedCallback(OnDeviceConnectedFn, this), mOnDeviceConnectionFailureCallback(OnDeviceConnectionFailureFn, this)
+        mOnDeviceConnectedCallback(OnDeviceConnectedFn, this),
+        mOnDeviceConnectionFailureCallback(OnDeviceConnectionFailureFn, this)
 #endif // CHIP_DEVICE_CONFIG_APP_PLATFORM_ENABLED
     {}
 

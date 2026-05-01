@@ -23,29 +23,32 @@ import sys
 
 
 def main():
+
     try:
         zephyr_base = os.getenv("ZEPHYR_BASE")
         if not zephyr_base:
             zephyr_base = os.getenv("TELINK_ZEPHYR_BASE")
-            os.environ["ZEPHYR_BASE"] = zephyr_base
+            os.environ['ZEPHYR_BASE'] = zephyr_base
         if not zephyr_base:
-            raise RuntimeError("No ZEPHYR_BASE environment variable found, please set ZEPHYR_BASE to a zephyr repository path.")
+            raise RuntimeError(
+                "No ZEPHYR_BASE environment variable found, please set ZEPHYR_BASE to a zephyr repository path.")
 
-        parser = argparse.ArgumentParser(description="Script helping to update Telink Zephyr to specific revision.")
+        parser = argparse.ArgumentParser(
+            description='Script helping to update Telink Zephyr to specific revision.')
         parser.add_argument("hash", help="Update Telink Zephyr to specific revision.")
 
         args = parser.parse_args()
 
-        command = ["git", "-C", zephyr_base, "fetch"]
+        command = ['git', '-C', zephyr_base, 'fetch']
         subprocess.run(command, check=True)
 
-        command = ["git", "-C", zephyr_base, "reset", args.hash, "--hard"]
+        command = ['git', '-C', zephyr_base, 'reset', args.hash, '--hard']
         subprocess.run(command, check=True)
 
-        command = ["west", "update", "-o=--depth=1", "-n", "-f", "smart"]
+        command = ['west', 'update', '-o=--depth=1', '-n', '-f', 'smart']
         subprocess.run(command, check=True)
 
-        command = ["west", "blobs", "fetch", "hal_telink"]
+        command = ['west', 'blobs', 'fetch', 'hal_telink']
         subprocess.run(command, check=True)
 
     except (RuntimeError, subprocess.CalledProcessError) as e:
@@ -53,5 +56,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

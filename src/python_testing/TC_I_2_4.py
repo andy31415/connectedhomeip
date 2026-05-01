@@ -59,104 +59,49 @@ class TC_I_2_4(MatterBaseTest):
     def steps_TC_I_2_4(self) -> list[TestStep]:
         THwrite = "TH writes to the DUT the"
         THcommand = "TH sends the command"
-        return [
-            TestStep(1, test_plan_support.commission_if_required(), is_commissioning=True),
-            TestStep(
-                2,
-                "Set up a wildcard subscription for the entire Identify Cluster, with MinIntervalFloor set to 0, MaxIntervalCeiling set to 30 and KeepSubscriptions set to false",
-                "Subscription successfully established",
-            ),
-            TestStep(3, f"{THwrite} IdentifyTime attribute to 30.", test_plan_support.verify_success()),
-            TestStep(
-                4,
-                "TH waits for the report and verifies the received report has a value of 30",
-                "The received report contains a value equal to 30 (-2 delta allowed)",
-            ),
-            TestStep(5, f"{THwrite} IdentifyTime attribute to 35.", test_plan_support.verify_success()),
-            TestStep(
-                6,
-                "TH waits for the report and verifies the received report has a value of 35",
-                "The received report contains a value equal to 35 (-2 delta allowed)",
-            ),
-            TestStep(7, f"{THwrite} IdentifyTime attribute to 5.", test_plan_support.verify_success()),
-            TestStep(
-                8,
-                "TH waits for the report and verifies the received report has a value of 5",
-                "The received report contains a value equal to 5 (-2 delta allowed)",
-            ),
-            TestStep(
-                9,
-                "TH waits for the report and verifies the received report has a value of 0",
-                "The received report contains a value equal to 0",
-            ),
-            TestStep(10, f"{THwrite} IdentifyTime attribute to 35.", test_plan_support.verify_success()),
-            TestStep(
-                11,
-                "TH waits for the report and verifies the received report has a value of 35",
-                "The received report contains a value equal to 35 (-2 delta allowed)",
-            ),
-            TestStep(12, f"{THwrite} IdentifyTime attribute to 0.", test_plan_support.verify_success()),
-            TestStep(
-                13,
-                "TH waits for the (next) report and verifies the received report has a value of 0",
-                "The received report contains a value equal to 0",
-            ),
-            TestStep(
-                14,
-                f"{THcommand} Identify command with the value of IdentifyTime field set to 30",
-                test_plan_support.verify_success(),
-            ),
-            TestStep(
-                15,
-                "TH waits for the report and verifies the received report has a value of 30",
-                "The received report contains a value equal to 30 (-2 delta allowed)",
-            ),
-            TestStep(
-                16,
-                f"{THcommand} Identify command with the value of IdentifyTime field set to 35",
-                test_plan_support.verify_success(),
-            ),
-            TestStep(
-                17,
-                "TH waits for the report and verifies the received report has a value of 35",
-                "The received report contains a value equal to 35 (-2 delta allowed)",
-            ),
-            TestStep(
-                18,
-                f"{THcommand} Identify command with the value of IdentifyTime field set to 5",
-                test_plan_support.verify_success(),
-            ),
-            TestStep(
-                19,
-                "TH waits for the report and verifies the received report has a value of 5",
-                "The received report contains a value equal to 5 (-2 delta allowed)",
-            ),
-            TestStep(
-                20,
-                "TH waits for the (next) report and verifies the received report has a value of 0",
-                "The received report contains a value equal to 0",
-            ),
-            TestStep(
-                21,
-                f"{THcommand} Identify command with the value of IdentifyTime field set to 35",
-                test_plan_support.verify_success(),
-            ),
-            TestStep(
-                22,
-                "TH waits for the report and verifies the received report has a value of 35",
-                "The received report contains a value equal to 35 (-2 delta allowed)",
-            ),
-            TestStep(
-                23,
-                f"{THcommand} Identify command with the value of IdentifyTime field set to 0",
-                test_plan_support.verify_success(),
-            ),
-            TestStep(
-                24,
-                "TH waits for the report and verifies the received report has a value of 0",
-                "The received report contains a value equal to 0",
-            ),
-        ]
+        return [TestStep(1, test_plan_support.commission_if_required(), is_commissioning=True),
+                TestStep(2, "Set up a wildcard subscription for the entire Identify Cluster, with MinIntervalFloor set to 0, MaxIntervalCeiling set to 30 and KeepSubscriptions set to false",
+                         "Subscription successfully established"),
+                TestStep(3, f"{THwrite} IdentifyTime attribute to 30.", test_plan_support.verify_success()),
+                TestStep(4, "TH waits for the report and verifies the received report has a value of 30",
+                         "The received report contains a value equal to 30 (-2 delta allowed)"),
+                TestStep(5, f"{THwrite} IdentifyTime attribute to 35.", test_plan_support.verify_success()),
+                TestStep(6, "TH waits for the report and verifies the received report has a value of 35",
+                         "The received report contains a value equal to 35 (-2 delta allowed)"),
+                TestStep(7, f"{THwrite} IdentifyTime attribute to 5.", test_plan_support.verify_success()),
+                TestStep(8, "TH waits for the report and verifies the received report has a value of 5",
+                         "The received report contains a value equal to 5 (-2 delta allowed)"),
+                TestStep(9, "TH waits for the report and verifies the received report has a value of 0",
+                         "The received report contains a value equal to 0"),
+                TestStep(10, f"{THwrite} IdentifyTime attribute to 35.", test_plan_support.verify_success()),
+                TestStep(11, "TH waits for the report and verifies the received report has a value of 35",
+                         "The received report contains a value equal to 35 (-2 delta allowed)"),
+                TestStep(12, f"{THwrite} IdentifyTime attribute to 0.", test_plan_support.verify_success()),
+                TestStep(13, "TH waits for the (next) report and verifies the received report has a value of 0",
+                         "The received report contains a value equal to 0"),
+                TestStep(14, f"{THcommand} Identify command with the value of IdentifyTime field set to 30",
+                         test_plan_support.verify_success()),
+                TestStep(15, "TH waits for the report and verifies the received report has a value of 30",
+                         "The received report contains a value equal to 30 (-2 delta allowed)"),
+                TestStep(16, f"{THcommand} Identify command with the value of IdentifyTime field set to 35",
+                         test_plan_support.verify_success()),
+                TestStep(17, "TH waits for the report and verifies the received report has a value of 35",
+                         "The received report contains a value equal to 35 (-2 delta allowed)"),
+                TestStep(18, f"{THcommand} Identify command with the value of IdentifyTime field set to 5",
+                         test_plan_support.verify_success()),
+                TestStep(19, "TH waits for the report and verifies the received report has a value of 5",
+                         "The received report contains a value equal to 5 (-2 delta allowed)"),
+                TestStep(20, "TH waits for the (next) report and verifies the received report has a value of 0",
+                         "The received report contains a value equal to 0"),
+                TestStep(21, f"{THcommand} Identify command with the value of IdentifyTime field set to 35",
+                         test_plan_support.verify_success()),
+                TestStep(22, "TH waits for the report and verifies the received report has a value of 35",
+                         "The received report contains a value equal to 35 (-2 delta allowed)"),
+                TestStep(23, f"{THcommand} Identify command with the value of IdentifyTime field set to 0",
+                         test_plan_support.verify_success()),
+                TestStep(24, "TH waits for the report and verifies the received report has a value of 0",
+                         "The received report contains a value equal to 0"),
+                ]
 
     def pics_TC_I_2_4(self) -> list[str]:
         return [
@@ -185,96 +130,70 @@ class TC_I_2_4(MatterBaseTest):
 
         self.step(3)
         identify_time_value = 30
-        await self.write_single_attribute(
-            cluster.Attributes.IdentifyTime(identify_time_value), endpoint_id=endpoint, expect_success=True
-        )
+        await self.write_single_attribute(cluster.Attributes.IdentifyTime(identify_time_value), endpoint_id=endpoint, expect_success=True)
 
         self.step(4)
         sub_handler.wait_for_attribute_report(timeout_sec=30)
 
         # Verify the received value is as expected
         self.assert_identify_time(
-            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value,
-            min_value=(identify_time_value - accepted_value_delta_in_reports),
-            max_value=identify_time_value,
-        )
+            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value, min_value=(identify_time_value - accepted_value_delta_in_reports), max_value=identify_time_value)
         sub_handler.reset()
 
         self.step(5)
         identify_time_value = 35
-        await self.write_single_attribute(
-            cluster.Attributes.IdentifyTime(identify_time_value), endpoint_id=endpoint, expect_success=True
-        )
+        await self.write_single_attribute(cluster.Attributes.IdentifyTime(identify_time_value), endpoint_id=endpoint, expect_success=True)
 
         self.step(6)
         sub_handler.wait_for_attribute_report(timeout_sec=30)
 
         # Verify the received value is as expected
         self.assert_identify_time(
-            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value,
-            min_value=(identify_time_value - accepted_value_delta_in_reports),
-            max_value=identify_time_value,
-        )
+            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value, min_value=(identify_time_value - accepted_value_delta_in_reports), max_value=identify_time_value)
         sub_handler.reset()
 
         self.step(7)
         identify_time_value = 5
-        await self.write_single_attribute(
-            cluster.Attributes.IdentifyTime(identify_time_value), endpoint_id=endpoint, expect_success=True
-        )
+        await self.write_single_attribute(cluster.Attributes.IdentifyTime(identify_time_value), endpoint_id=endpoint, expect_success=True)
 
         self.step(8)
         sub_handler.wait_for_attribute_report(timeout_sec=30)
 
         # Verify the received value is as expected
         self.assert_identify_time(
-            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value,
-            min_value=(identify_time_value - accepted_value_delta_in_reports),
-            max_value=identify_time_value,
-        )
+            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value, min_value=(identify_time_value - accepted_value_delta_in_reports), max_value=identify_time_value)
         sub_handler.reset()
 
         self.step(9)
         log.info("Test waits for report of IdentifyTime at 0")
         sub_handler.wait_for_attribute_report(timeout_sec=30)
 
-        asserts.assert_equal(
-            sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value, 0, "Received unexpected value for IdentifyTime"
-        )
+        asserts.assert_equal(sub_handler.attribute_reports[cluster.Attributes.IdentifyTime]
+                             [0].value, 0, "Received unexpected value for IdentifyTime")
         sub_handler.reset()
 
         self.step(10)
         identify_time_value = 35
-        await self.write_single_attribute(
-            cluster.Attributes.IdentifyTime(identify_time_value), endpoint_id=endpoint, expect_success=True
-        )
+        await self.write_single_attribute(cluster.Attributes.IdentifyTime(identify_time_value), endpoint_id=endpoint, expect_success=True)
 
         self.step(11)
         sub_handler.wait_for_attribute_report(timeout_sec=30)
 
         # Verify the received value is as expected
         self.assert_identify_time(
-            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value,
-            min_value=(identify_time_value - accepted_value_delta_in_reports),
-            max_value=identify_time_value,
-        )
+            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value, min_value=(identify_time_value - accepted_value_delta_in_reports), max_value=identify_time_value)
         sub_handler.reset()
 
         self.step(12)
         identify_time_value = 0
-        await self.write_single_attribute(
-            cluster.Attributes.IdentifyTime(identify_time_value), endpoint_id=endpoint, expect_success=True
-        )
+        await self.write_single_attribute(cluster.Attributes.IdentifyTime(identify_time_value), endpoint_id=endpoint, expect_success=True)
 
         self.step(13)
         sub_handler.wait_for_attribute_report(timeout_sec=30)
 
         # Verify the received value is as expected
-        asserts.assert_equal(
-            sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value,
-            identify_time_value,
-            msg="Received unexpected value for IdentifyTime",
-        )
+        asserts.assert_equal(sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value,
+                             identify_time_value, msg="Received unexpected value for IdentifyTime")
         sub_handler.reset()
 
         # Verify Q requirements for IdentifyTime attribute by invoke of Identify command
@@ -291,10 +210,7 @@ class TC_I_2_4(MatterBaseTest):
 
         # Verify the received value is as expected
         self.assert_identify_time(
-            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value,
-            min_value=(identify_time_value - accepted_value_delta_in_reports),
-            max_value=identify_time_value,
-        )
+            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value, min_value=(identify_time_value - accepted_value_delta_in_reports), max_value=identify_time_value)
         sub_handler.reset()
 
         self.step(16)
@@ -309,10 +225,7 @@ class TC_I_2_4(MatterBaseTest):
 
         # Verify the received value is as expected
         self.assert_identify_time(
-            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value,
-            min_value=(identify_time_value - accepted_value_delta_in_reports),
-            max_value=identify_time_value,
-        )
+            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value, min_value=(identify_time_value - accepted_value_delta_in_reports), max_value=identify_time_value)
         sub_handler.reset()
 
         self.step(18)
@@ -327,19 +240,15 @@ class TC_I_2_4(MatterBaseTest):
 
         # Verify the received value is as expected
         self.assert_identify_time(
-            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value,
-            min_value=(identify_time_value - accepted_value_delta_in_reports),
-            max_value=identify_time_value,
-        )
+            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value, min_value=(identify_time_value - accepted_value_delta_in_reports), max_value=identify_time_value)
         sub_handler.reset()
 
         self.step(20)
         log.info("Test waits for report of IdentifyTime at 0")
         sub_handler.wait_for_attribute_report(timeout_sec=30)
 
-        asserts.assert_equal(
-            sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value, 0, "Received unexpected value for IdentifyTime"
-        )
+        asserts.assert_equal(sub_handler.attribute_reports[cluster.Attributes.IdentifyTime]
+                             [0].value, 0, "Received unexpected value for IdentifyTime")
         sub_handler.reset()
 
         self.step(21)
@@ -355,10 +264,7 @@ class TC_I_2_4(MatterBaseTest):
 
         # Verify the received value is as expected
         self.assert_identify_time(
-            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value,
-            min_value=(identify_time_value - accepted_value_delta_in_reports),
-            max_value=identify_time_value,
-        )
+            value=sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value, min_value=(identify_time_value - accepted_value_delta_in_reports), max_value=identify_time_value)
         sub_handler.reset()
 
         self.step(23)
@@ -372,11 +278,8 @@ class TC_I_2_4(MatterBaseTest):
         sub_handler.wait_for_attribute_report(timeout_sec=30)
 
         # Verify the received value is as expected
-        asserts.assert_equal(
-            sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value,
-            identify_time_value,
-            msg="Received unexpected value for IdentifyTime",
-        )
+        asserts.assert_equal(sub_handler.attribute_reports[cluster.Attributes.IdentifyTime][0].value,
+                             identify_time_value, msg="Received unexpected value for IdentifyTime")
         sub_handler.reset()
 
 

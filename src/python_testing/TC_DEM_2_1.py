@@ -44,6 +44,7 @@
 
 """Define Matter test case TC_DEM_2_1."""
 
+
 import logging
 
 from mobly import asserts
@@ -74,48 +75,26 @@ class TC_DEM_2_1(MatterBaseTest, DEMTestBase):
     def steps_TC_DEM_2_1(self) -> list[TestStep]:
         """Execute the test steps."""
         return [
-            TestStep("1", "Commissioning, already done", is_commissioning=True),
-            TestStep("2", "TH reads from the DUT FeatureMap attribute.", "Store the value as FeatureMap."),
-            TestStep(
-                "3",
-                "TH reads from the DUT ESAType attribute.",
-                "Verify that the DUT response contains an a ESATypeEnum (enum8) value to match the DUT type.",
-            ),
-            TestStep(
-                "4",
-                "TH reads from the DUT the ESACanGenerate attribute.",
-                "Verify that the DUT response contains a boolean value to match the DUT capability.",
-            ),
-            TestStep(
-                "5",
-                "TH reads from the DUT ESAState attribute.",
-                "Verify that the DUT response contains an a ESAStateEnum (enum8) value to match the DUT state (Online or Offline).",
-            ),
-            TestStep(
-                "6",
-                "TH reads from the DUT the AbsMinPower attribute.",
-                "Verify that the DUT response contains a power-mW value to match the DUT capability, and is negative if and only if the ESACanGenerate read in step 4 is TRUE.",
-            ),
-            TestStep(
-                "7",
-                "TH reads from the DUT the AbsMaxPower attribute.",
-                "Verify that the DUT response contains a power-mW value to match the DUT capability, and greater than or equal to the AbsMinPower read in step 6.",
-            ),
-            TestStep(
-                "8",
-                "TH reads from the DUT the PowerAdjustmentCapability attribute.",
-                "Verify that the DUT response contains either a null value or a PowerAdjustCapabilityStruct value which contains a list of PowerAdjustStruct values and a valid Cause PowerAdjustReasonEnum (enum8) value.",
-            ),
-            TestStep(
-                "9",
-                "If PFR or SFR feature is supported on the cluster, TH reads from the DUT the Forecast attribute.",
-                "Verify that the DUT response contains either a null value or a valid ForecastStruct value.",
-            ),
-            TestStep(
-                "10",
-                "If PA, STA, PAU, FA or CON feature is supported on the cluster, TH reads from the DUT the OptOutState attribute.",
-                "Verify that the DUT response contains an OptOutStateEnum (enum8) value.",
-            ),
+            TestStep("1", "Commissioning, already done",
+                     is_commissioning=True),
+            TestStep("2", "TH reads from the DUT FeatureMap attribute.",
+                     "Store the value as FeatureMap."),
+            TestStep("3", "TH reads from the DUT ESAType attribute.",
+                     "Verify that the DUT response contains an a ESATypeEnum (enum8) value to match the DUT type."),
+            TestStep("4", "TH reads from the DUT the ESACanGenerate attribute.",
+                     "Verify that the DUT response contains a boolean value to match the DUT capability."),
+            TestStep("5", "TH reads from the DUT ESAState attribute.",
+                     "Verify that the DUT response contains an a ESAStateEnum (enum8) value to match the DUT state (Online or Offline)."),
+            TestStep("6", "TH reads from the DUT the AbsMinPower attribute.",
+                     "Verify that the DUT response contains a power-mW value to match the DUT capability, and is negative if and only if the ESACanGenerate read in step 4 is TRUE."),
+            TestStep("7", "TH reads from the DUT the AbsMaxPower attribute.",
+                     "Verify that the DUT response contains a power-mW value to match the DUT capability, and greater than or equal to the AbsMinPower read in step 6."),
+            TestStep("8", "TH reads from the DUT the PowerAdjustmentCapability attribute.",
+                     "Verify that the DUT response contains either a null value or a PowerAdjustCapabilityStruct value which contains a list of PowerAdjustStruct values and a valid Cause PowerAdjustReasonEnum (enum8) value."),
+            TestStep("9", "If PFR or SFR feature is supported on the cluster, TH reads from the DUT the Forecast attribute.",
+                     "Verify that the DUT response contains either a null value or a valid ForecastStruct value."),
+            TestStep("10", "If PA, STA, PAU, FA or CON feature is supported on the cluster, TH reads from the DUT the OptOutState attribute.",
+                     "Verify that the DUT response contains an OptOutStateEnum (enum8) value."),
         ]
 
     @async_test_body
@@ -139,11 +118,9 @@ class TC_DEM_2_1(MatterBaseTest, DEMTestBase):
         asserts.assert_is_instance(esa_type, Clusters.DeviceEnergyManagement.Enums.ESATypeEnum, "Invalid type for ESAType")
 
         if not self.is_ci:
-            user_response = self.wait_for_user_input(
-                prompt_msg=f"Detected ESAType is {esa_type.name}:{esa_type} - is this correct? Enter 'y' or 'n'",
-                prompt_msg_placeholder="y",
-                default_value="y",
-            )
+            user_response = self.wait_for_user_input(prompt_msg=f"Detected ESAType is {esa_type.name}:{esa_type} - is this correct? Enter 'y' or 'n'",
+                                                     prompt_msg_placeholder="y",
+                                                     default_value="y")
             asserts.assert_equal(user_response.lower(), "y")
 
         self.step("4")
@@ -151,11 +128,9 @@ class TC_DEM_2_1(MatterBaseTest, DEMTestBase):
         asserts.assert_is_instance(esa_can_generate, bool)
 
         if not self.is_ci:
-            user_response = self.wait_for_user_input(
-                prompt_msg=f"Detected ESACanGenerate is: {esa_can_generate} - is this correct? Enter 'y' or 'n'",
-                prompt_msg_placeholder="y",
-                default_value="y",
-            )
+            user_response = self.wait_for_user_input(prompt_msg=f"Detected ESACanGenerate is: {esa_can_generate} - is this correct? Enter 'y' or 'n'",
+                                                     prompt_msg_placeholder="y",
+                                                     default_value="y")
             asserts.assert_equal(user_response.lower(), "y")
 
         self.step("5")
@@ -168,11 +143,9 @@ class TC_DEM_2_1(MatterBaseTest, DEMTestBase):
         asserts.assert_is_instance(abs_min_power, int)
 
         if not self.is_ci:
-            user_response = self.wait_for_user_input(
-                prompt_msg=f"AbsMinPower is {abs_min_power / 1000.0} W - is this correct? Enter 'y' or 'n'",
-                prompt_msg_placeholder="y",
-                default_value="y",
-            )
+            user_response = self.wait_for_user_input(prompt_msg=f"AbsMinPower is {abs_min_power/1000.0} W - is this correct? Enter 'y' or 'n'",
+                                                     prompt_msg_placeholder="y",
+                                                     default_value="y")
             asserts.assert_equal(user_response.lower(), "y")
 
         if not esa_can_generate:
@@ -185,11 +158,9 @@ class TC_DEM_2_1(MatterBaseTest, DEMTestBase):
         asserts.assert_greater_equal(abs_max_power, abs_min_power)
 
         if not self.is_ci:
-            user_response = self.wait_for_user_input(
-                prompt_msg=f"AbsMaxPower is {abs_max_power / 1000.0} W - is this correct? Enter 'y' or 'n'",
-                prompt_msg_placeholder="y",
-                default_value="y",
-            )
+            user_response = self.wait_for_user_input(prompt_msg=f"AbsMaxPower is {abs_max_power/1000.0} W - is this correct? Enter 'y' or 'n'",
+                                                     prompt_msg_placeholder="y",
+                                                     default_value="y")
             asserts.assert_equal(user_response.lower(), "y")
 
         self.step("8")
@@ -198,9 +169,8 @@ class TC_DEM_2_1(MatterBaseTest, DEMTestBase):
             log.info(f"PowerAdjustmentCapability is {power_adjustment_capability}")
 
             if power_adjustment_capability is not NullValue:
-                asserts.assert_is_instance(
-                    power_adjustment_capability, Clusters.DeviceEnergyManagement.Structs.PowerAdjustCapabilityStruct
-                )
+                asserts.assert_is_instance(power_adjustment_capability,
+                                           Clusters.DeviceEnergyManagement.Structs.PowerAdjustCapabilityStruct)
 
                 power_adjustment_list = power_adjustment_capability.powerAdjustCapability
                 if power_adjustment_list is not NullValue:
@@ -212,24 +182,21 @@ class TC_DEM_2_1(MatterBaseTest, DEMTestBase):
                 asserts.assert_is_instance(power_adjustment_cause, Clusters.DeviceEnergyManagement.Enums.PowerAdjustReasonEnum)
 
         self.step("9")
-        if (
-            Clusters.DeviceEnergyManagement.Bitmaps.Feature.kPowerForecastReporting & feature_map
-            or Clusters.DeviceEnergyManagement.Bitmaps.Feature.kStateForecastReporting & feature_map
-        ):
+        if Clusters.DeviceEnergyManagement.Bitmaps.Feature.kPowerForecastReporting & feature_map or \
+                Clusters.DeviceEnergyManagement.Bitmaps.Feature.kStateForecastReporting & feature_map:
             forecast = await self.read_dem_attribute_expect_success(attribute="Forecast")
             log.info(f"Forecast is {forecast}")
 
             if forecast is not NullValue:
-                asserts.assert_is_instance(forecast, Clusters.DeviceEnergyManagement.Structs.ForecastStruct)
+                asserts.assert_is_instance(forecast,
+                                           Clusters.DeviceEnergyManagement.Structs.ForecastStruct)
 
         self.step("10")
-        if (
-            Clusters.DeviceEnergyManagement.Bitmaps.Feature.kPowerAdjustment & feature_map
-            or Clusters.DeviceEnergyManagement.Bitmaps.Feature.kStartTimeAdjustment & feature_map
-            or Clusters.DeviceEnergyManagement.Bitmaps.Feature.kPausable & feature_map
-            or Clusters.DeviceEnergyManagement.Bitmaps.Feature.kForecastAdjustment & feature_map
-            or Clusters.DeviceEnergyManagement.Bitmaps.Feature.kConstraintBasedAdjustment & feature_map
-        ):
+        if Clusters.DeviceEnergyManagement.Bitmaps.Feature.kPowerAdjustment & feature_map or \
+                Clusters.DeviceEnergyManagement.Bitmaps.Feature.kStartTimeAdjustment & feature_map or \
+                Clusters.DeviceEnergyManagement.Bitmaps.Feature.kPausable & feature_map or \
+                Clusters.DeviceEnergyManagement.Bitmaps.Feature.kForecastAdjustment & feature_map or \
+                Clusters.DeviceEnergyManagement.Bitmaps.Feature.kConstraintBasedAdjustment & feature_map:
             opt_out_state = await self.read_dem_attribute_expect_success(attribute="OptOutState")
             log.info(f"OptOutState is {opt_out_state.name}:{opt_out_state}")
 

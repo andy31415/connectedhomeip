@@ -30,7 +30,7 @@ uat = c.Bitmaps.UserActiveModeTriggerBitmap
 
 
 @dataclass
-class ICDMData:
+class ICDMData():
     FeatureMap: int
     IdleModeDuration: int
     ActiveModeDuration: int
@@ -47,38 +47,26 @@ class ICDMData:
 
 def test_spec_to_attribute_cache(test_icdm: ICDMData) -> Attribute.AsyncReadTransaction.ReadResponse:
     resp = Attribute.AsyncReadTransaction.ReadResponse({}, [], {})
-    resp.attributes = {
-        0: {
-            c: {
-                attr.FeatureMap: test_icdm.FeatureMap,
-                attr.IdleModeDuration: test_icdm.IdleModeDuration,
-                attr.ActiveModeDuration: test_icdm.ActiveModeDuration,
-                attr.ActiveModeThreshold: test_icdm.ActiveModeThreshold,
-                attr.RegisteredClients: test_icdm.RegisteredClients,
-                attr.ICDCounter: test_icdm.ICDCounter,
-                attr.ClientsSupportedPerFabric: test_icdm.ClientsSupportedPerFabric,
-                attr.UserActiveModeTriggerHint: test_icdm.UserActiveModeTriggerHint,
-                attr.UserActiveModeTriggerInstruction: test_icdm.UserActiveModeTriggerInstruction,
-                attr.OperatingMode: test_icdm.OperatingMode,
-                attr.MaximumCheckInBackOff: test_icdm.MaximumCheckInBackOff,
-            }
-        }
-    }
+    resp.attributes = {0: {c: {attr.FeatureMap: test_icdm.FeatureMap, attr.IdleModeDuration: test_icdm.IdleModeDuration, attr.ActiveModeDuration: test_icdm.ActiveModeDuration, attr.ActiveModeThreshold: test_icdm.ActiveModeThreshold,
+                               attr.RegisteredClients: test_icdm.RegisteredClients, attr.ICDCounter: test_icdm.ICDCounter,
+                               attr.ClientsSupportedPerFabric: test_icdm.ClientsSupportedPerFabric, attr.UserActiveModeTriggerHint: test_icdm.UserActiveModeTriggerHint,
+                               attr.UserActiveModeTriggerInstruction: test_icdm.UserActiveModeTriggerInstruction, attr.OperatingMode: test_icdm.OperatingMode, attr.MaximumCheckInBackOff: test_icdm.MaximumCheckInBackOff}}}
     return resp
 
 
 def run_tests(pics, label, test_cases, test_name):
-    test_runner = MockTestRunner(Path(__file__).parent / f"../{label}.py", label, test_name, 0, pics)
+    test_runner = MockTestRunner(Path(__file__).parent / f"../{label}.py",
+                                 label, test_name, 0, pics)
     failures = []
     for idx, t in enumerate(test_cases):
-        ok = test_runner.run_test_with_mock_read(test_spec_to_attribute_cache(t)) == t.expect_pass
+        ok = test_runner.run_test_with_mock_read(
+            test_spec_to_attribute_cache(t)) == t.expect_pass
         if not ok:
             failures.append(f"Measured test case failure: {idx} {t}")
 
     test_runner.Shutdown()
     print(
-        f"Test of tests: run {len(test_cases)}, test response correct: {len(test_cases) - len(failures)} | test response incorrect: {len(failures)}"
-    )
+        f"Test of tests: run {len(test_cases)}, test response correct: {len(test_cases) - len(failures)} | test response incorrect: {len(failures)}")
     for f in failures:
         print(f)
 

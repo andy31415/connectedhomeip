@@ -50,7 +50,7 @@ class LogMessageCounter:
             self._cancelled = threading.Event()
         else:
             self._cond = mp_manager.Condition()
-            self._counter = mp_manager.Value("i", 0)
+            self._counter = mp_manager.Value('i', 0)
             self._cancelled = mp_manager.Event()
 
     def increment(self) -> None:
@@ -108,11 +108,8 @@ class ProcessThreadTaskFilter(logging.Filter):
         Process/thread component (styled as bold) shows hierarchy of the current process and thread names joined with slash,
         filtering out the default "MainProcess" and "MainThread".
         """
-        proc_thread = "/".join(
-            name
-            for name, default in ((record.processName, "MainProcess"), (record.threadName, "MainThread"))
-            if name is not None and name != default
-        )
+        proc_thread = '/'.join(name for name, default in ((record.processName, "MainProcess"), (record.threadName, "MainThread"))
+                               if name is not None and name != default)
 
         record.process_thread = f"[{proc_thread}] " if proc_thread else ""
         record.task = f"{self.task_name}: " if self.task_name else ""

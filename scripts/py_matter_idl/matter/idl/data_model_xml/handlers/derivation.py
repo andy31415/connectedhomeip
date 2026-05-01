@@ -32,7 +32,7 @@ class HasName(Protocol):
     name: str
 
 
-NAMED = TypeVar("NAMED", bound=HasName)
+NAMED = TypeVar('NAMED', bound=HasName)
 
 
 def get_item_with_name(items: Iterable[NAMED], name: str) -> Optional[NAMED]:
@@ -75,7 +75,8 @@ def merge_bitmap_into(b: Bitmap, cluster: Cluster):
 def merge_event_into(e: Event, cluster: Cluster):
     existing = get_item_with_name(cluster.events, e.name)
     if existing:
-        LOGGER.error("TODO: Do not know how to merge event for %s::%s", cluster.name, existing.name)
+        LOGGER.error("TODO: Do not know how to merge event for %s::%s",
+                     cluster.name, existing.name)
         cluster.events.remove(existing)
 
     cluster.events.append(e)
@@ -83,7 +84,7 @@ def merge_event_into(e: Event, cluster: Cluster):
 
 def merge_attribute_into(a: Attribute, cluster: Cluster):
     """Pushes an attribute from a base cluster into an already
-    parsed cluster.
+       parsed cluster.
     """
     existing: Optional[Attribute] = None
     for existing_a in cluster.attributes:
@@ -133,7 +134,8 @@ def merge_command_into(c: Command, cluster: Cluster):
     existing = get_item_with_name(cluster.commands, c.name)
 
     if existing:
-        LOGGER.error("TODO: Do not know how to merge command for %s::%s", cluster.name, existing.name)
+        LOGGER.error("TODO: Do not know how to merge command for %s::%s",
+                     cluster.name, existing.name)
         cluster.commands.remove(existing)
 
     cluster.commands.append(c)
@@ -178,8 +180,10 @@ class AddBaseInfoPostProcessor(IdlPostProcessor):
                     break
 
         if not base:
-            LOGGER.error("Could not find the base cluster named '%s'", self.source_name)
+            LOGGER.error(
+                "Could not find the base cluster named '%s'", self.source_name)
             return
 
-        LOGGER.info("Copying base data from '%s' into '%s'", base.name, self.destination.name)
+        LOGGER.info("Copying base data from '%s' into '%s'",
+                    base.name, self.destination.name)
         inherit_cluster_data(from_cluster=base, into_cluster=self.destination)

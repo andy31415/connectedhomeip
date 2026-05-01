@@ -48,6 +48,7 @@ logger = logging.getLogger(__name__)
 
 
 class TestFactoryResetRequests(MatterBaseTest):
+
     def desc_TestFactoryResetRequests(self) -> str:
         return "[TestFactoryResetRequests] Test Factory Reset Requests"
 
@@ -64,12 +65,18 @@ class TestFactoryResetRequests(MatterBaseTest):
         await self.request_device_factory_reset(reset_ctrl=reset_ctrl)
 
         # Open a PASE session
-        await th2.FindOrEstablishPASESession(setupCode=setup_params.qr_code, nodeId=pase_node_id)
+        await th2.FindOrEstablishPASESession(
+            setupCode=setup_params.qr_code,
+            nodeId=pase_node_id
+        )
 
     @async_test_body
     async def test_TestFactoryResetRequests(self):
         pase_node_id = self.dut_node_id + 1
-        setup_params = SetupParameters(discriminator=1234, passcode=20202021)
+        setup_params = SetupParameters(
+            discriminator=1234,
+            passcode=20202021
+        )
 
         logger.info("\n\n\t** Testing 'Factory Reset App Only' Back to Back **\n")
         await self.factory_reset_and_pase(setup_params=setup_params, pase_node_id=pase_node_id, reset_ctrl=False)

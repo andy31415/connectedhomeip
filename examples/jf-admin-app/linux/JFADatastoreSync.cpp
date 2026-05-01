@@ -78,14 +78,16 @@ public:
 
     DevicePairedCommand(
         chip::NodeId nodeId, T object, std::function<void()> onSuccess = []() {}) :
-        mOnDeviceConnectedCallback(OnDeviceConnectedFn, this), mOnDeviceConnectionFailureCallback(OnDeviceConnectionFailureFn, this)
+        mOnDeviceConnectedCallback(OnDeviceConnectedFn, this),
+        mOnDeviceConnectionFailureCallback(OnDeviceConnectionFailureFn, this)
     {
         mContext = std::make_shared<CallbackContext>(nodeId, object, onSuccess);
     }
 
     DevicePairedCommand(
         chip::NodeId nodeId, std::function<void(CHIP_ERROR, const std::vector<T> &)> onFetchSuccess = []() {}) :
-        mOnDeviceConnectedCallback(OnDeviceConnectedFn, this), mOnDeviceConnectionFailureCallback(OnDeviceConnectionFailureFn, this)
+        mOnDeviceConnectedCallback(OnDeviceConnectedFn, this),
+        mOnDeviceConnectionFailureCallback(OnDeviceConnectionFailureFn, this)
     {
         mContext   = std::make_shared<CallbackContext>(nodeId, onFetchSuccess);
         mFetchOnly = true;
@@ -94,7 +96,8 @@ public:
     DevicePairedCommand(
         chip::NodeId nodeId, EndpointId endpointId,
         std::function<void(CHIP_ERROR, const std::vector<T> &)> onFetchSuccess = []() {}) :
-        mOnDeviceConnectedCallback(OnDeviceConnectedFn, this), mOnDeviceConnectionFailureCallback(OnDeviceConnectionFailureFn, this)
+        mOnDeviceConnectedCallback(OnDeviceConnectedFn, this),
+        mOnDeviceConnectionFailureCallback(OnDeviceConnectionFailureFn, this)
     {
         mContext   = std::make_shared<CallbackContext>(nodeId, endpointId, onFetchSuccess);
         mFetchOnly = true;
@@ -102,7 +105,8 @@ public:
 
     DevicePairedCommand(
         chip::NodeId nodeId, std::vector<T> objects, std::function<void()> onSuccess = []() {}) :
-        mOnDeviceConnectedCallback(OnDeviceConnectedFn, this), mOnDeviceConnectionFailureCallback(OnDeviceConnectionFailureFn, this)
+        mOnDeviceConnectedCallback(OnDeviceConnectedFn, this),
+        mOnDeviceConnectionFailureCallback(OnDeviceConnectionFailureFn, this)
     {
         mContext         = std::make_shared<CallbackContext>(nodeId, objects, onSuccess);
         mReplaceExisting = true;

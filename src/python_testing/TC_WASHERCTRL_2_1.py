@@ -48,52 +48,46 @@ MAX_SPIN_SPEEDS = 16
 
 
 class TC_WASHERCTRL_2_1(MatterBaseTest):
+
     def desc_TC_WASHERCTRL_2_1(self) -> str:
         """Returns a description of this test"""
         return "[TC-WASHERCTRL-2.1] Optional Spin attributes with DUT as Server"
 
     def pics_TC_WASHERCTRL_2_1(self) -> list[str]:
-        return ["WASHERCTRL.S.F00", "WASHERCTRL.S.A0000", "WASHERCTRL.S.A0001"]
+        return [
+            "WASHERCTRL.S.F00",
+            "WASHERCTRL.S.A0000",
+            "WASHERCTRL.S.A0001"
+        ]
 
     def steps_TC_WASHERCTRL_2_1(self) -> list[TestStep]:
         return [
-            TestStep(1, "Commissioning, already done", is_commissioning=True),
-            TestStep(
-                2,
-                description="TH reads from the DUT the SpinSpeeds attribute",
-                expectation="Verify that the DUT response contains a list of strings. The maximum size of the list is 16.",
-            ),
-            TestStep(
-                3,
-                description="TH reads from the DUT the SpinSpeedCurrent attribute",
-                expectation="Verify that the DUT response contains a uint8 with value between 0 and numSpinSpeeds-1 inclusive.",
-            ),
-            TestStep(
-                4,
-                description="TH writes a supported SpinSpeedCurrent attribute that is a valid index into the list"
-                + "of spin speeds (0 to numSpinSpeeds - 1) and then read the SpinSpeedCurrent value",
-                expectation="Verify DUT responds w/ status SUCCESS(0x00) and the SpinSpeedCurrent value was set accordingly",
-            ),
-            TestStep(
-                5,
-                description="TH writes an unsupported SpinSpeedCurrent attribute that is other than 0 to DUT",
-                expectation="Verify that the DUT response contains Status CONSTRAINT_ERROR response",
-            ),
+            TestStep(1, "Commissioning, already done",
+                     is_commissioning=True),
+            TestStep(2, description="TH reads from the DUT the SpinSpeeds attribute",
+                     expectation="Verify that the DUT response contains a list of strings. The maximum size of the list is 16."),
+            TestStep(3, description="TH reads from the DUT the SpinSpeedCurrent attribute",
+                     expectation="Verify that the DUT response contains a uint8 with value between 0 and numSpinSpeeds-1 inclusive."),
+            TestStep(4, description="TH writes a supported SpinSpeedCurrent attribute that is a valid index into the list"
+                     + "of spin speeds (0 to numSpinSpeeds - 1) and then read the SpinSpeedCurrent value",
+                     expectation="Verify DUT responds w/ status SUCCESS(0x00) and the SpinSpeedCurrent value was set accordingly"),
+            TestStep(5, description="TH writes an unsupported SpinSpeedCurrent attribute that is other than 0 to DUT",
+                     expectation="Verify that the DUT response contains Status CONSTRAINT_ERROR response")
         ]
 
-    @run_if_endpoint_matches(has_feature(Clusters.LaundryWasherControls, Clusters.LaundryWasherControls.Bitmaps.Feature.kSpin))
+    @run_if_endpoint_matches(has_feature(Clusters.LaundryWasherControls,
+                                         Clusters.LaundryWasherControls.Bitmaps.Feature.kSpin))
     async def test_TC_WASHERCTRL_2_1(self):
+
         endpoint = self.get_endpoint()
 
         self.step(1)
 
         # Read the SpinSpeeds attributes
         self.step(2)
-        list_speed_speeds = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=Clusters.Objects.LaundryWasherControls,
-            attribute=Clusters.LaundryWasherControls.Attributes.SpinSpeeds,
-        )
+        list_speed_speeds = await self.read_single_attribute_check_success(endpoint=endpoint,
+                                                                           cluster=Clusters.Objects.LaundryWasherControls,
+                                                                           attribute=Clusters.LaundryWasherControls.Attributes.SpinSpeeds)
 
         asserts.assert_true(isinstance(list_speed_speeds, list), "Returned value was not a list")
         numSpinSpeeds = len(list_speed_speeds)
@@ -101,37 +95,29 @@ class TC_WASHERCTRL_2_1(MatterBaseTest):
 
         # Read the SpinSpeedCurrent attribute
         self.step(3)
-        spin_speed_current = await self.read_single_attribute_check_success(
-            endpoint=endpoint,
-            cluster=Clusters.Objects.LaundryWasherControls,
-            attribute=Clusters.LaundryWasherControls.Attributes.SpinSpeedCurrent,
-        )
+        spin_speed_current = await self.read_single_attribute_check_success(endpoint=endpoint,
+                                                                            cluster=Clusters.Objects.LaundryWasherControls,
+                                                                            attribute=Clusters.LaundryWasherControls.Attributes.SpinSpeedCurrent)
         asserts.assert_true(isinstance(spin_speed_current, int), "SpinSpeedCurrent has an invalid value")
         asserts.assert_true(0 <= spin_speed_current <= (numSpinSpeeds - 1), "SpinSpeedCurrent outside valid range")
 
         self.step(4)
         for requested_speed in range(0, numSpinSpeeds):
             # Write a valid SpinSpeedCurrent value
-            result = await self.write_single_attribute(
-                attribute_value=Clusters.LaundryWasherControls.Attributes.SpinSpeedCurrent(requested_speed), endpoint_id=endpoint
-            )
+            result = await self.write_single_attribute(attribute_value=Clusters.LaundryWasherControls.Attributes.SpinSpeedCurrent(requested_speed),
+                                                       endpoint_id=endpoint)
             asserts.assert_equal(result, Status.Success, "Error when trying to write a valid SpinSpeed value")
 
             # Read SpinSpeedCurrent value and verify that was changed.
-            current_value = await self.read_single_attribute_check_success(
-                endpoint=endpoint,
-                cluster=Clusters.Objects.LaundryWasherControls,
-                attribute=Clusters.LaundryWasherControls.Attributes.SpinSpeedCurrent,
-            )
+            current_value = await self.read_single_attribute_check_success(endpoint=endpoint,
+                                                                           cluster=Clusters.Objects.LaundryWasherControls,
+                                                                           attribute=Clusters.LaundryWasherControls.Attributes.SpinSpeedCurrent)
             asserts.assert_equal(current_value, requested_speed, "Value obtained different than the previously written one")
 
         # Try to write an invalid value (outside supported range)
         self.step(5)
-        result = await self.write_single_attribute(
-            attribute_value=Clusters.LaundryWasherControls.Attributes.SpinSpeedCurrent(numSpinSpeeds),
-            endpoint_id=endpoint,
-            expect_success=False,
-        )
+        result = await self.write_single_attribute(attribute_value=Clusters.LaundryWasherControls.Attributes.SpinSpeedCurrent(numSpinSpeeds),
+                                                   endpoint_id=endpoint, expect_success=False)
         asserts.assert_equal(result, Status.ConstraintError, "Trying to write an invalid value should return ConstraintError")
 
 

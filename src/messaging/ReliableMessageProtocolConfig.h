@@ -194,7 +194,8 @@ struct ReliableMessageProtocolConfig
     constexpr ReliableMessageProtocolConfig(System::Clock::Milliseconds32 idleInterval,
                                             System::Clock::Milliseconds32 activeInterval,
                                             System::Clock::Milliseconds16 activeThreshold = kDefaultActiveTime) :
-        mIdleRetransTimeout(idleInterval), mActiveRetransTimeout(activeInterval), mActiveThresholdTime(activeThreshold)
+        mIdleRetransTimeout(idleInterval),
+        mActiveRetransTimeout(activeInterval), mActiveThresholdTime(activeThreshold)
     {}
 
     // Configurable timeout in msec for retransmission of the first sent message.

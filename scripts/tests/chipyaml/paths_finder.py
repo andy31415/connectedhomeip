@@ -22,10 +22,11 @@ from pathlib import Path
 import click
 from diskcache import Cache
 
-_PATHS_CACHE_NAME = "yaml_runner_cache"
+_PATHS_CACHE_NAME = 'yaml_runner_cache'
 _PATHS_CACHE = Cache(os.path.join(tempfile.gettempdir(), _PATHS_CACHE_NAME))
 
-DEFAULT_CHIP_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+DEFAULT_CHIP_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 
 class PathsFinder:
@@ -41,7 +42,7 @@ class PathsFinder:
             del _PATHS_CACHE[target_name]
 
         for root in self._roots:
-            if path := self._find_from_root(root, target_name):
+            if (path := self._find_from_root(root, target_name)):
                 return path
 
         return None
@@ -66,19 +67,19 @@ def finder():
 def view():
     """View the cache entries."""
     for name in _PATHS_CACHE:
-        print(click.style(f"{name}", bold=True) + f":\t{_PATHS_CACHE[name]}")
+        print(click.style(f'{name}', bold=True) + f':\t{_PATHS_CACHE[name]}')
 
 
 @finder.command()
-@click.argument("key", type=str)
-@click.argument("value", type=str)
+@click.argument('key', type=str)
+@click.argument('value', type=str)
 def add(key: str, value: str):
     """Add a cache entry."""
     _PATHS_CACHE[key] = value
 
 
 @finder.command()
-@click.argument("name", type=str)
+@click.argument('name', type=str)
 def delete(name: str):
     """Delete a cache entry."""
     if name in _PATHS_CACHE:
@@ -93,7 +94,7 @@ def reset():
 
 
 @finder.command()
-@click.argument("name", type=str)
+@click.argument('name', type=str)
 def search(name: str):
     """Search for a target and add it to the cache."""
     paths_finder = PathsFinder()
@@ -104,5 +105,5 @@ def search(name: str):
         print(f'The target "{name}" was not found.')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     finder()

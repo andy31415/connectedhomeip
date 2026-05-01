@@ -48,16 +48,12 @@ class TC_CGEN_2_6(MatterBaseTest):
         return "[TC-CGEN-2.6] Verification for CommissioningComplete no terms accepted when required [DUT as Server]"
 
     def pics_TC_CGEN_2_6(self) -> list[str]:
-        """This function returns a list of PICS for this test case that must be True for the test to be run"""
+        """ This function returns a list of PICS for this test case that must be True for the test to be run"""
         return ["CGEN.S", "CGEN.S.F00"]
 
     def steps_TC_CGEN_2_6(self) -> list[TestStep]:
         return [
-            TestStep(
-                1,
-                "TH starts commissioning the DUT. It performs all commissioning steps from 'Device discovery and establish commissioning channel' to 'Security setup using CASE', except for TC configuration with SetTCAcknowledgements.",
-                is_commissioning=False,
-            ),
+            TestStep(1, "TH starts commissioning the DUT. It performs all commissioning steps from 'Device discovery and establish commissioning channel' to 'Security setup using CASE', except for TC configuration with SetTCAcknowledgements.", is_commissioning=False),
             TestStep(2, "TH sends CommissioningComplete to DUT."),
         ]
 
@@ -66,7 +62,7 @@ class TC_CGEN_2_6(MatterBaseTest):
         commissioner: ChipDeviceCtrl.ChipDeviceController = self.default_controller
 
         if not self.check_pics("CGEN.S.F00"):
-            asserts.skip("Root endpoint does not support the [commissioning] feature under test")
+            asserts.skip('Root endpoint does not support the [commissioning] feature under test')
             return
 
         # Step 1: Commission device without setting TC acknowledgements

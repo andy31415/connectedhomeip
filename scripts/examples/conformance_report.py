@@ -32,12 +32,12 @@ DEFAULT_TARGETS = [
     "linux-x64-tv-app-no-ble-clang-boringssl",
     "linux-x64-tv-casting-app-no-ble",
     "linux-x64-water-heater-no-ble-clang-boringssl",
-    "linux-x64-water-leak-detector-no-ble",
+    "linux-x64-water-leak-detector-no-ble"
 ]
 DEFAULT_TESTS = ["TC_DeviceBasicComposition", "TC_DeviceConformance"]
 TMP_RESULTS_DIR = "/tmp/conformance_report"
 OUT_DIR = "./out"
-TEST_COMMAND = 'scripts/run_in_python_env.sh out/python_env \'./scripts/tests/run_python_test.py --app {} --factory-reset --app-args "--trace-to json:log" --script src/python_testing/{}.py --script-args "--qr-code MT:-24J0AFN00KA0648G00 --bool-arg ignore_in_progress_test_event_only_disallowed_for_certification:True allow_provisional_test_event_only_disallowed_for_certification:True"\''
+TEST_COMMAND = "scripts/run_in_python_env.sh out/python_env './scripts/tests/run_python_test.py --app {} --factory-reset --app-args \"--trace-to json:log\" --script src/python_testing/{}.py --script-args \"--qr-code MT:-24J0AFN00KA0648G00 --bool-arg ignore_in_progress_test_event_only_disallowed_for_certification:True allow_provisional_test_event_only_disallowed_for_certification:True\"'"
 BUILD_COMMAND = "python3 scripts/build/build_examples.py --ninja-jobs {} --target {} build"
 NINJA_JOBS = max(os.cpu_count() - 2, 1)  # Limit # of jobs to avoid using too much CPU and RAM
 
@@ -124,7 +124,7 @@ def parse_test_logs(test_log_paths):
             if "Problem: ProblemSeverity.ERROR" in line:
                 try:
                     error_details = "\n".join(
-                        ["  " + re.sub(r"^\[.*?\]\[.*?\]\[.*?\]", "", error_line).strip() for error_line in output_lines[i : i + 8]]
+                        ["  " + re.sub(r"^\[.*?\]\[.*?\]\[.*?\]", "", error_line).strip() for error_line in output_lines[i:i+8]]
                     )
                     failures.append(error_details + "\n")
                 except IndexError:
@@ -171,9 +171,8 @@ def run_tests(tests, executable_paths, tmp_results_dir, skip_testing):
                 command = TEST_COMMAND.format(executable_path, test_name)
                 test_output_path = os.path.join(tmp_results_dir, f"{test_name}_{app_name}.txt")
                 with open(test_output_path, "wb") as f:
-                    result = subprocess.run(
-                        command, shell=True, capture_output=False, text=False, stdout=f, stderr=subprocess.STDOUT
-                    )
+                    result = subprocess.run(command, shell=True, capture_output=False,
+                                            text=False, stdout=f, stderr=subprocess.STDOUT)
                     result.check_returncode()  # Raise an exception if the command returned a non-zero exit code
                     print(f"    - Test PASSED. Logs written to {test_output_path}")
             except subprocess.CalledProcessError as e:
@@ -220,7 +219,7 @@ def generate_csv_summaries(all_tests_results_dict, out_dir):
     """
     for test_name, test_results in all_tests_results_dict.items():
         csv_filename = os.path.join(out_dir, f"{test_name}_summary.csv")
-        with open(csv_filename, "w", newline="") as f:
+        with open(csv_filename, 'w', newline='') as f:
             writer = csv.writer(f)
             test_passed_count = sum(1 for result in test_results if result[1] == "PASS")
             writer.writerow([f"{test_name} ({test_passed_count} / {len(test_results)}) examples passed"])
@@ -305,7 +304,7 @@ def csv_to_html_report(csv_file_paths, html_page_title, html_out_dir, sha):
     """
 
     for csv_file_path in csv_file_paths:
-        with open(csv_file_path, "r") as csv_file:
+        with open(csv_file_path, 'r') as csv_file:
             reader = csv.reader(csv_file)
             table_title = next(reader)[0]
             headers = next(reader)
@@ -317,11 +316,11 @@ def csv_to_html_report(csv_file_paths, html_page_title, html_out_dir, sha):
             html_table += "<tr>"
             for cell in row:
                 if len(cell) > 100:
-                    html_table += "<td><details><summary>Show/Hide</summary>" + cell.replace("\n", "<br>") + "</details></td>"
+                    html_table += "<td><details><summary>Show/Hide</summary>" + cell.replace('\n', '<br>') + "</details></td>"
                 elif cell in ("PASS", "FAIL"):
                     html_table += f"<td value='{cell}'>{cell}</td>"
                 else:
-                    html_table += "<td>" + cell.replace("\n", "<br>") + "</td>"
+                    html_table += "<td>" + cell.replace('\n', '<br>') + "</td>"
             html_table += "</tr>"
         html_table += "</table>"
         html_report += html_table
@@ -338,17 +337,41 @@ def csv_to_html_report(csv_file_paths, html_page_title, html_out_dir, sha):
 
 
 def get_git_revision_hash() -> str:
-    return subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("ascii").strip()
+    return subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('ascii').strip()
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Build examples, run conformance tests and generate a report with the results.")
-    parser.add_argument("--test-name", help="Override the default tests with a specific test name.")
-    parser.add_argument("--target-name", help="Override the default targets with a specific target name.")
-    parser.add_argument("--skip-building", help="Skip building the target(s).", action="store_true")
-    parser.add_argument("--skip-testing", help="Skip testing the target(s).", action="store_true")
-    parser.add_argument("--skip-html", help="Skip generating the HTML report.", action="store_true")
-    parser.add_argument("--html-out-dir", help="Specify the directory to save the HTML report.", default=TMP_RESULTS_DIR)
+    parser = argparse.ArgumentParser(
+        description="Build examples, run conformance tests and generate a report with the results."
+    )
+    parser.add_argument(
+        "--test-name",
+        help="Override the default tests with a specific test name."
+    )
+    parser.add_argument(
+        "--target-name",
+        help="Override the default targets with a specific target name."
+    )
+    parser.add_argument(
+        "--skip-building",
+        help="Skip building the target(s).",
+        action="store_true"
+    )
+    parser.add_argument(
+        "--skip-testing",
+        help="Skip testing the target(s).",
+        action="store_true"
+    )
+    parser.add_argument(
+        "--skip-html",
+        help="Skip generating the HTML report.",
+        action="store_true"
+    )
+    parser.add_argument(
+        "--html-out-dir",
+        help="Specify the directory to save the HTML report.",
+        default=TMP_RESULTS_DIR
+    )
 
     args = parser.parse_args()
 
@@ -370,4 +393,9 @@ if __name__ == "__main__":
 
     if not args.skip_html:
         os.makedirs(args.html_out_dir, exist_ok=True)
-        csv_to_html_report(csv_summaries_paths, "Matter SDK Example Conformance Report", args.html_out_dir, get_git_revision_hash())
+        csv_to_html_report(
+            csv_summaries_paths,
+            "Matter SDK Example Conformance Report",
+            args.html_out_dir,
+            get_git_revision_hash()
+        )

@@ -129,13 +129,13 @@
  * @internal
  * Accessor macro to get a header field (next) from a message pointer
  */
-#define ICALL_MSG_NEXT(_p) (((ICall_MsgHdr *) (_p) - 1)->next)
+#define ICALL_MSG_NEXT(_p) (((ICall_MsgHdr *) (_p) -1)->next)
 
 /**
  * @internal
  * Accessor macro to get a header field (dest_id) from a message pointer
  */
-#define ICALL_MSG_DEST_ID(_p) (((ICall_MsgHdr *) (_p) - 1)->dest_id)
+#define ICALL_MSG_DEST_ID(_p) (((ICall_MsgHdr *) (_p) -1)->dest_id)
 
 #ifndef ICALL_TIMER_TASK_STACK_SIZE
 /**

@@ -72,29 +72,23 @@ class TC_TIMESYNC_2_1(MatterBaseTest):
 
         self.print_step(2, "Read Granularity attribute")
         granularity_dut = await self.read_ts_attribute_expect_success(attribute=attributes.Granularity)
-        asserts.assert_less(
-            granularity_dut,
-            Clusters.TimeSynchronization.Enums.GranularityEnum.kUnknownEnumValue,
-            "Granularity is not in valid range",
-        )
+        asserts.assert_less(granularity_dut, Clusters.TimeSynchronization.Enums.GranularityEnum.kUnknownEnumValue,
+                            "Granularity is not in valid range")
 
         self.print_step(3, "Read TimeSource")
         if timesource_attr_id in attribute_list:
             time_source = await self.read_ts_attribute_expect_success(attribute=attributes.TimeSource)
-            asserts.assert_less(
-                time_source, Clusters.TimeSynchronization.Enums.TimeSourceEnum.kUnknownEnumValue, "TimeSource is not in valid range"
-            )
+            asserts.assert_less(time_source, Clusters.TimeSynchronization.Enums.TimeSourceEnum.kUnknownEnumValue,
+                                "TimeSource is not in valid range")
 
         self.print_step(4, "Read TrustedTimeSource")
         if self.supports_trusted_time_source:
             trusted_time_source = await self.read_ts_attribute_expect_success(attribute=attributes.TrustedTimeSource)
             if trusted_time_source is not NullValue:
-                asserts.assert_less_equal(
-                    trusted_time_source.fabricIndex, 0xFE, "FabricIndex for the TrustedTimeSource is out of range"
-                )
-                asserts.assert_greater_equal(
-                    trusted_time_source.fabricIndex, 1, "FabricIndex for the TrustedTimeSource is out of range"
-                )
+                asserts.assert_less_equal(trusted_time_source.fabricIndex, 0xFE,
+                                          "FabricIndex for the TrustedTimeSource is out of range")
+                asserts.assert_greater_equal(trusted_time_source.fabricIndex, 1,
+                                             "FabricIndex for the TrustedTimeSource is out of range")
 
         self.print_step(5, "Read DefaultNTP")
         if self.supports_ntpc:
@@ -102,7 +96,7 @@ class TC_TIMESYNC_2_1(MatterBaseTest):
             if default_ntp is not NullValue:
                 asserts.assert_less_equal(len(default_ntp), 128, "DefaultNTP length must be less than 128")
                 # Assume this is a valid web address if it has at least one . in the name
-                is_web_addr = default_ntp.find(".") != -1
+                is_web_addr = default_ntp.find('.') != -1
                 try:
                     ipaddress.IPv6Address(default_ntp)
                     is_ip_addr = True
@@ -132,15 +126,11 @@ class TC_TIMESYNC_2_1(MatterBaseTest):
             last_valid_until = -1
             last_valid_starting = -1
             for dst in dst_dut:
-                asserts.assert_greater(
-                    dst.validStarting, last_valid_starting, "DSTOffset list must be sorted by ValidStarting time"
-                )
+                asserts.assert_greater(dst.validStarting, last_valid_starting,
+                                       "DSTOffset list must be sorted by ValidStarting time")
                 last_valid_starting = dst.validStarting
-                asserts.assert_greater_equal(
-                    dst.validStarting,
-                    last_valid_until,
-                    "DSTOffset list must have every ValidStarting > ValidUntil of the previous entry",
-                )
+                asserts.assert_greater_equal(dst.validStarting, last_valid_until,
+                                             "DSTOffset list must have every ValidStarting > ValidUntil of the previous entry")
                 last_valid_until = dst.validUntil
                 if dst.validUntil is NullValue or dst.validUntil is None:
                     asserts.assert_equal(dst, dst_dut[-1], "DSTOffset list must have Null ValidUntil at the end")
@@ -177,11 +167,8 @@ class TC_TIMESYNC_2_1(MatterBaseTest):
         self.print_step(10, "Read TimeZoneDatabase")
         if self.supports_time_zone:
             tz_db_dut = await self.read_ts_attribute_expect_success(attribute=attributes.TimeZoneDatabase)
-            asserts.assert_less(
-                tz_db_dut,
-                Clusters.TimeSynchronization.Enums.TimeZoneDatabaseEnum.kUnknownEnumValue,
-                "TimeZoneDatabase is not in valid range",
-            )
+            asserts.assert_less(tz_db_dut, Clusters.TimeSynchronization.Enums.TimeZoneDatabaseEnum.kUnknownEnumValue,
+                                "TimeZoneDatabase is not in valid range")
 
         self.print_step(11, "Read NTPServerAvailable")
         if self.supports_ntps:

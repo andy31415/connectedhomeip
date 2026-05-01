@@ -57,36 +57,26 @@ class TC_ZONEMGMT_2_1(MatterBaseTest):
     def steps_TC_ZONEMGMT_2_1(self) -> list[TestStep]:
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
+            TestStep(2, "TH reads MaxUserDefinedZones attribute.",
+                     "If DUT supports UserDefined feature, verify that the DUT response contains a value greater than or equal to 5."),
+            TestStep(3, "TH reads MaxZones attribute.",
+                     "If DUT supports UserDefined feature, verify that the DUT response contains a value greater than or equal to MaxUserDefinedZones ."),
             TestStep(
-                2,
-                "TH reads MaxUserDefinedZones attribute.",
-                "If DUT supports UserDefined feature, verify that the DUT response contains a value greater than or equal to 5.",
+                4, "TH reads Zones attribute.", "Verify that the list has between a range of 0 to MaxZones."
             ),
-            TestStep(
-                3,
-                "TH reads MaxZones attribute.",
-                "If DUT supports UserDefined feature, verify that the DUT response contains a value greater than or equal to MaxUserDefinedZones .",
-            ),
-            TestStep(4, "TH reads Zones attribute.", "Verify that the list has between a range of 0 to MaxZones."),
-            TestStep(5, "TH reads Triggers attribute.", "Verify that the list has between a range of 0 to MaxZones."),
-            TestStep(
-                6,
-                "TH reads SensitivityMax attribute.",
-                "Verify that the DUT response contains a value has between a range of 2 to 10.",
-            ),
-            TestStep(
-                7,
-                "TH reads Sensitivity attribute.",
-                "Verify that the DUT response contains a value has between a range of 1 to SensitivityMax.",
-            ),
-            TestStep(
-                8,
-                "TH reads TwoDCartesianMax attribute.",
-                "Verify that the DUT response contains value of SensorWidth - 1 and SensorHeight - 1 from the VideoSensorParams attribute (in Camera AV Stream Management Cluster).",
-            ),
+            TestStep(5, "TH reads Triggers attribute.",
+                     "Verify that the list has between a range of 0 to MaxZones."),
+            TestStep(6, "TH reads SensitivityMax attribute.",
+                     "Verify that the DUT response contains a value has between a range of 2 to 10."),
+            TestStep(7, "TH reads Sensitivity attribute.",
+                     "Verify that the DUT response contains a value has between a range of 1 to SensitivityMax.",
+                     ),
+            TestStep(8, "TH reads TwoDCartesianMax attribute.",
+                     "Verify that the DUT response contains value of SensorWidth - 1 and SensorHeight - 1 from the VideoSensorParams attribute (in Camera AV Stream Management Cluster)."),
         ]
 
-    @run_if_endpoint_matches(has_cluster(Clusters.ZoneManagement) and has_cluster(Clusters.CameraAvStreamManagement))
+    @run_if_endpoint_matches(has_cluster(Clusters.ZoneManagement) and
+                             has_cluster(Clusters.CameraAvStreamManagement))
     async def test_TC_ZONEMGMT_2_1(self):
         endpoint = self.get_endpoint()
         cluster = Clusters.ZoneManagement
@@ -108,35 +98,41 @@ class TC_ZONEMGMT_2_1(MatterBaseTest):
                 endpoint=endpoint, cluster=cluster, attribute=attr.MaxUserDefinedZones
             )
             log.info(f"Rx'd MaxUserDefinedZones: {maxUserDefinedZones}")
-            asserts.assert_true(maxUserDefinedZones >= 5, "Expected Max value of UserDefinedZones to be least 5")
+            asserts.assert_true(maxUserDefinedZones >= 5,
+                                "Expected Max value of UserDefinedZones to be least 5")
         else:
             log.info("UserDefinedZones Feature not supported. Test steps skipped")
             self.skip_step(2)
 
         self.step(3)
-        maxZones = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.MaxZones)
+        maxZones = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.MaxZones
+        )
         log.info(f"Rx'd MaxZones: {maxZones}")
-        zones = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.Zones)
+        zones = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.Zones
+        )
         log.info(f"Rx'd Zones: {zones}")
         if self.userDefinedSupported:
-            asserts.assert_true(maxZones >= maxUserDefinedZones, "Expected Max value of Zones should be >= UserDefinedZones")
+            asserts.assert_true(maxZones >= maxUserDefinedZones,
+                                "Expected Max value of Zones should be >= UserDefinedZones")
             mfgCount = 0
             for zone in zones:
                 if zone.zoneSource == Clusters.ZoneManagement.Enums.ZoneSourceEnum.kMfg:
                     mfgCount += 1
-            asserts.assert_equal(
-                mfgCount,
-                (maxZones - maxUserDefinedZones),
-                "Mfg zones + MaxUserDefinedZones count is expected to be equal to MaxZones count",
-            )
+            asserts.assert_equal(mfgCount, (maxZones - maxUserDefinedZones),
+                                 "Mfg zones + MaxUserDefinedZones count is expected to be equal to MaxZones count")
         else:
-            asserts.assert_true(maxZones >= 1, "Expected Max value of Zones should be >= 1")
+            asserts.assert_true(maxZones >= 1,
+                                "Expected Max value of Zones should be >= 1")
 
         self.step(4)
         asserts.assert_true(len(zones) <= maxZones, f"The number of zones in the list should at most be {maxZones}")
 
         self.step(5)
-        triggers = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attr.Triggers)
+        triggers = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=cluster, attribute=attr.Triggers
+        )
         log.info(f"Rx'd Triggers: {triggers}")
         asserts.assert_true(len(triggers) <= maxZones, f"The number of triggers in the list should at most be {maxZones}")
 
@@ -153,9 +149,8 @@ class TC_ZONEMGMT_2_1(MatterBaseTest):
                 endpoint=endpoint, cluster=cluster, attribute=attr.Sensitivity
             )
             log.info(f"Rx'd Sensitivity: {sensitivity}")
-            asserts.assert_true(
-                sensitivity >= 1 and sensitivity <= sensitivityMax, f"Sensitivity should be between 1 and {sensitivityMax}"
-            )
+            asserts.assert_true(sensitivity >= 1 and sensitivity <= sensitivityMax,
+                                f"Sensitivity should be between 1 and {sensitivityMax}")
         else:
             log.info("PerZoneSensitivity Feature supported. Test steps skipped")
             self.skip_step(7)
@@ -168,16 +163,11 @@ class TC_ZONEMGMT_2_1(MatterBaseTest):
             log.info(f"Rx'd TwoDCartesianMax: {twoDCartesianMax}")
 
             videoSensorParams = await self.read_single_attribute_check_success(
-                endpoint=endpoint,
-                cluster=Clusters.CameraAvStreamManagement,
-                attribute=Clusters.CameraAvStreamManagement.Attributes.VideoSensorParams,
+                endpoint=endpoint, cluster=Clusters.CameraAvStreamManagement, attribute=Clusters.CameraAvStreamManagement.Attributes.VideoSensorParams
             )
             log.info(f"Rx'd VideoSensorParams: {videoSensorParams}")
-            asserts.assert_true(
-                twoDCartesianMax.x == videoSensorParams.sensorWidth - 1
-                and twoDCartesianMax.y == videoSensorParams.sensorHeight - 1,
-                "TwoDCartesianMax should be within the VideoSensorParams dimensions",
-            )
+            asserts.assert_true(twoDCartesianMax.x == videoSensorParams.sensorWidth - 1 and twoDCartesianMax.y ==
+                                videoSensorParams.sensorHeight - 1, "TwoDCartesianMax should be within the VideoSensorParams dimensions")
         else:
             log.info("TWoDCart Feature not supported. Test steps skipped")
             self.skip_step(8)

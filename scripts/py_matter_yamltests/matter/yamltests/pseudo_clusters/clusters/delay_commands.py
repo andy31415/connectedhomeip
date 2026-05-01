@@ -19,7 +19,7 @@ import sys
 from ..pseudo_cluster import PseudoCluster
 from .accessory_server_bridge import AccessoryServerBridge
 
-_DEFINITION = """<?xml version="1.0"?>
+_DEFINITION = '''<?xml version="1.0"?>
 <configurator>
 <cluster>
     <name>DelayCommands</name>
@@ -44,19 +44,19 @@ _DEFINITION = """<?xml version="1.0"?>
     </command>
 </cluster>
 </configurator>
-"""
+'''
 
 
 class DelayCommands(PseudoCluster):
-    name = "DelayCommands"
+    name = 'DelayCommands'
     definition = _DEFINITION
 
     async def WaitForMs(self, request):
         duration_in_ms = 0
 
-        for argument in request.arguments["values"]:
-            if argument["name"] == "ms":
-                duration_in_ms = argument["value"]
+        for argument in request.arguments['values']:
+            if argument['name'] == 'ms':
+                duration_in_ms = argument['value']
 
         sys.stdout.flush()
         await asyncio.sleep(int(duration_in_ms) / 1000)

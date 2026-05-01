@@ -91,8 +91,8 @@ def get_value_for_oid(oid_dotted_str: str, cert: x509.Certificate) -> str:
 
 
 def parse_ids_from_subject(cert: x509.Certificate) -> Tuple[str, str]:
-    vid_str = get_value_for_oid("1.3.6.1.4.1.37244.2.1", cert)
-    pid_str = get_value_for_oid("1.3.6.1.4.1.37244.2.2", cert)
+    vid_str = get_value_for_oid('1.3.6.1.4.1.37244.2.1', cert)
+    pid_str = get_value_for_oid('1.3.6.1.4.1.37244.2.2', cert)
 
     return vid_str, pid_str
 
@@ -111,9 +111,9 @@ def parse_single_vidpid_from_common_name(commonName: str, tag_str: str) -> str:
 
 
 def parse_ids_from_common_name(cert: x509.Certificate) -> Tuple[str, str]:
-    common = get_value_for_oid("2.5.4.3", cert)
-    vid_str = parse_single_vidpid_from_common_name(common, "Mvid:")
-    pid_str = parse_single_vidpid_from_common_name(common, "Mpid:")
+    common = get_value_for_oid('2.5.4.3', cert)
+    vid_str = parse_single_vidpid_from_common_name(common, 'Mvid:')
+    pid_str = parse_single_vidpid_from_common_name(common, 'Mpid:')
 
     return vid_str, pid_str
 
@@ -144,7 +144,6 @@ def parse_ids_from_certs(dac: x509.Certificate, pai: x509.Certificate) -> Tuple[
 
     return dac_vid, dac_pid, pai_vid, pai_pid
 
-
 # To set the directory for the CD signer certificates use
 # --string-arg cd_cert_dir:'your_directory_name'
 # ex. --string-arg cd_cert_dir:'credentials/development/cd-certs'
@@ -158,127 +157,61 @@ class TC_DA_1_2(BasicCompositionTests):
         return "Device Attestation Request Validation [DUT - Commissionee]"
 
     def steps_TC_DA_1_2(self):
-        return [
-            TestStep(0, "Commission DUT if not done", is_commissioning=True),
-            TestStep(1, "TH1 generates 32-byte AttestationNonce and saves as `nonce", ""),
-            TestStep(
-                2,
-                "TH1 sends AttestationRequest Command to the DUT with AttestationNonce set to `nonce`",
-                "Verify AttestationResponse is received",
-            ),
-            TestStep(
-                "3a",
-                "TH1 sends CertificateChainRequest Command with CertificateType field set to DACCertificate (1) to DUT to obtain DAC",
-                "DUT responds with CertificateChainResponse the DAC certificate in X.509v3 format with size ⇐ 600 bytes",
-            ),
-            TestStep(
-                "3b",
-                "TH1 sends CertificateChainRequest Command with CertificateType field set to PAICertificate (2) to DUT to obtain PAI",
-                "DUT responds with CertificateChainResponse the PAI certificate in X.509v3 format with size ⇐ 600 bytes",
-            ),
-            TestStep(
-                "4a", "TH1 Reads the VendorID attribute of the Basic Information cluster and saves it as `basic_info_vendor_id`"
-            ),
-            TestStep(
-                "4b", "TH1 Reads the ProductID attribute of the Basic Information cluster and saves it as `basic_info_product_id`"
-            ),
-            TestStep(5, "Extract the attestation_elements_message structure fields from the AttestationResponse"),
-            TestStep(
-                "5.1",
-                "Verify AttestationElements field size",
-                "AttestationElements field size should not be greater than RESP_MAX(900 bytes)",
-            ),
-            TestStep(
-                "5.2",
-                "Verify certification_declaration format",
-                "certification_declaration is present and is an octet string representation CMS-format certification declaration, as described in section 6.3.1",
-            ),
-            TestStep("6.1", "Verify CD format_version", "format_version = 1"),
-            TestStep(
-                "6.2",
-                "Verify CD vendor_id",
-                "vendor_id field matches `basic_info_vendor_id` and is in the standard vendor ID range",
-            ),
-            TestStep("6.3", "Verify CD product_id_array", "product_id_array field contains `basic_info_product_id`"),
-            TestStep("6.4", "Verify CD device_type_id", "device_type_id has a value between 0 and (2^31 - 1)"),
-            TestStep("6.5", "Verify CD certificate_id", "certificate_id has a length of 19"),
-            TestStep("6.6", "Verify CD security level", "security level = 0"),
-            TestStep("6.7", "Verify CD security_information", "security_information = 0"),
-            TestStep("6.8", "Verify CD version_number", "version_number is an integer in range 0..65535"),
-            TestStep("6.9", "Verify CD certification_type", "certification_type has a value between 0..2"),
-            TestStep(
-                "7.0",
-                "Extract the Vendor ID (VID) and Product ID (PID) from the DAC. Extract the VID from the PAI. Extract the PID from the PAI, if present",
-                "VID and PID are present and properly encoded in the DAC. VID is present and properly encoded in the PAI. If the PID is present in the PAI, it is properly encoded",
-            ),
-            TestStep(
-                "7.1",
-                "",
-                "If the dac_origin_vendor_id is present in the CD, confirm the dac_origin_product_id is also present. If the dac_origin_vendor_id is not present in the CD, confirm the dac_origin_product_id is also not present.",
-            ),
-            TestStep(
-                "7.2",
-                "If the Certification Declaration has both the dac_origin_vendor_id and the dac_origin_product_id fields, verify dac_origin fields",
-                (
-                    "* The Vendor ID (VID) in the DAC subject and PAI subject are the same as the dac_origin_vendor_id field in the Certification Declaration.\n"
-                    "* The Product ID (PID) in the DAC subject is same as the dac_origin_product_id field in the Certification Declaration.\n"
-                    "* If it is present in the PAI certificate, the Product ID (PID) in the subject is same as the dac_origin_product_id field in the Certification Declaration.\n"
-                ),
-            ),
-            TestStep(
-                "7.3",
-                "If the Certification Declaration has neither the dac_origin_vendor_id nor the dac_origin_product_id fields, verify the vendor_id and product_id_array fields",
-                (
-                    "* The Vendor ID (VID) in the DAC subject and PAI subject are the same as the vendor_id field in the Certification Declaration.\n"
-                    "* The Product ID (PID) subject DN in the DAC is contained in the product_id_array field in the Certification Declaration.\n"
-                    "* If it is present in the PAI certificate, the Product ID (PID) in the subject is contained in the product_id_array field in the Certification Declaration.\n"
-                ),
-            ),
-            TestStep(
-                8,
-                "If the Certification Declaration has authorized_paa_list, check that the authority_key_id extension of the PAI matches one found in the authorized_paa_list",
-                "PAA from PAI authority_key_id extension matches one found in authorized_paa_list",
-            ),
-            TestStep(
-                9,
-                (
-                    "Verify that the certification_declaration CMS enveloped can be verified with Certification Declaration public key.\n"
-                    "For official CDs the signer must be one of the well-known CSA CD signing keys.\n"
-                    "For provisional CDs, the signer must be one of the well-known CSA CD signing keys unless the `override_provisional_cd_check_warning` flag is set to acknowledge the use of a provisional CD that cannot be used in production devices."
-                    "For test and development CDs, the signer certificates may be one of the development certificates or can be provided by the tester."
-                ),
-                "Signature verification passes",
-            ),
-            TestStep(
-                10,
-                "Verify attestation_nonce",
-                (
-                    "* attestation_nonce is present in the attestation_elements_message structure\n"
-                    "* attestation_nonce value matches the AttestationNonce field value sent in the AttestationRequest Command sent by the commissioner\n"
-                    "* attestation_nonce is a 32 byte-long octet string\n"
-                ),
-            ),
-            TestStep(
-                11,
-                "If firmware_information is present, verify firmware information type",
-                "firmware_information is an octet string",
-            ),
-            TestStep(
-                12,
-                "Using Crypto_Verify cryptographic primitive, validate that the AttestationSignature from the AttestationResponse Command is valid if verified against a message constructed by concatenating AttestationElements with the attestation challenge associated with the secure session over which the AttestationResponse was obtained, using the subject public key found in the DAC.",
-                "Signature is valid",
-            ),
-            TestStep(
-                13,
-                "TH1 sends AttestationRequest Command with Invalid AttestationNonce (size > 32 bytes) as the field to the DUT.",
-                "Verify DUT responds w/ status INVALID_COMMAND(0x85)",
-            ),
-            TestStep(
-                14,
-                "TH1 sends AttestationRequest Command with invalid AttestationNonce (size < 32 bytes) as the field to the DUT.",
-                "Verify that the DUT reports an INVALID_COMMAND error",
-            ),
-        ]
+        return [TestStep(0, "Commission DUT if not done", is_commissioning=True),
+                TestStep(1, "TH1 generates 32-byte AttestationNonce and saves as `nonce", ""),
+                TestStep(2, "TH1 sends AttestationRequest Command to the DUT with AttestationNonce set to `nonce`",
+                         "Verify AttestationResponse is received"),
+                TestStep("3a", "TH1 sends CertificateChainRequest Command with CertificateType field set to DACCertificate (1) to DUT to obtain DAC",
+                         "DUT responds with CertificateChainResponse the DAC certificate in X.509v3 format with size ⇐ 600 bytes"),
+                TestStep("3b", "TH1 sends CertificateChainRequest Command with CertificateType field set to PAICertificate (2) to DUT to obtain PAI",
+                         "DUT responds with CertificateChainResponse the PAI certificate in X.509v3 format with size ⇐ 600 bytes"),
+                TestStep("4a", "TH1 Reads the VendorID attribute of the Basic Information cluster and saves it as `basic_info_vendor_id`"),
+                TestStep("4b", "TH1 Reads the ProductID attribute of the Basic Information cluster and saves it as `basic_info_product_id`"),
+                TestStep(5, "Extract the attestation_elements_message structure fields from the AttestationResponse"),
+                TestStep("5.1", "Verify AttestationElements field size",
+                         "AttestationElements field size should not be greater than RESP_MAX(900 bytes)"),
+                TestStep("5.2", "Verify certification_declaration format",
+                         "certification_declaration is present and is an octet string representation CMS-format certification declaration, as described in section 6.3.1"),
+                TestStep("6.1", "Verify CD format_version", "format_version = 1"),
+                TestStep("6.2", "Verify CD vendor_id",
+                         "vendor_id field matches `basic_info_vendor_id` and is in the standard vendor ID range"),
+                TestStep("6.3", "Verify CD product_id_array", "product_id_array field contains `basic_info_product_id`"),
+                TestStep("6.4", "Verify CD device_type_id", "device_type_id has a value between 0 and (2^31 - 1)"),
+                TestStep("6.5", "Verify CD certificate_id", "certificate_id has a length of 19"),
+                TestStep("6.6", "Verify CD security level", "security level = 0"),
+                TestStep("6.7", "Verify CD security_information", "security_information = 0"),
+                TestStep("6.8", "Verify CD version_number", "version_number is an integer in range 0..65535"),
+                TestStep("6.9", "Verify CD certification_type", "certification_type has a value between 0..2"),
+                TestStep("7.0", "Extract the Vendor ID (VID) and Product ID (PID) from the DAC. Extract the VID from the PAI. Extract the PID from the PAI, if present",
+                         "VID and PID are present and properly encoded in the DAC. VID is present and properly encoded in the PAI. If the PID is present in the PAI, it is properly encoded"),
+                TestStep("7.1", "", "If the dac_origin_vendor_id is present in the CD, confirm the dac_origin_product_id is also present. If the dac_origin_vendor_id is not present in the CD, confirm the dac_origin_product_id is also not present."),
+                TestStep("7.2", "If the Certification Declaration has both the dac_origin_vendor_id and the dac_origin_product_id fields, verify dac_origin fields",
+                         ("* The Vendor ID (VID) in the DAC subject and PAI subject are the same as the dac_origin_vendor_id field in the Certification Declaration.\n"
+                          "* The Product ID (PID) in the DAC subject is same as the dac_origin_product_id field in the Certification Declaration.\n"
+                          "* If it is present in the PAI certificate, the Product ID (PID) in the subject is same as the dac_origin_product_id field in the Certification Declaration.\n")),
+                TestStep("7.3", "If the Certification Declaration has neither the dac_origin_vendor_id nor the dac_origin_product_id fields, verify the vendor_id and product_id_array fields",
+                         ("* The Vendor ID (VID) in the DAC subject and PAI subject are the same as the vendor_id field in the Certification Declaration.\n"
+                          "* The Product ID (PID) subject DN in the DAC is contained in the product_id_array field in the Certification Declaration.\n"
+                          "* If it is present in the PAI certificate, the Product ID (PID) in the subject is contained in the product_id_array field in the Certification Declaration.\n")),
+                TestStep(8, "If the Certification Declaration has authorized_paa_list, check that the authority_key_id extension of the PAI matches one found in the authorized_paa_list",
+                         "PAA from PAI authority_key_id extension matches one found in authorized_paa_list"),
+                TestStep(9, ("Verify that the certification_declaration CMS enveloped can be verified with Certification Declaration public key.\n"
+                             "For official CDs the signer must be one of the well-known CSA CD signing keys.\n"
+                             "For provisional CDs, the signer must be one of the well-known CSA CD signing keys unless the `override_provisional_cd_check_warning` flag is set to acknowledge the use of a provisional CD that cannot be used in production devices."
+                             "For test and development CDs, the signer certificates may be one of the development certificates or can be provided by the tester."
+                             ),
+                         "Signature verification passes"),
+                TestStep(10, "Verify attestation_nonce", ("* attestation_nonce is present in the attestation_elements_message structure\n"
+                                                          "* attestation_nonce value matches the AttestationNonce field value sent in the AttestationRequest Command sent by the commissioner\n"
+                                                          "* attestation_nonce is a 32 byte-long octet string\n")),
+                TestStep(11, "If firmware_information is present, verify firmware information type",
+                         "firmware_information is an octet string"),
+                TestStep(12, "Using Crypto_Verify cryptographic primitive, validate that the AttestationSignature from the AttestationResponse Command is valid if verified against a message constructed by concatenating AttestationElements with the attestation challenge associated with the secure session over which the AttestationResponse was obtained, using the subject public key found in the DAC.", "Signature is valid"),
+                TestStep(13, "TH1 sends AttestationRequest Command with Invalid AttestationNonce (size > 32 bytes) as the field to the DUT.",
+                         "Verify DUT responds w/ status INVALID_COMMAND(0x85)"),
+                TestStep(14, "TH1 sends AttestationRequest Command with invalid AttestationNonce (size < 32 bytes) as the field to the DUT.",
+                         "Verify that the DUT reports an INVALID_COMMAND error"),
+                ]
 
     @async_test_body
     async def test_TC_DA_1_2(self):
@@ -302,11 +235,8 @@ class TC_DA_1_2(BasicCompositionTests):
 
         override_provisional_cd_check_warning = self.user_params.get("override_provisional_cd_check_warning", False)
 
-        problem_location = CommandPathLocation(
-            endpoint_id=0,
-            cluster_id=Clusters.OperationalCredentials.id,
-            command_id=Clusters.OperationalCredentials.Commands.AttestationRequest.command_id,
-        )
+        problem_location = CommandPathLocation(endpoint_id=0, cluster_id=Clusters.OperationalCredentials.id,
+                                               command_id=Clusters.OperationalCredentials.Commands.AttestationRequest.command_id)
 
         # Commissioning - done
         self.step(0)
@@ -319,18 +249,14 @@ class TC_DA_1_2(BasicCompositionTests):
 
         self.step(2)
         attestation_resp = await self.send_single_cmd(cmd=opcreds.Commands.AttestationRequest(attestationNonce=nonce))
-        asserts.assert_true(
-            matchers.is_type(attestation_resp, opcreds.Commands.AttestationResponse),
-            "DUT returned invalid response to AttestationRequest",
-        )
+        asserts.assert_true(matchers.is_type(attestation_resp, opcreds.Commands.AttestationResponse),
+                            "DUT returned invalid response to AttestationRequest")
 
         self.step("3a")
         type = opcreds.Enums.CertificateChainTypeEnum.kDACCertificate
         dac_resp = await self.send_single_cmd(cmd=opcreds.Commands.CertificateChainRequest(certificateType=type))
-        asserts.assert_true(
-            matchers.is_type(dac_resp, opcreds.Commands.CertificateChainResponse),
-            "DUT returned invalid response to CertificateChainRequest",
-        )
+        asserts.assert_true(matchers.is_type(dac_resp, opcreds.Commands.CertificateChainResponse),
+                            "DUT returned invalid response to CertificateChainRequest")
         der_dac = dac_resp.certificate
         asserts.assert_less_equal(len(der_dac), 600, "Returned DAC is > 600 bytes")
         # This throws an exception for a non-x509 cert
@@ -343,10 +269,8 @@ class TC_DA_1_2(BasicCompositionTests):
         self.step("3b")
         type = opcreds.Enums.CertificateChainTypeEnum.kPAICertificate
         pai_resp = await self.send_single_cmd(cmd=opcreds.Commands.CertificateChainRequest(certificateType=type))
-        asserts.assert_true(
-            matchers.is_type(pai_resp, opcreds.Commands.CertificateChainResponse),
-            "DUT returned invalid response to CertificateChainRequest",
-        )
+        asserts.assert_true(matchers.is_type(pai_resp, opcreds.Commands.CertificateChainResponse),
+                            "DUT returned invalid response to CertificateChainRequest")
         der_pai = pai_resp.certificate
         asserts.assert_less_equal(len(der_pai), 600, "Returned PAI is > 600 bytes")
         # This throws an exception for a non-x509 cert
@@ -383,48 +307,48 @@ class TC_DA_1_2(BasicCompositionTests):
         # turn this into a dict so I don't have to keep parsing tuples
         layer1 = dict(temp)
 
-        id_sha256 = univ.ObjectIdentifier("2.16.840.1.101.3.4.2.1")
+        id_sha256 = univ.ObjectIdentifier('2.16.840.1.101.3.4.2.1')
 
-        asserts.assert_equal(layer1["contentType"], rfc5652.id_signedData, "Incorrect object type")
+        asserts.assert_equal(layer1['contentType'], rfc5652.id_signedData, "Incorrect object type")
 
         # uh, is this actually right? Doesn't the spec say enveloped data?
-        temp, _ = der_decoder(layer1["content"].asOctets(), asn1Spec=rfc5652.SignedData())
+        temp, _ = der_decoder(layer1['content'].asOctets(), asn1Spec=rfc5652.SignedData())
 
         signed_data = dict(temp)
 
-        asserts.assert_equal(signed_data["version"], 3, "Signed data version is not 3")
-        asserts.assert_equal(len(signed_data["digestAlgorithms"]), 1, "More than one digest algorithm listed")
+        asserts.assert_equal(signed_data['version'], 3, "Signed data version is not 3")
+        asserts.assert_equal(len(signed_data['digestAlgorithms']), 1, "More than one digest algorithm listed")
 
         # DigestAlgorithmIdentifier
-        algo_id = dict(signed_data["digestAlgorithms"][0])
-        asserts.assert_equal(algo_id["algorithm"], id_sha256, "Reported digest algorithm is not SHA256")
+        algo_id = dict(signed_data['digestAlgorithms'][0])
+        asserts.assert_equal(algo_id['algorithm'], id_sha256, "Reported digest algorithm is not SHA256")
 
-        encap_content_info = dict(signed_data["encapContentInfo"])
+        encap_content_info = dict(signed_data['encapContentInfo'])
 
-        id_pkcs7_data = univ.ObjectIdentifier("1.2.840.113549.1.7.1")
-        asserts.assert_equal(encap_content_info["eContentType"], id_pkcs7_data, "Incorrect encapsulated content type")
+        id_pkcs7_data = univ.ObjectIdentifier('1.2.840.113549.1.7.1')
+        asserts.assert_equal(encap_content_info['eContentType'], id_pkcs7_data, "Incorrect encapsulated content type")
 
-        cd_tlv = bytes(encap_content_info["eContent"])
+        cd_tlv = bytes(encap_content_info['eContent'])
 
         # Check the signer info
         # There should be only one signer info
-        asserts.assert_equal(len(signed_data["signerInfos"]), 1, "Too many signer infos provided")
+        asserts.assert_equal(len(signed_data['signerInfos']), 1, "Too many signer infos provided")
 
         # version should be 3
-        signer_info = dict(signed_data["signerInfos"][0])
-        asserts.assert_equal(signer_info["version"], 3, "Incorrect version on signer info")
+        signer_info = dict(signed_data['signerInfos'][0])
+        asserts.assert_equal(signer_info['version'], 3, "Incorrect version on signer info")
 
         # subject key identifier needs to match the connectivity standards aliance key
-        subject_key_identifier = bytes(dict(signer_info["sid"])["subjectKeyIdentifier"])
+        subject_key_identifier = bytes(dict(signer_info['sid'])['subjectKeyIdentifier'])
 
         # digest algorithm is sha256, only one allowed
-        algo_id = dict(signer_info["digestAlgorithm"])
-        asserts.assert_equal(algo_id["algorithm"], id_sha256, "Incorrect digest algorithm for the signer info")
+        algo_id = dict(signer_info['digestAlgorithm'])
+        asserts.assert_equal(algo_id['algorithm'], id_sha256, "Incorrect digest algorithm for the signer info")
 
         # signature algorithm is ecdsa-with-sha256
-        id_ecdsa_with_sha256 = univ.ObjectIdentifier("1.2.840.10045.4.3.2")
-        algo_id = dict(signer_info["signatureAlgorithm"])
-        asserts.assert_equal(algo_id["algorithm"], id_ecdsa_with_sha256, "Incorrect signature algorithm")
+        id_ecdsa_with_sha256 = univ.ObjectIdentifier('1.2.840.10045.4.3.2')
+        algo_id = dict(signer_info['signatureAlgorithm'])
+        asserts.assert_equal(algo_id['algorithm'], id_ecdsa_with_sha256, "Incorrect signature algorithm")
 
         self.step("6.1")
         # First, lets parse it
@@ -443,11 +367,11 @@ class TC_DA_1_2(BasicCompositionTests):
         self.step("6.2")
         asserts.assert_equal(vendor_id, basic_info_vendor_id, "Vendor ID is incorrect")
         if not self.is_pics_sdk_ci_only:
-            asserts.assert_in(vendor_id, range(1, 0xFFF0), "Vendor ID is out of range")
+            asserts.assert_in(vendor_id, range(1, 0xfff0), "Vendor ID is out of range")
         self.step("6.3")
         asserts.assert_true(basic_info_product_id in product_id_array, "Product ID not found in CD product array")
         self.step("6.4")
-        asserts.assert_in(device_type_id, range(0, (2**31) - 1), "Device type ID is out of range")
+        asserts.assert_in(device_type_id, range(0, (2**31)-1), "Device type ID is out of range")
         self.step("6.5")
         asserts.assert_equal(len(certificate_id), 19, "Certificate id is the incorrect length")
         self.step("6.6")
@@ -458,11 +382,8 @@ class TC_DA_1_2(BasicCompositionTests):
         asserts.assert_in(version_number, range(0, 65535), "Version number out of range")
         self.step("6.9")
         if post_cert_test:
-            asserts.assert_in(
-                certification_type,
-                [CertificationType.kProvisional, CertificationType.kOfficial],
-                "Certification declaration is not marked as production or provisional.",
-            )
+            asserts.assert_in(certification_type, [CertificationType.kProvisional, CertificationType.kOfficial],
+                              "Certification declaration is not marked as production or provisional.")
             if certification_type == CertificationType.kProvisional:
                 # This is a provisional CD, which is technically allowed, but unexpected in the interop lab. Create a warning,
                 # but delay reporting until the end of the test.
@@ -477,11 +398,8 @@ class TC_DA_1_2(BasicCompositionTests):
         # Provisional CDs must be signed by a CSA CD signing key (unless there is an override).
         # Production CDs must always be signed by a CSA CD signing key.
         # The signature check is handled in step 9.
-        asserts.assert_in(
-            certification_type,
-            [CertificationType.kTest, CertificationType.kProvisional, CertificationType.kOfficial],
-            "Certification type is out of range",
-        )
+        asserts.assert_in(certification_type, [CertificationType.kTest, CertificationType.kProvisional,
+                          CertificationType.kOfficial], "Certification type is out of range")
 
         self.step("7.0")
         dac_vid, dac_pid, pai_vid, pai_pid = parse_ids_from_certs(parsed_dac, parsed_pai)
@@ -527,31 +445,28 @@ class TC_DA_1_2(BasicCompositionTests):
             self.mark_current_step_skipped()
 
         self.step(9)
-        signature_cd = bytes(signer_info["signature"])
+        signature_cd = bytes(signer_info['signature'])
 
         def load_certs(cd_signers):
             certs = {}
             for filename in get_cd_certs(cd_signers).iterdir():
-                if not filename.name.endswith(".der"):
+                if not filename.name.endswith('.der'):
                     continue
                 with filename.open("rb") as f:
-                    log.info(f"Parsing CD signing certificate file: {filename}")
+                    log.info(f'Parsing CD signing certificate file: {filename}')
                     try:
                         cert = x509.load_der_x509_certificate(f.read())
                     except ValueError:
-                        log.info(f"File {filename} is not a valid certificate, skipping")
+                        log.info(f'File {filename} is not a valid certificate, skipping')
                         continue
                     pub = cert.public_key()
                     ski = x509.SubjectKeyIdentifier.from_public_key(pub).digest
                     certs[ski] = pub
             return certs
-
         # If the CD is a test CD, or a provisional key with the specified override, it can be signed by the supplied CD signers.
         # if the CD is a provisional CD with no override, or a full production CD, it MUST be signed by the official CD signers.
         prod_certs = load_certs(CredentialSource.kProduction)
-        if certification_type == CertificationType.kTest or (
-            override_provisional_cd_check_warning and certification_type == CertificationType.kProvisional
-        ):
+        if certification_type == CertificationType.kTest or (override_provisional_cd_check_warning and certification_type == CertificationType.kProvisional):
             certs = load_certs(cd_cert_dir)
         else:
             certs = prod_certs
@@ -582,7 +497,8 @@ class TC_DA_1_2(BasicCompositionTests):
 
         asserts.assert_true(subject_key_identifier in certs, "Subject key identifier not found in CD certs")
         try:
-            certs[subject_key_identifier].verify(signature=signature_cd, data=cd_tlv, signature_algorithm=ec.ECDSA(hashes.SHA256()))
+            certs[subject_key_identifier].verify(signature=signature_cd, data=cd_tlv,
+                                                 signature_algorithm=ec.ECDSA(hashes.SHA256()))
         except InvalidSignature:
             asserts.fail("Failed to verify CD signature against known CD public key")
 
@@ -615,9 +531,8 @@ class TC_DA_1_2(BasicCompositionTests):
 
         signature_attestation = utils.encode_dss_signature(signature_attestation_raw_r, signature_attestation_raw_s)
 
-        parsed_dac.public_key().verify(
-            signature=signature_attestation, data=attestation_tbs, signature_algorithm=ec.ECDSA(hashes.SHA256())
-        )
+        parsed_dac.public_key().verify(signature=signature_attestation, data=attestation_tbs,
+                                       signature_algorithm=ec.ECDSA(hashes.SHA256()))
 
         self.step(13)
         nonce = random.randbytes(33)

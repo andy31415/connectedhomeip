@@ -50,46 +50,34 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_EEM_2_4(MatterBaseTest, EnergyReportingBaseTestHelper):
+
     def desc_TC_EEM_2_4(self) -> str:
         """Returns a description of this test"""
         return "5.1.5. [TC-EEM-2.4] Optional periodic imported energy attributes with DUT as Server"
 
     def pics_TC_EEM_2_4(self):
-        """This function returns a list of PICS for this test case that must be True for the test to be run"""
+        """ This function returns a list of PICS for this test case that must be True for the test to be run"""
         return ["EEM.S", "EEM.S.F03", "EEM.S.F00"]
 
     def steps_TC_EEM_2_4(self) -> list[TestStep]:
         return [
-            TestStep("1", "Commissioning, already done", is_commissioning=True),
-            TestStep(
-                "2",
-                "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster",
-                "Verify that TestEventTriggersEnabled attribute has a value of 1 (True)",
-            ),
-            TestStep(
-                "3",
-                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.EEM.TEST_EVENT_TRIGGER for Start Fake Load Test 1kW Event",
-            ),
+            TestStep("1", "Commissioning, already done",
+                     is_commissioning=True),
+            TestStep("2", "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster",
+                     "Verify that TestEventTriggersEnabled attribute has a value of 1 (True)"),
+            TestStep("3", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.EEM.TEST_EVENT_TRIGGER for Start Fake Load Test 1kW Event"),
             TestStep("4", "Wait 3 seconds"),
-            TestStep(
-                "4a",
-                "TH reads from the DUT the PeriodicEnergyImported attribute",
-                "Verify the read is successful and note the value read.",
-            ),
+            TestStep("4a", "TH reads from the DUT the PeriodicEnergyImported attribute",
+                     "Verify the read is successful and note the value read."),
             TestStep("5", "Wait 3 seconds"),
-            TestStep(
-                "5a",
-                "TH reads from the DUT the PeriodicEnergyImported attribute",
-                "Verify the read is successful and that the value read has to be different from value measure in step 4a.",
-            ),
-            TestStep(
-                "6",
-                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.EEM.TEST_EVENT_TRIGGER for Stop Fake Readings Test Event.",
-            ),
+            TestStep("5a", "TH reads from the DUT the PeriodicEnergyImported attribute",
+                     "Verify the read is successful and that the value read has to be different from value measure in step 4a."),
+            TestStep("6", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EEM.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.EEM.TEST_EVENT_TRIGGER for Stop Fake Readings Test Event."),
         ]
 
     @async_test_body
     async def test_TC_EEM_2_4(self):
+
         self.step("1")
         # Commission DUT - already done
 
@@ -110,11 +98,8 @@ class TC_EEM_2_4(MatterBaseTest, EnergyReportingBaseTestHelper):
 
         self.step("5a")
         periodic_energy_imported_2 = await self.read_eem_attribute_expect_success("PeriodicEnergyImported")
-        asserts.assert_not_equal(
-            periodic_energy_imported_2.energy,
-            periodic_energy_imported.energy,
-            f"Expected different periodic energy readings {periodic_energy_imported_2.energy} to be != {periodic_energy_imported.energy}",
-        )
+        asserts.assert_not_equal(periodic_energy_imported_2.energy, periodic_energy_imported.energy,
+                                 f"Expected different periodic energy readings {periodic_energy_imported_2.energy} to be != {periodic_energy_imported.energy}")
 
         self.step("6")
         await self.send_test_event_trigger_stop_fake_readings()

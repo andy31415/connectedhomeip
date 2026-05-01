@@ -63,6 +63,7 @@ log = logging.getLogger(__name__)
 
 
 class TC_CHIME_2_5(MatterBaseTest, CHIMETestBase):
+
     def desc_TC_CHIME_2_5(self) -> str:
         return "[TC-CHIME-2.5] Verify functionality of the PlayChimeSound command-Release 1.5.1 or later"
 
@@ -103,11 +104,9 @@ class TC_CHIME_2_5(MatterBaseTest, CHIMETestBase):
         self.step(3)
         await self.send_play_chime_sound_command(endpoint)
         if not self.is_ci:
-            user_response = self.wait_for_user_input(
-                prompt_msg="A chime sound should not have been played, is this correct? Enter 'y' or 'n'",
-                prompt_msg_placeholder="y",
-                default_value="y",
-            )
+            user_response = self.wait_for_user_input(prompt_msg="A chime sound should not have been played, is this correct? Enter 'y' or 'n'",
+                                                     prompt_msg_placeholder="y",
+                                                     default_value="y")
             if user_response is not None:
                 log.info(f"TC-CHIME-2.5: response '{user_response}' received on confirmation of no chime sound")
                 asserts.assert_equal(user_response.lower(), "y")
@@ -131,11 +130,9 @@ class TC_CHIME_2_5(MatterBaseTest, CHIMETestBase):
             await self.send_play_chime_sound_command(endpoint, newSelectedChime)
             if not self.is_ci:
                 self.step(6)
-                user_response = self.wait_for_user_input(
-                    prompt_msg="A chime sound should have just been played, is this correct? Enter 'y' or 'n'",
-                    prompt_msg_placeholder="y",
-                    default_value="y",
-                )
+                user_response = self.wait_for_user_input(prompt_msg="A chime sound should have just been played, is this correct? Enter 'y' or 'n'",
+                                                         prompt_msg_placeholder="y",
+                                                         default_value="y")
                 if user_response is not None:
                     log.info(f"TC-CHIME-2.5: response '{user_response}' received on confirmation of different chime sound")
                     asserts.assert_equal(user_response.lower(), "y")

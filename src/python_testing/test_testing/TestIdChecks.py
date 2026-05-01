@@ -17,24 +17,11 @@
 
 from mobly import asserts
 
-from matter.testing.global_attribute_ids import (
-    AttributeIdType,
-    ClusterIdType,
-    CommandIdType,
-    DeviceTypeIdType,
-    attribute_id_type,
-    cluster_id_type,
-    command_id_type,
-    device_type_id_type,
-    is_standard_attribute_id,
-    is_standard_cluster_id,
-    is_standard_command_id,
-    is_standard_device_type_id,
-    is_valid_attribute_id,
-    is_valid_cluster_id,
-    is_valid_command_id,
-    is_valid_device_type_id,
-)
+from matter.testing.global_attribute_ids import (AttributeIdType, ClusterIdType, CommandIdType, DeviceTypeIdType, attribute_id_type,
+                                                 cluster_id_type, command_id_type, device_type_id_type, is_standard_attribute_id,
+                                                 is_standard_cluster_id, is_standard_command_id, is_standard_device_type_id,
+                                                 is_valid_attribute_id, is_valid_cluster_id, is_valid_command_id,
+                                                 is_valid_device_type_id)
 from matter.testing.matter_testing import MatterBaseTest
 from matter.testing.runner import default_matter_test_main
 

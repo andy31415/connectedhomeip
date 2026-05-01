@@ -22,7 +22,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-class MTRPersistentStorageDelegateBridge : public chip::PersistentStorageDelegate {
+class MTRPersistentStorageDelegateBridge : public chip::PersistentStorageDelegate
+{
 public:
     MTRPersistentStorageDelegateBridge(id<MTRStorage> delegate);
     ~MTRPersistentStorageDelegateBridge();

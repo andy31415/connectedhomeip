@@ -40,16 +40,15 @@ log = logging.getLogger(__name__)
 _DEFAULT_CHIP_ROOT = Path(__file__).parent.parent.parent.parent.absolute()
 
 PORT = 9000
-if sys.platform == "linux":
-    IP = "10.10.10.5"
+if sys.platform == 'linux':
+    IP = '10.10.10.5'
 else:
-    IP = "127.0.0.1"
+    IP = '127.0.0.1'
 
 
 @dataclasses.dataclass(frozen=True)
 class XmlRpcFuncCall:
     """Represents a call to an XML-RPC function, with the function name and arguments."""
-
     name: str
     args: tuple[Any, ...]
 
@@ -69,7 +68,6 @@ class XmlRpcServerProcess(WrappedProcess[XmlRpcFuncCall, XmlRpcFuncRet], StartSt
       `self._rsp_queue`.
     - `_call()` reads that response and re-raises exceptions so XML-RPC receives the original failure.
     """
-
     _server_manager: SimpleXMLRPCServer
     _server_thread_manager: threading.Thread
 
@@ -107,11 +105,11 @@ class XmlRpcServerProcess(WrappedProcess[XmlRpcFuncCall, XmlRpcFuncRet], StartSt
         self._server_thread_manager.start()
 
     def _proc_cleanup(self):
-        if hasattr(self, "_server_manager"):
+        if hasattr(self, '_server_manager'):
             log.debug("Stopping XMLRPC Server thread")
             self._server_manager.shutdown()
 
-        if hasattr(self, "_server_thread_manager"):
+        if hasattr(self, '_server_thread_manager'):
             log.debug("Waiting for XMLRPC Server thread to stop")
             self._server_thread_manager.join(timeout=self._config.stop_timeout_sec)
             if self._server_thread_manager.is_alive():
@@ -202,10 +200,8 @@ class XmlRpcServerProcessManager(threading.Thread):
 
     def run(self) -> None:
         try:
-            with (
-                mp_wrapped_spawn_context(wrapper_linux=self.net_ns_wrapper) as ctx,
-                XmlRpcServerProcess(ctx, self._mp_manager, self._proc_config, self._work_queue, self._rsp_queue) as server,
-            ):
+            with (mp_wrapped_spawn_context(wrapper_linux=self.net_ns_wrapper) as ctx,
+                  XmlRpcServerProcess(ctx, self._mp_manager, self._proc_config, self._work_queue, self._rsp_queue) as server):
                 # Process is already successfully started when the context is entered.
                 self._init_done.set()
 
@@ -248,14 +244,12 @@ def with_accessories_lock(fn: Callable[Concatenate[S, P], R]) -> Callable[Concat
     As _accessories might be accessed either from the chiptest itself and from outside
     via the XMLRPC server it's good to have it available only under mutex.
     """
-
     @functools.wraps(fn)
     def wrapper(self: S, *args: P.args, **kwargs: P.kwargs) -> R:
         if (lock := getattr(self, "_accessories_lock", None)) is None:
             return fn(self, *args, **kwargs)
         with lock:
             return fn(self, *args, **kwargs)
-
     return wrapper
 
 
@@ -363,33 +357,18 @@ class AppsRegister:
         if accessory := self._accessories[name]:
             # The message param comes directly from the sys.argv[2:] of WaitForMessage.py and should contain a list of strings that
             # comprise the entire message to wait for
-            return accessory.waitForMessage(" ".join(message), timeoutInSeconds)
+            return accessory.waitForMessage(' '.join(message), timeoutInSeconds)
         return False
 
-    def create_ota_image(
-        self, otaImageFilePath: str, rawImageFilePath: str, rawImageContent: str, vid: str = "0xDEAD", pid: str = "0xBEEF"
-    ) -> bool:
+    def create_ota_image(self, otaImageFilePath: str, rawImageFilePath: str, rawImageContent: str, vid: str = '0xDEAD',
+                         pid: str = '0xBEEF') -> bool:
         # Write the raw image content
         Path(rawImageFilePath).write_text(rawImageContent)
 
         # Add an OTA header to the raw file
-        otaImageTool = _DEFAULT_CHIP_ROOT / "src/app/ota_image_tool.py"
-        cmd = [
-            str(otaImageTool),
-            "create",
-            "-v",
-            vid,
-            "-p",
-            pid,
-            "-vn",
-            "2",
-            "-vs",
-            "2.0",
-            "-da",
-            "sha256",
-            rawImageFilePath,
-            otaImageFilePath,
-        ]
+        otaImageTool = _DEFAULT_CHIP_ROOT / 'src/app/ota_image_tool.py'
+        cmd = [str(otaImageTool), 'create', '-v', vid, '-p', pid, '-vn', '2',
+               '-vs', "2.0", '-da', 'sha256', rawImageFilePath, otaImageFilePath]
         s = subprocess.Popen(cmd)
         # We need to have some timeout so that in case the process hangs we don't wait infinitely in CI. 60 seconds is large enough
         # for the OTA tool.
@@ -397,14 +376,14 @@ class AppsRegister:
             s.communicate(timeout=60)
         except subprocess.TimeoutExpired:
             s.kill()
-            raise RuntimeError("OTA image tool timed out")
+            raise RuntimeError('OTA image tool timed out')
         if s.returncode != 0:
-            raise RuntimeError("Cannot create OTA image file")
+            raise RuntimeError('Cannot create OTA image file')
         return True
 
     def compare_files(self, file1: str | Path, file2: str | Path) -> bool:
         if not filecmp.cmp(file1, file2, shallow=False):
-            raise RuntimeError(f"Files {file1} and {file2} do not match")
+            raise RuntimeError(f'Files {file1} and {file2} do not match')
         return True
 
     def create_file(self, filePath: str | Path, fileContent: str) -> bool:
@@ -426,18 +405,8 @@ class AppsRegister:
             return {}
 
 
-APPS_RPC_FUNCS = tuple(
-    func.__name__
-    for func in (
-        AppsRegister.start,
-        AppsRegister.stop,
-        AppsRegister.reboot,
-        AppsRegister.factory_reset,
-        AppsRegister.wait_for_message,
-        AppsRegister.compare_files,
-        AppsRegister.create_ota_image,
-        AppsRegister.create_file,
-        AppsRegister.delete_file,
-    )
-)
+APPS_RPC_FUNCS = tuple(func.__name__ for func in (
+    AppsRegister.start, AppsRegister.stop, AppsRegister.reboot, AppsRegister.factory_reset, AppsRegister.wait_for_message,
+    AppsRegister.compare_files, AppsRegister.create_ota_image, AppsRegister.create_file, AppsRegister.delete_file
+))
 """Functions of AppsRegister that are exposed via XMLRPC. The function names will be converted to camelCase for XMLRPC."""

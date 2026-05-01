@@ -18,16 +18,8 @@
 from random import randint
 from typing import TYPE_CHECKING, Optional
 
-from zeroconf import (
-    BadTypeInNameException,
-    DNSOutgoing,
-    DNSQuestion,
-    DNSQuestionType,
-    ServiceInfo,
-    Zeroconf,
-    current_time_millis,
-    service_type_name,
-)
+from zeroconf import (BadTypeInNameException, DNSOutgoing, DNSQuestion, DNSQuestionType, ServiceInfo, Zeroconf, current_time_millis,
+                      service_type_name)
 from zeroconf.const import _CLASS_IN, _DUPLICATE_QUESTION_INTERVAL, _FLAGS_QR_QUERY, _LISTENER_TIME, _MDNS_PORT, _TYPE_AAAA
 
 _LISTENER_TIME_MS = _LISTENER_TIME
@@ -40,12 +32,12 @@ class MdnsAsyncServiceInfo(ServiceInfo):
     the **async_request** method to disable caching.
     """
 
-    def __init__(
-        self,
-        name: str | None = None,  # Fully qualified service name
-        type_: str | None = None,  # Fully qualified service type name
-        server: str | None = None,  # Fully qualified name for service host (defaults to name)
-    ) -> None:
+    def __init__(self,
+                 name: str | None = None,  # Fully qualified service name
+                 type_: str | None = None,  # Fully qualified service type name
+                 server: str | None = None  # Fully qualified name for service host (defaults to name)
+                 ) -> None:
+
         # For AAAA address resolution, only server (hostname)
         # is to be provided, this configuration is set by the
         # AddressResolverIPv6 class which inherits from this class
@@ -117,7 +109,7 @@ class MdnsAsyncServiceInfo(ServiceInfo):
 
         try:
             zc.async_add_listener(self, None)
-            use_qu_first = question_type in (None, DNSQuestionType.QU)
+            use_qu_first = (question_type in (None, DNSQuestionType.QU))
 
             while not self._is_complete:
                 now_ms = current_time_millis()

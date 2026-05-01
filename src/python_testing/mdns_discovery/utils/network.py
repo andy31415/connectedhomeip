@@ -103,9 +103,12 @@ async def is_dut_tcp_supported(instance_qname: str):
             service_name=instance_qname, service_type=MdnsServiceType.OPERATIONAL.value
         )
     except Exception as e:
-        raise Exception(f"Unable to determine TCP support for '{instance_qname}'. Failure during TXT record retrieval: {e}") from e
+        raise Exception(
+            f"Unable to determine TCP support for '{instance_qname}'. "
+            f"Failure during TXT record retrieval: {e}"
+        ) from e
 
     # Returns True when TCP is supported (T key present and not "0")
     # Returns False when MRP-only (T key absent, empty, or "0")
-    t_key = txt_record.txt.get("T", None)
+    t_key = txt_record.txt.get('T', None)
     return not (t_key is None or not str(t_key).strip() or str(t_key).strip() == "0")

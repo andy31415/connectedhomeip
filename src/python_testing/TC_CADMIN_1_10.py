@@ -49,40 +49,24 @@ log = logging.getLogger(__name__)
 
 
 class TC_CADMIN_1_10(CADMINBaseTest):
+
     def steps_TC_CADMIN_1_10(self) -> list[TestStep]:
         return [
             TestStep("precondition-1", "Commissioning, already done", is_commissioning=True),
-            TestStep(
-                "precondition-2",
-                "TH1 reads SpecificationVersion attribute from Basic Information cluster on DUT, to check if Matter version is 1.5.1 or above. If not, skip the test",
-            ),
+            TestStep("precondition-2", "TH1 reads SpecificationVersion attribute from Basic Information cluster on DUT, to check if Matter version is 1.5.1 or above. If not, skip the test"),
             TestStep(1, "TH1 sends an OpenCommissioningWindow command, to allow TH2 to establish a PASE session with the DUT"),
             TestStep(2, "TH2 establishes a PASE session with DUT"),
-            TestStep(
-                3,
-                "Read VendorName from BasicInformation Cluster using TH2 over PASE, to ensure PASE session is established",
-                "Verify that the read is successful, and VendorName is present in the response",
-            ),
+            TestStep(3, "Read VendorName from BasicInformation Cluster using TH2 over PASE, to ensure PASE session is established",
+                     "Verify that the read is successful, and VendorName is present in the response"),
             TestStep(4, "TH1 Sends RevokeCommissioning command (over CASE) to clear PASE session on DUT"),
-            TestStep(
-                5,
-                "Ensure that the PASE Session got cleared, by attempting to read VendorName using TH2 (over PASE)",
-                "Verify that attempting to read VendorName attribute over PASE results in a timeout error",
-            ),
-            TestStep(
-                6,
-                "recreate Second Controller; to establish a new PASE session and repeat test, but sending RevokeCommissioning over PASE this time",
-            ),
-            TestStep(
-                7, "TH1 sends an OpenCommissioningWindow command to DUT, to allow TH2 to establish a PASE session with the DUT"
-            ),
+            TestStep(5, "Ensure that the PASE Session got cleared, by attempting to read VendorName using TH2 (over PASE)",
+                     "Verify that attempting to read VendorName attribute over PASE results in a timeout error"),
+            TestStep(6, "recreate Second Controller; to establish a new PASE session and repeat test, but sending RevokeCommissioning over PASE this time"),
+            TestStep(7, "TH1 sends an OpenCommissioningWindow command to DUT, to allow TH2 to establish a PASE session with the DUT"),
             TestStep(8, "TH2 establishes a PASE session with DUT"),
             TestStep(9, "TH2 Sends RevokeCommissioning command (Over PASE) to clear PASE session on DUT"),
-            TestStep(
-                10,
-                "Ensure that the PASE Session got cleared, by attempting to read VendorName using TH2 (over PASE)",
-                "Verify that attempting to read VendorName attribute over PASE results in a timeout error",
-            ),
+            TestStep(10, "Ensure that the PASE Session got cleared, by attempting to read VendorName using TH2 (over PASE)",
+                     "Verify that attempting to read VendorName attribute over PASE results in a timeout error"),
         ]
 
     def pics_TC_CADMIN_1_10(self) -> list[str]:
@@ -90,6 +74,7 @@ class TC_CADMIN_1_10(CADMINBaseTest):
 
     @async_test_body
     async def test_TC_CADMIN_1_10(self):
+
         self.TH1 = self.default_controller
 
         fabric_admin = self.certificate_authority_manager.activeCaList[0].adminList[0]
@@ -108,20 +93,18 @@ class TC_CADMIN_1_10(CADMINBaseTest):
 
         if await self.attribute_guard(endpoint=0, attribute=spec_version_attribute):
             spec_version = await self.read_single_attribute_check_success(
-                dev_ctrl=self.TH1, cluster=Clusters.BasicInformation, attribute=spec_version_attribute
-            )
+                dev_ctrl=self.TH1,
+                cluster=Clusters.BasicInformation,
+                attribute=spec_version_attribute)
 
             if spec_version < MATTER_1_5_1:
                 log.info(
-                    f"Skipping this test as the DUT's SpecificationVersion is less than 1.5.1, DUT's SpecificationVersion value = 0x{spec_version:08X}"
-                )
+                    f"Skipping this test as the DUT's SpecificationVersion is less than 1.5.1, DUT's SpecificationVersion value = 0x{spec_version:08X}")
                 self.mark_all_remaining_steps_skipped(1)
                 return
         else:
-            log.info(
-                "SpecificationVersion attribute was not found. The DUT's Basic Information Cluster has a ClusterRevision "
-                "less than 3, meaning it is older than Matter 1.5.1. Skipping test."
-            )
+            log.info("SpecificationVersion attribute was not found. The DUT's Basic Information Cluster has a ClusterRevision "
+                     "less than 3, meaning it is older than Matter 1.5.1. Skipping test.")
             self.mark_all_remaining_steps_skipped(1)
             return
 
@@ -144,7 +127,7 @@ class TC_CADMIN_1_10(CADMINBaseTest):
         asserts.assert_in(
             VendorNameAttr,
             read_step3[ROOT_NODE_ENDPOINT_ID][Clusters.BasicInformation],
-            "VendorName should be present in the read response",
+            "VendorName should be present in the read response"
         )
 
         self.step(4)
@@ -155,12 +138,11 @@ class TC_CADMIN_1_10(CADMINBaseTest):
         _CHIP_TIMEOUT_ERROR = 50
 
         with asserts.assert_raises(ChipStackError) as e:
-            await self.TH2.ReadAttribute(nodeId=pase_node_id, attributes=(ROOT_NODE_ENDPOINT_ID, VendorNameAttr))
-        asserts.assert_equal(
-            e.exception.err,
-            _CHIP_TIMEOUT_ERROR,
-            f"Expected timeout error reading VendorName attribute over PASE, got {e.exception.err}",
-        )
+            await self.TH2.ReadAttribute(
+                nodeId=pase_node_id,
+                attributes=(ROOT_NODE_ENDPOINT_ID, VendorNameAttr))
+        asserts.assert_equal(e.exception.err, _CHIP_TIMEOUT_ERROR,
+                             f"Expected timeout error reading VendorName attribute over PASE, got {e.exception.err}")
 
         # ---------------------------- Repeat test, but sending RevokeCommissioning over PASE this time --------------------------------
 
@@ -184,12 +166,11 @@ class TC_CADMIN_1_10(CADMINBaseTest):
 
         self.step(10)
         with asserts.assert_raises(ChipStackError) as e:
-            await self.TH2.ReadAttribute(nodeId=pase_node_id, attributes=(ROOT_NODE_ENDPOINT_ID, VendorNameAttr))
-        asserts.assert_equal(
-            e.exception.err,
-            _CHIP_TIMEOUT_ERROR,
-            f"Expected timeout error reading VendorName attribute over PASE, got {e.exception.err}",
-        )
+            await self.TH2.ReadAttribute(
+                nodeId=pase_node_id,
+                attributes=(ROOT_NODE_ENDPOINT_ID, VendorNameAttr))
+        asserts.assert_equal(e.exception.err, _CHIP_TIMEOUT_ERROR,
+                             f"Expected timeout error reading VendorName attribute over PASE, got {e.exception.err}")
 
 
 if __name__ == "__main__":

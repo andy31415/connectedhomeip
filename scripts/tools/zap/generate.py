@@ -34,7 +34,7 @@ from zap_execution import ZapTool
 log = logging.getLogger(__name__)
 
 # TODO: Can we share this constant definition with zap_regen_all.py?
-DEFAULT_DATA_MODEL_DESCRIPTION_FILE = "src/app/zap-templates/zcl/zcl.json"
+DEFAULT_DATA_MODEL_DESCRIPTION_FILE = 'src/app/zap-templates/zcl/zcl.json'
 
 
 @dataclass
@@ -53,24 +53,26 @@ class CmdLineArgs:
     matter_file_name: Optional[str] = None
 
 
-CHIP_ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), "../../.."))
+CHIP_ROOT_DIR = os.path.realpath(
+    os.path.join(os.path.dirname(__file__), '../../..'))
 
 
 def checkPythonVersion():
     if sys.version_info[0] < 3:
-        print("Must use Python 3. Current version is " + str(sys.version_info[0]))
+        print('Must use Python 3. Current version is ' +
+              str(sys.version_info[0]))
         exit(1)
 
 
 def checkFileExists(path):
     if not os.path.isfile(path):
-        print("Error: " + path + " does not exists or is not a file.")
+        print('Error: ' + path + ' does not exists or is not a file.')
         exit(1)
 
 
 def checkDirExists(path):
     if not os.path.isdir(path):
-        print("Error: " + path + " does not exists or is not a directory.")
+        print('Error: ' + path + ' does not exists or is not a directory.')
         exit(1)
 
 
@@ -132,10 +134,11 @@ def detectZclFile(zapFile):
         if package["type"] != "zcl-properties":
             continue
 
-        prefix_chip_root_dir = package["pathRelativity"] != "resolveEnvVars"
+        prefix_chip_root_dir = (package["pathRelativity"] != "resolveEnvVars")
         # found the right path, try to figure out the actual path
         if package["pathRelativity"] == "relativeToZap":
-            path = os.path.abspath(os.path.join(os.path.dirname(zapFile), package["path"]))
+            path = os.path.abspath(os.path.join(
+                os.path.dirname(zapFile), package["path"]))
         elif package["pathRelativity"] == "resolveEnvVars":
             path = os.path.expandvars(package["path"])
         else:
@@ -150,65 +153,42 @@ def runArgumentsParser() -> CmdLineArgs:
     #
     # All the rest of the files (app-templates.json) are generally built at
     # compile time.
-    default_templates = "src/app/zap-templates/matter-idl-server.json"
+    default_templates = 'src/app/zap-templates/matter-idl-server.json'
 
-    parser = argparse.ArgumentParser(description="Generate artifacts from .zapt templates")
-    parser.add_argument("zap", nargs="?", help="path to the application .zap file")
-    parser.add_argument(
-        "-t",
-        "--templates",
-        metavar="FILE",
-        default=default_templates,
-        help="path to the .zapt templates records to use for generating artifacts (default: %(default)s)",
-    )
-    parser.add_argument(
-        "-z",
-        "--zcl",
-        metavar="FILE",
-        help="path to the zcl templates records to use for generating artifacts (default: read from the .zap)",
-    )
-    parser.add_argument(
-        "-o", "--output-dir", metavar="DIR", help="output directory for the generated files (default: a temporary directory in out)"
-    )
-    parser.add_argument(
-        "-m",
-        "--matter-file-name",
-        metavar="FILE",
-        help="move generated .matter file to the destination FILE (default: next to the source .zap)",
-    )
-    parser.add_argument(
-        "--run-bootstrap", action="store_true", help="Automatically run ZAP bootstrap. By default the bootstrap is not triggered"
-    )
-    parser.add_argument("--parallel", action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("--lock-file", metavar="FILE", help="serialize zap invocations by using the specified lock file")
-    parser.add_argument(
-        "--prettify-output",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="run code prettifier (e.g. clang-format) on generated output (default: %(default)s)",
-    )
-    parser.add_argument(
-        "--version-check",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="check zap version before running (default: %(default)s)",
-    )
-    parser.add_argument(
-        "--retries", type=int, metavar="NUM", default=1, help="retry running zap-cli in case of failure (default: %(default)s)"
-    )
-    parser.add_argument(
-        "--keep-output-dir", action="store_true", help="Keep any created output directory. Useful for temporary directories."
-    )
+    parser = argparse.ArgumentParser(
+        description='Generate artifacts from .zapt templates')
+    parser.add_argument('zap', nargs="?", help='path to the application .zap file')
+    parser.add_argument('-t', '--templates', metavar='FILE', default=default_templates,
+                        help='path to the .zapt templates records to use for generating artifacts (default: %(default)s)')
+    parser.add_argument('-z', '--zcl', metavar='FILE',
+                        help='path to the zcl templates records to use for generating artifacts (default: read from the .zap)')
+    parser.add_argument('-o', '--output-dir', metavar='DIR',
+                        help='output directory for the generated files (default: a temporary directory in out)')
+    parser.add_argument('-m', '--matter-file-name', metavar='FILE',
+                        help='move generated .matter file to the destination FILE (default: next to the source .zap)')
+    parser.add_argument('--run-bootstrap', action='store_true',
+                        help='Automatically run ZAP bootstrap. By default the bootstrap is not triggered')
+    parser.add_argument('--parallel', action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument('--lock-file', metavar='FILE',
+                        help='serialize zap invocations by using the specified lock file')
+    parser.add_argument('--prettify-output', action=argparse.BooleanOptionalAction, default=True,
+                        help='run code prettifier (e.g. clang-format) on generated output (default: %(default)s)')
+    parser.add_argument('--version-check', action=argparse.BooleanOptionalAction, default=True,
+                        help='check zap version before running (default: %(default)s)')
+    parser.add_argument('--retries', type=int, metavar='NUM', default=1,
+                        help='retry running zap-cli in case of failure (default: %(default)s)')
+    parser.add_argument('--keep-output-dir', action='store_true',
+                        help='Keep any created output directory. Useful for temporary directories.')
     args = parser.parse_args()
 
     delete_output_dir = False
     if args.output_dir:
         output_dir = args.output_dir
     elif args.templates == default_templates:
-        output_dir = tempfile.mkdtemp(prefix="zapgen")
+        output_dir = tempfile.mkdtemp(prefix='zapgen')
         delete_output_dir = not args.keep_output_dir
     else:
-        output_dir = ""
+        output_dir = ''
 
     if args.zap:
         zap_file = getFilePath(args.zap)
@@ -233,11 +213,7 @@ def runArgumentsParser() -> CmdLineArgs:
         matter_file_name = matterPathFromZapPath(zap_file)
 
     return CmdLineArgs(
-        zap_file,
-        zcl_file,
-        templates_file,
-        output_dir,
-        args.run_bootstrap,
+        zap_file, zcl_file, templates_file, output_dir, args.run_bootstrap,
         parallel=args.parallel,
         prettify_output=args.prettify_output,
         version_check=args.version_check,
@@ -263,9 +239,9 @@ def matterPathFromZapPath(zap_config_path):
 
 def extractGeneratedIdl(output_dir, matter_name):
     """Find a file Clusters.matter in the output directory and
-    move it to matter_name.
+       move it to matter_name.
 
-    Intent is to make the "zap content" more humanly understandable.
+       Intent is to make the "zap content" more humanly understandable.
     """
     idl_path = os.path.join(output_dir, "Clusters.matter")
     if os.path.exists(idl_path):
@@ -284,19 +260,19 @@ def runGeneration(cmdLineArgs):
     if cmdLineArgs.version_check:
         tool.version_check()
 
-    args = ["-z", zcl_file, "-g", templates_file, "-o", output_dir]
+    args = ['-z', zcl_file, '-g', templates_file, '-o', output_dir]
 
     if zap_file:
-        args.append("-i")
+        args.append('-i')
         args.append(zap_file)
 
     if parallel:
         # Parallel-compatible runs will need separate state
-        args.append("--tempState")
+        args.append('--tempState')
 
     for i in range(cmdLineArgs.retries):
         try:
-            tool.run("generate", *args)
+            tool.run('generate', *args)
             break
         except subprocess.CalledProcessError:
             if i < cmdLineArgs.retries - 1:
@@ -319,14 +295,14 @@ def expandPlaceholderWildcards(path: str) -> Generator[str, None, None]:
     If such placehoders exist in `path` this method will do a filesystem glob
     to select the actual outputs.
     """
-    if "{" not in path:
+    if '{' not in path:
         yield path
         return
 
-    while "{" in path:
-        s = path.find("{")
-        e = path.find("}")
-        path = path[:s] + "*" + path[e + 1 :]
+    while '{' in path:
+        s = path.find('{')
+        e = path.find('}')
+        path = path[:s] + '*' + path[e+1:]
 
     # path is a glob target, expand it
     for result in glob.glob(path):
@@ -334,12 +310,15 @@ def expandPlaceholderWildcards(path: str) -> Generator[str, None, None]:
 
 
 def runClangPrettifier(templates_file, output_dir):
-    listOfSupportedFileExtensions = [".js", ".h", ".c", ".hpp", ".cpp", ".m", ".mm", ".ipp"]
+    listOfSupportedFileExtensions = [
+        '.js', '.h', '.c', '.hpp', '.cpp', '.m', '.mm', '.ipp']
 
     try:
         jsonData = json.loads(Path(templates_file).read_text())
-        outputs = [(os.path.join(output_dir, template["output"])) for template in jsonData["templates"]]
-        rawPaths = list(filter(lambda filepath: os.path.splitext(filepath)[1] in listOfSupportedFileExtensions, outputs))
+        outputs = [(os.path.join(output_dir, template['output']))
+                   for template in jsonData['templates']]
+        rawPaths = list(filter(lambda filepath: os.path.splitext(
+            filepath)[1] in listOfSupportedFileExtensions, outputs))
 
         clangOutputs = []
         for path in rawPaths:
@@ -351,17 +330,15 @@ def runClangPrettifier(templates_file, output_dir):
             #       compatible only with pigweed provided clang-format (which is
             #       tracking non-released clang).
             clang_format = getClangFormatBinary()
-            args = [clang_format, "-i"]
+            args = [clang_format, '-i']
             args.extend(clangOutputs)
             subprocess.check_call(args)
-            print(
-                "Formatted %d files using %s (%s)"
-                % (len(clangOutputs), clang_format, subprocess.check_output([clang_format, "--version"]))
-            )
+            print('Formatted %d files using %s (%s)' %
+                  (len(clangOutputs), clang_format, subprocess.check_output([clang_format, '--version'])))
             for outputName in clangOutputs:
                 log.debug("Formatted: '%s'", outputName)
     except subprocess.CalledProcessError as err:
-        print("clang-format error: %s", err)
+        print('clang-format error: %s', err)
 
 
 class LockFileSerializer:
@@ -373,7 +350,7 @@ class LockFileSerializer:
         if not self.lock_file_path:
             return
 
-        self.lock_file = open(self.lock_file_path, "wb")
+        self.lock_file = open(self.lock_file_path, 'wb')
         self._lock()
 
     def __exit__(self, *args):
@@ -385,17 +362,15 @@ class LockFileSerializer:
         self.lock_file = None
 
     def _lock(self):
-        if sys.platform == "linux" or sys.platform == "darwin":
+        if sys.platform == 'linux' or sys.platform == 'darwin':
             import fcntl
-
             fcntl.lockf(self.lock_file, fcntl.LOCK_EX)
         else:
             print(f"Warning: lock does nothing on {sys.platform} platform")
 
     def _unlock(self):
-        if sys.platform == "linux" or sys.platform == "darwin":
+        if sys.platform == 'linux' or sys.platform == 'darwin':
             import fcntl
-
             fcntl.lockf(self.lock_file, fcntl.LOCK_UN)
         else:
             print(f"Warning: unlock does nothing on {sys.platform} platform")
@@ -415,32 +390,32 @@ def main():
 
         # `zap-cli` may extract things into a temporary directory. ensure extraction
         # does not conflict.
-        with tempfile.TemporaryDirectory(prefix="zap") as temp_dir:
+        with tempfile.TemporaryDirectory(prefix='zap') as temp_dir:
             old_temp = os.environ.get("TEMP")
-            os.environ["TEMP"] = temp_dir
+            os.environ['TEMP'] = temp_dir
 
             runGeneration(cmdLineArgs)
 
             if old_temp:
-                os.environ["TEMP"] = old_temp
+                os.environ['TEMP'] = old_temp
             else:
-                del os.environ["TEMP"]
+                del os.environ['TEMP']
 
         # Post-process fixes: zap needs some fixes from
         # https://github.com/project-chip/zap/pull/1569
         #
         # While that is going on, we need to post-process outputs
         renames = {
-            "../../clusters/Pm2.5ConcentrationMeasurement": "../../clusters/Pm25ConcentrationMeasurement",
+            '../../clusters/Pm2.5ConcentrationMeasurement': '../../clusters/Pm25ConcentrationMeasurement',
         }
         for src, dest in renames.items():
-            srcDir = f"{cmdLineArgs.outputDir}/{src}"
+            srcDir = f'{cmdLineArgs.outputDir}/{src}'
             if not os.path.exists(srcDir):
                 continue
             print(f"Moving files from {srcDir} INTO {cmdLineArgs.outputDir}/{dest}")
             # move all files
-            for name in glob.glob(f"{srcDir}/*"):
-                os.rename(name, f"{cmdLineArgs.outputDir}/{dest}/{os.path.basename(name)}")
+            for name in glob.glob(f'{srcDir}/*'):
+                os.rename(name, f'{cmdLineArgs.outputDir}/{dest}/{os.path.basename(name)}')
             os.rmdir(srcDir)
 
     if cmdLineArgs.prettify_output:
@@ -457,5 +432,5 @@ def main():
         print("Files generated in: %s" % cmdLineArgs.outputDir)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

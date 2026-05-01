@@ -25,19 +25,12 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 class TC_DGGEN_3_2(MatterBaseTest):
     def steps_TC_DGGEN_3_2(self):
-        return [
-            TestStep(0, "Commission DUT (already done)", is_commissioning=True),
-            TestStep(
-                1,
-                "TH reads the MaxPathsPerInvoke attribute from the Basic Information Cluster from DUT. Save the value as `max_paths_per_invoke",
-                "Read is successful",
-            ),
-            TestStep(
-                2,
-                "TH reads FeatureMap attribute from the General Diagnostics Cluster from DUT",
-                "Verify that the FeatureMap value has the DMTEST feature bit (0) set to 1 if `max_path_per_invoke` > 1",
-            ),
-        ]
+        return [TestStep(0, "Commission DUT (already done)", is_commissioning=True),
+                TestStep(1, "TH reads the MaxPathsPerInvoke attribute from the Basic Information Cluster from DUT. Save the value as `max_paths_per_invoke",
+                         "Read is successful"),
+                TestStep(2, "TH reads FeatureMap attribute from the General Diagnostics Cluster from DUT",
+                         "Verify that the FeatureMap value has the DMTEST feature bit (0) set to 1 if `max_path_per_invoke` > 1")
+                ]
 
     @async_test_body
     async def test_TC_DGGEN_3_2(self):
@@ -45,19 +38,13 @@ class TC_DGGEN_3_2(MatterBaseTest):
         self.step(0)
 
         self.step(1)
-        max_paths_per_invoke = await self.read_single_attribute_check_success(
-            cluster=Clusters.BasicInformation, attribute=Clusters.BasicInformation.Attributes.MaxPathsPerInvoke
-        )
+        max_paths_per_invoke = await self.read_single_attribute_check_success(cluster=Clusters.BasicInformation, attribute=Clusters.BasicInformation.Attributes.MaxPathsPerInvoke)
 
         self.step(2)
-        feature_map = await self.read_single_attribute_check_success(
-            cluster=Clusters.GeneralDiagnostics, attribute=Clusters.GeneralDiagnostics.Attributes.FeatureMap
-        )
+        feature_map = await self.read_single_attribute_check_success(cluster=Clusters.GeneralDiagnostics, attribute=Clusters.GeneralDiagnostics.Attributes.FeatureMap)
         if max_paths_per_invoke > 1:
-            asserts.assert_true(
-                feature_map & Clusters.GeneralDiagnostics.Bitmaps.Feature.kDataModelTest,
-                "DMTEST feature must be set if MaxPathsPerInvoke > 1",
-            )
+            asserts.assert_true(feature_map & Clusters.GeneralDiagnostics.Bitmaps.Feature.kDataModelTest,
+                                "DMTEST feature must be set if MaxPathsPerInvoke > 1")
 
 
 if __name__ == "__main__":

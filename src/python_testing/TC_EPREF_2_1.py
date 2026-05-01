@@ -46,17 +46,15 @@ log = logging.getLogger(__name__)
 
 
 class TC_EPREF_2_1(MatterBaseTest):
+
     def desc_TC_EPREF_2_1(self) -> str:
         return "[TC-EPREF-2.1] Attributes with DUT as Server"
 
     def steps_TC_EPREF_2_1(self) -> list[TestStep]:
         return [
             TestStep("1", "Commissioning, already done", is_commissioning=True),
-            TestStep(
-                "2",
-                "TH reads from the DUT the FeatureMap attribute",
-                "Execute steps 3 to 5 if BALA feature is set to 1 and execute steps 6 to 7b if LPMS feature is set to 1",
-            ),
+            TestStep("2", "TH reads from the DUT the FeatureMap attribute",
+                     "Execute steps 3 to 5 if BALA feature is set to 1 and execute steps 6 to 7b if LPMS feature is set to 1"),
             TestStep("3", "TH reads from the DUT the EnergyBalances attribute."),
             TestStep("4", "TH reads from the DUT the CurrentEnergyBalance attribute."),
             TestStep("4a", "TH writes to the DUT the CurrentEnergyBalance attribute"),
@@ -78,46 +76,35 @@ class TC_EPREF_2_1(MatterBaseTest):
         return await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attribute)
 
     async def read_feature_map(self, endpoint):
-        return await self.read_epref_attribute_expect_success(
-            endpoint=endpoint, attribute=Clusters.EnergyPreference.Attributes.FeatureMap
-        )
+        return await self.read_epref_attribute_expect_success(endpoint=endpoint,
+                                                              attribute=Clusters.EnergyPreference.Attributes.FeatureMap)
 
     async def read_energy_balances(self, endpoint):
-        return await self.read_epref_attribute_expect_success(
-            endpoint=endpoint, attribute=Clusters.EnergyPreference.Attributes.EnergyBalances
-        )
+        return await self.read_epref_attribute_expect_success(endpoint=endpoint,
+                                                              attribute=Clusters.EnergyPreference.Attributes.EnergyBalances)
 
     async def read_current_energy_balances(self, endpoint):
-        return await self.read_epref_attribute_expect_success(
-            endpoint=endpoint, attribute=Clusters.EnergyPreference.Attributes.CurrentEnergyBalance
-        )
+        return await self.read_epref_attribute_expect_success(endpoint=endpoint,
+                                                              attribute=Clusters.EnergyPreference.Attributes.CurrentEnergyBalance)
 
     async def read_energy_priorities(self, endpoint):
-        return await self.read_epref_attribute_expect_success(
-            endpoint=endpoint, attribute=Clusters.EnergyPreference.Attributes.EnergyPriorities
-        )
+        return await self.read_epref_attribute_expect_success(endpoint=endpoint,
+                                                              attribute=Clusters.EnergyPreference.Attributes.EnergyPriorities)
 
     async def read_low_power_mode_sensitivities(self, endpoint):
-        return await self.read_epref_attribute_expect_success(
-            endpoint=endpoint, attribute=Clusters.EnergyPreference.Attributes.LowPowerModeSensitivities
-        )
+        return await self.read_epref_attribute_expect_success(endpoint=endpoint,
+                                                              attribute=Clusters.EnergyPreference.Attributes.LowPowerModeSensitivities)
 
     async def read_current_low_power_mode_sensitivity(self, endpoint):
-        return await self.read_epref_attribute_expect_success(
-            endpoint=endpoint, attribute=Clusters.EnergyPreference.Attributes.CurrentLowPowerModeSensitivity
-        )
+        return await self.read_epref_attribute_expect_success(endpoint=endpoint,
+                                                              attribute=Clusters.EnergyPreference.Attributes.CurrentLowPowerModeSensitivity)
 
     async def write_current_energy_balance(self, endpoint, current_energy_balance) -> Status:
-        result = await self.default_controller.WriteAttribute(
-            self.dut_node_id, [(endpoint, Clusters.EnergyPreference.Attributes.CurrentEnergyBalance(current_energy_balance))]
-        )
+        result = await self.default_controller.WriteAttribute(self.dut_node_id, [(endpoint, Clusters.EnergyPreference.Attributes.CurrentEnergyBalance(current_energy_balance))])
         return result[0].Status
 
     async def write_current_low_power_mode_sensitivity(self, endpoint, current_low_power_mode_sensitivity) -> Status:
-        result = await self.default_controller.WriteAttribute(
-            self.dut_node_id,
-            [(endpoint, Clusters.EnergyPreference.Attributes.CurrentLowPowerModeSensitivity(current_low_power_mode_sensitivity))],
-        )
+        result = await self.default_controller.WriteAttribute(self.dut_node_id, [(endpoint, Clusters.EnergyPreference.Attributes.CurrentLowPowerModeSensitivity(current_low_power_mode_sensitivity))])
         return result[0].Status
 
     @property
@@ -126,6 +113,7 @@ class TC_EPREF_2_1(MatterBaseTest):
 
     @async_test_body
     async def test_TC_EPREF_2_1(self):
+
         endpoint = self.get_endpoint()
 
         self.step("1")
@@ -136,6 +124,7 @@ class TC_EPREF_2_1(MatterBaseTest):
         # Logging the FeatureMap Attribute output responses from the DUT:
         log.info(f"FeatureMap: {feature_map}")
         if Clusters.EnergyPreference.Bitmaps.Feature.kEnergyBalance & feature_map:
+
             self.step("3")
             energy_balances = await self.read_energy_balances(endpoint=endpoint)
 
@@ -145,7 +134,7 @@ class TC_EPREF_2_1(MatterBaseTest):
             for index, balance_struct in enumerate(energy_balances, start=1):
                 log.info(f"[{index}]: {{")
                 log.info(f"Step: {balance_struct.step}")
-                if hasattr(balance_struct, "label") and balance_struct.label is not None:
+                if hasattr(balance_struct, 'label') and balance_struct.label is not None:
                     log.info(f"Label: {balance_struct.label}")
                 log.info("}")
 
@@ -153,30 +142,27 @@ class TC_EPREF_2_1(MatterBaseTest):
             asserts.assert_is_instance(energy_balances, list, "EnergyBalances should be a list of BalanceStructs")
 
             for entry in energy_balances:
-                asserts.assert_is_instance(
-                    entry, Clusters.EnergyPreference.Structs.BalanceStruct, "Each entry in EnergyBalances should be a BalanceStruct"
-                )
+                asserts.assert_is_instance(entry, Clusters.EnergyPreference.Structs.BalanceStruct,
+                                           "Each entry in EnergyBalances should be a BalanceStruct")
 
             # Verify the size of the list is at least 2 and not more than 10
-            asserts.assert_in(
-                energy_balances_entries, range(2, 11), f"List size {energy_balances_entries} is out of the expected range (2-10)"
-            )
+            asserts.assert_in(energy_balances_entries, range(2, 11),
+                              f"List size {energy_balances_entries} is out of the expected range (2-10)")
 
             # Verify the "step" value of the first BalanceStruct is 0
             first_balance_struct = energy_balances[0]
-            asserts.assert_equal(first_balance_struct.step, 0, "The 'step' value of the first BalanceStruct should be 0")
+            asserts.assert_equal(first_balance_struct.step, 0,
+                                 "The 'step' value of the first BalanceStruct should be 0")
 
             # Verify the "step" value of the last BalanceStruct is 100
             last_balance_struct = energy_balances[-1]
-            asserts.assert_equal(last_balance_struct.step, 100, "The 'step' value of the last BalanceStruct should be 100")
+            asserts.assert_equal(last_balance_struct.step, 100,
+                                 "The 'step' value of the last BalanceStruct should be 100")
 
             # If there are more than 2 BalanceStructs, verify the 'step' values are in ascending order
             for i, (current_balance, next_balance) in enumerate(zip(energy_balances[:-1], energy_balances[1:])):
-                asserts.assert_less(
-                    current_balance.step,
-                    next_balance.step,
-                    f"The step at index {i + 1} ({next_balance.step}) should larger than the previous step ({current_balance.step})",
-                )
+                asserts.assert_less(current_balance.step, next_balance.step,
+                                    f"The step at index {i+1} ({next_balance.step}) should larger than the previous step ({current_balance.step})")
 
             self.step("4")
             existing_current_energy_balance = await self.read_current_energy_balances(endpoint=endpoint)
@@ -189,9 +175,7 @@ class TC_EPREF_2_1(MatterBaseTest):
             energy_balances = await self.read_energy_balances(endpoint=endpoint)
             if energy_balances:
                 energy_balances_entries = len(energy_balances)
-                status = await self.write_current_energy_balance(
-                    endpoint=endpoint, current_energy_balance=energy_balances_entries - 1
-                )
+                status = await self.write_current_energy_balance(endpoint=endpoint, current_energy_balance=energy_balances_entries-1)
                 asserts.assert_equal(status, Status.Success, "CurrentEnergyBalance write failed")
 
                 new_current_energy_balance = await self.read_current_energy_balances(endpoint=endpoint)
@@ -204,7 +188,8 @@ class TC_EPREF_2_1(MatterBaseTest):
             self.step("4b")
             energy_balances = await self.read_energy_balances(endpoint=endpoint)
             energy_balances_entries = len(energy_balances)
-            status = await self.write_current_energy_balance(endpoint=endpoint, current_energy_balance=energy_balances_entries + 1)
+            status = await self.write_current_energy_balance(endpoint=endpoint,
+                                                             current_energy_balance=energy_balances_entries + 1)
             asserts.assert_equal(status, Status.ConstraintError, "CurrentEnergyBalance write failed")
             # Logging the CurrentEnergyBalance Attribute write responses from the DUT:
             if status == Status.ConstraintError:
@@ -220,29 +205,26 @@ class TC_EPREF_2_1(MatterBaseTest):
                 log.info(f"[{index}]: {priority}")
 
             # Verify the DUT response contains a list of EnergyPriorityEnum
-            asserts.assert_true(isinstance(energy_priorities, list), "EnergyPriorities should be a list of EnergyPriorityEnum")
+            asserts.assert_true(isinstance(energy_priorities, list),
+                                "EnergyPriorities should be a list of EnergyPriorityEnum")
 
             # Verify the list size is exactly 2
             list_size = len(energy_priorities)
-            asserts.assert_equal(list_size, 2, f"EnergyPriorities list size is {list_size}, but it should be 2")
+            asserts.assert_equal(
+                list_size, 2,
+                f"EnergyPriorities list size is {list_size}, but it should be 2")
 
             # Verify the list items match the expected combinations
             valid_combinations = [
-                {
-                    Clusters.EnergyPreference.Enums.EnergyPriorityEnum.kComfort,
-                    Clusters.EnergyPreference.Enums.EnergyPriorityEnum.kEfficiency,
-                },
-                {
-                    Clusters.EnergyPreference.Enums.EnergyPriorityEnum.kSpeed,
-                    Clusters.EnergyPreference.Enums.EnergyPriorityEnum.kWaterConsumption,
-                },
+                {Clusters.EnergyPreference.Enums.EnergyPriorityEnum.kComfort,
+                 Clusters.EnergyPreference.Enums.EnergyPriorityEnum.kEfficiency},
+                {Clusters.EnergyPreference.Enums.EnergyPriorityEnum.kSpeed,
+                 Clusters.EnergyPreference.Enums.EnergyPriorityEnum.kWaterConsumption}
             ]
             response_set = set(energy_priorities)
-            asserts.assert_in(
-                response_set,
-                valid_combinations,
-                f"EnergyPriorities list items {energy_priorities} do not match any of the expected combinations: {valid_combinations}",
-            )
+            asserts.assert_in(response_set, valid_combinations,
+                              f"EnergyPriorities list items {energy_priorities} do not match any of the expected combinations: {valid_combinations}"
+                              )
 
         else:
             self.skip_step("3")
@@ -253,6 +235,7 @@ class TC_EPREF_2_1(MatterBaseTest):
             log.info("Device does not support EnergyBalance feature and related attributes, skipped Test Step 3 to 5")
 
         if Clusters.EnergyPreference.Bitmaps.Feature.kLowPowerModeSensitivity & feature_map:
+
             self.step("6")
             low_power_mode_sensitivities = await self.read_low_power_mode_sensitivities(endpoint=endpoint)
 
@@ -262,31 +245,28 @@ class TC_EPREF_2_1(MatterBaseTest):
             for index, balance_struct in enumerate(low_power_mode_sensitivities, start=1):
                 log.info(f"[{index}]: {{")
                 log.info(f"  Step: {balance_struct.step}")
-                if hasattr(balance_struct, "label") and balance_struct.label is not None:
+                if hasattr(balance_struct, 'label') and balance_struct.label is not None:
                     log.info(f"  Label: {balance_struct.label}")
                 log.info("}")
 
             # Verify the DUT response contains a list of BalanceStruct Type
-            asserts.assert_is_instance(
-                low_power_mode_sensitivities, list, "LowPowerModeSensitivites should be a list of BalanceStructs"
-            )
+            asserts.assert_is_instance(low_power_mode_sensitivities, list,
+                                       "LowPowerModeSensitivites should be a list of BalanceStructs")
 
             for entry in low_power_mode_sensitivities:
-                asserts.assert_is_instance(
-                    entry,
-                    Clusters.EnergyPreference.Structs.BalanceStruct,
-                    "Each entry in LowPowerModeSensitivities should be a BalanceStruct",
-                )
+                asserts.assert_is_instance(entry, Clusters.EnergyPreference.Structs.BalanceStruct,
+                                           "Each entry in LowPowerModeSensitivities should be a BalanceStruct")
 
             # Verify the size of the list is at least 2 and not more than 10
-            asserts.assert_in(num_of_entries, range(2, 11), f"List size {num_of_entries} is out of the expected range (2-10)")
+            asserts.assert_in(
+                num_of_entries, range(2, 11),
+                f"List size {num_of_entries} is out of the expected range (2-10)"
+            )
 
             # If there are more than 2 BalanceStructs, verify that the Step field is in ascending order
             for i, (current_balance, next_balance) in enumerate(zip(energy_balances[:-1], energy_balances[1:])):
-                asserts.assert_true(
-                    current_balance.step < next_balance.step,
-                    f"The step at index {i + 1} ({next_balance.step}) should larger than the previous step ({current_balance.step})",
-                )
+                asserts.assert_true(current_balance.step < next_balance.step,
+                                    f"The step at index {i+1} ({next_balance.step}) should larger than the previous step ({current_balance.step})")
 
             self.step("7")
             current_low_power_mode_sensitivity = await self.read_current_low_power_mode_sensitivity(endpoint=endpoint)
@@ -301,29 +281,24 @@ class TC_EPREF_2_1(MatterBaseTest):
             low_power_mode_sensitivities = await self.read_low_power_mode_sensitivities(endpoint=endpoint)
             if len(low_power_mode_sensitivities) > 0:
                 low_power_mode_sensitivity_entries = len(low_power_mode_sensitivities)
-                status = await self.write_current_low_power_mode_sensitivity(
-                    endpoint=endpoint, current_low_power_mode_sensitivity=low_power_mode_sensitivity_entries - 1
-                )
+                status = await self.write_current_low_power_mode_sensitivity(endpoint=endpoint,
+                                                                             current_low_power_mode_sensitivity=low_power_mode_sensitivity_entries - 1)
                 asserts.assert_equal(status, Status.Success, "CurrentLowPowerModeSensitivity write failed")
 
                 new_current_low_power_mode_sensitivity = await self.read_current_low_power_mode_sensitivity(endpoint=endpoint)
 
                 # Logging the CurrentLowPowerModeSensitivity Attribute output responses from the DUT:
                 log.info(f"CurrentLowPowerModeSensitivity: {new_current_low_power_mode_sensitivity}")
-                asserts.assert_equal(
-                    new_current_low_power_mode_sensitivity,
-                    low_power_mode_sensitivity_entries - 1,
-                    "CurrentLowPowerModeSensitivity value mismatch",
-                )
+                asserts.assert_equal(new_current_low_power_mode_sensitivity, low_power_mode_sensitivity_entries - 1,
+                                     "CurrentLowPowerModeSensitivity value mismatch")
             else:
                 log.error("CurrentLowPowerModeSensitivity list is empty. Cannot write CurrentLowPowerModeSensitivity.")
 
             self.step("7b")
             low_power_mode_sensitivities = await self.read_low_power_mode_sensitivities(endpoint=endpoint)
             low_power_mode_sensitivity_entries = len(low_power_mode_sensitivities)
-            status = await self.write_current_low_power_mode_sensitivity(
-                endpoint=endpoint, current_low_power_mode_sensitivity=low_power_mode_sensitivity_entries + 1
-            )
+            status = await self.write_current_low_power_mode_sensitivity(endpoint=endpoint,
+                                                                         current_low_power_mode_sensitivity=low_power_mode_sensitivity_entries + 1)
             asserts.assert_equal(status, Status.ConstraintError, "CurrentLowPowerModeSensitivity write failed")
             # Logging the CurrentLowPowerModeSensitivity Attribute write responses from the DUT:
             if status == Status.ConstraintError:

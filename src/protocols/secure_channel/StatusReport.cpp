@@ -43,7 +43,8 @@ StatusReport::StatusReport(GeneralStatusCode generalCode, Protocols::Id protocol
 
 StatusReport::StatusReport(GeneralStatusCode generalCode, Protocols::Id protocolId, uint16_t protocolCode,
                            System::PacketBufferHandle protocolData) :
-    mGeneralCode(generalCode), mProtocolId(protocolId), mProtocolCode(protocolCode), mProtocolData(std::move(protocolData))
+    mGeneralCode(generalCode),
+    mProtocolId(protocolId), mProtocolCode(protocolCode), mProtocolData(std::move(protocolData))
 {}
 
 CHIP_ERROR StatusReport::Parse(System::PacketBufferHandle buf)

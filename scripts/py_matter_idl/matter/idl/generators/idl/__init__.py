@@ -17,37 +17,12 @@ from typing import Union
 
 from matter.idl.generators import CodeGenerator
 from matter.idl.generators.storage import GeneratorStorage
-from matter.idl.matter_idl_types import (
-    AccessPrivilege,
-    ApiMaturity,
-    Attribute,
-    AttributeQuality,
-    AttributeStorage,
-    Command,
-    CommandQuality,
-    Event,
-    EventPriority,
-    EventQuality,
-    FieldQuality,
-    Idl,
-    StructQuality,
-    StructTag,
-)
+from matter.idl.matter_idl_types import (AccessPrivilege, ApiMaturity, Attribute, AttributeQuality, AttributeStorage, Command,
+                                         CommandQuality, Event, EventPriority, EventQuality, FieldQuality, Idl, StructQuality,
+                                         StructTag)
 
 
-def human_text_string(
-    value: Union[
-        StructTag,
-        StructQuality,
-        EventPriority,
-        EventQuality,
-        AccessPrivilege,
-        AttributeQuality,
-        CommandQuality,
-        ApiMaturity,
-        AttributeStorage,
-    ],
-) -> str:
+def human_text_string(value: Union[StructTag, StructQuality, EventPriority, EventQuality, AccessPrivilege, AttributeQuality, CommandQuality, ApiMaturity, AttributeStorage]) -> str:
     if type(value) is StructTag:
         if value == StructTag.REQUEST:
             return "request"
@@ -133,7 +108,7 @@ def human_text_string(
 
 def event_access_string(e: Event) -> str:
     """Generates the access string required for an event. If string is non-empty it will
-    include a trailing space
+       include a trailing space
     """
     result = ""
     if e.readacl != AccessPrivilege.VIEW:
@@ -146,7 +121,7 @@ def event_access_string(e: Event) -> str:
 
 def command_access_string(c: Command) -> str:
     """Generates the access string required for a command. If string is non-empty it will
-    include a trailing space
+       include a trailing space
     """
     result = ""
     if c.invokeacl != AccessPrivilege.OPERATE:
@@ -159,7 +134,7 @@ def command_access_string(c: Command) -> str:
 
 def attribute_access_string(a: Attribute) -> str:
     """Generates the access string required for a struct. If string is non-empty it will
-    include a trailing space
+       include a trailing space
     """
     result = []
 
@@ -201,11 +176,11 @@ class IdlGenerator(CodeGenerator):
     def __init__(self, storage: GeneratorStorage, idl: Idl, **kargs):
         super().__init__(storage, idl, fs_loader_searchpath=os.path.dirname(__file__))
 
-        self.jinja_env.filters["idltxt"] = human_text_string
-        self.jinja_env.filters["event_access"] = event_access_string
-        self.jinja_env.filters["command_access"] = command_access_string
-        self.jinja_env.filters["attribute_access"] = attribute_access_string
-        self.jinja_env.filters["render_default"] = render_default
+        self.jinja_env.filters['idltxt'] = human_text_string
+        self.jinja_env.filters['event_access'] = event_access_string
+        self.jinja_env.filters['command_access'] = command_access_string
+        self.jinja_env.filters['attribute_access'] = attribute_access_string
+        self.jinja_env.filters['render_default'] = render_default
 
         # Easier whitespace management
         self.jinja_env.trim_blocks = True
@@ -217,4 +192,10 @@ class IdlGenerator(CodeGenerator):
         """
 
         # Header containing a macro to initialize all cluster plugins
-        self.internal_render_one_output(template_path="MatterIdl.jinja", output_file_name="idl.matter", vars={"idl": self.idl})
+        self.internal_render_one_output(
+            template_path="MatterIdl.jinja",
+            output_file_name="idl.matter",
+            vars={
+                'idl': self.idl
+            }
+        )

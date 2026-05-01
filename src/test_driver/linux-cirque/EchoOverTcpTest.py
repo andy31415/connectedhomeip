@@ -21,34 +21,37 @@ import sys
 
 from helper.CHIPTestBase import CHIPVirtualHome
 
-logger = logging.getLogger("CHIPEchoOverTcpTest")
+logger = logging.getLogger('CHIPEchoOverTcpTest')
 logger.setLevel(logging.INFO)
 
 sh = logging.StreamHandler()
-sh.setFormatter(logging.Formatter("%(asctime)s [%(name)s] %(levelname)s %(message)s"))
+sh.setFormatter(
+    logging.Formatter(
+        '%(asctime)s [%(name)s] %(levelname)s %(message)s'))
 logger.addHandler(sh)
 
-CHIP_REPO = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "..", "..")
+CHIP_REPO = os.path.join(os.path.abspath(
+    os.path.dirname(__file__)), "..", "..", "..")
 
 DEVICE_CONFIG = {
-    "device0": {
-        "type": "CHIP-Echo-Requester",
-        "base_image": "@default",
-        "capability": ["Thread", "Interactive", "TrafficControl", "Mount"],
-        "rcp_mode": True,
-        "docker_network": "Ipv6",
-        "traffic_control": {"latencyMs": 100},
+    'device0': {
+        'type': 'CHIP-Echo-Requester',
+        'base_image': '@default',
+        'capability': ['Thread', 'Interactive', 'TrafficControl', 'Mount'],
+        'rcp_mode': True,
+        'docker_network': 'Ipv6',
+        'traffic_control': {'latencyMs': 100},
         "mount_pairs": [[CHIP_REPO, CHIP_REPO]],
     },
-    "device1": {
-        "type": "CHIP-Echo-Responder",
-        "base_image": "@default",
-        "capability": ["Thread", "Interactive", "TrafficControl", "Mount"],
-        "rcp_mode": True,
-        "docker_network": "Ipv6",
-        "traffic_control": {"latencyMs": 100},
+    'device1': {
+        'type': 'CHIP-Echo-Responder',
+        'base_image': '@default',
+        'capability': ['Thread', 'Interactive', 'TrafficControl', 'Mount'],
+        'rcp_mode': True,
+        'docker_network': 'Ipv6',
+        'traffic_control': {'latencyMs': 100},
         "mount_pairs": [[CHIP_REPO, CHIP_REPO]],
-    },
+    }
 }
 
 CHIP_PORT = 5540
@@ -69,9 +72,12 @@ class TestEchoOverTCP(CHIPVirtualHome):
         self.run_data_model_test()
 
     def run_data_model_test(self):
-        resp_ips = [device["description"]["ipv6_addr"] for device in self.non_ap_devices if device["type"] == "CHIP-Echo-Responder"]
-        resp_ids = [device["id"] for device in self.non_ap_devices if device["type"] == "CHIP-Echo-Responder"]
-        req_ids = [device["id"] for device in self.non_ap_devices if device["type"] == "CHIP-Echo-Requester"]
+        resp_ips = [device['description']['ipv6_addr'] for device in self.non_ap_devices
+                    if device['type'] == 'CHIP-Echo-Responder']
+        resp_ids = [device['id'] for device in self.non_ap_devices
+                    if device['type'] == 'CHIP-Echo-Responder']
+        req_ids = [device['id'] for device in self.non_ap_devices
+                   if device['type'] == 'CHIP-Echo-Requester']
 
         req_device_id = req_ids[0]
 
@@ -79,20 +85,17 @@ class TestEchoOverTCP(CHIPVirtualHome):
             self.execute_device_cmd(
                 id,
                 "CHIPCirqueDaemon.py -- run gdb -batch -return-child-result -q -ex run -ex bt --args {}".format(
-                    os.path.join(CHIP_REPO, "out/debug/linux_x64_gcc/chip-echo-responder --tcp")
-                ),
-            )
+                    os.path.join(CHIP_REPO, "out/debug/linux_x64_gcc/chip-echo-responder --tcp")))
 
-        command = (
-            "gdb -return-child-result -q -ex run -ex bt --args "
-            + os.path.join(CHIP_REPO, "out/debug/linux_x64_gcc/chip-echo-requester")
-            + " {}"
-            + " --tcp"
-        )
+        command = "gdb -return-child-result -q -ex run -ex bt --args " + \
+            os.path.join(
+                CHIP_REPO, "out/debug/linux_x64_gcc/chip-echo-requester") + " {}" + " --tcp"
 
         for ip in resp_ips:
-            ret = self.execute_device_cmd(req_device_id, command.format(ip))
-            self.assertEqual(ret["return_code"], "0", "{} failure: {}".format("Echo", ret["output"]))
+            ret = self.execute_device_cmd(
+                req_device_id, command.format(ip))
+            self.assertEqual(
+                ret['return_code'], '0', "{} failure: {}".format("Echo", ret['output']))
 
 
 if __name__ == "__main__":

@@ -48,13 +48,14 @@ from matter.testing.runner import default_matter_test_main
 
 
 class TestGroupTableReports(MatterBaseTest):
+
     @async_test_body
     async def test_group_table_reports(self):
         self.print_step(1, "Commissioning, already done")
 
         self.TH1 = self.default_controller
 
-        self.kGroupKeyset1 = 0x01A1
+        self.kGroupKeyset1 = 0x01a1
 
         self.print_step(2, "TH Adds Keyset 1 to the Group Key Management Cluster")
         self.groupKey = Clusters.GroupKeyManagement.Structs.GroupKeySetStruct(
@@ -65,8 +66,7 @@ class TestGroupTableReports(MatterBaseTest):
             epochKey1="0123456789abcdef".encode(),
             epochStartTime1=1110001,
             epochKey2="0123456789abcdef".encode(),
-            epochStartTime2=1110002,
-        )
+            epochStartTime2=1110002)
 
         await self.TH1.SendCommand(self.dut_node_id, 0, Clusters.GroupKeyManagement.Commands.KeySetWrite(self.groupKey))
 
@@ -77,41 +77,28 @@ class TestGroupTableReports(MatterBaseTest):
         self.print_step(3, "TH maps Keyset 1 to Group 1, 2 and 3")
         mapping_structs: List[Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct] = []
 
-        mapping_structs.append(
-            Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(
-                groupId=self.kGroup1, groupKeySetID=self.kGroupKeyset1, fabricIndex=1
-            )
-        )
+        mapping_structs.append(Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(
+            groupId=self.kGroup1,
+            groupKeySetID=self.kGroupKeyset1,
+            fabricIndex=1))
 
-        mapping_structs.append(
-            Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(
-                groupId=self.kGroup2, groupKeySetID=self.kGroupKeyset1, fabricIndex=1
-            )
-        )
+        mapping_structs.append(Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(
+            groupId=self.kGroup2,
+            groupKeySetID=self.kGroupKeyset1,
+            fabricIndex=1))
 
-        mapping_structs.append(
-            Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(
-                groupId=self.kGroup3, groupKeySetID=self.kGroupKeyset1, fabricIndex=1
-            )
-        )
+        mapping_structs.append(Clusters.GroupKeyManagement.Structs.GroupKeyMapStruct(
+            groupId=self.kGroup3,
+            groupKeySetID=self.kGroupKeyset1,
+            fabricIndex=1))
 
-        result = await self.TH1.WriteAttribute(
-            self.dut_node_id, [(0, Clusters.GroupKeyManagement.Attributes.GroupKeyMap(mapping_structs))]
-        )
+        result = await self.TH1.WriteAttribute(self.dut_node_id, [(0, Clusters.GroupKeyManagement.Attributes.GroupKeyMap(mapping_structs))])
         asserts.assert_equal(result[0].Status, Status.Success, "GroupKeyMap write failed")
 
         self.print_step(4, "TH subscribes to the GroupTable attribute from the Group Key Management Cluster")
-        subscription_gcm = await self.TH1.ReadAttribute(
-            nodeId=self.dut_node_id,
-            attributes=[(0, Clusters.GroupKeyManagement.Attributes.GroupTable)],
-            reportInterval=(1, 5),
-            fabricFiltered=False,
-            keepSubscriptions=True,
-            autoResubscribe=False,
-        )
-        gcm_cb = AttributeSubscriptionHandler(
-            expected_cluster=Clusters.GroupKeyManagement, expected_attribute=Clusters.GroupKeyManagement.Attributes.GroupTable
-        )
+        subscription_gcm = await self.TH1.ReadAttribute(nodeId=self.dut_node_id, attributes=[(0, Clusters.GroupKeyManagement.Attributes.GroupTable)], reportInterval=(1, 5), fabricFiltered=False, keepSubscriptions=True, autoResubscribe=False)
+        gcm_cb = AttributeSubscriptionHandler(expected_cluster=Clusters.GroupKeyManagement,
+                                              expected_attribute=Clusters.GroupKeyManagement.Attributes.GroupTable)
         subscription_gcm.SetAttributeUpdateCallback(gcm_cb)
 
         self.print_step(5, "TH Adds Group1 to the Group Cluster")

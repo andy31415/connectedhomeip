@@ -45,11 +45,8 @@ from matter.interaction_model import InteractionModelError
 from matter.testing.decorators import async_test_body
 from matter.testing.matter_testing import MatterBaseTest
 from matter.testing.runner import default_matter_test_main
-from matter.testing.timeoperations import (
-    utc_datetime_from_matter_epoch_us,
-    utc_datetime_from_posix_time_ms,
-    utc_time_in_matter_epoch,
-)
+from matter.testing.timeoperations import (utc_datetime_from_matter_epoch_us, utc_datetime_from_posix_time_ms,
+                                           utc_time_in_matter_epoch)
 
 log = logging.getLogger(__name__)
 
@@ -69,12 +66,7 @@ class TC_DGGEN_2_4(MatterBaseTest):
         code = 0
 
         try:
-            await self.send_single_cmd(
-                cmd=time_cluster.Commands.SetUTCTime(
-                    UTCTime=current_time, granularity=time_cluster.Enums.GranularityEnum.kMillisecondsGranularity
-                ),
-                endpoint=endpoint,
-            )
+            await self.send_single_cmd(cmd=time_cluster.Commands.SetUTCTime(UTCTime=current_time, granularity=time_cluster.Enums.GranularityEnum.kMillisecondsGranularity), endpoint=endpoint)
         except InteractionModelError as e:
             # The python layer discards the cluster specific portion of the status IB, so for now we just expect a generic FAILURE error
             # see #26521
@@ -100,18 +92,13 @@ class TC_DGGEN_2_4(MatterBaseTest):
         self.print_step("1a", "Detect Time Synchronization UTCTime attribute presence")
         root_descriptor = await self.default_controller.ReadAttribute(self.dut_node_id, [(0, Clusters.Descriptor)])
         root_server_list = root_descriptor[0][Clusters.Descriptor][Clusters.Descriptor.Attributes.ServerList]
-        has_timesync = Clusters.TimeSynchronization.id in root_server_list
+        has_timesync = (Clusters.TimeSynchronization.id in root_server_list)
 
         testvar_TimeSyncSupported = False
 
         if has_timesync:
-            ts_attributes = await self.read_single_attribute(
-                self.default_controller,
-                node_id=self.dut_node_id,
-                endpoint=0,
-                attribute=Clusters.TimeSynchronization.Attributes.AttributeList,
-            )
-            has_utc_time = Clusters.TimeSynchronization.Attributes.UTCTime.attribute_id in ts_attributes
+            ts_attributes = await self.read_single_attribute(self.default_controller, node_id=self.dut_node_id, endpoint=0, attribute=Clusters.TimeSynchronization.Attributes.AttributeList)
+            has_utc_time = (Clusters.TimeSynchronization.Attributes.UTCTime.attribute_id in ts_attributes)
 
             if has_utc_time:
                 testvar_TimeSyncSupported = True
@@ -126,10 +113,8 @@ class TC_DGGEN_2_4(MatterBaseTest):
 
             self.print_step("1c", "Read current time from DUT")
             testvar_UTCTime1 = await self.read_timesync_attribute_expect_success(Clusters.TimeSynchronization.Attributes.UTCTime)
-            asserts.assert_true(
-                testvar_UTCTime1 != NullValue,
-                "UTCTime1 readback must not be null after SetUTCTime (per Time Synchronization cluster spec)",
-            )
+            asserts.assert_true(testvar_UTCTime1 != NullValue,
+                                "UTCTime1 readback must not be null after SetUTCTime (per Time Synchronization cluster spec)")
 
             testvar_TimeSyncSupported = True
 
@@ -159,18 +144,14 @@ class TC_DGGEN_2_4(MatterBaseTest):
             #   - Save the value of the SystemTimeMs field as SystemTimeMs1.
             #   - Save the value of the PosixTimeMs field as PosixTimeMs1.
             asserts.assert_true(response.posixTimeMs != NullValue, "PosixTimeMs field of TimeSnapshotResponse must not be null")
-            asserts.assert_greater_equal(
-                response.systemTimeMs // 1000, testvar_UpTime1, "System time in milliseconds must be >= UpTime1"
-            )
+            asserts.assert_greater_equal(response.systemTimeMs // 1000, testvar_UpTime1,
+                                         "System time in milliseconds must be >= UpTime1")
 
             utc_from_posix = utc_datetime_from_posix_time_ms(posix_time_ms=response.posixTimeMs)
             utc_from_utctime1 = utc_datetime_from_matter_epoch_us(testvar_UTCTime1)
 
             asserts.assert_greater_equal(
-                utc_from_posix,
-                utc_from_utctime1,
-                "PosixTimeMs field converted to a UTC timestamp must be >= than UTCTime1 converted to a UTC timestamp",
-            )
+                utc_from_posix, utc_from_utctime1, "PosixTimeMs field converted to a UTC timestamp must be >= than UTCTime1 converted to a UTC timestamp")
 
             testvar_SystemTimeMs1 = response.systemTimeMs
             testvar_PosixTimeMs1 = response.posixTimeMs
@@ -188,10 +169,10 @@ class TC_DGGEN_2_4(MatterBaseTest):
             #   - Value of SystemTimeMs field is greater than SystemTimeMs1.
 
             asserts.assert_true(response.posixTimeMs != NullValue, "PosixTimeMs field of TimeSnapshotResponse must not be null")
-            asserts.assert_greater(response.posixTimeMs, testvar_PosixTimeMs1, "POSIX time in milliseconds must be > PosixTimeMs1")
-            asserts.assert_greater(
-                response.systemTimeMs, testvar_SystemTimeMs1, "System time in milliseconds must be > SystemTimeMs1"
-            )
+            asserts.assert_greater(response.posixTimeMs, testvar_PosixTimeMs1,
+                                   "POSIX time in milliseconds must be > PosixTimeMs1")
+            asserts.assert_greater(response.systemTimeMs, testvar_SystemTimeMs1,
+                                   "System time in milliseconds must be > SystemTimeMs1")
 
             self.print_step(4, "Skipped: Functional verifications for case when Time Synchronization is NOT supported")
 
@@ -212,9 +193,8 @@ class TC_DGGEN_2_4(MatterBaseTest):
             # On success of prior verifications, save the value of SystemTimeMs field as SystemTimeMs1.
 
             asserts.assert_true(response.posixTimeMs == NullValue, "PosixTimeMs field of TimeSnapshotResponse must be null")
-            asserts.assert_greater_equal(
-                response.systemTimeMs // 1000, testvar_UpTime1, "System time in milliseconds must be >= UpTime1"
-            )
+            asserts.assert_greater_equal(response.systemTimeMs // 1000, testvar_UpTime1,
+                                         "System time in milliseconds must be >= UpTime1")
 
             testvar_SystemTimeMs1 = response.systemTimeMs
 
@@ -233,9 +213,8 @@ class TC_DGGEN_2_4(MatterBaseTest):
             # On success of prior verifications, save the value of SystemTimeMs field as SystemTimeMs1.
 
             asserts.assert_true(response.posixTimeMs == NullValue, "PosixTimeMs field of TimeSnapshotResponse must be null")
-            asserts.assert_greater(
-                response.systemTimeMs, testvar_SystemTimeMs1, "System time in milliseconds must be > SystemTimeMs1"
-            )
+            asserts.assert_greater(response.systemTimeMs, testvar_SystemTimeMs1,
+                                   "System time in milliseconds must be > SystemTimeMs1")
 
 
 if __name__ == "__main__":

@@ -385,7 +385,8 @@
 
     UIAlertAction * cancelAction = [UIAlertAction actionWithTitle:@"Cancel"
                                                             style:UIAlertActionStyleCancel
-                                                          handler:^(UIAlertAction * action) {}];
+                                                          handler:^(UIAlertAction * action) {
+                                                          }];
 
     [alert addAction:cancelAction];
     [alert addAction:defaultAction];

@@ -78,7 +78,7 @@ class Config:
     # Basic config access
 
     def get(self, key: str, default: Any = None) -> Any:
-        return self.getl(key.split("."), default)
+        return self.getl(key.split('.'), default)
 
     def __getitem__(self, key: str) -> Any:
         """[] syntax for configuration.
@@ -92,7 +92,7 @@ class Config:
         return nd.get(self.d, keys, default)
 
     def put(self, key: str, value: Any) -> None:
-        self.putl(key.split("."), value)
+        self.putl(key.split('.'), value)
 
     def __setitem__(self, key: str, value: Any) -> None:
         self.put(key, value)
@@ -116,7 +116,7 @@ class Config:
     def group_map(s: str) -> Tuple[int, str]:
         return (Config._GROUP_MAP, s)
 
-    def init_config(self, desc: ConfigDescription) -> "Config":
+    def init_config(self, desc: ConfigDescription) -> 'Config':
         """Initialize a configuration from a description dictionary.
 
         Note that this initializes only the key/value store,
@@ -125,11 +125,11 @@ class Config:
         self.config_desc = desc
         for key, info in desc.items():
             if isinstance(key, str):
-                self.put(key, info["default"])
+                self.put(key, info['default'])
 
         return self
 
-    def init_args(self, desc: ConfigDescription, *args, **kwargs) -> "Config":
+    def init_args(self, desc: ConfigDescription, *args, **kwargs) -> 'Config':
         """Initialize command line argument parsing."""
         self.argparse = argparse.ArgumentParser(*args, **kwargs)
 
@@ -139,62 +139,72 @@ class Config:
                 continue
             kind, name = key
             if kind == self._GROUP_MAP:
-                self.group_alias[name] = info["group"]
+                self.group_alias[name] = info['group']
             elif kind == self._GROUP_DEF:
-                self.argparse_groups[name] = self.argparse.add_argument_group(**info)
+                self.argparse_groups[name] = self.argparse.add_argument_group(
+                    **info)
 
         # Arguments
         for key, info in desc.items():
             if not isinstance(key, str):
                 continue
-            if (arg_info := info.get("argparse", {})) is False:
+            if (arg_info := info.get('argparse', {})) is False:
                 continue
 
             arg_info = arg_info.copy()
-            name = arg_info.pop("argument", "--" + key.replace(".", "-"))
-            names = [name] + arg_info.pop("alias", [])
-            info["names"] = names
-            for k in ["metavar", "choices"]:
+            name = arg_info.pop('argument', '--' + key.replace('.', '-'))
+            names = [name] + arg_info.pop('alias', [])
+            info['names'] = names
+            for k in ['metavar', 'choices']:
                 if k in info:
                     arg_info[k] = info[k]
-            default = info["default"]
-            if not arg_info.get("action"):
+            default = info['default']
+            if not arg_info.get('action'):
                 if isinstance(default, list):
-                    arg_info["action"] = "append"
+                    arg_info['action'] = 'append'
                 elif default is False:
-                    arg_info["action"] = "store_true"
+                    arg_info['action'] = 'store_true'
                 elif default is True:
-                    arg_info["action"] = "store_false"
-                elif isinstance(default, int) and "metavar" not in info:
-                    arg_info["action"] = "count"
-            if postprocess := info.get("postprocess"):
+                    arg_info['action'] = 'store_false'
+                elif isinstance(default, int) and 'metavar' not in info:
+                    arg_info['action'] = 'count'
+            if postprocess := info.get('postprocess'):
                 self.postprocess_args[key] = (postprocess, info)
 
-            group: Optional[str] = info.get("group")
-            if group is None and (e := key.find(".")) > 0:
+            group: Optional[str] = info.get('group')
+            if group is None and (e := key.find('.')) > 0:
                 group = key[0:e]
             group = self.group_alias.get(group, group)
             arg_group = self.argparse_groups.get(group, self.argparse)
-            arg = arg_group.add_argument(*names, help=info["help"], default=self.get(key, default), **arg_info)
+            arg = arg_group.add_argument(*names,
+                                         help=info['help'],
+                                         default=self.get(key, default),
+                                         **arg_info)
             self.dest_to_key[arg.dest] = key
             self.key_to_dest[key] = arg.dest
 
         return self
 
-    def init(self, desc: ConfigDescription, *args, **kwargs) -> "Config":
+    def init(self, desc: ConfigDescription, *args, **kwargs) -> 'Config':
         """Intialize configuration from a configuration description."""
         self.init_config(desc)
         self.init_args(desc, *args, **kwargs)
         return self
 
-    def parse(self, argv: Sequence[str]) -> "Config":
+    def parse(self, argv: Sequence[str]) -> 'Config':
         """Parse command line options into a configuration dictionary."""
 
         # Read config file(s).
-        config_parser = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
-        config_arg: Dict[str, Any] = {"metavar": "FILE", "default": [], "action": "append", "help": "Read configuration FILE"}
-        config_parser.add_argument("--config-file", **config_arg)
-        self.argparse.add_argument("--config-file", **config_arg)
+        config_parser = argparse.ArgumentParser(add_help=False,
+                                                allow_abbrev=False)
+        config_arg: Dict[str, Any] = {
+            'metavar': 'FILE',
+            'default': [],
+            'action': 'append',
+            'help': 'Read configuration FILE'
+        }
+        config_parser.add_argument('--config-file', **config_arg)
+        self.argparse.add_argument('--config-file', **config_arg)
         config_args, argv = config_parser.parse_known_args(argv[1:])
         for filename in config_args.config_file:
             self.read_config_file(filename)
@@ -211,16 +221,20 @@ class Config:
         args = self.argparse.parse_args(argv)
         for dest, value in vars(args).items():
             if (key := self.dest_to_key.get(dest)) is None:
-                key = "args." + dest
+                key = 'args.' + dest
             self.put(key, value)
 
         # Configure logging.
-        if self.get("log-level") is None:
-            verbose = self.get("verbose", 0)
-            self.put("log-level", (logging.DEBUG if verbose > 1 else logging.INFO if verbose else logging.WARNING))
+        if self.get('log-level') is None:
+            verbose = self.get('verbose', 0)
+            self.put('log-level',
+                     (logging.DEBUG if verbose > 1 else
+                      logging.INFO if verbose else logging.WARNING))
         else:
-            self.put("log-level", getattr(logging, self.get("log-level").upper()))
-        logging.basicConfig(level=self.get("log-level"), format=self.get("log-format"))
+            self.put('log-level',
+                     getattr(logging, self.get('log-level').upper()))
+        logging.basicConfig(level=self.get('log-level'),
+                            format=self.get('log-format'))
 
         # Postprocess config.
         for key, postprocess in self.postprocess_args.items():
@@ -230,9 +244,9 @@ class Config:
         memdf.util.pretty.debug(self.d)
         return self
 
-    def read_config_file(self, filename: str) -> "Config":
+    def read_config_file(self, filename: str) -> 'Config':
         """Read a configuration file."""
-        with open(filename, "r") as fp:
+        with open(filename, 'r') as fp:
             d = ast.literal_eval(fp.read())
             nd.update(self.d, d)
         return self
@@ -247,17 +261,17 @@ class Config:
 
     def getl_re(self, key: nd.Key) -> Optional[Pattern]:
         """Get a cached compiled regular expression for a config value list."""
-        regex_key: nd.Key = ["cache", "re"] + key
+        regex_key: nd.Key = ['cache', 're'] + key
         regex: Optional[Pattern] = self.getl(regex_key)
         if not regex:
             branches: Optional[Sequence[str]] = self.getl(key)
             if branches:
-                regex = re.compile("|".join(branches))
+                regex = re.compile('|'.join(branches))
             self.putl(regex_key, regex)
         return regex
 
     def get_re(self, key: str) -> Optional[Pattern]:
-        return self.getl_re(key.split("."))
+        return self.getl_re(key.split('.'))
 
 
 # Argument parsing helpers
@@ -276,22 +290,23 @@ class ParseSizeAction(argparse.Action):
 
 # Config description of options shared by all tools.
 CONFIG: ConfigDescription = {
-    "log-level": {
-        "help": "Set logging level: one of critical, error, warning, info, debug.",
-        "default": None,
-        "choices": ["critical", "error", "warning", "info", "debug"],
+    'log-level': {
+        'help':
+            'Set logging level: one of critical, error, warning, info, debug.',
+        'default': None,
+        'choices': ['critical', 'error', 'warning', 'info', 'debug'],
     },
-    "log-format": {
-        "help": "Set logging format",
-        "metavar": "FORMAT",
-        "default": "%(message)s",
+    'log-format': {
+        'help': 'Set logging format',
+        'metavar': 'FORMAT',
+        'default': '%(message)s',
     },
-    "verbose": {
-        "help": "Show informational messages; repeat for debugging messages",
-        "default": 0,
-        "argparse": {
-            "alias": ["-v"],
-            "action": "count",
+    'verbose': {
+        'help': 'Show informational messages; repeat for debugging messages',
+        'default': 0,
+        'argparse': {
+            'alias': ['-v'],
+            'action': 'count',
         },
     },
 }

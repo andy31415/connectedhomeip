@@ -344,8 +344,8 @@ enum
 
 // Generate a compressed NV ID (NOTE: bit31 must be zero)
 #define NVOCMP_CMPRID(s, i, b)                                                                                                     \
-    ((uint32_t) ((((((s) & NVOCMP_MAXSYSID) << NVOCMP_CMPSPACE) | ((i) & NVOCMP_MAXITEMID)) << NVOCMP_CMPSPACE) |                  \
-                 ((b) & NVOCMP_MAXSUBID)))
+    ((uint32_t) ((((((s) &NVOCMP_MAXSYSID) << NVOCMP_CMPSPACE) | ((i) &NVOCMP_MAXITEMID)) << NVOCMP_CMPSPACE) |                    \
+                 ((b) &NVOCMP_MAXSUBID)))
 
 // NVOCMP Unit Test Assert Macro/Function
 #ifdef NVDEBUG
@@ -2178,7 +2178,7 @@ static uint8_t NVOCMP_scanPage(NVOCMP_nvHandle_t * pNvHandle, uint8_t pg, NVOCMP
     pPageInfo->state = pHdr->state;
     pPageInfo->cycle = pHdr->cycle;
 #if ((NVOCMP_NVPAGES > NVOCMP_NVONEP) && !defined(NVOCMP_MIGRATE_DISABLED))
-    uint8_t version = (pHdr->version << 2) | (pHdr->allActive);
+    uint8_t version  = (pHdr->version << 2) | (pHdr->allActive);
     if ((pHdr->signature == NVOCTP_SIGNATURE) && (version == NVOCTP_VERSION))
     {
         pPageInfo->allActive = NVOCMP_SOMEINACTIVE;
@@ -3056,7 +3056,7 @@ static uint8_t NVOCMP_write(uint8_t dstPg, uint16_t off, uint8_t * pBuf, uint16_
 #ifndef NV_LINUX
         nvsRes = NVS_write(NVOCMP_nvsHandle, NVOCMP_FLASHOFFSET(dstPg, off), pBuf, len, NVS_WRITE_POST_VERIFY);
 #else
-        nvsRes = NV_LINUX_write(dstPg, off, pBuf, len);
+        nvsRes  = NV_LINUX_write(dstPg, off, pBuf, len);
 #endif
     }
     else
@@ -3101,7 +3101,7 @@ static uint8_t NVOCMP_erase(NVOCMP_nvHandle_t * pNvHandle, uint8_t dstPg)
 #ifndef NV_LINUX
         nvsRes = NVS_erase(NVOCMP_nvsHandle, NVOCMP_FLASHOFFSET(dstPg, 0), NVOCMP_nvsAttrs.sectorSize);
 #else
-        nvsRes = NV_LINUX_erase(dstPg);
+        nvsRes  = NV_LINUX_erase(dstPg);
 #endif
         if (nvsRes < 0)
         {
@@ -3819,10 +3819,10 @@ static int8_t NVOCMP_findItem(NVOCMP_nvHandle_t * pNvHandle, uint8_t pg, uint16_
 static int8_t NVOCMP_findItem(NVOCMP_nvHandle_t * pNvHandle, uint8_t pg, uint16_t ofs, NVOCMP_itemHdr_t * pHdr, int8_t flag,
                               NVOCMP_itemInfo_t * pInfo)
 {
-    bool found     = false;
-    uint8_t p      = pg;
-    uint16_t items = 0;
-    uint32_t cid   = NVOCMP_CMPRID(pHdr->sysid, pHdr->itemid, pHdr->subid);
+    bool found          = false;
+    uint8_t p           = pg;
+    uint16_t items      = 0;
+    uint32_t cid        = NVOCMP_CMPRID(pHdr->sysid, pHdr->itemid, pHdr->subid);
 
 #if (NVOCMP_NVPAGES > NVOCMP_NVTWOP)
     uint16_t nvSearched = 0;
@@ -4281,11 +4281,11 @@ static int16_t NVOCMP_compactPage(NVOCMP_nvHandle_t * pNvHandle, uint16_t nBytes
     }
 
 #if (NVOCMP_NVPAGES == NVOCMP_NVONEP)
-    srcPg = 0;
-    dstPg = 0;
+    srcPg                            = 0;
+    dstPg                            = 0;
 #else
-    srcPg = pNvHandle->headPage;
-    dstPg = pNvHandle->tailPage;
+    srcPg  = pNvHandle->headPage;
+    dstPg  = pNvHandle->tailPage;
 #endif
     pNvHandle->compactInfo.xSrcPages = 1;
 
@@ -5092,10 +5092,10 @@ static uint32_t NVOCMP_sanityCheckApi(void)
     dstPg  = 0;
     dstOff = NVOCMP_PGDATAOFS;
 #else
-    srcPg  = pNvHandle->headPage;
-    srcOff = pNvHandle->pageInfo[srcPg].offset;
-    dstPg  = pNvHandle->tailPage;
-    dstOff = pNvHandle->pageInfo[dstPg].offset;
+    srcPg              = pNvHandle->headPage;
+    srcOff             = pNvHandle->pageInfo[srcPg].offset;
+    dstPg              = pNvHandle->tailPage;
+    dstOff             = pNvHandle->pageInfo[dstPg].offset;
 #endif
 
     NVOCMP_ALERT(false, "Sanity Check")

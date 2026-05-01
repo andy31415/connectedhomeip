@@ -20,23 +20,10 @@ from typing import Callable
 
 from mobly import asserts
 
-from matter.testing.conformance import (
-    EMPTY_CLUSTER_GLOBAL_ATTRIBUTES,
-    Choice,
-    Conformance,
-    ConformanceAssessmentData,
-    ConformanceDecision,
-    ConformanceException,
-    ConformanceParseParameters,
-    deprecated,
-    disallowed,
-    mandatory,
-    optional,
-    parse_basic_callable_from_xml,
-    parse_callable_from_xml,
-    provisional,
-    zigbee,
-)
+from matter.testing.conformance import (EMPTY_CLUSTER_GLOBAL_ATTRIBUTES, Choice, Conformance, ConformanceAssessmentData,
+                                        ConformanceDecision, ConformanceException, ConformanceParseParameters, deprecated,
+                                        disallowed, mandatory, optional, parse_basic_callable_from_xml, parse_callable_from_xml,
+                                        provisional, zigbee)
 from matter.testing.matter_testing import MatterBaseTest
 from matter.testing.runner import default_matter_test_main
 from matter.tlv import uint
@@ -52,71 +39,68 @@ class TestConformanceSupport(MatterBaseTest):
     def setup_class(self):
         super().setup_class()
         # a small feature map
-        self.feature_names_to_bits = {"AB": 0x01, "CD": 0x02}
+        self.feature_names_to_bits = {'AB': 0x01, 'CD': 0x02}
 
         # none, AB, CD, AB&CD
         self.feature_maps = [0x00, 0x01, 0x02, 0x03]
         self.has_ab = [False, True, False, True]
         self.has_cd = [False, False, True, True]
 
-        self.attribute_names_to_values = {"attr1": 0x00, "attr2": 0x01}
+        self.attribute_names_to_values = {'attr1': 0x00, 'attr2': 0x01}
         self.attribute_lists = [[], [0x00], [0x01], [0x00, 0x01]]
         self.has_attr1 = [False, True, False, True]
         self.has_attr2 = [False, False, True, True]
 
-        self.command_names_to_values = {"cmd1": 0x00, "cmd2": 0x01}
+        self.command_names_to_values = {'cmd1': 0x00, 'cmd2': 0x01}
         self.cmd_lists = [[], [0x00], [0x01], [0x00, 0x01]]
         self.has_cmd1 = [False, True, False, True]
         self.has_cmd2 = [False, False, True, True]
         self.params = ConformanceParseParameters(
-            feature_map=self.feature_names_to_bits,
-            attribute_map=self.attribute_names_to_values,
-            command_map=self.command_names_to_values,
-        )
+            feature_map=self.feature_names_to_bits, attribute_map=self.attribute_names_to_values, command_map=self.command_names_to_values)
 
     def test_conformance_mandatory(self):
-        xml = "<mandatoryConform />"
+        xml = '<mandatoryConform />'
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for f in self.feature_maps:
             info = ConformanceAssessmentData(feature_map=f, attribute_list=[], all_command_list=[], cluster_revision=1)
             asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
-        asserts.assert_equal(str(xml_callable), "M")
+        asserts.assert_equal(str(xml_callable), 'M')
 
     def test_conformance_optional(self):
-        xml = "<optionalConform />"
+        xml = '<optionalConform />'
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for f in self.feature_maps:
             info = ConformanceAssessmentData(feature_map=f, attribute_list=[], all_command_list=[], cluster_revision=1)
             asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
-        asserts.assert_equal(str(xml_callable), "O")
+        asserts.assert_equal(str(xml_callable), 'O')
 
     def test_conformance_disallowed(self):
-        xml = "<disallowConform />"
+        xml = '<disallowConform />'
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for f in self.feature_maps:
             info = ConformanceAssessmentData(feature_map=f, attribute_list=[], all_command_list=[], cluster_revision=1)
             asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.DISALLOWED)
-        asserts.assert_equal(str(xml_callable), "X")
+        asserts.assert_equal(str(xml_callable), 'X')
 
-        xml = "<deprecateConform />"
+        xml = '<deprecateConform />'
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for f in self.feature_maps:
             info = ConformanceAssessmentData(feature_map=f, attribute_list=[], all_command_list=[], cluster_revision=1)
             asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.DISALLOWED)
-        asserts.assert_equal(str(xml_callable), "D")
+        asserts.assert_equal(str(xml_callable), 'D')
 
     def test_conformance_provisional(self):
-        xml = "<provisionalConform />"
+        xml = '<provisionalConform />'
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for f in self.feature_maps:
             info = ConformanceAssessmentData(feature_map=f, attribute_list=[], all_command_list=[], cluster_revision=1)
             asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.PROVISIONAL)
-        asserts.assert_equal(str(xml_callable), "P")
+        asserts.assert_equal(str(xml_callable), 'P')
 
     def test_conformance_zigbee(self):
         xml = '<condition name="Zigbee"/>'
@@ -125,10 +109,12 @@ class TestConformanceSupport(MatterBaseTest):
         for f in self.feature_maps:
             info = ConformanceAssessmentData(feature_map=f, attribute_list=[], all_command_list=[], cluster_revision=1)
             asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "Zigbee")
+        asserts.assert_equal(str(xml_callable), 'Zigbee')
 
     def test_conformance_mandatory_on_condition(self):
-        xml = '<mandatoryConform><feature name="AB" /></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<feature name="AB" />'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -137,9 +123,11 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "AB")
+        asserts.assert_equal(str(xml_callable), 'AB')
 
-        xml = '<mandatoryConform><feature name="CD" /></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<feature name="CD" />'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -148,10 +136,12 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "CD")
+        asserts.assert_equal(str(xml_callable), 'CD')
 
         # single attribute mandatory
-        xml = '<mandatoryConform><attribute name="attr1" /></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<attribute name="attr1" />'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, a in enumerate(self.attribute_lists):
@@ -160,9 +150,11 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "attr1")
+        asserts.assert_equal(str(xml_callable), 'attr1')
 
-        xml = '<mandatoryConform><attribute name="attr2" /></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<attribute name="attr2" />'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, a in enumerate(self.attribute_lists):
@@ -171,13 +163,15 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "attr2")
+        asserts.assert_equal(str(xml_callable), 'attr2')
 
         # test command in optional and in boolean - this is the same as attribute essentially, so testing every permutation is overkill
 
     def test_conformance_optional_on_condition(self):
         # single feature optional
-        xml = '<optionalConform><feature name="AB" /></optionalConform>'
+        xml = ('<optionalConform>'
+               '<feature name="AB" />'
+               '</optionalConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -186,9 +180,11 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "[AB]")
+        asserts.assert_equal(str(xml_callable), '[AB]')
 
-        xml = '<optionalConform><feature name="CD" /></optionalConform>'
+        xml = ('<optionalConform>'
+               '<feature name="CD" />'
+               '</optionalConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -197,10 +193,12 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "[CD]")
+        asserts.assert_equal(str(xml_callable), '[CD]')
 
         # single attribute optional
-        xml = '<optionalConform><attribute name="attr1" /></optionalConform>'
+        xml = ('<optionalConform>'
+               '<attribute name="attr1" />'
+               '</optionalConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, a in enumerate(self.attribute_lists):
@@ -209,9 +207,11 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "[attr1]")
+        asserts.assert_equal(str(xml_callable), '[attr1]')
 
-        xml = '<optionalConform><attribute name="attr2" /></optionalConform>'
+        xml = ('<optionalConform>'
+               '<attribute name="attr2" />'
+               '</optionalConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, a in enumerate(self.attribute_lists):
@@ -220,10 +220,12 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "[attr2]")
+        asserts.assert_equal(str(xml_callable), '[attr2]')
 
         # single command optional
-        xml = '<optionalConform><command name="cmd1" /></optionalConform>'
+        xml = ('<optionalConform>'
+               '<command name="cmd1" />'
+               '</optionalConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, c in enumerate(self.cmd_lists):
@@ -232,9 +234,11 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "[cmd1]")
+        asserts.assert_equal(str(xml_callable), '[cmd1]')
 
-        xml = '<optionalConform><command name="cmd2" /></optionalConform>'
+        xml = ('<optionalConform>'
+               '<command name="cmd2" />'
+               '</optionalConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, c in enumerate(self.cmd_lists):
@@ -243,11 +247,15 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "[cmd2]")
+        asserts.assert_equal(str(xml_callable), '[cmd2]')
 
     def test_conformance_not_term_mandatory(self):
         # single feature not mandatory
-        xml = '<mandatoryConform><notTerm><feature name="AB" /></notTerm></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<notTerm>'
+               '<feature name="AB" />'
+               '</notTerm>'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -256,9 +264,13 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "!AB")
+        asserts.assert_equal(str(xml_callable), '!AB')
 
-        xml = '<mandatoryConform><notTerm><feature name="CD" /></notTerm></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<notTerm>'
+               '<feature name="CD" />'
+               '</notTerm>'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -267,10 +279,14 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "!CD")
+        asserts.assert_equal(str(xml_callable), '!CD')
 
         # single attribute not mandatory
-        xml = '<mandatoryConform><notTerm><attribute name="attr1" /></notTerm></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<notTerm>'
+               '<attribute name="attr1" />'
+               '</notTerm>'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, a in enumerate(self.attribute_lists):
@@ -279,9 +295,13 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "!attr1")
+        asserts.assert_equal(str(xml_callable), '!attr1')
 
-        xml = '<mandatoryConform><notTerm><attribute name="attr2" /></notTerm></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<notTerm>'
+               '<attribute name="attr2" />'
+               '</notTerm>'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, a in enumerate(self.attribute_lists):
@@ -290,11 +310,15 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "!attr2")
+        asserts.assert_equal(str(xml_callable), '!attr2')
 
     def test_conformance_not_term_optional(self):
         # single feature not optional
-        xml = '<optionalConform><notTerm><feature name="AB" /></notTerm></optionalConform>'
+        xml = ('<optionalConform>'
+               '<notTerm>'
+               '<feature name="AB" />'
+               '</notTerm>'
+               '</optionalConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -303,9 +327,13 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "[!AB]")
+        asserts.assert_equal(str(xml_callable), '[!AB]')
 
-        xml = '<optionalConform><notTerm><feature name="CD" /></notTerm></optionalConform>'
+        xml = ('<optionalConform>'
+               '<notTerm>'
+               '<feature name="CD" />'
+               '</notTerm>'
+               '</optionalConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -314,11 +342,16 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "[!CD]")
+        asserts.assert_equal(str(xml_callable), '[!CD]')
 
     def test_conformance_and_term(self):
         # and term for features only
-        xml = '<mandatoryConform><andTerm><feature name="AB" /><feature name="CD" /></andTerm></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<andTerm>'
+               '<feature name="AB" />'
+               '<feature name="CD" />'
+               '</andTerm>'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -327,10 +360,15 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "AB & CD")
+        asserts.assert_equal(str(xml_callable), 'AB & CD')
 
         # and term for attributes only
-        xml = '<mandatoryConform><andTerm><attribute name="attr1" /><attribute name="attr2" /></andTerm></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<andTerm>'
+               '<attribute name="attr1" />'
+               '<attribute name="attr2" />'
+               '</andTerm>'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, a in enumerate(self.attribute_lists):
@@ -339,10 +377,15 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "attr1 & attr2")
+        asserts.assert_equal(str(xml_callable), 'attr1 & attr2')
 
         # and term for feature and attribute
-        xml = '<mandatoryConform><andTerm><feature name="AB" /><attribute name="attr2" /></andTerm></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<andTerm>'
+               '<feature name="AB" />'
+               '<attribute name="attr2" />'
+               '</andTerm>'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -352,11 +395,16 @@ class TestConformanceSupport(MatterBaseTest):
                     asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
                 else:
                     asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "AB & attr2")
+        asserts.assert_equal(str(xml_callable), 'AB & attr2')
 
     def test_conformance_or_term(self):
         # or term feature only
-        xml = '<mandatoryConform><orTerm><feature name="AB" /><feature name="CD" /></orTerm></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<orTerm>'
+               '<feature name="AB" />'
+               '<feature name="CD" />'
+               '</orTerm>'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -365,10 +413,15 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "AB | CD")
+        asserts.assert_equal(str(xml_callable), 'AB | CD')
 
         # or term attribute only
-        xml = '<mandatoryConform><orTerm><attribute name="attr1" /><attribute name="attr2" /></orTerm></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<orTerm>'
+               '<attribute name="attr1" />'
+               '<attribute name="attr2" />'
+               '</orTerm>'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, a in enumerate(self.attribute_lists):
@@ -377,10 +430,15 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "attr1 | attr2")
+        asserts.assert_equal(str(xml_callable), 'attr1 | attr2')
 
         # or term feature and attribute
-        xml = '<mandatoryConform><orTerm><feature name="AB" /><attribute name="attr2" /></orTerm></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<orTerm>'
+               '<feature name="AB" />'
+               '<attribute name="attr2" />'
+               '</orTerm>'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -390,11 +448,18 @@ class TestConformanceSupport(MatterBaseTest):
                     asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
                 else:
                     asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "AB | attr2")
+        asserts.assert_equal(str(xml_callable), 'AB | attr2')
 
     def test_conformance_and_term_with_not(self):
         # and term with not
-        xml = '<optionalConform><andTerm><notTerm><feature name="AB" /></notTerm><feature name="CD" /></andTerm></optionalConform>'
+        xml = ('<optionalConform>'
+               '<andTerm>'
+               '<notTerm>'
+               '<feature name="AB" />'
+               '</notTerm>'
+               '<feature name="CD" />'
+               '</andTerm>'
+               '</optionalConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -403,11 +468,18 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "[!AB & CD]")
+        asserts.assert_equal(str(xml_callable), '[!AB & CD]')
 
     def test_conformance_or_term_with_not(self):
         # or term with not on second feature
-        xml = '<mandatoryConform><orTerm><feature name="AB" /><notTerm><feature name="CD" /></notTerm></orTerm></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<orTerm>'
+               '<feature name="AB" />'
+               '<notTerm>'
+               '<feature name="CD" />'
+               '</notTerm>'
+               '</orTerm>'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -416,10 +488,17 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "AB | !CD")
+        asserts.assert_equal(str(xml_callable), 'AB | !CD')
 
         # not around or term with
-        xml = '<optionalConform><notTerm><orTerm><feature name="AB" /><feature name="CD" /></orTerm></notTerm></optionalConform>'
+        xml = ('<optionalConform>'
+               '<notTerm>'
+               '<orTerm>'
+               '<feature name="AB" />'
+               '<feature name="CD" />'
+               '</orTerm>'
+               '</notTerm>'
+               '</optionalConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -428,14 +507,18 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "[!(AB | CD)]")
+        asserts.assert_equal(str(xml_callable), '[!(AB | CD)]')
 
     def test_conformance_and_term_with_three_terms(self):
         # and term with three features
-        xml = (
-            '<optionalConform><andTerm><feature name="AB" /><feature name="CD" /><feature name="EF" /></andTerm></optionalConform>'
-        )
-        self.feature_names_to_bits["EF"] = 0x04
+        xml = ('<optionalConform>'
+               '<andTerm>'
+               '<feature name="AB" />'
+               '<feature name="CD" />'
+               '<feature name="EF" />'
+               '</andTerm>'
+               '</optionalConform>')
+        self.feature_names_to_bits['EF'] = 0x04
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         # no features
@@ -447,18 +530,16 @@ class TestConformanceSupport(MatterBaseTest):
         # all features
         info = ConformanceAssessmentData(feature_map=0x07, attribute_list=[], all_command_list=[], cluster_revision=1)
         asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
-        asserts.assert_equal(str(xml_callable), "[AB & CD & EF]")
+        asserts.assert_equal(str(xml_callable), '[AB & CD & EF]')
 
         # and term with one of each
-        xml = (
-            "<optionalConform>"
-            "<andTerm>"
-            '<feature name="AB" />'
-            '<attribute name="attr1" />'
-            '<command name="cmd1" />'
-            "</andTerm>"
-            "</optionalConform>"
-        )
+        xml = ('<optionalConform>'
+               '<andTerm>'
+               '<feature name="AB" />'
+               '<attribute name="attr1" />'
+               '<command name="cmd1" />'
+               '</andTerm>'
+               '</optionalConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -469,11 +550,17 @@ class TestConformanceSupport(MatterBaseTest):
                         asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
                     else:
                         asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "[AB & attr1 & cmd1]")
+        asserts.assert_equal(str(xml_callable), '[AB & attr1 & cmd1]')
 
     def test_conformance_or_term_with_three_terms(self):
         # or term with three features
-        xml = '<optionalConform><orTerm><feature name="AB" /><feature name="CD" /><feature name="EF" /></orTerm></optionalConform>'
+        xml = ('<optionalConform>'
+               '<orTerm>'
+               '<feature name="AB" />'
+               '<feature name="CD" />'
+               '<feature name="EF" />'
+               '</orTerm>'
+               '</optionalConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         # no features
@@ -485,18 +572,16 @@ class TestConformanceSupport(MatterBaseTest):
         # all features
         info = ConformanceAssessmentData(feature_map=0x07, attribute_list=[], all_command_list=[], cluster_revision=1)
         asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
-        asserts.assert_equal(str(xml_callable), "[AB | CD | EF]")
+        asserts.assert_equal(str(xml_callable), '[AB | CD | EF]')
 
         # or term with one of each
-        xml = (
-            "<optionalConform>"
-            "<orTerm>"
-            '<feature name="AB" />'
-            '<attribute name="attr1" />'
-            '<command name="cmd1" />'
-            "</orTerm>"
-            "</optionalConform>"
-        )
+        xml = ('<optionalConform>'
+               '<orTerm>'
+               '<feature name="AB" />'
+               '<attribute name="attr1" />'
+               '<command name="cmd1" />'
+               '</orTerm>'
+               '</optionalConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -507,11 +592,16 @@ class TestConformanceSupport(MatterBaseTest):
                         asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
                     else:
                         asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "[AB | attr1 | cmd1]")
+        asserts.assert_equal(str(xml_callable), '[AB | attr1 | cmd1]')
 
     def test_conformance_otherwise(self):
         # AB, O
-        xml = '<otherwiseConform><mandatoryConform><feature name="AB" /></mandatoryConform><optionalConform /></otherwiseConform>'
+        xml = ('<otherwiseConform>'
+               '<mandatoryConform>'
+               '<feature name="AB" />'
+               '</mandatoryConform>'
+               '<optionalConform />'
+               '</otherwiseConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -520,19 +610,17 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
-        asserts.assert_equal(str(xml_callable), "AB, O")
+        asserts.assert_equal(str(xml_callable), 'AB, O')
 
         # AB, [CD]
-        xml = (
-            "<otherwiseConform>"
-            "<mandatoryConform>"
-            '<feature name="AB" />'
-            "</mandatoryConform>"
-            "<optionalConform>"
-            '<feature name="CD" />'
-            "</optionalConform>"
-            "</otherwiseConform>"
-        )
+        xml = ('<otherwiseConform>'
+               '<mandatoryConform>'
+               '<feature name="AB" />'
+               '</mandatoryConform>'
+               '<optionalConform>'
+               '<feature name="CD" />'
+               '</optionalConform>'
+               '</otherwiseConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -543,22 +631,20 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.OPTIONAL)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.NOT_APPLICABLE)
-        asserts.assert_equal(str(xml_callable), "AB, [CD]")
+        asserts.assert_equal(str(xml_callable), 'AB, [CD]')
 
         # AB & !CD, P
-        xml = (
-            "<otherwiseConform>"
-            "<mandatoryConform>"
-            "<andTerm>"
-            '<feature name="AB" />'
-            "<notTerm>"
-            '<feature name="CD" />'
-            "</notTerm>"
-            "</andTerm>"
-            "</mandatoryConform>"
-            "<provisionalConform />"
-            "</otherwiseConform>"
-        )
+        xml = ('<otherwiseConform>'
+               '<mandatoryConform>'
+               '<andTerm>'
+               '<feature name="AB" />'
+               '<notTerm>'
+               '<feature name="CD" />'
+               '</notTerm>'
+               '</andTerm>'
+               '</mandatoryConform>'
+               '<provisionalConform />'
+               '</otherwiseConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         for i, f in enumerate(self.feature_maps):
@@ -567,21 +653,27 @@ class TestConformanceSupport(MatterBaseTest):
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.MANDATORY)
             else:
                 asserts.assert_equal(xml_callable(info).decision, ConformanceDecision.PROVISIONAL)
-        asserts.assert_equal(str(xml_callable), "AB & !CD, P")
+        asserts.assert_equal(str(xml_callable), 'AB & !CD, P')
 
     def _test_conformance_arithmetic(self, term: str, symbol: str):
         def create_xml(xml_mid: str) -> str:
-            return f"<mandatoryConform><{term}>{xml_mid}</{term}></mandatoryConform>"
-
-        xml = create_xml(('<attribute name="attr1" /><literal value="1" />'))
+            return ('<mandatoryConform>'
+                    f'<{term}>'
+                    f'{xml_mid}'
+                    f'</{term}>'
+                    '</mandatoryConform>')
+        xml = create_xml(('<attribute name="attr1" />'
+                          '<literal value="1" />'))
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         # TODO: switch this to check greater than once the update to the base is done (#33422)
         asserts.assert_equal(xml_callable(EMPTY_CLUSTER_GLOBAL_ATTRIBUTES).decision, ConformanceDecision.OPTIONAL)
-        asserts.assert_equal(str(xml_callable), f"attr1 {symbol} 1")
+        asserts.assert_equal(str(xml_callable), f'attr1 {symbol} 1')
 
         # Ensure that we can only have greater terms with exactly 2 value
-        xml = create_xml(('<attribute name="attr1" /><attribute name="attr2" /><literal value="1" />'))
+        xml = create_xml(('<attribute name="attr1" />'
+                          '<attribute name="attr2" />'
+                          '<literal value="1" />'))
         et = ElementTree.fromstring(xml)
         try:
             xml_callable = parse_callable_from_xml(et, self.params)
@@ -598,7 +690,8 @@ class TestConformanceSupport(MatterBaseTest):
             pass
 
         # Only attributes and literals allowed because arithmetic operations require values
-        xml = create_xml(('<feature name="AB" /><literal value="1" />'))
+        xml = create_xml(('<feature name="AB" />'
+                          '<literal value="1" />'))
         et = ElementTree.fromstring(xml)
         try:
             xml_callable = parse_callable_from_xml(et, self.params)
@@ -607,28 +700,26 @@ class TestConformanceSupport(MatterBaseTest):
             pass
 
     def test_conformance_greater(self):
-        self._test_conformance_arithmetic("greaterTerm", ">")
+        self._test_conformance_arithmetic('greaterTerm', '>')
 
     def test_conformance_greater_or_equal(self):
-        self._test_conformance_arithmetic("greaterOrEqualTerm", ">=")
+        self._test_conformance_arithmetic('greaterOrEqualTerm', '>=')
 
     def test_revision(self):
         def create_xml(revision: int) -> str:
-            return (
-                "<mandatoryConform>"
-                "<greaterOrEqualTerm>"
-                '<revision value="current"/>'
-                f'<revision value="{revision}"/>'
-                "</greaterOrEqualTerm>"
-                "</mandatoryConform>"
-            )
+            return ('<mandatoryConform>'
+                    '<greaterOrEqualTerm>'
+                    '<revision value="current"/>'
+                    f'<revision value="{revision}"/>'
+                    '</greaterOrEqualTerm>'
+                    '</mandatoryConform>')
 
         conformance_assessment_data = EMPTY_CLUSTER_GLOBAL_ATTRIBUTES
 
         xml = create_xml(2)
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
-        asserts.assert_equal(str(xml_callable), "Rev >= v2")
+        asserts.assert_equal(str(xml_callable), 'Rev >= v2')
 
         conformance_assessment_data.cluster_revision = 1
         asserts.assert_equal(xml_callable(conformance_assessment_data).decision, ConformanceDecision.NOT_APPLICABLE)
@@ -640,7 +731,7 @@ class TestConformanceSupport(MatterBaseTest):
         xml = create_xml(5)
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
-        asserts.assert_equal(str(xml_callable), "Rev >= v5")
+        asserts.assert_equal(str(xml_callable), 'Rev >= v5')
 
         conformance_assessment_data.cluster_revision = 1
         asserts.assert_equal(xml_callable(conformance_assessment_data).decision, ConformanceDecision.NOT_APPLICABLE)
@@ -653,37 +744,41 @@ class TestConformanceSupport(MatterBaseTest):
         conformance_assessment_data.cluster_revision = 6
         asserts.assert_equal(xml_callable(conformance_assessment_data).decision, ConformanceDecision.MANDATORY)
 
-        too_many_terms = (
-            "<mandatoryConform>"
-            "<greaterOrEqualTerm>"
-            '<revision value="current"/>'
-            '<revision value="2"/>'
-            '<revision value="2"/>'
-            "</greaterOrEqualTerm>"
-            "</mandatoryConform>"
-        )
+        too_many_terms = ('<mandatoryConform>'
+                          '<greaterOrEqualTerm>'
+                          '<revision value="current"/>'
+                          '<revision value="2"/>'
+                          '<revision value="2"/>'
+                          '</greaterOrEqualTerm>'
+                          '</mandatoryConform>')
         et = ElementTree.fromstring(too_many_terms)
         with asserts.assert_raises(ConformanceException):
             xml_callable = parse_callable_from_xml(et, self.params)
 
-        too_few_terms_current = (
-            '<mandatoryConform><greaterOrEqualTerm><revision value="current"/></greaterOrEqualTerm></mandatoryConform>'
-        )
+        too_few_terms_current = ('<mandatoryConform>'
+                                 '<greaterOrEqualTerm>'
+                                 '<revision value="current"/>'
+                                 '</greaterOrEqualTerm>'
+                                 '</mandatoryConform>')
         et = ElementTree.fromstring(too_few_terms_current)
         with asserts.assert_raises(ConformanceException):
             xml_callable = parse_callable_from_xml(et, self.params)
 
-        too_few_terms_value = '<mandatoryConform><greaterOrEqualTerm><revision value="2"/></greaterOrEqualTerm></mandatoryConform>'
+        too_few_terms_value = ('<mandatoryConform>'
+                               '<greaterOrEqualTerm>'
+                               '<revision value="2"/>'
+                               '</greaterOrEqualTerm>'
+                               '</mandatoryConform>')
         et = ElementTree.fromstring(too_few_terms_value)
         with asserts.assert_raises(ConformanceException):
             xml_callable = parse_callable_from_xml(et, self.params)
 
     def test_basic_conformance(self):
-        basic_test("<mandatoryConform />", mandatory)
-        basic_test("<optionalConform />", optional)
-        basic_test("<disallowConform />", disallowed)
-        basic_test("<deprecateConform />", deprecated)
-        basic_test("<provisionalConform />", provisional)
+        basic_test('<mandatoryConform />', mandatory)
+        basic_test('<optionalConform />', optional)
+        basic_test('<disallowConform />', disallowed)
+        basic_test('<deprecateConform />', deprecated)
+        basic_test('<provisionalConform />', provisional)
         basic_test('<condition name="zigbee" />', zigbee)
 
         # feature is not basic so we should get an exception
@@ -696,9 +791,14 @@ class TestConformanceSupport(MatterBaseTest):
             pass
 
         # mandatory tag is basic, but this one is a wrapper, so we should get a TypeError
-        xml = (
-            '<mandatoryConform><andTerm><feature name="AB" /><notTerm><feature name="CD" /></notTerm></andTerm></mandatoryConform>'
-        )
+        xml = ('<mandatoryConform>'
+               '<andTerm>'
+               '<feature name="AB" />'
+               '<notTerm>'
+               '<feature name="CD" />'
+               '</notTerm>'
+               '</andTerm>'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         try:
             parse_basic_callable_from_xml(et)
@@ -708,57 +808,66 @@ class TestConformanceSupport(MatterBaseTest):
 
     def test_device_type_conformance(self):
         msg = "Unexpected conformance returned for device type"
-        xml = '<mandatoryConform><condition name="zigbee" /></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<condition name="zigbee" />'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
-        asserts.assert_equal(str(xml_callable), "Zigbee", msg)
+        asserts.assert_equal(str(xml_callable), 'Zigbee', msg)
         asserts.assert_equal(xml_callable(EMPTY_CLUSTER_GLOBAL_ATTRIBUTES).decision, ConformanceDecision.NOT_APPLICABLE, msg)
 
-        xml = '<optionalConform><condition name="zigbee" /></optionalConform>'
+        xml = ('<optionalConform>'
+               '<condition name="zigbee" />'
+               '</optionalConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         # expect no exception here
-        asserts.assert_equal(str(xml_callable), "[Zigbee]", msg)
+        asserts.assert_equal(str(xml_callable), '[Zigbee]', msg)
         asserts.assert_equal(xml_callable(EMPTY_CLUSTER_GLOBAL_ATTRIBUTES).decision, ConformanceDecision.NOT_APPLICABLE, msg)
 
         # otherwise conforms are allowed
-        xml = '<otherwiseConform><condition name="zigbee" /><provisionalConform /></otherwiseConform>'
+        xml = ('<otherwiseConform>'
+               '<condition name="zigbee" />'
+               '<provisionalConform />'
+               '</otherwiseConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
         # expect no exception here
-        asserts.assert_equal(str(xml_callable), "Zigbee, P", msg)
+        asserts.assert_equal(str(xml_callable), 'Zigbee, P', msg)
         asserts.assert_equal(xml_callable(EMPTY_CLUSTER_GLOBAL_ATTRIBUTES).decision, ConformanceDecision.PROVISIONAL, msg)
 
         # TODO: adjust conformance call function to accept a list of conditions and evaluate based on that
-        xml = '<mandatoryConform><condition name="CD" /></mandatoryConform>'
+        xml = ('<mandatoryConform>'
+               '<condition name="CD" />'
+               '</mandatoryConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
-        asserts.assert_equal(str(xml_callable), "CD", msg)
+        asserts.assert_equal(str(xml_callable), 'CD', msg)
         # Device conditions are always optional (at least for now), even though we didn't pass in anything
         # to indicate whether or not this conditions is enabled
         asserts.assert_equal(xml_callable(EMPTY_CLUSTER_GLOBAL_ATTRIBUTES).decision, ConformanceDecision.OPTIONAL)
 
-        xml = '<otherwiseConform><feature name="CD" /><condition name="testy" /></otherwiseConform>'
+        xml = ('<otherwiseConform>'
+               '<feature name="CD" />'
+               '<condition name="testy" />'
+               '</otherwiseConform>')
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
-        asserts.assert_equal(str(xml_callable), "CD, testy", msg)
+        asserts.assert_equal(str(xml_callable), 'CD, testy', msg)
         asserts.assert_equal(xml_callable(EMPTY_CLUSTER_GLOBAL_ATTRIBUTES).decision, ConformanceDecision.OPTIONAL)
 
     def check_good_choice(self, xml: str, conformance_str: str) -> Conformance:
         et = ElementTree.fromstring(xml)
         xml_callable = parse_callable_from_xml(et, self.params)
-        asserts.assert_equal(str(xml_callable), conformance_str, "Bad choice conformance string")
+        asserts.assert_equal(str(xml_callable), conformance_str, 'Bad choice conformance string')
         return xml_callable
 
-    def check_decision(
-        self, more_expected: bool, conformance: Conformance, feature_map: uint, attr_list: list[uint], cmd_list: list[uint]
-    ):
-        info = ConformanceAssessmentData(
-            feature_map=feature_map, attribute_list=attr_list, all_command_list=cmd_list, cluster_revision=1
-        )
+    def check_decision(self, more_expected: bool, conformance: Conformance, feature_map: uint, attr_list: list[uint], cmd_list: list[uint]):
+        info = ConformanceAssessmentData(feature_map=feature_map, attribute_list=attr_list,
+                                         all_command_list=cmd_list, cluster_revision=1)
         decision = conformance(info)
-        asserts.assert_true(decision.choice, "Expected choice conformance on decision, but did not get one")
-        asserts.assert_equal(decision.choice.marker, "a", "Unexpected conformance string returned")
+        asserts.assert_true(decision.choice, 'Expected choice conformance on decision, but did not get one')
+        asserts.assert_equal(decision.choice.marker, 'a', 'Unexpected conformance string returned')
         asserts.assert_equal(decision.choice.more, more_expected, "Unexpected more on choice")
 
     def test_choice_conformance(self):
@@ -784,128 +893,125 @@ class TestConformanceSupport(MatterBaseTest):
         # - disallowed X.a
         # - deprecated D.a
 
-        choices = [("a+", 'choice="a" more="true"', True), ("a", 'choice="a"', False)]
+        choices = [('a+', 'choice="a" more="true"', True), ('a', 'choice="a"', False)]
         for suffix, xml_attrs, more in choices:
-            AB = self.feature_names_to_bits["AB"]
-            attr1 = [self.attribute_names_to_values["attr1"]]
-            cmd1 = [self.command_names_to_values["cmd1"]]
+
+            AB = self.feature_names_to_bits['AB']
+            attr1 = [self.attribute_names_to_values['attr1']]
+            cmd1 = [self.command_names_to_values['cmd1']]
 
             msg_not_applicable = "Expected NOT_APPLICABLE conformance"
-            xml = f"<optionalConform {xml_attrs} />"
-            conformance = self.check_good_choice(xml, f"O.{suffix}")
+            xml = f'<optionalConform {xml_attrs} />'
+            conformance = self.check_good_choice(xml, f'O.{suffix}')
             self.check_decision(more, conformance, 0, [], [])
 
-            xml = f'<optionalConform {xml_attrs}><feature name="AB" /></optionalConform>'
-            conformance = self.check_good_choice(xml, f"[AB].{suffix}")
-            asserts.assert_equal(
-                conformance(EMPTY_CLUSTER_GLOBAL_ATTRIBUTES).decision, ConformanceDecision.NOT_APPLICABLE, msg_not_applicable
-            )
+            xml = (f'<optionalConform {xml_attrs}>'
+                   '<feature name="AB" />'
+                   '</optionalConform>')
+            conformance = self.check_good_choice(xml, f'[AB].{suffix}')
+            asserts.assert_equal(conformance(EMPTY_CLUSTER_GLOBAL_ATTRIBUTES).decision,
+                                 ConformanceDecision.NOT_APPLICABLE, msg_not_applicable)
             self.check_decision(more, conformance, AB, [], [])
 
-            xml = f'<optionalConform {xml_attrs}><attribute name="attr1" /></optionalConform>'
-            conformance = self.check_good_choice(xml, f"[attr1].{suffix}")
-            asserts.assert_equal(
-                conformance(EMPTY_CLUSTER_GLOBAL_ATTRIBUTES).decision, ConformanceDecision.NOT_APPLICABLE, msg_not_applicable
-            )
+            xml = (f'<optionalConform {xml_attrs}>'
+                   '<attribute name="attr1" />'
+                   '</optionalConform>')
+            conformance = self.check_good_choice(xml, f'[attr1].{suffix}')
+            asserts.assert_equal(conformance(EMPTY_CLUSTER_GLOBAL_ATTRIBUTES).decision,
+                                 ConformanceDecision.NOT_APPLICABLE, msg_not_applicable)
             self.check_decision(more, conformance, 0, attr1, [])
 
-            xml = f'<optionalConform {xml_attrs}><command name="cmd1" /></optionalConform>'
-            conformance = self.check_good_choice(xml, f"[cmd1].{suffix}")
-            asserts.assert_equal(
-                conformance(EMPTY_CLUSTER_GLOBAL_ATTRIBUTES).decision, ConformanceDecision.NOT_APPLICABLE, msg_not_applicable
-            )
+            xml = (f'<optionalConform {xml_attrs}>'
+                   '<command name="cmd1" />'
+                   '</optionalConform>')
+            conformance = self.check_good_choice(xml, f'[cmd1].{suffix}')
+            asserts.assert_equal(conformance(EMPTY_CLUSTER_GLOBAL_ATTRIBUTES).decision,
+                                 ConformanceDecision.NOT_APPLICABLE, msg_not_applicable)
             self.check_decision(more, conformance, 0, [], cmd1)
 
-            xml = f'<optionalConform {xml_attrs}><orTerm><feature name="AB" /><feature name="CD" /></orTerm></optionalConform>'
-            conformance = self.check_good_choice(xml, f"[AB | CD].{suffix}")
-            asserts.assert_equal(
-                conformance(
-                    ConformanceAssessmentData(feature_map=0, attribute_list=[], all_command_list=[], cluster_revision=1)
-                ).decision,
-                ConformanceDecision.NOT_APPLICABLE,
-                msg_not_applicable,
-            )
+            xml = (f'<optionalConform {xml_attrs}>'
+                   '<orTerm>'
+                   '<feature name="AB" />'
+                   '<feature name="CD" />'
+                   '</orTerm>'
+                   '</optionalConform>')
+            conformance = self.check_good_choice(xml, f'[AB | CD].{suffix}')
+            asserts.assert_equal(conformance(ConformanceAssessmentData(feature_map=0, attribute_list=[], all_command_list=[], cluster_revision=1)).decision,
+                                 ConformanceDecision.NOT_APPLICABLE, msg_not_applicable)
             self.check_decision(more, conformance, AB, [], [])
 
-            xml = f'<optionalConform {xml_attrs}><notTerm><attribute name="attr1" /></notTerm></optionalConform>'
-            conformance = self.check_good_choice(xml, f"[!attr1].{suffix}")
-            asserts.assert_equal(
-                conformance(
-                    ConformanceAssessmentData(feature_map=0, attribute_list=attr1, all_command_list=[], cluster_revision=1)
-                ).decision,
-                ConformanceDecision.NOT_APPLICABLE,
-                msg_not_applicable,
-            )
+            xml = (f'<optionalConform {xml_attrs}>'
+                   '<notTerm>'
+                   '<attribute name="attr1" />'
+                   '</notTerm>'
+                   '</optionalConform>')
+            conformance = self.check_good_choice(xml, f'[!attr1].{suffix}')
+            asserts.assert_equal(conformance(ConformanceAssessmentData(feature_map=0, attribute_list=attr1, all_command_list=[], cluster_revision=1)).decision,
+                                 ConformanceDecision.NOT_APPLICABLE, msg_not_applicable)
             self.check_decision(more, conformance, 0, [], [])
 
-            xml = (
-                "<otherwiseConform>"
-                '<attribute name="attr1" />'
-                f"<optionalConform>"
-                '<feature name="AB" />'
-                "</optionalConform>"
-                f"<optionalConform {xml_attrs} />"
-                "</otherwiseConform>"
-            )
-            conformance = self.check_good_choice(xml, f"attr1, [AB], O.{suffix}")
+            xml = ('<otherwiseConform>'
+                   '<attribute name="attr1" />'
+                   f'<optionalConform>'
+                   '<feature name="AB" />'
+                   '</optionalConform>'
+                   f'<optionalConform {xml_attrs} />'
+                   '</otherwiseConform>')
+            conformance = self.check_good_choice(xml, f'attr1, [AB], O.{suffix}')
             # with no features or attributes, this should end up as O.a, so there should be a choice
             self.check_decision(more, conformance, 0, [], [])
             # when we have this attribute, we should not have a choice
             info = ConformanceAssessmentData(feature_map=0, attribute_list=attr1, all_command_list=[], cluster_revision=1)
-            asserts.assert_equal(conformance(info).decision, ConformanceDecision.MANDATORY, "Unexpected conformance")
-            asserts.assert_equal(conformance(info).choice, None, "Unexpected choice in conformance")
+            asserts.assert_equal(conformance(info).decision, ConformanceDecision.MANDATORY, 'Unexpected conformance')
+            asserts.assert_equal(conformance(info).choice, None, 'Unexpected choice in conformance')
             # when we have only this feature, we should not have a choice
             info = ConformanceAssessmentData(feature_map=AB, attribute_list=[], all_command_list=[], cluster_revision=1)
-            asserts.assert_equal(conformance(info).decision, ConformanceDecision.OPTIONAL, "Unexpected conformance")
-            asserts.assert_equal(conformance(info).choice, None, "Unexpected choice in conformance")
+            asserts.assert_equal(conformance(info).decision, ConformanceDecision.OPTIONAL, 'Unexpected conformance')
+            asserts.assert_equal(conformance(info).choice, None, 'Unexpected choice in conformance')
 
             # - multiple in otherwise [AB].a, [CD].b
-            xml = (
-                "<otherwiseConform>"
-                '<attribute name="attr1" />'
-                f"<optionalConform {xml_attrs}>"
-                '<feature name="AB" />'
-                "</optionalConform>"
-                f'<optionalConform choice="b">'
-                '<feature name="CD" />'
-                "</optionalConform>"
-                "</otherwiseConform>"
-            )
-            conformance = self.check_good_choice(xml, f"attr1, [AB].{suffix}, [CD].b")
-            asserts.assert_equal(
-                conformance(EMPTY_CLUSTER_GLOBAL_ATTRIBUTES).decision, ConformanceDecision.NOT_APPLICABLE, msg_not_applicable
-            )
+            xml = ('<otherwiseConform>'
+                   '<attribute name="attr1" />'
+                   f'<optionalConform {xml_attrs}>'
+                   '<feature name="AB" />'
+                   '</optionalConform>'
+                   f'<optionalConform choice="b">'
+                   '<feature name="CD" />'
+                   '</optionalConform>'
+                   '</otherwiseConform>')
+            conformance = self.check_good_choice(xml, f'attr1, [AB].{suffix}, [CD].b')
+            asserts.assert_equal(conformance(EMPTY_CLUSTER_GLOBAL_ATTRIBUTES).decision,
+                                 ConformanceDecision.NOT_APPLICABLE, msg_not_applicable)
             # when we have this attribute, we should not have a choice
             info = ConformanceAssessmentData(feature_map=0, attribute_list=attr1, all_command_list=[], cluster_revision=1)
-            asserts.assert_equal(conformance(info).decision, ConformanceDecision.MANDATORY, "Unexpected conformance")
-            asserts.assert_equal(conformance(info).choice, None, "Unexpected choice in conformance")
+            asserts.assert_equal(conformance(info).decision, ConformanceDecision.MANDATORY, 'Unexpected conformance')
+            asserts.assert_equal(conformance(info).choice, None, 'Unexpected choice in conformance')
             # When it's just AB, we should have a choice
             self.check_decision(more, conformance, AB, [], [])
             # When we have both the attribute and AB, we should not have a choice
             info = ConformanceAssessmentData(feature_map=0, attribute_list=attr1, all_command_list=[], cluster_revision=1)
-            asserts.assert_equal(conformance(info).decision, ConformanceDecision.MANDATORY, "Unexpected conformance")
-            asserts.assert_equal(conformance(info).choice, None, "Unexpected choice in conformance")
+            asserts.assert_equal(conformance(info).decision, ConformanceDecision.MANDATORY, 'Unexpected conformance')
+            asserts.assert_equal(conformance(info).choice, None, 'Unexpected choice in conformance')
             # When we have AB and CD, we should be using the AB choice
-            CD = self.feature_names_to_bits["CD"]
+            CD = self.feature_names_to_bits['CD']
             ABCD = AB | CD
             self.check_decision(more, conformance, ABCD, [], [])
             # When we just have CD, we still have a choice, but the string should be b
             info = ConformanceAssessmentData(feature_map=CD, attribute_list=[], all_command_list=[], cluster_revision=1)
-            asserts.assert_equal(conformance(info).decision, ConformanceDecision.OPTIONAL, "Unexpected conformance")
-            asserts.assert_equal(conformance(info).choice, Choice("b", False), "Unexpected choice in conformance")
+            asserts.assert_equal(conformance(info).decision, ConformanceDecision.OPTIONAL, 'Unexpected conformance')
+            asserts.assert_equal(conformance(info).choice, Choice('b', False), 'Unexpected choice in conformance')
 
             # Ones that should throw exceptions
 
             def check_bad_choice(xml: str):
-                msg = f"Choice conformance string should cause exception, but did not: {xml}"
+                msg = f'Choice conformance string should cause exception, but did not: {xml}'
                 et = ElementTree.fromstring(xml)
                 try:
                     parse_callable_from_xml(et, self.params)
                     asserts.fail(msg)
                 except ConformanceException:
                     pass
-
-            xml = f"<mandatoryConform {xml_attrs} />"
+            xml = f'<mandatoryConform {xml_attrs} />'
             check_bad_choice(xml)
 
             xml = f'<feature name="AB" {xml_attrs} />'
@@ -917,33 +1023,51 @@ class TestConformanceSupport(MatterBaseTest):
             xml = f'<command name="cmd1" {xml_attrs} />'
             check_bad_choice(xml)
 
-            xml = (
-                f'<mandatoryConform><andTerm><attribute name="attr1"/><optionalConform {xml_attrs} /></andTerm></mandatoryConform>'
-            )
+            xml = ('<mandatoryConform>'
+                   '<andTerm>'
+                   '<attribute name="attr1"/>'
+                   f'<optionalConform {xml_attrs} />'
+                   '</andTerm>'
+                   '</mandatoryConform>')
             check_bad_choice(xml)
 
-            xml = f'<mandatoryConform><orTerm><attribute name="attr1"/><optionalConform {xml_attrs} /></orTerm></mandatoryConform>'
+            xml = ('<mandatoryConform>'
+                   '<orTerm>'
+                   '<attribute name="attr1"/>'
+                   f'<optionalConform {xml_attrs} />'
+                   '</orTerm>'
+                   '</mandatoryConform>')
             check_bad_choice(xml)
 
-            xml = f"<mandatoryConform><notTerm><optionalConform {xml_attrs} /></notTerm></mandatoryConform>"
+            xml = ('<mandatoryConform>'
+                   '<notTerm>'
+                   f'<optionalConform {xml_attrs} />'
+                   '</notTerm>'
+                   '</mandatoryConform>')
             check_bad_choice(xml)
 
-            xml = f'<optionalConform><feature name="AB" {xml_attrs}/></optionalConform>'
+            xml = ('<optionalConform>'
+                   f'<feature name="AB" {xml_attrs}/>'
+                   '</optionalConform>')
             check_bad_choice(xml)
 
-            xml = f'<optionalConform><attribute name="attr1" {xml_attrs}/></optionalConform>'
+            xml = ('<optionalConform>'
+                   f'<attribute name="attr1" {xml_attrs}/>'
+                   '</optionalConform>')
             check_bad_choice(xml)
 
-            xml = f'<optionalConform><command name="cmd1" {xml_attrs}/></optionalConform>'
+            xml = ('<optionalConform>'
+                   f'<command name="cmd1" {xml_attrs}/>'
+                   '</optionalConform>')
             check_bad_choice(xml)
 
-            xml = f"<provisionalConform {xml_attrs}/>"
+            xml = (f'<provisionalConform {xml_attrs}/>')
             check_bad_choice(xml)
 
-            xml = f"<disallowConform {xml_attrs}/>"
+            xml = (f'<disallowConform {xml_attrs}/>')
             check_bad_choice(xml)
 
-            xml = f"<deprecateConform {xml_attrs}/>"
+            xml = (f'<deprecateConform {xml_attrs}/>')
             check_bad_choice(xml)
 
 

@@ -35,61 +35,52 @@ class TC_MODESELECT(MatterBaseTest):
     ENDPOINT = 1
     EXPECTED_MODES: typing.List[Clusters.Objects.ModeSelect.Structs.ModeOptionStruct] = [
         Clusters.Objects.ModeSelect.Structs.ModeOptionStruct(
-            label="3.5s", mode=35, semanticTags=[Clusters.Objects.ModeSelect.Structs.SemanticTagStruct(mfgCode=0xFFF1, value=0)]
-        ),
+            label="3.5s", mode=35, semanticTags=[Clusters.Objects.ModeSelect.Structs.SemanticTagStruct(mfgCode=0xFFF1, value=0)]),
         Clusters.Objects.ModeSelect.Structs.ModeOptionStruct(
-            label="4s", mode=40, semanticTags=[Clusters.Objects.ModeSelect.Structs.SemanticTagStruct(mfgCode=0xFFF1, value=0)]
-        ),
+            label="4s", mode=40, semanticTags=[Clusters.Objects.ModeSelect.Structs.SemanticTagStruct(mfgCode=0xFFF1, value=0)]),
         Clusters.Objects.ModeSelect.Structs.ModeOptionStruct(
-            label="5s", mode=50, semanticTags=[Clusters.Objects.ModeSelect.Structs.SemanticTagStruct(mfgCode=0xFFF1, value=0)]
-        ),
+            label="5s", mode=50, semanticTags=[Clusters.Objects.ModeSelect.Structs.SemanticTagStruct(mfgCode=0xFFF1, value=0)])
     ]
 
     def desc_TC_MODESELECT(self) -> str:
         return "[TC_MODESELECT] chef mode select functionality test."
 
     def steps_TC_MODESELECT(self):
-        return [
-            TestStep(1, "Commissioning already done.", is_commissioning=True),
-            TestStep(2, "Read Description and check it is equal to 'Mode Select Sample'."),
-            TestStep(3, "Read StandardNamespace and check it is equal to Null."),
-            TestStep(4, "Read SupportedModes and check it matches default modes."),
-            TestStep(5, "Read CurrentMode and check it is equal to 1."),
-            TestStep(6, "Loop over modes 1, 2, 3 and run ChangeToMode command."),
-        ]
+        return [TestStep(1, "Commissioning already done.", is_commissioning=True),
+                TestStep(2, "Read Description and check it is equal to 'Mode Select Sample'."),
+                TestStep(3, "Read StandardNamespace and check it is equal to Null."),
+                TestStep(4, "Read SupportedModes and check it matches default modes."),
+                TestStep(5, "Read CurrentMode and check it is equal to 1."),
+                TestStep(6, "Loop over modes 1, 2, 3 and run ChangeToMode command.")]
 
     async def _read_description(self):
         return await self.read_single_attribute_check_success(
             endpoint=self.ENDPOINT,
             cluster=Clusters.Objects.ModeSelect,
-            attribute=Clusters.Objects.ModeSelect.Attributes.Description,
-        )
+            attribute=Clusters.Objects.ModeSelect.Attributes.Description)
 
     async def _read_standard_namespace(self):
         return await self.read_single_attribute_check_success(
             endpoint=self.ENDPOINT,
             cluster=Clusters.Objects.ModeSelect,
-            attribute=Clusters.Objects.ModeSelect.Attributes.StandardNamespace,
-        )
+            attribute=Clusters.Objects.ModeSelect.Attributes.StandardNamespace)
 
     async def _read_supported_modes(self):
         return await self.read_single_attribute_check_success(
             endpoint=self.ENDPOINT,
             cluster=Clusters.Objects.ModeSelect,
-            attribute=Clusters.Objects.ModeSelect.Attributes.SupportedModes,
-        )
+            attribute=Clusters.Objects.ModeSelect.Attributes.SupportedModes)
 
     async def _read_current_mode(self):
         return await self.read_single_attribute_check_success(
             endpoint=self.ENDPOINT,
             cluster=Clusters.Objects.ModeSelect,
-            attribute=Clusters.Objects.ModeSelect.Attributes.CurrentMode,
-        )
+            attribute=Clusters.Objects.ModeSelect.Attributes.CurrentMode)
 
     async def _send_change_to_mode_command(self, mode):
         return await self.send_single_cmd(
-            cmd=Clusters.Objects.ModeSelect.Commands.ChangeToMode(newMode=mode), endpoint=self.ENDPOINT
-        )
+            cmd=Clusters.Objects.ModeSelect.Commands.ChangeToMode(newMode=mode),
+            endpoint=self.ENDPOINT)
 
     @async_test_body
     async def test_TC_MODESELECT(self):
@@ -116,9 +107,8 @@ class TC_MODESELECT(MatterBaseTest):
         # Step 5: Read CurrentMode and check it is equal to the first mode.
         self.step(5)
         current_mode = await self._read_current_mode()
-        asserts.assert_equal(
-            current_mode, self.EXPECTED_MODES[0].mode, f"Initial CurrentMode should be {self.EXPECTED_MODES[0].mode}"
-        )
+        asserts.assert_equal(current_mode, self.EXPECTED_MODES[0].mode,
+                             f"Initial CurrentMode should be {self.EXPECTED_MODES[0].mode}")
 
         # Step 6: Loop over modes and run ChangeToMode command
         self.step(6)

@@ -43,7 +43,6 @@ class BasicInteger:
     """
     Represents something that is stored as a basic integer.
     """
-
     idl_name: str
     byte_count: int  # NOTE: may NOT be a power of 2 for odd sized integers
     is_signed: bool
@@ -62,7 +61,6 @@ class BasicString:
     """
     Represents either a string or a binary string (blob).
     """
-
     idl_name: str
     is_binary: bool
     max_length: Union[int, None] = None
@@ -72,7 +70,6 @@ class FundamentalType(enum.Enum):
     """
     Native types, generally available across C++/ObjC/Java/python/other.
     """
-
     BOOL = enum.auto()
     FLOAT = enum.auto()
     DOUBLE = enum.auto()
@@ -108,7 +105,6 @@ class IdlEnumType:
     An enumeration type. Enumerations are constants with an underlying
     base type that is an interger.
     """
-
     idl_name: str
     base_type: BasicInteger
 
@@ -128,7 +124,6 @@ class IdlBitmapType:
 
     Examples include "feature maps" where bits represent feature available or not.
     """
-
     idl_name: str
     base_type: BasicInteger
 
@@ -158,7 +153,6 @@ class IdlType:
     the option to have a type that is marked 'unknown' (likely invalid/never
     defined).
     """
-
     idl_name: str
     item_type: IdlItemType
 
@@ -375,9 +369,7 @@ class TypeLookupContext:
         return any(s.name == name for s in self.all_bitmaps)
 
 
-def ParseDataType(
-    data_type: DataType, lookup: TypeLookupContext
-) -> Union[BasicInteger, BasicString, FundamentalType, IdlType, IdlEnumType, IdlBitmapType]:
+def ParseDataType(data_type: DataType, lookup: TypeLookupContext) -> Union[BasicInteger, BasicString, FundamentalType, IdlType, IdlEnumType, IdlBitmapType]:
     """
     Given a AST data type and a lookup context, match it to a type that can be later
     be used for generation.
@@ -390,19 +382,19 @@ def ParseDataType(
 
     lowercase_name = data_type.name.lower()
 
-    if lowercase_name == "boolean":
+    if lowercase_name == 'boolean':
         return FundamentalType.BOOL
-    if lowercase_name == "single":
+    if lowercase_name == 'single':
         return FundamentalType.FLOAT
-    if lowercase_name == "double":
+    if lowercase_name == 'double':
         return FundamentalType.DOUBLE
-    if lowercase_name in ["char_string", "long_char_string"]:
+    if lowercase_name in ['char_string', 'long_char_string']:
         return BasicString(idl_name=lowercase_name, is_binary=False, max_length=data_type.max_length)
-    if lowercase_name in ["octet_string", "long_octet_string"]:
+    if lowercase_name in ['octet_string', 'long_octet_string']:
         return BasicString(idl_name=lowercase_name, is_binary=True, max_length=data_type.max_length)
-    if lowercase_name in ["enum8", "enum16"]:
+    if lowercase_name in ['enum8', 'enum16']:
         return IdlEnumType(idl_name=lowercase_name, base_type=__CHIP_SIZED_TYPES__[lowercase_name])
-    if lowercase_name in ["bitmap8", "bitmap16", "bitmap32", "bitmap64"]:
+    if lowercase_name in ['bitmap8', 'bitmap16', 'bitmap32', 'bitmap64']:
         return IdlBitmapType(idl_name=lowercase_name, base_type=__CHIP_SIZED_TYPES__[lowercase_name])
 
     int_type = __CHIP_SIZED_TYPES__.get(lowercase_name)

@@ -38,30 +38,22 @@ class TestSpecParsingSelection(DeviceConformanceTests):
         # information. This selection mechanism is tested in the test conformance test, where we
         # build a 1.2-style mock device that will fail conformance checks if the wrong pre-built is
         # selected.
-        asserts.assert_equal(
-            dm_from_spec_version(0x01030000), PrebuiltDataModelDirectory.k1_3, "Incorrect directory selected for 1.3 with patch 0"
-        )
-        asserts.assert_equal(
-            dm_from_spec_version(0x01030100), PrebuiltDataModelDirectory.k1_3, "Incorrect directory selected for 1.3 with patch 1"
-        )
-        asserts.assert_equal(
-            dm_from_spec_version(0x01040100), PrebuiltDataModelDirectory.k1_4_1, "Incorrect directory selected for 1.4.1"
-        )
-        asserts.assert_equal(
-            dm_from_spec_version(0x01040100), PrebuiltDataModelDirectory.k1_4_1, "Incorrect directory selected for 1.4.1"
-        )
-        asserts.assert_equal(
-            dm_from_spec_version(0x01040200), PrebuiltDataModelDirectory.k1_4_2, "Incorrect directory selected for 1.4.2"
-        )
-        asserts.assert_equal(
-            dm_from_spec_version(0x01050000), PrebuiltDataModelDirectory.k1_5, "Incorrect directory selected for 1.5"
-        )
-        asserts.assert_equal(
-            dm_from_spec_version(0x01050100), PrebuiltDataModelDirectory.k1_5_1, "Incorrect directory selected for 1.5.1"
-        )
-        asserts.assert_equal(
-            dm_from_spec_version(0x01060000), PrebuiltDataModelDirectory.k1_6, "Incorrect directory selected for 1.6"
-        )
+        asserts.assert_equal(dm_from_spec_version(0x01030000), PrebuiltDataModelDirectory.k1_3,
+                             "Incorrect directory selected for 1.3 with patch 0")
+        asserts.assert_equal(dm_from_spec_version(0x01030100), PrebuiltDataModelDirectory.k1_3,
+                             "Incorrect directory selected for 1.3 with patch 1")
+        asserts.assert_equal(dm_from_spec_version(0x01040100), PrebuiltDataModelDirectory.k1_4_1,
+                             "Incorrect directory selected for 1.4.1")
+        asserts.assert_equal(dm_from_spec_version(0x01040100), PrebuiltDataModelDirectory.k1_4_1,
+                             "Incorrect directory selected for 1.4.1")
+        asserts.assert_equal(dm_from_spec_version(0x01040200), PrebuiltDataModelDirectory.k1_4_2,
+                             "Incorrect directory selected for 1.4.2")
+        asserts.assert_equal(dm_from_spec_version(0x01050000), PrebuiltDataModelDirectory.k1_5,
+                             "Incorrect directory selected for 1.5")
+        asserts.assert_equal(dm_from_spec_version(0x01050100), PrebuiltDataModelDirectory.k1_5_1,
+                             "Incorrect directory selected for 1.5.1")
+        asserts.assert_equal(dm_from_spec_version(0x01060000), PrebuiltDataModelDirectory.k1_6,
+                             "Incorrect directory selected for 1.6")
 
         # 1.2 doesn't include a specification revision field, so this should error
         with asserts.assert_raises(ConformanceException, "Expected assertion was not raised for spec version 1.2"):
@@ -81,25 +73,15 @@ class TestSpecParsingSelection(DeviceConformanceTests):
             dm_from_spec_version(0x0105FF00)
 
         # Any value with stuff in reserved should error
-        with asserts.assert_raises(
-            ConformanceException, "Error not returned for specification revision with non-zero reserved values"
-        ):
+        with asserts.assert_raises(ConformanceException, "Error not returned for specification revision with non-zero reserved values"):
             dm_from_spec_version(0x01030001)
-        with asserts.assert_raises(
-            ConformanceException, "Error not returned for specification revision with non-zero reserved values"
-        ):
+        with asserts.assert_raises(ConformanceException, "Error not returned for specification revision with non-zero reserved values"):
             dm_from_spec_version(0x01040001)
-        with asserts.assert_raises(
-            ConformanceException, "Error not returned for specification revision with non-zero reserved values"
-        ):
+        with asserts.assert_raises(ConformanceException, "Error not returned for specification revision with non-zero reserved values"):
             dm_from_spec_version(0x01040101)
-        with asserts.assert_raises(
-            ConformanceException, "Error not returned for specification revision with non-zero reserved values"
-        ):
+        with asserts.assert_raises(ConformanceException, "Error not returned for specification revision with non-zero reserved values"):
             dm_from_spec_version(0x01050001)
-        with asserts.assert_raises(
-            ConformanceException, "Error not returned for specification revision with non-zero reserved values"
-        ):
+        with asserts.assert_raises(ConformanceException, "Error not returned for specification revision with non-zero reserved values"):
             dm_from_spec_version(0x01060001)
 
     def _create_device(self, spec_version: uint, tc_enabled: bool):
@@ -120,13 +102,12 @@ class TestSpecParsingSelection(DeviceConformanceTests):
             spec_generated_commands = xml_clusters[cluster.id].generated_commands
             info = ConformanceAssessmentData(feature_map=feature_map, attribute_list=[], all_command_list=[], cluster_revision=1)
             # Build just the lists - basic composition checks the wildcard against the lists, conformance just uses lists
-            attributes = [id for id, a in spec_attributes.items() if a.conformance(info).decision == ConformanceDecision.MANDATORY]
-            accepted_commands = [
-                id for id, c in spec_accepted_commands.items() if c.conformance(info).decision == ConformanceDecision.MANDATORY
-            ]
-            generated_commands = [
-                id for id, c in spec_generated_commands.items() if c.conformance(info).decision == ConformanceDecision.MANDATORY
-            ]
+            attributes = [id for id, a in spec_attributes.items() if a.conformance(
+                info).decision == ConformanceDecision.MANDATORY]
+            accepted_commands = [id for id, c in spec_accepted_commands.items() if c.conformance(
+                info).decision == ConformanceDecision.MANDATORY]
+            generated_commands = [id for id, c in spec_generated_commands.items() if c.conformance(
+                info).decision == ConformanceDecision.MANDATORY]
             attr = cluster.Attributes
 
             resp = {}
@@ -155,89 +136,65 @@ class TestSpecParsingSelection(DeviceConformanceTests):
             bi_resp[Clusters.BasicInformation.Attributes.SpecificationVersion] = spec_version
 
         self.endpoints = {0: {Clusters.GeneralCommissioning: gc_resp, Clusters.BasicInformation: bi_resp}}
-        self.endpoints_tlv = {
-            0: {Clusters.GeneralCommissioning.id: get_tlv(gc_resp), Clusters.BasicInformation.id: get_tlv(bi_resp)}
-        }
+        self.endpoints_tlv = {0: {Clusters.GeneralCommissioning.id: get_tlv(
+            gc_resp), Clusters.BasicInformation.id: get_tlv(bi_resp)}}
 
-    def _run_conformance_against_device(
-        self, spec_version: uint, tc_enabled: bool, expect_success_conformance: bool, expect_success_revisions: bool
-    ):
+    def _run_conformance_against_device(self, spec_version: uint, tc_enabled: bool, expect_success_conformance: bool, expect_success_revisions: bool):
         self._create_device(spec_version, tc_enabled)
         # build the spec XMLs for the stated version
         self.build_spec_xmls()
-        success, problems = self.check_conformance(
-            ignore_in_progress_test_event_only_disallowed_for_certification=False,
-            is_ci=False,
-            allow_provisional_test_event_only_disallowed_for_certification=False,
-        )
+        success, problems = self.check_conformance(ignore_in_progress_test_event_only_disallowed_for_certification=False,
+                                                   is_ci=False, allow_provisional_test_event_only_disallowed_for_certification=False)
         problem_strs = [str(p) for p in problems]
         problem_str = "\n".join(problem_strs)
-        spec_version_str = f"{spec_version:08X}" if spec_version is not None else "None (1.2)"
-        asserts.assert_equal(
-            success,
-            expect_success_conformance,
-            f"Improper conformance result for spec version {spec_version_str}, TC: {tc_enabled} problems: {problem_str}",
-        )
+        spec_version_str = f'{spec_version:08X}' if spec_version is not None else "None (1.2)"
+        asserts.assert_equal(success, expect_success_conformance,
+                             f"Improper conformance result for spec version {spec_version_str}, TC: {tc_enabled} problems: {problem_str}")
 
         success, problems = self.check_revisions(ignore_in_progress_test_event_only_disallowed_for_certification=False)
-        asserts.assert_equal(
-            success,
-            expect_success_revisions,
-            f"Improper revision result for spec version {spec_version_str}, TC: {tc_enabled} problems: {problems}",
-        )
+        asserts.assert_equal(success, expect_success_revisions,
+                             f"Improper revision result for spec version {spec_version_str}, TC: {tc_enabled} problems: {problems}")
 
     def test_conformance(self):
         # 1.2 is OK if TC is off. Note that 1.2 doesn't have a spec revision field, which is why ths is none.
         # Below, we can use this to force a conformance error when this value is populated to prove the 1.2
         # DM files are being properly selected.
-        self._run_conformance_against_device(
-            spec_version=None, tc_enabled=False, expect_success_conformance=True, expect_success_revisions=True
-        )
+        self._run_conformance_against_device(spec_version=None, tc_enabled=False,
+                                             expect_success_conformance=True, expect_success_revisions=True)
         # 1.3 is OK if TC is off
-        self._run_conformance_against_device(
-            spec_version=0x01030000, tc_enabled=False, expect_success_conformance=True, expect_success_revisions=True
-        )
+        self._run_conformance_against_device(spec_version=0x01030000, tc_enabled=False,
+                                             expect_success_conformance=True, expect_success_revisions=True)
         # 1.4 is OK if TC is off
-        self._run_conformance_against_device(
-            spec_version=0x01040000, tc_enabled=False, expect_success_conformance=True, expect_success_revisions=True
-        )
+        self._run_conformance_against_device(spec_version=0x01040000, tc_enabled=False,
+                                             expect_success_conformance=True, expect_success_revisions=True)
         # 1.4.1 is OK if TC is off
-        self._run_conformance_against_device(
-            spec_version=0x01040100, tc_enabled=False, expect_success_conformance=True, expect_success_revisions=True
-        )
+        self._run_conformance_against_device(spec_version=0x01040100, tc_enabled=False,
+                                             expect_success_conformance=True, expect_success_revisions=True)
         # 1.4.2 is OK if TC is off
-        self._run_conformance_against_device(
-            spec_version=0x01040200, tc_enabled=False, expect_success_conformance=True, expect_success_revisions=True
-        )
+        self._run_conformance_against_device(spec_version=0x01040200, tc_enabled=False,
+                                             expect_success_conformance=True, expect_success_revisions=True)
         # 1.5 is OK if TC is off
-        self._run_conformance_against_device(
-            spec_version=0x01050000, tc_enabled=False, expect_success_conformance=True, expect_success_revisions=True
-        )
+        self._run_conformance_against_device(spec_version=0x01050000, tc_enabled=False,
+                                             expect_success_conformance=True, expect_success_revisions=True)
 
         # 1.5 is OK if TC is on
-        self._run_conformance_against_device(
-            spec_version=0x01050000, tc_enabled=True, expect_success_conformance=True, expect_success_revisions=True
-        )
+        self._run_conformance_against_device(spec_version=0x01050000, tc_enabled=True,
+                                             expect_success_conformance=True, expect_success_revisions=True)
         # 1.4.2 is OK if TC is on
-        self._run_conformance_against_device(
-            spec_version=0x01040200, tc_enabled=True, expect_success_conformance=True, expect_success_revisions=True
-        )
+        self._run_conformance_against_device(spec_version=0x01040200, tc_enabled=True,
+                                             expect_success_conformance=True, expect_success_revisions=True)
         # 1.4.1 is OK if TC is on
-        self._run_conformance_against_device(
-            spec_version=0x01040100, tc_enabled=True, expect_success_conformance=True, expect_success_revisions=True
-        )
+        self._run_conformance_against_device(spec_version=0x01040100, tc_enabled=True,
+                                             expect_success_conformance=True, expect_success_revisions=True)
         # 1.4 is NOT OK if TC is on
-        self._run_conformance_against_device(
-            spec_version=0x01040000, tc_enabled=True, expect_success_conformance=False, expect_success_revisions=True
-        )
+        self._run_conformance_against_device(spec_version=0x01040000, tc_enabled=True,
+                                             expect_success_conformance=False, expect_success_revisions=True)
         # 1.3 is NOT OK if TC is on
-        self._run_conformance_against_device(
-            spec_version=0x01030000, tc_enabled=True, expect_success_conformance=False, expect_success_revisions=True
-        )
+        self._run_conformance_against_device(spec_version=0x01030000, tc_enabled=True,
+                                             expect_success_conformance=False, expect_success_revisions=True)
         # 1.2 is NOT OK if TC is on
-        self._run_conformance_against_device(
-            spec_version=None, tc_enabled=True, expect_success_conformance=False, expect_success_revisions=True
-        )
+        self._run_conformance_against_device(spec_version=None, tc_enabled=True,
+                                             expect_success_conformance=False, expect_success_revisions=True)
 
         # Check that we get a test failure on a bad spec revision
         self._create_device(0xFFFFFFFF, False)

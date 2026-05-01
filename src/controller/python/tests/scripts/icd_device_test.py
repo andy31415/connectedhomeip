@@ -52,12 +52,18 @@ async def main():
         action="store",
         dest="testTimeout",
         default=75,
-        type="int",
+        type='int',
         help="The program will return with timeout after specified seconds.",
         metavar="<timeout-second>",
     )
     optParser.add_option(
-        "--nodeid", action="store", dest="nodeid", default=1, type=int, help="The Node ID issued to the device", metavar="<node-id>"
+        "--nodeid",
+        action="store",
+        dest="nodeid",
+        default=1,
+        type=int,
+        help="The Node ID issued to the device",
+        metavar="<node-id>"
     )
     optParser.add_option(
         "--discriminator",
@@ -79,10 +85,10 @@ async def main():
         "--paa-trust-store-path",
         action="store",
         dest="paaTrustStorePath",
-        default="",
-        type="str",
+        default='',
+        type='str',
         help="Path that contains valid and trusted PAA Root Certificates.",
-        metavar="<paa-trust-store-path>",
+        metavar="<paa-trust-store-path>"
     )
     optParser.add_option(
         "--discovery-type",
@@ -91,7 +97,7 @@ async def main():
         default=TEST_DISCOVERY_TYPE,
         type=int,
         help="Discovery type of commissioning. (0: networkOnly 1: networkOnlyWithoutPASEAutoRetry 2: All<Ble & Network>)",
-        metavar="<discovery-type>",
+        metavar="<discovery-type>"
     )
     optParser.add_option(
         "--test-event-key",
@@ -100,7 +106,7 @@ async def main():
         default="00112233445566778899aabbccddeeff",
         type=str,
         help="Enable key of Test event trigger.",
-        metavar="<test-event-key>",
+        metavar="<test-event-key>"
     )
 
     (options, remainingArgs) = optParser.parse_args(sys.argv[1:])
@@ -108,17 +114,16 @@ async def main():
     timeoutTicker = TestTimeout(options.testTimeout)
     timeoutTicker.start()
 
-    test = BaseTestHelper(nodeId=112233, paaTrustStorePath=options.paaTrustStorePath, testCommissioner=True)
+    test = BaseTestHelper(
+        nodeId=112233, paaTrustStorePath=options.paaTrustStorePath, testCommissioner=True)
 
     devCtrl = test.devCtrl
     devCtrl.EnableICDRegistration(devCtrl.GenerateICDRegistrationParameters())
     logger.info("Testing commissioning")
-    FailIfNot(
-        await test.TestOnNetworkCommissioning(
-            discriminator=options.discriminator, setuppin=options.passcode, nodeId=options.nodeid
-        ),
-        "Failed to finish key exchange",
-    )
+    FailIfNot(await test.TestOnNetworkCommissioning(discriminator=options.discriminator,
+                                                    setuppin=options.passcode,
+                                                    nodeId=options.nodeid),
+              "Failed to finish key exchange")
     logger.info("Commissioning completed")
 
     logger.info("Testing wait for active")
@@ -126,10 +131,7 @@ async def main():
     logger.info("Successfully handled wait-for-active")
 
     logger.info("Testing InvalidateHalfCounterValues for refresh key")
-    FailIfNot(
-        await invalidateHalfCounterValuesAndWaitForCheckIn(test, nodeId=options.nodeid, testEventKey=options.testEventKey),
-        "Failed to test wait for active",
-    )
+    FailIfNot(await invalidateHalfCounterValuesAndWaitForCheckIn(test, nodeId=options.nodeid, testEventKey=options.testEventKey), "Failed to test wait for active")
     logger.info("Successfully handled key refresh")
 
     timeoutTicker.stop()

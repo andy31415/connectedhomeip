@@ -34,32 +34,29 @@ LOGGER = logging.getLogger(__name__)
 async def _IsNodeInFabricList(devCtrl, nodeId):
     resp = await devCtrl.ReadAttribute(nodeId, [(opCreds.Attributes.Fabrics)])
     listOfFabricsDescriptor = resp[0][opCreds][Clusters.OperationalCredentials.Attributes.Fabrics]
-    return any(fabricDescriptor.nodeID == nodeId for fabricDescriptor in listOfFabricsDescriptor)
+    return any(fabricDescriptor.nodeID == nodeId
+               for fabricDescriptor in listOfFabricsDescriptor)
 
 
-async def GrantPrivilege(
-    adminCtrl: ChipDeviceController,
-    grantedCtrl: ChipDeviceController,
-    privilege: Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum,
-    targetNodeId: int,
-    targetCatTags: typing.List[int] = [],
-):
-    """Given an existing controller with admin privileges over a target node, grants the specified privilege
-    to the new ChipDeviceController instance to the entire Node. This is achieved
-    by updating the ACL entries on the target.
+async def GrantPrivilege(adminCtrl: ChipDeviceController, grantedCtrl: ChipDeviceController,
+                         privilege: Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum,
+                         targetNodeId: int, targetCatTags: typing.List[int] = []):
+    ''' Given an existing controller with admin privileges over a target node, grants the specified privilege
+        to the new ChipDeviceController instance to the entire Node. This is achieved
+        by updating the ACL entries on the target.
 
-    This will automatically take care of working within the minimas of the target as well as doing an efficient
-    read-modify-write operation that takes into consideration the existing entries on the target and minimizing
-    the total number of ACL entries written per fabric.
+        This will automatically take care of working within the minimas of the target as well as doing an efficient
+        read-modify-write operation that takes into consideration the existing entries on the target and minimizing
+        the total number of ACL entries written per fabric.
 
-    Args:
-        adminCtrl:      ChipDeviceController instance with admin privileges over the target node
-        grantedCtrl:    ChipDeviceController instance that is being granted the new privilege.
-        privilege:      Privilege to grant to the granted controller. If None, no privilege is granted.
-        targetNodeId:   Target node to which the controller is granted privilege.
-        targetCatTag:   Target 32-bit CAT tag that is granted privilege.
-                        If provided, this will be used in the subject list instead of the nodeId of that of grantedCtrl.
-    """
+        Args:
+            adminCtrl:      ChipDeviceController instance with admin privileges over the target node
+            grantedCtrl:    ChipDeviceController instance that is being granted the new privilege.
+            privilege:      Privilege to grant to the granted controller. If None, no privilege is granted.
+            targetNodeId:   Target node to which the controller is granted privilege.
+            targetCatTag:   Target 32-bit CAT tag that is granted privilege.
+                            If provided, this will be used in the subject list instead of the nodeId of that of grantedCtrl.
+    '''
     data = await adminCtrl.ReadAttribute(targetNodeId, [(Clusters.AccessControl.Attributes.Acl)])
     if 0 not in data:
         raise ValueError("Did not get back any data (possible cause: controller has no access..")
@@ -72,15 +69,15 @@ async def GrantPrivilege(
     else:
         targetSubjects = [grantedCtrl.nodeId]
 
-    if len(targetSubjects) > 4:
+    if (len(targetSubjects) > 4):
         raise ValueError(f"List of target subjects of len {len(targetSubjects)} exceeeded the minima of 4!")
 
     # Step 1: Wipe the subject from all existing ACLs.
     for acl in currentAcls:
-        if acl.subjects != NullValue:
+        if (acl.subjects != NullValue):
             acl.subjects = [subject for subject in acl.subjects if subject not in targetSubjects]
 
-    if privilege:
+    if (privilege):
         addedPrivilege = False
 
         # Step 2: Attempt to add the subject to an existing ACL entry if possible where
@@ -94,50 +91,45 @@ async def GrantPrivilege(
                 break
 
         # Step 3: If there isn't an existing entry to add to, make a new one.
-        if not (addedPrivilege):
+        if (not (addedPrivilege)):
             if len(currentAcls) >= 3:
                 raise ValueError(
                     f"Cannot add another ACL entry to grant privilege to existing count of {currentAcls} "
-                    "ACLs -- will exceed minimas!"
-                )
+                    "ACLs -- will exceed minimas!")
 
-            currentAcls.append(
-                Clusters.AccessControl.Structs.AccessControlEntryStruct(
-                    privilege=privilege,
-                    authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
-                    subjects=targetSubjects,
-                )
-            )
+            currentAcls.append(Clusters.AccessControl.Structs.AccessControlEntryStruct(
+                privilege=privilege,
+                authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
+                subjects=targetSubjects
+            ))
 
     # Step 4: Prune ACLs which have empty subjects.
     currentAcls = [acl for acl in currentAcls if acl.subjects != NullValue and len(acl.subjects) != 0]
 
-    LOGGER.info(f"GrantPrivilege: Writing acls: {currentAcls}")
+    LOGGER.info(f'GrantPrivilege: Writing acls: {currentAcls}')
     await adminCtrl.WriteAttribute(targetNodeId, [(0, Clusters.AccessControl.Attributes.Acl(currentAcls))])
 
 
-async def CreateControllersOnFabric(
-    fabricAdmin: FabricAdmin,
-    adminDevCtrl: ChipDeviceController,
-    controllerNodeIds: typing.List[int],
-    privilege: Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum,
-    targetNodeId: int,
-    catTags: typing.List[int] = [],
-    paaTrustStorePath: str = "",
-) -> typing.List[ChipDeviceController]:
-    """Create new ChipDeviceController instances on a given fabric with a specific privilege on a target node.
+async def CreateControllersOnFabric(fabricAdmin: FabricAdmin,
+                                    adminDevCtrl: ChipDeviceController,
+                                    controllerNodeIds: typing.List[int],
+                                    privilege: Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum,
+                                    targetNodeId: int,
+                                    catTags: typing.List[int] = [],
+                                    paaTrustStorePath: str = "") -> typing.List[ChipDeviceController]:
+    ''' Create new ChipDeviceController instances on a given fabric with a specific privilege on a target node.
 
-    Args:
-        fabricAdmin:                A FabricAdmin object that is capable of vending new controller instances on a fabric.
-        adminDevCtrl:               An existing ChipDeviceController instance that already has admin privileges
-                                    on the target node.
-        controllerNodeIds:          List of desired nodeIds for the controllers.
-        privilege:                  The specific ACL privilege to grant to the newly minted controllers.
-        targetNodeId:               The Node ID of the target.
-        catTags:                    CAT Tags to include in the NOC of controller, as well as when setting
-                                    up the ACLs on the target.
-        paaTrustStorePath:          Path to the PAA trust store. If one isn't provided, a suitable default is selected.
-    """
+        Args:
+            fabricAdmin:                A FabricAdmin object that is capable of vending new controller instances on a fabric.
+            adminDevCtrl:               An existing ChipDeviceController instance that already has admin privileges
+                                        on the target node.
+            controllerNodeIds:          List of desired nodeIds for the controllers.
+            privilege:                  The specific ACL privilege to grant to the newly minted controllers.
+            targetNodeId:               The Node ID of the target.
+            catTags:                    CAT Tags to include in the NOC of controller, as well as when setting
+                                        up the ACLs on the target.
+            paaTrustStorePath:          Path to the PAA trust store. If one isn't provided, a suitable default is selected.
+    '''
 
     controllerList = []
 
@@ -149,15 +141,8 @@ async def CreateControllersOnFabric(
     return controllerList
 
 
-async def AddNOCForNewFabricFromExisting(
-    commissionerDevCtrl,
-    newFabricDevCtrl,
-    existingNodeId,
-    newNodeId,
-    omitCommissioningComplete: bool = False,
-    failSafeDurationSeconds: int = 60,
-) -> tuple[bool, typing.Optional[Clusters.OperationalCredentials.Commands.NOCResponse], typing.Optional[NOCChain]]:
-    """Perform sequence to commission new fabric using existing commissioned fabric.
+async def AddNOCForNewFabricFromExisting(commissionerDevCtrl, newFabricDevCtrl, existingNodeId, newNodeId, omitCommissioningComplete: bool = False, failSafeDurationSeconds: int = 60) -> tuple[bool, typing.Optional[Clusters.OperationalCredentials.Commands.NOCResponse], typing.Optional[NOCChain]]:
+    ''' Perform sequence to commission new fabric using existing commissioned fabric.
 
     Args:
         commissionerDevCtrl (ChipDeviceController): Already commissioned device controller used
@@ -172,36 +157,31 @@ async def AddNOCForNewFabricFromExisting(
     Return:
         tuple:  (bool, Optional[nocResp], Optional[NOCChain]: True if successful, False otherwise, along with nocResp, rcacResp value.
 
-    """
+    '''
     nocResp = None
 
-    resp = await commissionerDevCtrl.SendCommand(
-        existingNodeId, 0, generalCommissioning.Commands.ArmFailSafe(failSafeDurationSeconds)
-    )
+    resp = await commissionerDevCtrl.SendCommand(existingNodeId, 0, generalCommissioning.Commands.ArmFailSafe(failSafeDurationSeconds))
     if resp.errorCode is not generalCommissioning.Enums.CommissioningErrorEnum.kOk:
         return False, nocResp
 
     csrForAddNOC = await commissionerDevCtrl.SendCommand(existingNodeId, 0, opCreds.Commands.CSRRequest(CSRNonce=os.urandom(32)))
 
     chainForAddNOC = await newFabricDevCtrl.IssueNOCChain(csrForAddNOC, newNodeId)
-    if chainForAddNOC.rcacBytes is None or chainForAddNOC.nocBytes is None or chainForAddNOC.ipkBytes is None:
+    if (chainForAddNOC.rcacBytes is None or
+            chainForAddNOC.nocBytes is None or chainForAddNOC.ipkBytes is None):
         # Expiring the failsafe timer in an attempt to clean up.
         LOGGER.error(f"INTERNAL ERROR: Got invalid cert chain from issuer! Chain: {chainForAddNOC}. Disarming fail-safe!")
         await commissionerDevCtrl.SendCommand(existingNodeId, 0, generalCommissioning.Commands.ArmFailSafe(0))
         return False, nocResp, None
 
     await commissionerDevCtrl.SendCommand(existingNodeId, 0, opCreds.Commands.AddTrustedRootCertificate(chainForAddNOC.rcacBytes))
-    nocResp = await commissionerDevCtrl.SendCommand(
-        existingNodeId,
-        0,
-        opCreds.Commands.AddNOC(
-            chainForAddNOC.nocBytes,
-            chainForAddNOC.icacBytes if chainForAddNOC.icacBytes else None,
-            chainForAddNOC.ipkBytes,
-            newFabricDevCtrl.nodeId,
-            newFabricDevCtrl.fabricAdmin.vendorId,
-        ),
-    )
+    nocResp = await commissionerDevCtrl.SendCommand(existingNodeId,
+                                                    0,
+                                                    opCreds.Commands.AddNOC(chainForAddNOC.nocBytes,
+                                                                            chainForAddNOC.icacBytes if chainForAddNOC.icacBytes else None,
+                                                                            chainForAddNOC.ipkBytes,
+                                                                            newFabricDevCtrl.nodeId,
+                                                                            newFabricDevCtrl.fabricAdmin.vendorId))
 
     if nocResp.statusCode is not opCreds.Enums.NodeOperationalCertStatusEnum.kOk:
         # Expiring the failsafe timer in an attempt to clean up.
@@ -230,10 +210,8 @@ async def AddNOCForNewFabricFromExisting(
     return True, nocResp, chainForAddNOC
 
 
-async def UpdateNOC(
-    devCtrl, existingNodeId, newNodeId, omitCommissioningComplete: bool = False, failSafeDurationSeconds: int = 600
-):
-    """Perform sequence to generate a new NOC cert and issue updated NOC to server.
+async def UpdateNOC(devCtrl, existingNodeId, newNodeId, omitCommissioningComplete: bool = False, failSafeDurationSeconds: int = 600):
+    """ Perform sequence to generate a new NOC cert and issue updated NOC to server.
 
     Args:
         commissionerDevCtrl (ChipDeviceController): Already commissioned device controller used
@@ -253,17 +231,16 @@ async def UpdateNOC(
     if resp.errorCode is not generalCommissioning.Enums.CommissioningErrorEnum.kOk:
         return False
     csrForUpdateNOC = await devCtrl.SendCommand(
-        existingNodeId, 0, opCreds.Commands.CSRRequest(CSRNonce=os.urandom(32), isForUpdateNOC=True)
-    )
+        existingNodeId, 0, opCreds.Commands.CSRRequest(CSRNonce=os.urandom(32), isForUpdateNOC=True))
     chainForUpdateNOC = await devCtrl.IssueNOCChain(csrForUpdateNOC, newNodeId)
-    if chainForUpdateNOC.rcacBytes is None or chainForUpdateNOC.nocBytes is None or chainForUpdateNOC.ipkBytes is None:
+    if (chainForUpdateNOC.rcacBytes is None or
+            chainForUpdateNOC.nocBytes is None or chainForUpdateNOC.ipkBytes is None):
         LOGGER.error(f"INTERNAL ERROR: Got invalid cert chain from issuer! Chain: {chainForUpdateNOC}. Disarming fail-safe!")
         await devCtrl.SendCommand(existingNodeId, 0, generalCommissioning.Commands.ArmFailSafe(0))
         return False
 
-    resp = await devCtrl.SendCommand(
-        existingNodeId, 0, opCreds.Commands.UpdateNOC(chainForUpdateNOC.nocBytes, chainForUpdateNOC.icacBytes)
-    )
+    resp = await devCtrl.SendCommand(existingNodeId, 0, opCreds.Commands.UpdateNOC(chainForUpdateNOC.nocBytes,
+                                                                                   chainForUpdateNOC.icacBytes))
     if resp.statusCode is not opCreds.Enums.NodeOperationalCertStatusEnum.kOk:
         # Expiring the failsafe timer in an attempt to clean up.
         LOGGER.error(f"UpdateNOC failed on DUT. Status code was: {resp.statusCode}. Disarming fail-safe!")

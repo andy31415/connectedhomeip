@@ -33,7 +33,6 @@ from pregenerate.type_definitions import IdlFileType
 
 try:
     import coloredlogs
-
     _has_coloredlogs = True
 except ImportError:
     _has_coloredlogs = False
@@ -55,33 +54,52 @@ def _ParallelGenerateOne(arg):
 
 @click.command()
 @click.option(
-    "--log-level",
-    default="INFO",
+    '--log-level',
+    default='INFO',
     type=click.Choice(__LOG_LEVELS__.keys(), case_sensitive=False),
-    help="Determines the verbosity of script output",
-)
-@click.option("--parallel/--no-parallel", default=True, help="Do parallel/multiprocessing codegen.")
-@click.option("--dry-run/--no-dry-run", default=False, help="Do not actually execute commands, just log")
+    help='Determines the verbosity of script output')
 @click.option(
-    "--generator",
-    default="all",
-    type=click.Choice(["all", "zap", "codegen"]),
-    help="To what code generator to restrict the generation.",
-)
-@click.option("--input-glob", default=None, multiple=True, help="Restrict file generation inputs to the specified glob patterns.")
-@click.option("--sdk-root", default=None, help="Path to the SDK root (where .zap/.matter files exist).")
-@click.option("--external-root", default=None, multiple=True, help="Path to an external app root (where .zap/.matter files exist).")
-@click.argument("output_dir")
+    '--parallel/--no-parallel',
+    default=True,
+    help='Do parallel/multiprocessing codegen.')
+@click.option(
+    '--dry-run/--no-dry-run',
+    default=False,
+    help='Do not actually execute commands, just log')
+@click.option(
+    '--generator',
+    default='all',
+    type=click.Choice(['all', 'zap', 'codegen']),
+    help='To what code generator to restrict the generation.')
+@click.option(
+    '--input-glob',
+    default=None,
+    multiple=True,
+    help='Restrict file generation inputs to the specified glob patterns.')
+@click.option(
+    '--sdk-root',
+    default=None,
+    help='Path to the SDK root (where .zap/.matter files exist).')
+@click.option(
+    '--external-root',
+    default=None,
+    multiple=True,
+    help='Path to an external app root (where .zap/.matter files exist).')
+@click.argument('output_dir')
 def main(log_level, parallel, dry_run, generator, input_glob, sdk_root, external_root, output_dir):
     if _has_coloredlogs:
-        coloredlogs.install(level=__LOG_LEVELS__[log_level], fmt="%(asctime)s %(levelname)-7s %(message)s")
+        coloredlogs.install(level=__LOG_LEVELS__[
+                            log_level], fmt='%(asctime)s %(levelname)-7s %(message)s')
     else:
         logging.basicConfig(
-            level=__LOG_LEVELS__[log_level], format="%(asctime)s %(levelname)-7s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+            level=__LOG_LEVELS__[log_level],
+            format='%(asctime)s %(levelname)-7s %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
         )
 
     if not sdk_root:
-        sdk_root = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
+        sdk_root = os.path.join(os.path.dirname(
+            os.path.realpath(__file__)), '..')
 
     sdk_root = os.path.abspath(sdk_root)
 
@@ -99,9 +117,9 @@ def main(log_level, parallel, dry_run, generator, input_glob, sdk_root, external
 
     filter = TargetFilter(path_glob=input_glob)
 
-    if generator == "zap":
+    if generator == 'zap':
         filter.file_type = IdlFileType.ZAP
-    elif generator == "codegen":
+    elif generator == 'codegen':
         filter.file_type = IdlFileType.MATTER
 
     targets = FindPregenerationTargets(sdk_root, external_root, filter, runner)
@@ -119,5 +137,5 @@ def main(log_level, parallel, dry_run, generator, input_glob, sdk_root, external
     log.info("Done")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

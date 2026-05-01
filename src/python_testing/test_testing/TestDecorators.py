@@ -33,15 +33,8 @@ from mobly import asserts
 
 import matter.clusters as Clusters
 from matter.clusters import Attribute
-from matter.testing.decorators import (
-    async_test_body,
-    has_attribute,
-    has_cluster,
-    has_feature,
-    run_if_endpoint_matches,
-    run_on_singleton_matching_endpoint,
-    should_run_test_on_endpoint,
-)
+from matter.testing.decorators import (async_test_body, has_attribute, has_cluster, has_feature, run_if_endpoint_matches,
+                                       run_on_singleton_matching_endpoint, should_run_test_on_endpoint)
 from matter.testing.matter_test_config import MatterTestConfig
 from matter.testing.matter_testing import MatterBaseTest
 from matter.testing.runner import MockTestRunner
@@ -53,19 +46,13 @@ def get_clusters(endpoints: list[int]) -> Attribute.AsyncReadTransaction.ReadRes
     # We're JUST populating the globals here because that's all that matters for this particular test
     feature_map = c.Bitmaps.Feature.kLighting
     # Only supported attributes - globals and OnOff. This isn't a compliant device. Doesn't matter for this test.
-    attribute_list = [
-        attr.FeatureMap.attribute_id,
-        attr.AttributeList.attribute_id,
-        attr.AcceptedCommandList.attribute_id,
-        attr.GeneratedCommandList.attribute_id,
-        attr.OnOff.attribute_id,
-    ]
+    attribute_list = [attr.FeatureMap.attribute_id, attr.AttributeList.attribute_id,
+                      attr.AcceptedCommandList.attribute_id, attr.GeneratedCommandList.attribute_id, attr.OnOff.attribute_id]
     accepted_commands = [c.Commands.Off, c.Commands.On]
     resp = Attribute.AsyncReadTransaction.ReadResponse({}, [], {})
     for e in endpoints:
-        resp.attributes[e] = {
-            c: {attr.FeatureMap: feature_map, attr.AttributeList: attribute_list, attr.AcceptedCommandList: accepted_commands}
-        }
+        resp.attributes[e] = {c: {attr.FeatureMap: feature_map,
+                                  attr.AttributeList: attribute_list, attr.AcceptedCommandList: accepted_commands}}
     return resp
 
 
@@ -105,7 +92,10 @@ class DecoratorTestRunnerHooks:
     def step_unknown(self):
         pass
 
-    def show_prompt(self, msg: str, placeholder: Optional[str] = None, default_value: Optional[str] = None) -> None:
+    def show_prompt(self,
+                    msg: str,
+                    placeholder: Optional[str] = None,
+                    default_value: Optional[str] = None) -> None:
         pass
 
 
@@ -230,13 +220,14 @@ class TestDecorators(MatterBaseTest):
 def main():
     failures = []
     hooks = DecoratorTestRunnerHooks()
-    test_runner = MockTestRunner(Path(__file__).parent / "TestDecorators.py", "TestDecorators", "test_checkers")
+    test_runner = MockTestRunner(Path(__file__).parent / 'TestDecorators.py',
+                                 'TestDecorators', 'test_checkers')
     read_resp = get_clusters([0, 1])
     ok = test_runner.run_test_with_mock_read(read_resp, hooks)
     if not ok:
         failures.append("Test case failure: test_checkers")
 
-    test_runner.set_test("TestDecorators.py", "TestDecorators", "test_endpoints")
+    test_runner.set_test('TestDecorators.py', 'TestDecorators', 'test_endpoints')
     read_resp = get_clusters([0, 1])
     ok = test_runner.run_test_with_mock_read(read_resp, hooks)
     if not ok:
@@ -250,7 +241,7 @@ def main():
     # Test should run once for the whole node, regardless of the number of endpoints
     def run_check(test_name: str, read_response: Attribute.AsyncReadTransaction.ReadResponse, expect_skip: bool) -> None:
         nonlocal failures
-        test_runner.set_test("TestDecorators.py", "TestDecorators", test_name)
+        test_runner.set_test('TestDecorators.py', 'TestDecorators', test_name)
         hooks = DecoratorTestRunnerHooks()
         num_endpoints = 2
         for e in [0, 1]:
@@ -262,8 +253,7 @@ def main():
         stopped_ok = hooks.stopped == num_endpoints
         if not ok or not started_ok or not skipped_ok or not stopped_ok:
             failures.append(
-                f"Expected {num_endpoints} run of {test_name}, skips expected: {expect_skip}. Runs: {hooks.started}, skips: {hooks.skipped} stops: {hooks.stopped}"
-            )
+                f'Expected {num_endpoints} run of {test_name}, skips expected: {expect_skip}. Runs: {hooks.started}, skips: {hooks.skipped} stops: {hooks.stopped}')
 
     def check_once_per_endpoint(test_name: str):
         run_check(test_name, get_clusters([0, 1]), False)
@@ -271,18 +261,18 @@ def main():
     def check_all_skipped(test_name: str):
         run_check(test_name, get_clusters([0, 1]), True)
 
-    check_once_per_endpoint("test_endpoint_cluster_yes")
-    check_all_skipped("test_endpoint_cluster_no")
-    check_once_per_endpoint("test_endpoint_attribute_yes")
-    check_all_skipped("test_endpoint_attribute_supported_cluster_no")
-    check_all_skipped("test_endpoint_attribute_unsupported_cluster_no")
-    check_once_per_endpoint("test_endpoint_feature_yes")
-    check_all_skipped("test_endpoint_feature_unsupported_cluster_no")
-    check_once_per_endpoint("test_endpoint_boolean_yes")
-    check_all_skipped("test_endpoint_boolean_no")
+    check_once_per_endpoint('test_endpoint_cluster_yes')
+    check_all_skipped('test_endpoint_cluster_no')
+    check_once_per_endpoint('test_endpoint_attribute_yes')
+    check_all_skipped('test_endpoint_attribute_supported_cluster_no')
+    check_all_skipped('test_endpoint_attribute_unsupported_cluster_no')
+    check_once_per_endpoint('test_endpoint_feature_yes')
+    check_all_skipped('test_endpoint_feature_unsupported_cluster_no')
+    check_once_per_endpoint('test_endpoint_boolean_yes')
+    check_all_skipped('test_endpoint_boolean_no')
 
-    test_name = "test_fail_on_ep0"
-    test_runner.set_test("TestDecorators.py", "TestDecorators", test_name)
+    test_name = 'test_fail_on_ep0'
+    test_runner.set_test('TestDecorators.py', 'TestDecorators', test_name)
     read_resp = get_clusters([0, 1])
     # fail on EP0, pass on EP1
     test_runner.set_test_config(MatterTestConfig(endpoint=0))
@@ -294,8 +284,8 @@ def main():
     if not ok:
         failures.append(f"Unexpected failure on {test_name}")
 
-    test_name = "test_fail_on_ep1"
-    test_runner.set_test("TestDecorators.py", "TestDecorators", test_name)
+    test_name = 'test_fail_on_ep1'
+    test_runner.set_test('TestDecorators.py', 'TestDecorators', test_name)
     read_resp = get_clusters([0, 1])
     # pass on EP0, fail on EP1
     test_runner.set_test_config(MatterTestConfig(endpoint=0))
@@ -310,7 +300,7 @@ def main():
     def run_singleton_dynamic(test_name: str, cluster_list: list[int]) -> tuple[bool, DecoratorTestRunnerHooks]:
         nonlocal failures
         read_resp = get_clusters(cluster_list)
-        test_runner.set_test("TestDecorators.py", "TestDecorators", test_name)
+        test_runner.set_test('TestDecorators.py', 'TestDecorators', test_name)
         test_runner.set_test_config(MatterTestConfig(endpoint=2))
         hooks = DecoratorTestRunnerHooks()
         ok = test_runner.run_test_with_mock_read(read_resp, hooks)
@@ -321,7 +311,8 @@ def main():
         started_ok = len(hooks.started) == 1
         stopped_ok = hooks.stopped == 1
         if not started_ok or not stopped_ok:
-            failures.append(f"Hooks failure on {test_name}, Runs: {hooks.started}, skips: {hooks.skipped} stops: {hooks.stopped}")
+            failures.append(
+                f'Hooks failure on {test_name}, Runs: {hooks.started}, skips: {hooks.skipped} stops: {hooks.stopped}')
         return ok, hooks
 
     def expect_success_dynamic(test_name: str, cluster_list: list[int]):
@@ -329,7 +320,7 @@ def main():
         if not ok:
             failures.append(f"Unexpected failure on {test_name} with cluster list {cluster_list}")
         if hooks.skipped:
-            failures.append(f"Unexpected skip call on {test_name} with cluster list {cluster_list}")
+            failures.append(f'Unexpected skip call on {test_name} with cluster list {cluster_list}')
 
     def expect_failure_dynamic(test_name: str, cluster_list: list[int]):
         ok, hooks = run_singleton_dynamic(test_name, cluster_list)
@@ -337,7 +328,7 @@ def main():
             failures.append(f"Unexpected success on {test_name} with cluster list {cluster_list}")
         if hooks.skipped:
             # We don't expect a skip call because the test actually failed.
-            failures.append(f"Skip called for {test_name} with cluster list {cluster_list}")
+            failures.append(f'Skip called for {test_name} with cluster list {cluster_list}')
 
     def expect_skip_dynamic(test_name: str, cluster_list: list[int]):
         ok, hooks = run_singleton_dynamic(test_name, cluster_list)
@@ -345,27 +336,28 @@ def main():
             failures.append(f"Unexpected failure on {test_name} with cluster list {cluster_list}")
         if not hooks.skipped:
             # We don't expect a skip call because the test actually failed.
-            failures.append(f"Skip not called for {test_name} with cluster list {cluster_list}")
+            failures.append(f'Skip not called for {test_name} with cluster list {cluster_list}')
 
-    test_name = "test_run_on_singleton_matching_endpoint"
+    test_name = 'test_run_on_singleton_matching_endpoint'
     expect_success_dynamic(test_name, [0])
     expect_success_dynamic(test_name, [1])
     # expect failure because there is more than 1 endpoint
     expect_failure_dynamic(test_name, [0, 1])
 
-    test_name = "test_run_on_singleton_matching_endpoint_failure"
+    test_name = 'test_run_on_singleton_matching_endpoint_failure'
     expect_failure_dynamic(test_name, [0])
     expect_failure_dynamic(test_name, [1])
     expect_failure_dynamic(test_name, [0, 1])
 
-    test_name = "test_no_run_on_singleton_matching_endpoint"
+    test_name = 'test_no_run_on_singleton_matching_endpoint'
     # no failure, no matches, expect skips on all endpoints
     expect_skip_dynamic(test_name, [0])
     expect_skip_dynamic(test_name, [1])
     expect_skip_dynamic(test_name, [0, 1])
 
     test_runner.Shutdown()
-    print(f"Test of Decorators: test response incorrect: {len(failures)}")
+    print(
+        f"Test of Decorators: test response incorrect: {len(failures)}")
     for f in failures:
         print(f)
 

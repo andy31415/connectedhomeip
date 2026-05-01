@@ -28,17 +28,15 @@ from base import BaseTestHelper, FailIfNot, TestFail, TestTimeout, logger
 
 # The thread network dataset tlv for testing, splitted into T-L-V.
 
-TEST_THREAD_NETWORK_DATASET_TLV = (
-    "0e080000000000010000"
-    + "000300000c"
-    + "35060004001fffe0"
-    + "0208fedcba9876543210"
-    + "0708fd00000000001234"
-    + "0510ffeeddccbbaa99887766554433221100"
-    + "030e54657374696e674e6574776f726b"
-    + "0102d252"
-    + "041081cb3b2efa781cc778397497ff520fa50c0302a0ff"
-)
+TEST_THREAD_NETWORK_DATASET_TLV = "0e080000000000010000" + \
+    "000300000c" + \
+    "35060004001fffe0" + \
+    "0208fedcba9876543210" + \
+    "0708fd00000000001234" + \
+    "0510ffeeddccbbaa99887766554433221100" + \
+    "030e54657374696e674e6574776f726b" + \
+    "0102d252" + \
+    "041081cb3b2efa781cc778397497ff520fa50c0302a0ff"
 # Network id, for the thread network, current a const value, will be changed to XPANID of the thread network.
 TEST_THREAD_NETWORK_ID = "fedcba9876543210"
 TEST_DISCRIMINATOR = 3840
@@ -56,7 +54,7 @@ async def main():
         action="store",
         dest="testTimeout",
         default=75,
-        type="int",
+        type='int',
         help="The program will return with timeout after specified seconds.",
         metavar="<timeout-second>",
     )
@@ -64,16 +62,16 @@ async def main():
         "--address1",
         action="store",
         dest="deviceAddress1",
-        default="",
-        type="str",
+        default='',
+        type='str',
         help="Address of the first device",
     )
     optParser.add_option(
         "--address2",
         action="store",
         dest="deviceAddress2",
-        default="",
-        type="str",
+        default='',
+        type='str',
         help="Address of the second device",
     )
     optParser.add_option(
@@ -81,10 +79,10 @@ async def main():
         "--paa-trust-store-path",
         action="store",
         dest="paaTrustStorePath",
-        default="",
-        type="str",
+        default='',
+        type='str',
         help="Path that contains valid and trusted PAA Root Certificates.",
-        metavar="<paa-trust-store-path>",
+        metavar="<paa-trust-store-path>"
     )
 
     (options, remainingArgs) = optParser.parse_args(sys.argv[1:])
@@ -92,39 +90,41 @@ async def main():
     timeoutTicker = TestTimeout(options.testTimeout)
     timeoutTicker.start()
 
-    test = BaseTestHelper(nodeId=112233, paaTrustStorePath=options.paaTrustStorePath, testCommissioner=False)
+    test = BaseTestHelper(
+        nodeId=112233, paaTrustStorePath=options.paaTrustStorePath, testCommissioner=False)
 
-    FailIfNot(
-        test.SetNetworkCommissioningParameters(dataset=TEST_THREAD_NETWORK_DATASET_TLV), "Failed to finish network commissioning"
-    )
+    FailIfNot(test.SetNetworkCommissioningParameters(dataset=TEST_THREAD_NETWORK_DATASET_TLV),
+              "Failed to finish network commissioning")
 
     logger.info("Testing PASE connection to device 1")
-    FailIfNot(
-        await test.TestPaseOnly(ip=options.deviceAddress1, setuppin=20202021, nodeId=1),
-        "Failed to establish PASE connection with device 1",
-    )
+    FailIfNot(await test.TestPaseOnly(ip=options.deviceAddress1,
+                                      setuppin=20202021,
+                                      nodeId=1),
+              "Failed to establish PASE connection with device 1")
 
     logger.info("Testing PASE connection to device 2")
-    FailIfNot(
-        await test.TestPaseOnly(ip=options.deviceAddress2, setuppin=20202021, nodeId=2),
-        "Failed to establish PASE connection with device 2",
-    )
+    FailIfNot(await test.TestPaseOnly(ip=options.deviceAddress2,
+                                      setuppin=20202021,
+                                      nodeId=2),
+              "Failed to establish PASE connection with device 2")
 
     logger.info("Attempting to execute a fabric-scoped command during PASE before AddNOC")
-    FailIfNot(
-        await test.TestFabricScopedCommandDuringPase(nodeId=1),
-        "Did not get UNSUPPORTED_ACCESS for fabric-scoped command during PASE",
-    )
+    FailIfNot(await test.TestFabricScopedCommandDuringPase(nodeId=1),
+              "Did not get UNSUPPORTED_ACCESS for fabric-scoped command during PASE")
 
-    FailIfNot(await test.TestCommissionOnly(nodeId=1), "Failed to commission device 1")
+    FailIfNot(await test.TestCommissionOnly(nodeId=1),
+              "Failed to commission device 1")
 
-    FailIfNot(await test.TestCommissionOnly(nodeId=2), "Failed to commission device 2")
+    FailIfNot(await test.TestCommissionOnly(nodeId=2),
+              "Failed to commission device 2")
 
     logger.info("Testing on off cluster on device 1")
-    FailIfNot(await test.TestOnOffCluster(nodeId=1, endpoint=LIGHTING_ENDPOINT_ID), "Failed to test on off cluster on device 1")
+    FailIfNot(await test.TestOnOffCluster(nodeId=1,
+                                          endpoint=LIGHTING_ENDPOINT_ID), "Failed to test on off cluster on device 1")
 
     logger.info("Testing on off cluster on device 2")
-    FailIfNot(await test.TestOnOffCluster(nodeId=2, endpoint=LIGHTING_ENDPOINT_ID), "Failed to test on off cluster on device 2")
+    FailIfNot(await test.TestOnOffCluster(nodeId=2,
+                                          endpoint=LIGHTING_ENDPOINT_ID), "Failed to test on off cluster on device 2")
 
     timeoutTicker.stop()
 

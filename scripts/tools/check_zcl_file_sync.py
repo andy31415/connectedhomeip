@@ -31,7 +31,7 @@ import sys
 
 def main():
     if len(sys.argv) != 2:
-        print("Please pass CHIP_ROOT as an argument (and only chip root)")
+        print('Please pass CHIP_ROOT as an argument (and only chip root)')
         return 1
 
     base_name = os.path.join(sys.argv[1], "src", "app", "zap-templates", "zcl", "zcl.json")
@@ -62,17 +62,17 @@ def main():
     print("Differences between expected and actual:")
 
     for line in difflib.unified_diff(
-        json.dumps(ext_data, indent=2).split("\n"),
-        json.dumps(base_data, indent=2).split("\n"),
+        json.dumps(ext_data, indent=2).split('\n'),
+        json.dumps(base_data, indent=2).split('\n'),
         fromfile=ext_name,
         tofile="<Expected extension file content>",
     ):
-        if line.endswith("\n"):
+        if line.endswith('\n'):
             line = line[:-1]
         print(line)
 
     return 1
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

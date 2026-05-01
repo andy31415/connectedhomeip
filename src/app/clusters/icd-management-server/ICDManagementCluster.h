@@ -101,9 +101,9 @@ public:
     CHIP_ERROR GeneratedCommands(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<CommandId> & builder) override;
 
 private:
-    void OnEnterActiveMode() override {};
-    void OnEnterIdleMode() override {};
-    void OnTransitionToIdle() override {};
+    void OnEnterActiveMode() override{};
+    void OnEnterIdleMode() override{};
+    void OnTransitionToIdle() override{};
     void OnICDModeChange() override;
 
 protected:

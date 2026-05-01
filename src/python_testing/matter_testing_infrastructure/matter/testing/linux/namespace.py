@@ -40,10 +40,9 @@ def ensure_network_namespace_availability():
         return
 
     os.execvpe(
-        "unshare",
-        ["unshare", "--map-root-user", "-n", "-m", sys.executable, sys.argv[0], "--internal-inside-unshare"] + sys.argv[1:],
-        test_environ,
-    )
+        "unshare", ["unshare", "--map-root-user", "-n", "-m", sys.executable,
+                    sys.argv[0], '--internal-inside-unshare'] + sys.argv[1:],
+        test_environ)
 
 
 def ensure_private_state():
@@ -133,11 +132,8 @@ class NetworkResource:
             # We're not interested in stdout/stderr for successful execution.
             subprocess.run(cmd, check=check, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(
-                f"Failed to execute '{shlex.join(cmd)}'. Are you using --privileged if running in docker?",
-                f"Command stdout: '{e.stdout.rstrip()}'",
-                f"Command stderr: '{e.stderr.rstrip()}'",
-            ) from e
+            raise RuntimeError(f"Failed to execute '{shlex.join(cmd)}'. Are you using --privileged if running in docker?",
+                               f"Command stdout: '{e.stdout.rstrip()}'", f"Command stderr: '{e.stderr.rstrip()}'") from e
 
     def setup(self):
         """Run commands to setup a resource."""
@@ -166,11 +162,12 @@ class NetworkResource:
 
 class NetworkLink(NetworkResource):
     def __init__(self, name: str, ipv4_addrs: list[str], ipv6_addrs: list[str], ns: NetworkNamespace | None = None) -> None:
+
         self.switch_name = f"{name}-sw"
         self.ipv4_addrs = ipv4_addrs
         self.ipv6_addrs = ipv6_addrs
 
-        netns_opt = f"netns {ns.name}" if ns else ""
+        netns_opt = f"netns {ns.name}" if ns else ''
 
         up_cmds = [
             NetworkCmd(f"ip link set dev {self.switch_name} up"),
@@ -185,15 +182,12 @@ class NetworkLink(NetworkResource):
         if self.ipv6_addrs:
             up_cmds.append(NetworkCmd(f"ip -6 addr flush {name}", ns_wrapper=True))
             up_cmds.extend(NetworkCmd(f"ip -6 a add {addr} dev {name}", ns_wrapper=True) for addr in self.ipv6_addrs)
-            up_cmds.extend(
-                NetworkCmd(cmd, ns_wrapper=True)
-                for cmd in [
-                    "sysctl -w net.ipv6.conf.all.forwarding=1",
-                    "sysctl -w net.ipv6.conf.default.forwarding=1",
-                    f"sysctl -w net.ipv6.conf.{name}.accept_ra=2",
-                    f"sysctl -w net.ipv6.conf.{name}.accept_ra_rt_info_max_plen=64",
-                ]
-            )
+            up_cmds.extend(NetworkCmd(cmd, ns_wrapper=True) for cmd in [
+                "sysctl -w net.ipv6.conf.all.forwarding=1",
+                "sysctl -w net.ipv6.conf.default.forwarding=1",
+                f"sysctl -w net.ipv6.conf.{name}.accept_ra=2",
+                f"sysctl -w net.ipv6.conf.{name}.accept_ra_rt_info_max_plen=64"
+            ])
 
         super().__init__(
             name=name,
@@ -202,15 +196,14 @@ class NetworkLink(NetworkResource):
             up_cmds=up_cmds,
             down_cmds=[
                 NetworkCmd(f"ip link set dev {name} down", ns_wrapper=True),
-                NetworkCmd(f"ip link set dev {self.switch_name} down"),
+                NetworkCmd(f"ip link set dev {self.switch_name} down")
             ],
-            ns=ns,
-        )
+            ns=ns)
 
     def wait_for_duplicate_address_detection(self) -> bool:
         # IPv6 does Duplicate Address Detection even though we know ULAs provided are isolated.
         # Wait for 'tentative' address to be gone.
-        cmd = ["ip", "addr"]
+        cmd = ['ip', 'addr']
         if self.ns:
             log.info("Waiting for IPv6 DaD for namespace %s to complete (no tentative addresses)", self.ns.name)
             cmd = self.ns.wrap_cmd(cmd)
@@ -221,7 +214,7 @@ class NetworkLink(NetworkResource):
         start_time = time.time()
         while time.time() - start_time < 10:
             # We're not interested in stderr, so we can discard it.
-            if "tentative" not in subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL):
+            if 'tentative' not in subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL):
                 log.info("No more tentative addresses")
                 return True
             time.sleep(0.1)
@@ -237,13 +230,12 @@ class NetworkLink(NetworkResource):
 
 class NetworkBridge(NetworkResource):
     def __init__(self, name: str):
-        super().__init__(
-            name=name,
-            setup_cmds=[NetworkCmd(f"ip link add {name} type bridge")],
-            teardown_cmds=[NetworkCmd(f"ip link delete {name}")],
-            up_cmds=[NetworkCmd(f"ip link set {name} up")],
-            down_cmds=[NetworkCmd(f"ip link set {name} down")],
-        )
+        super().__init__(name=name,
+                         setup_cmds=[NetworkCmd(f"ip link add {name} type bridge")],
+                         teardown_cmds=[NetworkCmd(f"ip link delete {name}")],
+                         up_cmds=[NetworkCmd(f"ip link set {name} up")],
+                         down_cmds=[NetworkCmd(f"ip link set {name} down")]
+                         )
 
     def attach_link(self, link: NetworkLink):
         self.setup_cmds.append(NetworkCmd(f"ip link set {link.switch_name} master {self.name}"))
@@ -251,13 +243,13 @@ class NetworkBridge(NetworkResource):
 
 class NetworkNamespace(NetworkResource):
     def __init__(self, name: str) -> None:
-        super().__init__(
-            name=name, setup_cmds=[NetworkCmd(f"ip netns add {name}")], teardown_cmds=[NetworkCmd(f"ip netns del {name}")]
-        )
+        super().__init__(name=name,
+                         setup_cmds=[NetworkCmd(f"ip netns add {name}")],
+                         teardown_cmds=[NetworkCmd(f"ip netns del {name}")])
 
     @property
     def netns_cmd_wrapper(self) -> list[str]:
-        return ["ip", "netns", "exec", self.name]
+        return ['ip', 'netns', 'exec', self.name]
 
     def wrap_cmd(self, cmd: str | list[str]) -> list[str]:
         if isinstance(cmd, str):
@@ -269,17 +261,8 @@ class NetworkNamespace(NetworkResource):
 class IsolatedNetworkNamespace:
     """Helper class to create and remove network namespaces for tests."""
 
-    def __init__(
-        self,
-        index: int = 0,
-        mgmt_link_name: str = "eth-mgmt",
-        tool_link_name: str = "eth-tool",
-        app_link_name: str = "eth-app",
-        mgmt_link_up: bool = True,
-        tool_link_up: bool = True,
-        app_link_up: bool = True,
-        add_ula: bool = True,
-    ):
+    def __init__(self, index: int = 0, mgmt_link_name: str = 'eth-mgmt', tool_link_name: str = 'eth-tool', app_link_name: str = 'eth-app',
+                 mgmt_link_up: bool = True, tool_link_up: bool = True, app_link_up: bool = True, add_ula: bool = True):
         """Initialize isolated network namespaces.
 
         - mgmt -- management network for the RPC server.
@@ -300,16 +283,14 @@ class IsolatedNetworkNamespace:
         tool_ipv6 = ["fe80::2/64"]
         if add_ula:
             tool_ipv6.append("fd00:0:1:1::2/64")
-        self.tool_link = NetworkLink(
-            f"{tool_link_name}-{index}", ipv4_addrs=["10.10.10.2/24"], ipv6_addrs=tool_ipv6, ns=self.tool_ns
-        )
+        self.tool_link = NetworkLink(f"{tool_link_name}-{index}",
+                                     ipv4_addrs=["10.10.10.2/24"], ipv6_addrs=tool_ipv6, ns=self.tool_ns)
 
         mgmt_ipv6 = ["fe80::5/64"]
         if add_ula:
             mgmt_ipv6.append("fd00:0:1:1::5/64")
-        self.mgmt_link = NetworkLink(
-            f"{mgmt_link_name}-{index}", ipv4_addrs=["10.10.10.5/24"], ipv6_addrs=mgmt_ipv6, ns=self.mgmt_ns
-        )
+        self.mgmt_link = NetworkLink(f"{mgmt_link_name}-{index}",
+                                     ipv4_addrs=["10.10.10.5/24"], ipv6_addrs=mgmt_ipv6, ns=self.mgmt_ns)
 
         self.bridge = NetworkBridge(f"br-{index}")
         self.bridge.attach_link(self.app_link)
@@ -319,44 +300,26 @@ class IsolatedNetworkNamespace:
         try:
             # Bring up selected links in parallel to reduce wait time.
             with concurrent.futures.ThreadPoolExecutor(max_workers=3, thread_name_prefix="NetnsSetup") as executor:
-                list(
-                    executor.map(
-                        lambda x: x(),
-                        (
-                            self.app_ns.setup,
-                            self.tool_ns.setup,
-                            self.mgmt_ns.setup,
-                        ),
-                    )
-                )
+                list(executor.map(lambda x: x(), (
+                    self.app_ns.setup,
+                    self.tool_ns.setup,
+                    self.mgmt_ns.setup,
+                )))
 
-                list(
-                    executor.map(
-                        lambda x: x(),
-                        (
-                            self.app_link.setup,
-                            self.tool_link.setup,
-                            self.mgmt_link.setup,
-                        ),
-                    )
-                )
+                list(executor.map(lambda x: x(), (
+                    self.app_link.setup,
+                    self.tool_link.setup,
+                    self.mgmt_link.setup,
+                )))
 
                 self.bridge.setup()
 
-                list(
-                    executor.map(
-                        lambda x: x(),
-                        (
-                            link.up
-                            for link, should_up in (
-                                (self.app_link, app_link_up),
-                                (self.tool_link, tool_link_up),
-                                (self.mgmt_link, mgmt_link_up),
-                            )
-                            if should_up
-                        ),
-                    )
-                )
+                list(executor.map(lambda x: x(), (
+                    link.up for link, should_up in (
+                        (self.app_link, app_link_up),
+                        (self.tool_link, tool_link_up),
+                        (self.mgmt_link, mgmt_link_up)
+                    ) if should_up)))
 
                 self.bridge.up()
 
@@ -379,7 +342,11 @@ class IsolatedNetworkNamespace:
 
     def terminate(self):
         """Execute all teardown, gracefully omitting errors."""
-        for obj in (self.bridge, self.app_link, self.tool_link, self.mgmt_link, self.app_ns, self.tool_ns, self.mgmt_ns):
+        for obj in (
+            self.bridge,
+            self.app_link, self.tool_link, self.mgmt_link,
+            self.app_ns, self.tool_ns, self.mgmt_ns
+        ):
             try:
                 obj.teardown()
             except Exception:

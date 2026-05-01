@@ -35,7 +35,8 @@ struct CommandPathParams
 {
     CommandPathParams(EndpointId aEndpointId, GroupId aGroupId, ClusterId aClusterId, CommandId aCommandId,
                       const BitFlags<CommandPathFlags> & aFlags) :
-        mEndpointId(aEndpointId), mGroupId(aGroupId), mClusterId(aClusterId), mCommandId(aCommandId), mFlags(aFlags)
+        mEndpointId(aEndpointId),
+        mGroupId(aGroupId), mClusterId(aClusterId), mCommandId(aCommandId), mFlags(aFlags)
     {}
 
     CommandPathParams(uint16_t aId, ClusterId aClusterId, CommandId aCommandId, const BitFlags<CommandPathFlags> & aFlags) :

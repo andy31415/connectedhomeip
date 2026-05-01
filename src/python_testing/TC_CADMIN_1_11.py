@@ -53,91 +53,56 @@ class TC_CADMIN_1_11(CADMINBaseTest):
     async def OpenCommissioningWindow(self, th, expectedErrCode) -> CommissioningParameters:
         if expectedErrCode is None:
             return await th.OpenCommissioningWindow(
-                nodeId=self.dut_node_id, timeout=self.timeout, iteration=10000, discriminator=self.discriminator, option=1
-            )
+                nodeId=self.dut_node_id, timeout=self.timeout, iteration=10000, discriminator=self.discriminator, option=1)
 
         ctx = asserts.assert_raises(ChipStackError)
         with ctx:
             await th.OpenCommissioningWindow(
-                nodeId=self.dut_node_id, timeout=self.timeout, iteration=10000, discriminator=self.discriminator, option=1
-            )
+                nodeId=self.dut_node_id, timeout=self.timeout, iteration=10000, discriminator=self.discriminator, option=1)
         errcode = PyChipError.from_code(ctx.exception.err)
-        log.info("Commissioning complete done. Successful? {}, errorcode = {}".format(errcode.is_success, errcode))
-        asserts.assert_false(errcode.is_success, "Commissioning complete did not error as expected")
-        asserts.assert_true(errcode.sdk_code == expectedErrCode, "Unexpected error code returned from CommissioningComplete")
+        log.info('Commissioning complete done. Successful? {}, errorcode = {}'.format(errcode.is_success, errcode))
+        asserts.assert_false(errcode.is_success, 'Commissioning complete did not error as expected')
+        asserts.assert_true(errcode.sdk_code == expectedErrCode,
+                            'Unexpected error code returned from CommissioningComplete')
         return None
 
     def steps_TC_CADMIN_1_11(self) -> list[TestStep]:
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
             TestStep(
-                2,
-                "TH_CR1 gets the MaxCumulativeFailsafeSeconds value from BasicCommissioningInfo attribute in GeneralCommissioning Cluster",
-                "Should set the MaxCumulativeFailsafeSeconds value from BasicCommissioningInfo attribute to timeout",
-            ),
+                2, "TH_CR1 gets the MaxCumulativeFailsafeSeconds value from BasicCommissioningInfo attribute in GeneralCommissioning Cluster", "Should set the MaxCumulativeFailsafeSeconds value from BasicCommissioningInfo attribute to timeout"),
             TestStep(
-                3,
-                "TH_CR1 opens commissioning window on DUT with duration set to value for MaxCumulativeFailsafeSeconds",
-                "Commissioning window should open with timeout set to MaxCumulativeFailsafeSeconds",
-            ),
+                3, "TH_CR1 opens commissioning window on DUT with duration set to value for MaxCumulativeFailsafeSeconds", "Commissioning window should open with timeout set to MaxCumulativeFailsafeSeconds"),
             TestStep(4, "TH_CR2 fully commissions the DUT", "DUT should fully commission"),
             TestStep(
-                5,
-                "TH_CR1 opens commissioning window on DUT with duration set to value from BasicCommissioningInfo",
-                "New commissioning window should open and be set to timeout",
-            ),
-            TestStep(
-                6,
-                "TH_CR1 sends an OpenCommissioningWindow command to the DUT and attempts to open another commissioning window",
-                "Commissioning window should fail to be opened due to being busy",
-            ),
-            TestStep(
-                7,
-                "TH_CR2 sends an OpenCommissioningWindow command to the DUT and attempts to open another commissioning window",
-                "Commissioning window should fail to be opened due to being busy",
-            ),
+                5, "TH_CR1 opens commissioning window on DUT with duration set to value from BasicCommissioningInfo", "New commissioning window should open and be set to timeout"),
+            TestStep(6, "TH_CR1 sends an OpenCommissioningWindow command to the DUT and attempts to open another commissioning window",
+                     "Commissioning window should fail to be opened due to being busy"),
+            TestStep(7, "TH_CR2 sends an OpenCommissioningWindow command to the DUT and attempts to open another commissioning window",
+                     "Commissioning window should fail to be opened due to being busy"),
             TestStep(8, "TH_CR1 sends an RevokeCommissioning command to the DUT", "Commissioning window should be closed"),
-            TestStep(
-                9,
-                "TH_CR1 reads the FeatureMap from the Administrator Commissioning Cluster to check to see if BC is supported on DUT",
-                "FeatureMap should be checked to see if BC enum is available feature, if not then test steps 9a-9d will be skipped",
-            ),
-            TestStep(
-                "9a",
-                "TH_CR1 opens commissioning window on DUT with duration set to value from BasicCommissioningInfo",
-                "Opens basic commissioning window on the DUT for timeout set to value of MaxCumulativeFailsafeSeconds",
-            ),
-            TestStep(
-                "9b",
-                "TH_CR1 sends an OpenBasicCommissioningWindow command to the DUT and attempts to open another commissioning window",
-                "Commissioning window should fail to be opened due to being busy",
-            ),
-            TestStep(
-                "9c",
-                "TH_CR2 sends an OpenBasicCommissioningWindow command to the DUT and attempts to open another commissioning window",
-                "Commissioning window should fail to be opened due to being busy",
-            ),
+            TestStep(9, "TH_CR1 reads the FeatureMap from the Administrator Commissioning Cluster to check to see if BC is supported on DUT",
+                     "FeatureMap should be checked to see if BC enum is available feature, if not then test steps 9a-9d will be skipped"),
+            TestStep("9a", "TH_CR1 opens commissioning window on DUT with duration set to value from BasicCommissioningInfo",
+                     "Opens basic commissioning window on the DUT for timeout set to value of MaxCumulativeFailsafeSeconds"),
+            TestStep("9b", "TH_CR1 sends an OpenBasicCommissioningWindow command to the DUT and attempts to open another commissioning window",
+                     "Commissioning window should fail to be opened due to being busy"),
+            TestStep("9c", "TH_CR2 sends an OpenBasicCommissioningWindow command to the DUT and attempts to open another commissioning window",
+                     "Commissioning window should fail to be opened due to being busy"),
             TestStep("9d", "TH_CR1 sends a RevokeCommissioning command to the DUT", "Commissioning window should be closed"),
-            TestStep(
-                10,
-                "TH_CR2 reads the CurrentFabricIndex attribute from the Operational Credentials cluster and saves as th2_idx",
-                "th2_idx set to value for CurrentFabricIndex attribute from TH_CR2",
-            ),
-            TestStep(
-                11,
-                "TH_CR1 sends the RemoveFabric command to the DUT with the FabricIndex set to th2_idx",
-                "TH_CR1 removes TH_CR2 fabric using th2_idx",
-            ),
+            TestStep(10, "TH_CR2 reads the CurrentFabricIndex attribute from the Operational Credentials cluster and saves as th2_idx",
+                     "th2_idx set to value for CurrentFabricIndex attribute from TH_CR2"),
+            TestStep(11, "TH_CR1 sends the RemoveFabric command to the DUT with the FabricIndex set to th2_idx",
+                     "TH_CR1 removes TH_CR2 fabric using th2_idx"),
         ]
 
-    async def CommissionAttempt(self, setupPinCode: int):
+    async def CommissionAttempt(
+            self, setupPinCode: int):
+
         log.info("-----------------Commissioning with TH_CR2-------------------------")
         await self.th2.CommissionOnNetwork(
-            nodeId=self.dut_node_id,
-            setupPinCode=setupPinCode,
-            filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
-            filter=self.discriminator,
-        )
+            nodeId=self.dut_node_id, setupPinCode=setupPinCode,
+            filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR, filter=self.discriminator)
 
     def pics_TC_CADMIN_1_11(self) -> list[str]:
         return ["CADMIN.S"]
@@ -200,13 +165,15 @@ class TC_CADMIN_1_11(CADMINBaseTest):
             try:
                 await self.th1.SendCommand(nodeId=self.dut_node_id, endpoint=0, payload=obcCmd, timedRequestTimeoutMs=6000)
             except Exception as e:
-                asserts.assert_true(e.clusterStatus == busy_enum, "Unexpected error code returned from CommissioningComplete")
+                asserts.assert_true(e.clusterStatus == busy_enum,
+                                    'Unexpected error code returned from CommissioningComplete')
 
             self.step("9c")
             try:
                 await self.th2.SendCommand(nodeId=self.dut_node_id, endpoint=0, payload=obcCmd, timedRequestTimeoutMs=6000)
             except Exception as e:
-                asserts.assert_true(e.clusterStatus == busy_enum, "Unexpected error code returned from CommissioningComplete")
+                asserts.assert_true(e.clusterStatus == busy_enum,
+                                    'Unexpected error code returned from CommissioningComplete')
 
             self.step("9d")
             revokeCmd = Clusters.AdministratorCommissioning.Commands.RevokeCommissioning()

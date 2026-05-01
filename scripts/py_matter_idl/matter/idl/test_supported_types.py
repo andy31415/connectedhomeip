@@ -30,6 +30,7 @@ from matter.idl.matter_idl_types import DataType, Idl
 
 
 class TestSupportedTypes(unittest.TestCase):
+
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)
         self.maxDiff = None
@@ -66,21 +67,16 @@ class TestSupportedTypes(unittest.TestCase):
 
             # filter some know things
             if data_type.name in {
-                "no_data",  # intentionally skipped
-                # handled as a non-integer type
-                "boolean",
-                "single",
-                "double",
-                # handled as specific bitmaps
-                "bitmap8",
-                "bitmap16",
-                "bitmap32",
-                "bitmap64",
-                # handled as specific enums. Note that spec defines enumerations only for 8 and 16
-                "enum8",
-                "enum16",
-                # TODO: these may be bugs to fix
-                "unknown",
+                    "no_data",  # intentionally skipped
+                    # handled as a non-integer type
+                    "boolean", "single", "double",
+                    # handled as specific bitmaps
+                    "bitmap8", "bitmap16", "bitmap32", "bitmap64",
+                    # handled as specific enums. Note that spec defines enumerations only for 8 and 16
+                    "enum8", "enum16",
+
+                    # TODO: these may be bugs to fix
+                    "unknown"
             }:
                 continue
 
@@ -98,8 +94,9 @@ class TestSupportedTypes(unittest.TestCase):
                 self.assertTrue(parsed.is_signed, fail_message)
 
             if "size" in t.attrib:
-                self.assertEqual(parsed.byte_count, int(t.attrib["size"]), fail_message)
+                self.assertEqual(parsed.byte_count, int(
+                    t.attrib["size"]), fail_message)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

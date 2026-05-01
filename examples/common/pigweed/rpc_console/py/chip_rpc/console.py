@@ -36,7 +36,6 @@ An example RPC command:
     rpcs.chip.rpc.Device.GetDeviceInfo()
     device.rpcs.chip.rpc.Device.GetDeviceInfo()
 """
-
 import argparse
 import sys
 from pathlib import Path
@@ -66,23 +65,34 @@ def _parse_args():
     """Parses and returns the command line arguments."""
     parser = argparse.ArgumentParser(description=__doc__)
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("-d", "--device", help="the serial port to use")
-    parser.add_argument("-b", "--baudrate", type=int, default=115200, help="the baud rate to use")
-    parser.add_argument("-r", "--raw_serial", action="store_true", help=("Use raw serial instead of HDLC/RPC"))
+    group.add_argument('-d', '--device', help='the serial port to use')
+    parser.add_argument('-b',
+                        '--baudrate',
+                        type=int,
+                        default=115200,
+                        help='the baud rate to use')
     parser.add_argument(
-        "--token-databases", metavar="elf_or_token_database", nargs="+", type=Path, help="Path to tokenizer database csv file(s)."
-    )
-    group.add_argument(
-        "-s",
-        "--socket-addr",
-        type=str,
-        help="use socket to connect to server, type default for\
-            localhost:33000, or manually input the server address:port",
-    )
+        '-r',
+        '--raw_serial',
+        action="store_true",
+        help=('Use raw serial instead of HDLC/RPC'))
+    parser.add_argument("--token-databases",
+                        metavar='elf_or_token_database',
+                        nargs="+",
+                        type=Path,
+                        help="Path to tokenizer database csv file(s).")
+    group.add_argument('-s',
+                       '--socket-addr',
+                       type=str,
+                       help='use socket to connect to server, type default for\
+            localhost:33000, or manually input the server address:port')
     return parser.parse_args()
 
 
-def show_console(device: str, baudrate: int, token_databases: Collection[Path], socket_addr: str, raw_serial: bool) -> int:
+def show_console(device: str, baudrate: int,
+                 token_databases: Collection[Path],
+                 socket_addr: str, raw_serial: bool) -> int:
+
     # TODO: this shows a default console with little customization
     #       Ideally we should at least customize the default messages
     #
@@ -101,26 +111,26 @@ def show_console(device: str, baudrate: int, token_databases: Collection[Path], 
         logfile="",
         device_logfile="",
         channel_id=rpc.DEFAULT_CHANNEL_ID,
+
         # Defaults beyond the original console
         ticks_per_second=None,
         host_logfile="",
         json_logfile="",
         rpc_logging=False,
         compiled_protos=[
-            actions_service_pb2,
-            attributes_service_pb2,
-            boolean_state_service_pb2,
-            button_service_pb2,
-            descriptor_service_pb2,
-            device_service_pb2,
-            fabric_admin_service_pb2,
-            fabric_bridge_service_pb2,
-            lighting_service_pb2,
-            locking_service_pb2,
-            ot_cli_service_pb2,
-            thread_service_pb2,
-            wifi_service_pb2,
-        ],
+                actions_service_pb2,
+                attributes_service_pb2,
+                boolean_state_service_pb2,
+                button_service_pb2,
+                descriptor_service_pb2,
+                device_service_pb2,
+                fabric_admin_service_pb2,
+                fabric_bridge_service_pb2,
+                lighting_service_pb2,
+                locking_service_pb2,
+                ot_cli_service_pb2,
+                thread_service_pb2,
+                wifi_service_pb2]
     )
 
 
@@ -128,5 +138,5 @@ def main() -> int:
     return show_console(**vars(_parse_args()))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

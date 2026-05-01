@@ -102,15 +102,14 @@ class TC_BOOLCFG_4_3(MatterBaseTest):
 
     @async_test_body
     async def test_TC_BOOLCFG_4_3(self):
-        asserts.assert_true(
-            "PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY" in self.matter_test_config.global_test_params,
-            "PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY must be included on the command line in "
-            "the --hex-arg flag as PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY:<key>, "
-            "e.g. --hex-arg PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY:000102030405060708090a0b0c0d0e0f",
-        )
+
+        asserts.assert_true('PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY' in self.matter_test_config.global_test_params,
+                            "PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY must be included on the command line in "
+                            "the --hex-arg flag as PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY:<key>, "
+                            "e.g. --hex-arg PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY:000102030405060708090a0b0c0d0e0f")
 
         endpoint = self.get_endpoint()
-        enableKey = self.matter_test_config.global_test_params["PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY"]
+        enableKey = self.matter_test_config.global_test_params['PIXIT.BOOLCFG.TEST_EVENT_TRIGGER_KEY']
 
         self.step(1)
         attributes = Clusters.BooleanStateConfiguration.Attributes
@@ -129,7 +128,7 @@ class TC_BOOLCFG_4_3(MatterBaseTest):
             log.info("AlarmsEnabled not supported skipping test case")
 
             # Skipping all remainig steps
-            for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index :]:
+            for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index:]:
                 self.step(step.test_plan_number)
                 log.info("Test step skipped")
 
@@ -147,10 +146,7 @@ class TC_BOOLCFG_4_3(MatterBaseTest):
 
         self.step("5b")
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.Objects.BooleanStateConfiguration.Commands.EnableDisableAlarm(alarmsToEnableDisable=enabledAlarms),
-                endpoint=endpoint,
-            )
+            await self.send_single_cmd(cmd=Clusters.Objects.BooleanStateConfiguration.Commands.EnableDisableAlarm(alarmsToEnableDisable=enabledAlarms), endpoint=endpoint)
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
             pass
@@ -158,12 +154,7 @@ class TC_BOOLCFG_4_3(MatterBaseTest):
         self.step(6)
         if is_vis_feature_supported:
             try:
-                await self.send_single_cmd(
-                    cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(
-                        enableKey=enableKey, eventTrigger=sensorTrigger
-                    ),
-                    endpoint=0,
-                )
+                await self.send_single_cmd(cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=enableKey, eventTrigger=sensorTrigger), endpoint=0)
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
                 pass
@@ -173,23 +164,15 @@ class TC_BOOLCFG_4_3(MatterBaseTest):
         self.step(7)
         if is_vis_feature_supported:
             activeAlarms = await self.read_boolcfg_attribute_expect_success(endpoint=endpoint, attribute=attributes.AlarmsActive)
-            asserts.assert_equal(
-                activeAlarms,
-                Clusters.BooleanStateConfiguration.Bitmaps.AlarmModeBitmap.kVisual,
-                "AlarmsActive does not match expected value",
-            )
+            asserts.assert_equal(activeAlarms, Clusters.BooleanStateConfiguration.Bitmaps.AlarmModeBitmap.kVisual,
+                                 "AlarmsActive does not match expected value")
         else:
             log.info("Test step skipped")
 
         self.step(8)
         if is_vis_feature_supported:
             try:
-                await self.send_single_cmd(
-                    cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(
-                        enableKey=enableKey, eventTrigger=sensorUntrigger
-                    ),
-                    endpoint=0,
-                )
+                await self.send_single_cmd(cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=enableKey, eventTrigger=sensorUntrigger), endpoint=0)
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
                 pass
@@ -208,10 +191,7 @@ class TC_BOOLCFG_4_3(MatterBaseTest):
 
         self.step(11)
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.Objects.BooleanStateConfiguration.Commands.EnableDisableAlarm(alarmsToEnableDisable=enabledAlarms),
-                endpoint=endpoint,
-            )
+            await self.send_single_cmd(cmd=Clusters.Objects.BooleanStateConfiguration.Commands.EnableDisableAlarm(alarmsToEnableDisable=enabledAlarms), endpoint=endpoint)
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
             pass
@@ -219,12 +199,7 @@ class TC_BOOLCFG_4_3(MatterBaseTest):
         self.step(12)
         if is_vis_feature_supported:
             try:
-                await self.send_single_cmd(
-                    cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(
-                        enableKey=enableKey, eventTrigger=sensorTrigger
-                    ),
-                    endpoint=0,
-                )
+                await self.send_single_cmd(cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=enableKey, eventTrigger=sensorTrigger), endpoint=0)
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
                 pass
@@ -241,12 +216,7 @@ class TC_BOOLCFG_4_3(MatterBaseTest):
         self.step(14)
         if is_vis_feature_supported:
             try:
-                await self.send_single_cmd(
-                    cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(
-                        enableKey=enableKey, eventTrigger=sensorUntrigger
-                    ),
-                    endpoint=0,
-                )
+                await self.send_single_cmd(cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=enableKey, eventTrigger=sensorUntrigger), endpoint=0)
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
                 pass
@@ -261,10 +231,7 @@ class TC_BOOLCFG_4_3(MatterBaseTest):
 
         self.step("15b")
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.Objects.BooleanStateConfiguration.Commands.EnableDisableAlarm(alarmsToEnableDisable=enabledAlarms),
-                endpoint=endpoint,
-            )
+            await self.send_single_cmd(cmd=Clusters.Objects.BooleanStateConfiguration.Commands.EnableDisableAlarm(alarmsToEnableDisable=enabledAlarms), endpoint=endpoint)
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
             pass
@@ -272,12 +239,7 @@ class TC_BOOLCFG_4_3(MatterBaseTest):
         self.step(16)
         if is_aud_feature_supported:
             try:
-                await self.send_single_cmd(
-                    cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(
-                        enableKey=enableKey, eventTrigger=sensorTrigger
-                    ),
-                    endpoint=0,
-                )
+                await self.send_single_cmd(cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=enableKey, eventTrigger=sensorTrigger), endpoint=0)
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
                 pass
@@ -287,23 +249,15 @@ class TC_BOOLCFG_4_3(MatterBaseTest):
         self.step(17)
         if is_aud_feature_supported:
             activeAlarms = await self.read_boolcfg_attribute_expect_success(endpoint=endpoint, attribute=attributes.AlarmsActive)
-            asserts.assert_equal(
-                activeAlarms,
-                Clusters.BooleanStateConfiguration.Bitmaps.AlarmModeBitmap.kAudible,
-                "AlarmsActive does not match expected value",
-            )
+            asserts.assert_equal(activeAlarms, Clusters.BooleanStateConfiguration.Bitmaps.AlarmModeBitmap.kAudible,
+                                 "AlarmsActive does not match expected value")
         else:
             log.info("Test step skipped")
 
         self.step(18)
         if is_aud_feature_supported:
             try:
-                await self.send_single_cmd(
-                    cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(
-                        enableKey=enableKey, eventTrigger=sensorUntrigger
-                    ),
-                    endpoint=0,
-                )
+                await self.send_single_cmd(cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=enableKey, eventTrigger=sensorUntrigger), endpoint=0)
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
                 pass
@@ -322,10 +276,7 @@ class TC_BOOLCFG_4_3(MatterBaseTest):
 
         self.step(21)
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.Objects.BooleanStateConfiguration.Commands.EnableDisableAlarm(alarmsToEnableDisable=enabledAlarms),
-                endpoint=endpoint,
-            )
+            await self.send_single_cmd(cmd=Clusters.Objects.BooleanStateConfiguration.Commands.EnableDisableAlarm(alarmsToEnableDisable=enabledAlarms), endpoint=endpoint)
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
             pass
@@ -333,12 +284,7 @@ class TC_BOOLCFG_4_3(MatterBaseTest):
         self.step(22)
         if is_aud_feature_supported:
             try:
-                await self.send_single_cmd(
-                    cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(
-                        enableKey=enableKey, eventTrigger=sensorTrigger
-                    ),
-                    endpoint=0,
-                )
+                await self.send_single_cmd(cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=enableKey, eventTrigger=sensorTrigger), endpoint=0)
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
                 pass
@@ -355,12 +301,7 @@ class TC_BOOLCFG_4_3(MatterBaseTest):
         self.step(24)
         if is_aud_feature_supported:
             try:
-                await self.send_single_cmd(
-                    cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(
-                        enableKey=enableKey, eventTrigger=sensorUntrigger
-                    ),
-                    endpoint=0,
-                )
+                await self.send_single_cmd(cmd=Clusters.Objects.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=enableKey, eventTrigger=sensorUntrigger), endpoint=0)
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
                 pass

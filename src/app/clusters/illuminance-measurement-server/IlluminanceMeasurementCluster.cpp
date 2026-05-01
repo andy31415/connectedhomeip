@@ -32,7 +32,8 @@ constexpr uint16_t kMaxTolerance = 2048;
 IlluminanceMeasurementCluster::IlluminanceMeasurementCluster(EndpointId endpointId,
                                                              const OptionalAttributeSet & optionalAttributeSet,
                                                              const StartupConfiguration & config) :
-    DefaultServerCluster({ endpointId, IlluminanceMeasurement::Id }), mOptionalAttributeSet(optionalAttributeSet)
+    DefaultServerCluster({ endpointId, IlluminanceMeasurement::Id }),
+    mOptionalAttributeSet(optionalAttributeSet)
 {
     if (!config.minMeasuredValue.IsNull())
     {

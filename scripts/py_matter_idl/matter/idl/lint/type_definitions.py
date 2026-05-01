@@ -46,7 +46,8 @@ class LintError:
     def __init__(self, text: str, location: Optional[LocationInFile] = None):
         self.message = text
         if location:
-            self.message += " at %s:%d:%d" % (location.file_name, location.line, location.column)
+            self.message += " at %s:%d:%d" % (location.file_name,
+                                              location.line, location.column)
 
     def __str__(self):
         return self.message
@@ -67,7 +68,6 @@ class LintRule(ABC):
 @dataclass
 class AttributeRequirement:
     """Contains information about a required attribute"""
-
     code: int  # required attributes are searched by codes
     name: str  # the name of this attribute. Expect it to be exposed properly
 
@@ -97,10 +97,11 @@ class ErrorAccumulatingRule(LintRule):
         self._idl = None
 
     def _AddLintError(self, text, location):
-        self._lint_errors.append(LintError("%s: %s" % (self.name, text), location))
+        self._lint_errors.append(
+            LintError("%s: %s" % (self.name, text), location))
 
     def _ParseLocation(self, meta: Optional[ParseMetaData]) -> Optional[LocationInFile]:
-        """Create a location in the current file that is being parsed."""
+        """Create a location in the current file that is being parsed. """
         if not meta or not self._idl or not self._idl.parse_file_name:
             return None
         return LocationInFile(self._idl.parse_file_name, meta)
@@ -159,11 +160,13 @@ class ClusterValidationRule(ErrorAccumulatingRule):
 
         cluster_definition = [c for c in self._idl.clusters if c.name == name]
         if not cluster_definition:
-            self._AddLintError("Cluster definition for %s not found" % name, location)
+            self._AddLintError(
+                "Cluster definition for %s not found" % name, location)
             return None
 
         if len(cluster_definition) > 1:
-            self._AddLintError("Multiple cluster definitions found for %s" % name, location)
+            self._AddLintError(
+                "Multiple cluster definitions found for %s" % name, location)
             return None
 
         return cluster_definition[0].code
@@ -175,7 +178,8 @@ class ClusterValidationRule(ErrorAccumulatingRule):
         for endpoint in self._idl.endpoints:
             cluster_codes = set()
             for cluster in endpoint.server_clusters:
-                cluster_code = self._ClusterCode(cluster.name, self._ParseLocation(cluster.parse_meta))
+                cluster_code = self._ClusterCode(
+                    cluster.name, self._ParseLocation(cluster.parse_meta))
                 if not cluster_code:
                     continue
 
@@ -186,22 +190,16 @@ class ClusterValidationRule(ErrorAccumulatingRule):
                     continue
 
                 if requirement.cluster_code not in cluster_codes:
-                    self._AddLintError(
-                        "Endpoint %d DOES NOT expose cluster %s (%d)"
-                        % (requirement.endpoint_id, requirement.cluster_name, requirement.cluster_code),
-                        location=None,
-                    )
+                    self._AddLintError("Endpoint %d DOES NOT expose cluster %s (%d)" %
+                                       (requirement.endpoint_id, requirement.cluster_name, requirement.cluster_code), location=None)
 
             for requirement in self._rejected_clusters:
                 if requirement.endpoint_id != endpoint.number:
                     continue
 
                 if requirement.cluster_code in cluster_codes:
-                    self._AddLintError(
-                        "Endpoint %d EXPOSES cluster %s (%d)"
-                        % (requirement.endpoint_id, requirement.cluster_name, requirement.cluster_code),
-                        location=None,
-                    )
+                    self._AddLintError("Endpoint %d EXPOSES cluster %s (%d)" %
+                                       (requirement.endpoint_id, requirement.cluster_name, requirement.cluster_code), location=None)
 
 
 class RequiredAttributesRule(ErrorAccumulatingRule):
@@ -244,11 +242,13 @@ class RequiredAttributesRule(ErrorAccumulatingRule):
 
         cluster_definition = [c for c in self._idl.clusters if c.name == name]
         if not cluster_definition:
-            self._AddLintError("Cluster definition for %s not found" % name, location)
+            self._AddLintError(
+                "Cluster definition for %s not found" % name, location)
             return None
 
         if len(cluster_definition) > 1:
-            self._AddLintError("Multiple cluster definitions found for %s" % name, location)
+            self._AddLintError(
+                "Multiple cluster definitions found for %s" % name, location)
             return None
 
         return cluster_definition[0]
@@ -258,10 +258,12 @@ class RequiredAttributesRule(ErrorAccumulatingRule):
             raise MissingIdlError
 
         for endpoint in self._idl.endpoints:
+
             cluster_codes = set()
 
             for cluster in endpoint.server_clusters:
-                cluster_definition = self._ServerClusterDefinition(cluster.name, self._ParseLocation(cluster.parse_meta))
+                cluster_definition = self._ServerClusterDefinition(
+                    cluster.name, self._ParseLocation(cluster.parse_meta))
                 if not cluster_definition:
                     continue
 
@@ -279,10 +281,8 @@ class RequiredAttributesRule(ErrorAccumulatingRule):
                 # For all the instantiated attributes, figure out their code
                 for attr in cluster.attributes:
                     if attr.name not in name_to_code_map:
-                        self._AddLintError(
-                            "Could not find attribute defintion (no code) for %s:%s" % (cluster.name, attr.name),
-                            self._ParseLocation(cluster.parse_meta),
-                        )
+                        self._AddLintError("Could not find attribute defintion (no code) for %s:%s" %
+                                           (cluster.name, attr.name), self._ParseLocation(cluster.parse_meta))
                         continue
 
                     attribute_codes.add(name_to_code_map[attr.name])
@@ -293,10 +293,10 @@ class RequiredAttributesRule(ErrorAccumulatingRule):
                         continue
 
                     if check.code not in attribute_codes:
-                        self._AddLintError(
-                            "EP%d:%s does not expose %s(%d) attribute" % (endpoint.number, cluster.name, check.name, check.code),
-                            self._ParseLocation(cluster.parse_meta),
-                        )
+                        self._AddLintError("EP%d:%s does not expose %s(%d) attribute" %
+                                           (endpoint.number, cluster.name,
+                                            check.name, check.code),
+                                           self._ParseLocation(cluster.parse_meta))
 
                 # Lint rejected attributes
                 for check in self._deny_attributes:
@@ -306,8 +306,7 @@ class RequiredAttributesRule(ErrorAccumulatingRule):
                     if check.attribute_id is None:
                         self._AddLintError(
                             f"EP{endpoint.number}: cluster {cluster_definition.name}({cluster_definition.code}) is DENIED!",
-                            self._ParseLocation(cluster.parse_meta),
-                        )
+                            self._ParseLocation(cluster.parse_meta))
                         continue
 
                     # figure out every attribute that may be denied
@@ -318,8 +317,7 @@ class RequiredAttributesRule(ErrorAccumulatingRule):
                             attribute_str = f"{attr.name}({name_to_code_map[attr.name]})"
                             self._AddLintError(
                                 f"EP{endpoint.number}: attribute {cluster_str}::{attribute_str} is DENIED!",
-                                self._ParseLocation(cluster.parse_meta),
-                            )
+                                self._ParseLocation(cluster.parse_meta))
 
 
 @dataclass
@@ -334,7 +332,8 @@ class RequiredCommandsRule(ErrorAccumulatingRule):
         super(RequiredCommandsRule, self).__init__(name)
 
         # Maps cluster id to mandatory cluster requirement
-        self._mandatory_commands: MutableMapping[int, List[ClusterCommandRequirement]] = {}
+        self._mandatory_commands: MutableMapping[int,
+                                                 List[ClusterCommandRequirement]] = {}
 
     def __repr__(self):
         result = "RequiredCommandsRule{\n"
@@ -372,7 +371,7 @@ class RequiredCommandsRule(ErrorAccumulatingRule):
                     continue  # command exists
 
                 self._AddLintError(
-                    "Cluster %s does not define mandatory command %s(%d)"
-                    % (cluster.name, requirement.command_name, requirement.command_code),
-                    self._ParseLocation(cluster.parse_meta),
+                    "Cluster %s does not define mandatory command %s(%d)" % (
+                        cluster.name, requirement.command_name, requirement.command_code),
+                    self._ParseLocation(cluster.parse_meta)
                 )

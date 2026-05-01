@@ -63,9 +63,9 @@ TLSCertificateManagementCluster::TLSCertificateManagementCluster(const Context &
                                                                  Tls::CertificateDependencyChecker & dependencyChecker,
                                                                  CertificateTable & certificateTable, uint8_t maxRootCertificates,
                                                                  uint8_t maxClientCertificates) :
-    DefaultServerCluster(ConcreteClusterPath(endpointId, TlsCertificateManagement::Id)), mContext(context), mDelegate(delegate),
-    mDependencyChecker(dependencyChecker), mCertificateTable(certificateTable), mMaxRootCertificates(maxRootCertificates),
-    mMaxClientCertificates(maxClientCertificates)
+    DefaultServerCluster(ConcreteClusterPath(endpointId, TlsCertificateManagement::Id)),
+    mContext(context), mDelegate(delegate), mDependencyChecker(dependencyChecker), mCertificateTable(certificateTable),
+    mMaxRootCertificates(maxRootCertificates), mMaxClientCertificates(maxClientCertificates)
 {
     VerifyOrDieWithMsg(mMaxRootCertificates >= 5, NotSpecified, "Spec requires MaxRootCertificates be >= 5");
     VerifyOrDieWithMsg(mMaxClientCertificates >= 5, NotSpecified, "Spec requires MaxClientCertificates be >= 5");

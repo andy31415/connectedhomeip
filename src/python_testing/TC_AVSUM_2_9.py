@@ -50,6 +50,7 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_AVSUM_2_9(MatterBaseTest, AVSUMTestBase):
+
     def desc_TC_AVSUM_2_9(self) -> str:
         return "[TC-AVSUM-2.9] MptzSetPosition Command Validation"
 
@@ -66,38 +67,21 @@ class TC_AVSUM_2_9(MatterBaseTest, AVSUMTestBase):
             TestStep(9, "Set newTilt to be a value in the range myTiltMin to myTiltMax different from initialTilt."),
             TestStep(10, "If Zoom is supported read and verify ZoomMax attribute. Store in myZoomMax."),
             TestStep(11, "Set newZoom to be a value in the range 2 to myZoomMax different from initialZoom."),
-            TestStep(
-                12, "Send MPTZSetPosition command with Pan set to newPan, Tilt set to newTilt, Zoom set to newZoom as appropriate."
-            ),
+            TestStep(12, "Send MPTZSetPosition command with Pan set to newPan, Tilt set to newTilt, Zoom set to newZoom as appropriate."),
             TestStep(13, "Once the MovementState has returned to _Idle_, read and verify the MPTZPosition attribute."),
             TestStep(14, "If MaxPresets is supported, read the MaxPresets attribute. Store the returned value in myMaxPresets."),
             TestStep(15, "Read the MPTZPresets attribute.  Save this in myPresets."),
             TestStep(16, "Fail if the number of entries in myPresets is greater than myMaxPresets."),
             TestStep(17, "Send the SavePreset command with PresetID set to myMaxPresets, Name set to 'newpreset'."),
             TestStep(18, "Read} the MPTZPresets attribute. Verify the list includes a preset with PresetID equal to myMaxPresets."),
-            TestStep(
-                19,
-                "If DPTZ is supported, read AVStreamManagement.Viewport and AVStreamManagement.VideoSensorParams. Store the viewport in myViewport.",
-            ),
-            TestStep(
-                20,
-                "If DPTZ is supported, send AVStreamManagement.VideoStreamAllocate command. Store the the allocated video stream ID.",
-            ),
-            TestStep(
-                21,
-                "If DPTZ is supported read DPTZStreams attribute. Verify for the entry with a VideoStreamID of myStreamID the Viewport is myViewport.",
-            ),
+            TestStep(19, "If DPTZ is supported, read AVStreamManagement.Viewport and AVStreamManagement.VideoSensorParams. Store the viewport in myViewport."),
+            TestStep(20, "If DPTZ is supported, send AVStreamManagement.VideoStreamAllocate command. Store the the allocated video stream ID."),
+            TestStep(21, "If DPTZ is supported read DPTZStreams attribute. Verify for the entry with a VideoStreamID of myStreamID the Viewport is myViewport."),
             TestStep(22, "Reboot the DUT."),
             TestStep(23, "Wait for the DUT to come back online."),
             TestStep(24, "Read and verify the MPTZPosition attribute. Verify Pan, Tilt, and Zoom values are persisted."),
-            TestStep(
-                25,
-                "If MPTZPresets is supported, read the MPTZPresets attribute. Verify the list includes a preset with PresetID equal to myMaxPresets.",
-            ),
-            TestStep(
-                26,
-                "If DPTZ is supported, read the DPTZStreams attribute. Verify for the entry with a VideoStreamID of myStreamID the Viewport is myViewport.",
-            ),
+            TestStep(25, "If MPTZPresets is supported, read the MPTZPresets attribute. Verify the list includes a preset with PresetID equal to myMaxPresets."),
+            TestStep(26, "If DPTZ is supported, read the DPTZStreams attribute. Verify for the entry with a VideoStreamID of myStreamID the Viewport is myViewport."),
         ]
 
     def pics_TC_AVSUM_2_9(self) -> list[str]:
@@ -129,9 +113,8 @@ class TC_AVSUM_2_9(MatterBaseTest, AVSUMTestBase):
         if not (self.has_feature_mpan | self.has_feature_mtilt | self.has_feature_mzoom):
             asserts.fail("One of MPAN, MTILT, or MZOOM is mandatory for command support")
 
-        asserts.assert_in(
-            attributes.MPTZPosition.attribute_id, attribute_list, "MPTZPosition attribute is mandatory if the command is supported."
-        )
+        asserts.assert_in(attributes.MPTZPosition.attribute_id, attribute_list,
+                          "MPTZPosition attribute is mandatory if the command is supported.")
         mptzposition_dut = await self.read_avsum_attribute_expect_success(endpoint, attributes.MPTZPosition)
         currentPan = mptzposition_dut.pan
         currentTilt = mptzposition_dut.tilt
@@ -140,19 +123,12 @@ class TC_AVSUM_2_9(MatterBaseTest, AVSUMTestBase):
         self.step(3)
         # Establish subscription to MovementState
         sub_handler = AttributeSubscriptionHandler(cluster, attributes.MovementState)
-        await sub_handler.start(
-            self.default_controller,
-            self.dut_node_id,
-            endpoint=endpoint,
-            min_interval_sec=0,
-            max_interval_sec=30,
-            keepSubscriptions=False,
-        )
+        await sub_handler.start(self.default_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
 
         # Create attribute matchers
         movement_state_match = AttributeMatcher.from_callable(
-            "MovementState is IDLE", lambda report: report.value == cluster.Enums.PhysicalMovementEnum.kIdle
-        )
+            "MovementState is IDLE",
+            lambda report: report.value == cluster.Enums.PhysicalMovementEnum.kIdle)
 
         newPan = newTilt = newZoom = None
 
@@ -230,7 +206,8 @@ class TC_AVSUM_2_9(MatterBaseTest, AVSUMTestBase):
             mptz_presets_dut = await self.read_avsum_attribute_expect_success(endpoint, attributes.MPTZPresets)
 
             self.step(16)
-            asserts.assert_less_equal(len(mptz_presets_dut), max_presets_dut, "MPTZPresets size is greater than the allowed max.")
+            asserts.assert_less_equal(len(mptz_presets_dut), max_presets_dut,
+                                      "MPTZPresets size is greater than the allowed max.")
 
             self.step(17)
             name = "newpreset"

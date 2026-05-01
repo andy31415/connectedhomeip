@@ -63,30 +63,25 @@ class TC_EEVSE_2_9(MatterBaseTest, EEVSEBaseTestHelper):
         return "[TC-EEVSE-2.9] Optional RFID feature functionality with DUT as Server"
 
     def pics_TC_EEVSE_2_9(self):
-        """This function returns a list of PICS for this test case that must be True for the test to be run"""
+        """ This function returns a list of PICS for this test case that must be True for the test to be run"""
         return ["EEVSE.S", "EEVSE.S.F03"]
 
     def steps_TC_EEVSE_2_9(self) -> list[TestStep]:
         return [
-            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test)", is_commissioning=True),
-            TestStep(
-                "2", "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster", "Value has to be 1 (True)"
-            ),
+            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test)",
+                     is_commissioning=True),
+            TestStep("2", "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster",
+                     "Value has to be 1 (True)"),
             TestStep("3", "Set up a subscription to all EnergyEVSE cluster events"),
-            TestStep(
-                "4",
-                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EEVSE.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.EEVSE.TESTEVENTTRIGGER for EVSE Trigger RFID Test Event",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
-            TestStep(
-                "5",
-                "TH checks its subscription to RFID from DUT has yielded one new event within 5 seconds",
-                "Verify the data of the RFID event received by TH contains a UID with a maximum of 10 bytes.",
-            ),
+            TestStep("4", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.EEVSE.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.EEVSE.TESTEVENTTRIGGER for EVSE Trigger RFID Test Event",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
+            TestStep("5", "TH checks its subscription to RFID from DUT has yielded one new event within 5 seconds",
+                     "Verify the data of the RFID event received by TH contains a UID with a maximum of 10 bytes."),
         ]
 
     @async_test_body
     async def test_TC_EEVSE_2_9(self):
+
         self.step("1")
         # Commission DUT - already done
 
@@ -96,16 +91,21 @@ class TC_EEVSE_2_9(MatterBaseTest, EEVSEBaseTestHelper):
         self.step("3")
         # Subscribe to Events and when they are sent push them to a queue for checking later
         events_callback = EventSubscriptionHandler(expected_cluster=Clusters.EnergyEvse)
-        await events_callback.start(self.default_controller, self.dut_node_id, self.get_endpoint())
+        await events_callback.start(self.default_controller,
+                                    self.dut_node_id,
+                                    self.get_endpoint())
 
         self.step("4")
         await self.send_test_event_trigger_evse_trigger_rfid()
 
         self.step("5")
-        event_data = events_callback.wait_for_event_report(Clusters.EnergyEvse.Events.Rfid)
+        event_data = events_callback.wait_for_event_report(
+            Clusters.EnergyEvse.Events.Rfid)
 
         uid = event_data.uid
-        asserts.assert_true(uid is not NullValue and len(uid) <= 10, f"RFID event received with UID: {uid}")
+        asserts.assert_true(
+            uid is not NullValue and len(uid) <= 10,
+            f"RFID event received with UID: {uid}")
 
         log.info(f"RFID event received with UID: 0x{bytes(uid).hex()}")
 

@@ -51,6 +51,7 @@ log = logging.getLogger(__name__)
 
 
 class TC_FAN_3_4(MatterBaseTest):
+
     async def read_fc_attribute_expect_success(self, endpoint, attribute):
         cluster = Clusters.Objects.FanControl
         return await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attribute)
@@ -62,15 +63,11 @@ class TC_FAN_3_4(MatterBaseTest):
         return await self.read_fc_attribute_expect_success(endpoint, Clusters.FanControl.Attributes.WindSetting)
 
     async def write_wind_setting(self, endpoint, wind_setting):
-        result = await self.default_controller.WriteAttribute(
-            self.dut_node_id, [(endpoint, Clusters.FanControl.Attributes.WindSetting(wind_setting))]
-        )
+        result = await self.default_controller.WriteAttribute(self.dut_node_id, [(endpoint, Clusters.FanControl.Attributes.WindSetting(wind_setting))])
         asserts.assert_equal(result[0].Status, Status.Success, "WindSetting write failed")
 
     async def write_wind_setting_expect_failure(self, endpoint, wind_setting):
-        result = await self.default_controller.WriteAttribute(
-            self.dut_node_id, [(endpoint, Clusters.FanControl.Attributes.WindSetting(wind_setting))]
-        )
+        result = await self.default_controller.WriteAttribute(self.dut_node_id, [(endpoint, Clusters.FanControl.Attributes.WindSetting(wind_setting))])
         asserts.assert_equal(result[0].Status, Status.ConstraintError, "Expected ConstraintError but received a different error.")
 
     def desc_TC_FAN_3_4(self) -> str:
@@ -125,9 +122,7 @@ class TC_FAN_3_4(MatterBaseTest):
             self.skip_step(4)
 
             self.step(5)
-            await self.write_wind_setting_expect_failure(
-                endpoint=endpoint, wind_setting=Clusters.FanControl.Bitmaps.WindBitmap.kSleepWind
-            )
+            await self.write_wind_setting_expect_failure(endpoint=endpoint, wind_setting=Clusters.FanControl.Bitmaps.WindBitmap.kSleepWind)
 
         if wind_support & Clusters.FanControl.Bitmaps.WindBitmap.kNaturalWind:
             self.step(6)
@@ -144,9 +139,7 @@ class TC_FAN_3_4(MatterBaseTest):
             self.skip_step(7)
 
             self.step(8)
-            await self.write_wind_setting_expect_failure(
-                endpoint=endpoint, wind_setting=Clusters.FanControl.Bitmaps.WindBitmap.kNaturalWind
-            )
+            await self.write_wind_setting_expect_failure(endpoint=endpoint, wind_setting=Clusters.FanControl.Bitmaps.WindBitmap.kNaturalWind)
 
         self.step(9)
         await self.write_wind_setting(endpoint=endpoint, wind_setting=0x00)

@@ -57,76 +57,37 @@ class TC_TLSCLIENT_3_1(TC_TLSCLIENT_Base):
             TestStep(4, "Set myHostname to a valid value."),
             TestStep(5, "Populate myPort[] 3 distinct valid values."),
             TestStep(6, "Populate myRootCert[] with 2 distinct valid values."),
-            TestStep(
-                7,
-                "CR1 sends ProvisionRootCertificate command to the TLSCertificateManagementCluster with null CAID and Certificate set to myRootCert[0].",
-                "DUT replies with a TLSCAID value. Store the returned value as myCaid[0].",
-            ),
-            TestStep(
-                8,
-                "CR2 sends ProvisionRootCertificate command to the TLSCertificateManagementCluster with null CAID and Certificate set to myRootCert[1].",
-                "DUT replies with a TLSCAID value. Store the returned value as myCaid[1].",
-            ),
+            TestStep(7, "CR1 sends ProvisionRootCertificate command to the TLSCertificateManagementCluster with null CAID and Certificate set to myRootCert[0].",
+                     "DUT replies with a TLSCAID value. Store the returned value as myCaid[0]."),
+            TestStep(8, "CR2 sends ProvisionRootCertificate command to the TLSCertificateManagementCluster with null CAID and Certificate set to myRootCert[1].",
+                     "DUT replies with a TLSCAID value. Store the returned value as myCaid[1]."),
             TestStep(9, "Populate myNonce[] with 2 distinct, random 32-octet values"),
+            TestStep(10, "CR1 sends ClientCSR command with Nonce set to myNonce[0]",
+                     "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid[0] and CSR in myCsr[0]."),
+            TestStep(11, "CR2 sends ClientCSR command with Nonce set to myNonce[1].",
+                     "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid[1] and CSR in myCsr[1]."),
+            TestStep(12,
+                     "Populate myClientCert[] with 2 distinct, valid, self-signed, DER-encoded x509 certificates using each respective public key from myCsr[i]."),
             TestStep(
-                10,
-                "CR1 sends ClientCSR command with Nonce set to myNonce[0]",
-                "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid[0] and CSR in myCsr[0].",
-            ),
+                13, "CR1 sends ProvisionClientCertificate command to the TLSCertificateManagementCluster with CCDID set to myCcdid[0] and ClientCertificateDetails set to myClientCert[0].", test_plan_support.verify_success()),
             TestStep(
-                11,
-                "CR2 sends ClientCSR command with Nonce set to myNonce[1].",
-                "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid[1] and CSR in myCsr[1].",
-            ),
-            TestStep(
-                12,
-                "Populate myClientCert[] with 2 distinct, valid, self-signed, DER-encoded x509 certificates using each respective public key from myCsr[i].",
-            ),
-            TestStep(
-                13,
-                "CR1 sends ProvisionClientCertificate command to the TLSCertificateManagementCluster with CCDID set to myCcdid[0] and ClientCertificateDetails set to myClientCert[0].",
-                test_plan_support.verify_success(),
-            ),
-            TestStep(
-                14,
-                "CR2 sends ProvisionClientCertificate command to the TLSCertificateManagementCluster with CCDID set to myCcdid[1] and ClientCertificateDetails set to myClientCert[1].",
-                test_plan_support.verify_success(),
-            ),
-            TestStep(
-                15,
-                "CR1 sends ProvisionEndpoint command with valid Hostname myHostname, Port myPort[0], CAID myCaid[0], CCDID myCcdid[0] and null EndpointID.",
-                "DUT replies with a TLSEndpointID value. Store the returned value as myEndpoint[0].",
-            ),
-            TestStep(
-                16,
-                "CR1 reads ProvisionedEndpoints attribute.",
-                "DUT replies with a list of TLSEndpointStruct with one entry. The entry should correspond to (myEndpoint[0], myHostname, myPort[0], myCaid[0], myCcdid[0], myReferenceCount) where myReferenceCount is 0",
-            ),
+                14, "CR2 sends ProvisionClientCertificate command to the TLSCertificateManagementCluster with CCDID set to myCcdid[1] and ClientCertificateDetails set to myClientCert[1].", test_plan_support.verify_success()),
+            TestStep(15, "CR1 sends ProvisionEndpoint command with valid Hostname myHostname, Port myPort[0], CAID myCaid[0], CCDID myCcdid[0] and null EndpointID.",
+                     "DUT replies with a TLSEndpointID value. Store the returned value as myEndpoint[0]."),
+            TestStep(16, "CR1 reads ProvisionedEndpoints attribute.",
+                     "DUT replies with a list of TLSEndpointStruct with one entry. The entry should correspond to (myEndpoint[0], myHostname, myPort[0], myCaid[0], myCcdid[0], myReferenceCount) where myReferenceCount is 0"),
             TestStep(17, "CR2 reads ProvisionedEndpoints attribute.", "DUT replies with an empty list of TLSEndpointStruct."),
+            TestStep(18, "CR2 sends ProvisionEndpoint command with valid Hostname myHostname, Port myPort[1], CAID myCaid[1], CCDID myCcdid[1] and null EndpointID.",
+                     "DUT replies with a TLSEndpointID value equal to myEndpoint[1]."),
+            TestStep(19, "CR1 sends ProvisionEndpoint command with valid Hostname myHostname, Port myPort[2], CAID myCaid[0], CCDID myCcdid[0] and EndpointID myEndpoint[0].",
+                     "DUT replies with a TLSEndpointID value equal to myEndpoint[0]."),
+            TestStep(20, "CR1 reads ProvisionedEndpoints attribute.",
+                     "DUT replies with a list of TLSEndpointStruct with one entry. The entry should correspond to (myEndpoint[0], myHostname, myPort[2], myCaid[0], myCcdid[0], myReferenceCount) where myReferenceCount is 0"),
+            TestStep(21, "CR2 reads ProvisionedEndpoints attribute.",
+                     "DUT replies with a list of TLSEndpointStruct with one entry. The entry should correspond to (myEndpoint[1], myHostname, myPort[1], myCaid[1], myCcdid[1], myReferenceCount) where myReferenceCount is 0"),
             TestStep(
-                18,
-                "CR2 sends ProvisionEndpoint command with valid Hostname myHostname, Port myPort[1], CAID myCaid[1], CCDID myCcdid[1] and null EndpointID.",
-                "DUT replies with a TLSEndpointID value equal to myEndpoint[1].",
-            ),
-            TestStep(
-                19,
-                "CR1 sends ProvisionEndpoint command with valid Hostname myHostname, Port myPort[2], CAID myCaid[0], CCDID myCcdid[0] and EndpointID myEndpoint[0].",
-                "DUT replies with a TLSEndpointID value equal to myEndpoint[0].",
-            ),
-            TestStep(
-                20,
-                "CR1 reads ProvisionedEndpoints attribute.",
-                "DUT replies with a list of TLSEndpointStruct with one entry. The entry should correspond to (myEndpoint[0], myHostname, myPort[2], myCaid[0], myCcdid[0], myReferenceCount) where myReferenceCount is 0",
-            ),
-            TestStep(
-                21,
-                "CR2 reads ProvisionedEndpoints attribute.",
-                "DUT replies with a list of TLSEndpointStruct with one entry. The entry should correspond to (myEndpoint[1], myHostname, myPort[1], myCaid[1], myCcdid[1], myReferenceCount) where myReferenceCount is 0",
-            ),
-            TestStep(
-                22, "CR1 sends RemoveEndpoint command with EndpointID set to myEndpoint[0].", test_plan_support.verify_success()
-            ),
-            TestStep(23, test_plan_support.remove_fabric("CR2", "CR1"), test_plan_support.verify_success()),
+                22, "CR1 sends RemoveEndpoint command with EndpointID set to myEndpoint[0].", test_plan_support.verify_success()),
+            TestStep(23, test_plan_support.remove_fabric('CR2', 'CR1'), test_plan_support.verify_success()),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.TlsClientManagement))
@@ -185,9 +146,7 @@ class TC_TLSCLIENT_3_1(TC_TLSCLIENT_Base):
 
         self.step(15)
         my_endpoint = [None, None]
-        res = await cr1_cmd.send_provision_tls_endpoint_command(
-            hostname=my_hostname, port=my_port[0], caid=my_caid[0], ccdid=my_ccdid[0]
-        )
+        res = await cr1_cmd.send_provision_tls_endpoint_command(hostname=my_hostname, port=my_port[0], caid=my_caid[0], ccdid=my_ccdid[0])
         asserts.assert_is_not_none(res.endpointID)
         my_endpoint[0] = res.endpointID
 
@@ -206,16 +165,12 @@ class TC_TLSCLIENT_3_1(TC_TLSCLIENT_Base):
         asserts.assert_equal(len(endpoints), 0)
 
         self.step(18)
-        res = await cr2_cmd.send_provision_tls_endpoint_command(
-            hostname=my_hostname, port=my_port[1], caid=my_caid[1], ccdid=my_ccdid[1]
-        )
+        res = await cr2_cmd.send_provision_tls_endpoint_command(hostname=my_hostname, port=my_port[1], caid=my_caid[1], ccdid=my_ccdid[1])
         asserts.assert_is_not_none(res.endpointID)
         my_endpoint[1] = res.endpointID
 
         self.step(19)
-        res = await cr1_cmd.send_provision_tls_endpoint_command(
-            hostname=my_hostname, port=my_port[2], caid=my_caid[0], ccdid=my_ccdid[0], endpoint_id=my_endpoint[0]
-        )
+        res = await cr1_cmd.send_provision_tls_endpoint_command(hostname=my_hostname, port=my_port[2], caid=my_caid[0], ccdid=my_ccdid[0], endpoint_id=my_endpoint[0])
         asserts.assert_equal(res.endpointID, my_endpoint[0])
 
         self.step(20)

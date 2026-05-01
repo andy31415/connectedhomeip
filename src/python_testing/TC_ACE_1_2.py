@@ -47,6 +47,7 @@ from matter.testing.runner import default_matter_test_main
 
 
 class TC_ACE_1_2(MatterBaseTest):
+
     def setup_class(self):
         super().setup_class()
         self.breadcrumb = 1
@@ -72,15 +73,10 @@ class TC_ACE_1_2(MatterBaseTest):
         if print_steps:
             self.print_step(3, "TH2 subscribes to the Breadcrumb attribute")
         subscription_breadcrumb = await self.TH2.ReadAttribute(
-            nodeId=self.dut_node_id,
-            attributes=[(0, Clusters.GeneralCommissioning.Attributes.Breadcrumb)],
-            reportInterval=(1, 5),
-            keepSubscriptions=False,
-            autoResubscribe=False,
-        )
-        breadcrumb_cb = AttributeSubscriptionHandler(
-            expected_cluster=Clusters.GeneralCommissioning, expected_attribute=Clusters.GeneralCommissioning.Attributes.Breadcrumb
-        )
+            nodeId=self.dut_node_id, attributes=[(0, Clusters.GeneralCommissioning.Attributes.Breadcrumb)],
+            reportInterval=(1, 5), keepSubscriptions=False, autoResubscribe=False)
+        breadcrumb_cb = AttributeSubscriptionHandler(expected_cluster=Clusters.GeneralCommissioning,
+                                                     expected_attribute=Clusters.GeneralCommissioning.Attributes.Breadcrumb)
         subscription_breadcrumb.SetAttributeUpdateCallback(breadcrumb_cb)
         return breadcrumb_cb
 
@@ -97,9 +93,7 @@ class TC_ACE_1_2(MatterBaseTest):
 
         if print_steps:
             self.print_step(9, "TH1 writes the breadcrumb attribute")
-        await self.default_controller.WriteAttribute(
-            nodeId=self.dut_node_id, attributes=[(0, Clusters.GeneralCommissioning.Attributes.Breadcrumb(self.breadcrumb))]
-        )
+        await self.default_controller.WriteAttribute(nodeId=self.dut_node_id, attributes=[(0, Clusters.GeneralCommissioning.Attributes.Breadcrumb(self.breadcrumb))])
 
         if print_steps:
             self.print_step(10, "TH2 waits for a subscription report from the DUT for breadcrumb")
@@ -121,28 +115,24 @@ class TC_ACE_1_2(MatterBaseTest):
             self.print_step(13, "Subscribe to the ACL attribute, expect INVALID_ACTION")
 
         with asserts.assert_raises(ChipStackError) as cm:
-            await self.TH2.ReadAttribute(
-                nodeId=self.dut_node_id,
-                attributes=[(0, Clusters.AccessControl.Attributes.Acl)],
-                reportInterval=(1, 5),
-                fabricFiltered=False,
-                keepSubscriptions=False,
-                autoResubscribe=False,
-            )
+            await self.TH2.ReadAttribute(nodeId=self.dut_node_id,
+                                         attributes=[(0, Clusters.AccessControl.Attributes.Acl)],
+                                         reportInterval=(1, 5),
+                                         fabricFiltered=False,
+                                         keepSubscriptions=False,
+                                         autoResubscribe=False)
         asserts.assert_equal(cm.exception.err, 0x580, "Incorrectly subscribed to attribute with invalid permissions")
 
         if print_steps:
             self.print_step(14, "Subscribe to the AccessControlEntryChanged event, expect INVALID_ACTION")
 
         with asserts.assert_raises(ChipStackError) as cm:
-            await self.TH2.ReadEvent(
-                nodeId=self.dut_node_id,
-                events=[(0, Clusters.AccessControl.Events.AccessControlEntryChanged)],
-                reportInterval=(1, 5),
-                fabricFiltered=False,
-                keepSubscriptions=False,
-                autoResubscribe=False,
-            )
+            await self.TH2.ReadEvent(nodeId=self.dut_node_id,
+                                     events=[(0, Clusters.AccessControl.Events.AccessControlEntryChanged)],
+                                     reportInterval=(1, 5),
+                                     fabricFiltered=False,
+                                     keepSubscriptions=False,
+                                     autoResubscribe=False)
         asserts.assert_equal(cm.exception.err, 0x580, "Incorrectly subscribed to attribute with invalid permissions")
 
     @async_test_body
@@ -154,46 +144,29 @@ class TC_ACE_1_2(MatterBaseTest):
         TH1_nodeid = self.matter_test_config.controller_node_id
         TH2_nodeid = self.matter_test_config.controller_node_id + 1
 
-        self.TH2 = fabric_admin.NewController(
-            nodeId=TH2_nodeid, paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path)
-        )
+        self.TH2 = fabric_admin.NewController(nodeId=TH2_nodeid,
+                                              paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path))
 
         self.print_step(2, "TH1 writes ACL for admin with two subjects")
         TH1_2_admin = Clusters.AccessControl.Structs.AccessControlEntryStruct(
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH1_nodeid, TH2_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
-        )
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
         await self.write_acl([TH1_2_admin])
 
         # Step 3 - subscribe to breadcrumb - print handled in function
         breadcrumb_cb = await self.steps_subscribe_breadcrumb(print_steps=True)
 
         self.print_step(4, "TH2 subscribes to ACL attribute")
-        subscription_acl = await self.TH2.ReadAttribute(
-            nodeId=self.dut_node_id,
-            attributes=[(0, Clusters.AccessControl.Attributes.Acl)],
-            reportInterval=(1, 5),
-            fabricFiltered=False,
-            keepSubscriptions=True,
-            autoResubscribe=False,
-        )
-        acl_cb = AttributeSubscriptionHandler(
-            expected_cluster=Clusters.AccessControl, expected_attribute=Clusters.AccessControl.Attributes.Acl
-        )
+        subscription_acl = await self.TH2.ReadAttribute(nodeId=self.dut_node_id, attributes=[(0, Clusters.AccessControl.Attributes.Acl)], reportInterval=(1, 5), fabricFiltered=False, keepSubscriptions=True, autoResubscribe=False)
+        acl_cb = AttributeSubscriptionHandler(expected_cluster=Clusters.AccessControl,
+                                              expected_attribute=Clusters.AccessControl.Attributes.Acl)
         subscription_acl.SetAttributeUpdateCallback(acl_cb)
 
         self.print_step(5, "TH2 subscribes to the AccessControlEntryChanged event")
         urgent = 1
-        subscription_ace = await self.TH2.ReadEvent(
-            nodeId=self.dut_node_id,
-            events=[(0, Clusters.AccessControl.Events.AccessControlEntryChanged, urgent)],
-            reportInterval=(1, 5),
-            fabricFiltered=False,
-            keepSubscriptions=True,
-            autoResubscribe=False,
-        )
+        subscription_ace = await self.TH2.ReadEvent(nodeId=self.dut_node_id, events=[(0, Clusters.AccessControl.Events.AccessControlEntryChanged, urgent)], reportInterval=(1, 5), fabricFiltered=False, keepSubscriptions=True, autoResubscribe=False)
         event = Clusters.AccessControl.Events.AccessControlEntryChanged
         ace_cb = EventSubscriptionHandler(expected_cluster_id=event.cluster_id, expected_event_id=event.event_id)
         subscription_ace.SetEventUpdateCallback(ace_cb)
@@ -203,8 +176,7 @@ class TC_ACE_1_2(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH1_nodeid, TH2_nodeid, TH2_nodeid + 1],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
-        )
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
         await self.write_acl([acl])
 
         self.print_step(7, "TH2 waits for subscription report for ACL")
@@ -221,14 +193,12 @@ class TC_ACE_1_2(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH1_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
-        )
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
         acl2 = Clusters.AccessControl.Structs.AccessControlEntryStruct(
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kManage,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH2_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
-        )
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
         await self.write_acl([acl1, acl2])
 
         self.print_step(12, "TH2 Repeats steps to change breadcrumb and receive subscription report")
@@ -248,14 +218,12 @@ class TC_ACE_1_2(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH1_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
-        )
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
         acl2 = Clusters.AccessControl.Structs.AccessControlEntryStruct(
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kOperate,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH2_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
-        )
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
         await self.write_acl([acl1, acl2])
 
         self.print_step(18, "TH2 Repeats steps to change breadcrumb and receive subscription report")
@@ -275,14 +243,12 @@ class TC_ACE_1_2(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH1_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
-        )
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
         acl2 = Clusters.AccessControl.Structs.AccessControlEntryStruct(
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH2_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)],
-        )
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0)])
         await self.write_acl([acl1, acl2])
 
         self.print_step(23, "TH2 Repeats steps to change breadcrumb and receive subscription report")
@@ -302,8 +268,7 @@ class TC_ACE_1_2(MatterBaseTest):
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH1_nodeid],
-            targets=[],
-        )
+            targets=[])
         await self.write_acl([acl])
 
         self.print_step(28, "TH2 repeats subscriptions to Admin attribute and event to ensure it still errors")
@@ -312,14 +277,12 @@ class TC_ACE_1_2(MatterBaseTest):
         self.print_step(29, "TH2 attempts to subscribe to the breadcrumb attribute - expect error")
 
         with asserts.assert_raises(ChipStackError) as cm:
-            await self.TH2.ReadAttribute(
-                nodeId=self.dut_node_id,
-                attributes=[(0, Clusters.AccessControl.Attributes.Acl)],
-                reportInterval=(1, 5),
-                fabricFiltered=False,
-                keepSubscriptions=False,
-                autoResubscribe=False,
-            )
+            await self.TH2.ReadAttribute(nodeId=self.dut_node_id,
+                                         attributes=[(0, Clusters.AccessControl.Attributes.Acl)],
+                                         reportInterval=(1, 5),
+                                         fabricFiltered=False,
+                                         keepSubscriptions=False,
+                                         autoResubscribe=False)
         asserts.assert_equal(cm.exception.err, 0x580, "Incorrectly subscribed to attribute with invalid permissions")
 
 

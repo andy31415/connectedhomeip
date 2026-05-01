@@ -25,7 +25,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 
-async def forward_f(prefix: bytes, f_in: asyncio.StreamReader, f_out: typing.BinaryIO, cb=None):
+async def forward_f(prefix: bytes, f_in: asyncio.StreamReader,
+                    f_out: typing.BinaryIO, cb=None):
     """Forward f_in to f_out with a prefix attached.
 
     This function can optionally feed received lines to a callback function.
@@ -51,6 +52,7 @@ async def forward_stdin(f_out: asyncio.StreamWriter):
 
 
 class Subprocess:
+
     def __init__(self, tag: str, program: str, *args):
         self.event = asyncio.Event()
         self.tag = tag.encode()
@@ -63,12 +65,14 @@ class Subprocess:
             self.event.set()
 
     async def run(self):
-        self.p = await asyncio.create_subprocess_exec(
-            self.program, *self.args, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-        )
+        self.p = await asyncio.create_subprocess_exec(self.program, *self.args,
+                                                      stdin=asyncio.subprocess.PIPE,
+                                                      stdout=asyncio.subprocess.PIPE,
+                                                      stderr=asyncio.subprocess.PIPE)
         # Add the stdout and stderr processing to the event loop.
         asyncio.create_task(forward_f(self.tag, self.p.stderr, sys.stderr))
-        asyncio.create_task(forward_f(self.tag, self.p.stdout, sys.stdout, cb=self._check_output))
+        asyncio.create_task(forward_f(self.tag, self.p.stdout, sys.stdout,
+                                      cb=self._check_output))
 
     async def send(self, message: str, expected_output: str = None, timeout: float = None):
         """Send a message to a process and optionally wait for a response."""
@@ -91,16 +95,9 @@ class Subprocess:
         self.p.terminate()
 
 
-async def run_admin(
-    program,
-    storage_dir=None,
-    rpc_admin_port=None,
-    rpc_bridge_port=None,
-    paa_trust_store_path=None,
-    commissioner_name=None,
-    commissioner_node_id=None,
-    commissioner_vendor_id=None,
-):
+async def run_admin(program, storage_dir=None, rpc_admin_port=None, rpc_bridge_port=None,
+                    paa_trust_store_path=None, commissioner_name=None,
+                    commissioner_node_id=None, commissioner_vendor_id=None):
     args = []
     if storage_dir is not None:
         args.extend(["--storage-directory", storage_dir])
@@ -121,15 +118,9 @@ async def run_admin(
     return p
 
 
-async def run_bridge(
-    program,
-    storage_dir=None,
-    rpc_admin_port=None,
-    rpc_bridge_port=None,
-    discriminator=None,
-    passcode=None,
-    secured_device_port=None,
-):
+async def run_bridge(program, storage_dir=None, rpc_admin_port=None,
+                     rpc_bridge_port=None, discriminator=None, passcode=None,
+                     secured_device_port=None):
     args = []
     if storage_dir is not None:
         args.extend(["--KVS", storage_dir.joinpath("chip_fabric_bridge_kvs")])
@@ -149,6 +140,7 @@ async def run_bridge(
 
 
 async def main(args):
+
     # Node ID of the bridge on the fabric.
     bridge_node_id = 1
 
@@ -181,8 +173,7 @@ async def main(args):
             secured_device_port=args.secured_device_port,
             discriminator=args.discriminator,
             passcode=args.passcode,
-        ),
-    )
+        ))
 
     loop = asyncio.get_running_loop()
 
@@ -208,8 +199,7 @@ async def main(args):
             # Log message which should appear in the fabric-admin output if
             # the bridge is already commissioned.
             expected_output="Reading attribute: Cluster=0x0000_001D Endpoint=0x1 AttributeId=0x0000_0000",
-            timeout=1.5,
-        )
+            timeout=1.5)
     except asyncio.TimeoutError:
         # Commission the bridge to the admin.
         cmd = f"fabricsync add-local-bridge {bridge_node_id}"
@@ -222,8 +212,7 @@ async def main(args):
             # Wait for the log message indicating that the bridge has been
             # added to the fabric.
             f"Commissioning complete for node ID {bridge_node_id:#018x}: success",
-            timeout=30,
-        )
+            timeout=30)
 
     # Open commissioning window with original setup code for the bridge.
     cw_endpoint_id = 0
@@ -231,21 +220,16 @@ async def main(args):
     cw_timeout = 600
     cw_iteration = 1000
     cw_discriminator = 0
-    await admin.send(
-        f"pairing open-commissioning-window {bridge_node_id} {cw_endpoint_id}"
-        f" {cw_option} {cw_timeout} {cw_iteration} {cw_discriminator}"
-    )
+    await admin.send(f"pairing open-commissioning-window {bridge_node_id} {cw_endpoint_id}"
+                     f" {cw_option} {cw_timeout} {cw_iteration} {cw_discriminator}")
 
     try:
         # Wait for any of the tasks to complete.
-        _, pending = await asyncio.wait(
-            [
-                asyncio.create_task(admin.wait()),
-                asyncio.create_task(bridge.wait()),
-                asyncio.create_task(forward_stdin(admin.p.stdin)),
-            ],
-            return_when=asyncio.FIRST_COMPLETED,
-        )
+        _, pending = await asyncio.wait([
+            asyncio.create_task(admin.wait()),
+            asyncio.create_task(bridge.wait()),
+            asyncio.create_task(forward_stdin(admin.p.stdin)),
+        ], return_when=asyncio.FIRST_COMPLETED)
         # Cancel the remaining tasks.
         for task in pending:
             task.cancel()
@@ -260,35 +244,33 @@ async def main(args):
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Fabric-Sync Example Application")
-    parser.add_argument(
-        "--app-admin",
-        metavar="PATH",
-        type=Path,
-        default=shutil.which("fabric-admin"),
-        help="path to the fabric-admin executable; default=%(default)s",
-    )
-    parser.add_argument(
-        "--app-bridge",
-        metavar="PATH",
-        type=Path,
-        default=shutil.which("fabric-bridge-app"),
-        help="path to the fabric-bridge executable; default=%(default)s",
-    )
-    parser.add_argument("--app-admin-rpc-port", metavar="PORT", type=int, help="fabric-admin RPC server port")
-    parser.add_argument("--app-bridge-rpc-port", metavar="PORT", type=int, help="fabric-bridge RPC server port")
-    parser.add_argument(
-        "--storage-dir",
-        metavar="PATH",
-        type=Path,
-        help=("directory to place storage files in; by default volatile storage is used"),
-    )
-    parser.add_argument("--paa-trust-store-path", metavar="PATH", type=Path, help="path to directory holding PAA certificates")
-    parser.add_argument("--commissioner-name", metavar="NAME", help="commissioner name to use for the admin")
-    parser.add_argument("--commissioner-node-id", metavar="NUM", type=int, help="commissioner node ID to use for the admin")
-    parser.add_argument("--commissioner-vendor-id", metavar="NUM", type=int, help="commissioner vendor ID to use for the admin")
-    parser.add_argument("--secured-device-port", metavar="NUM", type=int, help="secure messages listen port to use for the bridge")
-    parser.add_argument("--discriminator", metavar="NUM", type=int, help="discriminator to use for the bridge")
-    parser.add_argument("--passcode", metavar="NUM", type=int, help="passcode to use for the bridge")
+    parser.add_argument("--app-admin", metavar="PATH", type=Path,
+                        default=shutil.which("fabric-admin"),
+                        help="path to the fabric-admin executable; default=%(default)s")
+    parser.add_argument("--app-bridge", metavar="PATH", type=Path,
+                        default=shutil.which("fabric-bridge-app"),
+                        help="path to the fabric-bridge executable; default=%(default)s")
+    parser.add_argument("--app-admin-rpc-port", metavar="PORT", type=int,
+                        help="fabric-admin RPC server port")
+    parser.add_argument("--app-bridge-rpc-port", metavar="PORT", type=int,
+                        help="fabric-bridge RPC server port")
+    parser.add_argument("--storage-dir", metavar="PATH", type=Path,
+                        help=("directory to place storage files in; by default "
+                              "volatile storage is used"))
+    parser.add_argument("--paa-trust-store-path", metavar="PATH", type=Path,
+                        help="path to directory holding PAA certificates")
+    parser.add_argument("--commissioner-name", metavar="NAME",
+                        help="commissioner name to use for the admin")
+    parser.add_argument("--commissioner-node-id", metavar="NUM", type=int,
+                        help="commissioner node ID to use for the admin")
+    parser.add_argument("--commissioner-vendor-id", metavar="NUM", type=int,
+                        help="commissioner vendor ID to use for the admin")
+    parser.add_argument("--secured-device-port", metavar="NUM", type=int,
+                        help="secure messages listen port to use for the bridge")
+    parser.add_argument("--discriminator", metavar="NUM", type=int,
+                        help="discriminator to use for the bridge")
+    parser.add_argument("--passcode", metavar="NUM", type=int,
+                        help="passcode to use for the bridge")
     args = parser.parse_args()
     if args.app_admin is None or not args.app_admin.exists():
         parser.error("fabric-admin executable not found in PATH. Use '--app-admin' argument to provide it.")

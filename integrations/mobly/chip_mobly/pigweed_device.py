@@ -32,7 +32,8 @@ class Error(Exception):
 class PigweedDevice:
     def __init__(self, device_tty, baud, platform_module=None, platform_args=None):
         ser = serial.Serial(device_tty, baud, timeout=0.01)
-        self.pw_rpc_client = HdlcRpcClient(lambda: ser.read(4096), [PROTO], default_channels(ser.write))
+        self.pw_rpc_client = HdlcRpcClient(lambda: ser.read(4096),
+                                           [PROTO], default_channels(ser.write))
         self._platform = None
         print("Platform args: %s" % platform_args)
         print("Platform module: %s" % platform_module)
@@ -87,4 +88,5 @@ def _validate_config(config):
     required_keys = ["device_tty", "baud"]  # A placeholder.
     for key in required_keys:
         if key not in config:
-            raise Error("Required key %s missing from config %s" % (key, config))
+            raise Error("Required key %s missing from config %s" %
+                        (key, config))

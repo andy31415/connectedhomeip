@@ -54,25 +54,15 @@ class TC_TIMESYNC_2_4(MatterBaseTest):
         cluster = Clusters.Objects.TimeSynchronization
         return await self.read_single_attribute_check_success(endpoint=self.endpoint, cluster=cluster, attribute=attribute)
 
-    async def send_set_time_zone_cmd(
-        self, tz: typing.List[Clusters.Objects.TimeSynchronization.Structs.TimeZoneStruct]
-    ) -> Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse:
-        ret = await self.send_single_cmd(
-            cmd=Clusters.Objects.TimeSynchronization.Commands.SetTimeZone(timeZone=tz), endpoint=self.endpoint
-        )
-        asserts.assert_true(
-            matchers.is_type(ret, Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse),
-            "Unexpected return type for SetTimeZone",
-        )
+    async def send_set_time_zone_cmd(self, tz: typing.List[Clusters.Objects.TimeSynchronization.Structs.TimeZoneStruct]) -> Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse:
+        ret = await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetTimeZone(timeZone=tz), endpoint=self.endpoint)
+        asserts.assert_true(matchers.is_type(ret, Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse),
+                            "Unexpected return type for SetTimeZone")
         return ret
 
-    async def send_set_time_zone_cmd_expect_error(
-        self, tz: typing.List[Clusters.Objects.TimeSynchronization.Structs.TimeZoneStruct], error: Status
-    ) -> None:
+    async def send_set_time_zone_cmd_expect_error(self, tz: typing.List[Clusters.Objects.TimeSynchronization.Structs.TimeZoneStruct], error: Status) -> None:
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.Objects.TimeSynchronization.Commands.SetTimeZone(timeZone=tz), endpoint=self.endpoint
-            )
+            await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetTimeZone(timeZone=tz), endpoint=self.endpoint)
             asserts.assert_true(False, "Unexpected SetTimeZone command success")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, error, "Unexpected error returned")
@@ -83,6 +73,7 @@ class TC_TIMESYNC_2_4(MatterBaseTest):
 
     @async_test_body
     async def test_TC_TIMESYNC_2_4(self):
+
         # Time sync is required to be on endpoint 0 if it is present
         self.endpoint = 0
 
@@ -131,12 +122,8 @@ class TC_TIMESYNC_2_4(MatterBaseTest):
 
         self.print_step(9, "Send SetTimeZone command")
         if tz_max_size_dut == 2:
-            tz = [
-                tz_struct(offset=3600, validAt=0, name="Europe/Dublin"),
-                tz_struct(
-                    offset=7200, validAt=utc_time_in_matter_epoch() + timedelta(minutes=2).microseconds, name="Europe/Athens"
-                ),
-            ]
+            tz = [tz_struct(offset=3600, validAt=0, name="Europe/Dublin"),
+                  tz_struct(offset=7200, validAt=utc_time_in_matter_epoch() + timedelta(minutes=2).microseconds, name="Europe/Athens")]
             ret = await self.send_set_time_zone_cmd(tz=tz)
 
         self.print_step(10, "Send SetTimeZone command - bad validAt time")
@@ -167,26 +154,21 @@ class TC_TIMESYNC_2_4(MatterBaseTest):
 
         self.print_step(16, "Send SetTimeZone command - too many entries")
         if tz_max_size_dut == 2:
-            tz = [
-                tz_struct(offset=3600, validAt=0, name="Europe/Dublin"),
-                tz_struct(
-                    offset=7200, validAt=utc_time_in_matter_epoch() + timedelta(minutes=2).microseconds, name="Europe/Athens"
-                ),
-                tz_struct(
-                    offset=10800, validAt=utc_time_in_matter_epoch() + timedelta(minutes=4).microseconds, name="Europe/Istanbul"
-                ),
-            ]
+            tz = [tz_struct(offset=3600, validAt=0, name="Europe/Dublin"),
+                  tz_struct(offset=7200, validAt=utc_time_in_matter_epoch() +
+                            timedelta(minutes=2).microseconds, name="Europe/Athens"),
+                  tz_struct(offset=10800, validAt=utc_time_in_matter_epoch() +
+                            timedelta(minutes=4).microseconds, name="Europe/Istanbul")
+                  ]
             await self.send_set_time_zone_cmd_expect_error(tz=tz, error=Status.ResourceExhausted)
 
         self.print_step(17, "Send SetTimeZone command - too many entries")
         if tz_max_size_dut == 1:
-            tz = [
-                tz_struct(offset=3600, validAt=0, name="Europe/Dublin"),
-                tz_struct(
-                    offset=7200, validAt=utc_time_in_matter_epoch() + timedelta(minutes=2).microseconds, name="Europe/Athens"
-                ),
-            ]
-            await self.send_set_time_zone_cmd_expect_error(tz=tz, error=Status.ResourceExhausted)
+            tz = [tz_struct(offset=3600, validAt=0, name="Europe/Dublin"),
+                  tz_struct(offset=7200, validAt=utc_time_in_matter_epoch() +
+                            timedelta(minutes=2).microseconds, name="Europe/Athens")
+                  ]
+            await self.send_set_time_zone_cmd_expect_error(tz=tz,  error=Status.ResourceExhausted)
 
         self.print_step(18, "Reset time zone")
         tz = [tz_struct(offset=0, validAt=0)]

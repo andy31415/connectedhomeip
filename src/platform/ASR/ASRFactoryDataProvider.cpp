@@ -364,7 +364,7 @@ CHIP_ERROR ASRFactoryDataProvider::GetVendorId(uint16_t & vendorId)
 #else
     uint32_t vendorId32;
     ReturnErrorOnFailure(ASRConfig::ReadFactoryConfigValue(ASR_VENDOR_ID_PARTITION, vendorId32));
-    vendorId = static_cast<uint16_t>(vendorId32);
+    vendorId                                                        = static_cast<uint16_t>(vendorId32);
 #endif
     return CHIP_NO_ERROR;
 }
@@ -392,7 +392,7 @@ CHIP_ERROR ASRFactoryDataProvider::GetProductId(uint16_t & productId)
 #else
     uint32_t productId32;
     ReturnErrorOnFailure(ASRConfig::ReadFactoryConfigValue(ASR_PRODUCT_ID_PARTITION, productId32));
-    productId = static_cast<uint16_t>(productId32);
+    productId                                                      = static_cast<uint16_t>(productId32);
 #endif
     return CHIP_NO_ERROR;
 }
@@ -407,7 +407,7 @@ CHIP_ERROR ASRFactoryDataProvider::GetPartNumber(char * buf, size_t bufSize)
     ReturnErrorOnFailure(ASRConfig::ReadFactoryConfigValue(ASR_PART_NUMBER_PARTITION, buffer, buffer_len, buffer_len));
     VerifyOrReturnError(bufSize >= buffer_len, CHIP_ERROR_BUFFER_TOO_SMALL);
     memcpy(buf, buffer, buffer_len);
-    buf[buffer_len] = 0;
+    buf[buffer_len]                                                = 0;
 #endif
     return CHIP_NO_ERROR;
 }
@@ -422,7 +422,7 @@ CHIP_ERROR ASRFactoryDataProvider::GetProductURL(char * buf, size_t bufSize)
     ReturnErrorOnFailure(ASRConfig::ReadFactoryConfigValue(ASR_PRODUCT_URL_PARTITION, buffer, buffer_len, buffer_len));
     VerifyOrReturnError(bufSize >= buffer_len, CHIP_ERROR_BUFFER_TOO_SMALL);
     memcpy(buf, buffer, buffer_len);
-    buf[buffer_len] = 0;
+    buf[buffer_len]                                                  = 0;
 #endif
     return CHIP_NO_ERROR;
 }
@@ -437,7 +437,7 @@ CHIP_ERROR ASRFactoryDataProvider::GetProductLabel(char * buf, size_t bufSize)
     ReturnErrorOnFailure(ASRConfig::ReadFactoryConfigValue(ASR_PRODUCT_LABEL_PARTITION, buffer, buffer_len, buffer_len));
     VerifyOrReturnError(bufSize >= buffer_len, CHIP_ERROR_BUFFER_TOO_SMALL);
     memcpy(buf, buffer, buffer_len);
-    buf[buffer_len] = 0;
+    buf[buffer_len]                                                  = 0;
 #endif
     return CHIP_NO_ERROR;
 }
@@ -506,7 +506,7 @@ CHIP_ERROR ASRFactoryDataProvider::GetHardwareVersion(uint16_t & hardwareVersion
 #else
     uint32_t hardwareVersion32;
     ReturnErrorOnFailure(ASRConfig::ReadFactoryConfigValue(ASR_HARDWARE_VERSION_PARTITION, hardwareVersion32));
-    hardwareVersion = static_cast<uint16_t>(hardwareVersion32);
+    hardwareVersion   = static_cast<uint16_t>(hardwareVersion32);
 #endif
     return CHIP_NO_ERROR;
 }

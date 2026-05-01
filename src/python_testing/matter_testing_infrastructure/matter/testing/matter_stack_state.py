@@ -42,7 +42,7 @@ class MatterStackState:
         ValueError: If no storage path is provided.
     """
 
-    def __init__(self, config: "MatterTestConfig"):
+    def __init__(self, config: 'MatterTestConfig'):
         self._config = config
 
         if not hasattr(builtins, "chipStack"):
@@ -73,15 +73,14 @@ class MatterStackState:
         self._certificate_authority_manager = matter.CertificateAuthority.CertificateAuthorityManager(chipStack=self._chip_stack)
         self._certificate_authority_manager.LoadAuthoritiesFromStorage()
 
-        if len(self._certificate_authority_manager.activeCaList) == 0:
+        if (len(self._certificate_authority_manager.activeCaList) == 0):
             LOGGER.warning(
-                "Didn't find any CertificateAuthorities in storage -- creating a new CertificateAuthority + FabricAdmin..."
-            )
+                "Didn't find any CertificateAuthorities in storage -- creating a new CertificateAuthority + FabricAdmin...")
             ca = self._certificate_authority_manager.NewCertificateAuthority(caIndex=self._config.root_of_trust_index)
             ca.maximizeCertChains = self._config.maximize_cert_chains
             ca.certificateValidityPeriodSec = self._config.certificate_validity_period
             ca.NewFabricAdmin(vendorId=0xFFF1, fabricId=self._config.fabric_id)
-        elif len(self._certificate_authority_manager.activeCaList[0].adminList) == 0:
+        elif (len(self._certificate_authority_manager.activeCaList[0].adminList) == 0):
             LOGGER.warning("Didn't find any FabricAdmins in storage -- creating a new one...")
             self._certificate_authority_manager.activeCaList[0].NewFabricAdmin(vendorId=0xFFF1, fabricId=self._config.fabric_id)
 

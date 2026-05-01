@@ -27,12 +27,12 @@ DEFAULT_COMMISSIONER_CAT = 0xABCD0010
 
 def SetLocalNodeId(node_id: int):
     """Local node id. Can be set at the start of scripts, however once set
-    it cannot be reassigned.
+       it cannot be reassigned.
     """
     global _local_node_id
 
     if _local_node_id is not None:
-        raise Exception("Local node id is already set.")
+        raise Exception('Local node id is already set.')
 
     _local_node_id = node_id
 
@@ -51,19 +51,19 @@ def GetLocalNodeId() -> int:
 
 def SetCommissionerCAT(cat: int):
     """Local (controllers/commissioning) device CASE Authenticated Tag (CAT).
-    Can be set at the start of scripts, however once set it cannot be reassigned.
+       Can be set at the start of scripts, however once set it cannot be reassigned.
     """
     global _local_cat
 
     if _local_cat is not None:
-        raise Exception("Local CAT is already set.")
+        raise Exception('Local CAT is already set.')
 
     _local_cat = cat
 
 
 def GetCommissionerCAT() -> int:
     """Returns the current local (controllers/commissioning) device CAT. If none has been set,
-    a default is set and used."""
+       a default is set and used."""
     global _local_cat
 
     if _local_cat is None:

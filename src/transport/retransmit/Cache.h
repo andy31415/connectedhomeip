@@ -172,7 +172,7 @@ private:
 
     Entry mEntries[N];     // payload entries
     std::bitset<N> mInUse; // compact 'in use' marker for payloads
-}; // namespace Retransmit
+};                         // namespace Retransmit
 
 } // namespace Retransmit
 } // namespace chip

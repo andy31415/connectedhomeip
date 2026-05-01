@@ -48,46 +48,32 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 class TC_CGEN_2_7(MatterBaseTest):
     def desc_TC_CGEN_2_7(self) -> str:
-        return (
-            "[TC-CGEN-2.7] Verification for CommissioningComplete when SetTCAcknowledgements provides invalid terms [DUT as Server]"
-        )
+        return "[TC-CGEN-2.7] Verification for CommissioningComplete when SetTCAcknowledgements provides invalid terms [DUT as Server]"
 
     def pics_TC_CGEN_2_7(self) -> list[str]:
-        """This function returns a list of PICS for this test case that must be True for the test to be run"""
+        """ This function returns a list of PICS for this test case that must be True for the test to be run"""
         return ["CGEN.S", "CGEN.S.F00"]
 
     def steps_TC_CGEN_2_7(self) -> list[TestStep]:
         return [
-            TestStep(
-                1,
-                "TH begins commissioning the DUT and performs the following steps in order:\n* Security setup using PASE\n* Setup fail-safe timer, with ExpiryLengthSeconds field set to PIXIT.CGEN.FailsafeExpiryLengthSeconds and the Breadcrumb value as 1\n* Configure information- UTC time, regulatory, etc.",
-                is_commissioning=False,
-            ),
+            TestStep(1, "TH begins commissioning the DUT and performs the following steps in order:\n* Security setup using PASE\n* Setup fail-safe timer, with ExpiryLengthSeconds field set to PIXIT.CGEN.FailsafeExpiryLengthSeconds and the Breadcrumb value as 1\n* Configure information- UTC time, regulatory, etc.", is_commissioning=False),
             TestStep(2, "TH reads from the DUT the attribute TCMinRequiredVersion. Store the value as minVersion."),
-            TestStep(
-                3, "TH sends SetTCAcknowledgements to DUT with the following values:\n* TCVersion: minVersion\n* TCUserResponse: 0"
-            ),
-            TestStep(
-                4,
-                "TH continues commissioning with the DUT and performs the steps from 'Operation CSR exchange' through 'Security setup using CASE'",
-            ),
+            TestStep(3, "TH sends SetTCAcknowledgements to DUT with the following values:\n* TCVersion: minVersion\n* TCUserResponse: 0"),
+            TestStep(4, "TH continues commissioning with the DUT and performs the steps from 'Operation CSR exchange' through 'Security setup using CASE'"),
             TestStep(5, "TH sends CommissioningComplete to DUT."),
-            TestStep(
-                6,
-                "TH sends SetTCAcknowledgements to DUT with the following values:\n* TCVersion: PIXIT.CGEN.TCRevision\n* TCUserResponse: PIXIT.CGEN.RequiredTCAcknowledgements",
-            ),
+            TestStep(6, "TH sends SetTCAcknowledgements to DUT with the following values:\n* TCVersion: PIXIT.CGEN.TCRevision\n* TCUserResponse: PIXIT.CGEN.RequiredTCAcknowledgements"),
             TestStep(7, "TH sends CommissioningComplete to DUT."),
         ]
 
     @async_test_body
     async def test_TC_CGEN_2_7(self):
         commissioner: ChipDeviceCtrl.ChipDeviceController = self.default_controller
-        failsafe_expiry_length_seconds = self.matter_test_config.global_test_params["PIXIT.CGEN.FailsafeExpiryLengthSeconds"]
-        tc_version_to_simulate = self.matter_test_config.global_test_params["PIXIT.CGEN.TCRevision"]
-        tc_user_response_to_simulate = self.matter_test_config.global_test_params["PIXIT.CGEN.RequiredTCAcknowledgements"]
+        failsafe_expiry_length_seconds = self.matter_test_config.global_test_params['PIXIT.CGEN.FailsafeExpiryLengthSeconds']
+        tc_version_to_simulate = self.matter_test_config.global_test_params['PIXIT.CGEN.TCRevision']
+        tc_user_response_to_simulate = self.matter_test_config.global_test_params['PIXIT.CGEN.RequiredTCAcknowledgements']
 
         if not self.check_pics("CGEN.S.F00"):
-            asserts.skip("Root endpoint does not support the [commissioning] feature under test")
+            asserts.skip('Root endpoint does not support the [commissioning] feature under test')
             return
 
         # Step 1: Begin commissioning with PASE and failsafe
@@ -102,8 +88,7 @@ class TC_CGEN_2_7(MatterBaseTest):
             nodeId=self.dut_node_id,
             endpoint=ROOT_ENDPOINT_ID,
             payload=Clusters.GeneralCommissioning.Commands.ArmFailSafe(
-                expiryLengthSeconds=failsafe_expiry_length_seconds, breadcrumb=1
-            ),
+                expiryLengthSeconds=failsafe_expiry_length_seconds, breadcrumb=1),
         )
         asserts.assert_equal(
             response.errorCode,
@@ -113,19 +98,17 @@ class TC_CGEN_2_7(MatterBaseTest):
 
         # Step 2: Read TCMinRequiredVersion
         self.step(2)
-        response = await commissioner.ReadAttribute(
-            nodeId=self.dut_node_id, attributes=[(ROOT_ENDPOINT_ID, Clusters.GeneralCommissioning.Attributes.TCMinRequiredVersion)]
-        )
-        min_version = response[ROOT_ENDPOINT_ID][Clusters.GeneralCommissioning][
-            Clusters.GeneralCommissioning.Attributes.TCMinRequiredVersion
-        ]
+        response = await commissioner.ReadAttribute(nodeId=self.dut_node_id, attributes=[(ROOT_ENDPOINT_ID, Clusters.GeneralCommissioning.Attributes.TCMinRequiredVersion)])
+        min_version = response[ROOT_ENDPOINT_ID][Clusters.GeneralCommissioning][Clusters.GeneralCommissioning.Attributes.TCMinRequiredVersion]
 
         # Step 3: Send SetTCAcknowledgements with invalid response
         self.step(3)
         response = await commissioner.SendCommand(
             nodeId=self.dut_node_id,
             endpoint=ROOT_ENDPOINT_ID,
-            payload=Clusters.GeneralCommissioning.Commands.SetTCAcknowledgements(TCVersion=min_version, TCUserResponse=0),
+            payload=Clusters.GeneralCommissioning.Commands.SetTCAcknowledgements(
+                TCVersion=min_version, TCUserResponse=0
+            ),
         )
 
         # Verify error code is RequiredTCNotAccepted

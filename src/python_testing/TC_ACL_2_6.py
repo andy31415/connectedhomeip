@@ -71,7 +71,7 @@ class TC_ACL_2_6(MatterBaseTest):
             str(event.latestValue.authMode),
             str(event.latestValue.subjects),
             str(event.latestValue.targets),
-            str(event.latestValue.fabricIndex),
+            str(event.latestValue.fabricIndex)
         )
 
     async def write_attribute_with_encoding_option(self, controller, node_id, path, forceLegacyListEncoding):
@@ -83,7 +83,7 @@ class TC_ACL_2_6(MatterBaseTest):
         return "[TC-ACL-2.6] AccessControlEntryChanged event"
 
     def pics_TC_ACL_2_6(self) -> list[str]:
-        return ["ACL.S"]
+        return ['ACL.S']
 
     async def internal_test_TC_ACL_2_6(self, force_legacy_encoding: bool):
         self.step(1)
@@ -106,7 +106,11 @@ class TC_ACL_2_6(MatterBaseTest):
         # Read initial events
         # Third element in the events tuple is the urgent delivery flag (1 = urgent)
         urgent = 1
-        events_response = await self.th1.ReadEvent(self.dut_node_id, events=[(0, acec_event, urgent)], fabricFiltered=True)
+        events_response = await self.th1.ReadEvent(
+            self.dut_node_id,
+            events=[(0, acec_event, urgent)],
+            fabricFiltered=True
+        )
         # Getting the initial event from commissioning, validating it is the one
         # we are expecting as it adds the admin entry for our controller for
         # access control.
@@ -123,9 +127,9 @@ class TC_ACL_2_6(MatterBaseTest):
                 authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
                 subjects=[self.th1.nodeId],
                 targets=NullValue,
-                fabricIndex=f1,
+                fabricIndex=f1
             ),
-            fabricIndex=f1,
+            fabricIndex=f1
         )
         asserts.assert_equal(len(events_response), 1, "Expected 1 event")
 
@@ -147,20 +151,23 @@ class TC_ACL_2_6(MatterBaseTest):
                 authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
                 subjects=[self.th1.nodeId],
                 targets=NullValue,
-                fabricIndex=f1,
+                fabricIndex=f1
             ),
             Clusters.AccessControl.Structs.AccessControlEntryStruct(
                 privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kOperate,
                 authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kGroup,
                 subjects=NullValue,
                 targets=NullValue,
-                fabricIndex=f1,
-            ),
+                fabricIndex=f1
+            )
         ]
 
         acl_attr = Clusters.AccessControl.Attributes.Acl
         result = await self.write_attribute_with_encoding_option(
-            self.th1, self.dut_node_id, [(0, acl_attr(value=acl_entries))], forceLegacyListEncoding=force_legacy_encoding
+            self.th1,
+            self.dut_node_id,
+            [(0, acl_attr(value=acl_entries))],
+            forceLegacyListEncoding=force_legacy_encoding
         )
         asserts.assert_equal(result[0].Status, Status.Success, "Write should have succeeded")
 
@@ -175,14 +182,16 @@ class TC_ACL_2_6(MatterBaseTest):
 
         # Read events
         events_response = await self.th1.ReadEvent(
-            self.dut_node_id, events=[(0, acec_event)], fabricFiltered=True, eventNumberFilter=latest_event_number + 1
+            self.dut_node_id,
+            events=[(0, acec_event)],
+            fabricFiltered=True,
+            eventNumberFilter=latest_event_number + 1
         )
         log.info(f"Read events response: {events_response}")
 
         asserts.assert_true(events_response, "Did not receive a response when calling ReadEvents")
-        read_events = sorted(
-            [e.Data for e in events_response], key=lambda x: next(e.Header.EventNumber for e in events_response if e.Data == x)
-        )
+        read_events = sorted([e.Data for e in events_response],
+                             key=lambda x: next(e.Header.EventNumber for e in events_response if e.Data == x))
 
         if force_legacy_encoding:
             asserts.assert_true(len(read_events) == 3, f"Expected 3 events from read, but got {len(read_events)}")
@@ -227,11 +236,14 @@ class TC_ACL_2_6(MatterBaseTest):
                 authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kGroup,
                 subjects=[0],
                 targets=NullValue,
-            ),
+            )
         ]
 
         result = await self.write_attribute_with_encoding_option(
-            self.th1, self.dut_node_id, [(0, acl_attr(value=invalid_acl_entries))], forceLegacyListEncoding=force_legacy_encoding
+            self.th1,
+            self.dut_node_id,
+            [(0, acl_attr(value=invalid_acl_entries))],
+            forceLegacyListEncoding=force_legacy_encoding
         )
         asserts.assert_equal(result[0].Status, Status.ConstraintError, "Write should have failed with CONSTRAINT_ERROR")
 
@@ -239,16 +251,17 @@ class TC_ACL_2_6(MatterBaseTest):
         # Verify no events for invalid entry via read as well
         latest_event_number = await self.get_latest_event_number(acec_event)
         events_response = await self.th1.ReadEvent(
-            self.dut_node_id, events=[(0, acec_event)], fabricFiltered=True, eventNumberFilter=latest_event_number + 1
+            self.dut_node_id,
+            events=[(0, acec_event)],
+            fabricFiltered=True,
+            eventNumberFilter=latest_event_number + 1
         )
 
         # Check if any of the read events correspond to the invalid entry
         invalid_entry = invalid_acl_entries[1]
         for event in events_response:
-            if (
-                event.Data.latestValue.authMode == invalid_entry.authMode
-                and event.Data.latestValue.subjects == invalid_entry.subjects
-            ):
+            if (event.Data.latestValue.authMode == invalid_entry.authMode and
+                    event.Data.latestValue.subjects == invalid_entry.subjects):
                 asserts.fail(f"Found event for invalid entry in read response: {event.Data}")
 
         log.info("No events found for invalid entry, as expected")
@@ -268,51 +281,51 @@ class TC_ACL_2_6(MatterBaseTest):
                     authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
                     subjects=[self.th1.nodeId],
                     targets=NullValue,
-                    fabricIndex=f1,
+                    fabricIndex=f1
                 )
             ]
             await self.write_attribute_with_encoding_option(
-                self.th1, self.dut_node_id, [(0, acl_attr(value=single_admin_acl))], forceLegacyListEncoding=False
+                self.th1,
+                self.dut_node_id,
+                [(0, acl_attr(value=single_admin_acl))],
+                forceLegacyListEncoding=False
             )
 
     def steps_TC_ACL_2_6(self) -> list[TestStep]:
         return [
-            TestStep(1, "TH1 commissions DUT using admin node ID N1", "DUT is commissioned on TH1 fabric", is_commissioning=True),
+            TestStep(
+                1,
+                "TH1 commissions DUT using admin node ID N1",
+                "DUT is commissioned on TH1 fabric",
+                is_commissioning=True),
             TestStep(
                 2,
                 "TH1 reads DUT Endpoint 0 OperationalCredentials cluster CurrentFabricIndex attribute",
-                "Result is SUCCESS, value is stored as F1",
-            ),
+                "Result is SUCCESS, value is stored as F1"),
             TestStep(
                 3,
                 "TH1 reads DUT Endpoint 0 AccessControl cluster AccessControlEntryChanged event",
-                "Result is SUCCESS value is list of AccessControlEntryChangedEvent events containing 1 element",
-            ),
+                "Result is SUCCESS value is list of AccessControlEntryChangedEvent events containing 1 element"),
             TestStep(
                 4,
                 "TH1 writes DUT Endpoint 0 AccessControl cluster ACL attribute, value is list of AccessControlEntryStruct containing 2 elements",
-                "Result is SUCCESS",
-            ),
+                "Result is SUCCESS"),
             TestStep(
                 5,
                 "TH1 reads DUT Endpoint 0 AccessControl cluster AccessControlEntryChanged event",
-                "Result is SUCCESS, value is a list of AccessControlEntryChanged events containing 2 new elements, or 3 when using the legacy list write method",
-            ),
+                "Result is SUCCESS, value is a list of AccessControlEntryChanged events containing 2 new elements, or 3 when using the legacy list write method"),
             TestStep(
                 6,
                 "TH1 writes DUT Endpoint 0 AccessControl cluster ACL attribute, value is list of AccessControlEntryStruct containing 2 elements. The first item is valid, the second item is invalid due to group ID 0 being used, which is illegal.",
-                "Result is CONSTRAINT_ERROR",
-            ),
+                "Result is CONSTRAINT_ERROR"),
             TestStep(
                 7,
                 "TH1 reads DUT Endpoint 0 AccessControl cluster AccessControlEntryChanged event",
-                "value MUST NOT contain an AccessControlEntryChanged entry corresponding to the second invalid entry in step 6.",
-            ),
+                "value MUST NOT contain an AccessControlEntryChanged entry corresponding to the second invalid entry in step 6."),
             TestStep(
                 8,
                 "Resetting ACL events to only admin/case, then re-running the test using the legacy list writing mechanism, where the client issues a series of AttributeDataIBs, with the first containing a path to the list itself and Data that is empty array, which signals clearing the list, and subsequent AttributeDataIBs containing updates.",
-                "Test succeeds with legacy list encoding mechanism",
-            ),
+                "Test succeeds with legacy list encoding mechanism"),
         ]
 
     @async_test_body

@@ -75,7 +75,7 @@ class TC_AVSM_2_15(MatterBaseTest):
                 4,
                 "TH sends the SnapshotStreamAllocate command with valid values of ImageCodec, MaxFrameRate, MinResolution=MaxResolution=Resolution from aSnapshotCapabilities and Quality set to 90.",
                 "DUT responds with SnapshotStreamAllocateResponse command with a valid SnapshotStreamID.",
-                "Store as aSnapshotStreamID.",
+                "Store as aSnapshotStreamID."
             ),
             TestStep(
                 5,
@@ -139,7 +139,7 @@ class TC_AVSM_2_15(MatterBaseTest):
             maxResolution=aSnapshotCapabilities[0].resolution,
             quality=90,
             watermarkEnabled=watermark,
-            OSDEnabled=osd,
+            OSDEnabled=osd
         )
         snpStreamAllocateResponse = await self.send_single_cmd(endpoint=endpoint, cmd=snpStreamAllocateCmd)
         log.info(f"Rx'd SnapshotStreamAllocateResponse: {snpStreamAllocateResponse}")
@@ -161,9 +161,8 @@ class TC_AVSM_2_15(MatterBaseTest):
         asserts.assert_is_not_none(
             snpStreamAllocateResponse.snapshotStreamID, "SnapshotStreamAllocateResponse does not contain StreamID"
         )
-        asserts.assert_equal(
-            snpStreamAllocateResponse.snapshotStreamID, aSnapshotStreamID, "The previous snapshot stream is not reused"
-        )
+        asserts.assert_equal(snpStreamAllocateResponse.snapshotStreamID, aSnapshotStreamID,
+                             "The previous snapshot stream is not reused")
 
         self.step(7)
         aAllocatedSnapshotStreams = await self.read_single_attribute_check_success(
@@ -179,9 +178,7 @@ class TC_AVSM_2_15(MatterBaseTest):
 
         for stream in aAllocatedSnapshotStreams:
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=commands.SnapshotStreamDeallocate(snapshotStreamID=(stream.snapshotStreamID))
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=commands.SnapshotStreamDeallocate(snapshotStreamID=(stream.snapshotStreamID)))
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 

@@ -1,3 +1,4 @@
+
 #
 #    Copyright (c) 2023 Project CHIP Authors
 #    All rights reserved.
@@ -52,6 +53,7 @@ attributes = cluster.Attributes
 
 
 class TC_ICDM_3_4(MatterBaseTest):
+
     #
     # Class Helper functions
     #
@@ -72,17 +74,17 @@ class TC_ICDM_3_4(MatterBaseTest):
             TestStep(1, "TH reads from the DUT the ICDCounter attribute."),
             TestStep("2a", "Power cycle DUT."),
             TestStep("2b", "TH waits for {PIXIT.WAITTIME.REBOOT}"),
-            TestStep(
-                3,
-                "Verify that the DUT response contains value of ICDCounter and stores in IcdCounter2. \
+            TestStep(3, "Verify that the DUT response contains value of ICDCounter and stores in IcdCounter2. \
                             IcdCounter2 is greater or equal to IcdCounter1. \
-                            ICDCounter attribute can roll over. If the attribute rolls over, it will be greater or equal to 0.",
-            ),
+                            ICDCounter attribute can roll over. If the attribute rolls over, it will be greater or equal to 0.")
         ]
 
     def pics_TC_ICDM_3_4(self) -> list[str]:
-        """This function returns a list of PICS for this test case that must be True for the test to be run"""
-        return ["ICDM.S", "ICDM.S.F00"]
+        """ This function returns a list of PICS for this test case that must be True for the test to be run"""
+        return [
+            "ICDM.S",
+            "ICDM.S.F00"
+        ]
 
     #
     # ICDM 3.4 Test Body
@@ -93,13 +95,11 @@ class TC_ICDM_3_4(MatterBaseTest):
         is_ci = self.check_pics("PICS_SDK_CI_ONLY")
 
         if not is_ci:
-            asserts.assert_true(
-                "PIXIT.WAITTIME.REBOOT" in self.matter_test_config.global_test_params,
-                "PIXIT.WAITTIME.REBOOT must be included on the command line in "
-                "the --int-arg flag as PIXIT.WAITTIME.REBOOT:<wait time>",
-            )
+            asserts.assert_true('PIXIT.WAITTIME.REBOOT' in self.matter_test_config.global_test_params,
+                                "PIXIT.WAITTIME.REBOOT must be included on the command line in "
+                                "the --int-arg flag as PIXIT.WAITTIME.REBOOT:<wait time>")
 
-            wait_time_reboot = self.matter_test_config.global_test_params["PIXIT.WAITTIME.REBOOT"]
+            wait_time_reboot = self.matter_test_config.global_test_params['PIXIT.WAITTIME.REBOOT']
             if wait_time_reboot == 0:
                 asserts.fail("PIXIT.WAITTIME.REBOOT shall be higher than 0.")
 
@@ -122,20 +122,15 @@ class TC_ICDM_3_4(MatterBaseTest):
             # since device has rebooted, force establishing a new CASE session by closing it
             self.config = MatterTestConfig()
             self.stack = MatterStackState(self.config)
-            devCtrl = (
-                self.stack.certificate_authorities[0]
-                .adminList[0]
-                .NewController(
-                    nodeId=self.config.controller_node_id,
-                    paaTrustStorePath=str(self.config.paa_trust_store_path),
-                    catTags=self.config.controller_cat_tags,
-                )
+            devCtrl = self.stack.certificate_authorities[0].adminList[0].NewController(
+                nodeId=self.config.controller_node_id,
+                paaTrustStorePath=str(self.config.paa_trust_store_path),
+                catTags=self.config.controller_cat_tags
             )
             devCtrl.MarkSessionDefunct(self.dut_node_id)
         icdCounter2 = await self._read_icdm_attribute_expect_success(attribute=attributes.ICDCounter)
-        asserts.assert_greater_equal(
-            icdCounter2, icdCounter1, "ICDCounter have reboot is not greater or equal to the ICDCounter read before the reboot."
-        )
+        asserts.assert_greater_equal(icdCounter2, icdCounter1,
+                                     "ICDCounter have reboot is not greater or equal to the ICDCounter read before the reboot.")
 
 
 if __name__ == "__main__":

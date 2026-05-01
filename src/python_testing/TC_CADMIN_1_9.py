@@ -54,9 +54,7 @@ class TC_CADMIN_1_9(CADMINBaseTest):
         cluster = Clusters.GeneralCommissioning
         attribute = cluster.Attributes.BasicCommissioningInfo
         duration = await self.read_single_attribute_check_success(endpoint=0, cluster=cluster, attribute=attribute)
-        return await self.open_commissioning_window(
-            dev_ctrl=self.th1, node_id=self.dut_node_id, timeout=duration.maxCumulativeFailsafeSeconds
-        )
+        return await self.open_commissioning_window(dev_ctrl=self.th1, node_id=self.dut_node_id, timeout=duration.maxCumulativeFailsafeSeconds)
 
     async def CommissionOnNetwork(self, params: CustomCommissioningParameters):
         ctx = asserts.assert_raises(ChipStackError)
@@ -65,42 +63,38 @@ class TC_CADMIN_1_9(CADMINBaseTest):
                 nodeId=self.dut_node_id,
                 setupPinCode=params.commissioningParameters.setupPinCode,
                 filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
-                filter=params.randomDiscriminator,
+                filter=params.randomDiscriminator
             )
         return PyChipError.from_code(ctx.exception.err)
 
     async def CommissionAttempt(self, params: CustomCommissioningParameters, expectedErrCode: int):
         if expectedErrCode == 3:
             for cycle in range(20):
-                log.info("-----------------Current Iteration {}-------------------------".format(cycle + 1))
+                log.info("-----------------Current Iteration {}-------------------------".format(cycle+1))
                 new_params = deepcopy(params)
                 new_params.commissioningParameters.setupPinCode = self.generate_unique_random_value(
-                    params.commissioningParameters.setupPinCode
-                )
+                    params.commissioningParameters.setupPinCode)
                 errcode = await self.CommissionOnNetwork(new_params)
-                log.info(
-                    "Commissioning complete done. Successful? {}, errorcode = {}, cycle={}".format(
-                        errcode.is_success, errcode, (cycle + 1)
-                    )
-                )
-                asserts.assert_false(errcode.is_success, "Commissioning complete did not error as expected")
-                asserts.assert_true(
-                    errcode.sdk_code == expectedErrCode, "Unexpected error code returned from CommissioningComplete"
-                )
+                log.info('Commissioning complete done. Successful? {}, errorcode = {}, cycle={}'.format(
+                    errcode.is_success, errcode, (cycle+1)))
+                asserts.assert_false(errcode.is_success, 'Commissioning complete did not error as expected')
+                asserts.assert_true(errcode.sdk_code == expectedErrCode,
+                                    'Unexpected error code returned from CommissioningComplete')
 
         elif expectedErrCode == 50:
             log.info("-----------------Attempting connection expecting timeout-------------------------")
             errcode = await self.CommissionOnNetwork(params)
-            log.info("Commissioning complete done. Successful? {}, errorcode = {}".format(errcode.is_success, errcode))
-            asserts.assert_false(errcode.is_success, "Commissioning complete did not error as expected")
+            log.info('Commissioning complete done. Successful? {}, errorcode = {}'.format(errcode.is_success, errcode))
+            asserts.assert_false(errcode.is_success, 'Commissioning complete did not error as expected')
             # TODO: Adding try or except clause here as the errcode code be either 50 for timeout or 3 for incorrect state at this time
             # until issue mentioned in https://github.com/project-chip/connectedhomeip/issues/34383 can be resolved
-            asserts.assert_in(errcode.sdk_code, [expectedErrCode, 3], "Unexpected error code returned from CommissioningComplete")
+            asserts.assert_in(errcode.sdk_code, [expectedErrCode, 3], 'Unexpected error code returned from CommissioningComplete')
 
     def steps_TC_CADMIN_1_9(self) -> list[TestStep]:
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
-            TestStep(2, "TH1 opens commissioning window on DUT with duration set to value for maxCumulativeFailsafeSeconds"),
+            TestStep(
+                2, "TH1 opens commissioning window on DUT with duration set to value for maxCumulativeFailsafeSeconds"),
             TestStep(3, "TH2 attempts to connect 20 times to endpoint with incorrect passcode"),
             TestStep(4, "TH2 attempts to connect to endpoint with correct passcode"),
             TestStep(5, "TH1 opening Commissioning Window one more time to validate ability to do so"),

@@ -49,6 +49,7 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_WebRTCP_2_32(MatterBaseTest, WEBRTCPTestBase):
+
     def desc_TC_WebRTCP_2_32(self) -> str:
         """Returns a description of this test"""
         return "[TC-WEBRTCP-2.32] Validate immediate processing of SolicitOffer with old stream attributes DUT_Server - Release 1.5.1 or later"
@@ -57,16 +58,13 @@ class TC_WebRTCP_2_32(MatterBaseTest, WEBRTCPTestBase):
         return [
             TestStep("precondition", "DUT commissioned and audio/video streams allocated", is_commissioning=True),
             TestStep(1, "Read CurrentSessions attribute => expect 0"),
-            TestStep(
-                2,
-                "Send SolicitOffer using old scalar VideoStreamID and AudioStreamID fields (no VideoStreams/AudioStreams) => expect SolicitOfferResponse with deferredOffer=False",
-            ),
+            TestStep(2, "Send SolicitOffer using old scalar VideoStreamID and AudioStreamID fields (no VideoStreams/AudioStreams) => expect SolicitOfferResponse with deferredOffer=False"),
             TestStep(3, "Read CurrentSessions => expect 1; verify session has new list fields and old scalar fields absent"),
         ]
 
     def pics_TC_WebRTCP_2_32(self) -> list[str]:
         return [
-            "WEBRTCP.S",  # WebRTC Transport Provider Server
+            "WEBRTCP.S",           # WebRTC Transport Provider Server
         ]
 
     @property
@@ -87,7 +85,9 @@ class TC_WebRTCP_2_32(MatterBaseTest, WEBRTCPTestBase):
 
         self.step(1)
         current_sessions = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentSessions
+            endpoint=endpoint,
+            cluster=cluster,
+            attribute=cluster.Attributes.CurrentSessions
         )
         asserts.assert_equal(len(current_sessions), 0, "CurrentSessions must be empty!")
 
@@ -100,19 +100,27 @@ class TC_WebRTCP_2_32(MatterBaseTest, WEBRTCPTestBase):
             streamUsage=Globals.Enums.StreamUsageEnum.kLiveView,
             originatingEndpointID=endpoint,
             videoStreamID=videoStreamID,
-            audioStreamID=audioStreamID,
+            audioStreamID=audioStreamID
         )
         resp = await self.send_single_cmd(
-            cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
+            cmd=cmd,
+            endpoint=endpoint,
+            payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
         )
-        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse, "Incorrect response type")
+        asserts.assert_equal(
+            type(resp),
+            Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse,
+            "Incorrect response type"
+        )
         asserts.assert_false(resp.deferredOffer, "Expected 'deferredOffer' to be False (immediate processing)")
         matter_asserts.assert_int_in_range(resp.webRTCSessionID, 0, 65534, "SolicitOfferResponse webRTCSessionID")
         current_session_id = resp.webRTCSessionID
 
         self.step(3)
         current_sessions = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentSessions
+            endpoint=endpoint,
+            cluster=cluster,
+            attribute=cluster.Attributes.CurrentSessions
         )
         asserts.assert_equal(len(current_sessions), 1, "Expected exactly 1 CurrentSession")
 
@@ -133,21 +141,24 @@ class TC_WebRTCP_2_32(MatterBaseTest, WEBRTCPTestBase):
         asserts.assert_not_equal(
             session.streamUsage,
             Globals.Enums.StreamUsageEnum.kUnknownEnumValue,
-            "StreamUsage should be a valid known StreamUsageEnum value",
+            "StreamUsage should be a valid known StreamUsageEnum value"
         )
 
         # Session ID must match the one returned in the SolicitOfferResponse
-        asserts.assert_equal(session.id, current_session_id, "Session ID in CurrentSessions must match SolicitOfferResponse")
+        asserts.assert_equal(session.id, current_session_id,
+                             "Session ID in CurrentSessions must match SolicitOfferResponse")
 
         # New list fields must contain the stream IDs provided in the SolicitOffer command
         asserts.assert_greater(len(session.videoStreams), 0, "VideoStreams list should not be empty")
         asserts.assert_true(
-            videoStreamID in session.videoStreams, f"VideoStreams should contain the allocated VideoStreamID {videoStreamID}"
+            videoStreamID in session.videoStreams,
+            f"VideoStreams should contain the allocated VideoStreamID {videoStreamID}"
         )
 
         asserts.assert_greater(len(session.audioStreams), 0, "AudioStreams list should not be empty")
         asserts.assert_true(
-            audioStreamID in session.audioStreams, f"AudioStreams should contain the allocated AudioStreamID {audioStreamID}"
+            audioStreamID in session.audioStreams,
+            f"AudioStreams should contain the allocated AudioStreamID {audioStreamID}"
         )
 
 

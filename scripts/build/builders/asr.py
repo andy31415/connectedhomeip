@@ -34,56 +34,56 @@ class ASRApp(Enum):
 
     def ExampleName(self):
         if self == ASRApp.ALL_CLUSTERS:
-            return "all-clusters-app"
+            return 'all-clusters-app'
         if self == ASRApp.ALL_CLUSTERS_MINIMAL:
-            return "all-clusters-minimal-app"
+            return 'all-clusters-minimal-app'
         if self == ASRApp.LIGHT:
-            return "lighting-app"
+            return 'lighting-app'
         if self == ASRApp.LIGHT_SWITCH:
-            return "light-switch-app"
+            return 'light-switch-app'
         if self == ASRApp.LOCK:
-            return "lock-app"
+            return 'lock-app'
         if self == ASRApp.BRIDGE:
-            return "bridge-app"
+            return 'bridge-app'
         if self == ASRApp.TEMPERATURE_MEASUREMENT:
-            return "temperature-measurement-app"
+            return 'temperature-measurement-app'
         if self == ASRApp.THERMOSTAT:
-            return "thermostat"
+            return 'thermostat'
         if self == ASRApp.OTA_REQUESTOR:
-            return "ota-requestor-app"
+            return 'ota-requestor-app'
         if self == ASRApp.DISHWASHER:
-            return "dishwasher-app"
+            return 'dishwasher-app'
         if self == ASRApp.REFRIGERATOR:
-            return "refrigerator-app"
-        raise Exception("Unknown app type: %r" % self)
+            return 'refrigerator-app'
+        raise Exception('Unknown app type: %r' % self)
 
     def AppNamePrefix(self):
         if self == ASRApp.ALL_CLUSTERS:
-            return "chip-asr-all-clusters-app"
+            return 'chip-asr-all-clusters-app'
         if self == ASRApp.ALL_CLUSTERS_MINIMAL:
-            return "chip-asr-all-clusters-minimal-app"
+            return 'chip-asr-all-clusters-minimal-app'
         if self == ASRApp.LIGHT:
-            return "chip-asr-lighting-app"
+            return 'chip-asr-lighting-app'
         if self == ASRApp.LIGHT_SWITCH:
-            return "chip-asr-light-switch-app"
+            return 'chip-asr-light-switch-app'
         if self == ASRApp.LOCK:
-            return "chip-asr-lock-example"
+            return 'chip-asr-lock-example'
         if self == ASRApp.BRIDGE:
-            return "chip-asr-bridge-example"
+            return 'chip-asr-bridge-example'
         if self == ASRApp.TEMPERATURE_MEASUREMENT:
-            return "chip-asr-temperature-measurement-example"
+            return 'chip-asr-temperature-measurement-example'
         if self == ASRApp.THERMOSTAT:
-            return "chip-asr-thermostat-example"
+            return 'chip-asr-thermostat-example'
         if self == ASRApp.OTA_REQUESTOR:
-            return "chip-asr-ota-requestor-example"
+            return 'chip-asr-ota-requestor-example'
         if self == ASRApp.DISHWASHER:
-            return "chip-asr-dishwasher-example"
+            return 'chip-asr-dishwasher-example'
         if self == ASRApp.REFRIGERATOR:
-            return "chip-asr-refrigerator-example"
-        raise Exception("Unknown app type: %r" % self)
+            return 'chip-asr-refrigerator-example'
+        raise Exception('Unknown app type: %r' % self)
 
     def BuildRoot(self, root):
-        return os.path.join(root, "examples", self.ExampleName(), "asr")
+        return os.path.join(root, 'examples', self.ExampleName(), 'asr')
 
 
 class ASRBoard(Enum):
@@ -93,29 +93,30 @@ class ASRBoard(Enum):
 
     def GetIC(self):
         if self == ASRBoard.ASR582X:
-            return "asr582x"
+            return 'asr582x'
         if self == ASRBoard.ASR595X:
-            return "asr595x"
+            return 'asr595x'
         if self == ASRBoard.ASR550X:
-            return "asr550x"
-        raise Exception("Unknown board #: %r" % self)
+            return 'asr550x'
+        raise Exception('Unknown board #: %r' % self)
 
 
 class ASRBuilder(GnBuilder):
-    def __init__(
-        self,
-        root,
-        runner,
-        app: ASRApp = ASRApp.LIGHT,
-        board: ASRBoard = ASRBoard.ASR582X,
-        chip_build_libshell: bool = False,
-        chip_logging: bool = True,
-        enable_factory: bool = False,
-        enable_rotating_device_id: bool = False,
-        enable_ota_requestor: bool = False,
-        enable_lwip_ip6_hook: bool = False,
-    ):
-        super(ASRBuilder, self).__init__(root=app.BuildRoot(root), runner=runner)
+
+    def __init__(self,
+                 root,
+                 runner,
+                 app: ASRApp = ASRApp.LIGHT,
+                 board: ASRBoard = ASRBoard.ASR582X,
+                 chip_build_libshell: bool = False,
+                 chip_logging: bool = True,
+                 enable_factory: bool = False,
+                 enable_rotating_device_id: bool = False,
+                 enable_ota_requestor: bool = False,
+                 enable_lwip_ip6_hook: bool = False):
+        super(ASRBuilder, self).__init__(
+            root=app.BuildRoot(root),
+            runner=runner)
 
         self.board = board
         self.app = app
@@ -134,7 +135,7 @@ class ASRBuilder(GnBuilder):
             ASR_SDK_ROOT = "//third_party/connectedhomeip/third_party/asr/asr550x"
         self.extra_gn_options.append('target_cpu="%s"' % ASR_ARCH)
 
-        toolchain = os.path.join(root, os.path.split(os.path.realpath(__file__))[0], "../../../config/asr/toolchain")
+        toolchain = os.path.join(root, os.path.split(os.path.realpath(__file__))[0], '../../../config/asr/toolchain')
         toolchain = 'custom_toolchain="{}:asrtoolchain"'.format(toolchain)
         if toolchain:
             self.extra_gn_options.append(toolchain)
@@ -142,33 +143,34 @@ class ASRBuilder(GnBuilder):
         self.extra_gn_options.append('asr_sdk_build_root="%s"' % ASR_SDK_ROOT)
         self.extra_gn_options.append('mbedtls_target="%s:asr_build"' % ASR_SDK_ROOT)
 
-        if asr_chip == "asr582x" or asr_chip == "asr595x":
-            self.extra_gn_options.append("chip_config_network_layer_ble=true")
+        if (asr_chip == "asr582x"
+                or asr_chip == "asr595x"):
+            self.extra_gn_options.append('chip_config_network_layer_ble=true')
 
-        if asr_chip == "asr550x":
-            self.extra_gn_options.append("chip_config_network_layer_ble=false")
+        if (asr_chip == "asr550x"):
+            self.extra_gn_options.append('chip_config_network_layer_ble=false')
 
         if enable_ota_requestor:
-            self.extra_gn_options.append("chip_enable_ota_requestor=true")
+            self.extra_gn_options.append('chip_enable_ota_requestor=true')
 
         if chip_build_libshell:
-            self.extra_gn_options.append("chip_build_libshell=true")
+            self.extra_gn_options.append('chip_build_libshell=true')
 
         if chip_logging is False:
-            self.extra_gn_options.append("chip_logging=false")
+            self.extra_gn_options.append('chip_logging=false')
 
         if enable_factory:
-            self.extra_gn_options.append("chip_use_transitional_commissionable_data_provider=false")
-            self.extra_gn_options.append("chip_enable_factory_data=true")
+            self.extra_gn_options.append('chip_use_transitional_commissionable_data_provider=false')
+            self.extra_gn_options.append('chip_enable_factory_data=true')
 
         if enable_rotating_device_id:
-            self.extra_gn_options.append("chip_enable_additional_data_advertising=true")
-            self.extra_gn_options.append("chip_enable_rotating_device_id=true")
+            self.extra_gn_options.append('chip_enable_additional_data_advertising=true')
+            self.extra_gn_options.append('chip_enable_rotating_device_id=true')
 
         if enable_lwip_ip6_hook:
-            self.extra_gn_options.append("chip_lwip_ip6_hook=true")
+            self.extra_gn_options.append('chip_lwip_ip6_hook=true')
 
-        self.extra_gn_options.append('asr_toolchain_root="%s"' % os.environ["ASR_TOOLCHAIN_PATH"])
+        self.extra_gn_options.append('asr_toolchain_root="%s"' % os.environ['ASR_TOOLCHAIN_PATH'])
 
     def GnBuildArgs(self):
         args = super().GnBuildArgs()

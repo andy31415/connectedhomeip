@@ -93,121 +93,73 @@ class TC_CLCTRL_4_2(MatterBaseTest):
     def steps_TC_CLCTRL_4_2(self) -> list[TestStep]:
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
-            TestStep(
-                "2a",
-                "Read the FeatureMap attribute to determine supported features",
-                "FeatureMap of the ClosureControl cluster is returned by the DUT",
-            ),
+            TestStep("2a", "Read the FeatureMap attribute to determine supported features",
+                     "FeatureMap of the ClosureControl cluster is returned by the DUT"),
             TestStep("2b", "If the LT feature is not supported, skip remaining steps and end test case"),
-            TestStep(
-                "2c",
-                "Read the LatchControlModes attribute",
-                "LatchControlModes of the ClosureControl cluster is returned by the DUT; Value saved as LatchControlModes",
-            ),
-            TestStep(
-                "2d",
-                "Read the OverallCurrentState attribute",
-                "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Latching field is saved as CurrentLatch",
-            ),
-            TestStep(
-                "2e",
-                "Establish a wildcard subscription to all attributes on the ClosureControl cluster",
-                "Subscription successfully established",
-            ),
+            TestStep("2c", "Read the LatchControlModes attribute",
+                     "LatchControlModes of the ClosureControl cluster is returned by the DUT; Value saved as LatchControlModes"),
+            TestStep("2d", "Read the OverallCurrentState attribute",
+                     "OverallCurrentState of the ClosureControl cluster is returned by the DUT; Latching field is saved as CurrentLatch"),
+            TestStep("2e", "Establish a wildcard subscription to all attributes on the ClosureControl cluster",
+                     "Subscription successfully established"),
             TestStep("2f", "Preparing Latch-State: If CurrentLatch is False, skip steps 2g to 2k"),
             TestStep("2g", "If LatchControlModes Bit 1 = 0, skip step 2h"),
             TestStep("2h", "Send MoveTo command with Latch = False", "Receive SUCCESS response from the DUT"),
             TestStep("2i", "If LatchControlModes Bit 1 = 1, skip step 2j"),
             TestStep("2j", "Unlatch the device manually"),
-            TestStep(
-                "2k",
-                "Wait until a subscription report with OverallCurrentState.Latch is received",
-                "OverallCurrentState.Latch should be False",
-            ),
+            TestStep("2k", "Wait until a subscription report with OverallCurrentState.Latch is received",
+                     "OverallCurrentState.Latch should be False"),
             TestStep("3a", "Handle Latch with LatchControlModes = 0 (Bit 0 = 0, Bit 1 = 0), else skip steps 3b to 3e"),
-            TestStep("3b", "Send MoveTo command with Latch = True", "Receive INVALID_IN_STATE error from the DUT"),
-            TestStep(
-                "3c",
-                "Manually latch the device and wait until a subscription report with OverallCurrentState.Latch is received",
-                "OverallCurrentState.Latch should be True",
-            ),
+            TestStep("3b", "Send MoveTo command with Latch = True",
+                     "Receive INVALID_IN_STATE error from the DUT"),
+            TestStep("3c", "Manually latch the device and wait until a subscription report with OverallCurrentState.Latch is received",
+                     "OverallCurrentState.Latch should be True"),
             TestStep("3d", "Send MoveTo command with Latch = False", "Receive INVALID_IN_STATE error from the DUT"),
-            TestStep(
-                "3e",
-                "Manually unlatch the device and wait until a subscription report with OverallCurrentState.Latch is received",
-                "OverallCurrentState.Latch should be False",
-            ),
+            TestStep("3e", "Manually unlatch the device and wait until a subscription report with OverallCurrentState.Latch is received",
+                     "OverallCurrentState.Latch should be False"),
             TestStep("4a", "Handle Latch with LatchControlModes = 1 (Bit 0 = 1, Bit 1 = 0), else skip steps 4b to 4h"),
             TestStep("4b", "Send MoveTo command with Latch = True", "Receive SUCCESS response from the DUT"),
-            TestStep(
-                "4c",
-                "Wait until a subscription report with OverallTargetState is received",
-                "OverallTargetState.Latch should be True",
-            ),
+            TestStep("4c", "Wait until a subscription report with OverallTargetState is received",
+                     "OverallTargetState.Latch should be True"),
             TestStep("4d", "Wait until a subscription report with MainState is received", "MainState should be Moving"),
-            TestStep(
-                "4e",
-                "Wait until a subscription report with OverallCurrentState is received",
-                "OverallCurrentState.Latch should be True",
-            ),
+            TestStep("4e", "Wait until a subscription report with OverallCurrentState is received",
+                     "OverallCurrentState.Latch should be True"),
             TestStep("4f", "Wait until a subscription report with MainState is received", "MainState should be Stopped"),
             TestStep("4g", "Send MoveTo command with Latch = False", "Receive INVALID_IN_STATE error from the DUT"),
-            TestStep(
-                "4h",
-                "Manually unlatch the device and wait until a subscription report with OverallCurrentState.Latch is received",
-                "OverallCurrentState.Latch should be False",
-            ),
+            TestStep("4h", "Manually unlatch the device and wait until a subscription report with OverallCurrentState.Latch is received",
+                     "OverallCurrentState.Latch should be False"),
             TestStep("5a", "Handle Latch with LatchControlModes = 2 (Bit 0 = 0, Bit 1 = 1), else skip steps 5b to 5h"),
             TestStep("5b", "Send MoveTo command with Latch = True", "Receive INVALID_IN_STATE error from the DUT"),
-            TestStep(
-                "5c",
-                "Manually latch the device and wait until a subscription report with OverallCurrentState.Latch is received",
-                "OverallCurrentState.Latch should be True",
-            ),
+            TestStep("5c", "Manually latch the device and wait until a subscription report with OverallCurrentState.Latch is received",
+                     "OverallCurrentState.Latch should be True"),
             TestStep("5d", "Send MoveTo command with Latch = False", "Receive SUCCESS response from the DUT"),
-            TestStep(
-                "5e",
-                "Wait until a subscription report with OverallTargetState.Latch is received",
-                "OverallTargetState.Latch should be False",
-            ),
+            TestStep("5e", "Wait until a subscription report with OverallTargetState.Latch is received",
+                     "OverallTargetState.Latch should be False"),
             TestStep("5f", "Wait until a subscription report with MainState is received", "MainState should be Moving"),
-            TestStep(
-                "5g",
-                "Wait until a subscription report with OverallCurrentState.Latch is received",
-                "OverallCurrentState.Latch should be False",
-            ),
+            TestStep("5g", "Wait until a subscription report with OverallCurrentState.Latch is received",
+                     "OverallCurrentState.Latch should be False"),
             TestStep("5h", "Wait until a subscription report with MainState is received", "MainState should be Stopped"),
             TestStep("6a", "Handle Latch with LatchControlModes = 3 (Bit 0 = 1, Bit 1 = 1), else skip steps 6b to 6k"),
             TestStep("6b", "Send MoveTo command with Latch = True", "Receive SUCCESS response from the DUT"),
-            TestStep(
-                "6c",
-                "Wait until a subscription report with OverallTargetState is received",
-                "OverallTargetState.Latch should be True",
-            ),
+            TestStep("6c", "Wait until a subscription report with OverallTargetState is received",
+                     "OverallTargetState.Latch should be True"),
             TestStep("6d", "Wait until a subscription report with MainState is received", "MainState should be Moving"),
-            TestStep(
-                "6e",
-                "Wait until a subscription report with OverallCurrentState is received",
-                "OverallCurrentState.Latch should be True",
-            ),
+            TestStep("6e", "Wait until a subscription report with OverallCurrentState is received",
+                     "OverallCurrentState.Latch should be True"),
             TestStep("6f", "Wait until a subscription report with MainState is received", "MainState should be Stopped"),
             TestStep("6g", "Send MoveTo command with Latch = False", "Receive SUCCESS response from the DUT"),
-            TestStep(
-                "6h",
-                "Wait until a subscription report with OverallTargetState is received",
-                "OverallTargetState.Latch should be False",
-            ),
+            TestStep("6h", "Wait until a subscription report with OverallTargetState is received",
+                     "OverallTargetState.Latch should be False"),
             TestStep("6i", "Wait until a subscription report with MainState is received", "MainState should be Moving"),
-            TestStep(
-                "6j",
-                "Wait until a subscription report with OverallCurrentState is received",
-                "OverallCurrentState.Latch should be False",
-            ),
+            TestStep("6j", "Wait until a subscription report with OverallCurrentState is received",
+                     "OverallCurrentState.Latch should be False"),
             TestStep("6k", "Wait until a subscription report with MainState is received", "MainState should be Stopped"),
         ]
 
     def pics_TC_CLCTRL_4_2(self) -> list[str]:
-        return ["CLCTRL.S", "CLCTRL.S.F01"]
+        return [
+            "CLCTRL.S", "CLCTRL.S.F01"
+        ]
 
     @property
     def default_endpoint(self) -> int:
@@ -215,10 +167,9 @@ class TC_CLCTRL_4_2(MatterBaseTest):
 
     @async_test_body
     async def test_TC_CLCTRL_4_2(self):
+
         endpoint = self.get_endpoint()
-        timeout: uint = (
-            self.matter_test_config.timeout if self.matter_test_config.timeout is not None else self.default_timeout
-        )  # default_timeout = 90 seconds
+        timeout: uint = self.matter_test_config.timeout if self.matter_test_config.timeout is not None else self.default_timeout  # default_timeout = 90 seconds
 
         self.step(1)
         attributes: typing.List[uint] = Clusters.ClosureControl.Attributes
@@ -237,15 +188,11 @@ class TC_CLCTRL_4_2(MatterBaseTest):
         log.info("Latching feature is supported, proceeding with the test.")
 
         self.step("2c")
-        latch_control_modes: uint = await self.read_clctrl_attribute_expect_success(
-            endpoint=endpoint, attribute=attributes.LatchControlModes
-        )
+        latch_control_modes: uint = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.LatchControlModes)
         log.info(f"LatchControlModes: {latch_control_modes}")
 
         self.step("2d")
-        overall_current_state: typing.Union[
-            Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct
-        ] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
+        overall_current_state: typing.Union[Nullable, Clusters.ClosureControl.Structs.OverallCurrentStateStruct] = await self.read_clctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.OverallCurrentState)
         current_latch: bool = None
         if overall_current_state is NullValue:
             current_latch = NullValue
@@ -255,14 +202,7 @@ class TC_CLCTRL_4_2(MatterBaseTest):
 
         self.step("2e")
         sub_handler = AttributeSubscriptionHandler(expected_cluster=Clusters.ClosureControl)
-        await sub_handler.start(
-            self.default_controller,
-            self.dut_node_id,
-            endpoint=endpoint,
-            min_interval_sec=0,
-            max_interval_sec=30,
-            keepSubscriptions=False,
-        )
+        await sub_handler.start(self.default_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
 
         self.step("2f")
         if current_latch is False:
@@ -285,9 +225,7 @@ class TC_CLCTRL_4_2(MatterBaseTest):
                 log.info("LatchControlModes Bit 1 is 1, sending MoveTo command with Latch = False")
 
                 try:
-                    await self.send_single_cmd(
-                        endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000
-                    )
+                    await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000)
                 except InteractionModelError as e:
                     asserts.assert_equal(e.status, Status.Success, f"MoveTo command with Latch = False failed: {e}")
 
@@ -306,15 +244,12 @@ class TC_CLCTRL_4_2(MatterBaseTest):
             log.info("LatchControlModes is 0, proceeding with fully manual latch tests")
             self.step("3b")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), timedRequestTimeoutMs=1000
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), timedRequestTimeoutMs=1000)
                 log.error("MoveTo command with Latch = True sent successfully, but should fail due to LatchControlModes = 0")
                 asserts.assert_true(False, "Expected INVALID_IN_STATE error, but command succeeded")
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.InvalidInState, f"MoveTo command with Latch = True failed with unexpected status: {e.status}"
-                )
+                asserts.assert_equal(e.status, Status.InvalidInState,
+                                     f"MoveTo command with Latch = True failed with unexpected status: {e.status}")
                 log.info("Received INVALID_IN_STATE error as expected")
 
             self.step("3c")
@@ -323,15 +258,12 @@ class TC_CLCTRL_4_2(MatterBaseTest):
 
             self.step("3d")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000)
                 log.error("MoveTo command with Latch = False sent successfully, but should fail due to LatchControlModes = 0")
                 asserts.assert_true(False, "Expected INVALID_IN_STATE error, but command succeeded")
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.InvalidInState, f"MoveTo command with Latch = False failed with unexpected status: {e.status}"
-                )
+                asserts.assert_equal(e.status, Status.InvalidInState,
+                                     f"MoveTo command with Latch = False failed with unexpected status: {e.status}")
                 log.info("Received INVALID_IN_STATE error as expected")
             self.step("3e")
             self.wait_for_user_input(prompt_msg="Manually unlatch the device and press enter when done")
@@ -345,9 +277,7 @@ class TC_CLCTRL_4_2(MatterBaseTest):
         else:
             self.step("4b")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), timedRequestTimeoutMs=1000
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), timedRequestTimeoutMs=1000)
                 log.info("MoveTo command with Latch = True sent successfully")
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, f"MoveTo command with Latch = True failed: {e}")
@@ -355,26 +285,21 @@ class TC_CLCTRL_4_2(MatterBaseTest):
             self.step("4c")
             sub_handler.await_all_expected_report_matches(expected_matchers=[target_latch_matcher(True)], timeout_sec=timeout)
             self.step("4d")
-            sub_handler.await_all_expected_report_matches(
-                expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kMoving)], timeout_sec=timeout
-            )
+            sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(
+                Clusters.ClosureControl.Enums.MainStateEnum.kMoving)], timeout_sec=timeout)
             self.step("4e")
             sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(True)], timeout_sec=timeout)
             self.step("4f")
-            sub_handler.await_all_expected_report_matches(
-                expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout
-            )
+            sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(
+                Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout)
             self.step("4g")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000)
                 log.error("MoveTo command with Latch = False sent successfully, but should fail due to LatchControlModes = 1")
                 asserts.assert_true(False, "Expected INVALID_IN_STATE error, but command succeeded")
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.InvalidInState, f"MoveTo command with Latch = False failed with unexpected status: {e.status}"
-                )
+                asserts.assert_equal(e.status, Status.InvalidInState,
+                                     f"MoveTo command with Latch = False failed with unexpected status: {e.status}")
                 log.info("Received INVALID_IN_STATE error as expected")
             self.step("4h")
             self.wait_for_user_input(prompt_msg="Manually unlatch the device and press enter when done")
@@ -388,15 +313,12 @@ class TC_CLCTRL_4_2(MatterBaseTest):
         else:
             self.step("5b")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), timedRequestTimeoutMs=1000
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), timedRequestTimeoutMs=1000)
                 log.error("MoveTo command with Latch = True sent successfully, but should fail due to LatchControlModes = 2")
                 asserts.assert_true(False, "Expected INVALID_IN_STATE error, but command succeeded")
             except InteractionModelError as e:
-                asserts.assert_equal(
-                    e.status, Status.InvalidInState, f"MoveTo command with Latch = True failed with unexpected status: {e.status}"
-                )
+                asserts.assert_equal(e.status, Status.InvalidInState,
+                                     f"MoveTo command with Latch = True failed with unexpected status: {e.status}")
                 log.info("Received INVALID_IN_STATE error as expected")
 
             self.step("5c")
@@ -405,9 +327,7 @@ class TC_CLCTRL_4_2(MatterBaseTest):
 
             self.step("5d")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000)
                 log.info("MoveTo command with Latch = False sent successfully")
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, f"MoveTo command with Latch = False failed: {e}")
@@ -415,15 +335,13 @@ class TC_CLCTRL_4_2(MatterBaseTest):
             self.step("5e")
             sub_handler.await_all_expected_report_matches(expected_matchers=[target_latch_matcher(False)], timeout_sec=timeout)
             self.step("5f")
-            sub_handler.await_all_expected_report_matches(
-                expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kMoving)], timeout_sec=timeout
-            )
+            sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(
+                Clusters.ClosureControl.Enums.MainStateEnum.kMoving)], timeout_sec=timeout)
             self.step("5g")
             sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(False)], timeout_sec=timeout)
             self.step("5h")
-            sub_handler.await_all_expected_report_matches(
-                expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout
-            )
+            sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(
+                Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout)
             sub_handler.reset()
 
         self.step("6a")
@@ -433,9 +351,7 @@ class TC_CLCTRL_4_2(MatterBaseTest):
         else:
             self.step("6b")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), timedRequestTimeoutMs=1000
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=True), timedRequestTimeoutMs=1000)
                 log.info("MoveTo command with Latch = True sent successfully")
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, f"MoveTo command with Latch = True failed: {e}")
@@ -443,21 +359,17 @@ class TC_CLCTRL_4_2(MatterBaseTest):
             self.step("6c")
             sub_handler.await_all_expected_report_matches(expected_matchers=[target_latch_matcher(True)], timeout_sec=timeout)
             self.step("6d")
-            sub_handler.await_all_expected_report_matches(
-                expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kMoving)], timeout_sec=timeout
-            )
+            sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(
+                Clusters.ClosureControl.Enums.MainStateEnum.kMoving)], timeout_sec=timeout)
             self.step("6e")
             sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(True)], timeout_sec=timeout)
             self.step("6f")
-            sub_handler.await_all_expected_report_matches(
-                expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout
-            )
+            sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(
+                Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout)
 
             self.step("6g")
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=Clusters.ClosureControl.Commands.MoveTo(latch=False), timedRequestTimeoutMs=1000)
                 log.info("MoveTo command with Latch = False sent successfully")
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, f"MoveTo command with Latch = False failed: {e}")
@@ -465,15 +377,14 @@ class TC_CLCTRL_4_2(MatterBaseTest):
             self.step("6h")
             sub_handler.await_all_expected_report_matches(expected_matchers=[target_latch_matcher(False)], timeout_sec=timeout)
             self.step("6i")
-            sub_handler.await_all_expected_report_matches(
-                expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kMoving)], timeout_sec=timeout
-            )
+            sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(
+                Clusters.ClosureControl.Enums.MainStateEnum.kMoving)],
+                timeout_sec=timeout)
             self.step("6j")
             sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(False)], timeout_sec=timeout)
             self.step("6k")
-            sub_handler.await_all_expected_report_matches(
-                expected_matchers=[main_state_matcher(Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout
-            )
+            sub_handler.await_all_expected_report_matches(expected_matchers=[main_state_matcher(
+                Clusters.ClosureControl.Enums.MainStateEnum.kStopped)], timeout_sec=timeout)
             sub_handler.reset()
 
 

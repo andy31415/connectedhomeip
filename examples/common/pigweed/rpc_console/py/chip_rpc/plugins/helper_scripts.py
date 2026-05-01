@@ -27,9 +27,9 @@ class HelperScripts:
 
     def get_descriptor(self) -> str:
         """Use the Descriptor RPC service to build a dictionary with descriptor
-        values. Currently this reads the root node's DeviceTypeList and
-        PartsList, and the server/client list for every endpoint in the
-        PartsList."""
+           values. Currently this reads the root node's DeviceTypeList and
+           PartsList, and the server/client list for every endpoint in the
+           PartsList."""
         out = {}
 
         (status, device_types) = self.rpcs.chip.rpc.Descriptor.DeviceTypeList(endpoint=0)
@@ -57,5 +57,5 @@ class HelperScripts:
         return out
 
     def print_descriptor(self) -> None:
-        """Pretty print the results of get_descriptor."""
+        """ Pretty print the results of get_descriptor. """
         print(json.dumps(self.get_descriptor(), indent=4))

@@ -21,7 +21,8 @@ from pathlib import Path
 
 from chiptest import AllChipToolYamlTests
 
-DEFAULT_CHIP_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+DEFAULT_CHIP_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', '..'))
 
 
 def _is_cert_test(path):
@@ -35,13 +36,13 @@ def check_unit_testing():
             # Unit testing cluster is disallowed in cert tests, but permissible in general integration tests
             unit_test_lines = {}
             if _is_cert_test(test.run_name):
-                unit_test_lines = {
-                    lineno: line.strip() for lineno, line in enumerate(f) if re.search('cluster: "Unit Testing"', line)
-                }
+                unit_test_lines = {lineno: line.strip() for lineno, line in enumerate(
+                    f) if re.search('cluster: "Unit Testing"', line)}
             if unit_test_lines:
-                print(f"Found certification test using Unit Testing cluster: {test.name}")
+                print(
+                    f'Found certification test using Unit Testing cluster: {test.name}')
                 for line, val in unit_test_lines.items():
-                    print(f"\t{line + 1}: {val}")
+                    print(f'\t{line+1}: {val}')
                 bad_tests.add(Path(test.run_name).name)
 
     if bad_tests:
@@ -57,12 +58,13 @@ def check_manual_steps():
     # Adding an exception for this directory so that git can function properly.
     subprocess.run("git config --global --add safe.directory '*'", shell=True)
     for test in AllChipToolYamlTests(use_short_run_name=False):
-        cmd = f"git diff HEAD^..HEAD --unified=0 -- {test.run_name}"
+
+        cmd = f'git diff HEAD^..HEAD --unified=0 -- {test.run_name}'
         output = subprocess.check_output(cmd, shell=True).decode().splitlines()
-        user_prompt_added = [line for line in output if re.search(r"^\+.*UserPrompt.*", line)]
-        user_prompt_removed = [line for line in output if re.search(r"^\-.*UserPrompt.*", line)]
+        user_prompt_added = [line for line in output if re.search(r'^\+.*UserPrompt.*', line)]
+        user_prompt_removed = [line for line in output if re.search(r'^\-.*UserPrompt.*', line)]
         if len(user_prompt_added) > len(user_prompt_removed):
-            print(f"Found YAML test with additional manual steps: {test.name}")
+            print(f'Found YAML test with additional manual steps: {test.name}')
             bad_test = True
     if bad_test:
         return 1
@@ -75,5 +77,5 @@ def main():
     return ret
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

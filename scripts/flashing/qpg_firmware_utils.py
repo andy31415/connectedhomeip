@@ -39,13 +39,15 @@ import firmware_utils
 # object (as dictionary keys) and/or passed as command line options.
 QPG_OPTIONS = {
     # Configuration options define properties used in flashing operations.
-    "configuration": {
+    'configuration': {
         # Tool configuration options.
-        "drive": {
-            "help": "Location of the mBed mount",
-            "default": "/mnt/e",
-            "alias": ["-d"],
-            "argparse": {"metavar": "FILE"},
+        'drive': {
+            'help': 'Location of the mBed mount',
+            'default': '/mnt/e',
+            'alias': ['-d'],
+            'argparse': {
+                'metavar': 'FILE'
+            },
         },
     },
 }
@@ -55,7 +57,7 @@ class Flasher(firmware_utils.Flasher):
     """Manage flashing."""
 
     def __init__(self, **options):
-        super().__init__(platform="QPG", module=__name__, **options)
+        super().__init__(platform='QPG', module=__name__, **options)
         self.define_options(QPG_OPTIONS)
 
     def erase(self):
@@ -70,7 +72,8 @@ class Flasher(firmware_utils.Flasher):
 
     def flash(self, image):
         """Flash image."""
-        self.log(1, "Copying to {} drive {}".format(image, self.option.drive or "None"))
+        self.log(1, "Copying to {} drive {}".format(
+            image, self.option.drive or "None"))
         if not self.option.drive:
             self.log(0, "--drive or -d required for copy action")
             self.err = 1
@@ -78,18 +81,21 @@ class Flasher(firmware_utils.Flasher):
 
         # Check for drive mount
         if not os.path.exists(self.option.drive):
-            self.log(0, "Drive '{}' does not exist. Is the USB device mounted correctly ?".format(self.option.drive))
+            self.log(0, "Drive '{}' does not exist. Is the USB device mounted correctly ?".format(
+                self.option.drive))
             self.err = 2
             return self
 
         # Check for valid mBed device
-        mbed_marker = os.path.join(self.option.drive, "MBED.HTM")
+        mbed_marker = os.path.join(self.option.drive, 'MBED.HTM')
         if not os.path.exists(mbed_marker):
-            self.log(0, "Drive '{}' not a path to an MBED device".format(self.option.drive))
+            self.log(0, "Drive '{}' not a path to an MBED device".format(
+                self.option.drive))
             self.err = 3
             return self
 
-        shutil.copyfile(image, os.path.join(self.option.drive, os.path.basename(image)))
+        shutil.copyfile(image, os.path.join(
+            self.option.drive, os.path.basename(image)))
         return self
 
     def reset(self):
@@ -99,7 +105,7 @@ class Flasher(firmware_utils.Flasher):
 
     def actions(self):
         """Perform actions on the device according to self.option."""
-        self.log(3, "Options:", self.option)
+        self.log(3, 'Options:', self.option)
 
         if self.option.erase:
             if self.erase().err:
@@ -122,5 +128,5 @@ class Flasher(firmware_utils.Flasher):
         return self
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(Flasher().flash_command(sys.argv))

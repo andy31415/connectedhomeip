@@ -19,4 +19,6 @@
 
 from .commissioner import GetCommissioner
 
-__all__ = ["GetCommissioner"]
+__all__ = [
+    'GetCommissioner'
+]

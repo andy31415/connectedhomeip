@@ -53,7 +53,8 @@ PixelPainter::PixelPainter(uint16_t lift, uint16_t tilt) : mLift(lift), mTilt(ti
 
 CompositePainter::CompositePainter(uint16_t lift, uint16_t tilt, PixelPainter * painter1, PixelPainter * painter2,
                                    PixelPainter * painter3) :
-    PixelPainter(lift, tilt), mPainter1(painter1), mPainter2(painter2), mPainter3(painter3)
+    PixelPainter(lift, tilt),
+    mPainter1(painter1), mPainter2(painter2), mPainter3(painter3)
 {}
 
 uint8_t CompositePainter::Color(uint32_t x, uint32_t y)

@@ -57,7 +57,10 @@ class HelloTest(MatterBaseTest):
     async def test_TC_NAMES_2_1(self):
         dev_ctrl = self.default_controller
         vendor_name = await self.read_single_attribute(
-            dev_ctrl, self.dut_node_id, 0, Clusters.BasicInformation.Attributes.VendorName
+            dev_ctrl,
+            self.dut_node_id,
+            0,
+            Clusters.BasicInformation.Attributes.VendorName
         )
 
         log.info("Found VendorName: %s" % (vendor_name))
@@ -70,13 +73,12 @@ class HelloTest(MatterBaseTest):
     # If the device needs to be commissioned before running the test, ensure the first step in
     # this function is marked is_commissioning=True.
     def steps_TC_ENDPOINT_2_1(self) -> list[TestStep]:
-        return [
-            TestStep(1, "Commissioning, already done", is_commissioning=True),
-            TestStep(2, "Read ProductName on endpoint 9999"),
-        ]
+        return [TestStep(1, "Commissioning, already done", is_commissioning=True),
+                TestStep(2, "Read ProductName on endpoint 9999"),
+                ]
 
     def desc_TC_ENDPOINT_2_1(self) -> str:
-        return "#.#.#. [TC-HELLO-x.x] Test Failure On Wrong Endpoint"
+        return '#.#.#. [TC-HELLO-x.x] Test Failure On Wrong Endpoint'
 
     @async_test_body
     async def test_TC_ENDPOINT_2_1(self):
@@ -85,18 +87,20 @@ class HelloTest(MatterBaseTest):
         self.step(2)
         dev_ctrl = self.default_controller
         result = await self.read_single_attribute(
-            dev_ctrl, self.dut_node_id, 9999, Clusters.BasicInformation.Attributes.ProductName
+            dev_ctrl,
+            self.dut_node_id,
+            9999,
+            Clusters.BasicInformation.Attributes.ProductName
         )
         asserts.assert_true(isinstance(result, Clusters.Attribute.ValueDecodeFailure), "Should fail to read on endpoint 9999")
         asserts.assert_equal(result.Reason.status, Status.UnsupportedEndpoint, "Failure reason should be UnsupportedEndpoint")
 
     def steps_TC_PICSTEST_2_1(self) -> list[TestStep]:
-        return [
-            TestStep(1, "Commissioning, already done", is_commissioning=True),
-            TestStep(2, "Skip this step based on pics"),
-            TestStep(3, "Run this step"),
-            TestStep(4, "Always skip this step"),
-        ]
+        return [TestStep(1, "Commissioning, already done", is_commissioning=True),
+                TestStep(2, "Skip this step based on pics"),
+                TestStep(3, "Run this step"),
+                TestStep(4, "Always skip this step")
+                ]
 
     def desc_TC_PICSTEST_2_1(self) -> str:
         return "#.#.#. [TC-HELLO-x.x] Test pics"
@@ -104,14 +108,14 @@ class HelloTest(MatterBaseTest):
     @async_test_body
     async def test_TC_PICSTEST_2_1(self):
         self.step(1)  # commissioning
-        print("This should be run")
+        print('This should be run')
 
         self.step(2)
-        if self.pics_guard(self.check_pics("NON-EXISTANT_PICS")):
-            asserts.fail("This should not be run")
+        if self.pics_guard(self.check_pics('NON-EXISTANT_PICS')):
+            asserts.fail('This should not be run')
 
         self.step(3)
-        print("This should also be run")
+        print('This should also be run')
 
         self.skip_step(4)
 

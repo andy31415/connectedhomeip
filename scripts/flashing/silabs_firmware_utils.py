@@ -59,14 +59,17 @@ import firmware_utils
 # object (as dictionary keys) and/or passed as command line options.
 SILABS_OPTIONS = {
     # Configuration options define properties used in flashing operations.
-    "configuration": {
+    'configuration': {
         # Tool configuration options.
-        "commander": {
-            "help": "File name of the commander executable",
-            "default": "commander",
-            "argparse": {"metavar": "FILE"},
-            "verify": ["{commander}", "--version"],
-            "error": """\
+        'commander': {
+            'help': 'File name of the commander executable',
+            'default': 'commander',
+            'argparse': {
+                'metavar': 'FILE'
+            },
+            'verify': ['{commander}', '--version'],
+            'error':
+                """\
                 Unable to execute {commander}.
 
                 Please ensure that this tool is installed and
@@ -75,23 +78,29 @@ SILABS_OPTIONS = {
 
                 """,
         },
-        "device": {
-            "help": "Device family or platform to target (EFR32 or MGM240)",
-            "default": None,
-            "alias": ["-d"],
-            "argparse": {"metavar": "DEVICE"},
+        'device': {
+            'help': 'Device family or platform to target (EFR32 or MGM240)',
+            'default': None,
+            'alias': ['-d'],
+            'argparse': {
+                'metavar': 'DEVICE'
+            },
         },
-        "serialno": {
-            "help": "Serial number of device to flash",
-            "default": None,
-            "alias": ["-s"],
-            "argparse": {"metavar": "SERIAL"},
+        'serialno': {
+            'help': 'Serial number of device to flash',
+            'default': None,
+            'alias': ['-s'],
+            'argparse': {
+                'metavar': 'SERIAL'
+            },
         },
-        "ip": {
-            "help": "Ip Address of the probe connected to the target",
-            "default": None,
-            "alias": ["-a"],
-            "argparse": {"metavar": "ADDRESS"},
+        'ip': {
+            'help': 'Ip Address of the probe connected to the target',
+            'default': None,
+            'alias': ['-a'],
+            'argparse': {
+                'metavar': 'ADDRESS'
+            },
         },
     },
 }
@@ -101,38 +110,46 @@ class Flasher(firmware_utils.Flasher):
     """Manage silabs flashing."""
 
     def __init__(self, **options):
-        super().__init__(platform="SILABS", module=__name__, **options)
+        super().__init__(platform='SILABS', module=__name__, **options)
         self.define_options(SILABS_OPTIONS)
 
     # Common command line arguments for commander device subcommands.
-    DEVICE_ARGUMENTS = [{"optional": "serialno"}, {"optional": "ip"}, {"optional": "device"}]
+    DEVICE_ARGUMENTS = [{'optional': 'serialno'}, {
+        'optional': 'ip'}, {'optional': 'device'}]
 
     def erase(self):
         """Perform `commander device masserase`."""
-        return self.run_tool("commander", ["device", "masserase", self.DEVICE_ARGUMENTS], name="Erase device")
+        return self.run_tool(
+            'commander', ['device', 'masserase', self.DEVICE_ARGUMENTS],
+            name='Erase device')
 
     def verify(self, image):
         """Verify image."""
         return self.run_tool(
-            "commander",
-            ["verify", self.DEVICE_ARGUMENTS, image],
-            name="Verify",
-            pass_message="Verified",
-            fail_message="Not verified",
-            fail_level=2,
-        )
+            'commander',
+            ['verify', self.DEVICE_ARGUMENTS, image],
+            name='Verify',
+            pass_message='Verified',
+            fail_message='Not verified',
+            fail_level=2)
 
     def flash(self, image):
         """Flash image."""
-        return self.run_tool("commander", ["flash", self.DEVICE_ARGUMENTS, image], name="Flash")
+        return self.run_tool(
+            'commander',
+            ['flash', self.DEVICE_ARGUMENTS, image],
+            name='Flash')
 
     def reset(self):
         """Reset the device."""
-        return self.run_tool("commander", ["device", "reset", self.DEVICE_ARGUMENTS], name="Reset")
+        return self.run_tool(
+            'commander',
+            ['device', 'reset', self.DEVICE_ARGUMENTS],
+            name='Reset')
 
     def actions(self):
         """Perform actions on the device according to self.option."""
-        self.log(3, "Options:", self.option)
+        self.log(3, 'Options:', self.option)
 
         if self.option.erase:
             if self.erase().err:
@@ -172,19 +189,24 @@ class Flasher(firmware_utils.Flasher):
                 shutil.copy(args.firmware_utils, output_dir)
 
             # Create the flashbundle file.
-            with open(args.flashbundle_file, "w") as flashbundle_file:
+            with open(args.flashbundle_file, 'w') as flashbundle_file:
                 flashbundle_file.write(flashbundle_contents.strip())
 
     def make_wrapper(self, argv):
         self.parser.add_argument(
-            "--flashbundle-file", metavar="FILENAME", help="path and name of the flashbundle text file to create"
-        )
+            '--flashbundle-file',
+            metavar='FILENAME',
+            help='path and name of the flashbundle text file to create')
         self.parser.add_argument(
-            "--platform-firmware-utils", metavar="FILENAME", help="path and file of the platform-specific firmware utils script"
-        )
-        self.parser.add_argument("--firmware-utils", metavar="FILENAME", help="path and file of the general firmware utils script")
+            '--platform-firmware-utils',
+            metavar='FILENAME',
+            help='path and file of the platform-specific firmware utils script')
+        self.parser.add_argument(
+            '--firmware-utils',
+            metavar='FILENAME',
+            help='path and file of the general firmware utils script')
         super().make_wrapper(argv)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(Flasher().flash_command(sys.argv))

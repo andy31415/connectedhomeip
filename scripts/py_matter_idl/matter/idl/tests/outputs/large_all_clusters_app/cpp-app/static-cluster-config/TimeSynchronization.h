@@ -38,8 +38,12 @@ inline constexpr AttributeId kEndpoint0EnabledAttributes[] = {
 };
 
 inline constexpr CommandId kEndpoint0EnabledCommands[] = {
-    Commands::SetDefaultNTP::Id,       Commands::SetDSTOffset::Id,         Commands::SetTimeZone::Id,
-    Commands::SetTimeZoneResponse::Id, Commands::SetTrustedTimeSource::Id, Commands::SetUTCTime::Id,
+    Commands::SetDefaultNTP::Id,
+    Commands::SetDSTOffset::Id,
+    Commands::SetTimeZone::Id,
+    Commands::SetTimeZoneResponse::Id,
+    Commands::SetTrustedTimeSource::Id,
+    Commands::SetUTCTime::Id,
 };
 
 } // namespace detail
@@ -49,22 +53,19 @@ using FeatureBitmapType = Feature;
 inline constexpr std::array<Clusters::StaticApplicationConfig::ClusterConfiguration<FeatureBitmapType>, 1> kFixedClusterConfig = { {
     {
         .endpointNumber = 0,
-        .featureMap =
-            BitFlags<FeatureBitmapType>{
-                FeatureBitmapType::kTimeZone,      // feature bit 0x1
-                FeatureBitmapType::kNTPClient,     // feature bit 0x2
-                FeatureBitmapType::kTimeSyncClient // feature bit 0x8
-            },
+        .featureMap = BitFlags<FeatureBitmapType> {
+            FeatureBitmapType::kTimeZone, // feature bit 0x1
+            FeatureBitmapType::kNTPClient, // feature bit 0x2
+            FeatureBitmapType::kTimeSyncClient// feature bit 0x8
+        },
         .enabledAttributes = Span<const AttributeId>(detail::kEndpoint0EnabledAttributes),
-        .enabledCommands   = Span<const CommandId>(detail::kEndpoint0EnabledCommands),
+        .enabledCommands = Span<const CommandId>(detail::kEndpoint0EnabledCommands),
     },
 } };
 
 // If a specific attribute is supported at all across all endpoint static instantiations
-inline constexpr bool IsAttributeEnabledOnSomeEndpoint(AttributeId attributeId)
-{
-    switch (attributeId)
-    {
+inline constexpr bool IsAttributeEnabledOnSomeEndpoint(AttributeId attributeId) {
+  switch (attributeId) {
     case Attributes::DSTOffset::Id:
     case Attributes::DSTOffsetListMaxSize::Id:
     case Attributes::UTCTime::Id:
@@ -82,27 +83,25 @@ inline constexpr bool IsAttributeEnabledOnSomeEndpoint(AttributeId attributeId)
     case Attributes::TimeZoneDatabase::Id:
     case Attributes::TimeZoneListMaxSize::Id:
     case Attributes::TrustedTimeSource::Id:
-        return true;
+      return true;
     default:
-        return false;
-    }
+      return false;
+  }
 }
 
 // If a specific command is supported at all across all endpoint static instantiations
-inline constexpr bool IsCommandEnabledOnSomeEndpoint(CommandId commandId)
-{
-    switch (commandId)
-    {
+inline constexpr bool IsCommandEnabledOnSomeEndpoint(CommandId commandId) {
+  switch (commandId) {
     case Commands::SetDSTOffset::Id:
     case Commands::SetDefaultNTP::Id:
     case Commands::SetTimeZone::Id:
     case Commands::SetTimeZoneResponse::Id:
     case Commands::SetTrustedTimeSource::Id:
     case Commands::SetUTCTime::Id:
-        return true;
+      return true;
     default:
-        return false;
-    }
+      return false;
+  }
 }
 
 } // namespace StaticApplicationConfig
@@ -110,3 +109,4 @@ inline constexpr bool IsCommandEnabledOnSomeEndpoint(CommandId commandId)
 } // namespace Clusters
 } // namespace app
 } // namespace chip
+

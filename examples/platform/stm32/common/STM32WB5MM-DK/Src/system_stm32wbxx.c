@@ -228,13 +228,13 @@ const uint32_t SmpsPrescalerTable[4UL][6UL] = { { 1UL, 3UL, 2UL, 2UL, 1UL, 2UL }
 #if (OTA_SUPPORT == 1)
 #if defined(__ICCARM__)
 extern uint32_t __vector_table;
-#define INTVECT_START ((uint32_t) & __vector_table)
+#define INTVECT_START ((uint32_t) &__vector_table)
 #elif defined(__CC_ARM) || defined(__ARMCC_VERSION)
 extern void * __Vectors;
-#define INTVECT_START ((uint32_t) & __Vectors)
+#define INTVECT_START ((uint32_t) &__Vectors)
 #elif defined(__GNUC__)
 extern void * g_pfnVectors;
-#define INTVECT_START ((uint32_t) & g_pfnVectors)
+#define INTVECT_START ((uint32_t) &g_pfnVectors)
 #endif
 #endif
 

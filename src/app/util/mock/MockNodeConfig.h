@@ -57,7 +57,9 @@ struct MockAttributeConfig
     MockAttributeConfig(AttributeId aId, EmberAfAttributeMetadata metadata) : id(aId), attributeMetaData(metadata) {}
     MockAttributeConfig(AttributeId aId, EmberAfAttributeType type,
                         EmberAfAttributeMask mask = MATTER_ATTRIBUTE_FLAG_WRITABLE | MATTER_ATTRIBUTE_FLAG_READABLE |
-                            MATTER_ATTRIBUTE_FLAG_NULLABLE) : id(aId), attributeMetaData(internal::DefaultAttributeMetadata(aId))
+                            MATTER_ATTRIBUTE_FLAG_NULLABLE) :
+        id(aId),
+        attributeMetaData(internal::DefaultAttributeMetadata(aId))
     {
         attributeMetaData.attributeType = type;
         attributeMetaData.mask          = mask;

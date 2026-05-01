@@ -73,6 +73,7 @@ class TC_SC_3_5(MatterBaseTest):
         self.start_th_server()
 
     def teardown_class(self):
+
         if self.th_server is not None:
             self.th_server.terminate()
         if self.storage is not None:
@@ -89,93 +90,69 @@ class TC_SC_3_5(MatterBaseTest):
 
     def steps_TC_SC_3_5(self) -> list[TestStep]:
         return [
+
             TestStep("precondition", "TH_SERVER has been commissioned to TH_CLIENT", is_commissioning=True),
-            TestStep(
-                "1a",
-                "TH Client sends an OpenCommissioningWindow command to TH_SERVER to allow it to be commissioned by DUT_Commissioner to determine if the DUT_Commissioner has an ICAC in its NOC Chain",
-                "Verify that the TH_SERVER returns SUCCESS",
-            ),
-            TestStep(
-                "1b",
-                "TH prompts the user to Commission DUT_Commissioner to TH_SERVER",
-                "Verify that the DUT commissioned TH_SERVER successfully",
-            ),
-            TestStep(
-                "1c",
-                "TH Client Reads the NOCs attribute on TH_SERVER and checks if DUT_Commissioner has ICAC in its NOC Chain",
-                "Verify that NOCs attribute returns two NOCStructs and determine if DUT_Commissioner has ICAC",
-            ),
-            TestStep(
-                "1d",
-                "TH Client removes the DUT_Commissioner's fabric from TH_SERVER",
-                "Verify that the DUT_Commissioner's fabric is removed from TH_SERVER",
-            ),
-            TestStep(
-                "2a",
-                "TH Client sends an OpenCommissioningWindow command to TH_SERVER to allow it to be commissioned by DUT_Commissioner and trigger CASE Handshake",
-                "Verify that the TH_SERVER returns SUCCESS",
-            ),
-            TestStep(
-                "2b",
-                "TH Client sends FailAtFault command to FaultInjection cluster on TH_SERVER to include a corrupt TBEData2Encrypted in the Sigma2 it will send during CASE Handshake",
-                "Verify that the TH_SERVER receives the message",
-            ),
-            TestStep(
-                "2c",
-                "TH prompts the user to Commission DUT_Commissioner to TH_SERVER",
-                "Verify that the DUT sends a status report to TH_SERVER with a FAILURE general code (value 1), protocol ID of SECURE_CHANNEL (0x0000), and Protocol code of INVALID_PARAMETER (0X0002). Verify that the commissioning failed by checking that the commissioning window is still open on TH_SERVER.",
-            ),
-            TestStep(
-                "3a",
-                "TH Client revokes the Commissioning Window and resends an OpenCommissioningWindow command to TH_SERVER to allow commissioning by DUT_Commissioner again and re-trigger the CASE handshake.",
-                "Verify that the TH_SERVER returns SUCCESS",
-            ),
-            TestStep(
-                "3b",
-                "TH Client sends FailAtFault command to FaultInjection cluster on TH_SERVER to include a corrupt responderNOC in the Sigma2 it will send during CASE Handshake",
-                "Verify that the TH_SERVER receives the message",
-            ),
-            TestStep(
-                "3c",
-                "TH prompts the user to Commission DUT_Commissioner to TH_SERVER again",
-                "Verify that the DUT sends a status report to TH_SERVER with a FAILURE general code (value 1), protocol ID of SECURE_CHANNEL (0x0000), and Protocol code of INVALID_PARAMETER (0X0002). Verify that the commissioning failed by checking that the commissioning window is still open on TH_SERVER.",
-            ),
-            TestStep(
-                "4a",
-                "TH Client revokes the Commissioning Window and resends an OpenCommissioningWindow command to TH_SERVER to allow commissioning by DUT_Commissioner again and re-trigger the CASE handshake."
-                " This Test Step is skipped if DUT_Commissioner does not have ICAC in its NOC Chain",
-                "Verify that the TH_SERVER returns SUCCESS",
-            ),
-            TestStep(
-                "4b",
-                "TH Client sends FailAtFault command to FaultInjection cluster on TH_SERVER to include a corrupt responderICAC in the Sigma2 it will send during CASE Handshake."
-                " This Test Step is skipped if DUT_Commissioner does not have ICAC in its NOC Chain",
-                "Verify that the TH_SERVER receives the message",
-            ),
-            TestStep(
-                "4c",
-                "TH prompts the user to Commission DUT_Commissioner to TH_SERVER again."
-                " This Test Step is skipped if DUT_Commissioner does not have ICAC in its NOC Chain",
-                "Verify that the DUT sends a status report to TH_SERVER with a FAILURE general code (value 1), protocol ID of SECURE_CHANNEL (0x0000), and Protocol code of INVALID_PARAMETER (0X0002). Verify that the commissioning failed by checking that the commissioning window is still open on TH_SERVER.",
-            ),
-            TestStep(
-                "5a",
-                "TH Client revokes the Commissioning Window and resends an OpenCommissioningWindow command to TH_SERVER to allow commissioning by DUT_Commissioner again and re-trigger the CASE handshake.",
-                "Verify that the TH_SERVER returns SUCCESS",
-            ),
-            TestStep(
-                "5b",
-                "TH Client sends FailAtFault command to FaultInjection cluster on TH_SERVER to include a corrupt Signature in the Sigma2 it will send during CASE Handshake",
-                "Verify that the TH_SERVER receives the message",
-            ),
-            TestStep(
-                "5c",
-                "TH prompts the user to Commission DUT_Commissioner to TH_SERVER again",
-                "Verify that the DUT sends a status report to TH_SERVER with a FAILURE general code (value 1), protocol ID of SECURE_CHANNEL (0x0000), and Protocol code of INVALID_PARAMETER (0X0002). Verify that the commissioning failed by checking that the commissioning window is still open on TH_SERVER.",
-            ),
+
+            TestStep("1a", "TH Client sends an OpenCommissioningWindow command to TH_SERVER to allow it to be commissioned by DUT_Commissioner to determine if the DUT_Commissioner has an ICAC in its NOC Chain",
+                     "Verify that the TH_SERVER returns SUCCESS"),
+
+            TestStep("1b", "TH prompts the user to Commission DUT_Commissioner to TH_SERVER",
+                     "Verify that the DUT commissioned TH_SERVER successfully"),
+
+            TestStep("1c", "TH Client Reads the NOCs attribute on TH_SERVER and checks if DUT_Commissioner has ICAC in its NOC Chain",
+                     "Verify that NOCs attribute returns two NOCStructs and determine if DUT_Commissioner has ICAC"),
+
+            TestStep("1d", "TH Client removes the DUT_Commissioner's fabric from TH_SERVER",
+                     "Verify that the DUT_Commissioner's fabric is removed from TH_SERVER"),
+
+            TestStep("2a", "TH Client sends an OpenCommissioningWindow command to TH_SERVER to allow it to be commissioned by DUT_Commissioner and trigger CASE Handshake",
+                     "Verify that the TH_SERVER returns SUCCESS"),
+
+            TestStep("2b", "TH Client sends FailAtFault command to FaultInjection cluster on TH_SERVER to include a corrupt TBEData2Encrypted in the Sigma2 it will send during CASE Handshake",
+                     "Verify that the TH_SERVER receives the message"),
+
+            TestStep("2c", "TH prompts the user to Commission DUT_Commissioner to TH_SERVER",
+                     "Verify that the DUT sends a status report to TH_SERVER with a FAILURE general code (value 1), protocol ID of SECURE_CHANNEL (0x0000), and Protocol code of INVALID_PARAMETER (0X0002). Verify that the commissioning failed by checking that the commissioning window is still open on TH_SERVER."),
+
+            TestStep("3a", "TH Client revokes the Commissioning Window and resends an OpenCommissioningWindow command to TH_SERVER to allow commissioning by DUT_Commissioner again and re-trigger the CASE handshake.",
+                     "Verify that the TH_SERVER returns SUCCESS"),
+
+            TestStep("3b", "TH Client sends FailAtFault command to FaultInjection cluster on TH_SERVER to include a corrupt responderNOC in the Sigma2 it will send during CASE Handshake",
+                     "Verify that the TH_SERVER receives the message"),
+
+            TestStep("3c", "TH prompts the user to Commission DUT_Commissioner to TH_SERVER again",
+                     "Verify that the DUT sends a status report to TH_SERVER with a FAILURE general code (value 1), protocol ID of SECURE_CHANNEL (0x0000), and Protocol code of INVALID_PARAMETER (0X0002). Verify that the commissioning failed by checking that the commissioning window is still open on TH_SERVER."),
+
+            TestStep("4a", "TH Client revokes the Commissioning Window and resends an OpenCommissioningWindow command to TH_SERVER to allow commissioning by DUT_Commissioner again and re-trigger the CASE handshake."
+                     " This Test Step is skipped if DUT_Commissioner does not have ICAC in its NOC Chain",
+                     "Verify that the TH_SERVER returns SUCCESS"),
+
+            TestStep("4b", "TH Client sends FailAtFault command to FaultInjection cluster on TH_SERVER to include a corrupt responderICAC in the Sigma2 it will send during CASE Handshake."
+                     " This Test Step is skipped if DUT_Commissioner does not have ICAC in its NOC Chain",
+                     "Verify that the TH_SERVER receives the message"),
+
+
+            TestStep("4c", "TH prompts the user to Commission DUT_Commissioner to TH_SERVER again."
+                     " This Test Step is skipped if DUT_Commissioner does not have ICAC in its NOC Chain",
+                     "Verify that the DUT sends a status report to TH_SERVER with a FAILURE general code (value 1), protocol ID of SECURE_CHANNEL (0x0000), and Protocol code of INVALID_PARAMETER (0X0002). Verify that the commissioning failed by checking that the commissioning window is still open on TH_SERVER."),
+
+
+            TestStep("5a", "TH Client revokes the Commissioning Window and resends an OpenCommissioningWindow command to TH_SERVER to allow commissioning by DUT_Commissioner again and re-trigger the CASE handshake.",
+                     "Verify that the TH_SERVER returns SUCCESS"),
+
+            TestStep("5b", "TH Client sends FailAtFault command to FaultInjection cluster on TH_SERVER to include a corrupt Signature in the Sigma2 it will send during CASE Handshake",
+                     "Verify that the TH_SERVER receives the message"),
+
+
+            TestStep("5c", "TH prompts the user to Commission DUT_Commissioner to TH_SERVER again",
+                     "Verify that the DUT sends a status report to TH_SERVER with a FAILURE general code (value 1), protocol ID of SECURE_CHANNEL (0x0000), and Protocol code of INVALID_PARAMETER (0X0002). Verify that the commissioning failed by checking that the commissioning window is still open on TH_SERVER."),
+
+
+
         ]
 
     def start_th_server(self):
+
         if self.th_server is not None:
             self.th_server.terminate()
         if self.storage is not None:
@@ -189,20 +166,18 @@ class TC_SC_3_5(MatterBaseTest):
             self.th_server_app,
             storage_dir=self.storage.name,
             discriminator=self.th_server_discriminator,
-            passcode=self.th_server_passcode,
+            passcode=self.th_server_passcode
         )
 
-        self.th_server.start(expected_output="Server initialization complete", timeout=60)
+        self.th_server.start(
+            expected_output="Server initialization complete",
+            timeout=60)
 
     async def open_commissioning_window(self):
+
         # Instructing TH Server to accept a new Commissioner, which is the DUT
         params = await self.th_client.OpenCommissioningWindow(
-            nodeId=self.th_server_local_nodeid,
-            timeout=3 * 60,
-            iteration=10000,
-            discriminator=self.th_server_discriminator,
-            option=1,
-        )
+            nodeId=self.th_server_local_nodeid, timeout=3*60, iteration=10000, discriminator=self.th_server_discriminator, option=1)
         new_random_passcode = params.setupPinCode
         await asyncio.sleep(1)
         log.info("OpenCommissioningWindow complete")
@@ -210,22 +185,20 @@ class TC_SC_3_5(MatterBaseTest):
         return new_random_passcode
 
     async def revoke_and_open_commissioning_window(self):
-        """Before reopening Commissioning Window, we need to instruct TH_SERVER to revoke any active OpenCommissioningWindows."""
+        ''' Before reopening Commissioning Window, we need to instruct TH_SERVER to revoke any active OpenCommissioningWindows.'''
 
         try:
             revokeCmd = Clusters.AdministratorCommissioning.Commands.RevokeCommissioning()
-            await self.th_client.SendCommand(
-                nodeId=self.th_server_local_nodeid, endpoint=0, payload=revokeCmd, timedRequestTimeoutMs=9000
-            )
+            await self.th_client.SendCommand(nodeId=self.th_server_local_nodeid, endpoint=0, payload=revokeCmd, timedRequestTimeoutMs=9000)
         except InteractionModelError as e:
             # If the window is already closed, we just go ahead with opening the commissioning window
             if e.status == Clusters.AdministratorCommissioning.Enums.StatusCode.kWindowNotOpen:
                 pass
             else:
-                log.exception("Error running RevokeCommissioning command: %s", e)
+                log.exception('Error running RevokeCommissioning command: %s', e)
                 asserts.fail(f"RevokeCommissioning failed with error: {e.status}")
         except Exception as e:
-            log.exception("Error running RevokeCommissioning command: %s", e)
+            log.exception('Error running RevokeCommissioning command: %s', e)
             asserts.fail(f"RevokeCommissioning failed with error: {str(e)}")
 
         await asyncio.sleep(1)
@@ -233,7 +206,7 @@ class TC_SC_3_5(MatterBaseTest):
         return await self.open_commissioning_window()
 
     async def send_fault_injection_command(self, faultID: CHIPFaultId):
-        """Inject Fault in TH_SERVER, by sending fault injection Cluster Command from TH_CLIENT"""
+        '''Inject Fault in TH_SERVER, by sending fault injection Cluster Command from TH_CLIENT'''
 
         command = Clusters.FaultInjection.Commands.FailAtFault(
             type=Clusters.FaultInjection.Enums.FaultType.kChipFault,
@@ -252,9 +225,9 @@ class TC_SC_3_5(MatterBaseTest):
             asserts.fail("Fault Injection Command Failed, is the TH_SERVER app built with the FaultInjection Cluster?")
 
     async def assert_dut_commissioner_failed_to_complete_commissioning(self):
-        """Helper to assert that DUT_Commissioner failed to commission TH_SERVER; We do this by checking that the commissioning window is still open.
-        NOTE: This method should only be called when testing CASE Error failure AND after TH_Client has opened commissioning window for DUT_Commissioner.
-        """
+        '''Helper to assert that DUT_Commissioner failed to commission TH_SERVER; We do this by checking that the commissioning window is still open.
+           NOTE: This method should only be called when testing CASE Error failure AND after TH_Client has opened commissioning window for DUT_Commissioner.
+        '''
 
         AC_cluster = Clusters.AdministratorCommissioning
         window_status = await self.read_single_attribute_check_success(
@@ -263,24 +236,17 @@ class TC_SC_3_5(MatterBaseTest):
             fabric_filtered=False,
             endpoint=0,
             cluster=AC_cluster,
-            attribute=AC_cluster.Attributes.WindowStatus,
+            attribute=AC_cluster.Attributes.WindowStatus
         )
 
-        asserts.assert_not_equal(
-            window_status,
-            AC_cluster.Enums.CommissioningWindowStatusEnum.kWindowNotOpen,
-            "Commissioning window is expected to be open, but was found to be closed. This indicates that DUT_Commissioner completed commissioning successfully, which is not expected in this test step",
-        )
+        asserts.assert_not_equal(window_status, AC_cluster.Enums.CommissioningWindowStatusEnum.kWindowNotOpen,
+                                 "Commissioning window is expected to be open, but was found to be closed. This indicates that DUT_Commissioner completed commissioning successfully, which is not expected in this test step")
 
     @async_test_body
     async def test_TC_SC_3_5(self):
+
         self.step("precondition")
-        await self.th_client.CommissionOnNetwork(
-            nodeId=self.th_server_local_nodeid,
-            setupPinCode=self.th_server_passcode,
-            filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
-            filter=self.th_server_discriminator,
-        )
+        await self.th_client.CommissionOnNetwork(nodeId=self.th_server_local_nodeid, setupPinCode=self.th_server_passcode, filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR, filter=self.th_server_discriminator)
         log.info("Commissioning TH_SERVER complete")
 
         # ------------------------------------------- Determine if DUT Commissioner has ICAC in its NOC Chain---------------------------------------------
@@ -306,29 +272,29 @@ class TC_SC_3_5(MatterBaseTest):
 
             resp = self.wait_for_user_input(prompt_msg)
 
-            commissioning_success = resp.lower() == "y"
+            commissioning_success = resp.lower() == 'y'
 
             # Verify that DUT commissioned TH_SERVER successfully
-            asserts.assert_true(commissioning_success, "Expected DUT_Commissioner to commission TH_SERVER app successfully")
+            asserts.assert_true(
+                commissioning_success,
+                "Expected DUT_Commissioner to commission TH_SERVER app successfully"
+            )
 
             self.step("1c")
-            nocStructs = await self.read_single_attribute_check_success(
-                dev_ctrl=self.th_client,
-                node_id=self.th_server_local_nodeid,
-                cluster=Clusters.OperationalCredentials,
-                attribute=Clusters.OperationalCredentials.Attributes.NOCs,
-                fabric_filtered=False,
-            )
+            nocStructs = await self.read_single_attribute_check_success(dev_ctrl=self.th_client,
+                                                                        node_id=self.th_server_local_nodeid,
+                                                                        cluster=Clusters.OperationalCredentials,
+                                                                        attribute=Clusters.OperationalCredentials.Attributes.NOCs,
+                                                                        fabric_filtered=False)
 
-            asserts.assert_equal(
-                len(nocStructs), 2, f"Expected 2 NOCStructs (1 for TH Client, 1 for DUT Commissioner), got {len(nocStructs)}"
-            )
+            asserts.assert_equal(len(nocStructs), 2,
+                                 f"Expected 2 NOCStructs (1 for TH Client, 1 for DUT Commissioner), got {len(nocStructs)}")
 
             dut_commissioner_noc_struct = next((noc for noc in nocStructs if noc.fabricIndex != self.th_client.fabricId), None)
 
             asserts.assert_is_not_none(
                 dut_commissioner_noc_struct,
-                "Could not find a NOCStruct for DUT Commissioner. Please ensure that DUT Commissioner commissioned TH Server successfully.",
+                "Could not find a NOCStruct for DUT Commissioner. Please ensure that DUT Commissioner commissioned TH Server successfully."
             )
 
             dut_commissioner_icac = dut_commissioner_noc_struct.icac
@@ -347,7 +313,8 @@ class TC_SC_3_5(MatterBaseTest):
 
             cmd = Clusters.OperationalCredentials.Commands.RemoveFabric(fabricIndex=dut_commissioner_fabric_index)
             resp = await self.send_single_cmd(dev_ctrl=self.th_client, node_id=self.th_server_local_nodeid, cmd=cmd)
-            asserts.assert_equal(resp.statusCode, Clusters.OperationalCredentials.Enums.NodeOperationalCertStatusEnum.kOk)
+            asserts.assert_equal(
+                resp.statusCode, Clusters.OperationalCredentials.Enums.NodeOperationalCertStatusEnum.kOk)
 
         # ------------------------------------------- Inject Fault into Sigma2 TBEData2Encrypted---------------------------------------------
         self.step("2a")
@@ -366,15 +333,17 @@ class TC_SC_3_5(MatterBaseTest):
         )
 
         if self.is_pics_sdk_ci_only:
-            resp = "Y"
+            resp = 'Y'
         else:
             resp = self.wait_for_user_input(prompt_msg)
 
-        expected_error_found = resp.lower() == "y"
+        expected_error_found = resp.lower() == 'y'
 
         # Verify results
         asserts.assert_equal(
-            expected_error_found, True, f"Expected Error in TH_SERVER logs is {'found' if expected_error_found else 'not found'}"
+            expected_error_found,
+            True,
+            f"Expected Error in TH_SERVER logs is {'found' if expected_error_found else 'not found'}"
         )
 
         await self.assert_dut_commissioner_failed_to_complete_commissioning()
@@ -398,15 +367,17 @@ class TC_SC_3_5(MatterBaseTest):
         )
 
         if self.is_pics_sdk_ci_only:
-            resp = "Y"
+            resp = 'Y'
         else:
             resp = self.wait_for_user_input(prompt_msg)
 
-        expected_error_found = resp.lower() == "y"
+        expected_error_found = resp.lower() == 'y'
 
         # Verify results
         asserts.assert_equal(
-            expected_error_found, True, f"Expected Error in TH_SERVER logs is {'found' if expected_error_found else 'not found'}"
+            expected_error_found,
+            True,
+            f"Expected Error in TH_SERVER logs is {'found' if expected_error_found else 'not found'}"
         )
 
         await self.assert_dut_commissioner_failed_to_complete_commissioning()
@@ -436,17 +407,17 @@ class TC_SC_3_5(MatterBaseTest):
             )
 
             if self.is_pics_sdk_ci_only:
-                resp = "Y"
+                resp = 'Y'
             else:
                 resp = self.wait_for_user_input(prompt_msg)
 
-            expected_error_found = resp.lower() == "y"
+            expected_error_found = resp.lower() == 'y'
 
             # Verify results
             asserts.assert_equal(
                 expected_error_found,
                 True,
-                f"Expected Error in TH_SERVER logs is {'found' if expected_error_found else 'not found'}",
+                f"Expected Error in TH_SERVER logs is {'found' if expected_error_found else 'not found'}"
             )
 
             await self.assert_dut_commissioner_failed_to_complete_commissioning()
@@ -469,15 +440,17 @@ class TC_SC_3_5(MatterBaseTest):
             "Or failure in TH Server Logs IS NOT = 'INVALID CASE PARAMETER'\n"
         )
         if self.is_pics_sdk_ci_only:
-            resp = "Y"
+            resp = 'Y'
         else:
             resp = self.wait_for_user_input(prompt_msg)
 
-        expected_error_found = resp.lower() == "y"
+        expected_error_found = resp.lower() == 'y'
 
         # Verify results
         asserts.assert_equal(
-            expected_error_found, True, f"Expected Error in TH_SERVER logs is {'found' if expected_error_found else 'not found'}"
+            expected_error_found,
+            True,
+            f"Expected Error in TH_SERVER logs is {'found' if expected_error_found else 'not found'}"
         )
 
         await self.assert_dut_commissioner_failed_to_complete_commissioning()

@@ -43,9 +43,7 @@ def main(argv):
                 **memdf.report.REPORT_CONFIG,
                 **memdf.report.REPORT_BY_CONFIG,
                 **memdf.report.OUTPUT_CONFIG,
-            },
-            argv,
-        )
+            }, argv)
         dfs: DFs = memdf.collect.collect_files(config)
 
         symbols = dfs[SymbolDF.name]
@@ -58,5 +56,5 @@ def main(argv):
     return status
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main(sys.argv))

@@ -51,6 +51,7 @@ log = logging.getLogger(__name__)
 
 
 class TestUnitTestingErrorPath(MatterBaseTest):
+
     @async_test_body
     async def test_unit_test_error_read(self):
         endpoint_id = 1
@@ -66,11 +67,14 @@ class TestUnitTestingErrorPath(MatterBaseTest):
 
         self.print_step(2, "Expect that reading FailureInt32U returns the previously set 'Failure' code.")
         try:
-            data = await self.default_controller.ReadAttribute(self.dut_node_id, [(endpoint_id, attributes.FailureInt32U)])
+            data = await self.default_controller.ReadAttribute(
+                self.dut_node_id, [(endpoint_id, attributes.FailureInt32U)]
+            )
             result = data[endpoint_id][Clusters.UnitTesting][attributes.FailureInt32U]
 
             asserts.assert_true(
-                isinstance(result, Clusters.Attribute.ValueDecodeFailure), "Expect a decode error for reading the failure attribute"
+                isinstance(result, Clusters.Attribute.ValueDecodeFailure),
+                "Expect a decode error for reading the failure attribute"
             )
             asserts.assert_equal(result.Reason.status, Status.Failure, "Failure state is the default for the failure read.")
         except InteractionModelError:
@@ -84,11 +88,14 @@ class TestUnitTestingErrorPath(MatterBaseTest):
 
         self.print_step(4, "Expect that reading FailureInt32U returns the previously set 'ResourceExhausted' code.")
         try:
-            data = await self.default_controller.ReadAttribute(self.dut_node_id, [(endpoint_id, attributes.FailureInt32U)])
+            data = await self.default_controller.ReadAttribute(
+                self.dut_node_id, [(endpoint_id, attributes.FailureInt32U)]
+            )
             result = data[endpoint_id][Clusters.UnitTesting][attributes.FailureInt32U]
 
             asserts.assert_true(
-                isinstance(result, Clusters.Attribute.ValueDecodeFailure), "Expect a decode error for reading the failure attribute"
+                isinstance(result, Clusters.Attribute.ValueDecodeFailure),
+                "Expect a decode error for reading the failure attribute"
             )
             asserts.assert_true(result.Reason.status, Status.ResourceExhausted, "Set failure is ResourceExhausted")
         except InteractionModelError:

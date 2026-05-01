@@ -27,6 +27,6 @@ ThreadNetworkInfo = Struct(
     "ExtendedPanId" / Bytes(8),
     "MeshPrefix" / Bytes(8),
     "PanId" / Int16ul,
-    "NetworkName" / PaddedString(17, "utf8"),
+    "NetworkName" / PaddedString(17, 'utf8'),
     "Channel" / Byte,
 )

@@ -50,7 +50,6 @@ class FilterType(enum.IntEnum):
 @dataclass(unsafe_hash=True)
 class PeerId:
     """Represents a remote peer id."""
-
     fabricId: int
     nodeId: int
 
@@ -58,7 +57,6 @@ class PeerId:
 @dataclass(unsafe_hash=True)
 class NodeAddress:
     """Represents a distinct address where a node can be reached."""
-
     interface: int
     ip: str
     port: int
@@ -67,7 +65,6 @@ class NodeAddress:
 @dataclass
 class AggregatedDiscoveryResults:
     """Discovery results for a node."""
-
     peerId: PeerId
     addresses: Set[NodeAddress]
 
@@ -75,7 +72,6 @@ class AggregatedDiscoveryResults:
 @dataclass
 class PendingDiscovery:
     """Accumulator for ongoing discovery."""
-
     result: AggregatedDiscoveryResults
     callback: Callable[[AggregatedDiscoveryResults], None]
     expireTime: float
@@ -83,7 +79,7 @@ class PendingDiscovery:
 
 
 @dataclass
-class CommissionableNode:
+class CommissionableNode():
     instanceName: Optional[str] = None
     hostName: Optional[str] = None
     port: Optional[int] = None
@@ -117,7 +113,8 @@ class _PendingDiscoveries:
 
     def __init__(self):
         self.operationCondition = threading.Condition()
-        self.resolution = threading.Thread(target=self.ResolutionThread, daemon=True)
+        self.resolution = threading.Thread(
+            target=self.ResolutionThread, daemon=True)
         self.resolution.start()
 
     def Start(self, peerId: PeerId, callback: Callable[[AggregatedDiscoveryResults], None], timeoutMs: int):
@@ -127,10 +124,9 @@ class _PendingDiscoveries:
                 PendingDiscovery(
                     AggregatedDiscoveryResults(peerId, addresses=set()),
                     callback=callback,
-                    expireTime=time.time() + timeoutMs / 1000.0,
+                    expireTime=time.time() + timeoutMs/1000.0,
                     firstResultTime=0,
-                )
-            )
+                ))
             self.operationCondition.notify()
 
     def OnSuccess(self, peerId: PeerId, address: NodeAddress):
@@ -148,7 +144,8 @@ class _PendingDiscoveries:
     def ResolutionThread(self):
         while True:
             with self.operationCondition:
-                self.operationCondition.wait(self.ComputeNextEventTimeoutSeconds())
+                self.operationCondition.wait(
+                    self.ComputeNextEventTimeoutSeconds())
 
                 updatedDiscoveries = []
 
@@ -226,7 +223,8 @@ def FindAddressAsync(fabricId: int, nodeId: int, callback, timeoutMs=1000):
       callback: Will be called once node resolution completes.
     """
 
-    _GetDiscoveryLibraryHandle().pychip_discovery_set_callbacks(_DiscoverSuccess, _DiscoverFailure)
+    _GetDiscoveryLibraryHandle().pychip_discovery_set_callbacks(
+        _DiscoverSuccess, _DiscoverFailure)
 
     _gPendingDiscoveries.Start(PeerId(fabricId, nodeId), callback, timeoutMs)
 

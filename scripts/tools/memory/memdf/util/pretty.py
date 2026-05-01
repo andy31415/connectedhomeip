@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 def log(level: int, x: Any) -> None:
     if logger.isEnabledFor(level):
-        for line in pprint.pformat(x).split("\n"):
+        for line in pprint.pformat(x).split('\n'):
             logger.log(level, line)
 
 

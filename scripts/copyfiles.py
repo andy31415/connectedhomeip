@@ -22,7 +22,6 @@ import click
 
 try:
     import coloredlogs
-
     _has_coloredlogs = True
 except ImportError:
     _has_coloredlogs = False
@@ -36,20 +35,32 @@ __LOG_LEVELS__ = logging.getLevelNamesMapping()
 
 @click.command()
 @click.option(
-    "--log-level",
-    default="warn",
+    '--log-level',
+    default='warn',
     type=click.Choice(__LOG_LEVELS__.keys(), case_sensitive=False),
-    help="Determines the verbosity of script output",
-)
-@click.option("--source-dir", type=click.Path(), default=None, required=True, help="Source directory to copy from")
-@click.option("--target-dir", type=click.Path(), default=None, required=True, help="Target directory to copy into")
-@click.argument("filenames", nargs=-1, type=click.Path(exists=True))
+    help='Determines the verbosity of script output')
+@click.option(
+    '--source-dir',
+    type=click.Path(),
+    default=None,
+    required=True,
+    help='Source directory to copy from')
+@click.option(
+    '--target-dir',
+    type=click.Path(),
+    default=None,
+    required=True,
+    help='Target directory to copy into')
+@click.argument('filenames', nargs=-1, type=click.Path(exists=True))
 def main(log_level, source_dir: str, target_dir: str, filenames: list[str]):
     if _has_coloredlogs:
-        coloredlogs.install(level=__LOG_LEVELS__[log_level], fmt="%(asctime)s %(levelname)-7s %(message)s")
+        coloredlogs.install(level=__LOG_LEVELS__[
+                            log_level], fmt='%(asctime)s %(levelname)-7s %(message)s')
     else:
         logging.basicConfig(
-            level=__LOG_LEVELS__[log_level], format="%(asctime)s %(levelname)-7s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+            level=__LOG_LEVELS__[log_level],
+            format='%(asctime)s %(levelname)-7s %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
         )
 
     # code ALWAYS uses absolute paths since we replace path prefixes
@@ -98,5 +109,5 @@ def main(log_level, source_dir: str, target_dir: str, filenames: list[str]):
         shutil.copyfile(filename, destination)
 
 
-if __name__ == "__main__":
-    main(auto_envvar_prefix="CHIP")
+if __name__ == '__main__':
+    main(auto_envvar_prefix='CHIP')

@@ -64,7 +64,6 @@ class ChipUtility(object):
     def StringToCString(s):
         return None if s is None else s.encode()
 
-
 # To support Python 3.8 and older versions, which does not support @classmethod + @property
 
 

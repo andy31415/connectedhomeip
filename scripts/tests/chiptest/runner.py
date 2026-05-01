@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 
 log = logging.getLogger(__name__)
 
-with python_path.PythonPath("../../../src/python_testing/matter_testing_infrastructure", relative_to=__file__):
+with python_path.PythonPath('../../../src/python_testing/matter_testing_infrastructure', relative_to=__file__):
     # Import all symbols used downstream not only those we use ourselves
     from matter.testing.tasks import SubprocessInfo, SubprocessKind  # noqa: F401
 
@@ -56,7 +56,7 @@ class LogPipe(threading.Thread):
         self.daemon = False
         self.level = level
         self.fd_read, self.fd_write = pty.openpty()
-        self.reader = open(self.fd_read, encoding="utf-8", errors="ignore")  # noqa: SIM115
+        self.reader = open(self.fd_read, encoding='utf-8', errors='ignore')  # noqa: SIM115
         self.captured_logs: list[str] = []
         self.capture_delegate = capture_delegate
 
@@ -86,7 +86,7 @@ class LogPipe(threading.Thread):
                 line = self.reader.readline()
                 # It seems that Darwin platform returns empty string in case
                 # when writing side of PTY is closed (Linux raises OSError).
-                if line == "":
+                if line == '':
                     break
             except OSError:
                 break
@@ -145,16 +145,11 @@ class Executor:
     def __init__(self) -> None:
         self._processes: queue.Queue[subprocess.Popen[bytes]] = queue.Queue()
 
-    def run(
-        self,
-        subproc: SubprocessInfo,
-        stdin: IO[Any] | None = None,
-        stdout: IO[Any] | LogPipe | None = None,
-        stderr: IO[Any] | LogPipe | None = None,
-    ):
+    def run(self, subproc: SubprocessInfo, stdin: IO[Any] | None = None, stdout: IO[Any] | LogPipe | None = None, stderr: IO[Any] | LogPipe | None = None):
         # Seems like LogPipe has all what Popen needs to perceive it as stdout/stderr,
         # but mypy doesn't think the same.
-        self._processes.put(process := subprocess.Popen(subproc.to_cmd(), stdin=stdin, stdout=stdout, stderr=stderr))  # type: ignore[arg-type]
+        self._processes.put(process := subprocess.Popen(subproc.to_cmd(), stdin=stdin,
+                                                        stdout=stdout, stderr=stderr))  # type: ignore[arg-type]
         return process
 
     def terminate(self) -> None:
@@ -195,27 +190,23 @@ class Executor:
 
 
 class Runner:
-    def __init__(self, executor: Executor, capture_delegate: ExecutionCapture | None = None):
+    def __init__(self, executor: Executor,
+                 capture_delegate: ExecutionCapture | None = None):
         self.executor = executor
         self.capture_delegate = capture_delegate
 
-    def RunSubprocess(
-        self,
-        subproc: SubprocessInfo,
-        name: str,
-        wait: bool = True,
-        dependencies: list[AppsRegister] | None = None,
-        timeout_seconds: int | None = None,
-        stdin: IO[Any] | None = None,
-    ) -> tuple[subprocess.Popen[bytes], LogPipe, LogPipe]:
+    def RunSubprocess(self, subproc: SubprocessInfo, name: str, wait: bool = True,
+                      dependencies: list[AppsRegister] | None = None,
+                      timeout_seconds: int | None = None,
+                      stdin: IO[Any] | None = None) -> tuple[subprocess.Popen[bytes], LogPipe, LogPipe]:
         cmd = subproc.to_cmd()
-        log.info("RunSubprocess starting application %s", " ".join(cmd))
+        log.info('RunSubprocess starting application %s', " ".join(cmd))
 
-        outpipe = LogPipe(logging.DEBUG, capture_delegate=self.capture_delegate, name=name + " STDOUT")
-        errpipe = LogPipe(logging.INFO, capture_delegate=self.capture_delegate, name=name + " STDERR")
+        outpipe = LogPipe(logging.DEBUG, capture_delegate=self.capture_delegate, name=name + ' STDOUT')
+        errpipe = LogPipe(logging.INFO, capture_delegate=self.capture_delegate, name=name + ' STDERR')
 
         if self.capture_delegate:
-            self.capture_delegate.Log(name, "EXECUTING %r" % cmd)
+            self.capture_delegate.Log(name, 'EXECUTING %r' % cmd)
 
         s = self.executor.run(subproc, stdin=stdin, stdout=outpipe, stderr=errpipe)
         outpipe.close()

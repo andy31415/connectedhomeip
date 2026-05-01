@@ -52,9 +52,9 @@ public:
                                        MessageTransportContext * ctxt = nullptr) = 0;
 
 #if INET_CONFIG_ENABLE_TCP_ENDPOINT
-    virtual void HandleConnectionReceived(ActiveTCPConnectionState & conn) {};
-    virtual void HandleConnectionAttemptComplete(ActiveTCPConnectionHandle & conn, CHIP_ERROR conErr) {};
-    virtual void HandleConnectionClosed(ActiveTCPConnectionState & conn, CHIP_ERROR conErr) {};
+    virtual void HandleConnectionReceived(ActiveTCPConnectionState & conn){};
+    virtual void HandleConnectionAttemptComplete(ActiveTCPConnectionHandle & conn, CHIP_ERROR conErr){};
+    virtual void HandleConnectionClosed(ActiveTCPConnectionState & conn, CHIP_ERROR conErr){};
 #endif // INET_CONFIG_ENABLE_TCP_ENDPOINT
 };
 

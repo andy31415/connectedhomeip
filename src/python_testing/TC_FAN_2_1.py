@@ -58,30 +58,18 @@ class TC_FAN_2_1(MatterBaseTest):
         return "[TC-FAN-2.1] Mandatory functionality with DUT as Server"
 
     def steps_TC_FAN_2_1(self):
-        return [
-            TestStep(1, "[FC] Commissioning already done.", is_commissioning=True),
-            TestStep(2, "[FC] TH checks for support of the Auto feature.", "Save result for future use."),
-            TestStep(
-                3,
-                "[FC] TH reads from the DUT the FanModeSequence attribute.",
-                "Verify that the DUT response contains a FanModeSequenceEnum with value between 0 and 5 inclusive. If Auto is not supported, verify that the FanModeSequence attribute value is 0, 1, or 5. If Auto is supported, verify that the FanModeSequence attribute value is 2, 3, or 4.",
-            ),
-            TestStep(
-                4,
-                "[FC] TH reads from the DUT the FanMode attribute value.",
-                "Verify that the DUT response contains a FanModeEnum with a value between 0 and 5, excluding 4 and 6 (deprecated). Verify that the FanMode attribute value is supported by the FanModeSequence attribute value.",
-            ),
-            TestStep(
-                5,
-                "[FC] TH reads from the DUT the PercentSetting attribute.",
-                "Verify that the DUT response contains a uint8 with value between 0 and 100 inclusive.",
-            ),
-            TestStep(
-                6,
-                "[FC] TH reads from the DUT the PercentCurrent attribute.",
-                "Verify that the DUT response contains a uint8 with value between 0 and 100 inclusive.",
-            ),
-        ]
+        return [TestStep(1, "[FC] Commissioning already done.", is_commissioning=True),
+                TestStep(2, "[FC] TH checks for support of the Auto feature.",
+                         "Save result for future use."),
+                TestStep(3, "[FC] TH reads from the DUT the FanModeSequence attribute.",
+                         "Verify that the DUT response contains a FanModeSequenceEnum with value between 0 and 5 inclusive. If Auto is not supported, verify that the FanModeSequence attribute value is 0, 1, or 5. If Auto is supported, verify that the FanModeSequence attribute value is 2, 3, or 4."),
+                TestStep(4, "[FC] TH reads from the DUT the FanMode attribute value.",
+                         "Verify that the DUT response contains a FanModeEnum with a value between 0 and 5, excluding 4 and 6 (deprecated). Verify that the FanMode attribute value is supported by the FanModeSequence attribute value."),
+                TestStep(5, "[FC] TH reads from the DUT the PercentSetting attribute.",
+                         "Verify that the DUT response contains a uint8 with value between 0 and 100 inclusive."),
+                TestStep(6, "[FC] TH reads from the DUT the PercentCurrent attribute.",
+                         "Verify that the DUT response contains a uint8 with value between 0 and 100 inclusive."),
+                ]
 
     async def read_setting(self, attribute: Any) -> Any:
         cluster = Clusters.Objects.FanControl
@@ -91,17 +79,16 @@ class TC_FAN_2_1(MatterBaseTest):
         result = await self.default_controller.WriteAttribute(self.dut_node_id, [(self.endpoint, attribute(value))])
         write_status = result[0].Status
         write_status_success = (write_status == Status.Success) or (write_status == Status.InvalidInState)
-        asserts.assert_true(
-            write_status_success,
-            f"[FC] {attribute.__name__} write did not return a result of either SUCCESS or INVALID_IN_STATE ({write_status.name})",
-        )
+        asserts.assert_true(write_status_success,
+                            f"[FC] {attribute.__name__} write did not return a result of either SUCCESS or INVALID_IN_STATE ({write_status.name})")
         return write_status
 
     async def verify_setting(self, attribute, type, range):
         # Read attribute value
         value = await self.read_setting(attribute)
 
-        asserts.assert_is_instance(value, type, f"[FC] {attribute.__name__} result ({value}) isn't of type {type.__name__}")
+        asserts.assert_is_instance(value, type,
+                                   f"[FC] {attribute.__name__} result ({value}) isn't of type {type.__name__}")
 
         # Verify response is valid (value is within expected range)
         asserts.assert_in(value, range, f"[FC] {attribute.__name__} result ({value}) is out of range")
@@ -168,11 +155,8 @@ class TC_FAN_2_1(MatterBaseTest):
         # - If Auto is supported, verify that the FanModeSequence
         #   attribute value is 2, 3, or 4
         supported_fan_mode_sequence_values = auto_fan_mode_sequence_values if supports_auto else non_auto_fan_mode_sequence_values
-        asserts.assert_in(
-            fan_mode_sequence,
-            supported_fan_mode_sequence_values,
-            f"[FC] FanModeSequence attribute value ({fan_mode_sequence}:{fan_mode_sequence.name}) is not a supoorted sequence: [{', '.join(f'{seq}:{seq.name}' for seq in supported_fan_mode_sequence_values)}].",
-        )
+        asserts.assert_in(fan_mode_sequence, supported_fan_mode_sequence_values,
+                          f"[FC] FanModeSequence attribute value ({fan_mode_sequence}:{fan_mode_sequence.name}) is not a supoorted sequence: [{', '.join(f'{seq}:{seq.name}' for seq in supported_fan_mode_sequence_values)}].")
 
         # *** STEP 4 ***
         # TH reads from the DUT the FanMode attribute value
@@ -184,31 +168,24 @@ class TC_FAN_2_1(MatterBaseTest):
         # Verify that the FanMode attribute value is supported
         # by the FanModeSequence attribute value
         supported_fan_mode_values = self.get_fan_modes(fan_mode_sequence)
-        asserts.assert_in(
-            fan_mode,
-            supported_fan_mode_values,
-            f"[FC] FanMode attribute value ({fan_mode}:{fan_mode.name}) is not a supported mode: [{', '.join(f'{mode}:{mode.name}' for mode in supported_fan_mode_values)}].",
-        )
+        asserts.assert_in(fan_mode, supported_fan_mode_values,
+                          f"[FC] FanMode attribute value ({fan_mode}:{fan_mode.name}) is not a supported mode: [{', '.join(f'{mode}:{mode.name}' for mode in supported_fan_mode_values)}].")
 
         # *** STEP 5 ***
         # TH reads from the DUT the PercentSetting attribute
         # Verify that the DUT response contains a uint8 with value between 0 and 100 inclusive.
         self.step(5)
         percent_setting = await self.read_setting(attribute.PercentSetting)
-        asserts.assert_true(
-            is_valid_uint_value(percent_setting, bit_count=8),
-            f"[FC] PercentSetting attribute value ({percent_setting}) isn't of type uint8",
-        )
+        asserts.assert_true(is_valid_uint_value(percent_setting, bit_count=8),
+                            f"[FC] PercentSetting attribute value ({percent_setting}) isn't of type uint8")
 
         # *** STEP 6 ***
         # TH reads from the DUT the PercentCurrent attribute
         # Verify that the DUT response contains a uint8 with value between 0 and 100 inclusive.
         self.step(6)
         percent_current = await self.read_setting(attribute.PercentCurrent)
-        asserts.assert_true(
-            is_valid_uint_value(percent_current, bit_count=8),
-            f"[FC] PercentCurrent attribute value ({percent_current}) isn't of type uint8",
-        )
+        asserts.assert_true(is_valid_uint_value(percent_current, bit_count=8),
+                            f"[FC] PercentCurrent attribute value ({percent_current}) isn't of type uint8")
 
 
 if __name__ == "__main__":

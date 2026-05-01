@@ -28,7 +28,7 @@ from matter.testing.runner import MockTestRunner
 
 
 @dataclass
-class TestSpec:
+class TestSpec():
     min: typing.Optional[int]
     max: typing.Optional[int]
     measured: int
@@ -53,6 +53,7 @@ TEST_CASES = [
     TestSpec(NullValue, NullValue, 32768, 10, False),
     # Measured null
     TestSpec(NullValue, NullValue, NullValue, 10, True),
+
     # --------
     # min only
     # --------
@@ -66,6 +67,7 @@ TEST_CASES = [
     TestSpec(5, NullValue, 32768, 10, False),
     # Measured null
     TestSpec(5, NullValue, NullValue, 10, True),
+
     # --------
     # max only
     # --------
@@ -79,6 +81,7 @@ TEST_CASES = [
     TestSpec(NullValue, 5, 6, 10, False),
     # Measured null
     TestSpec(NullValue, 5, NullValue, 10, True),
+
     # --------
     # both
     # --------
@@ -92,6 +95,7 @@ TEST_CASES = [
     TestSpec(-5, 5, 6, 10, False),
     # Measured null
     TestSpec(-5, 5, NullValue, 10, True),
+
     # ==============================
     # Min Test cases
     # ==============================
@@ -111,6 +115,7 @@ TEST_CASES = [
     TestSpec(-27316, 5, 0, 10, False),
     # Max specified, min out of range above
     TestSpec(5, 5, 5, 10, False),
+
     # ==============================
     # Min Test cases
     # ==============================
@@ -151,16 +156,8 @@ def test_spec_to_attribute_cache(test_spec: TestSpec) -> Attribute.AsyncReadTran
     c = Clusters.TemperatureMeasurement
     attr = Clusters.TemperatureMeasurement.Attributes
     resp = Attribute.AsyncReadTransaction.ReadResponse({}, [], {})
-    resp.attributes = {
-        1: {
-            c: {
-                attr.MaxMeasuredValue: test_spec.max,
-                attr.MinMeasuredValue: test_spec.min,
-                attr.MeasuredValue: test_spec.measured,
-                attr.Tolerance: test_spec.tolerance,
-            }
-        }
-    }
+    resp.attributes = {1: {c: {attr.MaxMeasuredValue: test_spec.max,
+                               attr.MinMeasuredValue: test_spec.min, attr.MeasuredValue: test_spec.measured, attr.Tolerance: test_spec.tolerance}}}
     resp.attributes[1][c][attr.AttributeList] = [a.attribute_id for a in resp.attributes[1][c]]
 
     return resp
@@ -170,23 +167,16 @@ def test_spec_to_attribute_cache_no_tolerance(test_spec: TestSpec) -> Attribute.
     c = Clusters.TemperatureMeasurement
     attr = Clusters.TemperatureMeasurement.Attributes
     resp = Attribute.AsyncReadTransaction.ReadResponse({}, [], {})
-    resp.attributes = {
-        1: {
-            c: {
-                attr.MaxMeasuredValue: test_spec.max,
-                attr.MinMeasuredValue: test_spec.min,
-                attr.MeasuredValue: test_spec.measured,
-                attr.Tolerance: test_spec.tolerance,
-            }
-        }
-    }
+    resp.attributes = {1: {c: {attr.MaxMeasuredValue: test_spec.max,
+                               attr.MinMeasuredValue: test_spec.min, attr.MeasuredValue: test_spec.measured, attr.Tolerance: test_spec.tolerance}}}
     resp.attributes[1][c][attr.AttributeList] = [a.attribute_id for a in resp.attributes[1][c]]
 
     return resp
 
 
 def main():
-    test_runner = MockTestRunner(Path(__file__).parent / "../TC_TMP_2_1.py", "TC_TMP_2_1", "test_TC_TMP_2_1", 1)
+    test_runner = MockTestRunner(Path(__file__).parent / '../TC_TMP_2_1.py',
+                                 'TC_TMP_2_1', 'test_TC_TMP_2_1', 1)
     failures = []
     for idx, t in enumerate(TEST_CASES):
         ok = test_runner.run_test_with_mock_read(test_spec_to_attribute_cache(t)) == t.expect_pass
@@ -202,10 +192,9 @@ def main():
             failures.append(f"Measured tolerance test case failure: {idx} {t}")
 
     test_runner.Shutdown()
-    num_tests = len(TEST_CASES) * 2 + len(TEST_CASES_TOLERANCE)
+    num_tests = len(TEST_CASES)*2 + len(TEST_CASES_TOLERANCE)
     print(
-        f"Test of tests: run {num_tests}, test response correct: {num_tests - len(failures)} test response incorrect: {len(failures)}"
-    )
+        f"Test of tests: run {num_tests}, test response correct: {num_tests - len(failures)} test response incorrect: {len(failures)}")
     for f in failures:
         print(f)
 

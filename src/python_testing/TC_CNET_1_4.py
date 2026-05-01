@@ -52,35 +52,18 @@ kSecondaryNetworkInterfaceDeviceTypeId = 0x0019
 
 class TC_CNET_1_4(MatterBaseTest):
     def steps_TC_CNET_1_4(self):
-        return [
-            TestStep(1, "TH is commissioned", is_commissioning=True),
-            TestStep(
-                2,
-                "TH performs a wildcard read of the FeatureMap attribute on Network Commissioning clusters across all endpoints, and saves the response as `NetworkCommissioningResponse`",
-            ),
-            TestStep(
-                3,
-                "If `NetworkCommissioningResponse` does not contain any entries for Network Commissioning cluster, skip remaining steps and end test case",
-            ),
-            TestStep(
-                4,
-                "If `NetworkCommissioningResponse` contains only a single entry for Network Commissioning cluster on Endpoint 0, skip remaining steps and end test case. Verify `NetworkCommissioningResponse` contains an entry for Network Commissioning cluster on Endpoint 0",
-            ),
-            TestStep(
-                5,
-                "TH reads from the DUT the Descriptor Cluster DeviceTypeList attribute on each endpoint from the `NetworkCommissioningResponse` (except for Endpoint 0), verify that the Secondary Network Interface device type id (0x0019) is listed in the DeviceTypeList",
-            ),
-            TestStep(
-                6,
-                "TH reads from the DUT the General Commissioning Cluster SupportsConcurrentConnection attribute, verify that it is true",
-            ),
-        ]
+        return [TestStep(1, "TH is commissioned", is_commissioning=True),
+                TestStep(2, 'TH performs a wildcard read of the FeatureMap attribute on Network Commissioning clusters across all endpoints, and saves the response as `NetworkCommissioningResponse`'),
+                TestStep(3, 'If `NetworkCommissioningResponse` does not contain any entries for Network Commissioning cluster, skip remaining steps and end test case'),
+                TestStep(4, 'If `NetworkCommissioningResponse` contains only a single entry for Network Commissioning cluster on Endpoint 0, skip remaining steps and end test case. Verify `NetworkCommissioningResponse` contains an entry for Network Commissioning cluster on Endpoint 0'),
+                TestStep(5, 'TH reads from the DUT the Descriptor Cluster DeviceTypeList attribute on each endpoint from the `NetworkCommissioningResponse` (except for Endpoint 0), verify that the Secondary Network Interface device type id (0x0019) is listed in the DeviceTypeList'),
+                TestStep(6, 'TH reads from the DUT the General Commissioning Cluster SupportsConcurrentConnection attribute, verify that it is true')]
 
     def def_TC_CNET_1_4(self):
-        return "[TC-CNET-1.4] Verification for Secondary Network Interface [DUT-Server]"
+        return '[TC-CNET-1.4] Verification for Secondary Network Interface [DUT-Server]'
 
     def pics_TC_CNET_1_4(self):
-        return ["CNET.S"]
+        return ['CNET.S']
 
     # Override default timeout.
     @property
@@ -94,14 +77,12 @@ class TC_CNET_1_4(MatterBaseTest):
 
         self.step(2)
         # Read FeatureMap attribute with wildcard endpoint
-        NetworkCommissioningResponse = await self.default_controller.ReadAttribute(
-            self.dut_node_id, [(Clusters.NetworkCommissioning.Attributes.FeatureMap)], fabricFiltered=True
-        )
+        NetworkCommissioningResponse = await self.default_controller.ReadAttribute(self.dut_node_id, [(Clusters.NetworkCommissioning.Attributes.FeatureMap)], fabricFiltered=True)
 
         self.step(3)
         NumNetworkCommissioning = len(NetworkCommissioningResponse)
         if NumNetworkCommissioning == 0:
-            log.info("No endpoint has Network Commissioning Cluster, skipping remaining steps")
+            log.info('No endpoint has Network Commissioning Cluster, skipping remaining steps')
             self.mark_all_remaining_steps_skipped(4)
             return
 
@@ -113,7 +94,7 @@ class TC_CNET_1_4(MatterBaseTest):
             asserts.assert_true(False, "There is no Network Commissioning Cluster on endpoint 0")
 
         if NumNetworkCommissioning == 1:
-            log.info("Only endpoint 0 has Network Commissioning Cluster, skipping remaining steps")
+            log.info('Only endpoint 0 has Network Commissioning Cluster, skipping remaining steps')
             self.mark_all_remaining_steps_skipped(5)
             return
 
@@ -121,22 +102,17 @@ class TC_CNET_1_4(MatterBaseTest):
         for endpoint in endpoints:
             if endpoint == kRootEndpointId:
                 continue
-            device_type_list = await self.read_single_attribute_check_success(
-                cluster=Clusters.Descriptor, attribute=Clusters.Descriptor.Attributes.DeviceTypeList, endpoint=endpoint
-            )
+            device_type_list = await self.read_single_attribute_check_success(cluster=Clusters.Descriptor,
+                                                                              attribute=Clusters.Descriptor.Attributes.DeviceTypeList, endpoint=endpoint)
             required_device_types = {kSecondaryNetworkInterfaceDeviceTypeId}
             found_device_types = {device.deviceType for device in device_type_list}
-            asserts.assert_true(
-                required_device_types.intersection(found_device_types),
-                "Network Commissioning Cluster is not on Root Node or Secondary Network Interface",
-            )
+            asserts.assert_true(required_device_types.intersection(found_device_types),
+                                "Network Commissioning Cluster is not on Root Node or Secondary Network Interface")
 
         self.step(6)
-        concurrent_connection = await self.read_single_attribute_check_success(
-            cluster=Clusters.GeneralCommissioning,
-            attribute=Clusters.GeneralCommissioning.Attributes.SupportsConcurrentConnection,
-            endpoint=kRootEndpointId,
-        )
+        concurrent_connection = await self.read_single_attribute_check_success(cluster=Clusters.GeneralCommissioning,
+                                                                               attribute=Clusters.GeneralCommissioning.Attributes.SupportsConcurrentConnection,
+                                                                               endpoint=kRootEndpointId)
         asserts.assert_true(concurrent_connection, "The device does not support concurrent connection commissioning")
 
 

@@ -49,31 +49,33 @@ from matter.setup_payload import SetupPayload
 from matter.storage import PersistentStorageJSON
 from matter.utils import CommissioningBuildingBlocks
 
-DEFAULT_REPL_STORAGE_PATH = "/tmp/repl-storage.json"
+DEFAULT_REPL_STORAGE_PATH = '/tmp/repl-storage.json'
 
-logger = logging.getLogger("PythonMatterControllerTEST")
+logger = logging.getLogger('PythonMatterControllerTEST')
 logger.setLevel(logging.INFO)
 
 sh = logging.StreamHandler()
-sh.setFormatter(logging.Formatter("%(asctime)s [%(name)s] %(levelname)s %(message)s"))
+sh.setFormatter(
+    logging.Formatter(
+        '%(asctime)s [%(name)s] %(levelname)s %(message)s'))
 sh.setStream(sys.stdout)
 logger.addHandler(sh)
 
 
 def GenerateVerifier(passcode: int, salt: bytes, iterations: int) -> bytes:
     ws_len = NIST256p.baselen + 8
-    ws = hashlib.pbkdf2_hmac("sha256", struct.pack("<I", passcode), salt, iterations, ws_len * 2)
-    w0 = int.from_bytes(ws[:ws_len], byteorder="big") % NIST256p.order
-    w1 = int.from_bytes(ws[ws_len:], byteorder="big") % NIST256p.order
+    ws = hashlib.pbkdf2_hmac('sha256', struct.pack('<I', passcode), salt, iterations, ws_len * 2)
+    w0 = int.from_bytes(ws[:ws_len], byteorder='big') % NIST256p.order
+    w1 = int.from_bytes(ws[ws_len:], byteorder='big') % NIST256p.order
     L = NIST256p.generator * w1
 
-    return w0.to_bytes(NIST256p.baselen, byteorder="big") + L.to_bytes("uncompressed")
+    return w0.to_bytes(NIST256p.baselen, byteorder='big') + L.to_bytes('uncompressed')
 
 
 def TestFail(message, doCrash=False):
     logger.fatal("Testfail: {}".format(message))
 
-    if doCrash:
+    if (doCrash):
         logger.fatal("--------------------------------")
         logger.fatal("Backtrace of all Python threads:")
         logger.fatal("--------------------------------")
@@ -113,9 +115,9 @@ def SetTestSet(enabled_tests, disabled_tests):
 def TestIsEnabled(test_name: str):
     enabled_len = -1
     disabled_len = -1
-    if "all" in _enabled_tests:
+    if 'all' in _enabled_tests:
         enabled_len = 0
-    if "all" in _disabled_tests:
+    if 'all' in _disabled_tests:
         disabled_len = 0
 
     for test_item in _enabled_tests:
@@ -145,7 +147,6 @@ def test_case(func):
             # noop, so users can use await as usual
             return asyncio.sleep(0)
         return None
-
     return CheckEnableBeforeRun
 
 
@@ -183,9 +184,8 @@ class TestTimeout(threading.Thread):
 
 
 class BaseTestHelper:
-    def __init__(
-        self, nodeId: int, paaTrustStorePath: str, testCommissioner: bool = False, keypair: p256keypair.P256Keypair = None
-    ):
+    def __init__(self, nodeId: int, paaTrustStorePath: str, testCommissioner: bool = False,
+                 keypair: p256keypair.P256Keypair = None):
         matter.native.Init()
 
         self.chipStack = ChipStack(PersistentStorageJSON(DEFAULT_REPL_STORAGE_PATH), enableServerInteractions=True)
@@ -207,19 +207,20 @@ class BaseTestHelper:
         strlen = 100
         addrStrStorage = ctypes.create_string_buffer(strlen)
         timeout = time.time() + timeoutSeconds
-        while not self.devCtrl.GetIPForDiscoveredDevice(0, addrStrStorage, strlen) and time.time() <= timeout:
+        while (not self.devCtrl.GetIPForDiscoveredDevice(0, addrStrStorage, strlen) and time.time() <= timeout):
             time.sleep(0.2)
         if time.time() > timeout:
             return None
         return ctypes.string_at(addrStrStorage).decode("utf-8")
 
     async def TestDiscovery(self, discriminator: int):
-        self.logger.info(f"Discovering commissionable nodes with discriminator {discriminator}")
+        self.logger.info(
+            f"Discovering commissionable nodes with discriminator {discriminator}")
         res = await self.devCtrl.DiscoverCommissionableNodes(
-            matter.discovery.FilterType.LONG_DISCRIMINATOR, discriminator, stopOnFirst=True, timeoutSecond=3
-        )
+            matter.discovery.FilterType.LONG_DISCRIMINATOR, discriminator, stopOnFirst=True, timeoutSecond=3)
         if not res:
-            self.logger.info("Device not found")
+            self.logger.info(
+                "Device not found")
             return False
         self.logger.info(f"Found device {res[0]}")
         return res[0]
@@ -229,39 +230,30 @@ class BaseTestHelper:
         self.fabricAdmin2 = self.certificateAuthority.NewFabricAdmin(vendorId=0xFFF1, fabricId=2)
 
         self.logger.info("Creating Device Controller on 2nd Fabric")
-        self.devCtrl2 = self.fabricAdmin2.NewController(self.controllerNodeId, self.paaTrustStorePath)
+        self.devCtrl2 = self.fabricAdmin2.NewController(
+            self.controllerNodeId, self.paaTrustStorePath)
         return True
 
     async def TestRevokeCommissioningWindow(self, ip: str, setuppin: int, nodeId: int):
         await self.devCtrl.SendCommand(
-            nodeId, 0, Clusters.AdministratorCommissioning.Commands.OpenBasicCommissioningWindow(180), timedRequestTimeoutMs=10000
-        )
+            nodeId, 0, Clusters.AdministratorCommissioning.Commands.OpenBasicCommissioningWindow(180), timedRequestTimeoutMs=10000)
         if not await self.TestPaseOnly(ip=ip, setuppin=setuppin, nodeId=nodeId, devCtrl=self.devCtrl2):
             return False
 
         await self.devCtrl2.SendCommand(
-            nodeId, 0, Clusters.GeneralCommissioning.Commands.ArmFailSafe(expiryLengthSeconds=180, breadcrumb=0)
-        )
+            nodeId, 0, Clusters.GeneralCommissioning.Commands.ArmFailSafe(expiryLengthSeconds=180, breadcrumb=0))
 
         await self.devCtrl.SendCommand(
-            nodeId, 0, Clusters.AdministratorCommissioning.Commands.RevokeCommissioning(), timedRequestTimeoutMs=10000
-        )
+            nodeId, 0, Clusters.AdministratorCommissioning.Commands.RevokeCommissioning(), timedRequestTimeoutMs=10000)
         await self.devCtrl.SendCommand(
-            nodeId, 0, Clusters.AdministratorCommissioning.Commands.OpenBasicCommissioningWindow(180), timedRequestTimeoutMs=10000
-        )
+            nodeId, 0, Clusters.AdministratorCommissioning.Commands.OpenBasicCommissioningWindow(180), timedRequestTimeoutMs=10000)
         await self.devCtrl.SendCommand(
-            nodeId, 0, Clusters.AdministratorCommissioning.Commands.RevokeCommissioning(), timedRequestTimeoutMs=10000
-        )
+            nodeId, 0, Clusters.AdministratorCommissioning.Commands.RevokeCommissioning(), timedRequestTimeoutMs=10000)
         return True
 
     async def TestEnhancedCommissioningWindow(self, ip: str, nodeId: int):
-        params = await self.devCtrl.OpenCommissioningWindow(
-            nodeId=nodeId,
-            timeout=600,
-            iteration=10000,
-            discriminator=3840,
-            option=self.devCtrl.CommissioningWindowPasscode.kTokenWithRandomPin,
-        )
+        params = await self.devCtrl.OpenCommissioningWindow(nodeId=nodeId, timeout=600, iteration=10000, discriminator=3840,
+                                                            option=self.devCtrl.CommissioningWindowPasscode.kTokenWithRandomPin)
         return await self.TestPaseOnly(ip=ip, nodeId=nodeId, setuppin=params.setupPinCode, devCtrl=self.devCtrl2)
 
     async def TestPaseOnly(self, ip: str, setuppin: int, nodeId: int, devCtrl=None):
@@ -287,9 +279,11 @@ class BaseTestHelper:
         return True
 
     async def TestKeyExchangeBLE(self, discriminator: int, setuppin: int, nodeId: int):
-        self.logger.info("Conducting key exchange with device {}".format(discriminator))
+        self.logger.info(
+            "Conducting key exchange with device {}".format(discriminator))
         if not await self.devCtrl.ConnectBLE(discriminator, setuppin, nodeId):
-            self.logger.info("Failed to finish key exchange with device {}".format(discriminator))
+            self.logger.info(
+                "Failed to finish key exchange with device {}".format(discriminator))
             return False
         self.logger.info("Device finished key exchange.")
         return True
@@ -301,7 +295,8 @@ class BaseTestHelper:
             # We're not going to hit this stage during commissioning so no sense trying, just say it was fine.
             return True
 
-        self.logger.info("Commissioning device, expecting failure after stage {}".format(failAfter))
+        self.logger.info(
+            "Commissioning device, expecting failure after stage {}".format(failAfter))
         await self.devCtrl.Commission(nodeId)
         return self.devCtrl.CheckTestCommissionerCallbacks() and self.devCtrl.CheckTestCommissionerPaseConnection(nodeId)
 
@@ -311,7 +306,8 @@ class BaseTestHelper:
         if not a:
             # We're not going to hit this stage during commissioning so no sense trying, just say it was fine.
             return True
-        self.logger.info("Commissioning device, expecting failure on report for stage {}".format(failAfter))
+        self.logger.info(
+            "Commissioning device, expecting failure on report for stage {}".format(failAfter))
         await self.devCtrl.Commission(nodeId)
         return self.devCtrl.CheckTestCommissionerCallbacks() and self.devCtrl.CheckTestCommissionerPaseConnection(nodeId)
 
@@ -320,7 +316,8 @@ class BaseTestHelper:
         try:
             await self.devCtrl.CommissionWithCode(setupPayload, nodeId, matter.discovery.DiscoveryType(discoveryType))
         except ChipStackException:
-            self.logger.exception("Failed to finish commissioning device {}".format(setupPayload))
+            self.logger.exception(
+                "Failed to finish commissioning device {}".format(setupPayload))
             return False
         self.logger.info("Commissioning finished.")
         return True
@@ -348,108 +345,110 @@ class BaseTestHelper:
 
         self.logger.info("Setting failsafe on CASE connection")
         try:
-            resp = await self.devCtrl.SendCommand(
-                nodeId, 0, Clusters.GeneralCommissioning.Commands.ArmFailSafe(expiryLengthSeconds=60, breadcrumb=1)
-            )
+            resp = await self.devCtrl.SendCommand(nodeId, 0,
+                                                  Clusters.GeneralCommissioning.Commands.ArmFailSafe(expiryLengthSeconds=60, breadcrumb=1))
         except IM.InteractionModelError as ex:
-            self.logger.error("Failed to send arm failsafe command error is {}".format(ex.status))
+            self.logger.error(
+                "Failed to send arm failsafe command error is {}".format(ex.status))
             return False
 
         if resp.errorCode is not Clusters.GeneralCommissioning.Enums.CommissioningErrorEnum.kOk:
-            self.logger.error("Incorrect response received from arm failsafe - wanted OK, received {}".format(resp))
+            self.logger.error(
+                "Incorrect response received from arm failsafe - wanted OK, received {}".format(resp))
             return False
 
-        self.logger.info("Attempting to open basic commissioning window - this should fail since the failsafe is armed")
+        self.logger.info(
+            "Attempting to open basic commissioning window - this should fail since the failsafe is armed")
         try:
             await self.devCtrl.SendCommand(
                 nodeId,
                 0,
                 Clusters.AdministratorCommissioning.Commands.OpenBasicCommissioningWindow(180),
-                timedRequestTimeoutMs=10000,
+                timedRequestTimeoutMs=10000
             )
             # we actually want the exception here because we want to see a failure, so return False here
-            self.logger.error("Incorrectly succeeded in opening basic commissioning window")
+            self.logger.error(
+                'Incorrectly succeeded in opening basic commissioning window')
             return False
         except IM.InteractionModelError:
             pass
 
         # TODO:
-        """ Pipe through the commissioning window opener so we can test enhanced properly.
+        ''' Pipe through the commissioning window opener so we can test enhanced properly.
             The pake verifier is just garbage because none of of the functions to calculate
             it or serialize it are available right now. However, this command should fail BEFORE that becomes an issue.
-        """
+        '''
         discriminator = 1111
         salt = secrets.token_bytes(16)
         iterations = 2000
         # not the right size or the right contents, but it won't matter
         verifier = secrets.token_bytes(32)
-        self.logger.info("Attempting to open enhanced commissioning window - this should fail since the failsafe is armed")
+        self.logger.info(
+            "Attempting to open enhanced commissioning window - this should fail since the failsafe is armed")
         try:
             await self.devCtrl.SendCommand(
-                nodeId,
-                0,
-                Clusters.AdministratorCommissioning.Commands.OpenCommissioningWindow(
+                nodeId, 0, Clusters.AdministratorCommissioning.Commands.OpenCommissioningWindow(
                     commissioningTimeout=180,
                     PAKEPasscodeVerifier=verifier,
                     discriminator=discriminator,
                     iterations=iterations,
-                    salt=salt,
-                ),
-                timedRequestTimeoutMs=10000,
-            )
+                    salt=salt), timedRequestTimeoutMs=10000)
 
             # we actually want the exception here because we want to see a failure, so return False here
-            self.logger.error("Incorrectly succeeded in opening enhanced commissioning window")
+            self.logger.error(
+                'Incorrectly succeeded in opening enhanced commissioning window')
             return False
         except IM.InteractionModelError:
             pass
 
         self.logger.info("Disarming failsafe on CASE connection")
         try:
-            resp = await self.devCtrl.SendCommand(
-                nodeId, 0, Clusters.GeneralCommissioning.Commands.ArmFailSafe(expiryLengthSeconds=0, breadcrumb=1)
-            )
+            resp = await self.devCtrl.SendCommand(nodeId, 0,
+                                                  Clusters.GeneralCommissioning.Commands.ArmFailSafe(expiryLengthSeconds=0, breadcrumb=1))
         except IM.InteractionModelError as ex:
-            self.logger.error("Failed to send arm failsafe command error is {}".format(ex.status))
+            self.logger.error(
+                "Failed to send arm failsafe command error is {}".format(ex.status))
             return False
 
-        self.logger.info("Opening Commissioning Window - this should succeed since the failsafe was just disarmed")
+        self.logger.info(
+            "Opening Commissioning Window - this should succeed since the failsafe was just disarmed")
         try:
             await self.devCtrl.SendCommand(
                 nodeId,
                 0,
                 Clusters.AdministratorCommissioning.Commands.OpenBasicCommissioningWindow(180),
-                timedRequestTimeoutMs=10000,
+                timedRequestTimeoutMs=10000
             )
         except Exception:
-            self.logger.error("Failed to open commissioning window after disarming failsafe")
+            self.logger.error(
+                'Failed to open commissioning window after disarming failsafe')
             return False
 
-        self.logger.info("Attempting to arm failsafe over CASE - this should fail since the commissioning window is open")
+        self.logger.info(
+            "Attempting to arm failsafe over CASE - this should fail since the commissioning window is open")
         try:
-            resp = await self.devCtrl.SendCommand(
-                nodeId, 0, Clusters.GeneralCommissioning.Commands.ArmFailSafe(expiryLengthSeconds=60, breadcrumb=1)
-            )
+            resp = await self.devCtrl.SendCommand(nodeId, 0,
+                                                  Clusters.GeneralCommissioning.Commands.ArmFailSafe(expiryLengthSeconds=60, breadcrumb=1))
         except IM.InteractionModelError as ex:
-            self.logger.error("Failed to send arm failsafe command error is {}".format(ex.status))
+            self.logger.error(
+                "Failed to send arm failsafe command error is {}".format(ex.status))
             return False
         return resp.errorCode is Clusters.GeneralCommissioning.Enums.CommissioningErrorEnum.kBusyWithOtherAdmin
 
     async def TestControllerCATValues(self, nodeId: int):
-        """This tests controllers using CAT Values"""
+        ''' This tests controllers using CAT Values
+        '''
         # Allocate a new controller instance with a CAT tag.
         newControllers = await CommissioningBuildingBlocks.CreateControllersOnFabric(
             fabricAdmin=self.fabricAdmin,
             adminDevCtrl=self.devCtrl,
             controllerNodeIds=[300],
             targetNodeId=nodeId,
-            privilege=None,
-            catTags=[0x0001_0001],
-        )
+            privilege=None, catTags=[0x0001_0001])
 
         # Read out an attribute using the new controller. It has no privileges, so this should fail with an UnsupportedAccess error.
         res = await newControllers[0].ReadAttribute(nodeId=nodeId, attributes=[(0, Clusters.AccessControl.Attributes.Acl)])
-        if res[0][Clusters.AccessControl][Clusters.AccessControl.Attributes.Acl].Reason.status != IM.Status.UnsupportedAccess:
+        if (res[0][Clusters.AccessControl][Clusters.AccessControl.Attributes.Acl].Reason.status != IM.Status.UnsupportedAccess):
             self.logger.error(f"1: Received data instead of an error:{res}")
             return False
 
@@ -458,16 +457,13 @@ class BaseTestHelper:
             adminCtrl=self.devCtrl,
             grantedCtrl=newControllers[0],
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
-            targetNodeId=nodeId,
-            targetCatTags=[0x0001_0001],
-        )
+            targetNodeId=nodeId, targetCatTags=[0x0001_0001])
 
         # Read out the attribute again - this time, it should succeed.
         res = await newControllers[0].ReadAttribute(nodeId=nodeId, attributes=[(0, Clusters.AccessControl.Attributes.Acl)])
-        if not isinstance(
-            res[0][Clusters.AccessControl][Clusters.AccessControl.Attributes.Acl][0],
-            Clusters.AccessControl.Structs.AccessControlEntryStruct,
-        ):
+        if (not isinstance(res[0][
+                Clusters.AccessControl][
+                Clusters.AccessControl.Attributes.Acl][0], Clusters.AccessControl.Structs.AccessControlEntryStruct)):
             self.logger.error(f"2: Received something other than data:{res}")
             return False
 
@@ -484,7 +480,8 @@ class BaseTestHelper:
         return True
 
     async def TestMultiControllerFabric(self, nodeId: int):
-        """This tests having multiple controller instances on the same fabric."""
+        ''' This tests having multiple controller instances on the same fabric.
+        '''
 
         # Create two new controllers on the same fabric with no privilege on the target node.
         newControllers = await CommissioningBuildingBlocks.CreateControllersOnFabric(
@@ -492,14 +489,14 @@ class BaseTestHelper:
             adminDevCtrl=self.devCtrl,
             controllerNodeIds=[100, 200],
             targetNodeId=nodeId,
-            privilege=None,
+            privilege=None
         )
 
         #
         # Read out the ACL list from one of the newly minted controllers which has no access. This should return an IM error.
         #
         res = await newControllers[0].ReadAttribute(nodeId=nodeId, attributes=[(0, Clusters.AccessControl.Attributes.Acl)])
-        if res[0][Clusters.AccessControl][Clusters.AccessControl.Attributes.Acl].Reason.status != IM.Status.UnsupportedAccess:
+        if (res[0][Clusters.AccessControl][Clusters.AccessControl.Attributes.Acl].Reason.status != IM.Status.UnsupportedAccess):
             self.logger.error(f"1: Received data instead of an error:{res}")
             return False
 
@@ -508,10 +505,9 @@ class BaseTestHelper:
         # Doing this ensures that we're not somehow aliasing the CASE sessions.
         #
         res = await self.devCtrl.ReadAttribute(nodeId=nodeId, attributes=[(0, Clusters.AccessControl.Attributes.Acl)])
-        if not isinstance(
-            res[0][Clusters.AccessControl][Clusters.AccessControl.Attributes.Acl][0],
-            Clusters.AccessControl.Structs.AccessControlEntryStruct,
-        ):
+        if (not isinstance(res[0][
+                Clusters.AccessControl][
+                Clusters.AccessControl.Attributes.Acl][0], Clusters.AccessControl.Structs.AccessControlEntryStruct)):
             self.logger.error(f"2: Received something other than data:{res}")
             return False
 
@@ -521,7 +517,7 @@ class BaseTestHelper:
         # under-neath.
         #
         res = await newControllers[0].ReadAttribute(nodeId=nodeId, attributes=[(0, Clusters.AccessControl.Attributes.Acl)])
-        if res[0][Clusters.AccessControl][Clusters.AccessControl.Attributes.Acl].Reason.status != IM.Status.UnsupportedAccess:
+        if (res[0][Clusters.AccessControl][Clusters.AccessControl.Attributes.Acl].Reason.status != IM.Status.UnsupportedAccess):
             self.logger.error(f"3: Received data instead of an error:{res}")
             return False
 
@@ -532,13 +528,12 @@ class BaseTestHelper:
             adminCtrl=self.devCtrl,
             grantedCtrl=newControllers[0],
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
-            targetNodeId=nodeId,
+            targetNodeId=nodeId
         )
         res = await newControllers[0].ReadAttribute(nodeId=nodeId, attributes=[(0, Clusters.AccessControl.Attributes.Acl)])
-        if not isinstance(
-            res[0][Clusters.AccessControl][Clusters.AccessControl.Attributes.Acl][0],
-            Clusters.AccessControl.Structs.AccessControlEntryStruct,
-        ):
+        if (not isinstance(res[0][
+                Clusters.AccessControl][
+                Clusters.AccessControl.Attributes.Acl][0], Clusters.AccessControl.Structs.AccessControlEntryStruct)):
             self.logger.error(f"4: Received something other than data:{res}")
             return False
 
@@ -549,13 +544,12 @@ class BaseTestHelper:
             adminCtrl=self.devCtrl,
             grantedCtrl=newControllers[1],
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
-            targetNodeId=nodeId,
+            targetNodeId=nodeId
         )
         res = await newControllers[1].ReadAttribute(nodeId=nodeId, attributes=[(0, Clusters.AccessControl.Attributes.Acl)])
-        if not isinstance(
-            res[0][Clusters.AccessControl][Clusters.AccessControl.Attributes.Acl][0],
-            Clusters.AccessControl.Structs.AccessControlEntryStruct,
-        ):
+        if (not isinstance(res[0][
+                Clusters.AccessControl][
+                Clusters.AccessControl.Attributes.Acl][0], Clusters.AccessControl.Structs.AccessControlEntryStruct)):
             self.logger.error(f"5: Received something other than data:{res}")
             return False
 
@@ -566,23 +560,20 @@ class BaseTestHelper:
             adminCtrl=self.devCtrl,
             grantedCtrl=newControllers[1],
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
-            targetNodeId=nodeId,
-        )
+            targetNodeId=nodeId)
         res = await newControllers[1].ReadAttribute(nodeId=nodeId, attributes=[(0, Clusters.AccessControl.Attributes.Acl)])
-        if res[0][Clusters.AccessControl][Clusters.AccessControl.Attributes.Acl].Reason.status != IM.Status.UnsupportedAccess:
+        if (res[0][Clusters.AccessControl][Clusters.AccessControl.Attributes.Acl].Reason.status != IM.Status.UnsupportedAccess):
             self.logger.error(f"6: Received data5 instead of an error:{res}")
             return False
 
         #
         # Read the Basic cluster from the 2nd controller. This is possible with just view privileges.
         #
-        res = await newControllers[1].ReadAttribute(
-            nodeId=nodeId, attributes=[(0, Clusters.BasicInformation.Attributes.ClusterRevision)]
-        )
-        if not isinstance(
-            res[0][Clusters.BasicInformation][Clusters.BasicInformation.Attributes.ClusterRevision],
-            Clusters.BasicInformation.Attributes.ClusterRevision.attribute_type.Type,
-        ):
+        res = await newControllers[1].ReadAttribute(nodeId=nodeId,
+                                                    attributes=[(0, Clusters.BasicInformation.Attributes.ClusterRevision)])
+        if (not isinstance(res[0][
+                Clusters.BasicInformation][
+                Clusters.BasicInformation.Attributes.ClusterRevision], Clusters.BasicInformation.Attributes.ClusterRevision.attribute_type.Type)):
             self.logger.error(f"7: Received something other than data:{res}")
             return False
 
@@ -633,15 +624,15 @@ class BaseTestHelper:
         # TODO Read using old node ID and expect that it fails.
 
         currentFabricIndexResponse = await tempDevCtrl.ReadAttribute(
-            newNodeIdForUpdateNoc, [(Clusters.OperationalCredentials.Attributes.CurrentFabricIndex)]
+            newNodeIdForUpdateNoc,
+            [(Clusters.OperationalCredentials.Attributes.CurrentFabricIndex)]
         )
         updatedNOCFabricIndex = currentFabricIndexResponse[0][Clusters.OperationalCredentials][
-            Clusters.OperationalCredentials.Attributes.CurrentFabricIndex
-        ]
+            Clusters.OperationalCredentials.Attributes.CurrentFabricIndex]
         # Remove Fabric Response
         await tempDevCtrl.SendCommand(
-            newNodeIdForUpdateNoc, 0, Clusters.OperationalCredentials.Commands.RemoveFabric(updatedNOCFabricIndex)
-        )
+            newNodeIdForUpdateNoc, 0,
+            Clusters.OperationalCredentials.Commands.RemoveFabric(updatedNOCFabricIndex))
 
         if startOfTestFabricCount != await self._GetCommissonedFabricCount(nodeId):
             self.logger.error("Expected fabric count to be the same at the end of test as when it started")
@@ -683,7 +674,7 @@ class BaseTestHelper:
 
         def OnValueChange(path: Attribute.TypedAttributePath, transaction: Attribute.SubscriptionTransaction) -> None:
             self.logger.info("Saw value change!")
-            if path.AttributeType == Clusters.UnitTesting.Attributes.Int8u and path.Path.EndpointId == 1:
+            if (path.AttributeType == Clusters.UnitTesting.Attributes.Int8u and path.Path.EndpointId == 1):
                 loop.call_soon_threadsafe(sawValueChangeEvent.set)
 
         self.logger.info("Testing CASE defunct logic")
@@ -706,8 +697,7 @@ class BaseTestHelper:
             await asyncio.wait_for(sawValueChangeEvent.wait(), 2)
         except TimeoutError:
             self.logger.error(
-                "Didn't see value change in time, likely because sub got terminated due to unexpected session eviction!"
-            )
+                "Didn't see value change in time, likely because sub got terminated due to unexpected session eviction!")
             return False
         finally:
             sub.Shutdown()
@@ -773,14 +763,18 @@ class BaseTestHelper:
         self.logger.info("Opening Commissioning Window")
 
         await self.devCtrl.SendCommand(
-            nodeId, 0, Clusters.AdministratorCommissioning.Commands.OpenBasicCommissioningWindow(180), timedRequestTimeoutMs=10000
+            nodeId,
+            0,
+            Clusters.AdministratorCommissioning.Commands.OpenBasicCommissioningWindow(180),
+            timedRequestTimeoutMs=10000
         )
 
         self.logger.info("Creating 2nd Fabric Admin")
         self.fabricAdmin2 = self.certificateAuthority.NewFabricAdmin(vendorId=0xFFF1, fabricId=2)
 
         self.logger.info("Creating Device Controller on 2nd Fabric")
-        self.devCtrl2 = self.fabricAdmin2.NewController(self.controllerNodeId, self.paaTrustStorePath)
+        self.devCtrl2 = self.fabricAdmin2.NewController(
+            self.controllerNodeId, self.paaTrustStorePath)
 
         try:
             await self.devCtrl2.CommissionWithCode(setupPayload=setup_code, nodeId=nodeId)
@@ -791,7 +785,8 @@ class BaseTestHelper:
         #
         # Shut-down all the controllers (which will free them up)
         #
-        self.logger.info("Shutting down controllers & fabrics and re-initing stack...")
+        self.logger.info(
+            "Shutting down controllers & fabrics and re-initing stack...")
 
         self.certificateAuthorityManager.Shutdown()
 
@@ -803,8 +798,10 @@ class BaseTestHelper:
 
         fabricAdmin2 = self.certificateAuthority.NewFabricAdmin(vendorId=0xFFF1, fabricId=2)
 
-        self.devCtrl = self.fabricAdmin.NewController(self.controllerNodeId, self.paaTrustStorePath)
-        self.devCtrl2 = fabricAdmin2.NewController(self.controllerNodeId, self.paaTrustStorePath)
+        self.devCtrl = self.fabricAdmin.NewController(
+            self.controllerNodeId, self.paaTrustStorePath)
+        self.devCtrl2 = fabricAdmin2.NewController(
+            self.controllerNodeId, self.paaTrustStorePath)
 
         self.logger.info("Waiting for attribute reads...")
 
@@ -815,33 +812,39 @@ class BaseTestHelper:
         nocList1 = data1[0][Clusters.OperationalCredentials][Clusters.OperationalCredentials.Attributes.NOCs]
         nocList2 = data2[0][Clusters.OperationalCredentials][Clusters.OperationalCredentials.Attributes.NOCs]
 
-        if len(nocList1) != 2 or len(nocList2) != 2:
+        if (len(nocList1) != 2 or len(nocList2) != 2):
             self.logger.error("Got back invalid nocList")
             return False
 
         data1 = await self.devCtrl.ReadAttribute(
-            nodeId, [(Clusters.OperationalCredentials.Attributes.CurrentFabricIndex)], fabricFiltered=False
+            nodeId,
+            [(Clusters.OperationalCredentials.Attributes.CurrentFabricIndex)],
+            fabricFiltered=False
         )
         data2 = await self.devCtrl2.ReadAttribute(
-            nodeId, [(Clusters.OperationalCredentials.Attributes.CurrentFabricIndex)], fabricFiltered=False
+            nodeId,
+            [(Clusters.OperationalCredentials.Attributes.CurrentFabricIndex)],
+            fabricFiltered=False
         )
 
         # Read out current fabric from each fabric, and both should be different.
         self.currentFabric1 = data1[0][Clusters.OperationalCredentials][
-            Clusters.OperationalCredentials.Attributes.CurrentFabricIndex
-        ]
+            Clusters.OperationalCredentials.Attributes.CurrentFabricIndex]
         self.currentFabric2 = data2[0][Clusters.OperationalCredentials][
-            Clusters.OperationalCredentials.Attributes.CurrentFabricIndex
-        ]
-        if self.currentFabric1 == self.currentFabric2:
-            self.logger.error("Got back fabric indices that match for two different fabrics!")
+            Clusters.OperationalCredentials.Attributes.CurrentFabricIndex]
+        if (self.currentFabric1 == self.currentFabric2):
+            self.logger.error(
+                "Got back fabric indices that match for two different fabrics!")
             return False
 
         self.logger.info("Attribute reads completed...")
         return True
 
     async def TestFabricSensitive(self, nodeId: int):
-        expectedDataFabric1 = [Clusters.UnitTesting.Structs.TestFabricScoped(), Clusters.UnitTesting.Structs.TestFabricScoped()]
+        expectedDataFabric1 = [
+            Clusters.UnitTesting.Structs.TestFabricScoped(),
+            Clusters.UnitTesting.Structs.TestFabricScoped()
+        ]
 
         expectedDataFabric1[0].fabricIndex = 100
         expectedDataFabric1[0].fabricSensitiveInt8u = 33
@@ -902,7 +905,7 @@ class BaseTestHelper:
         expectedDataFabric1[1].fabricIndex = self.currentFabric1
 
         self.logger.info("Comparing data on fabric1...")
-        if expectedDataFabric1 != readListDataFabric1:
+        if (expectedDataFabric1 != readListDataFabric1):
             raise AssertionError("Got back mismatched data")
 
         self.logger.info("Reading back data from fabric2...")
@@ -918,22 +921,25 @@ class BaseTestHelper:
         expectedDataFabric2[1].fabricIndex = self.currentFabric2
 
         self.logger.info("Comparing data on fabric2...")
-        if expectedDataFabric2 != readListDataFabric2:
+        if (expectedDataFabric2 != readListDataFabric2):
             raise AssertionError("Got back mismatched data")
 
-        self.logger.info("Reading back unfiltered data across all fabrics from fabric1...")
+        self.logger.info(
+            "Reading back unfiltered data across all fabrics from fabric1...")
 
         def CompareUnfilteredData(accessingFabric, otherFabric, expectedData):
             index = 0
 
-            self.logger.info(f"Comparing data from accessing fabric {accessingFabric}...")
+            self.logger.info(
+                f"Comparing data from accessing fabric {accessingFabric}...")
 
             for item in readListDataFabric:
-                if item.fabricIndex == accessingFabric:
-                    if index == 2:
-                        raise AssertionError("Got back more data than expected")
+                if (item.fabricIndex == accessingFabric):
+                    if (index == 2):
+                        raise AssertionError(
+                            "Got back more data than expected")
 
-                    if item != expectedData[index]:
+                    if (item != expectedData[index]):
                         raise AssertionError("Got back mismatched data")
 
                     index = index + 1
@@ -948,20 +954,20 @@ class BaseTestHelper:
                     expectedDefaultData = Clusters.UnitTesting.Structs.TestFabricScoped()
                     expectedDefaultData.fabricIndex = otherFabric
 
-                    if item != expectedDefaultData:
+                    if (item != expectedDefaultData):
                         raise AssertionError("Got back mismatched data")
 
-        data = await self.devCtrl.ReadAttribute(
-            nodeId, [(1, Clusters.UnitTesting.Attributes.ListFabricScoped)], fabricFiltered=False
-        )
+        data = await self.devCtrl.ReadAttribute(nodeId,
+                                                [(1, Clusters.UnitTesting.Attributes.ListFabricScoped)], fabricFiltered=False)
         readListDataFabric = data[1][Clusters.UnitTesting][Clusters.UnitTesting.Attributes.ListFabricScoped]
-        CompareUnfilteredData(self.currentFabric1, self.currentFabric2, expectedDataFabric1)
+        CompareUnfilteredData(self.currentFabric1,
+                              self.currentFabric2, expectedDataFabric1)
 
-        data = await self.devCtrl2.ReadAttribute(
-            nodeId, [(1, Clusters.UnitTesting.Attributes.ListFabricScoped)], fabricFiltered=False
-        )
+        data = await self.devCtrl2.ReadAttribute(nodeId,
+                                                 [(1, Clusters.UnitTesting.Attributes.ListFabricScoped)], fabricFiltered=False)
         readListDataFabric = data[1][Clusters.UnitTesting][Clusters.UnitTesting.Attributes.ListFabricScoped]
-        CompareUnfilteredData(self.currentFabric2, self.currentFabric1, expectedDataFabric2)
+        CompareUnfilteredData(self.currentFabric2,
+                              self.currentFabric1, expectedDataFabric2)
 
         self.logger.info("Writing smaller list from alpha (again)")
 
@@ -978,29 +984,31 @@ class BaseTestHelper:
 
         await self.devCtrl.WriteAttribute(nodeId, [(1, Clusters.UnitTesting.Attributes.ListFabricScoped(expectedDataFabric1))])
 
-        self.logger.info("Reading back data (again) from fabric2 to ensure it hasn't changed")
+        self.logger.info(
+            "Reading back data (again) from fabric2 to ensure it hasn't changed")
 
         data = await self.devCtrl2.ReadAttribute(nodeId, [(1, Clusters.UnitTesting.Attributes.ListFabricScoped)])
         readListDataFabric2 = data[1][Clusters.UnitTesting][Clusters.UnitTesting.Attributes.ListFabricScoped]
-        if expectedDataFabric2 != readListDataFabric2:
+        if (expectedDataFabric2 != readListDataFabric2):
             raise AssertionError("Got back mismatched data")
 
-        self.logger.info("Reading back data (again) from fabric1 to ensure it hasn't changed")
+        self.logger.info(
+            "Reading back data (again) from fabric1 to ensure it hasn't changed")
 
         data = await self.devCtrl.ReadAttribute(nodeId, [(1, Clusters.UnitTesting.Attributes.ListFabricScoped)])
         readListDataFabric1 = data[1][Clusters.UnitTesting][Clusters.UnitTesting.Attributes.ListFabricScoped]
 
         self.logger.info("Comparing data on fabric1...")
         expectedDataFabric1[0].fabricIndex = self.currentFabric1
-        if expectedDataFabric1 != readListDataFabric1:
+        if (expectedDataFabric1 != readListDataFabric1):
             raise AssertionError("Got back mismatched data")
 
     async def TestResubscription(self, nodeId: int):
-        """This validates the re-subscription logic by triggering a liveness failure caused by the expiration
-        of the underlying CASE session and the resultant failure to receive reports from the server. This should
-        trigger CASE session establishment and subscription reestablishment. Both the attempt and successful
-        reestablishment of the subscription are validated.
-        """
+        ''' This validates the re-subscription logic by triggering a liveness failure caused by the expiration
+            of the underlying CASE session and the resultant failure to receive reports from the server. This should
+            trigger CASE session establishment and subscription reestablishment. Both the attempt and successful
+            reestablishment of the subscription are validated.
+        '''
         cv = asyncio.Condition()
         resubAttempted = False
         resubSucceeded = True
@@ -1017,7 +1025,9 @@ class BaseTestHelper:
                 cv.notify()
 
         subscription = await self.devCtrl.ReadAttribute(
-            nodeId, [(Clusters.BasicInformation.Attributes.ClusterRevision)], reportInterval=(0, 5)
+            nodeId,
+            [(Clusters.BasicInformation.Attributes.ClusterRevision)],
+            reportInterval=(0, 5)
         )
 
         #
@@ -1034,7 +1044,7 @@ class BaseTestHelper:
         subscription.OverrideLivenessTimeoutMs(100)
 
         async with cv:
-            if not (resubAttempted) or not (resubSucceeded):
+            if (not (resubAttempted) or not (resubSucceeded)):
                 res = await asyncio.wait_for(cv.wait(), 3)
                 if not res:
                     self.logger.error("Timed out waiting for resubscription to succeed")
@@ -1049,7 +1059,8 @@ class BaseTestHelper:
             self.devCtrl.MarkSessionDefunct(nodeId)
             return True
         except Exception as ex:
-            self.logger.exception(f"Failed to close sessions with device {nodeId}: {ex}")
+            self.logger.exception(
+                f"Failed to close sessions with device {nodeId}: {ex}")
             return False
 
     def SetNetworkCommissioningParameters(self, dataset: str):
@@ -1058,30 +1069,36 @@ class BaseTestHelper:
         return True
 
     async def TestOnOffCluster(self, nodeId: int, endpoint: int):
-        self.logger.info("Sending On/Off commands to device {} endpoint {}".format(nodeId, endpoint))
+        self.logger.info(
+            "Sending On/Off commands to device {} endpoint {}".format(nodeId, endpoint))
 
         try:
-            await self.devCtrl.SendCommand(nodeId, endpoint, Clusters.OnOff.Commands.On())
+            await self.devCtrl.SendCommand(nodeId, endpoint,
+                                           Clusters.OnOff.Commands.On())
         except IM.InteractionModelError as ex:
-            self.logger.error("failed to send OnOff.On: error is {}".format(ex.status))
+            self.logger.error(
+                "failed to send OnOff.On: error is {}".format(ex.status))
             return False
 
         try:
-            await self.devCtrl.SendCommand(nodeId, endpoint, Clusters.OnOff.Commands.Off())
+            await self.devCtrl.SendCommand(nodeId, endpoint,
+                                           Clusters.OnOff.Commands.Off())
         except IM.InteractionModelError as ex:
-            self.logger.error("failed to send OnOff.Off: error is {}".format(ex.status))
+            self.logger.error(
+                "failed to send OnOff.Off: error is {}".format(ex.status))
             return False
         return True
 
     async def TestLevelControlCluster(self, nodeId: int, endpoint: int):
-        self.logger.info(f"Sending MoveToLevel command to device {nodeId} endpoint {endpoint}")
+        self.logger.info(
+            f"Sending MoveToLevel command to device {nodeId} endpoint {endpoint}")
 
-        commonArgs = {"transitionTime": 0, "optionsMask": 1, "optionsOverride": 1}
+        commonArgs = {'transitionTime': 0, 'optionsMask': 1, 'optionsOverride': 1}
 
         async def _moveClusterLevel(setLevel):
-            await self.devCtrl.SendCommand(
-                nodeId, endpoint, Clusters.LevelControl.Commands.MoveToLevel(**commonArgs, level=setLevel)
-            )
+            await self.devCtrl.SendCommand(nodeId,
+                                           endpoint,
+                                           Clusters.LevelControl.Commands.MoveToLevel(**commonArgs, level=setLevel))
             res = await self.devCtrl.ReadAttribute(nodeId, [(endpoint, Clusters.LevelControl.Attributes.CurrentLevel)])
             readVal = res[endpoint][Clusters.LevelControl][Clusters.LevelControl.Attributes.CurrentLevel]
             if readVal != setLevel:
@@ -1100,7 +1117,8 @@ class BaseTestHelper:
             return False
 
     def TestResolve(self, nodeId):
-        self.logger.info("Resolve: node id = {:08x}".format(nodeId))
+        self.logger.info(
+            "Resolve: node id = {:08x}".format(nodeId))
         try:
             self.devCtrl.ResolveNode(nodeId=nodeId)
             addr = None
@@ -1127,9 +1145,7 @@ class BaseTestHelper:
     async def TestTriggerTestEventHandler(self, nodeId, enable_key, event_trigger):
         self.logger.info("Test trigger test event handler for device 0x%016X trigger 0x%016x", nodeId, event_trigger)
         try:
-            await self.devCtrl.SendCommand(
-                nodeId, 0, Clusters.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=enable_key, eventTrigger=event_trigger)
-            )
+            await self.devCtrl.SendCommand(nodeId, 0, Clusters.GeneralDiagnostics.Commands.TestEventTrigger(enableKey=enable_key, eventTrigger=event_trigger))
             return True
         except Exception as ex:
             self.logger.exception("Failed to trigger test event handler {}".format(ex))
@@ -1182,12 +1198,8 @@ class BaseTestHelper:
 
         requests = [
             AttributeWriteRequest(Clusters.BasicInformation, Clusters.BasicInformation.Attributes.NodeLabel, "Test"),
-            AttributeWriteRequest(
-                Clusters.BasicInformation,
-                Clusters.BasicInformation.Attributes.Location,
-                "a pretty loooooooooooooog string",
-                IM.Status.ConstraintError,
-            ),
+            AttributeWriteRequest(Clusters.BasicInformation, Clusters.BasicInformation.Attributes.Location,
+                                  "a pretty loooooooooooooog string", IM.Status.ConstraintError),
         ]
         failed_attribute_write = []
         for req in requests:
@@ -1197,8 +1209,7 @@ class BaseTestHelper:
                 status = write_res[0].Status
                 if req.expected_status != status:
                     raise AssertionError(
-                        f"Write attribute {req.attribute.__qualname__} expects {req.expected_status} but got {status}"
-                    )
+                        f"Write attribute {req.attribute.__qualname__} expects {req.expected_status} but got {status}")
 
                 # Only execute read tests where write is successful.
                 if req.expected_status != IM.Status.Success:
@@ -1207,7 +1218,8 @@ class BaseTestHelper:
                 res = await self.devCtrl.ReadAttribute(nodeId, [(endpoint, req.attribute)])
                 val = res[endpoint][req.cluster][req.attribute]
                 if val != req.value:
-                    raise Exception(f"Read attribute {req.attribute.__qualname__}: expected value {req.value}, got {val}")
+                    raise Exception(
+                        f"Read attribute {req.attribute.__qualname__}: expected value {req.value}, got {val}")
             except Exception as ex:
                 failed_attribute_write.append(str(ex))
         if failed_attribute_write:
@@ -1227,7 +1239,8 @@ class BaseTestHelper:
                 return
 
             data = transaction.GetAttribute(path)
-            logger.info(f"Received report from server: path: {path.Path}, value: {data}")
+            logger.info(
+                f"Received report from server: path: {path.Path}, value: {data}")
             receivedUpdate += 1
             loop.call_soon_threadsafe(updateEvent.set)
 
@@ -1237,17 +1250,11 @@ class BaseTestHelper:
                 await self.devCtrl.SendCommand(nodeId, endpoint, Clusters.OnOff.Commands.Toggle())
 
         try:
-            desiredPath = Clusters.Attribute.AttributePath(EndpointId=1, ClusterId=6, AttributeId=0)
+            desiredPath = Clusters.Attribute.AttributePath(
+                EndpointId=1, ClusterId=6, AttributeId=0)
             # OnOff Cluster, OnOff Attribute
-            subscription = await self.devCtrl.ReadAttribute(
-                nodeId,
-                [(endpoint, Clusters.OnOff.Attributes.OnOff)],
-                None,
-                False,
-                reportInterval=(1, 10),
-                keepSubscriptions=False,
-                autoResubscribe=True,
-            )
+            subscription = await self.devCtrl.ReadAttribute(nodeId, [(endpoint, Clusters.OnOff.Attributes.OnOff)], None, False, reportInterval=(1, 10),
+                                                            keepSubscriptions=False, autoResubscribe=True)
             subscription.SetAttributeUpdateCallback(OnValueChange)
             # Reset the number of subscriptions received as subscribing causes a callback.
             taskAttributeChange = loop.create_task(_conductAttributeChange(self.devCtrl, nodeId, endpoint))
@@ -1260,7 +1267,8 @@ class BaseTestHelper:
                     await asyncio.wait_for(updateEvent.wait(), 10)
                     updateEvent.clear()
                 except TimeoutError:
-                    self.logger.error("Failed to receive subscription update")
+                    self.logger.error(
+                        "Failed to receive subscription update")
                     break
 
             # At this point the task should really have done the three attribute,
@@ -1292,41 +1300,43 @@ class BaseTestHelper:
         return True
 
     def TestNonControllerAPIs(self):
-        """
+        '''
         This function validates various APIs provided by chip package which is not related to controller.
         TODO: Add more tests for APIs
-        """
+        '''
         try:
             cluster = self.devCtrl.GetClusterHandler()
             clusterInfo = cluster.GetClusterInfoById(0xFFF1FC05)  # TestCluster
             if clusterInfo["clusterName"] != "UnitTesting":
-                raise Exception(f"Wrong cluster info clusterName: {clusterInfo['clusterName']} expected 'UnitTesting'")
+                raise Exception(
+                    f"Wrong cluster info clusterName: {clusterInfo['clusterName']} expected 'UnitTesting'")
         except Exception as ex:
             self.logger.exception(f"Failed to finish API test: {ex}")
             return False
         return True
 
     async def TestFabricScopedCommandDuringPase(self, nodeId: int):
-        """Validates that fabric-scoped commands fail during PASE with UNSUPPORTED_ACCESS
+        '''Validates that fabric-scoped commands fail during PASE with UNSUPPORTED_ACCESS
 
         The nodeId is the PASE pseudo-node-ID used during PASE establishment
-        """
+        '''
         status = None
         try:
-            await self.devCtrl.SendCommand(nodeId, 0, Clusters.OperationalCredentials.Commands.UpdateFabricLabel("roboto"))
+            await self.devCtrl.SendCommand(
+                nodeId, 0, Clusters.OperationalCredentials.Commands.UpdateFabricLabel("roboto"))
         except IM.InteractionModelError as ex:
             status = ex.status
 
         return status == IM.Status.UnsupportedAccess
 
     async def TestSubscriptionResumption(self, nodeId: int, endpoint: int, remote_ip: str, ssh_port: int, remote_server_app: str):
-        """
+        '''
         This test validates that the device can resume the subscriptions after restarting.
         It is executed in Linux Cirque tests and the steps of this test are:
         1. Subscription the NodeLable attribute on BasicInformation cluster with the controller
         2. Restart the remote server app
         3. Validate that the controller can receive a report from the remote server app
-        """
+        '''
         desiredPath = None
         updateEvent = asyncio.Event()
         loop = asyncio.get_running_loop()
@@ -1337,27 +1347,21 @@ class BaseTestHelper:
                 return
 
             data = transaction.GetAttribute(path)
-            logger.info(f"Received report from server: path: {path.Path}, value: {data}")
+            logger.info(
+                f"Received report from server: path: {path.Path}, value: {data}")
             loop.call_soon_threadsafe(updateEvent.set)
 
         try:
-            desiredPath = Clusters.Attribute.AttributePath(EndpointId=0, ClusterId=0x28, AttributeId=5)
+            desiredPath = Clusters.Attribute.AttributePath(
+                EndpointId=0, ClusterId=0x28, AttributeId=5)
             # BasicInformation Cluster, NodeLabel Attribute
-            subscription = await self.devCtrl.ReadAttribute(
-                nodeId,
-                [(endpoint, Clusters.BasicInformation.Attributes.NodeLabel)],
-                None,
-                False,
-                reportInterval=(1, 50),
-                keepSubscriptions=True,
-                autoResubscribe=False,
-            )
+            subscription = await self.devCtrl.ReadAttribute(nodeId, [(endpoint, Clusters.BasicInformation.Attributes.NodeLabel)], None, False, reportInterval=(1, 50),
+                                                            keepSubscriptions=True, autoResubscribe=False)
             subscription.SetAttributeUpdateCallback(OnValueReport)
 
             self.logger.info("Restart remote device")
             restartRemoteThread = restartRemoteDevice(
-                remote_ip, ssh_port, "root", "admin", remote_server_app, "--thread --discriminator 3840"
-            )
+                remote_ip, ssh_port, "root", "admin", remote_server_app, "--thread --discriminator 3840")
             restartRemoteThread.start()
             # After device restarts, the attribute will be set dirty so the subscription can receive
             # the update
@@ -1366,7 +1370,8 @@ class BaseTestHelper:
                 await asyncio.wait_for(updateEvent.wait(), 10)
                 receivedUpdate = True
             except TimeoutError:
-                self.logger.error("Failed to receive subscription resumption report")
+                self.logger.error(
+                    "Failed to receive subscription resumption report")
 
             restartRemoteThread.join(10.0)
 
@@ -1389,7 +1394,7 @@ class BaseTestHelper:
 
         return True
 
-    """
+    '''
     The SubscriptionResumptionCapacity Cirque Test is to verify that the device can still handle new subscription
     requests when resuming the maximum subscriptions. The steps for this test are:
     1. Commission the server app to the first fabric and send maximum subscription requests from the controller in
@@ -1411,21 +1416,15 @@ class BaseTestHelper:
     at the time of server app resuming maximum subscriptions.
     So we will use two controller containers for this test and divide the test to two steps. The Step1 is executed in
     controller 1 in container 1 while the Step2 is executed in controller 2 in container 2
-    """
+    '''
 
     async def TestSubscriptionResumptionCapacityStep1(self, nodeId: int, endpoint: int, passcode: int, subscription_capacity: int):
         try:
             # BasicInformation Cluster, NodeLabel Attribute
             for i in range(subscription_capacity):
-                await self.devCtrl.ReadAttribute(
-                    nodeId,
-                    [(endpoint, Clusters.BasicInformation.Attributes.NodeLabel)],
-                    None,
-                    False,
-                    reportInterval=(1, 50),
-                    keepSubscriptions=True,
-                    autoResubscribe=False,
-                )
+                await self.devCtrl.ReadAttribute(nodeId, [(endpoint, Clusters.BasicInformation.Attributes.NodeLabel)], None,
+                                                 False, reportInterval=(1, 50),
+                                                 keepSubscriptions=True, autoResubscribe=False)
 
             logger.info("Send OpenCommissioningWindow command on fist controller")
             discriminator = 3840
@@ -1433,17 +1432,12 @@ class BaseTestHelper:
             iterations = 2000
             verifier = GenerateVerifier(passcode, salt, iterations)
             await self.devCtrl.SendCommand(
-                nodeId,
-                0,
-                Clusters.AdministratorCommissioning.Commands.OpenCommissioningWindow(
+                nodeId, 0, Clusters.AdministratorCommissioning.Commands.OpenCommissioningWindow(
                     commissioningTimeout=180,
                     PAKEPasscodeVerifier=verifier,
                     discriminator=discriminator,
                     iterations=iterations,
-                    salt=salt,
-                ),
-                timedRequestTimeoutMs=10000,
-            )
+                    salt=salt), timedRequestTimeoutMs=10000)
             return True
 
         except Exception as ex:
@@ -1452,9 +1446,8 @@ class BaseTestHelper:
 
         return True
 
-    async def TestSubscriptionResumptionCapacityStep2(
-        self, nodeId: int, endpoint: int, remote_ip: str, ssh_port: int, remote_server_app: str, subscription_capacity: int
-    ):
+    async def TestSubscriptionResumptionCapacityStep2(self, nodeId: int, endpoint: int, remote_ip: str, ssh_port: int,
+                                                      remote_server_app: str, subscription_capacity: int):
         try:
             self.logger.info("Restart remote deivce")
             extra_agrs = f"--thread --discriminator 3840 --subscription-capacity {subscription_capacity}"
@@ -1468,15 +1461,9 @@ class BaseTestHelper:
             self.logger.info("Send a new subscription request from the second controller")
             # Close previous session so that the second controller will res-establish the session with the remote device
             self.devCtrl.MarkSessionDefunct(nodeId)
-            await self.devCtrl.ReadAttribute(
-                nodeId,
-                [(endpoint, Clusters.BasicInformation.Attributes.NodeLabel)],
-                None,
-                False,
-                reportInterval=(1, 50),
-                keepSubscriptions=True,
-                autoResubscribe=False,
-            )
+            await self.devCtrl.ReadAttribute(nodeId, [(endpoint, Clusters.BasicInformation.Attributes.NodeLabel)], None,
+                                             False, reportInterval=(1, 50),
+                                             keepSubscriptions=True, autoResubscribe=False)
 
             if restartRemoteThread.is_alive():
                 # Thread join timed out

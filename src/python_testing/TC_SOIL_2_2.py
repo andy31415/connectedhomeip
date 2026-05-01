@@ -59,14 +59,9 @@ class TC_SOIL_2_2(MatterBaseTest):
     def steps_TC_SOIL_2_2(self) -> list[TestStep]:
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
-            TestStep(
-                2,
-                "Set up a subscription wildcard subscription, with MinIntervalFloor set to 0, MaxIntervalCeiling set to 30 and KeepSubscriptions set to false",
-            ),
-            TestStep(
-                3,
-                "Read SoilMoistureMeasurementLimits attribute, save the MinMeasuredValue field as min_bound and save the MaxMeasuredValue field as max_bound",
-            ),
+            TestStep(2, "Set up a subscription wildcard subscription, with MinIntervalFloor set to 0, MaxIntervalCeiling set to 30 and KeepSubscriptions set to false"),
+
+            TestStep(3, "Read SoilMoistureMeasurementLimits attribute, save the MinMeasuredValue field as min_bound and save the MaxMeasuredValue field as max_bound"),
             TestStep(4, "Read SoilMoistureMeasuredValue attribute and save the value as measurement"),
             TestStep(5, "Perform action to change the moisture of the measured medium"),
             TestStep(6, "After a few seconds, read SoilMoistureMeasuredValue attribute"),
@@ -80,6 +75,7 @@ class TC_SOIL_2_2(MatterBaseTest):
 
     @run_if_endpoint_matches(has_cluster(Clusters.SoilMeasurement))
     async def test_TC_SOIL_2_2(self):
+
         endpoint = self.get_endpoint()
 
         self.step(1)
@@ -91,9 +87,7 @@ class TC_SOIL_2_2(MatterBaseTest):
         await sub_handler.start(self.default_controller, self.dut_node_id, endpoint)
 
         self.step(3)
-        soil_moisture_limits = await self.read_soil_attribute_expect_success(
-            endpoint=endpoint, attribute=attributes.SoilMoistureMeasurementLimits
-        )
+        soil_moisture_limits = await self.read_soil_attribute_expect_success(endpoint=endpoint, attribute=attributes.SoilMoistureMeasurementLimits)
         min_bound = soil_moisture_limits.minMeasuredValue
         max_bound = soil_moisture_limits.maxMeasuredValue
 
@@ -103,9 +97,7 @@ class TC_SOIL_2_2(MatterBaseTest):
             self.write_to_app_pipe({"Name": "SetSimulatedSoilMoisture", "SoilMoistureValue": min_bound, "EndpointId": endpoint})
 
         self.step(4)
-        measurement = await self.read_soil_attribute_expect_success(
-            endpoint=endpoint, attribute=attributes.SoilMoistureMeasuredValue
-        )
+        measurement = await self.read_soil_attribute_expect_success(endpoint=endpoint, attribute=attributes.SoilMoistureMeasuredValue)
         asserts.assert_true(measurement != NullValue, "SoilMoistureMeasuredValue is NullValue")
         asserts.assert_greater_equal(measurement, min_bound, "SoilMoistureMeasuredValue is out of range")
         asserts.assert_less_equal(measurement, max_bound, "SoilMoistureMeasuredValue is out of range")
@@ -118,13 +110,10 @@ class TC_SOIL_2_2(MatterBaseTest):
 
         else:
             self.wait_for_user_input(
-                prompt_msg="Perform action to change the moisture of the measured medium and wait for measurement, then continue"
-            )
+                prompt_msg="Perform action to change the moisture of the measured medium and wait for measurement, then continue")
 
         self.step(6)
-        measurement_after_action = await self.read_soil_attribute_expect_success(
-            endpoint=endpoint, attribute=attributes.SoilMoistureMeasuredValue
-        )
+        measurement_after_action = await self.read_soil_attribute_expect_success(endpoint=endpoint, attribute=attributes.SoilMoistureMeasuredValue)
         asserts.assert_true(measurement_after_action != NullValue, "SoilMoistureMeasuredValue is NullValue")
         asserts.assert_true(measurement_after_action != measurement, "SoilMoistureMeasuredValue is equal to the previous value")
         asserts.assert_greater_equal(measurement_after_action, min_bound, "SoilMoistureMeasuredValue is out of range")

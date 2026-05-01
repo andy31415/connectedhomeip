@@ -46,7 +46,8 @@ class EmberDescriptorCluster : public DescriptorCluster
 {
 public:
     EmberDescriptorCluster(EndpointId endpointId, DescriptorCluster::OptionalAttributesSet optionalAttributeSet,
-                           Span<const SemanticTag> semanticTags) : DescriptorCluster(endpointId, optionalAttributeSet, semanticTags)
+                           Span<const SemanticTag> semanticTags) :
+        DescriptorCluster(endpointId, optionalAttributeSet, semanticTags)
     {}
 
     CHIP_ERROR Attributes(const ConcreteClusterPath & path, ReadOnlyBufferBuilder<DataModel::AttributeEntry> & builder) override

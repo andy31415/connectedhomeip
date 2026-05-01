@@ -30,19 +30,19 @@ value_regexp = re.compile("=.*")
 
 def main():
     if len(sys.argv) != 3:
-        print(
-            "Expecting two arguments: the CI PICS values file and the YAML file defining all PICS values.  Got: %r" % sys.argv[1:]
-        )
+        print('Expecting two arguments: the CI PICS values file and the YAML file defining all PICS values.  Got: %r' %
+              sys.argv[1:])
         return 1
 
     value_defs = sys.argv[1]
     pics_yaml = sys.argv[2]
 
     with open(value_defs, "r") as stream:
-        defined_values = {re.sub(value_regexp, "", item.rstrip()) for item in stream.readlines()}
+        defined_values = {re.sub(
+            value_regexp, "", item.rstrip()) for item in stream.readlines()}
         # Remove Comments w/ # and empty lines
         for elem in list(defined_values):
-            if elem.startswith("#") or (elem == ""):
+            if elem.startswith('#') or (elem == ""):
                 defined_values.discard(elem)
 
     with open(pics_yaml, "r") as stream:
@@ -56,7 +56,8 @@ def main():
 
     if defined_values != possible_values:
         for value in sorted(possible_values - defined_values):
-            print('"%s" does not have a value defined in %s' % (value, value_defs))
+            print('"%s" does not have a value defined in %s' %
+                  (value, value_defs))
         for value in sorted(defined_values - possible_values):
             print('"%s" is not a known PICS item in %s' % (value, pics_yaml))
         return 1
@@ -64,5 +65,5 @@ def main():
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

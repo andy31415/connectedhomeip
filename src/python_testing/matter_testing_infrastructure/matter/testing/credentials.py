@@ -49,9 +49,7 @@ class CertificatePurpose(Enum):
         raise KeyError("Invalid enum: %r" % self)
 
 
-def _get_credentials(
-    credential_source: Union[CredentialSource, Traversable], certificate_purpose: CertificatePurpose
-) -> Traversable:
+def _get_credentials(credential_source: Union[CredentialSource, Traversable], certificate_purpose: CertificatePurpose) -> Traversable:
     # Early return if data_model_directory is already a Traversable type
     if not isinstance(credential_source, CredentialSource):
         # data_model_directory is a Traversable (e.g. pathlib.Path to an extracted root)
@@ -59,12 +57,8 @@ def _get_credentials(
         return credential_source
 
     # If it's a prebuilt directory, build the path based on the requested certificates
-    zip_file_traversable = (
-        pkg_resources.files(importlib.import_module("matter.testing"))
-        .joinpath("credentials")
-        .joinpath(credential_source.dirname)
-        .joinpath("allfiles.zip")
-    )
+    zip_file_traversable = pkg_resources.files(importlib.import_module('matter.testing')).joinpath(
+        'credentials').joinpath(credential_source.dirname).joinpath('allfiles.zip')
 
     # Avoid returning a zipfile.Path backed by a closed file handle. Build Path from the filesystem path
     # so the ZipFile lifecycle is managed by zipfile.Path itself.

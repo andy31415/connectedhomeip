@@ -19,11 +19,12 @@ import sys
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate that some specific files exist (or not)")
+    parser = argparse.ArgumentParser(
+        description='Validate that some specific files exist (or not)')
 
-    parser.add_argument("--touch", help="Create this file on success")
-    parser.add_argument("--exists", action="append", default=[], help="Validate that these files exist")
-    parser.add_argument("--missing", action="append", default=[], help="Validate that these files DO NOT exist")
+    parser.add_argument('--touch', help="Create this file on success")
+    parser.add_argument('--exists', action='append', default=[], help="Validate that these files exist")
+    parser.add_argument('--missing', action='append', default=[], help="Validate that these files DO NOT exist")
 
     args = parser.parse_args()
 
@@ -47,5 +48,5 @@ def main():
     sys.exit(0)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

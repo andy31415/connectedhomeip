@@ -25,7 +25,13 @@ class MatterCMAFUploadValidator:
         self.init_path_regex = re.compile(r"^session_\d+/(?P<trackName>[^/]+)/[^/]+")
 
     def validate_upload(
-        self, stream: Stream, session: Optional[Session], file_path: str, ext: str, body: bytes, headers: dict
+        self,
+        stream: Stream,
+        session: Optional[Session],
+        file_path: str,
+        ext: str,
+        body: bytes,
+        headers: dict
     ) -> tuple[list[str], Optional[Session]]:
         """
         Validate a media upload.
@@ -45,7 +51,11 @@ class MatterCMAFUploadValidator:
         return errors, session
 
     def _validate_mpd_upload(
-        self, stream: Stream, session: Optional[Session], file_path: str, body: bytes
+        self,
+        stream: Stream,
+        session: Optional[Session],
+        file_path: str,
+        body: bytes
     ) -> tuple[list[str], Optional[Session]]:
         """Validate DASH manifest upload."""
         errors = []
@@ -57,7 +67,7 @@ class MatterCMAFUploadValidator:
             session = stream.new_session()
 
         root = xml.etree.ElementTree.fromstring(body)
-        mpd_type = root.attrib.get("type")
+        mpd_type = root.attrib.get('type')
 
         if mpd_type == "dynamic" and len(session.uploaded_segments) > 0:
             errors.append("Dynamic MPD cannot be uploaded after segments have been uploaded")
@@ -79,7 +89,11 @@ class MatterCMAFUploadValidator:
         return errors, session
 
     def _validate_m3u8_upload(
-        self, stream: Stream, session: Optional[Session], file_path: str, body: bytes
+        self,
+        stream: Stream,
+        session: Optional[Session],
+        file_path: str,
+        body: bytes
     ) -> tuple[list[str], Optional[Session]]:
         """Validate HLS manifest upload."""
         errors = []
@@ -88,8 +102,8 @@ class MatterCMAFUploadValidator:
             errors.append("Unsupported manifest object extension")
 
         # Parse the m3u8 content
-        body_str = body.decode("utf-8", errors="replace")
-        lines = body_str.split("\n")
+        body_str = body.decode('utf-8', errors='replace')
+        lines = body_str.split('\n')
 
         # Check if this is a multi-variant playlist or a media playlist
         is_multi_variant = self.hls_multi_variant_path_regex.match(file_path)
@@ -101,8 +115,7 @@ class MatterCMAFUploadValidator:
             errors, session = self._validate_hls_media_playlist(stream, session, file_path, is_media_playlist, lines, body_str)
         else:
             errors.append(
-                "HLS manifest must be uploaded as session_X/index.m3u8 (multi-variant) or session_X/track_name/index.m3u8 (media playlist)"
-            )
+                "HLS manifest must be uploaded as session_X/index.m3u8 (multi-variant) or session_X/track_name/index.m3u8 (media playlist)")
 
         if session:
             session.uploaded_manifests.append((f"{file_path}.m3u8", f"{file_path}.m3u8.crt"))
@@ -110,7 +123,10 @@ class MatterCMAFUploadValidator:
         return errors, session
 
     def _validate_hls_multi_variant(
-        self, stream: Stream, session: Optional[Session], lines: list[str]
+        self,
+        stream: Stream,
+        session: Optional[Session],
+        lines: list[str]
     ) -> tuple[list[str], Optional[Session]]:
         """Validate HLS multi-variant playlist."""
         errors = []
@@ -125,7 +141,7 @@ class MatterCMAFUploadValidator:
         # Count tracks by counting EXT-X-MEDIA and EXT-X-STREAM-INF lines
         track_count = 0
         for line in lines:
-            if line.startswith("#EXT-X-MEDIA") or line.startswith("#EXT-X-STREAM-INF"):
+            if line.startswith('#EXT-X-MEDIA') or line.startswith('#EXT-X-STREAM-INF'):
                 track_count += 1
 
         if track_count == 0:
@@ -144,7 +160,7 @@ class MatterCMAFUploadValidator:
         file_path: str,
         is_media_playlist: re.Match,
         lines: list[str],
-        body_str: str,
+        body_str: str
     ) -> tuple[list[str], Optional[Session]]:
         """Validate HLS media playlist."""
         errors = []
@@ -158,14 +174,16 @@ class MatterCMAFUploadValidator:
         track_name = stream.track_name
         if track_name and track_name != track_name_in_path:
             errors.append(
-                f"Track name mismatch: {track_name_in_path} != {track_name}, must match TrackName provided in ContainerOptions"
+                "Track name mismatch: "
+                f"{track_name_in_path} != {track_name}, "
+                "must match TrackName provided in ContainerOptions"
             )
 
         # Check if this is initial or final media playlist
-        has_ext_x_playlist_type = any(line.startswith("#EXT-X-PLAYLIST-TYPE") for line in lines)
-        has_ext_x_endlist = any(line.startswith("#EXT-X-ENDLIST") for line in lines)
-        has_extinf = any(line.startswith("#EXTINF") for line in lines)
-        has_segment_lines = any(not line.startswith("#") and line.strip() != "" for line in lines)
+        has_ext_x_playlist_type = any(line.startswith('#EXT-X-PLAYLIST-TYPE') for line in lines)
+        has_ext_x_endlist = any(line.startswith('#EXT-X-ENDLIST') for line in lines)
+        has_extinf = any(line.startswith('#EXTINF') for line in lines)
+        has_segment_lines = any(not line.startswith('#') and line.strip() != '' for line in lines)
 
         # Check if multi-variant playlist was uploaded first
         if not session.hls_expected_track_count:
@@ -181,7 +199,7 @@ class MatterCMAFUploadValidator:
             # Final media playlist
             if not has_ext_x_playlist_type:
                 errors.append("Final media playlist must contain #EXT-X-PLAYLIST-TYPE:VOD")
-            is_vod = any(line.strip() == "#EXT-X-PLAYLIST-TYPE:VOD" for line in lines)
+            is_vod = any(line.strip() == '#EXT-X-PLAYLIST-TYPE:VOD' for line in lines)
             if not is_vod:
                 errors.append("Final media playlist must contain '#EXT-X-PLAYLIST-TYPE:VOD'")
             if not has_extinf:
@@ -194,8 +212,7 @@ class MatterCMAFUploadValidator:
                 errors.append(f"Final media playlist uploaded for track '{track_name_in_path}' before any segments were uploaded")
             elif track.state == TrackState.INITIAL_PLAYLIST_UPLOADED:
                 errors.append(
-                    f"Final media playlist uploaded for track '{track_name_in_path}' before init segment and segments were uploaded"
-                )
+                    f"Final media playlist uploaded for track '{track_name_in_path}' before init segment and segments were uploaded")
 
             # Mark track as completed
             track.state = TrackState.COMPLETED
@@ -223,7 +240,12 @@ class MatterCMAFUploadValidator:
         return errors, session
 
     def _validate_segment_upload(
-        self, stream: Stream, session: Optional[Session], file_path: str, ext: str, headers: dict
+        self,
+        stream: Stream,
+        session: Optional[Session],
+        file_path: str,
+        ext: str,
+        headers: dict
     ) -> tuple[list[str], Optional[Session]]:
         """Validate segment upload (m4s or init)."""
         errors = []
@@ -249,7 +271,9 @@ class MatterCMAFUploadValidator:
             track_name = stream.track_name
             if track_name and track_name != track_name_in_path:
                 errors.append(
-                    f"Track name mismatch: {track_name_in_path} != {track_name}, must match TrackName provided in ContainerOptions"
+                    "Track name mismatch: "
+                    f"{track_name_in_path} != {track_name}, "
+                    "must match TrackName provided in ContainerOptions"
                 )
 
             # Get or create track for state validation
@@ -268,8 +292,7 @@ class MatterCMAFUploadValidator:
                             errors.append(f"Init segment for track '{track_name_in_path}' must be uploaded before any segments")
                         elif track.state == TrackState.INIT_UPLOADED:
                             errors.append(
-                                f"Init segment for track '{track_name_in_path}' already uploaded, duplicate upload not allowed"
-                            )
+                                f"Init segment for track '{track_name_in_path}' already uploaded, duplicate upload not allowed")
                         else:
                             track.state = TrackState.INIT_UPLOADED
                     elif ext == "m4s":
@@ -289,8 +312,7 @@ class MatterCMAFUploadValidator:
                             errors.append(f"Init segment for track '{track_name_in_path}' uploaded before initial media playlist")
                         elif track.state == TrackState.INIT_UPLOADED:
                             errors.append(
-                                f"Init segment for track '{track_name_in_path}' already uploaded, duplicate upload not allowed"
-                            )
+                                f"Init segment for track '{track_name_in_path}' already uploaded, duplicate upload not allowed")
                         elif track.state == TrackState.SEGMENTS_UPLOADING:
                             errors.append(f"Init segment for track '{track_name_in_path}' uploaded after segments started")
                         elif track.state == TrackState.COMPLETED:
@@ -313,7 +335,7 @@ class MatterCMAFUploadValidator:
 
             # HLS-specific validation for media segments
             if stream.interface == SupportedIngestInterface.hls and ext == "m4s":
-                extinf_duration = headers.get("X-EXTINF-duration")
+                extinf_duration = headers.get('X-EXTINF-duration')
                 if extinf_duration is None:
                     errors.append("HLS media segments must include X-EXTINF-duration header")
                 else:
@@ -321,7 +343,6 @@ class MatterCMAFUploadValidator:
                         float(extinf_duration)
                     except ValueError:
                         errors.append(
-                            f"X-EXTINF-duration header must be a valid decimal floating-point value, got: {extinf_duration}"
-                        )
+                            f"X-EXTINF-duration header must be a valid decimal floating-point value, got: {extinf_duration}")
 
         return errors, session

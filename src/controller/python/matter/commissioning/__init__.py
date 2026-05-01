@@ -131,12 +131,14 @@ class GetCommissioneeCredentialsResponse:
 
 class CredentialProvider:
     async def get_commissionee_nonces(self) -> Tuple[bytes, bytes]:
-        """Returns the `attestation_nonce` and `csr_nonce` for the commissionee."""
+        ''' Returns the `attestation_nonce` and `csr_nonce` for the commissionee.
+        '''
         return os.urandom(32), os.urandom(32)
 
     @abc.abstractmethod
     async def get_commissionee_credentials(self, request: GetCommissioneeCredentialsRequest) -> GetCommissioneeCredentialsResponse:
-        """Returns certifications and infomations for the commissioning."""
+        ''' Returns certifications and infomations for the commissioning.
+        '''
         raise NotImplementedError
 
 

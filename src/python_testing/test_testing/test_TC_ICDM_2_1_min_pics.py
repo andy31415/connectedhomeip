@@ -22,25 +22,16 @@ from common_icdm_data import ICDMData, c, run_tests
 
 TEST_CASES = [
     # Validate that the test script can succeed with the minimum set of PICS
-    ICDMData(0, 1, 0, 100, [], 0, 2, 0, "", c.Enums.OperatingModeEnum.kSit, 64800, True),
+    ICDMData(0, 1, 0, 100, [], 0, 2, 0, "",
+             c.Enums.OperatingModeEnum.kSit, 64800, True),
 ]
 
 
 def main():
-    pics = {
-        "ICDM.S.A0000": True,
-        "ICDM.S.A0001": True,
-        "ICDM.S.A0002": True,
-        "ICDM.S.A0003": False,
-        "ICDM.S.A0004": False,
-        "ICDM.S.A0005": False,
-        "ICDM.S.A0006": False,
-        "ICDM.S.A0007": False,
-        "ICDM.S.A0008": False,
-        "ICDM.S.A0009": False,
-    }
+    pics = {"ICDM.S.A0000": True, "ICDM.S.A0001": True, "ICDM.S.A0002": True, "ICDM.S.A0003": False, "ICDM.S.A0004": False,
+            "ICDM.S.A0005": False, "ICDM.S.A0006": False, "ICDM.S.A0007": False, "ICDM.S.A0008": False, "ICDM.S.A0009": False}
 
-    return run_tests(pics, "TC_ICDM_2_1", TEST_CASES, "test_TC_ICDM_2_1")
+    return run_tests(pics, 'TC_ICDM_2_1', TEST_CASES, 'test_TC_ICDM_2_1')
 
 
 if __name__ == "__main__":

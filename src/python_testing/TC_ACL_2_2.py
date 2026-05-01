@@ -40,27 +40,22 @@ from matter.testing.runner import default_matter_test_main
 
 
 class TC_ACL_2_2(MatterBaseTest):
-    @pics("ACL.S")
+
+    @pics('ACL.S')
     @async_test_body
     async def test_TC_ACL_2_2(self):
         """[TC-ACL-2.2] Cluster endpoint"""
         self.step(1, "Commissioning, already done", is_commissioning=True)
         self.step(2, "TH1 reads DUT Descriptor cluster ServerList attribute from Endpoint 0")
-        data = await self.default_controller.ReadAttribute(
-            nodeId=self.dut_node_id, attributes=[(Clusters.Descriptor.Attributes.ServerList)]
-        )
-        asserts.assert_true(
-            Clusters.AccessControl.id in data[0][Clusters.Descriptor][Clusters.Descriptor.Attributes.ServerList],
-            "ACL cluster not on EP0",
-        )
+        data = await self.default_controller.ReadAttribute(nodeId=self.dut_node_id, attributes=[(Clusters.Descriptor.Attributes.ServerList)])
+        asserts.assert_true(Clusters.AccessControl.id in data[0][Clusters.Descriptor]
+                            [Clusters.Descriptor.Attributes.ServerList], "ACL cluster not on EP0")
         self.step(3, "TH1 reads DUT Descriptor cluster ServerList attribute from every Endpoint except 0")
         for endpoint, ep_data in data.items():
             if endpoint == 0:
                 continue
-            asserts.assert_false(
-                Clusters.AccessControl.id in ep_data[Clusters.Descriptor][Clusters.Descriptor.Attributes.ServerList],
-                f"ACL cluster incorrectly present on endpoint {endpoint}",
-            )
+            asserts.assert_false(Clusters.AccessControl.id in ep_data[Clusters.Descriptor][Clusters.Descriptor.Attributes.ServerList],
+                                 f"ACL cluster incorrectly present on endpoint {endpoint}")
 
 
 if __name__ == "__main__":

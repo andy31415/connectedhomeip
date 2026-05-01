@@ -17,8 +17,8 @@
 import importlib
 import sys
 
-platform = importlib.import_module(sys.argv[1] + "_firmware_utils")
+platform = importlib.import_module(sys.argv[1] + '_firmware_utils')
 del sys.argv[1]
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(platform.Flasher().make_wrapper(sys.argv))

@@ -48,7 +48,8 @@ class ServerClusterConfig:
             return []
 
         if not self.feature_bitmap_type:
-            raise Exception(f"No feature enumeration for cluster {self.cluster_name}")
+            raise Exception(
+                f"No feature enumeration for cluster {self.cluster_name}")
 
         result = []
         returned_values = 0
@@ -60,7 +61,8 @@ class ServerClusterConfig:
             returned_values = returned_values | entry.code
 
         if self.feature_map != returned_values:
-            raise Exception(f"Not all bits set in the feature map for {self.cluster_name} are defined: {self.feature_map}")
+            raise Exception(
+                f"Not all bits set in the feature map for {self.cluster_name} are defined: {self.feature_map}")
 
         return result
 
@@ -102,6 +104,7 @@ def cluster_instances(idl: Idl) -> Mapping[str, ClusterConfiguration]:
     # Generating metadata for every cluster
     for endpoint in idl.endpoints:
         for server_cluster in endpoint.server_clusters:
+
             # Defaults as per spec, however ZAP should generally
             # contain valid values here as they are required
             feature_map = 0
@@ -133,7 +136,7 @@ def cluster_instances(idl: Idl) -> Mapping[str, ClusterConfiguration]:
                     cluster_name=name,
                     feature_map=feature_map,
                     instance=server_cluster,
-                    feature_bitmap_type=feature_bitmap_type,
+                    feature_bitmap_type=feature_bitmap_type
                 )
             )
 
@@ -175,7 +178,9 @@ class CppApplicationGenerator(CodeGenerator):
         self.internal_render_one_output(
             template_path="ClusterCallbacksSource.jinja",
             output_file_name="app/cluster-callbacks.cpp",
-            vars={"clusters": server_side_clusters(self.idl)},
+            vars={
+                'clusters': server_side_clusters(self.idl)
+            }
         )
 
         for name, config in cluster_instances(self.idl).items():

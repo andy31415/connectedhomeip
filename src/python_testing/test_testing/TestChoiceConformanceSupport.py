@@ -21,18 +21,15 @@ import xml.etree.ElementTree as ElementTree
 import jinja2
 from mobly import asserts
 
-from matter.testing.choice_conformance import (
-    evaluate_attribute_choice_conformance,
-    evaluate_command_choice_conformance,
-    evaluate_feature_choice_conformance,
-)
+from matter.testing.choice_conformance import (evaluate_attribute_choice_conformance, evaluate_command_choice_conformance,
+                                               evaluate_feature_choice_conformance)
 from matter.testing.conformance import ConformanceAssessmentData
 from matter.testing.matter_testing import MatterBaseTest
 from matter.testing.problem_notices import ProblemNotice
 from matter.testing.runner import default_matter_test_main
 from matter.testing.spec_parsing import XmlCluster, add_cluster_data_from_xml
 
-FEATURE_TEMPLATE = """\
+FEATURE_TEMPLATE = '''\
     <feature bit="{{ id }}" code="{{ name }}" name="{{ name }}" summary="summary">
       <optionalConform choice="{{ choice }}" more="{{ more }}">
       {%- if XXX %}'
@@ -40,48 +37,47 @@ FEATURE_TEMPLATE = """\
       {% endif %}
       </optionalConform>
     </feature>
-"""
+'''
 
 ATTRIBUTE_TEMPLATE = (
     '    <attribute id="{{ id }}" name="{{ name }}" type="uint16">\n'
     '      <optionalConform choice="{{ choice }}" more="{{ more }}">\n'
-    "    {% if XXX %}"
+    '    {% if XXX %}'
     '        <attribute name="XXX" />\n'
-    "    {% endif %}"
-    "    </optionalConform>\n"
-    "    </attribute>\n"
+    '    {% endif %}'
+    '    </optionalConform>\n'
+    '    </attribute>\n'
 )
 
 COMMAND_TEMPLATE = (
     '    <command id="{{ id }}" name="{{ name }}" direction="commandToServer" response="Y">\n'
     '      <optionalConform choice="{{ choice }}" more="{{ more }}">\n'
-    "    {% if XXX %}"
+    '    {% if XXX %}'
     '        <command name="XXX" />\n'
-    "    {% endif %}"
-    "    </optionalConform>\n"
-    "    </command>\n"
+    '    {% endif %}'
+    '    </optionalConform>\n'
+    '    </command>\n'
 )
 
 CLUSTER_TEMPLATE = (
     '<cluster xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="types types.xsd cluster cluster.xsd" id="0x0001" name="Test Base" revision="1">\n'
-    "  <revisionHistory>\n"
+    '  <revisionHistory>\n'
     '    <revision revision="1" summary="Initial version"/>\n'
-    "  </revisionHistory>\n"
-    "  <clusterIds>\n"
+    '  </revisionHistory>\n'
+    '  <clusterIds>\n'
     '    <clusterId id="0x0001" name="Test Base"/>\n'
-    "  </clusterIds>\n"
+    '  </clusterIds>\n'
     '  <classification hierarchy="base" role="application" picsCode="BASE" scope="Endpoint"/>\n'
-    "  <features>\n"
-    "    {{ feature_string }}\n"
-    "  </features>\n"
-    "  <attributes>\n"
-    "    {{ attribute_string}}\n"
-    "  </attributes>\n"
-    "  <commands>\n"
-    "    {{ command_string }}\n"
-    "  </commands>\n"
-    "</cluster>\n"
-)
+    '  <features>\n'
+    '    {{ feature_string }}\n'
+    '  </features>\n'
+    '  <attributes>\n'
+    '    {{ attribute_string}}\n'
+    '  </attributes>\n'
+    '  <commands>\n'
+    '    {{ command_string }}\n'
+    '  </commands>\n'
+    '</cluster>\n')
 
 
 def _create_elements(template_str: str, base_name: str) -> list[str]:
@@ -89,18 +85,16 @@ def _create_elements(template_str: str, base_name: str) -> list[str]:
 
     def add_elements(curr_choice: str, starting_id: int, more: str, XXX: bool):
         for i in range(3):
-            element_name = f"{base_name}{curr_choice.upper() * (i + 1)}"
+            element_name = f'{base_name}{curr_choice.upper()*(i+1)}'
             environment = jinja2.Environment()
             template = environment.from_string(template_str)
             xml_str.append(template.render(id=(i + starting_id), name=element_name, choice=curr_choice, more=more, XXX=XXX))
-
-    add_elements("a", 1, "false", False)
-    add_elements("b", 4, "true", False)
-    add_elements("c", 7, "false", True)
-    add_elements("d", 10, "true", True)
+    add_elements('a', 1, 'false', False)
+    add_elements('b', 4, 'true', False)
+    add_elements('c', 7, 'false', True)
+    add_elements('d', 10, 'true', True)
 
     return xml_str
-
 
 # TODO: this setup makes my life easy because it assumes that choice conformances apply only within one table
 # if this is not true (ex, you can have choose 1 of a feature or an attribute), then this gets more complex
@@ -118,53 +112,53 @@ def _create_elements(template_str: str, base_name: str) -> list[str]:
 
 
 def _create_features():
-    xml = _create_elements(FEATURE_TEMPLATE, "F")
-    xxx = '    <feature bit="13" code="XXX" name="XXX" summary="summary">\n      <optionalConform />\n    </feature>\n'
+    xml = _create_elements(FEATURE_TEMPLATE, 'F')
+    xxx = ('    <feature bit="13" code="XXX" name="XXX" summary="summary">\n'
+           '      <optionalConform />\n'
+           '    </feature>\n')
     xml.append(xxx)
-    return "\n".join(xml)
+    return '\n'.join(xml)
 
 
 def _create_attributes():
     xml = _create_elements(ATTRIBUTE_TEMPLATE, "attr")
-    xxx = '    <attribute id="13" name="XXX" summary="summary">\n      <optionalConform />\n    </attribute>\n'
+    xxx = ('    <attribute id="13" name="XXX" summary="summary">\n'
+           '      <optionalConform />\n'
+           '    </attribute>\n')
     xml.append(xxx)
-    return "\n".join(xml)
+    return '\n'.join(xml)
 
 
 def _create_commands():
-    xml = _create_elements(COMMAND_TEMPLATE, "cmd")
-    xxx = (
-        '    <command id="13" name="XXX" summary="summary" direction="commandToServer" response="Y">\n'
-        "      <optionalConform />\n"
-        "    </command>\n"
-    )
+    xml = _create_elements(COMMAND_TEMPLATE, 'cmd')
+    xxx = ('    <command id="13" name="XXX" summary="summary" direction="commandToServer" response="Y">\n'
+           '      <optionalConform />\n'
+           '    </command>\n')
     xml.append(xxx)
-    return "\n".join(xml)
+    return '\n'.join(xml)
 
 
 def _create_cluster():
     environment = jinja2.Environment()
     template = environment.from_string(CLUSTER_TEMPLATE)
-    return template.render(
-        feature_string=_create_features(), attribute_string=_create_attributes(), command_string=_create_commands()
-    )
+    return template.render(feature_string=_create_features(), attribute_string=_create_attributes(), command_string=_create_commands())
 
 
 ATTRIBUTE_DEPENDING_ON_FEATURE_TEMPLATE = (
     '    <attribute id="{{ id }}" name="{{ name }}" type="uint16">\n'
     '      <optionalConform choice="{{ choice }}"{% if more %} more="true"{% endif %}>\n'
-    "    {% if XXX %}"
+    '    {% if XXX %}'
     '        <feature name="XXX" />\n'
-    "    {% endif %}"
-    "    </optionalConform>\n"
-    "    </attribute>\n"
+    '    {% endif %}'
+    '    </optionalConform>\n'
+    '    </attribute>\n'
 )
 
-FEATURE_FOR_O_AND_XXX = """\
+FEATURE_FOR_O_AND_XXX = '''\
     <feature bit="0" code="XXX" name="XXX" summary="summary">
       <optionalConform />
     </feature>
-"""
+'''
 
 
 def create_cluster_with_o_and_xxx_choice(more: bool):
@@ -173,12 +167,12 @@ def create_cluster_with_o_and_xxx_choice(more: bool):
     attr_template = attr_environment.from_string(ATTRIBUTE_DEPENDING_ON_FEATURE_TEMPLATE)
     # Attr0 = O.a
     # Attr1 = [XXX].a
-    xml_str.append(attr_template.render(id=0, name="Attr0", choice="a", more=more, XXX=False))
-    xml_str.append(attr_template.render(id=1, name="Attr1", choice="a", more=more, XXX=True))
+    xml_str.append(attr_template.render(id=0, name='Attr0', choice='a', more=more, XXX=False))
+    xml_str.append(attr_template.render(id=1, name='Attr1', choice='a', more=more, XXX=True))
 
     cluster_environment = jinja2.Environment()
     cluster_template = cluster_environment.from_string(CLUSTER_TEMPLATE)
-    return cluster_template.render(feature_string=FEATURE_FOR_O_AND_XXX, attribute_string="\n".join(xml_str), command_string="")
+    return cluster_template.render(feature_string=FEATURE_FOR_O_AND_XXX, attribute_string='\n'.join(xml_str), command_string='')
 
 
 class TestConformanceSupport(MatterBaseTest):
@@ -203,9 +197,9 @@ class TestConformanceSupport(MatterBaseTest):
             # The first three IDs are all O.a, so we need exactly one for the conformance to be valid
             expected_failures = set()
             if len({1, 2, 3} & set(combo)) != 1:
-                expected_failures.add("a")
+                expected_failures.add('a')
             if len({4, 5, 6} & set(combo)) < 1:
-                expected_failures.add("b")
+                expected_failures.add('b')
             # For these, we are checking that choice conformance checkers
             # - Correctly report errors and correct cases when the gating feature is ON
             # - Do not report any errors when the gating features is off.
@@ -213,16 +207,16 @@ class TestConformanceSupport(MatterBaseTest):
             # elsewhere in the cert test in a comprehensive way. We just want to ensure that we are not
             # incorrectly reporting choice conformance error as well
             if 13 in combo and len({7, 8, 9} & set(combo)) != 1:
-                expected_failures.add("c")
+                expected_failures.add('c')
             if 13 in combo and len({10, 11, 12} & set(combo)) < 1:
-                expected_failures.add("d")
+                expected_failures.add('d')
 
             self.all_id_combos.append((combo, expected_failures))
 
     def _evaluate_problems(self, problems, expected_failures=list[str]):
         if len(expected_failures) != len(problems):
             print(problems)
-        asserts.assert_equal(len(expected_failures), len(problems), "Unexpected number of choice conformance problems")
+        asserts.assert_equal(len(expected_failures), len(problems), 'Unexpected number of choice conformance problems')
         actual_failures = {p.choice.marker for p in problems}
         asserts.assert_equal(actual_failures, expected_failures, "Mismatch between failures")
 
@@ -234,9 +228,8 @@ class TestConformanceSupport(MatterBaseTest):
             return feature_map
 
         for combo, expected_failures in self.all_id_combos:
-            info = ConformanceAssessmentData(
-                feature_map=make_feature_map(combo), attribute_list=[], all_command_list=[], cluster_revision=1
-            )
+            info = ConformanceAssessmentData(feature_map=make_feature_map(
+                combo), attribute_list=[], all_command_list=[], cluster_revision=1)
             problems = evaluate_feature_choice_conformance(0, 1, self.clusters, info)
             self._evaluate_problems(problems, expected_failures)
 
@@ -267,14 +260,13 @@ class TestConformanceSupport(MatterBaseTest):
 
         def evaluate_test_scenarios(clusters: dict[int, XmlCluster], tests: list[tuple[list[int], set[str]]], feature_map: int):
             for attribute_list, expected_failure in tests:
-                info = ConformanceAssessmentData(
-                    feature_map=feature_map, attribute_list=attribute_list, all_command_list=[], cluster_revision=1
-                )
+                info = ConformanceAssessmentData(feature_map=feature_map, attribute_list=attribute_list,
+                                                 all_command_list=[], cluster_revision=1)
                 problems = evaluate_attribute_choice_conformance(0, 1, clusters, info)
                 self._evaluate_problems(problems, expected_failure)
 
         # We always expect the failure on choice a
-        failure = {"a"}
+        failure = {'a'}
         no_failure = set()
 
         # Attr0 = O.a, Attr1 = [XXX].a

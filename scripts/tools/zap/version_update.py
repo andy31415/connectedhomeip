@@ -35,7 +35,7 @@ __LOG_LEVELS__ = logging.getLevelNamesMapping()
 #
 # At this time we hard-code nightly however we may need to figure out a more
 # generic version string once we stop using nightly builds
-ZAP_VERSION_RE = re.compile(r"v?(\d\d\d\d)\.(\d\d)\.(\d\d)(-nightly)?(?=\W|$)")
+ZAP_VERSION_RE = re.compile(r'v?(\d\d\d\d)\.(\d\d)\.(\d\d)(-nightly)?(?=\W|$)')
 
 # A list of files where ZAP is maintained. You can get a similar list using:
 #
@@ -46,8 +46,8 @@ ZAP_VERSION_RE = re.compile(r"v?(\d\d\d\d)\.(\d\d)\.(\d\d)(-nightly)?(?=\W|$)")
 # Set as a separate list to not pay the price of a full grep as the list of
 # files is not likely to change often
 USAGE_FILES_DEPENDING_ON_ZAP_VERSION = [
-    "scripts/setup/zap.json",
-    "scripts/setup/zap.version",
+    'scripts/setup/zap.json',
+    'scripts/setup/zap.version',
 ]
 
 
@@ -58,7 +58,7 @@ class UpdateChoice(Flag):
 
 
 __UPDATE_CHOICES__ = {
-    "usage": UpdateChoice.USAGE,
+    'usage': UpdateChoice.USAGE,
 }
 
 # Apart from the above files which contain an exact ZAP version, the zap
@@ -66,32 +66,32 @@ __UPDATE_CHOICES__ = {
 # we also enforce to be the current version.
 #
 # That line is of the form "MIN_ZAP_VERSION = '2021.1.9'"
-ZAP_EXECUTION_SCRIPT = "scripts/tools/zap/zap_execution.py"
-ZAP_EXECUTION_MIN_RE = re.compile(r"(MIN_ZAP_VERSION = .)(\d\d\d\d\.\d\d?\.\d\d?)(.)")
+ZAP_EXECUTION_SCRIPT = 'scripts/tools/zap/zap_execution.py'
+ZAP_EXECUTION_MIN_RE = re.compile(
+    r'(MIN_ZAP_VERSION = .)(\d\d\d\d\.\d\d?\.\d\d?)(.)')
 
-CHIP_ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+CHIP_ROOT_DIR = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '..', '..', '..'))
 
 
 @click.command()
 @click.option(
-    "--log-level",
-    default="INFO",
+    '--log-level',
+    default='INFO',
     type=click.Choice(__LOG_LEVELS__.keys(), case_sensitive=False),
-    help="Determines the verbosity of script output.",
-)
+    help='Determines the verbosity of script output.')
 @click.option(
-    "--update",
-    default="usage",
+    '--update',
+    default='usage',
     type=click.Choice(__UPDATE_CHOICES__.keys(), case_sensitive=False),
-    help="What to update: usage (only choice currently).",
-)
+    help='What to update: usage (only choice currently).')
 @click.option(
-    "--new-version",
+    '--new-version',
     default=None,
-    help='What version of ZAP to update to (like "v2023.01.09-nightly". If not set, versions will just be printed.',
-)
+    help='What version of ZAP to update to (like "v2023.01.09-nightly". If not set, versions will just be printed.')
 def version_update(log_level, update, new_version):
-    coloredlogs.install(level=__LOG_LEVELS__[log_level], fmt="%(asctime)s %(levelname)-7s %(message)s")
+    coloredlogs.install(level=__LOG_LEVELS__[
+                        log_level], fmt='%(asctime)s %(levelname)-7s %(message)s')
 
     update = __UPDATE_CHOICES__[update]
 
@@ -119,7 +119,7 @@ def version_update(log_level, update, new_version):
         # zap versions may occur several times in the same file
         found_versions = set()
         for m in ZAP_VERSION_RE.finditer(file_data):
-            version = file_data[m.start() : m.end()]
+            version = file_data[m.start():m.end()]
             if version not in found_versions:
                 log.info("'%s' currently used in '%s'", version, name)
             found_versions.add(version)
@@ -134,11 +134,12 @@ def version_update(log_level, update, new_version):
             need_replace = False
             m = ZAP_VERSION_RE.search(file_data, search_pos)
             while m:
-                version = file_data[m.start() : m.end()]
+                version = file_data[m.start():m.end()]
                 if version == new_version:
                     log.warning("Nothing to replace. Version already '%s'", version)
                     break
-                file_data = file_data[: m.start()] + new_version + file_data[m.end() :]
+                file_data = file_data[:m.start()] + \
+                    new_version + file_data[m.end():]
                 need_replace = True
 
                 # We search a bit past the match to not re-match the same thing again.
@@ -149,7 +150,7 @@ def version_update(log_level, update, new_version):
             if need_replace:
                 log.info("Replacing with version '%s' in '%s'", new_version, name)
 
-                with open(os.path.join(CHIP_ROOT_DIR, name), "wt") as f:
+                with open(os.path.join(CHIP_ROOT_DIR, name), 'wt') as f:
                     f.write(file_data)
 
     # Finally, check zap_execution for any version update
@@ -160,13 +161,14 @@ def version_update(log_level, update, new_version):
         m = ZAP_EXECUTION_MIN_RE.search(file_data)
         log.info("Min version '%s' in '%s'", m.group(2), ZAP_EXECUTION_SCRIPT)
         if new_version:
-            new_min_version = "%d.%d.%d" % zap_min_version
-            file_data = file_data[: m.start()] + m.group(1) + new_min_version + m.group(3) + file_data[m.end() :]
+            new_min_version = ("%d.%d.%d" % zap_min_version)
+            file_data = file_data[:m.start()] + m.group(1) + \
+                new_min_version + m.group(3) + file_data[m.end():]
             log.info("Updating min version to '%s' in '%s'", new_min_version, ZAP_EXECUTION_SCRIPT)
 
-            with open(os.path.join(CHIP_ROOT_DIR, ZAP_EXECUTION_SCRIPT), "wt") as f:
+            with open(os.path.join(CHIP_ROOT_DIR, ZAP_EXECUTION_SCRIPT), 'wt') as f:
                 f.write(file_data)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     version_update()

@@ -50,6 +50,7 @@ log = logging.getLogger(__name__)
 
 
 class TC_ACE_1_5(MatterBaseTest):
+
     async def read_currentfabricindex(self, th: ChipDeviceCtrl) -> int:
         cluster = Clusters.Objects.OperationalCredentials
         attribute = Clusters.OperationalCredentials.Attributes.CurrentFabricIndex
@@ -71,112 +72,91 @@ class TC_ACE_1_5(MatterBaseTest):
         TH1_nodeid = self.matter_test_config.controller_node_id
         TH2_nodeid = self.matter_test_config.controller_node_id + 2
 
-        self.th2 = new_fabric_admin.NewController(
-            nodeId=TH2_nodeid, paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path)
-        )
+        self.th2 = new_fabric_admin.NewController(nodeId=TH2_nodeid,
+                                                  paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path))
 
         params = await self.open_commissioning_window(self.th1, self.dut_node_id)
         self.print_step(2, "TH1 opens the commissioning window on the DUT")
 
         await self.th2.CommissionOnNetwork(
-            nodeId=self.dut_node_id,
-            setupPinCode=params.commissioningParameters.setupPinCode,
-            filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
-            filter=params.randomDiscriminator,
-        )
-        log.info("Commissioning complete done. Successful.")
+            nodeId=self.dut_node_id, setupPinCode=params.commissioningParameters.setupPinCode,
+            filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR, filter=params.randomDiscriminator)
+        log.info('Commissioning complete done. Successful.')
         self.print_step(3, "TH2 commissions DUT using admin node ID N2")
 
         self.print_step(4, "TH2 reads its fabric index from the Operational Credentials cluster CurrentFabricIndex attribute")
         th2FabricIndex = await self.read_currentfabricindex(self.th2)
 
         self.print_step(
-            5, "TH1 writes DUT Endpoint 0 ACL cluster ACL attribute, value is list of ACLEntryStruct containing 2 elements"
-        )
+            5, "TH1 writes DUT Endpoint 0 ACL cluster ACL attribute, value is list of ACLEntryStruct containing 2 elements")
         admin_acl = Clusters.AccessControl.Structs.AccessControlEntryStruct(
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH1_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=Clusters.AccessControl.id)],
-        )
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=Clusters.AccessControl.id)])
         descriptor_view = Clusters.AccessControl.Structs.AccessControlEntryStruct(
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=Clusters.Descriptor.id)],
-        )
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=Clusters.Descriptor.id)])
         acl = [admin_acl, descriptor_view]
         await self.write_acl(acl, self.th1)
 
         self.print_step(
-            6, "TH2 writes DUT Endpoint 0 ACL cluster ACL attribute, value is list of ACLEntryStruct containing 2 elements"
-        )
+            6, "TH2 writes DUT Endpoint 0 ACL cluster ACL attribute, value is list of ACLEntryStruct containing 2 elements")
         admin_acl = Clusters.AccessControl.Structs.AccessControlEntryStruct(
             fabricIndex=th2FabricIndex,
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH2_nodeid],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=Clusters.AccessControl.id)],
-        )
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=Clusters.AccessControl.id)])
         descriptor_view = Clusters.AccessControl.Structs.AccessControlEntryStruct(
             fabricIndex=th2FabricIndex,
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kView,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[],
-            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=Clusters.BasicInformation.id)],
-        )
+            targets=[Clusters.AccessControl.Structs.AccessControlTargetStruct(endpoint=0, cluster=Clusters.BasicInformation.id)])
         acl = [admin_acl, descriptor_view]
         await self.write_acl(acl, self.th2)
 
         self.print_step(7, "TH1 reads DUT Endpoint 0 Descriptor cluster DeviceTypeList attribute")
         await self.read_single_attribute_check_success(
-            dev_ctrl=self.th1,
-            endpoint=0,
+            dev_ctrl=self.th1, endpoint=0,
             cluster=Clusters.Objects.Descriptor,
-            attribute=Clusters.Descriptor.Attributes.DeviceTypeList,
-        )
+            attribute=Clusters.Descriptor.Attributes.DeviceTypeList)
 
         self.print_step(8, "TH1 reads DUT Endpoint 0 Basic Information cluster VendorID attribute")
         await self.read_single_attribute_expect_error(
-            dev_ctrl=self.th1,
-            endpoint=0,
+            dev_ctrl=self.th1, endpoint=0,
             cluster=Clusters.Objects.BasicInformation,
             attribute=Clusters.BasicInformation.Attributes.VendorID,
-            error=Status.UnsupportedAccess,
-        )
+            error=Status.UnsupportedAccess)
 
         self.print_step(9, "TH2 reads DUT Endpoint 0 Descriptor cluster DeviceTypeList attribute")
         await self.read_single_attribute_expect_error(
-            dev_ctrl=self.th2,
-            endpoint=0,
+            dev_ctrl=self.th2, endpoint=0,
             cluster=Clusters.Objects.Descriptor,
             attribute=Clusters.Descriptor.Attributes.DeviceTypeList,
-            error=Status.UnsupportedAccess,
-        )
+            error=Status.UnsupportedAccess)
 
         self.print_step(10, "TH2 reads DUT Endpoint 0 Basic Information cluster VendorID attribute")
         await self.read_single_attribute_check_success(
-            dev_ctrl=self.th2,
-            endpoint=0,
+            dev_ctrl=self.th2, endpoint=0,
             cluster=Clusters.Objects.BasicInformation,
-            attribute=Clusters.BasicInformation.Attributes.VendorID,
-        )
+            attribute=Clusters.BasicInformation.Attributes.VendorID)
 
         self.print_step(11, "TH1 resets the ACLs to default value by writing DUT EP0")
         full_acl = Clusters.AccessControl.Structs.AccessControlEntryStruct(
             privilege=Clusters.AccessControl.Enums.AccessControlEntryPrivilegeEnum.kAdminister,
             authMode=Clusters.AccessControl.Enums.AccessControlEntryAuthModeEnum.kCase,
             subjects=[TH1_nodeid],
-            targets=[],
-        )
+            targets=[])
 
         acl = [full_acl]
         await self.write_acl(acl, self.th1)
 
         self.print_step(
-            12,
-            "TH1 removes the TH2 fabric by sending the RemoveFabric command to the DUT with the FabricIndex set to th2FabricIndex",
-        )
+            12, "TH1 removes the TH2 fabric by sending the RemoveFabric command to the DUT with the FabricIndex set to th2FabricIndex")
         removeFabricCmd = Clusters.OperationalCredentials.Commands.RemoveFabric(th2FabricIndex)
         await self.th1.SendCommand(nodeId=self.dut_node_id, endpoint=0, payload=removeFabricCmd)
 

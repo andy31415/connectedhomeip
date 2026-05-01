@@ -36,7 +36,7 @@ static char Base85ValToChar(uint8_t val)
 {
     switch (val)
     {
-        // clang-format off
+    // clang-format off
     case 62: return '!';
     case 63: return '#';
     case 64: return '$';
@@ -84,7 +84,7 @@ static uint8_t Base85CharToVal(char c)
 {
     switch (c)
     {
-        // clang-format off
+    // clang-format off
     case '!': return 62;
     case '#': return 63;
     case '$': return 64;

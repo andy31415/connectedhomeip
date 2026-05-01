@@ -57,7 +57,7 @@ class OrphanChecker:
         Will read the entire content of the GN file in memory for future reference.
         """
         log.debug("Adding GN '%s' for '%s'", gn, gn.parent)
-        self.gn_data[str(gn.parent)] += gn.read_text("utf-8")
+        self.gn_data[str(gn.parent)] += gn.read_text('utf-8')
 
     def AddKnownFailure(self, k: str):
         self.known_failures.add(k)
@@ -106,40 +106,42 @@ class OrphanChecker:
 
 @click.command()
 @click.option(
-    "--log-level",
-    default="INFO",
+    '--log-level',
+    default='INFO',
     type=click.Choice(list(__LOG_LEVELS__.keys()), case_sensitive=False),
-    help="Determines the verbosity of script output",
+    help='Determines the verbosity of script output',
 )
 @click.option(
-    "--gn-extra",
+    '--gn-extra',
     type=click.Path(exists=True, dir_okay=False),
     multiple=True,
-    help=("Extra GN files which should be treated as BUILD.gn (e.g. *.gni files included by BUILD.gn)"),
+    help=(
+        'Extra GN files which should be treated as BUILD.gn (e.g. *.gni files '
+        'included by BUILD.gn)'),
 )
 @click.option(
-    "-e",
-    "--extension",
+    '-e', '--extension',
     default=["cpp", "cc", "c", "h", "hpp"],
-    type=str,
-    multiple=True,
-    help="What file extensions to consider",
+    type=str, multiple=True,
+    help='What file extensions to consider',
 )
 @click.option(
-    "--known-failure",
+    '--known-failure',
     type=click.Path(dir_okay=False),
     multiple=True,
-    help="What paths are known to fail",
+    help='What paths are known to fail',
 )
 @click.option(
-    "--skip-dir",
+    '--skip-dir',
     type=click.Path(),
     multiple=True,
-    help="Skip a specific sub-directory from checks",
+    help='Skip a specific sub-directory from checks',
 )
-@click.argument("dirs", type=click.Path(exists=True, file_okay=False, resolve_path=True), nargs=-1)
+@click.argument('dirs',
+                type=click.Path(exists=True, file_okay=False, resolve_path=True), nargs=-1)
 def main(log_level, gn_extra, extension, known_failure, skip_dir, dirs):
-    coloredlogs.install(level=__LOG_LEVELS__[log_level], fmt="%(asctime)s %(levelname)-7s %(message)s")
+    coloredlogs.install(level=__LOG_LEVELS__[log_level],
+                        fmt='%(asctime)s %(levelname)-7s %(message)s')
 
     if not dirs:
         log.error("Please provide at least one directory to scan")
@@ -190,5 +192,5 @@ def main(log_level, gn_extra, extension, known_failure, skip_dir, dirs):
         sys.exit(1)
 
 
-if __name__ == "__main__":
-    main(auto_envvar_prefix="CHIP")
+if __name__ == '__main__':
+    main(auto_envvar_prefix='CHIP')

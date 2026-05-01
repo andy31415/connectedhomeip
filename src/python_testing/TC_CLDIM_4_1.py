@@ -55,7 +55,6 @@ def current_latch_matcher(latch: bool) -> AttributeMatcher:
         if report.attribute != Clusters.ClosureDimension.Attributes.CurrentState:
             return False
         return report.value.latch == latch
-
     return AttributeMatcher.from_callable(description=f"CurrentState.Latch is {latch}", matcher=predicate)
 
 
@@ -64,7 +63,6 @@ def current_position_matcher(position: int) -> AttributeMatcher:
         if report.attribute != Clusters.ClosureDimension.Attributes.CurrentState:
             return False
         return report.value.position == position
-
     return AttributeMatcher.from_callable(description=f"CurrentState.Position is {position}", matcher=predicate)
 
 
@@ -73,10 +71,7 @@ def current_position_and_speed_matcher(position: int, speed: Globals.Enums.Three
         if report.attribute != Clusters.ClosureDimension.Attributes.CurrentState:
             return False
         return (report.value.position == position) and (report.value.speed == speed)
-
-    return AttributeMatcher.from_callable(
-        description=f"CurrentState.Position is {position} and CurrentState.Speed is {speed}", matcher=predicate
-    )
+    return AttributeMatcher.from_callable(description=f"CurrentState.Position is {position} and CurrentState.Speed is {speed}", matcher=predicate)
 
 
 class TC_CLDIM_4_1(MatterBaseTest):
@@ -129,7 +124,9 @@ class TC_CLDIM_4_1(MatterBaseTest):
         ]
 
     def pics_TC_CLDIM_4_1(self) -> list[str]:
-        return ["CLDIM.S", "CLDIM.S.F00"]
+        return [
+            "CLDIM.S", "CLDIM.S.F00"
+        ]
 
     @property
     def default_endpoint(self) -> int:
@@ -179,14 +176,7 @@ class TC_CLDIM_4_1(MatterBaseTest):
         # STEP 2e: Establish wildcard subscription to all attributes"
         self.step("2e")
         sub_handler = AttributeSubscriptionHandler(expected_cluster=Clusters.ClosureDimension)
-        await sub_handler.start(
-            self.default_controller,
-            self.dut_node_id,
-            endpoint=endpoint,
-            min_interval_sec=0,
-            max_interval_sec=30,
-            keepSubscriptions=False,
-        )
+        await sub_handler.start(self.default_controller, self.dut_node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
 
         # STEP 2f: Read CurrentState attribute
         self.step("2f")
@@ -200,9 +190,7 @@ class TC_CLDIM_4_1(MatterBaseTest):
         else:
             # STEP 2h: Read LatchControlModes attribute
             self.step("2h")
-            latch_control_modes = await self.read_cldim_attribute_expect_success(
-                endpoint=endpoint, attribute=attributes.LatchControlModes
-            )
+            latch_control_modes = await self.read_cldim_attribute_expect_success(endpoint=endpoint, attribute=attributes.LatchControlModes)
 
             # STEP 2i: If LatchControlModes is manual unlatching, skip step 2j
             self.step("2i")
@@ -216,8 +204,7 @@ class TC_CLDIM_4_1(MatterBaseTest):
                 try:
                     await self.send_single_cmd(
                         cmd=Clusters.Objects.ClosureDimension.Commands.SetTarget(latch=False),
-                        endpoint=endpoint,
-                        timedRequestTimeoutMs=1000,
+                        endpoint=endpoint, timedRequestTimeoutMs=1000
                     )
                 except InteractionModelError as e:
                     asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -234,7 +221,8 @@ class TC_CLDIM_4_1(MatterBaseTest):
 
             # STEP 2m: Wait for CurrentState.Latched to be False
             self.step("2m")
-            sub_handler.await_all_expected_report_matches(expected_matchers=[current_latch_matcher(False)], timeout_sec=timeout)
+            sub_handler.await_all_expected_report_matches(
+                expected_matchers=[current_latch_matcher(False)], timeout_sec=timeout)
 
         # STEP 3a: Send Step command to increase position to MaxPosition
         self.step("3a")
@@ -242,10 +230,8 @@ class TC_CLDIM_4_1(MatterBaseTest):
         try:
             await self.send_single_cmd(
                 cmd=Clusters.Objects.ClosureDimension.Commands.Step(
-                    direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kIncrease, numberOfSteps=65535
-                ),
-                endpoint=endpoint,
-                timedRequestTimeoutMs=1000,
+                    direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kIncrease, numberOfSteps=65535),
+                endpoint=endpoint, timedRequestTimeoutMs=1000
             )
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -257,8 +243,7 @@ class TC_CLDIM_4_1(MatterBaseTest):
             self.mark_current_step_skipped()
         else:
             sub_handler.await_all_expected_report_matches(
-                expected_matchers=[current_position_matcher(max_position)], timeout_sec=timeout
-            )
+                expected_matchers=[current_position_matcher(max_position)], timeout_sec=timeout)
 
         # STEP 4a: Send Step command to decrease position by 2 steps
         self.step("4a")
@@ -266,10 +251,8 @@ class TC_CLDIM_4_1(MatterBaseTest):
         try:
             await self.send_single_cmd(
                 cmd=Clusters.Objects.ClosureDimension.Commands.Step(
-                    direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kDecrease, numberOfSteps=2
-                ),
-                endpoint=endpoint,
-                timedRequestTimeoutMs=1000,
+                    direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kDecrease, numberOfSteps=2),
+                endpoint=endpoint, timedRequestTimeoutMs=1000
             )
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -284,8 +267,7 @@ class TC_CLDIM_4_1(MatterBaseTest):
         self.step("4c")
         expected_position = max(max_position - 2 * step_value, min_position)
         sub_handler.await_all_expected_report_matches(
-            expected_matchers=[current_position_matcher(expected_position)], timeout_sec=timeout
-        )
+            expected_matchers=[current_position_matcher(expected_position)], timeout_sec=timeout)
 
         # STEP 4d: Send Step command to increase position by 2 steps
         self.step("4d")
@@ -293,10 +275,8 @@ class TC_CLDIM_4_1(MatterBaseTest):
         try:
             await self.send_single_cmd(
                 cmd=Clusters.Objects.ClosureDimension.Commands.Step(
-                    direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kIncrease, numberOfSteps=2
-                ),
-                endpoint=endpoint,
-                timedRequestTimeoutMs=1000,
+                    direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kIncrease, numberOfSteps=2),
+                endpoint=endpoint, timedRequestTimeoutMs=1000
             )
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -309,8 +289,7 @@ class TC_CLDIM_4_1(MatterBaseTest):
         # STEP 4f: Wait for CurrentState.Position to be updated
         self.step("4f")
         sub_handler.await_all_expected_report_matches(
-            expected_matchers=[current_position_matcher(max_position)], timeout_sec=timeout
-        )
+            expected_matchers=[current_position_matcher(max_position)], timeout_sec=timeout)
 
         # STEP 5a: If Speed Feature is not supported, skip step 5b to 5d
         self.step("5a")
@@ -326,10 +305,9 @@ class TC_CLDIM_4_1(MatterBaseTest):
                     cmd=Clusters.Objects.ClosureDimension.Commands.Step(
                         direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kDecrease,
                         numberOfSteps=1,
-                        speed=Globals.Enums.ThreeLevelAutoEnum.kHigh,
+                        speed=Globals.Enums.ThreeLevelAutoEnum.kHigh
                     ),
-                    endpoint=endpoint,
-                    timedRequestTimeoutMs=1000,
+                    endpoint=endpoint, timedRequestTimeoutMs=1000
                 )
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -340,16 +318,13 @@ class TC_CLDIM_4_1(MatterBaseTest):
             expected_position = max_position - step_value
             asserts.assert_equal(target_state.position, expected_position, "TargetState Position is not updated correctly")
 
-            asserts.assert_equal(target_state.speed, Globals.Enums.ThreeLevelAutoEnum.kHigh, "TargetState Speed is not High")
+            asserts.assert_equal(target_state.speed, Globals.Enums.ThreeLevelAutoEnum.kHigh,
+                                 "TargetState Speed is not High")
 
             # STEP 5d: Wait for CurrentState to be updated
             self.step("5d")
             sub_handler.await_all_expected_report_matches(
-                expected_matchers=[
-                    current_position_and_speed_matcher(max_position - step_value, Globals.Enums.ThreeLevelAutoEnum.kHigh)
-                ],
-                timeout_sec=timeout,
-            )
+                expected_matchers=[current_position_and_speed_matcher(max_position - step_value, Globals.Enums.ThreeLevelAutoEnum.kHigh)], timeout_sec=timeout)
 
         # STEP 6a: If Speed Feature is not supported, skip step 6b to 6d
         self.step("6a")
@@ -365,10 +340,9 @@ class TC_CLDIM_4_1(MatterBaseTest):
                     cmd=Clusters.Objects.ClosureDimension.Commands.Step(
                         direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kIncrease,
                         numberOfSteps=1,
-                        speed=Globals.Enums.ThreeLevelAutoEnum.kAuto,
+                        speed=Globals.Enums.ThreeLevelAutoEnum.kAuto
                     ),
-                    endpoint=endpoint,
-                    timedRequestTimeoutMs=1000,
+                    endpoint=endpoint, timedRequestTimeoutMs=1000
                 )
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -379,14 +353,13 @@ class TC_CLDIM_4_1(MatterBaseTest):
             expected_position = max_position
             asserts.assert_equal(target_state.position, expected_position, "TargetState Position is not updated correctly")
 
-            asserts.assert_equal(target_state.speed, Globals.Enums.ThreeLevelAutoEnum.kAuto, "TargetState Speed is not Auto")
+            asserts.assert_equal(target_state.speed, Globals.Enums.ThreeLevelAutoEnum.kAuto,
+                                 "TargetState Speed is not Auto")
 
             # STEP 6d: Wait for CurrentState to be updated
             self.step("6d")
             sub_handler.await_all_expected_report_matches(
-                expected_matchers=[current_position_and_speed_matcher(max_position, Globals.Enums.ThreeLevelAutoEnum.kAuto)],
-                timeout_sec=timeout,
-            )
+                expected_matchers=[current_position_and_speed_matcher(max_position, Globals.Enums.ThreeLevelAutoEnum.kAuto)], timeout_sec=timeout)
 
         # STEP 7a: Read CurrentState attribute
         self.step("7a")
@@ -398,10 +371,10 @@ class TC_CLDIM_4_1(MatterBaseTest):
         try:
             await self.send_single_cmd(
                 cmd=Clusters.Objects.ClosureDimension.Commands.Step(
-                    direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kDecrease, numberOfSteps=65535
+                    direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kDecrease,
+                    numberOfSteps=65535
                 ),
-                endpoint=endpoint,
-                timedRequestTimeoutMs=1000,
+                endpoint=endpoint, timedRequestTimeoutMs=1000
             )
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -418,8 +391,7 @@ class TC_CLDIM_4_1(MatterBaseTest):
             self.mark_current_step_skipped()
         else:
             sub_handler.await_all_expected_report_matches(
-                expected_matchers=[current_position_matcher(min_position)], timeout_sec=timeout
-            )
+                expected_matchers=[current_position_matcher(min_position)], timeout_sec=timeout)
 
         # STEP 7e: Send Step command to increase position beyond MaxPosition
         self.step("7e")
@@ -427,10 +399,10 @@ class TC_CLDIM_4_1(MatterBaseTest):
         try:
             await self.send_single_cmd(
                 cmd=Clusters.Objects.ClosureDimension.Commands.Step(
-                    direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kIncrease, numberOfSteps=65535
+                    direction=Clusters.ClosureDimension.Enums.StepDirectionEnum.kIncrease,
+                    numberOfSteps=65535
                 ),
-                endpoint=endpoint,
-                timedRequestTimeoutMs=1000,
+                endpoint=endpoint, timedRequestTimeoutMs=1000
             )
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
@@ -443,8 +415,7 @@ class TC_CLDIM_4_1(MatterBaseTest):
         # STEP 7g: Wait for CurrentState to be updated
         self.step("7g")
         sub_handler.await_all_expected_report_matches(
-            expected_matchers=[current_position_matcher(max_position)], timeout_sec=timeout
-        )
+            expected_matchers=[current_position_matcher(max_position)], timeout_sec=timeout)
 
 
 if __name__ == "__main__":

@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 
 class IdlPostProcessor:
     """Defines a callback that will apply after an entire parsing
-    is complete.
+       is complete.
     """
 
     def FinalizeProcessing(self, idl: Idl):
@@ -53,10 +53,10 @@ class ProcessingPath:
         self.paths.pop()
 
     def __str__(self):
-        return "::".join(self.paths)
+        return '::'.join(self.paths)
 
     def __repr__(self):
-        return "ProcessingPath(%r)" % self.paths
+        return 'ProcessingPath(%r)' % self.paths
 
 
 class Context:
@@ -109,7 +109,8 @@ class Context:
         if code in self._global_attributes:
             return self._global_attributes[code]
 
-        raise Exception("Global attribute 0x%X (%d) not found. You probably need to load global-attributes.xml" % (code, code))
+        raise Exception(
+            'Global attribute 0x%X (%d) not found. You probably need to load global-attributes.xml' % (code, code))
 
     def GetGlobalAttributes(self):
         return [attribute for code, attribute in self._global_attributes.items()]

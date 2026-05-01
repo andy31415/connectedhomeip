@@ -50,6 +50,7 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_WebRTCP_2_30(MatterBaseTest, WEBRTCPTestBase):
+
     def desc_TC_WebRTCP_2_30(self) -> str:
         """Returns a description of this test"""
         return "[TC-WEBRTCP-2.30] Validate setting an SDP Offer for an existing session with DUT_Server - Release 1.5.1 or later"
@@ -59,27 +60,21 @@ class TC_WebRTCP_2_30(MatterBaseTest, WEBRTCPTestBase):
             TestStep(1, "Read CurrentSessions attribute => expect 0", is_commissioning=True),
             TestStep(2, "Allocate Audio and Video streams via CameraAVStreamManagement"),
             TestStep(3, "Send ProvideOffer with a non-existent WebRTCSessionID => expect NOT_FOUND"),
-            TestStep(
-                4,
-                "Send ProvideOffer with null WebRTCSessionID, valid VideoStreams and AudioStreams => expect ProvideOfferResponse with WebRTCSessionID",
-            ),
+            TestStep(4, "Send ProvideOffer with null WebRTCSessionID, valid VideoStreams and AudioStreams => expect ProvideOfferResponse with WebRTCSessionID"),
             TestStep(5, "Read CurrentSessions attribute => expect 1 and save WebRTCSessionID"),
             TestStep(6, "Send ProvideOffer with (saved WebRTCSessionID + 1) => expect NOT_FOUND"),
-            TestStep(
-                7,
-                "Send ProvideOffer with saved WebRTCSessionID (re-offer) => expect ProvideOfferResponse with same WebRTCSessionID",
-            ),
+            TestStep(7, "Send ProvideOffer with saved WebRTCSessionID (re-offer) => expect ProvideOfferResponse with same WebRTCSessionID"),
         ]
 
     def pics_TC_WebRTCP_2_30(self) -> list[str]:
         return [
-            "WEBRTCP.S",  # WebRTC Transport Provider Server
-            "WEBRTCP.S.A0000",  # CurrentSessions attribute
-            "WEBRTCP.S.C02.Rsp",  # ProvideOffer command
-            "WEBRTCP.S.C03.Tx",  # ProvideOfferResponse command
-            "AVSM.S",  # CameraAVStreamManagement Server
-            "AVSM.S.F00",  # Audio Data Output feature
-            "AVSM.S.F01",  # Video Data Output feature
+            "WEBRTCP.S",           # WebRTC Transport Provider Server
+            "WEBRTCP.S.A0000",     # CurrentSessions attribute
+            "WEBRTCP.S.C02.Rsp",   # ProvideOffer command
+            "WEBRTCP.S.C03.Tx",    # ProvideOfferResponse command
+            "AVSM.S",              # CameraAVStreamManagement Server
+            "AVSM.S.F00",          # Audio Data Output feature
+            "AVSM.S.F01",          # Video Data Output feature
         ]
 
     @property
@@ -113,7 +108,9 @@ class TC_WebRTCP_2_30(MatterBaseTest, WEBRTCPTestBase):
 
         self.step(1)
         current_sessions = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentSessions
+            endpoint=endpoint,
+            cluster=cluster,
+            attribute=cluster.Attributes.CurrentSessions
         )
         asserts.assert_equal(len(current_sessions), 0, "CurrentSessions must be empty!")
 
@@ -133,12 +130,10 @@ class TC_WebRTCP_2_30(MatterBaseTest, WEBRTCPTestBase):
             streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView,
             originatingEndpointID=endpoint,
             videoStreams=[videoStreamID],
-            audioStreams=[audioStreamID],
+            audioStreams=[audioStreamID]
         )
         try:
-            await self.send_single_cmd(
-                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
-            )
+            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
             asserts.fail("Unexpected success on ProvideOffer with non-existent WebRTCSessionID")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.NotFound, "Expected NOT_FOUND for unknown session ID")
@@ -151,23 +146,23 @@ class TC_WebRTCP_2_30(MatterBaseTest, WEBRTCPTestBase):
             streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView,
             originatingEndpointID=endpoint,
             videoStreams=[videoStreamID],
-            audioStreams=[audioStreamID],
+            audioStreams=[audioStreamID]
         )
-        resp = await self.send_single_cmd(
-            cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
-        )
-        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.ProvideOfferResponse, "Incorrect response type")
+        resp = await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.ProvideOfferResponse,
+                             "Incorrect response type")
         matter_asserts.assert_int_in_range(resp.webRTCSessionID, 0, 65534, "ProvideOfferResponse webRTCSessionID")
         saved_session_id = resp.webRTCSessionID
 
         self.step(5)
         current_sessions = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.CurrentSessions
+            endpoint=endpoint,
+            cluster=cluster,
+            attribute=cluster.Attributes.CurrentSessions
         )
         asserts.assert_equal(len(current_sessions), 1, "Expected exactly 1 CurrentSession")
-        asserts.assert_equal(
-            current_sessions[0].id, saved_session_id, "Session ID in CurrentSessions must match ProvideOfferResponse"
-        )
+        asserts.assert_equal(current_sessions[0].id, saved_session_id,
+                             "Session ID in CurrentSessions must match ProvideOfferResponse")
 
         self.step(6)
         wrong_session_id = saved_session_id + 1
@@ -177,12 +172,10 @@ class TC_WebRTCP_2_30(MatterBaseTest, WEBRTCPTestBase):
             streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView,
             originatingEndpointID=endpoint,
             videoStreams=[videoStreamID],
-            audioStreams=[audioStreamID],
+            audioStreams=[audioStreamID]
         )
         try:
-            await self.send_single_cmd(
-                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
-            )
+            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
             asserts.fail("Unexpected success on ProvideOffer with wrong WebRTCSessionID")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.NotFound, "Expected NOT_FOUND for wrong session ID")
@@ -195,15 +188,13 @@ class TC_WebRTCP_2_30(MatterBaseTest, WEBRTCPTestBase):
             streamUsage=Clusters.Globals.Enums.StreamUsageEnum.kLiveView,
             originatingEndpointID=endpoint,
             videoStreams=[videoStreamID],
-            audioStreams=[audioStreamID],
+            audioStreams=[audioStreamID]
         )
-        resp = await self.send_single_cmd(
-            cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
-        )
-        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.ProvideOfferResponse, "Incorrect response type")
-        asserts.assert_equal(
-            resp.webRTCSessionID, saved_session_id, "Re-offer response must return the same WebRTCSessionID as the existing session"
-        )
+        resp = await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.ProvideOfferResponse,
+                             "Incorrect response type")
+        asserts.assert_equal(resp.webRTCSessionID, saved_session_id,
+                             "Re-offer response must return the same WebRTCSessionID as the existing session")
 
 
 if __name__ == "__main__":

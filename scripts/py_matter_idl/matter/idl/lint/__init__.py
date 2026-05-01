@@ -22,7 +22,7 @@ from matter.idl import matter_idl_parser
 
 from .lint_rules_parser import CreateParser
 
-__all__ = ["CreateParser"]
+__all__ = ['CreateParser']
 
 # Supported log levels, mapping string values required for argument
 # parsing into logging constants
@@ -83,11 +83,10 @@ def main(log_level, rules, idl_path):
 
 @click.command()
 @click.option(
-    "--log-level",
-    default="INFO",
+    '--log-level',
+    default='INFO',
     type=click.Choice(__LOG_LEVELS__.keys(), case_sensitive=False),
-    help="Determines the verbosity of script output.",
-)
+    help='Determines the verbosity of script output.')
 @click.argument("filename", type=click.Path(exists=True, dir_okay=False))
 def parser(log_level, filename):
     """
@@ -95,7 +94,7 @@ def parser(log_level, filename):
     """
     logging.basicConfig(
         level=__LOG_LEVELS__[log_level],
-        format="%(asctime)s %(levelname)-7s %(message)s",
+        format='%(asctime)s %(levelname)-7s %(message)s',
     )
 
     log.info("Starting to parse ...")

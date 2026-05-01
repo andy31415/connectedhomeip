@@ -27,9 +27,7 @@ from matter.testing.matter_testing import AttributeMatcher, AttributeValue
 log = logging.getLogger(__name__)
 
 
-def wmark_osd_matcher(
-    attribute_id: int, wmark: bool | None, osd: bool | None, wmark_check: bool, osd_check: bool
-) -> "AttributeMatcher":
+def wmark_osd_matcher(attribute_id: int, wmark: bool | None, osd: bool | None, wmark_check: bool, osd_check: bool) -> "AttributeMatcher":
     def predicate(report: AttributeValue) -> bool:
         if report.attribute != attribute_id:
             return False
@@ -44,7 +42,8 @@ def wmark_osd_matcher(
         return wmark_match and osd_match
 
     return AttributeMatcher.from_callable(
-        description=f"check watermarkEnabled is {wmark} and OSDEnabled is {osd}", matcher=predicate
+        description=f"check watermarkEnabled is {wmark} and OSDEnabled is {osd}",
+        matcher=predicate
     )
 
 
@@ -89,7 +88,7 @@ class AVSMTestBase:
                 maxResolution=aSnapshotCapabilities[0].resolution,
                 quality=90,
                 watermarkEnabled=watermark,
-                OSDEnabled=osd,
+                OSDEnabled=osd
             )
             snpStreamAllocateResponse = await self.send_single_cmd(endpoint=endpoint, cmd=snpStreamAllocateCmd)
             log.info(f"Rx'd SnapshotStreamAllocateResponse: {snpStreamAllocateResponse}")
@@ -131,11 +130,8 @@ class AVSMTestBase:
         log.info(f"Rx'd StreamUsagePriorities : {aStreamUsagePriorities}")
         asserts.assert_greater(len(aStreamUsagePriorities), 0, "StreamUsagePriorities is empty")
         if streamUsage:
-            asserts.assert_in(
-                streamUsage,
-                aStreamUsagePriorities,
-                f"{Globals.Enums.StreamUsageEnum(streamUsage).name} is not a supported stream usage",
-            )
+            asserts.assert_in(streamUsage, aStreamUsagePriorities,
+                              f"{Globals.Enums.StreamUsageEnum(streamUsage).name} is not a supported stream usage")
         else:
             streamUsage = aStreamUsagePriorities[0]
 
@@ -206,11 +202,8 @@ class AVSMTestBase:
         try:
             asserts.assert_greater(len(aStreamUsagePriorities), 0, "StreamUsagePriorities is empty")
             if streamUsage:
-                asserts.assert_in(
-                    streamUsage,
-                    aStreamUsagePriorities,
-                    f"{Globals.Enums.StreamUsageEnum(streamUsage).name} is not a supported stream usage",
-                )
+                asserts.assert_in(streamUsage, aStreamUsagePriorities,
+                                  f"{Globals.Enums.StreamUsageEnum(streamUsage).name} is not a supported stream usage")
             else:
                 streamUsage = aStreamUsagePriorities[0]
             asserts.assert_greater(len(aRateDistortionTradeOffPoints), 0, "RateDistortionTradeOffPoints is empty")
@@ -227,7 +220,7 @@ class AVSMTestBase:
                 maxBitRate=aRateDistortionTradeOffPoints[0].minBitRate,
                 keyFrameInterval=4000,
                 watermarkEnabled=watermark,
-                OSDEnabled=osd,
+                OSDEnabled=osd
             )
             videoStreamAllocateResponse = await self.send_single_cmd(endpoint=endpoint, cmd=videoStreamAllocateCmd)
             log.info(f"Rx'd VideoStreamAllocateResponse: {videoStreamAllocateResponse}")

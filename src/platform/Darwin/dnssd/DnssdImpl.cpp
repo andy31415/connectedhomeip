@@ -374,7 +374,7 @@ static CHIP_ERROR Resolve(void * context, DnssdResolveCallback callback, uint32_
 {
     auto counterHolder = GetCounterHolder(name);
     auto sdCtx         = chip::Platform::New<ResolveContext>(context, callback, addressType, name,
-                                                             BrowseContext::sContextDispatchingSuccess, std::move(counterHolder));
+                                                     BrowseContext::sContextDispatchingSuccess, std::move(counterHolder));
     VerifyOrReturnError(nullptr != sdCtx, CHIP_ERROR_NO_MEMORY);
 
     return Resolve(sdCtx, interfaceId, addressType, type, name, domain);

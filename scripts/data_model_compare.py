@@ -34,7 +34,6 @@ import logging
 import sys
 
 import click
-
 # py_matter_idl may not be installed in the pigweed venv.
 # Reference it directly from the source tree.
 from python_path import PythonPath
@@ -204,7 +203,9 @@ def main(log_level):
     type=click.Path(exists=True),
     help="An input .matter IDL to select a subset of clusters to include.",
 )
-@click.option("--output", default=None, required=True, type=click.Path(), help="Where to output the filtered .matter file.")
+@click.option(
+    "--output", default=None, required=True, type=click.Path(), help="Where to output the filtered .matter file."
+)
 @click.argument("filenames", nargs=-1)
 def filter_matter(matter, output, filenames):
     """

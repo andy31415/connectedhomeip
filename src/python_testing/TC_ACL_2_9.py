@@ -53,7 +53,9 @@ class TC_ACL_2_9(MatterBaseTest):
         log.info(f"Result: {result}")
         value = result[0][Clusters.Objects.AccessControl][attribute]
         asserts.assert_greater_equal(
-            value, min_value, f"{attribute.__name__} attribute should be {min_value} or greater, but got {value}"
+            value,
+            min_value,
+            f"{attribute.__name__} attribute should be {min_value} or greater, but got {value}"
         )
 
     async def read_event_expect_unsupported_access(self, event: Clusters.ClusterObjects.ClusterEvent):
@@ -64,70 +66,67 @@ class TC_ACL_2_9(MatterBaseTest):
         return "[TC-ACL-2.9] Cluster access"
 
     def pics_TC_ACL_2_9(self) -> list[str]:
-        return ["ACL.S.A0001"]
+        return ['ACL.S.A0001']
 
     def steps_TC_ACL_2_9(self) -> list[TestStep]:
         return [
-            TestStep(1, "TH1 commissions DUT using admin node ID N1", "DUT is commissioned on TH1 fabric", is_commissioning=True),
+            TestStep(
+                1,
+                "TH1 commissions DUT using admin node ID N1",
+                "DUT is commissioned on TH1 fabric",
+                is_commissioning=True),
             TestStep(
                 2,
                 "TH1 opens commissioning window on DUT, TH2 commissions DUT using admin node ID N2",
-                "DUT is commissioned on TH2 fabric",
-            ),
+                "DUT is commissioned on TH2 fabric"),
             TestStep(
                 3,
                 "TH2 writes DUT Endpoint 0 AccessControl cluster ACL attribute, value is list of AccessControlEntryStruct containing 1 element giving TH2 Manage access to the node",
-                "Result is SUCCESS",
-            ),
-            TestStep(4, "TH2 reads DUT Endpoint 0 AccessControl cluster ACL attribute", "Result is UNSUPPORTED_ACCESS (0x7e)"),
+                "Result is SUCCESS"),
+            TestStep(
+                4,
+                "TH2 reads DUT Endpoint 0 AccessControl cluster ACL attribute",
+                "Result is UNSUPPORTED_ACCESS (0x7e)"),
             TestStep(
                 5,
                 "TH2 writes DUT Endpoint 0 AccessControl cluster ACL attribute, value is list of AccessControlEntryStruct containing 1 element",
-                "Result is UNSUPPORTED_ACCESS (0x7e)",
-            ),
+                "Result is UNSUPPORTED_ACCESS (0x7e)"),
             TestStep(
-                6, "TH2 reads DUT Endpoint 0 AccessControl cluster Extension attribute", "Result is UNSUPPORTED_ACCESS (0x7e)"
-            ),
+                6,
+                "TH2 reads DUT Endpoint 0 AccessControl cluster Extension attribute",
+                "Result is UNSUPPORTED_ACCESS (0x7e)"),
             TestStep(
                 7,
                 "TH2 writes DUT Endpoint 0 AccessControl cluster Extension attribute, value is an empty list",
-                "Result is UNSUPPORTED_ACCESS (0x7e)",
-            ),
+                "Result is UNSUPPORTED_ACCESS (0x7e)"),
             TestStep(
                 8,
                 "TH2 reads DUT Endpoint 0 AccessControl cluster SubjectsPerAccessControlEntry attribute",
-                "Result is SUCCESS,value is an integer with value 4 or greater.",
-            ),
+                "Result is SUCCESS,value is an integer with value 4 or greater."),
             TestStep(
                 9,
                 "TH2 reads DUT Endpoint 0 AccessControl cluster TargetsPerAccessControlEntry attribute",
-                "Result is SUCCESS,value is an integer with value 3 or greater.",
-            ),
+                "Result is SUCCESS,value is an integer with value 3 or greater."),
             TestStep(
                 10,
                 "TH2 reads DUT Endpoint 0 AccessControl cluster AccessControlEntriesPerFabric attribute",
-                "Result is SUCCESS, value is an integer with value 4 or greater.",
-            ),
+                "Result is SUCCESS, value is an integer with value 4 or greater."),
             TestStep(
                 11,
                 "TH2 reads DUT Endpoint 0 AccessControl cluster AccessControlEntryChanged event",
-                "Result is UNSUPPORTED_ACCESS (0x7e)",
-            ),
+                "Result is UNSUPPORTED_ACCESS (0x7e)"),
             TestStep(
                 12,
                 "TH2 reads DUT Endpoint 0 AccessControl cluster AccessControlExtensionChanged event",
-                "Result is UNSUPPORTED_ACCESS (0x7e)",
-            ),
+                "Result is UNSUPPORTED_ACCESS (0x7e)"),
             TestStep(
                 13,
                 "TH2 reads the CurrentFabricIndex attribute from the Operational Credentials cluster and saves as th2_idx",
-                "th2_idx set to value for CurrentFabricIndex attribute from TH2",
-            ),
+                "th2_idx set to value for CurrentFabricIndex attribute from TH2"),
             TestStep(
                 14,
                 "TH1 sends the RemoveFabric command to the DUT with the FabricIndex set to th2_idx",
-                "TH1 removes TH2 fabric using th2_idx",
-            ),
+                "TH1 removes TH2 fabric using th2_idx"),
         ]
 
     @async_test_body
@@ -153,7 +152,11 @@ class TC_ACL_2_9(MatterBaseTest):
 
         # Open commissioning window on TH1
         params = await self.th1.OpenCommissioningWindow(
-            nodeId=self.dut_node_id, timeout=self.max_window_duration, iteration=1000, discriminator=self.discriminator, option=1
+            nodeId=self.dut_node_id,
+            timeout=self.max_window_duration,
+            iteration=1000,
+            discriminator=self.discriminator,
+            option=1
         )
 
         # Commission TH2
@@ -161,7 +164,7 @@ class TC_ACL_2_9(MatterBaseTest):
             nodeId=self.dut_node_id,
             setupPinCode=params.setupPinCode,
             filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
-            filter=self.discriminator,
+            filter=self.discriminator
         )
 
         self.step(3)
@@ -176,7 +179,10 @@ class TC_ACL_2_9(MatterBaseTest):
                 targets=NullValue,
             ),
         ]
-        result = await self.th2.WriteAttribute(self.dut_node_id, [(0, acl_attribute(value=new_acl))])
+        result = await self.th2.WriteAttribute(
+            self.dut_node_id,
+            [(0, acl_attribute(value=new_acl))]
+        )
         # Add explicit check for Success
         if result[0].Status != Status.Success:
             asserts.fail(f"Expected Success but got {result[0].Status}")
@@ -189,7 +195,7 @@ class TC_ACL_2_9(MatterBaseTest):
             cluster=Clusters.Objects.AccessControl,
             attribute=acl_attribute,
             error=Status.UnsupportedAccess,
-            endpoint=0,
+            endpoint=0
         )
 
         self.step(5)
@@ -203,7 +209,10 @@ class TC_ACL_2_9(MatterBaseTest):
                 targets=NullValue,
             ),
         ]
-        result2 = await self.th2.WriteAttribute(self.dut_node_id, [(0, acl_attribute(value=new_acl))])
+        result2 = await self.th2.WriteAttribute(
+            self.dut_node_id,
+            [(0, acl_attribute(value=new_acl))]
+        )
         # Add explicit check for UnsupportedAccess error
         if result2[0].Status != Status.UnsupportedAccess:
             asserts.fail(f"Expected UnsupportedAccess but got {result2[0].Status}")
@@ -216,14 +225,17 @@ class TC_ACL_2_9(MatterBaseTest):
                 cluster=Clusters.Objects.AccessControl,
                 attribute=extension_attribute,
                 error=Status.UnsupportedAccess,
-                endpoint=0,
+                endpoint=0
             )
 
         self.step(7)
         if await self.attribute_guard(endpoint=self.endpoint, attribute=extension_attribute):
             # TH2 writes DUT Endpoint 0 AccessControl cluster Extension attribute, value is an empty list
             new_extension = []
-            result3 = await self.th2.WriteAttribute(self.dut_node_id, [(0, extension_attribute(value=new_extension))])
+            result3 = await self.th2.WriteAttribute(
+                self.dut_node_id,
+                [(0, extension_attribute(value=new_extension))]
+            )
             # Add explicit check for UnsupportedAccess error
             if result3[0].Status != Status.UnsupportedAccess:
                 asserts.fail(f"Expected UnsupportedAccess but got {result3[0].Status}")
@@ -254,7 +266,10 @@ class TC_ACL_2_9(MatterBaseTest):
         cluster = Clusters.OperationalCredentials
         attribute = Clusters.OperationalCredentials.Attributes.CurrentFabricIndex
         th2_idx = await self.read_single_attribute_check_success(
-            dev_ctrl=self.th2, endpoint=0, cluster=cluster, attribute=attribute
+            dev_ctrl=self.th2,
+            endpoint=0,
+            cluster=cluster,
+            attribute=attribute
         )
 
         self.step(14)

@@ -12,13 +12,20 @@ EndpointCheckFunction = Callable[[Attribute.AsyncReadTransaction.ReadResponse, i
 
 # --- Public Factory Functions ---
 
+
 def has_cluster(cluster: ClusterObjects.ClusterObjectDescriptor) -> EndpointCheckFunction: ...
+
+
 def has_attribute(attribute: ClusterObjects.ClusterAttributeDescriptor) -> EndpointCheckFunction: ...
+
+
 def has_command(command: ClusterObjects.ClusterCommand) -> EndpointCheckFunction: ...
 
 # The 'cluster' parameter is the descriptor (e.g., Clusters.OnOff)
 
+
 def has_feature(cluster: ClusterObjects.ClusterObjectDescriptor, feature: IntFlag) -> EndpointCheckFunction: ...
+
 
 # --- Other Public Decorators/Functions ---
 
@@ -26,8 +33,13 @@ def has_feature(cluster: ClusterObjects.ClusterObjectDescriptor, feature: IntFla
 if TYPE_CHECKING:
     pass
 
+
 def async_test_body(body: Callable) -> Callable: ...
+
+
 def run_if_endpoint_matches(accept_function: EndpointCheckFunction) -> Callable: ...
+
+
 def run_on_singleton_matching_endpoint(accept_function: EndpointCheckFunction) -> Callable: ...
 
 # NOTE: We don't define the internal functions (_has_cluster, _has_feature, etc.)

@@ -53,6 +53,7 @@ class MeterIdentificationTestBaseHelper(MatterBaseTest):
             )
 
     async def check_meter_type_attribute(self, endpoint, attribute_value=None):
+
         if not attribute_value:
             attribute_value = await self.read_single_attribute_check_success(
                 endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.MeterType
@@ -66,6 +67,7 @@ class MeterIdentificationTestBaseHelper(MatterBaseTest):
             matter_asserts.assert_int_in_range(attribute_value, 0, 2, "MeterType must be in range 0 - 2")
 
     async def check_point_of_delivery_attribute(self, endpoint, attribute_value=None):
+
         if not attribute_value:
             attribute_value = await self.read_single_attribute_check_success(
                 endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.PointOfDelivery
@@ -75,6 +77,7 @@ class MeterIdentificationTestBaseHelper(MatterBaseTest):
             asserts.assert_less_equal(len(attribute_value), 64, "PointOfDelivery must have length at most 64!")
 
     async def check_meter_serial_number_attribute(self, endpoint, attribute_value=None):
+
         if not attribute_value:
             attribute_value = await self.read_single_attribute_check_success(
                 endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.MeterSerialNumber
@@ -84,6 +87,7 @@ class MeterIdentificationTestBaseHelper(MatterBaseTest):
             asserts.assert_less_equal(len(attribute_value), 64, "MeterSerialNumber must have length at most 64!")
 
     async def check_protocol_version_attribute(self, endpoint, attribute_value=None):
+
         if not attribute_value:
             if await self.attribute_guard(endpoint=endpoint, attribute=cluster.Attributes.ProtocolVersion):
                 attribute_value = await self.read_single_attribute_check_success(
@@ -94,6 +98,7 @@ class MeterIdentificationTestBaseHelper(MatterBaseTest):
             asserts.assert_less_equal(len(attribute_value), 64, "ProtocolVersion must have length at most 64!")
 
     async def check_power_threshold_attribute(self, endpoint, attribute_value=None):
+
         if not attribute_value:
             if await self.feature_guard(endpoint=endpoint, cluster=cluster, feature_int=cluster.Bitmaps.Feature.kPowerThreshold):
                 attribute_value = await self.read_single_attribute_check_success(
@@ -106,16 +111,12 @@ class MeterIdentificationTestBaseHelper(MatterBaseTest):
             )
             await self.checkPowerThresholdStruct(struct=attribute_value)
 
-    async def verify_reporting(
-        self, reports: dict, attribute: ClusterObjects.ClusterAttributeDescriptor, attribute_name: str, saved_value
-    ) -> None:
+    async def verify_reporting(self, reports: dict, attribute: ClusterObjects.ClusterAttributeDescriptor, attribute_name: str, saved_value) -> None:
+
         try:
-            asserts.assert_not_equal(
-                reports[attribute][0].value,
-                saved_value,
-                f"""Reported '{attribute_name}' value should be different from saved value.
-                                     Subscriptions should only report when values have changed.""",
-            )
+            asserts.assert_not_equal(reports[attribute][0].value, saved_value,
+                                     f"""Reported '{attribute_name}' value should be different from saved value.
+                                     Subscriptions should only report when values have changed.""")
         except KeyError as err:
             asserts.fail(f"There are no reports for attribute {attribute_name}:\n{err}")
 
@@ -123,36 +124,36 @@ class MeterIdentificationTestBaseHelper(MatterBaseTest):
     def _meter_type_matcher() -> AttributeMatcher:
         def predicate(report: AttributeValue) -> bool:
             return report.attribute == cluster.Attributes.MeterType
-
         return AttributeMatcher.from_callable(description="MeterType", matcher=predicate)
 
     @staticmethod
     def _point_of_delivery_matcher() -> AttributeMatcher:
         def predicate(report: AttributeValue) -> bool:
             return report.attribute == cluster.Attributes.PointOfDelivery
-
         return AttributeMatcher.from_callable(description="PointOfDelivery", matcher=predicate)
 
     @staticmethod
     def _meter_serial_number_matcher() -> AttributeMatcher:
         def predicate(report: AttributeValue) -> bool:
             return report.attribute == cluster.Attributes.MeterSerialNumber
-
         return AttributeMatcher.from_callable(description="MeterSerialNumber", matcher=predicate)
 
     @staticmethod
     def _protocol_version_matcher() -> AttributeMatcher:
         def predicate(report: AttributeValue) -> bool:
             return report.attribute == cluster.Attributes.ProtocolVersion
-
         return AttributeMatcher.from_callable(description="ProtocolVersion", matcher=predicate)
 
     @staticmethod
     def _power_threshold_matcher() -> AttributeMatcher:
         def predicate(report: AttributeValue) -> bool:
             return report.attribute == cluster.Attributes.PowerThreshold
-
         return AttributeMatcher.from_callable(description="PowerThreshold", matcher=predicate)
 
     def get_mandatory_matchers(self) -> List[AttributeMatcher]:
-        return [self._meter_type_matcher(), self._point_of_delivery_matcher(), self._meter_serial_number_matcher()]
+
+        return [
+            self._meter_type_matcher(),
+            self._point_of_delivery_matcher(),
+            self._meter_serial_number_matcher()
+        ]

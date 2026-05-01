@@ -59,36 +59,24 @@ class TC_WEBRTCP_2_12(MatterBaseTest, WEBRTCPTestBase):
     def steps_TC_WEBRTCP_2_12(self) -> list[TestStep]:
         return [
             TestStep("precondition", "DUT commissioned", is_commissioning=True),
-            TestStep(
-                1,
-                "TH allocates both Audio and Video streams via AudioStreamAllocate and VideoStreamAllocate commands to CameraAVStreamManagement",
-                "DUT responds with success and provides stream IDs",
-            ),
-            TestStep(
-                2,
-                "TH sends multiple SolicitOffer commands to exhaust the DUT's capacity for WebRTC sessions (DUT-specific limit)",
-                "DUT successfully creates sessions until capacity is reached",
-            ),
-            TestStep(
-                3,
-                "TH sends an additional SolicitOffer command when DUT capacity is exhausted",
-                "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID",
-            ),
-            TestStep(
-                4,
-                "TH waits for DUT to send End command with reason OutOfResources",
-                "DUT sends End command with reason OutOfResources (value 0x08)",
-            ),
+            TestStep(1, "TH allocates both Audio and Video streams via AudioStreamAllocate and VideoStreamAllocate commands to CameraAVStreamManagement",
+                     "DUT responds with success and provides stream IDs"),
+            TestStep(2, "TH sends multiple SolicitOffer commands to exhaust the DUT's capacity for WebRTC sessions (DUT-specific limit)",
+                     "DUT successfully creates sessions until capacity is reached"),
+            TestStep(3, "TH sends an additional SolicitOffer command when DUT capacity is exhausted",
+                     "DUT responds with SolicitOfferResponse containing allocated WebRTCSessionID"),
+            TestStep(4, "TH waits for DUT to send End command with reason OutOfResources",
+                     "DUT sends End command with reason OutOfResources (value 0x08)")
         ]
 
     def pics_TC_WEBRTCP_2_12(self) -> list[str]:
         return [
             "WEBRTCP.S",
-            "WEBRTCP.S.C00.Rsp",  # SolicitOffer command
-            "WEBRTCP.S.C01.Tx",  # SolicitOfferResponse command
+            "WEBRTCP.S.C00.Rsp",   # SolicitOffer command
+            "WEBRTCP.S.C01.Tx",    # SolicitOfferResponse command
             "AVSM.S",
-            "AVSM.S.F00",  # Audio Data Output feature
-            "AVSM.S.F01",  # Video Data Output feature
+            "AVSM.S.F00",          # Audio Data Output feature
+            "AVSM.S.F01",          # Video Data Output feature
         ]
 
     @property
@@ -157,9 +145,8 @@ class TC_WEBRTCP_2_12(MatterBaseTest, WEBRTCPTestBase):
                 endpoint=endpoint,
                 payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD,
             )
-            asserts.assert_equal(
-                type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse, "Incorrect response type"
-            )
+            asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse,
+                                 "Incorrect response type")
             session_id = resp.webRTCSessionID
             asserts.assert_true(session_id >= 0, f"Invalid session ID: {session_id}")
             log.info(f"Created session {session_id} in attempt {attempt + 1}")
@@ -182,7 +169,8 @@ class TC_WEBRTCP_2_12(MatterBaseTest, WEBRTCPTestBase):
             payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD,
         )
 
-        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse, "Incorrect response type")
+        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.SolicitOfferResponse,
+                             "Incorrect response type")
         session_id = resp.webRTCSessionID
         asserts.assert_true(session_id >= 0, f"Invalid session ID: {session_id}")
         log.info(f"DUT allocated session {session_id} despite resource exhaustion")
@@ -197,9 +185,8 @@ class TC_WEBRTCP_2_12(MatterBaseTest, WEBRTCPTestBase):
 
         # Verify the End command has OutOfResources reason (value 0x08)
         kOutOfResourcesReason = 0x08  # WebRTCEndReasonEnum.kOutOfResources
-        asserts.assert_equal(
-            reason, kOutOfResourcesReason, f"Expected OutOfResources reason ({kOutOfResourcesReason}), got {reason}"
-        )
+        asserts.assert_equal(reason, kOutOfResourcesReason,
+                             f"Expected OutOfResources reason ({kOutOfResourcesReason}), got {reason}")
 
         log.info(f"Successfully received End command for session {end_sessionId} with OutOfResources reason {reason}")
 

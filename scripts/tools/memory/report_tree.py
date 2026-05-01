@@ -41,7 +41,10 @@ class SourceTree:
     class Node(anytree.NodeMixin):
         """Represents a source file, directory, or other user of memory."""
 
-        def __init__(self, name: str, size: int = 0, parent: Optional["SourceTree.Node"] = None):
+        def __init__(self,
+                     name: str,
+                     size: int = 0,
+                     parent: Optional['SourceTree.Node'] = None):
             self.name = name
             self.parent = parent
             self.size = size
@@ -55,10 +58,10 @@ class SourceTree:
     def __init__(self, name: str):
         self.name = name
         self.root = self.Node(memdf.name.TOTAL)
-        self.source_to_node: Dict[str, "SourceTree.Node"] = {}
-        self.symbol_to_node: Dict[str, "SourceTree.Node"] = {}
+        self.source_to_node: Dict[str, 'SourceTree.Node'] = {}
+        self.symbol_to_node: Dict[str, 'SourceTree.Node'] = {}
 
-    def source_node(self, source: str) -> "SourceTree.Node":
+    def source_node(self, source: str) -> 'SourceTree.Node':
         """Create a SourceTree.Node for a source file."""
         if not source or source == os.path.sep:
             return self.root
@@ -66,10 +69,12 @@ class SourceTree:
         if not tail:
             return self.root
         if source not in self.source_to_node:
-            self.source_to_node[source] = self.Node(tail, size=0, parent=self.source_node(head))
+            self.source_to_node[source] = self.Node(
+                tail, size=0, parent=self.source_node(head))
         return self.source_to_node[source]
 
-    def symbol_node(self, source: str, symbol: str, size: int) -> "SourceTree.Node":
+    def symbol_node(self, source: str, symbol: str,
+                    size: int) -> 'SourceTree.Node':
         """Create a SourceTree node for a symbol."""
         if source == symbol:
             parent = self.root
@@ -100,15 +105,18 @@ class SourceTree:
                             hidden_size += child.size
                             child.parent = None
                     if shown_count and hidden_size:
-                        self.Node(memdf.name.OTHER, size=hidden_size, parent=node)
+                        self.Node(memdf.name.OTHER,
+                                  size=hidden_size,
+                                  parent=node)
 
     @staticmethod
-    def from_symbols(config: Config, symbols: SymbolDF, tree_name: str) -> "SourceTree":
+    def from_symbols(config: Config, symbols: SymbolDF,
+                     tree_name: str) -> 'SourceTree':
         """Construct a SourceTree from a Memory Map DataFrame."""
         tree = SourceTree(tree_name)
         for row in symbols.itertuples():
             symbol = row.symbol
-            if config["report.demangle"]:
+            if config['report.demangle']:
                 symbol = memdf.report.demangle(symbol)
             tree.symbol_node(row.cu, symbol, row.size)
         tree.calculate_sizes()
@@ -117,13 +125,19 @@ class SourceTree:
     def print(self) -> None:
         """Print tree hierarchically."""
         print(self.name)
-        for pre, _, node in anytree.render.RenderTree(self.root, childiter=self._render_iter):
-            print("{}{:2.0f}% {} {}".format(pre, node.percentage(), node.size, node.name))
+        for pre, _, node in anytree.render.RenderTree(
+                self.root, childiter=self._render_iter):
+            print('{}{:2.0f}% {} {}'.format(pre, node.percentage(), node.size,
+                                            node.name))
 
     @staticmethod
-    def _render_iter(nodes: Sequence["SourceTree.Node"]) -> Sequence["SourceTree.Node"]:
+    def _render_iter(nodes: Sequence['SourceTree.Node']
+                     ) -> Sequence['SourceTree.Node']:
         """Order for displaying child nodes: decreasing size, others at end."""
-        return sorted(nodes, key=lambda n: -1 if n.name == memdf.name.OTHER else n.size, reverse=True)
+        return sorted(
+            nodes,
+            key=lambda n: -1 if n.name == memdf.name.OTHER else n.size,
+            reverse=True)
 
 
 def main(argv):
@@ -134,22 +148,22 @@ def main(argv):
                 **memdf.select.CONFIG,
                 **memdf.report.REPORT_CONFIG,
                 **memdf.report.REPORT_BY_CONFIG,
-            },
-            argv,
-        )
-        config["args.need_cu"] = True
+            }, argv)
+        config['args.need_cu'] = True
         dfs: DFs = memdf.collect.collect_files(config)
 
         symbols = dfs[SymbolDF.name]
-        symbols = symbols[
-            ~(symbols.symbol.str.startswith(memdf.name.UNUSED_PREFIX) | symbols.symbol.str.startswith(memdf.name.OVERLAP_PREFIX))
-        ]
-        by = config["report.by"]
+        symbols = symbols[~(
+            symbols.symbol.str.startswith(memdf.name.UNUSED_PREFIX)
+            | symbols.symbol.str.startswith(memdf.name.OVERLAP_PREFIX))]
+        by = config['report.by']
         for name in symbols[by].unique():
-            tree = SourceTree.from_symbols(config, symbols.loc[symbols[by] == name], name)
-            limit = memdf.select.get_limit(config, by, name)
+            tree = SourceTree.from_symbols(config,
+                                           symbols.loc[symbols[by] == name],
+                                           name)
+            limit = (memdf.select.get_limit(config, by, name))
             tree.truncate(limit)
-            print(f"\n{by.upper()}: ", end="")
+            print(f'\n{by.upper()}: ', end='')
             tree.print()
 
     except Exception as exception:
@@ -158,5 +172,5 @@ def main(argv):
     return status
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main(sys.argv))

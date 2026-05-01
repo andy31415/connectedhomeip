@@ -204,7 +204,8 @@ struct FabricEntryData : public PersistableData<kFabricMaxBytes>
 
     FabricEntryData(EndpointId endpoint = kInvalidEndpointId, FabricIndex fabric = kUndefinedFabricIndex,
                     uint16_t maxPerFabric = kMaxPerFabric, uint16_t maxPerEndpoint = Serializer::kMaxPerEndpoint()) :
-        endpoint_id(endpoint), fabric_index(fabric), max_per_fabric(maxPerFabric), max_per_endpoint(maxPerEndpoint)
+        endpoint_id(endpoint),
+        fabric_index(fabric), max_per_fabric(maxPerFabric), max_per_endpoint(maxPerEndpoint)
     {}
 
     CHIP_ERROR UpdateKey(StorageKeyName & key) const override
@@ -811,8 +812,8 @@ template <size_t kEntryMaxBytes>
 FabricTableImpl<StorageId, StorageData>::EntryIteratorImpl<kEntryMaxBytes>::EntryIteratorImpl(
     FabricTableImpl & provider, FabricIndex fabricIdx, EndpointId endpoint, uint16_t maxPerFabric, uint16_t maxPerEndpoint,
     PersistenceBuffer<kEntryMaxBytes> & buffer) :
-    mProvider(provider), mBuffer(buffer), mFabric(fabricIdx), mEndpoint(endpoint), mMaxPerFabric(maxPerFabric),
-    mMaxPerEndpoint(maxPerEndpoint)
+    mProvider(provider),
+    mBuffer(buffer), mFabric(fabricIdx), mEndpoint(endpoint), mMaxPerFabric(maxPerFabric), mMaxPerEndpoint(maxPerEndpoint)
 {
     using TypedFabricEntryData = FabricEntryData<StorageId, StorageData, Serializer::kEntryMaxBytes(),
                                                  Serializer::kFabricMaxBytes(), Serializer::kMaxPerFabric()>;

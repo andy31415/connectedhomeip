@@ -51,7 +51,7 @@ class TC_BRBINFO_2_1(BasicInformationAttributesVerificationBase):
         return self.steps()
 
     def pics_TC_BRBINFO_2_1(self) -> list[str]:
-        return self.pics("BRBINFO")
+        return self.pics('BRBINFO')
 
     @async_test_body
     async def test_TC_BRBINFO_2_1(self):

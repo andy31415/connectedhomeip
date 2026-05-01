@@ -99,8 +99,8 @@ TimeFormatLocalizationCluster::TimeFormatLocalizationCluster(EndpointId endpoint
                                                              TimeFormatLocalization::HourFormatEnum defaultHourFormat,
                                                              TimeFormatLocalization::CalendarTypeEnum defaultCalendarType,
                                                              Context context) :
-    DefaultServerCluster({ endpointId, TimeFormatLocalization::Id }), mFeatures(features), mHourFormat(defaultHourFormat),
-    mCalendarType(defaultCalendarType), mContext(context)
+    DefaultServerCluster({ endpointId, TimeFormatLocalization::Id }),
+    mFeatures(features), mHourFormat(defaultHourFormat), mCalendarType(defaultCalendarType), mContext(context)
 {
     TimeFormatLocalization::CalendarTypeEnum validCalendar = defaultCalendarType;
 

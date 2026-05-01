@@ -78,6 +78,7 @@ log = logging.getLogger(__name__)
 
 
 class TC_CCTRL_2_3(MatterBaseTest):
+
     @async_test_body
     async def setup_class(self):
         super().setup_class()
@@ -105,9 +106,10 @@ class TC_CCTRL_2_3(MatterBaseTest):
             storage_dir=self.storage.name,
             port=self.th_server_port,
             discriminator=self.th_server_discriminator,
-            passcode=self.th_server_passcode,
-        )
-        self.th_server.start(expected_output="Server initialization complete", timeout=30)
+            passcode=self.th_server_passcode)
+        self.th_server.start(
+            expected_output="Server initialization complete",
+            timeout=30)
 
         log.info("Commissioning from separate fabric")
 
@@ -121,8 +123,7 @@ class TC_CCTRL_2_3(MatterBaseTest):
             nodeId=self.server_nodeid,
             setupPinCode=self.th_server_passcode,
             filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
-            filter=self.th_server_discriminator,
-        )
+            filter=self.th_server_discriminator)
         log.info("Commissioning TH_SERVER complete")
 
     def teardown_class(self):
@@ -133,67 +134,41 @@ class TC_CCTRL_2_3(MatterBaseTest):
         super().teardown_class()
 
     def steps_TC_CCTRL_2_3(self) -> list[TestStep]:
-        return [
-            TestStep(1, "Get number of fabrics from TH_SERVER", is_commissioning=True),
-            TestStep(2, "Reading Attribute VendorId from TH_SERVER"),
-            TestStep(3, "Reading Attribute ProductId from TH_SERVER"),
-            TestStep(4, "Send RequestCommissioningApproval command to DUT with CASE session with correct VendorId and ProductId"),
-            TestStep(5, "(Manual Step) Approve Commissioning Approval Request on DUT using method indicated by the manufacturer"),
-            TestStep(6, "Reading Event CommissioningRequestResult from DUT, confirm one new event"),
-            TestStep(
-                7,
-                "Send another RequestCommissioningApproval command to DUT with CASE session with same RequestId as the previous one",
-            ),
-            TestStep(8, "Send CommissionNode command to DUT with CASE session, with valid parameters"),
-            TestStep(
-                9, "Send another CommissionNode command to DUT with CASE session, with with same RequestId as the previous one"
-            ),
-            TestStep(10, "Send OpenCommissioningWindow command on Administrator Commissioning Cluster sent to TH_SERVER"),
-            TestStep(11, "Get number of fabrics from TH_SERVER, verify DUT successfully commissioned TH_SERVER (up to 30 seconds)"),
-        ]
+        return [TestStep(1, "Get number of fabrics from TH_SERVER", is_commissioning=True),
+                TestStep(2, "Reading Attribute VendorId from TH_SERVER"),
+                TestStep(3, "Reading Attribute ProductId from TH_SERVER"),
+                TestStep(4, "Send RequestCommissioningApproval command to DUT with CASE session with correct VendorId and ProductId"),
+                TestStep(5, "(Manual Step) Approve Commissioning Approval Request on DUT using method indicated by the manufacturer"),
+                TestStep(6, "Reading Event CommissioningRequestResult from DUT, confirm one new event"),
+                TestStep(7, "Send another RequestCommissioningApproval command to DUT with CASE session with same RequestId as the previous one"),
+                TestStep(8, "Send CommissionNode command to DUT with CASE session, with valid parameters"),
+                TestStep(9, "Send another CommissionNode command to DUT with CASE session, with with same RequestId as the previous one"),
+                TestStep(10, "Send OpenCommissioningWindow command on Administrator Commissioning Cluster sent to TH_SERVER"),
+                TestStep(11, "Get number of fabrics from TH_SERVER, verify DUT successfully commissioned TH_SERVER (up to 30 seconds)")]
 
     # This test has some manual steps and one sleep for up to 30 seconds. Test typically
     # runs under 1 mins, so 3 minutes is more than enough.
 
     @property
     def default_timeout(self) -> int:
-        return 3 * 60
+        return 3*60
 
     @run_if_endpoint_matches(has_cluster(Clusters.CommissionerControl))
     async def test_TC_CCTRL_2_3(self):
+
         self.step(1)
-        th_server_fabrics = await self.read_single_attribute_check_success(
-            cluster=Clusters.OperationalCredentials,
-            attribute=Clusters.OperationalCredentials.Attributes.Fabrics,
-            dev_ctrl=self.TH_server_controller,
-            node_id=self.server_nodeid,
-            endpoint=0,
-            fabric_filtered=False,
-        )
+        th_server_fabrics = await self.read_single_attribute_check_success(cluster=Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.Fabrics, dev_ctrl=self.TH_server_controller, node_id=self.server_nodeid, endpoint=0, fabric_filtered=False)
 
         self.step(2)
-        th_server_vid = await self.read_single_attribute_check_success(
-            cluster=Clusters.BasicInformation,
-            attribute=Clusters.BasicInformation.Attributes.VendorID,
-            dev_ctrl=self.TH_server_controller,
-            node_id=self.server_nodeid,
-            endpoint=0,
-        )
+        th_server_vid = await self.read_single_attribute_check_success(cluster=Clusters.BasicInformation, attribute=Clusters.BasicInformation.Attributes.VendorID, dev_ctrl=self.TH_server_controller, node_id=self.server_nodeid, endpoint=0)
 
         self.step(3)
-        th_server_pid = await self.read_single_attribute_check_success(
-            cluster=Clusters.BasicInformation,
-            attribute=Clusters.BasicInformation.Attributes.ProductID,
-            dev_ctrl=self.TH_server_controller,
-            node_id=self.server_nodeid,
-            endpoint=0,
-        )
+        th_server_pid = await self.read_single_attribute_check_success(cluster=Clusters.BasicInformation, attribute=Clusters.BasicInformation.Attributes.ProductID, dev_ctrl=self.TH_server_controller, node_id=self.server_nodeid, endpoint=0)
 
         self.step(4)
         good_request_id = 0x1234567812345678
         cmd = Clusters.CommissionerControl.Commands.RequestCommissioningApproval(
-            requestID=good_request_id, vendorID=th_server_vid, productID=th_server_pid, label="Test Ecosystem"
-        )
+            requestID=good_request_id, vendorID=th_server_vid, productID=th_server_pid, label="Test Ecosystem")
         await self.send_single_cmd(cmd=cmd)
 
         self.step(5)
@@ -205,13 +180,13 @@ class TC_CCTRL_2_3(MatterBaseTest):
         events = await self.default_controller.ReadEvent(nodeId=self.dut_node_id, events=event_path)
         asserts.assert_equal(len(events), 1, "Unexpected event list len")
         asserts.assert_equal(events[0].Data.statusCode, 0, "Unexpected status code")
-        asserts.assert_equal(events[0].Data.clientNodeID, self.matter_test_config.controller_node_id, "Unexpected client node id")
+        asserts.assert_equal(events[0].Data.clientNodeID,
+                             self.matter_test_config.controller_node_id, "Unexpected client node id")
         asserts.assert_equal(events[0].Data.requestID, good_request_id, "Unexpected request ID")
 
         self.step(7)
         cmd = Clusters.CommissionerControl.Commands.RequestCommissioningApproval(
-            requestID=good_request_id, vendorID=th_server_vid, productID=th_server_pid
-        )
+            requestID=good_request_id, vendorID=th_server_vid, productID=th_server_pid)
         try:
             await self.send_single_cmd(cmd=cmd)
             asserts.fail("Unexpected success on CommissionNode")
@@ -221,9 +196,8 @@ class TC_CCTRL_2_3(MatterBaseTest):
         self.step(8)
         cmd = Clusters.CommissionerControl.Commands.CommissionNode(requestID=good_request_id, responseTimeoutSeconds=30)
         resp = await self.send_single_cmd(cmd)
-        asserts.assert_equal(
-            type(resp), Clusters.CommissionerControl.Commands.ReverseOpenCommissioningWindow, "Incorrect response type"
-        )
+        asserts.assert_equal(type(resp), Clusters.CommissionerControl.Commands.ReverseOpenCommissioningWindow,
+                             "Incorrect response type")
 
         self.step(9)
         cmd = Clusters.CommissionerControl.Commands.CommissionNode(requestID=good_request_id, responseTimeoutSeconds=30)
@@ -235,16 +209,11 @@ class TC_CCTRL_2_3(MatterBaseTest):
 
         self.step(10)
         # min commissioning timeout is 3*60 seconds, so use that even though the command said 30.
-        cmd = Clusters.AdministratorCommissioning.Commands.OpenCommissioningWindow(
-            commissioningTimeout=3 * 60,
-            PAKEPasscodeVerifier=resp.PAKEPasscodeVerifier,
-            discriminator=resp.discriminator,
-            iterations=resp.iterations,
-            salt=resp.salt,
-        )
-        await self.send_single_cmd(
-            cmd, dev_ctrl=self.TH_server_controller, node_id=self.server_nodeid, endpoint=0, timedRequestTimeoutMs=5000
-        )
+        cmd = Clusters.AdministratorCommissioning.Commands.OpenCommissioningWindow(commissioningTimeout=3*60,
+                                                                                   PAKEPasscodeVerifier=resp.PAKEPasscodeVerifier,
+                                                                                   discriminator=resp.discriminator,
+                                                                                   iterations=resp.iterations, salt=resp.salt)
+        await self.send_single_cmd(cmd, dev_ctrl=self.TH_server_controller, node_id=self.server_nodeid, endpoint=0, timedRequestTimeoutMs=5000)
 
         self.step(11)
         max_wait_time_sec = 30
@@ -256,23 +225,15 @@ class TC_CCTRL_2_3(MatterBaseTest):
         th_server_fabrics_new = None
         while time_remaining > 0:
             await asyncio.sleep(2)
-            th_server_fabrics_new = await self.read_single_attribute_check_success(
-                cluster=Clusters.OperationalCredentials,
-                attribute=Clusters.OperationalCredentials.Attributes.Fabrics,
-                dev_ctrl=self.TH_server_controller,
-                node_id=self.server_nodeid,
-                endpoint=0,
-                fabric_filtered=False,
-            )
+            th_server_fabrics_new = await self.read_single_attribute_check_success(cluster=Clusters.OperationalCredentials, attribute=Clusters.OperationalCredentials.Attributes.Fabrics, dev_ctrl=self.TH_server_controller, node_id=self.server_nodeid, endpoint=0, fabric_filtered=False)
             if previous_number_th_server_fabrics != len(th_server_fabrics_new):
                 break
             elapsed = time.time() - start_time
             time_remaining = max_wait_time_sec - elapsed
 
         asserts.assert_not_equal(th_server_fabrics_new, None, "Failed to read Fabrics attribute")
-        asserts.assert_equal(
-            previous_number_th_server_fabrics + 1, len(th_server_fabrics_new), "Unexpected number of fabrics on TH_SERVER"
-        )
+        asserts.assert_equal(previous_number_th_server_fabrics + 1, len(th_server_fabrics_new),
+                             "Unexpected number of fabrics on TH_SERVER")
 
 
 if __name__ == "__main__":

@@ -107,11 +107,9 @@ def test_pics_decorator_single_code():
 def test_pics_empty_raises():
     """@pics() with no arguments raises ValueError."""
     try:
-
         @pics()
         def test_foo(self):
             pass
-
         assert False, "Expected ValueError for empty @pics"
     except ValueError as e:
         assert "at least one" in str(e).lower()
@@ -120,12 +118,10 @@ def test_pics_empty_raises():
 def test_pics_double_application_raises():
     """Applying @pics twice raises ValueError."""
     try:
-
         @pics("A.S")
         @pics("B.S")
         def test_foo(self):
             pass
-
         assert False, "Expected ValueError for double @pics"
     except ValueError as e:
         assert "more than once" in str(e).lower()

@@ -47,9 +47,11 @@ cluster_eevsem_mode = Clusters.EnergyEvseMode
 
 
 class TC_EEVSEM_1_2(MatterBaseTest, ModeBaseClusterChecks):
+
     def __init__(self, *args):
         MatterBaseTest.__init__(self, *args)
-        ModeBaseClusterChecks.__init__(self, modebase_derived_cluster=cluster_eevsem_mode)
+        ModeBaseClusterChecks.__init__(self,
+                                       modebase_derived_cluster=cluster_eevsem_mode)
 
     def desc_TC_EEVSEM_1_2(self) -> str:
         return "[TC-EEVSEM-1.2] Cluster attributes with DUT as Server"
@@ -62,7 +64,9 @@ class TC_EEVSEM_1_2(MatterBaseTest, ModeBaseClusterChecks):
         ]
 
     def pics_TC_EEVSEM_1_2(self) -> list[str]:
-        return ["EEVSEM.S"]
+        return [
+            "EEVSEM.S"
+        ]
 
     @property
     def default_endpoint(self) -> int:
@@ -70,6 +74,7 @@ class TC_EEVSEM_1_2(MatterBaseTest, ModeBaseClusterChecks):
 
     @async_test_body
     async def test_TC_EEVSEM_1_2(self):
+
         # Setup common mode check
         endpoint = self.get_endpoint()
 

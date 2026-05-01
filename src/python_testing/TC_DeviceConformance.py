@@ -56,7 +56,6 @@
 import matter.clusters as Clusters
 from matter.testing.conformance import optional, otherwise, provisional
 from matter.testing.decorators import async_test_body
-
 # TODO: Enable 10.5 in CI once the door lock OTA requestor problem is sorted.
 from matter.testing.device_conformance_tests import DeviceConformanceTests
 from matter.testing.runner import TestStep, default_matter_test_main
@@ -64,6 +63,7 @@ from matter.testing.spec_parsing import XmlFeature
 
 
 class TC_DeviceConformance(DeviceConformanceTests):
+
     def remove_later_dirty_patch_for_1_6_groupscast_and_onoff(self):
         acl_id = Clusters.AccessControl.id
         groups_id = Clusters.Groups.id
@@ -72,22 +72,20 @@ class TC_DeviceConformance(DeviceConformanceTests):
         # TODO (#71577): Remove once the parser is updated to correctly parse this conformance
         if self.xml_clusters[acl_id].revision >= 3:
             aux_mask = Clusters.AccessControl.Bitmaps.Feature.kAuxiliary
-            self.xml_clusters[acl_id].features[aux_mask] = XmlFeature(code="AUX", name="Auxiliary", conformance=optional())
-            self.xml_clusters[acl_id].feature_map["AUX"] = aux_mask
+            self.xml_clusters[acl_id].features[aux_mask] = XmlFeature(code='AUX', name='Auxiliary', conformance=optional())
+            self.xml_clusters[acl_id].feature_map['AUX'] = aux_mask
         # TODO (#71595): Remove remaining hacks once the DM files for 1.6 are updated.
         if self.xml_clusters[groups_id].revision == 5:
             self.xml_clusters[groups_id].revision = 4
         if self.xml_clusters[group_key_management_id].revision == 3:
             gcast_mask = Clusters.GroupKeyManagement.Bitmaps.Feature.kGroupcast
             self.xml_clusters[group_key_management_id].features[gcast_mask] = XmlFeature(
-                code="GCAST", name="Groupcast", conformance=optional()
-            )
+                code='GCAST', name='Groupcast', conformance=optional())
             gcast_adoption_id = Clusters.GroupKeyManagement.Attributes.GroupcastAdoption.attribute_id
             # Conformance for this attribute needs to be wrapped in provisional as the intent it to let this remain provisional post 1.6
             current_conformance = self.xml_clusters[group_key_management_id].attributes[gcast_adoption_id].conformance
-            self.xml_clusters[group_key_management_id].attributes[gcast_adoption_id].conformance = otherwise(
-                [provisional(), current_conformance]
-            )
+            self.xml_clusters[group_key_management_id].attributes[gcast_adoption_id].conformance = otherwise([
+                                                                                                             provisional(), current_conformance])
         if self.xml_clusters[on_off_id].revision == 7:
             self.xml_clusters[on_off_id].revision = 6
 
@@ -101,24 +99,19 @@ class TC_DeviceConformance(DeviceConformanceTests):
         # TODO: Turn this off after TE2
         # https://github.com/project-chip/connectedhomeip/issues/34615
         ignore_in_progress_test_event_only_disallowed_for_certification = self.user_params.get(
-            "ignore_in_progress_test_event_only_disallowed_for_certification", True
-        )
+            "ignore_in_progress_test_event_only_disallowed_for_certification", True)
         allow_provisional_test_event_only_disallowed_for_certification = self.user_params.get(
-            "allow_provisional_test_event_only_disallowed_for_certification", False
-        )
-        success, problems = self.check_conformance(
-            ignore_in_progress_test_event_only_disallowed_for_certification,
-            self.is_pics_sdk_ci_only,
-            allow_provisional_test_event_only_disallowed_for_certification,
-        )
+            "allow_provisional_test_event_only_disallowed_for_certification", False)
+        success, problems = self.check_conformance(ignore_in_progress_test_event_only_disallowed_for_certification,
+                                                   self.is_pics_sdk_ci_only,
+                                                   allow_provisional_test_event_only_disallowed_for_certification)
         self.problems.extend(problems)
         if not success:
             self.fail_current_test("Problems with conformance")
 
     def test_TC_IDM_10_3(self):
         ignore_in_progress_test_event_only_disallowed_for_certification = self.user_params.get(
-            "ignore_in_progress_test_event_only_disallowed_for_certification", False
-        )
+            "ignore_in_progress_test_event_only_disallowed_for_certification", False)
         success, problems = self.check_revisions(ignore_in_progress_test_event_only_disallowed_for_certification)
         self.problems.extend(problems)
         if not success:
@@ -127,11 +120,9 @@ class TC_DeviceConformance(DeviceConformanceTests):
     def test_TC_IDM_10_5(self):
         fail_on_extra_clusters = self.user_params.get("fail_on_extra_clusters", True)
         allow_provisional_test_event_only_disallowed_for_certification = self.user_params.get(
-            "allow_provisional_test_event_only_disallowed_for_certification", False
-        )
-        success, problems = self.check_device_type(
-            fail_on_extra_clusters, allow_provisional_test_event_only_disallowed_for_certification
-        )
+            "allow_provisional_test_event_only_disallowed_for_certification", False)
+        success, problems = self.check_device_type(fail_on_extra_clusters,
+                                                   allow_provisional_test_event_only_disallowed_for_certification)
         self.problems.extend(problems)
         if not success:
             self.fail_current_test("Problems with Device type conformance on one or more endpoints")
@@ -143,31 +134,20 @@ class TC_DeviceConformance(DeviceConformanceTests):
             self.fail_current_test("Problems with Device type revisions on one or more endpoints")
 
     def steps_TC_IDM_14_1(self):
-        return [
-            TestStep(0, "TH performs a wildcard read of all attributes and endpoints on the device"),
-            TestStep(
-                1,
-                """ For each root-node-restricted cluster in the list, ensure the cluster does not appear on any endpoint that is not the root node.
+        return [TestStep(0, "TH performs a wildcard read of all attributes and endpoints on the device"),
+                TestStep(1, """ For each root-node-restricted cluster in the list, ensure the cluster does not appear on any endpoint that is not the root node.
                                 List of root-node-restricted clusters:
 
                                 * ACL
                                 * Time Synchronization
                                 * TLS Certificate Management
                                 * TLS Client Management
-                         """,
-                "No root-node-restricted clusters appear on non-root endpoints",
-            ),
-            TestStep(
-                2,
-                "Ensure the complex device type composition and conformance rules related to closure device types are met",
-                "Closure cluster device type rules are met",
-            ),
-            TestStep(
-                3,
-                "Ensure the rules related to semantic tags for the closure device types are met",
-                "Closure semantic tags rules are met",
-            ),
-        ]
+                         """, "No root-node-restricted clusters appear on non-root endpoints"),
+                TestStep(2, "Ensure the complex device type composition and conformance rules related to closure device types are met",
+                         "Closure cluster device type rules are met"),
+                TestStep(3, "Ensure the rules related to semantic tags for the closure device types are met",
+                         "Closure semantic tags rules are met")
+                ]
 
     def test_TC_IDM_14_1(self):
         self.step(0)  # wildcard read - done in setup
@@ -183,19 +163,11 @@ class TC_DeviceConformance(DeviceConformanceTests):
             self.fail_current_test("One or more device conformance violations were found")
 
     def steps_TC_DESC_2_3(self):
-        return [
-            TestStep(0, "TH performs a wildcard read of all attributes on all endpoints on the device"),
-            TestStep(
-                1,
-                "TH checks the Root node endpoint and ensures no application device types are listed",
-                "No Application device types on EP0",
-            ),
-            TestStep(
-                2,
-                "For each non-root endpoint on the device, TH checks the DeviceTypeList of the Descriptor cluster and verifies that all the listed application device types are part of the same superset, and that no two device types are unrelated supersets of any device type.",
-            ),
-            TestStep(3, "Fail test if either of the above steps failed."),
-        ]
+        return [TestStep(0, "TH performs a wildcard read of all attributes on all endpoints on the device"),
+                TestStep(1, "TH checks the Root node endpoint and ensures no application device types are listed",
+                         "No Application device types on EP0"),
+                TestStep(2, "For each non-root endpoint on the device, TH checks the DeviceTypeList of the Descriptor cluster and verifies that all the listed application device types are part of the same superset, and that no two device types are unrelated supersets of any device type."),
+                TestStep(3, "Fail test if either of the above steps failed.")]
         # TODO: add check that at least one endpoint has an application endpoint or an aggregator
 
     def desc_TC_DESC_2_3(self):

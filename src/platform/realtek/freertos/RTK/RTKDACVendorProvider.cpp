@@ -47,7 +47,7 @@ CHIP_ERROR RTKDACVendorProvider::GetCertificationDeclaration(MutableByteSpan & o
     memcpy(outBuffer.data(), pFactoryData->dac.cd.value, pFactoryData->dac.cd.len);
 
     outBuffer.reduce_size(pFactoryData->dac.cd.len);
-    err = CHIP_NO_ERROR;
+    err                      = CHIP_NO_ERROR;
 #else
     const uint8_t kCdForAllExamples[] = {
         0x30, 0x82, 0x02, 0x19, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x07, 0x02, 0xa0, 0x82, 0x02, 0x0a, 0x30,
@@ -135,7 +135,7 @@ CHIP_ERROR RTKDACVendorProvider::GetDeviceAttestationCert(MutableByteSpan & outB
         0x95, 0x45, 0xe1, 0x08, 0xe4, 0xe5, 0x4e, 0x70, 0x97, 0x13, 0x53,
     };
 
-    err = CopySpanToMutableSpan(ByteSpan(kDacCert), outBuffer);
+    err                      = CopySpanToMutableSpan(ByteSpan(kDacCert), outBuffer);
 #endif // CONFIG_FACTORY_DATA
 
     return err;
@@ -181,7 +181,7 @@ CHIP_ERROR RTKDACVendorProvider::GetProductAttestationIntermediateCert(MutableBy
         0x03, 0xf8, 0x91,
     };
 
-    err = CopySpanToMutableSpan(ByteSpan{ kPaiCert }, outBuffer);
+    err                             = CopySpanToMutableSpan(ByteSpan{ kPaiCert }, outBuffer);
 #endif // CONFIG_FACTORY_DATA
 
     return CHIP_NO_ERROR;

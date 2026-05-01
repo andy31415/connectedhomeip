@@ -66,7 +66,8 @@ struct CachedMessage
                   const chip::BitMask<chip::app::Clusters::Messages::MessageControlBitmap> & messageControl,
                   const chip::app::DataModel::Nullable<uint32_t> & startTime,
                   const chip::app::DataModel::Nullable<uint64_t> & duration, std::string messageText) :
-        mPriority(priority), mMessageControl(messageControl), mStartTime(startTime), mDuration(duration), mMessageText(messageText)
+        mPriority(priority),
+        mMessageControl(messageControl), mStartTime(startTime), mDuration(duration), mMessageText(messageText)
     {
         memcpy(mMessageIdBuffer, messageId.data(), sizeof(mMessageIdBuffer));
     }

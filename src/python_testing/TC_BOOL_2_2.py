@@ -57,6 +57,7 @@ logger = logging.getLogger(__name__)
 
 
 class TC_BOOL_2_2(MatterBaseTest):
+
     def desc_TC_BOOL_2_2(self) -> str:
         return "[TC-BOOL-2.2] Primary Functionality with Server as DUT"
 
@@ -133,7 +134,9 @@ class TC_BOOL_2_2(MatterBaseTest):
             command_dict = {"Name": "SetBooleanState", "EndpointId": endpoint, "NewState": state}
             self.write_to_app_pipe(command_dict)
         else:
-            self.wait_for_user_input(prompt_msg=f"Bring the DUT into a state so StateValue is {'TRUE' if state else 'FALSE'}.")
+            self.wait_for_user_input(
+                prompt_msg=f"Bring the DUT into a state so StateValue is {'TRUE' if state else 'FALSE'}."
+            )
 
     async def _read_state_value(self, dev_ctrl, node_id: int, endpoint: int) -> bool:
         cbool = Clusters.BooleanState
@@ -247,9 +250,15 @@ class TC_BOOL_2_2(MatterBaseTest):
         self.step("10")
 
         if should_test_state_change_event:
-            data = event_cb.wait_for_event_report(cbool.Events.StateChange, timeout_sec=30)
+            data = event_cb.wait_for_event_report(
+                cbool.Events.StateChange,
+                timeout_sec=30
+            )
 
-            asserts.assert_true(data.stateValue, "StateChange event should have StateValue == TRUE")
+            asserts.assert_true(
+                data.stateValue,
+                "StateChange event should have StateValue == TRUE"
+            )
         else:
             logger.info("Skipping test step 10")
 
@@ -279,9 +288,15 @@ class TC_BOOL_2_2(MatterBaseTest):
         self.step("15")
 
         if should_test_state_change_event:
-            data = event_cb.wait_for_event_report(cbool.Events.StateChange, timeout_sec=30)
+            data = event_cb.wait_for_event_report(
+                cbool.Events.StateChange,
+                timeout_sec=30
+            )
 
-            asserts.assert_false(data.stateValue, "StateChange event should have StateValue == FALSE")
+            asserts.assert_false(
+                data.stateValue,
+                "StateChange event should have StateValue == FALSE"
+            )
 
 
 if __name__ == "__main__":

@@ -50,18 +50,20 @@ FaultInjectionOptions gFaultInjectionOptions;
 
 NetworkOptions::NetworkOptions()
 {
-    static OptionDef optionDefs[] = { { "local-addr", kArgumentRequired, 'a' },
-                                      { "node-addr", kArgumentRequired, kToolCommonOpt_NodeAddr }, /* alias for local-addr */
+    static OptionDef optionDefs[] = {
+        { "local-addr", kArgumentRequired, 'a' },
+        { "node-addr", kArgumentRequired, kToolCommonOpt_NodeAddr }, /* alias for local-addr */
 #if CHIP_SYSTEM_CONFIG_USE_LWIP || CHIP_SYSTEM_CONFIG_USE_OPENTHREAD_ENDPOINT
-                                      { "tap-device", kArgumentRequired, kToolCommonOpt_TapDevice },
-                                      { "ipv4-gateway", kArgumentRequired, kToolCommonOpt_IPv4GatewayAddr },
-                                      { "ipv6-gateway", kArgumentRequired, kToolCommonOpt_IPv6GatewayAddr },
-                                      { "dns-server", kArgumentRequired, 'X' },
-                                      { "debug-lwip", kNoArgument, kToolCommonOpt_DebugLwIP },
-                                      { "event-delay", kArgumentRequired, kToolCommonOpt_EventDelay },
-                                      { "tap-system-config", kNoArgument, kToolCommonOpt_TapInterfaceConfig },
+        { "tap-device", kArgumentRequired, kToolCommonOpt_TapDevice },
+        { "ipv4-gateway", kArgumentRequired, kToolCommonOpt_IPv4GatewayAddr },
+        { "ipv6-gateway", kArgumentRequired, kToolCommonOpt_IPv6GatewayAddr },
+        { "dns-server", kArgumentRequired, 'X' },
+        { "debug-lwip", kNoArgument, kToolCommonOpt_DebugLwIP },
+        { "event-delay", kArgumentRequired, kToolCommonOpt_EventDelay },
+        { "tap-system-config", kNoArgument, kToolCommonOpt_TapInterfaceConfig },
 #endif // CHIP_SYSTEM_CONFIG_USE_LWIP || CHIP_SYSTEM_CONFIG_USE_OPENTHREAD_ENDPOINT
-                                      {} };
+        {}
+    };
     OptionDefs = optionDefs;
 
     HelpGroupName = "NETWORK OPTIONS";

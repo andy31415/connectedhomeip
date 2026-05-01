@@ -397,11 +397,7 @@ class TC_AVSM_2_7(MatterBaseTest):
         self.step(18)
         try:
             notSupportedStreamUsage = next(
-                (
-                    e
-                    for e in Globals.Enums.StreamUsageEnum
-                    if e not in aStreamUsagePriorities and e != Globals.Enums.StreamUsageEnum.kInternal
-                ),
+                (e for e in Globals.Enums.StreamUsageEnum if e not in aStreamUsagePriorities and e != Globals.Enums.StreamUsageEnum.kInternal),
                 Globals.Enums.StreamUsageEnum.kUnknownEnumValue,
             )
             videoStreamAllocateCmd = commands.VideoStreamAllocate(
@@ -715,9 +711,7 @@ class TC_AVSM_2_7(MatterBaseTest):
 
         for stream in aAllocatedVideoStreams:
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=commands.VideoStreamDeallocate(videoStreamID=(stream.videoStreamID))
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=commands.VideoStreamDeallocate(videoStreamID=(stream.videoStreamID)))
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 

@@ -110,17 +110,15 @@ class TC_PAVST_2_13(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             TestStep(
                 5,
                 "If DUT supports TwoDCartesianZone and User defined zones, TH sends CreateTwoDCartesianZone command.",
-                "Verify that the DUT response contains a new zoneId.",
-            ),
+                "Verify that the DUT response contains a new zoneId."),
             TestStep(
                 6,
                 "TH sends AllocatePushTransport command with TriggerType = Motion, MotionZones = [aZoneID]",
-                "DUT responds with AllocatePushTransportResponse containing the allocated ConnectionID, TransportOptions, and TransportStatus in the TransportConfigurationStruct. Store ConnectionID as aConnectionID1.",
-            ),
+                "DUT responds with AllocatePushTransportResponse containing the allocated ConnectionID, TransportOptions, and TransportStatus in the TransportConfigurationStruct. Store ConnectionID as aConnectionID1."),
             TestStep(
                 7,
                 "TH sends SetTransportStatus command with ConnectionID = aConnectionID1 and TransportStatus = Active",
-                "DUT responds with SUCCESS status code.",
+                "DUT responds with SUCCESS status code."
             ),
             TestStep(
                 8,
@@ -165,14 +163,19 @@ class TC_PAVST_2_13(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             TestStep(
                 16,
                 "TH sends DeallocatePushTransport command with ConnectionID = aConnectionID1",
-                "DUT responds with SUCCESS status code.",
+                "DUT responds with SUCCESS status code."
             ),
-            TestStep(17, "Repeat step-6 and step-7. Store ConnectionID as aConnectionID2", "Successful completion of step."),
+            TestStep(
+                17,
+                "Repeat step-6 and step-7. Store ConnectionID as aConnectionID2",
+                "Successful completion of step."
+            ),
             TestStep(
                 18,
                 "Two consecutive Motion Event triggers the DUT to generate PushAV Events (InitialDuration + AugmentationDuration > MaxDuration).",
-                "Verify that the TH receives the PushTransportEnd event after MaxDuration and the connectionID matches aConnectionID2.",
+                "Verify that the TH receives the PushTransportEnd event after MaxDuration and the connectionID matches aConnectionID2."
             ),
+
         ]
 
     async def _trigger_motion_event(self, zone_id, prompt_msg=None):
@@ -192,18 +195,14 @@ class TC_PAVST_2_13(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
             await self.read_single_attribute_check_success(
                 endpoint=self.get_endpoint(),
                 cluster=Clusters.PushAvStreamTransport,
-                attribute=Clusters.PushAvStreamTransport.Attributes.FeatureMap,
+                attribute=Clusters.PushAvStreamTransport.Attributes.FeatureMap
             )
         except (TimeoutError, asyncio.CancelledError):
             # Session timed out, re-establish
             logger.info("Session timed out, re-establishing...")
             await self.default_controller.EstablishSession(self.dut_node_id)
 
-    @run_if_endpoint_matches(
-        has_cluster(Clusters.PushAvStreamTransport)
-        and has_cluster(Clusters.ZoneManagement)
-        and has_cluster(Clusters.CameraAvStreamManagement)
-    )
+    @run_if_endpoint_matches(has_cluster(Clusters.PushAvStreamTransport) and has_cluster(Clusters.ZoneManagement) and has_cluster(Clusters.CameraAvStreamManagement))
     async def test_TC_PAVST_2_13(self):
         endpoint = self.get_endpoint()
         self.endpoint = endpoint
@@ -225,7 +224,9 @@ class TC_PAVST_2_13(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         self.step(1)
         # Commission DUT - already done
         status = await self.check_and_delete_all_push_av_transports(endpoint, pvattr)
-        asserts.assert_equal(status, Status.Success, "Status must be SUCCESS!")
+        asserts.assert_equal(
+            status, Status.Success, "Status must be SUCCESS!"
+        )
 
         self.step(2)
         aAllocatedVideoStreams = await self.allocate_one_video_stream()
@@ -244,13 +245,13 @@ class TC_PAVST_2_13(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         )
 
         self.step(4)
-        aZones = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=zmcluster, attribute=zmattr.Zones)
+        aZones = await self.read_single_attribute_check_success(
+            endpoint=endpoint, cluster=zmcluster, attribute=zmattr.Zones
+        )
         logger.info(f"aZones: {aZones}")
 
         self.step(5)
-        aFeatureMap = await self.read_single_attribute_check_success(
-            endpoint=endpoint, cluster=zmcluster, attribute=zmattr.FeatureMap
-        )
+        aFeatureMap = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=zmcluster, attribute=zmattr.FeatureMap)
         logger.info(f"Rx'd FeatureMap: {aFeatureMap}")
         self.twoDCartSupported = aFeatureMap & zmcluster.Bitmaps.Feature.kTwoDimensionalCartesianZone
         self.userDefinedSupported = aFeatureMap & zmcluster.Bitmaps.Feature.kUserDefined
@@ -261,19 +262,24 @@ class TC_PAVST_2_13(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
                 zmcluster.Structs.TwoDCartesianVertexStruct(10, 10),
                 zmcluster.Structs.TwoDCartesianVertexStruct(20, 10),
                 zmcluster.Structs.TwoDCartesianVertexStruct(20, 20),
-                zmcluster.Structs.TwoDCartesianVertexStruct(10, 20),
+                zmcluster.Structs.TwoDCartesianVertexStruct(10, 20)
             ]
             zoneToCreate = zmcluster.Structs.TwoDCartesianZoneStruct(
-                name="Zone1", use=zmcluster.Enums.ZoneUseEnum.kMotion, vertices=zoneVertices, color="#00FFFF"
+                name="Zone1", use=zmcluster.Enums.ZoneUseEnum.kMotion, vertices=zoneVertices,
+                color="#00FFFF")
+            createTwoDCartesianCmd = zmcluster.Commands.CreateTwoDCartesianZone(
+                zone=zoneToCreate
             )
-            createTwoDCartesianCmd = zmcluster.Commands.CreateTwoDCartesianZone(zone=zoneToCreate)
             cmdResponse = await self.send_single_cmd(endpoint=endpoint, cmd=createTwoDCartesianCmd)
             logger.info(f"Rx'd CreateTwoDCartesianZoneResponse : {cmdResponse}")
-            asserts.assert_equal(type(cmdResponse), zmcluster.Commands.CreateTwoDCartesianZoneResponse, "Incorrect response type")
-            asserts.assert_is_not_none(cmdResponse.zoneID, "CreateTwoDCartesianCmdResponse does not contain ZoneID")
+            asserts.assert_equal(type(cmdResponse), zmcluster.Commands.CreateTwoDCartesianZoneResponse,
+                                 "Incorrect response type")
+            asserts.assert_is_not_none(
+                cmdResponse.zoneID, "CreateTwoDCartesianCmdResponse does not contain ZoneID")
 
             # Check that zoneID1 did not exist before
-            matchingZone = next((z for z in aZones if z.zoneID == cmdResponse.zoneID), None)
+            matchingZone = next(
+                (z for z in aZones if z.zoneID == cmdResponse.zoneID), None)
             asserts.assert_is_none(matchingZone, "fZone with {cmdResponse.zoneID} already existed in Zones")
             zoneID1 = cmdResponse.zoneID
 
@@ -287,57 +293,50 @@ class TC_PAVST_2_13(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         maxPreRollLen = 4
         try:
             zoneList = [{"zone": zoneID1, "sensitivity": 4}]
-            triggerOptions = {
-                "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
-                "maxPreRollLen": 4000,
-                "motionZones": zoneList,
-                "motionTimeControl": {
-                    "initialDuration": initDuration,
-                    "augmentationDuration": augDuration,
-                    "maxDuration": maxDuration,
-                    "blindDuration": blindDuration,
-                },
-            }
-            status = await self.allocate_one_pushav_transport(
-                endpoint,
-                trigger_Options=triggerOptions,
-                tlsEndPoint=self.tlsEndpointId,
-                url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-            )
-            asserts.assert_equal(status, Status.Success, "DUT must responds with Status Code Success.")
+            triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
+                              "maxPreRollLen": 4000,
+                              "motionZones": zoneList,
+                              "motionTimeControl": {"initialDuration": initDuration, "augmentationDuration": augDuration, "maxDuration": maxDuration, "blindDuration": blindDuration}}
+            status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions,
+                                                              tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+            asserts.assert_equal(status, Status.Success,
+                                 "DUT must responds with Status Code Success.")
         except InteractionModelError as e:
-            asserts.assert_equal(e.clusterStatus, Status.Success, "DUT must responds with Status Code Success.")
+            asserts.assert_equal(e.clusterStatus, Status.Success,
+                                 "DUT must responds with Status Code Success.")
 
-        transportConfigs = await self.read_pavst_attribute_expect_success(
-            endpoint,
-            pvattr.CurrentConnections,
+        transportConfigs = await self.read_pavst_attribute_expect_success(endpoint,
+                                                                          pvattr.CurrentConnections,
+                                                                          )
+        asserts.assert_greater_equal(
+            len(transportConfigs), 1, "TransportConfigurations must not be empty!"
         )
-        asserts.assert_greater_equal(len(transportConfigs), 1, "TransportConfigurations must not be empty!")
         aConnectionID = transportConfigs[0].connectionID
 
         self.step(7)
         cmd = pvcluster.Commands.SetTransportStatus(
-            connectionID=aConnectionID, transportStatus=pvcluster.Enums.TransportStatusEnum.kActive
+            connectionID=aConnectionID,
+            transportStatus=pvcluster.Enums.TransportStatusEnum.kActive
         )
         status = await self.psvt_set_transport_status(cmd)
-        asserts.assert_true(status == Status.Success, "DUT responds with SUCCESS status code.")
+        asserts.assert_true(
+            status == Status.Success,
+            "DUT responds with SUCCESS status code.")
 
         # Manual trigger + Motion trigger case -> Step handle Augmentation and blind duration
         # Manual Trigger -> Recording start -> Motion trigger -> Clip Duration extended -> Recording stop -> Trigger motion event without waiting for blind period -> Recording should start
         self.step(8)
         event_callback = EventSubscriptionHandler(expected_cluster=pvcluster)
-        await event_callback.start(self.default_controller, self.dut_node_id, self.get_endpoint())
+        await event_callback.start(self.default_controller,
+                                   self.dut_node_id,
+                                   self.get_endpoint())
 
-        timeControl = {
-            "initialDuration": initDuration,
-            "augmentationDuration": augDuration,
-            "maxDuration": maxDuration,
-            "blindDuration": blindDuration,
-        }
+        timeControl = {"initialDuration": initDuration, "augmentationDuration": augDuration,
+                       "maxDuration": maxDuration, "blindDuration": blindDuration}
         cmd = pvcluster.Commands.ManuallyTriggerTransport(
             connectionID=aConnectionID,
             activationReason=pvcluster.Enums.TriggerActivationReasonEnum.kEmergency,
-            timeControl=timeControl,
+            timeControl=timeControl
         )
         status = await self.psvt_manually_trigger_transport(cmd)
         asserts.assert_true(
@@ -350,25 +349,21 @@ class TC_PAVST_2_13(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         logger.info(f"Event data {event_data}")
         asserts.assert_equal(event_data.connectionID, aConnectionID, "Unexpected value for ConnectionID returned")
 
-        await self._trigger_motion_event(
-            zoneID1,
-            prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.",
-        )
+        await self._trigger_motion_event(zoneID1, prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.")
         # Clip duration is augmented
         await asyncio.to_thread(time.sleep, initDuration + augDuration + 1)
 
         event_callback = EventSubscriptionHandler(expected_cluster=pvcluster)
-        await event_callback.start(self.default_controller, self.dut_node_id, self.get_endpoint())
+        await event_callback.start(self.default_controller,
+                                   self.dut_node_id,
+                                   self.get_endpoint())
         event_data = event_callback.wait_for_event_report(pvcluster.Events.PushTransportEnd, timeout_sec=5)
         logger.info(f"Event data {event_data}")
         asserts.assert_equal(event_data.connectionID, aConnectionID, "Unexpected value for ConnectionID returned")
 
         # Previous Recording stops and now new trigger came for which blind period is ignored and new recording should start because previous recording started due to manual trigger
         self.step(10)
-        await self._trigger_motion_event(
-            zoneID1,
-            prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.",
-        )
+        await self._trigger_motion_event(zoneID1, prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.")
         # Since previous recording was started by manual trigger, blind period should be ignored and new recording should start
         event_data = event_callback.wait_for_event_report(pvcluster.Events.PushTransportBegin, timeout_sec=5)
         logger.info(f"Event data {event_data}")
@@ -384,22 +379,18 @@ class TC_PAVST_2_13(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         await asyncio.to_thread(time.sleep, blindDuration + 1)
 
         event_callback = EventSubscriptionHandler(expected_cluster=pvcluster)
-        await event_callback.start(self.default_controller, self.dut_node_id, self.get_endpoint())
+        await event_callback.start(self.default_controller,
+                                   self.dut_node_id,
+                                   self.get_endpoint())
 
-        await self._trigger_motion_event(
-            zoneID1,
-            prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.",
-        )
+        await self._trigger_motion_event(zoneID1, prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.")
 
         event_data = event_callback.wait_for_event_report(pvcluster.Events.PushTransportBegin, timeout_sec=5)
         logger.info(f"Event data {event_data}")
         asserts.assert_equal(event_data.connectionID, aConnectionID, "Unexpected value for ConnectionID returned")
 
         self.step(12)
-        await self._trigger_motion_event(
-            zoneID1,
-            prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.",
-        )
+        await self._trigger_motion_event(zoneID1, prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.")
         # Motion trigger during ongoing recording should NOT generate PushTransportBegin, only extend duration
         # Clip duration augmented
         await asyncio.to_thread(time.sleep, initDuration + augDuration + 1)
@@ -410,19 +401,13 @@ class TC_PAVST_2_13(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
 
         # Previous recording stops, didn't waited for blind period-> sended another motion trigger -> new recording should not start -> Because previous Recording started due to motion trigger
         self.step(13)
-        await self._trigger_motion_event(
-            zoneID1,
-            prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.",
-        )
-        event_data = event_callback.wait_for_event_expect_no_report(timeout_sec=blindDuration + 1)
+        await self._trigger_motion_event(zoneID1, prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.")
+        event_data = event_callback.wait_for_event_expect_no_report(timeout_sec=blindDuration+1)
 
         # Motion Trigger - Motion Trigger case (Check blind duration)
         # Trigger motion event-> wait for recording to stop. Wait for blind period to finish before sending another trigger -> Recording should start.
         self.step(14)
-        await self._trigger_motion_event(
-            zoneID1,
-            prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.",
-        )
+        await self._trigger_motion_event(zoneID1, prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.")
 
         event_data = event_callback.wait_for_event_report(pvcluster.Events.PushTransportBegin, timeout_sec=5)
         logger.info(f"Event data {event_data}")
@@ -438,10 +423,7 @@ class TC_PAVST_2_13(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         # Recording stopped and now waiting for blind period to finish
         await asyncio.to_thread(time.sleep, blindDuration + 1)
         # Previous recording stops and also waited for blind period before triggering another motion event -> Recording starts
-        await self._trigger_motion_event(
-            zoneID1,
-            prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.",
-        )
+        await self._trigger_motion_event(zoneID1, prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.")
         event_data = event_callback.wait_for_event_report(pvcluster.Events.PushTransportBegin, timeout_sec=5)
         logger.info(f"Event data {event_data}")
         asserts.assert_equal(event_data.connectionID, aConnectionID, "Unexpected value for ConnectionID returned")
@@ -457,12 +439,18 @@ class TC_PAVST_2_13(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         # Deallocating all active connection -> Allocate one pushav with time control such that max duration is tested
         self.step(16)
         await self.ensure_session_active()
-        cmd = pvcluster.Commands.DeallocatePushTransport(connectionID=aConnectionID)
+        cmd = pvcluster.Commands.DeallocatePushTransport(
+            connectionID=aConnectionID
+        )
         status = await self.psvt_deallocate_push_transport(cmd)
-        asserts.assert_true(status == Status.Success, "DUT responds with SUCCESS status code.")
+        asserts.assert_true(
+            status == Status.Success,
+            "DUT responds with SUCCESS status code.")
 
         status = await self.check_and_delete_all_push_av_transports(endpoint, pvattr)
-        asserts.assert_equal(status, Status.Success, "Status must be SUCCESS!")
+        asserts.assert_equal(
+            status, Status.Success, "Status must be SUCCESS!"
+        )
 
         self.step(17)
         # update maxDuration and  augDuration fields to ensure initDuration + augDuration > maxDuration
@@ -470,58 +458,49 @@ class TC_PAVST_2_13(MatterBaseTest, PAVSTTestBase, PAVSTIUtils):
         augDuration = 15
         try:
             zoneList = [{"zone": zoneID1, "sensitivity": 4}]
-            triggerOptions = {
-                "triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
-                "maxPreRollLen": 4000,
-                "motionZones": zoneList,
-                "motionTimeControl": {
-                    "initialDuration": initDuration,
-                    "augmentationDuration": augDuration,
-                    "maxDuration": maxDuration,
-                    "blindDuration": blindDuration,
-                },
-            }
-            status = await self.allocate_one_pushav_transport(
-                endpoint,
-                trigger_Options=triggerOptions,
-                tlsEndPoint=self.tlsEndpointId,
-                url=f"https://{host_ip}:1234/streams/{uploadStreamId}/",
-            )
-            asserts.assert_equal(status, Status.Success, "DUT must responds with Status Code Success.")
+            triggerOptions = {"triggerType": pvcluster.Enums.TransportTriggerTypeEnum.kMotion,
+                              "maxPreRollLen": 4000,
+                              "motionZones": zoneList,
+                              "motionTimeControl": {"initialDuration": initDuration, "augmentationDuration": augDuration, "maxDuration": maxDuration, "blindDuration": blindDuration}}
+            status = await self.allocate_one_pushav_transport(endpoint, trigger_Options=triggerOptions,
+                                                              tlsEndPoint=self.tlsEndpointId, url=f"https://{host_ip}:1234/streams/{uploadStreamId}/")
+            asserts.assert_equal(status, Status.Success,
+                                 "DUT must responds with Status Code Success.")
         except InteractionModelError as e:
-            asserts.assert_equal(e.clusterStatus, Status.Success, "DUT must responds with Status Code Success.")
+            asserts.assert_equal(e.clusterStatus, Status.Success,
+                                 "DUT must responds with Status Code Success.")
 
-        transportConfigs = await self.read_pavst_attribute_expect_success(
-            endpoint,
-            pvattr.CurrentConnections,
+        transportConfigs = await self.read_pavst_attribute_expect_success(endpoint,
+                                                                          pvattr.CurrentConnections,
+                                                                          )
+        asserts.assert_greater_equal(
+            len(transportConfigs), 1, "TransportConfigurations must not be empty!"
         )
-        asserts.assert_greater_equal(len(transportConfigs), 1, "TransportConfigurations must not be empty!")
         aConnectionID2 = transportConfigs[0].connectionID
 
         cmd = pvcluster.Commands.SetTransportStatus(
-            connectionID=aConnectionID2, transportStatus=pvcluster.Enums.TransportStatusEnum.kActive
+            connectionID=aConnectionID2,
+            transportStatus=pvcluster.Enums.TransportStatusEnum.kActive
         )
         status = await self.psvt_set_transport_status(cmd)
-        asserts.assert_true(status == Status.Success, "DUT responds with SUCCESS status code.")
+        asserts.assert_true(
+            status == Status.Success,
+            "DUT responds with SUCCESS status code.")
 
         # MAX DURATION Check
         #  Triggering 2 motion event -> recording starts -> wait for max duration -> recording stops
         self.step(18)
         event_callback = EventSubscriptionHandler(expected_cluster=pvcluster)
-        await event_callback.start(self.default_controller, self.dut_node_id, self.get_endpoint())
+        await event_callback.start(self.default_controller,
+                                   self.dut_node_id,
+                                   self.get_endpoint())
 
-        await self._trigger_motion_event(
-            zoneID1,
-            prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.",
-        )
+        await self._trigger_motion_event(zoneID1, prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.")
         event_data = event_callback.wait_for_event_report(pvcluster.Events.PushTransportBegin, timeout_sec=5)
         logger.info(f"Event data {event_data}")
         asserts.assert_equal(event_data.connectionID, aConnectionID2, "Unexpected value for ConnectionID returned")
 
-        await self._trigger_motion_event(
-            zoneID1,
-            prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.",
-        )
+        await self._trigger_motion_event(zoneID1, prompt_msg=f"Press enter and immediately start motion activity in zone {zoneID1} and stop any motion after {initDuration} seconds of pressing enter.")
         # Second motion trigger during ongoing recording should NOT generate PushTransportBegin, only extend duration
 
         await asyncio.to_thread(time.sleep, maxDuration + 1)

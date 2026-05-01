@@ -25,13 +25,8 @@ from mobly import asserts
 from matter.testing.matter_testing import MatterBaseTest
 from matter.testing.problem_notices import NamespacePathLocation, ProblemNotice, ProblemSeverity
 from matter.testing.runner import default_matter_test_main
-from matter.testing.spec_parsing import (
-    DataModelLevel,
-    PrebuiltDataModelDirectory,
-    build_xml_namespaces,
-    get_data_model_directory,
-    parse_namespace,
-)
+from matter.testing.spec_parsing import (DataModelLevel, PrebuiltDataModelDirectory, build_xml_namespaces, get_data_model_directory,
+                                         parse_namespace)
 
 
 class TestSpecParsingNamespace(MatterBaseTest):
@@ -39,7 +34,11 @@ class TestSpecParsingNamespace(MatterBaseTest):
         # Test data setup
         self.namespace_id = 0x0001
         self.namespace_name = "Test Namespace"
-        self.tags = {0x0000: "Tag1", 0x0001: "Tag2", 0x0002: "Tag3"}
+        self.tags = {
+            0x0000: "Tag1",
+            0x0001: "Tag2",
+            0x0002: "Tag3"
+        }
 
         # Template for generating test XML
         self.template = Template("""<?xml version="1.0"?>
@@ -58,141 +57,123 @@ class TestSpecParsingNamespace(MatterBaseTest):
         """Validate namespace XML file"""
         problems: list[ProblemNotice] = []
         try:
-            with xml_file.open("r", encoding="utf8") as f:
+            with xml_file.open('r', encoding="utf8") as f:
                 root = ElementTree.parse(f).getroot()
 
                 # Check for namespace ID and validate format
-                namespace_id = root.get("id")
+                namespace_id = root.get('id')
                 if not namespace_id:
-                    problems.append(
-                        ProblemNotice(
-                            test_name="Validate Namespace XML",
-                            location=NamespacePathLocation(),
-                            severity=ProblemSeverity.WARNING,
-                            problem=f"Missing namespace ID in {xml_file.name}",
-                        )
-                    )
+                    problems.append(ProblemNotice(
+                        test_name="Validate Namespace XML",
+                        location=NamespacePathLocation(),
+                        severity=ProblemSeverity.WARNING,
+                        problem=f"Missing namespace ID in {xml_file.name}"
+                    ))
                 else:
                     # Validate 16-bit hex format
                     try:
                         # Remove '0x' prefix if present and try to parse
-                        id_value = int(namespace_id.replace("0x", ""), 16)
+                        id_value = int(namespace_id.replace('0x', ''), 16)
                         if id_value < 0 or id_value > 0xFFFF:
-                            problems.append(
-                                ProblemNotice(
-                                    test_name="Validate Namespace XML",
-                                    location=NamespacePathLocation(),
-                                    severity=ProblemSeverity.WARNING,
-                                    problem=f"Namespace ID {namespace_id} is not a valid 16-bit value in {xml_file.name}",
-                                )
-                            )
-                        # Check format starts with 0x
-                        if not namespace_id.lower().startswith("0x"):
-                            problems.append(
-                                ProblemNotice(
-                                    test_name="Validate Namespace XML",
-                                    location=NamespacePathLocation(),
-                                    severity=ProblemSeverity.WARNING,
-                                    problem=f"Namespace ID {namespace_id} does not start with '0x' in {xml_file.name}",
-                                )
-                            )
-                    except ValueError:
-                        problems.append(
-                            ProblemNotice(
+                            problems.append(ProblemNotice(
                                 test_name="Validate Namespace XML",
                                 location=NamespacePathLocation(),
                                 severity=ProblemSeverity.WARNING,
-                                problem=f"Invalid hex format for namespace ID {namespace_id} in {xml_file.name}",
-                            )
-                        )
-
-                # Check for namespace name
-                namespace_name = root.get("name", "").strip()
-                if not namespace_name:
-                    problems.append(
-                        ProblemNotice(
+                                problem=f"Namespace ID {namespace_id} is not a valid 16-bit value in {xml_file.name}"
+                            ))
+                        # Check format starts with 0x
+                        if not namespace_id.lower().startswith('0x'):
+                            problems.append(ProblemNotice(
+                                test_name="Validate Namespace XML",
+                                location=NamespacePathLocation(),
+                                severity=ProblemSeverity.WARNING,
+                                problem=f"Namespace ID {namespace_id} does not start with '0x' in {xml_file.name}"
+                            ))
+                    except ValueError:
+                        problems.append(ProblemNotice(
                             test_name="Validate Namespace XML",
                             location=NamespacePathLocation(),
                             severity=ProblemSeverity.WARNING,
-                            problem=f"Missing or empty namespace name in {xml_file.name}",
-                        )
-                    )
+                            problem=f"Invalid hex format for namespace ID {namespace_id} in {xml_file.name}"
+                        ))
+
+                # Check for namespace name
+                namespace_name = root.get('name', '').strip()
+                if not namespace_name:
+                    problems.append(ProblemNotice(
+                        test_name="Validate Namespace XML",
+                        location=NamespacePathLocation(),
+                        severity=ProblemSeverity.WARNING,
+                        problem=f"Missing or empty namespace name in {xml_file.name}"
+                    ))
 
                 # Check tags structure
-                tags_elem = root.find("tags")
+                tags_elem = root.find('tags')
                 if tags_elem is not None:
-                    for tag in tags_elem.findall("tag"):
+                    for tag in tags_elem.findall('tag'):
                         # Check tag ID and validate format
-                        tag_id = tag.get("id")
+                        tag_id = tag.get('id')
                         if not tag_id:
-                            problems.append(
-                                ProblemNotice(
-                                    test_name="Validate Namespace XML",
-                                    location=NamespacePathLocation(),
-                                    severity=ProblemSeverity.WARNING,
-                                    problem=f"Missing tag ID in {xml_file.name}",
-                                )
-                            )
+                            problems.append(ProblemNotice(
+                                test_name="Validate Namespace XML",
+                                location=NamespacePathLocation(),
+                                severity=ProblemSeverity.WARNING,
+                                problem=f"Missing tag ID in {xml_file.name}"
+                            ))
                         else:
                             try:
                                 # Remove '0x' prefix if present and try to parse
-                                id_value = int(tag_id.replace("0x", ""), 16)
+                                id_value = int(tag_id.replace('0x', ''), 16)
                                 if id_value < 0 or id_value > 0xFFFF:
-                                    problems.append(
-                                        ProblemNotice(
-                                            test_name="Validate Namespace XML",
-                                            location=NamespacePathLocation(),
-                                            severity=ProblemSeverity.WARNING,
-                                            problem=f"Tag ID {tag_id} is not a valid 16-bit value in {xml_file.name}",
-                                        )
-                                    )
-                                # Check format starts with 0x
-                                if not tag_id.lower().startswith("0x"):
-                                    problems.append(
-                                        ProblemNotice(
-                                            test_name="Validate Namespace XML",
-                                            location=NamespacePathLocation(),
-                                            severity=ProblemSeverity.WARNING,
-                                            problem=f"Tag ID {tag_id} does not start with '0x' in {xml_file.name}",
-                                        )
-                                    )
-                            except ValueError:
-                                problems.append(
-                                    ProblemNotice(
+                                    problems.append(ProblemNotice(
                                         test_name="Validate Namespace XML",
                                         location=NamespacePathLocation(),
                                         severity=ProblemSeverity.WARNING,
-                                        problem=f"Invalid hex format for tag ID {tag_id} in {xml_file.name}",
-                                    )
-                                )
-
-                        # Check tag name
-                        tag_name = tag.get("name", "").strip()
-                        if not tag_name:
-                            problems.append(
-                                ProblemNotice(
+                                        problem=f"Tag ID {tag_id} is not a valid 16-bit value in {xml_file.name}"
+                                    ))
+                                # Check format starts with 0x
+                                if not tag_id.lower().startswith('0x'):
+                                    problems.append(ProblemNotice(
+                                        test_name="Validate Namespace XML",
+                                        location=NamespacePathLocation(),
+                                        severity=ProblemSeverity.WARNING,
+                                        problem=f"Tag ID {tag_id} does not start with '0x' in {xml_file.name}"
+                                    ))
+                            except ValueError:
+                                problems.append(ProblemNotice(
                                     test_name="Validate Namespace XML",
                                     location=NamespacePathLocation(),
                                     severity=ProblemSeverity.WARNING,
-                                    problem=f"Missing or empty tag name in {xml_file.name}",
-                                )
-                            )
+                                    problem=f"Invalid hex format for tag ID {tag_id} in {xml_file.name}"
+                                ))
+
+                        # Check tag name
+                        tag_name = tag.get('name', '').strip()
+                        if not tag_name:
+                            problems.append(ProblemNotice(
+                                test_name="Validate Namespace XML",
+                                location=NamespacePathLocation(),
+                                severity=ProblemSeverity.WARNING,
+                                problem=f"Missing or empty tag name in {xml_file.name}"
+                            ))
 
         except Exception as e:
-            problems.append(
-                ProblemNotice(
-                    test_name="Validate Namespace XML",
-                    location=NamespacePathLocation(),
-                    severity=ProblemSeverity.WARNING,
-                    problem=f"Failed to parse {xml_file.name}: {str(e)}",
-                )
-            )
+            problems.append(ProblemNotice(
+                test_name="Validate Namespace XML",
+                location=NamespacePathLocation(),
+                severity=ProblemSeverity.WARNING,
+                problem=f"Failed to parse {xml_file.name}: {str(e)}"
+            ))
 
         return problems
 
     def test_namespace_parsing(self):
         """Test basic namespace parsing with valid data"""
-        xml = self.template.render(namespace_id=f"0x{self.namespace_id:04X}", namespace_name=self.namespace_name, tags=self.tags)
+        xml = self.template.render(
+            namespace_id=f"0x{self.namespace_id:04X}",
+            namespace_name=self.namespace_name,
+            tags=self.tags
+        )
         et = ElementTree.fromstring(xml)
         namespace, problems = parse_namespace(et)
 
@@ -207,21 +188,33 @@ class TestSpecParsingNamespace(MatterBaseTest):
 
     def test_bad_namespace_id(self):
         """Test parsing with invalid namespace ID"""
-        xml = self.template.render(namespace_id="", namespace_name=self.namespace_name, tags=self.tags)
+        xml = self.template.render(
+            namespace_id="",
+            namespace_name=self.namespace_name,
+            tags=self.tags
+        )
         et = ElementTree.fromstring(xml)
         namespace, problems = parse_namespace(et)
         asserts.assert_equal(len(problems), 1, "Namespace with blank ID did not generate a problem notice")
 
     def test_missing_namespace_name(self):
         """Test parsing with missing namespace name"""
-        xml = self.template.render(namespace_id=f"0x{self.namespace_id:04X}", namespace_name="", tags=self.tags)
+        xml = self.template.render(
+            namespace_id=f"0x{self.namespace_id:04X}",
+            namespace_name="",
+            tags=self.tags
+        )
         et = ElementTree.fromstring(xml)
         namespace, problems = parse_namespace(et)
         asserts.assert_equal(len(problems), 1, "Namespace with no name did not generate a problem notice")
 
     def test_no_tags(self):
         """Test parsing with no tags"""
-        xml = self.template.render(namespace_id=f"0x{self.namespace_id:04X}", namespace_name=self.namespace_name, tags={})
+        xml = self.template.render(
+            namespace_id=f"0x{self.namespace_id:04X}",
+            namespace_name=self.namespace_name,
+            tags={}
+        )
         et = ElementTree.fromstring(xml)
         namespace, problems = parse_namespace(et)
         asserts.assert_equal(len(problems), 0, "Unexpected problems parsing empty namespace")
@@ -244,15 +237,16 @@ class TestSpecParsingNamespace(MatterBaseTest):
         asserts.assert_equal(len(one_six_problems), 0, "Problems found when parsing 1.6 spec")
 
         # Check version relationships
-        asserts.assert_greater(len(set(one_five.keys()) - set(one_three.keys())), 0, "1.5 dir contains less namespaces than 1.3")
-        asserts.assert_greater(len(set(one_five.keys()) - set(one_four.keys())), 0, "1.5 dir contains less namespaces than 1.4")
-        asserts.assert_greater(
-            len(set(one_five.keys()) - set(one_four_one.keys())), 0, "1.5 dir contains less namespaces than 1.4.1"
-        )
-        asserts.assert_greater(
-            len(set(one_five.keys()) - set(one_four_two.keys())), 0, "1.5 dir contains less namespaces than 1.4.2"
-        )
-        asserts.assert_greater(len(set(one_six.keys()) - set(one_five.keys())), 0, "1.6 dir contains less namespaces than 1.5")
+        asserts.assert_greater(len(set(one_five.keys()) - set(one_three.keys())),
+                               0, "1.5 dir contains less namespaces than 1.3")
+        asserts.assert_greater(len(set(one_five.keys()) - set(one_four.keys())),
+                               0, "1.5 dir contains less namespaces than 1.4")
+        asserts.assert_greater(len(set(one_five.keys()) - set(one_four_one.keys())),
+                               0, "1.5 dir contains less namespaces than 1.4.1")
+        asserts.assert_greater(len(set(one_five.keys()) - set(one_four_two.keys())),
+                               0, "1.5 dir contains less namespaces than 1.4.2")
+        asserts.assert_greater(len(set(one_six.keys()) - set(one_five.keys())),
+                               0, "1.6 dir contains less namespaces than 1.5")
 
         # Complete namespace version checks for 1.3, 1.4, 1.4.1, 1.4.2, 1.5, known differences and relationships:
         # 1.3: has Common Position
@@ -265,11 +259,8 @@ class TestSpecParsingNamespace(MatterBaseTest):
         removed_1_3_to_1_4 = set(one_three.keys()) - set(one_four.keys())
         removed_names_1_3_to_1_4 = {one_three[id].name for id in removed_1_3_to_1_4}
         expected_removed_1_3_to_1_4 = {"Common Position"}
-        asserts.assert_equal(
-            removed_names_1_3_to_1_4,
-            expected_removed_1_3_to_1_4,
-            f"Expected only 'Common Position' to be removed from 1.3 to 1.4, but got: {removed_names_1_3_to_1_4}",
-        )
+        asserts.assert_equal(removed_names_1_3_to_1_4, expected_removed_1_3_to_1_4,
+                             f"Expected only 'Common Position' to be removed from 1.3 to 1.4, but got: {removed_names_1_3_to_1_4}")
 
         added_1_3_to_1_4 = set(one_four.keys()) - set(one_three.keys())
         added_names_1_3_to_1_4 = {one_four[id].name for id in added_1_3_to_1_4}
@@ -277,8 +268,7 @@ class TestSpecParsingNamespace(MatterBaseTest):
         asserts.assert_equal(
             added_names_1_3_to_1_4,
             expected_added_1_3_to_1_4,
-            f"Expected 'Common Area', 'Common Landmark', 'Common Relative Position' to be added from 1.3 to 1.4, but got: {added_names_1_3_to_1_4}",
-        )
+            f"Expected 'Common Area', 'Common Landmark', 'Common Relative Position' to be added from 1.3 to 1.4, but got: {added_names_1_3_to_1_4}")
 
         # Check 1.4 to 1.4.1 (should be identical)
         diff_1_4_to_1_4_1 = set(one_four.keys()) ^ set(one_four_one.keys())
@@ -292,8 +282,7 @@ class TestSpecParsingNamespace(MatterBaseTest):
         asserts.assert_equal(
             removed_names_1_4_2_vs_1_3,
             expected_removed_1_4_2_vs_1_3,
-            f"Expected no namespaces to be removed from 1.3 to 1.4.2, but got: {removed_names_1_4_2_vs_1_3}",
-        )
+            f"Expected no namespaces to be removed from 1.3 to 1.4.2, but got: {removed_names_1_4_2_vs_1_3}")
 
         added_1_4_2_vs_1_3 = set(one_four_two.keys()) - set(one_three.keys())
         added_names_1_4_2_vs_1_3 = {one_four_two[id].name for id in added_1_4_2_vs_1_3}
@@ -301,8 +290,7 @@ class TestSpecParsingNamespace(MatterBaseTest):
         asserts.assert_equal(
             added_names_1_4_2_vs_1_3,
             expected_added_1_4_2_vs_1_3,
-            f"Expected 'Common Area', 'Common Landmark', 'Common Relative Position' to be added from 1.3 to 1.4.2, but got: {added_names_1_4_2_vs_1_3}",
-        )
+            f"Expected 'Common Area', 'Common Landmark', 'Common Relative Position' to be added from 1.3 to 1.4.2, but got: {added_names_1_4_2_vs_1_3}")
 
         # 1.4.2 vs 1.4 comparison
         removed_1_4_2_vs_1_4 = set(one_four.keys()) - set(one_four_two.keys())
@@ -311,17 +299,13 @@ class TestSpecParsingNamespace(MatterBaseTest):
         asserts.assert_equal(
             removed_names_1_4_2_vs_1_4,
             expected_removed_1_4_2_vs_1_4,
-            f"Expected no namespaces to be removed from 1.4 to 1.4.2, but got: {removed_names_1_4_2_vs_1_4}",
-        )
+            f"Expected no namespaces to be removed from 1.4 to 1.4.2, but got: {removed_names_1_4_2_vs_1_4}")
 
         added_1_4_2_vs_1_4 = set(one_four_two.keys()) - set(one_four.keys())
         added_names_1_4_2_vs_1_4 = {one_four_two[id].name for id in added_1_4_2_vs_1_4}
         expected_added_1_4_2_vs_1_4 = {"Common Position"}
-        asserts.assert_equal(
-            added_names_1_4_2_vs_1_4,
-            expected_added_1_4_2_vs_1_4,
-            f"Expected only 'Common Position' to be added from 1.4 to 1.4.2, but got: {added_names_1_4_2_vs_1_4}",
-        )
+        asserts.assert_equal(added_names_1_4_2_vs_1_4, expected_added_1_4_2_vs_1_4,
+                             f"Expected only 'Common Position' to be added from 1.4 to 1.4.2, but got: {added_names_1_4_2_vs_1_4}")
 
         # Check changes from 1.4.1 to 1.4.2
         removed_1_4_1_to_1_4_2 = set(one_four_one.keys()) - set(one_four_two.keys())
@@ -330,8 +314,7 @@ class TestSpecParsingNamespace(MatterBaseTest):
         asserts.assert_equal(
             removed_names_1_4_1_to_1_4_2,
             expected_removed_1_4_1_to_1_4_2,
-            f"Expected no namespaces to be removed from 1.4.1 to 1.4.2, but got: {removed_names_1_4_1_to_1_4_2}",
-        )
+            f"Expected no namespaces to be removed from 1.4.1 to 1.4.2, but got: {removed_names_1_4_1_to_1_4_2}")
 
         added_1_4_2_vs_1_4_1 = set(one_four_two.keys()) - set(one_four_one.keys())
         added_names_1_4_2_vs_1_4_1 = {one_four_two[id].name for id in added_1_4_2_vs_1_4_1}
@@ -339,8 +322,7 @@ class TestSpecParsingNamespace(MatterBaseTest):
         asserts.assert_equal(
             added_names_1_4_2_vs_1_4_1,
             expected_added_1_4_2_vs_1_4_1,
-            f"Expected only 'Common Position' to be added from 1.4.1 to 1.4.2, but got: {added_names_1_4_2_vs_1_4_1}",
-        )
+            f"Expected only 'Common Position' to be added from 1.4.1 to 1.4.2, but got: {added_names_1_4_2_vs_1_4_1}")
 
         # Check changes from 1.4 to 1.5
         removed_1_4_to_1_5 = set(one_four.keys()) - set(one_five.keys())
@@ -349,27 +331,14 @@ class TestSpecParsingNamespace(MatterBaseTest):
         asserts.assert_equal(
             removed_names_1_4_to_1_5,
             expected_removed_1_4_to_1_5,
-            f"Expected no namespaces to be removed from 1.4 to 1.5, but got: {removed_names_1_4_to_1_5}",
-        )
+            f"Expected no namespaces to be removed from 1.4 to 1.5, but got: {removed_names_1_4_to_1_5}")
 
         added_1_4_to_1_5 = set(one_five.keys()) - set(one_four.keys())
         added_names_1_4_to_1_5 = {one_five[id].name for id in added_1_4_to_1_5}
-        expected_added_1_4_to_1_5 = {
-            "Closure",
-            "Closure Window",
-            "Closure Covering",
-            "Commodity Tariff Commodity",
-            "Closure Panel",
-            "Commodity Tariff Flow",
-            "Common Position",
-            "Commodity Tariff Chronology",
-            "Closure Cabinet",
-        }
-        asserts.assert_equal(
-            added_names_1_4_to_1_5,
-            expected_added_1_4_to_1_5,
-            f"Expected only 'Closure', 'Closure Window', 'Closure Covering', 'Commodity Tariff Commodity', 'Closure Panel', 'Commodity Tariff Flow', 'Common Position', 'Commodity Tariff Chronology', 'Closure Cabinet' to be added from 1.4 to 1.5, but got: {added_names_1_4_to_1_5}",
-        )
+        expected_added_1_4_to_1_5 = {'Closure', 'Closure Window', 'Closure Covering', 'Commodity Tariff Commodity',
+                                     'Closure Panel', 'Commodity Tariff Flow', 'Common Position', 'Commodity Tariff Chronology', 'Closure Cabinet'}
+        asserts.assert_equal(added_names_1_4_to_1_5, expected_added_1_4_to_1_5,
+                             f"Expected only 'Closure', 'Closure Window', 'Closure Covering', 'Commodity Tariff Commodity', 'Closure Panel', 'Commodity Tariff Flow', 'Common Position', 'Commodity Tariff Chronology', 'Closure Cabinet' to be added from 1.4 to 1.5, but got: {added_names_1_4_to_1_5}")
 
         # Check changes from 1.4.1 to 1.5
         removed_1_4_1_to_1_5 = set(one_four_one.keys()) - set(one_five.keys())
@@ -378,27 +347,14 @@ class TestSpecParsingNamespace(MatterBaseTest):
         asserts.assert_equal(
             removed_names_1_4_1_to_1_5,
             expected_removed_1_4_1_to_1_5,
-            f"Expected no namespaces to be removed from 1.4.1 to 1.5, but got: {removed_names_1_4_1_to_1_5}",
-        )
+            f"Expected no namespaces to be removed from 1.4.1 to 1.5, but got: {removed_names_1_4_1_to_1_5}")
 
         added_1_4_1_to_1_5 = set(one_five.keys()) - set(one_four_one.keys())
         added_names_1_4_1_to_1_5 = {one_five[id].name for id in added_1_4_1_to_1_5}
-        expected_added_1_4_1_to_1_5 = {
-            "Closure",
-            "Closure Window",
-            "Closure Covering",
-            "Commodity Tariff Commodity",
-            "Closure Panel",
-            "Commodity Tariff Flow",
-            "Common Position",
-            "Commodity Tariff Chronology",
-            "Closure Cabinet",
-        }
-        asserts.assert_equal(
-            added_names_1_4_1_to_1_5,
-            expected_added_1_4_1_to_1_5,
-            f"Expected only 'Closure', 'Closure Window', 'Closure Covering', 'Commodity Tariff Commodity', 'Closure Panel', 'Commodity Tariff Flow', 'Common Position', 'Commodity Tariff Chronology', 'Closure Cabinet' to be added from 1.4.1 to 1.5, but got: {added_names_1_4_1_to_1_5}",
-        )
+        expected_added_1_4_1_to_1_5 = {'Closure', 'Closure Window', 'Closure Covering', 'Commodity Tariff Commodity',
+                                       'Closure Panel', 'Commodity Tariff Flow', 'Common Position', 'Commodity Tariff Chronology', 'Closure Cabinet'}
+        asserts.assert_equal(added_names_1_4_1_to_1_5, expected_added_1_4_1_to_1_5,
+                             f"Expected only 'Closure', 'Closure Window', 'Closure Covering', 'Commodity Tariff Commodity', 'Closure Panel', 'Commodity Tariff Flow', 'Common Position', 'Commodity Tariff Chronology', 'Closure Cabinet' to be added from 1.4.1 to 1.5, but got: {added_names_1_4_1_to_1_5}")
 
         # Check changes from 1.4.2 to 1.5
         removed_1_4_2_to_1_5 = set(one_four_two.keys()) - set(one_five.keys())
@@ -407,26 +363,14 @@ class TestSpecParsingNamespace(MatterBaseTest):
         asserts.assert_equal(
             removed_names_1_4_2_to_1_5,
             expected_removed_1_4_2_to_1_5,
-            f"Expected no namespaces to be removed from 1.4.2 to 1.5, but got: {removed_names_1_4_2_to_1_5}",
-        )
+            f"Expected no namespaces to be removed from 1.4.2 to 1.5, but got: {removed_names_1_4_2_to_1_5}")
 
         added_1_4_2_to_1_5 = set(one_five.keys()) - set(one_four_two.keys())
         added_names_1_4_2_to_1_5 = {one_five[id].name for id in added_1_4_2_to_1_5}
-        expected_added_1_4_2_to_1_5 = {
-            "Closure Window",
-            "Commodity Tariff Chronology",
-            "Closure Cabinet",
-            "Closure",
-            "Commodity Tariff Commodity",
-            "Commodity Tariff Flow",
-            "Closure Covering",
-            "Closure Panel",
-        }
-        asserts.assert_equal(
-            added_names_1_4_2_to_1_5,
-            expected_added_1_4_2_to_1_5,
-            f"Expected only 'Closure Window', 'Commodity Tariff Chronology', 'Closure Cabinet', 'Closure', 'Commodity Tariff Commodity', 'Commodity Tariff Flow', 'Closure Covering', 'Closure Panel' to be added from 1.4.2 to 1.5, but got: {added_names_1_4_2_to_1_5}",
-        )
+        expected_added_1_4_2_to_1_5 = {'Closure Window', 'Commodity Tariff Chronology', 'Closure Cabinet',
+                                       'Closure', 'Commodity Tariff Commodity', 'Commodity Tariff Flow', 'Closure Covering', 'Closure Panel'}
+        asserts.assert_equal(added_names_1_4_2_to_1_5, expected_added_1_4_2_to_1_5,
+                             f"Expected only 'Closure Window', 'Commodity Tariff Chronology', 'Closure Cabinet', 'Closure', 'Commodity Tariff Commodity', 'Commodity Tariff Flow', 'Closure Covering', 'Closure Panel' to be added from 1.4.2 to 1.5, but got: {added_names_1_4_2_to_1_5}")
 
     def test_all_namespace_files(self):
         """Test all namespace XML files in the data model namespaces directories"""
@@ -445,15 +389,15 @@ class TestSpecParsingNamespace(MatterBaseTest):
             # Count XML files in the directory
             xml_file_count = 0
             if isinstance(top, zipfile.Path):
-                xml_file_count = len([f for f in top.iterdir() if str(f).endswith(".xml")])
+                xml_file_count = len([f for f in top.iterdir() if str(f).endswith('.xml')])
             else:
-                xml_file_count = len([f for f in top.iterdir() if f.name.endswith(".xml")])
+                xml_file_count = len([f for f in top.iterdir() if f.name.endswith('.xml')])
 
             # Verify that the number of namespaces parsed matches the number of XML files
             asserts.assert_equal(
                 len(namespaces),
                 xml_file_count,
-                f"Version {v.dirname}: Expected {xml_file_count} XML files to be parsed, but got {len(namespaces)} namespaces",
+                f"Version {v.dirname}: Expected {xml_file_count} XML files to be parsed, but got {len(namespaces)} namespaces"
             )
 
     def test_validate_namespace_xml_files(self):
@@ -464,9 +408,9 @@ class TestSpecParsingNamespace(MatterBaseTest):
 
             # Handle both zip files and directories
             if isinstance(namespace_dir, zipfile.Path):
-                xml_files = [f for f in namespace_dir.iterdir() if str(f).endswith(".xml")]
+                xml_files = [f for f in namespace_dir.iterdir() if str(f).endswith('.xml')]
             else:
-                xml_files = [f for f in namespace_dir.iterdir() if f.name.endswith(".xml")]
+                xml_files = [f for f in namespace_dir.iterdir() if f.name.endswith('.xml')]
 
             for xml_file in xml_files:
                 problems = self.validate_namespace_xml(xml_file)
@@ -476,8 +420,8 @@ class TestSpecParsingNamespace(MatterBaseTest):
             asserts.assert_equal(
                 len(all_problems),
                 0,
-                f"Validation problems found in namespace XML files for version {v.dirname}:\n"
-                + "\n".join(f"  - {p.problem}" for p in all_problems),
+                f"Validation problems found in namespace XML files for version {v.dirname}:\n" +
+                "\n".join(f"  - {p.problem}" for p in all_problems)
             )
 
 

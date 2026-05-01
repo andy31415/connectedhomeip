@@ -88,11 +88,12 @@ def mp_wrapped_spawn_context(wrapper_linux: str | None) -> Iterator[SpawnContext
 
     mp_wrapper_name: Path | None = None
     old_executable = multiprocessing.spawn.get_executable()
-    executable = old_executable.decode("utf-8") if isinstance(old_executable, bytes) else old_executable
+    executable = old_executable.decode('utf-8') if isinstance(old_executable, bytes) else old_executable
     try:
         with tempfile.NamedTemporaryFile("w", encoding="utf8", delete=False) as wrapper_file:
             mp_wrapper_name = Path(wrapper_file.name)
-            wrapper_file.write(f'#!/bin/sh\nexec {wrapper_linux} "{executable}" "$@"\n')
+            wrapper_file.write('#!/bin/sh\n'
+                               f'exec {wrapper_linux} "{executable}" "$@"\n')
         mp_wrapper_name.chmod(mp_wrapper_name.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
         source_context.set_executable(str(mp_wrapper_name))

@@ -54,14 +54,23 @@ class CADMINBaseTest(MatterBaseTest):
         """Get fabrics information from the device."""
         OC_cluster = Clusters.OperationalCredentials
         return await self.read_single_attribute_check_success(
-            dev_ctrl=th, fabric_filtered=fabric_filtered, endpoint=0, cluster=OC_cluster, attribute=OC_cluster.Attributes.Fabrics
+            dev_ctrl=th,
+            fabric_filtered=fabric_filtered,
+            endpoint=0,
+            cluster=OC_cluster,
+            attribute=OC_cluster.Attributes.Fabrics
         )
 
     async def read_currentfabricindex(self, th: ChipDeviceCtrl) -> int:
         """Read the current fabric index from the device."""
         cluster = Clusters.OperationalCredentials
         attribute = Clusters.OperationalCredentials.Attributes.CurrentFabricIndex
-        return await self.read_single_attribute_check_success(dev_ctrl=th, endpoint=0, cluster=cluster, attribute=attribute)
+        return await self.read_single_attribute_check_success(
+            dev_ctrl=th,
+            endpoint=0,
+            cluster=cluster,
+            attribute=attribute
+        )
 
     def calculate_clock_skew_factor(self, duration_seconds: int) -> int:
         """
@@ -77,7 +86,11 @@ class CADMINBaseTest(MatterBaseTest):
         return max(int(duration_seconds * 1000 * skew_percentage), 100)
 
     async def create_window_status_subscription(
-        self, th: ChipDeviceCtrl, node_id: int, min_interval_sec: int = 0, max_interval_sec: int = 30
+        self,
+        th: ChipDeviceCtrl,
+        node_id: int,
+        min_interval_sec: int = 0,
+        max_interval_sec: int = 30
     ) -> AttributeSubscriptionHandler:
         """
         Create a subscription to WindowStatus attribute using AttributeSubscriptionHandler.
@@ -92,18 +105,24 @@ class CADMINBaseTest(MatterBaseTest):
             AttributeSubscriptionHandler for WindowStatus
         """
         window_status_accumulator = AttributeSubscriptionHandler(
-            Clusters.AdministratorCommissioning, Clusters.AdministratorCommissioning.Attributes.WindowStatus
+            Clusters.AdministratorCommissioning,
+            Clusters.AdministratorCommissioning.Attributes.WindowStatus
         )
 
         await window_status_accumulator.start(
-            th, node_id, 0, fabric_filtered=False, min_interval_sec=min_interval_sec, max_interval_sec=max_interval_sec
+            th, node_id, 0, fabric_filtered=False,
+            min_interval_sec=min_interval_sec,
+            max_interval_sec=max_interval_sec
         )
 
         log.info(f"Created WindowStatus subscription for node {node_id}")
         return window_status_accumulator
 
     async def wait_for_window_status_change(
-        self, window_status_accumulator: AttributeSubscriptionHandler, is_open_expected: bool, timeout_sec: float = 10.0
+        self,
+        window_status_accumulator: AttributeSubscriptionHandler,
+        is_open_expected: bool,
+        timeout_sec: float = 10.0
     ) -> None:
         """
         Wait for window status to change to expected value, asserting on timeout.
@@ -121,7 +140,8 @@ class CADMINBaseTest(MatterBaseTest):
         log.info(f"Timeout set to: {timeout_sec}s")
 
         status_match = AttributeMatcher.from_callable(
-            f"WindowStatus is {is_open_expected}", lambda report: report.value == is_open_expected
+            f"WindowStatus is {is_open_expected}",
+            lambda report: report.value == is_open_expected
         )
 
         try:
@@ -132,7 +152,7 @@ class CADMINBaseTest(MatterBaseTest):
             log.error(f"❌ {error_msg}")
             asserts.fail(error_msg)
 
-    def log_timing_results(self, results: "CADMINBaseTest.TimingResults", test_step: str = ""):
+    def log_timing_results(self, results: 'CADMINBaseTest.TimingResults', test_step: str = ""):
         """
         Log timing results prominently for easy visibility in test output.
 
@@ -181,8 +201,8 @@ class CADMINBaseTest(MatterBaseTest):
         expected_duration_seconds: int,
         min_interval_sec: int = 0,
         max_interval_sec: int = 30,
-        window_status_accumulator: Optional[AttributeSubscriptionHandler] = None,
-    ) -> "CADMINBaseTest.TimingResults":
+        window_status_accumulator: Optional[AttributeSubscriptionHandler] = None
+    ) -> 'CADMINBaseTest.TimingResults':
         """
         Monitor commissioning window closure using subscription (replaces hardcoded sleep).
 
@@ -214,7 +234,9 @@ class CADMINBaseTest(MatterBaseTest):
         try:
             # Wait for window to close (status = 0) - will assert on timeout
             await self.wait_for_window_status_change(
-                window_status_accumulator=window_status_accumulator, is_open_expected=False, timeout_sec=monitoring_timeout
+                window_status_accumulator=window_status_accumulator,
+                is_open_expected=False,
+                timeout_sec=monitoring_timeout
             )
 
             # Calculate actual duration - window definitely closed if we get here
@@ -232,7 +254,7 @@ class CADMINBaseTest(MatterBaseTest):
                 max_allowed_duration_seconds=max_allowed_duration,
                 timing_valid=timing_valid,
                 start_time=start_time,
-                end_time=end_time,
+                end_time=end_time
             )
 
             # Log results
@@ -253,7 +275,7 @@ class CADMINBaseTest(MatterBaseTest):
         commissioning_option: CommissioningWindowOption = CommissioningWindowOption.TOKEN_WITH_RANDOM_PIN,
         iteration: int = 10000,
         min_interval_sec: int = 0,
-        max_interval_sec: int = 30,
+        max_interval_sec: int = 30
     ) -> tuple[CustomCommissioningParameters, AttributeSubscriptionHandler]:
         """
         Open a commissioning window and create subscription for monitoring.
@@ -275,7 +297,10 @@ class CADMINBaseTest(MatterBaseTest):
         """
         # Create subscription first
         window_status_accumulator = await self.create_window_status_subscription(
-            th=th, node_id=node_id, min_interval_sec=min_interval_sec, max_interval_sec=max_interval_sec
+            th=th,
+            node_id=node_id,
+            min_interval_sec=min_interval_sec,
+            max_interval_sec=max_interval_sec
         )
 
         try:
@@ -284,13 +309,13 @@ class CADMINBaseTest(MatterBaseTest):
                 timeout=timeout,
                 iteration=iteration,
                 discriminator=discriminator if discriminator is not None else random.randint(0, 4095),
-                option=commissioning_option.value,
+                option=commissioning_option.value
             )
             params = CustomCommissioningParameters(comm_params, discriminator)
 
         except Exception as e:
-            log.exception("Error running OpenCommissioningWindow %s", e)
-            asserts.fail("Failed to open commissioning window")
+            log.exception('Error running OpenCommissioningWindow %s', e)
+            asserts.fail('Failed to open commissioning window')
 
         return params, window_status_accumulator
 
@@ -309,7 +334,11 @@ class CADMINBaseTest(MatterBaseTest):
         """Get the current commissioning window status."""
         AC_cluster = Clusters.AdministratorCommissioning
         return await self.read_single_attribute_check_success(
-            dev_ctrl=th, fabric_filtered=False, endpoint=0, cluster=AC_cluster, attribute=AC_cluster.Attributes.WindowStatus
+            dev_ctrl=th,
+            fabric_filtered=False,
+            endpoint=0,
+            cluster=AC_cluster,
+            attribute=AC_cluster.Attributes.WindowStatus
         )
 
     def generate_unique_random_value(self, exclude_value: int) -> int:
@@ -322,14 +351,18 @@ class CADMINBaseTest(MatterBaseTest):
     async def revoke_commissioning(self, th: ChipDeviceCtrl, node_id: int):
         """Revoke the current commissioning window."""
         revokeCmd = Clusters.AdministratorCommissioning.Commands.RevokeCommissioning()
-        await th.SendCommand(nodeId=node_id, endpoint=0, payload=revokeCmd, timedRequestTimeoutMs=6000)
+        await th.SendCommand(
+            nodeId=node_id,
+            endpoint=0,
+            payload=revokeCmd,
+            timedRequestTimeoutMs=6000
+        )
         # The failsafe cleanup is scheduled after the command completes
         await asyncio.sleep(1)
 
     @dataclass
     class TimingResults:
         """Results from commissioning window timing monitoring."""
-
         window_closed: bool
         expected_duration_seconds: int
         actual_duration_seconds: Optional[float]
@@ -347,7 +380,7 @@ class CADMINBaseTest(MatterBaseTest):
 
         def __post_init__(self):
             # Safely convert CM value to int if present
-            cm_value = self.service.txt.get("CM")
+            cm_value = self.service.txt.get('CM')
             if cm_value is not None:
                 try:
                     self.cm = int(cm_value)
@@ -356,7 +389,7 @@ class CADMINBaseTest(MatterBaseTest):
                     self.cm = None
 
             # Safely convert D value to int if present
-            d_value = self.service.txt.get("D")
+            d_value = self.service.txt.get('D')
             if d_value is not None:
                 try:
                     self.d = int(d_value)
@@ -374,8 +407,11 @@ class CADMINBaseTest(MatterBaseTest):
             return cm_match and d_match
 
     async def wait_for_correct_cm_value(
-        self, expected_cm_value: int, expected_discriminator: int, max_attempts: int = 5, delay_sec: int = 5
-    ):
+            self,
+            expected_cm_value: int,
+            expected_discriminator: int,
+            max_attempts: int = 5,
+            delay_sec: int = 5):
         """Wait for the correct CM value and discriminator in DNS-SD with retries."""
         for attempt in range(max_attempts):
             discovery = mdns_discovery.MdnsDiscovery()
@@ -398,16 +434,12 @@ class CADMINBaseTest(MatterBaseTest):
 
             # Not on last attempt, wait and retry
             if attempt < max_attempts - 1:
-                log.info(
-                    f"Waiting for service with CM={expected_cm_value} and D={expected_discriminator}, "
-                    f"attempt {attempt + 1}/{max_attempts}"
-                )
+                log.info(f"Waiting for service with CM={expected_cm_value} and D={expected_discriminator}, "
+                         f"attempt {attempt+1}/{max_attempts}")
                 await asyncio.sleep(delay_sec)
             else:
                 # Final retry attempt failed
-                asserts.fail(
-                    f"Failed to find DNS-SD advertisement with CM={expected_cm_value} and "
-                    f"discriminator={expected_discriminator} after {max_attempts} attempts. "
-                    f"Found services: {[str(s) for s in services]}"
-                )
+                asserts.fail(f"Failed to find DNS-SD advertisement with CM={expected_cm_value} and "
+                             f"discriminator={expected_discriminator} after {max_attempts} attempts. "
+                             f"Found services: {[str(s) for s in services]}")
         return None

@@ -29,6 +29,7 @@ since the extracted plan would be silently incomplete. Tests that need
 dynamic steps should define an explicit steps_* method instead.
 """
 
+
 import ast
 import inspect
 import textwrap
@@ -44,20 +45,17 @@ class _StepExtractorVisitor(ast.NodeVisitor):
         self.steps: list[TestStep] = []
 
     def _is_step_call(self, node: ast.Call) -> bool:
-        return (
-            isinstance(node.func, ast.Attribute)
-            and isinstance(node.func.value, ast.Name)
-            and node.func.value.id == "self"
-            and node.func.attr == "step"
-        )
+        return (isinstance(node.func, ast.Attribute)
+                and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "self"
+                and node.func.attr == "step")
 
     def _require_constant(self, node: ast.expr, name: str, lineno: int) -> object:
         """Extract a constant value from an AST node, raising if it's dynamic."""
         if not isinstance(node, ast.Constant):
             raise ValueError(
                 f"self.step() at line {lineno}: {name} must be a constant. "
-                "Define an explicit steps_* method for tests with dynamic step arguments."
-            )
+                "Define an explicit steps_* method for tests with dynamic step arguments.")
         return node.value
 
     def _extract_step(self, node: ast.Call) -> Optional[TestStep]:
@@ -120,20 +118,20 @@ def _extract_steps_from_ast(tree: ast.AST) -> list[TestStep]:
 
 def extract_steps_from_method(method) -> list[TestStep]:
     """Extract a TestStep list from a test method using AST analysis."""
-    name = getattr(method, "__name__", repr(method))
+    name = getattr(method, '__name__', repr(method))
     try:
         source = textwrap.dedent(inspect.getsource(method))
     except (OSError, TypeError) as e:
         raise ValueError(
-            f"Failed to get source for {name}: {e}. Define an explicit steps_* method for tests whose source is not available."
-        ) from e
+            f"Failed to get source for {name}: {e}. "
+            "Define an explicit steps_* method for tests whose source is not available.") from e
 
     try:
         tree = ast.parse(source)
     except SyntaxError as e:
         raise ValueError(
-            f"Failed to parse source for {name}: {e}. Define an explicit steps_* method if AST extraction cannot handle the source."
-        ) from e
+            f"Failed to parse source for {name}: {e}. "
+            "Define an explicit steps_* method if AST extraction cannot handle the source.") from e
 
     return _extract_steps_from_ast(tree)
 

@@ -36,9 +36,9 @@ public:
                                       DeviceLayer::DeviceInstanceInfoProvider & deviceInstanceInfoProvider,
                                       DeviceLayer::ConfigurationManager & configurationManager,
                                       DeviceLayer::PlatformManager & platformManager, uint16_t subscriptionsPerFabric) :
-        mOptionalAttributes(optionalAttributes), mDeviceInstanceInfoProvider(deviceInstanceInfoProvider),
-        mConfigurationManager(configurationManager), mPlatformManager(platformManager),
-        mSubscriptionsPerFabric(subscriptionsPerFabric)
+        mOptionalAttributes(optionalAttributes),
+        mDeviceInstanceInfoProvider(deviceInstanceInfoProvider), mConfigurationManager(configurationManager),
+        mPlatformManager(platformManager), mSubscriptionsPerFabric(subscriptionsPerFabric)
     {
         // UniqueID is mandatory as of spec revision 4. We force it on here regardless
         // of what optionalAttributeSet says, to prevent accidental non-certifiable configs.

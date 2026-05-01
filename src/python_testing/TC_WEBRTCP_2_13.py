@@ -53,6 +53,7 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_WEBRTCP_2_13(MatterBaseTest, WEBRTCPTestBase):
+
     def desc_TC_WEBRTCP_2_13(self) -> str:
         """Returns a description of this test"""
         return "[TC-WEBRTCP-2.13] Validate ProvideOffer fails when physical privacy switch is ON"
@@ -63,42 +64,27 @@ class TC_WEBRTCP_2_13(MatterBaseTest, WEBRTCPTestBase):
         """
         return [
             TestStep("precondition", "DUT commissioned and streams allocated", is_commissioning=True),
-            TestStep(
-                1,
-                "TH allocates both Audio and Video streams via AudioStreamAllocate and VideoStreamAllocate commands to CameraAVStreamManagement",
-                "DUT responds with success",
-            ),
-            TestStep(
-                2,
-                "Turns ON the physical privacy switch (HardPrivacyModeOn is TRUE)",
-                "DUT's HardPrivacyModeOn attribute becomes TRUE",
-            ),
-            TestStep(
-                3,
-                "TH sends the ProvideOffer command with null WebRTCSessionID and valid parameters",
-                "DUT responds with INVALID_IN_STATE status code",
-            ),
-            TestStep(
-                4,
-                "Tures OFF the physical privacy switch (HardPrivacyModeOn is FALSE)",
-                "DUT's HardPrivacyModeOn attribute becomes FALSE",
-            ),
-            TestStep(
-                5,
-                "TH sends the ProvideOffer command with the same parameters",
-                "DUT responds with ProvideOfferResponse containing allocated WebRTCSessionID",
-            ),
+            TestStep(1, "TH allocates both Audio and Video streams via AudioStreamAllocate and VideoStreamAllocate commands to CameraAVStreamManagement",
+                     "DUT responds with success"),
+            TestStep(2, "Turns ON the physical privacy switch (HardPrivacyModeOn is TRUE)",
+                     "DUT's HardPrivacyModeOn attribute becomes TRUE"),
+            TestStep(3, "TH sends the ProvideOffer command with null WebRTCSessionID and valid parameters",
+                     "DUT responds with INVALID_IN_STATE status code"),
+            TestStep(4, "Tures OFF the physical privacy switch (HardPrivacyModeOn is FALSE)",
+                     "DUT's HardPrivacyModeOn attribute becomes FALSE"),
+            TestStep(5, "TH sends the ProvideOffer command with the same parameters",
+                     "DUT responds with ProvideOfferResponse containing allocated WebRTCSessionID"),
         ]
 
     def pics_TC_WEBRTCP_2_13(self) -> list[str]:
         return [
             "WEBRTCP.S",
-            "WEBRTCP.S.C02.Rsp",  # ProvideOffer command
-            "WEBRTCP.S.C03.Tx",  # ProvideOfferResponse command
+            "WEBRTCP.S.C02.Rsp",   # ProvideOffer command
+            "WEBRTCP.S.C03.Tx",    # ProvideOfferResponse command
             "AVSM.S",
-            "AVSM.S.F00",  # Audio Data Output feature
-            "AVSM.S.F01",  # Video Data Output feature
-            "AVSM.S.A0015",  # HardPrivacyModeOn attribute
+            "AVSM.S.F00",          # Audio Data Output feature
+            "AVSM.S.F01",          # Video Data Output feature
+            "AVSM.S.A0015",        # HardPrivacyModeOn attribute
         ]
 
     @property
@@ -136,7 +122,7 @@ class TC_WEBRTCP_2_13(MatterBaseTest, WEBRTCPTestBase):
         hard_privacy_mode = await self.read_single_attribute_check_success(
             endpoint=endpoint,
             cluster=Clusters.CameraAvStreamManagement,
-            attribute=Clusters.CameraAvStreamManagement.Attributes.HardPrivacyModeOn,
+            attribute=Clusters.CameraAvStreamManagement.Attributes.HardPrivacyModeOn
         )
         asserts.assert_true(hard_privacy_mode, "HardPrivacyModeOn should be True when privacy switch is on")
 
@@ -167,12 +153,10 @@ class TC_WEBRTCP_2_13(MatterBaseTest, WEBRTCPTestBase):
             streamUsage=3,
             originatingEndpointID=endpoint,
             videoStreamID=video_stream_id,
-            audioStreamID=audio_stream_id,
+            audioStreamID=audio_stream_id
         )
         try:
-            await self.send_single_cmd(
-                cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
-            )
+            await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
             asserts.fail("Expected ProvideOffer to fail with INVALID_IN_STATE when HardPrivacyModeOn is True")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.InvalidInState, "Expected INVALID_IN_STATE when HardPrivacyModeOn is True")
@@ -189,25 +173,19 @@ class TC_WEBRTCP_2_13(MatterBaseTest, WEBRTCPTestBase):
         hard_privacy_mode = await self.read_single_attribute_check_success(
             endpoint=endpoint,
             cluster=Clusters.CameraAvStreamManagement,
-            attribute=Clusters.CameraAvStreamManagement.Attributes.HardPrivacyModeOn,
+            attribute=Clusters.CameraAvStreamManagement.Attributes.HardPrivacyModeOn
         )
         asserts.assert_false(hard_privacy_mode, "HardPrivacyModeOn should be False when privacy switch is off")
 
         self.step(5)
-        resp = await self.send_single_cmd(
-            cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD
-        )
-        asserts.assert_equal(
-            type(resp),
-            Clusters.WebRTCTransportProvider.Commands.ProvideOfferResponse,
-            "Expected ProvideOfferResponse when HardPrivacyModeOn is False",
-        )
+        resp = await self.send_single_cmd(cmd=cmd, endpoint=endpoint, payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
+        asserts.assert_equal(type(resp), Clusters.WebRTCTransportProvider.Commands.ProvideOfferResponse,
+                             "Expected ProvideOfferResponse when HardPrivacyModeOn is False")
         asserts.assert_is_not_none(resp.webRTCSessionID, "WebRTCSessionID should be allocated")
 
         # Log successful completion
         self.print_step(
-            5, f"✓ ProvideOffer succeeded when HardPrivacyModeOn is False, allocated WebRTCSessionID: {resp.webRTCSessionID}"
-        )
+            5, f"✓ ProvideOffer succeeded when HardPrivacyModeOn is False, allocated WebRTCSessionID: {resp.webRTCSessionID}")
 
 
 if __name__ == "__main__":

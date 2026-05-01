@@ -28,7 +28,8 @@ namespace Clusters {
 
 DeviceEnergyManagementManager::DeviceEnergyManagementManager(EndpointId aEndpointId, DeviceEnergyManagementDelegate & aDelegate,
                                                              Feature aFeature) :
-    DeviceEnergyManagement::Instance(aEndpointId, aDelegate, aFeature), mDelegate(&aDelegate)
+    DeviceEnergyManagement::Instance(aEndpointId, aDelegate, aFeature),
+    mDelegate(&aDelegate)
 {}
 
 CHIP_ERROR DeviceEnergyManagementManager::Init()

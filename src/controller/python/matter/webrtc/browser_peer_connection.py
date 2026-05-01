@@ -331,7 +331,10 @@ class BrowserPeerConnection(BrowserWebRTCClient):
         """
         # Schedule candidates to be applied for trickle ICE support
         LOGGER.debug(f"Scheduling {len(candidates)} candidates for trickle ICE support: {candidates}")
-        asyncio.run_coroutine_threadsafe(self.set_remote_ice_candidates(candidates), self.event_loop)
+        asyncio.run_coroutine_threadsafe(
+            self.set_remote_ice_candidates(candidates),
+            self.event_loop
+        )
 
         # Also put in event queue for any waiting consumers
         self._remote_events[Events.ICE_CANDIDATE].put((sessionId, candidates))

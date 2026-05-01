@@ -21,7 +21,7 @@ from .type_definitions import IdlFileType, InputIdlFile
 
 log = logging.getLogger(__name__)
 
-ZAP_GENERATE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tools", "zap", "generate.py"))
+ZAP_GENERATE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'tools', 'zap', 'generate.py'))
 
 
 class ZapGeneratorType(Enum):
@@ -30,13 +30,13 @@ class ZapGeneratorType(Enum):
     @property
     def generation_template(self):
         if self == ZapGeneratorType.APPLICATION_TEMPLATES:
-            return "src/app/zap-templates/app-templates.json"
+            return 'src/app/zap-templates/app-templates.json'
         raise Exception("Missing ZAP Generation type implementation")
 
     @property
     def subdir(self):
         if self == ZapGeneratorType.APPLICATION_TEMPLATES:
-            return "app-templates/zap-generated"
+            return 'app-templates/zap-generated'
         raise Exception("Missing ZAP Generation type implementation")
 
 
@@ -51,7 +51,7 @@ class ZapTarget:
             raise Exception(f"Can only code generate for `*.zap` input files, not for {idl}")
 
     def Generate(self, output_root: str):
-        """Runs generate.py to generate in the specified directory root"""
+        '''Runs generate.py to generate in the specified directory root'''
 
         output_dir = os.path.join(output_root, self.idl.pregen_subdir, self.generation_type.subdir)
 
@@ -66,19 +66,17 @@ class ZapTarget:
 
         cmd = [
             ZAP_GENERATE_PATH,
-            "--templates",
-            self.generation_type.generation_template,
-            "--output-dir",
-            output_dir,
-            "--parallel",
-            idl_path,
+            '--templates', self.generation_type.generation_template,
+            '--output-dir', output_dir,
+            '--parallel',
+            idl_path
         ]
         log.debug("Executing: %s", shlex.join(cmd))
         self.runner.run(cmd, cwd=self.sdk_root)
 
 
 class ZapApplicationPregenerator:
-    """Pregeneration logic for `src/app/zap-templates/app-templates.json`"""
+    """Pregeneration logic for `src/app/zap-templates/app-templates.json` """
 
     def __init__(self, sdk_root):
         self.sdk_root = sdk_root
@@ -88,7 +86,7 @@ class ZapApplicationPregenerator:
             return False
 
         # FIXME: implement a proper check
-        return "test_files" not in idl.relative_path
+        return 'test_files' not in idl.relative_path
 
     def CreateTarget(self, idl: InputIdlFile, runner):
         # TODO: add additional arguments: tell how to invoke zap/codegen

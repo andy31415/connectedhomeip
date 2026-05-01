@@ -55,7 +55,7 @@ public:
 #ifdef MATTER_DM_PLUGIN_SCENES_MANAGEMENT
                                                   .scenesIntegration = ScenesManagement::FindClusterOnEndpoint(endpointId),
 #else
-                                                  .scenesIntegration = nullptr,
+                                                  .scenesIntegration   = nullptr,
 #endif
 #ifdef ZCL_USING_IDENTIFY_CLUSTER_SERVER
                                                   .identifyIntegration = FindIdentifyClusterOnEndpoint(endpointId),

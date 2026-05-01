@@ -55,6 +55,7 @@ logger = logging.getLogger(__name__)
 
 
 class TC_BOOLCFG_6_1(MatterBaseTest):
+
     def desc_TC_BOOLCFG_6_1(self) -> str:
         return "[TC-BOOLCFG-6.1] Sensor fault functionality with DUT as Server"
 
@@ -63,50 +64,30 @@ class TC_BOOLCFG_6_1(MatterBaseTest):
             TestStep("1", "Commission DUT to TH", is_commissioning=True),
             TestStep("2a", "TH reads FeatureMap attribute.", "DUT replies with FeatureMap attribute."),
             TestStep("2b", "TH reads AttributeList attribute.", "DUT replies with AttributeList attribute."),
-            TestStep("3", "If FAULTEV feature is not supported, skip remaining steps and end test case."),
-            TestStep(
-                "4",
-                "Set up a wildcard subscription for attributes and events of the Boolean State Configuration Cluster, "
-                "with MinIntervalFloor set to 0, MaxIntervalCeiling set to 30 and KeepSubscriptions set to false.",
-                "Subscription successfully established.",
-            ),
+            TestStep("3", "If FAULTEV feature is not supported, "
+                     "skip remaining steps and end test case."),
+            TestStep("4", "Set up a wildcard subscription for attributes and events of the Boolean State Configuration Cluster, "
+                     "with MinIntervalFloor set to 0, MaxIntervalCeiling set to 30 and KeepSubscriptions set to false.",
+                     "Subscription successfully established."),
             TestStep("5", "Start accumulating all attribute and event reports on the subscription."),
             TestStep("6", "Prompt operator to cause a sensor fault to be reported on the endpoint under test."),
-            TestStep(
-                "7",
-                "If SensorFault attribute is supported, TH reads SensorFault attribute.",
-                "DUT responds success and the received value is not equal to 0.",
-            ),
-            TestStep(
-                "8",
-                "Wait for up to 30 seconds for TH to have received an event data report.",
-                "An event report has been received from DUT within 30 seconds for the SensorFault event "
-                "and the received report contains a value for SensorFault not equal to 0.",
-            ),
-            TestStep(
-                "9",
-                "If SensorFault attribute is supported, TH waits to receive an attribute data report for up to 30 seconds.",
-                "An attribute report has been received from DUT within 30 seconds for the SensorFault attribute "
-                "and the received report contains a value not equal to 0.",
-            ),
+            TestStep("7", "If SensorFault attribute is supported, TH reads SensorFault attribute.",
+                     "DUT responds success and the received value is not equal to 0."),
+            TestStep("8", "Wait for up to 30 seconds for TH to have received an event data report.",
+                     "An event report has been received from DUT within 30 seconds for the SensorFault event "
+                     "and the received report contains a value for SensorFault not equal to 0."),
+            TestStep("9", "If SensorFault attribute is supported, TH waits to receive an attribute data report for up to 30 seconds.",
+                     "An attribute report has been received from DUT within 30 seconds for the SensorFault attribute "
+                     "and the received report contains a value not equal to 0."),
             TestStep("10", "Prompt operator to clear the sensor fault reported on the endpoint under test."),
-            TestStep(
-                "11",
-                "If SensorFault attribute is supported, TH reads SensorFault attribute.",
-                "DUT responds success and the received value is equal to 0.",
-            ),
-            TestStep(
-                "12",
-                "Wait for up to 30 seconds for TH to have received an event data report.",
-                "An event report has been received from DUT within 30 seconds for the SensorFault event "
-                "and the received report contains a value for SensorFault equal to 0.",
-            ),
-            TestStep(
-                "13",
-                "If SensorFault attribute is supported, TH waits to receive an attribute data report for up to 30 seconds.",
-                "An attribute report has been received from DUT within 30 seconds for the SensorFault attribute "
-                "and the received report contains a value equal to 0.",
-            ),
+            TestStep("11", "If SensorFault attribute is supported, TH reads SensorFault attribute.",
+                     "DUT responds success and the received value is equal to 0."),
+            TestStep("12", "Wait for up to 30 seconds for TH to have received an event data report.",
+                     "An event report has been received from DUT within 30 seconds for the SensorFault event "
+                     "and the received report contains a value for SensorFault equal to 0."),
+            TestStep("13", "If SensorFault attribute is supported, TH waits to receive an attribute data report for up to 30 seconds.",
+                     "An attribute report has been received from DUT within 30 seconds for the SensorFault attribute "
+                     "and the received report contains a value equal to 0."),
         ]
 
     def pics_TC_BOOLCFG_6_1(self) -> list[str]:
@@ -122,18 +103,16 @@ class TC_BOOLCFG_6_1(MatterBaseTest):
             if fault_value != 0:
                 result = self.wait_for_user_input(
                     prompt_msg="Cause a sensor fault to be reported on the endpoint under test "
-                    "as instructed by the DUT's manufacturer. Were you able to cause a sensor fault?",
+                               "as instructed by the DUT's manufacturer. Were you able to cause a sensor fault?",
                     prompt_msg_placeholder="Enter 'y' or 'n'",
-                    default_value="n",
-                )
+                    default_value="n")
                 asserts.assert_equal(result.lower(), "y", "Operator was not able to cause a sensor fault")
             else:
                 result = self.wait_for_user_input(
                     prompt_msg="Clear the sensor fault reported on the endpoint under test "
-                    "as instructed by the DUT's manufacturer. Were you able to clear the sensor fault?",
+                               "as instructed by the DUT's manufacturer. Were you able to clear the sensor fault?",
                     prompt_msg_placeholder="Enter 'y' or 'n'",
-                    default_value="n",
-                )
+                    default_value="n")
                 asserts.assert_equal(result.lower(), "y", "Operator was not able to clear the sensor fault")
 
     @run_if_endpoint_matches(has_cluster(Clusters.BooleanStateConfiguration))
@@ -150,8 +129,8 @@ class TC_BOOLCFG_6_1(MatterBaseTest):
         # Step 2a: Read FeatureMap
         self.step("2a")
         feature_map = await self.read_single_attribute_check_success(
-            dev_ctrl=dev_ctrl, node_id=node_id, endpoint=endpoint, cluster=cluster, attribute=attributes.FeatureMap
-        )
+            dev_ctrl=dev_ctrl, node_id=node_id, endpoint=endpoint,
+            cluster=cluster, attribute=attributes.FeatureMap)
         logger.info("FeatureMap: 0x%08x", feature_map)
 
         is_fault_events_supported = feature_map & cluster.Bitmaps.Feature.kFaultEvents
@@ -159,8 +138,8 @@ class TC_BOOLCFG_6_1(MatterBaseTest):
         # Step 2b: Read AttributeList
         self.step("2b")
         attribute_list = await self.read_single_attribute_check_success(
-            dev_ctrl=dev_ctrl, node_id=node_id, endpoint=endpoint, cluster=cluster, attribute=attributes.AttributeList
-        )
+            dev_ctrl=dev_ctrl, node_id=node_id, endpoint=endpoint,
+            cluster=cluster, attribute=attributes.AttributeList)
         logger.info("AttributeList: %s", attribute_list)
 
         # Step 3: Guard - skip if FAULTEV not supported
@@ -176,16 +155,13 @@ class TC_BOOLCFG_6_1(MatterBaseTest):
         if await self.attribute_guard(endpoint=endpoint, attribute=attributes.SensorFault):
             attr_cb = AttributeSubscriptionHandler(expected_cluster=cluster, expected_attribute=attributes.SensorFault)
             await attr_cb.start(
-                dev_ctrl=dev_ctrl,
-                node_id=node_id,
-                endpoint=endpoint,
-                min_interval_sec=0,
-                max_interval_sec=30,
-                keepSubscriptions=False,
-            )
+                dev_ctrl=dev_ctrl, node_id=node_id, endpoint=endpoint,
+                min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
 
         event_cb = EventSubscriptionHandler(expected_cluster=cluster)
-        await event_cb.start(dev_ctrl=dev_ctrl, node_id=node_id, endpoint=endpoint, min_interval_sec=0, max_interval_sec=30)
+        await event_cb.start(
+            dev_ctrl=dev_ctrl, node_id=node_id, endpoint=endpoint,
+            min_interval_sec=0, max_interval_sec=30)
 
         # Step 5: Start accumulating reports - flush any priming reports received during subscription setup
         self.step("5")
@@ -201,8 +177,8 @@ class TC_BOOLCFG_6_1(MatterBaseTest):
         self.step("7")
         if await self.attribute_guard(endpoint=endpoint, attribute=attributes.SensorFault):
             sensor_fault = await self.read_single_attribute_check_success(
-                dev_ctrl=dev_ctrl, node_id=node_id, endpoint=endpoint, cluster=cluster, attribute=attributes.SensorFault
-            )
+                dev_ctrl=dev_ctrl, node_id=node_id, endpoint=endpoint,
+                cluster=cluster, attribute=attributes.SensorFault)
             logger.info("SensorFault attribute: 0x%04x", sensor_fault)
             asserts.assert_not_equal(sensor_fault, 0, "SensorFault should not be 0 after triggering fault")
 
@@ -210,7 +186,8 @@ class TC_BOOLCFG_6_1(MatterBaseTest):
         self.step("8")
         event_data = event_cb.wait_for_event_type_report(cluster.Events.SensorFault, timeout_sec=30)
         logger.info("Received SensorFault event: sensorFault=0x%04x", event_data.sensorFault)
-        asserts.assert_not_equal(event_data.sensorFault, 0, "SensorFault event should contain a non-zero sensorFault value")
+        asserts.assert_not_equal(event_data.sensorFault, 0,
+                                 "SensorFault event should contain a non-zero sensorFault value")
 
         # Step 9: Wait for SensorFault attribute report with non-zero value
         self.step("9")
@@ -232,8 +209,8 @@ class TC_BOOLCFG_6_1(MatterBaseTest):
         self.step("11")
         if await self.attribute_guard(endpoint=endpoint, attribute=attributes.SensorFault):
             sensor_fault = await self.read_single_attribute_check_success(
-                dev_ctrl=dev_ctrl, node_id=node_id, endpoint=endpoint, cluster=cluster, attribute=attributes.SensorFault
-            )
+                dev_ctrl=dev_ctrl, node_id=node_id, endpoint=endpoint,
+                cluster=cluster, attribute=attributes.SensorFault)
             logger.info("SensorFault attribute: 0x%04x", sensor_fault)
             asserts.assert_equal(sensor_fault, 0, "SensorFault should be 0 after clearing fault")
 
@@ -241,7 +218,8 @@ class TC_BOOLCFG_6_1(MatterBaseTest):
         self.step("12")
         event_data = event_cb.wait_for_event_type_report(cluster.Events.SensorFault, timeout_sec=30)
         logger.info("Received SensorFault event: sensorFault=0x%04x", event_data.sensorFault)
-        asserts.assert_equal(event_data.sensorFault, 0, "SensorFault event should contain a zero sensorFault value after clearing")
+        asserts.assert_equal(event_data.sensorFault, 0,
+                             "SensorFault event should contain a zero sensorFault value after clearing")
 
         # Step 13: Wait for SensorFault attribute report with zero value
         self.step("13")

@@ -54,8 +54,8 @@ from matter.testing.runner import TestStep, default_matter_test_main
 class TestBdxTransfer(MatterBaseTest):
     _intents = [
         (Clusters.DiagnosticLogs.Enums.IntentEnum.kEndUserSupport, "/tmp/eusl.txt", 9240),  # BDX
-        (Clusters.DiagnosticLogs.Enums.IntentEnum.kCrashLogs, "/tmp/cl.txt", 123),  # Inline
-        (Clusters.DiagnosticLogs.Enums.IntentEnum.kNetworkDiag, "/tmp/ndl.txt", 8765),  # BDX
+        (Clusters.DiagnosticLogs.Enums.IntentEnum.kCrashLogs, "/tmp/cl.txt", 123),          # Inline
+        (Clusters.DiagnosticLogs.Enums.IntentEnum.kNetworkDiag, "/tmp/ndl.txt", 8765),      # BDX
     ]
 
     @staticmethod
@@ -69,32 +69,26 @@ class TestBdxTransfer(MatterBaseTest):
         steps = []
         base = 0
         for _, _, filesize in self._intents:
-            steps.extend(
-                [
-                    TestStep(base + 1, "Generate the diagnostic log file."),
-                    TestStep(base + 2, "Set up the system to receive a BDX transfer."),
-                    TestStep(base + 3, "Send the command to request logs."),
-                    TestStep(base + 4, "Wait for the command's response or a BDX transfer."),
-                ]
-            )
+            steps.extend([
+                TestStep(base + 1, "Generate the diagnostic log file."),
+                TestStep(base + 2, "Set up the system to receive a BDX transfer."),
+                TestStep(base + 3, "Send the command to request logs."),
+                TestStep(base + 4, "Wait for the command's response or a BDX transfer."),
+            ])
             if TestBdxTransfer._expect_bdx(filesize):
-                steps.extend(
-                    [
-                        TestStep(base + 5, "Verify the init message's parameters."),
-                        TestStep(base + 6, "Accept the transfer and obtain the data."),
-                        TestStep(base + 7, "Verify the obtained data."),
-                        TestStep(base + 8, "Check the command's response."),
-                    ]
-                )
+                steps.extend([
+                    TestStep(base + 5, "Verify the init message's parameters."),
+                    TestStep(base + 6, "Accept the transfer and obtain the data."),
+                    TestStep(base + 7, "Verify the obtained data."),
+                    TestStep(base + 8, "Check the command's response."),
+                ])
             else:
-                steps.extend(
-                    [
-                        TestStep(base + 5, "Verify inline transfer."),
-                        TestStep(base + 6, "Obtain the data."),
-                        TestStep(base + 7, "Check the command's response."),
-                        TestStep(base + 8, "Verify the obtained data."),
-                    ]
-                )
+                steps.extend([
+                    TestStep(base + 5, "Verify inline transfer."),
+                    TestStep(base + 6, "Obtain the data."),
+                    TestStep(base + 7, "Check the command's response."),
+                    TestStep(base + 8, "Verify the obtained data."),
+                ])
             base += 8
         return steps
 
@@ -116,32 +110,34 @@ class TestBdxTransfer(MatterBaseTest):
             command = Clusters.DiagnosticLogs.Commands.RetrieveLogsRequest(
                 intent=intent,
                 requestedProtocol=Clusters.DiagnosticLogs.Enums.TransferProtocolEnum.kBdx,
-                transferFileDesignator=file_designator,
+                transferFileDesignator=file_designator
             )
-            command_send_future = asyncio.create_task(
-                self.default_controller.SendCommand(
-                    self.dut_node_id, 0, command, responseType=Clusters.DiagnosticLogs.Commands.RetrieveLogsResponse
-                ),
+            command_send_future = asyncio.create_task(self.default_controller.SendCommand(
+                self.dut_node_id,
+                0,
+                command,
+                responseType=Clusters.DiagnosticLogs.Commands.RetrieveLogsResponse),
             )
 
             self.step(base_step + 4)
             done, pending = await asyncio.wait(
-                [command_send_future, bdx_future],
+                [command_send_future,
+                 bdx_future],
                 return_when=asyncio.FIRST_COMPLETED,
             )
 
             self.step(base_step + 5)
             if TestBdxTransfer._expect_bdx(filesize):  # Sent via BDX
+
                 asserts.assert_true(bdx_future in done, "BDX transfer didn't start")
                 bdx_transfer: BdxTransfer.BdxTransfer = bdx_future.result()
-                asserts.assert_equal(
-                    bdx_transfer.init_message.TransferControlFlags, BdxProtocol.SENDER_DRIVE, "Invalid transfer control flags"
-                )
+                asserts.assert_equal(bdx_transfer.init_message.TransferControlFlags,
+                                     BdxProtocol.SENDER_DRIVE, "Invalid transfer control flags")
                 asserts.assert_equal(bdx_transfer.init_message.MaxBlockSize, 1024, "Invalid max block size")
                 asserts.assert_equal(bdx_transfer.init_message.StartOffset, 0, "Invalid start offset")
-                asserts.assert_equal(
-                    bdx_transfer.init_message.FileDesignator, bytes(file_designator, encoding="utf8"), "Invalid file designator"
-                )
+                asserts.assert_equal(bdx_transfer.init_message.FileDesignator,
+                                     bytes(file_designator, encoding='utf8'),
+                                     "Invalid file designator")
 
                 self.step(base_step + 6)
                 data = await bdx_transfer.accept_and_receive_data()
@@ -154,9 +150,9 @@ class TestBdxTransfer(MatterBaseTest):
                     command_response = command_send_future.result()
                 else:
                     command_response = await command_send_future
-                asserts.assert_equal(
-                    command_response.status, Clusters.DiagnosticLogs.Enums.StatusEnum.kSuccess, "Invalid command response"
-                )
+                asserts.assert_equal(command_response.status,
+                                     Clusters.DiagnosticLogs.Enums.StatusEnum.kSuccess,
+                                     "Invalid command response")
 
                 # Without sleep the next BDX transfer will fail.
                 # See https://github.com/project-chip/connectedhomeip/blob/master/src/controller/python/chip/bdx/bdx-transfer.cpp#L108
@@ -164,6 +160,7 @@ class TestBdxTransfer(MatterBaseTest):
                 await asyncio.sleep(0.1)
 
             else:  # Sent inline
+
                 asserts.assert_true(bdx_future not in done, "BDX transfer was not expected")
 
                 self.step(base_step + 6)
@@ -172,9 +169,11 @@ class TestBdxTransfer(MatterBaseTest):
                 self.step(base_step + 7)
                 # Assert that the command response status is either Success or Exhausted
                 asserts.assert_true(
-                    command_response.status
-                    in (Clusters.DiagnosticLogs.Enums.StatusEnum.kSuccess, Clusters.DiagnosticLogs.Enums.StatusEnum.kExhausted),
-                    f"Command failed with status {command_response.status}",
+                    command_response.status in (
+                        Clusters.DiagnosticLogs.Enums.StatusEnum.kSuccess,
+                        Clusters.DiagnosticLogs.Enums.StatusEnum.kExhausted
+                    ),
+                    f"Command failed with status {command_response.status}"
                 )
 
                 self.step(base_step + 8)
@@ -183,7 +182,7 @@ class TestBdxTransfer(MatterBaseTest):
                 asserts.assert_equal(
                     command_response.logContent,
                     expected_data,
-                    f"Inline response content for {intent.name} does not match expected data",
+                    f"Inline response content for {intent.name} does not match expected data"
                 )
 
                 # Cancel the BDX receive transaction since no BDX transfer occurred (e.g., response was inline).

@@ -42,15 +42,21 @@ class TC_CHIME(MatterBaseTest):
 
     async def _read_chime_attribute(self, attribute):
         return await self.read_single_attribute_check_success(
-            endpoint=self._CHIME_ENDPOINT, cluster=Clusters.Objects.Chime, attribute=attribute
+            endpoint=self._CHIME_ENDPOINT,
+            cluster=Clusters.Objects.Chime,
+            attribute=attribute
         )
 
     async def _write_chime_attribute(self, attribute, value):
-        return await self.write_single_attribute(attribute_value=attribute(value), endpoint_id=self._CHIME_ENDPOINT)
+        return await self.write_single_attribute(
+            attribute_value=attribute(value),
+            endpoint_id=self._CHIME_ENDPOINT
+        )
 
     async def _send_play_chime_sound_command(self, chimeID=None):
         return await self.send_single_cmd(
-            endpoint=self._CHIME_ENDPOINT, cmd=Clusters.Objects.Chime.Commands.PlayChimeSound(chimeID=chimeID)
+            endpoint=self._CHIME_ENDPOINT,
+            cmd=Clusters.Objects.Chime.Commands.PlayChimeSound(chimeID=chimeID)
         )
 
     def desc_TC_CHIME(self) -> str:
@@ -64,7 +70,7 @@ class TC_CHIME(MatterBaseTest):
             TestStep(4, "Read and write Enabled attribute."),
             TestStep(5, "Test PlayChimeSound command when Enabled is True and verify event."),
             TestStep(6, "Test PlayChimeSound command when Enabled is False."),
-            TestStep(7, "Test PlayChimeSound command already playing (back-to-back)."),
+            TestStep(7, "Test PlayChimeSound command already playing (back-to-back).")
         ]
 
     @async_test_body

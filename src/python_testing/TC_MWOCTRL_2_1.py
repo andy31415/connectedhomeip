@@ -49,6 +49,7 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_MWOCTRL_2_1(MatterBaseTest):
+
     async def read_mwoctrl_attribute_expect_success(self, endpoint, attribute):
         cluster = Clusters.Objects.MicrowaveOvenControl
         return await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attribute)
@@ -79,30 +80,21 @@ class TC_MWOCTRL_2_1(MatterBaseTest):
     def steps_TC_MWOCTRL_2_1(self) -> list[TestStep]:
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
-            TestStep(
-                2,
-                "Read the MaxCookTime attribute and check limits",
-                "Verify that the DUT response contains an elapsed-s value between 1 and 86400 inclusive. Save value as MaxCookTime.",
-            ),
-            TestStep(
-                3,
-                "Read the CookTime attribute and check limits",
-                "Verify that the DUT response contains an elapsed-s value between 1 and MaxCookTime inclusive.",
-            ),
+            TestStep(2, "Read the MaxCookTime attribute and check limits",
+                     "Verify that the DUT response contains an elapsed-s value between 1 and 86400 inclusive. Save value as MaxCookTime."
+                     ),
+            TestStep(3, "Read the CookTime attribute and check limits",
+                     "Verify that the DUT response contains an elapsed-s value between 1 and MaxCookTime inclusive."
+                     ),
             TestStep(4, "Set the CookTime attribute to 60", "Verify DUT responds w/ status SUCCESS(0x00)."),
-            TestStep(
-                5, "Read the CookTime attribute and check for 60", "Verify that the DUT response contains the CookTime value 60."
-            ),
+            TestStep(5, "Read the CookTime attribute and check for 60",
+                     "Verify that the DUT response contains the CookTime value 60."),
             TestStep(6, "Set the CookTime attribute to 1", "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep(
-                7, "Read the CookTime attribute and check for 1", "Verify that the DUT response contains the CookTime value 1."
-            ),
+            TestStep(7, "Read the CookTime attribute and check for 1",
+                     "Verify that the DUT response contains the CookTime value 1."),
             TestStep(8, "Set the CookTime attribute to MaxCookTime", "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep(
-                9,
-                "Read the CookTime attribute and check for MaxCookTime",
-                "Verify that the DUT response contains the CookTime value MaxCookTime.",
-            ),
+            TestStep(9, "Read the CookTime attribute and check for MaxCookTime",
+                     "Verify that the DUT response contains the CookTime value MaxCookTime."),
             TestStep(10, "Read the WattRating attribute, if supported", "Verify that the DUT response contains a uint16 value."),
             TestStep(11, "Set the CookTime attribute to 0", "Verify DUT responds w/ status CONSTRAINT_ERROR(0x87)"),
             TestStep(12, "Set the CookTime attribute to MaxCookTime+1", "Verify DUT responds w/ status CONSTRAINT_ERROR(0x87)"),
@@ -119,6 +111,7 @@ class TC_MWOCTRL_2_1(MatterBaseTest):
 
     @async_test_body
     async def test_TC_MWOCTRL_2_1(self):
+
         endpoint = self.get_endpoint()
 
         self.step(1)
@@ -161,7 +154,7 @@ class TC_MWOCTRL_2_1(MatterBaseTest):
         await self.set_bad_cook_time_value_expect_failure(endpoint, 0)
 
         self.step(12)
-        await self.set_bad_cook_time_value_expect_failure(endpoint, maxCookTime + 1)
+        await self.set_bad_cook_time_value_expect_failure(endpoint, maxCookTime+1)
 
 
 if __name__ == "__main__":

@@ -72,7 +72,8 @@ class TC_CGEN_2_1(MatterBaseTest):
         self.step("1")
 
         self.step("2")
-        breadcrumb = await self.read_single_attribute_check_success(cluster=cluster, attribute=attributes.Breadcrumb)
+        breadcrumb = await self.read_single_attribute_check_success(
+            cluster=cluster, attribute=attributes.Breadcrumb)
         matter_asserts.assert_valid_uint64(breadcrumb, "Breadcrumb must be uint64")
         log.info(f"Breadcrumb initial value: {breadcrumb}")
 
@@ -81,30 +82,30 @@ class TC_CGEN_2_1(MatterBaseTest):
         log.info("Breadcrumb set to 1")
 
         self.step("4")
-        breadcrumb_val = await self.read_single_attribute_check_success(cluster=cluster, attribute=attributes.Breadcrumb)
+        breadcrumb_val = await self.read_single_attribute_check_success(
+            cluster=cluster, attribute=attributes.Breadcrumb)
         matter_asserts.assert_valid_uint64(breadcrumb_val, "Breadcrumb must be uint64 after write")
         asserts.assert_equal(breadcrumb_val, 1, "Breadcrumb should be 1 after write")
 
         self.step("5")
-        reg_cfg = await self.read_single_attribute_check_success(cluster=cluster, attribute=attributes.RegulatoryConfig)
+        reg_cfg = await self.read_single_attribute_check_success(
+            cluster=cluster, attribute=attributes.RegulatoryConfig)
         matter_asserts.assert_valid_enum(
-            reg_cfg,
-            "RegulatoryConfig must be a valid RegulatoryLocationTypeEnum",
-            Clusters.GeneralCommissioning.Enums.RegulatoryLocationTypeEnum,
-        )
+            reg_cfg, "RegulatoryConfig must be a valid RegulatoryLocationTypeEnum",
+            Clusters.GeneralCommissioning.Enums.RegulatoryLocationTypeEnum)
         log.info(f"RegulatoryConfig value: {Clusters.GeneralCommissioning.Enums.RegulatoryLocationTypeEnum(reg_cfg).name}")
 
         self.step("6")
-        loc_cap = await self.read_single_attribute_check_success(cluster=cluster, attribute=attributes.LocationCapability)
+        loc_cap = await self.read_single_attribute_check_success(
+            cluster=cluster, attribute=attributes.LocationCapability)
         matter_asserts.assert_valid_enum(
-            loc_cap,
-            "LocationCapability must be a valid RegulatoryLocationTypeEnum",
-            Clusters.GeneralCommissioning.Enums.RegulatoryLocationTypeEnum,
-        )
+            loc_cap, "LocationCapability must be a valid RegulatoryLocationTypeEnum",
+            Clusters.GeneralCommissioning.Enums.RegulatoryLocationTypeEnum)
         log.info(f"LocationCapability value: {Clusters.GeneralCommissioning.Enums.RegulatoryLocationTypeEnum(loc_cap).name}")
 
         self.step("7")
-        basic_info = await self.read_single_attribute_check_success(cluster=cluster, attribute=attributes.BasicCommissioningInfo)
+        basic_info = await self.read_single_attribute_check_success(
+            cluster=cluster, attribute=attributes.BasicCommissioningInfo)
         log.info(f"BasicCommissioningInfo: {basic_info}")
 
         failsafe = basic_info.failSafeExpiryLengthSeconds
@@ -116,8 +117,7 @@ class TC_CGEN_2_1(MatterBaseTest):
 
         self.step("8")
         supports_con = await self.read_single_attribute_check_success(
-            cluster=cluster, attribute=attributes.SupportsConcurrentConnection
-        )
+            cluster=cluster, attribute=attributes.SupportsConcurrentConnection)
         asserts.assert_is_instance(supports_con, bool, "SupportsConcurrentConnection must be boolean")
 
 

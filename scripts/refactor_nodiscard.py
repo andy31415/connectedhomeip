@@ -41,7 +41,13 @@ def run_command(command_str, capture_output=True, text=True, check=False, input_
     Runs a shell command string and returns the result.
     """
     print(f"Running shell command: {command_str}")
-    return subprocess.run(["bash", "-c", command_str], capture_output=capture_output, text=text, check=check, input=input_data)
+    return subprocess.run(
+        ['bash', '-c', command_str],
+        capture_output=capture_output,
+        text=text,
+        check=check,
+        input=input_data
+    )
 
 
 def process_build_output(build_output):
@@ -53,7 +59,10 @@ def process_build_output(build_output):
     grep_error_line_pattern = re.compile(r"^\d+:(?:\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} INFO\s+)?([^:]+):(\d+):")
 
     # Grep for the error
-    grep_result = run_command('grep -E -A 1 -n "error: ignor|warning: ignor"', input_data=build_output)
+    grep_result = run_command(
+        'grep -E -A 1 -n "error: ignor|warning: ignor"',
+        input_data=build_output
+    )
 
     if grep_result.returncode != 0 and not grep_result.stdout:
         print("Could not find any 'error: ignor' or 'warning: ignor' lines with grep.")
@@ -75,30 +84,29 @@ def process_build_output(build_output):
 
             idx = raw_file_path_from_grep.rfind(connectedhomeip_marker)
             if idx != -1:
-                relative_path_within_submodule = raw_file_path_from_grep[idx + len(connectedhomeip_marker) :]
+                relative_path_within_submodule = raw_file_path_from_grep[idx + len(connectedhomeip_marker):]
                 file_path = os.path.normpath(os.path.join(project_root, relative_path_within_submodule))
                 print(f"Updated {file_path}")
             else:
                 if not os.path.isabs(raw_file_path_from_grep):
-                    file_path = os.path.normpath(
-                        os.path.join(os.path.dirname(__file__), raw_file_path_from_grep.replace("../../", "../", 1))
-                    )
+                    file_path = os.path.normpath(os.path.join(os.path.dirname(
+                        __file__), raw_file_path_from_grep.replace("../../", "../", 1)))
                 else:
                     file_path = raw_file_path_from_grep
 
-            if i < len(grep_lines) and not grep_lines[i].startswith("--"):
+            if i < len(grep_lines) and not grep_lines[i].startswith('--'):
                 context_line = grep_lines[i]
                 i += 1
 
-                last_pipe_index = context_line.rfind("|")
+                last_pipe_index = context_line.rfind('|')
                 if last_pipe_index != -1:
-                    expected_content = context_line[last_pipe_index + 1 :]
+                    expected_content = context_line[last_pipe_index + 1:]
                     lines_to_fix[(file_path, line_number)] = expected_content
                 else:
                     print(f"Warning: Could not parse context line for {file_path}:{line_number}: {context_line}")
             else:
                 print(f"Warning: No context line found for error at {file_path}:{line_number}")
-        elif line.startswith("--"):
+        elif line.startswith('--'):
             pass
 
     if not lines_to_fix:
@@ -110,7 +118,7 @@ def process_build_output(build_output):
     for (file_path, line_number), expected_content in sorted(lines_to_fix.items(), key=lambda item: item[0][1], reverse=True):
         print(f"Attempting to patch {file_path}:{line_number}")
         try:
-            with open(file_path, "r") as f:
+            with open(file_path, 'r') as f:
                 lines = f.readlines()
 
             if 1 <= line_number <= len(lines):
@@ -119,7 +127,7 @@ def process_build_output(build_output):
                 stripped_expected_content = expected_content.strip()
 
                 if stripped_original_line == stripped_expected_content:
-                    indentation = original_line[: -len(original_line.lstrip())]
+                    indentation = original_line[:-len(original_line.lstrip())]
                     modified_line = indentation + "TEMPORARY_RETURN_IGNORED " + original_line.lstrip()
                     lines[line_number - 1] = modified_line
 
@@ -133,7 +141,7 @@ def process_build_output(build_output):
             else:
                 print(f"  - Warning: line number {line_number} is out of bounds for {file_path} (total lines: {len(lines)})")
 
-            with open(file_path, "w") as f:
+            with open(file_path, 'w') as f:
                 f.writelines(lines)
 
         except FileNotFoundError:
@@ -146,18 +154,14 @@ def process_build_output(build_output):
 
 
 @click.command()
-@click.option(
-    "--input-file",
-    type=click.Path(exists=True, dir_okay=False),
-    help="Path to a file containing build output to process instead of running a build.",
-)
+@click.option('--input-file', type=click.Path(exists=True, dir_okay=False), help='Path to a file containing build output to process instead of running a build.')
 def main(input_file):
     """
     Main function to run the build-fix loop or process a single file.
     """
     if input_file:
         print(f"Processing build output from file: {input_file}")
-        with open(input_file, "r", encoding="utf-8") as f:
+        with open(input_file, 'r', encoding='utf-8') as f:
             build_output = f.read()
         process_build_output(build_output)
     else:
@@ -177,7 +181,7 @@ def main(input_file):
             print("Build failed. Dumping output to file for manual checking...")
             build_output = build_result.stdout + build_result.stderr
 
-            with tempfile.NamedTemporaryFile(mode="w", delete=False, encoding="utf-8") as f:
+            with tempfile.NamedTemporaryFile(mode='w', delete=False, encoding='utf-8') as f:
                 f.write(build_output)
                 build_output_filepath = f.name
             print(f"Build output dumped to: {build_output_filepath}")

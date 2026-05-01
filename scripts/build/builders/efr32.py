@@ -41,87 +41,87 @@ class Efr32App(Enum):
 
     def ExampleName(self):
         if self == Efr32App.EVSE:
-            return "evse-app"
+            return 'evse-app'
         if self == Efr32App.WATER_HEATER:
-            return "water-heater-app"
+            return 'water-heater-app'
         if self == Efr32App.LIGHT:
-            return "lighting-app"
+            return 'lighting-app'
         if self == Efr32App.LOCK:
-            return "lock-app"
+            return 'lock-app'
         if self == Efr32App.SWITCH:
-            return "light-switch-app"
+            return 'light-switch-app'
         if self == Efr32App.WINDOW_COVERING:
-            return "window-app"
+            return 'window-app'
         if self == Efr32App.THERMOSTAT:
-            return "thermostat"
+            return 'thermostat'
         if self == Efr32App.PUMP:
-            return "pump-app"
+            return 'pump-app'
         if self == Efr32App.AIR_QUALITY_SENSOR:
-            return "air-quality-sensor-app"
+            return 'air-quality-sensor-app'
         if self == Efr32App.CLOSURE:
-            return "closure-app"
+            return 'closure-app'
         if self == Efr32App.SMOKE_CO_ALARM:
-            return "smoke-co-alarm-app"
-        raise Exception("Unknown app type: %r" % self)
+            return 'smoke-co-alarm-app'
+        raise Exception('Unknown app type: %r' % self)
 
     def AppNamePrefix(self):
         if self == Efr32App.EVSE:
-            return "matter-silabs-evse-example"
+            return 'matter-silabs-evse-example'
         if self == Efr32App.WATER_HEATER:
-            return "matter-silabs-water-heater-example"
+            return 'matter-silabs-water-heater-example'
         if self == Efr32App.LIGHT:
-            return "matter-silabs-lighting-example"
+            return 'matter-silabs-lighting-example'
         if self == Efr32App.LOCK:
-            return "matter-silabs-lock-example"
+            return 'matter-silabs-lock-example'
         if self == Efr32App.SWITCH:
-            return "matter-silabs-light-switch-example"
+            return 'matter-silabs-light-switch-example'
         if self == Efr32App.WINDOW_COVERING:
-            return "matter-silabs-window-example"
+            return 'matter-silabs-window-example'
         if self == Efr32App.THERMOSTAT:
-            return "matter-silabs-thermostat-example"
+            return 'matter-silabs-thermostat-example'
         if self == Efr32App.PUMP:
-            return "matter-silabs-pump-example"
+            return 'matter-silabs-pump-example'
         if self == Efr32App.UNIT_TEST:
-            return "matter-silabs-device_tests"
+            return 'matter-silabs-device_tests'
         if self == Efr32App.AIR_QUALITY_SENSOR:
-            return "matter-silabs-air-quality-sensor-example"
+            return 'matter-silabs-air-quality-sensor-example'
         if self == Efr32App.CLOSURE:
-            return "matter-silabs-closure-example"
+            return 'matter-silabs-closure-example'
         if self == Efr32App.SMOKE_CO_ALARM:
-            return "matter-silabs-smoke-co-alarm-example"
-        raise Exception("Unknown app type: %r" % self)
+            return 'matter-silabs-smoke-co-alarm-example'
+        raise Exception('Unknown app type: %r' % self)
 
     def FlashBundleName(self):
         if self == Efr32App.EVSE:
-            return "evse_app.flashbundle.txt"
+            return 'evse_app.flashbundle.txt'
         if self == Efr32App.WATER_HEATER:
-            return "water_heater_app.flashbundle.txt"
+            return 'water_heater_app.flashbundle.txt'
         if self == Efr32App.LIGHT:
-            return "lighting_app.flashbundle.txt"
+            return 'lighting_app.flashbundle.txt'
         if self == Efr32App.LOCK:
-            return "lock_app.flashbundle.txt"
+            return 'lock_app.flashbundle.txt'
         if self == Efr32App.SWITCH:
-            return "light_switch_app.flashbundle.txt"
+            return 'light_switch_app.flashbundle.txt'
         if self == Efr32App.WINDOW_COVERING:
-            return "window_app.flashbundle.txt"
+            return 'window_app.flashbundle.txt'
         if self == Efr32App.THERMOSTAT:
-            return "thermostat_app.flashbundle.txt"
+            return 'thermostat_app.flashbundle.txt'
         if self == Efr32App.PUMP:
-            return "pump_app.flashbundle.txt"
+            return 'pump_app.flashbundle.txt'
         if self == Efr32App.UNIT_TEST:
-            return os.path.join("tests", "efr32_device_tests.flashbundle.txt")
+            return os.path.join('tests', 'efr32_device_tests.flashbundle.txt')
         if self == Efr32App.AIR_QUALITY_SENSOR:
-            return "air_quality_sensor_app.flashbundle.txt"
+            return 'air_quality_sensor_app.flashbundle.txt'
         if self == Efr32App.CLOSURE:
-            return "closure_app.flashbundle.txt"
+            return 'closure_app.flashbundle.txt'
         if self == Efr32App.SMOKE_CO_ALARM:
-            return "smoke_co_alarm_app.flashbundle.txt"
-        raise Exception("Unknown app type: %r" % self)
+            return 'smoke_co_alarm_app.flashbundle.txt'
+        raise Exception('Unknown app type: %r' % self)
 
     def BuildRoot(self, root):
         if self == Efr32App.UNIT_TEST:
-            return os.path.join(root, "src", "test_driver", "efr32")
-        return os.path.join(root, "examples", self.ExampleName(), "silabs")
+            return os.path.join(root, 'src', 'test_driver', 'efr32')
+        return os.path.join(root, 'examples', self.ExampleName(), 'silabs')
 
 
 class Efr32Board(Enum):
@@ -145,159 +145,158 @@ class Efr32Board(Enum):
 
     def GnArgName(self):
         if self == Efr32Board.BRD2704B:
-            return "BRD2704B"
+            return 'BRD2704B'
         if self == Efr32Board.BRD4316A:
-            return "BRD4316A"
+            return 'BRD4316A'
         if self == Efr32Board.BRD4317A:
-            return "BRD4317A"
+            return 'BRD4317A'
         if self == Efr32Board.BRD4318A:
-            return "BRD4318A"
+            return 'BRD4318A'
         if self == Efr32Board.BRD4319A:
-            return "BRD4319A"
+            return 'BRD4319A'
         if self == Efr32Board.BRD4186A:
-            return "BRD4186A"
+            return 'BRD4186A'
         if self == Efr32Board.BRD4187A:
-            return "BRD4187A"
+            return 'BRD4187A'
         if self == Efr32Board.BRD2601B:
-            return "BRD2601B"
+            return 'BRD2601B'
         if self == Efr32Board.BRD4186C:
-            return "BRD4186C"
+            return 'BRD4186C'
         if self == Efr32Board.BRD4187C:
-            return "BRD4187C"
+            return 'BRD4187C'
         if self == Efr32Board.BRD4338A:
-            return "BRD4338A"
+            return 'BRD4338A'
         if self == Efr32Board.BRD2703A:
-            return "BRD2703A"
+            return 'BRD2703A'
         if self == Efr32Board.BRD2605A:
-            return "BRD2605A"
+            return 'BRD2605A'
         if self == Efr32Board.BRD4343A:
-            return "BRD4343A"
+            return 'BRD4343A'
         if self == Efr32Board.BRD4342A:
-            return "BRD4342A"
+            return 'BRD4342A'
         if self == Efr32Board.BRD2708A:
-            return "BRD2708A"
+            return 'BRD2708A'
         if self == Efr32Board.BRD2911A:
-            return "BRD2911A"
-        raise Exception("Unknown board #: %r" % self)
+            return 'BRD2911A'
+        raise Exception('Unknown board #: %r' % self)
 
 
 class Efr32Builder(GnBuilder):
-    def __init__(
-        self,
-        root,
-        runner,
-        app: Efr32App = Efr32App.LIGHT,
-        board: Efr32Board = Efr32Board.BRD4187C,
-        chip_build_libshell: bool = False,
-        chip_logging: bool = True,
-        chip_openthread_ftd: bool = True,
-        enable_heap_monitoring: bool = False,
-        enable_openthread_cli: bool = True,
-        show_qr_code: bool = False,
-        enable_rpcs: bool = False,
-        enable_ota_requestor: bool = False,
-        enable_icd: bool = False,
-        enable_low_power: bool = False,
-        enable_wifi: bool = False,
-        enable_wf200: bool = False,
-        enable_917_ncp: bool = False,
-        enable_wifi_ipv4: bool = False,
-        enable_additional_data_advertising: bool = False,
-        enable_ot_lib: bool = False,
-        enable_ot_coap_lib: bool = False,
-        no_version: bool = False,
-        enable_917_soc: bool = False,
-        use_rps_extension: bool = True,
-    ):
-        super(Efr32Builder, self).__init__(root=app.BuildRoot(root), runner=runner)
+
+    def __init__(self,
+                 root,
+                 runner,
+                 app: Efr32App = Efr32App.LIGHT,
+                 board: Efr32Board = Efr32Board.BRD4187C,
+                 chip_build_libshell: bool = False,
+                 chip_logging: bool = True,
+                 chip_openthread_ftd: bool = True,
+                 enable_heap_monitoring: bool = False,
+                 enable_openthread_cli: bool = True,
+                 show_qr_code: bool = False,
+                 enable_rpcs: bool = False,
+                 enable_ota_requestor: bool = False,
+                 enable_icd: bool = False,
+                 enable_low_power: bool = False,
+                 enable_wifi: bool = False,
+                 enable_wf200: bool = False,
+                 enable_917_ncp: bool = False,
+                 enable_wifi_ipv4: bool = False,
+                 enable_additional_data_advertising: bool = False,
+                 enable_ot_lib: bool = False,
+                 enable_ot_coap_lib: bool = False,
+                 no_version: bool = False,
+                 enable_917_soc: bool = False,
+                 use_rps_extension: bool = True
+                 ):
+        super(Efr32Builder, self).__init__(
+            root=app.BuildRoot(root),
+            runner=runner)
         self.app = app
         self.extra_gn_options = ['silabs_board="%s"' % board.GnArgName()]
-        self.dotfile = ""
+        self.dotfile = ''
 
         if enable_rpcs:
             self.extra_gn_options.append('is_debug=false import("//with_pw_rpc.gni")')
 
         if enable_ota_requestor:
-            self.extra_gn_options.append("chip_enable_ota_requestor=true")
+            self.extra_gn_options.append('chip_enable_ota_requestor=true')
 
         if enable_icd:
-            self.extra_gn_options.append("chip_enable_icd_server=true chip_openthread_ftd=false")
+            self.extra_gn_options.append('chip_enable_icd_server=true chip_openthread_ftd=false')
 
         if enable_low_power:
             self.extra_gn_options.append(
-                "chip_build_libshell=false enable_openthread_cli=false show_qr_code=false disable_lcd=true"
-            )
+                'chip_build_libshell=false enable_openthread_cli=false show_qr_code=false disable_lcd=true')
 
         if chip_build_libshell:
-            self.extra_gn_options.append("chip_build_libshell=true")
+            self.extra_gn_options.append('chip_build_libshell=true')
 
         if chip_logging is False:
-            self.extra_gn_options.append("chip_logging=false")
+            self.extra_gn_options.append('chip_logging=false')
 
         if chip_openthread_ftd is False:
-            self.extra_gn_options.append("chip_openthread_ftd=false")
+            self.extra_gn_options.append('chip_openthread_ftd=false')
 
         if enable_heap_monitoring:
-            self.extra_gn_options.append("enable_heap_monitoring=true")
+            self.extra_gn_options.append('enable_heap_monitoring=true')
 
         if enable_openthread_cli is False:
-            self.extra_gn_options.append("enable_openthread_cli=false")
+            self.extra_gn_options.append('enable_openthread_cli=false')
 
         if show_qr_code:
-            self.extra_gn_options.append("show_qr_code=true")
+            self.extra_gn_options.append('show_qr_code=true')
 
         if enable_wifi:
-            self.dotfile += self.root + "/build_for_wifi_gnfile.gn"
+            self.dotfile += self.root + '/build_for_wifi_gnfile.gn'
             if enable_917_soc:
                 # Wifi SoC platform
-                self.extra_gn_options.append('chip_device_platform="SiWx917"')
+                self.extra_gn_options.append('chip_device_platform=\"SiWx917\"')
             else:
                 if enable_wf200:
-                    self.extra_gn_options.append('use_wf200=true chip_device_platform ="efr32"')
+                    self.extra_gn_options.append('use_wf200=true chip_device_platform =\"efr32\"')
                 elif enable_917_ncp:
-                    self.extra_gn_options.append('use_SiWx917=true chip_device_platform ="efr32"')
+                    self.extra_gn_options.append('use_SiWx917=true chip_device_platform =\"efr32\"')
                 else:
-                    raise Exception("Wifi usage: ...-wifi-[wf200|siwx917]-...")
+                    raise Exception('Wifi usage: ...-wifi-[wf200|siwx917]-...')
 
         if enable_wifi_ipv4:
-            self.extra_gn_options.append("chip_enable_wifi_ipv4=true")
+            self.extra_gn_options.append('chip_enable_wifi_ipv4=true')
 
         if enable_additional_data_advertising:
-            self.extra_gn_options.append("chip_enable_additional_data_advertising=true chip_enable_rotating_device_id=true")
+            self.extra_gn_options.append('chip_enable_additional_data_advertising=true chip_enable_rotating_device_id=true')
 
         if enable_ot_lib:
             self.extra_gn_options.append(
-                'use_silabs_thread_lib=true chip_openthread_target="../silabs:ot-efr32-cert" openthread_external_platform=""'
-            )
+                'use_silabs_thread_lib=true chip_openthread_target="../silabs:ot-efr32-cert" openthread_external_platform=""')
 
         if enable_ot_coap_lib:
             self.extra_gn_options.append(
                 'use_silabs_thread_lib=true chip_openthread_target="../silabs:ot-efr32-cert" '
-                'use_thread_coap_lib=true openthread_external_platform=""'
-            )
+                'use_thread_coap_lib=true openthread_external_platform=""')
 
         if not no_version:
-            shortCommitSha = (
-                subprocess.check_output(["git", "describe", "--always", "--dirty", "--exclude", "*"]).decode("ascii").strip()
-            )
-            branchName = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode("ascii").strip()
-            self.extra_gn_options.append('sl_matter_version_str="v1.3-%s-%s"' % (branchName, shortCommitSha))
+            shortCommitSha = subprocess.check_output(
+                ['git', 'describe', '--always', '--dirty', '--exclude', '*']).decode('ascii').strip()
+            branchName = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('ascii').strip()
+            self.extra_gn_options.append(
+                'sl_matter_version_str="v1.3-%s-%s"' % (branchName, shortCommitSha))
 
         if use_rps_extension is False:
-            self.extra_gn_options.append("use_rps_extension=false")
+            self.extra_gn_options.append('use_rps_extension=false')
 
         if "GSDK_ROOT" in os.environ:
             # EFR32 SDK is very large. If the SDK path is already known (the
             # case for pre-installed images), use it directly.
-            sdk_path = shlex.quote(os.environ["GSDK_ROOT"])
-            self.extra_gn_options.append(f'efr32_sdk_root="{sdk_path}"')
+            sdk_path = shlex.quote(os.environ['GSDK_ROOT'])
+            self.extra_gn_options.append(f"efr32_sdk_root=\"{sdk_path}\"")
 
         if "GSDK_ROOT" in os.environ and not enable_wifi:
-            self.extra_gn_options.append(f'openthread_root="{sdk_path}/openthread_stack/util/third_party/openthread"')
+            self.extra_gn_options.append(f"openthread_root=\"{sdk_path}/openthread_stack/util/third_party/openthread\"")
 
         if "WIFI_SDK_ROOT" in os.environ:
-            wifi_sdk_path = shlex.quote(os.environ["WIFI_SDK_ROOT"])
-            self.extra_gn_options.append(f'wifi_sdk_root="{wifi_sdk_path}"')
+            wifi_sdk_path = shlex.quote(os.environ['WIFI_SDK_ROOT'])
+            self.extra_gn_options.append(f"wifi_sdk_root=\"{wifi_sdk_path}\"")
 
     def GnBuildArgs(self):
         args = super().GnBuildArgs()
@@ -308,7 +307,7 @@ class Efr32Builder(GnBuilder):
         # Only unit-test needs to generate the flashbundle here.  All other examples will generate a flashbundle via the silabs_executable template.
         if self.app == Efr32App.UNIT_TEST:
             flash_bundle_path = os.path.join(self.output_dir, self.app.FlashBundleName())
-            log.info(f"Generating flashbundle {flash_bundle_path}")
+            log.info(f'Generating flashbundle {flash_bundle_path}')
 
             patterns = [
                 os.path.join(self.output_dir, "tests", "*.flash.py"),
@@ -323,7 +322,7 @@ class Efr32Builder(GnBuilder):
                 files.extend([os.path.basename(x) for x in glob.glob(pattern)])
 
             # Create the bundle file.
-            with open(flash_bundle_path, "w") as bundle_file:
+            with open(flash_bundle_path, 'w') as bundle_file:
                 bundle_file.write("\n".join(files))
 
     def build_outputs(self):
@@ -345,9 +344,11 @@ class Efr32Builder(GnBuilder):
 
         if self.app == Efr32App.UNIT_TEST:
             # Include test runner python wheels
-            for root, dirs, files in os.walk(os.path.join(self.output_dir, "chip_pw_test_runner_wheels")):
+            for root, dirs, files in os.walk(os.path.join(self.output_dir, 'chip_pw_test_runner_wheels')):
                 for file in files:
-                    yield BuilderOutput(os.path.join(root, file), os.path.join("chip_pw_test_runner_wheels", file))
+                    yield BuilderOutput(
+                        os.path.join(root, file),
+                        os.path.join("chip_pw_test_runner_wheels", file))
 
     def bundle_outputs(self):
         # If flashbundle creation is enabled, the outputs will include the s37 and flash.py files, plus the two firmware utils scripts that support flash.py.
@@ -358,21 +359,32 @@ class Efr32Builder(GnBuilder):
                     sourcepath = os.path.join(self.output_dir, "tests", name)  # Unit tests are in the "tests" subdir.
                 else:
                     sourcepath = os.path.join(self.output_dir, name)
-                yield BuilderOutput(sourcepath, os.path.join("flashbundle", name))
+                yield BuilderOutput(
+                    sourcepath,
+                    os.path.join("flashbundle", name))
 
     def generate(self, dedup=False):
-        cmd = ["gn", "gen", "--check", "--fail-on-unused-args", "--add-export-compile-commands=*", "--root=%s" % self.root]
+        cmd = [
+            'gn', 'gen', '--check', '--fail-on-unused-args',
+            '--add-export-compile-commands=*',
+            '--root=%s' % self.root
+        ]
         if self.dotfile:
-            cmd += ["--dotfile=%s" % self.dotfile]
+            cmd += ['--dotfile=%s' % self.dotfile]
 
         if args := self.GnBuildArgs():
-            cmd += ["--args=%s" % " ".join(args)]
+            cmd += ['--args=%s' % ' '.join(args)]
 
         cmd += [self.output_dir]
 
         if env := self.GnBuildEnv():
             # convert the command into a bash command that includes
             # setting environment variables
-            cmd = ["bash", "-c", "\n" + " ".join(['%s="%s" \\\n' % (key, value) for key, value in env.items()] + [shlex.join(cmd)])]
+            cmd = [
+                'bash', '-c', '\n' + ' '.join(
+                    ['%s="%s" \\\n' % (key, value) for key, value in env.items()] +
+                    [shlex.join(cmd)]
+                )
+            ]
 
         self._Execute(cmd, title=f"Generating {self.identifier}", dedup=dedup)

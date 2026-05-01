@@ -15,25 +15,8 @@
 import logging
 from typing import Any, Optional
 
-from matter.idl.matter_idl_types import (
-    Attribute,
-    Bitmap,
-    Cluster,
-    Command,
-    CommandQuality,
-    ConstantEntry,
-    DataType,
-    Enum,
-    Event,
-    EventPriority,
-    EventQuality,
-    Field,
-    FieldQuality,
-    Idl,
-    Struct,
-    StructQuality,
-    StructTag,
-)
+from matter.idl.matter_idl_types import (Attribute, Bitmap, Cluster, Command, CommandQuality, ConstantEntry, DataType, Enum, Event,
+                                         EventPriority, EventQuality, Field, FieldQuality, Idl, Struct, StructQuality, StructTag)
 
 from .base import BaseHandler, HandledDepth
 from .context import Context, IdlPostProcessor
@@ -43,7 +26,7 @@ log = logging.getLogger(__name__)
 
 
 def _IsConformanceTagName(name: str) -> bool:
-    return name in {"mandatoryConform", "optionalConform", "otherwiseConform", "provisionalConform", "deprecateConform"}
+    return name in {'mandatoryConform', 'optionalConform', 'otherwiseConform', 'provisionalConform', 'deprecateConform'}
 
 
 class ClusterNameHandler(BaseHandler):
@@ -54,7 +37,7 @@ class ClusterNameHandler(BaseHandler):
         self._cluster = cluster
 
     def HandleContent(self, content):
-        self._cluster.name = content.replace(" ", "")
+        self._cluster.name = content.replace(' ', '')
 
 
 class AttributeDescriptionHandler(BaseHandler):
@@ -65,7 +48,7 @@ class AttributeDescriptionHandler(BaseHandler):
         self._attribute = attribute
 
     def HandleContent(self, content: str):
-        self._attribute.definition.name = content.replace(" ", "")
+        self._attribute.definition.name = content.replace(' ', '')
 
 
 class ClusterCodeHandler(BaseHandler):
@@ -86,50 +69,50 @@ class EventHandler(BaseHandler):
         super().__init__(context)
         self._cluster = cluster
 
-        if attrs["priority"] == "debug":
+        if attrs['priority'] == 'debug':
             priority = EventPriority.DEBUG
-        elif attrs["priority"] == "info":
+        elif attrs['priority'] == 'info':
             priority = EventPriority.INFO
-        elif attrs["priority"] == "critical":
+        elif attrs['priority'] == 'critical':
             priority = EventPriority.CRITICAL
         else:
-            raise Exception("Unknown event priority: %s" % attrs["priority"])
+            raise Exception("Unknown event priority: %s" % attrs['priority'])
 
         self._event = Event(
             priority=priority,
-            code=ParseInt(attrs["code"]),
-            name=attrs["name"],
+            code=ParseInt(attrs['code']),
+            name=attrs['name'],
             fields=[],
         )
 
-        if attrs.get("isFabricSensitive", "false").lower() == "true":
+        if attrs.get('isFabricSensitive', "false").lower() == 'true':
             self._event.qualities |= EventQuality.FABRIC_SENSITIVE
 
     def GetNextProcessor(self, name: str, attrs):
-        if name.lower() == "field":
-            data_type = DataType(name=attrs["type"])
-            if "length" in attrs:
-                data_type.max_length = ParseInt(attrs["length"])
+        if name.lower() == 'field':
+            data_type = DataType(name=attrs['type'])
+            if 'length' in attrs:
+                data_type.max_length = ParseInt(attrs['length'])
 
             field = Field(
                 data_type=data_type,
-                code=ParseInt(attrs["fieldId"] if "fieldId" in attrs else attrs["id"]),
-                name=attrs["name"],
-                is_list=(attrs.get("array", "false").lower() == "true"),
+                code=ParseInt(attrs['fieldId'] if 'fieldId' in attrs else attrs['id']),
+                name=attrs['name'],
+                is_list=(attrs.get('array', 'false').lower() == 'true'),
             )
 
-            if attrs.get("optional", "false").lower() == "true":
+            if attrs.get('optional', "false").lower() == 'true':
                 field.qualities |= FieldQuality.OPTIONAL
 
-            if attrs.get("isNullable", "false").lower() == "true":
+            if attrs.get('isNullable', "false").lower() == 'true':
                 field.qualities |= FieldQuality.NULLABLE
 
             self._event.fields.append(field)
             return BaseHandler(self.context, handled=HandledDepth.SINGLE_TAG)
-        if name.lower() == "access":
+        if name.lower() == 'access':
             self._event.readacl = AttrsToAccessPrivilege(attrs)
             return BaseHandler(self.context, handled=HandledDepth.SINGLE_TAG)
-        if name.lower() == "description":
+        if name.lower() == 'description':
             return DescriptionHandler(self.context, self._event)
         if _IsConformanceTagName(name):
             # we do not parse conformance at this point
@@ -149,24 +132,24 @@ class AttributeHandler(BaseHandler):
         self._attribute = AttrsToAttribute(attrs)
 
     def GetNextProcessor(self, name: str, attrs):
-        if name.lower() == "access":
+        if name.lower() == 'access':
             # Modifier not currently used: fabric scoped exists on the structure itself.
-            if "modifier" in attrs:
-                if attrs["modifier"] != "fabric-scoped":
-                    raise Exception("UNKNOWN MODIFIER: %s" % attrs["modifier"])
+            if 'modifier' in attrs:
+                if attrs['modifier'] != 'fabric-scoped':
+                    raise Exception("UNKNOWN MODIFIER: %s" % attrs['modifier'])
 
-            if ("role" in attrs) or ("privilege" in attrs):
+            if ('role' in attrs) or ('privilege' in attrs):
                 role = AttrsToAccessPrivilege(attrs)
 
-                if attrs["op"] == "read":
+                if attrs['op'] == 'read':
                     self._attribute.readacl = role
-                elif attrs["op"] == "write":
+                elif attrs['op'] == 'write':
                     self._attribute.writeacl = role
                 else:
-                    log.error("Unknown access: %r", attrs["op"])
+                    log.error("Unknown access: %r", attrs['op'])
 
             return BaseHandler(self.context, handled=HandledDepth.SINGLE_TAG)
-        if name.lower() == "description":
+        if name.lower() == 'description':
             return AttributeDescriptionHandler(self.context, self._attribute)
         if _IsConformanceTagName(name):
             # we do not parse conformance at this point
@@ -199,57 +182,59 @@ class SkipProvisioalHandler(BaseHandler):
 
 
 class StructHandler(BaseHandler, IdlPostProcessor):
-    """Handling /configurator/struct elements."""
+    """ Handling /configurator/struct elements."""
 
     def __init__(self, context: Context, attrs):
         super().__init__(context)
 
         # if set, struct belongs to a specific cluster
         self._cluster_codes = set()
-        self._struct = Struct(name=attrs["name"], fields=[])
+        self._struct = Struct(name=attrs['name'], fields=[])
         self._field_index = 0
         # The following are not set:
         #    - tag not set because not a request/response
         #    - code not set because not a response
 
-        if attrs.get("isFabricScoped", "false").lower() == "true":
+        if attrs.get('isFabricScoped', "false").lower() == 'true':
             self._struct.qualities |= StructQuality.FABRIC_SCOPED
 
     def GetNextProcessor(self, name: str, attrs):
-        if name.lower() == "item":
-            data_type = DataType(name=attrs["type"])
+        if name.lower() == 'item':
+            data_type = DataType(
+                name=attrs['type']
+            )
 
-            if "fieldId" in attrs:
-                field_index = ParseInt(attrs["fieldId"])
+            if 'fieldId' in attrs:
+                field_index = ParseInt(attrs['fieldId'])
             else:
                 # NOTE: code does NOT exist, so the number is incremental here
                 #       this seems a defficiency in XML format.
                 field_index = self._field_index
             self._field_index = field_index + 1
 
-            if "length" in attrs:
-                data_type.max_length = ParseInt(attrs["length"])
+            if 'length' in attrs:
+                data_type.max_length = ParseInt(attrs['length'])
 
             field = Field(
                 data_type=data_type,
                 code=field_index,
-                name=attrs["name"],
-                is_list=(attrs.get("array", "false").lower() == "true"),
+                name=attrs['name'],
+                is_list=(attrs.get('array', 'false').lower() == 'true'),
             )
 
-            if attrs.get("optional", "false").lower() == "true":
+            if attrs.get('optional', "false").lower() == 'true':
                 field.qualities |= FieldQuality.OPTIONAL
 
-            if attrs.get("isNullable", "false").lower() == "true":
+            if attrs.get('isNullable', "false").lower() == 'true':
                 field.qualities |= FieldQuality.NULLABLE
 
-            if attrs.get("isFabricSensitive", "false").lower() == "true":
+            if attrs.get('isFabricSensitive', "false").lower() == 'true':
                 field.qualities |= FieldQuality.FABRIC_SENSITIVE
 
             self._struct.fields.append(field)
             return SkipProvisioalHandler(self.context, attrs)
-        if name.lower() == "cluster":
-            self._cluster_codes.add(ParseInt(attrs["code"]))
+        if name.lower() == 'cluster':
+            self._cluster_codes.add(ParseInt(attrs['code']))
             return BaseHandler(self.context, handled=HandledDepth.SINGLE_TAG)
         return BaseHandler(self.context)
 
@@ -276,7 +261,7 @@ class StructHandler(BaseHandler, IdlPostProcessor):
 
 
 class EnumHandler(BaseHandler, IdlPostProcessor):
-    """Handling /configurator/enum elements."""
+    """ Handling /configurator/enum elements."""
 
     def __init__(self, context: Context, attrs):
         super().__init__(context)
@@ -284,14 +269,18 @@ class EnumHandler(BaseHandler, IdlPostProcessor):
         # no cluster codes means global. Note that at the time
         # of writing this, no global enums were defined in XMLs
         self._cluster_codes = set()
-        self._enum = Enum(name=attrs["name"], base_type=attrs["type"], entries=[])
+        self._enum = Enum(name=attrs['name'],
+                          base_type=attrs['type'], entries=[])
 
     def GetNextProcessor(self, name, attrs):
-        if name.lower() == "item":
-            self._enum.entries.append(ConstantEntry(name=attrs["name"], code=ParseInt(attrs["value"])))
+        if name.lower() == 'item':
+            self._enum.entries.append(ConstantEntry(
+                name=attrs['name'],
+                code=ParseInt(attrs['value'])
+            ))
             return BaseHandler(self.context, handled=HandledDepth.SINGLE_TAG)
-        if name.lower() == "cluster":
-            self._cluster_codes.add(ParseInt(attrs["code"]))
+        if name.lower() == 'cluster':
+            self._cluster_codes.add(ParseInt(attrs['code']))
             return BaseHandler(self.context, handled=HandledDepth.SINGLE_TAG)
         return BaseHandler(self.context)
 
@@ -314,22 +303,26 @@ class EnumHandler(BaseHandler, IdlPostProcessor):
 
 
 class BitmapHandler(BaseHandler):
-    """Handling /configurator/bitmap elements."""
+    """ Handling /configurator/bitmap elements."""
 
     def __init__(self, context: Context, attrs):
         super().__init__(context)
         self._cluster_codes = set()
-        self._bitmap = Bitmap(name=attrs["name"], base_type=attrs["type"], entries=[])
+        self._bitmap = Bitmap(
+            name=attrs['name'], base_type=attrs['type'], entries=[])
 
     def GetNextProcessor(self, name, attrs):
-        if name.lower() == "cluster":
+        if name.lower() == 'cluster':
             # Multiple clusters may be associated, like IasZoneStatus
-            self._cluster_codes.add(ParseInt(attrs["code"]))
+            self._cluster_codes.add(ParseInt(attrs['code']))
             return BaseHandler(self.context, handled=HandledDepth.SINGLE_TAG)
-        if name.lower() == "field":
-            self._bitmap.entries.append(ConstantEntry(name=attrs["name"], code=ParseInt(attrs["mask"])))
+        if name.lower() == 'field':
+            self._bitmap.entries.append(ConstantEntry(
+                name=attrs['name'],
+                code=ParseInt(attrs['mask'])
+            ))
             return BaseHandler(self.context, handled=HandledDepth.SINGLE_TAG)
-        if name.lower() == "description":
+        if name.lower() == 'description':
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
         return BaseHandler(self.context)
 
@@ -357,22 +350,20 @@ class BitmapHandler(BaseHandler):
 class FeaturesHandler(BaseHandler):
     """Handles .../features
 
-    Attaches a "Feature" bitmap to the given structure
+       Attaches a "Feature" bitmap to the given structure
     """
 
     def __init__(self, context: Context, cluster: Cluster):
         super().__init__(context)
-        self._features = Bitmap(name="Feature", base_type="bitmap32", entries=[])
+        self._features = Bitmap(name='Feature', base_type="bitmap32", entries=[])
         self._cluster = cluster
 
     def GetNextProcessor(self, name, attrs):
-        if name.lower() == "feature":
-            self._features.entries.append(
-                ConstantEntry(
-                    name=attrs["name"],
-                    code=1 << ParseInt(attrs["bit"]),
-                )
-            )
+        if name.lower() == 'feature':
+            self._features.entries.append(ConstantEntry(
+                name=attrs['name'],
+                code=1 << ParseInt(attrs['bit']),
+            ))
 
             # Sub-elements are conformance which is not representable in IDL
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
@@ -386,7 +377,7 @@ class FeaturesHandler(BaseHandler):
 class DescriptionHandler(BaseHandler):
     """Handles .../description text elements
 
-    Attaches a "description" attribute to a given structure
+       Attaches a "description" attribute to a given structure
     """
 
     def __init__(self, context: Context, target: Any):
@@ -404,77 +395,80 @@ class CommandHandler(BaseHandler):
         super().__init__(context)
         self._cluster = cluster
         self._command = None
-        self._struct = Struct(name=attrs["name"], fields=[])
+        self._struct = Struct(name=attrs['name'], fields=[])
         self._field_index = 0  # commands DO NOT support field index it seems
 
-        if attrs["source"].lower() == "client":
+        if attrs['source'].lower() == 'client':
             self._struct.tag = StructTag.REQUEST
 
-            name = attrs["name"]
+            name = attrs['name']
 
-            if name.endswith("Request"):
+            if name.endswith('Request'):
                 request_name = name
             else:
-                request_name = name + "Request"
+                request_name = name + 'Request'
 
             self._struct.name = request_name
 
-            if "response" in attrs:
-                response_name = attrs["response"]
+            if 'response' in attrs:
+                response_name = attrs['response']
             else:
-                response_name = "DefaultResponse"
+                response_name = 'DefaultResponse'
 
             self._command = Command(
                 name=name,
-                code=ParseInt(attrs["code"]),
+                code=ParseInt(attrs['code']),
                 input_param=request_name,
                 output_param=response_name,
             )
 
-            if attrs.get("isFabricScoped", "false") == "true":
+            if attrs.get('isFabricScoped', 'false') == 'true':
                 self._command.qualities |= CommandQuality.FABRIC_SCOPED
 
-            if attrs.get("mustUseTimedInvoke", "false") == "true":
+            if attrs.get('mustUseTimedInvoke', 'false') == 'true':
                 self._command.qualities |= CommandQuality.TIMED_INVOKE
 
         else:
             self._struct.tag = StructTag.RESPONSE
-            self._struct.code = ParseInt(attrs["code"])
+            self._struct.code = ParseInt(attrs['code'])
 
     def GetArgumentField(self, attrs):
-        data_type = DataType(name=attrs["type"])
+        data_type = DataType(name=attrs['type'])
 
-        if "length" in attrs:
-            data_type.max_length = ParseInt(attrs["length"])
+        if 'length' in attrs:
+            data_type.max_length = ParseInt(attrs['length'])
 
         field = Field(
-            data_type=data_type, code=self._field_index, name=attrs["name"], is_list=(attrs.get("array", "false") == "true")
+            data_type=data_type,
+            code=self._field_index,
+            name=attrs['name'],
+            is_list=(attrs.get('array', 'false') == 'true')
         )
 
         self._field_index += 1
 
-        if attrs.get("optional", "false").lower() == "true":
+        if attrs.get('optional', "false").lower() == 'true':
             field.qualities |= FieldQuality.OPTIONAL
 
-        if attrs.get("isNullable", "false").lower() == "true":
+        if attrs.get('isNullable', "false").lower() == 'true':
             field.qualities |= FieldQuality.NULLABLE
 
         return field
 
     def GetNextProcessor(self, name: str, attrs):
-        if name.lower() == "access":
-            if attrs["op"] != "invoke":
-                raise Exception("Unknown access for %r" % self._struct)
+        if name.lower() == 'access':
+            if attrs['op'] != 'invoke':
+                raise Exception('Unknown access for %r' % self._struct)
 
             if self._command:
                 self._command.invokeacl = AttrsToAccessPrivilege(attrs)
             else:
                 log.warning("Ignored access role for reply %r", self._struct)
             return BaseHandler(self.context, handled=HandledDepth.SINGLE_TAG)
-        if name.lower() == "arg":
+        if name.lower() == 'arg':
             self._struct.fields.append(self.GetArgumentField(attrs))
             return BaseHandler(self.context, handled=HandledDepth.SINGLE_TAG)
-        if name.lower() == "description":
+        if name.lower() == 'description':
             if self._command:
                 return DescriptionHandler(self.context, self._command)
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
@@ -484,6 +478,7 @@ class CommandHandler(BaseHandler):
         return BaseHandler(self.context)
 
     def EndProcessing(self):
+
         if self._struct.fields:
             self._cluster.structs.append(self._struct)
         else:
@@ -503,7 +498,7 @@ class ClusterGlobalAttributeHandler(BaseHandler):
         self._code = code
 
     def GetNextProcessor(self, name: str, attrs):
-        if name.lower() == "featurebit":
+        if name.lower() == 'featurebit':
             # It is uncler what featurebits mean. likely a bitmap should be created
             # here, however only one such example exists currently: door-lock-cluster.xml
             log.info("Ignoring featurebit tag for global attribute 0x%X (%d)", self._code, self._code)
@@ -517,7 +512,8 @@ class ClusterGlobalAttributeHandler(BaseHandler):
                 #       be updated here.
                 return
 
-        self._cluster.attributes.append(self.context.GetGlobalAttribute(self._code))
+        self._cluster.attributes.append(
+            self.context.GetGlobalAttribute(self._code))
 
     def EndProcessing(self):
         self.context.AddIdlPostProcessor(self)
@@ -528,28 +524,32 @@ class ClusterHandler(BaseHandler):
 
     def __init__(self, context: Context, idl: Optional[Idl]):
         super().__init__(context)
-        self._cluster = Cluster(name="NAME-MISSING", code=-1, parse_meta=context.GetCurrentLocationMeta())
+        self._cluster = Cluster(
+            name="NAME-MISSING",
+            code=-1,
+            parse_meta=context.GetCurrentLocationMeta()
+        )
         self._idl = idl
 
     def GetNextProcessor(self, name: str, attrs):
-        if name.lower() == "code":
+        if name.lower() == 'code':
             return ClusterCodeHandler(self.context, self._cluster)
-        if name.lower() == "name":
+        if name.lower() == 'name':
             return ClusterNameHandler(self.context, self._cluster)
-        if name.lower() == "attribute":
+        if name.lower() == 'attribute':
             return AttributeHandler(self.context, self._cluster, attrs)
-        if name.lower() == "event":
+        if name.lower() == 'event':
             return EventHandler(self.context, self._cluster, attrs)
-        if name.lower() == "globalattribute":
+        if name.lower() == 'globalattribute':
             # We ignore 'side' and 'value' since they do not seem useful
-            return ClusterGlobalAttributeHandler(self.context, self._cluster, ParseInt(attrs["code"]))
-        if name.lower() == "command":
+            return ClusterGlobalAttributeHandler(self.context, self._cluster, ParseInt(attrs['code']))
+        if name.lower() == 'command':
             return CommandHandler(self.context, self._cluster, attrs)
-        if name.lower() == "description":
+        if name.lower() == 'description':
             return DescriptionHandler(self.context, self._cluster)
-        if name.lower() == "features":
+        if name.lower() == 'features':
             return FeaturesHandler(self.context, self._cluster)
-        if name.lower() in ["define", "domain", "tag", "client", "server"]:
+        if name.lower() in ['define', 'domain', 'tag', 'client', 'server']:
             # NOTE: we COULD use client and server to create separate definitions
             #       of each, but the usefulness of this is unclear as the definitions are
             #       likely identical and matter has no concept of differences between the two
@@ -565,7 +565,6 @@ class ClusterHandler(BaseHandler):
             raise Exception("Missing cluster code")
 
         self._idl.clusters.append(self._cluster)
-
 
 # Cluster extensions have extra bits for existing clusters. Can only be loaded
 # IF the underlying cluster exits
@@ -632,11 +631,11 @@ class GlobalHandler(BaseHandler):
         super().__init__(context, handled=HandledDepth.SINGLE_TAG)
 
     def GetNextProcessor(self, name, attrs):
-        if name.lower() == "attribute":
-            if attrs["side"].lower() == "client":
+        if name.lower() == 'attribute':
+            if attrs['side'].lower() == 'client':
                 # We expect to also have 'server' equivalent, so ignore client
                 # side attributes
-                log.debug("Ignoring global client-side attribute '%s'", attrs["code"])
+                log.debug("Ignoring global client-side attribute '%s'", attrs['code'])
                 return BaseHandler(self.context, handled=HandledDepth.SINGLE_TAG)
 
             return GlobalAttributeHandler(self.context, AttrsToAttribute(attrs))
@@ -652,40 +651,40 @@ class GlobalHandler(BaseHandler):
 
 
 class ConfiguratorHandler(BaseHandler):
-    """Handling /configurator elements."""
+    """ Handling /configurator elements."""
 
     def __init__(self, context: Context, idl: Idl):
         super().__init__(context, handled=HandledDepth.SINGLE_TAG)
         self._idl = idl
 
     def GetNextProcessor(self, name: str, attrs):
-        if name.lower() == "cluster":
+        if name.lower() == 'cluster':
             return ClusterHandler(self.context, self._idl)
-        if name.lower() == "enum":
+        if name.lower() == 'enum':
             return EnumHandler(self.context, attrs)
-        if name.lower() == "struct":
+        if name.lower() == 'struct':
             return StructHandler(self.context, attrs)
-        if name.lower() == "bitmap":
+        if name.lower() == 'bitmap':
             return BitmapHandler(self.context, attrs)
-        if name.lower() == "domain":
+        if name.lower() == 'domain':
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
-        if name.lower() == "clusterextension":
-            return ClusterExtensionHandler(self.context, ParseInt(attrs["code"]))
-        if name.lower() == "accesscontrol":
+        if name.lower() == 'clusterextension':
+            return ClusterExtensionHandler(self.context, ParseInt(attrs['code']))
+        if name.lower() == 'accesscontrol':
             # These contain operation/role/modifier and generally only contain a
             # description. These do not seem as useful to parse.
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
-        if name.lower() == "atomic":
+        if name.lower() == 'atomic':
             # A list of types in 'chip-types'
             # Generally does not seem useful - matches a type id to a description, size and some discrete/analog flags
             #
             # Could be eventually used as a preload of types into base types, however matter idl
             # generator logic has hardcoded sizing as well.
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
-        if name.lower() == "devicetype":
+        if name.lower() == 'devicetype':
             # A list of device types in 'matter-devices.xml'
             # Useful for conformance tests, but does not seem usable for serialization logic
             return BaseHandler(self.context, handled=HandledDepth.ENTIRE_TREE)
-        if name.lower() == "global":
+        if name.lower() == 'global':
             return GlobalHandler(self.context)
         return BaseHandler(self.context)

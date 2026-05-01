@@ -91,7 +91,8 @@ class InterfaceTypeFilterDelegate : public ServerBase::BroadcastSendDelegate
 public:
     InterfaceTypeFilterDelegate(chip::Inet::InterfaceId interface, chip::Inet::IPAddressType type,
                                 ServerBase::BroadcastSendDelegate * child) :
-        mInterface(interface), mAddressType(type), mChild(child)
+        mInterface(interface),
+        mAddressType(type), mChild(child)
     {}
 
     chip::Inet::UDPEndPointHandle Accept(ServerBase::EndpointInfo * info) override

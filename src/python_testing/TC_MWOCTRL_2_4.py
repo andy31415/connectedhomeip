@@ -53,6 +53,7 @@ log = logging.getLogger(__name__)
 
 
 class TC_MWOCTRL_2_4(MatterBaseTest):
+
     async def read_mwoctrl_attribute_expect_success(self, endpoint, attribute):
         cluster = Clusters.Objects.MicrowaveOvenControl
         return await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attribute)
@@ -80,6 +81,7 @@ class TC_MWOCTRL_2_4(MatterBaseTest):
 
     @async_test_body
     async def test_TC_MWOCTRL_2_4(self):
+
         endpoint = self.get_endpoint()
 
         self.step(1)
@@ -98,22 +100,17 @@ class TC_MWOCTRL_2_4(MatterBaseTest):
             return
 
         self.step(2)
-        supportedWattsList = await self.read_mwoctrl_attribute_expect_success(
-            endpoint=endpoint, attribute=attributes.SupportedWatts
-        )
+        supportedWattsList = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.SupportedWatts)
         asserts.assert_true(len(supportedWattsList) > 0, "SupportedWatts list is empty")
 
         self.step(3)
-        selectedWattIndex = await self.read_mwoctrl_attribute_expect_success(
-            endpoint=endpoint, attribute=attributes.SelectedWattIndex
-        )
+        selectedWattIndex = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.SelectedWattIndex)
         log.info("SelectedWattIndex is %s" % selectedWattIndex)
-        asserts.assert_true(
-            selectedWattIndex >= 0 and selectedWattIndex < len(supportedWattsList), "SelectedWattIndex is out of range"
-        )
+        asserts.assert_true(selectedWattIndex >= 0 and selectedWattIndex < len(
+            supportedWattsList), "SelectedWattIndex is out of range")
 
         self.step(4)
-        newWattIndex = (selectedWattIndex + 1) % (len(supportedWattsList) - 1)
+        newWattIndex = (selectedWattIndex+1) % (len(supportedWattsList)-1)
         try:
             await self.send_single_cmd(cmd=commands.SetCookingParameters(wattSettingIndex=newWattIndex), endpoint=endpoint)
         except InteractionModelError as e:
@@ -121,9 +118,7 @@ class TC_MWOCTRL_2_4(MatterBaseTest):
             pass
 
         self.step(5)
-        selectedWattIndex = await self.read_mwoctrl_attribute_expect_success(
-            endpoint=endpoint, attribute=attributes.SelectedWattIndex
-        )
+        selectedWattIndex = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.SelectedWattIndex)
         asserts.assert_true(selectedWattIndex == newWattIndex, "SelectedWattIndex was not correctly set")
 
 

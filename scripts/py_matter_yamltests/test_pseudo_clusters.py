@@ -26,23 +26,24 @@ class MockStep:
 
 
 class MyCluster(PseudoCluster):
-    name = "MyCluster"
+    name = 'MyCluster'
 
     async def MyCommand(self, request):
         pass
 
     async def MyCommandWithCustomSuccess(self, request):
-        return "CustomSuccess"
+        return 'CustomSuccess'
 
 
-unsupported_cluster_step = MockStep("UnsupportedCluster", "MyCommand")
-unsupported_command_step = MockStep("MyCluster", "UnsupportedCommand")
-supported_step = MockStep("MyCluster", "MyCommand")
-supported_step_with_custom_success = MockStep("MyCluster", "MyCommandWithCustomSuccess")
+unsupported_cluster_step = MockStep('UnsupportedCluster', 'MyCommand')
+unsupported_command_step = MockStep('MyCluster', 'UnsupportedCommand')
+supported_step = MockStep('MyCluster', 'MyCommand')
+supported_step_with_custom_success = MockStep(
+    'MyCluster', 'MyCommandWithCustomSuccess')
 
-default_failure = ({"error": "FAILURE"}, [])
+default_failure = ({'error': 'FAILURE'}, [])
 default_success = ({}, [])
-custom_success = ("CustomSuccess", [])
+custom_success = ('CustomSuccess', [])
 
 clusters = PseudoClusters([MyCluster()])
 
@@ -61,5 +62,5 @@ class TestPseudoClusters(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(await clusters.execute(supported_step_with_custom_success), custom_success)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

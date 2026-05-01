@@ -44,7 +44,8 @@ BooleanStateConfigurationCluster::BooleanStateConfigurationCluster(EndpointId en
                                                                    BitMask<BooleanStateConfiguration::Feature> features,
                                                                    OptionalAttributesSet optionalAttributes,
                                                                    const StartupConfiguration & config) :
-    DefaultServerCluster({ endpointId, BooleanStateConfiguration::Id }), mFeatures(features.Set(Feature::kFaultEvents)),
+    DefaultServerCluster({ endpointId, BooleanStateConfiguration::Id }),
+    mFeatures(features.Set(Feature::kFaultEvents)),
     mOptionalAttributes([&features, &optionalAttributes]() -> FullOptionalAttributesSet {
         // constructs the attribute set, that once constructed stays const
         AttributeSet enabledOptionalAttributes;

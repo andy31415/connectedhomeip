@@ -21,21 +21,21 @@ import os
 import subprocess
 import sys
 
-ZEPHYR_BASE = os.environ.get("ZEPHYR_BASE")
+ZEPHYR_BASE = os.environ.get('ZEPHYR_BASE')
 if ZEPHYR_BASE is None:
     raise EnvironmentError("ZEPHYR_BASE environment variable is not set")
 
 try:
     from core import BuildConfiguration
 except ImportError:
-    sys.path.append(os.path.abspath(os.path.join(ZEPHYR_BASE, "scripts/west_commands/runners")))
+    sys.path.append(os.path.abspath(os.path.join(ZEPHYR_BASE, 'scripts/west_commands/runners')))
     from core import BuildConfiguration
 
 
 def merge_binaries(input_file1, input_file2, output_file, offset):
-    with open(output_file, "r+b" if os.path.exists(output_file) else "wb") as outfile:
+    with open(output_file, 'r+b' if os.path.exists(output_file) else 'wb') as outfile:
         # Merge input_file1 at offset 0
-        with open(input_file1, "rb") as infile1:
+        with open(input_file1, 'rb') as infile1:
             outfile.seek(0)
             data1 = infile1.read()
             outfile.write(data1)
@@ -49,7 +49,7 @@ def merge_binaries(input_file1, input_file2, output_file, offset):
             print(f"Filled gap of {gap_size} bytes with 0xFF in {output_file} to reach offset {offset}")
 
         # Merge input_file2 at the specified offset
-        with open(input_file2, "rb") as infile2:
+        with open(input_file2, 'rb') as infile2:
             outfile.seek(offset)
             data2 = infile2.read()
             outfile.write(data2)
@@ -62,14 +62,14 @@ build_conf = BuildConfiguration(os.path.join(os.getcwd(), os.pardir))
 
 def compress_lzma_firmware(input_file, output_file):
     # Read the input firmware binary
-    with open(input_file, "rb") as f:
+    with open(input_file, 'rb') as f:
         firmware_data = f.read()  # Read the rest of the file from the offset
 
     # Define the properties
     lc = 1  # Literal context bits
     lp = 2  # Literal position bits
     pb = 0  # Position bits
-    dict_size = build_conf["CONFIG_COMPRESS_LZMA_DICTIONARY_SIZE"]  # dictionary size
+    dict_size = build_conf['CONFIG_COMPRESS_LZMA_DICTIONARY_SIZE']  # dictionary size
 
     # Create the LZMA compressor using the specified parameters
     compressor = lzma.LZMACompressor(
@@ -77,140 +77,124 @@ def compress_lzma_firmware(input_file, output_file):
         filters=[
             {
                 "id": lzma.FILTER_LZMA1,  # Use LZMA1 filter for compatibility
-                "dict_size": dict_size,  # Set dictionary size
-                "lc": lc,  # Literal context bits
-                "lp": lp,  # Literal position bits
-                "pb": pb,  # Position bits
+                "dict_size": dict_size,   # Set dictionary size
+                "lc": lc,                 # Literal context bits
+                "lp": lp,                 # Literal position bits
+                "pb": pb,                 # Position bits
                 "mode": lzma.MODE_NORMAL,  # Normal compression mode
-                "mf": lzma.MF_BT4,  # Match finder algorithm
-                "depth": 0,  # Default match finder depth
+                "mf": lzma.MF_BT4,        # Match finder algorithm
+                "depth": 0                # Default match finder depth
             }
-        ],
+        ]
     )
 
     # Compress the firmware data
     compressed_data = compressor.compress(firmware_data) + compressor.flush()
 
     # Write the compressed binary to output file
-    with open(output_file, "wb") as f:
+    with open(output_file, 'wb') as f:
         f.write(compressed_data)
 
     print(f"Compressed {input_file} -> {output_file} (size reduced from {len(firmware_data)} to {len(compressed_data)} bytes)")
 
 
 # Clean up merged.bin from previous build
-if os.path.exists("merged.bin"):
-    os.remove("merged.bin")
+if os.path.exists('merged.bin'):
+    os.remove('merged.bin')
 
 # Telink W91 dual-core SoC binary operations
-if build_conf.getboolean("CONFIG_SOC_RISCV_TELINK_W91"):
-    n22_partition_offset = build_conf["CONFIG_TELINK_W91_N22_PARTITION_ADDR"]
-    if build_conf.getboolean("CONFIG_BOOTLOADER_MCUBOOT"):
-        n22_partition_offset -= build_conf["CONFIG_FLASH_LOAD_OFFSET"]
+if build_conf.getboolean('CONFIG_SOC_RISCV_TELINK_W91'):
+    n22_partition_offset = build_conf['CONFIG_TELINK_W91_N22_PARTITION_ADDR']
+    if build_conf.getboolean('CONFIG_BOOTLOADER_MCUBOOT'):
+        n22_partition_offset -= build_conf['CONFIG_FLASH_LOAD_OFFSET']
 
     # Merge N22 core binary
-    merge_binaries("zephyr.bin", "n22.bin", "merged.bin", n22_partition_offset)
+    merge_binaries('zephyr.bin', 'n22.bin', 'merged.bin', n22_partition_offset)
 
     # Sign the image if MCUBoot is used
-    if build_conf.getboolean("CONFIG_BOOTLOADER_MCUBOOT"):
+    if build_conf.getboolean('CONFIG_BOOTLOADER_MCUBOOT'):
         sign_command = [
-            "python3",
-            os.path.join(ZEPHYR_BASE, "../bootloader/mcuboot/scripts/imgtool.py"),
-            "sign",
-            "--version",
-            "0.0.0+0",
-            "--align",
-            "1",
-            "--header-size",
-            str(build_conf["CONFIG_ROM_START_OFFSET"]),
-            "--slot-size",
-            str(build_conf["CONFIG_FLASH_LOAD_SIZE"]),
-            "--key",
-            os.path.join(ZEPHYR_BASE, "../", build_conf["CONFIG_MCUBOOT_SIGNATURE_KEY_FILE"]),
-            "merged.bin",
-            build_conf["CONFIG_SIGNED_OTA_IMAGE_FILE_NAME"],
+            'python3',
+            os.path.join(ZEPHYR_BASE, '../bootloader/mcuboot/scripts/imgtool.py'),
+            'sign',
+            '--version', '0.0.0+0',
+            '--align', '1',
+            '--header-size', str(build_conf['CONFIG_ROM_START_OFFSET']),
+            '--slot-size', str(build_conf['CONFIG_FLASH_LOAD_SIZE']),
+            '--key', os.path.join(ZEPHYR_BASE, '../', build_conf['CONFIG_MCUBOOT_SIGNATURE_KEY_FILE']),
+            'merged.bin',
+            build_conf['CONFIG_SIGNED_OTA_IMAGE_FILE_NAME']
         ]
         try:
             subprocess.run(sign_command, check=True)
-            os.remove("merged.bin")  # Clean up merged.bin after signing
+            os.remove('merged.bin')  # Clean up merged.bin after signing
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Error signing the image: {e}")
 
 # Merge MCUBoot binary if configured
-if build_conf.getboolean("CONFIG_BOOTLOADER_MCUBOOT"):
-    zephyr_image_name = "zephyr.signed.bin"
-    merge_binaries("mcuboot.bin", zephyr_image_name, "merged.bin", build_conf["CONFIG_FLASH_LOAD_OFFSET"])
+if build_conf.getboolean('CONFIG_BOOTLOADER_MCUBOOT'):
+    zephyr_image_name = 'zephyr.signed.bin'
+    merge_binaries('mcuboot.bin', zephyr_image_name, 'merged.bin', build_conf['CONFIG_FLASH_LOAD_OFFSET'])
 
-    if build_conf.getboolean("CONFIG_COMPRESS_LZMA"):
-        compress_lzma_firmware(zephyr_image_name, "zephyr.signed.lzma.bin")
+    if build_conf.getboolean('CONFIG_COMPRESS_LZMA'):
+        compress_lzma_firmware(zephyr_image_name, 'zephyr.signed.lzma.bin')
 
         sign_command = [
-            "python3",
-            os.path.join(ZEPHYR_BASE, "../bootloader/mcuboot/scripts/imgtool.py"),
-            "sign",
-            "--version",
-            "0.0.0+0",
-            "--align",
-            "1",
-            "--header-size",
-            str(build_conf["CONFIG_ROM_START_OFFSET"]),
-            "--slot-size",
-            str(build_conf["CONFIG_FLASH_LOAD_SIZE"]),
-            "--key",
-            os.path.join(ZEPHYR_BASE, "../", build_conf["CONFIG_MCUBOOT_SIGNATURE_KEY_FILE"]),
-            "--pad-header",
-            "zephyr.signed.lzma.bin",
-            build_conf["CONFIG_SIGNED_OTA_IMAGE_FILE_NAME"],
+            'python3',
+            os.path.join(ZEPHYR_BASE, '../bootloader/mcuboot/scripts/imgtool.py'),
+            'sign',
+            '--version', '0.0.0+0',
+            '--align', '1',
+            '--header-size', str(build_conf['CONFIG_ROM_START_OFFSET']),
+            '--slot-size', str(build_conf['CONFIG_FLASH_LOAD_SIZE']),
+            '--key', os.path.join(ZEPHYR_BASE, '../', build_conf['CONFIG_MCUBOOT_SIGNATURE_KEY_FILE']),
+            '--pad-header',
+            'zephyr.signed.lzma.bin',
+            build_conf['CONFIG_SIGNED_OTA_IMAGE_FILE_NAME']
         ]
 
         try:
             subprocess.run(sign_command, check=True)
-            zephyr_image_name = build_conf["CONFIG_SIGNED_OTA_IMAGE_FILE_NAME"]
+            zephyr_image_name = build_conf['CONFIG_SIGNED_OTA_IMAGE_FILE_NAME']
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Error signing the image: {e}")
 
-    if build_conf.getboolean("CONFIG_CHIP_DFU_OVER_BT_SMP_BUILD"):
-        dfu_output_name = "merged_dfu.bin"
-        if build_conf.getboolean("CONFIG_COMPRESS_LZMA"):
-            dfu_output_name = "merged_dfu.lzma.bin"
+    if build_conf.getboolean('CONFIG_CHIP_DFU_OVER_BT_SMP_BUILD'):
+        dfu_output_name = 'merged_dfu.bin'
+        if build_conf.getboolean('CONFIG_COMPRESS_LZMA'):
+            dfu_output_name = 'merged_dfu.lzma.bin'
 
-        if os.path.exists("dfu.data"):
+        if os.path.exists('dfu.data'):
             print("Start preparing image for DFU over BLE SMP")
             with open(dfu_output_name, "wb") as output:
                 with open(zephyr_image_name, "rb") as input1:
                     output.write(input1.read())
                     print(f"{zephyr_image_name} is written to {dfu_output_name}")
 
-                footer_size = os.path.getsize("dfu.data")
-                output.write(footer_size.to_bytes(1, "little"))
+                footer_size = os.path.getsize('dfu.data')
+                output.write(footer_size.to_bytes(1, 'little'))
 
-                with open("dfu.data", "rb") as input2:
+                with open('dfu.data', "rb") as input2:
                     output.write(input2.read())
                     print(f"Image footer is written to {dfu_output_name}")
 
                 print("Image for DFU over BLE SMP is ready!")
-                os.remove("empty.txt")
+                os.remove('empty.txt')
 
-    if build_conf.getboolean("CONFIG_TELINK_OTA_BUTTON_TEST"):
-        merge_binaries(
-            "merged.bin",
-            build_conf["CONFIG_SIGNED_OTA_IMAGE_FILE_NAME"],
-            "merged.bin",
-            build_conf["CONFIG_TELINK_OTA_PARTITION_ADDR"],
-        )
+    if build_conf.getboolean('CONFIG_TELINK_OTA_BUTTON_TEST'):
+        merge_binaries('merged.bin', build_conf['CONFIG_SIGNED_OTA_IMAGE_FILE_NAME'],
+                       'merged.bin', build_conf['CONFIG_TELINK_OTA_PARTITION_ADDR'])
 
 # Merge Factory Data binary if configured
-if build_conf.getboolean("CONFIG_CHIP_FACTORY_DATA_MERGE_WITH_FIRMWARE"):
-    if os.path.exists("merged.bin"):
-        merge_binaries(
-            "merged.bin", "factory/factory_data.bin", "merged.bin", build_conf["CONFIG_TELINK_FACTORY_DATA_PARTITION_ADDR"]
-        )
+if build_conf.getboolean('CONFIG_CHIP_FACTORY_DATA_MERGE_WITH_FIRMWARE'):
+    if os.path.exists('merged.bin'):
+        merge_binaries('merged.bin', 'factory/factory_data.bin', 'merged.bin',
+                       build_conf['CONFIG_TELINK_FACTORY_DATA_PARTITION_ADDR'])
     else:
         # Initialize merged.bin with zephyr.bin since no base binary was created
-        merge_binaries(
-            "zephyr.bin", "factory/factory_data.bin", "merged.bin", build_conf["CONFIG_TELINK_FACTORY_DATA_PARTITION_ADDR"]
-        )
+        merge_binaries('zephyr.bin', 'factory/factory_data.bin', 'merged.bin',
+                       build_conf['CONFIG_TELINK_FACTORY_DATA_PARTITION_ADDR'])
 
 # Check if merged.bin was created by any enabled feature, otherwise symlink zephyr.bin
-if not os.path.exists("merged.bin"):
-    os.symlink("zephyr.bin", "merged.bin")
+if not os.path.exists('merged.bin'):
+    os.symlink('zephyr.bin', 'merged.bin')

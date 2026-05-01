@@ -15,7 +15,7 @@ from .get_adapters import GetAdapters
 from .scan_devices import DiscoverAsync, DiscoverSync
 
 __all__ = [
-    "GetAdapters",
-    "DiscoverAsync",
-    "DiscoverSync",
+    'GetAdapters',
+    'DiscoverAsync',
+    'DiscoverSync',
 ]

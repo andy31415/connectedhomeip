@@ -23,15 +23,8 @@ from pathlib import Path
 
 from pics_generator_support import map_cluster_name_to_pics_xml, pics_xml_file_list_loader
 
-from matter.testing.pics import (
-    accepted_cmd_pics_str,
-    attribute_pics_str,
-    client_pics_str,
-    event_pics_str,
-    feature_pics_str,
-    generated_cmd_pics_str,
-    server_pics_str,
-)
+from matter.testing.pics import (accepted_cmd_pics_str, attribute_pics_str, client_pics_str, event_pics_str, feature_pics_str,
+                                 generated_cmd_pics_str, server_pics_str)
 
 # Add the path to python_testing folder, in order to be able to import from matter_testing_support
 sys.path.append(os.path.abspath(sys.path[0] + "/../../python_testing"))
@@ -55,14 +48,14 @@ def pics_validation(dm_pics, xml_pics):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--pics-template", required=True)
-parser.add_argument("--dm-xml", required=True)
-parser.add_argument("--verbose", action="store_true")
+parser.add_argument('--pics-template', required=True)
+parser.add_argument('--dm-xml', required=True)
+parser.add_argument('--verbose', action="store_true")
 args, unknown = parser.parse_known_args()
 
 xml_template_path_str = args.pics_template
-if not xml_template_path_str.endswith("/"):
-    xml_template_path_str += "/"
+if not xml_template_path_str.endswith('/'):
+    xml_template_path_str += '/'
 
 print("Build list of PICS XML")
 pics_xml_file_list = pics_xml_file_list_loader(xml_template_path_str, True)
@@ -77,17 +70,16 @@ for cluster in xml_clusters:
     if pics_xml_file_name:
         if args.verbose:
             print(
-                f"Found PICS XML file for {xml_clusters[cluster].name} - {pics_xml_file_name} (Provisional: {xml_clusters[cluster].is_provisional}) ✅"
-            )
+                f"Found PICS XML file for {xml_clusters[cluster].name} - {pics_xml_file_name} (Provisional: {xml_clusters[cluster].is_provisional}) ✅")
 
         try:
             # Open the XML PICS template file
-            print(f'Open "{xml_template_path_str}{pics_xml_file_name}"')
+            print(f"Open \"{xml_template_path_str}{pics_xml_file_name}\"")
             parser = ET.XMLParser(target=ET.TreeBuilder(insert_comments=True))
             tree = ET.parse(f"{xml_template_path_str}{pics_xml_file_name}", parser)
             root = tree.getroot()
         except ET.ParseError:
-            print(f'Could not parse "{pics_xml_file_name}" ❌')
+            print(f"Could not parse \"{pics_xml_file_name}\" ❌")
             continue
 
         print(f"PICS Code: {xml_clusters[cluster].pics}")
@@ -99,17 +91,13 @@ for cluster in xml_clusters:
         pics_code_dm_list = [server_pics_str(pics_code), client_pics_str(pics_code)]
 
         pics_code_xml_list = []
-        usage_node = root.find("usage")
+        usage_node = root.find('usage')
         for pics_item in usage_node:
-            item_number_element = pics_item.find("itemNumber")
+            item_number_element = pics_item.find('itemNumber')
             # print(f"PICS XML - {item_number_element.text}")
 
             # Media PICS contains multiple PICS codes so only append if the PICS code is the selected one.
-            if (
-                "media" in pics_xml_file_name.lower()
-                or "group communication" in pics_xml_file_name.lower()
-                or "ota software update" in pics_xml_file_name.lower()
-            ):
+            if "media" in pics_xml_file_name.lower() or "group communication" in pics_xml_file_name.lower() or "ota software update" in pics_xml_file_name.lower():
                 if pics_code in item_number_element.text:
                     pics_code_xml_list.append(item_number_element.text)
             else:
@@ -119,16 +107,13 @@ for cluster in xml_clusters:
 
         # print(f"FeatureMap: {xml_clusters[cluster].feature_map}")
         if xml_clusters[cluster].feature_map:
+
             picsXmlFeatureList = []
             featureNode = root.find("./clusterSide[@type='Server']/features")
             for pics_item in featureNode:
-                item_number_element = pics_item.find("itemNumber")
+                item_number_element = pics_item.find('itemNumber')
                 # print(f"PICS XML - {item_number_element.text}")
-                if (
-                    "media" in pics_xml_file_name.lower()
-                    or "group communication" in pics_xml_file_name.lower()
-                    or "ota software update" in pics_xml_file_name.lower()
-                ):
+                if "media" in pics_xml_file_name.lower() or "group communication" in pics_xml_file_name.lower() or "ota software update" in pics_xml_file_name.lower():
                     if pics_code in item_number_element.text:
                         picsXmlFeatureList.append(item_number_element.text)
                 else:
@@ -149,13 +134,9 @@ for cluster in xml_clusters:
             picsXmlAttributeList = []
             serverAttributesNode = root.find("./clusterSide[@type='Server']/attributes")
             for pics_item in serverAttributesNode:
-                item_number_element = pics_item.find("itemNumber")
+                item_number_element = pics_item.find('itemNumber')
                 # print(f"PICS XML - {item_number_element.text}")
-                if (
-                    "media" in pics_xml_file_name.lower()
-                    or "group communication" in pics_xml_file_name.lower()
-                    or "ota software update" in pics_xml_file_name.lower()
-                ):
+                if "media" in pics_xml_file_name.lower() or "group communication" in pics_xml_file_name.lower() or "ota software update" in pics_xml_file_name.lower():
                     if pics_code in item_number_element.text:
                         picsXmlAttributeList.append(item_number_element.text)
                 else:
@@ -173,13 +154,9 @@ for cluster in xml_clusters:
             picsXmlCommandReceivedList = []
             serverCommandsNode = root.find("./clusterSide[@type='Server']/commandsReceived")
             for pics_item in serverCommandsNode:
-                item_number_element = pics_item.find("itemNumber")
+                item_number_element = pics_item.find('itemNumber')
                 # print(f"PICS XML - {item_number_element.text}")
-                if (
-                    "media" in pics_xml_file_name.lower()
-                    or "group communication" in pics_xml_file_name.lower()
-                    or "ota software update" in pics_xml_file_name.lower()
-                ):
+                if "media" in pics_xml_file_name.lower() or "group communication" in pics_xml_file_name.lower() or "ota software update" in pics_xml_file_name.lower():
                     if pics_code in item_number_element.text:
                         picsXmlCommandReceivedList.append(item_number_element.text)
                 else:
@@ -196,13 +173,9 @@ for cluster in xml_clusters:
             picsXmlCommandGeneratedList = []
             serverCommandsNode = root.find("./clusterSide[@type='Server']/commandsGenerated")
             for pics_item in serverCommandsNode:
-                item_number_element = pics_item.find("itemNumber")
+                item_number_element = pics_item.find('itemNumber')
                 # print(f"PICS XML - {item_number_element.text}")
-                if (
-                    "media" in pics_xml_file_name.lower()
-                    or "group communication" in pics_xml_file_name.lower()
-                    or "ota software update" in pics_xml_file_name.lower()
-                ):
+                if "media" in pics_xml_file_name.lower() or "group communication" in pics_xml_file_name.lower() or "ota software update" in pics_xml_file_name.lower():
                     if pics_code in item_number_element.text:
                         picsXmlCommandGeneratedList.append(item_number_element.text)
                 else:
@@ -219,13 +192,9 @@ for cluster in xml_clusters:
             picsXmlEventList = []
             serverEventsNode = root.find("./clusterSide[@type='Server']/events")
             for pics_item in serverEventsNode:
-                item_number_element = pics_item.find("itemNumber")
+                item_number_element = pics_item.find('itemNumber')
                 # print(f"PICS XML - {item_number_element.text}")
-                if (
-                    "media" in pics_xml_file_name.lower()
-                    or "group communication" in pics_xml_file_name.lower()
-                    or "ota software update" in pics_xml_file_name.lower()
-                ):
+                if "media" in pics_xml_file_name.lower() or "group communication" in pics_xml_file_name.lower() or "ota software update" in pics_xml_file_name.lower():
                     if pics_code in item_number_element.text:
                         picsXmlEventList.append(item_number_element.text)
                 else:
@@ -240,5 +209,4 @@ for cluster in xml_clusters:
 
     else:
         print(
-            f"Could not find matching PICS XML file for {xml_clusters[cluster].name} - {xml_clusters[cluster].pics} (Provisional: {xml_clusters[cluster].is_provisional}) ❌"
-        )
+            f"Could not find matching PICS XML file for {xml_clusters[cluster].name} - {xml_clusters[cluster].pics} (Provisional: {xml_clusters[cluster].is_provisional}) ❌")

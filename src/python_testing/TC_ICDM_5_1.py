@@ -66,10 +66,16 @@ class Client:
 log = logging.getLogger(__name__)
 kRootEndpointId = 0
 
-client1 = Client(checkInNodeID=1, subjectId=1, key=bytes(list(range(0x10, 0x20))), clientType=ClientTypeEnum.kEphemeral)
+client1 = Client(
+    checkInNodeID=1,
+    subjectId=1,
+    key=bytes(list(range(0x10, 0x20))),
+    clientType=ClientTypeEnum.kEphemeral
+)
 
 
 class TC_ICDM_5_1(MatterBaseTest):
+
     #
     # Class Helper functions
     #
@@ -83,11 +89,12 @@ class TC_ICDM_5_1(MatterBaseTest):
     def get_dut_instance_name(self) -> str:
         node_id = self.dut_node_id
         compressed_fabric_id = self.default_controller.GetCompressedFabricId()
-        return f"{compressed_fabric_id:016X}-{node_id:016X}"
+        return f'{compressed_fabric_id:016X}-{node_id:016X}'
 
     async def _get_icd_txt_record(self) -> OperatingModeEnum:
         discovery = mdns_discovery.MdnsDiscovery()
-        services = await discovery.get_operational_services(log_output=True, discovery_timeout_sec=240)
+        services = await discovery.get_operational_services(
+            log_output=True, discovery_timeout_sec=240)
 
         # Get operational service name
         service_type = mdns_discovery.MdnsServiceType.OPERATIONAL.value
@@ -95,24 +102,23 @@ class TC_ICDM_5_1(MatterBaseTest):
         service_name = f"{dut_instance_name}.{service_type}"
 
         # Verify at least one service is present
-        asserts.assert_true(len(services) > 0, f"At least one operational service ('{service_type}') must present.")
+        asserts.assert_true(len(services) > 0,
+                            f"At least one operational service ('{service_type}') must present.")
 
         # Get operational node service
         service = None
         for srv in services:
             if service_name is not None and srv.service_name.upper() != service_name:
-                log.info("   Name does NOT match '%s' vs '%s'", service_name, srv.service_name.upper())
+                log.info("   Name does NOT match \'%s\' vs \'%s\'", service_name, srv.service_name.upper())
             if srv.service_name.replace(service_type.upper(), service_type) == service_name:
                 service = srv
 
         # Verify operational node service is present
-        asserts.assert_is_not_none(
-            service,
-            f"Failed to get operational node service information for {self.dut_node_id} on {self.default_controller.GetCompressedFabricId()}",
-        )
+        asserts.assert_is_not_none(service,
+                                   f"Failed to get operational node service information for {self.dut_node_id} on {self.default_controller.GetCompressedFabricId()}")
 
         # Get TXT record
-        icd_value = service.txt["ICD"]
+        icd_value = service.txt['ICD']
         assert_valid_icd_key(icd_value)
         return OperatingModeEnum(int(icd_value))
 
@@ -139,7 +145,7 @@ class TC_ICDM_5_1(MatterBaseTest):
         ]
 
     def pics_TC_ICDM_5_1(self) -> list[str]:
-        """This function returns a list of PICS for this test case that must be True for the test to be run"""
+        """ This function returns a list of PICS for this test case that must be True for the test to be run"""
         return [
             "ICDM.S",
             "ICDM.S.F02",
@@ -151,18 +157,21 @@ class TC_ICDM_5_1(MatterBaseTest):
 
     @async_test_body
     async def test_TC_ICDM_5_1(self):
+
         # Commissioning
         self.step(0)
 
         try:
             self.step(1)
-            registeredClients = await self._read_icdm_attribute_expect_success(Attributes.RegisteredClients)
+            registeredClients = await self._read_icdm_attribute_expect_success(
+                Attributes.RegisteredClients)
 
             for client in registeredClients:
                 try:
                     await self._send_single_icdm_command(Commands.UnregisterClient(checkInNodeID=client.checkInNodeID))
                 except InteractionModelError as e:
-                    asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
+                    asserts.assert_equal(
+                        e.status, Status.Success, "Unexpected error returned")
 
             self.step("2a")
             operatingMode = await self._read_icdm_attribute_expect_success(Attributes.OperatingMode)
@@ -174,16 +183,10 @@ class TC_ICDM_5_1(MatterBaseTest):
 
             self.step("3a")
             try:
-                await self._send_single_icdm_command(
-                    Commands.RegisterClient(
-                        checkInNodeID=client1.checkInNodeID,
-                        monitoredSubject=client1.subjectId,
-                        key=client1.key,
-                        clientType=client1.clientType,
-                    )
-                )
+                await self._send_single_icdm_command(Commands.RegisterClient(checkInNodeID=client1.checkInNodeID, monitoredSubject=client1.subjectId, key=client1.key, clientType=client1.clientType))
             except InteractionModelError as e:
-                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
+                asserts.assert_equal(
+                    e.status, Status.Success, "Unexpected error returned")
 
             self.step("3b")
             operatingMode = await self._read_icdm_attribute_expect_success(Attributes.OperatingMode)
@@ -197,7 +200,8 @@ class TC_ICDM_5_1(MatterBaseTest):
             try:
                 await self._send_single_icdm_command(Commands.UnregisterClient(checkInNodeID=client1.checkInNodeID))
             except InteractionModelError as e:
-                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
+                asserts.assert_equal(
+                    e.status, Status.Success, "Unexpected error returned")
 
             self.step("5a")
             operatingMode = await self._read_icdm_attribute_expect_success(Attributes.OperatingMode)
@@ -208,13 +212,15 @@ class TC_ICDM_5_1(MatterBaseTest):
             asserts.assert_equal(icdTxtRecord, OperatingModeEnum.kSit, "OperatingMode Is not in SIT mode.")
 
         finally:
-            registeredClients = await self._read_icdm_attribute_expect_success(Attributes.RegisteredClients)
+            registeredClients = await self._read_icdm_attribute_expect_success(
+                Attributes.RegisteredClients)
 
             for client in registeredClients:
                 try:
                     await self._send_single_icdm_command(Commands.UnregisterClient(checkInNodeID=client.checkInNodeID))
                 except InteractionModelError as e:
-                    asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
+                    asserts.assert_equal(
+                        e.status, Status.Success, "Unexpected error returned")
 
 
 if __name__ == "__main__":

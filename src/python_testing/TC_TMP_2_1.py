@@ -50,31 +50,17 @@ class TC_TMP_2_1(MatterBaseTest):
     def steps_TC_TMP_2_1(self) -> list[TestStep]:
         return [
             TestStep(1, "Commissioning, already done", is_commissioning=True),
-            TestStep(2, "Set default bounds `min_bound` = -27315, `max_bound` = 32767"),
             TestStep(
-                3,
-                "TH reads the MinMeasuredValue attribute from the DUT and saves as `min_measured_value`. If `min_measured_value` is not null, set `min_bound` to `min_measured_value`",
-            ),
-            TestStep(
-                4,
-                "TH reads the MaxMeasuredValue attribute from the DUT and saves as `max_measured_value`. If `max_measured_value` is not null, set `max_bound` to `max_measured_value",
-                "Verify that `max_measured_value` is either null or an int16 where min_bound < `max_measured_value` ≤ 32767.",
-            ),
-            TestStep(
-                5,
-                "If `min_measured_value` is not null, verify min measured value range",
-                "Verify that -27315 ≤ `min_measured_value` < `max_bound`",
-            ),
-            TestStep(
-                6,
-                "TH reads the MeasuredValue attribute from the DUT",
-                "Verify that the DUT response contains either null or a int16 where `min_bound` ≤ MeasuredValue ≤ `max_bound`.",
-            ),
-            TestStep(
-                7,
-                "If the tolerance attribute is supported, TH reads the Tolerance attribute from the DUT",
-                "Verify that Tolerance is in the range of 0 to 2048",
-            ),
+                2, "Set default bounds `min_bound` = -27315, `max_bound` = 32767"),
+            TestStep(3, "TH reads the MinMeasuredValue attribute from the DUT and saves as `min_measured_value`. If `min_measured_value` is not null, set `min_bound` to `min_measured_value`"),
+            TestStep(4, "TH reads the MaxMeasuredValue attribute from the DUT and saves as `max_measured_value`. If `max_measured_value` is not null, set `max_bound` to `max_measured_value",
+                     "Verify that `max_measured_value` is either null or an int16 where min_bound < `max_measured_value` ≤ 32767."),
+            TestStep(5, "If `min_measured_value` is not null, verify min measured value range",
+                     "Verify that -27315 ≤ `min_measured_value` < `max_bound`"),
+            TestStep(6, "TH reads the MeasuredValue attribute from the DUT",
+                     "Verify that the DUT response contains either null or a int16 where `min_bound` ≤ MeasuredValue ≤ `max_bound`."),
+            TestStep(7, "If the tolerance attribute is supported, TH reads the Tolerance attribute from the DUT",
+                     "Verify that Tolerance is in the range of 0 to 2048"),
         ]
 
     @async_test_body
@@ -98,8 +84,10 @@ class TC_TMP_2_1(MatterBaseTest):
         max_measured_value = await self.read_single_attribute_check_success(cluster=cluster, attribute=attr.MaxMeasuredValue)
         if max_measured_value != NullValue:
             max_bound = max_measured_value
-            asserts.assert_greater(max_measured_value, min_bound, "MaxMeasuredValue is not greater than the minimum bound")
-            asserts.assert_less_equal(max_measured_value, 32767, "MaxMeasuredValue is not less than or equal to than 32767")
+            asserts.assert_greater(max_measured_value, min_bound,
+                                   "MaxMeasuredValue is not greater than the minimum bound")
+            asserts.assert_less_equal(
+                max_measured_value, 32767, "MaxMeasuredValue is not less than or equal to than 32767")
 
         self.step(5)
         if min_measured_value != NullValue:
@@ -113,8 +101,10 @@ class TC_TMP_2_1(MatterBaseTest):
         if measured_value != NullValue:
             print(measured_value)
             print(min_bound)
-            asserts.assert_greater_equal(measured_value, min_bound, "Measured value is less than min bound")
-            asserts.assert_less_equal(measured_value, max_bound, "Measured value is greater than max bound")
+            asserts.assert_greater_equal(
+                measured_value, min_bound, "Measured value is less than min bound")
+            asserts.assert_less_equal(
+                measured_value, max_bound, "Measured value is greater than max bound")
 
         self.step(7)
         if self.pics_guard(self.check_pics("TMP.S.A0003")):

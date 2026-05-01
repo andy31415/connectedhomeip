@@ -63,33 +63,24 @@ class TC_TIMESYNC_2_8(MatterBaseTest):
         cluster = Clusters.Objects.TimeSynchronization
         return await self.read_single_attribute_check_success(endpoint=self.endpoint, cluster=cluster, attribute=attribute)
 
-    async def send_set_time_zone_cmd(
-        self, tz: typing.List[Clusters.Objects.TimeSynchronization.Structs.TimeZoneStruct]
-    ) -> Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse:
-        ret = await self.send_single_cmd(
-            cmd=Clusters.Objects.TimeSynchronization.Commands.SetTimeZone(timeZone=tz), endpoint=self.endpoint
-        )
-        asserts.assert_true(
-            matchers.is_type(ret, Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse),
-            "Unexpected return type for SetTimeZone",
-        )
+    async def send_set_time_zone_cmd(self, tz: typing.List[Clusters.Objects.TimeSynchronization.Structs.TimeZoneStruct]) -> Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse:
+        ret = await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetTimeZone(timeZone=tz), endpoint=self.endpoint)
+        asserts.assert_true(matchers.is_type(ret, Clusters.Objects.TimeSynchronization.Commands.SetTimeZoneResponse),
+                            "Unexpected return type for SetTimeZone")
         return ret
 
     async def send_set_dst_cmd(self, dst: typing.List[Clusters.Objects.TimeSynchronization.Structs.DSTOffsetStruct]) -> None:
         await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetDSTOffset(DSTOffset=dst))
 
     async def send_set_utc_cmd(self, utc: uint) -> None:
-        await self.send_single_cmd(
-            cmd=Clusters.Objects.TimeSynchronization.Commands.SetUTCTime(
-                UTCTime=utc, granularity=Clusters.Objects.TimeSynchronization.Enums.GranularityEnum.kMillisecondsGranularity
-            )
-        )
+        await self.send_single_cmd(cmd=Clusters.Objects.TimeSynchronization.Commands.SetUTCTime(UTCTime=utc, granularity=Clusters.Objects.TimeSynchronization.Enums.GranularityEnum.kMillisecondsGranularity))
 
     def pics_TC_TIMESYNC_2_8(self) -> list[str]:
         return ["TIMESYNC.S.F00"]
 
     @async_test_body
     async def test_TC_TIMESYNC_2_8(self):
+
         # Time sync is required to be on endpoint 0 if it is present
         self.endpoint = 0
 
@@ -126,7 +117,7 @@ class TC_TIMESYNC_2_8(MatterBaseTest):
 
         self.print_step(6, "Send SetDSTOffset command")
         th_utc = utc_time_in_matter_epoch()
-        dst = [dst_struct(offset=3600, validStarting=0, validUntil=th_utc + 1e7)]
+        dst = [dst_struct(offset=3600, validStarting=0, validUntil=th_utc+1e+7)]
         await self.send_set_dst_cmd(dst)
 
         self.print_step(7, "Read UTCTime")
@@ -169,10 +160,8 @@ class TC_TIMESYNC_2_8(MatterBaseTest):
         self.print_step(17, "Send multiple DST offsets")
         if dst_list_size > 1:
             th_utc = utc_time_in_matter_epoch()
-            dst = [
-                dst_struct(offset=3600, validStarting=0, validUntil=th_utc + 1e7),
-                dst_struct(offset=7200, validStarting=th_utc + 2.5e7, validUntil=th_utc + 4e7),
-            ]
+            dst = [dst_struct(offset=3600, validStarting=0, validUntil=th_utc+1e+7),
+                   dst_struct(offset=7200, validStarting=th_utc+2.5e+7, validUntil=th_utc+4e+7)]
             await self.send_set_dst_cmd(dst)
 
         self.print_step(18, "Read LocalTime")

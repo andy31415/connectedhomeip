@@ -93,7 +93,7 @@ CHIP_ERROR DiagnosticDataProviderImpl::GetCurrentHeapFree(uint64_t & currentHeap
 #ifdef CFG_USE_PSRAM
     currentHeapFree = xPortGetFreeHeapSize() + xPortGetFreeHeapSizePsram();
 #else
-    currentHeapFree = xPortGetFreeHeapSize();
+    currentHeapFree          = xPortGetFreeHeapSize();
 #endif
 #endif
 
@@ -109,7 +109,7 @@ CHIP_ERROR DiagnosticDataProviderImpl::GetCurrentHeapUsed(uint64_t & currentHeap
 #ifdef CFG_USE_PSRAM
     currentHeapUsed = (get_heap_size() + get_heap3_size() - xPortGetFreeHeapSize() - xPortGetFreeHeapSizePsram());
 #else
-    currentHeapUsed = (get_heap_size() - xPortGetFreeHeapSize());
+    currentHeapUsed          = (get_heap_size() - xPortGetFreeHeapSize());
 #endif
 #endif
 
@@ -277,7 +277,7 @@ CHIP_ERROR DiagnosticDataProviderImpl::GetNetworkInterfaces(NetworkInterface ** 
     ifp->offPremiseServicesReachableIPv4.SetNull();
     ifp->offPremiseServicesReachableIPv6.SetNull();
     ifp->type = app::Clusters::GeneralDiagnostics::InterfaceTypeEnum::kThread;
-    TEMPORARY_RETURN_IGNORED ConfigurationMgr().GetPrimary802154MACAddress(ifp -> MacAddress);
+    TEMPORARY_RETURN_IGNORED ConfigurationMgr().GetPrimary802154MACAddress(ifp->MacAddress);
     ifp->hardwareAddress = ByteSpan(ifp->MacAddress, sizeof(ifp->MacAddress));
 #else
 
@@ -292,9 +292,9 @@ CHIP_ERROR DiagnosticDataProviderImpl::GetNetworkInterfaces(NetworkInterface ** 
     ifp->name          = CharSpan::fromCharString(ifp->Name);
     ifp->isOperational = true;
 #if CHIP_DEVICE_CONFIG_ENABLE_WIFI
-    ifp->type = app::Clusters::GeneralDiagnostics::InterfaceTypeEnum::kWiFi;
+    ifp->type          = app::Clusters::GeneralDiagnostics::InterfaceTypeEnum::kWiFi;
 #else
-    ifp->type = app::Clusters::GeneralDiagnostics::InterfaceTypeEnum::kEthernet;
+    ifp->type                = app::Clusters::GeneralDiagnostics::InterfaceTypeEnum::kEthernet;
 #endif
     ifp->offPremiseServicesReachableIPv4.SetNull();
     ifp->offPremiseServicesReachableIPv6.SetNull();

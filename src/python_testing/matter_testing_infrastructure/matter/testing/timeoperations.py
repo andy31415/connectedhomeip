@@ -35,7 +35,7 @@ from mobly import asserts
 
 
 def utc_time_in_matter_epoch(desired_datetime: Optional[datetime] = None):
-    """Converts a datetime to microseconds since Matter epoch.
+    """ Converts a datetime to microseconds since Matter epoch.
 
     The Matter epoch is defined as January 1, 2000, 00:00:00 UTC. This function
     calculates the number of microseconds beчtween the input datetime and the
@@ -65,7 +65,7 @@ def utc_time_in_matter_epoch(desired_datetime: Optional[datetime] = None):
 
 
 def utc_datetime_from_matter_epoch_us(matter_epoch_us: int) -> datetime:
-    """Converts microseconds since Matter epoch to UTC datetime.
+    """ Converts microseconds since Matter epoch to UTC datetime.
 
     Inverse of utc_time_in_matter_epoch().
     It converts a microsecond timestamp relative to the Matter epoch
@@ -90,7 +90,7 @@ def utc_datetime_from_matter_epoch_us(matter_epoch_us: int) -> datetime:
 
 
 def utc_datetime_from_posix_time_ms(posix_time_ms: int) -> datetime:
-    """Converts POSIX timestamp in milliseconds to UTC datetime.
+    """ Converts POSIX timestamp in milliseconds to UTC datetime.
 
     This function converts a POSIX timestamp (milliseconds since January 1, 1970, 00:00:00 UTC)
     to a timezone-aware Python datetime object.
@@ -112,10 +112,8 @@ def utc_datetime_from_posix_time_ms(posix_time_ms: int) -> datetime:
     return datetime.fromtimestamp(seconds, timezone.utc) + timedelta(milliseconds=millis)
 
 
-def compare_time(
-    received: int, offset: timedelta = timedelta(), utc: Optional[int] = None, tolerance: timedelta = timedelta(seconds=5)
-) -> None:
-    """Validates a Matter timestamp against expected time within tolerance.
+def compare_time(received: int, offset: timedelta = timedelta(), utc: Optional[int] = None, tolerance: timedelta = timedelta(seconds=5)) -> None:
+    """ Validates a Matter timestamp against expected time within tolerance.
 
     Args:
         received: int, Matter timestamp in microseconds
@@ -147,7 +145,7 @@ def compare_time(
 
 
 def get_wait_seconds_from_set_time(set_time_matter_us: int, wait_seconds: int):
-    """Calculates remaining wait time based on a previously set timestamp.
+    """ Calculates remaining wait time based on a previously set timestamp.
 
     This function determines how many seconds remain from an original wait duration,
     accounting for time that has already elapsed since a Matter timestamp. Useful
@@ -174,5 +172,4 @@ def get_wait_seconds_from_set_time(set_time_matter_us: int, wait_seconds: int):
 
 if __name__ == "__main__":
     import doctest
-
     doctest.testmod()

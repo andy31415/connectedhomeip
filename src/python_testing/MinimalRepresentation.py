@@ -37,9 +37,7 @@ class ClusterMinimalElements:
 
 
 class MinimalRepresentationChecker(DeviceConformanceTests):
-    def GenerateMinimals(
-        self, ignore_in_progress_test_event_only_disallowed_for_certification: bool, is_ci: bool
-    ) -> dict[uint, dict[uint, ClusterMinimalElements]]:
+    def GenerateMinimals(self, ignore_in_progress_test_event_only_disallowed_for_certification: bool, is_ci: bool) -> dict[uint, dict[uint, ClusterMinimalElements]]:
         if not self.xml_clusters:
             self.setup_class_helper()
 
@@ -63,9 +61,8 @@ class MinimalRepresentationChecker(DeviceConformanceTests):
 
                 feature_map = cluster[GlobalAttributeIds.FEATURE_MAP_ID]
                 attribute_list = cluster[GlobalAttributeIds.ATTRIBUTE_LIST_ID]
-                all_command_list = (
-                    cluster[GlobalAttributeIds.ACCEPTED_COMMAND_LIST_ID] + cluster[GlobalAttributeIds.GENERATED_COMMAND_LIST_ID]
-                )
+                all_command_list = cluster[GlobalAttributeIds.ACCEPTED_COMMAND_LIST_ID] + \
+                    cluster[GlobalAttributeIds.GENERATED_COMMAND_LIST_ID]
                 accepted_command_list = cluster[GlobalAttributeIds.ACCEPTED_COMMAND_LIST_ID]
                 revision = cluster[GlobalAttributeIds.CLUSTER_REVISION_ID]
                 conformance_assessment_data = ConformanceAssessmentData(feature_map, attribute_list, all_command_list, revision)
@@ -108,22 +105,22 @@ class MinimalRepresentationChecker(DeviceConformanceTests):
 
     def PrettyPrintRepresentation(self, representation: dict[uint, dict[uint, ClusterMinimalElements]]) -> None:
         for endpoint_id, cluster_list in representation.items():
-            print(f"Endpoint: {endpoint_id}")
+            print(f'Endpoint: {endpoint_id}')
             for cluster_id, minimals in cluster_list.items():
                 name = self.xml_clusters[cluster_id].name
-                print(f"  Cluster {cluster_id:04x} - {name}")
-                print("    Features:")
+                print(f'  Cluster {cluster_id:04x} - {name}')
+                print('    Features:')
                 for feature in minimals.feature_masks:
                     code = self.xml_clusters[cluster_id].features[feature].code
-                    print(f"      {feature:02x}: {code}")
-                print("    Attributes:")
+                    print(f'      {feature:02x}: {code}')
+                print('    Attributes:')
                 for attribute in minimals.attribute_ids:
                     name = self.xml_clusters[cluster_id].attributes[attribute].name
-                    print(f"      {attribute:02x}: {name}")
-                print("    Commands:")
+                    print(f'      {attribute:02x}: {name}')
+                print('    Commands:')
                 for command in minimals.command_ids:
                     name = self.xml_clusters[cluster_id].accepted_commands[command].name
-                    print(f"      {command:02x}: {name}")
+                    print(f'      {command:02x}: {name}')
 
 
 # Helper for running this against a test device through the python test framework
@@ -137,11 +134,9 @@ class MinimalRunner(MatterBaseTest, MinimalRepresentationChecker):
         # Before we can generate a minimal representation, we need to make sure that the device is conformant.
         # Otherwise, the values we extract aren't fully informative.
         ignore_in_progress_test_event_only_disallowed_for_certification = self.user_params.get(
-            "ignore_in_progress_test_event_only_disallowed_for_certification", False
-        )
-        representation = self.GenerateMinimals(
-            ignore_in_progress_test_event_only_disallowed_for_certification, self.is_pics_sdk_ci_only
-        )
+            "ignore_in_progress_test_event_only_disallowed_for_certification", False)
+        representation = self.GenerateMinimals(ignore_in_progress_test_event_only_disallowed_for_certification,
+                                               self.is_pics_sdk_ci_only)
         print(type(representation[0]))
         self.PrettyPrintRepresentation(representation)
 

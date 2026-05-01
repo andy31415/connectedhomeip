@@ -53,26 +53,18 @@ class TC_FAN_2_3(MatterBaseTest):
         return "[TC-FAN-2.3] Optional rock attributes with DUT as Server"
 
     def steps_TC_FAN_2_3(self):
-        return [
-            TestStep(1, "[FC] Commissioning already done.", is_commissioning=True),
-            TestStep(
-                2,
-                "[FC] TH reads from the DUT the RockSupport attribute.",
-                "Verify that the RockSupport attribute value is a map8 bitmap. Verify that the RockSupport attribute's value is between 1 and 3 inclusive.",
-            ),
-            TestStep(
-                3,
-                "[FC] TH reads from the DUT the RockSetting attribute.",
-                "Verify that the RockSetting attribute value is a map8 bitmap. Verify that the RockSetting attribute's value is between 0 and 3 inclusive",
-            ),
-            TestStep(
-                4,
-                "[FC] TH checks that RockSetting is conformant with RockSupport.",
-                "Verify that all bits set in RockSetting are also set in RockSupport.",
-            ),
-            TestStep(5, "[FC] TH writes a valid bit from RockSupport to RockSetting.", "Device shall return SUCCESS."),
-            TestStep(6, "[FC] TH reads the RockSetting attribute.", "Verify that the proper bit was set from the previous step."),
-        ]
+        return [TestStep(1, "[FC] Commissioning already done.", is_commissioning=True),
+                TestStep(2, "[FC] TH reads from the DUT the RockSupport attribute.",
+                         "Verify that the RockSupport attribute value is a map8 bitmap. Verify that the RockSupport attribute's value is between 1 and 3 inclusive."),
+                TestStep(3, "[FC] TH reads from the DUT the RockSetting attribute.",
+                         "Verify that the RockSetting attribute value is a map8 bitmap. Verify that the RockSetting attribute's value is between 0 and 3 inclusive"),
+                TestStep(4, "[FC] TH checks that RockSetting is conformant with RockSupport.",
+                         "Verify that all bits set in RockSetting are also set in RockSupport."),
+                TestStep(5, "[FC] TH writes a valid bit from RockSupport to RockSetting.",
+                         "Device shall return SUCCESS."),
+                TestStep(6, "[FC] TH reads the RockSetting attribute.",
+                         "Verify that the proper bit was set from the previous step."),
+                ]
 
     async def read_setting(self, attribute: Any) -> Any:
         """
@@ -93,11 +85,9 @@ class TC_FAN_2_3(MatterBaseTest):
     async def write_setting(self, attribute, value) -> Status:
         result = await self.default_controller.WriteAttribute(self.dut_node_id, [(self.endpoint, attribute(value))])
         write_status = result[0].Status
-        write_status_success = write_status == Status.Success
-        asserts.assert_true(
-            write_status_success,
-            f"[FC] {attribute.__name__} write did not return a result of SUCCESS ({write_status.name}), value: {value}",
-        )
+        write_status_success = (write_status == Status.Success)
+        asserts.assert_true(write_status_success,
+                            f"[FC] {attribute.__name__} write did not return a result of SUCCESS ({write_status.name}), value: {value}")
         return write_status
 
     @staticmethod
@@ -133,11 +123,8 @@ class TC_FAN_2_3(MatterBaseTest):
         assert_valid_map8(rock_support, "RockSupport")
 
         # Verify that the RockSupport attribute's value is between 1 and 7 inclusive
-        asserts.assert_in(
-            rock_support,
-            valid_rock_support_range,
-            f"[FC] RockSupport attribute value ({rock_support}) is not between 1 and 7 inclusive",
-        )
+        asserts.assert_in(rock_support, valid_rock_support_range,
+                          f"[FC] RockSupport attribute value ({rock_support}) is not between 1 and 7 inclusive")
 
         # *** STEP 3 ***
         # TH reads from the DUT the RockSetting attribute
@@ -148,11 +135,8 @@ class TC_FAN_2_3(MatterBaseTest):
         assert_valid_map8(rock_setting, "RockSetting")
 
         # Verify that the RockSetting attribute's value is between 0 and 7 inclusive
-        asserts.assert_in(
-            rock_setting,
-            valid_rock_setting_range,
-            f"[FC] RockSetting attribute value ({rock_setting}) is not between 0 and 7 inclusive",
-        )
+        asserts.assert_in(rock_setting, valid_rock_setting_range,
+                          f"[FC] RockSetting attribute value ({rock_setting}) is not between 0 and 7 inclusive")
 
         # *** STEP 4 ***
         # TH checks that RockSetting is conformant with RockSupport
@@ -173,11 +157,8 @@ class TC_FAN_2_3(MatterBaseTest):
         # Verify that the proper bit was set from the previous step
         self.step(6)
         rock_setting_read = await self.read_setting(attr.RockSetting)
-        asserts.assert_equal(
-            rock_setting_read,
-            rock_setting_write,
-            f"[FC] RockSetting attribute value ({rock_setting_read}) does not match the expected value ({rock_setting_write})",
-        )
+        asserts.assert_equal(rock_setting_read, rock_setting_write,
+                             f"[FC] RockSetting attribute value ({rock_setting_read}) does not match the expected value ({rock_setting_write})")
 
 
 if __name__ == "__main__":

@@ -20,7 +20,8 @@
 #      Python interface for ChipCommissionableNodeController
 #
 
-"""Chip Commissionable Node Controller interface"""
+"""Chip Commissionable Node Controller interface
+"""
 
 from __future__ import absolute_import, print_function
 
@@ -54,24 +55,28 @@ class ChipCommissionableNodeController(object):
         self._InitLib()
 
         commissionableNodeCtrl = c_void_p(None)
-        self._dmLib.pychip_CommissionableNodeController_NewController(pointer(commissionableNodeCtrl)).raise_on_error()
+        self._dmLib.pychip_CommissionableNodeController_NewController(
+            pointer(commissionableNodeCtrl)).raise_on_error()
 
         self.commissionableNodeCtrl = commissionableNodeCtrl
         self._ChipStack.commissionableNodeCtrl = commissionableNodeCtrl
 
     def __del__(self):
         if self.commissionableNodeCtrl is not None:
-            self._dmLib.pychip_CommissionableNodeController_DeleteController(self.commissionableNodeCtrl)
+            self._dmLib.pychip_CommissionableNodeController_DeleteController(
+                self.commissionableNodeCtrl)
             self.commissionableNodeCtrl = None
 
     def PrintDiscoveredCommissioners(self):
         self._ChipStack.Call(
-            lambda: self._dmLib.pychip_CommissionableNodeController_PrintDiscoveredCommissioners(self.commissionableNodeCtrl)
+            lambda: self._dmLib.pychip_CommissionableNodeController_PrintDiscoveredCommissioners(
+                self.commissionableNodeCtrl)
         )
 
     def DiscoverCommissioners(self):
         self._ChipStack.Call(
-            lambda: self._dmLib.pychip_CommissionableNodeController_DiscoverCommissioners(self.commissionableNodeCtrl)
+            lambda: self._dmLib.pychip_CommissionableNodeController_DiscoverCommissioners(
+                self.commissionableNodeCtrl)
         ).raise_on_error()
 
     # ----- Private Members -----
@@ -79,13 +84,17 @@ class ChipCommissionableNodeController(object):
         if self._dmLib is None:
             self._dmLib = CDLL(self._ChipStack.LocateChipDLL())
 
-            self._dmLib.pychip_CommissionableNodeController_NewController.argtypes = [POINTER(c_void_p)]
+            self._dmLib.pychip_CommissionableNodeController_NewController.argtypes = [
+                POINTER(c_void_p)]
             self._dmLib.pychip_CommissionableNodeController_NewController.restype = PyChipError
 
-            self._dmLib.pychip_CommissionableNodeController_DeleteController.argtypes = [c_void_p]
+            self._dmLib.pychip_CommissionableNodeController_DeleteController.argtypes = [
+                c_void_p]
             self._dmLib.pychip_CommissionableNodeController_DeleteController.restype = PyChipError
 
-            self._dmLib.pychip_CommissionableNodeController_DiscoverCommissioners.argtypes = [c_void_p]
+            self._dmLib.pychip_CommissionableNodeController_DiscoverCommissioners.argtypes = [
+                c_void_p]
             self._dmLib.pychip_CommissionableNodeController_DiscoverCommissioners.restype = PyChipError
 
-            self._dmLib.pychip_CommissionableNodeController_PrintDiscoveredCommissioners.argtypes = [c_void_p]
+            self._dmLib.pychip_CommissionableNodeController_PrintDiscoveredCommissioners.argtypes = [
+                c_void_p]

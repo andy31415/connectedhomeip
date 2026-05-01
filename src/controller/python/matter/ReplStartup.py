@@ -44,18 +44,18 @@ def ReplInit(debug):
 
     console = Console()
 
-    console.rule("Matter REPL")
-    console.print("""
+    console.rule('Matter REPL')
+    console.print('''
             Welcome to the Matter Python REPL!
 
             For help, please type [bold green]matterhelp()[/]
 
             To get more information on a particular object/class, you can pass
             that into [bold green]matterhelp()[/] as well.
-            """)
+            ''')
     console.rule()
 
-    coloredlogs.install(level="DEBUG")
+    coloredlogs.install(level='DEBUG')
     matter.logging.RedirectToPythonLogging()
 
     if debug:
@@ -76,7 +76,7 @@ def StackShutdown():
 
 
 def matterhelp(classOrObj=None):
-    if classOrObj is None:
+    if (classOrObj is None):
         inspect(builtins.devCtrl, methods=True, help=True, private=False)
         inspect(mattersetlog)
         inspect(mattersetdebug)
@@ -89,10 +89,10 @@ def mattersetlog(level):
 
 
 def mattersetdebug(enableDebugMode: bool = True):
-    """Enables debug mode that is utilized by some Matter modules
-    to better facilitate debugging of failures (e.g throwing exceptions instead
-    of returning well-formatted results).
-    """
+    ''' Enables debug mode that is utilized by some Matter modules
+        to better facilitate debugging of failures (e.g throwing exceptions instead
+        of returning well-formatted results).
+    '''
     builtins.enableDebugMode = enableDebugMode
 
 
@@ -100,43 +100,33 @@ def main():
     console = Console()
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-d", "--debug", help="set default logging level to debug", action="store_true")
     parser.add_argument(
-        "-s",
-        "--storage-path",
-        metavar="PATH",
-        default="/tmp/repl-storage.json",
-        help="path to persistent storage configuration file",
-    )
+        "-d", "--debug", help="set default logging level to debug", action="store_true")
     parser.add_argument(
-        "--chip-tool-common-storage-path",
-        metavar="PATH",
-        help="path to chip-tool common persistent storage configuration file (INI format)",
-    )
+        "-s", "--storage-path", metavar="PATH", default="/tmp/repl-storage.json",
+        help="path to persistent storage configuration file")
     parser.add_argument(
-        "--chip-tool-fabric-storage-path",
-        metavar="PATH",
-        help="path to chip-tool fabric persistent storage configuration file (INI format)",
-    )
+        "--chip-tool-common-storage-path", metavar="PATH",
+        help="path to chip-tool common persistent storage configuration file (INI format)")
     parser.add_argument(
-        "-t", "--trust-store", metavar="PATH", default="credentials/development/paa-root-certs", help="path to the PAA trust store"
-    )
+        "--chip-tool-fabric-storage-path", metavar="PATH",
+        help="path to chip-tool fabric persistent storage configuration file (INI format)")
     parser.add_argument(
-        "-b",
-        "--ble-controller",
-        metavar="INDEX",
-        type=int,
-        default=0,
-        help="BLE controller selector (see example or platform docs for details)",
-    )
-    parser.add_argument("-i", "--server-interactions", action="store_true", help="enable server interactions")
+        "-t", "--trust-store", metavar="PATH", default="credentials/development/paa-root-certs",
+        help="path to the PAA trust store")
+    parser.add_argument(
+        "-b", "--ble-controller", metavar="INDEX", type=int, default=0,
+        help="BLE controller selector (see example or platform docs for details)")
+    parser.add_argument(
+        "-i", "--server-interactions", action="store_true",
+        help="enable server interactions")
     args = parser.parse_args()
 
     if args.chip_tool_common_storage_path or args.chip_tool_fabric_storage_path:
         if not (args.chip_tool_common_storage_path and args.chip_tool_fabric_storage_path):
-            console.print("""
+            console.print('''
 [bold red]Error: [/][bold]One must specify both chip-tool common and chip-tool fabric storage paths[/]
-            """)
+            ''')
             return
 
     if not os.path.exists(args.trust_store):
@@ -149,15 +139,15 @@ def main():
                 if prefix.joinpath(store_path).exists():
                     oldpath = args.trust_store
                     args.trust_store = prefix.joinpath(store_path).as_posix()
-                    console.print(f"""
+                    console.print(f'''
 [bold] Replacing [/] store path {oldpath} with {args.trust_store}
 Note that you are still running from {os.getcwd()} so other relative paths may be off.
-                    """)
+                    ''')
                     break
                 prefix = prefix.parent
 
     if not os.path.exists(args.trust_store):
-        console.print(f"""
+        console.print(f'''
 [bold red] Missing directory:     [/]{args.trust_store}
 [bold] Your current directory: [/]{os.getcwd()}
 
@@ -167,7 +157,7 @@ the command should look like:
 %run {{module.path}} --trust-store <path_to_sdk_root>/credentials/development/paa-root-certs
 
 or run `os.chdir` to the root of your Matter SDK repository checkout.
-        """)
+        ''')
         # nothing we can do ... things will NOT work
         return
 
@@ -201,13 +191,13 @@ or run `os.chdir` to the root of your Matter SDK repository checkout.
     devCtrl = caList[0].adminList[0].NewController(paaTrustStorePath=args.trust_store)
     builtins.devCtrl = devCtrl
 
-    console.print(f"""
+    console.print(f'''
 The following objects have been created:\n
 \t[bold green]certificateAuthorityManager[/]:\tManages a list of CertificateAuthority instances
 \t[bold green]caList[/]:\t\t\t\tThe list of CertificateAuthority instances
 \t[bold green]caList\\[n].adminList\\[m][/]:\t\tA specific FabricAdmin object at index m for the nth CertificateAuthority instance
 \t[bold green]devCtrl[/]:\t\t\tDefault Matter Device Controller (nodeId=0x{devCtrl.nodeId:016X}) to manage [bold green]caList[0].adminList[0][/] (fabricId={caList[0].adminList[0].fabricId})
-    """)
+    ''')
 
 
 if __name__ == "__main__":

@@ -29,7 +29,7 @@ except ImportError:
 def setup_logging(verbose=False):
     """Configure logging level and format based on verbosity setting."""
     level = logging.DEBUG if verbose else logging.INFO
-    logging.basicConfig(level=level, format="[%(levelname)s] %(message)s")
+    logging.basicConfig(level=level, format='[%(levelname)s] %(message)s')
 
 
 def get_platform_vars():
@@ -63,7 +63,9 @@ def get_install_done_marker_path():
 def get_files_slt_dir():
     """Return path to chip-build-efr32 files-slt directory."""
     repo_root = get_repo_root()
-    return os.path.join(repo_root, "integrations", "docker", "images", "stage-2", "chip-build-efr32", "files-slt")
+    return os.path.join(
+        repo_root, "integrations", "docker", "images", "stage-2", "chip-build-efr32", "files-slt"
+    )
 
 
 def parse_version_from_slt(file_path):
@@ -195,7 +197,7 @@ def download_slt_cli():
     slt_zip_path = os.path.join(tools_folder_path, "slt.zip")
     try:
         dload.save(slt_cli_url, slt_zip_path)
-        with ZipFile(slt_zip_path, "r") as zObject:
+        with ZipFile(slt_zip_path, 'r') as zObject:
             # Check for path traversal vulnerabilities before extracting
             for member in zObject.infolist():
                 resolved_path = os.path.realpath(os.path.join(tools_folder_path, member.filename))
@@ -229,7 +231,9 @@ def update_slt_cli(slt_cli_path):
 def get_pkg_manifest_paths():
     """Return paths to sisdk-pkg.slt and wiseconnect-pkg.slt from chip-build-efr32 files-slt."""
     repo_root = get_repo_root()
-    files_slt_dir = os.path.join(repo_root, "integrations", "docker", "images", "stage-2", "chip-build-efr32", "files-slt")
+    files_slt_dir = os.path.join(
+        repo_root, "integrations", "docker", "images", "stage-2", "chip-build-efr32", "files-slt"
+    )
     return [
         os.path.join(files_slt_dir, "wiseconnect-pkg.slt"),
         os.path.join(files_slt_dir, "sisdk-pkg.slt"),
@@ -274,20 +278,17 @@ def slt_where(slt_cli_path, package):
                 # Handle path concatenated after interactive prompt (e.g. "[y/n]?/path" or "[y/n]? /path")
                 q_idx = line.rfind("?")
                 if q_idx != -1:
-                    after = line[q_idx + 1 :].lstrip()
+                    after = line[q_idx + 1:].lstrip()
                     if after.startswith("/"):
                         return after
             logger.error(
                 "Could not find an absolute path in 'slt where %s' output:\n%s",
-                package,
-                result.stdout.strip(),
+                package, result.stdout.strip(),
             )
         else:
             logger.error(
                 "'slt where %s' failed (exit code %s): %s",
-                package,
-                result.returncode,
-                (result.stderr or result.stdout or "").strip(),
+                package, result.returncode, (result.stderr or result.stdout or "").strip(),
             )
     except (subprocess.SubprocessError, FileNotFoundError) as e:
         logger.error("Failed to run 'slt where %s': %s", package, e)
@@ -399,7 +400,8 @@ def create_sdk_symlinks(simplicity_sdk_path, wiseconnect_path):
                     os.remove(link_path)
                 else:
                     logger.error(
-                        "Cannot create symlink: %s already exists and is not a symlink. Remove it manually and re-run.",
+                        "Cannot create symlink: %s already exists and is not a symlink. "
+                        "Remove it manually and re-run.",
                         link_path,
                     )
                     sys.exit(1)
@@ -423,7 +425,7 @@ def parse_key_from_file(file_path, key):
             for line in f:
                 line = line.strip()
                 if line.startswith(prefix):
-                    return line[len(prefix) :].strip()
+                    return line[len(prefix):].strip()
     except OSError as e:
         logger.warning("Could not read file %s: %s", file_path, e)
     return None
@@ -493,8 +495,14 @@ def setup_slt_environment(verbose=False):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Download and setup SLT (Silicon Labs Tools) CLI for Matter development.")
-    parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose (debug) logging")
+    parser = argparse.ArgumentParser(
+        description="Download and setup SLT (Silicon Labs Tools) CLI for Matter development."
+    )
+    parser.add_argument(
+        '--verbose', '-v',
+        action='store_true',
+        help='Enable verbose (debug) logging'
+    )
     args = parser.parse_args()
 
     slt_path = setup_slt_environment(verbose=args.verbose)

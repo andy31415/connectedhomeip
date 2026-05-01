@@ -58,7 +58,7 @@ class WEBRTCPTestBase:
         log.info(f"Rx'd StreamUsagePriorities : {aStreamUsagePriorities}")
         asserts.assert_greater(len(aStreamUsagePriorities), 0, "StreamUsagePriorities is empty")
 
-        if Globals.Enums.StreamUsageEnum.kLiveView not in aStreamUsagePriorities:
+        if (Globals.Enums.StreamUsageEnum.kLiveView not in aStreamUsagePriorities):
             asserts.fail("Camera doesn't support live view")
 
         try:
@@ -108,7 +108,7 @@ class WEBRTCPTestBase:
         log.info(f"Rx'd StreamUsagePriorities: {aStreamUsagePriorities}")
         asserts.assert_greater(len(aStreamUsagePriorities), 0, "StreamUsagePriorities is empty")
 
-        if Globals.Enums.StreamUsageEnum.kLiveView not in aStreamUsagePriorities:
+        if (Globals.Enums.StreamUsageEnum.kLiveView not in aStreamUsagePriorities):
             asserts.fail("Camera doesn't support live view")
 
         aRateDistortionTradeOffPoints = await self.read_single_attribute_check_success(
@@ -148,7 +148,7 @@ class WEBRTCPTestBase:
                 maxBitRate=aRateDistortionTradeOffPoints[0].minBitRate,
                 keyFrameInterval=4000,
                 watermarkEnabled=watermark,
-                OSDEnabled=osd,
+                OSDEnabled=osd
             )
             videoStreamAllocateResponse = await self.send_single_cmd(endpoint=endpoint, cmd=videoStreamAllocateCmd)
             log.info(f"Rx'd VideoStreamAllocateResponse: {videoStreamAllocateResponse}")

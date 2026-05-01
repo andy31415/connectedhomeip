@@ -138,8 +138,8 @@ CHIP_ERROR WbsDeviceScanner::StartScan()
     VerifyOrReturnError(mScannerState != WbsDeviceScannerState::SCANNING, CHIP_ERROR_INCORRECT_STATE);
 
     //    mCancellable.reset(g_cancellable_new());
-    CHIP_ERROR err =
-        PlatformMgrImpl().GLibMatterContextInvokeSync(+[](WbsDeviceScanner * self) { return self->StartScanImpl(); }, this);
+    CHIP_ERROR err = PlatformMgrImpl().GLibMatterContextInvokeSync(
+        +[](WbsDeviceScanner * self) { return self->StartScanImpl(); }, this);
     if (err != CHIP_NO_ERROR)
     {
         ChipLogError(Ble, "Failed to initiate BLE scan start: %" CHIP_ERROR_FORMAT, err.Format());
@@ -158,8 +158,8 @@ CHIP_ERROR WbsDeviceScanner::StopScan()
     assertChipStackLockedByCurrentThread();
     VerifyOrReturnError(mScannerState == WbsDeviceScannerState::SCANNING, CHIP_NO_ERROR);
 
-    CHIP_ERROR err =
-        PlatformMgrImpl().GLibMatterContextInvokeSync(+[](WbsDeviceScanner * self) { return self->StopScanImpl(); }, this);
+    CHIP_ERROR err = PlatformMgrImpl().GLibMatterContextInvokeSync(
+        +[](WbsDeviceScanner * self) { return self->StopScanImpl(); }, this);
     if (err != CHIP_NO_ERROR)
     {
         ChipLogError(Ble, "Failed to initiate BLE scan stop: %" CHIP_ERROR_FORMAT, err.Format());

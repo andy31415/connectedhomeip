@@ -58,49 +58,28 @@ class TC_TLSCLIENT_3_10(TC_TLSCLIENT_Base):
             TestStep(4, "Set myHostname to a valid value."),
             TestStep(5, "Set myPort to a valid port value."),
             TestStep(6, "Set myRootCert to a valid value."),
-            TestStep(
-                7,
-                "CR1 sends ProvisionRootCertificate command to the TLSCertificateManagementCluster with null CAID and Certificate set to myRootCert.",
-                "DUT replies with a TLSCAID value. Store the returned value as myCaid.",
-            ),
+            TestStep(7, "CR1 sends ProvisionRootCertificate command to the TLSCertificateManagementCluster with null CAID and Certificate set to myRootCert.",
+                     "DUT replies with a TLSCAID value. Store the returned value as myCaid."),
             TestStep(8, "Populate myNonce with a distinct, random 32-octet values"),
+            TestStep(9, "CR1 sends ClientCSR command with Nonce set to myNonce",
+                     "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid and CSR in myCsr."),
+            TestStep(10,
+                     "Populate myClientCert with a distinct, valid, self-signed, DER-encoded x509 certificates using each respective public key from myCsr."),
+            TestStep(11, "CR1 sends ProvisionClientCertificate command to the TLSCertificateManagementCluster with CCDID set to myCcdid and ClientCertificateDetails set to myClientCert.",
+                     test_plan_support.verify_success()),
+            TestStep(12, "CR1 sends FindEndpoint command with EndpointID 0.",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(13, "CR1 sends ProvisionEndpoint command with valid Hostname myHostname, Port myPort, CAID myCaid, CCDID myCcdid and null EndpointID.",
+                     "DUT replies with a TLSEndpointID value. Store the returned value as myEndpoint."),
+            TestStep(14, "CR1 sends FindEndpoint command with EndpointID set to myEndpoint.",
+                     "DUT replies with a TLSEndpointStruct with value (myEndpoint, myHostname, myPort, myCaid, myCcdid, myReferenceCount), where myReferenceCount is 0."),
+            TestStep(15, "CR1 sends FindEndpoint command with EndpointID set to myEndpoint + 1.",
+                     test_plan_support.verify_status(Status.NotFound)),
+            TestStep(16, "CR2 sends FindEndpoint command with EndpointID set to myEndpoint.",
+                     test_plan_support.verify_status(Status.NotFound)),
             TestStep(
-                9,
-                "CR1 sends ClientCSR command with Nonce set to myNonce",
-                "DUT replies with CCDID, CSR and Nonce. Store TLSCCDID in myCcdid and CSR in myCsr.",
-            ),
-            TestStep(
-                10,
-                "Populate myClientCert with a distinct, valid, self-signed, DER-encoded x509 certificates using each respective public key from myCsr.",
-            ),
-            TestStep(
-                11,
-                "CR1 sends ProvisionClientCertificate command to the TLSCertificateManagementCluster with CCDID set to myCcdid and ClientCertificateDetails set to myClientCert.",
-                test_plan_support.verify_success(),
-            ),
-            TestStep(12, "CR1 sends FindEndpoint command with EndpointID 0.", test_plan_support.verify_status(Status.NotFound)),
-            TestStep(
-                13,
-                "CR1 sends ProvisionEndpoint command with valid Hostname myHostname, Port myPort, CAID myCaid, CCDID myCcdid and null EndpointID.",
-                "DUT replies with a TLSEndpointID value. Store the returned value as myEndpoint.",
-            ),
-            TestStep(
-                14,
-                "CR1 sends FindEndpoint command with EndpointID set to myEndpoint.",
-                "DUT replies with a TLSEndpointStruct with value (myEndpoint, myHostname, myPort, myCaid, myCcdid, myReferenceCount), where myReferenceCount is 0.",
-            ),
-            TestStep(
-                15,
-                "CR1 sends FindEndpoint command with EndpointID set to myEndpoint + 1.",
-                test_plan_support.verify_status(Status.NotFound),
-            ),
-            TestStep(
-                16,
-                "CR2 sends FindEndpoint command with EndpointID set to myEndpoint.",
-                test_plan_support.verify_status(Status.NotFound),
-            ),
-            TestStep(17, "CR1 sends RemoveEndpoint command with EndpointID set to myEndpoint.", test_plan_support.verify_success()),
-            TestStep(18, test_plan_support.remove_fabric("CR2", "CR1"), test_plan_support.verify_success()),
+                17, "CR1 sends RemoveEndpoint command with EndpointID set to myEndpoint.", test_plan_support.verify_success()),
+            TestStep(18, test_plan_support.remove_fabric('CR2', 'CR1'), test_plan_support.verify_success()),
         ]
 
     @run_if_endpoint_matches(has_cluster(Clusters.TlsClientManagement))
@@ -131,7 +110,8 @@ class TC_TLSCLIENT_3_10(TC_TLSCLIENT_Base):
         csr = cr1_cmd.assert_valid_csr(res, my_nonce)
 
         self.step(10)
-        my_client_cert = cr1_cmd.gen_cert_with_key(cr1_cmd.get_key(), public_key=csr.public_key(), subject=csr.subject)
+        my_client_cert = cr1_cmd.gen_cert_with_key(
+            cr1_cmd.get_key(), public_key=csr.public_key(), subject=csr.subject)
 
         self.step(11)
         await cr1_cmd.send_provision_client_command(ccdid=my_ccdid, certificate=my_client_cert)

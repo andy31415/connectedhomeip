@@ -52,8 +52,10 @@ log = logging.getLogger(__name__)
 
 
 class TestCheckCommandFlags(MatterBaseTest):
+
     @async_test_body
     async def test_invalid_transport_type_for_large_payload(self):
+
         self.print_step(0, "Commissioning - already done")
         cmd = Clusters.UnitTesting.Commands.TestCheckCommandFlags()
 
@@ -63,19 +65,14 @@ class TestCheckCommandFlags(MatterBaseTest):
             await self.send_single_cmd(cmd=cmd, endpoint=1, timedRequestTimeoutMs=1000)
             asserts.fail("Unexpected success for Command requiring LargePayload session. Expecting InvalidTransportType error")
         except InteractionModelError as e:
-            asserts.assert_equal(
-                e.status, Status.InvalidTransportType, "Failed to verify INVALID_TRANSPORT_TYPE for a LargePayload message"
-            )
+            asserts.assert_equal(e.status, Status.InvalidTransportType,
+                                 "Failed to verify INVALID_TRANSPORT_TYPE for a LargePayload message")
 
         # Send the command requiring large payload session over a TCP session to
         # receive Success status code.
         try:
-            await self.send_single_cmd(
-                cmd=cmd,
-                endpoint=1,
-                timedRequestTimeoutMs=1000,
-                payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD,
-            )
+            await self.send_single_cmd(cmd=cmd, endpoint=1, timedRequestTimeoutMs=1000,
+                                       payloadCapability=ChipDeviceCtrl.TransportPayloadCapability.LARGE_PAYLOAD)
         except InteractionModelError:
             asserts.fail("Unexpected error returned by DUT")
 

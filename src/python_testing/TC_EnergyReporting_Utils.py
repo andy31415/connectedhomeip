@@ -26,6 +26,7 @@ log = logging.getLogger(__name__)
 
 
 class EnergyReportingBaseTestHelper:
+
     async def read_epm_attribute_expect_success(self, attribute: str = "", endpoint: int = None):
         cluster = Clusters.Objects.ElectricalPowerMeasurement
         full_attr = getattr(cluster.Attributes, attribute)
@@ -37,12 +38,12 @@ class EnergyReportingBaseTestHelper:
         return await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=full_attr)
 
     def check_value_in_range(self, attribute: str, value: int, lower_value: int, upper_value: int):
-        asserts.assert_greater_equal(value, lower_value, f"Unexpected '{attribute}' value - expected {lower_value}, was {value}")
-        asserts.assert_less_equal(value, upper_value, f"Unexpected '{attribute}' value - expected {upper_value}, was {value}")
+        asserts.assert_greater_equal(value, lower_value,
+                                     f"Unexpected '{attribute}' value - expected {lower_value}, was {value}")
+        asserts.assert_less_equal(value, upper_value,
+                                  f"Unexpected '{attribute}' value - expected {upper_value}, was {value}")
 
-    async def check_epm_attribute_in_range(
-        self, attribute, lower_value: int, upper_value: int, endpoint: int = None, allow_null: bool = False
-    ):
+    async def check_epm_attribute_in_range(self, attribute, lower_value: int, upper_value: int, endpoint: int = None, allow_null: bool = False):
         value = await self.read_epm_attribute_expect_success(endpoint=endpoint, attribute=attribute)
         if allow_null and value is NullValue:
             # skip the range check
@@ -52,9 +53,7 @@ class EnergyReportingBaseTestHelper:
         self.check_value_in_range(attribute, value, lower_value, upper_value)
         return value
 
-    async def check_eem_attribute_in_range(
-        self, attribute, lower_value: int, upper_value: int, endpoint: int = None, allow_null: bool = False
-    ):
+    async def check_eem_attribute_in_range(self, attribute, lower_value: int, upper_value: int, endpoint: int = None, allow_null: bool = False):
         value = await self.read_eem_attribute_expect_success(endpoint=endpoint, attribute=attribute)
         if allow_null and value is NullValue:
             # skip the range check

@@ -80,5 +80,5 @@ CHIP_ERROR AttributeStatusIBs::Parser::PrettyPrint() const
     return reader.ExitContainer(mOuterContainerType);
 }
 #endif // CHIP_CONFIG_IM_PRETTY_PRINT
-}; // namespace app
-}; // namespace chip
+};     // namespace app
+};     // namespace chip

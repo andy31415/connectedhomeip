@@ -22,9 +22,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-class MTRP256KeypairBridge : public chip::Crypto::P256Keypair {
+class MTRP256KeypairBridge : public chip::Crypto::P256Keypair
+{
 public:
-    ~MTRP256KeypairBridge() {};
+    ~MTRP256KeypairBridge(){};
 
     CHIP_ERROR Init(id<MTRKeypair> keypair);
 
@@ -39,10 +40,10 @@ public:
     CHIP_ERROR NewCertificateSigningRequest(uint8_t * csr, size_t & csr_length) const override;
 
     CHIP_ERROR ECDSA_sign_msg(const uint8_t * msg, size_t msg_length,
-        chip::Crypto::P256ECDSASignature & out_signature) const override;
+                              chip::Crypto::P256ECDSASignature & out_signature) const override;
 
     CHIP_ERROR ECDH_derive_secret(const chip::Crypto::P256PublicKey & remote_public_key,
-        chip::Crypto::P256ECDHDerivedSecret & out_secret) const override;
+                                  chip::Crypto::P256ECDHDerivedSecret & out_secret) const override;
 
     const chip::Crypto::P256PublicKey & Pubkey() const override { return mPubkey; };
 

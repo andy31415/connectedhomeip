@@ -32,61 +32,78 @@ class AmebaApp(Enum):
     @property
     def ExampleName(self):
         if self == AmebaApp.ALL_CLUSTERS:
-            return "all-clusters-app"
+            return 'all-clusters-app'
         if self == AmebaApp.ALL_CLUSTERS_MINIMAL:
-            return "all-clusters-minimal-app"
+            return 'all-clusters-minimal-app'
         if self == AmebaApp.LIGHT:
-            return "lighting-app"
+            return 'lighting-app'
         if self == AmebaApp.LIGHT_SWITCH:
-            return "light-switch-app"
+            return 'light-switch-app'
         if self == AmebaApp.PIGWEED:
-            return "pigweed-app"
-        raise Exception("Unknown app type: %r" % self)
+            return 'pigweed-app'
+        raise Exception('Unknown app type: %r' % self)
 
     @property
     def AppNamePrefix(self):
         if self == AmebaApp.ALL_CLUSTERS:
-            return "chip-ameba-all-clusters-app"
+            return 'chip-ameba-all-clusters-app'
         if self == AmebaApp.ALL_CLUSTERS_MINIMAL:
-            return "chip-ameba-all-clusters-minimal-app"
+            return 'chip-ameba-all-clusters-minimal-app'
         if self == AmebaApp.LIGHT:
-            return "chip-ameba-lighting-app"
+            return 'chip-ameba-lighting-app'
         if self == AmebaApp.LIGHT_SWITCH:
-            return "chip-ameba-light-switch-app"
+            return 'chip-ameba-light-switch-app'
         if self == AmebaApp.PIGWEED:
-            return "chip-ameba-pigweed-app"
-        raise Exception("Unknown app type: %r" % self)
+            return 'chip-ameba-pigweed-app'
+        raise Exception('Unknown app type: %r' % self)
 
 
 class AmebaBuilder(Builder):
-    def __init__(self, root, runner, board: AmebaBoard = AmebaBoard.AMEBAD, app: AmebaApp = AmebaApp.ALL_CLUSTERS):
+
+    def __init__(self,
+                 root,
+                 runner,
+                 board: AmebaBoard = AmebaBoard.AMEBAD,
+                 app: AmebaApp = AmebaApp.ALL_CLUSTERS):
         super(AmebaBuilder, self).__init__(root, runner)
         self.board = board
         self.app = app
 
     def generate(self):
-        cmd = "$AMEBA_PATH/project/realtek_amebaD_va0_example/GCC-RELEASE/build.sh "
-        if self.app.ExampleName == "pigweed-app":
+        cmd = '$AMEBA_PATH/project/realtek_amebaD_va0_example/GCC-RELEASE/build.sh '
+        if self.app.ExampleName == 'pigweed-app':
             # rpc flag: -r
-            cmd += "-r "
+            cmd += '-r '
 
         # <build root> <build_system> <output_directory> <application>
-        cmd += " ".join([self.root, "ninja", self.output_dir, self.app.ExampleName])
+        cmd += ' '.join([self.root, 'ninja', self.output_dir,
+                        self.app.ExampleName])
 
-        self._Execute(["bash", "-c", cmd], title="Generating " + self.identifier)
+        self._Execute(['bash', '-c', cmd],
+                      title='Generating ' + self.identifier)
 
     def _build(self):
-        cmd = ["ninja", "-C", self.output_dir]
+        cmd = ['ninja', '-C', self.output_dir]
 
         if self.ninja_jobs is not None:
-            cmd.append("-j" + str(self.ninja_jobs))
+            cmd.append('-j' + str(self.ninja_jobs))
 
-        self._Execute(cmd, title="Building " + self.identifier)
+        self._Execute(cmd, title='Building ' + self.identifier)
 
     def build_outputs(self):
-        yield BuilderOutput(os.path.join(self.output_dir, "asdk", "target_image2.axf"), self.app.AppNamePrefix + ".axf")
+        yield BuilderOutput(
+            os.path.join(self.output_dir, 'asdk', 'target_image2.axf'),
+            self.app.AppNamePrefix + '.axf')
         if self.options.enable_link_map_file:
-            yield BuilderOutput(os.path.join(self.output_dir, "asdk", "target_image2.map"), self.app.AppNamePrefix + ".map")
-        yield BuilderOutput(os.path.join(self.output_dir, "asdk", "bootloader", "km0_boot_all.bin"), "km0_boot_all.bin")
-        yield BuilderOutput(os.path.join(self.output_dir, "asdk", "bootloader", "km4_boot_all.bin"), "km4_boot_all.bin")
-        yield BuilderOutput(os.path.join(self.output_dir, "asdk", "image", "km0_km4_image2.bin"), "km0_km4_image2.bin")
+            yield BuilderOutput(
+                os.path.join(self.output_dir, 'asdk', 'target_image2.map'),
+                self.app.AppNamePrefix + '.map')
+        yield BuilderOutput(
+            os.path.join(self.output_dir, 'asdk', 'bootloader', 'km0_boot_all.bin'),
+            'km0_boot_all.bin')
+        yield BuilderOutput(
+            os.path.join(self.output_dir, 'asdk', 'bootloader', 'km4_boot_all.bin'),
+            'km4_boot_all.bin')
+        yield BuilderOutput(
+            os.path.join(self.output_dir, 'asdk', 'image', 'km0_km4_image2.bin'),
+            'km0_km4_image2.bin')

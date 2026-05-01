@@ -33,8 +33,12 @@ inline constexpr AttributeId kEndpoint1EnabledAttributes[] = {
 };
 
 inline constexpr CommandId kEndpoint1EnabledCommands[] = {
-    Commands::CaptureSnapshot::Id,        Commands::CaptureSnapshotResponse::Id,        Commands::SetStreamPriorities::Id,
-    Commands::SnapshotStreamAllocate::Id, Commands::SnapshotStreamAllocateResponse::Id, Commands::SnapshotStreamDeallocate::Id,
+    Commands::CaptureSnapshot::Id,
+    Commands::CaptureSnapshotResponse::Id,
+    Commands::SetStreamPriorities::Id,
+    Commands::SnapshotStreamAllocate::Id,
+    Commands::SnapshotStreamAllocateResponse::Id,
+    Commands::SnapshotStreamDeallocate::Id,
 };
 
 } // namespace detail
@@ -43,18 +47,17 @@ using FeatureBitmapType = Feature;
 
 inline constexpr std::array<Clusters::StaticApplicationConfig::ClusterConfiguration<FeatureBitmapType>, 1> kFixedClusterConfig = { {
     {
-        .endpointNumber    = 1,
-        .featureMap        = BitFlags<FeatureBitmapType>{},
+        .endpointNumber = 1,
+        .featureMap = BitFlags<FeatureBitmapType> {
+        },
         .enabledAttributes = Span<const AttributeId>(detail::kEndpoint1EnabledAttributes),
-        .enabledCommands   = Span<const CommandId>(detail::kEndpoint1EnabledCommands),
+        .enabledCommands = Span<const CommandId>(detail::kEndpoint1EnabledCommands),
     },
 } };
 
 // If a specific attribute is supported at all across all endpoint static instantiations
-inline constexpr bool IsAttributeEnabledOnSomeEndpoint(AttributeId attributeId)
-{
-    switch (attributeId)
-    {
+inline constexpr bool IsAttributeEnabledOnSomeEndpoint(AttributeId attributeId) {
+  switch (attributeId) {
     case Attributes::AcceptedCommandList::Id:
     case Attributes::AllocatedSnapshotStreams::Id:
     case Attributes::AttributeList::Id:
@@ -67,27 +70,25 @@ inline constexpr bool IsAttributeEnabledOnSomeEndpoint(AttributeId attributeId)
     case Attributes::NightVisionIllum::Id:
     case Attributes::SupportedSnapshotParams::Id:
     case Attributes::SupportedStreamUsages::Id:
-        return true;
+      return true;
     default:
-        return false;
-    }
+      return false;
+  }
 }
 
 // If a specific command is supported at all across all endpoint static instantiations
-inline constexpr bool IsCommandEnabledOnSomeEndpoint(CommandId commandId)
-{
-    switch (commandId)
-    {
+inline constexpr bool IsCommandEnabledOnSomeEndpoint(CommandId commandId) {
+  switch (commandId) {
     case Commands::CaptureSnapshot::Id:
     case Commands::CaptureSnapshotResponse::Id:
     case Commands::SetStreamPriorities::Id:
     case Commands::SnapshotStreamAllocate::Id:
     case Commands::SnapshotStreamAllocateResponse::Id:
     case Commands::SnapshotStreamDeallocate::Id:
-        return true;
+      return true;
     default:
-        return false;
-    }
+      return false;
+  }
 }
 
 } // namespace StaticApplicationConfig
@@ -95,3 +96,4 @@ inline constexpr bool IsCommandEnabledOnSomeEndpoint(CommandId commandId)
 } // namespace Clusters
 } // namespace app
 } // namespace chip
+

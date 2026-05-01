@@ -59,6 +59,7 @@ from matter.testing.runner import TestStep, default_matter_test_main
 
 
 class TC_CHIME_2_2(MatterBaseTest, CHIMETestBase):
+
     def desc_TC_CHIME_2_2(self) -> str:
         return "[TC-CHIME-2.2] Verify that Chime can be enabled"
 

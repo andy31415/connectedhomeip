@@ -54,6 +54,7 @@ log = logging.getLogger(__name__)
 
 
 class TC_JFADMIN_1_1(MatterBaseTest):
+
     @async_test_body
     async def setup_class(self):
         super().setup_class()
@@ -64,23 +65,19 @@ class TC_JFADMIN_1_1(MatterBaseTest):
 
         self.jfc_server_app = self.user_params.get("jfc_server_app", None)
         if not self.jfc_server_app:
-            asserts.fail(
-                "This test requires a Joint Fabric Controller app. Specify app path with --string-arg jfc_server_app:<path_to_app>"
-            )
+            asserts.fail("This test requires a Joint Fabric Controller app. Specify app path with --string-arg jfc_server_app:<path_to_app>")
         if not os.path.exists(self.jfc_server_app):
             asserts.fail(f"The path {self.jfc_server_app} does not exist")
 
         self.jfa_server_app = self.user_params.get("jfa_server_app", None)
         if not self.jfa_server_app:
-            asserts.fail(
-                "This test requires a Joint Fabrics Admin app. Specify app path with --string-arg jfa_server_app:<path_to_app>"
-            )
+            asserts.fail("This test requires a Joint Fabrics Admin app. Specify app path with --string-arg jfa_server_app:<path_to_app>")
         if not os.path.exists(self.jfa_server_app):
             asserts.fail(f"The path {self.jfa_server_app} does not exist")
 
         # Create a temporary storage directory for both ecosystems to keep KVS files if not already provided by user.
         if self.storage_fabric_a is None:
-            self.storage_directory_ecosystem_a = tempfile.TemporaryDirectory(prefix=self.__class__.__name__ + "_A_")
+            self.storage_directory_ecosystem_a = tempfile.TemporaryDirectory(prefix=self.__class__.__name__+"_A_")
             self.storage_fabric_a = self.storage_directory_ecosystem_a.name
             log.info("Temporary storage directory: %s", self.storage_fabric_a)
 
@@ -95,21 +92,16 @@ class TC_JFADMIN_1_1(MatterBaseTest):
 
     def steps_TC_JFADMIN_1_1(self) -> list[TestStep]:
         return [
-            TestStep("1", "TH starts a commissioning process with DUT.", "DUT is commissioned by TH with success."),
-            TestStep(
-                "2",
-                "TH reads AdministratorFabricIndex attribute from DUT.",
-                "DUT response contains AdministratorFabricIndex with a value in range 1..254.",
-            ),
-            TestStep(
-                "3",
-                "TH1 reads Fabrics attribute from Operation Cluster on EP0.",
-                "DUT response contains a FabricDescriptorStruct with FabricID equal to AdministratorFabricIndex from step 2.",
-            ),
+            TestStep("1", "TH starts a commissioning process with DUT.",
+                     "DUT is commissioned by TH with success."),
+            TestStep("2", "TH reads AdministratorFabricIndex attribute from DUT.",
+                     "DUT response contains AdministratorFabricIndex with a value in range 1..254."),
+            TestStep("3", "TH1 reads Fabrics attribute from Operation Cluster on EP0.",
+                     "DUT response contains a FabricDescriptorStruct with FabricID equal to AdministratorFabricIndex from step 2.")
         ]
 
     def pics_TC_JFADMIN_1_1(self):
-        return ["JFADMIN.S"]
+        return ['JFADMIN.S']
 
     @async_test_body
     async def test_TC_JFADMIN_1_1(self):
@@ -131,9 +123,10 @@ class TC_JFADMIN_1_1(MatterBaseTest):
                 port=random.randint(5001, 5999),
                 discriminator=jfadmin_fabric_a_discriminator,
                 passcode=jfadmin_fabric_a_passcode,
-                extra_args=["--capabilities", "0x04", "--rpc-server-port", dut_rpc_server_port],
-            )
-            self.fabric_a_admin.start(expected_output="Server initialization complete", timeout=20)
+                extra_args=["--capabilities", "0x04", "--rpc-server-port", dut_rpc_server_port])
+            self.fabric_a_admin.start(
+                expected_output="Server initialization complete",
+                timeout=20)
         else:
             # We have a DUT that is already running, connect to it via RPC
             dut_rpc_server_ip = self.user_params.get("dut_rpc_server_ip", None)
@@ -153,20 +146,20 @@ class TC_JFADMIN_1_1(MatterBaseTest):
             rpc_server_port=dut_rpc_server_port,
             storage_dir=self.storage_fabric_a,
             vendor_id=self.jfctrl_fabric_a_vid,
-            extra_args=["--rpc-server-ip", dut_rpc_server_ip],
-        )
-        self.fabric_a_ctrl.start(expected_output="CHIP task running", timeout=20)
+            extra_args=["--rpc-server-ip", dut_rpc_server_ip])
+        self.fabric_a_ctrl.start(
+            expected_output="CHIP task running",
+            timeout=20)
 
         # Commission JF-ADMIN app with JF-Controller on Fabric A
         self.fabric_a_ctrl.send(
             message=f"pairing onnetwork 1 {jfadmin_fabric_a_passcode} --anchor true",
             expected_output="[JF] Anchor Administrator (nodeId=1) commissioned with success",
-            timeout=20,
-        )
+            timeout=20)
 
         # Extract the Ecosystem A certificates and inject them in the storage that will be provided to a new Python Controller later
         jfcStorage = ConfigParser()
-        jfcStorage.read(os.path.join(self.storage_fabric_a, "chip_tool_config.alpha.ini"))
+        jfcStorage.read(os.path.join(self.storage_fabric_a, 'chip_tool_config.alpha.ini'))
         self.ecoACtrlStorage = {
             "sdk-config": {
                 "ExampleOpCredsCAKey1": jfcStorage.get("Default", "ExampleOpCredsCAKey0"),
@@ -174,45 +167,46 @@ class TC_JFADMIN_1_1(MatterBaseTest):
                 "ExampleCARootCert1": jfcStorage.get("Default", "ExampleCARootCert0"),
                 "ExampleCAIntermediateCert1": jfcStorage.get("Default", "ExampleCAIntermediateCert0"),
             },
-            "repl-config": {"caList": {"1": [{"fabricId": 1, "vendorId": self.jfctrl_fabric_a_vid}]}},
+            "repl-config": {
+                "caList": {
+                    "1": [
+                        {
+                            "fabricId": 1,
+                            "vendorId": self.jfctrl_fabric_a_vid
+                        }
+                    ]
+                }
+            }
         }
         # Extract CATs to be provided to the Python Controller later
-        self.ecoACATs = base64.b64decode(jfcStorage.get("Default", "CommissionerCATs"))[::-1].hex().strip("0")
+        self.ecoACATs = base64.b64decode(jfcStorage.get("Default", "CommissionerCATs"))[::-1].hex().strip('0')
 
         # Creating a Controller for Ecosystem A
         _fabric_a_persistent_storage = VolatileTemporaryPersistentStorage(
-            self.ecoACtrlStorage["repl-config"], self.ecoACtrlStorage["sdk-config"]
-        )
+            self.ecoACtrlStorage['repl-config'], self.ecoACtrlStorage['sdk-config'])
         _certAuthorityManagerA = CertificateAuthority.CertificateAuthorityManager(
-            chipStack=self.matter_stack._chip_stack, persistentStorage=_fabric_a_persistent_storage
-        )
+            chipStack=self.matter_stack._chip_stack,
+            persistentStorage=_fabric_a_persistent_storage)
         _certAuthorityManagerA.LoadAuthoritiesFromStorage()
-        devCtrlEcoA = (
-            _certAuthorityManagerA.activeCaList[0]
-            .adminList[0]
-            .NewController(
-                nodeId=101, paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path), catTags=[int(self.ecoACATs, 16)]
-            )
-        )
+        devCtrlEcoA = _certAuthorityManagerA.activeCaList[0].adminList[0].NewController(
+            nodeId=101,
+            paaTrustStorePath=str(self.matter_test_config.paa_trust_store_path),
+            catTags=[int(self.ecoACATs, 16)])
 
         if self.pics_guard(self.check_pics("JFADMIN.S.A0000")):
             self.step("2")
             response = await devCtrlEcoA.ReadAttribute(
-                nodeId=1,
-                attributes=[(1, Clusters.JointFabricAdministrator.Attributes.AdministratorFabricIndex)],
-                returnClusterObject=True,
-            )
+                nodeId=1, attributes=[(1, Clusters.JointFabricAdministrator.Attributes.AdministratorFabricIndex)],
+                returnClusterObject=True)
             attributeAdminFabricIndex = response[1][Clusters.JointFabricAdministrator].administratorFabricIndex
-            asserts.assert_true(
-                attributeAdminFabricIndex in range(1, 255),
-                f"AdministratorFabricIndex={attributeAdminFabricIndex} not in expected range [1..254]",
-            )
+            asserts.assert_true(attributeAdminFabricIndex in range(1, 255),
+                                f"AdministratorFabricIndex={attributeAdminFabricIndex} not in expected range [1..254]")
 
             # Step 3 is under same PICS guard as Step 2 becasue it relies on attributeAdminFabricIndex
             self.step("3")
             response = await devCtrlEcoA.ReadAttribute(
-                nodeId=1, attributes=[(0, Clusters.OperationalCredentials.Attributes.Fabrics)], returnClusterObject=True
-            )
+                nodeId=1, attributes=[(0, Clusters.OperationalCredentials.Attributes.Fabrics)],
+                returnClusterObject=True)
             fabricid_found = False
             for fabric in response[0][Clusters.OperationalCredentials].fabrics:
                 log.info(f"Checking fabricIndex from fabricID={fabric.fabricID}")
@@ -220,10 +214,8 @@ class TC_JFADMIN_1_1(MatterBaseTest):
                     fabricid_found = True
                     log.info(f"Found matching fabricIndex={attributeAdminFabricIndex} on fabricID={fabric.fabricID}")
                     break
-            asserts.assert_true(
-                fabricid_found,
-                "No FabricDescriptorStruct with fabricIndex = AdministratorFabricIndex found in Operational Cluster Fabrics attribute on EP0",
-            )
+            asserts.assert_true(fabricid_found,
+                                "No FabricDescriptorStruct with fabricIndex = AdministratorFabricIndex found in Operational Cluster Fabrics attribute on EP0")
 
         # Shutdown the Python Controllers started at the beginning of this script
         devCtrlEcoA.Shutdown()

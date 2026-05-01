@@ -71,7 +71,7 @@ log = logging.getLogger(__name__)
 class TC_OCC_3_1(MatterBaseTest):
     def setup_test(self):
         super().setup_test()
-        self.is_ci = self.matter_test_config.global_test_params.get("simulate_occupancy", False)
+        self.is_ci = self.matter_test_config.global_test_params.get('simulate_occupancy', False)
 
     async def read_occ_attribute_expect_success(self, attribute):
         cluster = Clusters.Objects.OccupancySensing
@@ -168,8 +168,7 @@ class TC_OCC_3_1(MatterBaseTest):
             self.write_to_app_pipe({"Name": "SetOccupancy", "EndpointId": endpoint_id, "Occupancy": 0})
         else:
             self.wait_for_user_input(
-                prompt_msg="Type any letter and press ENTER after the sensor occupancy is in unoccupied state (occupancy attribute = 0)"
-            )
+                prompt_msg="Type any letter and press ENTER after the sensor occupancy is in unoccupied state (occupancy attribute = 0)")
 
         self.step(6)
         # Read and verify Occupancy = 0 (Unoccupied)
@@ -180,9 +179,7 @@ class TC_OCC_3_1(MatterBaseTest):
         # Set up wildcard subscription for attributes and events
         # MinIntervalFloor = 0, MaxIntervalCeiling = 30, KeepSubscriptions = false (EventSubscriptionHandler has True hardcoded and can't be changed)
         attrib_listener = AttributeSubscriptionHandler(expected_cluster=cluster)
-        await attrib_listener.start(
-            dev_ctrl, node_id, endpoint=endpoint_id, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False
-        )
+        await attrib_listener.start(dev_ctrl, node_id, endpoint=endpoint_id, min_interval_sec=0, max_interval_sec=30, keepSubscriptions=False)
 
         if occupancy_event_supported:
             event_listener = EventSubscriptionHandler(expected_cluster=cluster)
@@ -208,9 +205,9 @@ class TC_OCC_3_1(MatterBaseTest):
         self.step(11)
         # Wait for up to 30 seconds for attribute data report with Occupancy = 1
         attrib_listener.await_all_final_values_reported(
-            expected_final_values=[AttributeValue(endpoint_id=endpoint_id, attribute=cluster.Attributes.Occupancy, value=1)],
-            timeout_sec=30.0,
-        )
+            expected_final_values=[AttributeValue(endpoint_id=endpoint_id,
+                                                  attribute=cluster.Attributes.Occupancy, value=1)],
+            timeout_sec=30.0)
         log.info("Received attribute report for Occupancy = 1 (Occupied).")
 
         self.step(12)
@@ -236,7 +233,8 @@ class TC_OCC_3_1(MatterBaseTest):
             # CI call to trigger unoccupied.
             self.write_to_app_pipe({"Name": "SetOccupancy", "EndpointId": endpoint_id, "Occupancy": 0})
         else:
-            self.wait_for_user_input(prompt_msg="Ensure the sensor no longer detects occupancy, then press ENTER")
+            self.wait_for_user_input(
+                prompt_msg="Ensure the sensor no longer detects occupancy, then press ENTER")
 
         if has_hold_time:
             log.info(f"Waiting for HoldTime duration ({hold_time} seconds) plus buffer...")
@@ -250,9 +248,9 @@ class TC_OCC_3_1(MatterBaseTest):
         self.step(16)
         # Wait for up to 30 seconds for attribute data report with Occupancy = 0
         attrib_listener.await_all_final_values_reported(
-            expected_final_values=[AttributeValue(endpoint_id=endpoint_id, attribute=cluster.Attributes.Occupancy, value=0)],
-            timeout_sec=30.0,
-        )
+            expected_final_values=[AttributeValue(endpoint_id=endpoint_id,
+                                                  attribute=cluster.Attributes.Occupancy, value=0)],
+            timeout_sec=30.0)
         log.info("Received attribute report for Occupancy = 0 (Unoccupied).")
 
         self.step(17)

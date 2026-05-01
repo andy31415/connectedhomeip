@@ -10,7 +10,6 @@ from pydantic import BaseModel
 
 class SupportedIngestInterface(str, Enum):
     """Supported ingest interfaces for media streams."""
-
     cmaf = "cmaf-ingest"  # Interface 1
     dash = "dash"  # Interface 2, DASH version
     hls = "hls"  # Interface 2, HLS version
@@ -18,7 +17,6 @@ class SupportedIngestInterface(str, Enum):
 
 class TrackState(str, Enum):
     """State of a track in the upload process."""
-
     NOT_STARTED = "not_started"
     INITIAL_PLAYLIST_UPLOADED = "initial_playlist_uploaded"  # HLS only
     INIT_UPLOADED = "init_uploaded"
@@ -28,7 +26,6 @@ class TrackState(str, Enum):
 
 class Track(BaseModel):
     """Represents a track within a session with upload state tracking."""
-
     name: str
     state: TrackState = TrackState.NOT_STARTED
     segment_count: int = 0
@@ -36,7 +33,6 @@ class Track(BaseModel):
 
 class UploadError(BaseModel):
     """Represents an upload error with associated metadata."""
-
     session_id: Optional[int]
     file_path: str
     reasons: list[str]
@@ -44,14 +40,12 @@ class UploadError(BaseModel):
 
 class ValidUpload(BaseModel):
     """Represents a valid upload with associated metadata."""
-
     session_id: Optional[int]
     file_path: str
 
 
 class Session(BaseModel):
     """Represents a streaming session with upload tracking."""
-
     # The id is the index in the stream's list.
     # Keeping a duplicated value here to have it included in API responses.
     id: int
@@ -67,7 +61,6 @@ class Session(BaseModel):
 
 class Stream(BaseModel):
     """Represents a Push AV stream with configuration and tracking."""
-
     # Configuration of the PushAv stream
     id: int
     strict_mode: bool = True
@@ -98,11 +91,9 @@ class Stream(BaseModel):
 
 class SignClientCertificate(BaseModel):
     """Request model to sign a client certificate."""
-
     csr: str
 
 
 class TrackNameRequest(BaseModel):
     """Request model to update track name for a stream."""
-
     track_name: str

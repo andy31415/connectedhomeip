@@ -22,12 +22,14 @@ import subprocess
 import sys
 from pathlib import Path
 
-CHIP_ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), "../.."))
+CHIP_ROOT_DIR = os.path.realpath(
+    os.path.join(os.path.dirname(__file__), '../..'))
 
 
 def checkPythonVersion():
     if sys.version_info[0] < 3:
-        print("Must use Python 3. Current version is " + str(sys.version_info[0]))
+        print('Must use Python 3. Current version is ' +
+              str(sys.version_info[0]))
         exit(1)
 
 
@@ -41,15 +43,15 @@ zapFilesToSkip = {
 
 def getTargets():
     ROOTS_TO_SEARCH = [
-        "./examples",
-        "./src/darwin",
-        "./src/controller/data_model",
-        "./scripts/tools/zap/tests/inputs",
+        './examples',
+        './src/darwin',
+        './src/controller/data_model',
+        './scripts/tools/zap/tests/inputs',
     ]
 
     targets = []
     for root in ROOTS_TO_SEARCH:
-        for filepath in Path(root).rglob("*.zap"):
+        for filepath in Path(root).rglob('*.zap'):
             path = str(filepath)
             if path in zapFilesToSkip:
                 continue
@@ -59,12 +61,12 @@ def getTargets():
 
 
 def runArgumentsParser():
-    parser = argparse.ArgumentParser(description="Convert all .zap files to the current zap version")
-    parser.add_argument(
-        "--run-bootstrap", action="store_true", help="Automatically run ZAP bootstrap. By default the bootstrap is not triggered"
-    )
-    parser.add_argument("--parallel", action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=False)
+    parser = argparse.ArgumentParser(
+        description='Convert all .zap files to the current zap version')
+    parser.add_argument('--run-bootstrap', action='store_true',
+                        help='Automatically run ZAP bootstrap. By default the bootstrap is not triggered')
+    parser.add_argument('--parallel', action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument('--dry-run', action=argparse.BooleanOptionalAction, default=False)
     return parser.parse_args()
 
 
@@ -72,7 +74,7 @@ def convertOne(target):
     """
     Helper method that may be run in parallel to convert a single target.
     """
-    subprocess.check_call(["./scripts/tools/zap/convert.py"] + [target])
+    subprocess.check_call(['./scripts/tools/zap/convert.py'] + [target])
 
 
 def main():
@@ -93,7 +95,7 @@ def main():
 
     if args.parallel:
         # Ensure each zap run is independent
-        os.environ["ZAP_TEMPSTATE"] = "1"
+        os.environ['ZAP_TEMPSTATE'] = '1'
         with multiprocessing.Pool() as pool:
             for _ in pool.imap_unordered(convertOne, targets):
                 pass
@@ -102,5 +104,5 @@ def main():
             convertOne(target)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

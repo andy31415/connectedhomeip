@@ -69,109 +69,63 @@ class TC_DEM_2_10(MatterBaseTest, DEMTestBase):
 
     def pics_TC_DEM_2_10(self):
         """Return the PICS definitions associated with this test."""
-        return ["DEM.S"]
+        return [
+            "DEM.S"
+        ]
 
     def steps_TC_DEM_2_10(self) -> list[TestStep]:
         """Execute the test steps."""
         return [
-            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test)", is_commissioning=True),
-            TestStep(
-                "2",
-                "TH reads from the DUT the FeatureMap",
-                "Verify that the DUT response contains the FeatureMap attribute. Store the value as FeatureMap.",
-            ),
-            TestStep(
-                "3", "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster", "Value has to be 1 (True)"
-            ),
-            TestStep(
-                "4",
-                "Set up a subscription to the DeviceEnergyManagement cluster, with MinIntervalFloor set to 0, MaxIntervalCeiling set to 10 and KeepSubscriptions set to false",
-                "Subscription successfully established",
-            ),
-            TestStep(
-                "5",
-                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.DEM.TESTEVENTTRIGGER for User Opt-out Test Event Clear",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
-            TestStep("5a", "TH reads from the DUT the OptOutState", "Value has to be 0x00 (NoOptOut)"),
+            TestStep("1", "Commission DUT to TH (can be skipped if done in a preceding test)",
+                     is_commissioning=True),
+            TestStep("2", "TH reads from the DUT the FeatureMap",
+                     "Verify that the DUT response contains the FeatureMap attribute. Store the value as FeatureMap."),
+            TestStep("3", "TH reads TestEventTriggersEnabled attribute from General Diagnostics Cluster",
+                     "Value has to be 1 (True)"),
+            TestStep("4", "Set up a subscription to the DeviceEnergyManagement cluster, with MinIntervalFloor set to 0, MaxIntervalCeiling set to 10 and KeepSubscriptions set to false",
+                     "Subscription successfully established"),
+            TestStep("5", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.DEM.TESTEVENTTRIGGER for User Opt-out Test Event Clear",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
+            TestStep("5a", "TH reads from the DUT the OptOutState",
+                     "Value has to be 0x00 (NoOptOut)"),
             TestStep("6", "If ForecastAdjustment feature is not supported on the cluster skip steps 7 to 14"),
-            TestStep(
-                "7",
-                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.DEM.TESTEVENTTRIGGER for Forecast Adjustment Test Event",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
-            TestStep("7a", "TH reads from the DUT the ESAState", "Value has to be 0x01 (Online)"),
+            TestStep("7", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.DEM.TESTEVENTTRIGGER for Forecast Adjustment Test Event",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
+            TestStep("7a", "TH reads from the DUT the ESAState",
+                     "Value has to be 0x01 (Online)"),
             TestStep("8", "Reset all accumulated report counts, then wait 12 seconds"),
-            TestStep(
-                "9",
-                "TH counts all report transactions with an attribute report for the Forecast attribute",
-                "TH verifies that numberOfReportsReceived <= 2",
-            ),
-            TestStep(
-                "10",
-                "TH reads from the DUT the Forecast",
-                "Value has to include slots[0].MinDurationAdjustment, slots[0].MaxDurationAdjustment",
-            ),
-            TestStep(
-                "11",
-                "If PowerForecastReporting feature is supported on the cluster TH sends command ModifyForecastRequest with ForecastID=Forecast.ForecastID, SlotAdjustments[0].{SlotIndex=0, Duration=Forecast.Slots[0].MaxDurationAdjustment, NominalPower=forecast.slots[0].minPowerAdjustment}, Cause=GridOptimization, else StateForecastReporting shall be used, omit the NominalPower: TH sends command ModifyForecastRequest with ForecastID=Forecast.ForecastID, SlotAdjustments[0].{SlotIndex=0, Duration=Forecast.Slots[0].MaxDurationAdjustment}, Cause=GridOptimization",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
-            TestStep(
-                "12",
-                "TH resets all accumulated report counts, then TH sends command CancelRequest",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
+            TestStep("9", "TH counts all report transactions with an attribute report for the Forecast attribute",
+                     "TH verifies that numberOfReportsReceived <= 2"),
+            TestStep("10", "TH reads from the DUT the Forecast",
+                     "Value has to include slots[0].MinDurationAdjustment, slots[0].MaxDurationAdjustment"),
+            TestStep("11", "If PowerForecastReporting feature is supported on the cluster TH sends command ModifyForecastRequest with ForecastID=Forecast.ForecastID, SlotAdjustments[0].{SlotIndex=0, Duration=Forecast.Slots[0].MaxDurationAdjustment, NominalPower=forecast.slots[0].minPowerAdjustment}, Cause=GridOptimization, else StateForecastReporting shall be used, omit the NominalPower: TH sends command ModifyForecastRequest with ForecastID=Forecast.ForecastID, SlotAdjustments[0].{SlotIndex=0, Duration=Forecast.Slots[0].MaxDurationAdjustment}, Cause=GridOptimization",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
+            TestStep("12", "TH resets all accumulated report counts, then TH sends command CancelRequest",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
             TestStep("13", "Wait 5 seconds"),
-            TestStep(
-                "13a",
-                "TH counts all report transactions with an attribute report for the Forecast attribute",
-                "TH verifies that numberOfReportsReceived >= 1",
-            ),
-            TestStep(
-                "14",
-                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.DEM.TESTEVENTTRIGGER for Forecast Adjustment Test Event Clear",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
+            TestStep("13a", "TH counts all report transactions with an attribute report for the Forecast attribute",
+                     "TH verifies that numberOfReportsReceived >= 1"),
+            TestStep("14", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.DEM.TESTEVENTTRIGGER for Forecast Adjustment Test Event Clear",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
             TestStep("15", "If PowerAdjustment feature is not supported on the cluster skip steps 16 to 21"),
-            TestStep(
-                "16",
-                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.DEM.TESTEVENTTRIGGER for Power Adjustment Test Event",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
-            TestStep("16b", "TH reads from the DUT the PowerAdjustmentCapability", "Value has to include Cause=NoAdjustment."),
-            TestStep(
-                "17",
-                "TH resets all accumulated report counts, then TH sends command PowerAdjustRequest with Power=PowerAdjustmentCapability[0].MaxPower, Duration=20, Cause=LocalOptimization",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
+            TestStep("16", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.DEM.TESTEVENTTRIGGER for Power Adjustment Test Event",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
+            TestStep("16b", "TH reads from the DUT the PowerAdjustmentCapability",
+                     "Value has to include Cause=NoAdjustment."),
+            TestStep("17", "TH resets all accumulated report counts, then TH sends command PowerAdjustRequest with Power=PowerAdjustmentCapability[0].MaxPower, Duration=20, Cause=LocalOptimization",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
             TestStep("18", "Wait 12 seconds"),
-            TestStep(
-                "18a",
-                "TH counts all report transactions with an attribute report for the PowerAdjustmentCapability attribute",
-                "TH verifies that numberOfReportsReceived <= 2",
-            ),
-            TestStep(
-                "19",
-                "TH resets all accumulated report counts, then TH sends command CancelPowerAdjustment",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
+            TestStep("18a", "TH counts all report transactions with an attribute report for the PowerAdjustmentCapability attribute",
+                     "TH verifies that numberOfReportsReceived <= 2"),
+            TestStep("19", "TH resets all accumulated report counts, then TH sends command CancelPowerAdjustment",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
             TestStep("20", "Wait 5 seconds"),
-            TestStep(
-                "20a",
-                "TH counts all report transactions with an attribute report for the PowerAdjustmentCapability attribute",
-                "TH verifies that numberOfReportsReceived >=1",
-            ),
-            TestStep(
-                "21",
-                "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.DEM.TESTEVENTTRIGGER for Power Adjustment Test Event Clear",
-                "Verify DUT responds w/ status SUCCESS(0x00)",
-            ),
-            TestStep(
-                "22",
-                "Cancel the subscription to the Device Energy Management cluster",
-                "The subscription is cancelled successfully",
-            ),
+            TestStep("20a", "TH counts all report transactions with an attribute report for the PowerAdjustmentCapability attribute",
+                     "TH verifies that numberOfReportsReceived >=1"),
+            TestStep("21", "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.DEM.TESTEVENT_TRIGGERKEY and EventTrigger field set to PIXIT.DEM.TESTEVENTTRIGGER for Power Adjustment Test Event Clear",
+                     "Verify DUT responds w/ status SUCCESS(0x00)"),
+            TestStep("22", "Cancel the subscription to the Device Energy Management cluster",
+                     "The subscription is cancelled successfully"),
         ]
 
     @async_test_body
@@ -206,14 +160,10 @@ class TC_DEM_2_10(MatterBaseTest, DEMTestBase):
 
         self.step("4")
         sub_handler = AttributeSubscriptionHandler(expected_cluster=Clusters.DeviceEnergyManagement)
-        await sub_handler.start(
-            self.default_controller,
-            self.dut_node_id,
-            self.get_endpoint(),
-            min_interval_sec=0,
-            max_interval_sec=10,
-            keepSubscriptions=False,
-        )
+        await sub_handler.start(self.default_controller, self.dut_node_id,
+                                self.get_endpoint(),
+                                min_interval_sec=0,
+                                max_interval_sec=10, keepSubscriptions=False)
 
         async def accumulate_reports(wait_time):
             log.info(f"Test will now wait {wait_time} seconds to accumulate reports")
@@ -262,26 +212,14 @@ class TC_DEM_2_10(MatterBaseTest, DEMTestBase):
             self.step("11")
             if has_pfr:
                 # we include nominalPower
-                slotAdjustments = [
-                    Clusters.DeviceEnergyManagement.Structs.SlotAdjustmentStruct(
-                        slotIndex=0,
-                        duration=forecast.slots[0].maxDurationAdjustment,
-                        nominalPower=forecast.slots[0].minPowerAdjustment,
-                    )
-                ]
+                slotAdjustments = [Clusters.DeviceEnergyManagement.Structs.SlotAdjustmentStruct(
+                    slotIndex=0, duration=forecast.slots[0].maxDurationAdjustment,
+                    nominalPower=forecast.slots[0].minPowerAdjustment)]
             else:
                 # SFR we don't provide nominalPower
-                slotAdjustments = [
-                    Clusters.DeviceEnergyManagement.Structs.SlotAdjustmentStruct(
-                        slotIndex=0, duration=forecast.slots[0].maxDurationAdjustment
-                    )
-                ]
-            await self.send_modify_forecast_request_command(
-                forecast.forecastID,
-                slotAdjustments,
-                Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kGridOptimization,
-                expected_status=Status.Success,
-            )
+                slotAdjustments = [Clusters.DeviceEnergyManagement.Structs.SlotAdjustmentStruct(
+                    slotIndex=0, duration=forecast.slots[0].maxDurationAdjustment)]
+            await self.send_modify_forecast_request_command(forecast.forecastID, slotAdjustments, Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kGridOptimization, expected_status=Status.Success)
 
             self.step("12")
             sub_handler.reset()
@@ -311,6 +249,7 @@ class TC_DEM_2_10(MatterBaseTest, DEMTestBase):
             self.skip_step("20a")
             self.skip_step("21")
         else:
+
             self.step("16")
             await self.send_test_event_trigger_power_adjustment()
 
@@ -318,9 +257,8 @@ class TC_DEM_2_10(MatterBaseTest, DEMTestBase):
             powerAdjustCapabilityStruct = await self.read_dem_attribute_expect_success(attribute="PowerAdjustmentCapability")
             asserts.assert_greater_equal(len(powerAdjustCapabilityStruct.powerAdjustCapability), 1)
             log.info(powerAdjustCapabilityStruct)
-            asserts.assert_equal(
-                powerAdjustCapabilityStruct.cause, Clusters.DeviceEnergyManagement.Enums.PowerAdjustReasonEnum.kNoAdjustment
-            )
+            asserts.assert_equal(powerAdjustCapabilityStruct.cause,
+                                 Clusters.DeviceEnergyManagement.Enums.PowerAdjustReasonEnum.kNoAdjustment)
 
             # we should expect powerAdjustCapabilityStruct to have multiple entries with different max powers, min powers, max and min durations
             min_power = sys.maxsize
@@ -335,11 +273,9 @@ class TC_DEM_2_10(MatterBaseTest, DEMTestBase):
 
             self.step("17")
             sub_handler.reset()
-            await self.send_power_adjustment_command(
-                power=powerAdjustCapabilityStruct.powerAdjustCapability[0].maxPower,
-                duration=20,
-                cause=Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization,
-            )
+            await self.send_power_adjustment_command(power=powerAdjustCapabilityStruct.powerAdjustCapability[0].maxPower,
+                                                     duration=20,
+                                                     cause=Clusters.DeviceEnergyManagement.Enums.AdjustmentCauseEnum.kLocalOptimization)
 
             self.step("18")
             wait = 12  # Wait 12 seconds - the spec says we should only get reports every 10s at most, unless a command changes it

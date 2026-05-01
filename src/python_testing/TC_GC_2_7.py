@@ -40,12 +40,8 @@ import random
 import secrets
 
 from mobly import asserts
-from TC_GC_common import (
-    generate_membership_entry_matcher,
-    generate_usedMcastAddrCount_entry_matcher,
-    get_feature_map,
-    valid_endpoints_list,
-)
+from TC_GC_common import (generate_membership_entry_matcher, generate_usedMcastAddrCount_entry_matcher, get_feature_map,
+                          valid_endpoints_list)
 
 import matter.clusters as Clusters
 from matter import ChipDeviceCtrl
@@ -64,46 +60,23 @@ class TC_GC_2_7(MatterBaseTest):
 
     def steps_TC_GC_2_7(self):
         return [
-            TestStep(
-                "1a", "Commission DUT to TH (can be skipped if done in a preceding test). This fabric is F1", is_commissioning=True
-            ),
+            TestStep("1a", "Commission DUT to TH (can be skipped if done in a preceding test). This fabric is F1", is_commissioning=True),
             TestStep("1b", "TH removes any existing group and KeySetID on the DUT"),
             TestStep("1c", "TH subscribes to Membership attribute with min interval 0s and max interval 30s"),
             TestStep("1d", "TH subscribes to UsedMcastAddrCount attribute with min interval 0s and max interval 30s"),
             TestStep(2, "TH reads MaxMcastAddrCount attribute"),
             TestStep(3, "TH reads UsedMcastAddrCount attribute"),
-            TestStep(
-                "4a",
-                "Join Group G1 with a new key and PerGroup multicast address policy. JoinGroup (GroupID=G1, Endpoints='see notes', KeySetID=K1, Key=InputKey1, McastAddrPolicy=PerGroup)",
-            ),
-            TestStep(
-                "4b",
-                "TH awaits subscription report of new Membership within max interval. (Entry for G1 shows McastAddrPolicy=PerGroup)",
-            ),
+            TestStep("4a", "Join Group G1 with a new key and PerGroup multicast address policy. JoinGroup (GroupID=G1, Endpoints='see notes', KeySetID=K1, Key=InputKey1, McastAddrPolicy=PerGroup)"),
+            TestStep("4b", "TH awaits subscription report of new Membership within max interval. (Entry for G1 shows McastAddrPolicy=PerGroup)"),
             TestStep("4c", "TH awaits subscription report of new UsedMcastAddrCount within max interval. (value == 1)"),
-            TestStep(
-                "5a",
-                "Join Group G2 with IanaAddr policy. JoinGroup (GroupID=G2, Endpoints='see notes', KeySetID=K2, Key=InputKey2, McastAddrPolicy=IanaAddr)",
-            ),
-            TestStep(
-                "5b",
-                "TH awaits subscription report of new Membership within max interval. (Entry for G2 shows McastAddrPolicy=IanaAddr)",
-            ),
+            TestStep("5a", "Join Group G2 with IanaAddr policy. JoinGroup (GroupID=G2, Endpoints='see notes', KeySetID=K2, Key=InputKey2, McastAddrPolicy=IanaAddr)"),
+            TestStep("5b", "TH awaits subscription report of new Membership within max interval. (Entry for G2 shows McastAddrPolicy=IanaAddr)"),
             TestStep("5c", "TH awaits subscription report of new UsedMcastAddrCount within max interval. (value == 2)"),
             TestStep("6a", "If A_max < floor(M_max/2) skip to step 8"),
             TestStep("6b", "Commission a second fabric (F2) on the DUT using a second controller instance"),
-            TestStep(
-                "7a",
-                "On F2, Join a new PerGroup group generating a new key. JoinGroup (GroupID=G3, Endpoints='see notes', KeySetID=K3, Key=InputKey3, McastAddrPolicy=PerGroup). For subsequent joins, omit Key and reuse KeySetID=K3",
-            ),
-            TestStep(
-                "7b",
-                "On F2, iteratively Join PerGroup groups using a new GroupID every time until floor(M_max/2) groups have been joined. JoinGroup (GroupID=Gi, Endpoints='see notes', KeySetID=K3, McastAddrPolicy=PerGroup)",
-            ),
-            TestStep(
-                8,
-                "On F1, iteratively Join additional PerGroup groups using a new GroupID every time until A_max groups have been joined. JoinGroup (GroupID=Gn, Endpoints='see notes', KeySetID=K1, McastAddrPolicy=PerGroup)",
-            ),
+            TestStep("7a", "On F2, Join a new PerGroup group generating a new key. JoinGroup (GroupID=G3, Endpoints='see notes', KeySetID=K3, Key=InputKey3, McastAddrPolicy=PerGroup). For subsequent joins, omit Key and reuse KeySetID=K3"),
+            TestStep("7b", "On F2, iteratively Join PerGroup groups using a new GroupID every time until floor(M_max/2) groups have been joined. JoinGroup (GroupID=Gi, Endpoints='see notes', KeySetID=K3, McastAddrPolicy=PerGroup)"),
+            TestStep(8, "On F1, iteratively Join additional PerGroup groups using a new GroupID every time until A_max groups have been joined. JoinGroup (GroupID=Gn, Endpoints='see notes', KeySetID=K1, McastAddrPolicy=PerGroup)"),
             TestStep(9, "TH awaits subscription report of new UsedMcastAddrCount within max interval. (value == A_max)"),
             TestStep(10, "Attempt to join 1 additional PerGroup group beyond A_max"),
         ]
@@ -138,9 +111,7 @@ class TC_GC_2_7(MatterBaseTest):
             await self.send_single_cmd(Clusters.Groupcast.Commands.LeaveGroup(groupID=0))
 
         # remove any existing KeySetID on the DUT, except KeySetId 0 (IPK).
-        resp: Clusters.GroupKeyManagement.Commands.KeySetReadAllIndicesResponse = await self.send_single_cmd(
-            Clusters.GroupKeyManagement.Commands.KeySetReadAllIndices()
-        )
+        resp: Clusters.GroupKeyManagement.Commands.KeySetReadAllIndicesResponse = await self.send_single_cmd(Clusters.GroupKeyManagement.Commands.KeySetReadAllIndices())
 
         read_group_key_ids: list[int] = resp.groupKeySetIDs
         for key_set_id in read_group_key_ids:
@@ -171,21 +142,18 @@ class TC_GC_2_7(MatterBaseTest):
         groupID1 = 1
         keySetID1 = 1
         inputKey1 = secrets.token_bytes(16)
-        await self.send_single_cmd(
-            Clusters.Groupcast.Commands.JoinGroup(
-                groupID=groupID1,
-                endpoints=endpoints_list,
-                keySetID=keySetID1,
-                key=inputKey1,
-                mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kPerGroup,
-            )
+        await self.send_single_cmd(Clusters.Groupcast.Commands.JoinGroup(
+            groupID=groupID1,
+            endpoints=endpoints_list,
+            keySetID=keySetID1,
+            key=inputKey1,
+            mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kPerGroup)
         )
         f1_current_group_count = 1
 
         self.step("4b")
         membership_matcher = generate_membership_entry_matcher(
-            groupID1, mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kPerGroup
-        )
+            groupID1, mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kPerGroup)
         sub.await_all_expected_report_matches(expected_matchers=[membership_matcher], timeout_sec=60)
 
         self.step("4c")
@@ -196,21 +164,18 @@ class TC_GC_2_7(MatterBaseTest):
         groupID2 = 2
         keySetID2 = 2
         inputKey2 = secrets.token_bytes(16)
-        await self.send_single_cmd(
-            Clusters.Groupcast.Commands.JoinGroup(
-                groupID=groupID2,
-                endpoints=endpoints_list,
-                keySetID=keySetID2,
-                key=inputKey2,
-                mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kIanaAddr,
-            )
+        await self.send_single_cmd(Clusters.Groupcast.Commands.JoinGroup(
+            groupID=groupID2,
+            endpoints=endpoints_list,
+            keySetID=keySetID2,
+            key=inputKey2,
+            mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kIanaAddr)
         )
         f1_current_group_count += 1
 
         self.step("5b")
         membership_matcher = generate_membership_entry_matcher(
-            groupID2, mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kIanaAddr
-        )
+            groupID2, mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kIanaAddr)
         sub.await_all_expected_report_matches(expected_matchers=[membership_matcher], timeout_sec=60)
 
         self.step("5c")
@@ -232,7 +197,11 @@ class TC_GC_2_7(MatterBaseTest):
 
             # Open commissioning window on TH1
             params = await self.th1.OpenCommissioningWindow(
-                nodeId=self.dut_node_id, timeout=900, iteration=1000, discriminator=self.discriminatorTH2, option=1
+                nodeId=self.dut_node_id,
+                timeout=900,
+                iteration=1000,
+                discriminator=self.discriminatorTH2,
+                option=1
             )
 
             # Commission TH2
@@ -240,22 +209,19 @@ class TC_GC_2_7(MatterBaseTest):
                 nodeId=self.dut_node_id,
                 setupPinCode=params.setupPinCode,
                 filterType=ChipDeviceCtrl.DiscoveryFilterType.LONG_DISCRIMINATOR,
-                filter=self.discriminatorTH2,
+                filter=self.discriminatorTH2
             )
 
             self.step("7a")
             groupID3 = 3
             keySetID3 = 3
             inputKey3 = secrets.token_bytes(16)
-            await self.send_single_cmd(
-                dev_ctrl=self.th2,
-                cmd=Clusters.Groupcast.Commands.JoinGroup(
-                    groupID=groupID3,
-                    endpoints=endpoints_list,
-                    keySetID=keySetID3,
-                    key=inputKey3,
-                    mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kPerGroup,
-                ),
+            await self.send_single_cmd(dev_ctrl=self.th2, cmd=Clusters.Groupcast.Commands.JoinGroup(
+                groupID=groupID3,
+                endpoints=endpoints_list,
+                keySetID=keySetID3,
+                key=inputKey3,
+                mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kPerGroup)
             )
             f2_current_group_count = 1
 
@@ -263,14 +229,11 @@ class TC_GC_2_7(MatterBaseTest):
             f2_max_groups = math.floor(M_max / 2)
             for i in range(f2_current_group_count, f2_max_groups):
                 groupID = i + 3
-                await self.send_single_cmd(
-                    dev_ctrl=self.th2,
-                    cmd=Clusters.Groupcast.Commands.JoinGroup(
-                        groupID=groupID,
-                        endpoints=endpoints_list,
-                        keySetID=keySetID3,
-                        mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kPerGroup,
-                    ),
+                await self.send_single_cmd(dev_ctrl=self.th2, cmd=Clusters.Groupcast.Commands.JoinGroup(
+                    groupID=groupID,
+                    endpoints=endpoints_list,
+                    keySetID=keySetID3,
+                    mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kPerGroup)
                 )
                 f2_current_group_count += 1
 
@@ -278,13 +241,11 @@ class TC_GC_2_7(MatterBaseTest):
         total_per_group_count = f1_current_group_count + f2_current_group_count
         for i in range(total_per_group_count, A_max):
             groupID = i + 1
-            await self.send_single_cmd(
-                cmd=Clusters.Groupcast.Commands.JoinGroup(
-                    groupID=groupID,
-                    endpoints=endpoints_list,
-                    keySetID=keySetID1,
-                    mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kPerGroup,
-                )
+            await self.send_single_cmd(cmd=Clusters.Groupcast.Commands.JoinGroup(
+                groupID=groupID,
+                endpoints=endpoints_list,
+                keySetID=keySetID1,
+                mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kPerGroup)
             )
             f1_current_group_count += 1
 
@@ -295,21 +256,16 @@ class TC_GC_2_7(MatterBaseTest):
         self.step(10)
         groupIDExhausted = A_max + 1
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.Groupcast.Commands.JoinGroup(
-                    groupID=groupIDExhausted,
-                    endpoints=endpoints_list,
-                    keySetID=keySetID1,
-                    mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kPerGroup,
-                )
+            await self.send_single_cmd(cmd=Clusters.Groupcast.Commands.JoinGroup(
+                groupID=groupIDExhausted,
+                endpoints=endpoints_list,
+                keySetID=keySetID1,
+                mcastAddrPolicy=Clusters.Groupcast.Enums.MulticastAddrPolicyEnum.kPerGroup)
             )
             asserts.fail("JoinGroup command should have failed with ResourceExhausted, but it succeeded")
         except InteractionModelError as e:
-            asserts.assert_equal(
-                e.status,
-                Status.ResourceExhausted,
-                f"Send JoinGroup command error should be {Status.ResourceExhausted} instead of {e.status}",
-            )
+            asserts.assert_equal(e.status, Status.ResourceExhausted,
+                                 f"Send JoinGroup command error should be {Status.ResourceExhausted} instead of {e.status}")
 
 
 if __name__ == "__main__":

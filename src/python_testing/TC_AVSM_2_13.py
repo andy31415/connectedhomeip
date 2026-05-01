@@ -58,7 +58,9 @@ class TC_AVSM_2_13(MatterBaseTest):
     def steps_TC_AVSM_2_13(self) -> list[TestStep]:
         return [
             TestStep("precondition", "Commissioning, already done", is_commissioning=True),
-            TestStep(1, "TH reads FeatureMap attribute from CameraAVStreamManagement Cluster on DUT", "Verify VDO is supported."),
+            TestStep(
+                1, "TH reads FeatureMap attribute from CameraAVStreamManagement Cluster on DUT", "Verify VDO is supported."
+            ),
             TestStep(
                 2,
                 "TH reads AllocatedVideoStreams attribute from CameraAVStreamManagement Cluster on DUT",
@@ -171,7 +173,8 @@ class TC_AVSM_2_13(MatterBaseTest):
         log.info(f"Rx'd MaxEncodedPixelRate: {aMaxEncodedPixelRate}")
 
         # Basic sanity check on stream's expected pixel rate
-        streamPixelRate = aVideoSensorParams.sensorWidth * aVideoSensorParams.sensorHeight * aVideoSensorParams.maxFPS
+        streamPixelRate = (aVideoSensorParams.sensorWidth * aVideoSensorParams.sensorHeight
+                           * aVideoSensorParams.maxFPS)
         asserts.assert_greater_equal(aMaxEncodedPixelRate, streamPixelRate, "Stream Pixel rate exceeds camera maxEncodedPixelRate")
 
         self.step(8)
@@ -195,7 +198,7 @@ class TC_AVSM_2_13(MatterBaseTest):
                 maxBitRate=aRateDistortionTradeOffPoints[0].minBitRate,
                 keyFrameInterval=4000,
                 watermarkEnabled=watermark,
-                OSDEnabled=osd,
+                OSDEnabled=osd
             )
             videoStreamAllocateResponse = await self.send_single_cmd(endpoint=endpoint, cmd=videoStreamAllocateCmd)
             log.info(f"Rx'd VideoStreamAllocateResponse: {videoStreamAllocateResponse}")
@@ -229,16 +232,15 @@ class TC_AVSM_2_13(MatterBaseTest):
                 maxBitRate=aRateDistortionTradeOffPoints[0].minBitRate,
                 keyFrameInterval=4000,
                 watermarkEnabled=watermark,
-                OSDEnabled=osd,
+                OSDEnabled=osd
             )
             videoStreamAllocateResponse = await self.send_single_cmd(endpoint=endpoint, cmd=videoStreamAllocateCmd)
             log.info(f"Rx'd VideoStreamAllocateResponse: {videoStreamAllocateResponse}")
             asserts.assert_is_not_none(
                 videoStreamAllocateResponse.videoStreamID, "VideoStreamAllocateResponse does not contain StreamID"
             )
-            asserts.assert_equal(
-                videoStreamAllocateResponse.videoStreamID, aVideoStreamID, "The previous video stream is not reused"
-            )
+            asserts.assert_equal(videoStreamAllocateResponse.videoStreamID,
+                                 aVideoStreamID, "The previous video stream is not reused")
         except InteractionModelError as e:
             asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
             pass
@@ -257,9 +259,7 @@ class TC_AVSM_2_13(MatterBaseTest):
 
         for stream in aAllocatedVideoStreams:
             try:
-                await self.send_single_cmd(
-                    endpoint=endpoint, cmd=commands.VideoStreamDeallocate(videoStreamID=(stream.videoStreamID))
-                )
+                await self.send_single_cmd(endpoint=endpoint, cmd=commands.VideoStreamDeallocate(videoStreamID=(stream.videoStreamID)))
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
 

@@ -67,8 +67,8 @@ struct BrowseContext : public GenericContext
     mdns_result_t * mPtrQueryResult = nullptr;
     BrowseContext(const char * type, DnssdServiceProtocol protocol, Inet::InterfaceId ifId, mdns_search_once_t * queryHandle,
                   Inet::IPAddressType addrType, DnssdBrowseCallback cb, void * cbCtx) :
-        GenericContext(ContextType::Browse, type, protocol, ifId, cbCtx), mBrowseCb(cb), mAddressType(addrType),
-        mPtrQueryHandle(queryHandle)
+        GenericContext(ContextType::Browse, type, protocol, ifId, cbCtx),
+        mBrowseCb(cb), mAddressType(addrType), mPtrQueryHandle(queryHandle)
 
     {}
 
@@ -104,8 +104,8 @@ struct ResolveContext : public GenericContext
 
     ResolveContext(DnssdService * service, Inet::InterfaceId ifId, mdns_search_once_t * srvQuery, mdns_search_once_t * txtQuery,
                    DnssdResolveCallback cb, void * cbCtx) :
-        GenericContext(ContextType::Resolve, service->mType, service->mProtocol, ifId, cbCtx), mResolveCb(cb),
-        mSrvQueryHandle(srvQuery), mTxtQueryHandle(txtQuery)
+        GenericContext(ContextType::Resolve, service->mType, service->mProtocol, ifId, cbCtx),
+        mResolveCb(cb), mSrvQueryHandle(srvQuery), mTxtQueryHandle(txtQuery)
     {
         Platform::CopyString(mInstanceName, service->mName);
     }

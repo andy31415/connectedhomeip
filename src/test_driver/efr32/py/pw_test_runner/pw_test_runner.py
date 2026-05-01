@@ -31,7 +31,8 @@ from pw_unit_test.rpc import run_tests
 
 PW_LOG = logging.getLogger(__name__)
 
-PROTO = Path(os.environ["PW_ROOT"], "pw_unit_test/pw_unit_test_proto/unit_test.proto")
+PROTO = Path(os.environ["PW_ROOT"],
+             "pw_unit_test/pw_unit_test_proto/unit_test.proto")
 
 
 class colors:
@@ -45,15 +46,18 @@ class colors:
     BOLD = "\033[1m"
 
 
-PASS_STRING = colors.OKGREEN + "\N{CHECK MARK}" + colors.ENDC
+PASS_STRING = colors.OKGREEN + "\N{check mark}" + colors.ENDC
 FAIL_STRING = colors.FAIL + "FAILED" + colors.ENDC
 
 
 def _parse_args():
     """Parses and returns the command line arguments."""
-    parser = argparse.ArgumentParser(description="CHIP on device unit test runner.")
+    parser = argparse.ArgumentParser(
+        description="CHIP on device unit test runner.")
     parser.add_argument("-d", "--device", help="the serial port to use")
-    parser.add_argument("-b", "--baudrate", type=int, default=115200, help="the baud rate to use")
+    parser.add_argument(
+        "-b", "--baudrate", type=int, default=115200, help="the baud rate to use"
+    )
     parser.add_argument(
         "-f",
         "--flash_image",
@@ -64,14 +68,18 @@ def _parse_args():
         "--output",
         type=argparse.FileType("wb"),
         default=sys.stdout.buffer,
-        help=("The file to which to write device output (HDLC channel 1); provide - or omit for stdout."),
+        help=(
+            "The file to which to write device output (HDLC channel 1); "
+            "provide - or omit for stdout."
+        ),
     )
     return parser.parse_args()
 
 
 def flash_device(device: str, flash_image: str):
     """flashes the EFR32 device using commander"""
-    err = subprocess.call(["commander", "flash", "--device", "EFR32", flash_image])
+    err = subprocess.call(
+        ["commander", "flash", "--device", "EFR32", flash_image])
     if err:
         raise Exception("flash failed")
 

@@ -52,7 +52,8 @@ class GeneratorTestCase:
 
     def add_outputs(self, yaml_outputs_dict):
         for file_name, golden_path in yaml_outputs_dict.items():
-            self.outputs.append(ExpectedOutput(file_name=file_name, golden_path=golden_path))
+            self.outputs.append(ExpectedOutput(
+                file_name=file_name, golden_path=golden_path))
 
 
 class TestCaseStorage(GeneratorStorage):
@@ -93,7 +94,7 @@ class TestCaseStorage(GeneratorStorage):
             dir_path = os.path.dirname(path)
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
-            with open(path, "wt") as golden:
+            with open(path, 'wt') as golden:
                 golden.write(content)
                 return
 
@@ -101,7 +102,8 @@ class TestCaseStorage(GeneratorStorage):
         # to write any new data
 
         # This will display actual diffs in the output files
-        self.checker.assertEqual(self.get_existing_data(relative_path), content, "Content of %s" % relative_path)
+        self.checker.assertEqual(
+            self.get_existing_data(relative_path), content, "Content of %s" % relative_path)
 
         # Even if no diff, to be build system friendly, we do NOT expect any
         # actual data writes.
@@ -120,20 +122,21 @@ class GeneratorTest:
             self.test_cases.append(test_case)
 
     def _create_generator(self, storage: GeneratorStorage, idl: Idl):
-        if self.generator_name.lower() == "java-jni":
+        if self.generator_name.lower() == 'java-jni':
             return JavaJNIGenerator(storage, idl)
-        if self.generator_name.lower() == "java-class":
+        if self.generator_name.lower() == 'java-class':
             return JavaClassGenerator(storage, idl)
-        if self.generator_name.lower() == "cpp-app":
+        if self.generator_name.lower() == 'cpp-app':
             return CppApplicationGenerator(storage, idl)
-        if self.generator_name.lower() == "cpp-tlvmeta":
+        if self.generator_name.lower() == 'cpp-tlvmeta':
             return TLVMetaDataGenerator(storage, idl, table_name="clusters_meta")
-        if self.generator_name.lower() == "custom-example-proto":
-            sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../examples")))
+        if self.generator_name.lower() == 'custom-example-proto':
+            sys.path.append(os.path.abspath(
+                os.path.join(os.path.dirname(__file__), '../../examples')))
             from matter_idl_plugin import CustomGenerator
-
-            return CustomGenerator(storage, idl, package="com.matter.example.proto")
-        raise Exception("Unknown generator for testing: %s", self.generator_name.lower())
+            return CustomGenerator(storage, idl, package='com.matter.example.proto')
+        raise Exception("Unknown generator for testing: %s",
+                        self.generator_name.lower())
 
     def run_test_cases(self, checker: unittest.TestCase):
         for test in self.test_cases:
@@ -174,8 +177,8 @@ class TestGenerators(unittest.TestCase):
                 test.run_test_cases(self)
 
 
-if __name__ == "__main__":
-    if "IDL_GOLDEN_REGENERATE" in os.environ:
+if __name__ == '__main__':
+    if 'IDL_GOLDEN_REGENERATE' in os.environ:
         # run with `IDL_GOLDEN_REGENERATE=1` to cause a regeneration of test
         # data. Then one can use `git diff` to see if the deltas make sense
         REGENERATE_GOLDEN_IMAGES = True

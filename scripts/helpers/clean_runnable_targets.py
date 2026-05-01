@@ -23,7 +23,7 @@ import sys
 # Calculate OUTPUT_ROOT, equivalent to the Bash variable
 # This navigates two directories up from the script's location and then into 'out/coverage'
 script_dir = os.path.dirname(__file__)
-OUTPUT_ROOT = os.path.abspath(os.path.join(script_dir, "..", "..", "out", "coverage"))
+OUTPUT_ROOT = os.path.abspath(os.path.join(script_dir, '..', '..', 'out', 'coverage'))
 
 
 def parse_input_targets(query_output_lines, possible_rules_set, rules_set, new_targets_set):
@@ -39,10 +39,11 @@ def parse_input_targets(query_output_lines, possible_rules_set, rules_set, new_t
     """
     in_input_block = False
     for line in query_output_lines:
+
         trimmed_line = line.strip()
 
         if trimmed_line.startswith("input: "):
-            rule = trimmed_line[len("input: ") :].strip()
+            rule = trimmed_line[len("input: "):].strip()
             if rule == "phony":
                 in_input_block = True
             elif rule in possible_rules_set:
@@ -75,7 +76,8 @@ def get_rules_to_clean(initial_targets):
     # Equivalent to: ninja -C out/coverage -f toolchain.ninja -t rules | grep "__rule"
     try:
         ninja_rules_process = subprocess.run(
-            ["ninja", "-C", OUTPUT_ROOT, "-f", "toolchain.ninja", "-t", "rules"], capture_output=True, text=True, check=True
+            ['ninja', '-C', OUTPUT_ROOT, '-f', 'toolchain.ninja', '-t', 'rules'],
+            capture_output=True, text=True, check=True
         )
         # Filter for lines containing "__rule"
         possible_rules_set = {line.strip() for line in ninja_rules_process.stdout.splitlines() if "__rule" in line}
@@ -86,20 +88,32 @@ def get_rules_to_clean(initial_targets):
         sys.exit(1)
 
     while targets_to_query:
+
         if "all" in targets_to_query:
             return list(possible_rules_set)
 
         new_targets = set()  # Stores targets discovered in the current query that need future querying
 
         # Query the targets and parse their inputs
-        query_cmd = ["ninja", "-C", OUTPUT_ROOT, "-t", "query"] + list(targets_to_query)
+        query_cmd = ['ninja', '-C', OUTPUT_ROOT, '-t', 'query'] + list(targets_to_query)
         try:
-            query_process = subprocess.run(query_cmd, capture_output=True, text=True, check=True)
+            query_process = subprocess.run(
+                query_cmd,
+                capture_output=True, text=True, check=True
+            )
 
             # Lines starting with a space and not containing '|' are relevant input targets
-            filtered_query_lines = [line for line in query_process.stdout.splitlines() if line.startswith(" ") and "|" not in line]
+            filtered_query_lines = [
+                line for line in query_process.stdout.splitlines()
+                if line.startswith(" ") and "|" not in line
+            ]
 
-            parse_input_targets(filtered_query_lines, possible_rules_set, rules_to_clean, new_targets)
+            parse_input_targets(
+                filtered_query_lines,
+                possible_rules_set,
+                rules_to_clean,
+                new_targets
+            )
 
         except subprocess.CalledProcessError as e:
             print(f"Error querying ninja for targets: {e}", file=sys.stderr)
@@ -133,7 +147,7 @@ if __name__ == "__main__":
     if rules_to_clear:
         try:
             # Construct the ninja clean command with the identified rules
-            clean_cmd = ["ninja", "-C", OUTPUT_ROOT, "-f", "toolchain.ninja", "-t", "clean", "-r"] + rules_to_clear
+            clean_cmd = ['ninja', '-C', OUTPUT_ROOT, '-f', 'toolchain.ninja', '-t', 'clean', '-r'] + rules_to_clear
 
             subprocess.run(clean_cmd, check=True)  # `check=True` raises CalledProcessError on non-zero exit code
             print("Ninja clean command executed successfully.")

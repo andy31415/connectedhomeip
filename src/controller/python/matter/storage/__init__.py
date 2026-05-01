@@ -81,15 +81,12 @@ class PersistentStorage(ABC):
     def __init__(self):
         self._handle = GetLibraryHandle()
         self._handle.pychip_Storage_InitializeStorageAdapter.restype = c_void_p
-        self._handle.pychip_Storage_InitializeStorageAdapter.argtypes = [
-            ctypes.py_object,
-            _SetKeyValueCbFunc,
-            _GetKeyValueCbFunc,
-            _DeleteKeyValueCbFunc,
-        ]
+        self._handle.pychip_Storage_InitializeStorageAdapter.argtypes = [ctypes.py_object,
+                                                                         _SetKeyValueCbFunc,
+                                                                         _GetKeyValueCbFunc,
+                                                                         _DeleteKeyValueCbFunc]
         self._closure = self._handle.pychip_Storage_InitializeStorageAdapter(
-            ctypes.py_object(self), self._OnSetKeyValueCb, self._OnGetKeyValueCb, self._OnDeleteKeyValueCb
-        )
+            ctypes.py_object(self), self._OnSetKeyValueCb, self._OnGetKeyValueCb, self._OnDeleteKeyValueCb)
 
     def __enter__(self):
         return self
@@ -98,10 +95,9 @@ class PersistentStorage(ABC):
         self.Shutdown()
 
     def __del__(self):
-        if hasattr(self, "_closure"):
-            LOGGER.warning(
-                "PersistentStorage object is being deleted without explicit shutdown. Calling Shutdown() to clean up resources."
-            )
+        if hasattr(self, '_closure'):
+            LOGGER.warning("PersistentStorage object is being deleted without explicit shutdown. "
+                           "Calling Shutdown() to clean up resources.")
             # The caller should call Shutdown() explicitly or use a context manager
             # to ensure that the object is cleaned up properly. However, we should
             # try our best not to leak any resources...
@@ -119,7 +115,7 @@ class PersistentStorage(ABC):
         This should only be called after the CHIP stack has shutdown (i.e
         after calling pychip_DeviceController_StackShutdown()).
         """
-        if hasattr(self, "_closure"):
+        if hasattr(self, '_closure'):
             self._handle.pychip_Storage_ShutdownAdapter.argtypes = [c_void_p]
             # Since the stack is not running at this point, we can safely call
             # C++ method directly on the current execution context without worrying
@@ -250,7 +246,7 @@ class VolatileTemporaryPersistentStorage(PersistentStorageBase):
 
 
 # Regular expression to match CA keys.
-_caKeyMatch = re.compile(r"(ExampleCAIntermediateCert|ExampleCARootCert|ExampleOpCredsCAKey|ExampleOpCredsICAKey)(\d+)")
+_caKeyMatch = re.compile(r'(ExampleCAIntermediateCert|ExampleCARootCert|ExampleOpCredsCAKey|ExampleOpCredsICAKey)(\d+)')
 
 
 class PersistentStorageJSON(PersistentStorageBase):
@@ -280,9 +276,9 @@ class PersistentStorageJSON(PersistentStorageBase):
         sdkData.update(caKeysRewritten)
 
         caListRewritten = {}
-        for key, value in data.get("caList", {}).items():
+        for key, value in data.get('caList', {}).items():
             caListRewritten[str(int(key) - 1)] = value
-        data["caList"] = caListRewritten
+        data['caList'] = caListRewritten
 
         return data, sdkData
 
@@ -291,9 +287,9 @@ class PersistentStorageJSON(PersistentStorageBase):
         self._path = path
         try:
             with open(self._path) as f:
-                jsonData = json.loads(f.read() or "{}")
-                data = jsonData.get("repl-config", {})
-                sdkData = jsonData.get("sdk-config", {})
+                jsonData = json.loads(f.read() or '{}')
+                data = jsonData.get('repl-config', {})
+                sdkData = jsonData.get('sdk-config', {})
                 # TODO: Remove this compatibility layer when all JSON files are rewritten.
                 data, sdkData = self._caKeysBackwardCompatibilityRewrite(data, sdkData)
         except FileNotFoundError:
@@ -306,16 +302,11 @@ class PersistentStorageJSON(PersistentStorageBase):
 
     def Commit(self):
         try:
-            with open(self._path, "w") as f:
-                json.dump(
-                    {
-                        "repl-config": self._data,
-                        "sdk-config": self._sdkData,
-                    },
-                    f,
-                    ensure_ascii=True,
-                    indent=4,
-                )
+            with open(self._path, 'w') as f:
+                json.dump({
+                    'repl-config': self._data,
+                    'sdk-config': self._sdkData,
+                }, f, ensure_ascii=True, indent=4)
         except Exception as ex:
             LOGGER.critical("Could not save configuration to JSON file: %s", ex)
 
@@ -332,9 +323,9 @@ class PersistentStorageINI(PersistentStorageBase):
         def __init__(self, defaults=None):
             # Set the default section to 'NO-DEFAULT' to treat the default section
             # as a regular section, so other sections will not inherit from it.
-            super().__init__(defaults=defaults, default_section="NO-DEFAULT", interpolation=None)
+            super().__init__(defaults=defaults, default_section='NO-DEFAULT', interpolation=None)
             # SDK configuration is stored in the 'Default' (mind the case) section.
-            self.add_section("Default")
+            self.add_section('Default')
 
         def optionxform(self, option: str) -> str:
             # Preserves case of keys.
@@ -354,14 +345,17 @@ class PersistentStorageINI(PersistentStorageBase):
             data, sdkData = {}, {}
             config = PersistentStorageINI.ConfigParser()
             config.read(path)
-            if config.has_section("Default"):
-                sdkData = dict(config.items("Default"))
-            if config.has_section("REPL"):
-                data = {k: json.loads(v) if v else None for k, v in config.items("REPL")}
+            if config.has_section('Default'):
+                sdkData = dict(config.items('Default'))
+            if config.has_section('REPL'):
+                data = {
+                    k: json.loads(v) if v else None
+                    for k, v in config.items('REPL')
+                }
             if chipToolFabricStoragePath:
                 LOGGER.info("Loading fabric configuration from INI file: %s", chipToolFabricStoragePath)
                 config.read(chipToolFabricStoragePath)
-                for key, value in config.items("Default"):
+                for key, value in config.items('Default'):
                     sdkData[key] = value
         except Exception as ex:
             LOGGER.critical("Could not load configuration from INI file: %s", ex)
@@ -376,17 +370,20 @@ class PersistentStorageINI(PersistentStorageBase):
             for key in self._sdkData:
                 # Move CA keys to the separate fabric configuration file.
                 if _caKeyMatch.fullmatch(key):
-                    configFabric["Default"][key] = sdkConfig.pop(key)
+                    configFabric['Default'][key] = sdkConfig.pop(key)
             try:
-                with open(self._chipToolFabricStoragePath, "w") as f:
+                with open(self._chipToolFabricStoragePath, 'w') as f:
                     configFabric.write(f)
             except Exception as ex:
                 LOGGER.critical("Could not save fabric configuration to INI file: %s", ex)
         config = PersistentStorageINI.ConfigParser()
-        config["Default"] = sdkConfig
-        config["REPL"] = {k: json.dumps(v, separators=(",", ":")) for k, v in self._data.items()}
+        config['Default'] = sdkConfig
+        config['REPL'] = {
+            k: json.dumps(v, separators=(',', ':'))
+            for k, v in self._data.items()
+        }
         try:
-            with open(self._path, "w") as f:
+            with open(self._path, 'w') as f:
                 config.write(f)
         except Exception as ex:
             LOGGER.critical("Could not save configuration to INI file: %s", ex)

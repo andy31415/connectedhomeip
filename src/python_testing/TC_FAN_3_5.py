@@ -49,6 +49,7 @@ log = logging.getLogger(__name__)
 
 
 class TC_FAN_3_5(MatterBaseTest):
+
     async def read_fc_attribute_expect_success(self, endpoint, attribute):
         cluster = Clusters.Objects.FanControl
         return await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attribute)
@@ -63,30 +64,18 @@ class TC_FAN_3_5(MatterBaseTest):
         return await self.read_fc_attribute_expect_success(endpoint, Clusters.FanControl.Attributes.SpeedMax)
 
     async def write_percent_setting(self, endpoint, percent_setting):
-        result = await self.default_controller.WriteAttribute(
-            self.dut_node_id, [(endpoint, Clusters.FanControl.Attributes.PercentSetting(percent_setting))]
-        )
+        result = await self.default_controller.WriteAttribute(self.dut_node_id, [(endpoint, Clusters.FanControl.Attributes.PercentSetting(percent_setting))])
         asserts.assert_equal(result[0].Status, Status.Success, "PercentSetting write failed")
 
     async def write_speed_setting(self, endpoint, speed_setting):
-        result = await self.default_controller.WriteAttribute(
-            self.dut_node_id, [(endpoint, Clusters.FanControl.Attributes.SpeedSetting(speed_setting))]
-        )
+        result = await self.default_controller.WriteAttribute(self.dut_node_id, [(endpoint, Clusters.FanControl.Attributes.SpeedSetting(speed_setting))])
         asserts.assert_equal(result[0].Status, Status.Success, "SpeedSetting write failed")
 
-    async def send_step_command(
-        self,
-        endpoint,
-        direction: Clusters.Objects.FanControl.Enums.StepDirectionEnum,
-        wrap: bool = False,
-        lowestOff: bool = False,
-        expected_status: Status = Status.Success,
-    ):
+    async def send_step_command(self, endpoint,
+                                direction: Clusters.Objects.FanControl.Enums.StepDirectionEnum,
+                                wrap: bool = False, lowestOff: bool = False, expected_status: Status = Status.Success):
         try:
-            await self.send_single_cmd(
-                cmd=Clusters.Objects.FanControl.Commands.Step(direction=direction, wrap=wrap, lowestOff=lowestOff),
-                endpoint=endpoint,
-            )
+            await self.send_single_cmd(cmd=Clusters.Objects.FanControl.Commands.Step(direction=direction, wrap=wrap, lowestOff=lowestOff), endpoint=endpoint)
         except InteractionModelError as e:
             asserts.assert_equal(e.status, expected_status, "Unexpected error returned")
             pass
@@ -156,9 +145,7 @@ class TC_FAN_3_5(MatterBaseTest):
         await asyncio.sleep(1)
 
         self.print_step("4c", "TH sends Step command to DUT with Direction set to Increase and Wrap set to False")
-        await self.send_step_command(
-            endpoint=endpoint, direction=Clusters.Objects.FanControl.Enums.StepDirectionEnum.kIncrease, wrap=False
-        )
+        await self.send_step_command(endpoint=endpoint, direction=Clusters.Objects.FanControl.Enums.StepDirectionEnum.kIncrease, wrap=False)
 
         await asyncio.sleep(1)
 
@@ -173,9 +160,7 @@ class TC_FAN_3_5(MatterBaseTest):
         await asyncio.sleep(1)
 
         self.print_step("5b", "TH sends Step command to DUT with Direction set to Increase and Wrap set to True")
-        await self.send_step_command(
-            endpoint=endpoint, direction=Clusters.Objects.FanControl.Enums.StepDirectionEnum.kIncrease, wrap=True
-        )
+        await self.send_step_command(endpoint=endpoint, direction=Clusters.Objects.FanControl.Enums.StepDirectionEnum.kIncrease, wrap=True)
 
         await asyncio.sleep(1)
 
@@ -189,12 +174,8 @@ class TC_FAN_3_5(MatterBaseTest):
 
         await asyncio.sleep(1)
 
-        self.print_step(
-            "6b", "TH sends Step command to DUT with Direction set to Increase, Wrap set to True and LowestOff set to True"
-        )
-        await self.send_step_command(
-            endpoint=endpoint, direction=Clusters.Objects.FanControl.Enums.StepDirectionEnum.kIncrease, wrap=True, lowestOff=True
-        )
+        self.print_step("6b", "TH sends Step command to DUT with Direction set to Increase, Wrap set to True and LowestOff set to True")
+        await self.send_step_command(endpoint=endpoint, direction=Clusters.Objects.FanControl.Enums.StepDirectionEnum.kIncrease, wrap=True, lowestOff=True)
 
         await asyncio.sleep(1)
 
@@ -208,12 +189,8 @@ class TC_FAN_3_5(MatterBaseTest):
 
         await asyncio.sleep(1)
 
-        self.print_step(
-            "7b", "TH sends Step command to DUT with Direction set to Decrease, Wrap set to False and LowestOff set to False"
-        )
-        await self.send_step_command(
-            endpoint=endpoint, direction=Clusters.Objects.FanControl.Enums.StepDirectionEnum.kDecrease, wrap=False, lowestOff=False
-        )
+        self.print_step("7b", "TH sends Step command to DUT with Direction set to Decrease, Wrap set to False and LowestOff set to False")
+        await self.send_step_command(endpoint=endpoint, direction=Clusters.Objects.FanControl.Enums.StepDirectionEnum.kDecrease, wrap=False, lowestOff=False)
 
         await asyncio.sleep(1)
 
@@ -227,20 +204,15 @@ class TC_FAN_3_5(MatterBaseTest):
 
         await asyncio.sleep(1)
 
-        self.print_step(
-            "8c", "TH sends Step command to DUT with Direction set to Decrease, Wrap set to True and LowestOff set to False"
-        )
-        await self.send_step_command(
-            endpoint=endpoint, direction=Clusters.Objects.FanControl.Enums.StepDirectionEnum.kDecrease, wrap=True, lowestOff=False
-        )
+        self.print_step("8c", "TH sends Step command to DUT with Direction set to Decrease, Wrap set to True and LowestOff set to False")
+        await self.send_step_command(endpoint=endpoint, direction=Clusters.Objects.FanControl.Enums.StepDirectionEnum.kDecrease, wrap=True, lowestOff=False)
 
         await asyncio.sleep(1)
 
         self.print_step("8d", "Read from the DUT the SpeedCurrent attribute and check its equal to SpeedMax")
         speed_current = await self.read_speed_current(endpoint=endpoint)
-        asserts.assert_equal(
-            speed_current, speed_max, "SpeedCurrent did not wrap to SpeedMax when wrap was true and lowestOff was false"
-        )
+        asserts.assert_equal(speed_current, speed_max,
+                             "SpeedCurrent did not wrap to SpeedMax when wrap was true and lowestOff was false")
 
         # Part 9
         self.print_step("9b", "TH writes to the DUT the SpeedSetting attribute with the value of 0")
@@ -248,20 +220,15 @@ class TC_FAN_3_5(MatterBaseTest):
 
         await asyncio.sleep(1)
 
-        self.print_step(
-            "9c", "TH sends Step command to DUT with Direction set to Decrease, Wrap set to True and LowestOff set to True"
-        )
-        await self.send_step_command(
-            endpoint=endpoint, direction=Clusters.Objects.FanControl.Enums.StepDirectionEnum.kDecrease, wrap=True, lowestOff=True
-        )
+        self.print_step("9c", "TH sends Step command to DUT with Direction set to Decrease, Wrap set to True and LowestOff set to True")
+        await self.send_step_command(endpoint=endpoint, direction=Clusters.Objects.FanControl.Enums.StepDirectionEnum.kDecrease, wrap=True, lowestOff=True)
 
         await asyncio.sleep(1)
 
         self.print_step("9d", "Read from the DUT the SpeedCurrent attribute and check its equal to SpeedMax")
         speed_current = await self.read_speed_current(endpoint=endpoint)
-        asserts.assert_equal(
-            speed_current, speed_max, "SpeedCurrent did not wrap to SpeedMax when wrap was true and lowestOff was true"
-        )
+        asserts.assert_equal(speed_current, speed_max,
+                             "SpeedCurrent did not wrap to SpeedMax when wrap was true and lowestOff was true")
 
 
 if __name__ == "__main__":

@@ -98,22 +98,23 @@ class TargetPart:
         return True
 
     def ToDict(self):
-        """Converts a TargetPart into a dictionary"""
+        """Converts a TargetPart into a dictionary
+        """
 
         result: Dict[str, str] = {}
-        result["name"] = self.name
+        result['name'] = self.name
 
         build_arguments: Dict[str, str] = {}
         for key, value in self.build_arguments.items():
             build_arguments[key] = str(value)
 
-        result["build_arguments"] = build_arguments
+        result['build_arguments'] = build_arguments
 
         if self.only_if_re is not None:
-            result["only_if_re"] = str(self.only_if_re.pattern)
+            result['only_if_re'] = str(self.only_if_re.pattern)
 
         if self.except_if_re is not None:
-            result["except_if_re"] = str(self.except_if_re.pattern)
+            result['except_if_re'] = str(self.except_if_re.pattern)
 
         return result
 
@@ -137,22 +138,22 @@ def _HasVariantPrefix(value: str, prefix: str):
         _HasVariantPrefix('foo-bar-baz', 'bar') # -> None
     """
     if value == prefix:
-        return ""
+        return ''
 
-    if value.startswith(prefix + "-"):
-        return value[len(prefix) + 1 :]
+    if value.startswith(prefix + '-'):
+        return value[len(prefix)+1:]
     return None
 
 
 def _StringIntoParts(full_input: str, remaining_input: str, fixed_targets: List[List[TargetPart]], modifiers: List[TargetPart]):
     """Given an input string, process through all the input rules and return
-    the underlying list of target parts for the input.
+       the underlying list of target parts for the input.
 
-    Parameters:
-       full_input: the full input string, used for validity matching (except/only_if)
-       remaining_input: the remaining input to parse
-       fixed_targets: the remaining fixed targets left to match
-       modifiers: the modifiers left to match
+       Parameters:
+          full_input: the full input string, used for validity matching (except/only_if)
+          remaining_input: the remaining input to parse
+          fixed_targets: the remaining fixed targets left to match
+          modifiers: the modifiers left to match
     """
     if not remaining_input:
         if fixed_targets:
@@ -202,9 +203,10 @@ def _StringIntoParts(full_input: str, remaining_input: str, fixed_targets: List[
 
 
 class BuildTarget:
+
     def __init__(self, name, builder_class, **kwargs):
-        """Sets up a new build target starting with the given builder class
-        and initial arguments
+        """ Sets up a new build target starting with the given builder class
+            and initial arguments
         """
         self.name = name.lower()
         self.builder_class = builder_class
@@ -225,7 +227,7 @@ class BuildTarget:
 
     def isUnifiedBuild(self, parts: List[TargetPart]):
         """Checks if the given parts combine into a unified build."""
-        return any(part.build_arguments.get("unified", False) for part in parts)
+        return any(part.build_arguments.get('unified', False) for part in parts)
 
     def AppendFixedTargets(self, parts: List[TargetPart]):
         """Append a list of potential targets/variants.
@@ -273,17 +275,17 @@ class BuildTarget:
     def HumanString(self):
         """Prints out the human-readable string of the available variants and modifiers:
 
-        like:
+           like:
 
-        foo-{bar,baz}[-modifier1][modifier2][modifier3]
-        foo-bar-{a,b,c}[-m1][-m2]
+           foo-{bar,baz}[-modifier1][modifier2][modifier3]
+           foo-bar-{a,b,c}[-m1][-m2]
         """
         result = self.name
         for fixed in self.fixed_targets:
             if len(fixed) > 1:
-                result += "-{" + ",".join(sorted(x.name for x in fixed)) + "}"
+                result += '-{' + ",".join(sorted(x.name for x in fixed)) + '}'
             else:
-                result += "-" + fixed[0].name
+                result += '-' + fixed[0].name
 
         for modifier in sorted(self.modifiers, key=lambda m: m.name):
             result += f"[-{modifier.name}]"
@@ -300,17 +302,17 @@ class BuildTarget:
 
         completions = []
         prefix = self.name
-        suffix = value[len(self.name) + 1 :]
+        suffix = value[len(self.name) + 1:]
 
         for i, targets in enumerate(self.fixed_targets, 1):
             # If we are not processing the last fixed target,
             # append hyphen to the generated completions.
-            hyphen = "-" if i != len(self.fixed_targets) else ""
+            hyphen = '-' if i != len(self.fixed_targets) else ''
             for target in targets:
                 if suffix.startswith(target.name + hyphen):
                     # Strip the prefix and continue processing.
                     prefix += f"-{target.name}"
-                    suffix = suffix[len(target.name) + 1 :]
+                    suffix = suffix[len(target.name) + 1:]
                     break
             else:
                 for target in targets:
@@ -330,7 +332,7 @@ class BuildTarget:
                     modifiers.append(modifier)
                     # Strip the prefix and continue processing.
                     prefix += f"-{modifier.name}"
-                    suffix = suffix[len(modifier.name) + 1 :]
+                    suffix = suffix[len(modifier.name) + 1:]
                     break
             else:
                 # No more modifiers in the suffix, break the loop.
@@ -377,37 +379,38 @@ class BuildTarget:
             }
         """
         return {
-            "name": self.name,
-            "shorthand": self.HumanString(),
-            "parts": [[part.ToDict() for part in target] for target in self.fixed_targets],
-            "modifiers": [part.ToDict() for part in self.modifiers],
+            'name': self.name,
+            'shorthand': self.HumanString(),
+            'parts': [[part.ToDict() for part in target] for target in self.fixed_targets],
+            'modifiers': [part.ToDict() for part in self.modifiers]
         }
 
     def AllVariants(self) -> Iterable[str]:
         """Returns all possible accepted variants by this target.
 
-        For example name-{a,b}-{c,d}[-1][-2]  could return (there may be Only/ExceptIfRe rules):
+           For example name-{a,b}-{c,d}[-1][-2]  could return (there may be Only/ExceptIfRe rules):
 
-           name-a-c
-           name-a-c-1
-           name-a-c-2
-           name-a-c-1-2
-           name-a-d
-           name-a-d-1
-           ...
-           name-b-d-2
-           name-b-d-1-2
+              name-a-c
+              name-a-c-1
+              name-a-c-2
+              name-a-c-1-2
+              name-a-d
+              name-a-d-1
+              ...
+              name-b-d-2
+              name-b-d-1-2
 
-        Notice that this DOES increase exponentially and is potentially a very long list
+           Notice that this DOES increase exponentially and is potentially a very long list
         """
 
         # Output is made out of 2 separate parts:
         #   - a valid combination of "fixed parts"
         #   - a combination of modifiers
 
-        fixed_indices = [0] * len(self.fixed_targets)
+        fixed_indices = [0]*len(self.fixed_targets)
 
         while True:
+
             prefix = "-".join(self.fixed_targets[i][n].name for i, n in enumerate(fixed_indices))
 
             for n in range(len(self.modifiers) + 1):
@@ -437,7 +440,7 @@ class BuildTarget:
 
     def StringIntoTargetParts(self, value: str):
         """Given an input string, process through all the input rules and return
-        the underlying list of target parts for the input.
+           the underlying list of target parts for the input.
         """
         suffix = _HasVariantPrefix(value, self.name)
         if not suffix:
@@ -445,17 +448,9 @@ class BuildTarget:
 
         return _StringIntoParts(value, suffix, self.fixed_targets, self.modifiers)
 
-    def Create(
-        self,
-        name: str,
-        runner,
-        repository_path: str,
-        output_prefix: str,
-        verbose: bool,
-        quiet: bool,
-        ninja_jobs: int,
-        builder_options: BuilderOptions,
-    ):
+    def Create(self, name: str, runner, repository_path: str, output_prefix: str,
+               verbose: bool, quiet: bool, ninja_jobs: int, builder_options: BuilderOptions):
+
         parts = self.StringIntoTargetParts(name)
 
         if not parts:
@@ -472,13 +467,13 @@ class BuildTarget:
         builder.target = self
         builder.identifier = name
         if self.isUnifiedBuild(parts):
-            builder.output_dir = os.path.join(output_prefix, "unified-build")
+            builder.output_dir = os.path.join(output_prefix, 'unified-build')
         else:
             # TODO: can we check if builds are compatible?
             builder.output_dir = os.path.join(output_prefix, name)
         # Append suffix to the output dir to indicate a non-default build profile.
         if builder_options.build_profile != BuildProfile.DEFAULT:
-            builder.output_dir += "-" + builder_options.build_profile
+            builder.output_dir += '-' + builder_options.build_profile
         builder.verbose = verbose
         builder.quiet = quiet
         builder.ninja_jobs = ninja_jobs

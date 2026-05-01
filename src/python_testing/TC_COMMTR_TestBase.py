@@ -29,8 +29,9 @@ cluster = Clusters.CommodityMetering
 
 
 class CommodityMeteringTestBaseHelper(MatterBaseTest):
-    test_event_fake_data = 0x0B07000000000000
-    test_event_clear = 0x0B07000000000001
+
+    test_event_fake_data = 0x0b07000000000000
+    test_event_clear = 0x0b07000000000001
 
     MaximumMeteredQuantities = None
 
@@ -47,16 +48,12 @@ class CommodityMeteringTestBaseHelper(MatterBaseTest):
             struct (Clusters.CommodityMetering.Structs.MeteredQuantityStruct, optional): The MeteredQuantityStruct entity to validate. Defaults to None.
         """
 
-        matter_asserts.assert_list(
-            struct.tariffComponentIDs,
-            "TariffComponentIDs field of MeteredQuantityStruct must return a list with max length 128.",
-            max_length=128,
-        )
+        matter_asserts.assert_list(struct.tariffComponentIDs,
+                                   "TariffComponentIDs field of MeteredQuantityStruct must return a list with max length 128.", max_length=128)
         for tariffComponentID in struct.tariffComponentIDs:
             matter_asserts.assert_valid_uint32(
-                tariffComponentID, "TariffComponentID field of MeteredQuantityStruct must have uint32 type."
-            )
-        matter_asserts.assert_valid_int64(struct.quantity, "Quantity field of MeteredQuantityStruct must be int64")
+                tariffComponentID, 'TariffComponentID field of MeteredQuantityStruct must have uint32 type.')
+        matter_asserts.assert_valid_int64(struct.quantity, 'Quantity field of MeteredQuantityStruct must be int64')
 
     async def check_maximum_metered_quantities_attribute(self, endpoint: int, attribute_value: Optional[int] = None) -> None:
         """Validate the MaximumMeteredQuantities attribute.
@@ -69,16 +66,12 @@ class CommodityMeteringTestBaseHelper(MatterBaseTest):
         self.MaximumMeteredQuantities = attribute_value
 
         if self.MaximumMeteredQuantities is None:
-            self.MaximumMeteredQuantities = await self.read_single_attribute_check_success(
-                endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.MaximumMeteredQuantities
-            )
+            self.MaximumMeteredQuantities = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.MaximumMeteredQuantities)
 
         if self.MaximumMeteredQuantities is not NullValue:
-            matter_asserts.assert_valid_uint16(self.MaximumMeteredQuantities, "MaximumMeteredQuantities must be uint16")
+            matter_asserts.assert_valid_uint16(self.MaximumMeteredQuantities, 'MaximumMeteredQuantities must be uint16')
 
-    async def check_metered_quantity_attribute(
-        self, endpoint: int, attribute_value: Optional[List[Clusters.CommodityMetering.Structs.MeteredQuantityStruct]] = None
-    ) -> None:
+    async def check_metered_quantity_attribute(self, endpoint: int, attribute_value: Optional[List[Clusters.CommodityMetering.Structs.MeteredQuantityStruct]] = None) -> None:
         """Validate the MeteredQuantity attribute.
 
         Args:
@@ -92,24 +85,20 @@ class CommodityMeteringTestBaseHelper(MatterBaseTest):
             )
 
         if attribute_value is not NullValue:
+
             # Looks like MaximumMeteredQuantities can't be Null if MeteredQuantity is not Null due to it defines the constraints for the length of the list.
             # If MaximumMeteredQuantities is not set yet to a valid real value by any reasons, then we read it.
             if self.MaximumMeteredQuantities is None or self.MaximumMeteredQuantities is NullValue:
-                self.MaximumMeteredQuantities = await self.read_single_attribute_check_success(
-                    endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.MaximumMeteredQuantities
-                )
+                self.MaximumMeteredQuantities = await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=cluster.Attributes.MaximumMeteredQuantities)
             await self.check_maximum_metered_quantities_attribute(endpoint, self.MaximumMeteredQuantities)  # validate it
             # and check that it is not Null
-            asserts.assert_not_equal(self.MaximumMeteredQuantities, NullValue, "MaximumMeteredQuantities must not be NullValue")
+            asserts.assert_not_equal(self.MaximumMeteredQuantities, NullValue,
+                                     "MaximumMeteredQuantities must not be NullValue")
 
-            matter_asserts.assert_list(
-                attribute_value, "MeteredQuantity attribute must return a list", max_length=self.MaximumMeteredQuantities
-            )
+            matter_asserts.assert_list(attribute_value, "MeteredQuantity attribute must return a list",
+                                       max_length=self.MaximumMeteredQuantities)
             matter_asserts.assert_list_element_type(
-                attribute_value,
-                cluster.Structs.MeteredQuantityStruct,
-                "MeteredQuantity attribute must contain MeteredQuantityStruct elements",
-            )
+                attribute_value, cluster.Structs.MeteredQuantityStruct, "MeteredQuantity attribute must contain MeteredQuantityStruct elements")
             for item in attribute_value:
                 await self.checkMeteredQuantityStruct(struct=item)
 
@@ -127,11 +116,9 @@ class CommodityMeteringTestBaseHelper(MatterBaseTest):
             )
 
         if attribute_value is not NullValue:
-            matter_asserts.assert_valid_uint32(attribute_value, "MeteredQuantityTimestamp must be uint32")
+            matter_asserts.assert_valid_uint32(attribute_value, 'MeteredQuantityTimestamp must be uint32')
 
-    async def check_tariff_unit_attribute(
-        self, endpoint: int, attribute_value: Optional[Globals.Enums.TariffUnitEnum] = None
-    ) -> None:
+    async def check_tariff_unit_attribute(self, endpoint: int, attribute_value: Optional[Globals.Enums.TariffUnitEnum] = None) -> None:
         """Validate the TariffUnit attribute.
 
         Args:
@@ -146,13 +133,10 @@ class CommodityMeteringTestBaseHelper(MatterBaseTest):
 
         if attribute_value is not NullValue:
             asserts.assert_is_instance(
-                attribute_value, Globals.Enums.TariffUnitEnum, "TariffUnit attribute must return a TariffUnitEnum"
-            )
+                attribute_value, Globals.Enums.TariffUnitEnum, "TariffUnit attribute must return a TariffUnitEnum")
             matter_asserts.assert_int_in_range(attribute_value, 0, 1, "TariffUnit must be in range 0 - 1")
 
-    async def verify_reporting(
-        self, reports: dict, attribute: ClusterObjects.ClusterAttributeDescriptor, attribute_name: str, saved_value
-    ) -> None:
+    async def verify_reporting(self, reports: dict, attribute: ClusterObjects.ClusterAttributeDescriptor, attribute_name: str, saved_value) -> None:
         """Verify that the reported value is different from the saved value.
 
         Args:
@@ -163,15 +147,12 @@ class CommodityMeteringTestBaseHelper(MatterBaseTest):
 
         Asserts:
             If attribute is not found in reports or ir's value length is 0.
-        """
+            """
 
         try:
-            asserts.assert_not_equal(
-                reports[attribute][0].value,
-                saved_value,
-                f"""Reported '{attribute_name}' value should be different from saved value.
-                                     Subscriptions should only report when values have changed.""",
-            )
+            asserts.assert_not_equal(reports[attribute][0].value, saved_value,
+                                     f"""Reported '{attribute_name}' value should be different from saved value.
+                                     Subscriptions should only report when values have changed.""")
         except (KeyError, IndexError) as err:
             asserts.fail(f"There are no reports for attribute {attribute_name}:\n{err}")
 
@@ -179,34 +160,31 @@ class CommodityMeteringTestBaseHelper(MatterBaseTest):
     def _metered_quantity_matcher() -> AttributeMatcher:
         def predicate(report: AttributeValue) -> bool:
             return report.attribute == cluster.Attributes.MeteredQuantity
-
         return AttributeMatcher.from_callable(description="MeteredQuantity", matcher=predicate)
 
     @staticmethod
     def _maximum_metered_quantities_matcher() -> AttributeMatcher:
         def predicate(report: AttributeValue) -> bool:
             return report.attribute == cluster.Attributes.MaximumMeteredQuantities
-
         return AttributeMatcher.from_callable(description="MaximumMeteredQuantities", matcher=predicate)
 
     @staticmethod
     def _metered_quantity_timestamp_matcher() -> AttributeMatcher:
         def predicate(report: AttributeValue) -> bool:
             return report.attribute == cluster.Attributes.MeteredQuantityTimestamp
-
         return AttributeMatcher.from_callable(description="MeteredQuantityTimestamp", matcher=predicate)
 
     @staticmethod
     def _tariff_unit_matcher() -> AttributeMatcher:
         def predicate(report: AttributeValue) -> bool:
             return report.attribute == cluster.Attributes.TariffUnit
-
         return AttributeMatcher.from_callable(description="TariffUnit", matcher=predicate)
 
     def get_mandatory_matchers(self) -> List[AttributeMatcher]:
+
         return [
             self._metered_quantity_matcher(),
             self._maximum_metered_quantities_matcher(),
             self._metered_quantity_timestamp_matcher(),
-            self._tariff_unit_matcher(),
+            self._tariff_unit_matcher()
         ]

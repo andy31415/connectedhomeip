@@ -58,14 +58,14 @@ log = logging.getLogger(__name__)
 # Those are SDK samples that are known to be non-production.
 FORBIDDEN_AKID = [
     bytes_from_hex("78:5C:E7:05:B8:6B:8F:4E:6F:C7:93:AA:60:CB:43:EA:69:68:82:D5"),
-    bytes_from_hex("6A:FD:22:77:1F:51:1F:EC:BF:16:41:97:67:10:DC:DC:31:A1:71:7E"),
+    bytes_from_hex("6A:FD:22:77:1F:51:1F:EC:BF:16:41:97:67:10:DC:DC:31:A1:71:7E")
 ]
 
 # List of certificate names that are known to have some issues, but not yet
 # updated in DCL. They will fail the test at runtime if seen, but not in CI.
 ALLOWED_SKIPPED_FILENAMES = [
     "dcld_mirror_SERIALNUMBER_63709380400001_CN_NXP_Matter_Test_PAA_O_NXP_Semiconductors_NV_C_NL.der",
-    "dcld_mirror_SERIALNUMBER_63709330400001_CN_NXP_Matter_PAA_O_NXP_Semiconductors_NV_C_NL.der",
+    "dcld_mirror_SERIALNUMBER_63709330400001_CN_NXP_Matter_PAA_O_NXP_Semiconductors_NV_C_NL.der"
 ]
 
 
@@ -105,7 +105,7 @@ def extract_akid(cert: Certificate) -> Optional[bytes]:
 
 
 class TC_DA_1_7(MatterBaseTest):
-    """ TC-DA-1.7
+    ''' TC-DA-1.7
 
         This test requires two instances of the DUT with the same PID/VID to confirm that the individual
         devices are provisioned with different device attestation keys even in the same product line.
@@ -132,7 +132,7 @@ class TC_DA_1_7(MatterBaseTest):
         ./scripts/tests/run_python_test.py --script "src/python_testing/TC_DA_1_7.py" \
             --script-args "--storage-path admin_storage.json --commissioning-method on-network \
                 --discriminator 12 34 --passcode 20202021 20202021 --bool-arg allow_sdk_dac:true"
-    """
+    '''
 
     def setup_class(self):
         self.allow_sdk_dac = self.user_params.get("allow_sdk_dac", False)
@@ -142,48 +142,31 @@ class TC_DA_1_7(MatterBaseTest):
         return 1 if (self.allow_sdk_dac or self.post_cert_test) else 2
 
     def steps_one_dut(self, DUT: int) -> List[TestStep]:
-        return [
-            TestStep(f"{DUT}", f"Test DUT{DUT} DAC chain as follows:"),
-            TestStep(
-                f"{DUT}.1",
-                f"TH sends CertificateChainRequest Command to DUT{DUT} with the CertificateType set to PAICertificate",
-                "Verify that the DUT returns a CertificateChainResponse. Save the returned Certificate as `pai_cert`.",
-            ),
-            TestStep(
-                f"{DUT}.2",
-                "TH sends CertificateChainRequest Command to DUT1 with the CertificateType set to DACCertificate",
-                "Verify that the DUT returns a CertificateChainResponse. Save the returned Certificate as `dac_cert`.",
-            ),
-            TestStep(
-                f"{DUT}.3",
-                "TH extracts the Authority Key Identifier from the PAI certificate",
-                (
-                    "* Verify that the Authority Key Identifier is signed by a PAA in the DCL. (Ensure that it is not SDK’s test PAAs)\n"
-                    "* Verify that PAI authority key ID must not be one of:\n"
-                    "  - 78: 5C: E7: 05: B8: 6B: 8F: 4E: 6F: C7: 93: AA: 60: CB: 43: EA: 69: 68:82: D5\n"
-                    "  - 6A: FD: 22: 77: 1F: 51: 1F: EC: BF: 16: 41: 97: 67: 10: DC: DC: 31: A1: 71: 7E\n"
-                    "* Save the selected PAA certificate as `paa_cert`\n"
-                ),
-            ),
-            TestStep(
-                f"{DUT}.4",
-                "TH extracts ASN.1 DER bytes for the entire issuer field of `dac_cert` and subject field of `pai_cert`.",
-                "Verify that the `dac_cert` `issuer field is byte-forbyte equivalent to the `pai_cert`subject field.",
-            ),
-            TestStep(
-                f"{DUT}.5",
-                "TH extracts ASN.1 DER bytes for the entire issuer field of `pai_cert` and subject field of `paa_cert`.",
-                "Verify that the `pai_cert` issuer field is byte-forbyte equivalent to the `paa_cert` subject field.",
-            ),
-            TestStep(f"{DUT}.6", f"TH extracts the public key from the DAC and saves as `pk_{DUT}`."),
-        ]
+        return [TestStep(f'{DUT}', f'Test DUT{DUT} DAC chain as follows:'),
+                TestStep(f'{DUT}.1', f'TH sends CertificateChainRequest Command to DUT{DUT} with the CertificateType set to PAICertificate',
+                         'Verify that the DUT returns a CertificateChainResponse. Save the returned Certificate as `pai_cert`.'),
+                TestStep(f'{DUT}.2', 'TH sends CertificateChainRequest Command to DUT1 with the CertificateType set to DACCertificate',
+                         'Verify that the DUT returns a CertificateChainResponse. Save the returned Certificate as `dac_cert`.'),
+                TestStep(f'{DUT}.3', 'TH extracts the Authority Key Identifier from the PAI certificate',
+                         ('* Verify that the Authority Key Identifier is signed by a PAA in the DCL. (Ensure that it is not SDK’s test PAAs)\n'
+                          '* Verify that PAI authority key ID must not be one of:\n'
+                          '  - 78: 5C: E7: 05: B8: 6B: 8F: 4E: 6F: C7: 93: AA: 60: CB: 43: EA: 69: 68:82: D5\n'
+                          '  - 6A: FD: 22: 77: 1F: 51: 1F: EC: BF: 16: 41: 97: 67: 10: DC: DC: 31: A1: 71: 7E\n'
+                          '* Save the selected PAA certificate as `paa_cert`\n')),
+                TestStep(f'{DUT}.4', 'TH extracts ASN.1 DER bytes for the entire issuer field of `dac_cert` and subject field of `pai_cert`.',
+                         'Verify that the `dac_cert` `issuer field is byte-forbyte equivalent to the `pai_cert`subject field.'),
+                TestStep(f'{DUT}.5', 'TH extracts ASN.1 DER bytes for the entire issuer field of `pai_cert` and subject field of `paa_cert`.',
+                         'Verify that the `pai_cert` issuer field is byte-forbyte equivalent to the `paa_cert` subject field.'),
+                TestStep(f'{DUT}.6', f'TH extracts the public key from the DAC and saves as `pk_{DUT}`.')
+                ]
 
     def steps_TC_DA_1_7(self):
         steps = [TestStep(0, "Commission DUT if not already done", is_commissioning=True)]
         steps += self.steps_one_dut(1)
         if self.expected_number_of_DUTs() == 2:
             steps += self.steps_one_dut(2)
-        steps += [TestStep(3, "Verify that `pk_1` is not equal to `pk_2", "Public keys do not match")]
+        steps += [TestStep(3, "Verify that `pk_1` is not equal to `pk_2",
+                           "Public keys do not match")]
         return steps
 
     @async_test_body
@@ -210,7 +193,7 @@ class TC_DA_1_7(MatterBaseTest):
         self.step(0)
 
         for i in range(len(self.matter_test_config.dut_node_ids)):
-            pk.append(await self.single_DUT(i + 1, self.matter_test_config.dut_node_ids[i]))
+            pk.append(await self.single_DUT(i+1, self.matter_test_config.dut_node_ids[i]))
 
         self.step(3)
         asserts.assert_equal(len(pk), len(set(pk)), "Found matching public keys in different DUTs")
@@ -222,24 +205,26 @@ class TC_DA_1_7(MatterBaseTest):
         log.info("Found %d PAAs" % len(paa_by_skid))
 
         # Test plan step introducing test for each DUT
-        self.step(f"{dut_index}")
+        self.step(f'{dut_index}')
         dev_ctrl = self.default_controller
 
-        self.step(f"{dut_index}.1")
-        result = await dev_ctrl.SendCommand(dut_node_id, 0, Clusters.OperationalCredentials.Commands.CertificateChainRequest(2))
+        self.step(f'{dut_index}.1')
+        result = await dev_ctrl.SendCommand(dut_node_id, 0,
+                                            Clusters.OperationalCredentials.Commands.CertificateChainRequest(2))
         pai = result.certificate
         asserts.assert_less_equal(len(pai), 600, "PAI cert must be at most 600 bytes")
-        key = "pai_{}".format(dut_index)
+        key = 'pai_{}'.format(dut_index)
         self.record_data({key: hex_from_bytes(pai)})
 
-        self.step(f"{dut_index}.2")
-        result = await dev_ctrl.SendCommand(dut_node_id, 0, Clusters.OperationalCredentials.Commands.CertificateChainRequest(1))
+        self.step(f'{dut_index}.2')
+        result = await dev_ctrl.SendCommand(dut_node_id, 0,
+                                            Clusters.OperationalCredentials.Commands.CertificateChainRequest(1))
         dac = result.certificate
         asserts.assert_less_equal(len(dac), 600, "DAC cert must be at most 600 bytes")
-        key = "dac_{}".format(dut_index)
+        key = 'dac_{}'.format(dut_index)
         self.record_data({key: hex_from_bytes(dac)})
 
-        self.step(f"{dut_index}.3")
+        self.step(f'{dut_index}.3')
         log.info("DUT {} Step 3 check 1: Ensure PAI's AKID matches a PAA and signature is valid".format(dut_index))
         pai_cert = load_der_x509_certificate(pai)
         pai_akid = extract_akid(pai_cert)
@@ -251,9 +236,8 @@ class TC_DA_1_7(MatterBaseTest):
         public_key = paa_cert.public_key()
 
         try:
-            public_key.verify(
-                signature=pai_cert.signature, data=pai_cert.tbs_certificate_bytes, signature_algorithm=ec.ECDSA(hashes.SHA256())
-            )
+            public_key.verify(signature=pai_cert.signature, data=pai_cert.tbs_certificate_bytes,
+                              signature_algorithm=ec.ECDSA(hashes.SHA256()))
         except InvalidSignature as e:
             asserts.fail("DUT %d: Failed to verify PAI signature against PAA public key: %s" % (dut_index, str(e)))
         log.info("Validated PAI signature against PAA")
@@ -265,19 +249,19 @@ class TC_DA_1_7(MatterBaseTest):
             for candidate in FORBIDDEN_AKID:
                 asserts.assert_not_equal(hex_from_bytes(pai_akid), hex_from_bytes(candidate), "PAI AKID must not be in denylist")
 
-        self.step(f"{dut_index}.4")
+        self.step(f'{dut_index}.4')
         # dac issuer == pai subject
         dac_cert = load_der_x509_certificate(dac)
         asserts.assert_equal(dac_cert.issuer, pai_cert.subject, "DAC issuer does not match PAI subject")
 
-        self.step(f"{dut_index}.5")
+        self.step(f'{dut_index}.5')
         # pai issues == paa subject
         asserts.assert_equal(pai_cert.issuer, paa_cert.subject, "PAI issuer does not match PAA subject")
 
-        self.step(f"{dut_index}.6")
+        self.step(f'{dut_index}.6')
         pk = dac_cert.public_key().public_bytes(encoding=Encoding.X962, format=PublicFormat.UncompressedPoint)
         log.info("Subject public key pk: %s" % hex_from_bytes(pk))
-        key = "pk_{}".format(dut_index)
+        key = 'pk_{}'.format(dut_index)
         self.record_data({key: hex_from_bytes(pk)})
         return pk
 

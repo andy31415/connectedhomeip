@@ -22,28 +22,10 @@ from typing import List, Optional, Set
 from matter.idl.generators import CodeGenerator
 from matter.idl.generators.filters import upfirst
 from matter.idl.generators.storage import GeneratorStorage
-from matter.idl.generators.type_definitions import (
-    BasicInteger,
-    BasicString,
-    FundamentalType,
-    IdlBitmapType,
-    IdlEnumType,
-    IdlType,
-    ParseDataType,
-    TypeLookupContext,
-)
-from matter.idl.matter_idl_types import (
-    Attribute,
-    Cluster,
-    Command,
-    DataType,
-    Field,
-    FieldQuality,
-    Idl,
-    Struct,
-    StructQuality,
-    StructTag,
-)
+from matter.idl.generators.type_definitions import (BasicInteger, BasicString, FundamentalType, IdlBitmapType, IdlEnumType, IdlType,
+                                                    ParseDataType, TypeLookupContext)
+from matter.idl.matter_idl_types import (Attribute, Cluster, Command, DataType, Field, FieldQuality, Idl, Struct, StructQuality,
+                                         StructTag)
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +38,7 @@ class GenerateTarget:
 
 @dataclasses.dataclass
 class GlobalType:
-    name: str  # java name
+    name: str      # java name
     cpp_type: str  # underlying type
     idl_type: str  # assumed IDL type
 
@@ -86,19 +68,19 @@ def _UnderlyingType(field: Field, context: TypeLookupContext) -> Optional[str]:
 
     if isinstance(actual, BasicString):
         if actual.is_binary:
-            return "ByteArray"
-        return "String"
+            return 'ByteArray'
+        return 'String'
     if isinstance(actual, BasicInteger):
         if actual.is_signed:
             return "Int{}s".format(actual.power_of_two_bits)
         return "Int{}u".format(actual.power_of_two_bits)
     if isinstance(actual, FundamentalType):
         if actual == FundamentalType.BOOL:
-            return "Boolean"
+            return 'Boolean'
         if actual == FundamentalType.FLOAT:
-            return "Float"
+            return 'Float'
         if actual == FundamentalType.DOUBLE:
-            return "Double"
+            return 'Double'
         log.warning("Unknown fundamental type: %r", actual)
 
     return None
@@ -120,49 +102,50 @@ def FieldToGlobalName(field: Field, context: TypeLookupContext) -> Optional[str]
 # Based on atomicType in ZAP:
 #  src-electron/generator/matter/app/zap-templates/common/override.js
 _KNOWN_DECODABLE_TYPES = {
-    "action_id": "chip::ActionId",
-    "attrib_id": "chip::AttributeId",
-    "cluster_id": "chip::ClusterId",
-    "command_id": "chip::CommandId",
-    "data_ver": "chip::DataVersion",
-    "devtype_id": "chip::DeviceTypeId",
-    "endpoint_no": "chip::EndpointId",
-    "eui64": "chip::NodeId",
-    "event_id": "chip::EventId",
-    "event_no": "chip::EventNumber",
-    "fabric_id": "chip::FabricId",
-    "fabric_idx": "chip::FabricIndex",
-    "field_id": "chip::FieldId",
-    "group_id": "chip::GroupId",
-    "node_id": "chip::NodeId",
-    "percent": "chip::Percent",
-    "percent100ths": "chip::Percent100ths",
-    "transaction_id": "chip::TransactionId",
-    "vendor_id": "chip::VendorId",
+    'action_id': 'chip::ActionId',
+    'attrib_id': 'chip::AttributeId',
+    'cluster_id': 'chip::ClusterId',
+    'command_id': 'chip::CommandId',
+    'data_ver': 'chip::DataVersion',
+    'devtype_id': 'chip::DeviceTypeId',
+    'endpoint_no': 'chip::EndpointId',
+    'eui64': 'chip::NodeId',
+    'event_id': 'chip::EventId',
+    'event_no': 'chip::EventNumber',
+    'fabric_id': 'chip::FabricId',
+    'fabric_idx': 'chip::FabricIndex',
+    'field_id': 'chip::FieldId',
+    'group_id': 'chip::GroupId',
+    'node_id': 'chip::NodeId',
+    'percent': 'chip::Percent',
+    'percent100ths': 'chip::Percent100ths',
+    'transaction_id': 'chip::TransactionId',
+    'vendor_id': 'chip::VendorId',
+
     # non-named enums
-    "enum8": "uint8_t",
-    "enum16": "uint16_t",
+    'enum8': 'uint8_t',
+    'enum16': 'uint16_t',
 }
 
 
 def GlobalNameToJavaName(name: str) -> str:
-    if name == "Int8s":
-        return "Byte"
-    if name == "Int8u":
-        return "UByte"
-    if name == "Int16s":
-        return "Short"
-    if name == "Int16u":
-        return "UShort"
+    if name == 'Int8s':
+        return 'Byte'
+    if name == 'Int8u':
+        return 'UByte'
+    if name == 'Int16s':
+        return 'Short'
+    if name == 'Int16u':
+        return 'UShort'
 
-    if name == "Int32s":
-        return "Int"
-    if name == "Int32u":
-        return "UInt"
-    if name == "Int64s":
-        return "Long"
-    if name == "Int64u":
-        return "ULong"
+    if name == 'Int32s':
+        return 'Int'
+    if name == 'Int32u':
+        return 'UInt'
+    if name == 'Int64s':
+        return 'Long'
+    if name == 'Int64u':
+        return 'ULong'
 
     # Double/Float/Boolean/CharString/OctetString
     return name
@@ -175,9 +158,9 @@ def DelegatedCallbackName(attr: Attribute, context: TypeLookupContext) -> str:
     global_name = FieldToGlobalName(attr.definition, context)
 
     if global_name:
-        return "Delegated{}AttributeCallback".format(GlobalNameToJavaName(global_name))
+        return 'Delegated{}AttributeCallback'.format(GlobalNameToJavaName(global_name))
 
-    return "Delegated{}Cluster{}AttributeCallback".format(context.cluster.name, upfirst(attr.definition.name))
+    return 'Delegated{}Cluster{}AttributeCallback'.format(context.cluster.name, upfirst(attr.definition.name))
 
 
 def ChipClustersCallbackName(attr: Attribute, context: TypeLookupContext) -> str:
@@ -188,9 +171,9 @@ def ChipClustersCallbackName(attr: Attribute, context: TypeLookupContext) -> str
     global_name = FieldToGlobalName(attr.definition, context)
 
     if global_name:
-        return "ChipClusters.{}AttributeCallback".format(GlobalNameToJavaName(global_name))
+        return 'ChipClusters.{}AttributeCallback'.format(GlobalNameToJavaName(global_name))
 
-    return "ChipClusters.{}Cluster.{}AttributeCallback".format(context.cluster.name, upfirst(attr.definition.name))
+    return 'ChipClusters.{}Cluster.{}AttributeCallback'.format(context.cluster.name, upfirst(attr.definition.name))
 
 
 def CallbackName(attr: Attribute, context: TypeLookupContext) -> str:
@@ -206,25 +189,28 @@ def CallbackName(attr: Attribute, context: TypeLookupContext) -> str:
     global_name = FieldToGlobalName(attr.definition, context)
 
     if global_name:
-        return "CHIP{}AttributeCallback".format(upfirst(global_name))
+        return 'CHIP{}AttributeCallback'.format(upfirst(global_name))
 
-    return "CHIP{}{}AttributeCallback".format(upfirst(context.cluster.name), upfirst(attr.definition.name))
+    return 'CHIP{}{}AttributeCallback'.format(
+        upfirst(context.cluster.name),
+        upfirst(attr.definition.name)
+    )
 
 
 def CommandCallbackName(command: Command, cluster: Cluster):
-    if command.output_param.lower() == "defaultsuccess":
-        return "DefaultSuccess"
-    return "{}Cluster{}".format(cluster.name, command.output_param)
+    if command.output_param.lower() == 'defaultsuccess':
+        return 'DefaultSuccess'
+    return '{}Cluster{}'.format(cluster.name, command.output_param)
 
 
 def JavaCommandCallbackName(command: Command):
-    if command.output_param.lower() == "defaultsuccess":
-        return "DefaultCluster"
-    return "{}".format(command.output_param)
+    if command.output_param.lower() == 'defaultsuccess':
+        return 'DefaultCluster'
+    return '{}'.format(command.output_param)
 
 
 def IsCommandNotDefaultCallback(command: Command) -> bool:
-    return command.output_param.lower() != "defaultsuccess"
+    return command.output_param.lower() != 'defaultsuccess'
 
 
 def JavaAttributeCallbackName(attr: Attribute, context: TypeLookupContext) -> str:
@@ -235,9 +221,9 @@ def JavaAttributeCallbackName(attr: Attribute, context: TypeLookupContext) -> st
     global_name = FieldToGlobalName(attr.definition, context)
 
     if global_name:
-        return "{}".format(GlobalNameToJavaName(global_name))
+        return '{}'.format(GlobalNameToJavaName(global_name))
 
-    return "{}Attribute".format(upfirst(attr.definition.name))
+    return '{}Attribute'.format(upfirst(attr.definition.name))
 
 
 def IsFieldGlobalName(field: Field, context: TypeLookupContext) -> bool:
@@ -311,12 +297,12 @@ def NamedFilter(choices: List, name: str):
 
 def ToBoxedJavaType(field: Field):
     if field.is_optional:
-        return "jobject"
-    if field.data_type.name.lower() in ["octet_string", "long_octet_string"]:
-        return "jbyteArray"
-    if field.data_type.name.lower() in ["char_string", "long_char_string"]:
-        return "jstring"
-    return "jobject"
+        return 'jobject'
+    if field.data_type.name.lower() in ['octet_string', 'long_octet_string']:
+        return 'jbyteArray'
+    if field.data_type.name.lower() in ['char_string', 'long_char_string']:
+        return 'jstring'
+    return 'jobject'
 
 
 def LowercaseFirst(name: str) -> str:
@@ -376,11 +362,11 @@ class EncodableValue:
 
     @property
     def is_octet_string(self):
-        return self.data_type.name.lower() in ["octet_string", "long_octet_string"]
+        return self.data_type.name.lower() in ['octet_string', 'long_octet_string']
 
     @property
     def is_char_string(self):
-        return self.data_type.name.lower() in ["char_string", "long_char_string"]
+        return self.data_type.name.lower() in ['char_string', 'long_char_string']
 
     @property
     def is_struct(self):
@@ -624,31 +610,31 @@ class __KotlinCodeGenerator(CodeGenerator):
         """
         super().__init__(storage, idl, fs_loader_searchpath=os.path.dirname(__file__))
 
-        self.jinja_env.filters["attributesWithCallback"] = attributesWithSupportedCallback
-        self.jinja_env.filters["callbackName"] = CallbackName
-        self.jinja_env.filters["chipClustersCallbackName"] = ChipClustersCallbackName
-        self.jinja_env.filters["delegatedCallbackName"] = DelegatedCallbackName
-        self.jinja_env.filters["commandCallbackName"] = CommandCallbackName
-        self.jinja_env.filters["javaCommandCallbackName"] = JavaCommandCallbackName
-        self.jinja_env.filters["isCommandNotDefaultCallback"] = IsCommandNotDefaultCallback
-        self.jinja_env.filters["javaAttributeCallbackName"] = JavaAttributeCallbackName
-        self.jinja_env.filters["named"] = NamedFilter
-        self.jinja_env.filters["toBoxedJavaType"] = ToBoxedJavaType
-        self.jinja_env.filters["lowercaseFirst"] = LowercaseFirst
-        self.jinja_env.filters["asEncodable"] = EncodableValueFrom
-        self.jinja_env.filters["globalAsEncodable"] = GlobalEncodableValueFrom
-        self.jinja_env.filters["createLookupContext"] = CreateLookupContext
-        self.jinja_env.filters["canGenerateSubscribe"] = CanGenerateSubscribe
-        self.jinja_env.filters["isFabricScopedList"] = IsFabricScopedList
-        self.jinja_env.filters["hasResponse"] = CommandHasResponse
+        self.jinja_env.filters['attributesWithCallback'] = attributesWithSupportedCallback
+        self.jinja_env.filters['callbackName'] = CallbackName
+        self.jinja_env.filters['chipClustersCallbackName'] = ChipClustersCallbackName
+        self.jinja_env.filters['delegatedCallbackName'] = DelegatedCallbackName
+        self.jinja_env.filters['commandCallbackName'] = CommandCallbackName
+        self.jinja_env.filters['javaCommandCallbackName'] = JavaCommandCallbackName
+        self.jinja_env.filters['isCommandNotDefaultCallback'] = IsCommandNotDefaultCallback
+        self.jinja_env.filters['javaAttributeCallbackName'] = JavaAttributeCallbackName
+        self.jinja_env.filters['named'] = NamedFilter
+        self.jinja_env.filters['toBoxedJavaType'] = ToBoxedJavaType
+        self.jinja_env.filters['lowercaseFirst'] = LowercaseFirst
+        self.jinja_env.filters['asEncodable'] = EncodableValueFrom
+        self.jinja_env.filters['globalAsEncodable'] = GlobalEncodableValueFrom
+        self.jinja_env.filters['createLookupContext'] = CreateLookupContext
+        self.jinja_env.filters['canGenerateSubscribe'] = CanGenerateSubscribe
+        self.jinja_env.filters['isFabricScopedList'] = IsFabricScopedList
+        self.jinja_env.filters['hasResponse'] = CommandHasResponse
 
-        self.jinja_env.tests["is_response_struct"] = IsResponseStruct
-        self.jinja_env.tests["is_using_global_callback"] = _IsUsingGlobalCallback
-        self.jinja_env.tests["is_field_global_name"] = IsFieldGlobalName
+        self.jinja_env.tests['is_response_struct'] = IsResponseStruct
+        self.jinja_env.tests['is_using_global_callback'] = _IsUsingGlobalCallback
+        self.jinja_env.tests['is_field_global_name'] = IsFieldGlobalName
 
 
 class KotlinClassGenerator(__KotlinCodeGenerator):
-    """Generates .kt files"""
+    """Generates .kt files """
 
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)
@@ -664,9 +650,9 @@ class KotlinClassGenerator(__KotlinCodeGenerator):
             template_path="MatterFiles_gni.jinja",
             output_file_name="java/matter/controller/cluster/files.gni",
             vars={
-                "idl": self.idl,
-                "clientClusters": clientClusters,
-            },
+                'idl': self.idl,
+                'clientClusters': clientClusters,
+            }
         )
 
         # Generate a `.kt` file for each cluster.
@@ -676,9 +662,9 @@ class KotlinClassGenerator(__KotlinCodeGenerator):
                 template_path="MatterClusters.jinja",
                 output_file_name=output_name,
                 vars={
-                    "idl": self.idl,
-                    "cluster": cluster,
-                },
+                    'idl': self.idl,
+                    'cluster': cluster,
+                }
             )
 
         # Every cluster has its own impl, to avoid
@@ -691,12 +677,14 @@ class KotlinClassGenerator(__KotlinCodeGenerator):
                 output_name = "java/matter/controller/cluster/structs/{cluster_name}Cluster{struct_name}.kt"
                 self.internal_render_one_output(
                     template_path="MatterStructs.jinja",
-                    output_file_name=output_name.format(cluster_name=cluster.name, struct_name=struct.name),
+                    output_file_name=output_name.format(
+                        cluster_name=cluster.name,
+                        struct_name=struct.name),
                     vars={
-                        "cluster": cluster,
-                        "struct": struct,
-                        "typeLookup": TypeLookupContext(self.idl, cluster),
-                    },
+                        'cluster': cluster,
+                        'struct': struct,
+                        'typeLookup': TypeLookupContext(self.idl, cluster),
+                    }
                 )
 
             for event in cluster.events:
@@ -706,10 +694,12 @@ class KotlinClassGenerator(__KotlinCodeGenerator):
                 output_name = "java/matter/controller/cluster/eventstructs/{cluster_name}Cluster{event_name}Event.kt"
                 self.internal_render_one_output(
                     template_path="MatterEventStructs.jinja",
-                    output_file_name=output_name.format(cluster_name=cluster.name, event_name=event.name),
+                    output_file_name=output_name.format(
+                        cluster_name=cluster.name,
+                        event_name=event.name),
                     vars={
-                        "cluster": cluster,
-                        "event": event,
-                        "typeLookup": TypeLookupContext(self.idl, cluster),
-                    },
+                        'cluster': cluster,
+                        'event': event,
+                        'typeLookup': TypeLookupContext(self.idl, cluster),
+                    }
                 )

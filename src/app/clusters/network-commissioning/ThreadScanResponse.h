@@ -33,7 +33,8 @@ public:
     /// However it does NOT take ownership (expects caller to manage release)
     ThreadScanResponseToTLV(NetworkCommissioningStatusEnum status, CharSpan debugText,
                             DeviceLayer::NetworkCommissioning::ThreadScanResponseIterator * networks) :
-        mStatus(status), mDebugText(debugText), mNetworks(networks)
+        mStatus(status),
+        mDebugText(debugText), mNetworks(networks)
     {}
 
     CHIP_ERROR EncodeTo(TLV::TLVWriter & writer, TLV::Tag tag) const override;

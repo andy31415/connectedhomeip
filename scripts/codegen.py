@@ -17,7 +17,7 @@
 # Reference it directly from the source tree.
 from python_path import PythonPath
 
-with PythonPath("py_matter_idl", relative_to=__file__):
+with PythonPath('py_matter_idl', relative_to=__file__):
     from matter.idl.generators.path_resolution import expand_path_for_idl
     from matter.idl.generators.registry import GENERATORS, CodeGenerator
     from matter.idl.generators.storage import FileSystemGeneratorStorage, GeneratorStorage
@@ -37,7 +37,6 @@ from tools.zap.clang_format import getClangFormatBinary
 
 try:
     import coloredlogs
-
     _has_coloredlogs = True
 except ImportError:
     _has_coloredlogs = False
@@ -67,34 +66,46 @@ __LOG_LEVELS__ = logging.getLevelNamesMapping()
 
 @click.command()
 @click.option(
-    "--log-level",
-    default="INFO",
+    '--log-level',
+    default='INFO',
     type=click.Choice(__LOG_LEVELS__.keys(), case_sensitive=False),
-    help="Determines the verbosity of script output",
-)
+    help='Determines the verbosity of script output')
 @click.option(
-    "--generator",
-    "-g",
-    default="java-jni",
-    help="What code generator to run.  The choices are: "
-    + "|".join(GENERATORS.keys())
-    + ". "
-    + "When using custom, provide the plugin path using `--generator custom:<path_to_plugin>:<plugin_module_name>` syntax. "
-    + "For example, `--generator custom:./my_plugin:my_plugin_module` will load `./my_plugin/my_plugin_module/__init.py__` "
-    + "that defines a subclass of CodeGenerator named CustomGenerator.",
-)
-@click.option("--option", multiple=True, help="Extra generator options, of the form: --option key:value")
-@click.option("--output-dir", type=click.Path(exists=False), default=".", help="Where to generate the code")
-@click.option("--dry-run", default=False, is_flag=True, help="If to actually generate")
-@click.option("--name-only", default=False, is_flag=True, help="Output just a list of file names that would be generated")
+    '--generator', '-g',
+    default='java-jni',
+    help='What code generator to run.  The choices are: '+'|'.join(GENERATORS.keys())+'. ' +
+         'When using custom, provide the plugin path using `--generator custom:<path_to_plugin>:<plugin_module_name>` syntax. ' +
+         'For example, `--generator custom:./my_plugin:my_plugin_module` will load `./my_plugin/my_plugin_module/__init.py__` ' +
+         'that defines a subclass of CodeGenerator named CustomGenerator.')
 @click.option(
-    "--expected-outputs",
+    '--option',
+    multiple=True,
+    help="Extra generator options, of the form: --option key:value")
+@click.option(
+    '--output-dir',
+    type=click.Path(exists=False),
+    default=".",
+    help='Where to generate the code')
+@click.option(
+    '--dry-run',
+    default=False,
+    is_flag=True,
+    help='If to actually generate')
+@click.option(
+    '--name-only',
+    default=False,
+    is_flag=True,
+    help='Output just a list of file names that would be generated')
+@click.option(
+    '--expected-outputs',
     type=click.Path(exists=True),
     default=None,
-    help="A file containing all expected outputs. Script will fail if outputs do not match",
-)
-@click.argument("idl_path", type=click.Path(exists=True))
+    help='A file containing all expected outputs. Script will fail if outputs do not match')
+@click.argument(
+    'idl_path',
+    type=click.Path(exists=True))
 def main(log_level, generator, option, output_dir, dry_run, name_only, expected_outputs, idl_path):
+
     def formatKotlinFiles(paths):
         try:
             log.info("Prettifying %d kotlin files:", len(paths))
@@ -107,24 +118,26 @@ def main(log_level, generator, option, output_dir, dry_run, name_only, expected_
 
             # ensure we have some headers otherwise maven seems to 403 us
             opener = urllib.request.build_opener()
-            opener.addheaders = [("User-agent", "Mozilla/5.0")]
+            opener.addheaders = [('User-agent', 'Mozilla/5.0')]
             urllib.request.install_opener(opener)
 
-            with tempfile.TemporaryDirectory(prefix="ktfmt") as tmpdir:
+            with tempfile.TemporaryDirectory(prefix='ktfmt') as tmpdir:
                 path, _ = urllib.request.urlretrieve(jar_url, Path(tmpdir).joinpath(JAR_NAME).as_posix())
-                subprocess.check_call(["java", "-jar", path, "--google-style"] + paths)
+                subprocess.check_call(['java', '-jar', path, '--google-style'] + paths)
         except Exception:
             traceback.print_exc()
-
     """
     Parses MATTER IDL files (.matter) and performs SDK code generation
     as set up by the program arguments.
     """
     if _has_coloredlogs:
-        coloredlogs.install(level=__LOG_LEVELS__[log_level], fmt="%(asctime)s %(levelname)-7s %(message)s")
+        coloredlogs.install(level=__LOG_LEVELS__[
+                            log_level], fmt='%(asctime)s %(levelname)-7s %(message)s')
     else:
         logging.basicConfig(
-            level=__LOG_LEVELS__[log_level], format="%(asctime)s %(levelname)-7s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+            level=__LOG_LEVELS__[log_level],
+            format='%(asctime)s %(levelname)-7s %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
         )
 
     if name_only:
@@ -137,9 +150,9 @@ def main(log_level, generator, option, output_dir, dry_run, name_only, expected_
         idl_tree = CreateParser().parse(f.read(), file_name=idl_path)
 
     plugin_module = None
-    if generator.startswith("custom:"):
+    if generator.startswith('custom:'):
         # check that the plugin path is provided
-        custom_params = generator.split(":")
+        custom_params = generator.split(':')
         if len(custom_params) != 3:
             log.fatal("Custom generator format not valid. Please use --generator custom:<path>:<module>")
             sys.exit(1)
@@ -147,14 +160,14 @@ def main(log_level, generator, option, output_dir, dry_run, name_only, expected_
 
         log.info("Using CustomGenerator at plugin path '%s.%s'", plugin_path, plugin_module)
         sys.path.append(plugin_path)
-        generator = "CUSTOM"
+        generator = 'CUSTOM'
 
     extra_args = {}
     for o in option:
-        if ":" not in o:
+        if ':' not in o:
             log.fatal("Please specify options as '<key>:<value>'. %r is not valid. ", o)
             sys.exit(1)
-        key, value = o.split(":")
+        key, value = o.split(':')
         extra_args[key] = value
 
     log.info("Running code generator '%s'", generator)
@@ -169,12 +182,12 @@ def main(log_level, generator, option, output_dir, dry_run, name_only, expected_
         _, extension = os.path.splitext(name)
         name_dict[extension] = name_dict.get(extension, []) + [name]
 
-    if name_dict.get(".kt", []):
+    if name_dict.get('.kt', []):
         try:
-            log.debug("Formatting kt_files: '%s'", name_dict[".kt"])
+            log.debug("Formatting kt_files: '%s'", name_dict['.kt'])
         except Exception:
             traceback.print_exc()
-        formatKotlinFiles(name_dict[".kt"])
+        formatKotlinFiles(name_dict['.kt'])
 
     cpp_files = []
     for ext in [".h", ".cpp", ".c", ".hpp"]:
@@ -211,5 +224,5 @@ def main(log_level, generator, option, output_dir, dry_run, name_only, expected_
     log.info("Done")
 
 
-if __name__ == "__main__":
-    main(auto_envvar_prefix="CHIP")
+if __name__ == '__main__':
+    main(auto_envvar_prefix='CHIP')

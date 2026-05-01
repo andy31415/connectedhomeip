@@ -36,11 +36,11 @@ def ParseInt(value: str, data_type: Optional[DataType] = None) -> int:
 
     Supports decimal or hex values prefixed with '0x'
     """
-    if value.startswith("0x"):
+    if value.startswith('0x'):
         parsed = int(value[2:], 16)
         if data_type and IsSignedDataType(data_type):
             bits = GetDataTypeSizeInBits(data_type)
-            assert bits  # size MUST be known
+            assert (bits)  # size MUST be known
             if parsed & (1 << (bits - 1)):
                 parsed -= 1 << bits
         return parsed
@@ -50,9 +50,9 @@ def ParseInt(value: str, data_type: Optional[DataType] = None) -> int:
 def ParseOptionalInt(value: str) -> Optional[int]:
     """Parses numbers as long as they are in an expected format of numbers.
 
-    "1" parses to 1
-    "0x12" parses to 18
-    "Min" parses to None
+       "1" parses to 1
+       "0x12" parses to 18
+       "Min" parses to None
     """
     if re.match("^-?((0x[0-9a-fA-F]*)|([0-9]*))$", value):
         return ParseInt(value)
@@ -143,14 +143,14 @@ def ParseType(t: str) -> ParsedType:
 
 def NormalizeName(name: str) -> str:
     """Convert a free form name from the spec into a programming language
-    name that is appropriate for matter IDL.
+       name that is appropriate for matter IDL.
     """
 
     # Trim human name separators
     for separator in " /-":
-        name = name.replace(separator, "_")
-    while "__" in name:
-        name = name.replace("__", "_")
+        name = name.replace(separator, '_')
+    while '__' in name:
+        name = name.replace('__', '_')
 
     # NOTE: zapt generators for IDL files use a construct of the form
     #       `{{asUpperCamelCase name preserveAcronyms=true}}`
@@ -164,18 +164,18 @@ def NormalizeName(name: str) -> str:
     #      be needed here.
 
     # At this point, we remove all _ and make sure _ is followed by an uppercase
-    while name.endswith("_"):
+    while name.endswith('_'):
         name = name[:-1]
 
-    while "_" in name:
-        idx = name.find("_")
-        name = name[:idx] + name[idx + 1].upper() + name[idx + 2 :]
+    while '_' in name:
+        idx = name.find('_')
+        name = name[:idx] + name[idx + 1].upper() + name[idx + 2:]
 
     return name
 
 
 def FieldName(input_name: str) -> str:
-    """Normalized name with the first letter lowercase."""
+    """Normalized name with the first letter lowercase. """
     name = NormalizeName(input_name)
 
     # Some exception handling for nicer diffs
@@ -203,7 +203,7 @@ def AttributesToField(attrs: AttributesImpl) -> Field:
         #       specifically) WITHOUT re-stating things like types
         #
         # https://github.com/csa-data-model/projects/issues/365
-        log.error("Attribute '%s' has no type", attrs["name"])
+        log.error("Attribute '%s' has no type", attrs['name'])
         attr_type = "sint32"
     t = ParseType(attr_type)
 
@@ -216,15 +216,16 @@ def AttributesToField(attrs: AttributesImpl) -> Field:
 
 
 def AttributesToBitFieldConstantEntry(attrs: AttributesImpl) -> ConstantEntry:
-    """Creates a constant entry appropriate for bitmaps."""
+    """Creates a constant entry appropriate for bitmaps.
+    """
     assert "name" in attrs
 
-    if "bit" not in attrs:
+    if 'bit' not in attrs:
         # TODO: multi-bit fields not supported in XML currently. Be lenient here to have some
         #       diff
         # Issue: https://github.com/csa-data-model/projects/issues/347
 
-        log.error("Constant '%s' has no bit value (may be multibit)", attrs["name"])
+        log.error("Constant '%s' has no bit value (may be multibit)", attrs['name'])
         return ConstantEntry(name="k" + NormalizeName(attrs["name"]), code=0)
 
     assert "bit" in attrs
@@ -241,7 +242,7 @@ def AttributesToAttribute(attrs: AttributesImpl) -> Attribute:
     else:
         # TODO: we should NOT have this, however we are now lenient
         # to bad input data
-        log.error("Attribute '%s' has no type", attrs["name"])
+        log.error("Attribute '%s' has no type", attrs['name'])
         attr_type = "sint32"
 
     t = ParseType(attr_type)
@@ -274,7 +275,11 @@ def AttributesToEvent(attrs: AttributesImpl) -> Event:
     else:
         priority = EventPriority.INFO
 
-    return Event(name=NormalizeName(attrs["name"]), code=ParseInt(attrs["id"]), priority=priority, fields=[])
+    return Event(
+        name=NormalizeName(attrs["name"]),
+        code=ParseInt(attrs["id"]),
+        priority=priority,
+        fields=[])
 
 
 def StringToAccessPrivilege(value: str) -> AccessPrivilege:
@@ -294,7 +299,7 @@ def AttributesToCommand(attrs: AttributesImpl) -> Command:
     assert "name" in attrs
 
     if "response" not in attrs:
-        log.warning("Command '%s' has no response set.", attrs["name"])
+        log.warning("Command '%s' has no response set.", attrs['name'])
         # Matter IDL has no concept of "no response sent"
         # Example is DoorLock::"Operating Event Notification"
         #
@@ -311,5 +316,5 @@ def AttributesToCommand(attrs: AttributesImpl) -> Command:
         name=NormalizeName(attrs["name"]),
         code=ParseInt(attrs["id"]),
         input_param=None,  # not specified YET
-        output_param=output_param,
+        output_param=output_param
     )

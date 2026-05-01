@@ -97,5 +97,5 @@ if __name__ == "__main__":
         Path(args.routing_config_dir),
         Path(args.cert) if not args.http else None,
         Path(args.key) if not args.http else None,
-        use_https=not args.http,
+        use_https=not args.http
     )

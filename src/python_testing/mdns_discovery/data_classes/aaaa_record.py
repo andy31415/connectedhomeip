@@ -32,7 +32,6 @@ class AddressTypeInfo:
     Each flag indicates whether the address belongs to a specific
     address category defined in IPv4/IPv6 standards.
     """
-
     # True if the address is globally routable on the Internet
     # (e.g., IPv6 2000::/3 or IPv4 public ranges).
     is_global: bool
@@ -57,7 +56,6 @@ class SpecialAddressTypes:
     from or mapped to IPv4. Used to identify and annotate IPv6 addresses
     with special handling or semantics.
     """
-
     # IPv6 address derived from a Teredo tunnel (2001::/32 range).
     # Used for NAT traversal — wraps IPv4 inside IPv6.
     teredo: Optional[str]
@@ -81,7 +79,6 @@ class AddressMeta:
     Metadata about an IP address, capturing low-level details useful
     for classification, serialization, or storage.
     """
-
     # The maximum number of bits in the address prefix.
     # IPv4 = 32, IPv6 = 128.
     max_prefixlen: int
@@ -135,7 +132,7 @@ def get_valid_compressed_ipv6(ipv6: IPv6Address) -> str:
     Validates the address format and raises if invalid.
     """
     # This raises if format is invalid. Drop everything after the first `%` if one exists.
-    return str(IPv6Address(str(ipv6).split("%", 1)[0]))
+    return str(IPv6Address(str(ipv6).split('%', 1)[0]))
 
 
 def get_interface(scope_id: str | int | None) -> str | int | None:

@@ -716,8 +716,8 @@ void ContentAppFactoryImpl::InstallContentApp(uint16_t vendorId, uint16_t produc
 
         std::shared_ptr<DevicePairedCommand> pairingCommand = std::make_shared<DevicePairedCommand>(vendorId, productId, nodeId);
 
-        TEMPORARY_RETURN_IGNORED GetDeviceCommissioner() -> GetConnectedDevice(nodeId, &pairingCommand->mOnDeviceConnectedCallback,
-                                                                               &pairingCommand->mOnDeviceConnectionFailureCallback);
+        TEMPORARY_RETURN_IGNORED GetDeviceCommissioner()->GetConnectedDevice(nodeId, &pairingCommand->mOnDeviceConnectedCallback,
+                                                                             &pairingCommand->mOnDeviceConnectionFailureCallback);
     }
 #endif // CHIP_DEVICE_CONFIG_ENABLE_BOTH_COMMISSIONER_AND_COMMISSIONEE
 }

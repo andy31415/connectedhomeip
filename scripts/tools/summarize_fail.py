@@ -10,7 +10,7 @@ from slugify import slugify
 
 log = logging.getLogger(__name__)
 
-yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
 
 with open("scripts/tools/build_fail_definitions.yaml", "r") as fail_defs:
     try:
@@ -25,9 +25,7 @@ def pass_fail_rate(workflow):
     if not os.path.exists(workflow_fail_rate_output_path):
         os.makedirs(workflow_fail_rate_output_path)
         subprocess.run(
-            f"gh run list -R project-chip/connectedhomeip -b master -w '{workflow}' -L 500 --created {yesterday} --json conclusion > {workflow_fail_rate_output_path}/run_list.json",
-            shell=True,
-        )
+            f"gh run list -R project-chip/connectedhomeip -b master -w '{workflow}' -L 500 --created {yesterday} --json conclusion > {workflow_fail_rate_output_path}/run_list.json", shell=True)
     else:
         log.info("This workflow has already been processed.")
 
@@ -60,9 +58,7 @@ def process_fail(id, pr, start_time, workflow):
 def main():
     log.info("Gathering recent fails information into fail_run_list.json.")
     subprocess.run(
-        f"gh run list -R project-chip/connectedhomeip -b master -s failure -L 500 --created {yesterday} --json databaseId,displayTitle,startedAt,workflowName > fail_run_list.json",
-        shell=True,
-    )
+        f"gh run list -R project-chip/connectedhomeip -b master -s failure -L 500 --created {yesterday} --json databaseId,displayTitle,startedAt,workflowName > fail_run_list.json", shell=True)
 
     log.info("Reading fail_run_list.json into a DataFrame.")
     df = pd.read_json("fail_run_list.json")
@@ -75,9 +71,8 @@ def main():
     df.to_csv("recent_fails.csv", index=False)
 
     log.info("Listing frequency of recent fails by workflow.")
-    frequency = (
-        df["Workflow"].value_counts(normalize=True).mul(100).round().astype(str).reset_index(name="Percentage")
-    )  # Reformat this from "50.0" to "50%"
+    frequency = df["Workflow"].value_counts(normalize=True).mul(100).round().astype(
+        str).reset_index(name="Percentage")  # Reformat this from "50.0" to "50%"
     print("Share of Recent Fails by Workflow:")
     print(frequency.to_string(index=False))
     print()
@@ -85,9 +80,7 @@ def main():
 
     log.info("Gathering recent runs information into all_run_list.json.")
     subprocess.run(
-        f"gh run list -R project-chip/connectedhomeip -b master -L 5000 --created {yesterday} --json workflowName > all_run_list.json",
-        shell=True,
-    )
+        f"gh run list -R project-chip/connectedhomeip -b master -L 5000 --created {yesterday} --json workflowName > all_run_list.json", shell=True)
 
     log.info("Reading all_run_list.json into a DataFrame.")
     all_df = pd.read_json("all_run_list.json")
@@ -97,9 +90,8 @@ def main():
     all_df.apply(lambda row: pass_fail_rate(row["Workflow"]), axis=1)
 
     log.info("Conducting fail information parsing.")
-    root_causes = df.apply(
-        lambda row: process_fail(row["ID"], row["Pull Request"], row["Start Time"], row["Workflow"]), axis=1, result_type="expand"
-    )
+    root_causes = df.apply(lambda row: process_fail(row["ID"], row["Pull Request"],
+                           row["Start Time"], row["Workflow"]), axis=1, result_type="expand")
     root_causes.columns = ["Pull Request", "Workflow", "Cause of Failure"]
     print("Likely Root Cause of Recent Fails:")
     print(root_causes.to_string(index=False))
@@ -118,7 +110,7 @@ def main():
             pass_rate[workflow] = [info.value_counts(normalize=True).mul(100).round()["success"]]
         except Exception:
             pass_rate[workflow] = [0.0]
-    pass_rate = pd.DataFrame.from_dict(pass_rate, "index", columns=["Pass Rate"]).sort_values("Pass Rate")
+    pass_rate = pd.DataFrame.from_dict(pass_rate, 'index', columns=["Pass Rate"]).sort_values("Pass Rate")
     print("Recent Pass Rate of Each Workflow:")
     pass_rate.to_markdown("docs/daily_pass_percentage.md")
     pass_rate_sql = sqlite3.connect("workflow_pass_rate.sqlite3")
