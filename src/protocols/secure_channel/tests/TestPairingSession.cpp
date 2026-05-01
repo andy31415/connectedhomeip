@@ -32,6 +32,7 @@
 #include <lib/support/tests/ExtraPwTestMacros.h>
 #include <messaging/ReliableMessageProtocolConfig.h>
 #include <protocols/secure_channel/PairingSession.h>
+#include <platform/PlatformManager.h>
 #include <system/SystemClock.h>
 #include <system/TLVPacketBufferBackingStore.h>
 
@@ -63,6 +64,55 @@ public:
 
     using PairingSession::DecodeSessionParametersIfPresent;
 };
+
+class MockSessionEstablishmentDelegate : public SessionEstablishmentDelegate
+{
+public:
+    bool errorCalled = false;
+    void OnSessionEstablishmentError(CHIP_ERROR error, SessionEstablishmentStage stage) override
+    {
+        errorCalled = true;
+    }
+    void OnSessionEstablished(const SessionHandle & session) override {}
+    void OnResponderBusy(System::Clock::Milliseconds16 requestedDelay) override {}
+};
+
+class ObservablePairingSession : public PairingSession
+{
+public:
+    Transport::SecureSession::Type GetSecureSessionType() const override { return Transport::SecureSession::Type::kPASE; }
+    ScopedNodeId GetPeer() const override { return ScopedNodeId(); }
+    ScopedNodeId GetLocalScopedNodeId() const override { return ScopedNodeId(); }
+    CATValues GetPeerCATs() const override { return CATValues(); };
+    CHIP_ERROR DeriveSecureSession(CryptoContext & session) override { return CHIP_NO_ERROR; }
+
+    void SetRole(CryptoContext::SessionRole role) { mRole = role; }
+    void SetDelegate(SessionEstablishmentDelegate * delegate) { mDelegate = delegate; }
+    void SetSessionManager(SessionManager * sm) { mSessionManager = sm; }
+};
+
+TEST_F(TestPairingSession, TestOnSessionReleasedIsAsync)
+{
+    ASSERT_EQ(chip::DeviceLayer::PlatformMgr().InitChipStack(), CHIP_NO_ERROR);
+
+    MockSessionEstablishmentDelegate delegate;
+    ObservablePairingSession session;
+    
+    session.SetDelegate(&delegate);
+    session.SetRole(CryptoContext::SessionRole::kInitiator);
+
+    session.OnSessionReleased();
+
+    EXPECT_FALSE(delegate.errorCalled);
+
+    EXPECT_SUCCESS(chip::DeviceLayer::PlatformMgr().ScheduleWork(
+        [](intptr_t) -> void { EXPECT_SUCCESS(chip::DeviceLayer::PlatformMgr().StopEventLoopTask()); }, 0));
+    chip::DeviceLayer::PlatformMgr().RunEventLoop();
+
+    EXPECT_TRUE(delegate.errorCalled);
+
+    chip::DeviceLayer::PlatformMgr().Shutdown();
+}
 
 TEST_F(TestPairingSession, PairingSessionEncodeDecodeMRPParams)
 {
