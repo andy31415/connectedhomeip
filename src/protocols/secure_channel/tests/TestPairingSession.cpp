@@ -102,8 +102,9 @@ TEST_F(TestPairingSession, TestOnSessionReleasedIsAsync)
 
     EXPECT_FALSE(delegate.errorCalled);
 
-    EXPECT_SUCCESS(chip::DeviceLayer::PlatformMgr().ScheduleWork(
-        [](intptr_t) -> void { EXPECT_SUCCESS(chip::DeviceLayer::PlatformMgr().StopEventLoopTask()); }, 0));
+    CHIP_ERROR err = chip::DeviceLayer::PlatformMgr().ScheduleWork(
+        [](intptr_t) -> void { EXPECT_SUCCESS(chip::DeviceLayer::PlatformMgr().StopEventLoopTask()); }, 0);
+    EXPECT_SUCCESS(err);
     chip::DeviceLayer::PlatformMgr().RunEventLoop();
 
     EXPECT_TRUE(delegate.errorCalled);
