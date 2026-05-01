@@ -40,6 +40,7 @@ _all_devices_all_enabled = all_devices_enabled_devices == []
 # IMPORTANT:
 #   - Keep list in sync with enabled_devices.cmake
 #   - Remember to also update enabled_devices_config.h.in
+#   - Update scripts/build/build/targets.py to include the new device
 _available_devices = [
   [
     "chime",

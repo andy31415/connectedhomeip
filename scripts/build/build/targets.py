@@ -36,6 +36,20 @@ from builders.tizen import TizenApp, TizenBoard, TizenBuilder
 
 from .target import BuildTarget, TargetPart
 
+_ALL_DEVICES_APP_DEVICES = [
+    # keep-sorted: start
+    'chime',
+    'contact-sensor',
+    'dimmable-light',
+    'occupancy-sensor',
+    'on-off-light',
+    'soil-sensor',
+    'speaker',
+    'temperature-sensor',
+    'water-leak-detector',
+    # keep-sorted: end
+]
+
 
 def BuildHostTestRunnerTarget():
     target = BuildTarget(HostBoard.NATIVE.PlatformName(), HostBuilder)
@@ -213,9 +227,7 @@ def BuildHostTarget():
     # Single-device subset builds for all-devices-app.
     # Each modifier selects exactly one device; the binary is named example-device-app.
     # Multi-device subsets can be built directly with gn gen --args.
-    for _device in [
-            'chime', 'contact-sensor', 'dimmable-light', 'occupancy-sensor',
-            'on-off-light', 'soil-sensor', 'speaker', 'water-leak-detector']:
+    for _device in _ALL_DEVICES_APP_DEVICES:
         target.AppendModifier(_device, all_devices_enabled_devices=[_device]).OnlyIfRe('-all-devices')
     target.AppendModifier('unified', unified=True).OnlyIfRe(
         "-(" + "|".join([
@@ -274,9 +286,7 @@ def BuildEsp32Target():
     target.AppendModifier('tracing', enable_insights_trace=True).OnlyIfRe("light")
 
     # Single-device subset builds for all-devices-app.
-    for _device in [
-            'chime', 'contact-sensor', 'dimmable-light', 'occupancy-sensor',
-            'on-off-light', 'soil-sensor', 'speaker', 'water-leak-detector']:
+    for _device in _ALL_DEVICES_APP_DEVICES:
         target.AppendModifier(_device, all_devices_enabled_devices=[_device]).OnlyIfRe('-all-devices')
 
     return target
