@@ -147,7 +147,7 @@ restylers:
           - "**/*.java"
       interpreters: []
     - name: clang-format
-      enabled: true
+      enabled: false # Moved to pre-commit.ci
       image: restyled/restyler-clang-format:v16.0.6
       command:
           - clang-format
@@ -236,6 +236,7 @@ restylers:
     #       then autopep8 and isort can fix. Also, the isort needs to run last
     #       because autopep8 may reformat import lines without sorting them.
     - name: ruff
+      enabled: false # Moved to pre-commit.ci
       image: public.ecr.aws/restyled-io/restyler-ruff:v0.14
       command:
           - ruff
