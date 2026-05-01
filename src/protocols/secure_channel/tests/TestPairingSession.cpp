@@ -31,8 +31,8 @@
 #include <lib/support/CodeUtils.h>
 #include <lib/support/tests/ExtraPwTestMacros.h>
 #include <messaging/ReliableMessageProtocolConfig.h>
-#include <protocols/secure_channel/PairingSession.h>
 #include <platform/PlatformManager.h>
+#include <protocols/secure_channel/PairingSession.h>
 #include <system/SystemClock.h>
 #include <system/TLVPacketBufferBackingStore.h>
 
@@ -69,10 +69,7 @@ class MockSessionEstablishmentDelegate : public SessionEstablishmentDelegate
 {
 public:
     bool errorCalled = false;
-    void OnSessionEstablishmentError(CHIP_ERROR error, SessionEstablishmentStage stage) override
-    {
-        errorCalled = true;
-    }
+    void OnSessionEstablishmentError(CHIP_ERROR error, SessionEstablishmentStage stage) override { errorCalled = true; }
     void OnSessionEstablished(const SessionHandle & session) override {}
     void OnResponderBusy(System::Clock::Milliseconds16 requestedDelay) override {}
 };
@@ -97,7 +94,7 @@ TEST_F(TestPairingSession, TestOnSessionReleasedIsAsync)
 
     MockSessionEstablishmentDelegate delegate;
     ObservablePairingSession session;
-    
+
     session.SetDelegate(&delegate);
     session.SetRole(CryptoContext::SessionRole::kInitiator);
 

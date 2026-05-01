@@ -295,7 +295,7 @@ void PairingSession::OnSessionReleased()
     //      and that is not safe under OnSessionReleased
     TEMPORARY_RETURN_IGNORED DeviceLayer::PlatformMgr().ScheduleWork(
         [](intptr_t appState) -> void {
-            ChipLogError(Inet, "ASYNC CASE Session establishment failed");
+            ChipLogError(Inet, "ASYNC Secure Session establishment failed");
             auto * _this = reinterpret_cast<PairingSession *>(appState);
             _this->NotifySessionEstablishmentError(CHIP_ERROR_CONNECTION_ABORTED);
         },
