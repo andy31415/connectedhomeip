@@ -51,7 +51,6 @@ rm -f "$root"/sdkconfig
     exit 1
 }
 
-
 # Figuring out ELF name:
 #   - assume project(<NAME>) contains the name
 #   - in case this is dynamic (e.g. all-devices-app does that), then
