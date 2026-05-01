@@ -248,4 +248,3 @@ restylers:
     - name: isort
       enabled: false # Moved to pre-commit.ci
       image: public.ecr.aws/restyled-io/restyler-isort:v7.0
-
