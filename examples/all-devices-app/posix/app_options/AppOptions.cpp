@@ -121,9 +121,10 @@ bool AppOptions::AllDevicesAppOptionHandler(const char * program, OptionSet * op
 
         if (mDeviceConfigs.empty())
         {
-            ChipLogError(Support, "Warning: --endpoint specified before --device. Creating default 'contact-sensor'.");
+            ChipLogError(Support, "Warning: --endpoint specified before --device. Creating default '%s'.",
+                         chip::app::DeviceFactory::GetInstance().GetDefaultDevice().c_str());
             DeviceConfig config;
-            config.type     = "contact-sensor";
+            config.type     = chip::app::DeviceFactory::GetInstance().GetDefaultDevice();
             config.endpoint = ep;
             mDeviceConfigs.push_back(std::move(config));
         }
