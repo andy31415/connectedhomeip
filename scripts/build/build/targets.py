@@ -170,6 +170,12 @@ def BuildHostTarget():
         TargetPart('closure', app=HostApp.CLOSURE),
     ]
 
+    # Single-device subset builds for all-devices-app.
+    # Each modifier selects exactly one device; the binary is named example-device-app.
+    # Multi-device subsets can be built directly with gn gen --args.
+    for _device in _ALL_DEVICES_APP_DEVICES:
+        app_parts.append(TargetPart(f'all-devices-{_device}', app=HostApp.ALL_DEVICES_APP, all_devices_enabled_devices=[_device]))
+
     if (HostBoard.NATIVE.PlatformName() == 'darwin'):
         app_parts.append(TargetPart('darwin-framework-tool',
                          app=HostApp.CHIP_TOOL_DARWIN))
@@ -224,11 +230,6 @@ def BuildHostTarget():
     target.AppendModifier('webrtc', enable_webrtc=True)
     target.AppendModifier('endpoint-unique-id', chip_enable_endpoint_unique_id=True)
 
-    # Single-device subset builds for all-devices-app.
-    # Each modifier selects exactly one device; the binary is named example-device-app.
-    # Multi-device subsets can be built directly with gn gen --args.
-    for _device in _ALL_DEVICES_APP_DEVICES:
-        target.AppendModifier(_device, all_devices_enabled_devices=[_device]).OnlyIfRe('-all-devices')
     target.AppendModifier('unified', unified=True).OnlyIfRe(
         "-(" + "|".join([
             # keep-sorted start
@@ -262,7 +263,7 @@ def BuildEsp32Target():
     ])
 
     # applications
-    target.AppendFixedTargets([
+    app_parts = [
         TargetPart('all-clusters', app=Esp32App.ALL_CLUSTERS),
         TargetPart('all-clusters-minimal', app=Esp32App.ALL_CLUSTERS_MINIMAL),
         TargetPart('all-devices', app=Esp32App.ALL_DEVICES),
@@ -279,15 +280,18 @@ def BuildEsp32Target():
                    app=Esp32App.TEMPERATURE_MEASUREMENT),
         TargetPart('ota-requestor', app=Esp32App.OTA_REQUESTOR),
         TargetPart('tests', app=Esp32App.TESTS).OnlyIfRe('-qemu-'),
-    ])
+    ]
+    # Single-device subset builds for all-devices-app.
+    # Each modifier selects exactly one device; the binary is named example-device-app.
+    # Multi-device subsets can be built directly with gn gen --args.
+    for _device in _ALL_DEVICES_APP_DEVICES:
+        app_parts.append(TargetPart(f'all-devices-{_device}', app=Esp32App.ALL_DEVICES, all_devices_enabled_devices=[_device]))
+
+    target.AppendFixedTargets(app_parts)
 
     target.AppendModifier('rpc', enable_rpcs=True)
     target.AppendModifier('ipv6only', enable_ipv4=False)
     target.AppendModifier('tracing', enable_insights_trace=True).OnlyIfRe("light")
-
-    # Single-device subset builds for all-devices-app.
-    for _device in _ALL_DEVICES_APP_DEVICES:
-        target.AppendModifier(_device, all_devices_enabled_devices=[_device]).OnlyIfRe('-all-devices')
 
     return target
 
