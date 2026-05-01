@@ -1,27 +1,27 @@
 exclude: |
-  (?x)^(
-      third_party/|
-      out/|
-      examples/chef/zzz_generated/|
-      zzz_generated/|
-      src/controller/python/matter/clusters/Objects.py|
-      src/controller/python/matter/clusters/CHIPClusters.py
-  )
+    (?x)^(
+        third_party/|
+        out/|
+        examples/chef/zzz_generated/|
+        zzz_generated/|
+        src/controller/python/matter/clusters/Objects.py|
+        src/controller/python/matter/clusters/CHIPClusters.py
+    )
 
 repos:
-  - repo: https://github.com/google/keep-sorted
-    rev: c71803fd297b5736f3bfab1cfd84424ca52e961a # v0.7.1
-    hooks:
-      - id: keep-sorted
+    - repo: https://github.com/google/keep-sorted
+      rev: c71803fd297b5736f3bfab1cfd84424ca52e961a # v0.7.1
+      hooks:
+          - id: keep-sorted
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 41d2daf392fbf43341a77f24a9c6481a4b66af98 # v0.9.10
-    hooks:
-      - id: ruff
-        args: [--fix]
-      - id: ruff-format
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      rev: 41d2daf392fbf43341a77f24a9c6481a4b66af98 # v0.9.10
+      hooks:
+          - id: ruff
+            args: [--fix]
+          - id: ruff-format
 
-  - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: f6446549e5e97ec9665b9b03e75b87b445857f9a # v18.1.3
-    hooks:
-      - id: clang-format
+    - repo: https://github.com/pre-commit/mirrors-clang-format
+      rev: f6446549e5e97ec9665b9b03e75b87b445857f9a # v18.1.3
+      hooks:
+          - id: clang-format
