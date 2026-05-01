@@ -39,8 +39,11 @@ const std::vector<AppOptions::DeviceConfig> & AppOptions::GetDeviceConfigs()
 {
     if (mDeviceConfigs.empty())
     {
-        static const std::vector<DeviceConfig> kDefault = { { "contact-sensor", 1 } };
-        return kDefault;
+        mDeviceConfigs.push_back({
+            .type     = chip::app::DeviceFactory::GetInstance().GetDefaultDevice(),
+            .endpoint = kInvalidEndpointId,
+        });
+        return mDeviceConfigs;
     }
     return mDeviceConfigs;
 }
