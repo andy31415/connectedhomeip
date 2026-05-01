@@ -175,7 +175,7 @@ private:
         }
         if constexpr (ALL_DEVICES_ENABLE_TEMPERATURE_SENSOR)
         {
-            mRegistry["temperature-sensor"] = []() { return std::make_unique<IncreasingTemperatureSensorDevice>(); };
+            RegisterCreator("temperature-sensor", []() { return std::make_unique<IncreasingTemperatureSensorDevice>(); });
         }
     }
 };

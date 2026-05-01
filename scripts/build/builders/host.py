@@ -823,6 +823,7 @@ class HostBuilder(GnBuilder):
     def _AllDevicesOutputName(self):
         """Return the binary name produced by the all-devices-app build."""
         if self.all_devices_enabled_devices:
+            # device built with all-examples does not change the name.
             return 'example-device-app'
         return 'all-devices-app'
 

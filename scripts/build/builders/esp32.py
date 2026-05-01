@@ -292,6 +292,7 @@ class Esp32Builder(Builder):
     def _AllDevicesOutputName(self):
         """Return the binary base name produced by the all-devices-app build."""
         if self.all_devices_enabled_devices:
+            # this builder does not support alterting the name
             return 'example-device-app'
         return 'all-devices-app'
 
