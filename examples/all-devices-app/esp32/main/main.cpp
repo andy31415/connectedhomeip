@@ -261,7 +261,7 @@ chip::app::DataModel::Provider * PopulateCodeDrivenDataModelProvider(PersistentS
 
     if (gConstructedDevice == nullptr)
     {
-        ESP_LOGE(TAG, "Failed to create device of type: %s", deviceType);
+        ESP_LOGE(TAG, "Failed to create device of type: %s", gDeviceType.c_str());
         return nullptr;
     }
 
