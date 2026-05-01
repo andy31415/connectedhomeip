@@ -287,27 +287,19 @@ void PairingSession::NotifySessionEstablishmentError(CHIP_ERROR error, SessionEs
 
 void PairingSession::OnSessionReleased()
 {
-    if (mRole == CryptoContext::SessionRole::kInitiator)
-    {
-        NotifySessionEstablishmentError(CHIP_ERROR_CONNECTION_ABORTED);
-        return;
-    }
-
-    // Send the error notification async, because our delegate is likely to want
-    // to create a new session to listen for new connection attempts, and doing
-    // that under an OnSessionReleased notification is not safe.
-    if (!mSessionManager)
-    {
-        return;
-    }
-
-    TEMPORARY_RETURN_IGNORED mSessionManager->SystemLayer()->ScheduleWork(
-        [](auto * systemLayer, auto * appState) -> void {
+    // Always notify async, as the error notification may be the final
+    // call that uses the session (and frees it). Essentially we have:
+    //    - in any case, session may be freed by the notification
+    //    - in the kResponder case, the delegate is likely to want to
+    //      create a new session to listen for new connection attempts
+    //      and that is not safe under OnSessionReleased
+    TEMPORARY_RETURN_IGNORED DeviceLayer::PlatformMgr().ScheduleWork(
+        [](intptr_t appState) -> void {
             ChipLogError(Inet, "ASYNC CASE Session establishment failed");
-            auto * _this = static_cast<PairingSession *>(appState);
+            auto * _this = reinterpret_cast<PairingSession *>(appState);
             _this->NotifySessionEstablishmentError(CHIP_ERROR_CONNECTION_ABORTED);
         },
-        this);
+        reinterpret_cast<intptr_t>(this));
 }
 
 } // namespace chip

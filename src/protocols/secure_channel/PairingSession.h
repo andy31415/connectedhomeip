@@ -53,6 +53,10 @@ public:
 
     // Implement SessionDelegate
     NewSessionHandlingPolicy GetNewSessionHandlingPolicy() override { return NewSessionHandlingPolicy::kStayAtOldSession; }
+
+    // NOTE: PairingSession will process notifications ASYNC and guarantees
+    //       that "this" is still valid after the call return (i.e. this will not free
+    //       self, but MAY schedule a call to free the session at a later time).
     void OnSessionReleased() override;
 
     Optional<uint16_t> GetLocalSessionId() const
