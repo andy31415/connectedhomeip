@@ -77,8 +77,6 @@ static const char TAG[] = "all-devices-app";
 // NVS key for storing the device type across reboots
 static const ESP32Config::Key kConfigKey_DeviceType{ ESP32Config::kConfigNamespace_ChipConfig, "dev-type" };
 
-static std::string gDeviceType = "contact-sensor";
-
 static const size_t kMaxDeviceTypeLength = 64;
 
 namespace {
@@ -220,28 +218,28 @@ chip::app::DataModel::Provider * PopulateCodeDrivenDataModelProvider(PersistentS
     }
 
     gRootNodeDevice = std::make_unique<WifiRootNodeDevice>(
-        RootNodeDevice::Context {
-            .commissioningWindowManager           = Server::GetInstance().GetCommissioningWindowManager(),   //
-                .configurationManager             = DeviceLayer::ConfigurationMgr(),                         //
-                .deviceControlServer              = DeviceLayer::DeviceControlServer::DeviceControlSvr(),    //
-                .fabricTable                      = Server::GetInstance().GetFabricTable(),                  //
-                .accessControl                    = Server::GetInstance().GetAccessControl(),                //
-                .persistentStorage                = Server::GetInstance().GetPersistentStorage(),            //
-                .failSafeContext                  = Server::GetInstance().GetFailSafeContext(),              //
-                .deviceInstanceInfoProvider       = *provider,                                               //
-                .platformManager                  = DeviceLayer::PlatformMgr(),                              //
-                .groupDataProvider                = gGroupDataProvider,                                      //
-                .sessionManager                   = Server::GetInstance().GetSecureSessionManager(),         //
-                .dnssdServer                      = DnssdServer::Instance(),                                 //
-                .deviceLoadStatusProvider         = *InteractionModelEngine::GetInstance(),                  //
-                .diagnosticDataProvider           = DeviceLayer::GetDiagnosticDataProvider(),                //
-                .testEventTriggerDelegate         = testEventTriggerDelegate,                                //
-                .dacProvider                      = *Credentials::GetDeviceAttestationCredentialsProvider(), //
-                .eventManagement                  = EventManagement::GetInstance(),                          //
-                .safeAttributePersistenceProvider = gSafeAttributePersistenceProvider,                       //
-                .timerDelegate                    = gTimerDelegate,                                          //
+        RootNodeDevice::Context{
+            .commissioningWindowManager       = Server::GetInstance().GetCommissioningWindowManager(),   //
+            .configurationManager             = DeviceLayer::ConfigurationMgr(),                         //
+            .deviceControlServer              = DeviceLayer::DeviceControlServer::DeviceControlSvr(),    //
+            .fabricTable                      = Server::GetInstance().GetFabricTable(),                  //
+            .accessControl                    = Server::GetInstance().GetAccessControl(),                //
+            .persistentStorage                = Server::GetInstance().GetPersistentStorage(),            //
+            .failSafeContext                  = Server::GetInstance().GetFailSafeContext(),              //
+            .deviceInstanceInfoProvider       = *provider,                                               //
+            .platformManager                  = DeviceLayer::PlatformMgr(),                              //
+            .groupDataProvider                = gGroupDataProvider,                                      //
+            .sessionManager                   = Server::GetInstance().GetSecureSessionManager(),         //
+            .dnssdServer                      = DnssdServer::Instance(),                                 //
+            .deviceLoadStatusProvider         = *InteractionModelEngine::GetInstance(),                  //
+            .diagnosticDataProvider           = DeviceLayer::GetDiagnosticDataProvider(),                //
+            .testEventTriggerDelegate         = testEventTriggerDelegate,                                //
+            .dacProvider                      = *Credentials::GetDeviceAttestationCredentialsProvider(), //
+            .eventManagement                  = EventManagement::GetInstance(),                          //
+            .safeAttributePersistenceProvider = gSafeAttributePersistenceProvider,                       //
+            .timerDelegate                    = gTimerDelegate,                                          //
 #if CHIP_CONFIG_TERMS_AND_CONDITIONS_REQUIRED
-                .termsAndConditionsProvider = TermsAndConditionsManager::GetInstance(),
+            .termsAndConditionsProvider = TermsAndConditionsManager::GetInstance(),
 #endif // CHIP_CONFIG_TERMS_AND_CONDITIONS_REQUIRED
         },
         WifiRootNodeDevice::WifiContext{
@@ -254,9 +252,11 @@ chip::app::DataModel::Provider * PopulateCodeDrivenDataModelProvider(PersistentS
         return nullptr;
     }
 
-    // Default to contact-sensor device type
-    const char * deviceType = gDeviceType.c_str();
-    gConstructedDevice      = DeviceFactory::GetInstance().Create(deviceType);
+    // TODO: we should add some way to create non-default devices. Ideas:
+    //       - load from NVRAM a setting that can be set via shell/ui/rpc (like factory data)
+    const std::string deviceType = DeviceFactory::GetInstance().GetDefaultDevice();
+    gConstructedDevice           = DeviceFactory::GetInstance().Create(deviceType);
+
     if (gConstructedDevice == nullptr)
     {
         ESP_LOGE(TAG, "Failed to create device of type: %s", deviceType);
