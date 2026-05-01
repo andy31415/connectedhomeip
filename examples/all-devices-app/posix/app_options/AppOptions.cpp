@@ -39,11 +39,16 @@ const std::vector<DeviceTypeParser::Entry> & AppOptions::GetDeviceTypeEntries()
     const auto & entries = sParser.GetDeviceTypeEntries();
     if (entries.empty())
     {
-        mDeviceConfigs.push_back({
-            .type     = chip::app::DeviceFactory::GetInstance().GetDefaultDevice(),
-            .endpoint = 1,
-        });
-        return mDeviceConfigs;
+        static const auto gDefault = [] {
+            std::vector<DeviceTypeParser::Entry> values;
+            values.push_back({
+                .type     = chip::app::DeviceFactory::GetInstance().GetDefaultDevice(),
+                .endpoint = 1,
+            });
+            return values;
+        }();
+
+        return gDefault;
     }
     return entries;
 }
