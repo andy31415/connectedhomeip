@@ -76,7 +76,7 @@ static const char TAG[] = "all-devices-app";
 
 // NVS key for storing the device type across reboots
 static const ESP32Config::Key kConfigKey_DeviceType{ ESP32Config::kConfigNamespace_ChipConfig, "dev-type" };
-
+static std::string gDeviceType;
 static const size_t kMaxDeviceTypeLength = 64;
 
 namespace {
@@ -252,10 +252,12 @@ chip::app::DataModel::Provider * PopulateCodeDrivenDataModelProvider(PersistentS
         return nullptr;
     }
 
-    // TODO: we should add some way to create non-default devices. Ideas:
-    //       - load from NVRAM a setting that can be set via shell/ui/rpc (like factory data)
-    const std::string deviceType = DeviceFactory::GetInstance().GetDefaultDevice();
-    gConstructedDevice           = DeviceFactory::GetInstance().Create(deviceType);
+    // figure out the default
+    if (gDeviceType.empty())
+    {
+        gDeviceType = DeviceFactory::GetInstance().GetDefaultDevice();
+    }
+    gConstructedDevice = DeviceFactory::GetInstance().Create(gDeviceType);
 
     if (gConstructedDevice == nullptr)
     {

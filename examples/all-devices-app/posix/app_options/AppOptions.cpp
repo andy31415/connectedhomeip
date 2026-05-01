@@ -41,7 +41,7 @@ const std::vector<AppOptions::DeviceConfig> & AppOptions::GetDeviceConfigs()
     {
         mDeviceConfigs.push_back({
             .type     = chip::app::DeviceFactory::GetInstance().GetDefaultDevice(),
-            .endpoint = kInvalidEndpointId,
+            .endpoint = 1,
         });
         return mDeviceConfigs;
     }
