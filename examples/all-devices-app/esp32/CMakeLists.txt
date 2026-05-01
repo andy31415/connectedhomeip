@@ -43,6 +43,13 @@ elseif(ALL_DEVICES_ENABLED_DEVICES)
 else()
     set(_all_devices_project_name "all-devices-app")
 endif()
+
+# NOTE: esp_example.sh build wants to find the output name and generally uses
+#       the result of parsing `project(<NAME>)`. This does NOT work here, so we
+#       provide the comments below for choices to use.
+#
+# esp_example:project_name_choice: all-devices-app
+# esp_example:project_name_choice: example-device-app
 project(${_all_devices_project_name})
 
 # C++17 is required for the code-driven data model.

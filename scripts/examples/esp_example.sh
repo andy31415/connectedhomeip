@@ -42,6 +42,7 @@ source "scripts/activate.sh"
 # shellcheck source=/dev/null
 
 rm -f "$root"/sdkconfig
+
 (
     cd "$root"
     idf.py -D SDKCONFIG_DEFAULTS="$sdkconfig_name" set-target "$idf_target" build
@@ -50,6 +51,43 @@ rm -f "$root"/sdkconfig
     exit 1
 }
 
-project_name=$(grep -o 'project([^)]*)' "$root"/CMakeLists.txt | sed 's/project(\(.*\))/\1/')
 
-cp "$root"/build/"$project_name".elf "$root"/build/"${sdkconfig_name%".defaults"}"-"$project_name".elf
+# Figuring out ELF name:
+#   - assume project(<NAME>) contains the name
+#   - in case this is dynamic (e.g. all-devices-app does that), then
+#     parse comments of the form `esp_example:project_name_choice:<NAME>`
+
+choices=()
+
+# Extract project name from project() call if it's a literal
+project_name_fallback=$(grep -o 'project([^)]*)' "$root"/CMakeLists.txt | sed 's/project(\(.*\))/\1/')
+if [ -n "$project_name_fallback" ] && [[ ! "$project_name_fallback" =~ \$ ]]; then
+    choices+=("$project_name_fallback")
+fi
+
+# Extract choices from custom comments
+while IFS= read -r line; do
+    if [ -n "$line" ]; then
+        choices+=("$line")
+    fi
+done < <(grep '# esp_example:project_name_choice:' "$root"/CMakeLists.txt | sed 's/.*# esp_example:project_name_choice:[[:space:]]*//')
+
+# Find the newest elf file among choices
+found_elf=""
+for choice in "${choices[@]}"; do
+    candidate="$root/build/$choice.elf"
+    if [ -f "$candidate" ]; then
+        if [ -z "$found_elf" ] || [ "$candidate" -nt "$found_elf" ]; then
+            found_elf="$candidate"
+        fi
+    fi
+done
+
+if [ -z "$found_elf" ]; then
+    echo "No valid elf file found in $root/build/ among choices: ${choices[*]}"
+    exit 1
+fi
+
+project_name=$(basename "$found_elf" .elf)
+
+cp "$found_elf" "$root"/build/"${sdkconfig_name%".defaults"}"-"$project_name".elf
