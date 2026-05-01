@@ -5,7 +5,11 @@ exclude: |
         examples/chef/zzz_generated/|
         zzz_generated/|
         src/controller/python/matter/clusters/Objects.py|
-        src/controller/python/matter/clusters/CHIPClusters.py
+        src/controller/python/matter/clusters/CHIPClusters.py|
+        scripts/py_matter_idl/matter/idl/tests/outputs/|
+        scripts/tools/zap/tests/outputs/|
+        src/darwin/Framework/CHIP/zap-generated/|
+        examples/tv-casting-app/darwin/MatterTvCastingBridge/MatterTvCastingBridge/zap-generated/
     )
 
 repos:
