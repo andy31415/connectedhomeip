@@ -45,10 +45,10 @@ def BuildHostTestRunnerTarget():
     ])
 
     target.AppendFixedTargets([
-        TargetPart('efr32-test-runner', app=HostApp.EFR32_TEST_RUNNER)
+        TargetPart(    'efr32-test-runner', app=HostApp.EFR32_TEST_RUNNER)
     ])
 
-    target.AppendModifier('clang', use_clang=True)
+    target.AppendModifier('clang', use_clang = True)
 
     return target
 

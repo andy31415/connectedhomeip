@@ -39,9 +39,9 @@
 #include <protocols/secure_channel/SessionEstablishmentExchangeDispatch.h>
 #include <system/SystemPacketBuffer.h>
 #include <system/TLVPacketBufferBackingStore.h>
-#include <transport/CryptoContext.h>
 #include <transport/raw/MessageHeader.h>
 #include <transport/raw/PeerAddress.h>
+#include <transport/CryptoContext.h>
 
 namespace chip {
 namespace Testing {
@@ -53,7 +53,7 @@ extern const char kSpake2pR2ISessionInfo[];
 inline constexpr uint16_t kPBKDFParamRandomNumberSize = 32;
 
 class DLL_EXPORT PASESession : public Messaging::UnsolicitedMessageHandler,
-                               public Messaging::ExchangeDelegate,
+                                                      public Messaging::ExchangeDelegate,
                                public PairingSession
 {
 public:
@@ -62,11 +62,10 @@ public:
     Transport::SecureSession::Type GetSecureSessionType() const override { return Transport::SecureSession::Type::kPASE; }
     ScopedNodeId GetPeer() const override
     {
-        return ScopedNodeId(NodeIdFromPAKEKeyId(kDefaultCommissioningPasscodeId), kUndefinedFabricIndex);
+        return ScopedNodeId(NodeIdFromPAKEKeyId(kDefaultCommissioningPasscodeId),      kUndefinedFabricIndex);
     }
 
-    ScopedNodeId GetLocalScopedNodeId() const override
-    {
+    ScopedNodeId GetLocalScopedNodeId() const override {
         // For PASE, source is always the undefined node ID
         return ScopedNodeId();
     }
