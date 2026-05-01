@@ -55,8 +55,12 @@ public:
     NewSessionHandlingPolicy GetNewSessionHandlingPolicy() override { return NewSessionHandlingPolicy::kStayAtOldSession; }
 
     // NOTE: PairingSession will process notifications ASYNC and guarantees
-    //       that "this" is still valid after the call return (i.e. this will not free
-    //       self, but MAY schedule a call to free the session at a later time).
+    //       that "this" remains valid after the call returns (i.e. this call will not
+    //       trigger the final call immediately, but may schedule it for later).
+    //
+    // MUST NOT clear the underlying delegate after calling this, as this call will
+    // schedule work to use the delegate in the future. Note specifically that ::Clear
+    // does not set mDelegate to nullptr.
     void OnSessionReleased() override;
 
     Optional<uint16_t> GetLocalSessionId() const
