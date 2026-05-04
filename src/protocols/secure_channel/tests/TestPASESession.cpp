@@ -497,4 +497,53 @@ TEST_F(TestPASESession, PASEVerifierSerializeTest)
     EXPECT_EQ(verifier.Serialize(serializedVerifier2Span), CHIP_NO_ERROR);
     EXPECT_EQ(memcmp(serializedVerifier, serializedVerifier2, kSpake2p_VerifierSerialized_Length), 0);
 }
+
+// A mock delegate designed to simulate synchronous object lifecycle sequences.
+// When an error occurs, it triggers the final execution sequence (deletion) of the
+// associated session instance to test liveness tracking robustness.
+class MockDestructivePASEDelegate : public SessionEstablishmentDelegate
+{
+public:
+    void SetSession(PASESession * session) { mSession = session; }
+
+    void OnSessionEstablishmentError(CHIP_ERROR error, SessionEstablishmentStage stage) override
+    {
+        if (mSession != nullptr)
+        {
+            chip::Platform::Delete(mSession);
+            mSession = nullptr;
+        }
+    }
+    void OnSessionEstablished(const SessionHandle & session) override {}
+    void OnResponderBusy(System::Clock::Milliseconds16 requestedDelay) override {}
+private:
+    PASESession * mSession = nullptr;
+};
+
+// A helper subclass that exposes protected members of PASESession (such as role and delegate)
+// to configure specific test state scenarios for lifecycle validation.
+class ObservablePASESession : public PASESession
+{
+public:
+    void SetRole(CryptoContext::SessionRole role) { mRole = role; }
+    void SetDelegate(SessionEstablishmentDelegate * delegate) { mDelegate = delegate; }
+};
+
+TEST_F(TestPASESession, TestOnSessionReleasedDestructive)
+{
+    auto * session = chip::Platform::New<ObservablePASESession>();
+    MockDestructivePASEDelegate delegate;
+    delegate.SetSession(session);
+
+    session->SetDelegate(&delegate);
+    session->SetRole(CryptoContext::SessionRole::kInitiator);
+
+    // Trigger OnSessionReleased. It should call PairingSession::OnSessionReleased,
+    // which calls delegate->OnSessionEstablishmentError, which deletes the session.
+    // The tracker should detect it and return early without crashing.
+    session->OnSessionReleased();
+
+    // If we reached here without crashing, the test passes.
+}
+
 } // namespace

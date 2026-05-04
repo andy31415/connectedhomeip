@@ -117,14 +117,32 @@ static constexpr ExchangeContext::Timeout kExpectedHighProcessingTime = System::
 
 PASESession::~PASESession()
 {
+    // If a destructor tracker is active, sign into it that the execution
+    // of the final sequence for this object has occurred.
+    if (mDestructorCalledTracker != nullptr)
+    {
+        *mDestructorCalledTracker = true;
+    }
     // Let's clear out any security state stored in the object, before destroying it.
     Clear();
 }
 
 void PASESession::OnSessionReleased()
 {
-    // Call into our super-class before we clear our state.
+    bool wasDeleted = false;
+    mDestructorCalledTracker = &wasDeleted;
+
+    // The notification in the super-class may synchronously trigger the final execution
+    // sequence for this object (i.e. destruction) if the delegate decides to release the session.
+    //
+    // The call into our super-class before we clear our state is intentional: notifications
+    // about session release MAY trigger retries, so the potential paths below are:
+    //   - session release will release the session and free memory (hence wasDeleted tracking)
+    //   - OR object remains valid (e.g. retries scheduled)
     PairingSession::OnSessionReleased();
+    VerifyOrReturn(!wasDeleted);
+
+    mDestructorCalledTracker = nullptr;
     Clear();
 }
 
