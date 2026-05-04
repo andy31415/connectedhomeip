@@ -244,12 +244,6 @@ protected:
 
     size_t mKeLen = sizeof(mKe);
 
-    // A stack-allocated flag pointer used to track if the destructor was invoked
-    // during a synchronous execution sequence in the super-class notification.
-    // It is owned by the stack frame of OnSessionReleased() and updated by the destructor
-    // if the instance is released during the notification flow.
-    bool * mDestructorCalledTracker = nullptr;
-
     bool mPairingComplete = false;
 };
 

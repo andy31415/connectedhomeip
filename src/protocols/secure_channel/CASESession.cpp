@@ -51,7 +51,6 @@
 #include <transport/SessionManager.h>
 
 namespace {
-
 // TBEDataTags works for both sigma-2-tbedata and sigma-3-tbedata as they have the same tag numbers for the elements common between
 // them.
 enum class TBEDataTags : uint8_t
@@ -355,33 +354,25 @@ public:
 
 CASESession::~CASESession()
 {
-    // If a destructor tracker is active, signal through it that the execution
-    // of the final sequence for this object has occurred.
-    if (mDestructorCalledTracker != nullptr)
-    {
-        *mDestructorCalledTracker = true;
-    }
     // Let's clear out any security state stored in the object, before destroying it.
     Clear();
 }
 
 void CASESession::OnSessionReleased()
 {
-    bool wasDeleted          = false;
-    mDestructorCalledTracker = &wasDeleted;
-
-    // The notification in the super-class may synchronously trigger the final execution
-    // sequence for this object (i.e. destruction) if the delegate decides to release the session.
+    // Clear our own state first, then call the base class.
     //
-    // The call into our super-class before we clear our state is intentional: notifications
-    // about session release MAY trigger retries, so the potential paths below are:
-    //   - session release will release the session and free memory (hence wasDeleted tracking)
-    //   - OR object remains valid (e.g. retries scheduled)
-    PairingSession::OnSessionReleased();
-    VerifyOrReturn(!wasDeleted);
-
-    mDestructorCalledTracker = nullptr;
+    // PairingSession::OnSessionReleased() may call the delegate synchronously
+    // (initiator path) or schedule async work capturing 'this' (responder path).
+    // Either way, our internal state must be torn down before we hand control to
+    // code that is allowed to free or reinitialize this object.
+    //
+    // Historically the order was reversed because PairingSession::OnSessionReleased
+    // used mSessionManager->SystemLayer() to schedule work, and Clear() nulls
+    // mSessionManager.  That dependency has been removed: the base class now uses
+    // DeviceLayer::SystemLayer(), which is a global and survives Clear().
     Clear();
+    PairingSession::OnSessionReleased();
 }
 
 void CASESession::Clear()
