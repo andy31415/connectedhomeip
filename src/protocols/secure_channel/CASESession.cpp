@@ -355,7 +355,7 @@ public:
 
 CASESession::~CASESession()
 {
-    // If a destructor tracker is active, sign into it that the execution
+    // If a destructor tracker is active, signal through it that the execution
     // of the final sequence for this object has occurred.
     if (mDestructorCalledTracker != nullptr)
     {
