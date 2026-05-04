@@ -53,7 +53,6 @@ public:
 
     // Implement SessionDelegate
     NewSessionHandlingPolicy GetNewSessionHandlingPolicy() override { return NewSessionHandlingPolicy::kStayAtOldSession; }
-
     void OnSessionReleased() override;
 
     Optional<uint16_t> GetLocalSessionId() const

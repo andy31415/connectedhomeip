@@ -31,7 +31,6 @@
 #include <lib/support/CodeUtils.h>
 #include <lib/support/tests/ExtraPwTestMacros.h>
 #include <messaging/ReliableMessageProtocolConfig.h>
-#include <platform/PlatformManager.h>
 #include <protocols/secure_channel/PairingSession.h>
 #include <system/SystemClock.h>
 #include <system/TLVPacketBufferBackingStore.h>
