@@ -36,6 +36,12 @@ from builders.tizen import TizenApp, TizenBoard, TizenBuilder
 
 from .target import BuildTarget, TargetPart
 
+
+# IMPORTANT: Keep list in sync with:
+#   - enabled_devices.cmake
+#   - enabled_devices.gni
+#   - enabled_devices_config.h.in
+# in all-devices: examples/all-devices-app/all-devices-common/devices
 _ALL_DEVICES_APP_DEVICES = [
     # keep-sorted: start
     'chime',
