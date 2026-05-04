@@ -73,14 +73,20 @@ done < <(grep '# esp_example:project_name_choice:' "$root"/CMakeLists.txt | sed 
 
 # Find the newest elf file among choices
 found_elf=""
+found_count=0
 for choice in "${choices[@]}"; do
     candidate="$root/build/$choice.elf"
     if [ -f "$candidate" ]; then
+        found_count=$((found_count + 1))
         if [ -z "$found_elf" ] || [ "$candidate" -nt "$found_elf" ]; then
             found_elf="$candidate"
         fi
     fi
 done
+
+if [ "$found_count" -gt 1 ]; then
+    echo "WARNING: Multiple ELF files found among choices: ${choices[*]}. Using newest: $found_elf"
+fi
 
 if [ -z "$found_elf" ]; then
     echo "No valid elf file found in $root/build/ among choices: ${choices[*]}"
