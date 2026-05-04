@@ -51,6 +51,7 @@
 #include <transport/SessionManager.h>
 
 namespace {
+
 // TBEDataTags works for both sigma-2-tbedata and sigma-3-tbedata as they have the same tag numbers for the elements common between
 // them.
 enum class TBEDataTags : uint8_t
@@ -371,15 +372,13 @@ void CASESession::OnSessionReleased()
 
     // The notification in the super-class may synchronously trigger the final execution
     // sequence for this object (i.e. destruction) if the delegate decides to release the session.
-    // Call into our super-class before we clear our state.
+    //
+    // The call into our super-class before we clear our state is intentional: notifications
+    // about session release MAY trigger retries, so the potential paths below are:
+    //   - session release will release the session and free memory (hence wasDeleted tracking)
+    //   - OR object remains valid (e.g. retries scheduled)
     PairingSession::OnSessionReleased();
-
-    // If the object was deleted during the super-class call, abort execution immediately
-    // to avoid accessing members or calling Clear() on a released instance.
-    if (wasDeleted)
-    {
-        return;
-    }
+    VerifyOrReturn(!wasDeleted);
 
     mDestructorCalledTracker = nullptr;
     Clear();
