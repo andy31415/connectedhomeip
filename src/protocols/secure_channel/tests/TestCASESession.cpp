@@ -219,6 +219,7 @@ public:
     }
     void OnSessionEstablished(const SessionHandle & session) override {}
     void OnResponderBusy(System::Clock::Milliseconds16 requestedDelay) override {}
+
 private:
     CASESession * mSession = nullptr;
 };
