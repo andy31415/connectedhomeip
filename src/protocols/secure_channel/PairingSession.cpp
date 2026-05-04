@@ -255,10 +255,6 @@ bool PairingSession::IsSessionEstablishmentInProgress()
 
 void PairingSession::Clear()
 {
-    // NOTE: We intentionally do not clear mDelegate here. It is needed by
-    // OnSessionReleased() to send the asynchronous error notification after
-    // Clear() has been called in subclasses (like CASESession::OnSessionReleased).
-    //
     // Clear acts like the destructor of PairingSession. If it is called during
     // the middle of pairing, that means we should terminate the exchange. For the
     // normal path, the exchange should already be discarded before calling Clear.
@@ -291,27 +287,27 @@ void PairingSession::NotifySessionEstablishmentError(CHIP_ERROR error, SessionEs
 
 void PairingSession::OnSessionReleased()
 {
-    // NOTE: This method relies on mDelegate remaining valid after Clear() is called
-    // by subclasses, as the scheduled lambda will call NotifySessionEstablishmentError
-    // which reads mDelegate.
-    //
-    // Always notify async, as the error notification may be the final
-    // call that uses the session. Essentially we have:
-    //    - in any case, the notification may trigger the final call for the session
-    //    - in the kResponder case, the delegate is likely to want to
-    //      create a new session to listen for new connection attempts
-    //      and that is not safe under OnSessionReleased
-    //
-    // NOTE: Using `this` here is safe because `OnSessionReleased` is called exactly
-    // once during the final session sequence. This scheduled task performs the final
-    // notification, following the established pattern for the Responder role.
-    TEMPORARY_RETURN_IGNORED DeviceLayer::PlatformMgr().ScheduleWork(
-        [](intptr_t appState) -> void {
-            ChipLogError(Inet, "ASYNC Secure Session establishment failed");
-            auto * _this = reinterpret_cast<PairingSession *>(appState);
+    if (mRole == CryptoContext::SessionRole::kInitiator)
+    {
+        NotifySessionEstablishmentError(CHIP_ERROR_CONNECTION_ABORTED);
+        return;
+    }
+
+    // Send the error notification async, because our delegate is likely to want
+    // to create a new session to listen for new connection attempts, and doing
+    // that under an OnSessionReleased notification is not safe.
+    if (!mSessionManager)
+    {
+        return;
+    }
+
+    TEMPORARY_RETURN_IGNORED mSessionManager->SystemLayer()->ScheduleWork(
+        [](auto * systemLayer, auto * appState) -> void {
+            ChipLogError(Inet, "ASYNC CASE Session establishment failed");
+            auto * _this = static_cast<PairingSession *>(appState);
             _this->NotifySessionEstablishmentError(CHIP_ERROR_CONNECTION_ABORTED);
         },
-        reinterpret_cast<intptr_t>(this));
+        this);
 }
 
 } // namespace chip

@@ -588,6 +588,11 @@ private:
     Platform::SharedPtr<WorkHelper<SendSigma3Data>> mSendSigma3Helper;
     Platform::SharedPtr<WorkHelper<HandleSigma3Data>> mHandleSigma3Helper;
 
+    // A stack-allocated flag pointer used to track if the destructor was invoked
+    // during a synchronous execution sequence in the super-class notification.
+    // It is owned by the stack frame of OnSessionReleased() and updated by the destructor
+    // if the instance is released during the notification flow.
+    bool * mDestructorCalledTracker = nullptr;
     State mState;
 
 #if CONFIG_BUILD_FOR_HOST_UNIT_TEST

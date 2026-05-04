@@ -354,14 +354,34 @@ public:
 
 CASESession::~CASESession()
 {
+    // If a destructor tracker is active, sign into it that the execution
+    // of the final sequence for this object has occurred.
+    if (mDestructorCalledTracker != nullptr)
+    {
+        *mDestructorCalledTracker = true;
+    }
     // Let's clear out any security state stored in the object, before destroying it.
     Clear();
 }
 
 void CASESession::OnSessionReleased()
 {
+    bool wasDeleted = false;
+    mDestructorCalledTracker = &wasDeleted;
+
+    // The notification in the super-class may synchronously trigger the final execution
+    // sequence for this object (i.e. destruction) if the delegate decides to release the session.
     // Call into our super-class before we clear our state.
     PairingSession::OnSessionReleased();
+
+    // If the object was deleted during the super-class call, abort execution immediately
+    // to avoid accessing members or calling Clear() on a released instance.
+    if (wasDeleted)
+    {
+        return;
+    }
+
+    mDestructorCalledTracker = nullptr;
     Clear();
 }
 
