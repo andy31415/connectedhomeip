@@ -129,7 +129,7 @@ PASESession::~PASESession()
 
 void PASESession::OnSessionReleased()
 {
-    bool wasDeleted = false;
+    bool wasDeleted          = false;
     mDestructorCalledTracker = &wasDeleted;
 
     // The notification in the super-class may synchronously trigger the final execution

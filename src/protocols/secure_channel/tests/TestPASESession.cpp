@@ -516,6 +516,7 @@ public:
     }
     void OnSessionEstablished(const SessionHandle & session) override {}
     void OnResponderBusy(System::Clock::Milliseconds16 requestedDelay) override {}
+
 private:
     PASESession * mSession = nullptr;
 };
