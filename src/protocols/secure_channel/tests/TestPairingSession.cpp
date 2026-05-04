@@ -423,6 +423,11 @@ public:
     void SetAsResponder() { mRole = CryptoContext::SessionRole::kResponder; }
     void SetDelegate(SessionEstablishmentDelegate * delegate) { mDelegate = delegate; }
     bool HasDelegate() const { return mDelegate != nullptr; }
+
+    // In production, mSystemLayer is set by AllocateSecureSession().  Tests that
+    // exercise the responder async path must supply a system layer directly since
+    // they bypass full session allocation.
+    void SetSystemLayer(System::Layer & layer) { mSystemLayer = &layer; }
 };
 
 class MockDelegate : public SessionEstablishmentDelegate
@@ -461,7 +466,7 @@ public:
     static void DrainSystemLayer()
     {
         EXPECT_SUCCESS(chip::DeviceLayer::PlatformMgr().ScheduleWork(
-            [](intptr_t) { RETURN_SAFELY_IGNORED chip::DeviceLayer::PlatformMgr().StopEventLoopTask(); }, 0));
+            [](intptr_t) -> void { RETURN_SAFELY_IGNORED chip::DeviceLayer::PlatformMgr().StopEventLoopTask(); }, 0));
         chip::DeviceLayer::PlatformMgr().RunEventLoop();
     }
 };
@@ -510,6 +515,7 @@ TEST_F(TestPairingSessionOnSessionReleased, ResponderDelegateCalledAsync)
     MockDelegate delegate;
     session.SetAsResponder();
     session.SetDelegate(&delegate);
+    session.SetSystemLayer(chip::DeviceLayer::SystemLayer());
 
     session.OnSessionReleased();
 
@@ -530,6 +536,7 @@ TEST_F(TestPairingSessionOnSessionReleased, ResponderNoDoubleNotification)
     MockDelegate delegate;
     session.SetAsResponder();
     session.SetDelegate(&delegate);
+    session.SetSystemLayer(chip::DeviceLayer::SystemLayer());
 
     session.OnSessionReleased();
     session.OnSessionReleased();
@@ -556,6 +563,7 @@ TEST_F(TestPairingSessionOnSessionReleased, ResponderSafeAfterSessionObjectFreed
     ASSERT_NE(session, nullptr);
     session->SetAsResponder();
     session->SetDelegate(&delegate);
+    session->SetSystemLayer(chip::DeviceLayer::SystemLayer());
 
     session->OnSessionReleased();
 

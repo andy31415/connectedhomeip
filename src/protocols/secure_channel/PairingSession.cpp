@@ -24,7 +24,6 @@
 #include <lib/support/SafeInt.h>
 #include <lib/support/TypeTraits.h>
 #include <platform/CHIPDeviceEvent.h>
-#include <platform/CHIPDeviceLayer.h>
 #include <platform/PlatformManager.h>
 #include <transport/SessionManager.h>
 
@@ -36,6 +35,7 @@ CHIP_ERROR PairingSession::AllocateSecureSession(SessionManager & sessionManager
     VerifyOrReturnError(handle.HasValue(), CHIP_ERROR_NO_MEMORY);
     VerifyOrReturnError(mSecureSessionHolder.GrabPairingSession(handle.Value()), CHIP_ERROR_INTERNAL);
     mSessionManager = &sessionManager;
+    mSystemLayer    = sessionManager.SystemLayer();
     return CHIP_NO_ERROR;
 }
 
@@ -303,15 +303,20 @@ void PairingSession::OnSessionReleased()
     // means the lambda holds no reference to 'this' at all, so the PairingSession
     // lifetime is irrelevant — the callback is safe even if the object is freed
     // or recycled from a pool before the event loop drains this work item.
+    //
+    // mSystemLayer is captured from the session manager at AllocateSecureSession()
+    // and intentionally not cleared by Clear(), so it remains valid here even
+    // though mSessionManager has already been nulled.  Using it directly avoids
+    // any dependency on DeviceLayer (which may not be present on all platforms).
     auto * delegate = mDelegate;
     mDelegate       = nullptr;
 
-    if (delegate == nullptr)
+    if (delegate == nullptr || mSystemLayer == nullptr)
     {
         return;
     }
 
-    TEMPORARY_RETURN_IGNORED DeviceLayer::SystemLayer().ScheduleLambda([delegate]() {
+    TEMPORARY_RETURN_IGNORED mSystemLayer->ScheduleLambda([delegate]() {
         ChipLogError(Inet, "ASYNC Session establishment failed");
         delegate->OnSessionEstablishmentError(CHIP_ERROR_CONNECTION_ABORTED, SessionEstablishmentStage::kNotInKeyExchange);
     });
