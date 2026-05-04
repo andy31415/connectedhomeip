@@ -461,7 +461,7 @@ public:
     static void DrainSystemLayer()
     {
         EXPECT_SUCCESS(chip::DeviceLayer::PlatformMgr().ScheduleWork(
-            [](intptr_t) { chip::DeviceLayer::PlatformMgr().StopEventLoopTask(); }, 0));
+            [](intptr_t) { RETURN_SAFELY_IGNORED chip::DeviceLayer::PlatformMgr().StopEventLoopTask(); }, 0));
         chip::DeviceLayer::PlatformMgr().RunEventLoop();
     }
 };
@@ -513,8 +513,8 @@ TEST_F(TestPairingSessionOnSessionReleased, ResponderDelegateCalledAsync)
 
     session.OnSessionReleased();
 
-    EXPECT_EQ(delegate.callCount, 0);        // not yet fired
-    EXPECT_FALSE(session.HasDelegate());     // already extracted and nulled
+    EXPECT_EQ(delegate.callCount, 0);    // not yet fired
+    EXPECT_FALSE(session.HasDelegate()); // already extracted and nulled
 
     DrainSystemLayer();
 
