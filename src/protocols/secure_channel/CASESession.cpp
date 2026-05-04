@@ -362,10 +362,8 @@ void CASESession::OnSessionReleased()
 {
     // Clear our own state first, then call the base class.
     //
-    // PairingSession::OnSessionReleased() may call the delegate synchronously
-    // (initiator path) or schedule async work capturing 'this' (responder path).
-    // Either way, our internal state must be torn down before we hand control to
-    // code that is allowed to free or reinitialize this object.
+    // PairingSession::OnSessionReleased() may destroy this object, so we have to do any cleanup
+    // that involves our state before calling it.
     //
     // Historically the order was reversed because PairingSession::OnSessionReleased
     // used mSessionManager->SystemLayer() to schedule work, and Clear() nulls
