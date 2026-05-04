@@ -1,4 +1,7 @@
 /*
+ *    Copyright (c) 2026 Project CHIP Authors
+ *    All rights reserved.
+ *
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
