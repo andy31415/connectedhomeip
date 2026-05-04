@@ -313,7 +313,7 @@ void PairingSession::OnSessionReleased()
 
     TEMPORARY_RETURN_IGNORED DeviceLayer::SystemLayer().ScheduleLambda([delegate]() {
         ChipLogError(Inet, "ASYNC Session establishment failed");
-        delegate->OnSessionEstablishmentError(CHIP_ERROR_CONNECTION_ABORTED);
+        delegate->OnSessionEstablishmentError(CHIP_ERROR_CONNECTION_ABORTED, SessionEstablishmentStage::kNotInKeyExchange);
     });
 }
 
