@@ -233,7 +233,7 @@ protected:
     // is intentionally NOT cleared by Clear().  It outlives the session itself
     // (it is a process-scoped singleton) and is needed by OnSessionReleased()
     // after Clear() has already nulled mSessionManager.
-    System::Layer * mSystemLayer = nullptr;
+    System::Layer * mSystemLayer                      = nullptr;
     Optional<Messaging::ExchangeHandle> mExchangeCtxt = NullOptional;
     SessionEstablishmentDelegate * mDelegate          = nullptr;
 
