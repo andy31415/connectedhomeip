@@ -298,22 +298,23 @@ void PairingSession::OnSessionReleased()
     // to create a new session to listen for new connection attempts, and doing
     // that under an OnSessionReleased notification is not safe.
     //
-    // We use DeviceLayer::SystemLayer() rather than mSessionManager->SystemLayer()
-    // so that subclasses can safely call Clear() before calling this method.
-    // Clear() nulls mSessionManager, but the DeviceLayer system layer is a
-    // global that remains valid regardless of our own state.
-    //
-    // NOTE: 'this' is captured raw here. The scheduled callback must not run
-    // after the PairingSession is destroyed. See NotifySessionEstablishmentError
-    // for the mDelegate null-check that guards against double-notification, but
-    // a dangling-pointer fix requires a separate lifetime mechanism.
-    TEMPORARY_RETURN_IGNORED DeviceLayer::SystemLayer().ScheduleWork(
-        [](auto * systemLayer, auto * appState) -> void {
-            ChipLogError(Inet, "ASYNC CASE Session establishment failed");
-            auto * _this = static_cast<PairingSession *>(appState);
-            _this->NotifySessionEstablishmentError(CHIP_ERROR_CONNECTION_ABORTED);
-        },
-        this);
+    // We capture the delegate by value and null mDelegate immediately, mirroring
+    // what NotifySessionEstablishmentError does on the synchronous path.  This
+    // means the lambda holds no reference to 'this' at all, so the PairingSession
+    // lifetime is irrelevant — the callback is safe even if the object is freed
+    // or recycled from a pool before the event loop drains this work item.
+    auto * delegate = mDelegate;
+    mDelegate       = nullptr;
+
+    if (delegate == nullptr)
+    {
+        return;
+    }
+
+    TEMPORARY_RETURN_IGNORED DeviceLayer::SystemLayer().ScheduleLambda([delegate]() {
+        ChipLogError(Inet, "ASYNC Session establishment failed");
+        delegate->OnSessionEstablishmentError(CHIP_ERROR_CONNECTION_ABORTED);
+    });
 }
 
 } // namespace chip
