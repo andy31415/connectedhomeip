@@ -117,7 +117,7 @@ static constexpr ExchangeContext::Timeout kExpectedHighProcessingTime = System::
 
 PASESession::~PASESession()
 {
-    // If a destructor tracker is active, sign into it that the execution
+    // If a destructor tracker is active, signal through it that the execution
     // of the final sequence for this object has occurred.
     if (mDestructorCalledTracker != nullptr)
     {
