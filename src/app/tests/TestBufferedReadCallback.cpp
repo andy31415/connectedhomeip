@@ -69,10 +69,10 @@ using InstructionListType = std::vector<ValidationInstruction>;
 
 using TestBufferedReadCallback = chip::Testing::AppContext;
 
-class NooCallback : public BufferedReadCallback::Callback
+class NoopCallback : public BufferedReadCallback::Callback
 {
 public:
-    NooCallback() = default;
+    NoopCallback() = default;
 
     void OnReportBegin() override {}
     void OnReportEnd() override {}
@@ -541,7 +541,7 @@ void RunAndValidateSequence(std::vector<ValidationInstruction> instructionList)
 
 TEST_F(TestBufferedReadCallback, TestInvalidInput)
 {
-    NooCallback noop;
+    NoopCallback noop;
     BufferedReadCallback reader(noop);
     ReadClient::Callback & callback = reader; // access as a public interface
                                               //
