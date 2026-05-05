@@ -51,7 +51,7 @@ protected:
     void OnExchangeCreationFailed(Messaging::ExchangeDelegate * delegate) override;
 
 private:
-    System::Layer * mSystemLayer = nullptr;
+    System::Layer * mSystemLayer              = nullptr;
     Messaging::ExchangeManager * mExchangeMgr = nullptr;
 
     BDXTransferServerDelegate * mDelegate = nullptr;
