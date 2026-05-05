@@ -17,16 +17,18 @@
  */
 #include <vector>
 
-#include "app-common/zap-generated/ids/Attributes.h"
-#include "lib/core/TLVTags.h"
-#include "protocols/interaction_model/Constants.h"
-#include "system/SystemPacketBuffer.h"
-#include "system/TLVPacketBufferBackingStore.h"
 #include <app-common/zap-generated/cluster-objects.h>
+#include <app-common/zap-generated/ids/Attributes.h>
 #include <app/BufferedReadCallback.h>
+#include <app/ConcreteAttributePath.h>
+#include <app/MessageDef/StatusIB.h>
 #include <app/data-model/DecodableList.h>
 #include <app/data-model/Decode.h>
 #include <app/tests/AppTestContext.h>
+#include <lib/core/TLVTags.h>
+#include <protocols/interaction_model/Constants.h>
+#include <system/SystemPacketBuffer.h>
+#include <system/TLVPacketBufferBackingStore.h>
 
 #include <lib/core/StringBuilderAdapters.h>
 #include <lib/support/tests/ExtraPwTestMacros.h>
@@ -66,6 +68,17 @@ struct ValidationInstruction
 using InstructionListType = std::vector<ValidationInstruction>;
 
 using TestBufferedReadCallback = chip::Testing::AppContext;
+
+class NooCallback : public BufferedReadCallback::Callback
+{
+public:
+    NooCallback() = default;
+
+    void OnReportBegin() override {}
+    void OnReportEnd() override {}
+    void OnAttributeData(const ConcreteDataAttributePath & aPath, TLV::TLVReader * apData, const StatusIB & aStatus) override {}
+    void OnDone(ReadClient *) override {}
+};
 
 class DataSeriesValidator : public BufferedReadCallback::Callback
 {
@@ -524,6 +537,35 @@ void RunAndValidateSequence(std::vector<ValidationInstruction> instructionList)
     generator.Generate();
 
     EXPECT_EQ(validator.mCurrentInstruction, instructionList.size());
+}
+
+TEST_F(TestBufferedReadCallback, TestInvalidInput)
+{
+    NooCallback noop;
+    BufferedReadCallback reader(noop);
+    ReadClient::Callback & callback = reader; // access as a public interface
+
+    // Send a list operation, but with null data
+    //   - successfull list operations will deference the input data, so it needs validation
+    EXPECT_EQ(
+        callback.OnAttributeData(ConcreteDataAttributePath{ 1, 2, 3, ConcreteDataAttributePath::ListOperation::AppendItem, 0 },
+                                 nullptr, StatusIB{ Protocols::InteractionModel::Status::Success }),
+        CHIP_ERROR_INVALID_ARGUMENT);
+
+    EXPECT_EQ(
+        callback.OnAttributeData(ConcreteDataAttributePath{ 1, 2, 3, ConcreteDataAttributePath::ListOperation::ReplaceAll, 0 },
+                                 nullptr, StatusIB{ Protocols::InteractionModel::Status::Success }),
+        CHIP_ERROR_INVALID_ARGUMENT);
+
+    EXPECT_EQ(
+        callback.OnAttributeData(ConcreteDataAttributePath{ 1, 2, 3, ConcreteDataAttributePath::ListOperation::DeleteItem, 123 },
+                                 nullptr, StatusIB{ Protocols::InteractionModel::Status::Success }),
+        CHIP_ERROR_INVALID_ARGUMENT);
+
+    EXPECT_EQ(
+        callback.OnAttributeData(ConcreteDataAttributePath{ 1, 2, 3, ConcreteDataAttributePath::ListOperation::ReplaceItem, 1 },
+                                 nullptr, StatusIB{ Protocols::InteractionModel::Status::Success }),
+        CHIP_ERROR_INVALID_ARGUMENT);
 }
 
 TEST_F(TestBufferedReadCallback, TestBufferedSequences)
