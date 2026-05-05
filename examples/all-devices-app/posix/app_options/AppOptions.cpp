@@ -38,24 +38,19 @@ constexpr uint16_t kOptionPort          = 0xffd7;
 constexpr uint16_t kOptionInterfaceId   = 0xffd8;
 
 DeviceTypeParser AppOptions::sParser;
+AppOptions::AppConfig AppOptions::mConfig;
 
-const std::vector<DeviceTypeParser::Entry> & AppOptions::GetDeviceTypeEntries()
+const AppOptions::AppConfig & AppOptions::GetConfig()
 {
-    const auto & entries = sParser.GetDeviceTypeEntries();
-    if (entries.empty())
+    if (mConfig.deviceTypeEntries.empty())
     {
-        static const auto gDefault = [] {
-            std::vector<DeviceTypeParser::Entry> values;
-            values.push_back({
-                .type     = chip::app::DeviceFactory::GetInstance().GetDefaultDevice(),
-                .endpoint = 1,
-            });
-            return values;
-        }();
-
-        return gDefault;
+        mConfig.deviceTypeEntries.push_back({
+            .type     = chip::app::DeviceFactory::GetInstance().GetDefaultDevice(),
+            .endpoint = 1,
+            .parentId = chip::kInvalidEndpointId,
+        });
     }
-    return entries;
+    return mConfig;
 }
 
 bool AppOptions::AllDevicesAppOptionHandler(const char * program, OptionSet * options, int identifier, const char * name,
