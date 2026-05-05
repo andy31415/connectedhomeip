@@ -99,8 +99,18 @@ void DecreaseDepth()
 #endif
 
 #if CHIP_CONFIG_IM_PRETTY_PRINT
+
 CHIP_ERROR CheckIMPayload(TLV::TLVReader & aReader, int aDepth, const char * aLabel)
 {
+    // do not allow fully unbounded recursion.
+    constexpr int kMaxRecursionDepth = 100;
+
+    if (aDepth > kMaxRecursionDepth)
+    {
+        PRETTY_PRINT("!!! RECURSION LIMIT REACHED !!!");
+        return CHIP_ERROR_RECURSION_DEPTH_LIMIT;
+    }
+
     if (aDepth == 0)
     {
         PRETTY_PRINT("%s = ", aLabel);
