@@ -460,8 +460,8 @@ public:
     // stop is guaranteed to execute after any previously queued lambdas.
     static void DrainSystemLayer()
     {
-        EXPECT_SUCCESS(chip::DeviceLayer::PlatformMgr().ScheduleWork(
-            [](intptr_t) -> void { RETURN_SAFELY_IGNORED chip::DeviceLayer::PlatformMgr().StopEventLoopTask(); }, 0));
+        chip::DeviceLayer::PlatformMgr().ScheduleWork(
+            [](intptr_t) -> void { chip::DeviceLayer::PlatformMgr().StopEventLoopTask(); }, 0);
         chip::DeviceLayer::PlatformMgr().RunEventLoop();
     }
 };
