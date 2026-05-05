@@ -252,7 +252,7 @@ chip::app::DataModel::Provider * PopulateCodeDrivenDataModelProvider(PersistentS
         return nullptr;
     }
 
-    auto &deviceFactory = DeviceFactory::GetInstance();
+    auto & deviceFactory = DeviceFactory::GetInstance();
 
     // figure out the default
     if (gDeviceType.empty() || !deviceFactory.IsValidDevice(gDeviceType))
