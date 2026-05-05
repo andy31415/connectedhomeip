@@ -111,10 +111,12 @@ class Esp32App(Enum):
             return None
         raise Exception('Unknown app type: %r' % self)
 
-    @property
-    def FlashBundleName(self):
+    def FlashBundleName(self, is_all_devices_selective):
         if not self.AppNamePrefix:
             return None
+
+        if self == Esp32App.ALL_DEVICES and is_all_devices_selective:
+            return 'example-device-app.flashbundle.txt'
 
         return self.AppNamePrefix + '.flashbundle.txt'
 
@@ -313,8 +315,9 @@ class Esp32Builder(Builder):
             yield BuilderOutput(os.path.join(self.output_dir, name), name)
 
     def bundle_outputs(self):
-        if not self.app.FlashBundleName:
+        flash_bundle_name = self.app.FlashBundleName(self.all_devices_enabled_devices)
+        if not flash_bundle_name:
             return
-        with open(os.path.join(self.output_dir, self.app.FlashBundleName)) as f:
+        with open(os.path.join(self.output_dir, flash_bundle_name)) as f:
             for line in filter(None, [x.strip() for x in f.readlines()]):
                 yield BuilderOutput(os.path.join(self.output_dir, line), line)
