@@ -211,9 +211,7 @@ CHIP_ERROR CheckIMPayload(TLV::TLVReader & aReader, int aDepth, const char * aLa
         chip::Platform::ScopedMemoryBuffer<uint8_t> value_b;
         VerifyOrReturnError(!value_b.Alloc(CHIP_CONFIG_LOG_MESSAGE_MAX_SIZE).IsNull(), CHIP_ERROR_NO_MEMORY);
 
-        uint32_t len, readerLen;
-
-        readerLen = aReader.GetLength();
+        uint32_t readerLen = aReader.GetLength();
 
         CHIP_ERROR err = aReader.GetBytes(value_b.Get(), CHIP_CONFIG_LOG_MESSAGE_MAX_SIZE);
         VerifyOrReturnError(err == CHIP_NO_ERROR || err == CHIP_ERROR_BUFFER_TOO_SMALL, err);
@@ -221,21 +219,13 @@ CHIP_ERROR CheckIMPayload(TLV::TLVReader & aReader, int aDepth, const char * aLa
         PRETTY_PRINT_SAMELINE("[");
         PRETTY_PRINT("\t\t");
 
-        if (readerLen < sizeof(value_b))
-        {
-            len = readerLen;
-        }
-        else
-        {
-            len = sizeof(value_b);
-        }
-
         if (err == CHIP_ERROR_BUFFER_TOO_SMALL)
         {
             PRETTY_PRINT_SAMELINE("... (byte string too long) ...");
         }
         else
         {
+            const uint32_t len = std::min(readerLen, static_cast<uint32_t>(CHIP_CONFIG_LOG_MESSAGE_MAX_SIZE));
             for (size_t i = 0; i < len; i++)
             {
                 PRETTY_PRINT_SAMELINE("0x%02x, ", value_b[i]);
