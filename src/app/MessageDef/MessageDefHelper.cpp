@@ -22,14 +22,18 @@
  */
 
 #include "MessageDefHelper.h"
+
 #include <algorithm>
 #include <app/AppConfig.h>
 #include <app/SpecificationDefinedRevisions.h>
 #include <app/util/basic-types.h>
-#include <inttypes.h>
+#include <lib/core/CHIPConfig.h>
+#include <lib/support/ScopedMemoryBuffer.h>
 #include <lib/support/logging/CHIPLogging.h>
-#include <stdarg.h>
-#include <stdio.h>
+
+#include <cinttypes>
+#include <cstdarg>
+#include <cstdio>
 
 namespace chip {
 namespace app {
@@ -183,12 +187,13 @@ CHIP_ERROR CheckIMPayload(TLV::TLVReader & aReader, int aDepth, const char * aLa
     }
 
     case TLV::kTLVType_UTF8String: {
-        char value_s[CHIP_CONFIG_LOG_MESSAGE_MAX_SIZE];
+        chip::Platform::ScopedMemoryBuffer<char> value_s;
+        VerifyOrReturnError(!value_s.Alloc(CHIP_CONFIG_LOG_MESSAGE_MAX_SIZE).IsNull(), CHIP_ERROR_NO_MEMORY);
 
 #if CHIP_DETAIL_LOGGING
         uint32_t readerLen = aReader.GetLength();
 #endif // CHIP_DETAIL_LOGGING
-        CHIP_ERROR err = aReader.GetString(value_s, sizeof(value_s));
+        CHIP_ERROR err = aReader.GetString(value_s.Get(), CHIP_CONFIG_LOG_MESSAGE_MAX_SIZE);
         VerifyOrReturnError(err == CHIP_NO_ERROR || err == CHIP_ERROR_BUFFER_TOO_SMALL, err);
 
         if (err == CHIP_ERROR_BUFFER_TOO_SMALL)
@@ -197,18 +202,20 @@ CHIP_ERROR CheckIMPayload(TLV::TLVReader & aReader, int aDepth, const char * aLa
         }
         else
         {
-            PRETTY_PRINT_SAMELINE("\"%s\" (%" PRIu32 " chars), ", value_s, readerLen);
+            PRETTY_PRINT_SAMELINE("\"%s\" (%" PRIu32 " chars), ", value_s.Get(), readerLen);
         }
         break;
     }
 
     case TLV::kTLVType_ByteString: {
-        uint8_t value_b[CHIP_CONFIG_LOG_MESSAGE_MAX_SIZE];
+        chip::Platform::ScopedMemoryBuffer<uint8_t> value_b;
+        VerifyOrReturnError(!value_b.Alloc(CHIP_CONFIG_LOG_MESSAGE_MAX_SIZE).IsNull(), CHIP_ERROR_NO_MEMORY);
+
         uint32_t len, readerLen;
 
         readerLen = aReader.GetLength();
 
-        CHIP_ERROR err = aReader.GetBytes(value_b, sizeof(value_b));
+        CHIP_ERROR err = aReader.GetBytes(value_b.Get(), CHIP_CONFIG_LOG_MESSAGE_MAX_SIZE);
         VerifyOrReturnError(err == CHIP_NO_ERROR || err == CHIP_ERROR_BUFFER_TOO_SMALL, err);
 
         PRETTY_PRINT_SAMELINE("[");
