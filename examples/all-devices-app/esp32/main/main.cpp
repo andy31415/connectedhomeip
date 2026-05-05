@@ -40,6 +40,8 @@
 #include <platform/PlatformManager.h>
 #include <setup_payload/OnboardingCodesUtil.h>
 
+#include <app_config/enabled_devices.h>
+
 #include <memory>
 #include <string>
 
@@ -286,6 +288,7 @@ void InitServer(intptr_t context)
         .timerDelegate     = gTimerDelegate,                         //
     });
 
+#if ALL_DEVICES_ENABLE_DIMMABLE_LIGHT
     // Override dimmable-light with ESP32 hardware implementation that drives a real LED
     DeviceFactory::GetInstance().RegisterCreator("dimmable-light", [&]() {
         return std::make_unique<ESP32DimmableLightDevice>(ESP32DimmableLightDevice::Context{
@@ -294,6 +297,7 @@ void InitServer(intptr_t context)
             .timerDelegate     = gTimerDelegate,
         });
     });
+#endif
 
     static chip::CommonCaseDeviceServerInitParams initParams;
     CHIP_ERROR err = initParams.InitializeStaticResourcesBeforeServerInit();
