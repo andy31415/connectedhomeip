@@ -136,23 +136,24 @@ CHIP_ERROR BufferedReadCallback::BufferListItem(TLV::TLVReader & reader)
     return CHIP_NO_ERROR;
 }
 
-CHIP_ERROR BufferedReadCallback::BufferData(const ConcreteDataAttributePath & aPath, TLV::TLVReader & aData)
+CHIP_ERROR BufferedReadCallback::BufferData(const ConcreteDataAttributePath & aPath, TLV::TLVReader * apData)
 {
 
     if (aPath.mListOp == ConcreteDataAttributePath::ListOperation::ReplaceAll)
     {
+        VerifyOrReturnError(apData != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
         TLV::TLVType outerContainer;
 
-        VerifyOrReturnError(aData.GetType() == TLV::kTLVType_Array, CHIP_ERROR_INVALID_TLV_ELEMENT);
+        VerifyOrReturnError(apData->GetType() == TLV::kTLVType_Array, CHIP_ERROR_INVALID_TLV_ELEMENT);
         mBufferedList.clear();
 
-        ReturnErrorOnFailure(aData.EnterContainer(outerContainer));
+        ReturnErrorOnFailure(apData->EnterContainer(outerContainer));
 
         CHIP_ERROR err;
 
-        while ((err = aData.Next()) == CHIP_NO_ERROR)
+        while ((err = apData->Next()) == CHIP_NO_ERROR)
         {
-            ReturnErrorOnFailure(BufferListItem(aData));
+            ReturnErrorOnFailure(BufferListItem(*apData));
         }
 
         if (err == CHIP_END_OF_TLV)
@@ -161,11 +162,12 @@ CHIP_ERROR BufferedReadCallback::BufferData(const ConcreteDataAttributePath & aP
         }
 
         ReturnErrorOnFailure(err);
-        ReturnErrorOnFailure(aData.ExitContainer(outerContainer));
+        ReturnErrorOnFailure(apData->ExitContainer(outerContainer));
     }
     else if (aPath.mListOp == ConcreteDataAttributePath::ListOperation::AppendItem)
     {
-        ReturnErrorOnFailure(BufferListItem(aData));
+        VerifyOrReturnError(apData != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+        ReturnErrorOnFailure(BufferListItem(*apData));
     }
 
     return CHIP_NO_ERROR;
@@ -244,8 +246,7 @@ void BufferedReadCallback::OnAttributeData(const ConcreteDataAttributePath & aPa
     //
     if (aPath.IsListOperation() && aStatus.mStatus == Protocols::InteractionModel::Status::Success)
     {
-        VerifyOrExit(apData != nullptr, err = CHIP_ERROR_INVALID_ARGUMENT);
-        err = BufferData(aPath, *apData);
+        err = BufferData(aPath, apData);
         SuccessOrExit(err);
     }
     else
