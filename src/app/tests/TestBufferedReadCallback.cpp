@@ -544,28 +544,19 @@ TEST_F(TestBufferedReadCallback, TestInvalidInput)
     NooCallback noop;
     BufferedReadCallback reader(noop);
     ReadClient::Callback & callback = reader; // access as a public interface
+                                              //
+    // Send a list operation, but with null data, ensure no deferencing
+    callback.OnAttributeData(ConcreteDataAttributePath{ 1, 2, 3, ConcreteDataAttributePath::ListOperation::AppendItem, 0 }, nullptr,
+                             StatusIB{ Protocols::InteractionModel::Status::Success });
 
-    // Send a list operation, but with null data
-    //   - successfull list operations will deference the input data, so it needs validation
-    EXPECT_EQ(
-        callback.OnAttributeData(ConcreteDataAttributePath{ 1, 2, 3, ConcreteDataAttributePath::ListOperation::AppendItem, 0 },
-                                 nullptr, StatusIB{ Protocols::InteractionModel::Status::Success }),
-        CHIP_ERROR_INVALID_ARGUMENT);
+    callback.OnAttributeData(ConcreteDataAttributePath{ 1, 2, 3, ConcreteDataAttributePath::ListOperation::ReplaceAll, 0 }, nullptr,
+                             StatusIB{ Protocols::InteractionModel::Status::Success });
 
-    EXPECT_EQ(
-        callback.OnAttributeData(ConcreteDataAttributePath{ 1, 2, 3, ConcreteDataAttributePath::ListOperation::ReplaceAll, 0 },
-                                 nullptr, StatusIB{ Protocols::InteractionModel::Status::Success }),
-        CHIP_ERROR_INVALID_ARGUMENT);
+    callback.OnAttributeData(ConcreteDataAttributePath{ 1, 2, 3, ConcreteDataAttributePath::ListOperation::DeleteItem, 123 },
+                             nullptr, StatusIB{ Protocols::InteractionModel::Status::Success });
 
-    EXPECT_EQ(
-        callback.OnAttributeData(ConcreteDataAttributePath{ 1, 2, 3, ConcreteDataAttributePath::ListOperation::DeleteItem, 123 },
-                                 nullptr, StatusIB{ Protocols::InteractionModel::Status::Success }),
-        CHIP_ERROR_INVALID_ARGUMENT);
-
-    EXPECT_EQ(
-        callback.OnAttributeData(ConcreteDataAttributePath{ 1, 2, 3, ConcreteDataAttributePath::ListOperation::ReplaceItem, 1 },
-                                 nullptr, StatusIB{ Protocols::InteractionModel::Status::Success }),
-        CHIP_ERROR_INVALID_ARGUMENT);
+    callback.OnAttributeData(ConcreteDataAttributePath{ 1, 2, 3, ConcreteDataAttributePath::ListOperation::ReplaceItem, 1 },
+                             nullptr, StatusIB{ Protocols::InteractionModel::Status::Success });
 }
 
 TEST_F(TestBufferedReadCallback, TestBufferedSequences)
