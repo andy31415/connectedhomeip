@@ -136,23 +136,23 @@ CHIP_ERROR BufferedReadCallback::BufferListItem(TLV::TLVReader & reader)
     return CHIP_NO_ERROR;
 }
 
-CHIP_ERROR BufferedReadCallback::BufferData(const ConcreteDataAttributePath & aPath, TLV::TLVReader & apData)
+CHIP_ERROR BufferedReadCallback::BufferData(const ConcreteDataAttributePath & aPath, TLV::TLVReader & aData)
 {
 
     if (aPath.mListOp == ConcreteDataAttributePath::ListOperation::ReplaceAll)
     {
         TLV::TLVType outerContainer;
 
-        VerifyOrReturnError(apData.GetType() == TLV::kTLVType_Array, CHIP_ERROR_INVALID_TLV_ELEMENT);
+        VerifyOrReturnError(aData.GetType() == TLV::kTLVType_Array, CHIP_ERROR_INVALID_TLV_ELEMENT);
         mBufferedList.clear();
 
-        ReturnErrorOnFailure(apData.EnterContainer(outerContainer));
+        ReturnErrorOnFailure(aData.EnterContainer(outerContainer));
 
         CHIP_ERROR err;
 
-        while ((err = apData.Next()) == CHIP_NO_ERROR)
+        while ((err = aData.Next()) == CHIP_NO_ERROR)
         {
-            ReturnErrorOnFailure(BufferListItem(apData));
+            ReturnErrorOnFailure(BufferListItem(aData));
         }
 
         if (err == CHIP_END_OF_TLV)
@@ -161,11 +161,11 @@ CHIP_ERROR BufferedReadCallback::BufferData(const ConcreteDataAttributePath & aP
         }
 
         ReturnErrorOnFailure(err);
-        ReturnErrorOnFailure(apData.ExitContainer(outerContainer));
+        ReturnErrorOnFailure(aData.ExitContainer(outerContainer));
     }
     else if (aPath.mListOp == ConcreteDataAttributePath::ListOperation::AppendItem)
     {
-        ReturnErrorOnFailure(BufferListItem(apData));
+        ReturnErrorOnFailure(BufferListItem(aData));
     }
 
     return CHIP_NO_ERROR;
