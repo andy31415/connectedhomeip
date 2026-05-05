@@ -823,9 +823,7 @@ void * bridge_polling_thread(void * context)
             int ch = getchar();
 
             // MUST be on the chip thread, as we access device properties
-            DeviceLayer::SystemLayer().ScheduleLambda([ch]() {
-                handle_char_input(ch);
-            });
+            DeviceLayer::SystemLayer().ScheduleLambda([ch]() { handle_char_input(ch); });
         }
         else
         {
