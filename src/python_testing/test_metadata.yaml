@@ -171,7 +171,7 @@ not_automated:
       reason:
           Very flaky in CI.
           https://github.com/project-chip/connectedhomeip/issues/71932
-    - name: TC_PAVST_2_13.py 
+    - name: TC_PAVST_2_13.py
       reason:
           Used to be flaky, now it seems to deadlock and tests are cancelled.
           https://github.com/project-chip/connectedhomeip/issues/71808
