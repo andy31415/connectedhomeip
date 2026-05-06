@@ -8,21 +8,21 @@ that generates inputs to [ninja](https://ninja-build.org/).
 
 The build system has been tested on the following Operating Systems:
 
-- macOS 10.15
-- Debian 11 (64 bit required)
-- Ubuntu 22.04 LTS (requires Python 3.11+)
-- Ubuntu 24.04 LTS
+-   macOS 10.15
+-   Debian 11 (64 bit required)
+-   Ubuntu 22.04 LTS (requires Python 3.11+)
+-   Ubuntu 24.04 LTS
 
 ## Build system features
 
 The Matter build system has the following features:
 
-- Very fast and small footprint
-- Cross-platform handling: Linux, Darwin, Embedded Arm, among others
-- Multiple toolchains & cross toolchain dependencies
-- Integrates automated testing framework: `ninja check`
-- Introspection: `gn desc`
-- Automatic formatting: `gn format`
+-   Very fast and small footprint
+-   Cross-platform handling: Linux, Darwin, Embedded Arm, among others
+-   Multiple toolchains & cross toolchain dependencies
+-   Integrates automated testing framework: `ninja check`
+-   Introspection: `gn desc`
+-   Automatic formatting: `gn format`
 
 ## Checking out the Matter code
 
@@ -41,13 +41,13 @@ git clone --recurse-submodules git@github.com:project-chip/connectedhomeip.git
 
 ### Specific platforms Checking out
 
-- first step, checking out matter top level repo with command below:
+-   first step, checking out matter top level repo with command below:
 
 ```shell
 git clone --depth=1 git@github.com:project-chip/connectedhomeip.git
 ```
 
-- Second step, check out third-party platform support repos as follows:
+-   Second step, check out third-party platform support repos as follows:
 
 ```shell
 python3 scripts/checkout_submodules.py --shallow --platform platform1,platform2...
@@ -267,18 +267,18 @@ ENV ZAP_DEVELOPMENT_PATH=/opt/zap-${ZAP_VERSION}
 
 The ZAP tool scripting uses the following detection, in order of importance:
 
-- `$ZAP_DEVELOPMENT_PATH` to point to a ZAP checkout.
+-   `$ZAP_DEVELOPMENT_PATH` to point to a ZAP checkout.
 
-  - Use this if you are developing ZAP locally and would like to run ZAP
+    -   Use this if you are developing ZAP locally and would like to run ZAP
         with your changes.
 
-- `$ZAP_INSTALL_PATH` to point to where `zap-linux-x64.zip`,
+-   `$ZAP_INSTALL_PATH` to point to where `zap-linux-x64.zip`,
     `zap-linux-arm64.zip` or `zap-mac-x64.zip` was unpacked.
 
-  - This allows you to not need to place `zap` or `zap-cli` (or both) in
+    -   This allows you to not need to place `zap` or `zap-cli` (or both) in
         `$PATH`.
 
-- Otherwise, the scripts assume `zap-cli` or `zap` is available in `$PATH`.
+-   Otherwise, the scripts assume `zap-cli` or `zap` is available in `$PATH`.
 
 ## Prepare for building
 
@@ -359,14 +359,14 @@ ninja -C out/host src/inet/tests:tests_run
 To run a unit test, pass the target path to ninja in the form:
 "<platform>/phony/<src_path>/<test_file>.run" OR "<platform>/tests/<test_file>"
 
-- `<platform>` is the build configuration directory, such as `linux_x64_clang`
+-   `<platform>` is the build configuration directory, such as `linux_x64_clang`
     for a Linux build using Clang. You can find this by looking at the
     subdirectories in your `out/debug` build output.
-- `<src_path>` is the relative path from the source root to the test file,
+-   `<src_path>` is the relative path from the source root to the test file,
     excluding the platform and file extension. For example, for a test located
     at `src/transport/tests/TestSessionManagerDispatch.cpp`, the `src_path`
     would be `src/transport/tests`.
-- `<test_file>` is the name of the test source file (without extension), such
+-   `<test_file>` is the name of the test source file (without extension), such
     as `TestSessionManagerDispatch`.
 
 For example:
@@ -447,20 +447,20 @@ executed manually.
 
 > [!TIP]
 >
-> - It is possible to build `FuzzTests` with Coverage instrumentation, by
+> -   It is possible to build `FuzzTests` with Coverage instrumentation, by
 >     appending `-coverage` to the target, e.g.
 >     `linux-x64-tests-clang-pw-fuzztest-coverage`
-> - Details:
+> -   Details:
 >     [Coverage Report Generation](https://github.com/project-chip/connectedhomeip/blob/master/docs/testing/fuzz_testing.md#coverage-report-generation)
 
 Tests will be located in:
 `out/linux-x64-tests-clang-pw-fuzztest/chip_pw_fuzztest/tests/` where
 `chip_pw_fuzztest` is the name of the toolchain used.
 
-- Details on How To Run Fuzz Tests in
+-   Details on How To Run Fuzz Tests in
     [Running FuzzTests](https://github.com/project-chip/connectedhomeip/blob/master/docs/testing/fuzz_testing.md#running-fuzztests)
 
-- FAQ: In the event of a build failure related to missing files or
+-   FAQ: In the event of a build failure related to missing files or
     dependencies for pw_fuzzer, check the
     [FuzzTest FAQ](https://github.com/project-chip/connectedhomeip/blob/master/docs/testing/fuzz_testing.md#FAQ)
 
@@ -469,9 +469,9 @@ Tests will be located in:
 The build is configured by setting build arguments. These you can set in one of
 the following manners:
 
-- Passing the `--args` option to `gn gen`.
-- Running `gn args` on the output directory.
-- Editing `args.gn` in the output directory.
+-   Passing the `--args` option to `gn gen`.
+-   Running `gn args` on the output directory.
+-   Editing `args.gn` in the output directory.
 
 To configure a new build or edit the arguments to existing build, run the
 following command:
@@ -592,43 +592,43 @@ Also see the
 GN has various introspection tools to help you examine the build configuration.
 The following examples use the `out/host` output directory as example:
 
-- Show all of the targets in an output directory:
+-   Show all of the targets in an output directory:
 
     ```shell
     gn ls out/host
     ```
 
-- Show all of the files that will be built:
+-   Show all of the files that will be built:
 
     ```shell
     gn outputs out/host '*'
     ```
 
-- Show the GN representation of a configured target:
+-   Show the GN representation of a configured target:
 
     ```shell
     gn desc out/host //src/inet --all
     ```
 
-- Dump the GN representation of the entire build as JSON:
+-   Dump the GN representation of the entire build as JSON:
 
     ```shell
     gn desc out/host/ '*' --all --format=json
     ```
 
-- Show the dependency tree:
+-   Show the dependency tree:
 
     ```shell
     gn desc out/host //:all deps --tree --all
     ```
 
-- Find dependency paths:
+-   Find dependency paths:
 
     ```shell
     gn path out/host //src/transport/tests:tests //src/system
     ```
 
-- List useful information for linking against `libCHIP`:
+-   List useful information for linking against `libCHIP`:
 
     ```shell
     gn desc out/host //src/lib include_dirs
