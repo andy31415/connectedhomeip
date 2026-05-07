@@ -124,7 +124,7 @@ links.
 Many libraries install symbolic links that point to absolute paths (e.g.,
 `libfoo.so -> /usr/lib/libfoo.so.1`). When cross-compiling on a host, the
 compiler prepends the sysroot path, making these absolute links invalid
-(pointing to the host's `/usr/lib` instead of the sysroot's). The script
+(pointing to the host's `/usr/lib` instead of the sysroot `/usr/lib`). The script
 traverses the entire sysroot, detects all absolute symlinks, and natively
 converts them into **relative symlinks** (safe for sysroot relocation). It
 explicitly skips special dynamic filesystems (`/proc`, `/sys`, `/dev`).
