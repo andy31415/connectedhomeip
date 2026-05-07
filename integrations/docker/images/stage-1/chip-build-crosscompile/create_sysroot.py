@@ -9,6 +9,7 @@
 # ///
 
 import glob
+import logging
 import os
 import shutil
 import subprocess
@@ -19,9 +20,7 @@ import click
 import coloredlogs
 from tqdm import tqdm
 
-# Configure logging
-coloredlogs.install(level='INFO', fmt='%(asctime)s %(levelname)s %(message)s')
-logger = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def check_prerequisites(install_prereqs):
@@ -341,6 +340,7 @@ def run_stage_2(full_dir, sysroot_dir):
 )
 def main(arch, skip_debootstrap, install_prereqs):
     """Main entry point. Parses arguments and runs the stages."""
+    coloredlogs.install(level='INFO', fmt='%(asctime)s %(levelname)s %(message)s')
     suite = "noble"
     version = "24.04"
     dir_arch = "aarch64" if arch == "arm64" else arch
