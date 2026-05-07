@@ -104,7 +104,7 @@ installation scripts inside emulation.
 #### 2. Stage 2: Non-Destructive Manual Extraction
 
 To install the remaining development headers, libraries, and `pkg-config` files,
-the script avoids booting an emulated chroot. Instead, it iterates over the
+the script avoids booting an emulated `chroot`. Instead, it iterates over the
 downloaded `.deb` files, unpacks each one into a **clean temporary staging
 directory** on the host, and safely merges the contents into the sysroot using
 `rsync -a --keep-dirlinks`. This completely avoids destructive extraction
