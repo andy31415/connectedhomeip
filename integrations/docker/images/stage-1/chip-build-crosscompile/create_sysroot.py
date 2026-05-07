@@ -22,6 +22,7 @@ from tqdm import tqdm
 
 # Configure logging
 coloredlogs.install(level='INFO', fmt='%(asctime)s %(levelname)s %(message)s')
+logger = logger.getLogger(__name__)
 
 
 def check_prerequisites(install_prereqs):
@@ -31,14 +32,14 @@ def check_prerequisites(install_prereqs):
     Exits the script if debootstrap is not found.
     """
     if install_prereqs:
-        logging.info("Attempting to install debootstrap...")
+        logger.info("Attempting to install debootstrap...")
         subprocess.run(["sudo", "apt-get", "update"], check=True)
         subprocess.run(
             ["sudo", "apt-get", "install", "-y", "debootstrap"], check=True
         )
 
     if not shutil.which("debootstrap"):
-        logging.error("Cannot find 'debootstrap'. Please install it or use -i.")
+        logger.error("Cannot find 'debootstrap'. Please install it or use -i.")
         sys.exit(1)
 
 
@@ -48,10 +49,10 @@ def run_stage_1(arch, suite, mirror, full_dir, packages_str):
     Downloads and extracts base system and specified packages in foreign mode.
     Changes ownership of the created directory to the current user.
     """
-    logging.info(
+    logger.info(
         f"=== Stage 1: Running debootstrap for {arch} in {full_dir} ==="
     )
-    logging.info(f"Cleaning up full directory {full_dir} ...")
+    logger.info(f"Cleaning up full directory {full_dir} ...")
     if os.path.exists(full_dir):
         subprocess.run(["sudo", "rm", "-rf", full_dir], check=True)
     os.makedirs(full_dir)
@@ -71,7 +72,7 @@ def run_stage_1(arch, suite, mirror, full_dir, packages_str):
         check=True,
     )
 
-    logging.info(f"Changing ownership of {full_dir} to current user ...")
+    logger.info(f"Changing ownership of {full_dir} to current user ...")
     user = os.environ.get("USER")
     import grp
 
@@ -88,7 +89,7 @@ def extract_debs(full_dir, sysroot_dir):
     merges the contents into the sysroot using rsync --keep-dirlinks to preserve
     merged-usr symlinks and avoid destructive overwrites.
     """
-    logging.info("Copying packages to temporary directory...")
+    logger.info("Copying packages to temporary directory...")
     with tempfile.TemporaryDirectory() as tmp_deb_dir:
         deb_files = glob.glob(
             os.path.join(full_dir, "var/cache/apt/archives/*.deb")
@@ -96,12 +97,12 @@ def extract_debs(full_dir, sysroot_dir):
         for deb in deb_files:
             shutil.copy(deb, tmp_deb_dir)
 
-        logging.info("Extracting additional packages...")
+        logger.info("Extracting additional packages...")
         extracted_debs = glob.glob(os.path.join(tmp_deb_dir, "*.deb"))
         abs_sysroot_dir = os.path.abspath(sysroot_dir)
 
         for deb in tqdm(extracted_debs, desc="Extracting packages"):
-            logging.debug(f"Extracting {os.path.basename(deb)} ...")
+            logger.debug(f"Extracting {os.path.basename(deb)} ...")
             with tempfile.TemporaryDirectory() as tmp_extract_dir:
                 subprocess.run(
                     ["ar", "x", os.path.abspath(deb)],
@@ -137,7 +138,7 @@ def extract_debs(full_dir, sysroot_dir):
                         check=True,
                     )
                 else:
-                    logging.warning(
+                    logger.warning(
                         f"No data.tar.* found in {os.path.basename(deb)}"
                     )
 
@@ -153,9 +154,9 @@ def ensure_lib_symlink(sysroot_dir):
     if os.path.islink(lib_path):
         target = os.readlink(lib_path)
         if target == "usr/lib":
-            logging.info(f"Symlink {lib_path} -> usr/lib is correct.")
+            logger.info(f"Symlink {lib_path} -> usr/lib is correct.")
             return
-        logging.warning(
+        logger.warning(
             f"Symlink {lib_path} points to {target}, expected usr/lib. Fixing..."
         )
         os.unlink(lib_path)
@@ -163,7 +164,7 @@ def ensure_lib_symlink(sysroot_dir):
         return
 
     if os.path.isdir(lib_path):
-        logging.warning(
+        logger.warning(
             f"Conflict detected: {lib_path} is a directory. Merging into {usr_lib_path} ..."
         )
         os.makedirs(usr_lib_path, exist_ok=True)
@@ -171,20 +172,20 @@ def ensure_lib_symlink(sysroot_dir):
             src = os.path.join(lib_path, item)
             subprocess.run(["cp", "-a", src, usr_lib_path], check=True)
 
-        logging.info(f"Removing {lib_path} directory ...")
+        logger.info(f"Removing {lib_path} directory ...")
         shutil.rmtree(lib_path)
 
-        logging.info(f"Recreating symlink {lib_path} -> usr/lib ...")
+        logger.info(f"Recreating symlink {lib_path} -> usr/lib ...")
         os.symlink("usr/lib", lib_path)
         return
 
     if os.path.exists(lib_path):
-        logging.warning(
+        logger.warning(
             f"Conflict detected: {lib_path} exists but is not a dir or symlink. Removing..."
         )
         os.unlink(lib_path)
 
-    logging.info(f"Creating missing symlink {lib_path} -> usr/lib ...")
+    logger.info(f"Creating missing symlink {lib_path} -> usr/lib ...")
     os.symlink("usr/lib", lib_path)
 
 
@@ -193,11 +194,11 @@ def cleanup_sysroot(sysroot_dir):
 
     Keeps only 'usr' and 'lib' (which points to 'usr/lib').
     """
-    logging.info(f"Cleaning up unneeded directories in {sysroot_dir} ...")
+    logger.info(f"Cleaning up unneeded directories in {sysroot_dir} ...")
     for item in os.listdir(sysroot_dir):
         if item not in ["usr", "lib"]:
             path = os.path.join(sysroot_dir, item)
-            logging.info(f"Deleting unneeded item: {path}")
+            logger.info(f"Deleting unneeded item: {path}")
             if os.path.isdir(path) and not os.path.islink(path):
                 shutil.rmtree(path)
             else:
@@ -215,7 +216,7 @@ def cleanup_sysroot(sysroot_dir):
     for pattern in excludes:
         full_pattern = os.path.join(sysroot_dir, pattern)
         for path in glob.glob(full_pattern):
-            logging.info(f"Deleting excluded large item: {path}")
+            logger.info(f"Deleting excluded large item: {path}")
             if os.path.isdir(path) and not os.path.islink(path):
                 shutil.rmtree(path)
             else:
@@ -229,7 +230,7 @@ def fix_symlinks(sysroot_dir):
     converts them to be relative to the sysroot directory.
     Skips special filesystems like /proc, /sys, /dev.
     """
-    logging.info(f"Fixing absolute symlinks in {sysroot_dir} ...")
+    logger.info(f"Fixing absolute symlinks in {sysroot_dir} ...")
     abs_sysroot_dir = os.path.abspath(sysroot_dir)
     for root, dirs, files in os.walk(sysroot_dir):
         for name in files + dirs:
@@ -242,7 +243,7 @@ def fix_symlinks(sysroot_dir):
                         or target.startswith("/sys/")
                         or target.startswith("/dev/")
                     ):
-                        logging.info(
+                        logger.info(
                             f"Skipping special filesystem link {path} -> {target}"
                         )
                         continue
@@ -254,7 +255,7 @@ def fix_symlinks(sysroot_dir):
                         abs_target, os.path.dirname(path)
                     )
 
-                    logging.info(
+                    logger.info(
                         f"Updating link {path}: {target} -> {rel_target}"
                     )
                     os.unlink(path)
@@ -267,28 +268,28 @@ def run_stage_2(full_dir, sysroot_dir):
     Creates the clean sysroot directory, copies base files from the full rootfs,
     and calls helper functions to extract packages, clean up, and fix symlinks.
     """
-    logging.info(f"=== Stage 2: Creating sysroot in {sysroot_dir} ===")
+    logger.info(f"=== Stage 2: Creating sysroot in {sysroot_dir} ===")
 
     if not os.path.isdir(full_dir):
-        logging.error(
+        logger.error(
             f"Error: Stage 1 output directory {full_dir} does not exist. Run Stage 1 first or enable it."
         )
         sys.exit(1)
 
-    logging.info(f"Cleaning up sysroot directory {sysroot_dir} ...")
+    logger.info(f"Cleaning up sysroot directory {sysroot_dir} ...")
     if os.path.exists(sysroot_dir):
         subprocess.run(["rm", "-rf", sysroot_dir], check=True)
     os.makedirs(sysroot_dir)
 
-    logging.info("Pre-creating merged-usr base structure ...")
+    logger.info("Pre-creating merged-usr base structure ...")
     for d in ["bin", "lib", "sbin"]:
         os.makedirs(os.path.join(sysroot_dir, f"usr/{d}"), exist_ok=True)
         symlink_path = os.path.join(sysroot_dir, d)
         if not os.path.exists(symlink_path):
             os.symlink(f"usr/{d}", symlink_path)
-            logging.info(f"Created symlink {d} -> usr/{d} in {sysroot_dir}")
+            logger.info(f"Created symlink {d} -> usr/{d} in {sysroot_dir}")
 
-    logging.info(f"Copying base system files from {full_dir} ...")
+    logger.info(f"Copying base system files from {full_dir} ...")
     subprocess.run(
         [
             "cp",
@@ -378,17 +379,17 @@ def main(arch, skip_debootstrap, install_prereqs):
     if not skip_debootstrap:
         run_stage_1(arch, suite, mirror, full_dir, packages_str)
     else:
-        logging.info("Skipping debootstrap step as requested.")
+        logger.info("Skipping debootstrap step as requested.")
         if not os.path.isdir(full_dir):
-            logging.error(
+            logger.error(
                 f"Error: Stage 1 output directory {full_dir} does not exist. Cannot skip debootstrap."
             )
             sys.exit(1)
 
     run_stage_2(full_dir, sysroot_dir)
 
-    logging.info("DONE")
-    logging.info(f"Sysroot created in {sysroot_dir}")
+    logger.info("DONE")
+    logger.info(f"Sysroot created in {sysroot_dir}")
 
 
 if __name__ == "__main__":
