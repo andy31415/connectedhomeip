@@ -31,12 +31,12 @@ The script requires Python 3.11+ and depends on `click`, `coloredlogs`, and
 You have two ways to run it:
 
 1. **Using `uv` (Recommended)**: Install `uv` from Astral (e.g.,
-    `curl -LsSf https://astral.sh/uv/install.sh | sh`). Running the script with
-    `uv` will automatically fetch the required dependencies in an isolated
-    environment.
+   `curl -LsSf https://astral.sh/uv/install.sh | sh`). Running the script with
+   `uv` will automatically fetch the required dependencies in an isolated
+   environment.
 2. **Using standard `python3`**: Ensure you have installed the required
-    dependencies in your environment (e.g.,
-    `pip install click coloredlogs tqdm`).
+   dependencies in your environment (e.g.,
+   `pip install click coloredlogs tqdm`).
 
 #### How to Run
 
@@ -57,9 +57,9 @@ python3 create_sysroot.py -a arm64
 This performs a full run and generates two directories:
 
 1. `ubuntu-24.04-aarch64-full`: The complete minimal rootfs created by
-    `debootstrap`.
+   `debootstrap`.
 2. `ubuntu-24.04-aarch64-sysroot`: The lean, final sysroot optimized for
-    cross-compilation.
+   cross-compilation.
 
 #### Fast Iteration (Skipping Stage 1)
 
@@ -141,11 +141,11 @@ reducing the final sysroot size from over 2.4GB down to a highly optimized
 
 Start with a fresh Raspberry PI image:
 
-- Use the Raspberry pi imager from <https://www.raspberrypi.org/software/>
-- Follow installation instructions from the CHIP BUILDING.md document.
+-   Use the Raspberry pi imager from <https://www.raspberrypi.org/software/>
+-   Follow installation instructions from the CHIP BUILDING.md document.
     Generally this includes:
-  - Use Ubuntu 22.04 server 64 bit server image
-  - Install required compile dependencies via `apt-get`. You may skip
+    -   Use Ubuntu 22.04 server 64 bit server image
+    -   Install required compile dependencies via `apt-get`. You may skip
         installing git and python3 dependencies to save some image size
 
 Generate a sysroot. You can do this locally (slow due to SD performance):
@@ -170,8 +170,8 @@ rsync -avL ubuntu@$PI:/usr/include ubuntu-22.04-aarch64-sysroot/usr
 NOTE: in the future, if creating a 32-bit image (not covered by this docker
 image yet), the following symlinks are required:
 
-- `usr/lib/arm-linux-gnueabihf` to `usr/lib/armv7-linux-gnueabihf`
-- `usr/include/arm-linux-gnueabihf` to `usr/lib/armv7-linux-gnueabihf`
+-   `usr/lib/arm-linux-gnueabihf` to `usr/lib/armv7-linux-gnueabihf`
+-   `usr/include/arm-linux-gnueabihf` to `usr/lib/armv7-linux-gnueabihf`
 
 Once the sysroot is on the host machine, create the corresponding `tar.xz` file:
 
