@@ -72,8 +72,12 @@ def run_stage_1(arch, suite, mirror, full_dir, packages_str):
     )
 
     logger.info(f"Changing ownership of {full_dir} to current user ...")
-    user = os.environ.get("USER")
     import grp
+    import pwd
+
+    user = os.environ.get("USER")
+    if not user:
+        user = pwd.getpwuid(os.getuid()).pw_name
 
     group = grp.getgrgid(os.getgid()).gr_name
     subprocess.run(
@@ -289,12 +293,13 @@ def run_stage_2(full_dir, sysroot_dir):
             logger.info(f"Created symlink {d} -> usr/{d} in {sysroot_dir}")
 
     logger.info(f"Copying base system files from {full_dir} ...")
+    os.makedirs(os.path.join(sysroot_dir, "usr/include"), exist_ok=True)
     subprocess.run(
         [
             "cp",
             "-a",
-            os.path.join(full_dir, "usr/include"),
-            os.path.join(sysroot_dir, "usr/"),
+            os.path.join(full_dir, "usr/include/."),
+            os.path.join(sysroot_dir, "usr/include/"),
         ],
         check=True,
     )
@@ -302,8 +307,8 @@ def run_stage_2(full_dir, sysroot_dir):
         [
             "cp",
             "-a",
-            os.path.join(full_dir, "usr/lib"),
-            os.path.join(sysroot_dir, "usr/"),
+            os.path.join(full_dir, "usr/lib/."),
+            os.path.join(sysroot_dir, "usr/lib/"),
         ],
         check=True,
     )
