@@ -20,11 +20,11 @@
 #include <lib/shell/SubShellCommand.h>
 #include <lib/shell/commands/WiFi.h>
 #include <lib/shell/streamer.h>
+#include <lib/support/AutoRelease.h>
 #include <lib/support/Span.h>
 #include <platform/CHIPDeviceLayer.h>
 #include <platform/ConnectivityManager.h>
 #include <platform/NetworkCommissioning.h>
-#include <lib/support/AutoRelease.h>
 
 using chip::DeviceLayer::ConnectivityManager;
 using chip::DeviceLayer::ConnectivityMgr;
@@ -37,13 +37,14 @@ using namespace chip::DeviceLayer::NetworkCommissioning;
 namespace chip {
 namespace Shell {
 
-    class ShellScanCallback : public WiFiDriver::ScanCallback
+class ShellScanCallback : public WiFiDriver::ScanCallback
 {
 public:
     void OnFinished(Status status, CharSpan debugText, WiFiScanResponseIterator * networks) override
     {
         DEFER_AUTO_RELEASE(networks);
-        VerifyOrReturn(status == Status::kSuccess, ChipLogError(Shell, "WiFi scan failed with status: %d", static_cast<int>(status)));
+        VerifyOrReturn(status == Status::kSuccess,
+                       ChipLogError(Shell, "WiFi scan failed with status: %d", static_cast<int>(status)));
 
         ChipLogProgress(Shell, "WiFi scan completed");
 
@@ -52,9 +53,7 @@ public:
             WiFiScanResponse scanResponse;
             while (networks->Next(scanResponse))
             {
-                ChipLogProgress(Shell, "SSID: %.*s",
-                               static_cast<int>(scanResponse.ssidLen),
-                               scanResponse.ssid);
+                ChipLogProgress(Shell, "SSID: %.*s", static_cast<int>(scanResponse.ssidLen), scanResponse.ssid);
             }
         }
     }

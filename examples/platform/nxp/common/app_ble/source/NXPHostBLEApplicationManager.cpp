@@ -78,7 +78,6 @@ void BLEApplicationManager::PostMatterStackInit(void)
     /*Empty implementation. Intentionally left blank */
 }
 
-
 void BLEApplicationManager::EnableMultipleConnectionsHandler(void)
 {
     /* Publish an event to the Matter task to always set the commissioning state in the Matter task context */

@@ -53,7 +53,6 @@ uint8_t manuf_data[ADV_LEN] = {
 
 bt_uuid_16 UUID16_CHIPoBLEService = BT_UUID_INIT_16(0xFFF6);
 
-
 void BLEApplicationManager::PreMatterStackInit(void)
 {
     /* Nothing to do */

@@ -268,7 +268,6 @@ CHIP_ERROR chip::NXP::App::AppTaskBase::Init()
     /* Initialize Matter factory data before initializing the Matter stack */
     err = AppFactoryData_PreMatterStackInit();
 
-
     if (err != CHIP_NO_ERROR)
     {
         ChipLogError(DeviceLayer, "Pre Factory Data Provider init failed");
