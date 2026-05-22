@@ -709,26 +709,6 @@ cluster Descriptor = 29 {
   readonly attribute int16u clusterRevision = 65533;
 }
 
-/** The Binding Cluster is meant to replace the support from the Zigbee Device Object (ZDO) for supporting the binding table. */
-cluster Binding = 30 {
-  revision 1;
-
-  fabric_scoped struct TargetStruct {
-    optional node_id node = 1;
-    optional group_id group = 2;
-    optional endpoint_no endpoint = 3;
-    optional cluster_id cluster = 4;
-    fabric_idx fabricIndex = 254;
-  }
-
-  attribute access(write: manage) TargetStruct binding[] = 0;
-  readonly attribute command_id generatedCommandList[] = 65528;
-  readonly attribute command_id acceptedCommandList[] = 65529;
-  readonly attribute attrib_id attributeList[] = 65531;
-  readonly attribute bitmap32 featureMap = 65532;
-  readonly attribute int16u clusterRevision = 65533;
-}
-
 /** The Access Control Cluster exposes a data model view of a
       Node's Access Control List (ACL), which codifies the rules used to manage
       and enforce Access Control for the Node's endpoints and their associated
@@ -966,81 +946,6 @@ cluster BasicInformation = 40 {
   readonly attribute int16u clusterRevision = 65533;
 
   command MfgSpecificPing(): DefaultSuccess = 0;
-}
-
-/** Provides an interface for providing OTA software updates */
-cluster OtaSoftwareUpdateProvider = 41 {
-  revision 1; // NOTE: Default/not specifically set
-
-  enum ApplyUpdateActionEnum : enum8 {
-    kProceed = 0;
-    kAwaitNextAction = 1;
-    kDiscontinue = 2;
-  }
-
-  enum DownloadProtocolEnum : enum8 {
-    kBDXSynchronous = 0;
-    kBDXAsynchronous = 1;
-    kHTTPS = 2 [spec_name = "HTTPS"];
-    kVendorSpecific = 3;
-  }
-
-  enum StatusEnum : enum8 {
-    kUpdateAvailable = 0;
-    kBusy = 1;
-    kNotAvailable = 2;
-    kDownloadProtocolNotSupported = 3;
-  }
-
-  readonly attribute command_id generatedCommandList[] = 65528;
-  readonly attribute command_id acceptedCommandList[] = 65529;
-  readonly attribute attrib_id attributeList[] = 65531;
-  readonly attribute bitmap32 featureMap = 65532;
-  readonly attribute int16u clusterRevision = 65533;
-
-  request struct QueryImageRequest {
-    vendor_id vendorID = 0;
-    int16u productID = 1;
-    int32u softwareVersion = 2;
-    DownloadProtocolEnum protocolsSupported[] = 3;
-    optional int16u hardwareVersion = 4;
-    optional char_string<2> location = 5;
-    optional boolean requestorCanConsent = 6;
-    optional octet_string<512> metadataForProvider = 7;
-  }
-
-  response struct QueryImageResponse = 1 {
-    StatusEnum status = 0;
-    optional int32u delayedActionTime = 1;
-    optional char_string<256> imageURI = 2;
-    optional int32u softwareVersion = 3;
-    optional char_string<64> softwareVersionString = 4;
-    optional octet_string<32> updateToken = 5;
-    optional boolean userConsentNeeded = 6;
-    optional octet_string<512> metadataForRequestor = 7;
-  }
-
-  request struct ApplyUpdateRequestRequest {
-    octet_string<32> updateToken = 0;
-    int32u newVersion = 1;
-  }
-
-  response struct ApplyUpdateResponse = 3 {
-    ApplyUpdateActionEnum action = 0;
-    int32u delayedActionTime = 1;
-  }
-
-  request struct NotifyUpdateAppliedRequest {
-    octet_string<32> updateToken = 0;
-    int32u softwareVersion = 1;
-  }
-
-  /** Determine availability of a new Software Image */
-  command QueryImage(QueryImageRequest): QueryImageResponse = 0;
-  /** Determine next action to take for a downloaded Software Image */
-  command ApplyUpdateRequest(ApplyUpdateRequestRequest): ApplyUpdateResponse = 2;
-  /** Notify OTA Provider that an update was applied */
-  command NotifyUpdateApplied(NotifyUpdateAppliedRequest): DefaultSuccess = 4;
 }
 
 /** Provides an interface for downloading and applying OTA software updates */
@@ -2060,79 +1965,6 @@ provisional cluster ScenesManagement = 98 {
   fabric command GetSceneMembership(GetSceneMembershipRequest): GetSceneMembershipResponse = 6;
   /** This command allows a client to efficiently copy scenes from one group/scene identifier pair to another group/scene identifier pair. */
   fabric command access(invoke: manage) CopyScene(CopySceneRequest): CopySceneResponse = 64;
-}
-
-/** The server cluster provides an interface to occupancy sensing functionality based on one or more sensing modalities, including configuration and provision of notifications of occupancy status. */
-cluster OccupancySensing = 1030 {
-  revision 7;
-
-  enum OccupancySensorTypeEnum : enum8 {
-    kPIR = 0 [spec_name = "PIR"];
-    kUltrasonic = 1;
-    kPIRAndUltrasonic = 2;
-    kPhysicalContact = 3;
-  }
-
-  bitmap Feature : bitmap32 {
-    kOther = 0x1;
-    kPassiveInfrared = 0x2;
-    kUltrasonic = 0x4;
-    kPhysicalContact = 0x8;
-    kActiveInfrared = 0x10;
-    kRadar = 0x20;
-    kRFSensing = 0x40;
-    kVision = 0x80;
-    kPrediction = 0x100;
-    kOccupancyEvent = 0x200;
-  }
-
-  bitmap OccupancyBitmap : bitmap8 {
-    kOccupied = 0x1;
-  }
-
-  bitmap OccupancySensorTypeBitmap : bitmap8 {
-    kPIR = 0x1 [spec_name = "PIR"];
-    kUltrasonic = 0x2;
-    kPhysicalContact = 0x4;
-  }
-
-  struct HoldTimeLimitsStruct {
-    int16u holdTimeMin = 0;
-    int16u holdTimeMax = 1;
-    int16u holdTimeDefault = 2;
-  }
-
-  struct PredictedOccupancyStruct {
-    epoch_s startTimestamp = 0;
-    epoch_s endTimestamp = 1;
-    OccupancyBitmap occupancy = 2;
-    percent confidence = 3;
-  }
-
-  info event OccupancyChanged = 0 {
-    OccupancyBitmap occupancy = 0;
-  }
-
-  readonly attribute OccupancyBitmap occupancy = 0;
-  readonly attribute OccupancySensorTypeEnum occupancySensorType = 1;
-  readonly attribute OccupancySensorTypeBitmap occupancySensorTypeBitmap = 2;
-  attribute access(write: manage) optional int16u holdTime = 3;
-  readonly attribute optional HoldTimeLimitsStruct holdTimeLimits = 4;
-  provisional readonly attribute optional PredictedOccupancyStruct predictedOccupancy[] = 5;
-  attribute access(write: manage) optional int16u PIROccupiedToUnoccupiedDelay = 16;
-  attribute access(write: manage) optional int16u PIRUnoccupiedToOccupiedDelay = 17;
-  attribute access(write: manage) optional int8u PIRUnoccupiedToOccupiedThreshold = 18;
-  attribute access(write: manage) optional int16u ultrasonicOccupiedToUnoccupiedDelay = 32;
-  attribute access(write: manage) optional int16u ultrasonicUnoccupiedToOccupiedDelay = 33;
-  attribute access(write: manage) optional int8u ultrasonicUnoccupiedToOccupiedThreshold = 34;
-  attribute access(write: manage) optional int16u physicalContactOccupiedToUnoccupiedDelay = 48;
-  attribute access(write: manage) optional int16u physicalContactUnoccupiedToOccupiedDelay = 49;
-  attribute access(write: manage) optional int8u physicalContactUnoccupiedToOccupiedThreshold = 50;
-  readonly attribute command_id generatedCommandList[] = 65528;
-  readonly attribute command_id acceptedCommandList[] = 65529;
-  readonly attribute attrib_id attributeList[] = 65531;
-  readonly attribute bitmap32 featureMap = 65532;
-  readonly attribute int16u clusterRevision = 65533;
 }
 
 endpoint 0 {

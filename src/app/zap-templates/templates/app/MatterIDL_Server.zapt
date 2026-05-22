@@ -3,12 +3,14 @@
 
 {{>idl_global_types}}
 {{#all_user_clusters~}}
+{{#if (isServer side)}}
 {{>idl_cluster_definition}}
+{{/if}}
 {{/all_user_clusters}}
 {{#user_endpoints}}
 endpoint {{endpointId}} {
   {{#user_device_types}}
-  device type 
+  device type
     {{~#zcl_device_types}}
       {{~#if (is_num_equal id ../deviceTypeRef)}} {{as_underscore_lowercase name}} {{/if~}}
     {{/zcl_device_types~}}
