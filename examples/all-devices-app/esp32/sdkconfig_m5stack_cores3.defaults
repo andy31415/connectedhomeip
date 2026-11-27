@@ -109,12 +109,22 @@ CONFIG_SPIRAM_ALLOW_STACK_EXTERNAL_MEMORY=y
 CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL=0
 CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=y
 
+# Reserve internal DRAM for DMA, WiFi, and BLE controller allocations, and move
+# NimBLE host buffers to PSRAM so internal RAM stays available for BT/WiFi/camera.
+CONFIG_SPIRAM_MALLOC_RESERVE_INTERNAL=65536
+CONFIG_BT_NIMBLE_MEM_ALLOC_MODE_EXTERNAL=y
+
+# Move Wi-Fi IRAM hot paths to flash to preserve internal DIRAM/IRAM for BLE
+# alongside SPIRAM and camera streaming.
+CONFIG_ESP_WIFI_IRAM_OPT=n
+CONFIG_ESP_WIFI_RX_IRAM_OPT=n
+
 # Display: the board support package drives the panel through LVGL.
 #
-# The BSP defaults to two 320x100 draw buffers in internal DMA-capable RAM
-# (128kB).  40 rows is enough for smooth updates of the screens used here and
-# leaves that memory to the WiFi, BLE and Matter stacks.
-CONFIG_BSP_LCD_DRAW_BUF_HEIGHT=40
+# Use a single 320x20 DMA draw buffer (12.8KB internal RAM instead of 128KB BSP
+# default / 51.2KB double-buffered 40-row) so BLE, WiFi, and camera have headroom.
+CONFIG_BSP_LCD_DRAW_BUF_HEIGHT=20
+CONFIG_BSP_LCD_DRAW_BUF_DOUBLE=n
 
 # Let LVGL allocate from the IDF heap, which is backed by PSRAM here, instead of
 # reserving its own 64kB pool in internal RAM.
@@ -146,10 +156,11 @@ CONFIG_CAMERA_GC0308_DVP_YUV422_YUYV_320X240_20FPS=y
 CONFIG_CAMERA_GC0308_DVP_YUV422_YUYV_640X480_16FPS=n
 CONFIG_CAMERA_GC0308_DVP_DEFAULT_FMT_YUV422_YUYV_320X240_20FPS=y
 
-# ESP32-S3 CPU & cache tuning for software H.264 encoding
+# ESP32-S3 CPU & cache tuning for software H.264 encoding.
+# Keep 32KB data cache (IDF default) instead of 64KB to preserve 32KB internal SRAM.
 CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
-CONFIG_ESP32S3_DATA_CACHE_64KB=y
-CONFIG_ESP32S3_DATA_CACHE_LINE_64B=y
+CONFIG_ESP32S3_DATA_CACHE_32KB=y
+CONFIG_ESP32S3_DATA_CACHE_LINE_32B=y
 CONFIG_ESP_H264_DECODER_IRAM=n
 
 # WebRTC (esp_peer) DTLS-SRTP & socket capacity
