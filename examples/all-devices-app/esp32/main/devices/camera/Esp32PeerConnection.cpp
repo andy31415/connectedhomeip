@@ -55,6 +55,133 @@ struct PendingPeerEvent
     std::string payload;
 };
 
+std::vector<std::string> SplitSdpLines(const std::string & sdp)
+{
+    std::vector<std::string> lines;
+    size_t pos = 0;
+    while (pos < sdp.size())
+    {
+        size_t eol = sdp.find('\n', pos);
+        if (eol == std::string::npos)
+        {
+            eol = sdp.size();
+        }
+        std::string line = sdp.substr(pos, eol - pos);
+        if (!line.empty() && line.back() == '\r')
+        {
+            line.pop_back();
+        }
+        if (!line.empty())
+        {
+            lines.push_back(std::move(line));
+        }
+        pos = eol + 1;
+    }
+    return lines;
+}
+
+bool IsRejectedMediaLine(const std::string & mLine)
+{
+    size_t sp1 = mLine.find(' ');
+    if (sp1 == std::string::npos)
+    {
+        return false;
+    }
+    size_t sp2 = mLine.find(' ', sp1 + 1);
+    std::string port = (sp2 == std::string::npos) ? mLine.substr(sp1 + 1) : mLine.substr(sp1 + 1, sp2 - (sp1 + 1));
+    return port == "0";
+}
+
+// libpeer_default leaves rejected mids (m=... 0 ...) in a=group:BUNDLE and
+// appends transport attributes (fingerprint, setup, ICE candidates) to them.
+void SanitizeLocalAnswerSdp(std::string & sdp)
+{
+    struct MediaSection
+    {
+        bool rejected = false;
+        std::string mid;
+        std::vector<std::string> lines;
+    };
+
+    std::vector<std::string> rawLines = SplitSdpLines(sdp);
+    std::vector<std::string> sessionLines;
+    std::vector<MediaSection> sections;
+
+    for (std::string & line : rawLines)
+    {
+        if (line.rfind("m=", 0) == 0)
+        {
+            MediaSection & sec = sections.emplace_back();
+            sec.rejected       = IsRejectedMediaLine(line);
+            sec.lines.push_back(std::move(line));
+            continue;
+        }
+        if (sections.empty())
+        {
+            sessionLines.push_back(std::move(line));
+            continue;
+        }
+
+        MediaSection & current = sections.back();
+        if (line.rfind("a=mid:", 0) == 0)
+        {
+            current.mid = line.substr(6);
+        }
+        if (current.rejected)
+        {
+            const bool keep = (line.rfind("c=", 0) == 0 || line.rfind("a=mid:", 0) == 0 || line == "a=inactive");
+            if (!keep)
+            {
+                continue;
+            }
+        }
+        current.lines.push_back(std::move(line));
+    }
+
+    std::vector<std::string> activeMids;
+    for (const auto & sec : sections)
+    {
+        if (!sec.rejected && !sec.mid.empty())
+        {
+            activeMids.push_back(sec.mid);
+        }
+    }
+
+    std::string out;
+    out.reserve(sdp.size());
+    for (const auto & line : sessionLines)
+    {
+        if (line.rfind("a=group:BUNDLE", 0) == 0)
+        {
+            if (activeMids.empty())
+            {
+                continue;
+            }
+            out += "a=group:BUNDLE";
+            for (const auto & mid : activeMids)
+            {
+                out += ' ';
+                out += mid;
+            }
+            out += "\r\n";
+            continue;
+        }
+        out += line;
+        out += "\r\n";
+    }
+
+    for (const auto & sec : sections)
+    {
+        for (const auto & line : sec.lines)
+        {
+            out += line;
+            out += "\r\n";
+        }
+    }
+
+    sdp = std::move(out);
+}
+
 void DispatchPendingEvent(PendingPeerEvent * evt)
 {
     std::unique_ptr<PendingPeerEvent> owned(evt);
@@ -85,9 +212,17 @@ void DispatchPendingEvent(PendingPeerEvent * evt)
     {
         const webrtc::SdpType sdpType =
             (state->role == ESP_PEER_ROLE_CONTROLLING) ? webrtc::SdpType::kOffer : webrtc::SdpType::kAnswer;
+        if (sdpType == webrtc::SdpType::kAnswer)
+        {
+            SanitizeLocalAnswerSdp(owned->payload);
+        }
         ChipLogProgress(Camera, "Esp32PeerConnection: generated local %s (%u bytes)",
                         (sdpType == webrtc::SdpType::kOffer) ? "offer" : "answer",
                         static_cast<unsigned>(owned->payload.size()));
+        for (const auto & line : SplitSdpLines(owned->payload))
+        {
+            ChipLogProgress(Camera, "SDP: %s", line.c_str());
+        }
         state->events.OnLocalDescription(sdpType, CharSpan(owned->payload.data(), owned->payload.size()));
     }
     else if (owned->msgType == ESP_PEER_MSG_TYPE_CANDIDATE)
