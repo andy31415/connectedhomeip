@@ -523,7 +523,7 @@ void Esp32MediaControl::RunCaptureLoop()
         buf.memory             = V4L2_MEMORY_MMAP;
         if (ioctl(v4l2.fd, VIDIOC_DQBUF, &buf) != 0)
         {
-            vTaskDelay(pdMS_TO_TICKS(5));
+            vTaskDelay(std::max<TickType_t>(1, pdMS_TO_TICKS(10)));
             continue;
         }
 

@@ -42,15 +42,16 @@ Camera::Config Esp32Camera::DefaultConfig()
     const uint16_t height  = Esp32MediaControl::kVideoHeight;
     const uint16_t fps     = Esp32MediaControl::kTargetFps;
     const uint32_t bitrate = Esp32MediaControl::kTargetBitrate;
-    const uint32_t minRate = bitrate >= 100000 ? 100000 : bitrate;
-    const uint32_t maxRate = static_cast<uint32_t>(width) * height * fps;
+    const uint32_t minRate      = bitrate >= 100000 ? 100000 : bitrate;
+    // Account for a video stream up to sensor maxFPS plus a concurrent encoded snapshot stream.
+    const uint32_t maxPixelRate = static_cast<uint32_t>(width) * height * Esp32MediaControl::kSensorFps * 2;
 
     Config config;
     config.features                     = BitFlags<CameraAvStreamManagement::Feature>(CameraAvStreamManagement::Feature::kVideo,
                                                                                       CameraAvStreamManagement::Feature::kSnapshot,
                                                                                       CameraAvStreamManagement::Feature::kPrivacy);
     config.maxConcurrentEncoders        = 1;
-    config.maxEncodedPixelRate          = maxRate;
+    config.maxEncodedPixelRate          = maxPixelRate;
     config.videoSensorParams            = { width, height, Esp32MediaControl::kSensorFps, MakeOptional(fps) };
     config.minViewPort                  = { width, height };
     config.rateDistortionTradeOffPoints = { { VideoCodecEnum::kH264, { width, height }, minRate } };

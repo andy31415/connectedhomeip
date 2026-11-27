@@ -32,10 +32,11 @@ namespace chip::app {
 
 namespace {
 
-constexpr uint32_t kPeerLoopStackSize   = 12288;
+constexpr uint32_t kPeerLoopStackSize   = 16384;
 constexpr UBaseType_t kPeerLoopTaskPrio = 3;
 constexpr BaseType_t kPeerLoopTaskCore  = 0;
 constexpr uint16_t kAgentRecvTimeoutMs  = 20;
+constexpr uint32_t kPeerLoopDelayMs     = 20;
 constexpr uint32_t kRtpSendPoolBytes    = 128 * 1024;
 constexpr uint32_t kRtpSendQueueNum     = 128;
 
@@ -464,7 +465,8 @@ void Esp32PeerConnection::RunPeerLoop()
             }
             esp_peer_main_loop(mPeer);
         }
-        vTaskDelay(pdMS_TO_TICKS(5));
+        // Always sleep at least 1 RTOS tick (CONFIG_FREERTOS_HZ=100 makes <10ms round to 0 / taskYIELD).
+        vTaskDelay(std::max<TickType_t>(1, pdMS_TO_TICKS(kPeerLoopDelayMs)));
     }
 
     if (mLoopDoneSem != nullptr)
