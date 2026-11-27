@@ -1769,7 +1769,7 @@ VideoResolutionStruct & CameraDevice::GetMinViewport()
 std::vector<RateDistortionTradeOffStruct> & CameraDevice::GetRateDistortionTradeOffPoints()
 {
     static std::vector<RateDistortionTradeOffStruct> rateDistTradeOffs = {
-        { VideoCodecEnum::kH264, { kMinResolutionWidth, kMinResolutionHeight }, 10000 /* bitrate */ }
+        { VideoCodecEnum::kH264, { kMinResolutionWidth, kMinResolutionHeight }, kMinBitRateBps }
     };
     return rateDistTradeOffs;
 }
