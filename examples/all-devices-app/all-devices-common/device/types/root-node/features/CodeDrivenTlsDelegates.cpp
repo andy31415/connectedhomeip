@@ -670,12 +670,13 @@ CHIP_ERROR CodeDrivenTlsClientManagementDelegate::ForEachEndpoint(EndpointId mat
 {
     VerifyOrReturnError(matterEndpoint == mEndpointId, CHIP_ERROR_INTERNAL);
 
-    BufferedEndpoint endpoint;
-    return mProvisioned.IterateEntries(fabric, endpoint.mBuffer, [&](auto & iterator) {
+    UniquePtr<BufferedEndpoint> endpoint(New<BufferedEndpoint>());
+    VerifyOrReturnError(endpoint, CHIP_ERROR_NO_MEMORY);
+    return mProvisioned.IterateEntries(fabric, endpoint->mBuffer, [&](auto & iterator) {
         InnerIterator innerIter(iterator);
-        while (innerIter.Next(endpoint.mEndpoint))
+        while (innerIter.Next(endpoint->mEndpoint))
         {
-            ReturnErrorOnFailure(callback(endpoint.mEndpoint));
+            ReturnErrorOnFailure(callback(endpoint->mEndpoint));
         }
         return CHIP_NO_ERROR;
     });
@@ -703,13 +704,14 @@ ClusterStatusCode CodeDrivenTlsClientManagementDelegate::ProvisionEndpoint(
     uint16_t numInFabric = 0;
 
     ClusterStatusCode installedCheck(Status::Failure);
-    BufferedEndpoint endpoint;
-    CHIP_ERROR entryCheck = mProvisioned.IterateEntries(fabric, endpoint.mBuffer, [&](auto & iterator) {
+    UniquePtr<BufferedEndpoint> endpoint(New<BufferedEndpoint>());
+    VerifyOrReturnValue(endpoint, ClusterStatusCode(Status::ResourceExhausted));
+    CHIP_ERROR entryCheck = mProvisioned.IterateEntries(fabric, endpoint->mBuffer, [&](auto & iterator) {
         InnerIterator innerIter(iterator);
-        while (innerIter.Next(endpoint.mEndpoint))
+        while (innerIter.Next(endpoint->mEndpoint))
         {
             numInFabric++;
-            auto & endpointStruct = endpoint.mEndpoint;
+            auto & endpointStruct = endpoint->mEndpoint;
             if (endpointStruct.hostname.data_equal(provisionReq.hostname) && (endpointStruct.port == provisionReq.port) &&
                 (provisionReq.endpointID.IsNull() || provisionReq.endpointID.Value() != endpointStruct.endpointID))
             {
@@ -727,22 +729,22 @@ ClusterStatusCode CodeDrivenTlsClientManagementDelegate::ProvisionEndpoint(
         VerifyOrReturnValue(mTLSClientManagementCluster != nullptr, ClusterStatusCode(Status::Failure));
         VerifyOrReturnValue(numInFabric < mTLSClientManagementCluster->GetMaxProvisioned(),
                             ClusterStatusCode(Status::ResourceExhausted));
-        EndpointSerializer::Clear(endpoint.mEndpoint);
+        EndpointSerializer::Clear(endpoint->mEndpoint);
 
         uint16_t nextId = 0;
         ReturnValueOnFailure(GetEndpointId(fabric, nextId), ClusterStatusCode(Status::ResourceExhausted));
-        endpoint.mEndpoint.endpointID = nextId;
-        endpointID                    = endpoint.mEndpoint.endpointID;
+        endpoint->mEndpoint.endpointID = nextId;
+        endpointID                     = endpoint->mEndpoint.endpointID;
     }
     else
     {
         CodeDrivenTlsEndpointId localId(provisionReq.endpointID.Value());
-        ReturnValueOnFailure(mProvisioned.GetTableEntry(fabric, localId, endpoint.mEndpoint, endpoint.mBuffer),
+        ReturnValueOnFailure(mProvisioned.GetTableEntry(fabric, localId, endpoint->mEndpoint, endpoint->mBuffer),
                              ClusterStatusCode(Status::NotFound));
         endpointID = provisionReq.endpointID.Value();
     }
 
-    auto & endpointStruct         = endpoint.mEndpoint;
+    auto & endpointStruct         = endpoint->mEndpoint;
     endpointStruct.hostname       = provisionReq.hostname;
     endpointStruct.port           = provisionReq.port;
     endpointStruct.caid           = provisionReq.caid;
@@ -751,7 +753,7 @@ ClusterStatusCode CodeDrivenTlsClientManagementDelegate::ProvisionEndpoint(
     endpointStruct.SetFabricIndex(fabric);
 
     CodeDrivenTlsEndpointId localId(endpointID);
-    ReturnValueOnFailure(mProvisioned.SetTableEntry(fabric, localId, endpointStruct, endpoint.mBuffer),
+    ReturnValueOnFailure(mProvisioned.SetTableEntry(fabric, localId, endpointStruct, endpoint->mBuffer),
                          ClusterStatusCode(Status::Failure));
 
     return ClusterStatusCode(Status::Success);
@@ -763,9 +765,10 @@ CHIP_ERROR CodeDrivenTlsClientManagementDelegate::FindProvisionedEndpointByID(En
     VerifyOrReturnError(matterEndpoint == mEndpointId, CHIP_ERROR_INTERNAL);
 
     CodeDrivenTlsEndpointId localId(endpointID);
-    BufferedEndpoint endpoint;
-    ReturnErrorOnFailure(mProvisioned.GetTableEntry(fabric, localId, endpoint.mEndpoint, endpoint.mBuffer));
-    return callback(endpoint.mEndpoint);
+    UniquePtr<BufferedEndpoint> endpoint(New<BufferedEndpoint>());
+    VerifyOrReturnError(endpoint, CHIP_ERROR_NO_MEMORY);
+    ReturnErrorOnFailure(mProvisioned.GetTableEntry(fabric, localId, endpoint->mEndpoint, endpoint->mBuffer));
+    return callback(endpoint->mEndpoint);
 }
 
 Status CodeDrivenTlsClientManagementDelegate::RemoveProvisionedEndpointByID(EndpointId matterEndpoint, FabricIndex fabric,
@@ -774,12 +777,13 @@ Status CodeDrivenTlsClientManagementDelegate::RemoveProvisionedEndpointByID(Endp
     VerifyOrReturnValue(matterEndpoint == mEndpointId, Status::ConstraintError);
     VerifyOrReturnValue(mStorage != nullptr, Status::ConstraintError);
 
-    BufferedEndpoint endpoint;
+    UniquePtr<BufferedEndpoint> endpoint(New<BufferedEndpoint>());
+    VerifyOrReturnValue(endpoint, Status::ResourceExhausted);
     CodeDrivenTlsEndpointId localId(endpointID);
-    CHIP_ERROR result = mProvisioned.GetTableEntry(fabric, localId, endpoint.mEndpoint, endpoint.mBuffer);
+    CHIP_ERROR result = mProvisioned.GetTableEntry(fabric, localId, endpoint->mEndpoint, endpoint->mBuffer);
     VerifyOrReturnValue(result != CHIP_ERROR_NOT_FOUND, Status::NotFound);
     VerifyOrReturnValue(result == CHIP_NO_ERROR, Status::Failure);
-    VerifyOrReturnValue(endpoint.mEndpoint.referenceCount == 0, Status::InvalidInState);
+    VerifyOrReturnValue(endpoint->mEndpoint.referenceCount == 0, Status::InvalidInState);
 
     UniquePtr<GlobalEndpointData> globalData(New<GlobalEndpointData>(matterEndpoint));
     VerifyOrReturnValue(globalData, Status::ResourceExhausted);
@@ -796,12 +800,13 @@ CHIP_ERROR CodeDrivenTlsClientManagementDelegate::RootCertCanBeRemoved(EndpointI
 {
     VerifyOrReturnError(matterEndpoint == mEndpointId, CHIP_ERROR_INTERNAL);
 
-    BufferedEndpoint endpoint;
-    return mProvisioned.IterateEntries(fabric, endpoint.mBuffer, [&](auto & iterator) {
+    UniquePtr<BufferedEndpoint> endpoint(New<BufferedEndpoint>());
+    VerifyOrReturnError(endpoint, CHIP_ERROR_NO_MEMORY);
+    return mProvisioned.IterateEntries(fabric, endpoint->mBuffer, [&](auto & iterator) {
         InnerIterator innerIter(iterator);
-        while (innerIter.Next(endpoint.mEndpoint))
+        while (innerIter.Next(endpoint->mEndpoint))
         {
-            VerifyOrReturnError(endpoint.mEndpoint.caid != id, CHIP_ERROR_BAD_REQUEST);
+            VerifyOrReturnError(endpoint->mEndpoint.caid != id, CHIP_ERROR_BAD_REQUEST);
         }
         return CHIP_NO_ERROR;
     });
@@ -812,12 +817,13 @@ CHIP_ERROR CodeDrivenTlsClientManagementDelegate::ClientCertCanBeRemoved(Endpoin
 {
     VerifyOrReturnError(matterEndpoint == mEndpointId, CHIP_ERROR_INTERNAL);
 
-    BufferedEndpoint endpoint;
-    return mProvisioned.IterateEntries(fabric, endpoint.mBuffer, [&](auto & iterator) {
+    UniquePtr<BufferedEndpoint> endpoint(New<BufferedEndpoint>());
+    VerifyOrReturnError(endpoint, CHIP_ERROR_NO_MEMORY);
+    return mProvisioned.IterateEntries(fabric, endpoint->mBuffer, [&](auto & iterator) {
         InnerIterator innerIter(iterator);
-        while (innerIter.Next(endpoint.mEndpoint))
+        while (innerIter.Next(endpoint->mEndpoint))
         {
-            VerifyOrReturnError(endpoint.mEndpoint.ccdid != id, CHIP_ERROR_BAD_REQUEST);
+            VerifyOrReturnError(endpoint->mEndpoint.ccdid != id, CHIP_ERROR_BAD_REQUEST);
         }
         return CHIP_NO_ERROR;
     });
@@ -846,22 +852,23 @@ CHIP_ERROR CodeDrivenTlsClientManagementDelegate::MutateEndpointReferenceCount(E
     VerifyOrReturnError(matterEndpoint == mEndpointId, CHIP_ERROR_INTERNAL);
     VerifyOrReturnError(mStorage != nullptr, CHIP_ERROR_INTERNAL);
 
-    BufferedEndpoint endpoint;
+    UniquePtr<BufferedEndpoint> endpoint(New<BufferedEndpoint>());
+    VerifyOrReturnError(endpoint, CHIP_ERROR_NO_MEMORY);
     CodeDrivenTlsEndpointId localId(endpointID);
-    ReturnErrorOnFailure(mProvisioned.GetTableEntry(fabric, localId, endpoint.mEndpoint, endpoint.mBuffer));
+    ReturnErrorOnFailure(mProvisioned.GetTableEntry(fabric, localId, endpoint->mEndpoint, endpoint->mBuffer));
 
-    if ((0 - delta) <= endpoint.mEndpoint.referenceCount)
+    if ((0 - delta) <= endpoint->mEndpoint.referenceCount)
     {
-        VerifyOrReturnError((static_cast<int16_t>(delta) + static_cast<int16_t>(endpoint.mEndpoint.referenceCount)) <= UINT8_MAX,
+        VerifyOrReturnError((static_cast<int16_t>(delta) + static_cast<int16_t>(endpoint->mEndpoint.referenceCount)) <= UINT8_MAX,
                             CHIP_ERROR_INVALID_ARGUMENT);
-        endpoint.mEndpoint.referenceCount = static_cast<uint8_t>(endpoint.mEndpoint.referenceCount + delta);
+        endpoint->mEndpoint.referenceCount = static_cast<uint8_t>(endpoint->mEndpoint.referenceCount + delta);
     }
     else
     {
-        endpoint.mEndpoint.referenceCount = 0;
+        endpoint->mEndpoint.referenceCount = 0;
     }
 
-    return mProvisioned.SetTableEntry(fabric, localId, endpoint.mEndpoint, endpoint.mBuffer);
+    return mProvisioned.SetTableEntry(fabric, localId, endpoint->mEndpoint, endpoint->mBuffer);
 }
 
 } // namespace app

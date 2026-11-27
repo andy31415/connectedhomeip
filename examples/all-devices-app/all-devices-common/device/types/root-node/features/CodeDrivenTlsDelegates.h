@@ -32,7 +32,7 @@ namespace chip {
 namespace app {
 
 inline constexpr uint16_t kUndefinedCodeDrivenTlsEndpointId = 0xffff;
-inline constexpr uint8_t kMaxCodeDrivenTlsEndpoints         = 254;
+inline constexpr uint8_t kMaxCodeDrivenTlsEndpoints         = 16;
 
 struct CodeDrivenTlsEndpointId
 {
