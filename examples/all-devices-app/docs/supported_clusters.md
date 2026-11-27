@@ -64,7 +64,7 @@ To update or validate this list manually, follow these steps:
 | 18        | Boolean State Configuration                                | 128 (0x0080)  | Yes                | No                  |                                                      |
 | 19        | Bridged Device Basic Information                           | 57 (0x0039)   | Yes                | Yes                 |                                                      |
 | 20        | Camera AV Settings User Level Management                   | 1362 (0x0552) | Yes                | No                  |                                                      |
-| 21        | Camera AV Stream Management                                | 1361 (0x0551) | Yes                | No                  |                                                      |
+| 21        | Camera AV Stream Management                                | 1361 (0x0551) | Yes                | Yes                 | camera, snapshot-camera                              |
 | 22        | Carbon Dioxide Concentration Measurement                   | 1037 (0x040D) | Yes                | Yes                 | Instance of Concentration Measurement                |
 | 23        | Carbon Monoxide Concentration Measurement                  | 1036 (0x040C) | Yes                | Yes                 | Instance of Concentration Measurement                |
 | 24        | Channel                                                    | 1284 (0x0504) | No                 | No                  |                                                      |
@@ -171,8 +171,8 @@ To update or validate this list manually, follow these steps:
 | 125       | Soil Measurement                                           | 1072 (0x0430) | Yes                | Yes                 |                                                      |
 | 126       | Soil Moisture Measurement                                  | 1032 (0x0408) | No                 | No                  |                                                      |
 | 127       | Switch                                                     | 59 (0x003B)   | Yes                | Yes                 |                                                      |
-| 128       | TLS Certificate Management                                 | 2049 (0x0801) | Yes                | No                  |                                                      |
-| 129       | TLS Client Management                                      | 2050 (0x0802) | Yes                | No                  |                                                      |
+| 128       | TLS Certificate Management                                 | 2049 (0x0801) | Yes                | Yes                 | root-node (camera)                                   |
+| 129       | TLS Client Management                                      | 2050 (0x0802) | Yes                | Yes                 | root-node (camera)                                   |
 | 130       | Target Navigator                                           | 1285 (0x0505) | No                 | No                  |                                                      |
 | 131       | Temperature Alarm                                          | 100 (0x0064)  | No                 | No                  |                                                      |
 | 132       | Temperature Control                                        | 86 (0x0056)   | Yes                | Yes                 |                                                      |
@@ -186,7 +186,7 @@ To update or validate this list manually, follow these steps:
 | 140       | Thread Network Diagnostics                                 | 53 (0x0035)   | Yes                | Yes                 |                                                      |
 | 141       | Thread Network Directory                                   | 1107 (0x0453) | Yes                | Yes                 |                                                      |
 | 142       | Time Format Localization                                   | 44 (0x002C)   | Yes                | No                  |                                                      |
-| 143       | Time Synchronization                                       | 56 (0x0038)   | Yes                | No                  |                                                      |
+| 143       | Time Synchronization                                       | 56 (0x0038)   | Yes                | Yes                 | root-node (camera, snapshot-camera)                  |
 | 144       | Total Volatile Organic Compounds Concentration Measurement | 1070 (0x042E) | Yes                | Yes                 | Instance of Concentration Measurement                |
 | 145       | Unit Localization                                          | 45 (0x002D)   | Yes                | No                  |                                                      |
 | 146       | User Label                                                 | 65 (0x0041)   | Yes                | Yes                 |                                                      |
@@ -196,11 +196,11 @@ To update or validate this list manually, follow these steps:
 | 150       | Water Heater Management                                    | 148 (0x0094)  | Yes                | Yes                 |                                                      |
 | 151       | Water Heater Mode                                          | 158 (0x009E)  | Yes                | Yes                 | Instance of Mode Base                                |
 | 152       | Water Tank Level Monitoring                                | 121 (0x0079)  | Yes                | No                  | Alias of Resource Monitoring                         |
-| 153       | WebRTC Transport Provider                                  | 1363 (0x0553) | Yes                | No                  |                                                      |
+| 153       | WebRTC Transport Provider                                  | 1363 (0x0553) | Yes                | Yes                 | camera                                               |
 | 154       | WebRTC Transport Requestor                                 | 1364 (0x0554) | Yes                | No                  |                                                      |
 | 155       | Wi-Fi Network Diagnostics                                  | 54 (0x0036)   | Yes                | Yes                 |                                                      |
 | 156       | Wi-Fi Network Management                                   | 1105 (0x0451) | Yes                | Yes                 |                                                      |
 | 157       | Window Covering                                            | 258 (0x0102)  | Yes                | Yes                 | window-covering-\*                                   |
 | 158       | Zone Management                                            | 1360 (0x0550) | Yes                | No                  |                                                      |
 | 159       | Smoke Concentration Measurement                            | 1076 (0x0434) | Yes                | Yes                 | Instance of Concentration Measurement                |
-| **Total** | **159**                                                    |               | **110**            | **78**              |                                                      |
+| **Total** | **159**                                                    |               | **110**            | **83**              |                                                      |

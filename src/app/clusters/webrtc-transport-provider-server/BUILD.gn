@@ -29,3 +29,24 @@ source_set("webrtc-transport-provider-server") {
     "${chip_root}/zzz_generated/app-common/clusters/WebRTCTransportProvider",
   ]
 }
+
+source_set("session-delegate") {
+  sources = [
+    "WebRTCProviderSessionDelegate.cpp",
+    "WebRTCProviderSessionDelegate.h",
+  ]
+
+  cflags = [ "-Wconversion" ]
+
+  deps = [ "${chip_root}/src/lib/support" ]
+
+  public_deps = [
+    ":webrtc-transport-provider-server",
+    "${chip_root}/src/app/clusters/camera-av-stream-management-server",
+    "${chip_root}/src/app/clusters/camera-av-stream-management-server:stream-allocator",
+    "${chip_root}/src/app/webrtc:peer-connection",
+    "${chip_root}/src/app/webrtc:requestor-client",
+    "${chip_root}/src/lib/core",
+    "${chip_root}/src/lib/support:timer-delegate",
+  ]
+}

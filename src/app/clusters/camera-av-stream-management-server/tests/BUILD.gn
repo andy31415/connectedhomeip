@@ -20,13 +20,17 @@ import("${chip_root}/build/chip/chip_test_suite.gni")
 chip_test_suite("tests") {
   output_name = "libTestCameraAVStreamManagementCluster"
 
-  test_sources = [ "TestCameraAVStreamManagementCluster.cpp" ]
+  test_sources = [
+    "TestCameraAVStreamManagementCluster.cpp",
+    "TestStreamAllocator.cpp",
+  ]
 
   cflags = [ "-Wconversion" ]
 
   public_deps = [
     "${chip_root}/src/app:attribute-persistence",
     "${chip_root}/src/app/clusters/camera-av-stream-management-server",
+    "${chip_root}/src/app/clusters/camera-av-stream-management-server:stream-allocator",
     "${chip_root}/src/app/server-cluster/testing",
     "${chip_root}/src/lib/core:string-builder-adapters",
     "${chip_root}/src/lib/support",

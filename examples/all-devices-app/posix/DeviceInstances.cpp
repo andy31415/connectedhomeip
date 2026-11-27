@@ -18,6 +18,7 @@
 
 #include <DeviceInstances.h>
 
+#include <app/server/Server.h>
 #include <bridged-device-manager/oob-accessors/AddBridgedDeviceOOBAccessor.h>
 #include <bridged-device-manager/oob-accessors/RemoveBridgedDeviceOOBAccessor.h>
 #include <device/api/SingleEndpoint.h>
@@ -50,52 +51,83 @@ std::set<EndpointId> GetReservedEndpointIds(const std::vector<DeviceTypeParser::
 } // namespace
 
 DeviceInstances::DeviceInstances(const Context & context) :
-    mContext(context), mDataModelProvider(mContext.storageDelegate, mAttributePersistence),
-    mRootNode(
-        {
-            .commissioningWindowManager              = mContext.commissioningWindowManager, //
-                .configurationManager                = mContext.configurationManager,       //
-                .deviceControlServer                 = mContext.deviceControlServer,        //
-                .fabricTable                         = mContext.fabricTable,                //
-                .accessControl                       = mContext.accessControl,              //
-                .persistentStorage                   = mContext.storageDelegate,            //
-                .failSafeContext                     = mContext.failSafeContext,            //
-                .deviceInstanceInfoProvider          = mContext.deviceInstanceInfoProvider, //
-                .platformManager                     = mContext.platformManager,            //
-                .groupDataProvider                   = mContext.groupDataProvider,          //
-                .sessionManager                      = mContext.sessionManager,             //
-                .dnssdServer                         = mContext.dnssdServer,                //
-                .deviceLoadStatusProvider            = mContext.deviceLoadStatusProvider,   //
-                .diagnosticDataProvider              = mContext.diagnosticDataProvider,     //
-                .testEventTriggerDelegate            = &mContext.testEventTriggerDelegate,  //
-                .dacProvider                         = mContext.dacProvider,                //
-                .eventManagement                     = mContext.eventManagement,            //
-                .timerDelegate                       = mContext.timerDelegate,              //
-                .minGuaranteedSubscriptionsPerFabric = mContext.minGuaranteedSubscriptionsPerFabric,
-#if CHIP_CONFIG_TERMS_AND_CONDITIONS_REQUIRED
-            .termsAndConditionsProvider = mContext.termsAndConditionsProvider,
-#endif // CHIP_CONFIG_TERMS_AND_CONDITIONS_REQUIRED
-        },
-        []([[maybe_unused]] bool enableWiFi, [[maybe_unused]] bool emulateWiFi, [[maybe_unused]] bool enableThread) {
-            BitFlags<AppRootNode::EnabledFeatures> features;
-#if CHIP_DEVICE_CONFIG_ENABLE_WIFI
-            features.Set(AppRootNode::EnabledFeatures::kWiFi, enableWiFi);
-            features.Set(AppRootNode::EnabledFeatures::kEmulatedWiFi, emulateWiFi);
-#endif
-#if CHIP_DEVICE_CONFIG_ENABLE_THREAD
-            features.Set(AppRootNode::EnabledFeatures::kThread, enableThread);
-#endif
-            return features;
-        }(mContext.enableWiFi, mContext.emulateWiFi, mContext.enableThread))
+    mContext(context), mDataModelProvider(mContext.storageDelegate, mAttributePersistence)
 {}
 
 CHIP_ERROR DeviceInstances::Startup(const std::vector<DeviceTypeParser::Entry> & deviceEntries)
 {
     ReturnErrorOnFailure(mAttributePersistence.Init(&mContext.storageDelegate));
 
+    bool enablePowerSource = mContext.enablePowerSource;
+    bool enableTimeSync    = mContext.enableTimeSync;
+    bool enableTls         = mContext.enableTls;
+    for (const auto & entry : deviceEntries)
+    {
+        if (entry.type == "camera")
+        {
+            enablePowerSource = true;
+            enableTimeSync    = true;
+            enableTls         = true;
+        }
+        else if (entry.type == "snapshot-camera")
+        {
+            enablePowerSource = true;
+            enableTimeSync    = true;
+        }
+    }
+
+    BitFlags<AppRootNode::EnabledFeatures> features;
+#if CHIP_DEVICE_CONFIG_ENABLE_WIFI
+    features.Set(AppRootNode::EnabledFeatures::kWiFi, mContext.enableWiFi);
+    features.Set(AppRootNode::EnabledFeatures::kEmulatedWiFi, mContext.emulateWiFi);
+#endif
+#if CHIP_DEVICE_CONFIG_ENABLE_THREAD
+    features.Set(AppRootNode::EnabledFeatures::kThread, mContext.enableThread);
+#endif
+    features.Set(AppRootNode::EnabledFeatures::kPowerSource, enablePowerSource);
+    features.Set(AppRootNode::EnabledFeatures::kTimeSync, enableTimeSync);
+    features.Set(AppRootNode::EnabledFeatures::kTls, enableTls);
+
+    CASESessionManager * caseSessionManager =
+        mContext.caseSessionManager != nullptr ? mContext.caseSessionManager : Server::GetInstance().GetCASESessionManager();
+    InteractionModelEngine * interactionModelEngine =
+        mContext.interactionModelEngine != nullptr ? mContext.interactionModelEngine : InteractionModelEngine::GetInstance();
+    VerifyOrReturnError(caseSessionManager != nullptr && interactionModelEngine != nullptr, CHIP_ERROR_INCORRECT_STATE);
+
+    mRootNode.emplace(
+        RootNode::Context{
+            .commissioningWindowManager          = mContext.commissioningWindowManager, //
+            .configurationManager                = mContext.configurationManager,       //
+            .deviceControlServer                 = mContext.deviceControlServer,        //
+            .fabricTable                         = mContext.fabricTable,                //
+            .accessControl                       = mContext.accessControl,              //
+            .persistentStorage                   = mContext.storageDelegate,            //
+            .failSafeContext                     = mContext.failSafeContext,            //
+            .deviceInstanceInfoProvider          = mContext.deviceInstanceInfoProvider, //
+            .platformManager                     = mContext.platformManager,            //
+            .groupDataProvider                   = mContext.groupDataProvider,          //
+            .sessionManager                      = mContext.sessionManager,             //
+            .dnssdServer                         = mContext.dnssdServer,                //
+            .deviceLoadStatusProvider            = mContext.deviceLoadStatusProvider,   //
+            .diagnosticDataProvider              = mContext.diagnosticDataProvider,     //
+            .testEventTriggerDelegate            = &mContext.testEventTriggerDelegate,  //
+            .dacProvider                         = mContext.dacProvider,                //
+            .eventManagement                     = mContext.eventManagement,            //
+            .timerDelegate                       = mContext.timerDelegate,              //
+            .minGuaranteedSubscriptionsPerFabric = mContext.minGuaranteedSubscriptionsPerFabric,
+#if CHIP_CONFIG_TERMS_AND_CONDITIONS_REQUIRED
+            .termsAndConditionsProvider = mContext.termsAndConditionsProvider,
+#endif // CHIP_CONFIG_TERMS_AND_CONDITIONS_REQUIRED
+        },
+        AppRootNode::FeatureContext{
+            .caseSessionManager     = *caseSessionManager,
+            .interactionModelEngine = *interactionModelEngine,
+        },
+        features);
+
     mEndpointIdAllocator.emplace(GetReservedEndpointIds(deviceEntries));
     mEndpointIdAllocator->ForceNext(kRootEndpointId);
-    ReturnErrorOnFailure(mRootNode.RootDevice().Register(*mEndpointIdAllocator, mDataModelProvider));
+    ReturnErrorOnFailure(mRootNode->RootDevice().Register(*mEndpointIdAllocator, mDataModelProvider));
 
     PosixDeviceFactory::GetInstance().Init(PosixDeviceFactory::Context{
         .groupDataProvider        = mContext.groupDataProvider,
@@ -105,7 +137,7 @@ CHIP_ERROR DeviceInstances::Startup(const std::vector<DeviceTypeParser::Entry> &
         .diagnosticDataProvider   = mContext.diagnosticDataProvider,
         .platformManager          = mContext.platformManager,
         .failSafeContext          = mContext.failSafeContext,
-        .breadcrumbTracker        = mRootNode.RootDevice().GeneralCommissioning(),
+        .breadcrumbTracker        = mRootNode->RootDevice().GeneralCommissioning(),
         .bindingTable             = mContext.bindingTable,
         .bindingManager           = mContext.bindingManager,
         .bindingHandler           = mContext.bindingHandler,
@@ -113,7 +145,7 @@ CHIP_ERROR DeviceInstances::Startup(const std::vector<DeviceTypeParser::Entry> &
         .identifyDelegate         = mContext.identifyDelegate,
         .deviceInfoProvider       = mContext.deviceInfoProvider,
     });
-    PosixDeviceFactory::ExecuteRegistrationHooks(mRootNode.RootDevice());
+    PosixDeviceFactory::ExecuteRegistrationHooks(mRootNode->RootDevice());
 
     for (const auto & entry : deviceEntries)
     {
@@ -156,9 +188,16 @@ void DeviceInstances::Shutdown()
     {
         device.Unregister(mDataModelProvider);
     }
-    PosixDeviceFactory::ExecuteUnregistrationHooks(mRootNode.RootDevice());
+    if (mRootNode.has_value())
+    {
+        PosixDeviceFactory::ExecuteUnregistrationHooks(mRootNode->RootDevice());
+    }
     mConstructedDevices.clear();
-    mRootNode.RootDevice().Unregister(mDataModelProvider);
+    if (mRootNode.has_value())
+    {
+        mRootNode->RootDevice().Unregister(mDataModelProvider);
+        mRootNode.reset();
+    }
 }
 
 } // namespace chip::app

@@ -26,16 +26,23 @@
 #include <app_config/enabled_devices.h>
 #include <device-factory/DeviceFactory.h>
 
+#if ALL_DEVICES_ENABLE_CAMERA
+#include <device/types/camera/impl/LoggingCamera.h>
+#endif
+#if ALL_DEVICES_ENABLE_SNAPSHOT_CAMERA
+#include <device/types/snapshot-camera/impl/LoggingSnapshotCamera.h>
+#endif
+
 #include <lib/support/logging/CHIPLogging.h>
 
-#if defined(__linux__) && (CONFIG_NETWORK_LAYER_BLE || CHIP_DEVICE_CONFIG_ENABLE_WIFIPAF)
+#if defined(__linux__) && (CONFIG_NETWORK_LAYER_BLE || CHIP_DEVICE_CONFIG_ENABLE_WIFIPAF) && ALL_DEVICES_ENABLE_COMMISSIONING_PROXY
 #include <device/types/commissioning-proxy/CommissioningProxy.h>
 #endif
-#if defined(__linux__) && CONFIG_NETWORK_LAYER_BLE
+#if defined(__linux__) && CONFIG_NETWORK_LAYER_BLE && ALL_DEVICES_ENABLE_COMMISSIONING_PROXY
 #include <CommissioningProxyBleAdapter.h>
 #include <app/clusters/commissioning-proxy-server/CommissioningProxyBleTransport.h>
 #endif
-#if defined(__linux__) && CHIP_DEVICE_CONFIG_ENABLE_WIFIPAF
+#if defined(__linux__) && CHIP_DEVICE_CONFIG_ENABLE_WIFIPAF && ALL_DEVICES_ENABLE_COMMISSIONING_PROXY
 #include <CommissioningProxyPafAdapter.h>                                           // nogncheck
 #include <app/clusters/commissioning-proxy-server/CommissioningProxyPafTransport.h> // nogncheck
 #include <app/server/Server.h>
@@ -46,7 +53,7 @@
 namespace chip {
 namespace app {
 
-#if defined(__linux__) && CHIP_DEVICE_CONFIG_ENABLE_WIFIPAF
+#if defined(__linux__) && CHIP_DEVICE_CONFIG_ENABLE_WIFIPAF && ALL_DEVICES_ENABLE_COMMISSIONING_PROXY
 namespace {
 
 /// Derive the Wi-Fi bands the proxy advertises from the "--wifipaf freq_list=" the app
@@ -108,14 +115,13 @@ void OnProxyDeviceEvent(const DeviceLayer::ChipDeviceEvent * event, intptr_t)
 }
 
 } // namespace
-#endif // defined(__linux__) && CHIP_DEVICE_CONFIG_ENABLE_WIFIPAF
+#endif // defined(__linux__) && CHIP_DEVICE_CONFIG_ENABLE_WIFIPAF && ALL_DEVICES_ENABLE_COMMISSIONING_PROXY
 
 template <typename Factory>
 void RegisterDeviceFactoryOverrides(Factory & factory, TimerDelegate & timerDelegate, FabricTable & fabricTable,
                                     PersistentStorageDelegate * storageDelegate, PosixAudioManager & audioManager)
 {
-#if defined(__linux__) && (CONFIG_NETWORK_LAYER_BLE || CHIP_DEVICE_CONFIG_ENABLE_WIFIPAF)
-    if constexpr (ALL_DEVICES_ENABLE_COMMISSIONING_PROXY)
+#if defined(__linux__) && (CONFIG_NETWORK_LAYER_BLE || CHIP_DEVICE_CONFIG_ENABLE_WIFIPAF) && ALL_DEVICES_ENABLE_COMMISSIONING_PROXY
     {
         const CommissioningProxy::Context proxyContext{ fabricTable, timerDelegate };
 
@@ -187,7 +193,18 @@ void RegisterDeviceFactoryOverrides(Factory & factory, TimerDelegate & timerDele
             };
         });
     }
-#endif // defined(__linux__) && (CONFIG_NETWORK_LAYER_BLE || CHIP_DEVICE_CONFIG_ENABLE_WIFIPAF)
+#endif // defined(__linux__) && (CONFIG_NETWORK_LAYER_BLE || CHIP_DEVICE_CONFIG_ENABLE_WIFIPAF) &&
+       // ALL_DEVICES_ENABLE_COMMISSIONING_PROXY
+
+#if ALL_DEVICES_ENABLE_CAMERA
+    factory.RegisterCreator("camera", [&fabricTable]() {
+        return Factory::template MakeDevice<LoggingCamera>(LoggingCamera::Context{ .fabricTable = fabricTable });
+    });
+#endif
+
+#if ALL_DEVICES_ENABLE_SNAPSHOT_CAMERA
+    factory.RegisterCreator("snapshot-camera", []() { return Factory::template MakeDevice<LoggingSnapshotCamera>(); });
+#endif
 
     if constexpr (ALL_DEVICES_ENABLE_SPEAKER)
     {

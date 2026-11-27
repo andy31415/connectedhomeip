@@ -287,6 +287,43 @@ if(NOT _all_devices_all)
     endforeach()
 endif()
 
+# Opt-in devices remain OFF by default on embedded targets even when
+# ALL_DEVICES_ENABLED_DEVICES is empty, unless explicitly requested or Kconfig-selected.
+foreach(_key
+        # keep-sorted: start
+        camera
+        snapshot-camera
+        # keep-sorted: end
+    )
+    string(REPLACE "-" "_" _suffix "${_key}")
+    string(TOUPPER "${_suffix}" _suffix)
+    set("ALL_DEVICES_ENABLE_${_suffix}" 0)
+    if(NOT _all_devices_all)
+        list(FIND ALL_DEVICES_ENABLED_DEVICES "${_key}" _opt_in_idx)
+        if(NOT _opt_in_idx EQUAL -1)
+            set("ALL_DEVICES_ENABLE_${_suffix}" 1)
+        endif()
+    endif()
+endforeach()
+
+if(CONFIG_ALL_DEVICES_ENABLE_CAMERA)
+    set(ALL_DEVICES_ENABLE_CAMERA 1)
+endif()
+
+if(ALL_DEVICES_ENABLE_CAMERA)
+    list(APPEND ALL_DEVICES_DEVICE_SOURCES
+        "${ALL_DEVICES_COMMON_DIR}/device/types/camera/Camera.cpp"
+        "${ALL_DEVICES_COMMON_DIR}/device/types/camera/impl/LoggingCamera.cpp"
+    )
+endif()
+
+if(ALL_DEVICES_ENABLE_SNAPSHOT_CAMERA)
+    list(APPEND ALL_DEVICES_DEVICE_SOURCES
+        "${ALL_DEVICES_COMMON_DIR}/device/types/snapshot-camera/SnapshotCamera.cpp"
+        "${ALL_DEVICES_COMMON_DIR}/device/types/snapshot-camera/impl/LoggingSnapshotCamera.cpp"
+    )
+endif()
+
 # ---------------------------------------------------------------------------
 # Generate app_config/enabled_devices.h.
 # Guarded by CMAKE_BUILD_EARLY_EXPANSION: during the ESP-IDF component

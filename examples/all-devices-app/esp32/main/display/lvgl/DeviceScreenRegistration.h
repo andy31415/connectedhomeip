@@ -19,10 +19,14 @@
 #pragma once
 
 #include "DeviceScreenRegistry.h"
+#include <app_config/enabled_devices.h>
 #include <device/types/aggregator/Aggregator.h>
 #include <device/types/air-purifier/AirPurifier.h>
 #include <device/types/boolean-state-sensor/BooleanStateSensor.h>
 #include <device/types/bridged-node/BridgedNode.h>
+#if ALL_DEVICES_ENABLE_CAMERA
+#include <device/types/camera/Camera.h>
+#endif
 #include <device/types/chime/Chime.h>
 #include <device/types/color-temperature-light/ColorTemperatureLight.h>
 #include <device/types/dimmable-light/DimmableLight.h>
@@ -61,6 +65,9 @@ void RegisterDeviceScreen(Speaker & device, DeviceScreenRegistry & registry);
 void RegisterDeviceScreen(WaterValve & device, DeviceScreenRegistry & registry);
 void RegisterDeviceScreen(BridgedNode & device, DeviceScreenRegistry & registry);
 void RegisterDeviceScreen(Aggregator & device, DeviceScreenRegistry & registry);
+#if ALL_DEVICES_ENABLE_CAMERA
+void RegisterDeviceScreen(Camera & device, DeviceScreenRegistry & registry);
+#endif
 
 // Fallback for device types that have no screen. Registers an entry without a render
 // function so the device still shows up in the list, marked as having no UI. The endpoint

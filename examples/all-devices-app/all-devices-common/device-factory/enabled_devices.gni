@@ -75,6 +75,10 @@ _available_devices = [
     "BRIDGED_NODE",
   ],
   [
+    "camera",
+    "CAMERA",
+  ],
+  [
     "chime",
     "CHIME",
   ],
@@ -255,6 +259,10 @@ _available_devices = [
     "SMOKE_CO_ALARM",
   ],
   [
+    "snapshot-camera",
+    "SNAPSHOT_CAMERA",
+  ],
+  [
     "soil-sensor",
     "SOIL_SENSOR",
   ],
@@ -301,6 +309,13 @@ _available_devices = [
   ],
 ]
 
+# Devices that stay disabled by default on embedded targets unless explicitly
+# listed in all_devices_enabled_devices.
+_desktop_default_devices = [
+  "camera",
+  "snapshot-camera",
+]
+
 # Computed output binary name — mirrors the three-way logic in enabled_devices.cmake.
 # Exported (no leading underscore) so that posix/BUILD.gn can use it as output_name.
 if (all_devices_app_name != "") {
@@ -323,6 +338,13 @@ template("enabled_devices_buildconfig_header") {
 
     foreach(_available_device, _available_devices) {
       _enabled = _all_devices_all_enabled
+      if (_enabled) {
+        foreach(_desktop_device, _desktop_default_devices) {
+          if (_desktop_device == _available_device[0]) {
+            _enabled = current_os == "linux" || current_os == "mac"
+          }
+        }
+      }
       foreach(_device, all_devices_enabled_devices) {
         if (_device == _available_device[0]) {
           _enabled = true

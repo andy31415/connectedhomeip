@@ -20,14 +20,21 @@ import("${chip_root}/build/chip/chip_test_suite.gni")
 chip_test_suite("tests") {
   output_name = "libTestWebRTCTransportProviderCluster"
 
-  test_sources = [ "TestWebRTCTransportProviderCluster.cpp" ]
+  test_sources = [
+    "TestWebRTCProviderSessionDelegate.cpp",
+    "TestWebRTCTransportProviderCluster.cpp",
+  ]
 
   cflags = [ "-Wconversion" ]
 
   public_deps = [
+    "${chip_root}/src/app/clusters/camera-av-stream-management-server",
+    "${chip_root}/src/app/clusters/camera-av-stream-management-server:stream-allocator",
     "${chip_root}/src/app/clusters/webrtc-transport-provider-server",
+    "${chip_root}/src/app/clusters/webrtc-transport-provider-server:session-delegate",
     "${chip_root}/src/app/server-cluster/testing",
     "${chip_root}/src/lib/core:string-builder-adapters",
     "${chip_root}/src/lib/support",
+    "${chip_root}/src/lib/support:timer-delegate-mock",
   ]
 }

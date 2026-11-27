@@ -49,6 +49,7 @@ _ALL_DEVICES_APP_DEVICES = [
     'ambient-context-sensor',
     'battery-storage',
     'bridged-node',
+    'camera',
     'chime',
     'closure-controller',
     'color-temperature-light',

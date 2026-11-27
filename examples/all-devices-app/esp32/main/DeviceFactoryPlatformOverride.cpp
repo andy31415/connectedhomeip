@@ -29,6 +29,11 @@ using BoardChime = chip::app::MosaicoChime;
 #endif
 #endif
 
+#if CONFIG_ALL_DEVICES_ENABLE_CAMERA && ALL_DEVICES_ENABLE_CAMERA
+#include "Esp32Camera.h"
+#include <app/server/Server.h>
+#endif
+
 namespace chip {
 namespace app {
 
@@ -37,6 +42,15 @@ void RegisterDeviceFactoryOverrides(TimerDelegate & timerDelegate, PersistentSto
 #if CONFIG_HAVE_SPEAKER && ALL_DEVICES_ENABLE_CHIME
     AppDeviceFactory::GetInstance().RegisterCreator(
         "chime", [&timerDelegate]() { return AppDeviceFactory::MakeDevice<BoardChime>(timerDelegate); });
+#endif
+#if CONFIG_ALL_DEVICES_ENABLE_CAMERA && ALL_DEVICES_ENABLE_CAMERA
+    AppDeviceFactory::GetInstance().RegisterCreator("camera", [&timerDelegate]() {
+        return AppDeviceFactory::MakeDevice<Esp32Camera>(Esp32Camera::Context{
+            .fabricTable        = Server::GetInstance().GetFabricTable(),
+            .caseSessionManager = *Server::GetInstance().GetCASESessionManager(),
+            .timerDelegate      = timerDelegate,
+        });
+    });
 #endif
 }
 

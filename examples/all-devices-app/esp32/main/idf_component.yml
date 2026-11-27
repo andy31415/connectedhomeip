@@ -8,6 +8,25 @@ dependencies:
         rules:
             - if: "target == esp32s3"
 
+    ## Camera & WebRTC dependencies for ESP32-S3 / ESP32-P4.
+    espressif/esp_peer:
+        version: "~1.5.8"
+        rules:
+            - if: "idf_version >= 5.5"
+            - if: "target in [esp32s3, esp32p4]"
+
+    espressif/esp_h264:
+        version: "~1.5.1"
+        rules:
+            - if: "idf_version >= 5.5"
+            - if: "target in [esp32s3, esp32p4]"
+
+    espressif/esp_new_jpeg:
+        version: "~1.0.2"
+        rules:
+            - if: "idf_version >= 5.5"
+            - if: "target in [esp32s3, esp32p4]"
+
     ## The Mosaico's USB-C port is the USB OTG controller: a CDC device carries the console.
     espressif/esp_tinyusb:
         version: "^3.0.0-rc2"

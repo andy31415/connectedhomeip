@@ -65,6 +65,15 @@ else()
     list(APPEND APP_TOPLEVEL_EXTRA_SRCS "${ALL_DEVICES_COMMON_DIR}/device/types/root-node/features/WifiFeature.cpp")
 endif()
 
+if (CONFIG_ALL_DEVICES_ENABLE_CAMERA)
+    list(APPEND APP_TOPLEVEL_EXTRA_SRCS
+        "${ALL_DEVICES_COMMON_DIR}/device/types/root-node/features/PowerSourceFeature.cpp"
+        "${ALL_DEVICES_COMMON_DIR}/device/types/root-node/features/TimeSynchronizationFeature.cpp"
+        "${ALL_DEVICES_COMMON_DIR}/device/types/root-node/features/CodeDrivenTlsDelegates.cpp"
+        "${ALL_DEVICES_COMMON_DIR}/device/types/root-node/features/TlsFeature.cpp"
+    )
+endif()
+
 set(SRC_DIRS_LIST
     "${CMAKE_CURRENT_LIST_DIR}"
     "${CHIP_ROOT}/examples/providers"
@@ -117,6 +126,15 @@ if (CONFIG_HAVE_SPEAKER)
     else()
         message(FATAL_ERROR "CONFIG_HAVE_SPEAKER is set but no chime audio sink exists for this board")
     endif()
+endif()
+
+if (CONFIG_ALL_DEVICES_ENABLE_CAMERA)
+    list(APPEND PRIV_INCLUDE_DIRS_LIST "${CMAKE_CURRENT_LIST_DIR}/devices/camera")
+    list(APPEND BOARD_SRCS
+        "${CMAKE_CURRENT_LIST_DIR}/devices/camera/Esp32MediaControl.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/devices/camera/Esp32PeerConnection.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/devices/camera/Esp32Camera.cpp"
+    )
 endif()
 
 set(BOARD_REQUIRES)

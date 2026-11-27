@@ -41,6 +41,9 @@ config ALL_DEVICES_DEVICE_BATTERY_STORAGE
 config ALL_DEVICES_DEVICE_BRIDGED_NODE
 	bool "Bridged node"
 
+config ALL_DEVICES_DEVICE_CAMERA
+	bool "Camera"
+
 config ALL_DEVICES_DEVICE_CHIME
 	bool "Chime"
 
@@ -176,6 +179,9 @@ config ALL_DEVICES_DEVICE_ROOM_AIR_CONDITIONER
 
 config ALL_DEVICES_DEVICE_SMOKE_CO_ALARM
 	bool "Smoke/CO alarm"
+
+config ALL_DEVICES_DEVICE_SNAPSHOT_CAMERA
+	bool "Snapshot camera"
 
 config ALL_DEVICES_DEVICE_SOIL_SENSOR
 	bool "Soil sensor"

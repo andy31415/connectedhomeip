@@ -21,6 +21,7 @@ source_set("without-logging") {
     # keep-sorted: start
     "${chip_root}/src/app",
     "${chip_root}/src/app/clusters:clusters",
+    "${chip_root}/src/app/webrtc",
     "${chip_root}/src/ble",
     "${chip_root}/src/crypto",
     "${chip_root}/src/inet",

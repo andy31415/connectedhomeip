@@ -20,9 +20,11 @@
 
 #include <AppRootNode.h>
 #include <PosixDeviceFactory.h>
+#include <app/CASESessionManager.h>
 #include <app/DeviceLoadStatusProvider.h>
 #include <app/EventManagement.h>
 #include <app/FailSafeContext.h>
+#include <app/InteractionModelEngine.h>
 #include <app/TestEventTriggerDelegate.h>
 #include <app/clusters/bindings/BindingManager.h>
 #include <app/clusters/bindings/binding-table.h>
@@ -66,8 +68,7 @@ class PosixBridgedDeviceManager : public BridgedDeviceManager
 public:
     PosixBridgedDeviceManager(PosixDeviceFactory & factory, CodeDrivenDataModelProvider & provider,
                               EndpointIdAllocator & endpointIdAllocator) :
-        BridgedDeviceManager(provider, endpointIdAllocator),
-        mFactory(factory)
+        BridgedDeviceManager(provider, endpointIdAllocator), mFactory(factory)
     {}
 
     DeviceRegistrationEntry CreateDevice(const std::string & deviceName, const std::string & nodeLabel) override
@@ -140,6 +141,11 @@ public:
 #if CHIP_CONFIG_TERMS_AND_CONDITIONS_REQUIRED
         TermsAndConditionsProvider & termsAndConditionsProvider;
 #endif // CHIP_CONFIG_TERMS_AND_CONDITIONS_REQUIRED
+        bool enablePowerSource                          = false;
+        bool enableTimeSync                             = false;
+        bool enableTls                                  = false;
+        CASESessionManager * caseSessionManager         = nullptr;
+        InteractionModelEngine * interactionModelEngine = nullptr;
     };
 
     explicit DeviceInstances(const Context & context);
@@ -150,7 +156,11 @@ public:
 
     chip::app::CodeDrivenDataModelProvider & DataModelProvider() { return mDataModelProvider; }
 
-    AppRootNode & RootNode() { return mRootNode; }
+    AppRootNode & RootNode()
+    {
+        VerifyOrDie(mRootNode.has_value());
+        return *mRootNode;
+    }
 
     const std::vector<DeviceRegistrationEntry> & GetConstructedDevices() const { return mConstructedDevices; }
 
@@ -159,7 +169,7 @@ private:
     chip::app::DefaultAttributePersistenceProvider mAttributePersistence;
     chip::app::CodeDrivenDataModelProvider mDataModelProvider;
 
-    AppRootNode mRootNode;
+    std::optional<AppRootNode> mRootNode;
     std::vector<DeviceRegistrationEntry> mConstructedDevices;
 
     // using optional to defer creation

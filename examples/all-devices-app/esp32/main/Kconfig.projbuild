@@ -174,4 +174,39 @@ menu "Demo"
         help
             The endpoint ID to use for the single device mode.
 
+    config ALL_DEVICES_ENABLE_CAMERA
+        bool "Enable Camera device type (onboard GC0308 + WebRTC)"
+        default n
+        depends on IDF_TARGET_ESP32S3 || IDF_TARGET_ESP32P4
+        select ENABLE_TCP_TRANSPORT
+        help
+            Enables the Matter Camera device type with onboard camera capture,
+            software H.264/JPEG encoding, WebRTC transport (esp_peer), and the
+            required Root Node features (Power Source, Time Synchronization, TLS).
+
+    if ALL_DEVICES_ENABLE_CAMERA
+
+        config ALL_DEVICES_CAMERA_FPS
+            int "Camera target streaming frame rate (fps)"
+            default 8
+            range 1 20
+            help
+                Target frame rate for software H.264 encoding and WebRTC streaming.
+
+        config ALL_DEVICES_CAMERA_BITRATE_BPS
+            int "Camera H.264 target bitrate (bps)"
+            default 300000
+            range 64000 2000000
+            help
+                Target bitrate for software H.264 encoding.
+
+        config ALL_DEVICES_CAMERA_JPEG_QUALITY
+            int "Camera JPEG snapshot quality (1-100)"
+            default 60
+            range 10 95
+            help
+                JPEG quality passed to esp_new_jpeg for CaptureSnapshot.
+
+    endif
+
 endmenu

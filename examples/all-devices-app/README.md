@@ -76,6 +76,7 @@ The application supports the following device types (specified via the
 -   `ambient-context-sensor`
 -   `battery-storage-simulated`
 -   `bridged-node`
+-   `camera`
 -   `chime`
 -   `closure-barrier`
 -   `closure-cabinet`
@@ -137,6 +138,7 @@ The application supports the following device types (specified via the
 -   `room-air-conditioner`
 -   `room-air-conditioner-with-sensors`
 -   `smoke-co-alarm`
+-   `snapshot-camera`
 -   `soil-sensor`
 -   `soil-sensor-simulated`
 -   `solar-power`

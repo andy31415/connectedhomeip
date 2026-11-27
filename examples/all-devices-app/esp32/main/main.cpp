@@ -32,6 +32,12 @@
 #include <device/api/allocator/DynamicEndpointIdAllocator.h>
 #include <device/capabilities/identify/LoggingIdentifyDelegate.h>
 #include <device/types/root-node/WifiRootNode.h>
+#if CONFIG_ALL_DEVICES_ENABLE_CAMERA
+#include <device/types/root-node/RootNodeWith.h>
+#include <device/types/root-node/features/PowerSourceFeature.h>
+#include <device/types/root-node/features/TimeSynchronizationFeature.h>
+#include <device/types/root-node/features/TlsFeature.h>
+#endif
 #include <esp_heap_caps.h>
 #include <esp_log.h>
 #include <esp_system.h>
@@ -271,35 +277,57 @@ chip::app::DataModel::Provider * PopulateCodeDrivenDataModelProvider(PersistentS
         return nullptr;
     }
 
-    gRootNode = std::make_unique<WifiRootNode>(
-        RootNode::Context {
-            .commissioningWindowManager     = Server::GetInstance().GetCommissioningWindowManager(),   //
-                .configurationManager       = DeviceLayer::ConfigurationMgr(),                         //
-                .deviceControlServer        = DeviceLayer::DeviceControlServer::DeviceControlSvr(),    //
-                .fabricTable                = Server::GetInstance().GetFabricTable(),                  //
-                .accessControl              = Server::GetInstance().GetAccessControl(),                //
-                .persistentStorage          = Server::GetInstance().GetPersistentStorage(),            //
-                .failSafeContext            = Server::GetInstance().GetFailSafeContext(),              //
-                .deviceInstanceInfoProvider = *provider,                                               //
-                .platformManager            = DeviceLayer::PlatformMgr(),                              //
-                .groupDataProvider          = gGroupDataProvider,                                      //
-                .sessionManager             = Server::GetInstance().GetSecureSessionManager(),         //
-                .dnssdServer                = DnssdServer::Instance(),                                 //
-                .deviceLoadStatusProvider   = *InteractionModelEngine::GetInstance(),                  //
-                .diagnosticDataProvider     = DeviceLayer::GetDiagnosticDataProvider(),                //
-                .testEventTriggerDelegate   = testEventTriggerDelegate,                                //
-                .dacProvider                = *Credentials::GetDeviceAttestationCredentialsProvider(), //
-                .eventManagement            = EventManagement::GetInstance(),                          //
-                .timerDelegate              = gTimerDelegate,                                          //
-                .minGuaranteedSubscriptionsPerFabric =
-                    InteractionModelEngine::GetInstance()->GetMinGuaranteedSubscriptionsPerFabric(), //
+    RootNode::Context rootContext{
+        .commissioningWindowManager          = Server::GetInstance().GetCommissioningWindowManager(),                           //
+        .configurationManager                = DeviceLayer::ConfigurationMgr(),                                                 //
+        .deviceControlServer                 = DeviceLayer::DeviceControlServer::DeviceControlSvr(),                            //
+        .fabricTable                         = Server::GetInstance().GetFabricTable(),                                          //
+        .accessControl                       = Server::GetInstance().GetAccessControl(),                                        //
+        .persistentStorage                   = Server::GetInstance().GetPersistentStorage(),                                    //
+        .failSafeContext                     = Server::GetInstance().GetFailSafeContext(),                                      //
+        .deviceInstanceInfoProvider          = *provider,                                                                       //
+        .platformManager                     = DeviceLayer::PlatformMgr(),                                                      //
+        .groupDataProvider                   = gGroupDataProvider,                                                              //
+        .sessionManager                      = Server::GetInstance().GetSecureSessionManager(),                                 //
+        .dnssdServer                         = DnssdServer::Instance(),                                                         //
+        .deviceLoadStatusProvider            = *InteractionModelEngine::GetInstance(),                                          //
+        .diagnosticDataProvider              = DeviceLayer::GetDiagnosticDataProvider(),                                        //
+        .testEventTriggerDelegate            = testEventTriggerDelegate,                                                        //
+        .dacProvider                         = *Credentials::GetDeviceAttestationCredentialsProvider(),                         //
+        .eventManagement                     = EventManagement::GetInstance(),                                                  //
+        .timerDelegate                       = gTimerDelegate,                                                                  //
+        .minGuaranteedSubscriptionsPerFabric = InteractionModelEngine::GetInstance()->GetMinGuaranteedSubscriptionsPerFabric(), //
 #if CHIP_CONFIG_TERMS_AND_CONDITIONS_REQUIRED
-                .termsAndConditionsProvider = TermsAndConditionsManager::GetInstance(),
+        .termsAndConditionsProvider = TermsAndConditionsManager::GetInstance(),
 #endif // CHIP_CONFIG_TERMS_AND_CONDITIONS_REQUIRED
-        },
-        WifiFeature::Context{
-            .wifiDriver = sWiFiDriver,
-        });
+    };
+
+#if CONFIG_ALL_DEVICES_ENABLE_CAMERA
+    using CameraRootNode = RootNodeWith<WifiFeature, PowerSourceFeature, TimeSynchronizationFeature, TlsFeature>;
+    gRootNode = std::make_unique<CameraRootNode>(rootContext,
+                                                 WifiFeature::Context{
+                                                     .wifiDriver = sWiFiDriver,
+                                                 },
+                                                 PowerSourceFeature::Context{
+                                                     .enabled          = true,
+                                                     .description      = "USB-C Power"_span,
+                                                     .wiredCurrentType = Clusters::PowerSource::WiredCurrentTypeEnum::kDc,
+                                                     .order            = 0,
+                                                 },
+                                                 TimeSynchronizationFeature::Context{
+                                                     .enabled                = true,
+                                                     .caseSessionManager     = *Server::GetInstance().GetCASESessionManager(),
+                                                     .interactionModelEngine = *InteractionModelEngine::GetInstance(),
+                                                 },
+                                                 TlsFeature::Context{
+                                                     .enabled = true,
+                                                 });
+#else
+    gRootNode = std::make_unique<WifiRootNode>(rootContext,
+                                               WifiFeature::Context{
+                                                   .wifiDriver = sWiFiDriver,
+                                               });
+#endif
 
     ConsecutiveEndpointIdAllocator rootAllocator(kRootEndpointId);
     err = gRootNode->Register(rootAllocator, dataModelProvider);

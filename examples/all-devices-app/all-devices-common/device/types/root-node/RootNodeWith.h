@@ -52,7 +52,7 @@ class RootNodeWith : public RootNode
 public:
     RootNodeWith(const Context & context, const typename Features::Context &... featureContexts) :
         RootNode(context, Span<const DataModel::DeviceTypeEntry>(kDeviceTypesStorage.data(), kDeviceTypesStorage.size())),
-        mFeatures(Features(featureContexts)...)
+        mFeatures(featureContexts...)
     {}
     ~RootNodeWith() override = default;
 

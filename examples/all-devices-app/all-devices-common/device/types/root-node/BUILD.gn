@@ -100,6 +100,51 @@ source_set("icd") {
   ]
 }
 
+source_set("power-source") {
+  sources = [
+    "features/PowerSourceFeature.cpp",
+    "features/PowerSourceFeature.h",
+  ]
+
+  public_deps = [
+    ":root-node",
+    "${chip_root}/src/app/clusters/power-source-server",
+    "${chip_root}/zzz_generated/app-common/clusters/PowerSource:ids",
+  ]
+}
+
+source_set("time-sync") {
+  sources = [
+    "features/TimeSynchronizationFeature.cpp",
+    "features/TimeSynchronizationFeature.h",
+  ]
+
+  public_deps = [
+    ":root-node",
+    "${chip_root}/src/app/clusters/time-synchronization-server",
+  ]
+}
+
+source_set("tls") {
+  sources = [
+    "features/CodeDrivenTlsDelegates.cpp",
+    "features/CodeDrivenTlsDelegates.h",
+    "features/TlsFeature.cpp",
+    "features/TlsFeature.h",
+  ]
+
+  public_deps = [
+    ":root-node",
+    "${chip_root}/src/app/clusters/tls-certificate-management-server",
+    "${chip_root}/src/app/clusters/tls-certificate-management-server:certificate-table",
+    "${chip_root}/src/app/clusters/tls-client-management-server",
+    "${chip_root}/src/app/storage:fabric-table",
+    "${chip_root}/src/crypto",
+    "${chip_root}/zzz_generated/app-common/clusters/TlsCertificateManagement",
+    "${chip_root}/zzz_generated/app-common/clusters/TlsClientManagement",
+  ]
+}
+
 source_set("posix") {
   sources = [
     "NamedPipeTranslators.cpp",

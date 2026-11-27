@@ -33,6 +33,38 @@ source_set("camera-av-stream-management-server") {
   public_deps = [ ":camera-av-stream-management-cluster" ]
 }
 
+source_set("media-control") {
+  sources = [ "MediaControl.h" ]
+
+  cflags = [ "-Wconversion" ]
+
+  public_deps = [
+    ":camera-av-stream-management-server",
+    "${chip_root}/src/lib/core",
+  ]
+}
+
+source_set("stream-allocator") {
+  sources = [
+    "StreamAllocator.cpp",
+    "StreamAllocator.h",
+  ]
+
+  cflags = [ "-Wconversion" ]
+
+  deps = [
+    "${chip_root}/src/app/MessageDef",
+    "${chip_root}/src/lib/support",
+  ]
+
+  public_deps = [
+    ":camera-av-stream-management-server",
+    ":media-control",
+    "${chip_root}/src/lib/core",
+    "${chip_root}/src/protocols/interaction_model",
+  ]
+}
+
 source_set("camera-av-stream-management-cluster") {
   public_deps = [
     "${chip_root}/src/app:constants",

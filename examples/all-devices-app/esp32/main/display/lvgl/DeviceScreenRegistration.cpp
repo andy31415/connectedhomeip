@@ -20,6 +20,9 @@
 #include "devices/AggregatorScreen.h"
 #include "devices/BooleanStateSensorScreen.h"
 #include "devices/BridgedNodeScreen.h"
+#if ALL_DEVICES_ENABLE_CAMERA
+#include "devices/CameraScreen.h"
+#endif
 #include "devices/ChimeScreen.h"
 #include "devices/ColorLightScreen.h"
 #include "devices/DimmableLoadScreen.h"
@@ -262,6 +265,17 @@ void RegisterDeviceScreen(Aggregator & device, DeviceScreenRegistry & registry)
         .renderFn   = [&device](lv_obj_t * parent) { ShowAggregatorScreen(parent, device); },
     });
 }
+
+#if ALL_DEVICES_ENABLE_CAMERA
+void RegisterDeviceScreen(Camera & device, DeviceScreenRegistry & registry)
+{
+    registry.Register({
+        .title      = "Camera",
+        .endpointId = device.GetEndpointId(),
+        .renderFn   = [&device](lv_obj_t * parent) { ShowCameraScreen(parent, device); },
+    });
+}
+#endif
 
 void RegisterMissingDeviceScreen(DeviceInterface & device, EndpointId endpointId, DeviceScreenRegistry & registry)
 {
