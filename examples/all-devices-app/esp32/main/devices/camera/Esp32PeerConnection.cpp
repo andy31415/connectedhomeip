@@ -85,6 +85,9 @@ void DispatchPendingEvent(PendingPeerEvent * evt)
     {
         const webrtc::SdpType sdpType =
             (state->role == ESP_PEER_ROLE_CONTROLLING) ? webrtc::SdpType::kOffer : webrtc::SdpType::kAnswer;
+        ChipLogProgress(Camera, "Esp32PeerConnection: generated local %s (%u bytes)",
+                        (sdpType == webrtc::SdpType::kOffer) ? "offer" : "answer",
+                        static_cast<unsigned>(owned->payload.size()));
         state->events.OnLocalDescription(sdpType, CharSpan(owned->payload.data(), owned->payload.size()));
     }
     else if (owned->msgType == ESP_PEER_MSG_TYPE_CANDIDATE)
@@ -321,6 +324,13 @@ CHIP_ERROR Esp32PeerConnection::SetRemoteDescription(webrtc::SdpType type, CharS
     {
         VerifyOrReturnError(type == webrtc::SdpType::kOffer, CHIP_ERROR_INCORRECT_STATE);
         ReturnErrorOnFailure(OpenPeerLocked(ESP_PEER_ROLE_CONTROLLED));
+        // esp_peer only runs peer_prepare() in peer_main_loop after esp_peer_new_connection() enters NEW_CONNECTION.
+        int newConnErr = esp_peer_new_connection(mPeer);
+        if (newConnErr != ESP_PEER_ERR_NONE)
+        {
+            ChipLogError(Camera, "Esp32PeerConnection[%u]: esp_peer_new_connection failed: %d", mSessionId, newConnErr);
+            return CHIP_ERROR_INTERNAL;
+        }
     }
 
     esp_peer_msg_t msg = {};
